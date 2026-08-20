@@ -4,10 +4,10 @@ name: "T-501 build 1: lift sanitizeWorkflowId/isValidWorkflowId into shared help
 description: >
   T-501 build 1: lift sanitizeWorkflowId/isValidWorkflowId into shared helpers called from all three sites
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: [T-501, T-563, T-564, T-565]
@@ -17,8 +17,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T09:34:33Z
-last_update: 2026-08-20T09:34:33Z
-date_finished: null
+last_update: 2026-08-20T09:51:25Z
+date_finished: 2026-08-20T09:51:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -311,3 +311,15 @@ T-558 found three tasks shipping green through.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-562-t-501-build-1-lift-sanitizeworkflowidisv.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-14882518
+- **Timestamp:** 2026-08-20T09:58:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-20T09:51:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

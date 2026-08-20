@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-20T09:14:56Z ===
+task_id: T-301
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer/.agentic-framework
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-301.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Store-card id vs workflowMeta id seam: Versions panel empty and save forks
+  Duration: 22 days (31708 min)
+  Updates: 0
+  Commits: 2
+  Lines: +1093 -14 across 7 files
+  Outcomes: 4 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-301-store-card-id-vs-workflowmeta-id-seam-ve.md
+--- exit code: 0 ---

@@ -695,6 +695,20 @@ else
 fi
 
 echo
+echo "== A card's purpose is readable AND safe (T-569) =="
+# The card is the only project-owned surface Watchtower's nav already reaches, and an
+# autoescaped purpose made it unlinkable. Two legs pulling opposite ways: the link must
+# render, and a card's <script> must not. Mutant B drops safe_mode and the LINK STILL
+# WORKS — which is why "the link renders" alone would have accepted the unsafe fix.
+if python3 "$ROOT/tools/_t569-card-purpose-markdown-teeth.py" > "$TMP/leg-_t569-purpose.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a component card's purpose stopped rendering markdown, or started rendering raw HTML (T-569 — run 'python3 tools/_t569-card-purpose-markdown-teeth.py'; mutant B green means safe_mode was dropped and a card can inject script into the page)"
+  show_output "$TMP/leg-_t569-purpose.out" "_t569-card-purpose-markdown-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Episodic memory is still readable, unattended (T-567, G-040) =="
 # T-567 fixed the generator; nothing yet READS the corpus, which is the gap G-040 keeps
 # open. This leg is not that closure — the gap closes when the CRON audit parses it — but

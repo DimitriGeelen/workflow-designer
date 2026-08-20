@@ -284,10 +284,23 @@ def component_detail(name):
         if cl:
             id_to_name[cl] = cn
 
+    # T-569: a card's `purpose` is the only project-owned text on a nav-reachable surface,
+    # and autoescaping it made every consumer project's published artefacts unlinkable.
+    # Rendered through the shared safe renderer (markdown2 safe_mode="escape"), which also
+    # auto-links T-XXX refs, bare URLs and T-1722 artefact paths — so `docs/reports/x.md`
+    # in a purpose becomes an anchor with no markdown syntax at all.
+    # Passed as its OWN template variable rather than written back into `component`:
+    # that dict is the cached object T-568 just made exact, and folding rendered HTML into
+    # it would put presentation inside the digest's payload.
+    from web.shared import render_markdown_safe
+
+    purpose_html = render_markdown_safe(component.get("purpose") or "")
+
     return render_page(
         "fabric_detail.html",
         page_title=f"Component: {component.get('name', '?')}",
         component=component,
+        purpose_html=purpose_html,
         reverse_deps=reverse_deps,
         id_to_name=id_to_name,
         source_code=source_code,

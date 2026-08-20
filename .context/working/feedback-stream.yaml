@@ -7253,3 +7253,119 @@ scan_id: R-66f8e7e0
 task_id: T-556
 payload:
   task_file: .tasks/active/T-556-rail-sender-fingerprint-is-host-wide-so-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-17T14:27:13Z'
+scan_id: R-a1f2a4a4
+task_id: T-557
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-17T14:27:13Z'
+scan_id: R-a1f2a4a4
+task_id: T-557
+payload:
+  task_file: .tasks/active/T-557-fw-note-swallows-an-unrecognised-subcomm.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T00:23:26Z'
+scan_id: R-66d1ce72
+task_id: T-558
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T00:23:26Z'
+scan_id: R-66d1ce72
+task_id: T-558
+payload:
+  task_file: .tasks/active/T-558-bridge-suite-went-red-in-one-session-and.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T09:14:53Z'
+scan_id: R-cab65317
+task_id: T-301
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T09:14:53Z'
+scan_id: R-cab65317
+task_id: T-301
+payload:
+  task_file: .tasks/active/T-301-store-card-id-vs-workflowmeta-id-seam-ve.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-08-20T09:14:53Z'
+scan_id: RC-98618f8f
+task_id: T-301
+payload:
+  overall: CONTRADICTED
+  claim_count: 9
+---
+kind: scan_emitted
+timestamp: '2026-08-20T09:58:34Z'
+scan_id: R-14882518
+task_id: T-562
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T09:58:34Z'
+scan_id: R-14882518
+task_id: T-562
+payload:
+  task_file: .tasks/active/T-562-t-501-build-1-lift-sanitizeworkflowidisv.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T12:39:26Z'
+scan_id: R-18156274
+task_id: T-567
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T12:39:26Z'
+scan_id: R-18156274
+task_id: T-567
+payload:
+  task_file: .tasks/active/T-567-episodic-generator-emits-git-subjects-as.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T13:21:15Z'
+scan_id: R-1facef60
+task_id: T-568
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T13:21:15Z'
+scan_id: R-1facef60
+task_id: T-568
+payload:
+  task_file: .tasks/active/T-568-fabric-card-cache-is-keyed-on-directory-.md

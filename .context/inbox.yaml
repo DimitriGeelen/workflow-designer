@@ -1280,3 +1280,11 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-305
+  text: "web/shared.py:650 _auto_link_files gates on (PROJECT_ROOT / path).exists(), and in a CONSUMER project PROJECT_ROOT is the .agentic-framework/ directory, not the project root. So every artefact path a consumer project writes — docs/reports/*, docs/standards/*, .tasks/* — resolves against the wrong root, fails the existence gate, and is silently left as plain text on every Markdown surface in Watchtower (/review, /tasks, /approvals, /inception, and now /fabric via T-569). MEASURED: render_markdown_safe('Bare: docs/standards/aef-bpmn-mapping-v1.md and ref T-568 here') returns the T-568 ref as an anchor and the EXISTING docs/standards path as plain text, from this project where that file is present at the real root. Same class the audit already watches as 'No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)' but INVERTED — a project-owned asset resolved against the framework root rather than the reverse — which is why the existing check does not catch it. fabric.py:18-21 already carries the compensating idiom (if basename(PROJECT_ROOT)=='.agentic-framework': use dirname) and is the model for the fix; T-1722's docstring says 'existence-gated' which reads as deliberate, so nothing about the line looks wrong in review. This is ALSO the deeper form of 001-CashWeb's second finding (agent-chat-arc T-064): they reported that a consumer project has no nav seam and asked for markdown rendering of the card purpose; even with T-569 shipped, bare artefact paths from a consumer project still will not link. CORRECTION OWED — I told them on-thread that docs/reports/* in a purpose would become clickable with no markdown syntax; that is true in AEF's own tree and false in theirs and ours. Explicit markdown link syntax DOES work, which is the workaround until this is fixed."
+  captured: 2026-08-20T13:25:14Z
+  context_task: T-569
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true

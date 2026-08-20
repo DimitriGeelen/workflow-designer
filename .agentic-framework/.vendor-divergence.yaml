@@ -705,3 +705,56 @@ entries:
       and web/blueprints/costs.py:141 key a FILE's cache on THAT FILE's own stat, which is
       correct in kind. fabric.py was the only site keying a collection on a directory.
       Reported upstream on framework:pickup as msg_type=pickup-bug-report.
+
+  - path: .agentic-framework/web/shared.py
+    kind: content
+    task: T-569
+    upstream: fix
+    reason: >-
+      GENERIC — render_markdown_safe's ImportError branch returned the RAW text. Its own
+      docstring three lines above says "Caller must mark returned string `| safe` in
+      templates", and every caller does (arcs.py:600, review.py:179, tasks.py:831, and now
+      fabric.py). So on any host where markdown2 is not importable, the helper handed
+      unescaped content straight into the page while the call sites kept marking it safe.
+      Latent rather than firing — markdown2 2.5.4 is present here — but the branch exists
+      precisely for the host where it is not, and that host is the one that gets the
+      injection. Now returns markupsafe.escape(text).
+      The shape is this week's, for the fifth time: a DEGRADATION PATH THAT RENDERS AS
+      HEALTH. The page still loads, the text still appears, and nothing in the output says
+      the renderer fell back — the only observable difference is that escaping quietly
+      stopped happening. Fixed at the helper rather than at the call site (PL-214): the
+      caller cannot know whether the string it is about to mark safe was escaped.
+      Found while wiring the fabric card purpose through this helper (T-569), which is the
+      change that converts the branch from latent to reachable-with-consequences.
+      SEPARATE AND NOT FIXED HERE, filed as OBS-305: _auto_link_files at :650 gates on
+      (PROJECT_ROOT / path).exists(), and in a CONSUMER project PROJECT_ROOT is the
+      .agentic-framework directory — so no project-owned artefact path (docs/reports/*,
+      docs/standards/*, .tasks/*) ever resolves, on any Markdown surface in Watchtower.
+      Measured: an EXISTING docs/standards path renders as plain text while a bare T-NNN
+      ref in the same string renders as an anchor. fabric.py:18-21 already carries the
+      compensating idiom and is the model for the fix. Reported, not patched — it is one
+      bug and deserves one task.
+
+  - path: .agentic-framework/web/templates/fabric_detail.html
+    kind: content
+    task: T-569
+    upstream: fix
+    reason: >-
+      GENERIC — companion to the fabric.py/shared.py entries. Line 35 rendered
+      `<p>{{ component.purpose }}</p>` under Jinja autoescape, so a markdown link written
+      into a project-owned card came out as literal text. Reported by
+      001-CashWeb-Lightspeed-Ecwid-integration (agent-chat-arc T-064), verified by them
+      empirically: they wrote a link into a purpose, forced a cache reload, fetched the
+      page and got no anchor and a literal "[the index](...)".
+      Why it matters beyond cosmetics, in their framing: a consumer project has NO
+      project-owned nav seam. NAV_GROUPS (web/shared.py:136) is a hardcoded list of Flask
+      blueprint endpoints, /file/<dir>/ has no index, /search does not index docs/reports.
+      The fabric card is the only project-owned surface the nav already reaches, so an
+      autoescaped purpose is why AEF's own Carrier Discipline rule — an artefact must be
+      "reachable without instructions" — is currently unsatisfiable by any consumer project.
+      Now renders `purpose_html` (produced blueprint-side by render_markdown_safe, the
+      established *_html + `| safe` pattern) with NO wrapping <p>, because markdown2 emits
+      its own block-level <p> and nesting them is invalid HTML.
+      The nav design itself — NAV_GROUPS merging, a nav: block in .framework.yaml, a
+      /file/<dir>/ directory index — is deliberately NOT proposed here. That is AEF's call
+      and was relayed as a finding rather than a shape.

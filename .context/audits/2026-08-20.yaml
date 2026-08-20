@@ -1,0 +1,57 @@
+# Audit Results - 2026-08-20-1520
+timestamp: 2026-08-20T13:20:29Z
+sections: "structure"
+summary:
+  pass: 20
+  warn: 3
+  fail: 0
+findings:
+  - level: PASS
+    check: "Tasks directory exists"
+  - level: PASS
+    check: "Tasks/active directory exists"
+  - level: PASS
+    check: "Tasks/completed directory exists"
+  - level: PASS
+    check: "Tasks/templates directory exists"
+  - level: PASS
+    check: "Task template exists"
+  - level: PASS
+    check: "No duplicate task IDs across active/ and completed/"
+  - level: PASS
+    check: "All 10 project YAML files parse correctly"
+  - level: PASS
+    check: "All 1 arc anchor_task references resolve to existing tasks"
+  - level: PASS
+    check: "All 1 in-progress arc(s) had task commits within 30 days"
+  - level: INFO
+    check: "free driver F2: retire_when text present, no recognition heuristic — manual review"
+  - level: PASS
+    check: "No inline arc:<slug> tag-only scans outside canonical lib (T-1881)"
+  - level: PASS
+    check: "No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)"
+  - level: PASS
+    check: "No stale-slice-references (L-417)"
+  - level: PASS
+    check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
+  - level: WARN
+    check: "Fabric: 65 registered, 208 unregistered (of 270 watched — 24% covered, +1 cards since 2026-08-18)"
+    mitigation: "Run: fw fabric scan"
+  - level: WARN
+    check: "Fabric: 42/65 cards have no edges"
+    mitigation: "Run: fw fabric enrich"
+  - level: WARN
+    check: "Fabric drift: 208 source file(s) have no fabric card"
+    mitigation: "Run: fw fabric scan"
+  - level: PASS
+    check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
+  - level: PASS
+    check: "Hook threshold: no hooks failing over threshold"
+  - level: PASS
+    check: "Secret scan: tracked tree clean"
+  - level: PASS
+    check: "Designer ghost registry: ghost↔task joins clean"
+  - level: PASS
+    check: "Release lag: src, released artifact and peer pin are in step"
+  - level: PASS
+    check: "Gap register: every watching gap has a renderable closure condition"

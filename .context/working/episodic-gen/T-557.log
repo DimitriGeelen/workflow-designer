@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-17T14:27:16Z ===
+task_id: T-557
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-557.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: fw note swallows an unrecognised subcommand as the observation text: 11 observations destroyed since 2026-08-09
+  Duration: 0 days (15 min)
+  Updates: 1
+  Commits: 1
+  Lines: +2267 -68 across 31 files
+  Outcomes: 7 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 31 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-557-fw-note-swallows-an-unrecognised-subcomm.md
+--- exit code: 0 ---

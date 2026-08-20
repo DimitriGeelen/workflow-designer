@@ -1809,3 +1809,38 @@ decisions:
     date: 2026-08-16
     task: T-448
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-238
+    decision: "replace `<bpmn:task>` with `<bpmn:scriptTask>` in"
+    scope: project
+    date: 2026-08-20
+    task: T-558
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-239
+    decision: "teach `tools/_t532-hermeticity-scope-census.py` to blank Python docstrings before"
+    scope: project
+    date: 2026-08-20
+    task: T-558
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-240
+    decision: "one helper with a leading `[-_]` strip and a trailing `-` strip, called from"
+    scope: project
+    date: 2026-08-20
+    task: T-562
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-241
+    decision: "give both orphaned checkers a live caller in `tests/run-bridge-tests.sh`."
+    scope: project
+    date: 2026-08-20
+    task: T-568
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-242
+    decision: "key the cache on a sha256 over each card's **filename and bytes**, reading"
+    scope: project
+    date: 2026-08-20
+    task: T-568
+    rationale: "Auto-captured from task file on completion"

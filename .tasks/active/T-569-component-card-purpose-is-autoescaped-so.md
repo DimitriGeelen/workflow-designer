@@ -4,7 +4,7 @@ name: "Component card purpose is autoescaped, so a consumer project's cards cann
 description: >
   fabric_detail.html:35 renders {{ component.purpose }} under Jinja autoescape, so a markdown link in a project-owned card renders as literal text. Reported by 001-CashWeb-Lightspeed-Ecwid-integration as the second of two Watchtower findings: NAV_GROUPS is a hardcoded list of blueprint endpoints, /file/<dir>/ has no index and /search does not index docs/reports, so the fabric card is the only project-owned surface the nav already reaches — and an autoescaped purpose makes it unlinkable. Their framing is the substantive part: AEF's Carrier Discipline guidance requires an artefact be reachable without instructions, and that clause is currently unsatisfiable by any consumer project. Fix: render purpose through web/shared.py:662 render_markdown_safe (markdown2 safe_mode=escape) using the established blueprint-side *_html + | safe pattern (arcs.py:600, review.py:179, tasks.py:831), NOT a template filter — markdown2 emits block-level <p> which would nest inside the template's own <p>. Same task closes render_markdown_safe's ImportError branch, which returns RAW text and is harmless only while no caller marks it safe. Bonus already present: that helper auto-links T-XXX refs, bare URLs and T-1722 artefact paths, so docs/reports/* in a purpose becomes clickable with no markdown syntax at all.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T12:53:55Z
-last_update: 2026-08-20T12:53:55Z
+last_update: 2026-08-20T13:22:08Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,73 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Second of two Watchtower findings from **001-CashWeb-Lightspeed-Ecwid-integration**
+(agent-chat-arc, thread T-064). T-568 was the first.
+
+`fabric_detail.html:35` renders `<p>{{ component.purpose | default(...) }}</p>` under Jinja
+autoescape, so a markdown link written into a project-owned card renders as literal text.
+They verified it empirically rather than by reading — wrote a link into a purpose, forced
+a cache reload, fetched the page, got no anchor and a literal `[the index](...)`.
+
+Their framing is the part worth keeping, and it is larger than the fix: a consumer project
+has **no project-owned nav seam at all**. `NAV_GROUPS` (web/shared.py:136) is a hardcoded
+Python list whose leaves are Flask blueprint endpoints, so a project can neither add an
+entry nor point one at a URL; `/file/<dir>/` has no directory index; `/search` does not
+index `docs/reports`. The fabric component card is the only project-owned surface that the
+nav already reaches — and an autoescaped `purpose` makes it unlinkable. AEF's own Carrier
+Discipline guidance requires an artefact be "reachable without instructions", and that
+clause is therefore currently **unsatisfiable by any consumer project**.
+
+This task does the cheap half: make the card linkable. It deliberately does **not** design
+NAV_GROUPS merging, a `nav:` block in `.framework.yaml`, or a `/file/<dir>/` index — those
+are AEF's calls and were relayed upstream as such, not proposed as a shape.
+
+Not one line, and the naive one line is wrong twice:
+
+1. The safe renderer already exists — `web/shared.py:662` `render_markdown_safe`, markdown2
+   with `safe_mode="escape"`, so raw HTML in a card is escaped rather than injected. The
+   established pattern is blueprint-side: the view computes `*_html`, the template marks
+   `| safe` (arcs.py:600, review.py:179, tasks.py:831). Done as a template filter instead,
+   markdown2's block-level `<p>` nests inside the template's own `<p>`.
+2. `render_markdown_safe` has an `ImportError` branch returning the **raw** text. That is
+   harmless only while no caller marks the result `| safe` — which this task changes. A
+   degradation path that turns escaping off when a dependency is missing is the same shape
+   as the rest of this week: the failure renders as health.
+
+**Correction, made during the work rather than after it.** The paragraph that stood here —
+and the sentence I sent CashWeb on-thread — said that bare artefact paths like
+`docs/reports/T-064-….md` would auto-link once `purpose` rendered through the shared
+helper, giving them the seam with no markdown syntax at all. **That is false in a consumer
+project.** Measured rather than re-asserted: `render_markdown_safe` turns a bare `T-568`
+into an anchor and leaves an EXISTING `docs/standards/aef-bpmn-mapping-v1.md` as plain
+text, because `_auto_link_files` (shared.py:650) gates on `(PROJECT_ROOT / path).exists()`
+and `PROJECT_ROOT` here is the `.agentic-framework` directory. True in AEF's own tree,
+false in ours and in CashWeb's. Filed as **OBS-305** (urgent), corrected on the thread, and
+deliberately not fixed under this task — one bug, one task.
+
+What IS true and does land here: explicit markdown link syntax works, and bare `T-NNN`
+refs and bare URLs auto-link. That is enough for the card to point at anything, which is
+what the report asked for; it just is not free of syntax yet.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A markdown link in a card's `purpose` renders as an **anchor** on
+      `/fabric/component/<name>`, not as literal text
+- [x] Raw HTML in a `purpose` is still **escaped** — the card is project-owned YAML, and
+      turning a data field into rendered HTML must not turn it into a script vector
+- [x] `render_markdown_safe`'s `ImportError` branch no longer returns raw text to a caller
+      that marks it `| safe` (fix at the helper, not at this one call site — PL-214)
+- [x] No nested `<p>` in the rendered output: the template stops wrapping what markdown2
+      already wraps
+- [x] The cached component dict is **not** mutated with derived HTML — T-568 just made
+      that cache exact, and writing rendered output back into it would put presentation
+      into the digest's payload
+- [x] Teeth with a mutant arm: reverting to the autoescaped render must go **red**, and a
+      mutant that renders with `safe_mode=None` must redden the escaping leg and only that
+- [x] Wired into `tests/run-bridge-tests.sh` (a probe with no live caller becomes an
+      unwired guard the moment this task completes — the trap T-568 hit); floor 121 → 122
+- [x] Divergences declared for every framework file touched; checker green
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +134,14 @@ date_finished: null
 -->
 
 ## Verification
+
+timeout 900 python3 tools/_t569-card-purpose-markdown-teeth.py > /tmp/.t569-teeth 2>&1 && grep -q "3/3 teeth legs passed" /tmp/.t569-teeth
+grep -qF "purpose_html | safe" .agentic-framework/web/templates/fabric_detail.html
+grep -qF "purpose_html = render_markdown_safe(" .agentic-framework/web/blueprints/fabric.py
+grep -qF "from markupsafe import escape as _escape" .agentic-framework/web/shared.py
+python3 tools/_t517-vendor-divergence.py > /tmp/.t569-vendor 2>&1 && grep -q "every diverged path is declared" /tmp/.t569-vendor
+python3 tools/_t451-unwired-guard-census.py --ratchet > /tmp/.t569-ratchet 2>&1 && grep -q "no movement" /tmp/.t569-ratchet
+bash tests/run-bridge-tests.sh > /tmp/.t569-suite 2>&1 && python3 -c "import re,sys; m=re.search(r'(\d+) passed, 0 failed', open('/tmp/.t569-suite').read()); sys.exit(0 if m and int(m.group(1)) >= 122 else 1)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -124,6 +191,42 @@ date_finished: null
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 ## RCA
+
+**Symptom.** A markdown link written into a component card's `purpose` renders on
+`/fabric/component/<name>` as literal text — `[the index](/file/...)` — so a consumer
+project's published artefacts cannot be reached from the one project-owned surface
+Watchtower's nav already links. Reported and empirically verified by
+001-CashWeb-Lightspeed-Ecwid-integration.
+
+**Root cause.** `fabric_detail.html:35` emitted `{{ component.purpose }}` under Jinja
+autoescape. Correct as a default — it is the right treatment for an untrusted string — but
+wrong for the one field whose job is to describe and point at things.
+
+**Why structurally allowed.** The nav has no project-owned seam at all: `NAV_GROUPS` is a
+hardcoded Python list of blueprint endpoints, `/file/<dir>/` has no index, `/search` does
+not index `docs/reports`. So the pressure to make the card linkable never existed inside
+AEF's own tree, where artefacts are reachable through blueprints that ship with the
+framework. The defect is only visible from a consumer project, and consumer projects had
+no way to report it except by hitting it.
+
+**A second defect surfaced while verifying the fix, and it is not fixed here.** I told
+CashWeb on-thread that bare `docs/reports/*` paths would auto-link once `purpose` rendered
+through the shared helper. Measured before claiming it again: they do not.
+`_auto_link_files` (shared.py:650) gates on `(PROJECT_ROOT / path).exists()`, and in a
+consumer project `PROJECT_ROOT` is the `.agentic-framework` directory — so **no**
+project-owned artefact path resolves, on any Markdown surface. Filed as **OBS-305**
+(urgent) and corrected to CashWeb rather than left standing. `fabric.py:18-21` already
+carries the compensating idiom and is the model for the eventual fix. One bug, one task.
+
+**Prevention.**
+- Teeth in the gating suite with two mutants pulling opposite ways. Mutant B drops
+  `safe_mode` and **the link still renders** — so "the link works" alone would have
+  accepted an XSS regression as a pass.
+- The `ImportError` branch of `render_markdown_safe` now escapes. Fixed at the helper, not
+  at this call site (PL-214): a caller about to mark a string `| safe` cannot know whether
+  the renderer degraded.
+- The probe is wired into the suite in the same commit, not left as a Verification-block
+  orphan — the trap T-568 hit one task earlier.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -190,3 +293,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-569-component-card-purpose-is-autoescaped-so.md
 - **Context:** Initial task creation
+
+### 2026-08-20T13:22:08Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

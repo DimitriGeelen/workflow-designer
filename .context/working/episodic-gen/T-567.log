@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-20T12:39:28Z ===
+task_id: T-567
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-567.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Episodic generator emits git subjects as double-quoted YAML, so a backslash in a commit message makes the episodic unparseable
+  Duration: 0 days (151 min)
+  Updates: 1
+  Commits: 1
+  Lines: +780 -15 across 9 files
+  Outcomes: 7 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 9 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-567-episodic-generator-emits-git-subjects-as.md
+--- exit code: 0 ---

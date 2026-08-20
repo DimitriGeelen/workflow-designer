@@ -1,0 +1,107 @@
+# ============================================================================
+# EPISODIC MEMORY - T-557: fw note swallows an unrecognised subcommand as the observation text: 11 observations destroyed since 2026-08-09
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-17T14:27:16Z
+# ============================================================================
+
+task_id: T-557
+task_name: "fw note swallows an unrecognised subcommand as the observation text: 11 observations destroyed since 2026-08-09"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-17T14:12:10Z
+completed: 2026-08-17T14:27:11Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-17T16:21:38+02:00
+last_commit: 2026-08-17T16:21:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fw note has been silently destroying observations for eight days, IT WAS DIAGNOSED ON DAY THREE AND DISMISSED, and it ate seven more after that. observe.sh:305 routes any unrecognised first word to do_capture, which takes $1 as the observation TEXT — so 'fw note add <900 chars>' files the word 'add' and discards the payload at exit 0 with 'OBS-NNN captured'. Eleven husks: OBS-006/011/022/028/032/035/044/241/262/274/285, ten 'add' and one 'inbox', 2026-08-09 to today. OBS-274 is the one that shows the cost — T-556's central finding, cited in that task's Context, in three commit messages, in two handovers and in what I told the operator, sitting pending+urgent for nine hours as one word while every artifact that counts urgents counted it. THE FINDING IS NOT MINE AND I REPORTED IT AS NEW TWICE. OBS-024, captured 2026-08-11, states this defect in the same terms I filed today as OBS-287; status dismissed, promoted_to None, never fixed. T-429's commit c00e534c records it and notes 'OBS-022 was that defect happening to me'. T-436's triage on 08-12 independently found the dismissal half — 'third fw note defect ... all 26 dismissals in the register carry no reason' — which is my OBS-289, six days late. PL-253 was captured this morning and says to read the project's own record before instrumenting a question about it; I applied it to the AEF seam and not to my own register four hours later. THE ROOT CAUSE IS THE PAIR, NOT EITHER BUG. The capture bug manufactures a husk that looks like a filed observation; the dismiss bug erases the judgement 'this is a tool defect, not a junk note'; so the next session meets one husk with no history, reads it as noise, dismisses it, and its reasoning is erased in turn. Every pass is locally correct, the loop has no memory, and the finding must be rediscovered from scratch — it was, at least four times, and only escaped today because writing T-556's verification gate forced a COUNT rather than a look. The defect was never invisible; nothing ever made it cumulative. FIX: a shape-based guard, not a word list — fw note takes exactly one positional, so >1 positional means the payload is about to vanish, which also catches unquoted prose ('fw note this is a finding' captured only 'this'). A word list would have caught all eleven husks and missed the twelfth. Refusal happens before ensure_inbox so a refused call touches no state. SECOND DEFECT FIXED IN PASSING (OBS-290), the exact mirror of the first: do_capture ended with '[ -n $task ] && echo' as its LAST statement, so an empty task context returned 1 under set -e — a successful capture reporting failure, where the other reports success while failing. Invisible here because focus.yaml is always set; found only by running against an isolated PROJECT_ROOT. TEETH 6 legs, four mutants, all red: pre-fix script, guard removed, guard refuses everything (kills leg 4 uniquely — the discrimination arm that stops the repair trading silent loss for silent refusal), and guard warns-but-still-captures (the plausible cheap fix, which does not prevent the loss). THE FIRST MUTATION RUN WAS ITSELF A FALSE PASS: observe.sh derives FRAMEWORK_ROOT from its own location, so mutants copied to scratchpad died at line 18 having run no code, and the exit 1 read as a detection — PL-206 in the act of being needed, in the run built to check for exactly that. Mutants now live at correct tree depth with trap cleanup, and verification leg 6 asserts none was left behind. Leg 4 asserts no husk is PENDING and deliberately does NOT assert husks are absent: the eleven dismissed rows are the evidence, and deleting evidence to make a check pass is how the six-day blindness worked. AC6 accounting: 2 of 11 payloads recovered (both today's), 9 permanently gone, 8 with no recoverable content at all — the honest cost of a register that loses what was captured instead of being held elsewhere. Test wired into run-bridge-tests.sh, because an unwired test is what let OBS-024 sit dismissed. Vendored fix under G-008; upstream push is the operator's
+
+# Key outcomes
+outcomes:
+  - '**A bare-word first argument that looks like a subcommand is REFUSED, not captured.**'
+  - '**A legitimate short observation is still capturable.** The fix must not make the'
+  - '**The refusal is proven by a test that FAILS against the current script.** Written as'
+  - '**Mutation-verified against at least three mutants**, each named with which leg it'
+  - '**The eleven existing husks are left in place as dismissed rows, not deleted.** They'
+  - '**The eleven lost payloads are accounted for individually** — for each, either the'
+  - '**`fw doctor` and the audit still pass**, and the enforcement baseline is unchanged'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fw note has been silently destroying observations for eight days, IT WAS DIAGNOSED ON DAY THREE AND DISMISSED, and it ate seven more after that. observe.sh:305 routes any unrecognised first word to do_capture, which takes $1 as the observation TEXT — so ''fw note add <900 chars>'' files the word ''add'' and discards the payload at exit 0 with ''OBS-NNN captured''. Eleven husks: OBS-006/011/022/028/032/035/044/241/262/274/285, ten ''add'' and one ''inbox'', 2026-08-09 to today. OBS-274 is the one that shows the cost — T-556''s central finding, cited in that task''s Context, in three commit messages, in two handovers and in what I told the operator, sitting pending+urgent for nine hours as one word while every artifact that counts urgents counted it. THE FINDING IS NOT MINE AND I REPORTED IT AS NEW TWICE. OBS-024, captured 2026-08-11, states this defect in the same terms I filed today as OBS-287; status dismissed, promoted_to None, never fixed. T-429''s commit c00e534c records it and notes ''OBS-022 was that defect happening to me''. T-436''s triage on 08-12 independently found the dismissal half — ''third fw note defect ... all 26 dismissals in the register carry no reason'' — which is my OBS-289, six days late. PL-253 was captured this morning and says to read the project''s own record before instrumenting a question about it; I applied it to the AEF seam and not to my own register four hours later. THE ROOT CAUSE IS THE PAIR, NOT EITHER BUG. The capture bug manufactures a husk that looks like a filed observation; the dismiss bug erases the judgement ''this is a tool defect, not a junk note''; so the next session meets one husk with no history, reads it as noise, dismisses it, and its reasoning is erased in turn. Every pass is locally correct, the loop has no memory, and the finding must be rediscovered from scratch — it was, at least four times, and only escaped today because writing T-556''s verification gate forced a COUNT rather than a look. The defect was never invisible; nothing ever made it cumulative. FIX: a shape-based guard, not a word list — fw note takes exactly one positional, so >1 positional means the payload is about to vanish, which also catches unquoted prose (''fw note this is a finding'' captured only ''this''). A word list would have caught all eleven husks and missed the twelfth. Refusal happens before ensure_inbox so a refused call touches no state. SECOND DEFECT FIXED IN PASSING (OBS-290), the exact mirror of the first: do_capture ended with ''[ -n $task ] && echo'' as its LAST statement, so an empty task context returned 1 under set -e — a successful capture reporting failure, where the other reports success while failing. Invisible here because focus.yaml is always set; found only by running against an isolated PROJECT_ROOT. TEETH 6 legs, four mutants, all red: pre-fix script, guard removed, guard refuses everything (kills leg 4 uniquely — the discrimination arm that stops the repair trading silent loss for silent refusal), and guard warns-but-still-captures (the plausible cheap fix, which does not prevent the loss). THE FIRST MUTATION RUN WAS ITSELF A FALSE PASS: observe.sh derives FRAMEWORK_ROOT from its own location, so mutants copied to scratchpad died at line 18 having run no code, and the exit 1 read as a detection — PL-206 in the act of being needed, in the run built to check for exactly that. Mutants now live at correct tree depth with trap cleanup, and verification leg 6 asserts none was left behind. Leg 4 asserts no husk is PENDING and deliberately does NOT assert husks are absent: the eleven dismissed rows are the evidence, and deleting evidence to make a check pass is how the six-day blindness worked. AC6 accounting: 2 of 11 payloads recovered (both today''s), 9 permanently gone, 8 with no recoverable content at all — the honest cost of a register that loses what was captured instead of being held elsewhere. Test wired into run-bridge-tests.sh, because an unwired test is what let OBS-024 sit dismissed. Vendored fix under G-008; upstream push is the operator''s'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.context/episodic/T-556.yaml'
+  - '.context/inbox.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.checkpoint.handover.stderr'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-448.log'
+  - '.context/working/episodic-gen/T-541.log'
+  - '.context/working/episodic-gen/T-543.log'
+  - '.context/working/episodic-gen/T-547.log'
+  - '.context/working/episodic-gen/T-548.log'
+  - '.context/working/episodic-gen/T-549.log'
+  - '.context/working/episodic-gen/T-550.log'
+  - '.context/working/episodic-gen/T-551.log'
+  - '.context/working/episodic-gen/T-552.log'
+  - '.context/working/episodic-gen/T-556.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-557-fw-note-swallows-an-unrecognised-subcomm.md'
+  - '.tasks/completed/T-556-rail-sender-fingerprint-is-host-wide-so-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_note_capture_refuses_lost_payload.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-17T16:21:38"
+    action: "T-557: fw note has been silently destroying observations for eight days, IT WAS DIAGNOSED ON DAY THREE AND DISMISSED, and it ate seven more after that. observe.sh:305 routes any unrecognised first word to do_capture, which takes $1 as the observation TEXT — so 'fw note add <900 chars>' files the word 'add' and discards the payload at exit 0 with 'OBS-NNN captured'. Eleven husks: OBS-006/011/022/028/032/035/044/241/262/274/285, ten 'add' and one 'inbox', 2026-08-09 to today. OBS-274 is the one that shows the cost — T-556's central finding, cited in that task's Context, in three commit messages, in two handovers and in what I told the operator, sitting pending+urgent for nine hours as one word while every artifact that counts urgents counted it. THE FINDING IS NOT MINE AND I REPORTED IT AS NEW TWICE. OBS-024, captured 2026-08-11, states this defect in the same terms I filed today as OBS-287; status dismissed, promoted_to None, never fixed. T-429's commit c00e534c records it and notes 'OBS-022 was that defect happening to me'. T-436's triage on 08-12 independently found the dismissal half — 'third fw note defect ... all 26 dismissals in the register carry no reason' — which is my OBS-289, six days late. PL-253 was captured this morning and says to read the project's own record before instrumenting a question about it; I applied it to the AEF seam and not to my own register four hours later. THE ROOT CAUSE IS THE PAIR, NOT EITHER BUG. The capture bug manufactures a husk that looks like a filed observation; the dismiss bug erases the judgement 'this is a tool defect, not a junk note'; so the next session meets one husk with no history, reads it as noise, dismisses it, and its reasoning is erased in turn. Every pass is locally correct, the loop has no memory, and the finding must be rediscovered from scratch — it was, at least four times, and only escaped today because writing T-556's verification gate forced a COUNT rather than a look. The defect was never invisible; nothing ever made it cumulative. FIX: a shape-based guard, not a word list — fw note takes exactly one positional, so >1 positional means the payload is about to vanish, which also catches unquoted prose ('fw note this is a finding' captured only 'this'). A word list would have caught all eleven husks and missed the twelfth. Refusal happens before ensure_inbox so a refused call touches no state. SECOND DEFECT FIXED IN PASSING (OBS-290), the exact mirror of the first: do_capture ended with '[ -n $task ] && echo' as its LAST statement, so an empty task context returned 1 under set -e — a successful capture reporting failure, where the other reports success while failing. Invisible here because focus.yaml is always set; found only by running against an isolated PROJECT_ROOT. TEETH 6 legs, four mutants, all red: pre-fix script, guard removed, guard refuses everything (kills leg 4 uniquely — the discrimination arm that stops the repair trading silent loss for silent refusal), and guard warns-but-still-captures (the plausible cheap fix, which does not prevent the loss). THE FIRST MUTATION RUN WAS ITSELF A FALSE PASS: observe.sh derives FRAMEWORK_ROOT from its own location, so mutants copied to scratchpad died at line 18 having run no code, and the exit 1 read as a detection — PL-206 in the act of being needed, in the run built to check for exactly that. Mutants now live at correct tree depth with trap cleanup, and verification leg 6 asserts none was left behind. Leg 4 asserts no husk is PENDING and deliberately does NOT assert husks are absent: the eleven dismissed rows are the evidence, and deleting evidence to make a check pass is how the six-day blindness worked. AC6 accounting: 2 of 11 payloads recovered (both today's), 9 permanently gone, 8 with no recoverable content at all — the honest cost of a register that loses what was captured instead of being held elsewhere. Test wired into run-bridge-tests.sh, because an unwired test is what let OBS-024 sit dismissed. Vendored fix under G-008; upstream push is the operator's"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 15
+  commits: 1
+  files_changed: 31
+  lines_added: 2267
+  lines_removed: 68
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-557-fw-note-swallows-an-unrecognised-subcomm.md
+generated_by: context-agent-hybrid

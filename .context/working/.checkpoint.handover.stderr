@@ -1,22 +1,22 @@
 === Handover Agent ===
-Session: S-2026-0817-0039
-Timestamp: 2026-08-16T22:39:17Z
+Session: S-2026-0820-1215
+Timestamp: 2026-08-20T10:15:19Z
 
 Gathering state...
 
 Checking episodic completeness...
 ✓ All recent completed tasks have enriched episodics
-⚠ Observation inbox: 46 pending (3 urgent)
+⚠ Observation inbox: 76 pending (3 urgent)
   Run: cd /opt/832-Workflow-designer && fw note triage
-Concerns register: 32 watching
-Session metrics extracted: 49589 turns, 1353 commits, 1383 errors, 1319 edit bursts
-  Cumulative — CPT: 0.0273 | FTC rate: 0.056 | PTR: 0.3446
-  Per-session (230 turns) — CPT: 0.0348 | FTC rate: 0.0292 | PTR: 0.4609
+Concerns register: 33 watching
+Session metrics extracted: 51274 turns, 1383 commits, 1411 errors, 1340 edit bursts
+  Cumulative — CPT: 0.027 | FTC rate: 0.0551 | PTR: 0.3455
+  Per-session (8 turns) — CPT: 0.0 | FTC rate: 0.0 | PTR: 0.375
   Output: /opt/832-Workflow-designer/.context/working/.session-metrics.yaml
 Creating handover document...
 
 === Handover Created ===
-File: /opt/832-Workflow-designer/.context/handovers/S-2026-0817-0039.md
+File: /opt/832-Workflow-designer/.context/handovers/S-2026-0820-1215.md
 Latest: /opt/832-Workflow-designer/.context/handovers/LATEST.md
 
 Auto-committing handover...
@@ -25,16 +25,16 @@ WARNING: Task T-005 is closed (in .tasks/completed/)
   Consider: create a new task, or reopen this one.
   Commit allowed (Tier 1 warning).
 
-[master b178a9d4] T-005: Session handover S-2026-0817-0039
- 2 files changed, 624 insertions(+), 1 deletion(-)
- create mode 100644 .context/handovers/S-2026-0817-0039.md
+[master 8ccdfb1b] T-005: Session handover S-2026-0820-1215
+ 2 files changed, 679 insertions(+), 1 deletion(-)
+ create mode 100644 .context/handovers/S-2026-0820-1215.md
 
 Pushing to remotes...
 
 === Pre-Push Audit Check ===
 
 === AUDIT REPORT ===
-Timestamp: 2026-08-17T00:39:33+02:00
+Timestamp: 2026-08-20T12:15:34+02:00
 Project: /opt/832-Workflow-designer
 Sections: structure
 
@@ -53,14 +53,14 @@ Sections: structure
 [PASS] No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)
 [PASS] No stale-slice-references (L-417)
 [PASS] No GO-scope-not-propagated inception(s) (sibling to L-417)
-[WARN] Fabric: 62 registered, 199 unregistered (of 258 watched — 24% covered, cards flat since earlier today (62))
-       Evidence: 199 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
+[WARN] Fabric: 65 registered, 206 unregistered (of 268 watched — 24% covered, cards flat since earlier today (65))
+       Evidence: 206 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
        Mitigation: Run: fw fabric scan
-[WARN] Fabric: 41/62 cards have no edges
+[WARN] Fabric: 42/65 cards have no edges
        Evidence: Graph coverage below target
        Mitigation: Run: fw fabric enrich
-[WARN] Fabric drift: 199 source file(s) have no fabric card
-       Evidence: 199 of 258 watched files matching watch-patterns.yaml are unregistered
+[WARN] Fabric drift: 206 source file(s) have no fabric card
+       Evidence: 206 of 268 watched files matching watch-patterns.yaml are unregistered
        Mitigation: Run: fw fabric scan
 [PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
 [PASS] Hook threshold: no hooks failing over threshold
@@ -80,16 +80,17 @@ Fail: 0
 
 === TREND ANALYSIS ===
 Repeated issues detected in last 14 days (candidates for practice):
-  - Fabric drift: 199 source file(s) have no fabric card (9 times)
-  - Fabric: 41/61 cards have no edges (9 times)
+  - Fabric drift: 200 source file(s) have no fabric card (11 times)
+  - Fabric: 41/64 cards have no edges (11 times)
   - Fabric: 40 registered, 185 unregistered (of 222 watched) (7 times)
+  - Fabric: 64 registered, 200 unregistered (of 261 watched — 24% covered, cards flat since earlier today (64)) (3 times)
 
 Consider creating a practice to address these recurring issues.
 Run: fw context add-learning "description" --task T-XXX
 
-Audit history: 9 audit(s) in last 14 days + today
+Audit history: 11 audit(s) in last 14 days + today
 
-Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-08-17.yaml
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-08-20.yaml
 
 === END AUDIT ===
 
@@ -97,5 +98,5 @@ WARNING: Audit has warnings (push allowed)
 Consider addressing the issues above.
 
 To ssh://192.168.10.201:6611/workflow-designer
-   6bf4619b..b178a9d4  HEAD -> master
+   08c03ecf..8ccdfb1b  HEAD -> master
   Pushed to origin ✓

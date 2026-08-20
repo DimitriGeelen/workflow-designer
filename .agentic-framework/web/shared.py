@@ -677,7 +677,15 @@ def render_markdown_safe(text: str) -> str:
     try:
         import markdown2
     except ImportError:
-        return text  # graceful degradation
+        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
+        # stated three lines up in this docstring — so returning the raw text handed
+        # unescaped, attacker-influenced content straight into the page whenever markdown2
+        # was missing. It was latent only because the import has always succeeded here.
+        # A fallback that silently turns escaping off is the same shape as the rest of this
+        # week's defects: the failure renders as health, and nothing in the output says the
+        # renderer degraded.
+        from markupsafe import escape as _escape
+        return str(_escape(text))
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = _BARE_URL_RE_SHARED.sub(lambda m: f"[{m.group(1).rstrip('.,;:!?')}]({m.group(1).rstrip('.,;:!?')})", text)
     html = markdown2.markdown(text, safe_mode="escape").strip()
