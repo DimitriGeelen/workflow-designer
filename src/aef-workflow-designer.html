@@ -5826,9 +5826,18 @@ function renderProperties() {
   // on the next render or the next export. Disclosure tells the truth about what the
   // document carries without claiming this panel is where it is authored.
   //
-  // NOT a fix for T-570. A key absent from the export metaKeys whitelist is still
-  // dropped on re-export; this makes it visible on the way past, which is strictly
-  // better than silence but is not preservation.
+  // "They are not lost." WAS FALSE WHEN THIS SHIPPED, and T-570 is what made it true.
+  // At T-566 a key absent from the export metaKeys whitelist was still DROPPED on
+  // re-export, so this panel disclosed content on its way to being destroyed — the
+  // sentence held for every key on metaKeys and failed for exactly the keys this branch
+  // exists to surface. T-570 gave <aef:meta> a carriage path for scalars no other emitter
+  // claims (:9502), so a disclosed key now survives the round trip and the claim is
+  // discharged rather than merely worded carefully.
+  //
+  // The `typeof v !== 'object'` filter below and the carriage filter at :9550 select the
+  // same population BY THE SAME RULE — scalars nothing else owns. That is deliberate:
+  // what this panel says the document carries is exactly what export writes back, so the
+  // two cannot drift into disagreeing about a key.
   const shownKeys = new Set(aefFields || []);
   if (OWNER_BEARING_TYPES.has(n.type)) shownKeys.add('owner');
   // constituents has its own section below; io/link fields are already in AEF_FIELDS.
@@ -9499,7 +9508,57 @@ function aefExtensionXml(node) {
     'scopeOf',
     // T-177: task-governance scalars — horizon / workflow_type / owner.
     'horizon', 'workflowType', 'owner'];
-  const metaAttrs = metaKeys.filter(k => aefKeys.includes(k)).map(k => `${k}="${escAttr(aef[k])}"`).join(' ');
+
+  // T-570: CARRIAGE. Import reads EVERY <aef:meta> attribute into node.aef (:10255,
+  // unconditional). Export emitted only the whitelist above. A key present in a source
+  // document and absent from metaKeys was therefore loaded, rendered nowhere, and DESTROYED
+  // on the next save — not invisible (that was T-566), destroyed. Measured by an actual
+  // round trip in the page rather than by reading the two lists: of the 4 keys the corpus
+  // carries outside metaKeys, `determinism` (16), `sideEffect` (2) and `emits` (1) do not
+  // survive parse→build→parse; `endpoint` does, because it has its own element emitter.
+  //
+  // THE SKIP SET IS SHAPE-DERIVED, NOT A LIST OF EXCEPTIONS. A key is skipped only when
+  // some other emitter in this function will ACTUALLY emit it for this node's current
+  // value — never merely because an emitter names it. That distinction is load-bearing for
+  // `emits`: the structured exporter at the bottom fires on `Array.isArray(aef.emits)`, so
+  // a SCALAR emits="ev.done" (which is what tests/fixtures/valid/investigate.bpmn carries)
+  // falls through it silently. Filtering carriage on the NAME would re-drop exactly that
+  // value; filtering on the SHAPE carries the scalar and leaves the array to its own
+  // channel. The two are disjoint by construction, which is why no coordination is needed.
+  //
+  // Derived at export from node.aef rather than recorded in a parallel `carried` list: a
+  // side-list has to survive every copy, duplicate and undo path that clones a node, and
+  // the moment one of them clones .aef without it the keys are lost again — the same
+  // two-lists-with-nothing-holding-them-in-correspondence shape this task exists to remove.
+  //
+  // NOT a contract change. No new aef: element, no new key, metaKeys stays at 20 and stays
+  // in ratified parity with tools/yaml-to-bpmn.py META_KEYS. <aef:meta> is already a bag of
+  // scalar attributes; this stops filtering the bag on the way out, so a document the editor
+  // does not fully understand round-trips byte-identically instead of being edited down to
+  // the subset we happen to name. Whether any of these keys is PROMOTED into the frozen v1
+  // contract is the operator's ruling and is deliberately not answered here.
+  const scalarHandled = new Set([...metaKeys,
+    // own element or attribute emitters elsewhere in this function
+    'endpoint', 'contextReads', 'artifactsWrites', 'decisionInput', 'decisionOutputs',
+    'workflowRef', 'targetWorkflow', 'linkId', 'boundaryPos',
+    // <aef:eventDef> passthrough — a dedicated channel; carrying these in meta as well
+    // would give one fact two sources of truth that can then disagree.
+    'eventDefKind', 'eventDefBinding',
+    // `name` rides <aef:link> and only alongside a workflowRef. Excluded rather than
+    // carried because aef.name on a non-link node would shadow node.name on re-import,
+    // and the corpus census found it on no <aef:meta> element (0 of 823 values).
+    'name']);
+  // The kind-specific binding is emitted by <aef:eventDef> ONLY for a typed event node.
+  // On any other type it has no emitter, so it must be carried rather than skipped.
+  if (EVENT_KIND[node.type] && EVENT_BINDING_FIELD[node.type]) scalarHandled.add(EVENT_BINDING_FIELD[node.type]);
+  // typeof !== 'object' excludes arrays and dicts, which belong to the structured
+  // emitters below; String/number/boolean scalars are what <aef:meta> can carry.
+  const carriedKeys = aefKeys.filter(k => !scalarHandled.has(k) && typeof aef[k] !== 'object').sort();
+
+  // Known keys in metaKeys order, carried keys sorted after them — a fixed order so
+  // re-exporting an unchanged document twice yields identical bytes.
+  const metaAttrs = [...metaKeys.filter(k => aefKeys.includes(k)), ...carriedKeys]
+    .map(k => `${k}="${escAttr(aef[k])}"`).join(' ');
   if (metaAttrs) out += `        <aef:meta ${metaAttrs}/>\n`;
   if (aef.endpoint) out += `        <aef:endpoint>${escText(aef.endpoint)}</aef:endpoint>\n`;
   if (aef.contextReads) out += `        <aef:contextReads paths="${escAttr(aef.contextReads)}"/>\n`;

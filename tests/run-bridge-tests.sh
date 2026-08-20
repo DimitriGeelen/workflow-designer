@@ -714,6 +714,24 @@ else
 fi
 
 echo
+echo "== the editor does not destroy aef:meta keys it does not name (T-570) =="
+# Import reads EVERY <aef:meta> attribute into node.aef; export emitted only the metaKeys
+# whitelist. A key in the document and not on that list was loaded, shown nowhere, and
+# DESTROYED on the next save — measured by a real round trip, not by reading the two lists:
+# determinism (16), sideEffect (2) and a scalar emits (1) did not survive, while endpoint
+# (10) did, because it has its own element emitter. Mutant D is the tempting narrow fix
+# (widen metaKeys by the keys the census found) and must leave carried-escaping GREEN where
+# mutant A reddens it — repairing the sample and repairing the mechanism are different, and
+# this leg is what tells them apart. Wired here in the same commit that adds it (T-568).
+if python3 "$ROOT/tools/_t570-meta-carriage-teeth.py" > "$TMP/leg-_t570-carriage.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the editor started dropping aef:meta keys it does not name, or grew a second carrier for one that has an emitter (T-570 — run 'python3 tools/_t570-meta-carriage-teeth.py'; a mutant that reddens MORE than its own legs is not discriminating, and CANNOT RUN is not a pass)"
+  show_output "$TMP/leg-_t570-carriage.out" "_t570-meta-carriage-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an
 # autoescaped purpose made it unlinkable. Two legs pulling opposite ways: the link must
