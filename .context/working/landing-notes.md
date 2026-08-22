@@ -125,3 +125,61 @@ second confirmed instance in the same file, which is what makes that AC worth it
   CLAUDE.md permits Agent→Human conversion only for the deterministic PL-027 mis-prefix
   class, and converting an AC to unblock one's own completion is the laundering shape this
   project keeps catching. Surfaced as an operator ruling instead.
+
+## Session 3 — 2026-08-22 — lane 1 drained of its biggest item; lanes 2 and 3 delivered
+
+**Scoreboard: active 77 → 75 (−2 this session, −3 across sessions 2+3).**
+T-542 and T-574 fully closed; T-432 and T-433 moved to the operator queue.
+
+### Lane 1 — T-574 closed (the P-011 silent-pass defect)
+
+Full account in commit `b17e49fa`. Three things the work found that were not in the plan:
+
+1. **The old extraction ate a command whenever the block was the file's last section.**
+   `sed '$d'` trims the range terminator; with no terminator it trims a real line. The gate
+   ran N-1 legs and reported N-1 as though that were the block. Found by the probe's own
+   first red run, now its own fixture and leg.
+2. **The gate `eval`s verification lines IN ITS OWN SCOPE.** A leg naming `$verify_cmds` had
+   the gate's entire command list substituted into it and died on a SyntaxError. Any
+   verification line referencing a gate-internal variable is exposed to this. Legs that must
+   name such a string now build it with `chr()` inside a single-quoted argument.
+3. **The first absence-assertion matched the fix's own comment**, which quotes the defective
+   line in order to explain it. Sibling of G-041's closure-check caveat: an absence-assertion
+   over a file that documents what it removed will always find its own prose.
+
+Also note: my dry-run harness passed all seven legs before the real gate failed one. It was
+**unfaithful** — it ran the commands without the gate's variable scope. A rehearsal that does
+not reproduce the environment is not a rehearsal.
+
+### Lane 3 — the 41 human-owned tasks nobody has looked at, classified
+
+Evidence base: commits per task (`git log --grep "^T-NNN:"`), last commit date, horizon.
+A task at `started-work` with **zero commits** never started, whatever its status says.
+
+**14 tasks have ZERO commits.** Of those, 3 are legitimately blocked and 11 are not.
+
+| Verdict | Count | Tasks |
+|---|---|---|
+| KILL — never touched, superseded, or self-describing as retirable | 11 | T-184, T-185, T-186, T-279, T-280, T-281, T-282, T-289, T-291, T-292, T-277 |
+| KEEP-BLOCKED — zero commits but externally sequenced | 3 | T-424 (behind T-357/T-423), T-443 (pending AEF ruling), T-402 (behind the vendor bump) |
+| MERGE — three one-line framework annotations, one task's worth of work | 3 | T-439, T-441, T-442 |
+| KEEP-STALE — real work, last touched >3 weeks ago | 9 | T-041, T-105, T-125, T-195, T-200, T-228, T-264, T-265, T-286, T-293 |
+| KEEP-LIVE — touched in August | 15 | T-101, T-102, T-189, T-209, T-309, T-344, T-345, T-347, T-357, T-422, T-426, T-440, T-498, T-501 |
+
+Note on the KILL list: **T-279 and T-280 are literally titled "revive or retire"** — they were
+filed as decisions, not as work, and have sat undecided for 25 days. T-184/T-185/T-186 are
+"Child-3/4/5" of an umbrella inception, `horizon: later`, zero commits in 42 days. T-291 and
+T-292 are placeholder docs for workflows that were referenced but never created.
+
+**The agent cannot close any of these — they are `owner: human`.** Command block in the
+session report.
+
+### Discoveries (one line each, no tickets)
+
+- Rail checked at session start: **38 unread, 100% machine noise** — hourly T-1438 heartbeats
+  on two hubs, presence notes, one stale-hub alert. No peer content since my offset-201
+  correction, so nothing inbound blocks landing. Hub `laptop-141` unreachable (network).
+- The four latent prefix collisions found by T-574's population sweep (`## Decisions`,
+  `## Gotchas`, `## Open Questions` ×2) were **run**, not reasoned about, and all four resolve
+  correctly against the live handover today because each prefix has exactly one match. One
+  added handover heading turns any of them into the T-542 shape.
