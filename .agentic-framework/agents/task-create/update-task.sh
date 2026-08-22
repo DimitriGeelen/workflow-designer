@@ -979,9 +979,99 @@ PYRELATED
 run_verification_commands() {
     local verify_section verify_cmds verify_total verify_pass verify_fail verify_failures
     local cmd display_cmd exit_code
+    local _v_exact _v_prefix _v_inline _v_exact_ln _v_prefix_ln _v_why
 
-    verify_section=$(sed -n '/^## Verification/,/^## /p' "$TASK_FILE" 2>/dev/null | sed '$d')
-    verify_section=$(echo "$verify_section" | tail -n +2)
+    # ---------------------------------------------------------------------
+    # T-574 — LOCATE THE BLOCK EXACTLY, AND SAY WHAT WAS FOUND.
+    #
+    # This gate used to open its range with `sed -n '/^## Verification/,/^## /p'`
+    # and then `[ -z "$verify_cmds" ] && return 0`. That was a SILENT pass whose
+    # output was BYTE-IDENTICAL to a run that executed every leg and found no
+    # fault. T-572 completed that way with all TEN of its legs unrun, and the
+    # only reason anyone noticed was that its AC count happened to be a number
+    # somebody expected differently.
+    #
+    # `^## Verification` is a PREFIX match, and it fails in two OPPOSITE ways.
+    # Both have now been observed in this repo, one day apart:
+    #
+    #   T-572  the heading appeared mid-line — a backticked mention of itself
+    #          inside an acceptance criterion glued the real heading onto the end
+    #          of that line — so `^## Verification` never matched, sed returned
+    #          zero lines, and the gate PASSED SILENTLY on zero commands.
+    #
+    #   T-542  `## Verification of the probe itself` sat ABOVE `## Verification`,
+    #          so the prefix match opened the range on the wrong heading and the
+    #          gate was handed a markdown table as shell commands. It REFUSED —
+    #          loudly — and that is the only reason it cost ten minutes instead
+    #          of shipping a false green.
+    #
+    # One fragile regex, two shapes, and only one of them announces itself. The
+    # block is therefore located by an EXACT heading match, and every state that
+    # is not "exactly one exact heading, and it is the first one" is NAMED OUT
+    # LOUD rather than inferred from an empty string.
+    #
+    # PL-151: `grep -c` exits 1 when the count is zero. It still prints "0", so
+    # `|| true` keeps the count and stops `set -e` from killing the gate here.
+    # ---------------------------------------------------------------------
+    _v_exact=$(grep -c '^## Verification[[:space:]]*$' "$TASK_FILE" 2>/dev/null || true)
+    _v_prefix=$(grep -c '^## Verification' "$TASK_FILE" 2>/dev/null || true)
+    _v_inline=$(grep -c '.\+## Verification' "$TASK_FILE" 2>/dev/null || true)
+    _v_exact_ln=$(grep -n '^## Verification[[:space:]]*$' "$TASK_FILE" 2>/dev/null | head -1 | cut -d: -f1 || true)
+    _v_prefix_ln=$(grep -n '^## Verification' "$TASK_FILE" 2>/dev/null | head -1 | cut -d: -f1 || true)
+
+    _v_why=""
+    if [ "${_v_exact:-0}" -eq 0 ]; then
+        if [ "${_v_prefix:-0}" -eq 0 ] && [ "${_v_inline:-0}" -eq 0 ]; then
+            # Genuinely no such section. Documented backward-compatible
+            # pass-through (CLAUDE.md: "Tasks without ## Verification pass
+            # through") — but it is now SAID, not implied by silence.
+            echo ""
+            echo -e "${CYAN}=== Verification Gate (P-011) ===${NC}"
+            echo "Running 0 verification command(s) — this task has no ## Verification section."
+            echo -e "  ${YELLOW}NOTE${NC}: nothing was verified. That is a pass-through, not a pass."
+            echo ""
+            return 0
+        fi
+        if [ "${_v_inline:-0}" -gt 0 ]; then
+            _v_why="the text '## Verification' appears in this file but NOT at the start of a line ($_v_inline occurrence(s) mid-line). This is the T-572 shape: the heading is glued to the end of another line, so no range opens and ZERO commands would run."
+        else
+            _v_why="this file has a heading starting with '## Verification' at line ${_v_prefix_ln:-?}, but no heading that is EXACTLY '## Verification'. The gate cannot tell which block is the real one."
+        fi
+    elif [ "${_v_exact:-0}" -gt 1 ]; then
+        _v_why="this file contains $_v_exact headings that are exactly '## Verification'. Only the first would ever run, so the rest would be silently ignored."
+    elif [ -n "$_v_exact_ln" ] && [ -n "$_v_prefix_ln" ] && [ "$_v_exact_ln" != "$_v_prefix_ln" ]; then
+        _v_why="a heading at line $_v_prefix_ln begins with '## Verification' but is not the real heading (which is at line $_v_exact_ln). This is the T-542 shape: a prefix match opens the range EARLY and feeds prose to the shell."
+    fi
+
+    if [ -n "$_v_why" ]; then
+        # COULD-NOT-LOOK GETS ITS OWN FAILURE LINE.
+        #
+        # Framing arrived at independently by 001-CashWeb on their own checker
+        # (agent-chat-arc offset 193) while fixing a PASS whose printed node
+        # count exceeded the nodes it had compared. Adopted verbatim because it
+        # is better than "print the count": a count can still be read past, a
+        # separate refusal cannot. "No verification command failed" and "no
+        # verification command ran" are different facts, and only one of them
+        # is about the task.
+        echo "" >&2
+        echo -e "${RED}=== Verification Gate (P-011): COULD NOT READ THE BLOCK ===${NC}" >&2
+        echo -e "${RED}This is NOT a finding about the task. It is a finding about the gate's${NC}" >&2
+        echo -e "${RED}ability to look at the task at all — and it is not a pass.${NC}" >&2
+        echo "" >&2
+        echo "  Why: $_v_why" >&2
+        echo "" >&2
+        echo "  Headings seen: exact='## Verification' x${_v_exact:-0} | starting-with x${_v_prefix:-0} | mid-line x${_v_inline:-0}" >&2
+        echo "" >&2
+        echo "Nothing was run. Fix the heading so exactly ONE line reads '## Verification'" >&2
+        echo "at column 0, and no OTHER heading in the file begins with that text." >&2
+        echo "Do not refer to the heading by its literal text elsewhere in the file." >&2
+        return 1
+    fi
+
+    # Anchored extraction: start AFTER the exact heading line, stop at the next
+    # '## ' heading. Replaces the sed range + `tail -n +2` entirely, so a prefix
+    # heading elsewhere in the file can no longer steer it.
+    verify_section=$(awk -v start="$_v_exact_ln" 'NR>start { if ($0 ~ /^## /) exit; print }' "$TASK_FILE" 2>/dev/null)
     # Strip HTML comment blocks
     verify_section=$(echo "$verify_section" | python3 -c "
 import sys, re
@@ -991,7 +1081,17 @@ print(text)
 " 2>/dev/null || echo "$verify_section")
     verify_cmds=$(echo "$verify_section" | grep -vE '^\s*$|^\s*#|^\s*```' || true)
 
-    [ -z "$verify_cmds" ] && return 0
+    if [ -z "$verify_cmds" ]; then
+        # Well-formed heading, nothing runnable under it. Legitimate, and still
+        # announced: AC-1 of T-574 is that a run of zero says zero in the same
+        # line that a run of nine says nine.
+        echo ""
+        echo -e "${CYAN}=== Verification Gate (P-011) ===${NC}"
+        echo "Running 0 verification command(s) — the ## Verification section at line $_v_exact_ln has no runnable line."
+        echo -e "  ${YELLOW}NOTE${NC}: nothing was verified. That is a pass-through, not a pass."
+        echo ""
+        return 0
+    fi
 
     # T-391 (AEF OBS-201): refuse a block containing a MULTI-LINE construct.
     #

@@ -758,3 +758,59 @@ entries:
       The nav design itself — NAV_GROUPS merging, a nav: block in .framework.yaml, a
       /file/<dir>/ directory index — is deliberately NOT proposed here. That is AEF's call
       and was relayed as a finding rather than a shape.
+
+  - path: .agentic-framework/agents/task-create/update-task.sh
+    kind: content
+    task: T-574
+    upstream: fix
+    reason: >-
+      GENERIC — the P-011 completion gate could report success on a task whose every
+      verification leg was UNRUN, and printed nothing to say so. run_verification_commands
+      located its block with `sed -n '/^## Verification/,/^## /p'` and then
+      `[ -z "$verify_cmds" ] && return 0`. That early return is a SILENT pass: its output is
+      byte-identical to a run that executed every leg and found no fault.
+      MEASURED, not theorised — T-572 completed this way in this repo on 2026-08-20 with all
+      TEN of its legs unrun, and was caught only because its acceptance-criteria count was a
+      number the author happened to expect differently. The completion record said the task
+      was verified. Nothing in the output was false; the true statement "no verification
+      command failed" was simply doing duty for "the verification ran".
+      `^## Verification` is a PREFIX match and it fails in two OPPOSITE ways, both observed
+      here one day apart. T-572: a backticked mention of the heading inside an acceptance
+      criterion glued the real heading onto the end of that line, so the pattern never
+      matched, sed returned zero lines, and the gate passed silently. T-542: a heading
+      reading `## Verification of the probe itself` sat ABOVE the real one, so the prefix
+      match opened the range early and handed the shell a markdown table — which the T-391
+      multi-line guard then refused, LOUDLY. One fragile regex, two shapes, and only one of
+      them announces itself.
+      THE FIX IS NOT "PRINT THE COUNT". A count can still be read past. COULD-NOT-LOOK now
+      gets its OWN failure line, printed separately from any finding about the task, because
+      "no verification command failed" and "no verification command ran" are different facts
+      and only one of them is about the task. That framing was arrived at independently by
+      001-CashWeb-Lightspeed-Ecwid-integration on their own checker (agent-chat-arc offset
+      193) while fixing a PASS whose printed node count exceeded the nodes it had compared;
+      adopted verbatim because it is better than the counting remedy this task started with.
+      Changes: the block is located by an EXACT heading match (`^## Verification$`), the
+      extraction is an anchored awk range from that line, and four states are now
+      distinguished — absent (documented pass-through, and it SAYS zero), well-formed-empty
+      (pass-through, says zero), well-formed (runs and reports N), unreadable (REFUSES).
+      Unreadable covers: heading present only mid-line, a prefix heading preceding the real
+      one, and more than one exact heading.
+      Incidental defect removed in the same rewrite, found by the probe's own first red run:
+      the old extraction ended `| sed '$d'` to trim the range terminator, but when
+      `## Verification` is the FINAL section there is no terminator, so `$d` ate a real
+      command. The old gate ran N-1 legs and reported N-1 as if that were the whole block —
+      the same class of miscount, in the same function.
+      Teeth: tools/_t574-p011-block-locator-teeth.py — 10 legs, control run first (T-560),
+      five fixtures including the REAL T-572 and T-542 shapes, and a mutant that reverts the
+      locator and must redden only the legs it owns. Wired into tests/run-bridge-tests.sh in
+      the same commit (T-568). Caveat recorded at the wiring site: that suite has no
+      scheduled caller.
+      Population swept, not assumed unique: 12 distinct `sed -n '/^## .../,/^## /p'` heading
+      ranges exist in this vendored tree. Four carry a real prefix collision — `## Decisions`
+      (episodic.sh) against `## Decisions Made This Session`, `## Gotchas`
+      (post-compact-resume.sh) against `## Gotchas / Warnings for Next Session`, and
+      `## Open Questions` (audit.sh and resume.sh) against `## Open Questions / Blockers`.
+      All four RESOLVE CORRECTLY against the live handover today, verified by running the
+      ranges, because each prefix currently has exactly one match. They are latent, not
+      broken, and are reported as such rather than fixed here — widening this task to twelve
+      call sites is how a bounded fix becomes an unbounded one.

@@ -750,6 +750,31 @@ else
 fi
 
 echo
+echo "== the completion gate cannot pass on a block it could not read (T-574) =="
+# The P-011 gate located its block with `sed -n '/^## Verification/,/^## /p'` — a PREFIX
+# match — and then `[ -z "$verify_cmds" ] && return 0`. A SILENT pass, byte-identical to a
+# run that executed every leg and found no fault. T-572 completed that way with all TEN of
+# its legs unrun, and was caught only because its AC count was a number someone happened to
+# expect differently.
+#
+# Two opposite shapes, both observed here one day apart: T-572 (heading glued mid-line →
+# range never opens → silent pass) and T-542 (a heading that PREFIXES the real one → range
+# opens early → prose fed to the shell → loud refusal). Only one announces itself, which is
+# why the guard is on the SILENT one and the loud one is the control.
+#
+# WIRING CAVEAT, stated because omitting it would repeat this task's own defect: this suite
+# has no scheduled caller (no cron, no git hook, no CI — OBS on file). Registering here is
+# strictly better than leaving the probe callable only from T-574's Verification block
+# (T-568), and it is still not the same as something that runs on its own.
+if python3 "$ROOT/tools/_t574-p011-block-locator-teeth.py" > "$TMP/leg-_t574-p011.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the P-011 completion gate can again pass silently on an unreadable ## Verification block, or the guard stopped discriminating (T-574 — run 'python3 tools/_t574-p011-block-locator-teeth.py'; a mutant that reddens MORE than the legs it owns is not discriminating, and CANNOT RUN is not a pass)"
+  show_output "$TMP/leg-_t574-p011.out" "_t574-p011-block-locator-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an
 # autoescaped purpose made it unlinkable. Two legs pulling opposite ways: the link must
