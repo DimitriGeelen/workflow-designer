@@ -4,7 +4,7 @@ name: "populate cost estimates so the HV/HC and HV/LC quadrants are answerable"
 description: >
   populate cost estimates so the HV/HC and HV/LC quadrants are answerable
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T13:51:30Z
-last_update: 2026-08-16T14:34:52Z
-date_finished:
+last_update: 2026-08-22T09:57:52Z
+date_finished: 2026-08-22T09:57:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -200,7 +200,19 @@ silently not the cost half" — the cost half was there. A capability nobody can
 find is indistinguishable from one nobody built, and the register recorded the
 wrong one.
 
-## Verification of the probe itself
+## Probe mutation evidence
+
+<!-- RENAMED 2026-08-22 (was "## Verification of the probe itself"). It sat ABOVE the real
+     `## Verification` heading, and the P-011 gate extracts its block with
+     `sed -n '/^## Verification/,/^## /p'` — a PREFIX match, not an exact one. So the gate
+     opened its range HERE, ran to the next `^## ` (the real Verification heading), and fed
+     itself the markdown table below as shell commands. Completion was blocked with
+     "Nothing was run" — correctly, and loudly, which is the only reason this was cheap to
+     find. Same extraction defect as T-572, opposite failure mode: there a backticked
+     mention glued the heading mid-line so `^## Verification` never matched at all and the
+     gate passed SILENTLY on zero commands (T-574). One fragile regex, two shapes; only one
+     of them announces itself. Do not reintroduce a heading that begins with the literal
+     text of another heading in this file. -->
 
 `tools/_t542-cost-blast-radius-teeth.py`, 8 legs, **mutation-verified rather
 than asserted** (PL-206 — T-541's probe passed against a broken mutant):
@@ -378,3 +390,15 @@ python3 tools/_t517-vendor-divergence.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-542-populate-cost-estimates-so-the-hvhc-and-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0b2f0052
+- **Timestamp:** 2026-08-22T09:58:01Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-22T09:57:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -70,3 +70,58 @@ stands either way, since it was executed against the commands, not against the f
   consumer's *pinned* version against `latest:`. That is G-024, already registered, and it bit
   in the un-registered direction today: a RELEASED fix sat unconsumed for five days with
   nothing reporting it either.
+
+## Session 2 — 2026-08-22 — closing what needed no permission
+
+**Scoreboard: active 77 → 76 (−1).** One task fully closed and removed from `active/`;
+two more moved from "agent-blocked" to "operator queue" where they actually belong.
+
+| Task | Was blocked on | Outcome |
+|---|---|---|
+| T-542 | P-011 gate refused: "Nothing was run" | **CLOSED** — 6/6 AC, 6/6 verification, reviewer PASS |
+| T-432 | missing `## RCA` block | **partial-complete** → operator, 1 `[REVIEW]` AC (a/b/c gate scope) |
+| T-433 | one negative-constraint Agent AC never ticked | **partial-complete** → operator, 1 `[REVIEW]` AC (vendor bump) |
+
+### The T-542 blocker was not what session 1 diagnosed
+
+Session 1 recorded it as "a markdown table bleeding into the verification block". The real
+cause is sharper and generalises: **`## Verification of the probe itself` sat ABOVE
+`## Verification`, and the gate's `sed -n '/^## Verification/,/^## /p'` is a PREFIX match,
+not an exact one.** The range opened on the *first* heading, ran to the second, and fed the
+gate a mutant-kill table as shell commands. Renamed to `## Probe mutation evidence`; six
+real commands then extracted and all six passed.
+
+This is the **second shape** of the same extraction defect T-574 was filed for, and the two
+fail in opposite directions:
+
+- **T-572:** a backticked mention of the heading glued it mid-line, `^## Verification` never
+  matched, sed returned zero lines, `[ -z "$verify_cmds" ] && return 0` → **passed silently
+  on zero commands.**
+- **T-542:** a heading that *prefixes* the real one → range opened early → **blocked loudly.**
+
+One fragile regex, two shapes, and only one of them announces itself. The loud one cost ten
+minutes; the silent one shipped a task with ten unrun legs. Feeds T-574's population sweep —
+its AC already names "every sibling `sed -n '/^## .../,/^## /p'` extraction", and this is a
+second confirmed instance in the same file, which is what makes that AC worth its cost.
+
+### Discoveries (one line each, no tickets)
+
+- I wrote *"no `--force-downgrade` occurrence anywhere in git history"* into T-433's evidence,
+  grepped it before committing, and got **12 hits** — all flag *definitions* in
+  `lib/upgrade.sh` plus doc/task prose, zero invocations. The claim was false as phrased.
+  Restated as "exists in the tool, never called". Third time this week that checking my own
+  number changed it; the pattern is that absence-claims are the ones that need counting.
+- **T-499's open AC is not agent-blocked and was never operator-blocked either — it is a
+  scoping call.** It needs `do_url`'s exit-code contract changed
+  (`bin/watchtower.sh:335`): three branches, all `echo` + implicit rc=0, no abstention
+  channel exists. G-008 *permits* fixing this in-tree. Not doing it silently — four callers
+  depend on the always-succeeds behaviour (`handover.sh:16`, `designer.sh:96/221/239`,
+  `ux-review.py`), and a handover that loses its Watchtower URL is a worse failure than the
+  one being fixed. Routed to the operator as a yes/no rather than reversed unilaterally.
+- **T-537 and T-540 carry operator decisions filed under `### Agent`.** Their unchecked ACs
+  read *"Operator decision recorded"* and *"Operator approves or rejects the three
+  proposals"* — verbatim. These are Human ACs in the wrong section, and the effect is that
+  P-010 blocks completion on a box the agent is forbidden to tick. Not converted here:
+  CLAUDE.md permits Agent→Human conversion only for the deterministic PL-027 mis-prefix
+  class, and converting an AC to unblock one's own completion is the laundering shape this
+  project keeps catching. Surfaced as an operator ruling instead.

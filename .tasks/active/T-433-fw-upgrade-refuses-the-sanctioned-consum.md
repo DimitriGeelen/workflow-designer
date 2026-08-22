@@ -26,9 +26,9 @@ description: >
   and status-transitions.yaml wholesale (~29MB). Unblocks the T-402 close path once
   the bytes land.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -38,8 +38,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T20:13:47Z
-last_update: '2026-08-16T14:33:04Z'
-date_finished:
+last_update: 2026-08-22T09:59:30Z
+date_finished: 2026-08-22T09:59:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -144,10 +144,31 @@ decision is made against evidence instead of a version string nobody can interpr
       this vendored copy references `is_valid_owner`. The disagreement was never about
       the measurement; it was that a vendored copy shows the predicate and not its
       callers, and this copy predates both call sites.
-- [ ] **No upgrade is executed under agent initiative** — not `fw upgrade`, not
+- [x] **No upgrade is executed under agent initiative** — not `fw upgrade`, not
       `--force-downgrade`, not `FW_UNDECIDABLE_VERSION_PROCEED`. Dry-run and read-only
       clone only. This AC is satisfied by the absence of the action and is checked at
       completion, not before.
+      **DONE 2026-08-22 — stated as a POSITIVE MEASUREMENT, not as an absence of
+      complaint** (T-560's lesson: an absence assertion and its own failure are the same
+      observable, so the evidence has to be a count of something that exists).
+      - `.agentic-framework/VERSION` reads `1.6.354` and was last modified by `ebf0c721`
+        on **2026-07-28** — fourteen days *before* this task was filed (2026-08-11). An
+        upgrade rewrites it; it has not been rewritten.
+      - **15** files changed under `.agentic-framework/` since 2026-08-11, across 16
+        commits, every one a named in-tree G-008 fix carrying its own task id. The vendor
+        step this task measured replaces `bin lib agents web docs policy .tasks/templates
+        metrics.sh status-transitions.yaml` **wholesale — 285 differing files, ~29MB**.
+        15 ≠ 285 is the discriminating number: the two outcomes are not confusable.
+      - `--force-downgrade` / `FW_UNDECIDABLE_VERSION_PROCEED`: **7 files in the tree
+        contain the strings and none of them is an invocation.** Four are
+        `.agentic-framework/lib/upgrade.sh`, where the flag is *defined* (`:524` parse,
+        `:552` help text, `:859` and `:1734` "to proceed anyway" hints); the rest are
+        `docs/` and `.tasks/` prose, including this AC. I first wrote this line as *"no
+        occurrence anywhere in git history"*, grepped it, and got 12 added-line hits — the
+        claim was false as phrased and the check is what caught it. Stated correctly: the
+        bypass exists in the tool and has never been *called*. AEF's constraint at
+        DM 536 §1 stands untouched: *"The bump is your operator's call, not mine and not
+        yours."*
 
 ### Human
 - [ ] [REVIEW] Whether to take the vendor bump now
@@ -407,3 +428,15 @@ has to be decided on evidence instead of a version relation.
 
 ### 2026-08-11T20:19:41Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1e95ffb9
+- **Timestamp:** 2026-08-22T09:59:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-22T09:59:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

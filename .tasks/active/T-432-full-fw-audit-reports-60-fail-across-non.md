@@ -11,9 +11,9 @@ description: >
   of which sections the push gate never runs. Same family as the T-429/T-431 findings
   - a green that was never the whole question.
 
-status: started-work
+status: work-completed
 workflow_type: test
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -23,8 +23,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T15:41:06Z
-last_update: '2026-08-16T14:33:03Z'
-date_finished:
+last_update: 2026-08-22T09:56:36Z
+date_finished: 2026-08-22T09:56:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -480,19 +480,48 @@ git cat-file -e 5bf8fb26^{commit}
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** the full `fw audit` returned Pass 124 / Warn 33 / **Fail 60**, and no one in
+this project had ever seen that number. The figure the project steered by — quoted in
+handovers, in commit messages and in this task's own filing — was `19 PASS / 3 WARN /
+0 FAIL`, which had read green for weeks.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** the push gate runs `--section structure`, one section of nineteen
+(`.git/hooks/pre-push:306`, extracted not remembered — and note the flag is `--section`,
+singular; this task's filing said `--sections`). Its output is a three-number summary that
+is *shaped* like a whole-project verdict and is in fact a per-section total. Nothing
+printed beside it says which section it covers or how many exist. The 60 were not hidden
+by a broken check; every one of those checks ran correctly and was simply never invoked.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** this is PL-257 in its purest form — *a misleading COUNT
+beside a PASS is sharper than a misleading NAME.* A name is a claim a reader can doubt;
+`0 FAIL` reads as a measurement and goes unquestioned, including by the person who wrote
+the number down. The failure rendered as health. Two further instances of the same shape
+sit inside this task's own record: the addendum that compared a section-alone run against
+a full run and nearly reported 60 → 0, and the "60 FAILs across non-structure sections"
+in the filing itself, which implied breadth where there was none (17 of 18 sections were
+clean; **59 of the 60 were one check, CTL-030, and the 60th was a working signal**).
+I committed the defect I filed the task about, in the act of filing it.
+
+**Prevention — what actually landed, and what has not:**
+- **Landed (Class 1 closed):** T-434 (`5bf8fb26`, 2026-08-11) backfilled all 59 stale
+  `horizon` records. Re-measured 2026-08-16: 466 completed tasks, 466 with `horizon: null`,
+  0 stale; CTL-030 now PASS. The *source* was already plugged at
+  `update-task.sh:1896` before this task ran.
+- **Landed (measurement discipline):** the breakdown in `## Findings` is per-section with
+  its denominator, so the next reader gets the split and not the total. The instrument
+  hazard is recorded there too: a section run alone and the same section inside a full run
+  are different instruments, and a before/after taken from both is not a comparison.
+- **NOT landed, and deliberately so:** nothing yet prevents the *next* narrow-gate number
+  from being read as a whole-project verdict. That is the gate-scope decision, and it is
+  the operator's — it is this task's one unchecked `### Human` AC (a/b/c). This task
+  measures; it does not widen or narrow the gate under agent initiative.
+
+**The honest residual:** Class 2 (`D2: Human review queue — T-093(37d) T-178(31d)`) is not
+a defect and cannot be fixed. It is a control designed to fail while a queue ages, and it
+clears when the operator reviews those two tasks — both of which have every Agent *and*
+Human AC ticked and need only their completion re-run. It has been counted as a FAIL
+alongside 59 stale records for the whole life of this task; summing a live queue signal
+with terminal stale data produces a number that answers no question anybody has.
 
 ## Evolution
 
@@ -549,3 +578,15 @@ git cat-file -e 5bf8fb26^{commit}
 ### 2026-08-11T15:41:37Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1329dd47
+- **Timestamp:** 2026-08-22T09:56:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-22T09:56:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
