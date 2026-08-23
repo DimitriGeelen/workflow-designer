@@ -38,7 +38,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: '2026-08-16T14:33:03Z'
+last_update: 2026-08-23T19:50:30Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -360,9 +360,28 @@ caught one commit later instead of twelve days.
       `anchors` 19, `aef:waypoint` 1) are untouched. Spike 3 established DI has no
       vocabulary for layout *intent*, only for computed results, so DI cannot carry these
       and must not be treated as having replaced them.
-- [ ] Round-trip is lossless in both directions: export → re-import → export produces
+- [x] Round-trip is lossless in both directions: export → re-import → export produces
       byte-identical output on all 24 corpus maps. A DI emitter that is not idempotent
       makes every save a spurious diff.
+      **DONE 2026-08-23.** `tools/_t423-di-roundtrip-idempotence-cdp.mjs`, wired as a suite
+      leg. **24 maps, 24 identical, 0 drifted, 0 unmeasurable.** Three generations are taken,
+      not two, so drift that CONVERGES (a one-shot absorption) is distinguished from drift
+      that KEEPS MOVING (every save grows the file) — different defects wanting different
+      fixes, and classifying them costs one extra parse.
+      **The green was worthless until it was watched failing.** It came back 24/24 on its
+      first run, which is equally consistent with "the exporter is idempotent" and with "the
+      comparison does not work". `tools/_t423-di-roundtrip-teeth.py` breaks the designer on
+      purpose in a temp copy (`T423_SRC`) and requires the probe to notice: an accumulating
+      node name → **keeps moving**; DI precision keyed on `state.sourceCarriedDi` → **converges**;
+      an exporter emitting malformed XML → **REFUSE**; a benign comment → still **green**. 4/4.
+      **NOT the same measurement as `_t308`** despite both saying "identical": that gate
+      compares this tree's export against a pinned git ref's export of the *same input*, and
+      its self-stability leg (G-023) exports one parse twice. Neither feeds the exporter its
+      own output, which is the only place this defect class lives — the emitter writes a
+      construct the importer absorbs differently, both exports individually deterministic,
+      and the round trip still drifts.
+      **Load-bearing only since yesterday:** before DI was unconditional the output looked
+      like the input and idempotence was inherited rather than measured.
 - [ ] ~~**Re-pin is coordinated, not announced.**~~ **VOID 2026-08-12 (T-473)** — this AC
       required agreement AEF has no stake in. It read: *"AEF's `source_bpmn_sha` fixtures are
       pinned over whole files; all 24 change. Agreed with AEF on the rail BEFORE the bytes
@@ -557,6 +576,20 @@ grep -q '_t423-carrier-agreement-cdp.mjs' tests/run-bridge-tests.sh
 python3 -c "import ast,sys; t=ast.parse(open('tools/_t423-carrier-agreement-guard.py').read()); d={ast.get_docstring(n,clean=False) for n in ast.walk(t) if isinstance(n,(ast.Module,ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}; bad=[n for n in ast.walk(t) if isinstance(n,ast.Constant) and n.value not in d and any(p in str(n.value) for p in ('306','24 '))]; sys.exit(1 if bad else 0)"
 python3 -c "import py_compile,sys; py_compile.compile('tools/_t423-carrier-agreement-guard.py', doraise=True); py_compile.compile('tools/_t423-carrier-agreement-teeth.py', doraise=True)"
 
+# ── Round-trip idempotence (landed 2026-08-23) ───────────────────────────────────────
+# The teeth are the leg that matters. The probe returned 24/24 on its first run, and a gate
+# that has only ever been green is equally consistent with "the property holds" and "the
+# comparison does not work". These break the designer on purpose in a temp copy and require
+# the probe to notice — including the CONVERGES vs KEEPS-MOVING split, which is otherwise a
+# printed number nobody has ever seen non-zero.
+timeout 3000 python3 tools/_t423-di-roundtrip-teeth.py > /dev/null
+timeout 400 node tools/_t423-di-roundtrip-idempotence-cdp.mjs > /dev/null
+grep -q '_t423-di-roundtrip-idempotence-cdp.mjs' tests/run-bridge-tests.sh
+# The probe must remain overridable, or the only way to make it fail is to break the real
+# source in the working tree — which is how a "temporary" mutation gets committed.
+grep -q 'T423_SRC' tools/_t423-di-roundtrip-idempotence-cdp.mjs
+python3 -c "import py_compile,sys; py_compile.compile('tools/_t423-di-roundtrip-teeth.py', doraise=True)"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -698,6 +731,47 @@ python3 -c "import py_compile,sys; py_compile.compile('tools/_t423-carrier-agree
   the intent-extension counts, and export→re-import→export byte-identity across 24 maps. The
   last of those is the one most likely to find a defect in yesterday's emitter, and it is the
   natural next slice.
+
+### 2026-08-23 (third slice) — round-trip idempotence holds, and the teeth are the only reason that sentence is worth anything
+
+- **What changed:** `tools/_t423-di-roundtrip-idempotence-cdp.mjs` and
+  `tools/_t423-di-roundtrip-teeth.py`, wired as a suite leg. The round-trip AC is ticked.
+  **24 maps, 24 identical, 0 drifted, 0 unmeasurable.**
+- **I predicted this would find a defect and it did not.** The previous entry named it as
+  "the one most likely to find a defect in yesterday's emitter". It found none, and the
+  reason is worth recording because it is also a gap: **the importer does not read
+  `di:waypoint` at all** — `bpmndi:BPMNEdge` is write-only today. Idempotence holds partly
+  because half the DI we emit is never read back. That is T-424's problem and it is now
+  written down instead of being rediscovered there.
+- **THE GREEN CAME BACK ON THE FIRST RUN, WHICH IS THE LEAST INFORMATIVE RESULT AVAILABLE.**
+  24/24 immediately is equally consistent with "the exporter is idempotent" and with "the
+  comparison does not work". The teeth decide between those: accumulating node name →
+  **keeps moving**; DI precision keyed on `sourceCarriedDi` → **converges**; malformed export
+  → **REFUSE**; benign comment → still **green**. 4/4 with the control green.
+- **The teeth corrected the probe twice, and the second correction was the important one.**
+  1. **A mutant that applied and did nothing.** The first "keeps moving" case appended to the
+     DOCUMENT COMMENT, which round-trips — but the exporter emits it only when non-empty, and
+     **zero of the 24 corpus maps carry one**. Real mutation, real source change, no drift,
+     case reported SURVIVED against a probe that was working. The finding is not the mutant:
+     **the doc-comment emit path is not exercised by this corpus at any leg**, so a defect
+     there is invisible to every gate we run. Kept in the teeth's docstring rather than
+     quietly swapped out.
+  2. **"The input is broken" and "WE broke our own output" were printing the same line.** The
+     probe wrapped all three generations in one `try`, so a mutated exporter emitting
+     malformed XML surfaced as a raw parse error indistinguishable from a corpus map that
+     arrived bad. Opposite findings, identical output. Each generation is now attempted
+     separately and names itself, and the teeth case asserts the phrase **"OUR OWN EXPORT"**
+     rather than merely `rc=2` — because `rc=2` alone is satisfied by any refusal, including
+     one that is not about the exporter at all.
+- **Why this is not `_t308` under another name,** stated in the probe and the suite comment
+  because both say "identical" and that is exactly how a redundant gate gets deleted: `_t308`
+  compares this tree against a **pinned git ref** on the *same input*, and its G-023
+  self-stability leg exports **one parse twice**. Neither feeds the exporter its own output.
+  A designer can be perfectly stable against a ref, and deterministic per parse, and still
+  drift on save.
+- **Not attempted, and the count is now three:** DI schema validation (still behind the
+  operator's five-file vendoring ruling), the additive diff, and the intent-extension check.
+  None is blocked on anything I built today.
 
 <!-- original Evolution template below -->
 ## Evolution

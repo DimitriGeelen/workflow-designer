@@ -1188,6 +1188,37 @@ else
 fi
 
 echo
+echo "== A save that changes nothing produces no diff (T-423 idempotence) =="
+# export -> re-import -> export must be byte-identical, on every corpus map. The reason is an
+# authoring one, not a purity one: if the second export differs from the first, every save
+# the author makes carries noise they did not write and review of those files stops being
+# possible.
+#
+# NOT THE SAME MEASUREMENT AS _t308 despite both saying "identical". _t308 compares this
+# tree's export against a PINNED GIT REF's export of the SAME corpus input — "did my change
+# move the bytes?" This one never leaves the current build and feeds the exporter its OWN
+# OUTPUT. A designer can be perfectly stable against a git ref and unstable against itself.
+# It is not _t308's self-stability leg either (G-023): exporting one parse twice proves the
+# EXPORTER is deterministic and says nothing about whether the PARSER can read back what the
+# exporter just wrote, which is exactly where this defect class lives.
+#
+# It became load-bearing yesterday. DI is now emitted unconditionally, so every export
+# carries constructs the corpus inputs do not, and idempotence stopped being inherited from
+# "the output looks like the input".
+#
+# Its teeth (tools/_t423-di-roundtrip-teeth.py, picked up by the T-509 sweep by name) break
+# the designer on purpose in a temp copy and require this probe to notice — including the
+# distinction between drift that CONVERGES and drift that keeps moving, which are different
+# defects wanting different fixes.
+if timeout 400 node "$ROOT/tools/_t423-di-roundtrip-idempotence-cdp.mjs" > "$TMP/leg-_t423-di-roundtrip.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "opening a corpus map and saving it unchanged now produces different bytes — every save is a spurious diff (run 'node tools/_t423-di-roundtrip-idempotence-cdp.mjs'; it names the drifting maps, the first differing line on both sides, and whether the drift CONVERGES or keeps moving. rc 2 means it REFUSED — a map would not complete the trip — and the message says whether the original or OUR OWN EXPORT was the unreadable one)"
+  show_output "$TMP/leg-_t423-di-roundtrip.out" "_t423-di-roundtrip-idempotence-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Unwired flow nodes survive a save round-trip (T-511, AEF rail 11833 Q2) =="
 # Wired because I ASSERTED this to AEF on the rail at 11879 — "unwired flow nodes survive,
 # element id does not, identity travels on aef:uid" — and an assertion made to a peer that
