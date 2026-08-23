@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T09:48:13Z
-last_update: 2026-08-23T21:37:19Z
+last_update: 2026-08-23T21:49:38Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -114,11 +114,64 @@ that reach the id fallback chain.
     groups) already hold uid-less collision groups in their DI, so adopting DI as geometry
     supplies the missing ingredient"), and T-423 adopted DI. boundary-events matches the
     predicted 2 exactly; kitchen-sink is 14 against a predicted 11.
-- [ ] **The evidence is surfaced to the operator on `/approvals`** with the exact
+- [x] **The evidence is surfaced to the operator on `/approvals`** with the exact
   decision text, and the deferral's exit condition is annotated in T-501 with what was
   measured — without flipping the disposition, which is the operator's to flip.
+  **DONE both halves.** T-501's IW-0 block carries `EXIT CONDITION EXECUTED 2026-08-23`
+  with the three measurements and an explicit `DISPOSITION UNCHANGED`. The ruling itself is
+  surfaced as the `### Human` `[REVIEW]` AC below, with the evidence, the copy-pasteable
+  command, and the reason step 4 is left to the operator.
+  **HOW IT REACHES THE ROUTE, stated because it is not obvious:** `/approvals` has four
+  sections — Tier 0 approvals, pending GO/NO-GO inception decisions, paused dispatches, and
+  tasks with unchecked Human ACs. There is **no section for an agent-surfaced technical
+  decision**, and `fw approvals` has only `pending`/`status`/`expire` — no `add` verb. So
+  the only mechanism that carries an item like this to the route is the fourth one, an
+  unchecked Human AC on an active task, which is what was used. That is a real limit of the
+  route, not a workaround: an operator decision that is not Tier 0, not an inception
+  GO/NO-GO, and not a dispatch has no first-class home there, and reaches the page only by
+  being attached to a task that stays open.
 
 ### Human
+
+- [ ] [REVIEW] **Rule on T-501 IW-0 — "should export always emit `<aef:workflowMeta>`?"**
+  The exit condition the deferral wrote for itself has been executed. The measurement
+  changes what is being asked: **the exporter already always emits it**, so this is not a
+  proposed byte change to weigh against a risk, it is a description of shipped behaviour.
+  The ruling available is whether to KEEP it, not whether to make it.
+
+  **Evidence, all measured today (`tools/_t565-workflowmeta-emission-census.mjs`, wired as
+  a bridge-suite leg):**
+  * The 24 rendered maps the deferral named **all already carry the element** — 0 can
+    exercise the change. That population cannot answer the question.
+  * The 14 that can (10 `tests/fixtures/third-party`, 4 `lane-provenance`) **all gain the
+    element on export today**, measured by round-tripping each through the real designer.
+    Cost 101–131 bytes each, the `<aef:workflowMeta …/>` block only.
+  * The safety net the deferral named does not cover it: `_t308` passes 24/24 but its own
+    metadata says `does_not_cover: third-party`; `_t358-byteid-thirdparty` does reach 10 of
+    the 14, **exits 1 today** with `PRECONDITION VIOLATED`, and **no runner invokes it**
+    (filed T-579). The 4 `lane-provenance` movers are watched by neither.
+
+  **Steps:**
+  1. Read the annotated block in `.tasks/active/T-501-*.md` under `IW-0` (search
+     `EXIT CONDITION EXECUTED`), which carries the three measurements above.
+  2. Decide: **KEEP** current unconditional emission, or **CHANGE** it (which would mean
+     making emission conditional — a new behaviour, not a revert).
+  3. Record the ruling, single line, from any directory:
+
+     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "T-501 IW-0: KEEP unconditional <aef:workflowMeta> emission" --task T-501 --rationale "<your reason>"`
+
+  4. Then flip `disposition: deferred` to `disposition: answered` on IW-0 in
+     `.tasks/active/T-501-map-id-round-trip-defect-triage-aef-cons.md`. **Left for you
+     deliberately** — an agent flipping it would convert a carve-out into a ruling nobody
+     made, which is the substitution T-501 §0 was written to undo.
+
+  **Expected:** a decision id (`PD-NNN`) is printed, and IW-0 reads `disposition: answered`.
+
+  **If not:** if the evidence does not settle it, the missing piece is most likely T-579 —
+  the gate that watches 10 of the 14 movers is red and unrun, so "what would break" cannot
+  currently be answered for that population. Say so and leave IW-0 deferred; that is a
+  legitimate outcome and the deferral is cheaper than a ruling made without the gate.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.

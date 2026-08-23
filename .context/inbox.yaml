@@ -1288,3 +1288,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-306
+  text: "T-578's census inflates its own code-edge bucket the way AEF's baseline did, and I published the number before checking. tools/_t578-js-comment-edge-census.py strips JS comments before deciding a JS reference is a code edge, but for .sh and .py it does a bare substring match with NO comment stripping at all (lines 194-202, the trailing else) - even though the instrument it audits, _t451, DOES strip both via tokenize/ast and a word-aware hash. Consequence, direction certain and size UNMEASURED: a tool referenced only inside a Python docstring or a shell comment is counted as having an EXECUTABLE-CODE edge. So 127 with-a-code-edge is inflated and 110 prose-only is a floor for a second reason I had not named - I called it a floor only for the JS regex-vs-division ambiguity. Same shape as AEF's own correction at rail 315 ('we built the baseline with the same shape of shortcut the bug is made of: a pattern that looks like it measures the relationship and actually measures a spelling'), and they asked me directly to check mine before trusting it. Checked, from source, not from memory. Not fixed under T-578: the ACs are closed and the fix changes what the number means, which is the ordering PD-253 just argued for. Needs its own task and a re-measurement using _t451's existing strippers rather than a second hand-written one."
+  captured: 2026-08-23T21:54:25Z
+  context_task: null
+  tags: []
+  status: pending
+  promoted_to: null
