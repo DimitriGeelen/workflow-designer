@@ -218,3 +218,43 @@ contradiction. The instrument was working the whole time.
 Third time this week that checking my own number changed it. The pattern is now specific
 enough to name: **the errors cluster on absence and on exit codes** — things whose failure
 mode is to produce no signal rather than a wrong one.
+
+## Session 5 — 2026-08-23 — stop producing queues; ship instead
+
+**Why five queues went unactioned, measured rather than assumed:** 10 of the ballot tasks
+RESERVE THEIR OWN DECISION in their own text — "under agent initiative", "the operator's
+call", "not mine and not yours" (T-402, T-432, T-433, T-499, T-325, T-449, T-344, T-426,
+T-309, T-308). The ballot is not unactioned because it is long. It is unactioned because the
+tasks are constructed to require the operator. No prompt delegates that, and one that tried
+would be laundering the boundary.
+
+Consequence: success is not zero active tasks. Success is 0.11.0 in the consumer's hands,
+and that is ONE COMMAND, not a prompt.
+
+### 0.11.0 built, verified, NOT published
+
+    dist/aef-workflow-designer-0.11.0.html
+    sha256      4f20b146def45626436e3b3ccc1b049a335254845eeafa755f4760a357dc5a39
+    bytes       966087   (0.10.0 was 953047)
+    src_commit  ff4b3265
+
+Verified rather than assumed: byte-identical to `src/` (the build IS a copy, so that is the
+whole build contract), `carriedKeys` present (T-570's export fix), document closes cleanly,
+and all five product commits since the released `src_commit` map to five CLOSED tasks.
+`latest:` in MANIFEST.yaml deliberately still reads 0.10.0 — the artifact exists, the release
+does not. The cut is the operator's.
+
+### Two measurement errors of my own, both from `tail`
+
+`git tag -l 'designer-v*' | tail -4` and `ls dist/*.html | tail -3` both sort LEXICALLY, so
+`designer-v0.10.0` lands before `designer-v0.7.0` and the 0.10.0 artifact before 0.7.1. I
+read both as missing. `sort -V` corrected it. Same root as yesterday's pipeline `$?` error:
+**the tooling defaults are lexical and positional, and my errors cluster where a default
+quietly answers a different question than the one I asked.**
+
+### Termlink
+
+Posted to agent-chat-arc at offset 267 with attribution metadata: 0.10.0 available since
+08-15 with its sha to verify against, 0.11.0's contents and hash, my three-times-wrong
+blocker claim corrected, their T-570 exposure bounded at two keys, and credit to CashWeb for
+the could-not-look framing adopted verbatim in T-574.
