@@ -38,7 +38,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-23T19:50:30Z
+last_update: 2026-08-23T20:13:27Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -352,14 +352,53 @@ caught one commit later instead of twelve days.
       shape, `di:waypoint` for every edge, and label bounds where a label position is
       persisted. Verified by validating one exported map against the BPMN 2.0 DI schema —
       not by grepping for the element names.
-- [ ] `aef:position` is **still written**, unchanged, on every node. This is the property
+- [x] `aef:position` is **still written**, unchanged, on every node. This is the property
       that keeps step 2 out of T-225's scope: it adds a representation and rewrites nothing.
       A diff of one round-tripped map shows DI added and no existing element removed or
       reordered.
-- [ ] The intent extensions (`forceStraight` 12, `routingHint` 22, `loopDetour` 9,
-      `anchors` 19, `aef:waypoint` 1) are untouched. Spike 3 established DI has no
+      **DONE 2026-08-23**, and over all 24 rather than the one the AC asks for.
+      `tools/_t423-additive-export-guard.py` + `_t423-additive-export-cdp.mjs`, wired as a
+      suite leg. **24 pairs compared, 24 identical outside DI, 2012 DI elements added.**
+      The measurement is stronger than the AC: not "nothing removed or reordered" but
+      *the ordered sequence of (tag, attributes) for every non-DI element is equal* — which
+      covers removal, addition, reordering and attribute mutation in one equality, for every
+      element in the document rather than the ones anyone thought to name.
+      **Two provenance attributes are enumerated as permitted additions on the root**
+      (`exporter`, `exporterVersion`) rather than loosening the comparison to "ignore root
+      attributes" — that shortcut would also have hidden a removed `targetNamespace`, the
+      attribute AEF's reader keys on. Teeth case 5 is exactly that mutation.
+- [x] The intent extensions (~~`forceStraight` 12, `routingHint` 22, `loopDetour` 9,
+      `anchors` 19, `aef:waypoint` 1`~~ — **see the correction below; the counts were never a
+      property of any document**) are untouched. Spike 3 established DI has no
       vocabulary for layout *intent*, only for computed results, so DI cannot carry these
       and must not be treated as having replaced them.
+      **DONE 2026-08-23 — but the AC's five numbers had to be withdrawn first, and finding
+      out what they measured is the more useful half of this.** They are LINE COUNTS OF THE
+      IDENTIFIER IN `src/aef-workflow-designer.html`. Measured: forceStraight 13 lines,
+      routingHint 23, loopDetour 10, aef:waypoint 2 — each exactly one more than the AC,
+      and the extra one in every case is **the comment inside the designer that quotes this
+      very AC**. Exclude that line and four of five reproduce the AC exactly. The fifth,
+      `anchors`, has already drifted 19 → 20 because it is an ordinary English word and
+      someone wrote *"Ctrl+wheel anchors at the cursor"* in an unrelated comment.
+      So the metric moves when a comment is edited and does not move when an export drops an
+      extension — the exact inverse of what the AC exists to detect. It is G-015's
+      population-pin class pinned to the *implementation* instead of the corpus, and the
+      T-495 shape (prose about a thing counted as an instance of it) inside the AC's own
+      number. **A count pin was never implementable here and re-deriving today's counts would
+      have reproduced the defect with fresher numbers.**
+      **What was implemented is the AC's intent, as per-document set identity**, and it falls
+      out of the equality above: every `aef:*` element survives export with identical
+      attributes in identical document order. Adding a corpus map cannot falsify it; deleting
+      one extension from one document will. Teeth cases 1–3 delete an `aef:anchors`, delete an
+      `aef:routingHint`, and alter an `aef:loopDetour` coordinate — one case per extension,
+      because a guard can be blind to one element type while catching another.
+      **COVERAGE IS REPORTED, NOT ASSUMED: 3 of the 5 named extensions are exercised**
+      (`aef:anchors` 55, `aef:routingHint` 9, `aef:loopDetour` 3). **`aef:forceStraight` and
+      `aef:waypoint` have ZERO instances in all 24 maps** — the designer supports both and no
+      corpus map uses either. The guard prints them as UNEXERCISED and refuses to count them
+      covered, because "the intent extensions are untouched" over a corpus containing none of
+      them proves nothing and goes green forever. Same lesson as the carrier guard one day
+      earlier: a comparison producing no rows is not agreement.
 - [x] Round-trip is lossless in both directions: export → re-import → export produces
       byte-identical output on all 24 corpus maps. A DI emitter that is not idempotent
       makes every save a spurious diff.
@@ -916,3 +955,17 @@ python3 -c "import py_compile,sys; py_compile.compile('tools/_t423-di-roundtrip-
 
 ### 2026-08-14T15:24:27Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+# T-423 additive export (third slice). The cdp leg needs a browser; the teeth need the
+# export IT produces, so they are chained exactly as the suite chains them.
+python3 -c "import py_compile; py_compile.compile('tools/_t423-additive-export-guard.py', doraise=True); py_compile.compile('tools/_t423-additive-export-teeth.py', doraise=True)"
+T423_EXPORT_OUT=/tmp/t423-ac-exp timeout 400 node tools/_t423-additive-export-cdp.mjs > /dev/null
+T423_EXPORT_DIR=/tmp/t423-ac-exp timeout 600 python3 tools/_t423-additive-export-teeth.py > /dev/null
+grep -q '_t423-additive-export-cdp.mjs' tests/run-bridge-tests.sh
+grep -q '_t423-additive-export-teeth.py' tests/run-bridge-tests.sh
+# G-015 / PL-200: no corpus population count may appear in EXECUTABLE code — docstrings only.
+# This is the AC's own defect class, so the guard that replaced a count pin must not carry one.
+python3 -c "import ast,sys; t=ast.parse(open('tools/_t423-additive-export-guard.py').read()); d={ast.get_docstring(n,clean=False) for n in ast.walk(t) if isinstance(n,(ast.Module,ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}; bad=[n for n in ast.walk(t) if isinstance(n,ast.Constant) and n.value not in d and any(p in str(n.value) for p in ('2012','55','24 '))]; sys.exit(1 if bad else 0)"
+# The two unexercised extensions must stay NAMED as unexercised: if someone deletes that
+# reporting, the guard starts claiming coverage it does not have.
+grep -q 'UNEXERCISED' tools/_t423-additive-export-guard.py

@@ -1219,6 +1219,44 @@ else
 fi
 
 echo
+echo "== Export ADDS DI and changes nothing else (T-423 additive) =="
+# The AC this closes named five intent extensions with counts — forceStraight 12,
+# routingHint 22, loopDetour 9, anchors 19, aef:waypoint 1. Those numbers are LINE COUNTS OF
+# THE IDENTIFIER IN src/aef-workflow-designer.html, not a property of any document: four of
+# the five reproduce exactly once the source comment quoting the AC is excluded, and the
+# fifth (anchors) has already drifted 19 -> 20 because someone wrote "Ctrl+wheel anchors at
+# the cursor" in an unrelated comment. A metric that moves when a comment is edited and
+# stays still when an export drops an extension is the inverse of the AC's intent.
+#
+# So this leg checks the intent instead, as PER-DOCUMENT IDENTITY: every element outside the
+# DI namespaces is the same tag, the same attributes and the same document position in the
+# export as in the source. Adding a corpus map cannot falsify that; dropping an extension
+# from one document will. Two ACs fall out of the one equality — "aef:position still written,
+# nothing removed or reordered" and "the intent extensions untouched".
+#
+# Two of the five extensions have ZERO instances in the corpus (forceStraight, aef:waypoint)
+# and the guard prints them as UNEXERCISED rather than counting them covered — a guard that
+# says "untouched" about a vocabulary nothing exercises has proved nothing and goes green
+# forever.
+#
+# The teeth run against the REAL export this probe just produced, handed over by directory,
+# because damaging a hand-written stand-in would test the stand-in.
+T423_ADD_EXP="$TMP/t423-additive-export"
+if T423_EXPORT_OUT="$T423_ADD_EXP" timeout 400 node "$ROOT/tools/_t423-additive-export-cdp.mjs" > "$TMP/leg-_t423-additive.out" 2>&1; then
+  if T423_EXPORT_DIR="$T423_ADD_EXP" timeout 600 python3 "$ROOT/tools/_t423-additive-export-teeth.py" >> "$TMP/leg-_t423-additive.out" 2>&1; then
+    pass=$((pass + 1))
+  else
+    report FAIL "the additive-export guard passed but its teeth did not — it can no longer be shown going red, so its green means nothing (run 'T423_EXPORT_DIR=<dir> python3 tools/_t423-additive-export-teeth.py'; each case names the verdict it expected)"
+    show_output "$TMP/leg-_t423-additive.out" "_t423-additive-export-teeth.py"
+    fail=$((fail + 1))
+  fi
+else
+  report FAIL "export is no longer purely additive — it removed, reordered or altered something outside the DI namespaces (run 'node tools/_t423-additive-export-cdp.mjs'; it names the document, the element index and both sides of the divergence. rc 2 means it REFUSED — a map would not export, or a document would not parse — which says the subject is broken, not the invariant)"
+  show_output "$TMP/leg-_t423-additive.out" "_t423-additive-export-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Unwired flow nodes survive a save round-trip (T-511, AEF rail 11833 Q2) =="
 # Wired because I ASSERTED this to AEF on the rail at 11879 — "unwired flow nodes survive,
 # element id does not, identity travels on aef:uid" — and an assertion made to a peer that
