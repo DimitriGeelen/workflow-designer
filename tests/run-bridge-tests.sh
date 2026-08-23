@@ -1219,6 +1219,29 @@ else
 fi
 
 echo
+echo "== Every document lacking <aef:workflowMeta> gains one on export (T-565 / T-501 IW-0) =="
+# T-501 IW-0 asks whether export should ALWAYS emit <aef:workflowMeta>, and is deferred with
+# an exit condition naming the 24 rendered maps. All 24 already carry the element, so that
+# population cannot exercise the change at all — the census reports it UNEXERCISED rather
+# than passing on it, the same call T-423 makes for aef:forceStraight.
+#
+# The population that CAN move is the 14 corpus documents with no such element (10 under
+# tests/fixtures/third-party, 4 under lane-provenance). Measured: all 14 gain one on export
+# today. Always-emit is not a change to weigh, it is current behaviour — and that fact is
+# what any answer to IW-0 rests on, which is why it is wired here rather than left as a
+# number in a task file. If emission ever becomes conditional this goes red.
+#
+# rc 2 is a REFUSAL, not a pass: it fires when no corpus document lacks the element, because
+# a run with nothing to check is exactly the population-pin the census exists to expose.
+if timeout 400 node "$ROOT/tools/_t565-workflowmeta-emission-census.mjs" > "$TMP/leg-_t565-wfmeta.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a document that lacks <aef:workflowMeta> no longer gains one on export, so always-emit is no longer unconditional and T-501 IW-0's premise is gone (run 'node tools/_t565-workflowmeta-emission-census.mjs'; it names the documents. rc 2 means it REFUSED — no corpus document lacks the element, so nothing exercised the invariant)"
+  show_output "$TMP/leg-_t565-wfmeta.out" "_t565-workflowmeta-emission-census.mjs"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Export ADDS DI and changes nothing else (T-423 additive) =="
 # The AC this closes named five intent extensions with counts — forceStraight 12,
 # routingHint 22, loopDetour 9, anchors 19, aef:waypoint 1. Those numbers are LINE COUNTS OF

@@ -162,6 +162,35 @@ change and does not belong in the same task as a derivation change.
     this change alone — which is exactly what bundling it into the GO would have destroyed.
     Needs its own build task, not a line in this one.
 
+    **EXIT CONDITION EXECUTED 2026-08-23 by T-565. DISPOSITION UNCHANGED — still `deferred`,
+    because flipping it is the operator's, and the measurement below does not make the
+    ruling, it makes it cheap.** Three things were measured
+    (`tools/_t565-workflowmeta-emission-census.mjs`, wired as a bridge-suite leg):
+
+    1. **The exit condition names a population that cannot execute it.** All 24 rendered
+       maps already carry `<aef:workflowMeta>`, so an always-emit rule cannot move one byte
+       of any of them. A clean result there would have been a no-op reported as a safety
+       proof — the same population-pin as T-423's `aef:forceStraight` and G-015. The 14
+       documents that CAN move are the ones this task's own IW-1 already found: 10 under
+       `tests/fixtures/third-party`, 4 under `lane-provenance`. Their per-document cost is
+       101–131 bytes, the `<aef:workflowMeta …/>` block only — a whole-document diff is
+       dominated by the 2012 DI elements T-423 made unconditional.
+
+    2. **Always-emit is already the behaviour.** Round-tripping all 14 through the real
+       designer: 14 of 14 lack the element on input and carry it on output. IW-0 asks
+       whether export *should* always emit. It already does, unconditionally. So this is not
+       a proposed byte change to weigh against a risk — it is a description of shipped
+       behaviour, and the ruling available is whether to keep it, not whether to make it.
+
+    3. **The safety net this deferral named does not cover it.** `_t308` passes 24/24 and
+       its own emitted metadata says `does_not_cover: third-party documents`; its corpus
+       holds zero movers. `_t358-byteid-thirdparty` — which does reach 10 of the 14 — exits
+       **1** today, reporting 0 identical / 11 drifted and `PRECONDITION VIOLATED`, and **no
+       runner invokes it**: no suite leg, and its only code caller is a teeth script the
+       T-509 sweep excludes by design. T-364 predicted exactly this failure in writing when
+       DI became geometry. Filed as **T-579**. The remaining 4 movers, under
+       `lane-provenance`, are watched by neither gate.
+
 - **IW-1: Can ID derivation use deriveSlug() without breaking existing round-tripped workflows?**
   confidence: 4
   disposition: answered

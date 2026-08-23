@@ -1,23 +1,22 @@
 ---
-id: T-565
-name: "IW-0 exit condition: measure the byte impact of always emitting aef:workflowMeta across the 24 rendered maps"
+id: T-579
+name: "The third-party byte-identity gate is RED and no runner has ever seen it"
 description: >
-  T-501 IW-0 is DEFERRED, not answered — the operator has not ruled on whether export should always emit <aef:workflowMeta>. This task produces the evidence that deferral names as its exit condition and NOTHING ELSE: measure whether always emitting the element changes the bytes of any of the 24 rendered maps, and run the T-308/T-358 byte-identity gates against the result. It does NOT change the emitter. If nothing moves, the carve-out's motivating risk is absent; if something moves, the failure is attributable to this change alone.
+  tools/_t358-byteid-thirdparty.mjs exits 1 today: 0 identical / 11 drifted, and it prints PRECONDITION VIOLATED — boundary-events (2 same-lane x tie groups) and kitchen-sink (14) tie among uid-less nodes, so its uid-only normaliser is unsound and it says so. Nothing runs it: run-bridge-tests.sh has no leg, and its only code caller is tools/_t364-byteid-precondition-teeth.py, which _t509-instrument-sweep.sh EXCLUDES by design. T-364 predicted this in writing — 'boundary-events (2 groups) and kitchen-sink (11 groups) already hold uid-less collision groups in their DI, so adopting DI as geometry supplies the missing ingredient' — and T-423 adopted DI. The operator ruling on T-364 also directed narrowing the precondition to 'nondeterministically minted' after repair (a) landed; repair (a) landed, the narrowing did not. Found while measuring T-501 IW-0, whose deferral names this gate as its safety net.
 
-status: started-work
-workflow_type: test
+status: captured
+workflow_type: build
 owner: agent
 horizon: now
 tags: []
 components: []
-related_tasks: [T-501, T-562]
-arc_id: designer-authoring-surface
+related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-20T09:48:13Z
-last_update: 2026-08-23T21:37:19Z
+created: 2026-08-23T21:44:44Z
+last_update: 2026-08-23T21:44:44Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -31,92 +30,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-565: IW-0 exit condition: measure the byte impact of always emitting aef:workflowMeta across the 24 rendered maps
+# T-579: The third-party byte-identity gate is RED and no runner has ever seen it
 
 ## Context
 
-T-501 IW-0 is `disposition: deferred`, and the deferral names its own exit condition
-(T-501 lines 157-163): *"measure whether emitting `<aef:workflowMeta>` on every export
-changes the bytes of any of the 24 rendered corpus maps, and run T-308/T-358's
-byte-identity gates against the result."* This task produces that evidence and nothing
-else. It does NOT change the emitter — that is T-501's carved-out item and remains the
-operator's ruling.
-
-**First measurement, taken before the ACs were written, because it decides what the
-other ACs can honestly claim:** all 24 of `examples/aef-processes/rendered/*.bpmn`
-already contain exactly one `aef:workflowMeta`. A population in which the condition
-("document lacks the element") occurs zero times cannot falsify a change conditioned
-on it. The exit condition as written names a corpus that cannot exercise the change —
-the same population-pin shape as T-423's `aef:forceStraight` (0 instances, guard green
-forever) and G-015. So answering IW-0 honestly requires finding the population that
-CAN move, which T-501 IW-1 already located: the documents with no `<aef:workflowMeta>`
-that reach the id fallback chain.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] **The named population is measured and reported as exercising or not exercising
-  the change.** Count, over all 24 rendered maps, how many carry `<aef:workflowMeta>`
-  and how many do not. If the not-carrying count is zero, that is stated as
-  UNEXERCISED and explicitly NOT reported as "always-emit is safe" — a no-op over a
-  population containing none of the condition is not evidence about the condition.
-  **MEASURED: 24 carry it, 0 do not.** The exit condition IW-0 wrote for itself names a
-  population in which the change is unexercisable. `_t565-workflowmeta-emission-census.mjs`
-  prints UNEXERCISED and refuses to convert that into a safety claim; the wired leg
-  returns rc 2 if the moving population is ever empty, so a run with nothing to check
-  cannot report itself as a pass.
-- [x] **The population that CAN exercise the change is enumerated across the whole
-  corpus, not just the rendered 24**, with a per-document list, so the operator's
-  ruling is made against documents that would actually move rather than against a
-  count that cannot move.
-  **MEASURED, 58-document corpus over the four directories T-501 names:** rendered 24/0
-  lacking, aef-bpmn 19/0, third-party 11/**10**, lane-provenance 4/**4** — **14 movers**,
-  reproducing T-501's 14 exactly. Every one is named in the census output.
-  **DENOMINATOR DISCREPANCY, reported rather than smoothed:** T-501 states "60 documents,
-  46 carry, 14 do not" (three times: :330, :420, :508). Those four directories hold **58**
-  today and `git log --diff-filter=AD` shows **no `.bpmn` has ever been deleted from them**,
-  so they cannot have held 60. The two adjacent fixture directories (`aef-inbound`,
-  `exported`) contain documents that **all carry the element**, so whatever the extra two
-  were they sat in the carrying bucket. I have not reconstructed T-501's walk and do not
-  claim a mechanism — the load-bearing number (14) reproduces exactly; the denominator does
-  not, and the difference is recorded as measured, not explained.
-- [x] **The byte delta of always-emit is measured on that population** — for each
-  document lacking the element, what bytes an always-emit export would add — and
-  reported as a per-document figure, not a single aggregate.
-  **MEASURED per document, 101–131 bytes**, e.g. `third-party/caseagile-local-ns.bpmn`
-  101 B, `lane-provenance/later-laneset-ignored.bpmn` 131 B. The figure is the emitted
-  `<aef:workflowMeta …/>` block, **deliberately not the whole-document delta**: since
-  T-423, DI is emitted unconditionally, so a document diff is dominated by 2012 added DI
-  elements and would answer a question nobody asked. The block is the cost attributable to
-  this item alone, which is what carving it out was for.
-  **AND THE FINDING THE AC DID NOT ANTICIPATE: all 14 already gain the element on export
-  today.** Measured by round-tripping each through the real designer, not by reading
-  `buildBpmnXml`. So IW-0 asks whether export *should* always emit; the exporter already
-  does, unconditionally. The item is not a proposed byte change to weigh — it is a
-  description of current behaviour, and the bytes it would "add" are bytes the tree
-  already writes.
-- [x] **T-308 and T-358 byte-identity gates are run and their verdicts recorded**
-  against the current tree, so the ruling has the gate state it was promised.
-  * `_t308-export-byte-identity-cdp.mjs` — **rc 0, 24 identical / 0 drifted / 0 unusable.**
-    Its own emitted metadata says `does_not_cover: third-party documents`, and its corpus
-    contains **zero** of the 14 movers. It passes, and it cannot see this change.
-  * `_t358-byteid-thirdparty.mjs` — **rc 1. 0 identical / 11 drifted**, and it prints
-    `*** PRECONDITION VIOLATED — this comparison is NOT sound` on `boundary-events` (2
-    same-lane x tie groups) and `kitchen-sink` (14). Its uid-only normaliser is unsound
-    while a uid can reach an emitted element id, and it correctly refuses to certify.
-  * **Nothing runs the second one.** `run-bridge-tests.sh` has no leg for it; its only
-    executable-code caller is `_t364-byteid-precondition-teeth.py:40`, which
-    `_t509-instrument-sweep.sh:66` EXCLUDES by design. So the gate the deferral named as
-    its safety net for the population holding 10 of the 14 movers is red, and no runner has
-    ever seen it red. Filed as **T-579**, not fixed here — one bug, one task.
-  * **T-364 predicted this in writing** ("boundary-events (2 groups) and kitchen-sink (11
-    groups) already hold uid-less collision groups in their DI, so adopting DI as geometry
-    supplies the missing ingredient"), and T-423 adopted DI. boundary-events matches the
-    predicted 2 exactly; kitchen-sink is 14 against a predicted 11.
-- [ ] **The evidence is surfaced to the operator on `/approvals`** with the exact
-  decision text, and the deferral's exit condition is annotated in T-501 with what was
-  measured — without flipping the disposition, which is the operator's to flip.
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -150,28 +75,6 @@ that reach the id fallback chain.
 -->
 
 ## Verification
-
-# The census runs and holds its invariant: every corpus document lacking
-# <aef:workflowMeta> gains one on export. rc 2 = REFUSED (empty moving population).
-timeout 500 node tools/_t565-workflowmeta-emission-census.mjs > /tmp/t565-verify.out 2>&1
-
-# The named population is reported as UNEXERCISED rather than as a pass. If this stops
-# matching, the census has started treating a no-op over an absent condition as
-# evidence, which is the failure this task was opened to avoid.
-grep -q "UNEXERCISED" /tmp/t565-verify.out
-
-# The moving population is non-empty and counted. A census ranging over zero movers
-# would print a clean report and mean nothing.
-grep -qE "14 can be changed by an always-emit rule" /tmp/t565-verify.out
-
-# The measured answer to IW-0 lives in the instrument's output, not only in prose here.
-grep -q "ALWAYS-EMIT IS ALREADY THE BEHAVIOUR" /tmp/t565-verify.out
-
-# The leg is wired into the suite, not merely referenced in prose. This task's own
-# finding is that a stated safety net nobody runs is not a safety net (T-579), so the
-# instrument it produces must not join that set — and a task file naming a tool is
-# exactly the prose-only edge T-578 measured at 110 of 237.
-grep -q '_t565-workflowmeta-emission-census.mjs' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -283,14 +186,7 @@ grep -q '_t565-workflowmeta-emission-census.mjs' tests/run-bridge-tests.sh
 
 ## Updates
 
-### 2026-08-20T09:48:13Z — task-created [task-create-agent]
+### 2026-08-23T21:44:44Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-565-iw-0-exit-condition-measure-the-byte-imp.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-579-the-third-party-byte-identity-gate-is-re.md
 - **Context:** Initial task creation
-
-### 2026-08-20T09:48:26Z — status-update [task-update-agent]
-- **Change:** horizon: now → next
-
-### 2026-08-23T21:37:19Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: next → now (auto-sync)
