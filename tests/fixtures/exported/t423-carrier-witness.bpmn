@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_harvest-pipeline"
+                  exporter="aef-workflow-designer"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_harvest-pipeline">
+    <bpmn:participant id="Pool_harvest_pipeline" name="harvest-pipeline" processRef="Process_harvest-pipeline"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_harvest-pipeline" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="harvest-pipeline" uuid="5c34a671-b808-4f68-a3bf-ba6542d3fb10" version="1" schemaVersion="2" title="harvest-pipeline" tier_default="2" pageWidth="2369"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_1_trigger</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="505"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_4_no</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_refused</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_8_no</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_22_dry</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_23_nothing</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_21_harvested</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_9_read</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_parse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_resolve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_15_harvest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_14_harvest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_12_harvest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_13_harvest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_16_harvest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_11_harvest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_18_tally</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_20_log</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_dir</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_is</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_context</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_19_dry</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_10_fan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_17_join</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="external" name="Source project · External">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="ext" authority="external" height="80"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="agt_1_trigger" name="Trigger — `fw harvest [project]`">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="142.0" y="92.0"/>
+        <aef:endpoint>fw harvest</aef:endpoint>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:endEvent id="frw_4_no" name="No such dir">
+      <bpmn:extensionElements>
+        <aef:uid value="n_no_dir"/>
+        <aef:position x="523.0" y="493.5"/>
+        <aef:meta terminalKind="error"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_6_refused" name="Refused (framework)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_self"/>
+        <aef:position x="653.0" y="493.5"/>
+        <aef:meta terminalKind="error"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_8_no" name="No .context — init first">
+      <bpmn:extensionElements>
+        <aef:uid value="n_no_ctx"/>
+        <aef:position x="793.0" y="493.5"/>
+        <aef:meta terminalKind="error"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_22_dry" name="Dry-run — no changes">
+      <bpmn:extensionElements>
+        <aef:uid value="n_dry"/>
+        <aef:position x="2146.1" y="514.5"/>
+        <aef:meta terminalKind="success"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_25</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_23_nothing" name="Nothing new to harvest">
+      <bpmn:extensionElements>
+        <aef:uid value="n_nothing"/>
+        <aef:position x="2146.1" y="394.5"/>
+        <aef:meta terminalKind="success"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_26</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_21_harvested" name="Harvested ✓">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="2146.1" y="291.5"/>
+        <aef:meta terminalKind="success"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_28</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:serviceTask id="frw_9_read" name="Read source project memory (read-only)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_source"/>
+        <aef:position x="905.0" y="277.5"/>
+        <aef:meta external="True"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:scriptTask id="frw_1_parse" name="Parse args (--dry-run/--verbose/dir)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_parse"/>
+        <aef:position x="185.0" y="277.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_2_resolve" name="Resolve project dir → absolute">
+      <bpmn:extensionElements>
+        <aef:uid value="n_resolve"/>
+        <aef:position x="345.0" y="277.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_15_harvest" name="Harvest patterns (dedup + append)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_patterns"/>
+        <aef:position x="1259.6" y="170.1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+      <bpmn:outgoing>flow_17</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_14_harvest" name="Harvest learnings (dedup + append)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_learnings"/>
+        <aef:position x="1259.6" y="250.1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+      <bpmn:outgoing>flow_18</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_12_harvest" name="Harvest decisions (dedup + append)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_decisions"/>
+        <aef:position x="1259.6" y="330.1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_13</bpmn:incoming>
+      <bpmn:outgoing>flow_19</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_13_harvest" name="Harvest episodics">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_episodics"/>
+        <aef:position x="1259.6" y="410.1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_14</bpmn:incoming>
+      <bpmn:outgoing>flow_20</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_16_harvest" name="Harvest practices (dedup + append)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_practices"/>
+        <aef:position x="1259.6" y="490.1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_15</bpmn:incoming>
+      <bpmn:outgoing>flow_21</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_11_harvest" name="Harvest CLAUDE.md additions">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_claude"/>
+        <aef:position x="1259.6" y="570.1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_16</bpmn:incoming>
+      <bpmn:outgoing>flow_22</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_18_tally" name="Tally counts (new vs duplicates)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_summary"/>
+        <aef:position x="1625.0" y="378.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_23</bpmn:incoming>
+      <bpmn:outgoing>flow_24</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_20_log" name="Log harvest + write framework files">
+      <bpmn:extensionElements>
+        <aef:uid value="n_log"/>
+        <aef:position x="1905.0" y="277.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_27</bpmn:incoming>
+      <bpmn:outgoing>flow_28</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_3_dir" name="Dir exists?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_exists_gate"/>
+        <aef:position x="517.0" y="285.5"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${cd project_dir}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="frw_5_is" name="Is framework itself?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_self_gate"/>
+        <aef:position x="647.0" y="285.5"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${project_dir == FRAMEWORK_ROOT}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="frw_7_context" name=".context/project/ present?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_ctx_gate"/>
+        <aef:position x="787.0" y="285.5"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${-d project/.context/project}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="frw_19_dry" name="dry-run? new items?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_mode_gate"/>
+        <aef:position x="1816.0" y="386.5"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${dry_run -&gt; dry; new_total&gt;0 -&gt; write; else nothing}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_24</bpmn:incoming>
+      <bpmn:outgoing>flow_25</bpmn:outgoing>
+      <bpmn:outgoing>flow_26</bpmn:outgoing>
+      <bpmn:outgoing>flow_27</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:parallelGateway id="frw_10_fan" name="Fan out — 6 memory categories">
+      <bpmn:extensionElements>
+        <aef:uid value="n_fork"/>
+        <aef:position x="1016.0" y="386.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
+      <bpmn:outgoing>flow_14</bpmn:outgoing>
+      <bpmn:outgoing>flow_15</bpmn:outgoing>
+      <bpmn:outgoing>flow_16</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:parallelGateway id="frw_17_join" name="Join — all categories scanned">
+      <bpmn:extensionElements>
+        <aef:uid value="n_join"/>
+        <aef:position x="1496.0" y="386.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_17</bpmn:incoming>
+      <bpmn:incoming>flow_18</bpmn:incoming>
+      <bpmn:incoming>flow_19</bpmn:incoming>
+      <bpmn:incoming>flow_20</bpmn:incoming>
+      <bpmn:incoming>flow_21</bpmn:incoming>
+      <bpmn:incoming>flow_22</bpmn:incoming>
+      <bpmn:outgoing>flow_23</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_trigger" targetRef="frw_1_parse">
+      <bpmn:extensionElements>
+        <aef:uid value="e_01"/>
+        <aef:anchors targetPort="W"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_parse" targetRef="frw_2_resolve">
+      <bpmn:extensionElements>
+        <aef:uid value="e_02"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" sourceRef="frw_2_resolve" targetRef="frw_3_dir">
+      <bpmn:extensionElements>
+        <aef:uid value="e_03"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" name="missing" sourceRef="frw_3_dir" targetRef="frw_4_no">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!exists}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_04"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" name="exists" sourceRef="frw_3_dir" targetRef="frw_5_is">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${exists}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_05"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" name="is framework" sourceRef="frw_5_is" targetRef="frw_6_refused">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${project_dir == FRAMEWORK_ROOT}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_06"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" name="other project" sourceRef="frw_5_is" targetRef="frw_7_context">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${project_dir != FRAMEWORK_ROOT}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_07"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" name="no context" sourceRef="frw_7_context" targetRef="frw_8_no">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!has_context}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_08"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" name="has context" sourceRef="frw_7_context" targetRef="frw_9_read">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${has_context}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_09"/>
+        <aef:anchors sourcePort="E"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_9_read" targetRef="frw_10_fan">
+      <bpmn:extensionElements>
+        <aef:uid value="e_10"/>
+        <aef:anchors targetPort="W"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_10_fan" targetRef="frw_15_harvest">
+      <bpmn:extensionElements>
+        <aef:uid value="e_11"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_10_fan" targetRef="frw_14_harvest">
+      <bpmn:extensionElements>
+        <aef:uid value="e_12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_10_fan" targetRef="frw_12_harvest">
+      <bpmn:extensionElements>
+        <aef:uid value="e_13"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_14" sourceRef="frw_10_fan" targetRef="frw_13_harvest">
+      <bpmn:extensionElements>
+        <aef:uid value="e_14"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_15" sourceRef="frw_10_fan" targetRef="frw_16_harvest">
+      <bpmn:extensionElements>
+        <aef:uid value="e_15"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_16" sourceRef="frw_10_fan" targetRef="frw_11_harvest">
+      <bpmn:extensionElements>
+        <aef:uid value="e_16"/>
+        <aef:anchors sourcePort="SW"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_17" sourceRef="frw_15_harvest" targetRef="frw_17_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_17"/>
+        <aef:anchors sourcePort="E" targetPort="N"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_18" sourceRef="frw_14_harvest" targetRef="frw_17_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_18"/>
+        <aef:anchors sourcePort="E" targetPort="N"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_19" sourceRef="frw_12_harvest" targetRef="frw_17_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_19"/>
+        <aef:anchors targetPort="W"/>
+        <aef:routingHint role="seg_mid" offset="23.6"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_20" sourceRef="frw_13_harvest" targetRef="frw_17_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_20"/>
+        <aef:anchors targetPort="W"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_21" sourceRef="frw_16_harvest" targetRef="frw_17_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_21"/>
+        <aef:anchors targetPort="SE"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_22" sourceRef="frw_11_harvest" targetRef="frw_17_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_22"/>
+        <aef:anchors sourcePort="E" targetPort="SE"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_23" sourceRef="frw_17_join" targetRef="frw_18_tally">
+      <bpmn:extensionElements>
+        <aef:uid value="e_23"/>
+        <aef:anchors targetPort="W"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_24" sourceRef="frw_18_tally" targetRef="frw_19_dry">
+      <bpmn:extensionElements>
+        <aef:uid value="e_24"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_25" name="dry-run" sourceRef="frw_19_dry" targetRef="frw_22_dry">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${dry_run}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_25"/>
+        <aef:anchors sourcePort="SE"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_26" name="no new items" sourceRef="frw_19_dry" targetRef="frw_23_nothing">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!dry_run &amp;&amp; new_total == 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_26"/>
+        <aef:anchors sourcePort="E"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_27" name="new items" sourceRef="frw_19_dry" targetRef="frw_20_log">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!dry_run &amp;&amp; new_total &gt; 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_27"/>
+        <aef:anchors sourcePort="N" targetPort="W"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_28" sourceRef="frw_20_log" targetRef="frw_21_harvested">
+      <bpmn:extensionElements>
+        <aef:uid value="e_28"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_harvest-pipeline">
+    <bpmndi:BPMNPlane id="BPMNPlane_harvest-pipeline" bpmnElement="Process_harvest-pipeline">
+      <bpmndi:BPMNShape id="BPMNShape_agt_1_trigger" bpmnElement="agt_1_trigger">
+        <dc:Bounds x="142.0" y="92.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_4_no" bpmnElement="frw_4_no">
+        <dc:Bounds x="523.0" y="493.5" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_6_refused" bpmnElement="frw_6_refused">
+        <dc:Bounds x="653.0" y="493.5" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_8_no" bpmnElement="frw_8_no">
+        <dc:Bounds x="793.0" y="493.5" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_22_dry" bpmnElement="frw_22_dry">
+        <dc:Bounds x="2146.1" y="514.5" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_23_nothing" bpmnElement="frw_23_nothing">
+        <dc:Bounds x="2146.1" y="394.5" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_21_harvested" bpmnElement="frw_21_harvested">
+        <dc:Bounds x="2146.1" y="291.5" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_9_read" bpmnElement="frw_9_read">
+        <dc:Bounds x="905.0" y="277.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_1_parse" bpmnElement="frw_1_parse">
+        <dc:Bounds x="185.0" y="277.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_2_resolve" bpmnElement="frw_2_resolve">
+        <dc:Bounds x="345.0" y="277.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_15_harvest" bpmnElement="frw_15_harvest">
+        <dc:Bounds x="1259.6" y="170.1" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_14_harvest" bpmnElement="frw_14_harvest">
+        <dc:Bounds x="1259.6" y="250.1" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_12_harvest" bpmnElement="frw_12_harvest">
+        <dc:Bounds x="1259.6" y="330.1" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_13_harvest" bpmnElement="frw_13_harvest">
+        <dc:Bounds x="1259.6" y="410.1" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_16_harvest" bpmnElement="frw_16_harvest">
+        <dc:Bounds x="1259.6" y="490.1" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_11_harvest" bpmnElement="frw_11_harvest">
+        <dc:Bounds x="1259.6" y="570.1" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_18_tally" bpmnElement="frw_18_tally">
+        <dc:Bounds x="1625.0" y="378.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_20_log" bpmnElement="frw_20_log">
+        <dc:Bounds x="1905.0" y="277.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_3_dir" bpmnElement="frw_3_dir">
+        <dc:Bounds x="517.0" y="285.5" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_5_is" bpmnElement="frw_5_is">
+        <dc:Bounds x="647.0" y="285.5" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_7_context" bpmnElement="frw_7_context">
+        <dc:Bounds x="787.0" y="285.5" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_19_dry" bpmnElement="frw_19_dry">
+        <dc:Bounds x="1816.0" y="386.5" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_10_fan" bpmnElement="frw_10_fan">
+        <dc:Bounds x="1016.0" y="386.5" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_17_join" bpmnElement="frw_17_join">
+        <dc:Bounds x="1496.0" y="386.5" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
+        <di:waypoint x="160.0" y="128.0"/>
+        <di:waypoint x="160.0" y="309.5"/>
+        <di:waypoint x="185.0" y="309.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2">
+        <di:waypoint x="295.0" y="309.5"/>
+        <di:waypoint x="345.0" y="309.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_3" bpmnElement="flow_3">
+        <di:waypoint x="455.0" y="309.5"/>
+        <di:waypoint x="517.0" y="309.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_4" bpmnElement="flow_4">
+        <di:waypoint x="541.0" y="333.5"/>
+        <di:waypoint x="541.0" y="493.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_5" bpmnElement="flow_5">
+        <di:waypoint x="565.0" y="309.5"/>
+        <di:waypoint x="647.0" y="309.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_6" bpmnElement="flow_6">
+        <di:waypoint x="671.0" y="333.5"/>
+        <di:waypoint x="671.0" y="493.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_7" bpmnElement="flow_7">
+        <di:waypoint x="695.0" y="309.5"/>
+        <di:waypoint x="787.0" y="309.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_8" bpmnElement="flow_8">
+        <di:waypoint x="811.0" y="333.5"/>
+        <di:waypoint x="811.0" y="493.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_9" bpmnElement="flow_9">
+        <di:waypoint x="835.0" y="309.5"/>
+        <di:waypoint x="905.0" y="309.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_10" bpmnElement="flow_10">
+        <di:waypoint x="960.0" y="341.5"/>
+        <di:waypoint x="960.0" y="410.5"/>
+        <di:waypoint x="1016.0" y="410.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_11" bpmnElement="flow_11">
+        <di:waypoint x="1040.0" y="386.5"/>
+        <di:waypoint x="1040.0" y="202.1"/>
+        <di:waypoint x="1259.6" y="202.1"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_12" bpmnElement="flow_12">
+        <di:waypoint x="1064.0" y="404.6"/>
+        <di:waypoint x="1094.0" y="404.6"/>
+        <di:waypoint x="1094.0" y="343.4"/>
+        <di:waypoint x="1237.6" y="343.4"/>
+        <di:waypoint x="1237.6" y="282.1"/>
+        <di:waypoint x="1259.6" y="282.1"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_13" bpmnElement="flow_13">
+        <di:waypoint x="1064.0" y="410.5"/>
+        <di:waypoint x="1110.0" y="410.5"/>
+        <di:waypoint x="1110.0" y="386.3"/>
+        <di:waypoint x="1237.6" y="386.3"/>
+        <di:waypoint x="1237.6" y="362.1"/>
+        <di:waypoint x="1259.6" y="362.1"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_14" bpmnElement="flow_14">
+        <di:waypoint x="1064.0" y="416.4"/>
+        <di:waypoint x="1118.0" y="416.4"/>
+        <di:waypoint x="1118.0" y="442.1"/>
+        <di:waypoint x="1259.6" y="442.1"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_15" bpmnElement="flow_15">
+        <di:waypoint x="1064.0" y="422.3"/>
+        <di:waypoint x="1102.0" y="422.3"/>
+        <di:waypoint x="1102.0" y="472.2"/>
+        <di:waypoint x="1237.6" y="472.2"/>
+        <di:waypoint x="1237.6" y="522.1"/>
+        <di:waypoint x="1259.6" y="522.1"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_16" bpmnElement="flow_16">
+        <di:waypoint x="1040.0" y="434.5"/>
+        <di:waypoint x="1040.0" y="602.1"/>
+        <di:waypoint x="1259.6" y="602.1"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_17" bpmnElement="flow_17">
+        <di:waypoint x="1369.6" y="202.1"/>
+        <di:waypoint x="1516.0" y="202.1"/>
+        <di:waypoint x="1516.0" y="386.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_18" bpmnElement="flow_18">
+        <di:waypoint x="1369.6" y="282.1"/>
+        <di:waypoint x="1524.0" y="282.1"/>
+        <di:waypoint x="1524.0" y="386.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_19" bpmnElement="flow_19">
+        <di:waypoint x="1369.6" y="362.1"/>
+        <di:waypoint x="1391.6" y="362.1"/>
+        <di:waypoint x="1391.6" y="409.9"/>
+        <di:waypoint x="1474.0" y="409.9"/>
+        <di:waypoint x="1474.0" y="410.5"/>
+        <di:waypoint x="1496.0" y="410.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_20" bpmnElement="flow_20">
+        <di:waypoint x="1369.6" y="442.1"/>
+        <di:waypoint x="1391.6" y="442.1"/>
+        <di:waypoint x="1391.6" y="414.5"/>
+        <di:waypoint x="1496.0" y="414.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_21" bpmnElement="flow_21">
+        <di:waypoint x="1369.6" y="522.1"/>
+        <di:waypoint x="1516.0" y="522.1"/>
+        <di:waypoint x="1516.0" y="434.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_22" bpmnElement="flow_22">
+        <di:waypoint x="1369.6" y="602.1"/>
+        <di:waypoint x="1524.0" y="602.1"/>
+        <di:waypoint x="1524.0" y="434.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_23" bpmnElement="flow_23">
+        <di:waypoint x="1544.0" y="410.5"/>
+        <di:waypoint x="1625.0" y="410.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_24" bpmnElement="flow_24">
+        <di:waypoint x="1735.0" y="410.5"/>
+        <di:waypoint x="1816.0" y="410.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_25" bpmnElement="flow_25">
+        <di:waypoint x="1840.0" y="434.5"/>
+        <di:waypoint x="1840.0" y="532.5"/>
+        <di:waypoint x="2146.1" y="532.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_26" bpmnElement="flow_26">
+        <di:waypoint x="1864.0" y="412.5"/>
+        <di:waypoint x="2146.1" y="412.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_27" bpmnElement="flow_27">
+        <di:waypoint x="1840.0" y="386.5"/>
+        <di:waypoint x="1840.0" y="309.5"/>
+        <di:waypoint x="1905.0" y="309.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_28" bpmnElement="flow_28">
+        <di:waypoint x="2015.0" y="309.5"/>
+        <di:waypoint x="2146.1" y="309.5"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

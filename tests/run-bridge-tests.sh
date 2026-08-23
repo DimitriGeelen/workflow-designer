@@ -1159,6 +1159,35 @@ else
 fi
 
 echo
+echo "== The two geometry carriers AGREE, not merely both exist (T-423) =="
+# The leg above proves aef:position is PRESENT. From 389133c8 that is no longer enough:
+# every export now carries dc:Bounds as well, and the presence guard stays green while the
+# two drift apart — the exact failure its own docstring claims to cover. This leg is the
+# other half, and it could not have been built before the emitter existed because until
+# then aef:position had no rival to disagree with.
+#
+# WHY THE CDP PROBE AND NOT THE PYTHON GUARD DIRECTLY. The guard is pure and needs a
+# document; the only documents carrying BOTH carriers are export products, since the
+# rendered corpus on disk has never held DI. Wiring the guard against a checked-in witness
+# would make this leg green on a snapshot — it would keep passing after the emitter changed,
+# which is the staleness this whole task keeps finding elsewhere. The probe exports all 24
+# maps through a real browser on every run, so the artefact under test is always the one the
+# current source produces. That is also what answers AEF's question at rail 11876 as asked:
+# a real artefact, with a real competitor, not a fixture built to be checked.
+#
+# It refreshes tests/fixtures/exported/t423-carrier-witness.bpmn on success. Exports are
+# deterministic, so that file only moves when the emitter does — and when it moves, it
+# should. The teeth mutate the witness rather than the live export precisely so they can run
+# without a browser; they are picked up by the T-509 instrument sweep by name.
+if timeout 300 node "$ROOT/tools/_t423-carrier-agreement-cdp.mjs" > "$TMP/leg-_t423-carrier-agreement.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "aef:position and dc:Bounds no longer agree, or no longer cover the same nodes, on the exported corpus — the offending node is named by id (run 'node tools/_t423-carrier-agreement-cdp.mjs'; rc 2 means it REFUSED — no export carried DI at all, or a map would not export — which says the subject is broken, not the invariant)"
+  show_output "$TMP/leg-_t423-carrier-agreement.out" "_t423-carrier-agreement-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Unwired flow nodes survive a save round-trip (T-511, AEF rail 11833 Q2) =="
 # Wired because I ASSERTED this to AEF on the rail at 11879 — "unwired flow nodes survive,
 # element id does not, identity travels on aef:uid" — and an assertion made to a peer that

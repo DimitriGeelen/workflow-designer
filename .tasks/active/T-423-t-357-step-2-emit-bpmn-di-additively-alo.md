@@ -392,7 +392,7 @@ caught one commit later instead of twelve days.
       **KNOWN LIMIT, recorded the day it landed rather than discovered later — see the AC
       below.** This guard proves the carrier is *present*. It cannot prove the two carriers
       *agree*, because until the emitter exists there is nothing to disagree with.
-- [ ] **The two carriers must be shown to AGREE, not merely to both exist.** `dc:Bounds`
+- [x] **The two carriers must be shown to AGREE, not merely to both exist.** `dc:Bounds`
       x/y must match `aef:position` x/y for every node, within a stated tolerance, and the
       check must be watched going red when they are made to differ. **This AC exists
       because of AEF at rail 11876**, reporting their own index canary was a false green
@@ -406,6 +406,26 @@ caught one commit later instead of twelve days.
       green while the two geometries drift apart, which is the exact failure its own
       docstring claims to guard. Present-and-agreeing is the assertion; present-alone was
       only ever the half that could be built before the emitter existed.
+      **DONE 2026-08-23.** `tools/_t423-carrier-agreement-guard.py`, wired as a standing suite
+      leg through `tools/_t423-carrier-agreement-cdp.mjs`, which exports all 24 corpus maps
+      through a real browser so the artefact under test is always what the current source
+      produces — a checked-in fixture would keep the leg green after the emitter moved.
+      Measured: 24 documents, 24 carrying both carriers, **306 node pairs compared, zero
+      disagreements, tolerance 0.05** (half the last digit `.toFixed(1)` can emit; the
+      docstring argues why neither 0.0 nor 0.1 is honest). Teeth in
+      `tools/_t423-carrier-agreement-teeth.py`, **12/12**, every case mutating a document the
+      designer actually emitted. **AEF's decoy, in substance and not just in citation:** two
+      cases rename `@bpmnElement` — one shape, then all of them — collapsing the join between
+      the carriers so that ZERO pairs remain. A guard that compares only the pairs that match
+      scores the loudest possible disagreement as perfect agreement, which is exactly why
+      their canary ranked first on an index with no rival. The first draft of this guard
+      **refused** on that case; the teeth caught it and vacuity is now judged on whether the
+      rival carrier is *present*, never on whether the comparison produced rows. Anti-overfit
+      legs: a sub-tolerance drift and a moved `di:waypoint` must both stay **green**.
+      **Checked rather than assumed:** `centerOf()` at `src:3848` is `n.x + w/2`, so the
+      model's x/y is the top-left and `dc:Bounds` means the same quantity in the same frame —
+      had it been centre-origin, yesterday's emitter was wrong by half a node everywhere and
+      this guard would have said so on its first run.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -519,6 +539,24 @@ grep -q '_t423-position-carrier-guard.py' tests/run-bridge-tests.sh
 python3 -c "import ast,sys; t=ast.parse(open('tools/_t423-position-carrier-guard.py').read()); d={ast.get_docstring(n,clean=False) for n in ast.walk(t) if isinstance(n,(ast.Module,ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}; bad=[n for n in ast.walk(t) if isinstance(n,ast.Constant) and n.value not in d and '306' in str(n.value)]; sys.exit(1 if bad else 0)"
 python3 -c "import py_compile,sys; py_compile.compile('tools/_t423-position-carrier-guard.py', doraise=True); py_compile.compile('tools/_t423-position-carrier-teeth.py', doraise=True)"
 
+# ── The two-carrier AGREEMENT guard (landed 2026-08-23) ──────────────────────────────
+# The teeth are the load-bearing leg here for the same reason they are above, and one step
+# further: their population is a REAL export, written by the real designer through a real
+# browser, not a document composed to be checked. Twelve cases, and the two that matter most
+# are the DECOY pair — rename one `@bpmnElement`, then rename all of them. Both destroy the
+# join between the carriers, which is the loudest disagreement possible, and a guard that
+# compares only the pairs that happen to match scores both as perfect agreement. That is
+# AEF's rail-11876 lesson applied rather than quoted.
+python3 tools/_t423-carrier-agreement-teeth.py > /dev/null
+# Real artefact, real competitor: exports all 24 corpus maps in a browser and runs the guard
+# over the output. Not pointed at the rendered corpus, which carries no DI and on which the
+# guard correctly REFUSES — a fact this task's Evolution records rather than papering over.
+timeout 300 node tools/_t423-carrier-agreement-cdp.mjs > /dev/null
+grep -q '_t423-carrier-agreement-cdp.mjs' tests/run-bridge-tests.sh
+# Same AST walk as above, same reason: the docstring quotes the numbers it warns against.
+python3 -c "import ast,sys; t=ast.parse(open('tools/_t423-carrier-agreement-guard.py').read()); d={ast.get_docstring(n,clean=False) for n in ast.walk(t) if isinstance(n,(ast.Module,ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}; bad=[n for n in ast.walk(t) if isinstance(n,ast.Constant) and n.value not in d and any(p in str(n.value) for p in ('306','24 '))]; sys.exit(1 if bad else 0)"
+python3 -c "import py_compile,sys; py_compile.compile('tools/_t423-carrier-agreement-guard.py', doraise=True); py_compile.compile('tools/_t423-carrier-agreement-teeth.py', doraise=True)"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -579,6 +617,87 @@ python3 -c "import py_compile,sys; py_compile.compile('tools/_t423-position-carr
   became reachable today — before this commit `aef:position` had no rival to disagree with.
   The carrier-presence guard shipped in August stays green while the two geometries drift
   apart, which is exactly the failure its own docstring claims to cover.
+
+### 2026-08-23 (second slice) — the agreement guard exists, its teeth corrected it twice before it was wired, and one AC is ticked
+
+- **What changed:** `tools/_t423-carrier-agreement-guard.py` (the checker),
+  `tools/_t423-carrier-agreement-teeth.py` (12 cases), and
+  `tools/_t423-carrier-agreement-cdp.mjs` (exports all 24 corpus maps through a real browser
+  and runs the checker over the output). Wired as a standing suite leg. **The last remaining
+  Agent AC of this task is ticked and it is the only one that is** — the four ACs about
+  schema validation, the additive diff, extension counts and round-trip byte-identity are
+  untouched by this slice and are named again below so the tick above cannot be read as more
+  than it is.
+- **Measured on real exports, not fixtures:** 24 documents, 24 carrying both carriers, **306
+  node pairs compared**, zero disagreements, tolerance 0.05. The 306 is the third
+  independent count of the same population to agree — nodes, `aef:position` occurrences, and
+  now carrier pairs — which is why this guard could land green rather than red on a backlog
+  (T-491's rule).
+- **The tolerance is stated and argued rather than picked.** Both carriers are written by the
+  same exporter from the same model field through `.toFixed(1)`, so they agree exactly today
+  and `TOL = 0.05` is half the last emitted digit. Not 0.0, which makes the verdict hostage
+  to float parsing rather than to the values; not 0.1, at which the *smallest drift the
+  format can express* — the one a refactor actually produces — would pass.
+- **Checked rather than assumed, and it could have gone the other way:** `centerOf()` at
+  `src:3848` is `n.x + w/2`, so the model's x/y is the **top-left**, which is what
+  `dc:Bounds` means. Had the model been centre-origin, yesterday's emitter would have been
+  wrong by half a node on every shape and this guard would have found it on its first run.
+  That is the check earning its keep before any drift exists.
+
+- **THE TEETH CORRECTED THE GUARD TWICE, BOTH TIMES BEFORE IT WAS WIRED.** Neither was
+  cosmetic and the second was a real defect in the assertion:
+  1. **A no-op mutant, caught by the detector added because of yesterday.** The
+     sub-tolerance control shifted a bound by `+0.04` and re-printed it at `.1f`, which
+     rounds *straight back to the original string*. The mutation changed nothing, the guard
+     correctly reported nothing wrong, and it would have been recorded as "the tolerance
+     window works" on the strength of a document that was never mutated. Yesterday's
+     `_t361-guard-teeth.py` had exactly this shape and it took a day to find; here it took
+     one run, because the `case()` helper now refuses a mutation whose output equals its
+     input.
+  2. **The refusal branch was ordered wrong, and the DECOY is what exposed it.** Renaming
+     every `@bpmnElement` collapses the join between the carriers entirely — zero pairs. The
+     first draft refused (`rc=2`, "nothing to compare") on the total failure of the thing it
+     exists to check. Two situations produce zero pairs and they are opposites: *no DI in
+     the document at all* (a source map, or a deleted emitter) and *DI present, join broken*
+     (the loudest disagreement there is). Vacuity is now judged on whether the **rival
+     carrier is there**, never on whether the comparison produced rows. A mixed run — one
+     export with DI, one without — is now a finding rather than an average, and has its own
+     teeth case.
+- **AEF's question, answered as asked.** Rail 11876: *"has anyone watched it go red, against
+  a real artefact, with a real competitor?"* All twelve cases mutate
+  `tests/fixtures/exported/t423-carrier-witness.bpmn`, a document the designer actually
+  emitted. The competitor is `dc:Bounds`, written by the emitter that landed yesterday. And
+  the two decoy cases are theirs in substance: the naive implementation scores a broken join
+  as perfect agreement for precisely the reason their canary ranked first on an index with
+  no rival.
+- **Why the suite leg is the browser probe and not the checker over the witness.** A
+  checked-in witness would keep this leg green after the emitter changed — the staleness this
+  task keeps finding elsewhere. The probe re-exports on every run, so the artefact under test
+  is always what the current source produces. The witness exists only so the teeth can run
+  without a browser.
+- **What the guard deliberately does not check, stated so the omission is not read as
+  coverage:** edge waypoints. `di:waypoint` has no rival carrier — `aef:waypoint` exists on
+  one node in the corpus and expresses *intent*, not a computed route. A check with one input
+  is the shape this whole guard argues against. The teeth pin a benign waypoint edit as
+  **green**, which is what separates this from a guard that reddens on any diff.
+
+- **FOUND WHILE LOOKING FOR SOMETHING ELSE, AND IT IS YESTERDAY'S FALLOUT — filed as T-576,
+  registered as G-042.** `tools/_t361-export-trailer-cdp.mjs` asserts that exported bytes
+  *carry* the DI trailer. Yesterday's commit retired that. Measured: a current export carries
+  **0** occurrences, the T-361 witness carries **1** and was last written under T-399 at
+  `4c40414c`. The probe is unwired, so the suite's 126/0 and the sweep's 51/51 were both
+  correct and both silent. Worse, it writes its witness *before* its verdict, and
+  `_t361-guard-teeth.py` cases 7 and 8 mutate that same file — so running one unwired probe
+  breaks a **wired** teeth script. **G-042 is the reason rather than the mess:** the
+  unwired-guard baseline records that nothing calls an instrument and nothing else; an
+  instrument idle because it is slow and an instrument whose subject has been *removed* are
+  the same row in it. 66 rows, 0 with any record of when their claim was last true. It was
+  found by reading the file to clone its harness — no check surfaced it.
+- **Still not tickable, and not attempted here:** DI schema validation against the BPMN 2.0
+  DI schema (still behind the operator's five-file vendoring question), the additive diff,
+  the intent-extension counts, and export→re-import→export byte-identity across 24 maps. The
+  last of those is the one most likely to find a defect in yesterday's emitter, and it is the
+  natural next slice.
 
 <!-- original Evolution template below -->
 ## Evolution

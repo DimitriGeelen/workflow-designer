@@ -2500,3 +2500,64 @@ concerns:
   - T-570
   - T-566
   closure_check_command: "python3 -c \"import glob,re,json,os\nPAT=re.compile(r'not a (data-loss )?risk|is safe|cannot happen|no need to check|does not need|not a concern',re.I)\nhits=[]\nfor f in glob.glob('tests/*.py')+glob.glob('tools/_t*.py')+glob.glob('tools/_t*.mjs'):\n    t=open(f,encoding='utf-8',errors='replace').read()\n    if PAT.search(t): hits.append(os.path.basename(f))\nmanifest=os.path.exists('.context/guard-coverage.yaml')\nprint(json.dumps({'verdict':'READY' if (manifest and not hits) else 'NOT_READY','ready':bool(manifest and not hits),'guards_with_reassurance_prose':len(hits),'files':hits[:12],'coverage_manifest_exists':manifest,'gap':'G-041'}))\""
+- id: G-042
+  title: The unwired-guard baseline records that an instrument is not run, and nothing records
+    whether what it asserts is still true
+  severity: medium
+  status: watching
+  registered: 2026-08-23
+  detail: 'T-423 stopped emitting the DI trailer at 389133c8. The suite went 126 passed / 0
+    failed, the instrument sweep went 51/51, and both were correct: nothing that RUNS asserts
+    the trailer is emitted. But tools/_t361-export-trailer-cdp.mjs does assert exactly that
+    — its whole subject is "prove the repaired trailer survives a REAL export" — and it sat
+    green-by-absence because it is unwired. It was found by reading an unrelated file a day
+    later, not by any check.
+
+    Measured at registration: a current export carries 0 occurrences of the trailer string;
+    tests/fixtures/exported/t361-trailer-witness.bpmn carries 1 and was last written under
+    T-399 at 4c40414c. tools/unwired-guard-baseline.txt lists 66 instruments in this
+    condition, and what it records about each of them is that nothing calls it. That is one
+    fact where two are needed. An instrument nothing calls because it is slow, and an
+    instrument nothing calls whose claim has since been retired, are the same row.
+
+    THE SECOND-ORDER HAZARD IS NOT HYPOTHETICAL. _t361-export-trailer-cdp.mjs writes
+    tests/fixtures/exported/t361-trailer-witness.bpmn unconditionally, before its own verdict.
+    Running it today replaces a trailer-carrying witness with a trailer-free one, and
+    tools/_t361-guard-teeth.py cases 7 and 8 both mutate that witness — case 8 raising
+    "witness did not carry the current trailer — nothing mutated". So running one unwired
+    probe breaks a WIRED teeth script. Filed as T-576; this gap is the reason it happened,
+    not the mess itself.
+
+    RELATION TO G-041, which is close but not this. G-041 is about a guard whose PROSE claims
+    coverage its legs do not evaluate. This is about an instrument whose legs are perfectly
+    honest and whose SUBJECT has been retired underneath it. G-041 asks "does anything check
+    what this file says it checks?"; this asks "is what this file checks still a thing?"'
+  evidence:
+  - 'A current export (tests/fixtures/exported/t423-carrier-witness.bpmn, written 2026-08-23 by
+    the real designer through a real browser) contains 0 occurrences of "BPMN DI (visual layout)
+    omitted"; _t361-export-trailer-cdp.mjs fails its own PREFIX assertion on a CORRECT designer'
+  - 'The failure would read as "the designer lost the trailer" — a true statement about the
+    bytes and a false one about what should be — so even running it does not, on its own,
+    report the right finding'
+  - '66 instruments in tools/unwired-guard-baseline.txt carry no record of when their claim was
+    last true, only that nothing calls them'
+  - 'Found by reading _t361-export-trailer-cdp.mjs while looking for a CDP harness to clone for
+    T-423''s carrier-agreement probe. No check surfaced it; the discovery was incidental.'
+  decision_trigger: 'CLOSES when the unwired-guard baseline carries, per instrument, a record of
+    the last time its claim was evaluated against the current source — and a routine check flags
+    an instrument whose subject has been removed. Explicitly NOT closure: (a) repairing
+    _t361-export-trailer-cdp.mjs — that is the one mess cleaned up, and T-576 is where it belongs;
+    (b) wiring every unwired instrument into the suite — several are excluded for reasons the
+    sweep already documents by name, and wiring them would trade this blindness for a slower one;
+    (c) a convention that says "when you remove a behaviour, grep for instruments asserting it" —
+    the removal here was deliberate and well-reasoned and the grep still did not happen, so a rule
+    telling me to do it does not detect the next one.
+
+    READ THE CLOSURE CHECK''S COUNT AS A CENSUS, NOT A DEFECT COUNT. It reports how many baseline
+    rows carry no evaluation record. At registration that is all 66, because the column does not
+    exist yet — the number says how much is unexamined, not how much is broken.'
+  related_tasks:
+  - T-576
+  - T-423
+  - T-361
+  closure_check_command: "python3 -c \"import os,json,re\nb='tools/unwired-guard-baseline.txt'\nrows=[l.strip() for l in open(b,encoding='utf-8')] if os.path.exists(b) else []\nrows=[l for l in rows if l and not l.startswith('#')]\ndated=[l for l in rows if re.search(r'\\\\d{4}-\\\\d{2}-\\\\d{2}',l)]\nprint(json.dumps({'verdict':'READY' if rows and len(dated)==len(rows) else 'NOT_READY','ready':bool(rows and len(dated)==len(rows)),'unwired_instruments':len(rows),'with_evaluation_record':len(dated),'gap':'G-042'}))\""
