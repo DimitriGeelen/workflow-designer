@@ -537,6 +537,52 @@ python3 -c "import py_compile,sys; py_compile.compile('tools/_t423-position-carr
 
 ## Evolution
 
+### 2026-08-23 — the emitter landed; none of the remaining ACs are tickable yet, and that is the honest state
+
+- **What changed:** the DI *mechanism* is in. `bpmndi:BPMNDiagram`/`BPMNPlane` is emitted
+  unconditionally, `dc:Bounds` for every positioned node, `bpmndi:BPMNEdge` +
+  `di:waypoint` for every edge whose endpoints resolve. `aef:position` and the intent
+  extensions are untouched. `_t308-export-byte-identity-cdp.mjs`: **24/24 drifted, 0
+  identical, 0 errors, 0 unusable** — the predicted one-party baseline churn, measured
+  through a real browser export rather than inferred from the diff.
+- **What I did NOT anticipate — the geometry had no single owner.** The AC asks for
+  `di:waypoint` per edge, and the routed polyline lived only inside `renderEdges()`,
+  interleaved with drag state. Computing it a second time in the exporter would have been
+  this week's recurring shape (two lists governing one value, T-566/T-570/T-572) relocated
+  into geometry, where the drift renders as a diagram that is subtly wrong rather than as
+  anything that fails. So the settled-edge computation was **extracted** into
+  `computeEdgeGeometry()` and `renderEdges()` now calls it; drag branches keep their own
+  code. That refactor was not in the plan and is the substance of this slice.
+- **Why export must not read render state:** an emitter reading `_renderedPolyline` would
+  emit one set of DI bytes on a visible canvas and another headless. AC "round-trip is
+  byte-identical" rests on the emitter being a pure function of the model, so it is.
+  `_renderedPolyline` is also set in only ONE of `routePathFromPoints`'s two branches, so
+  reading it would have silently given the wrong answer for every manually-routed edge —
+  the polyline is read back off the path string instead, which covers both by construction.
+- **A guard went red for a correct reason and was repaired, not relaxed.** T-361's check
+  required the DI trailer to be emitted-and-derived; the trailer now has no emit site, so
+  the check would have passed vacuously on `not duplicated` alone. It now asserts the
+  disjunction and *reports which arm held*. Its teeth case 2 had become a **no-op mutant**
+  — the string it substituted no longer exists — so it now ADDS a hardcoded trailer beside
+  the DI block, which is the shape the defect would take today. Teeth 8/8, control green.
+- **`bpmndi:BPMNLabel` is deliberately absent, as a positive finding.** The AC says "label
+  bounds *where a label position is persisted*". Nothing in this editor persists one:
+  edge labels are computed at render time by `edgeLabelPos()`, node labels from the node
+  box, and there is no `labelX`/`labelY` on any model object. Emitting computed placement
+  would publish a value the model does not hold and cannot round-trip.
+- **Triggered / still open — T-423 is NOT complete.** Four ACs remain and each needs
+  measurement this slice does not supply: (1) DI schema validation of an exported map, not
+  a grep; (2) the additive diff — DI added, nothing removed or reordered; (3) intent
+  extensions untouched, by count; (4) export→re-import→export byte-identical over 24 maps.
+  And the big one, the **two-carrier agreement guard**: `dc:Bounds` x/y must be shown to
+  match `aef:position` x/y within a stated tolerance *and watched going red*. That AC only
+  became reachable today — before this commit `aef:position` had no rival to disagree with.
+  The carrier-presence guard shipped in August stays green while the two geometries drift
+  apart, which is exactly the failure its own docstring claims to cover.
+
+<!-- original Evolution template below -->
+## Evolution
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots

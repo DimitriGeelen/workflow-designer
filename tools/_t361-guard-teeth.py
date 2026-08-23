@@ -110,11 +110,33 @@ case("the false attribution is restored in DI_TRAILER",
      "trailer attributes no action to a named external party")
 
 # 2 — emitter goes back to a hardcoded duplicate (how this survived two months)
-case("emitter duplicates the literal instead of deriving it",
-     lambda tmp: edit_src(tmp, lambda b: b.replace(
-         "lines.push(`  <!-- ${DI_TRAILER} -->`);",
-         "lines.push(`  <!-- BPMN DI (visual layout) omitted; hand-written copy -->`);")),
-     "emitter derives the trailer from DI_TRAILER rather than duplicating it")
+#
+# REWRITTEN 2026-08-23 (T-423). This case used to replace the trailer's emit site with a
+# hardcoded copy. T-423 made DI unconditional and the emit site no longer exists, so that
+# replace() silently matched nothing — a NO-OP MUTANT, which does not report "the rule is
+# gone", it reports "the mutant did not die" and looks exactly like a broken guard. That
+# is the mutation-testing equivalent of this suite's own recurring finding: the check and
+# the thing it checks drifted apart, and the failure rendered as a failure of the check.
+#
+# The rule being defended is unchanged — a trailer claim in the bytes must derive from the
+# constant, never be typed a second time. So the mutant now ADDS the duplicate rather than
+# substituting it, which is the shape the defect would actually take today: someone
+# re-introduces the "DI omitted" comment by hand, next to a DI block that contradicts it.
+def _hardcoded_trailer_emit(tmp):
+    def mut(b):
+        anchor = "  lines.push(`    </bpmndi:BPMNPlane>`);"
+        if anchor not in b:
+            raise RuntimeError("anchor for the DI plane close is gone — re-point this mutant")
+        return b.replace(
+            anchor,
+            "  lines.push(`  <!-- BPMN DI (visual layout) omitted; hand-written copy -->`);\n"
+            + anchor, 1)
+    edit_src(tmp, mut)
+
+
+case("emitter re-introduces a hardcoded trailer literal beside the DI block",
+     _hardcoded_trailer_emit,
+     "the trailer is either not emitted, or every emit site derives it from DI_TRAILER")
 
 # 3 — compatibility prefix broken (would orphan every prior document's reader)
 case("trailer no longer starts with the compatibility prefix",

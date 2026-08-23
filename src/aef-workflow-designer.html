@@ -3609,7 +3609,7 @@ function renderEdges() {
 
     // Port-aware anchors. If an endpoint of *this* edge is being dragged, the
     // dragged endpoint follows the cursor (with optional snap to a port).
-    let sp, tp;
+    let sp, tp, points, path;
     let effectiveSrc = src, effectiveTgt = tgt;
     let effectiveSrcPort = e.sourcePort, effectiveTgtPort = e.targetPort;
     // T-204 S2·3 (T-168): a boundary event's outgoing edge exits its host perimeter
@@ -3619,7 +3619,16 @@ function renderEdges() {
     const srcPortEff = (srcBoundaryHost && (!e.sourcePort || e.sourcePort === 'auto'))
       ? boundaryOutwardPort(src, srcBoundaryHost)
       : e.sourcePort;
-    if (isBeingDragged && edgeDrag.role === 'source') {
+    if (!isBeingDragged) {
+      // T-423: the settled case is computed by the SAME function the DI exporter calls,
+      // so the canvas and the emitted bpmndi:BPMNEdge cannot disagree. The drag cases
+      // below keep their own code — see computeEdgeGeometry() for why.
+      const geo = computeEdgeGeometry(e, src, tgt);
+      points = geo.points;
+      path   = geo.path;
+      sp     = points[0];
+      tp     = points[points.length - 1];
+    } else if (edgeDrag.role === 'source') {
       sp = edgeDrag.previewPt || edgeDrag.cursorPt;
       // If snapping, the effective source for routing is the snap node + port.
       if (edgeDrag.snapNodeId) {
@@ -3627,7 +3636,7 @@ function renderEdges() {
         if (snap) { effectiveSrc = snap; effectiveSrcPort = edgeDrag.snapPort; }
       }
       tp = anchorPoint(tgt, e.targetPort, sp);
-    } else if (isBeingDragged && edgeDrag.role === 'target') {
+    } else if (edgeDrag.role === 'target') {
       tp = edgeDrag.previewPt || edgeDrag.cursorPt;
       if (edgeDrag.snapNodeId) {
         const snap = findNode(edgeDrag.snapNodeId);
@@ -3635,58 +3644,33 @@ function renderEdges() {
       }
       sp = anchorPoint(src, srcPortEff, tp);
     } else {
+      // A drag with neither role — no interactive geometry to honour, so fall back to
+      // the plain anchors. Kept rather than dropped: `isBeingDragged` only requires a
+      // cursor point, and leaving sp/tp undefined here would throw in the handle render.
       sp = anchorPoint(src, srcPortEff, firstWp ? firstWp : centerOf(tgt));
       tp = anchorPoint(tgt, e.targetPort, lastWp ? lastWp : centerOf(src));
     }
 
-    // Multi-edge spread (A1 + B3): if this edge shares a side with sibling edges,
-    // distribute it perpendicular to the exit direction so they don't overlap.
-    // We don't apply spread to the *dragged* endpoint — that's following the cursor.
-    if (!isBeingDragged) {
-      const sDir = exitDirection(src, sp, srcPortEff || 'auto');
-      const tDir = exitDirection(tgt, tp, e.targetPort || 'auto');
-      const sOff = spreadOffset(e, 'source', sDir, src);
-      const tOff = spreadOffset(e, 'target', tDir, tgt);
-      sp = applySpread(sp, sDir, sOff);
-      tp = applySpread(tp, tDir, tOff);
-      // Corridor channels (T-097): per-rank stub extension so fan/join siblings
-      // turn in separate lanes. User routing overrides win — no channel then.
-      const hasRouteOverride = wps.length > 0 ||
-        (e.routingHints && Object.keys(e.routingHints).length > 0) ||
-        typeof e.detourY === 'number';
-      e._chanS = hasRouteOverride ? 0 : channelExtra(e, 'source', sDir, src);
-      e._chanT = hasRouteOverride ? 0 : channelExtra(e, 'target', tDir, tgt);
-      // Straightening pass (T-073): near-aligned auto anchors slide onto a
-      // shared axis so the edge renders straight instead of as a 2-corner jog.
-      // Render-only — node positions are untouched. Skipped for pinned ports,
-      // spread-offset siblings, manual waypoints, hints, and loop detours.
-      if (sOff === 0 && tOff === 0 && wps.length === 0 &&
-          (!srcPortEff || srcPortEff === 'auto') &&
-          (!e.targetPort || e.targetPort === 'auto') &&
-          !(e.routingHints && Object.keys(e.routingHints).length > 0) &&
-          typeof e.detourY !== 'number') {
-        const st = straightenAnchors(src, tgt, sp, tp, sDir, tDir);
-        if (st) { sp = st.sp; tp = st.tp; }
+    // Drag-only geometry. Only the non-dragged end gets spread; no channels while
+    // dragging. The settled case took the computeEdgeGeometry() branch above and has
+    // already applied spread, channels and straightening there.
+    if (isBeingDragged) {
+      if (edgeDrag.role === 'source') {
+        e._chanS = 0; e._chanT = 0;
+        const tDir = exitDirection(tgt, tp, e.targetPort || 'auto');
+        const tOff = spreadOffset(e, 'target', tDir, tgt);
+        tp = applySpread(tp, tDir, tOff);
+      } else if (edgeDrag.role === 'target') {
+        e._chanS = 0; e._chanT = 0;
+        const sDir = exitDirection(src, sp, srcPortEff || 'auto');
+        const sOff = spreadOffset(e, 'source', sDir, src);
+        sp = applySpread(sp, sDir, sOff);
       }
-    } else if (edgeDrag.role === 'source') {
-      // Only the non-dragged end gets spread; no channels while dragging
-      e._chanS = 0; e._chanT = 0;
-      const tDir = exitDirection(tgt, tp, e.targetPort || 'auto');
-      const tOff = spreadOffset(e, 'target', tDir, tgt);
-      tp = applySpread(tp, tDir, tOff);
-    } else if (edgeDrag.role === 'target') {
-      e._chanS = 0; e._chanT = 0;
-      const sDir = exitDirection(src, sp, srcPortEff || 'auto');
-      const sOff = spreadOffset(e, 'source', sDir, src);
-      sp = applySpread(sp, sDir, sOff);
+      points = [sp, ...wps, tp];
+      // Build a temporary edge shape with effective ports for the router.
+      const effectiveEdge = { ...e, sourcePort: effectiveSrcPort, targetPort: effectiveTgtPort };
+      path = routePathFromPoints(points, effectiveSrc, effectiveTgt, wps.length > 0, effectiveEdge);
     }
-    const points = [sp, ...wps, tp];
-
-    // Build a temporary edge shape with effective ports for the router.
-    const effectiveEdge = isBeingDragged
-      ? { ...e, sourcePort: effectiveSrcPort, targetPort: effectiveTgtPort }
-      : e;
-    const path = routePathFromPoints(points, effectiveSrc, effectiveTgt, wps.length > 0, effectiveEdge);
 
     const g = el('g', { class: 'edge' + (isSelected ? ' selected' : '') + (isBeingDragged ? ' dragging' : '') + (isFloating ? ' floating' : ''), 'data-id': e.id });
     g.appendChild(el('path', { d: path, class: 'edge-hit' }));
@@ -5136,6 +5120,78 @@ function routePathFromPoints(points, src, tgt, hasManualWaypoints, edge) {
     edge._renderedPolyline = poly;
   }
   return 'M' + poly.map(p => `${p.x} ${p.y}`).join(' L');
+}
+
+// ---- T-423 (T-357 step 2): the ONE computation of a non-interactive edge's geometry ----
+//
+// Extracted rather than duplicated, deliberately. Emitting BPMN DI needs the same
+// polyline the canvas draws. Computing it a second time inside the exporter would be
+// this week's recurring shape — two lists governing one value with nothing holding them
+// in correspondence (T-566 AEF_FIELDS vs metaKeys, T-570 import vs export, T-572 a test
+// named parity that asserts a subset) — except in geometry, where the drift renders as a
+// diagram that is subtly WRONG rather than as anything that fails.
+//
+// Interaction state is deliberately NOT a parameter. The drag branches in renderEdges()
+// keep their own code, because a half-dragged edge has no business being exported. What
+// remains is a pure function of the MODEL, and that is the property export determinism
+// rests on: the same document emits the same bytes whether or not the canvas has ever
+// rendered it. An emitter that read render state would produce one set of DI bytes on a
+// visible canvas and another headless, which is a spurious diff on every save.
+function computeEdgeGeometry(e, src, tgt) {
+  const wps = e.waypoints || [];
+  const firstWp = wps[0];
+  const lastWp = wps[wps.length - 1];
+
+  // T-204 S2·3 (T-168): a boundary event's outgoing edge exits its host perimeter
+  // outward. Auto source only — an explicit port pin still wins.
+  const srcBoundaryHost = boundaryHostOf(src);
+  const srcPortEff = (srcBoundaryHost && (!e.sourcePort || e.sourcePort === 'auto'))
+    ? boundaryOutwardPort(src, srcBoundaryHost)
+    : e.sourcePort;
+
+  let sp = anchorPoint(src, srcPortEff, firstWp ? firstWp : centerOf(tgt));
+  let tp = anchorPoint(tgt, e.targetPort, lastWp ? lastWp : centerOf(src));
+
+  // Multi-edge spread (A1 + B3), corridor channels (T-097), straightening (T-073).
+  const sDir = exitDirection(src, sp, srcPortEff || 'auto');
+  const tDir = exitDirection(tgt, tp, e.targetPort || 'auto');
+  const sOff = spreadOffset(e, 'source', sDir, src);
+  const tOff = spreadOffset(e, 'target', tDir, tgt);
+  sp = applySpread(sp, sDir, sOff);
+  tp = applySpread(tp, tDir, tOff);
+  const hasRouteOverride = wps.length > 0 ||
+    (e.routingHints && Object.keys(e.routingHints).length > 0) ||
+    typeof e.detourY === 'number';
+  e._chanS = hasRouteOverride ? 0 : channelExtra(e, 'source', sDir, src);
+  e._chanT = hasRouteOverride ? 0 : channelExtra(e, 'target', tDir, tgt);
+  if (sOff === 0 && tOff === 0 && wps.length === 0 &&
+      (!srcPortEff || srcPortEff === 'auto') &&
+      (!e.targetPort || e.targetPort === 'auto') &&
+      !(e.routingHints && Object.keys(e.routingHints).length > 0) &&
+      typeof e.detourY !== 'number') {
+    const st = straightenAnchors(src, tgt, sp, tp, sDir, tDir);
+    if (st) { sp = st.sp; tp = st.tp; }
+  }
+
+  const points = [sp, ...wps, tp];
+  const path = routePathFromPoints(points, src, tgt, wps.length > 0, e);
+  // The ROUTED polyline, not `points`. routePathFromPoints stashes _renderedPolyline in
+  // its no-waypoint branch ONLY, so reading that field would silently give the wrong
+  // answer (a stale value, or none) for every manually-routed edge. Reading it back off
+  // the path string covers both branches by construction.
+  return { points, path, polyline: polylineFromPath(path) };
+}
+
+// 'M x y L x y L …' -> [{x,y}, …]. routePathFromPoints is the only producer of that
+// string and both of its branches emit this exact form.
+function polylineFromPath(path) {
+  if (!path) return [];
+  const out = [];
+  for (const m of String(path).matchAll(/(-?[\d.]+)\s+(-?[\d.]+)/g)) {
+    const x = parseFloat(m[1]), y = parseFloat(m[2]);
+    if (Number.isFinite(x) && Number.isFinite(y)) out.push({ x, y });
+  }
+  return out;
 }
 
 // For intermediate joins in manually-routed paths, infer a reasonable exit/arrival
@@ -9707,6 +9763,14 @@ function aefExtensionXml(node) {
 // The PREFIX is load-bearing for compatibility and must not change: documents
 // exported by all 11 prior releases carry it, and both readers match on it.
 const DI_TRAILER_PREFIX = 'BPMN DI (visual layout) omitted';
+// NO LONGER EMITTED as of T-423 — DI is now written unconditionally, so a comment
+// claiming DI is omitted would contradict the bytes beside it. Kept, not deleted, and
+// the distinction matters: DI_TRAILER_PREFIX is live (readDocComment matches on it to
+// keep a boilerplate-only comment out of a map's doc slot, and AEF's corpus_spec.py:194
+// does the same on their side), while this full string is the CANONICAL SPELLING that
+// tests/test_emitted_comment_claims.py holds any future emit site to. Deleting it would
+// leave that guard with nothing to compare against, and the next person to re-introduce
+// a "DI omitted" comment would type it by hand — which is precisely the T-361 defect.
 const DI_TRAILER = `${DI_TRAILER_PREFIX}; node geometry travels as aef:position`;
 
 // T-399: PRODUCER IDENTITY — the answer to "did we export this document?"
@@ -9984,33 +10048,88 @@ function buildBpmnXml(s) {
 
   lines.push(`  </bpmn:process>`);
   lines.push(``);
-  // T-340 ruling (b), export half: re-emit DI ONLY when the document we imported
-  // carried it. Not "always emit DI" — that would rewrite all 126 aef:position-only
-  // documents in the corpus and force AEF to re-pin bytes for a change none of their
-  // readers asked for.
+  // SUPERSEDED 2026-08-23 (T-423). This block previously read:
   //
-  // The trailer and the DI block are mutually exclusive by construction, and that is
-  // load-bearing rather than tidiness: DI_TRAILER states in prose that DI is OMITTED.
-  // Emitting both would ship a sentence that contradicts the bytes three lines below
-  // it — which is precisely the T-361 defect (a trailer whose claim had no referent)
-  // committed a second time, in the same constant, by the change that was supposed to
-  // make the claim true.
-  if (s.sourceCarriedDi) {
-    const wfId = escAttr(s.workflowMeta.id);
-    lines.push(`  <bpmndi:BPMNDiagram id="BPMNDiagram_${wfId}">`);
-    lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="Process_${wfId}">`);
-    for (const n of s.nodes) {
-      const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
-      if (typeof n.x !== 'number' || typeof n.y !== 'number') continue;
-      lines.push(`      <bpmndi:BPMNShape id="BPMNShape_${escAttr(displayIdOf(n))}" bpmnElement="${escAttr(displayIdOf(n))}">`);
-      lines.push(`        <dc:Bounds x="${n.x.toFixed(1)}" y="${n.y.toFixed(1)}" width="${def.w}" height="${def.h}"/>`);
-      lines.push(`      </bpmndi:BPMNShape>`);
-    }
-    lines.push(`    </bpmndi:BPMNPlane>`);
-    lines.push(`  </bpmndi:BPMNDiagram>`);
-  } else {
-    lines.push(`  <!-- ${DI_TRAILER} -->`);   // T-361: was a hardcoded duplicate of DI_TRAILER
+  //   "T-340 ruling (b), export half: re-emit DI ONLY when the document we imported
+  //    carried it. Not 'always emit DI' — that would rewrite all 126 aef:position-only
+  //    documents in the corpus and force AEF to re-pin bytes for a change none of their
+  //    readers asked for."
+  //
+  // The rule is now gone and so is its reason, which is the part worth recording: the
+  // second sentence was FALSE when written, and T-473 measured it. AEF pins none of the
+  // 24 corpus maps and holds no copy of `examples/aef-processes/rendered/` at all (their
+  // T-2522, rail 584 Q1/Q3). `source_bpmn_sha` is a provenance field their own
+  // bpmn_promote.py writes about THEIR staged files; it has never pinned our bytes. The
+  // seam cost of emitting DI everywhere is therefore zero, and the only real cost is
+  // one-party and ours: `_t308-export-byte-identity` goes 24/24 drifted against a
+  // baseline we own and refresh. Rewriting a comment rather than leaving it to be read
+  // as fact is T-509/T-523's lesson applied to the file that taught it.
+  //
+  // T-423 (T-357 step 2): DI is now emitted UNCONDITIONALLY, replacing T-340's
+  // "re-emit only when the input carried it". The beneficiary is any standard viewer
+  // (bpmn.io, Camunda) — measured, not assumed: `bpmndi` occurs exactly once in AEF's
+  // source, a namespace declaration with no reader and no writer (rail 417), and there
+  // is no DI generator anywhere on either side. So this is net-new capability and nobody
+  // is waiting on the bytes.
+  //
+  // ADDITIVE, WHICH IS THE WHOLE PROPERTY: aef:position is still written on every node,
+  // unchanged, and the intent extensions (forceStraight, routingHint, loopDetour,
+  // anchors, aef:waypoint) are untouched. Spike 3 established DI has no vocabulary for
+  // layout INTENT, only for computed results — so DI cannot carry them and must not be
+  // read as having replaced them. Step 3, not this task, is where aef:position goes.
+  //
+  // THE TRAILER'S `else` IS NOW UNREACHABLE, deliberately and with AEF's ruling behind
+  // it. DI_TRAILER states in prose that DI is OMITTED; emitting both would ship a
+  // sentence contradicting the bytes three lines below it, which is the T-361 defect
+  // committed a second time. AEF confirmed their reader uses the prefix as a NEGATIVE
+  // filter (corpus_spec.py:194, keeping the trailer out of a map's doc slot), never as a
+  // positive requirement — so a document carrying no trailer matches nothing and lands
+  // correctly. Their constant stays, because all 11 prior releases' documents carry it.
+  // DROPPING the string is safe; REWORDING it is not (they pin three live wordings and a
+  // fourth would reopen their T-2682 hole). This task stops emitting it and rewords
+  // nothing — DI_TRAILER_PREFIX is still what our own readDocComment matches on.
+  const wfId = escAttr(s.workflowMeta.id);
+  lines.push(`  <bpmndi:BPMNDiagram id="BPMNDiagram_${wfId}">`);
+  lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="Process_${wfId}">`);
+  for (const n of s.nodes) {
+    const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
+    if (typeof n.x !== 'number' || typeof n.y !== 'number') continue;
+    lines.push(`      <bpmndi:BPMNShape id="BPMNShape_${escAttr(displayIdOf(n))}" bpmnElement="${escAttr(displayIdOf(n))}">`);
+    lines.push(`        <dc:Bounds x="${n.x.toFixed(1)}" y="${n.y.toFixed(1)}" width="${def.w}" height="${def.h}"/>`);
+    lines.push(`      </bpmndi:BPMNShape>`);
   }
+  // Edges. Waypoints come from computeEdgeGeometry() — the SAME function renderEdges()
+  // calls for a settled edge — so the emitted polyline is the one the canvas draws
+  // rather than a second approximation of it. A standard viewer therefore reproduces
+  // our routing, corners included, instead of a straight line between two anchors.
+  //
+  // An edge whose endpoints are missing from the model is SKIPPED, not emitted with a
+  // degenerate polyline: DI requires at least two waypoints, and a zero-length edge
+  // renders as an invisible artefact that no reader reports.
+  for (const e of s.edges) {
+    const srcNode = findNode(e.source);
+    const tgtNode = findNode(e.target);
+    if (!srcNode || !tgtNode) continue;
+    const poly = computeEdgeGeometry(e, srcNode, tgtNode).polyline;
+    if (poly.length < 2) continue;
+    const edgeId = escAttr(displayIdOf(e));
+    lines.push(`      <bpmndi:BPMNEdge id="BPMNEdge_${edgeId}" bpmnElement="${edgeId}">`);
+    for (const p of poly) {
+      lines.push(`        <di:waypoint x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}"/>`);
+    }
+    lines.push(`      </bpmndi:BPMNEdge>`);
+  }
+  // NO bpmndi:BPMNLabel IS EMITTED, and this is a positive finding rather than an
+  // omission. The AC reads "label bounds WHERE A LABEL POSITION IS PERSISTED"; nothing
+  // in this editor persists one. Edge label placement is computed at render time by
+  // edgeLabelPos() from the routed polyline and the label's own measured width, and node
+  // labels are drawn from the node box. There is no labelX/labelY on any model object,
+  // so there is no authored position for DI to carry — emitting computed placement would
+  // publish a value the model does not hold and cannot round-trip. Stated here because
+  // "we emitted no labels" and "this model has no label positions" look identical in the
+  // output, and only the second one is a fact about the document.
+  lines.push(`    </bpmndi:BPMNPlane>`);
+  lines.push(`  </bpmndi:BPMNDiagram>`);
   lines.push(`</bpmn:definitions>`);
   return lines.join('\n');
 }

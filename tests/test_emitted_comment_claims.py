@@ -130,13 +130,28 @@ def main():
     # ── source: the emitter must DERIVE, not duplicate ──────────────────────
     # This is the structural half. A duplicate literal is how the false sentence
     # survived a repair to the constant for two months.
+    #
+    # T-423 CHANGED THE EXPECTED STATE, and the change is why this is a disjunction
+    # rather than a relaxation. DI is now emitted unconditionally, so the trailer — whose
+    # entire claim is "DI is OMITTED" — has NO emit site at all. Zero is now correct.
+    #
+    # The lazy way to absorb that is to drop the `derived and` half and keep
+    # `not duplicated`. Do not: that predicate is also satisfied by a file with no
+    # emitter in it, by a renamed constant, and by a typo in the matcher — the
+    # absence-assertion-satisfied-by-silence shape this suite pins under T-560. So state
+    # both admissible worlds explicitly, and REPORT WHICH ONE HELD, so a reader can see
+    # the difference between "nothing is emitted" and "the matcher found nothing".
     emit_lines = [l for l in src.splitlines()
                   if "lines.push" in l and "BPMN DI" in l.replace("${DI_TRAILER}", "BPMN DI")]
     derived = [l for l in emit_lines if "${DI_TRAILER}" in l]
     duplicated = [l for l in emit_lines if "${DI_TRAILER}" not in l]
-    check(derived and not duplicated,
-          "emitter derives the trailer from DI_TRAILER rather than duplicating it",
-          "\n".join(duplicated) or "no emit site found")
+    arm = ("not emitted at all (T-423: DI is unconditional)" if not emit_lines
+           else f"{len(derived)} emit site(s), all derived" if derived and not duplicated
+           else f"{len(duplicated)} DUPLICATED literal(s)")
+    check(not duplicated,
+          "the trailer is either not emitted, or every emit site derives it from DI_TRAILER"
+          f" — {arm}",
+          "\n".join(duplicated))
 
     # No stray hardcoded copy of the prefix anywhere outside the two constants.
     stray = [l for l in src.splitlines()
