@@ -4,10 +4,10 @@ name: "The unwired-guard census strips Python and shell comments but not JavaScr
 description: >
   T-495 eliminated prose false-edges for Python (tokenize + ast) and shell (word-aware hash), leaving .mjs/.js untouched. Consequence measured under T-423: tools/_t423-carrier-agreement-guard.py is counted WIRED solely because a JSDoc comment in its sibling .mjs spells out the path; reword that comment and a live guard reports unwired. The census LIMIT paragraph enumerates heredocs, md/yaml/json roots and multi-line shell strings, and does not name this one - so the blindness is not merely present, it is absent from the list that exists to state it.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: [guards, fabric]
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-23T20:55:19Z
-last_update: 2026-08-23T20:55:19Z
+last_update: 2026-08-23T21:16:57Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,8 +40,24 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **The size of the prose-edge surface is measured, not estimated.** An instrument
+      reports, over `tools/`, how many files have at least one EXECUTABLE-CODE reference
+      versus how many are referenced only from prose (`.md`, `.yaml`, JS comments), and
+      names where that prose lives. **DONE 2026-08-23:**
+      `tools/_t578-js-comment-edge-census.py` — 239 files, 237 referenced, **127 with a code
+      edge, 110 prose-only (46%)**. The JS-comment question that opened this task is
+      answered at **0** tools held by a JS comment alone; the surface it sits inside is the
+      finding. Uncertainty is reported rather than hidden: 71 files contain a construct the
+      hand-written JS stripper cannot resolve, and they are named.
+- [ ] **`_t451`'s LIMIT paragraph states the SCALE, not only the kind.** It currently
+      discloses that `.md`/`.yaml`/`.json` roots are read whole; it does not say this decides
+      reachability for nearly half the population, so the disclosure reads as an edge case.
+      Adding JS to the list is part of this and is the smaller part.
+- [ ] **A decision is recorded on what the ratchet's baseline should mean** before any
+      stripping change lands. Teaching the census to ignore prose roots would move a
+      committed baseline of 66 against 110 prose-only tools; re-cutting it around a number
+      nobody examined is the failure this line of work keeps finding. Measure first — done
+      above — then decide, and record the decision here.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -190,3 +206,31 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-578-the-unwired-guard-census-strips-python-a.md
 - **Context:** Initial task creation
+
+### 2026-08-23T21:16:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+## Findings - 2026-08-23, measured not estimated
+
+`tools/_t578-js-comment-edge-census.py`. Two numbers; the one I went looking for is the small one.
+
+**The JS question: effectively nil.** 239 files in `tools/`, 52 referenced from `.mjs`/`.js`
+at all, 11 of those from executable JS. Tools whose ONLY edge is a JavaScript comment: **0**.
+The carrier guard that prompted this task is rescued by references elsewhere. 71 files carry a
+construct the hand-written stripper cannot resolve (a regex literal can desynchronise quote
+state) and are named rather than silently trusted.
+
+**The surface it sits inside:** 237 referenced, 127 with an executable-code edge, **110
+prose-only**. That prose lives in task files (214 refs), handovers (206), episodic YAML (130),
+other .yaml (38), other .md (24), JS comments (5). `_t451` reads `.md` and `.yaml` whole, so
+any of those mentions makes a tool count WIRED. For 110 tools, reachability is a fact about
+what a handover once said, not about what runs.
+
+**Disclosed in kind, not in scale.** `_t451`'s LIMIT paragraph does say those roots are read
+whole - it exists so a clean run cannot imply coverage it lacks. It does not say this decides
+nearly half the population, and a limitation whose size is unstated reads as an edge case.
+
+**Relation to G-042.** The baseline is 66 unwired against 110 prose-only. That gap is where a
+retired instrument stays green. G-042 asks whether an instrument's claim is still true; this
+asks whether the edge that made it look watched is a call or a sentence.
