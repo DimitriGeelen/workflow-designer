@@ -2561,3 +2561,69 @@ concerns:
   - T-423
   - T-361
   closure_check_command: "python3 -c \"import os,json,re\nb='tools/unwired-guard-baseline.txt'\nrows=[l.strip() for l in open(b,encoding='utf-8')] if os.path.exists(b) else []\nrows=[l for l in rows if l and not l.startswith('#')]\ndated=[l for l in rows if re.search(r'\\\\d{4}-\\\\d{2}-\\\\d{2}',l)]\nprint(json.dumps({'verdict':'READY' if rows and len(dated)==len(rows) else 'NOT_READY','ready':bool(rows and len(dated)==len(rows)),'unwired_instruments':len(rows),'with_evaluation_record':len(dated),'gap':'G-042'}))\""
+- id: G-043
+  title: An agent's recorded recommendation and its prose recommendation for the same task can
+    contradict each other, and nothing compares them
+  severity: medium
+  status: watching
+  registered: 2026-08-23
+  detail: 'The operator has asked, across seven sessions, for outstanding decisions to be
+    surfaced. They already were. /approvals renders 40 pending items — 9 GO/NO-GO decisions and
+    36 Human-AC verifications across 58 task IDs — and 136 task files carry a recorded
+    **Recommendation:** block that the page renders with its rationale and evidence. In parallel
+    I maintained a hand-written disposition table in .context/working/landing-notes.md and
+    re-issued it in every session report.
+
+    WHERE THE TWO DISAGREE, THE PROSE WAS WRONG. Three ways, all found by checking rather than
+    by any instrument:
+
+    (1) CRITERION NOT CHECKED. The table caption reads "a task at started-work with zero commits
+    never started". Running `git log --all --grep "^T-NNN:"` for its eleven members returns 2
+    commits for T-277 and 1 for T-289. T-277 filed three payload-defect reports upstream (AEF
+    T-2655/56/57) and added a C-001 research artifact. Both sat on a list captioned "never
+    touched" and were recommended for deletion every session.
+
+    (2) THE COMMAND DID NOT FIT THE TASKS. Eight of the eleven are workflow_type: inception and
+    cannot close via `fw task update --status work-completed` at all; they need a GO/NO-GO,
+    which agents are structurally forbidden from recording. The supplied one-liner would have
+    hit the inception gate for 8 of 11.
+
+    (3) OPPOSITE VERDICTS, SAME AUTHOR. T-184/T-185/T-186 render on /approvals with an agent
+    recommendation of DEFER and the rationale "no agent work has started... skip in the current
+    review pass". The prose said delete. `fw bvp --quadrant hv-lc` scores all eight at 126,
+    inside the quadrant the operator directs work from. Three surfaces, three verdicts, nothing
+    reconciling them.
+
+    WHY THE FRAMEWORK WAS BLIND, which is the part that matters. Writing a recommendation into
+    a task file is gated, rendered, and auditable. Writing one into a handover or a working note
+    is neither — and the prose copy is the one the operator actually reads, because it arrives
+    in the session report while /approvals must be visited. Nothing in the audit compares a
+    recorded verdict against any prose assertion about the same task. The duplicate was not
+    caught for seven sessions because both halves looked healthy in isolation: the recorded
+    recommendations were well-formed, and the prose table was internally consistent.
+
+    THIS IS THE WEEK''S RECURRING SHAPE, FIFTH INSTANCE, AND THE FIRST ONE I AUTHORED. T-566
+    (AEF_FIELDS vs metaKeys), T-570 (import vs export whitelists), T-572 (a test named parity
+    asserting a subset), T-574 (a completion gate passing silently): a stated property standing
+    in for a checked one, with the failure rendering as health. Here the stated property is
+    "zero commits", the checked one is git log, and the failure rendered as the healthiest
+    artefact the agent produces — a confident one-line command closing eleven tasks at once. A
+    shorter list looks like less progress, which is why nobody re-derives it.
+
+    MITIGATION IS NOT CLOSURE. Annotating the offending line flips the closure check to READY —
+    verified, both directions, on a temp tree — and prevents nothing. The check is deliberately
+    left RED at registration. Closure requires a WIRED reconciliation leg, filed as T-577, not
+    an annotation.'
+  evidence:
+  - 'git log --all --oneline --grep "^T-277:" returns 2 commits (bd4ca21d, d4e45b76); "^T-289:"
+    returns 1 (770c959a). The KILL table lists both under the caption "never touched".'
+  - '/approvals renders 40 pending (9 Decisions + 36 Verifications) across 58 task IDs, including
+    every member of the prose KILL list except T-289, T-291, T-292.'
+  - 'Closure check at registration: 136 tasks carry a recorded recommendation; 2 prose conflicts
+    remain (landing-notes.md:169 asserts "retire" for T-279 and T-280, both recorded DEFER).'
+  - 'Control: the same check returns prose_conflicts 0 on a temp tree with that line annotated,
+    so it discriminates rather than always-reds.'
+  related_tasks:
+  - T-577
+  - T-575
+  closure_check_command: "python3 -c \"import re,json,glob\nrecs={}\nfor f in glob.glob('.tasks/active/*.md')+glob.glob('.tasks/completed/*.md'):\n    t=open(f,encoding='utf-8',errors='replace').read()\n    m=re.search(r'^\\\\*\\\\*Recommendation:\\\\*\\\\*\\\\s*(\\\\w+)',t,re.M)\n    i=re.search(r'^id:\\\\s*(T-\\\\d+)',t,re.M)\n    if m and i: recs[i.group(1)]=m.group(1).upper()\nV=('KILL','RETIRE','DELETE')\nc=[]\nfor f in glob.glob('.context/working/*.md'):\n    for n,l in enumerate(open(f,encoding='utf-8',errors='replace'),1):\n        u=l.upper()\n        if not any(v in u for v in V) or 'SUPERSEDED' in u or 'WITHDRAWN' in u: continue\n        for t in re.findall(r'\\\\bT-\\\\d+\\\\b',l):\n            if t in recs: c.append({'task':t,'recorded':recs[t],'file':f,'line':n})\nprint(json.dumps({'verdict':'READY' if not c else 'NOT_READY','ready':not c,'tasks_with_recorded_recommendation':len(recs),'prose_conflicts':len(c),'examples':c[:4],'gap':'G-043'}))\""

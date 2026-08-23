@@ -160,7 +160,7 @@ A task at `started-work` with **zero commits** never started, whatever its statu
 
 | Verdict | Count | Tasks |
 |---|---|---|
-| KILL — never touched, superseded, or self-describing as retirable | 11 | T-184, T-185, T-186, T-279, T-280, T-281, T-282, T-289, T-291, T-292, T-277 |
+| ~~KILL~~ **SUPERSEDED BY `/approvals` — see CORRECTION below; the original eleven IDs are preserved there** | — | — |
 | KEEP-BLOCKED — zero commits but externally sequenced | 3 | T-424 (behind T-357/T-423), T-443 (pending AEF ruling), T-402 (behind the vendor bump) |
 | MERGE — three one-line framework annotations, one task's worth of work | 3 | T-439, T-441, T-442 |
 | KEEP-STALE — real work, last touched >3 weeks ago | 9 | T-041, T-105, T-125, T-195, T-200, T-228, T-264, T-265, T-286, T-293 |
@@ -173,6 +173,48 @@ T-292 are placeholder docs for workflows that were referenced but never created.
 
 **The agent cannot close any of these — they are `owner: human`.** Command block in the
 session report.
+
+### CORRECTION 2026-08-23 — the KILL list failed its own criterion, and I re-issued it seven times
+
+The criterion for KILL is stated two lines above the table: **"A task at `started-work` with
+zero commits never started."** Checked it, properly, for the first time:
+
+    git log --all --oneline --grep "^T-NNN:"
+
+    T-277  ->  2 commits      T-289  ->  1 commit      the other nine  ->  0
+
+**T-277 is not an untouched task.** Its two commits filed three payload-defect reports upstream
+(AEF T-2655/56/57), recorded AEF's T-2652 GO as registry-operative, and added a C-001 research
+artifact. **T-289** captured the mapping-v1 framework-node typing vocabulary from rail 297/298.
+Both did real work and both were on a list captioned *never touched*, recommended for deletion
+in every session report since.
+
+THE SHAPE IS THIS WEEK'S, A FIFTH TIME, AND THIS ONE IS MINE. T-566 (AEF_FIELDS vs metaKeys),
+T-570 (import vs export whitelists), T-572 (a test named parity asserting a subset), T-574 (a
+gate passing silently) — each a **stated property standing in for a checked one, with the
+failure rendering as health**. Here the stated property is "zero commits", the checked one is
+`git log --grep`, and the failure rendered as the healthiest artefact I produce: a confident
+one-line command that closes eleven tasks at once. A shorter list would have looked like less
+progress, which is exactly why nobody re-derives it.
+
+TWO FURTHER DEFECTS IN THE SAME TABLE, both structural rather than arithmetic:
+
+1. **Eight of the nine survivors cannot be closed by the command I supplied.** T-184, T-185,
+   T-186, T-277, T-279, T-280, T-281, T-282 are `workflow_type: inception`. They do not close
+   via `fw task update --status work-completed`; they need a GO/NO-GO, which agents are
+   structurally forbidden from recording (two independent gates). The one-liner would have hit
+   the inception gate for 8 of 11. Only **T-291, T-292** (build) and T-289 (specification,
+   now withdrawn) were ever reachable by it.
+
+2. **The same tasks already sit on `/approvals` carrying the opposite recommendation.** T-184,
+   T-185, T-186 render there as pending GO/NO-GO with an agent recommendation of **DEFER**
+   ("no agent work has started... skip in the current review pass"). Prose says delete, the
+   durable surface says defer, and `fw bvp --quadrant hv-lc` scores all eight at 126 — the
+   quadrant we are told to work from. Three surfaces, three verdicts, same eight tasks,
+   nothing comparing them. Registered as **G-043**.
+
+**This table is superseded by `/approvals`, which has been carrying it the whole time.**
+Do not re-derive a disposition list here. See G-043.
 
 ### Discoveries (one line each, no tickets)
 
