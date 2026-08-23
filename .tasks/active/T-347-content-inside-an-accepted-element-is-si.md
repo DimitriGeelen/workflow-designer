@@ -12,10 +12,10 @@ description: >
   are dropped correctly since they are derivable. Node/flow/lane counts are unchanged
   throughout, which is why every existing instrument is green.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -24,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:34:19Z
-last_update: '2026-08-16T14:33:02Z'
+last_update: 2026-08-23T10:24:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -568,3 +568,7 @@ bash tests/run-bridge-tests.sh
 
 ### 2026-08-03T16:56:38Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-08-23T10:24:10Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)

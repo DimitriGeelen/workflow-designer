@@ -10,10 +10,10 @@ description: >
   far: the 60+ .mjs CDP probes (out of T-429 scope entirely) and every python check
   that prints PASS on a zero finding count without printing what it examined.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:17Z
-last_update: '2026-08-16T14:33:04Z'
+last_update: 2026-08-23T10:24:11Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -401,3 +401,7 @@ of those read as progress on the summary line, which is how this class survives.
 ### 2026-08-12T06:04:32Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-08-23T10:24:11Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)

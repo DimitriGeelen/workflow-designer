@@ -10,7 +10,7 @@ description: >
 status: started-work
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: [ui, editor, bug]
 components: []
 related_tasks: []
@@ -19,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T16:49:08Z
-last_update: '2026-08-16T14:32:58Z'
+last_update: 2026-08-23T10:24:08Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -304,3 +304,7 @@ so no under-firing regression. Pure JS-metric change — no visual/layout risk.
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-08-23T10:24:08Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: preserved at started-work (T-1589 shipping evidence)

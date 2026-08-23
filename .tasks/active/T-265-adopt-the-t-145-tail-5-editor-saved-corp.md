@@ -12,10 +12,10 @@ description: >
   or discard. Interacts with T-101 baking (T-125 compaction would re-derive geometry
   on bake anyway).
 
-status: started-work
+status: captured
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -24,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T22:20:48Z
-last_update: '2026-08-16T14:33:00Z'
+last_update: 2026-08-23T10:24:09Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -229,3 +229,7 @@ cost_estimate_proposed:
 
 ### 2026-07-28T17:54:14Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-08-23T10:24:09Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)

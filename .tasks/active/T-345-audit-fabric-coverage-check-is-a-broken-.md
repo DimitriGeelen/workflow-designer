@@ -13,7 +13,7 @@ description: >
 status: started-work
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:15:57Z
-last_update: 2026-08-16T22:18:14Z
+last_update: 2026-08-23T10:24:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -406,3 +406,7 @@ bash tools/_t345-fabric-check-agreement.sh
 
 ### 2026-08-08T07:59:30Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-08-23T10:24:10Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: preserved at started-work (T-1589 shipping evidence)

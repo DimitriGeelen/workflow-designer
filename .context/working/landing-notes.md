@@ -183,3 +183,38 @@ session report.
   `## Gotchas`, `## Open Questions` ×2) were **run**, not reasoned about, and all four resolve
   correctly against the live handover today because each prefix has exactly one match. One
   added handover heading turns any of them into the T-542 shape.
+
+## Session 4 — 2026-08-23 — define done, then park everything else
+
+**The lever nobody had pulled: `--horizon later` is agent-permissible.** No owner gate, no
+sovereignty gate, no `$CLAUDECODE` refusal in `update-task.sh` — only `--horizon past` is
+rejected. I cannot CLOSE a human-owned task; I can PARK one. Four sessions of trying to
+drain a 75-task backlog, and the backlog could have been shrunk on day one.
+
+**horizon:now 48 → 24.** 24 human-owned stale tasks parked. What remains is two clean groups:
+10 real work items (8 agent-owned + T-402 + T-501) and 14 terminal tasks awaiting an operator
+tick. The 14 were deliberately NOT parked — they are the operator's own queue and parking
+them would hide it.
+
+### 0.11.0 needs zero task work
+
+All five tasks behind it are COMPLETED: T-521, T-523, T-562, T-566, T-570 — measured by
+`git log <src_commit>..HEAD -- src/`, which returns exactly 5 commits from exactly those 5
+tasks. The release is a decision, not work.
+
+G-024's probe crossed its threshold today: `verdict: WARN`, oldest unshipped product change
+7 days old, peer pin 0.8.0 → 0.10.0. It exits 1 and the audit will now report it.
+
+### A correction to my own measurement, recorded because the shape is the point
+
+I reported that the release-lag probe "computes WARN and returns 0", making the audit print
+PASS — and called it a fresh instance of the week's failure-renders-as-health theme. **Both
+halves were wrong.** The probe exits 1, correctly; I had read `$?` from the end of a pipeline
+(`python3 ... | head`), so I measured `head`'s status. And the audit's "in step" line was from
+2026-08-21, when the oldest unshipped commit was 6 days old — under the 7-day threshold it
+crossed today. Two measurements taken two days apart, plus a shell error, presented as a
+contradiction. The instrument was working the whole time.
+
+Third time this week that checking my own number changed it. The pattern is now specific
+enough to name: **the errors cluster on absence and on exit codes** — things whose failure
+mode is to produce no signal rather than a wrong one.

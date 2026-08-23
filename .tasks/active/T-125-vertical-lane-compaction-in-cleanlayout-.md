@@ -8,10 +8,10 @@ description: >
   remove empty inter-lane bands (the dominant rule from operator correction pairs
   1-3)
 
-status: started-work
+status: captured
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T09:06:43Z
-last_update: '2026-08-16T14:32:58Z'
+last_update: 2026-08-23T10:24:08Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -312,3 +312,7 @@ bash tests/check-corpus-geometry.sh
 - **Findings:** none
 ### 2026-07-27T22:11:53Z — status-update [task-update-agent]
 - **Change:** owner: agent → human
+
+### 2026-08-23T10:24:08Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)

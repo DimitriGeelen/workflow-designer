@@ -13,12 +13,12 @@ description: >
 status: started-work
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: [ui, editor, bug, corpus]
 components: []
 related_tasks: [T-101, T-082, T-089, T-083]
 created: 2026-07-05T17:30:00Z
-last_update: '2026-08-16T14:32:58Z'
+last_update: 2026-08-23T10:24:08Z
 date_finished:
 bvp_scores_proposed:
   - ts: '2026-08-16T12:33:25Z'
@@ -248,3 +248,7 @@ treat "re-bake" as fixing T-105.
 
 - **AC#1 (Human)** — [REVIEW] verification-gate (and neighbours) open with readable, non-overlapping
   - **human-ac-mechanical-signal** (partial, heuristic) — `matched='names l' in Expected: All gateway/event names legible and separated; rows still tidy; no name   runs into a neighbour`
+
+### 2026-08-23T10:24:08Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: preserved at started-work (T-1589 shipping evidence)

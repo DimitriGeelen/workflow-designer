@@ -14,10 +14,10 @@ description: >
   stays the design; no second identity authority. Evidence base: docs/reports/T-263-save-target-binding.md
   + tools/_t263-save-target-cdp.mjs (extend its legs into regression asserts).
 
-status: started-work
+status: captured
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -26,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T21:23:22Z
-last_update: '2026-08-16T14:33:00Z'
+last_update: 2026-08-23T10:24:09Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -321,3 +321,7 @@ python3 tests/test_t264_save_target_guards.py
 - **Findings:** none
 ### 2026-07-27T21:46:24Z — status-update [task-update-agent]
 - **Change:** owner: agent → human
+
+### 2026-08-23T10:24:09Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)

@@ -7,12 +7,12 @@ description: >
 status: started-work
 workflow_type: inception
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-29T20:09:10Z
-last_update: '2026-08-16T14:33:01Z'
+last_update: 2026-08-23T10:24:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -541,3 +541,7 @@ Confidence: high that the feature is worth building and will not be noisy; low o
 because the delivery route is the expensive unknown and it is exactly what has not been priced.
 A NO-GO here is entirely defensible on "not yet priced" grounds — the honest read is that spike 1
 established the value and left the cost open.
+
+### 2026-08-23T10:24:10Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: preserved at started-work (T-1589 shipping evidence)

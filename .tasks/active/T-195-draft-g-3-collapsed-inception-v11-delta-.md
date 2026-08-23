@@ -17,7 +17,7 @@ description: >
 status: started-work
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -26,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-12T19:38:17Z
-last_update: '2026-08-16T14:32:59Z'
+last_update: 2026-08-23T10:24:09Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -246,3 +246,7 @@ python3 tests/test_forward_fixtures.py
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-08-23T10:24:09Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: preserved at started-work (T-1589 shipping evidence)

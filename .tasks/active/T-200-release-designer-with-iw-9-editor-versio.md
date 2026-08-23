@@ -13,10 +13,10 @@ description: >
   new bytes; (4) re-pin/notify AEF per docs/aef-designer-integration-protocol.md.
   Human-owned: a release is a sovereignty promise (immutable bytes).
 
-status: started-work
+status: captured
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T07:39:35Z
-last_update: '2026-08-16T14:32:59Z'
+last_update: 2026-08-23T10:24:09Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -254,3 +254,7 @@ python3 tests/test_designer_render.py
 ### 2026-07-18T09:52:32Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-08-23T10:24:09Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)

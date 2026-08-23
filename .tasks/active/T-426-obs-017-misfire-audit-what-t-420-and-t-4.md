@@ -5,10 +5,10 @@ name: "OBS-017 misfire audit: what T-420 and T-421 instruments print when they f
 description: >
   OBS-017 misfire audit: what T-420 and T-421 instruments print when they fire wrongly
 
-status: started-work
+status: captured
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T08:56:53Z
-last_update: '2026-08-16T14:33:03Z'
+last_update: 2026-08-23T10:24:11Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -538,3 +538,7 @@ python3 -c "import json,sys; s=json.load(open('.claude/settings.json')); h=[x.ge
 
 ### 2026-08-11T09:12:30Z — status-update [task-update-agent]
 - **Change:** owner: agent → human
+
+### 2026-08-23T10:24:11Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)

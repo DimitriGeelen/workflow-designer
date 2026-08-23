@@ -10,7 +10,7 @@ description: >
 status: started-work
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -19,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T16:56:45Z
-last_update: 2026-08-17T14:29:55Z
+last_update: 2026-08-23T10:24:08Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -394,3 +394,7 @@ is instrumented; the ruling is yours.**
 
 - **AC#3 (Agent)** — The proposal states the graduation blast-radius across both test paths (`tests/test_mapping_standard_conformance.py` and `tests/test_forward_fixtures.py`, plus editor/bridge `metaKeys`/`META_KEYS`) — 
   - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_forward_fixtures.py in: The proposal states the graduation blast-radius across both test paths (`tests/test_mapping_standard_conformance.py` and `tests/test_forward_fixtures.`
+
+### 2026-08-23T10:24:08Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: preserved at started-work (T-1589 shipping evidence)
