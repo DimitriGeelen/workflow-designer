@@ -1828,3 +1828,17 @@ learnings:
   date: 2026-08-20
   context: Added via context agent
   application: TBD
+- id: PL-257
+  learning: "A misleading COUNT beside a PASS is a sharper defect than a misleading NAME, and harder to catch: a name is a claim a reader can doubt, but a number reads as a measurement and goes unquestioned, including by its author. Three instances in one day — the P-011 gate printing 'Acceptance criteria: 10/10 checked' where 10 was twelve minus the two an edit had destroyed (T-574); a peer's lane checker printing len(positions) as 'nodes checked' where three code paths skipped a node and still counted it (001-CashWeb, agent-chat-arc offset 193); and T-570's census reporting 4 keys lost by whitelist diff where a round trip destroyed 3. The remedy is not 'print the count' — a count can still be read past. It is that COULD-NOT-LOOK GETS ITS OWN FAILURE LINE, separate from a defect finding and never expressed as an absence of complaint: 'nothing failed' and 'nothing ran' must not render the same."
+  source: P-011
+  task: T-574
+  date: 2026-08-20
+  context: Added via context agent
+  application: TBD
+- id: PL-258
+  learning: "Enumerate the ROUTES before concluding a document is unreachable. A 404 on one route is not absence: /file/ and /project are two independent surfaces on the same Watchtower, and docs/standards/aef-bpmn-mapping-v1.md 404s on the first while rendering 9894 chars on the second. I published 'unreachable' twice from a single-probe measurement, 90 minutes after posting a peer the same warning about instruments calibrated to what their author could see. This is PL-026 (establish absence from the index, never from recall or one probe) failing a fifth time in one week across three projects. The remedy is not a learning - a learning that accurately describes the error did not prevent it four prior times - it is a checklist item executed before the claim."
+  source: P-001
+  task: T-578
+  date: 2026-08-23
+  context: Added via context agent
+  application: TBD
