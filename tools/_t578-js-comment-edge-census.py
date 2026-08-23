@@ -219,6 +219,36 @@ def main():
     print("  A tool in that set is counted WIRED by _t451 whenever any of those files names it,")
     print("  because .md and .yaml are read whole. Its reachability is then a fact about what a")
     print("  handover once said, not about what runs.")
+
+    # ── The invariant, added after the first run and after this file shipped unwired ─────
+    # This started as a pure census returning 0 unconditionally, and that is how it ended up
+    # as the 67th entry in _t451's own unwired backlog: a tool with no live caller, committed
+    # by the task whose subject is tools with no live caller. Wiring it into the suite is only
+    # half the repair — a leg that reports a number and can never go red is a log line, not a
+    # guard, which is the objection this project applied to _t565 an hour ago and must apply
+    # to itself.
+    #
+    # The claim worth watching is the narrow one this census actually established: NO tool in
+    # this tree is reachable only through a JavaScript comment. That is a real property with a
+    # real failure mode — if it goes non-zero, some live guard's WIRED verdict rests on prose
+    # that a reword would silently delete, and _t451 (which still does not strip JS) would not
+    # notice. The large number, 110 prose-only, is deliberately NOT gated on: it is the subject
+    # of an open decision about what the ratchet should count, and pinning it here would decide
+    # that question by side effect, in the direction this task exists to argue against.
+    if not js_all:
+        print("\nREFUSE — no tools/ file is referenced from any .mjs/.js at all, so the")
+        print("JS-comment question has an empty population and a PASS would mean only that")
+        print("there was nothing to check. Refusing rather than passing, for the same reason")
+        print("_t565 refuses an empty moving population and T-423 prints UNEXERCISED.")
+        return 2
+    if hard:
+        print(f"\nFAIL — {len(hard)} tool(s) reachable ONLY through a JavaScript comment. Reword")
+        print("the comment and a live guard reports unwired; _t451 does not strip JS and will")
+        print("not notice:")
+        for name, _, _ in hard:
+            print("    " + name)
+        return 1
+    print(f"\nPASS — {len(js_all)} tool(s) referenced from JS, none of them held by a comment alone.")
     return 0
 
 

@@ -1219,6 +1219,30 @@ else
 fi
 
 echo
+echo "== No tool is reachable only through a JavaScript comment (T-578) =="
+# _t451 decides reachability by textual reference in an EXECUTABLE position, and T-495 taught
+# it to ignore prose in Python and shell. It was never taught JavaScript, so `// tools/x.py`
+# and a JSDoc block both read as calls. Measured: 53 tools are referenced from JS, and ZERO
+# are held by a comment alone — so the gap is real, narrow, and currently costs nothing.
+#
+# This leg exists because that zero is worth keeping at zero. If it moves, some live guard's
+# WIRED verdict rests on a sentence a reword would delete, and _t451 would not notice.
+#
+# It deliberately does NOT gate the larger number the same census prints — 110 of 237 tools
+# have no executable-code edge at all. That one is the subject of an open decision about what
+# the ratchet should count, and pinning it here would settle that question by side effect.
+#
+# rc 2 is a REFUSAL: no tool referenced from JS at all means an empty population, and a pass
+# on nothing is the failure this whole line of work keeps finding.
+if timeout 300 python3 "$ROOT/tools/_t578-js-comment-edge-census.py" > "$TMP/leg-_t578-js-edge.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a tool is now reachable ONLY through a JavaScript comment — reword that comment and a live guard reports unwired, and _t451 does not strip JS so it will not notice (run 'python3 tools/_t578-js-comment-edge-census.py'; it names them. rc 2 means it REFUSED — no tool is referenced from JS at all, so nothing exercised the check)"
+  show_output "$TMP/leg-_t578-js-edge.out" "_t578-js-comment-edge-census.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Every document lacking <aef:workflowMeta> gains one on export (T-565 / T-501 IW-0) =="
 # T-501 IW-0 asks whether export should ALWAYS emit <aef:workflowMeta>, and is deferred with
 # an exit condition naming the 24 rendered maps. All 24 already carry the element, so that

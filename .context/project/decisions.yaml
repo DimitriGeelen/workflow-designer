@@ -1914,3 +1914,10 @@ decisions:
     date: 2026-08-20
     task: T-572
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-253
+    decision: "The _t451 unwired-guard ratchet keeps its current reachability rule and its baseline of 66; it is NOT re-cut around the 110 prose-only population"
+    scope: project
+    date: 2026-08-23
+    task: T-578
+    rationale: "The ratchet detects MOVEMENT between two commits under a fixed rule, and does that correctly whether or not prose counts as an edge. Redefining it to ~110+ turns a movement detector into a backlog gauge for a debt nobody can drain in one pass, and a number that is always large and never actionable stops being read. Evidence for the resolution argument: this task's own census shipped unwired in 34ac6287 and the ratchet caught it at 66-vs-67 — one part in 66 is visible, one part in 110+ is not. The prose-only population is a real problem and needs its OWN ratchet with its own baseline, so 'did a guard go dark this week' and 'how many guards are held up by a sentence' stay separable. Mitigation landed instead: _t451's LIMIT paragraph now states the SCALE of each blind spot (110 of 237, 46%) rather than only its kind."

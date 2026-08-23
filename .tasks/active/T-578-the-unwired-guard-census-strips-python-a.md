@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-23T20:55:19Z
-last_update: 2026-08-23T21:16:57Z
+last_update: 2026-08-23T21:49:59Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -49,15 +49,47 @@ date_finished: null
       answered at **0** tools held by a JS comment alone; the surface it sits inside is the
       finding. Uncertainty is reported rather than hidden: 71 files contain a construct the
       hand-written JS stripper cannot resolve, and they are named.
-- [ ] **`_t451`'s LIMIT paragraph states the SCALE, not only the kind.** It currently
+- [x] **`_t451`'s LIMIT paragraph states the SCALE, not only the kind.** It currently
       discloses that `.md`/`.yaml`/`.json` roots are read whole; it does not say this decides
       reachability for nearly half the population, so the disclosure reads as an edge case.
       Adding JS to the list is part of this and is the smaller part.
-- [ ] **A decision is recorded on what the ratchet's baseline should mean** before any
+      **DONE, `_t451-unwired-guard-census.py:510-522`.** Each false-negative entry now carries
+      its size: the prose-root entry is marked THIS IS THE BIG ONE with 110 of 237 (46%) and
+      the per-source breakdown; JS is added and marked small with its 5 refs and its 0; the two
+      shell forms are labelled `unmeasured` rather than left to read as measured-and-small.
+      The closing line says why the quantification was added — the previous wording was true
+      sentence-by-sentence and misleading in aggregate, which is a subtler way for a disclosure
+      to fail than being wrong.
+- [x] **A decision is recorded on what the ratchet's baseline should mean** before any
       stripping change lands. Teaching the census to ignore prose roots would move a
       committed baseline of 66 against 110 prose-only tools; re-cutting it around a number
       nobody examined is the failure this line of work keeps finding. Measure first — done
       above — then decide, and record the decision here.
+
+      **DECISION: the ratchet keeps counting what it counts today. The baseline stays 66 and
+      is NOT re-cut.** Recorded as a project decision, rationale below.
+
+      * **What the 66 means, stated so it cannot be misread later:** "tools with no live
+        caller *under the current reachability rule*" — executable position, Python and shell
+        comments stripped, prose roots read whole. It has never meant "tools nothing runs",
+        and the LIMIT paragraph now carries the number that proves the difference.
+      * **Why not re-cut it to the prose-only population.** The ratchet's job is to detect
+        MOVEMENT — a standing guard losing its last live caller between two commits — and it
+        does that correctly whether or not prose counts as an edge, because both runs use the
+        same rule. Redefining it to ~110+ would convert a movement detector into a backlog
+        gauge measuring a debt nobody can drain in one pass, and a number that is always large
+        and never actionable is a number people learn to skip. That is how this suite's legs
+        stop being read.
+      * **Why not the reverse either — the disclosure is not a substitute for the fix.** If
+        the prose-only population is to be driven down it needs its OWN ratchet with its own
+        baseline, so the two questions ("did a guard go dark this week?" and "how many guards
+        are held up by a sentence?") stay separable. Not built here: that is a second
+        instrument and a second deliverable, and this task's whole argument is against
+        bundling a measurement change into a commit that also moves what is measured.
+      * **The concrete evidence for the ordering:** this very census shipped unwired in
+        `34ac6287` and became the 67th entry — the ratchet caught it, at 66-vs-67 resolution,
+        precisely because the baseline was small enough for one new entry to be visible. At a
+        baseline of 110+ that signal would have been one part in a hundred.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -91,6 +123,28 @@ date_finished: null
 -->
 
 ## Verification
+
+# The census holds its invariant: no tool is reachable only through a JS comment.
+# rc 1 = a tool now is; rc 2 = REFUSED (no tool referenced from JS at all).
+timeout 300 python3 tools/_t578-js-comment-edge-census.py > /tmp/t578-verify.out 2>&1
+
+# It reports the large number too, and does not gate on it. Both halves must survive:
+# quoting the small one without the large one is how the first measurement misled.
+grep -qE "PROSE-ONLY — no code edge anywhere +110" /tmp/t578-verify.out
+
+# The census is WIRED, which is the defect this task shipped and then repaired: it was
+# committed unwired in 34ac6287 and became the 67th entry in the backlog it measures.
+grep -q '_t578-js-comment-edge-census.py' tests/run-bridge-tests.sh
+
+# The ratchet is back to no movement WITHOUT being re-baselined — 66, the committed value.
+timeout 300 python3 tools/_t451-unwired-guard-census.py --ratchet > /tmp/t578-ratchet.out 2>&1
+grep -q "baseline 66, current findings 66" /tmp/t578-ratchet.out
+
+# The LIMIT paragraph states SCALE, not only kind (AC 1). A disclosure that names a blind
+# spot without its size reads as an edge case, and this one decides 46% of the population.
+grep -qE "THIS IS THE BIG ONE: 110 of the 237" /tmp/t578-ratchet.out
+grep -q "JavaScript comments were never stripped" /tmp/t578-ratchet.out
+grep -q "unmeasured" /tmp/t578-ratchet.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
