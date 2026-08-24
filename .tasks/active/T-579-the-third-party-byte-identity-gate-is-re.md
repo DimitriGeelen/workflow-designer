@@ -4,7 +4,7 @@ name: "The third-party byte-identity gate is RED and no runner has ever seen it"
 description: >
   tools/_t358-byteid-thirdparty.mjs exits 1 today: 0 identical / 11 drifted, and it prints PRECONDITION VIOLATED — boundary-events (2 same-lane x tie groups) and kitchen-sink (14) tie among uid-less nodes, so its uid-only normaliser is unsound and it says so. Nothing runs it: run-bridge-tests.sh has no leg, and its only code caller is tools/_t364-byteid-precondition-teeth.py, which _t509-instrument-sweep.sh EXCLUDES by design. T-364 predicted this in writing — 'boundary-events (2 groups) and kitchen-sink (11 groups) already hold uid-less collision groups in their DI, so adopting DI as geometry supplies the missing ingredient' — and T-423 adopted DI. The operator ruling on T-364 also directed narrowing the precondition to 'nondeterministically minted' after repair (a) landed; repair (a) landed, the narrowing did not. Found while measuring T-501 IW-0, whose deferral names this gate as its safety net.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-23T21:44:44Z
-last_update: 2026-08-23T21:44:44Z
+last_update: 2026-08-24T17:22:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,10 +40,127 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+
+**Two failure modes are entangled in one rc=1 and must be separated before either is
+touched.** The gate prints `PRECONDITION VIOLATED` *and* `0 identical, 11 drifted`. They
+have different causes and different fixes, and a repair aimed at the compound symptom
+would "fix" the gate by silencing whichever one it happened to reach.
+
+- [x] **Failure mode A is diagnosed: is the precondition genuinely over-strict now?**
+  It refuses when a same-lane x tie coincides with a uid-less source, on the stated
+  ground that the tie-breaking uid was "minted nondeterministically". T-364 repair (a)
+  landed — uid now derives from the BPMN element id — so that ground may be stale.
+  Measure whether a uid-less document now receives a *deterministic* uid; do not infer it
+  from the fact that repair (a) was committed. The operator's T-364 ruling already
+  prescribes the remedy **if** it is stale: NARROW the predicate to "nondeterministically
+  minted", **never delete it** — "a guard that cries wolf after a repair looks identical
+  to one that was always wrong, and removal is the cheap response to both."
+
+  **ANSWER: NO, and the assumption behind this AC was wrong — the narrowing already
+  happened, and it went further than the operator's ruling prescribed.** Read at
+  `_t358-byteid-thirdparty.mjs:160-178`. The author measured the predicted narrowing and
+  found it insufficient: this tool is a **CROSS-BUILD** diff, so within-build determinism
+  does not settle it. A uid-less node gets a *random* uid in the baseline build and a
+  *derived* one in the current build (`deriveUid`, FNV-1a over the element id,
+  `src/aef-workflow-designer.html:10227`), and if those two orders disagree at a tie the
+  emitted element ids permute regardless of how deterministic either side is alone.
+  The shipped predicate is `uidSig` inequality **across the two builds** plus a
+  within-build stability probe — strictly more honest than either earlier form, measured
+  rather than inferred from source bytes. **It is firing correctly.** There is nothing to
+  narrow, and narrowing it as this AC assumed would have broken a working guard.
+- [x] **Failure mode B is diagnosed: what is the 11-drift measured against?** The first
+  diff line on every fixture is `targetNamespace=…` vs `exporter="aef-workflow-designer"`,
+  which looks like a baseline ref predating the exporter attribute rather than a
+  regression in what the gate guards. Establish which ref it compares to and whether the
+  drift is real or a stale comparand. Report the answer either way — a gate red for a
+  boring reason is still a gate nobody can read.
+
+  **ANSWER: a stale comparand.** `_t358-byteid-thirdparty.mjs:48` pins
+  `BASELINE_REF = process.argv[2] || '3bf37909~1'` — the commit *before* T-358's own
+  lane-provenance work. That designer predates the `exporter` root attribute, T-423's
+  unconditional DI, and T-364 repair (a). So "11 drifted" does not mean *regression*; it
+  means *time has passed*, and every ratified export change since is counted as drift.
+
+  **THE TWO FAILURE MODES HAVE ONE CAUSE, which is the finding.** The pinned baseline
+  predates repair (a), so the baseline build mints random uids while the current build
+  derives them — that is precisely why `uidSig` differs across builds and the precondition
+  fires. Both symptoms are the stale pin. And the file says so itself, at :173-175: *"it
+  self-heals: once BASELINE_REF moves past the repair both sides derive identically, the
+  vectors match, and this stops firing without anyone editing it."* The gate is not
+  broken. It is correctly reporting that it is being asked an obsolete question.
+
+- [ ] **The pin is moved, and moved by whoever owns that call.** Re-pinning a
+  byte-identity baseline is a re-baselining decision, not a bug fix: it declares "the
+  export surface as of ref X is the accepted one", and everything between the old pin and
+  the new stops being visible to this gate forever. That is the same class of act PD-253
+  refused to take unilaterally for the unwired ratchet. Surfaced to the operator on
+  `/approvals` with the evidence and the exact command rather than chosen here.
+- [ ] **The gate is invoked by something that runs.** Today its only executable-code
+  caller is `tools/_t364-byteid-precondition-teeth.py:40`, which
+  `_t509-instrument-sweep.sh:66` EXCLUDES by design — so no runner has ever seen it red.
+  Either wire it as a suite leg, or record why it must not be one; leaving it as the
+  standing evidence for a claim nobody re-runs is what T-565 found and is not an option.
+- [ ] **`_t364-byteid-precondition-teeth.py` still passes after any change**, control and
+  teeth both. Its whole purpose is to prove the hazard bucket is fillable and does not
+  fire on the real set; a precondition edit that quietly breaks its teeth removes the only
+  evidence the predicate discriminates.
 
 ### Human
+
+- [ ] [REVIEW] **Choose the new `BASELINE_REF` for the third-party byte-identity gate.**
+  The gate is red for one reason: its baseline is pinned at `3bf37909~1`, a designer that
+  predates the `exporter` attribute, T-423's unconditional DI, and T-364 repair (a). Both
+  its symptoms — `PRECONDITION VIOLATED` and `0 identical / 11 drifted` — are that one
+  pin. **Nothing about the gate's logic is wrong**; its precondition was already narrowed
+  correctly and further than the T-364 ruling asked (see the Agent ACs above).
+
+  **Why this is yours and not mine:** moving the pin declares *"the export surface as of
+  ref X is the accepted one"*, and every change between the old pin and the new one stops
+  being visible to this gate permanently. That is re-baselining, the same act PD-253
+  declined to take unilaterally for the unwired ratchet — and it would silently accept
+  T-423's DI adoption as third-party-safe, which no one has verified for that population.
+
+  **Steps:**
+  1. The natural candidate is **`652364f1`** — "T-364: implement repair (a)", the commit
+     that makes both builds derive uids identically. That is the minimum move that heals
+     the precondition. It still counts DI adoption as drift, which may be what you want.
+  2. See what the gate says against it before deciding anything, single line, any directory:
+
+     `cd /opt/832-Workflow-designer && node tools/_t358-byteid-thirdparty.mjs 652364f1`
+
+  3. If that reads correctly, pin it by editing `BASELINE_REF` at
+     `tools/_t358-byteid-thirdparty.mjs:48`, and record the decision:
+
+     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "T-579: re-pin third-party byte-identity BASELINE_REF to <ref>" --task T-579 --rationale "<what the ref's export surface is accepted as>"`
+
+  **I RAN STEP 2 FOR YOU. Result: the pin fixes half, and names the other half.**
+  Against `652364f1`: **`PRECONDITION VIOLATED` is GONE** — the precondition holds, which
+  confirms the diagnosis that the stale pin caused it. Still **0 identical / 11 drifted**,
+  rc 1. On all 11 fixtures the **first** differing line is the same one:
+
+      line 8  baseline: targetNamespace="https://aef.anchorpoint.dev/workflows">
+              current : exporter="aef-workflow-designer"
+
+  So `652364f1` still predates the `exporter` root-attribute provenance stamp. That stamp
+  is a known, ratified addition — T-423's additive-export guard allow-lists exactly it.
+
+  **What this run does NOT tell us, stated because it is easy to assume otherwise:**
+  whether T-423's unconditional DI *also* moves third-party bytes. This tool reports only
+  the FIRST differing line, and on every fixture that line is the `exporter` attribute, so
+  everything after it is unexamined. I am not claiming DI is clean here and I am not
+  claiming it is dirty. Nobody has run an additive-export check over the third-party
+  population — T-423's guard ran over the rendered 24, which is the same scope mistake
+  T-565 found one task ago.
+
+  **Expected:** you pick a ref *after* the `exporter` stamp, re-run step 2, and read a
+  verdict that reflects only changes you have ratified.
+
+  **If it is still red after that:** the residue is something later than the stamp, most
+  likely DI, and that is a real question about T-423 over a population it never covered —
+  not a pin choice. Say so and leave the pin alone. A gate honestly red is worth more than
+  a green one bought by moving the line it measures from.
+
+<!-- Original Human template guidance below. -->
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -190,3 +307,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-579-the-third-party-byte-identity-gate-is-re.md
 - **Context:** Initial task creation
+
+### 2026-08-24T17:22:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
