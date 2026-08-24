@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-563: T-501 build 2: replace the :9950 id derivation with the shared sanitizer, with a CDP probe over the 14 fallback documents
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-24T18:11:51Z
+# ============================================================================
+
+task_id: T-563
+task_name: "T-501 build 2: replace the :9950 id derivation with the shared sanitizer, with a CDP probe over the 14 fallback documents"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-20T09:48:08Z
+completed: 2026-08-24T18:11:43Z
+duration_days: 4
+updates_count: 3
+first_commit: 2026-08-24T20:10:57+02:00
+last_commit: 2026-08-24T20:10:57+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  every document with no <aef:workflowMeta> imported with an id our own save guard rejects — all 14 of them, not an edge case.
+
+# Key outcomes
+outcomes:
+  - 'The fallback chain at the import site is `workflowMeta id (raw) ->'
+  - 'A CDP probe drives the real designer over all 14 fallback documents and records,'
+  - 'The probe holds two invariants that can each actually go red, and both are stated'
+  - 'The 44 documents that DO carry `<aef:workflowMeta>` derive exactly their authored'
+  - 'The probe is invoked by something that runs: wired as a leg in'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-563-t-501-build-2-replace-the-9950-id-deriva.md'
+  - '.tasks/active/T-579-the-third-party-byte-identity-gate-is-re.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t563-fallback-id-derivation-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-24T20:10:57"
+    action: 'T-563: every document with no <aef:workflowMeta> imported with an id our own save guard rejects — all 14 of them, not an edge case.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6263 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6263
+  commits: 1
+  files_changed: 5
+  lines_added: 537
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-563-t-501-build-2-replace-the-9950-id-deriva.md
+generated_by: context-agent-hybrid

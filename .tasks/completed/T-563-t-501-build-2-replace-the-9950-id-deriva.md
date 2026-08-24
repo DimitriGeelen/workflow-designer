@@ -4,12 +4,12 @@ name: "T-501 build 2: replace the :9950 id derivation with the shared sanitizer,
 description: >
   T-501 GO decomposition item 2. Replace the fallback chain at src/aef-workflow-designer.html:9950 (aefMetaEl id || procName || 'imported' — a display NAME standing in for machine identity) with workflowMeta id -> sanitizeWorkflowId(procId) -> sanitizeWorkflowId(procName) -> 'imported'. Must NOT use deriveSlug: it is a summariser and collapses the 14 fallback documents onto 4 ids that all pass the validator. Owes a CDP probe over those 14 asserting distinct-id count and validator pass. Depends on T-562 (shared helper).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t563-fallback-id-derivation-cdp.mjs]
 related_tasks: [T-501, T-562, T-564]
 arc_id: designer-authoring-surface
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -17,8 +17,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T09:48:08Z
-last_update: 2026-08-24T17:44:46Z
-date_finished: null
+last_update: 2026-08-24T18:11:43Z
+date_finished: 2026-08-24T18:11:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -60,35 +60,65 @@ would move bytes on the 44 documents that carry it — the exact byte-identity s
 `_t308` and `_t358` watch. Only the two FALLBACK legs are sanitized.
 
 **`deriveSlug` must not be used.** It is a summariser for node labels — first word
-longer than one character, truncated to 16. `sanitizeWorkflowId`'s own docstring at
-:1670 records the measurement: over these same 14 documents `deriveSlug` yields **4**
-ids (`process` ×8, `proc` ×4, `id`, a hash) and **all 4 pass the validator**. That is
-the worst failure shape available here — a loud save-time rejection converted into a
-silent cross-document collision. The probe this task owes exists mainly to make that
+longer than one character, truncated to 16. Over these same 14 documents it collapses
+them onto **7** ids — `process` ×6, plus `hauptprozess`, `eu`, `authored`, `empty`,
+`later`, `no` — and **every one of the 7 passes the validator**. That is the worst
+failure shape available here: a loud save-time rejection converted into a silent
+cross-document collision. The probe this task owes exists mainly to make that
 substitution impossible to land quietly.
+
+> I first wrote **4** here, quoting `sanitizeWorkflowId`'s docstring at :1670 ("4 ids,
+> `process` ×8, `proc` ×4, `id`, a hash"). That figure does not reproduce — measured
+> through the real page it is 7, with no `proc` bucket at all, because `deriveSlug` is
+> applied to procNAME and the lane-provenance documents carry real names. The docstring
+> is corrected in the same commit. Recorded here rather than silently overwritten
+> because I quoted a number out of the tree as if I had checked it.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The fallback chain at the import site is `workflowMeta id (raw) ->
+- [x] The fallback chain at the import site is `workflowMeta id (raw) ->
       sanitizeWorkflowId(procId) -> sanitizeWorkflowId(procName) -> 'imported'`, the
       authored id is NOT passed through the sanitizer, and `deriveSlug` does not appear
       anywhere on the workflow-id path.
-- [ ] A CDP probe drives the real designer over all 14 fallback documents and records,
+      → `src/aef-workflow-designer.html`, the `workflowMeta` block in `parseBpmnXml`.
+      Verification asserts the sanitizer's presence POSITIVELY (`grep -q
+      'sanitizeWorkflowId(procId'`); the `deriveSlug` substitution is caught
+      behaviourally by probe leg 3, which does not depend on anyone spelling a call site
+      correctly in a grep.
+- [x] A CDP probe drives the real designer over all 14 fallback documents and records,
       per document, the derived id BEFORE and AFTER the change — so the effect is
       measured on the shipped page, not argued from the source.
-- [ ] The probe holds two invariants that can each actually go red, and both are stated
+      → `tools/_t563-fallback-id-derivation-cdp.mjs` prints a per-document table:
+      procId, procName, old id (with validity), new id, and what `deriveSlug` would have
+      produced. Run against the UNCHANGED source first: **2/5 legs, rc 1, 14/14 invalid**
+      — the before-state is a real red on real code, not a narrative.
+- [x] The probe holds two invariants that can each actually go red, and both are stated
       with the failure they catch: (1) every one of the 14 derived ids satisfies
       `isValidWorkflowId` — red if a raw display name returns to the chain; (2) the
       count of DISTINCT ids across the 14 does not fall below a recorded floor — red if
       a summariser (`deriveSlug` or any successor) collapses them.
-- [ ] The 44 documents that DO carry `<aef:workflowMeta>` derive exactly their authored
+      → leg 2: 14 documents, **0 invalid** (was 14/14 invalid). leg 3: **10 distinct,
+      floor 10**; `deriveSlug` in the same slot scores **7**, so the substitution reddens
+      it. Leg 5 additionally requires the OLD chain to be invalid where the new one is
+      valid: **14/14 changed, 14 were invalid before** — the corpus is shown to exercise
+      the change rather than assumed to.
+- [x] The 44 documents that DO carry `<aef:workflowMeta>` derive exactly their authored
       id, unchanged, and the probe asserts it — this is the guard on the "authored id
       stays raw" decision, and it is the leg that would catch an over-eager sanitize.
-- [ ] The probe is invoked by something that runs: wired as a leg in
+      → leg 4: **44 carry the element, 0 altered.** Independently corroborated by
+      `_t308-export-byte-identity-cdp.mjs` over the rendered 24, green in the suite.
+- [x] The probe is invoked by something that runs: wired as a leg in
       `tests/run-bridge-tests.sh`, and the full suite is re-run AFTER the file exists
-      (L-—: the T-578 defect was trusting a suite run that predated the new tool).
+      (the T-578 defect was trusting a suite run that predated the new tool).
+      → wired next to the T-562 legs. Suite re-run after the file existed: **132 passed,
+      0 failed** (was 131). That re-run is what caught my own Verification leg — a
+      `test $(grep -c …) -eq 0` that the T-560 absence census flagged as the 79th
+      uncontrolled absence assertion against a baseline of 78, taking the suite to
+      **130/2**. Fixed by asserting the positive fact, not by re-baselining; census back
+      to **78/78**, its teeth **5/5**. The AC's own clause earned its keep on the first
+      task that carried it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -337,3 +367,15 @@ IW-0 (an exit condition naming 24 documents that all already satisfied it).
 ### 2026-08-24T17:44:46Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3e0f0629
+- **Timestamp:** 2026-08-24T18:11:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-24T18:11:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

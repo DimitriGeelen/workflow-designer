@@ -1,0 +1,20 @@
+id: tools/_t563-fallback-id-derivation-cdp.mjs
+name: _t563-fallback-id-derivation-cdp
+type: script
+subsystem: unknown
+location: tools/_t563-fallback-id-derivation-cdp.mjs
+tags: []
+
+purpose: "TODO: describe what this component does"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-08-24
+created_by: unknown

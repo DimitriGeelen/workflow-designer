@@ -1,22 +1,22 @@
 ---
-id: T-575
-name: "landing: drain the parked backlog to consumer-visible done"
+id: T-581
+name: "The byte-identity gate's baseline is a hand-picked git literal, so it goes stale on a clock nobody watches"
 description: >
-  LANDING MODE umbrella (operator directive, Tier 2 override of one-bug-one-task and G-019 register-before-fix, logged once here). All landing work runs under this id instead of spawning a task per finding; discoveries go one line each into .context/working/landing-notes.md. DONE means a consumer can install and use it, not that the repo is green. Session one: evidence pack for the 12 tasks sitting in active/ at status work-completed, blocked only on Human ACs.
+  tools/_t358-byteid-thirdparty.mjs:48 pins BASELINE_REF to the string '3bf37909~1'. Nobody chose that ref as a ratification point; it is where the file sat on 2026-08-04. It has since gone stale past the exporter provenance stamp, T-423 DI, T-364 repair (a) and T-563 id derivation, which is why the gate reports PRECONDITION VIOLATED and 11 drifted (T-579 diagnosed this). Re-pinning by hand reproduces the defect on the same clock. Question this task owns: what should the baseline be instead - a recorded ratification file the gate reads, a merge-base, or a last-green marker - and what makes the choice not go stale. Split out of T-579, which was wrongly parked as a sovereignty decision when it is a design question.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
-tags: [landing, umbrella]
+horizon: next
+tags: []
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-20T21:46:57Z
-last_update: 2026-08-23T20:35:36Z
+created: 2026-08-24T18:03:43Z
+last_update: 2026-08-24T18:03:43Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-575: landing: drain the parked backlog to consumer-visible done
+# T-581: The byte-identity gate's baseline is a hand-picked git literal, so it goes stale on a clock nobody watches
 
 ## Context
 
@@ -39,17 +39,9 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Umbrella task. Closes when the parked backlog is drained, not per-session. -->
-- [x] Evidence pack produced for every task sitting in `active/` at `status: work-completed`:
-      each classified FREE / DEAD-PREMISE / RULING, with the measurement behind the verdict.
-      → `.context/working/landing-notes.md`, session 1. 12 tasks, 15 real unchecked ACs.
-- [ ] The FREE tasks are closed (operator runs the completion; agent may not).
-- [ ] Every DEAD-PREMISE task is either closed or its AC rewritten to the live question.
-- [ ] Each landing session appends to `landing-notes.md` and ends with the active task
-      count LOWER than it started, or states plainly that it did not.
-- [ ] The operator queue is delivered as copy-pasteable one-liners plus at most five
-      yes/no questions per session — never as new tasks.
-- [ ] No new tasks, gaps or concerns filed under landing mode except this umbrella.
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -194,10 +186,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-08-20T21:46:57Z — task-created [task-create-agent]
+### 2026-08-24T18:03:43Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-581-the-byte-identity-gates-baseline-is-a-ha.md
 - **Context:** Initial task creation
-
-### 2026-08-20T21:47:49Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
