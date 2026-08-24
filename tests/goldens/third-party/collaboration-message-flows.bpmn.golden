@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_process_1"
+                  exporter="aef-workflow-designer"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_process_1">
+    <bpmn:participant id="Participant_2" name="Pool" processRef="Process_process_1"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_process_1" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="process_1" version="1" schemaVersion="2" title="Process_1" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_3_endevent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_1_task</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_2_task</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:endEvent id="hum_3_endevent" name="EndEvent_1">
+      <bpmn:extensionElements>
+        <aef:uid value="u1"/>
+        <aef:position x="653.0" y="109.0"/>
+      </bpmn:extensionElements>
+    </bpmn:endEvent>
+
+    <bpmn:task id="hum_1_task" name="Task_1">
+      <bpmn:extensionElements>
+        <aef:uid value="u2"/>
+        <aef:position x="360.0" y="134.0"/>
+      </bpmn:extensionElements>
+    </bpmn:task>
+
+    <bpmn:task id="hum_2_task" name="Task_2">
+      <bpmn:extensionElements>
+        <aef:uid value="u3"/>
+        <aef:position x="516.0" y="134.0"/>
+      </bpmn:extensionElements>
+    </bpmn:task>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Process_process_1">
+      <bpmndi:BPMNShape id="BPMNShape_hum_3_endevent" bpmnElement="hum_3_endevent">
+        <dc:Bounds x="653.0" y="109.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_1_task" bpmnElement="hum_1_task">
+        <dc:Bounds x="360.0" y="134.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_2_task" bpmnElement="hum_2_task">
+        <dc:Bounds x="516.0" y="134.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

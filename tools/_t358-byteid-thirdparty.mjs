@@ -13,23 +13,45 @@
  * The fix is not to widen the claim, it is to normalise the ONE field that is
  * legitimately nondeterministic and then demand exact equality of everything else:
  *
- *   - `aef:uid` values are replaced with u1, u2, ... in document order, in both
- *     emissions, before comparison.
+ *   - `aef:uid` values are replaced with u1, u2, ... in document order, before the
+ *     bytes are compared or recorded — so the golden on disk is already normalised
+ *     and the uid count is implicit in it: a run that normalised a different number
+ *     of uids cannot match, without needing a separate count check.
  *   - the SUBSTITUTION IS COUNTED and reported. A normaliser that silently matched
- *     nothing would turn this into a raw comparison wearing a normalised label, and
- *     an unequal count between the two sides is itself a difference.
+ *     nothing would turn this into a raw comparison wearing a normalised label.
  *   - nothing else is touched.
  *
- * Compares the CURRENT build against a BASELINE build read from git (default: the
- * commit before T-358's source change), so the question it answers is exactly the one
- * I put on the rail: did that change move any byte for a third-party document?
+ * BASELINE: RECORDED BYTES, NOT A BUILD (T-581). This tool used to read a second copy
+ * of the source out of git at a hand-picked ref — `3bf37909~1`, which nobody ratified;
+ * it is simply where the file sat on 2026-08-04. Measured 2026-08-24 it reported
+ * 0 identical / 11 drifted / PRECONDITION VIOLATED, while the same run against `HEAD`
+ * reported 11 identical / PRECONDITION HOLDS. The whole red was the baseline's age.
+ * Re-pinning by hand reproduces that on the same clock, so the baseline is now the
+ * uid-normalised emission itself, one golden per fixture under tests/goldens/third-party/.
  *
- * Usage: node tools/_t358-byteid-thirdparty.mjs [baseline-git-ref]
- * Exit 0 = every fixture identical modulo uid. Exit 1 = a real difference. Exit 2 =
- * harness failure or a normaliser that did not fire.
+ * Three consequences worth stating, because each removes a class rather than an instance:
+ *
+ *   - THE CROSS-BUILD UID HAZARD CANNOT EXIST. The old precondition refused whenever a
+ *     same-lane x tie coexisted with uid values that differed between the two builds —
+ *     unavoidable while the baseline predated T-364's uid repair. With one build there is
+ *     no second uid vector to disagree with. What survives is the WITHIN-build determinism
+ *     check, which is the one that can still be false, and it is a REFUSAL: if this build
+ *     mints uids nondeterministically then no golden of it means anything.
+ *
+ *   - AN ACCEPTED CHANGE IS A REVIEWED DIFF. Re-recording is `--record` and nothing else.
+ *     A gate that refreshes its own baseline whenever it passes ratchets forward silently
+ *     and can never report drift that accumulated one green run at a time; the suite's call
+ *     therefore does not pass --record, and that is asserted positively by the teeth.
+ *
+ *   - It builds the editor ONCE instead of twice.
+ *
+ * Usage: node tools/_t358-byteid-thirdparty.mjs [--record]
+ * Exit 0 = every fixture matches its golden modulo uid. Exit 1 = a real difference, or a
+ * golden is missing. Exit 2 = harness failure, a normaliser that did not fire, or a build
+ * whose uid minting is not deterministic within itself.
  */
 
-import { spawn, execFileSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
@@ -44,8 +66,12 @@ const SERVER = join(HERE, 'gallery-serve.py');
 // A precondition that reports HOLDS and has never been shown able to report otherwise
 // is a constant wearing a verdict.
 const FIXDIR = process.env.T358_FIXDIR || join(REPO, 'tests', 'fixtures', 'third-party');
-// 3bf37909 is T-358's source change; its parent is the last build without it.
-const BASELINE_REF = process.argv[2] || '3bf37909~1';
+// T-581: the baseline. Overridable for the teeth, which need to mutate a golden without
+// touching the real corpus — the same reason T358_FIXDIR exists.
+const GOLDEN_DIR = process.env.T358_GOLDENDIR || join(REPO, 'tests', 'goldens', 'third-party');
+// Writing goldens is an explicit act. Default is compare-and-refuse; there is deliberately
+// no env var for this, because an env var is exactly how a suite acquires it by accident.
+const RECORD = process.argv.includes('--record');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -63,20 +89,18 @@ function normaliseUids(xml) {
 }
 
 async function main() {
-  let baselineSrc;
-  try {
-    baselineSrc = execFileSync('git', ['-C', REPO, 'show', `${BASELINE_REF}:src/aef-workflow-designer.html`], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  } catch (e) {
-    console.error(`ERROR: cannot read baseline ${BASELINE_REF}:src/aef-workflow-designer.html — ${e.message}`);
-    return 2;
-  }
   const currentSrc = readFileSync(join(REPO, 'src/aef-workflow-designer.html'), 'utf8');
   const fixtures = readdirSync(FIXDIR).filter(f => f.endsWith('.bpmn')).sort();
   if (!fixtures.length) { console.error('ERROR: no third-party fixtures'); return 2; }
+  if (RECORD) mkdirSync(GOLDEN_DIR, { recursive: true });
+  else if (!existsSync(GOLDEN_DIR)) {
+    console.error(`ERROR: no golden corpus at ${GOLDEN_DIR}. Record it deliberately:`);
+    console.error('       node tools/_t358-byteid-thirdparty.mjs --record');
+    return 1;
+  }
 
   const doc = mkdtempSync(join(tmpdir(), 't358-bid-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't358-bid-repo-'));
-  writeFileSync(join(doc, 'baseline.html'), baselineSrc);
   writeFileSync(join(doc, 'current.html'), currentSrc);
   mkdirSync(join(doc, 'rendered'), { recursive: true });
   const port = await freePort();
@@ -86,7 +110,7 @@ async function main() {
   const udd = mkdtempSync(join(tmpdir(), 't358-bid-udd-'));
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
 
-  let cl; const emitted = { baseline: {}, current: {} };
+  let cl; const emitted = {};
   try {
     let up = false;
     for (let i = 0; i < 60; i++) { try { const r = await fetch(BASE + '/api/health'); if (r.ok) { up = true; break; } } catch (_) {} await sleep(100); }
@@ -97,12 +121,12 @@ async function main() {
     const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable');
 
-    for (const build of ['baseline', 'current']) {
-      await cmd('Page.navigate', { url: `${BASE}/${build}.html` });
+    {
+      await cmd('Page.navigate', { url: `${BASE}/current.html` });
       await waitReady(cmd); await sleep(250);
       for (const f of fixtures) {
         await ev(cmd, `window.__IN__ = ${JSON.stringify(readFileSync(join(FIXDIR, f), 'utf8'))};`);
-        emitted[build][f] = await ev(cmd, `(function(){
+        emitted[f] = await ev(cmd, `(function(){
           var prev = state; var m = parseBpmnXml(window.__IN__);
           if (!m) { return null; }
           // T-364 PRECONDITION, part 1: is this build's uid minting stable WITHIN itself?
@@ -147,96 +171,100 @@ async function main() {
     for (const d of [doc, repo, udd]) { try { rmSync(d, { recursive: true, force: true }); } catch (_) {} }
   }
 
-  console.log(`\nByte-identity over THIRD-PARTY documents — current vs ${BASELINE_REF}`);
+  console.log(`\nByte-identity over THIRD-PARTY documents — current build vs recorded goldens`);
+  console.log(`(${GOLDEN_DIR})`);
   console.log('(uid values normalised in document order; nothing else touched)\n');
-  let identical = 0, drifted = 0, unusable = 0, normaliserSilent = 0;
-  const hazard = [], indeterminate = [];
+  let identical = 0, drifted = 0, unusable = 0, normaliserSilent = 0, recorded = 0, missing = 0;
+  const nondet = [], ties = [];
   for (const f of fixtures) {
-    const ra = emitted.baseline[f], rb = emitted.current[f];
-    if (ra == null || rb == null) { console.log(`  ${f.padEnd(36)} UNUSABLE (parse returned null)`); unusable++; continue; }
-    const a = ra.xml, b = rb.xml;
-    // Precondition. NARROWED at the T-364 repair (a) — read before "fixing" this.
+    const rb = emitted[f];
+    if (rb == null) { console.log(`  ${f.padEnd(36)} UNUSABLE (parse returned null)`); unusable++; continue; }
+    // PRECONDITION, T-581. What the cross-build form used to test cannot arise here.
     //
-    // The original test approximated the hazard with "the source carries no aef:uid",
-    // which was equivalent only while minted uids were random, and the file predicted it
-    // would go over-strict once uids derived from the element id. Measuring it showed the
-    // predicted narrowing was the wrong one: this tool is a CROSS-BUILD diff, so
-    // within-build determinism is not sufficient. A uid-less node gets a random uid in
-    // the baseline build and a derived one in the current build, and if those two orders
-    // disagree at a tie, the emitted element ids permute between the builds no matter how
-    // deterministic either side is on its own.
+    // The old predicate was "THE UID THAT BREAKS THIS TIE IS NOT THE SAME VALUE ON BOTH
+    // SIDES OF THE COMPARISON" — sound, and unfalsifiable-in-practice, because one side
+    // was a build read out of git at a fixed ref. Once that ref predated T-364's uid
+    // repair the term was permanently true and the tool permanently refused. Deleting a
+    // second build deletes the term: there is no other uid vector to disagree with.
     //
-    // So the honest predicate is neither "the source has no uid" nor "this build mints
-    // nondeterministically" but: THE UID THAT BREAKS THIS TIE IS NOT THE SAME VALUE ON
-    // BOTH SIDES OF THE COMPARISON. Both earlier forms are special cases of it. It is
-    // measured (uidSig per build, plus a second parse per build for within-build
-    // stability) rather than inferred from the source bytes, and it self-heals: once
-    // BASELINE_REF moves past the repair both sides derive identically, the vectors
-    // match, and this stops firing without anyone editing it.
-    const uidsDifferAcrossBuilds = ra.uidSig !== rb.uidSig;
-    const uidUnstableWithinBuild = !!(ra.uidNondet || rb.uidNondet);
-    if (rb.tieGroups > 0 && (uidsDifferAcrossBuilds || uidUnstableWithinBuild)) {
-      if (rb.srcUids === 0) {
-        hazard.push({ f, groups: rb.tieGroups, nodes: rb.tieNodes,
-                      why: uidUnstableWithinBuild ? 'minted nondeterministically' : 'differs between the two builds' });
-      } else if (rb.srcUids < rb.nodeCount) {
-        indeterminate.push({ f, groups: rb.tieGroups, srcUids: rb.srcUids, nodeCount: rb.nodeCount });
-      }
-      // srcUids >= nodeCount with ties: every tied node is uid-pinned, tie is inert.
+    // WHAT SURVIVES IS THE HALF THAT CAN STILL BE FALSE. If THIS build mints uids
+    // nondeterministically, then the golden recorded from it was one draw of a die and
+    // every future run compares against a coin flip. That is a refusal (rc 2), not a
+    // drift: the corpus is not wrong, the instrument is.
+    if (rb.uidNondet) nondet.push(f);
+    // Ties are reported, not refused. A same-lane x tie among uid-less nodes means uid
+    // ORDER reaches the emitted element id, so a future change to uid derivation permutes
+    // ids here. Against a recorded golden that surfaces as a loud DRIFTED needing review —
+    // the failure direction is red, not a flattering identical, which is the whole reason
+    // the cross-build form had to refuse and this one does not.
+    if (rb.tieGroups > 0 && rb.srcUids < rb.nodeCount) {
+      ties.push({ f, groups: rb.tieGroups, nodes: rb.tieNodes, srcUids: rb.srcUids, nodeCount: rb.nodeCount });
     }
-    const [na, ca] = normaliseUids(a);
-    const [nb, cb] = normaliseUids(b);
-    if (ca === 0 && cb === 0) normaliserSilent++;
-    if (ca !== cb) { console.log(`  ${f.padEnd(36)} DRIFTED — uid count differs (${ca} vs ${cb})`); drifted++; continue; }
-    if (na === nb) { console.log(`  ${f.padEnd(36)} identical  (${na.length} bytes, ${ca} uid(s) normalised)`); identical++; continue; }
+
+    const [nb, cb] = normaliseUids(rb.xml);
+    if (cb === 0) normaliserSilent++;
+    const gpath = join(GOLDEN_DIR, f + '.golden');
+    if (RECORD) { writeFileSync(gpath, nb); recorded++; console.log(`  ${f.padEnd(36)} recorded    (${nb.length} bytes, ${cb} uid(s) normalised)`); continue; }
+    if (!existsSync(gpath)) { console.log(`  ${f.padEnd(36)} NO GOLDEN — nothing to compare against`); missing++; continue; }
+    const na = readFileSync(gpath, 'utf8');
+    if (na === nb) { console.log(`  ${f.padEnd(36)} identical  (${nb.length} bytes, ${cb} uid(s) normalised)`); identical++; continue; }
     drifted++;
     const la = na.split('\n'), lb = nb.split('\n');
     let i = 0; while (i < la.length && i < lb.length && la[i] === lb[i]) i++;
     console.log(`  ${f.padEnd(36)} DRIFTED — first diff line ${i + 1}`);
-    console.log(`      baseline: ${(la[i] || '').trim().slice(0, 130)}`);
-    console.log(`      current : ${(lb[i] || '').trim().slice(0, 130)}`);
+    console.log(`      golden : ${(la[i] === undefined ? '<end of golden>' : la[i].trim().slice(0, 130))}`);
+    console.log(`      current: ${(lb[i] === undefined ? '<end of current>' : lb[i].trim().slice(0, 130))}`);
   }
 
-  console.log(`\n  ${identical} identical, ${drifted} drifted, ${unusable} unusable, over ${fixtures.length} third-party fixture(s)`);
+  if (RECORD) {
+    console.log(`\n  ${recorded} golden(s) written to ${GOLDEN_DIR}, over ${fixtures.length} third-party fixture(s)`);
+    console.log('  These bytes are now the baseline. Read the diff before committing them —');
+    console.log('  that review is the only thing standing between an accepted change and a');
+    console.log('  silently ratified regression.');
+  } else {
+    console.log(`\n  ${identical} identical, ${drifted} drifted, ${missing} without a golden, ${unusable} unusable, over ${fixtures.length} third-party fixture(s)`);
+  }
   // A normaliser that never fires turns this into the raw comparison it replaced.
   if (normaliserSilent === fixtures.length) {
     console.log('\n  ERROR: the uid normaliser matched NOTHING on any fixture. This run is a raw');
     console.log('  byte comparison wearing a normalised label — it proves nothing about T-364.');
     return 2;
   }
-  // The precondition verdict is printed whichever way it goes: a silent precondition
-  // is one nobody re-checks when the world changes, and T-357 is a scheduled change
-  // that would break this one.
-  if (hazard.length) {
-    console.log('\n  *** PRECONDITION VIOLATED — this comparison is NOT sound.');
-    for (const h of hazard) {
-      console.log(`      ${h.f}: ${h.groups} same-lane x tie group(s), ${h.nodes} node(s), and the`);
-      console.log(`        source carries NO aef:uid, so the tie-breaking uid ${h.why}.`);
-    }
-    console.log('      uid is the tie-breaker in computeDisplayId and displayIdOf IS the emitted');
-    console.log('      element id, so uid randomness can permute flowNodeRef / id= / sourceRef /');
-    console.log('      targetRef here. Normalising aef:uid alone leaves that drift in the diff, so');
-    console.log('      an "identical" above is not trustworthy and a "DRIFTED" may be pure churn.');
-    console.log('      Widen the normaliser or pin the uid (T-364) before citing this run.');
-    return 1;
+  // REFUSAL, not a drift: a golden of a nondeterministic build is one draw of a die.
+  if (nondet.length) {
+    console.log('\n  *** REFUSING — this build does not mint uids deterministically.');
+    for (const f of nondet) console.log(`      ${f}: parsing the same bytes twice gave two different uid vectors.`);
+    console.log('      Every golden recorded from this build is one sample of a random variable,');
+    console.log('      so neither a match nor a mismatch below carries information. Fix the mint');
+    console.log('      (T-364) before recording or citing anything here.');
+    return 2;
   }
-  if (indeterminate.length) {
-    console.log('\n  *** PRECONDITION INDETERMINATE — partial uid coverage alongside ties.');
-    for (const h of indeterminate) {
-      console.log(`      ${h.f}: ${h.groups} tie group(s); source carries ${h.srcUids} uid(s) for ${h.nodeCount} node(s).`);
+  // The tie measurement is printed whichever way it goes: a silent precondition is one
+  // nobody re-checks when the world changes, and T-357 (adopting BPMN DI as geometry) is a
+  // scheduled change that would populate this list.
+  if (ties.length) {
+    console.log('\n  NOTE — uid ORDER reaches the emitted element id on these fixtures:');
+    for (const h of ties) {
+      console.log(`      ${h.f}: ${h.groups} same-lane x tie group(s), ${h.nodes} node(s); source carries ${h.srcUids} uid(s) for ${h.nodeCount} node(s).`);
     }
-    console.log('      This tool cannot tell whether the TIED nodes specifically are the uid-less');
-    console.log('      ones. Refusing rather than guessing — the guess that reads "sound" is the');
-    console.log('      one that costs a wrong identical.');
+    console.log('      uid is the tie-breaker in computeDisplayId and displayIdOf IS the emitted id,');
+    console.log('      so a future change to uid derivation permutes flowNodeRef / id= / sourceRef /');
+    console.log('      targetRef here. Against a recorded golden that shows up as DRIFTED and gets');
+    console.log('      read; it cannot show up as a flattering identical. Not a refusal.');
+  } else {
+    console.log('\n  No fixture has a same-lane x tie among uid-less nodes, so uid values cannot');
+    console.log('  reach any other emitted byte. Note this is a property of these fixtures — none');
+    console.log('  carries aef:position, so the importer lays them out strictly increasing per lane');
+    console.log('  and a tie is unreachable. Adopting BPMN DI as geometry (T-357) removes that.');
+  }
+  if (RECORD) return 0;
+  if (missing) {
+    console.log(`\n  FAIL — ${missing} fixture(s) have no golden. Record them deliberately and commit`);
+    console.log('  the bytes:  node tools/_t358-byteid-thirdparty.mjs --record');
     return 1;
   }
   if (drifted || unusable) return 1;
-  console.log('\n  PRECONDITION HOLDS: no fixture has a same-lane x tie among uid-less nodes, so');
-  console.log('  uid values cannot reach any other emitted byte and normalising them alone is');
-  console.log('  sound for this population. Note this is a property of these fixtures — none');
-  console.log('  carries aef:position, so the importer lays them out strictly increasing per lane');
-  console.log('  and a tie is unreachable. Adopting BPMN DI as geometry (T-357) removes that.');
-  console.log('\n  PASS — the population _t308 cannot reach is unchanged by the current build.');
+  console.log('\n  PASS — the population _t308 cannot reach matches its recorded bytes.');
   return 0;
 }
 

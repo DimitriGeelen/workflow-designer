@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3"
+                  exporter="aef-workflow-designer"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
+    <bpmn:participant id="_9c3d9edd-e594-4ecf-af64-ae5ceb2fa680" name="EU Bank" processRef="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" version="1" schemaVersion="2" title="EU Bank" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="_bf785e1d-fd11-447b-be3c-7fed793cd3a3" name="Hiring manager">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hir" authority="none" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hir_1_job</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hir_2_write</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hir_3_approve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hir_4_job</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="_b4703b36-7f21-42bb-8d74-1717bcff8d1a" name="Recruitment">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="rec" authority="none" height="245"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>rec_7_job</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_4_publish</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_5_publish</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_1_complete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_2_9a9ec640</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_6_4ea95b48</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_3_select</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="hir_1_job" name="Job vacancy to be  advertised">
+      <bpmn:extensionElements>
+        <aef:uid value="u1"/>
+        <aef:position x="187.0" y="109.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:endEvent id="rec_7_job" name="Job vacancy advertised">
+      <bpmn:extensionElements>
+        <aef:uid value="u2"/>
+        <aef:position x="1476.0" y="296.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:serviceTask id="rec_4_publish" name="Publish job advertisement on homepage">
+      <bpmn:extensionElements>
+        <aef:uid value="u3"/>
+        <aef:position x="1101.0" y="282.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="rec_5_publish" name="Publish job on 3rd party platforms">
+      <bpmn:extensionElements>
+        <aef:uid value="u4"/>
+        <aef:position x="1207.0" y="282.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="hir_2_write" name="Write job description">
+      <bpmn:extensionElements>
+        <aef:uid value="u5"/>
+        <aef:position x="274.0" y="95.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="hir_3_approve" name="Approve job advertisement">
+      <bpmn:extensionElements>
+        <aef:uid value="u6"/>
+        <aef:position x="663.0" y="95.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="rec_1_complete" name="Complete job advertisement">
+      <bpmn:extensionElements>
+        <aef:uid value="u7"/>
+        <aef:position x="456.0" y="282.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="hir_4_job" name="Job advertisement approved?">
+      <bpmn:extensionElements>
+        <aef:uid value="u8"/>
+        <aef:position x="838.0" y="103.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:parallelGateway id="rec_2_9a9ec640" name="_9a9ec640-4cd2-465f-b9e3-3a8edc6f4375">
+      <bpmn:extensionElements>
+        <aef:uid value="u9"/>
+        <aef:position x="952.0" y="290.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:parallelGateway id="rec_6_4ea95b48" name="_4ea95b48-6f9d-4787-bd32-24727837cd01">
+      <bpmn:extensionElements>
+        <aef:uid value="u10"/>
+        <aef:position x="1348.0" y="290.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:businessRuleTask id="rec_3_select" name="Select 3rd party platforms for publishing">
+      <bpmn:extensionElements>
+        <aef:uid value="u11"/>
+        <aef:position x="1015.0" y="282.5"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="hir_2_write" targetRef="rec_1_complete">
+      <bpmn:extensionElements>
+        <aef:uid value="u12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_2" sourceRef="rec_1_complete" targetRef="hir_3_approve">
+      <bpmn:extensionElements>
+        <aef:uid value="u13"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" name="No" sourceRef="hir_4_job" targetRef="rec_1_complete">
+      <bpmn:extensionElements>
+        <aef:uid value="u14"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" name="Yes" sourceRef="hir_4_job" targetRef="rec_2_9a9ec640">
+      <bpmn:extensionElements>
+        <aef:uid value="u15"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" sourceRef="hir_1_job" targetRef="hir_2_write">
+      <bpmn:extensionElements>
+        <aef:uid value="u16"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" sourceRef="hir_3_approve" targetRef="hir_4_job">
+      <bpmn:extensionElements>
+        <aef:uid value="u17"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" sourceRef="rec_2_9a9ec640" targetRef="rec_4_publish">
+      <bpmn:extensionElements>
+        <aef:uid value="u18"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" sourceRef="rec_2_9a9ec640" targetRef="rec_3_select">
+      <bpmn:extensionElements>
+        <aef:uid value="u19"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" sourceRef="rec_4_publish" targetRef="rec_6_4ea95b48">
+      <bpmn:extensionElements>
+        <aef:uid value="u20"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" sourceRef="rec_3_select" targetRef="rec_5_publish">
+      <bpmn:extensionElements>
+        <aef:uid value="u21"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" sourceRef="rec_6_4ea95b48" targetRef="rec_7_job">
+      <bpmn:extensionElements>
+        <aef:uid value="u22"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" sourceRef="rec_5_publish" targetRef="rec_6_4ea95b48">
+      <bpmn:extensionElements>
+        <aef:uid value="u23"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
+    <bpmndi:BPMNPlane id="BPMNPlane_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" bpmnElement="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
+      <bpmndi:BPMNShape id="BPMNShape_hir_1_job" bpmnElement="hir_1_job">
+        <dc:Bounds x="187.0" y="109.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_rec_7_job" bpmnElement="rec_7_job">
+        <dc:Bounds x="1476.0" y="296.5" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_rec_4_publish" bpmnElement="rec_4_publish">
+        <dc:Bounds x="1101.0" y="282.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_rec_5_publish" bpmnElement="rec_5_publish">
+        <dc:Bounds x="1207.0" y="282.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hir_2_write" bpmnElement="hir_2_write">
+        <dc:Bounds x="274.0" y="95.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hir_3_approve" bpmnElement="hir_3_approve">
+        <dc:Bounds x="663.0" y="95.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_rec_1_complete" bpmnElement="rec_1_complete">
+        <dc:Bounds x="456.0" y="282.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hir_4_job" bpmnElement="hir_4_job">
+        <dc:Bounds x="838.0" y="103.0" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_rec_2_9a9ec640" bpmnElement="rec_2_9a9ec640">
+        <dc:Bounds x="952.0" y="290.5" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_rec_6_4ea95b48" bpmnElement="rec_6_4ea95b48">
+        <dc:Bounds x="1348.0" y="290.5" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_rec_3_select" bpmnElement="rec_3_select">
+        <dc:Bounds x="1015.0" y="282.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
+        <di:waypoint x="329.0" y="159.0"/>
+        <di:waypoint x="329.0" y="181.0"/>
+        <di:waypoint x="418.0" y="181.0"/>
+        <di:waypoint x="418.0" y="252.5"/>
+        <di:waypoint x="507.0" y="252.5"/>
+        <di:waypoint x="507.0" y="282.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2">
+        <di:waypoint x="515.0" y="282.5"/>
+        <di:waypoint x="515.0" y="260.5"/>
+        <di:waypoint x="616.5" y="260.5"/>
+        <di:waypoint x="616.5" y="181.0"/>
+        <di:waypoint x="718.0" y="181.0"/>
+        <di:waypoint x="718.0" y="159.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_3" bpmnElement="flow_3">
+        <di:waypoint x="838.0" y="131.0"/>
+        <di:waypoint x="816.0" y="131.0"/>
+        <di:waypoint x="816.0" y="222.8"/>
+        <di:waypoint x="588.0" y="222.8"/>
+        <di:waypoint x="588.0" y="314.5"/>
+        <di:waypoint x="566.0" y="314.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_4" bpmnElement="flow_4">
+        <di:waypoint x="862.0" y="151.0"/>
+        <di:waypoint x="862.0" y="173.0"/>
+        <di:waypoint x="919.0" y="173.0"/>
+        <di:waypoint x="919.0" y="268.5"/>
+        <di:waypoint x="976.0" y="268.5"/>
+        <di:waypoint x="976.0" y="290.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_5" bpmnElement="flow_5">
+        <di:waypoint x="223.0" y="127.0"/>
+        <di:waypoint x="274.0" y="127.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_6" bpmnElement="flow_6">
+        <di:waypoint x="773.0" y="123.0"/>
+        <di:waypoint x="838.0" y="123.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_7" bpmnElement="flow_7">
+        <di:waypoint x="976.0" y="290.5"/>
+        <di:waypoint x="976.0" y="268.5"/>
+        <di:waypoint x="1156.0" y="268.5"/>
+        <di:waypoint x="1156.0" y="282.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_8" bpmnElement="flow_8">
+        <di:waypoint x="1000.0" y="314.5"/>
+        <di:waypoint x="1015.0" y="314.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_9" bpmnElement="flow_9">
+        <di:waypoint x="1156.0" y="282.5"/>
+        <di:waypoint x="1156.0" y="260.5"/>
+        <di:waypoint x="1372.0" y="260.5"/>
+        <di:waypoint x="1372.0" y="290.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_10" bpmnElement="flow_10">
+        <di:waypoint x="1070.0" y="282.5"/>
+        <di:waypoint x="1070.0" y="260.5"/>
+        <di:waypoint x="1262.0" y="260.5"/>
+        <di:waypoint x="1262.0" y="282.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_11" bpmnElement="flow_11">
+        <di:waypoint x="1396.0" y="314.5"/>
+        <di:waypoint x="1476.0" y="314.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_12" bpmnElement="flow_12">
+        <di:waypoint x="1317.0" y="318.5"/>
+        <di:waypoint x="1348.0" y="318.5"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

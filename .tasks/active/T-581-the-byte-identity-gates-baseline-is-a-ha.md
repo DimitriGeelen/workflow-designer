@@ -4,10 +4,10 @@ name: "The byte-identity gate's baseline is a hand-picked git literal, so it goe
 description: >
   tools/_t358-byteid-thirdparty.mjs:48 pins BASELINE_REF to the string '3bf37909~1'. Nobody chose that ref as a ratification point; it is where the file sat on 2026-08-04. It has since gone stale past the exporter provenance stamp, T-423 DI, T-364 repair (a) and T-563 id derivation, which is why the gate reports PRECONDITION VIOLATED and 11 drifted (T-579 diagnosed this). Re-pinning by hand reproduces the defect on the same clock. Question this task owns: what should the baseline be instead - a recorded ratification file the gate reads, a merge-base, or a last-green marker - and what makes the choice not go stale. Split out of T-579, which was wrongly parked as a sovereignty decision when it is a design question.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-24T18:03:43Z
-last_update: 2026-08-24T18:03:43Z
+last_update: 2026-08-24T19:16:26Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,75 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`tools/_t358-byteid-thirdparty.mjs` compares the CURRENT build against a BASELINE build
+whose source it reads out of git at `BASELINE_REF`, defaulted to the string literal
+`'3bf37909~1'` (`:48`). Nobody ratified that ref. It is where `src/aef-workflow-designer.html`
+happened to sit on 2026-08-04, the commit before T-358's own change — the one question the
+tool was written to answer.
+
+**Measured 2026-08-24, before any change here.**
+
+| baseline | verdict | rc |
+|---|---|---|
+| `3bf37909~1` (as shipped) | **0 identical, 11 drifted**, *PRECONDITION VIOLATED* | 1 |
+| `HEAD` (control — both sides are the current build) | **11 identical, 0 drifted**, *PRECONDITION HOLDS*† | 0 |
+
+† The `PRECONDITION HOLDS` half of that line is **not** a measurement and is not cited as one —
+see the Evolution entry below. Its literal text ("no fixture has a same-lane x tie among uid-less
+nodes") is false on this corpus: 2 fixtures carry 16 tie groups across 64 uid-less nodes. Only
+the `11 identical, 0 drifted, rc 0` half is load-bearing here.
+
+The control is the load-bearing half. It says the entire red is the baseline's age and
+**not** the current build: every one of the 11 drifts is a deliberate landed change
+(`Definitions_Process_1` → `Definitions_process_1` is T-563's `sanitizeWorkflowId`), and the
+current build is within-build deterministic on all 11 fixtures, so goldens recorded from it
+will be stable. Without that control, "11 drifted" is equally consistent with a real
+exporter regression, and the two readings are not separable by the shipped tool.
+
+**The precondition violation is the same artifact.** The hazard test is
+`tieGroups > 0 && (uidsDifferAcrossBuilds || uidUnstableWithinBuild)`, and the baseline build
+predates T-364's uid repair, so it mints randomly while the current build derives. The tool's
+own comment predicts this and calls it self-healing "once BASELINE_REF moves past the repair" —
+which is precisely the hand re-pin this task exists to stop needing.
+
+**Re-pinning by hand reproduces the defect on the same clock.** Any literal successor goes
+stale the next time the exporter legitimately changes; choosing one is choosing which future
+session repeats this task.
+
+**It is also an unwired guard.** `tools/unwired-guard-baseline.txt:135` carries
+`_t358-byteid-thirdparty.mjs` — it has no live caller, so its red has been costing nothing and
+telling no one for 20 days. Fixing the baseline without wiring it leaves a correct instrument
+that still never runs.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **The baseline is recorded bytes, not a build.** One golden per third-party fixture under
+      `tests/goldens/third-party/`, each the uid-normalised emission of a build a human can see
+      in a diff. The gate reads them and no longer resolves any git ref for
+      `src/aef-workflow-designer.html`. Evidence: a run reports 11 identical against the goldens,
+      and the drift of an accepted change is a reviewable diff in git rather than a re-pin.
+
+- [ ] **The cross-build uid precondition is gone because the second build is gone — and what
+      remains is still able to fire.** With one build there is no `uidsDifferAcrossBuilds` term
+      to violate. The within-build determinism check (double parse, uid vector compare) is
+      retained and must be shown red under mutation, not merely present. A precondition that
+      cannot fail is a constant wearing a verdict (T-364's own words).
+
+- [ ] **Re-recording is a deliberate act that the suite cannot perform.** Goldens are written
+      only under an explicit `--record`; the default path refuses and exits non-zero on a
+      mismatch. A gate that refreshes its own baseline on green can never report accumulated
+      drift — that is the failure this task is repairing, not a shortcut around it.
+
+- [ ] **Mutation teeth, each red for its own predicted reason:** (a) a changed golden byte goes
+      red naming that fixture; (b) a changed emitter goes red; (c) the within-build determinism
+      check goes red when uid derivation is made nondeterministic; (d) `--record` absent from
+      the suite's invocation is asserted positively, not by grepping for its absence.
+
+- [ ] **The instrument acquires a live caller.** Wired into `tests/run-bridge-tests.sh`, and
+      `tools/unwired-guard-baseline.txt` regenerated by its own generator (never hand-edited —
+      the file says so) so the census no longer finds it. The unwired ratchet fails in **both**
+      directions, so a green ratchet after regeneration is the assertion that the wiring is real.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -163,6 +224,24 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-08-24 — the control run's "PRECONDITION HOLDS" was itself an unchecked claim
+
+- **What changed:** the `HEAD` control I put in this task's Context printed, verbatim,
+  `PRECONDITION HOLDS: no fixture has a same-lane x tie among uid-less nodes`. That sentence
+  is **false on this corpus**, and the same run's own data says so: `boundary-events.bpmn` has
+  2 tie groups over 4 nodes and `kitchen-sink.bpmn` has 14 over 60, all with `srcUids: 0`.
+  The old hazard test is a conjunction — `tieGroups > 0 && (uidsDiffer || uidUnstable)` — and
+  its `else` branch asserts the **first** term is false when it may have been the second that
+  failed. A conjunction failing was reported as its first conjunct failing. So the reassuring
+  half of that message could only ever be read on the path where it was least likely to be true.
+- **Plan impact:** none to the design; it strengthens it. Under goldens the tie measurement is
+  reported unconditionally as a NOTE with the actual counts, so the number is printed on the
+  green path too. This is the same shape as the week's other findings — a stated property
+  standing in for a checked one, with the failure rendering as health — and it was sitting
+  inside the instrument built to catch that class.
+- **Triggered:** nothing new filed; the correction is in this task's own Context table, which
+  now footnotes the control's HOLDS rather than citing it as a measured property.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -173,6 +252,28 @@ date_finished: null
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-08-24 — recorded golden bytes, not a git ref
+
+- **Chose:** the baseline is 11 committed `.golden` files — the uid-normalised emission of a
+  reviewed build — read from disk. The gate builds the editor **once**.
+- **Why:** it removes the staleness clock rather than resetting it. A git ref names a *build*,
+  so it ages against every legitimate exporter change and drags the cross-build uid hazard in
+  with it; recorded bytes name an *output*, and an accepted change becomes a diff someone reads
+  in review. It is also strictly cheaper — one build instead of two — and the tree already uses
+  this shape for ratchets (`tools/_t560-absence-baseline.txt`, `tools/unwired-guard-baseline.txt`).
+- **Rejected — re-pin `BASELINE_REF` to a newer commit.** This is the obvious move and it is the
+  defect: the successor goes stale on the same clock, and the choice of *when* is made by
+  whoever is next inconvenienced rather than by anyone deciding.
+- **Rejected — `git merge-base`.** Degenerate here. This repo has one long-lived branch, so the
+  merge-base of `HEAD` with anything is `HEAD` or an arbitrary ancestor; it would encode "compare
+  against nothing" as a computation and read as rigour.
+- **Rejected — a last-green marker the gate advances itself.** The worst of the three, and the
+  attractive one: a gate that re-records its baseline whenever it passes ratchets forward
+  silently and can never report drift that accumulated one green run at a time. That is this
+  week's whole failure class — a stated property standing in for a checked one, with the failure
+  rendering as health. `--record` is therefore explicit, refused by default, and absent from the
+  suite's call.
 
 ## Decision
 
@@ -190,3 +291,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-581-the-byte-identity-gates-baseline-is-a-ha.md
 - **Context:** Initial task creation
+
+### 2026-08-24T19:16:26Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

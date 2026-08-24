@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6"
+                  exporter="aef-workflow-designer"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6">
+    <bpmn:participant id="Id_c13bd51d-300b-4a9b-9ed9-96a0415f9c76" name="Hauptprozess" processRef="Process_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6" version="1" schemaVersion="2" title="Hauptprozess" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6">
+    <bpmndi:BPMNPlane id="BPMNPlane_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6" bpmnElement="Process_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6">
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_process_0xvlok0"
+                  exporter="aef-workflow-designer"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_process_0xvlok0">
+    <bpmn:participant id="Process_0xvlok0" name="Process_0xvlok0" processRef="Process_process_0xvlok0"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_process_0xvlok0" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="process_0xvlok0" version="1" schemaVersion="2" title="Process_0xvlok0" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_1_startevent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_4_event</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_3_activity</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_2_activity</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="hum_1_startevent" name="StartEvent_1">
+      <bpmn:extensionElements>
+        <aef:uid value="u1"/>
+        <aef:position x="172.0" y="99.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:endEvent id="hum_4_event" name="Event_1ijl6th">
+      <bpmn:extensionElements>
+        <aef:uid value="u2"/>
+        <aef:position x="552.0" y="99.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:serviceTask id="hum_3_activity" name="Activity_08bosyf">
+      <bpmn:extensionElements>
+        <aef:uid value="u3"/>
+        <aef:position x="400.0" y="77.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:task id="hum_2_activity" name="Activity_07q9qya">
+      <bpmn:extensionElements>
+        <aef:uid value="u4"/>
+        <aef:position x="250.0" y="77.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="hum_1_startevent" targetRef="hum_2_activity">
+      <bpmn:extensionElements>
+        <aef:uid value="u5"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_2" sourceRef="hum_3_activity" targetRef="hum_4_event">
+      <bpmn:extensionElements>
+        <aef:uid value="u6"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" sourceRef="hum_2_activity" targetRef="hum_3_activity">
+      <bpmn:extensionElements>
+        <aef:uid value="u7"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_process_0xvlok0">
+    <bpmndi:BPMNPlane id="BPMNPlane_process_0xvlok0" bpmnElement="Process_process_0xvlok0">
+      <bpmndi:BPMNShape id="BPMNShape_hum_1_startevent" bpmnElement="hum_1_startevent">
+        <dc:Bounds x="172.0" y="99.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_4_event" bpmnElement="hum_4_event">
+        <dc:Bounds x="552.0" y="99.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_3_activity" bpmnElement="hum_3_activity">
+        <dc:Bounds x="400.0" y="77.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_2_activity" bpmnElement="hum_2_activity">
+        <dc:Bounds x="250.0" y="77.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
+        <di:waypoint x="207.5" y="113.0"/>
+        <di:waypoint x="250.0" y="113.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2">
+        <di:waypoint x="510.0" y="113.0"/>
+        <di:waypoint x="552.5" y="113.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_3" bpmnElement="flow_3">
+        <di:waypoint x="360.0" y="109.0"/>
+        <di:waypoint x="400.0" y="109.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

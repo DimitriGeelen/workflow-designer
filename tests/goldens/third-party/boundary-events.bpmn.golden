@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_process_1"
+                  exporter="aef-workflow-designer"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_process_1">
+    <bpmn:participant id="Process_1" name="Process_1" processRef="Process_process_1"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_process_1" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="process_1" version="1" schemaVersion="2" title="Process_1" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="483"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_4_startevent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_2_joker</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_1_batman</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_6_superman</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_5_wonder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_3_subprocess</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_7_task</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_8_compensationtask</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="hum_4_startevent" name="StartEvent_1">
+      <bpmn:extensionElements>
+        <aef:uid value="u1"/>
+        <aef:position x="275.0" y="214.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:intermediateThrowEvent id="hum_2_joker" name="joker">
+      <bpmn:extensionElements>
+        <aef:uid value="u2"/>
+        <aef:position x="185.0" y="480.0"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+
+    <bpmn:serviceTask id="hum_1_batman" name="batman">
+      <bpmn:extensionElements>
+        <aef:uid value="u3"/>
+        <aef:position x="185.0" y="349.0"/>
+        <aef:meta hostRef="n_136434fa" interrupting="true"/>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="hum_6_superman" name="superman">
+      <bpmn:extensionElements>
+        <aef:uid value="u4"/>
+        <aef:position x="781.0" y="140.0"/>
+        <aef:meta hostRef="n_8b3cd381" interrupting="true"/>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="hum_5_wonder" name="wonder woman">
+      <bpmn:extensionElements>
+        <aef:uid value="u5"/>
+        <aef:position x="412.0" y="349.0"/>
+        <aef:meta hostRef="n_136434fa" interrupting="true"/>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+
+    <bpmn:subProcess id="hum_3_subprocess" name="SubProcess_1">
+      <bpmn:extensionElements>
+        <aef:uid value="u6"/>
+        <aef:position x="204.0" y="78.0"/>
+      </bpmn:extensionElements>
+    </bpmn:subProcess>
+
+    <bpmn:task id="hum_7_task" name="Task_2">
+      <bpmn:extensionElements>
+        <aef:uid value="u7"/>
+        <aef:position x="795.0" y="75.0"/>
+      </bpmn:extensionElements>
+    </bpmn:task>
+
+    <bpmn:task id="hum_8_compensationtask" name="CompensationTask">
+      <bpmn:extensionElements>
+        <aef:uid value="u8"/>
+        <aef:position x="795.0" y="249.0"/>
+      </bpmn:extensionElements>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="hum_4_startevent" targetRef="Task_1">
+      <bpmn:extensionElements>
+        <aef:uid value="u9"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Process_process_1">
+      <bpmndi:BPMNShape id="BPMNShape_hum_4_startevent" bpmnElement="hum_4_startevent">
+        <dc:Bounds x="275.0" y="214.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_2_joker" bpmnElement="hum_2_joker">
+        <dc:Bounds x="185.0" y="480.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_1_batman" bpmnElement="hum_1_batman">
+        <dc:Bounds x="185.0" y="349.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_6_superman" bpmnElement="hum_6_superman">
+        <dc:Bounds x="781.0" y="140.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_5_wonder" bpmnElement="hum_5_wonder">
+        <dc:Bounds x="412.0" y="349.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_3_subprocess" bpmnElement="hum_3_subprocess">
+        <dc:Bounds x="204.0" y="78.0" width="120" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_7_task" bpmnElement="hum_7_task">
+        <dc:Bounds x="795.0" y="75.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_8_compensationtask" bpmnElement="hum_8_compensationtask">
+        <dc:Bounds x="795.0" y="249.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
