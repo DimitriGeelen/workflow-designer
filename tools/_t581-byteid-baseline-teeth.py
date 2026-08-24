@@ -34,6 +34,19 @@ instead enumerates the invocations of the gate in the runner, REQUIRES at least 
 exist, and checks the argv of each. Absence is then a property of a population that was
 proven non-empty.
 
+WHAT THIS INHERITED (T-579 AC5). `tools/_t364-byteid-precondition-teeth.py` was retired in
+the same commit that added this file, and leg (c) is why. Those teeth proved the CROSS-BUILD
+precondition could fire: a crafted same-x uid-less document made the two builds' uid vectors
+disagree, so the gate refused. T-581 deleted the second build, which deletes that term — not
+weakens it, deletes it — so there was no longer a proposition for them to test. They were
+already failing for exactly that reason: they parse for the literal strings `PRECONDITION
+HOLDS` / `PRECONDITION VIOLATED`, and the gate stopped printing both, the first because it
+was a false claim on this corpus (2 fixtures carry 16 tie groups over 64 uid-less nodes)
+and the second because its cause cannot arise. Repointing them at new strings would have
+restored a green reading for a check that no longer exists — the precise failure this whole
+line of work keeps finding. Leg (c) covers what SURVIVED: within-build uid determinism, the
+half that can still be false.
+
 Exit 0 = every leg behaved as predicted. Exit 1 = a leg did not. Exit 2 = harness
 failure (missing tool, missing corpus, control red) — the teeth could not be run at all,
 which is not the same as the gate being fine.

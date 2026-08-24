@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-23T21:44:44Z
-last_update: 2026-08-24T17:25:40Z
+last_update: 2026-08-24T21:13:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,21 +89,61 @@ would "fix" the gate by silencing whichever one it happened to reach.
   vectors match, and this stops firing without anyone editing it."* The gate is not
   broken. It is correctly reporting that it is being asked an obsolete question.
 
-- [ ] **The pin is moved, and moved by whoever owns that call.** Re-pinning a
+- [x] **The pin is moved, and moved by whoever owns that call.** Re-pinning a
   byte-identity baseline is a re-baselining decision, not a bug fix: it declares "the
   export surface as of ref X is the accepted one", and everything between the old pin and
   the new stops being visible to this gate forever. That is the same class of act PD-253
   refused to take unilaterally for the unwired ratchet. Surfaced to the operator on
   `/approvals` with the evidence and the exact command rather than chosen here.
-- [ ] **The gate is invoked by something that runs.** Today its only executable-code
+
+  **ANSWER: the pin was not moved. It was removed, so the decision this AC reserved for the
+  operator no longer exists.** T-581 replaced `BASELINE_REF` with 11 recorded goldens under
+  `tests/goldens/third-party/`. Ticked on dissolution, not on a ruling — and it is worth
+  being exact about why, because this AC is the one that parked the task.
+
+  The reasoning above is sound *given the choice it assumes*: picking a new ref really is
+  re-baselining, and really is the operator's. What it did not test is whether that choice
+  had to be made at all. Re-pinning was the only option on the table because the baseline
+  was assumed to be a build; once it is recorded bytes, an accepted change is a diff in git
+  that a human reads at review time, which is the same ratification distributed onto the
+  commits that cause it rather than collected into one ruling nobody asked for. Every
+  window this sat on `/approvals` it was gating on an answer to a question that a design
+  change deleted.
+
+  **The general form, because it cost several sessions:** routing to the operator is not
+  automatically the conservative move. It converts a design question into a queued decision,
+  and a queued decision looks identical whether it is genuinely sovereign or merely
+  unexamined. The test that would have caught it here is cheap — *if I measure this, does
+  the decision survive?* — and the answer was no.
+- [x] **The gate is invoked by something that runs.** Today its only executable-code
   caller is `tools/_t364-byteid-precondition-teeth.py:40`, which
   `_t509-instrument-sweep.sh:66` EXCLUDES by design — so no runner has ever seen it red.
   Either wire it as a suite leg, or record why it must not be one; leaving it as the
   standing evidence for a claim nobody re-runs is what T-565 found and is not an option.
-- [ ] **`_t364-byteid-precondition-teeth.py` still passes after any change**, control and
+- [x] **`_t364-byteid-precondition-teeth.py` still passes after any change**, control and
   teeth both. Its whole purpose is to prove the hazard bucket is fillable and does not
   fire on the real set; a precondition edit that quietly breaks its teeth removes the only
   evidence the predicate discriminates.
+
+  **ANSWER: it did NOT pass — measured rc 2, `TEETH BROKEN`, and this AC is the only thing
+  that caught it.** T-581 landed and nothing went red: the sweep EXCLUDES these teeth by
+  name, so no runner has ever seen them. Ticked on retirement, not on a green run, and the
+  distinction is the point.
+
+  The break is not a bug in T-581. The teeth's control asserts the gate prints
+  `PRECONDITION HOLDS` and its teeth leg asserts a crafted tie document yields
+  `PRECONDITION VIOLATED`. T-581 removed both strings deliberately — `HOLDS` because it
+  was **false on this corpus** (boundary-events: 2 tie groups / 4 nodes; kitchen-sink: 14 /
+  60, all uid-less), and `VIOLATED` because its cause was the cross-build uid disagreement
+  and there is no second build left to disagree. Their subject was deleted, not weakened.
+
+  So repointing them at replacement strings would have restored a green reading for a check
+  that no longer exists. Retired instead (`git rm`), with the sweep's exclusion entry
+  removed in the same commit — the sweep exits 1 on a stale exclusion before it runs
+  anything, so file and entry had to move together. The evidence role transfers to
+  `_t581-byteid-baseline-teeth.py` leg (c), which proves the SURVIVING half (within-build
+  uid determinism) can fire: rc 2, refusal text, under a build whose `deriveUid` was made
+  random. Recorded in that file's docstring so the transfer is discoverable from the code.
 
 ### Human
 
