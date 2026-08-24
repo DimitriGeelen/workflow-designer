@@ -1240,6 +1240,37 @@ else
 fi
 
 echo
+echo "== Third-party documents still emit the bytes we recorded (T-358 / T-581) =="
+# THE POPULATION _t308 CANNOT REACH. _t308's "24/24 identical" is true and is entirely
+# about designer-produced corpus maps — the documents that carry aef:uid. Third-party
+# documents do not, the emitter mints a uid per parse, so raw equality was never runnable
+# on them and its absence has been reading as coverage (G-023).
+#
+# WHY THIS LEG IS NEW WHILE THE TOOL IS NOT. The tool has existed since T-358 and ran
+# nowhere: tools/unwired-guard-baseline.txt carried it. It could not be wired, because
+# its baseline was a git ref a human typed once (`3bf37909~1`) — by 2026-08-24 it reported
+# 0 identical / 11 drifted / PRECONDITION VIOLATED, and every one of those drifts was a
+# change we deliberately landed. Wiring it then would have installed a permanently red
+# leg whose repair was "re-pin it", i.e. restart the same clock. T-581 replaced the ref
+# with 11 recorded goldens under tests/goldens/third-party/, so an accepted change is now
+# a reviewable diff in git instead of a re-pin, and the leg has nothing left to go stale.
+#
+# NO --record HERE, EVER. Recording is how this gate's baseline moves, and a gate that
+# refreshes its own baseline on green ratchets forward silently and can never report drift
+# that accumulated one run at a time — the exact failure T-581 repaired. Its teeth assert
+# this line's argv positively (leg d), not by grepping for the absence of a flag.
+#
+# rc 2 is a REFUSAL, not a drift: this build's uid minting is not deterministic within
+# itself, so no golden of it means anything. rc 1 is a real difference or a missing golden.
+if timeout 300 node "$ROOT/tools/_t358-byteid-thirdparty.mjs" > "$TMP/leg-_t358-byteid.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a third-party document no longer emits the bytes recorded for it (run 'node tools/_t358-byteid-thirdparty.mjs'; it names each drifting fixture and the first differing line on both sides. If the change was intended, re-record DELIBERATELY with --record and commit the golden diff as the review record — do not add --record to this suite. rc 2 means it REFUSED: uid minting went nondeterministic (T-364), so no golden means anything until that is fixed)"
+  show_output "$TMP/leg-_t358-byteid.out" "_t358-byteid-thirdparty.mjs"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== No tool is reachable only through a JavaScript comment (T-578) =="
 # _t451 decides reachability by textual reference in an EXECUTABLE position, and T-495 taught
 # it to ignore prose in Python and shell. It was never taught JavaScript, so `// tools/x.py`

@@ -112,6 +112,31 @@
 # instead of being trusted to match the prediction. That is the argument for deriving this
 # file from --json rather than hand-typing it, restated as a thing that actually happened.
 
+# ── WHY THIS FILE MOVED, 2026-08-24 (third movement, T-581) ──────────────────────────
+# The ratchet fired in the SHRANK direction only: `baseline 66, current findings 65`,
+#
+#     SHRANK by 1  - _t358-byteid-thirdparty.mjs
+#
+# and this regeneration was DERIVED from --json, with the removed-set printed rather than
+# predicted — the discipline the second movement's note argues for, applied.
+#
+# WHY IT COULD NOT BE WIRED BEFORE, which is the part worth keeping. The tool measures
+# byte-identity over third-party documents (the population _t308 cannot reach). It was not
+# dark for want of attention; it was unwirable. Its baseline was a git ref a human typed
+# once, `3bf37909~1`, and by 2026-08-24 it reported 0 identical / 11 drifted / PRECONDITION
+# VIOLATED — every one of those drifts a change we deliberately landed, and the violation an
+# artefact of the ref predating T-364's uid repair. Wiring it in that state would have
+# installed a permanently red leg whose only repair was "re-pin it", which restarts the same
+# clock. T-581 replaced the ref with 11 recorded goldens under tests/goldens/third-party/,
+# so the baseline has no build in it to age and an accepted change is a reviewable diff.
+#
+# THE ENTRY LEAVES BECAUSE THE TOOL RUNS, not because the census got kinder: it is invoked
+# at tests/run-bridge-tests.sh on every bridge-suite pass, and tools/_t581-byteid-baseline-
+# teeth.py shows the gate red under four separate mutations before this line was removed.
+# That teeth file is itself excused from this census by the *teeth* naming convention — it
+# is run by tools/_t509-instrument-sweep.sh, which globs the population rather than trusting
+# the excuse, and it is NOT in that sweep's exclude list.
+
 _align-distribute-diag.mjs
 _autoload-verify-cdp.mjs
 _autosave-verify-cdp.mjs
@@ -132,7 +157,6 @@ _t255-visual-shots.mjs
 _t263-save-target-cdp.mjs
 _t343-write-equivalence.py
 _t352-member-scan.py
-_t358-byteid-thirdparty.mjs
 _t358-empty-lanes-blast-radius.mjs
 _t358-export-determinism.mjs
 _t358-repair-options-cdp.mjs
@@ -178,4 +202,3 @@ gen-rendered-thumbs.mjs
 memory-application-census.py
 rail-sweep.py
 t404-gate-e2e.sh
-

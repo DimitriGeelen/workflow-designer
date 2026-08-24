@@ -69,6 +69,12 @@ const FIXDIR = process.env.T358_FIXDIR || join(REPO, 'tests', 'fixtures', 'third
 // T-581: the baseline. Overridable for the teeth, which need to mutate a golden without
 // touching the real corpus — the same reason T358_FIXDIR exists.
 const GOLDEN_DIR = process.env.T358_GOLDENDIR || join(REPO, 'tests', 'goldens', 'third-party');
+// T-581: the BUILD UNDER TEST. Overridable for the same reason as the two above, and for one
+// more that is specific to this file: the surviving refusal (within-build uid determinism)
+// can only be SHOWN able to fire by handing the tool a build whose mint is deliberately
+// random. Without this the refusal is present, never exercised, and therefore exactly the
+// "constant wearing a verdict" that T-364 named and this task is repairing.
+const SRC = process.env.T358_SRC || join(REPO, 'src/aef-workflow-designer.html');
 // Writing goldens is an explicit act. Default is compare-and-refuse; there is deliberately
 // no env var for this, because an env var is exactly how a suite acquires it by accident.
 const RECORD = process.argv.includes('--record');
@@ -89,7 +95,7 @@ function normaliseUids(xml) {
 }
 
 async function main() {
-  const currentSrc = readFileSync(join(REPO, 'src/aef-workflow-designer.html'), 'utf8');
+  const currentSrc = readFileSync(SRC, 'utf8');
   const fixtures = readdirSync(FIXDIR).filter(f => f.endsWith('.bpmn')).sort();
   if (!fixtures.length) { console.error('ERROR: no third-party fixtures'); return 2; }
   if (RECORD) mkdirSync(GOLDEN_DIR, { recursive: true });
@@ -172,7 +178,8 @@ async function main() {
   }
 
   console.log(`\nByte-identity over THIRD-PARTY documents — current build vs recorded goldens`);
-  console.log(`(${GOLDEN_DIR})`);
+  console.log(`build : ${SRC}`);
+  console.log(`golden: ${GOLDEN_DIR}`);
   console.log('(uid values normalised in document order; nothing else touched)\n');
   let identical = 0, drifted = 0, unusable = 0, normaliserSilent = 0, recorded = 0, missing = 0;
   const nondet = [], ties = [];
