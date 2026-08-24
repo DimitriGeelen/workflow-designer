@@ -4,20 +4,20 @@ name: "The unwired-guard census strips Python and shell comments but not JavaScr
 description: >
   T-495 eliminated prose false-edges for Python (tokenize + ast) and shell (word-aware hash), leaving .mjs/.js untouched. Consequence measured under T-423: tools/_t423-carrier-agreement-guard.py is counted WIRED solely because a JSDoc comment in its sibling .mjs spells out the path; reword that comment and a live guard reports unwired. The census LIMIT paragraph enumerates heredocs, md/yaml/json roots and multi-line shell strings, and does not name this one - so the blindness is not merely present, it is absent from the list that exists to state it.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [guards, fabric]
-components: []
+components: [tools/_t451-unwired-guard-census.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-23T20:55:19Z
-last_update: 2026-08-23T21:49:59Z
-date_finished: null
+last_update: 2026-08-23T21:53:39Z
+date_finished: 2026-08-23T21:53:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -288,3 +288,15 @@ nearly half the population, and a limitation whose size is unstated reads as an 
 **Relation to G-042.** The baseline is 66 unwired against 110 prose-only. That gap is where a
 retired instrument stays green. G-042 asks whether an instrument's claim is still true; this
 asks whether the edge that made it look watched is a call or a sentence.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9ba7328e
+- **Timestamp:** 2026-08-23T21:53:50Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-23T21:53:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

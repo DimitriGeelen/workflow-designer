@@ -4,20 +4,20 @@ name: "The third-party byte-identity gate is RED and no runner has ever seen it"
 description: >
   tools/_t358-byteid-thirdparty.mjs exits 1 today: 0 identical / 11 drifted, and it prints PRECONDITION VIOLATED — boundary-events (2 same-lane x tie groups) and kitchen-sink (14) tie among uid-less nodes, so its uid-only normaliser is unsound and it says so. Nothing runs it: run-bridge-tests.sh has no leg, and its only code caller is tools/_t364-byteid-precondition-teeth.py, which _t509-instrument-sweep.sh EXCLUDES by design. T-364 predicted this in writing — 'boundary-events (2 groups) and kitchen-sink (11 groups) already hold uid-less collision groups in their DI, so adopting DI as geometry supplies the missing ingredient' — and T-423 adopted DI. The operator ruling on T-364 also directed narrowing the precondition to 'nondeterministically minted' after repair (a) landed; repair (a) landed, the narrowing did not. Found while measuring T-501 IW-0, whose deferral names this gate as its safety net.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
-components: []
+components: [tools/_t563-fallback-id-derivation-cdp.mjs, tools/_t581-byteid-baseline-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-23T21:44:44Z
-last_update: 2026-08-24T21:13:37Z
-date_finished: null
+last_update: 2026-08-24T21:26:29Z
+date_finished: 2026-08-24T21:26:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -280,6 +280,52 @@ would "fix" the gate by silencing whichever one it happened to reach.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# ── T-579 ─────────────────────────────────────────────────────────────────────
+# Each line's own exit code is the verdict; nothing is chained.
+# The gate this task was filed about now runs and is green.
+node tools/_t358-byteid-thirdparty.mjs
+# Its teeth: control green, four mutations each red for its own reason.
+python3 tools/_t581-byteid-baseline-teeth.py
+# The sweep, which exits 1 on a STALE EXCLUSION before running anything — so this rc 0 is
+# the assertion that the retired teeth and their exclusion entry went together.
+bash tools/_t509-instrument-sweep.sh
+# The retirement asserted POSITIVELY: the sweep's population is 58 and it excludes 5.
+# `grep -c … -eq 0` over the removed filename would be satisfied identically by "it is
+# gone" and by "my pattern was wrong" (T-560).
+test $(ls tools/ | grep -Eic teeth) -eq 58
+
+## Recommendation
+
+**Recommendation:** close it. All five Agent ACs are ticked on measurement, the gate this
+task was filed about is green and wired, and its teeth bite.
+
+**Evidence:** `node tools/_t358-byteid-thirdparty.mjs` → 11 identical, 0 drifted, rc 0.
+`python3 tools/_t581-byteid-baseline-teeth.py` → 5/5, control green plus four mutations each
+red for its own predicted reason and exit code. `bash tools/_t509-instrument-sweep.sh` → rc 0,
+population 58, 5 excluded, RAN 53 passed 53. All four verification legs ran and passed under
+the P-011 gate (4/4).
+
+What the next reader should carry forward, in priority order:
+
+1. **AC5 is the reusable lesson, not AC1–2.** An AC that says "instrument X still passes
+   after any change" caught a real break that the whole suite could not: `_t509` excludes
+   those teeth by name, so nothing was ever going to go red. Any change to a guard should
+   carry an AC naming the instruments that watch *it*, because the excluded ones are
+   invisible precisely when they matter.
+
+2. **AC3 is why this task sat parked.** It routed a design question to `/approvals` as a
+   sovereignty call. It was not one: the decision dissolved the moment the baseline stopped
+   being a build. Before routing anything to the operator, ask whether measuring it makes
+   the decision disappear.
+
+3. **Not fixed, and not claimed to be:** `_t509`'s exclusion mechanism is still a blind
+   spot with 5 members. Each is excluded for a stated reason and two of those reasons
+   (`_t350`/`_t351`, repo-deleting mutation harnesses) are genuinely the operator's call.
+   The other three deserve a look; that is a separate task, not a rider on this one.
+
+4. **OBS-307 stays open.** `_t550` leg 5 passed in this session's suite run. One green run
+   is not a fix for an intermittent failure.
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -396,3 +442,15 @@ would "fix" the gate by silencing whichever one it happened to reach.
 
 ### 2026-08-24T17:22:58Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-26624be4
+- **Timestamp:** 2026-08-24T21:30:46Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-24T21:26:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -4,10 +4,10 @@ name: "Verification legs that assert ABSENCE cannot distinguish a satisfied asse
 description: >
   Verification legs that assert ABSENCE cannot distinguish a satisfied assertion from a broken pattern (OBS-297)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T06:56:14Z
-last_update: 2026-08-20T07:18:28Z
-date_finished: null
+last_update: 2026-08-20T21:53:02Z
+date_finished: 2026-08-20T21:53:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -355,3 +355,15 @@ corpus (2316 legs) back, so a leaked override cannot pass unnoticed.
   of AEF ids in AEF's own reports): T-559 → 154, **T-560 → 0**, T-561..T-565 → 1 each (all the
   same harmless vendored-path entry in `.context/episodic/T-001.yaml`).
 - **Filed separately:** the id-minting gap itself, which is not this task's scope.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-736781de
+- **Timestamp:** 2026-08-20T22:02:47Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-20T21:53:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -4,20 +4,20 @@ name: "The byte-identity gate's baseline is a hand-picked git literal, so it goe
 description: >
   tools/_t358-byteid-thirdparty.mjs:48 pins BASELINE_REF to the string '3bf37909~1'. Nobody chose that ref as a ratification point; it is where the file sat on 2026-08-04. It has since gone stale past the exporter provenance stamp, T-423 DI, T-364 repair (a) and T-563 id derivation, which is why the gate reports PRECONDITION VIOLATED and 11 drifted (T-579 diagnosed this). Re-pinning by hand reproduces the defect on the same clock. Question this task owns: what should the baseline be instead - a recorded ratification file the gate reads, a merge-base, or a last-green marker - and what makes the choice not go stale. Split out of T-579, which was wrongly parked as a sovereignty decision when it is a design question.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t581-byteid-baseline-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-24T18:03:43Z
-last_update: 2026-08-24T19:32:55Z
-date_finished: null
+last_update: 2026-08-24T21:12:55Z
+date_finished: 2026-08-24T21:12:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -387,3 +387,15 @@ is not a fix and the observation stays open.
 ### 2026-08-24T19:16:26Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-082965ec
+- **Timestamp:** 2026-08-24T21:13:05Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-24T21:12:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

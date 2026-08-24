@@ -4,10 +4,10 @@ name: "Completion crashes on inception tasks: update-task.sh derives sys.path fr
 description: >
   Completion crashes on inception tasks: update-task.sh derives sys.path from __file__ inside a python3 - heredoc, where __file__ is '<stdin>'
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T09:22:33Z
-last_update: 2026-08-20T09:25:39Z
-date_finished: null
+last_update: 2026-08-20T22:03:02Z
+date_finished: 2026-08-20T22:03:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -246,3 +246,15 @@ it is latent, not firing, and left alone as a second bug in a second file.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-561-completion-crashes-on-inception-tasks-up.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-24c2657f
+- **Timestamp:** 2026-08-20T22:03:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-20T22:03:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
