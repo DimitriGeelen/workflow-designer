@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-23T21:44:44Z
-last_update: 2026-08-24T17:22:58Z
+last_update: 2026-08-24T17:25:40Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -279,6 +279,52 @@ would "fix" the gate by silencing whichever one it happened to reach.
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-08-24 — this was parked as a sovereignty question and it is not one
+
+- **What changed:** re-examined why this task is blocked. I wrote it up as "the operator
+  owns the pin". Nothing structural says so — `BASELINE_REF` is a string literal at
+  `tools/_t358-byteid-thirdparty.mjs:48`, there is no `$CLAUDECODE` refusal, no
+  `acd_gate`, no Tier-0 pattern anywhere near it. The reason I gave was that moving a pin
+  ratifies everything between old and new. That reason is real but it does not make the
+  act sovereign, and it argues against the framing anyway: **the gate is red AND invoked
+  by nothing, so it is providing zero coverage right now.** Preserving the visibility of
+  intervening changes preserves nothing when nothing looks.
+- **Plan impact:** the two open ACs are not blocked on a ruling. They are blocked on a
+  design question nobody has asked: **what should this gate's baseline BE, if not a
+  literal?** `3bf37909~1` was never chosen as a ratification point — it is simply where
+  the file sat on 2026-08-04. Any hand-picked successor goes stale the same way, on the
+  same clock; picking one is choosing when the next session repeats this task. The
+  candidate shapes (a recorded ratification file the gate reads, a merge-base, a
+  last-green marker) are a deliverable, not a ruling.
+- **Why not started here:** budget. Starting a redesign of a byte-identity gate's
+  baseline at 180K is the slice that cannot finish, and a half-moved baseline is worse
+  than a stale one. Filed as its own task rather than continued under this ID.
+- **Triggered:** the pin decision comes OFF `/approvals` as a sovereignty item. What is
+  left for a human here is ordinary review of whatever the redesign proposes, not a
+  ruling this task can block on.
+
+### 2026-08-24 — the drift this pin would ratify just grew, and it grew from our own commit
+
+- **What changed:** T-563 landed the T-501 GO item 2 change — documents with no
+  `<aef:workflowMeta>` now derive their workflow id through `sanitizeWorkflowId(procId)`
+  instead of a display label. Measured through the real page: **all 14** such documents
+  derive a different id than before (`Process_1` → `process_1`, `EU Bank` →
+  `009164cd-…`, `No lane set` → `proc_nolaneset`). The workflow id reaches the emitted
+  XML as `Collaboration_${id}` and `Process_${id}`, so those 14 documents — 10 of which
+  are `_t358`'s fixture set — now export different bytes.
+- **Plan impact:** none to the diagnosis, which stands: the `PRECONDITION VIOLATED`
+  and the 11 drifted both trace to `BASELINE_REF` pinned at `3bf37909~1`. But the
+  operator's ruling below is now choosing among MORE accumulated change than when it
+  was written. Whatever ref is chosen, moving the pin ratifies the `exporter` provenance
+  stamp, T-423's DI adoption, T-364 repair (a), **and now T-563's id derivation** — and
+  after the move none of them is visible to this gate again.
+- **What has NOT changed and is worth restating:** the change T-563 made was already the
+  operator's decision — T-501's GO ratified this exact chain. What is being surfaced
+  here is only that the *pin* decision's scope grew, not that a new behaviour needs
+  approval.
+- **Triggered:** nothing new filed. Recorded here rather than left for whoever reads
+  the gate output next and wonders why the drift count moved.
 
 ## Decisions
 

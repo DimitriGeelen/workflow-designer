@@ -1669,10 +1669,19 @@ function deriveSlug(displayName) {
 // NOT deriveSlug, and the adjacency is deliberate so the next reader sees the
 // difference. deriveSlug above is a SUMMARISER for node labels — first word longer
 // than one character, truncated to 16. Using it for machine identity collapses
-// distinct documents onto a shared first token: measured over the 14 corpus documents
-// that reach the id fallback it yields 4 ids (`process` ×8, `proc` ×4, `id`, a hash),
-// and all 4 PASS the validator — a loud save-time rejection turned into a silent
-// collision (T-501 §Decision item 1).
+// distinct documents onto a shared first token, and all of the collapsed ids PASS the
+// validator — a loud save-time rejection turned into a silent collision (T-501
+// §Decision item 1).
+//
+// T-563 re-measured this through the real page (tools/_t563-fallback-id-derivation-cdp.mjs).
+// The figure previously written here — "4 ids (`process` ×8, `proc` ×4, `id`, a hash)" —
+// does not reproduce. Over the same 14 documents deriveSlug yields 7 distinct ids:
+// `process` ×6, then `hauptprozess`, `eu`, `authored`, `empty`, `later`, `no`. There is
+// no `proc` bucket, because deriveSlug is applied to procNAME and the four
+// lane-provenance documents carry real names ("Authored lanes" -> `authored`) rather
+// than `Proc_`-prefixed ids. Same direction, smaller collapse: 10 distinct -> 7. The
+// argument stands on the direction; the number was wrong and is corrected rather than
+// quietly dropped.
 //
 // These two were written inline at three sites (renameActiveWorkflow, the ID property
 // field, createFromPendingRef) and judged by a fourth inline regex in the save guard,
@@ -10238,7 +10247,35 @@ function parseBpmnXml(text) {
   const procName = proc.getAttribute('name') || procId.replace(/^Pool_/, '');
   const aefMetaEl = byAef(proc, 'workflowMeta')[0];
   const workflowMeta = {
-    id: aefMetaEl?.getAttribute('id') || procName || 'imported',
+    // T-563 (T-501 §Decision item 1). The chain was `authored id || procName || 'imported'`,
+    // and procName is a DISPLAY LABEL — `proc.getAttribute('name')`, or procId minus a
+    // `Pool_` prefix. Measured over the corpus before this change: all 14 documents that
+    // carry no <aef:workflowMeta> imported with an id the designer's OWN save guard
+    // rejects — `Process_1`, `Hauptprozess`, `EU Bank`, `No lane set`. Not an edge case;
+    // it was the entire fallback population.
+    //
+    // Two things here are load-bearing:
+    //
+    // The authored id is NOT sanitized. It is already machine identity, it already
+    // round-trips, and putting it through the sanitizer would move bytes on the 44
+    // documents that carry the element — the surface _t308 and _t358 watch. Only the
+    // two fallback legs are sanitized. _t563 leg 4 goes red on an over-eager sanitize.
+    //
+    // procId comes BEFORE procName. It is the machine identifier the document actually
+    // declares; the name is prose. And `deriveSlug` must never appear in this slot — it
+    // is a summariser (first word longer than one character, truncated to 16) and over
+    // this same population it collapses 10 distinct ids onto 7, ALL of which pass the
+    // validator. That converts a loud save-time rejection into a silent cross-document
+    // collision. _t563 leg 3 is the floor that keeps that substitution from landing.
+    //
+    // What this does NOT fix, stated so it is not read as fixed: five third-party
+    // fixtures each declare `<bpmn:process id="Process_1">`, so they still import onto
+    // one shared id. 10 distinct over 14, before and after. That is the documents
+    // genuinely sharing an identifier, not the chain losing information.
+    id: aefMetaEl?.getAttribute('id')
+        || sanitizeWorkflowId(procId, '')
+        || sanitizeWorkflowId(procName, '')
+        || 'imported',
     uuid: aefMetaEl?.getAttribute('uuid') || null,   // S1 (T-224): connector-referenceable identity; null → legacy, backfilled on adopt
     version: aefMetaEl?.getAttribute('version') || '1',
     schemaVersion: parseInt(aefMetaEl?.getAttribute('schemaVersion') || '2', 10),

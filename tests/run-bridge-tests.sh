@@ -877,6 +877,27 @@ else
 fi
 
 echo
+echo "== A document with no <aef:workflowMeta> imports with a valid, uncollapsed id (T-563) =="
+# The chain was `authored id || procName || 'imported'`, and procName is a display LABEL.
+# Measured before the fix: all 14 corpus documents that carry no <aef:workflowMeta>
+# imported with an id the designer's own save guard rejects — `Process_1`, `EU Bank`,
+# `No lane set`. Not an edge case; it was the whole fallback population.
+#
+# Two invariants, and the second is the one that is easy to lose. Leg 2 (all valid) is
+# also satisfiable by putting `deriveSlug` in the identity slot — it collapses these 14
+# onto 7 ids that ALL pass the validator, which is a silent cross-document collision
+# wearing a green tick. Leg 3's distinct-count floor is what catches that. Leg 5
+# reproduces the OLD chain in-page and requires it to be invalid where the new one is
+# valid, so the corpus is shown to exercise the change rather than assumed to.
+if timeout 400 node "$ROOT/tools/_t563-fallback-id-derivation-cdp.mjs" > "$TMP/leg-_t563-fallback-id.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "workflow-id derivation for documents with no <aef:workflowMeta> regressed (T-563 — run 'node tools/_t563-fallback-id-derivation-cdp.mjs'; it prints every document. leg 3 red alone means the ids are still VALID but COLLAPSED, which is a summariser back in the identity slot; leg 4 red means an authored id is being sanitized and export bytes are moving; rc 2 means it REFUSED — no corpus document reaches the fallback, so nothing exercised the invariant)"
+  show_output "$TMP/leg-_t563-fallback-id.out" "_t563-fallback-id-derivation-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Foreign nodes disclose rather than impersonate (T-355, T-337) =="
 # T-337 made the importer PRESERVE elements outside our allowlist and re-emit them
 # verbatim. The canvas then drew them through the ordinary type branches, so a
