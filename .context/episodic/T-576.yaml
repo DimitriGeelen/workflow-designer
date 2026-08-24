@@ -1,0 +1,71 @@
+# ============================================================================
+# EPISODIC MEMORY - T-576: T-423 fallout: the trailer probe asserts a claim T-423 retired, and running it corrupts a fixture two wired teeth depend on
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-24T22:38:48Z
+# ============================================================================
+
+task_id: T-576
+task_name: "T-423 fallout: the trailer probe asserts a claim T-423 retired, and running it corrupts a fixture two wired teeth depend on"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-23T19:35:57Z
+completed: 2026-08-24T22:38:41Z
+duration_days: 1
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The retired claim is settled by asking whether its subject still exists, not by'
+  - '**Running the probe cannot corrupt `tests/fixtures/exported/t361-trailer-witness.bpmn`.**'
+  - '**`tools/_t361-guard-teeth.py` passes, and case 8 is shown able to FIRE.** It is wired —'
+  - '**The latent-hazard state is named in the record, because "currently green" is why this'
+  - '**The root omission is filed as its own task, not fixed here.** The description names it:'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 1622 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, instrument, t423-fallout]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1622
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-576-t-423-fallout-the-trailer-probe-asserts-.md
+generated_by: context-agent-hybrid

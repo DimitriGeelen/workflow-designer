@@ -137,6 +137,29 @@
 # is run by tools/_t509-instrument-sweep.sh, which globs the population rather than trusting
 # the excuse, and it is NOT in that sweep's exclude list.
 
+
+# ── WHY THIS FILE MOVED, 2026-08-25 (fourth movement, T-576) ─────────────────────────
+# SHRANK by 1  - _t361-export-trailer-cdp.mjs
+#
+# Retired, not wired. T-423 (389133c8) stopped emitting the DI trailer; every one of this
+# probe's four checks was about that trailer, including the two that do not look like it —
+# PREFIX *is* the trailer text, and FALSE_TAIL only ever appeared inside it, so with no
+# trailer that check was vacuously true. Its subject was deleted, so there was nothing to
+# repoint it at: a replacement string would have restored a green reading for a check that
+# no longer exists. Same disposition and same reasoning as _t364-byteid-precondition-teeth.py
+# under T-579, one day earlier — which is now two instances of one class.
+#
+# IT WAS ALSO A LOADED GUN. It wrote tests/fixtures/exported/t361-trailer-witness.bpmn
+# unconditionally before returning, so running it would have replaced a trailer-carrying
+# witness with a trailer-free export — and tests/test_emitted_comment_claims.py reads that
+# witness, with _t361-guard-teeth.py case 8 mutating it and raising outright if the trailer
+# is absent. Being UNWIRED is the only reason that never fired. Retiring the probe removes
+# the hazard rather than guarding the write.
+#
+# The witness stays as a committed historical artifact with no live producer. That is
+# deliberate and is the recorded-bytes pattern: a producer that would corrupt it on every
+# run is worse than none.
+
 _align-distribute-diag.mjs
 _autoload-verify-cdp.mjs
 _autosave-verify-cdp.mjs
@@ -160,7 +183,6 @@ _t352-member-scan.py
 _t358-empty-lanes-blast-radius.mjs
 _t358-export-determinism.mjs
 _t358-repair-options-cdp.mjs
-_t361-export-trailer-cdp.mjs
 _t364-aef-ext-roundtrip.mjs
 _t364-tie-permutes-ids.mjs
 _t366-uid-shape-agnostic.mjs

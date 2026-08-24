@@ -1,22 +1,22 @@
 ---
-id: T-575
-name: "landing: drain the parked backlog to consumer-visible done"
+id: T-583
+name: "Nothing enumerates the instruments that assert the PRESENCE of a thing a change removes"
 description: >
-  LANDING MODE umbrella (operator directive, Tier 2 override of one-bug-one-task and G-019 register-before-fix, logged once here). All landing work runs under this id instead of spawning a task per finding; discoveries go one line each into .context/working/landing-notes.md. DONE means a consumer can install and use it, not that the repo is green. Session one: evidence pack for the 12 tasks sitting in active/ at status work-completed, blocked only on Human ACs.
+  Two instruments were retired 24 hours apart for the identical reason and neither was found by a gate. T-579 retired tools/_t364-byteid-precondition-teeth.py: it parsed for PRECONDITION HOLDS/VIOLATED after T-581 deliberately deleted both strings. T-576 retired tools/_t361-export-trailer-cdp.mjs: all four of its checks asserted the DI trailer that T-423 (389133c8) stopped emitting - including two that do not look trailer-shaped, since PREFIX IS the trailer text and FALSE_TAIL only ever appeared inside it. In both cases the removal was correct and deliberate, the assertion became false BY DESIGN, and nothing in the tree connected the two. Both were found by hand while working on something adjacent. The asymmetry is the point: when a change ADDS something, the thing that breaks is a guard asserting its absence and that guard runs and goes red. When a change REMOVES something, the guards asserting its presence may be unwired, excluded by naming convention, or one-shot - so they go quiet instead. Being unwired is what kept _t361 from firing, and being sweep-excluded by name is what kept _t364 from firing. Deliverable: an instrument that, given a removed string/attribute/emission, enumerates what still asserts it - and a decision about where it runs, since the population it must search is exactly the population that does not run. Do NOT assume the answer is a grep: PREFIX is the counter-example, a constant whose name does not contain the thing it matches.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
-tags: [landing, umbrella]
+horizon: next
+tags: []
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-20T21:46:57Z
-last_update: 2026-08-24T22:39:03Z
+created: 2026-08-24T22:37:47Z
+last_update: 2026-08-24T22:37:47Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-575: landing: drain the parked backlog to consumer-visible done
+# T-583: Nothing enumerates the instruments that assert the PRESENCE of a thing a change removes
 
 ## Context
 
@@ -39,17 +39,9 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Umbrella task. Closes when the parked backlog is drained, not per-session. -->
-- [x] Evidence pack produced for every task sitting in `active/` at `status: work-completed`:
-      each classified FREE / DEAD-PREMISE / RULING, with the measurement behind the verdict.
-      → `.context/working/landing-notes.md`, session 1. 12 tasks, 15 real unchecked ACs.
-- [ ] The FREE tasks are closed (operator runs the completion; agent may not).
-- [ ] Every DEAD-PREMISE task is either closed or its AC rewritten to the live question.
-- [ ] Each landing session appends to `landing-notes.md` and ends with the active task
-      count LOWER than it started, or states plainly that it did not.
-- [ ] The operator queue is delivered as copy-pasteable one-liners plus at most five
-      yes/no questions per session — never as new tasks.
-- [ ] No new tasks, gaps or concerns filed under landing mode except this umbrella.
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -194,10 +186,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-08-20T21:46:57Z — task-created [task-create-agent]
+### 2026-08-24T22:37:47Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-583-nothing-enumerates-the-instruments-that-.md
 - **Context:** Initial task creation
-
-### 2026-08-20T21:47:49Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
