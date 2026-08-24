@@ -1295,3 +1295,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-307
+  text: "T-550 teeth leg 5 is flaky IN-SUITE only: 'found 0 line(s) matching the shape, live: none' inside tests/run-bridge-tests.sh, while a standalone run of tools/_t550-audit-parse-anchor-teeth.py is 5/5 rc 0, measured back-to-back 2026-08-24. Leg 5 drives a LIVE fw audit and asserts the real report still emits the fabric-coverage finding shape legs 1-4's fixtures imitate; in-suite it saw no such line at all. Not caused by T-581: that commit touches no audit path and added 0 watched files (289 watched before and after; .golden matches no pattern). Suspect contention with the 15-minute audit cron or an in-suite fw audit that produced no fabric block. Worth a task: a leg whose green depends on when the suite happens to run is a leg that will be re-derived for the wrong reason, and this one's own failure text tells the reader to re-derive the fixtures."
+  captured: 2026-08-24T19:32:18Z
+  context_task: T-581
+  tags: []
+  status: pending
+  promoted_to: null

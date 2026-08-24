@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-24T18:03:43Z
-last_update: 2026-08-24T19:16:26Z
+last_update: 2026-08-24T19:20:45Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -77,7 +77,7 @@ that still never runs.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **The baseline is recorded bytes, not a build.** One golden per third-party fixture under
+- [x] **The baseline is recorded bytes, not a build.** One golden per third-party fixture under
       `tests/goldens/third-party/`, each the uid-normalised emission of a build a human can see
       in a diff. The gate reads them and no longer resolves any git ref for
       `src/aef-workflow-designer.html`. Evidence: a run reports 11 identical against the goldens,
@@ -223,6 +223,31 @@ that still never runs.
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-08-24 — where this stands: 1 of 5 ACs, and what the remaining four need
+
+- **What changed:** the design question this task was split out to answer is **answered and
+  built** — recorded goldens, `--record`-only re-recording, one build instead of two, all three
+  paths measured (no goldens → rc 1; `--record` → 11 written, rc 0; compare → 11 identical,
+  rc 0). AC1 is ticked on that evidence.
+- **Plan impact:** AC2–AC5 are deliberately **not** ticked. AC2 requires the surviving
+  within-build determinism check to be shown red under mutation, and I have not mutated it — a
+  refusal path that has never refused is the exact thing this task cites T-364 about, so
+  asserting it from the code's shape would repeat the defect inside the repair. AC3's mechanism
+  is built and its refusal path measured, but its second clause ("the suite cannot perform it")
+  is unassertable until the suite calls it. AC4 and AC5 are untouched.
+- **Stopped on budget, not on a blocker.** 154K at the checkpoint commit, which is the urgent
+  band. The remaining slice is well-shaped and needs a fresh window: add a `T358_SRC` override
+  (same convention as the existing `T358_FIXDIR`/`T358_GOLDENDIR`) so the teeth can drive a
+  deliberately-nondeterministic build, write the four mutations, wire the leg into
+  `tests/run-bridge-tests.sh`, then regenerate `tools/unwired-guard-baseline.txt` with its own
+  generator and show the ratchet green — it fails in both directions, so that green is the
+  assertion that the wiring is real.
+- **Suite state at handover:** 131 passed, 1 failed. The failure is `_t550` teeth leg 5, which
+  is **not** from this change: it passes 5/5 rc 0 standalone, this commit touches no audit path,
+  and the watch set is 289 files before and after (`.golden` matches no pattern). Filed as
+  OBS-307.
+- **Triggered:** OBS-307 (T-550 teeth leg 5 flaky in-suite only).
 
 ### 2026-08-24 — the control run's "PRECONDITION HOLDS" was itself an unchecked claim
 
