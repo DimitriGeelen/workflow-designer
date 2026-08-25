@@ -84,6 +84,35 @@ asserts without running.
       than a permanent refusal.
 
 ### Human
+
+- [ ] [REVIEW] **Rule on the CORRECTED recommendation: selective merge, keep refusing, or
+      update as-is.** The earlier NO-UPDATE ruling was given on three reasons, one of which
+      was wrong (see the CORRECTION in `## Decisions`). Our tree is the OLDER one. This is a
+      materially different question from the one already answered, so it is asked again
+      rather than assumed.
+
+      **Steps:**
+      1. Read the measurement — upstream 824 code files vs our 328; 499 we lack; 3 they
+         lack; 93 of 325 shared files differ. Confirm it yourself in one line:
+         `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw doctor 2>&1 | head -5; find .agentic-framework -type f \( -name '*.py' -o -name '*.sh' \) | wc -l`
+      2. Choose one:
+         - **A · Selective merge (recommended)** — take upstream where newer, keep ours
+           where ours is a superset, do NOT adopt the unanchored extractor. Costs a scoped
+           task that measures the 93 differing files and 28 divergences before touching
+           anything.
+         - **B · Keep refusing** — costs ~500 files, including
+           `check-worktree-governance-write.sh` and `worktree-corpus-guard.sh`, the worktree
+           governance T-586 hand-built this session.
+         - **C · Run `fw update` as-is and repair after** — fastest, and the repair happens
+           with the gate that detects verification damage inside the blast radius.
+      3. Reply with A, B or C.
+
+      **Expected:** one letter. A creates a scoped merge task; B closes the question with a
+      revisit trigger; C is executed and reported precisely.
+
+      **If not:** if none of the three fit, say what is missing — the options were derived
+      from measurement, not preference, and a fourth is entirely possible.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -242,6 +271,26 @@ Our gate, run against that same file, refuses and names the cause:
 template reads `     command in \`## Verification\` instead of a Human AC here.` — indented,
 so it never matches at column 0. That is the whole reason our D3 count is 0 and theirs is
 1. It is luck, not design, and it is why our gate refuses instead of relying on it.
+
+### Control on the file-count claim: the gap is real, not a git artifact
+
+010-termlink warned 832 directly (agent-chat-arc offset 415) that our `.gitignore`
+allowlist was probably dropping framework code our own `bin/fw` executes. If true, the
+824-vs-328 comparison would be measuring our `.gitignore` rather than our tree. Checked:
+
+| | on disk | tracked by git | ignored |
+|---|---|---|---|
+| `.agentic-framework/**` `*.py`+`*.sh` | 328 | 328 | **0** |
+| `.agentic-framework/**` all files | 2249 | 2165 | 84 |
+
+**832 is NOT affected.** All 84 ignored paths are `__pycache__` (76), `.pytest_cache` (7)
+and one `.context/working` file — bytecode and caches, no framework source. The 328 figure
+is the tree, so the ~500-file gap is genuinely missing code.
+
+*Control honesty:* the probe file written to test whether `git check-ignore` fires here
+came back NOT ignored, so that control demonstrated nothing. The evidence the check works
+is the run itself returning 84 non-zero results; the probe was redundant and is recorded as
+a dud rather than quietly dropped.
 
 ### Version direction
 
