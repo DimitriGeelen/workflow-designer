@@ -292,7 +292,20 @@ bash tools/_t509-instrument-sweep.sh
 # The retirement asserted POSITIVELY: the sweep's population is 58 and it excludes 5.
 # `grep -c … -eq 0` over the removed filename would be satisfied identically by "it is
 # gone" and by "my pattern was wrong" (T-560).
-test $(ls tools/ | grep -Eic teeth) -eq 58
+# G-015 repair (T-499): this line was `test $(ls tools/ | grep -Eic teeth) -eq 58` — a
+# count pinned to a growing population, so it asserted "nobody has added a teeth script
+# since" rather than anything T-579 delivered. It went red the moment T-499 added one,
+# which would have blocked the operator's close of a task whose work was finished and
+# correct. What T-579 actually delivered was a RETIREMENT, so that is what is asserted,
+# and the exclusion set is printed rather than merely counted.
+# (no fourth line — deliberately.) The `bash tools/_t509-instrument-sweep.sh` line above
+# ALREADY asserts what T-579 delivered, and asserts it better than a grep could. The sweep
+# checks its exclusion list against disk BEFORE its run loop and exits 1 on any entry naming
+# a file that is gone. So "_t364-byteid-precondition-teeth.py is retired AND its exclusion
+# entry went with it" is exactly the condition under which that line passes. A separate
+# `! grep -q` would have re-asserted it in the one form this project keeps proving unsafe:
+# an absence check satisfied identically by "the thing is gone" and "my pattern was wrong".
+# tools/_t560-absence-assertion-census.py caught it when it was written here, ratchet 78->79.
 
 ## Recommendation
 

@@ -1271,6 +1271,32 @@ else
 fi
 
 echo
+echo "== 'I cannot tell whose server that is' is not reportable as healthy or down (T-499) =="
+# The vendored accessor `fw watchtower url` has three branches and all three return 0 — live,
+# stale-file, and an outright guess — so no caller can distinguish a confirmed URL from an
+# invented one. AEF's `_watchtower_identity_matches` fixes the identity half correctly, but it
+# is a bash predicate and therefore has two answers for three questions: MEASURED, it returns
+# 1 for "that server is someone else's", for "nothing is listening", AND for "our own root is
+# unset", the last while probing a server that is genuinely ours and says so.
+#
+# tools/_t499-watchtower-ownership.sh adds the third channel additively — exit 2 for the four
+# ways we can fail to KNOW, exit 1 reserved for verdicts about the target. do_url's contract is
+# untouched; changing a vendored accessor that every AEF caller relies on never failing is the
+# operator's call and is on /approvals, not taken here.
+#
+# This leg runs the TEETH rather than the tool: the tool's own exit code proves one branch per
+# run, while the teeth drive all six from fixtures plus the partition between them. Its control
+# runs first and aborts on failure, because every other leg in it asserts a NON-ZERO exit and
+# would be satisfied by a tool that is merely broken.
+if timeout 120 python3 "$ROOT/tools/_t499-ownership-teeth.py" > "$TMP/leg-_t499-ownership.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the watchtower ownership check no longer separates abstention from verdict (run 'python3 tools/_t499-ownership-teeth.py'; each leg names the case, the exit code it got, the one it wanted, and the reason token it looked for. rc 2 means the CONTROL failed — the tool could not identify a server that is ours, so nothing below it was measured and the other legs' silence is not evidence)"
+  show_output "$TMP/leg-_t499-ownership.out" "_t499-ownership-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== No tool is reachable only through a JavaScript comment (T-578) =="
 # _t451 decides reachability by textual reference in an EXECUTABLE position, and T-495 taught
 # it to ignore prose in Python and shell. It was never taught JavaScript, so `// tools/x.py`

@@ -1,23 +1,23 @@
 ---
-id: T-499
-name: "watchtower liveness confirms A server answers, not THIS project's server"
+id: T-584
+name: "episodic git mining runs one commit too early — 75 episodics record commits: 0 for work that is in git"
 description: >
-  watchtower liveness confirms A server answers, not THIS project's server
+  The episodic generator mines git at work-completed time, but the commit carrying the task's work is made AFTER that. Measured: 92 of 501 episodics record commits: 0; 75 of those are FALSE zeros (git log finds commits for them), and 67 of the 75 have exactly ONE commit whose timestamp is IDENTICAL to the episodic file's first commit. Distinct root cause from CashWeb's G-041 (.git-is-a-file in worktrees) — this tree is a normal checkout and the guard at episodic.sh:158 passes. A recorded zero is indistinguishable from a measured none.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
-tags: []
+horizon: next
+tags: [bug, episodic, memory, vendored]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-14T11:51:25Z
-last_update: 2026-08-25T05:52:31Z
-date_finished:
+created: 2026-08-25T05:49:26Z
+last_update: 2026-08-25T05:49:26Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,63 +28,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-08-16T12:33:30Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 0
-      D3: 2
-      D4: 2
-      F-RECALL: 1
-      F-AUTONOMY: 0
-      F3: 0
-      F1: 0
-      F2: 0
-    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
-      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=1 
-      (body:episodic-only); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
-      (no-signal); F2=0 (no-signal)
-    rubric_sha: e4a00f38e801
-  - ts: '2026-08-16T14:33:04Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 0
-      D3: 2
-      D4: 2
-      F-RECALL: 1
-      F2: 0
-      F4: 0
-      F3: 1
-      F1: 1
-    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
-      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=1 
-      (body:episodic-only); F2=0 (no-signal); F4=0 (no-signal); F3=1 (prose:AEF 
-      seam-incidental); F1=1 (prose:process-enablement-incidental)
-    rubric_sha: e4a00f38e801
-cost_estimate_proposed:
-  - ts: '2026-08-16T13:57:13Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      tier: 2
-      effort: 8
-      blast_radius: 3
-    rationale: blast_radius=3 
-      (paths:tools/_t352-p011-errexit-probe.sh,tools/validate-workflow.py); 
-      tier=2 (no-signal); effort=8 (no-signal)
-    rubric_sha: e4a00f38e801
-  - ts: '2026-08-16T13:58:46Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      tier: 2
-      effort: 8
-    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
-      (no-signal)
-    rubric_sha: e4a00f38e801
 ---
 
-# T-499: watchtower liveness confirms A server answers, not THIS project's server
+# T-584: episodic git mining runs one commit too early — 75 episodics record commits: 0 for work that is in git
 
 ## Context
 
@@ -94,68 +40,8 @@ cost_estimate_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] The existing ownership machinery is MEASURED before anything is written:
-      `_watchtower_url` claims (audit.sh:4998) to return non-zero when no Watchtower
-      "of OURS" is reachable — established whether that check verifies identity or
-      only reachability, and which callers use it vs. curl the raw URL
-- [x] The failure is reproducible on demand: a triple file pointing at a FOREIGN
-      project's live Watchtower is shown to be reported as healthy by at least one
-      real caller, with the caller named
-      → negative control run in place, triple backed up + trap-restored:
-        with pid=8448 (dead) and url=AEF's :3000,
-          `fw watchtower url`  → http://192.168.10.107:3000, **rc=0**
-          /resume skill's curl → "running at ...:3000"
-        both wrong, neither refused. Callers of the unverified accessor:
-        handover.sh:16, designer.sh:221+239, ux-review.py.
-- [x] Identity is confirmed by something the foreign server cannot also satisfy — a
-      200 is not evidence, because a 200 is what the wrong answer looks like
-      → AEF already built exactly this: `/api/_identity` (web/app.py:355) returning
-        `project_root`, and `_watchtower_identity_matches` (lib/watchtower.sh:28).
-        NOT my invention and explicitly not claimed as one.
-- [x] Negative control: with the triple file pointed at AEF's :3000, the check FAILS;
-      pointed at our own server, it PASSES. Both directions demonstrated, not argued
-      → `_watchtower_identity_matches` with PROJECT_ROOT set:
-        :3000 → REJECTED, :3012 → MATCHES. Both directions.
-- [x] Any fix to vendored `.agentic-framework/` is reported upstream to AEF over the
-      rail (G-008 permits in-tree repair + upstream), framed as a proposal, not a spec
-      → sent; no patch applied under agent initiative (see Decisions)
-- [x] Abstention is distinguishable from a verdict: "cannot determine ownership" must
-      not be reportable as "healthy" or as "down" (T-496/PL-193, exit 2 not 1)
-      → DONE, and the earlier parking was wrong about its own scope. It read "requires
-        changing vendored `do_url`" — but the AC states a PROPERTY, not an implementation.
-        Collapsing the two is what made it look sovereign: changing a vendored accessor's
-        exit contract genuinely IS AEF's call, and that call is still theirs and still on
-        /approvals. Providing the third channel is not.
-        `tools/_t499-watchtower-ownership.sh` adds it additively — `do_url` untouched:
-          exit 0 OURS              identity confirmed on a live /api/_identity
-          exit 1 NOT-OURS          a verdict about the target:  DOWN | FOREIGN
-          exit 2 CANNOT-DETERMINE  an abstention about us:      NO-SELF | NO-TARGET |
-                                                                NO-ENDPOINT | MALFORMED
-        Measured live BEFORE building it — `_watchtower_identity_matches` returns 1 for
-        FOUR different situations, including probing OUR OWN live server with our own root
-        unset, where the server correctly answers `/opt/832-Workflow-designer` and the
-        helper still reports "not ours": a wrong verdict in the disowning direction,
-        occupying the channel an abstention belongs in. A bash predicate cannot fix this;
-        two exit codes cannot carry three answers.
-        Teeth: `tools/_t499-ownership-teeth.py`, 10/10 — all six outcomes driven from
-        fixtures, plus the PARTITION (no verdict exits 2, no abstention exits 1, so a
-        refactor routing every failure to one code fails here even with six legs green)
-        and an assertion that every branch prints the evidence it judged on.
-        Mutation-checked, and the FIRST MUTATION WAS INERT: a syntax error appended to the
-        tool left it fully working, because bash executes incrementally and the tool exits
-        inside `verdict()` before ever parsing the tail. `bash -n` called it broken;
-        running it did not, and the teeth reported 10/10 on what I had labelled a dead
-        tool. Re-run against a line that actually executes: control fired, 1 leg ran, the
-        other 9 correctly did NOT — they all assert non-zero exits and would have been
-        satisfied by a dead tool. Mutations 2 (NO-SELF collapsed to exit 1) and 3
-        (evidence block silenced) each went red for their own reason.
-- [x] Bridge suite still green
-      → 75 passed, 0 failed. No source changed in this project.
-
-**STATE: blocked on AEF, not on me.** The one open AC (abstention channel) requires
-changing vendored `do_url`'s contract, which is theirs. Pickup proposal sent at rail
-625; awaiting their scoping call. Deliberately NOT force-closed — the AC describes real
-remaining work and ticking it would be the AC-laundering this project keeps catching.
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -237,27 +123,6 @@ remaining work and ticking it would be the AC-laundering this project keeps catc
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# ── T-499 legs ────────────────────────────────────────────────────────────────────────
-# This block held ZERO commands until now — only the template's comments. The completion
-# gate would have printed "Running 0 verification command(s)" and passed, which is the
-# T-574 pass-through: a success report over nothing measured.
-
-# All six outcomes, the partition between them, and the evidence-printing requirement.
-# rc 2 from this means the CONTROL failed and nothing below it was measured.
-python3 tools/_t499-ownership-teeth.py
-
-# The partition, end to end, through the real tool rather than the teeth's fixtures.
-# Deliberately probes a CLOSED port for both halves: the property under test is that the
-# same target yields a VERDICT when we know who we are and an ABSTENTION when we do not,
-# and pointing this at our live Watchtower would make it red whenever the server is merely
-# stopped — an environmental failure on the leg that carries the AC.
-sh -c 'tools/_t499-watchtower-ownership.sh http://127.0.0.1:9 >/dev/null 2>&1; d=$?; T499_SELF_ROOT= tools/_t499-watchtower-ownership.sh http://127.0.0.1:9 >/dev/null 2>&1; n=$?; echo "same target — down(verdict)=$d  self-unknown(abstention)=$n"; test "$d" -eq 1 && test "$n" -eq 2'
-
-# Wired, not merely present: an instrument with no standing caller is the thing this
-# project keeps a ratchet for.
-grep -q "_t499-ownership-teeth.py" tests/run-bridge-tests.sh
-
-
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -321,7 +186,7 @@ grep -q "_t499-ownership-teeth.py" tests/run-bridge-tests.sh
 
 ## Updates
 
-### 2026-08-14T11:51:25Z — task-created [task-create-agent]
+### 2026-08-25T05:49:26Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-499-watchtower-liveness-confirms-a-server-an.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-584-episodic-git-mining-runs-one-commit-too-.md
 - **Context:** Initial task creation

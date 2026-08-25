@@ -191,7 +191,14 @@ node --check tools/_t358-byteid-thirdparty.mjs
 bash -n tests/run-bridge-tests.sh
 # The corpus is asserted POSITIVELY — 11 goldens exist. `-eq 0` over a grep would be
 # satisfied identically by "absent" and "my pattern was wrong" (T-560).
-test $(ls tests/goldens/third-party/*.bpmn.golden 2>/dev/null | wc -l) -eq 11
+# G-015 repair (T-499): this line was `test $(ls .../*.bpmn.golden | wc -l) -eq 11` — a
+# count pinned to a growing population. MEASURED before removing it: hide one golden and
+# `node tools/_t358-byteid-thirdparty.mjs` (the line above) already exits 1 with "1
+# fixture(s) have no golden". So the pin asserted nothing the gate did not, and would have
+# gone red on the twelfth third-party fixture — failing for the opposite of a defect.
+# What T-581 delivered is asserted by the two gate lines above; this one enumerates the
+# recorded population instead of pinning its size.
+sh -c 'echo "goldens recorded:"; ls tests/goldens/third-party/*.bpmn.golden | sed "s|.*/|  |"; ls tests/goldens/third-party/*.bpmn.golden >/dev/null 2>&1'
 # The gate itself: 11 identical against recorded bytes, rc 0.
 node tools/_t358-byteid-thirdparty.mjs
 # The teeth: control green, then four mutations each red for its own predicted reason
