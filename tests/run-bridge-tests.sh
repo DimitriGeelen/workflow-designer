@@ -1321,6 +1321,34 @@ else
 fi
 
 echo
+echo "== Worktree isolation is denied by every route it has (T-586) =="
+# The operator asked twice, in two sessions, whether we were stuck in a worktree. Both
+# times: no, and this repo never has been (.git/worktrees does not exist, which is
+# evidence about the whole history, not just now). The question stayed askable because
+# nothing prevented it — permissions.deny was empty, so the EnterWorktree tool, the
+# Agent tool's isolation:"worktree" and `git worktree add` via Bash were all reachable.
+#
+# Deny rules close that, and deny rules live in a JSON file one careless edit removes
+# with no trace. Hence a guard: their absence otherwise looks exactly like their presence.
+# Both routes are required — denying the tool while leaving the shell open is gating a
+# surface instead of the capability behind it.
+#
+# THIS LEG IS RED UNTIL THE OPERATOR APPLIES THE RULES, and that is correct rather than
+# noise. .claude/settings.json is human-review gated (B-005) because it controls the task
+# gates and Tier-0 checks, so the agent cannot apply them. The failure message carries the
+# one-line command; it goes green the moment that runs.
+#
+# rc 2 is a REFUSAL: the guard's self-test failed, meaning it could not reject a settings
+# file with the rules stripped, so it never looked at the live one.
+if timeout 60 python3 "$ROOT/tools/_t586-worktree-denial-guard.py" > "$TMP/leg-_t586-worktree.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a worktree-isolation route is still open — run 'python3 tools/_t586-worktree-denial-guard.py'; it names the open route and prints the single-line operator command that closes it. This is an OPERATOR edit: .claude/settings.json is gated by B-005 and the agent is blocked from writing it. rc 2 means the guard's own self-test failed, so the live file was never checked and this leg's verdict is about the guard, not the config"
+  show_output "$TMP/leg-_t586-worktree.out" "_t586-worktree-denial-guard.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== No unchecked Human AC is invisible to the approvals queue (T-585) =="
 # T-344 carried a real unchecked [REVIEW] under `## Measurements` instead of under
 # `## Acceptance Criteria`. `count_unchecked_human_acs` scopes `### Human` to the AC
