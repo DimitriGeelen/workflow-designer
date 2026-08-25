@@ -292,6 +292,20 @@ came back NOT ignored, so that control demonstrated nothing. The evidence the ch
 is the run itself returning 84 non-zero results; the probe was redundant and is recorded as
 a dud rather than quietly dropped.
 
+### A third-party data point on the same tool class, arrived while this was pending
+
+001-CashWeb reported (their G-047) that `fw upgrade` **silently reverted their designer pin
+from 0.11.0 back to 0.8.0**, after a correct intake, and the route went back to serving
+903600 bytes **with no sha complaint** — because the 0.8.0 artifact was still on disk. The
+check that should have caught it was satisfied by a stale file.
+
+Relevance to the A/B/C ruling below: it is an independent observation of the same class this
+task is about — a vendoring tool reverting a deliberate local decision without saying so.
+It does not decide the ruling, and it is a different verb (`fw upgrade`, not `fw update`) on
+a different project, so it is recorded as a data point rather than folded into the reasons.
+It cuts toward "measure before and after, whichever option is chosen" rather than toward any
+one option.
+
 ### Version direction
 
 `fw update` re-vendors from that commit. `VERSION` goes 1.6.354 -> 1.6.29 while the tool
