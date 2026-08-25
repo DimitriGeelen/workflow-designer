@@ -34,17 +34,21 @@ date_finished: null
 
 ## Context
 
-`fw update` re-vendors `.agentic-framework/` from upstream. Measured last session, it is a
-REGRESSION in three independent directions: it would import upstream's
-`lib/verification-port.sh` (a file we do not have, whose extractor is unanchored where ours
-is anchored), revert 28 `.vendor-divergence.yaml` entries including live enforcement gates,
-and stamp VERSION *backwards* (1.6.354 -> 1.6.29) while calling it an upgrade.
+`fw update` re-vendors `.agentic-framework/` from upstream. The operator ruled: do not
+update; send the fix upstream instead. This task is the second half of that ruling —
+because the honest form of "we are not taking your code" is "here is the defect, here is
+the reproduction, here is our fix", not a decision recorded privately in our own tree.
 
-The operator ruled: do not update; send the fix upstream instead.
+**The ruling's third supporting reason turned out to be wrong, and the conclusion moved
+with it.** It read "VERSION goes backwards 1.6.354 -> 1.6.29, so this is a downgrade". The
+version string is a resetting counter and cannot order the two trees. Measured by content,
+upstream has 824 code files to our 328 and we lack 499 of them — our tree is the older one.
+See the CORRECTION entry in `## Decisions`. The corrected recommendation is a **selective
+merge**, not a refusal; it has NOT been acted on, because it is a materially different
+recommendation from the one the operator ruled on.
 
-This task is the second half of that ruling. It exists because the honest form of "we are
-not taking your code" is "here is the defect, here is the reproduction, here is our fix" —
-not a decision recorded privately in our own tree.
+What survives the correction unchanged is the defect report, which stands on its own
+reproduction against upstream's current HEAD.
 
 **The claim in this task's own title is not yet proven.** "Can silently drop a leg" is a
 third defect I suspect from reading line 177, beyond the two (prefix-matching, range
@@ -72,7 +76,7 @@ asserts without running.
       `.tasks/` — not by asserting it from the shape of our extractor. The count of files
       scanned is printed, so a scan that silently matched nothing is distinguishable from a
       scan that found nothing.
-- [ ] The findings are posted to AEF over termlink with `from_project` attribution, and
+- [x] The findings are posted to AEF over termlink with `from_project` attribution, and
       every number in that post is produced by a command run in this session
       (PL-260: never cite a queue you have not fetched).
 - [x] The NO-UPDATE ruling is recorded in `## Decisions` with its three measured reasons
@@ -328,7 +332,8 @@ nobody later mistakes the luck for the design.
      `context/check-active-task.sh`, `observe/observe.sh`, `task-create/update-task.sh`
      (P-011 multi-line + the anchored extractor), `policy/designer-pin.yaml`.
      0 of our content fixes have landed upstream.
-  3. **VERSION moves backwards** (1.6.354 -> 1.6.29) while the command calls it an upgrade.
+  3. ~~**VERSION moves backwards** (1.6.354 -> 1.6.29) while the command calls it an
+     upgrade.~~ **RETRACTED — see the correction below. This reason was wrong.**
 - **What REVERSES this:** any one of — (a) `tools/_t588-verification-extractor-differential.sh`
   starts exiting 1 with an "upstream may have FIXED it" leg, meaning line 177 changed;
   (b) our divergence entries land upstream so re-vendoring stops reverting them;
@@ -340,6 +345,48 @@ nobody later mistakes the luck for the design.
   tell us it went wrong is inside the blast radius.
 - **Rejected — patch upstream's file in our vendored copy:** we do not have the file, and
   creating it would manufacture a divergence entry for code we do not run.
+
+### 2026-08-26 — CORRECTION: reason 3 was wrong, and the recommendation changes with it
+
+Read `agent-chat-arc` offset 424 after recording the decision above. 010-termlink had
+publicly retracted the exact claim I had just written down, then I measured it here and
+they are right.
+
+- **Retracted:** "VERSION moves backwards, so this is a downgrade." The version string is a
+  **resetting counter**, not an ordering. 010's own register records
+  1.6.260 -> 1.6.160 -> 1.6.7 -> 1.6.295 -> 1.6.145 across five vendor events. A string
+  comparison cannot decide direction in either direction, and I used it as if it could —
+  while separately holding the evidence that upstream's HEAD commit date (2026-08-25 10:17)
+  is **current**. I had the disproof in the same paragraph as the claim.
+- **Measured here, by content rather than by string:**
+
+  | | upstream | ours (`.agentic-framework/`) |
+  |---|---|---|
+  | `*.py` + `*.sh` code files | **824** | **328** |
+  | files the other side does not have | 499 | 3 |
+  | shared files differing in content | 93 of 325 | — |
+
+  Our tree is behind by roughly 500 files. `1.6.354` is a **stale higher number on an older
+  tree.** Among the 499 we lack: `agents/context/check-worktree-governance-write.sh` and
+  `agents/git/lib/worktree-corpus-guard.sh` — worktree governance, which is the exact
+  capability T-586 built from scratch this session because nothing here provided it.
+
+- **So the recommendation changes.** "Do not update" is no longer the right shape. Reason 1
+  is narrow (one file's extractor, which is already ours by divergence) and reason 2 is a
+  **merge** problem, not an argument for refusal. 010-termlink's account of the same trap is
+  the precedent: *"Last session I reverted the vendored tree wholesale, which threw away
+  five months of upstream work to protect one local patch that upstream had already fixed
+  better."* Refusing wholesale to protect 28 divergences would be that same move.
+- **Corrected recommendation:** a **selective merge** — take upstream where it is newer,
+  keep ours where ours is a superset, and specifically do NOT adopt
+  `lib/verification-port.sh`'s extractor without the anchoring fix. Not a blind `fw update`,
+  and not a refusal.
+- **NOT ACTED ON.** The operator ruled on the previous, wrongly-supported recommendation.
+  A materially changed recommendation needs a fresh ruling, so nothing was updated, merged
+  or re-vendored. Surfaced instead.
+- **What this cost:** one reason out of three, and the shape of the conclusion. What it did
+  not cost: the defect report, which stands entirely on D1/D2/D3 and reproduces against
+  upstream's current HEAD.
 
 ### 2026-08-25 — report the defect with a runnable reproduction, not a description
 
