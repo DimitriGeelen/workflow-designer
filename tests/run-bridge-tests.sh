@@ -1321,6 +1321,32 @@ else
 fi
 
 echo
+echo "== No unchecked Human AC is invisible to the approvals queue (T-585) =="
+# T-344 carried a real unchecked [REVIEW] under `## Measurements` instead of under
+# `## Acceptance Criteria`. `count_unchecked_human_acs` scopes `### Human` to the AC
+# section, so it returned 0 — the same value a task with no Human ACs returns — and both
+# /approvals and `fw review-queue` showed nothing. The operator found it by complaining
+# that the page was empty. Nothing in the suite could have found it, because the symptom
+# of this bug is an empty queue and an empty queue is also what health looks like.
+#
+# The census compares the population the queue surfaces against the population carrying
+# an unchecked AC under any `### Human` heading, prints BOTH by task id, and classifies
+# every gap by which anchor drops it. It found T-402 on its first run — a second instance
+# of the same class, an A/B/C containment ruling nobody had ever been shown.
+#
+# rc 2 is NOT a finding, it is a REFUSAL: the six hermetic fixtures run before any repo
+# file is opened, and if the detector can no longer tell a mis-sectioned Human AC from a
+# correctly sectioned one, the sweep is skipped. It has to be, because the sweep asserts
+# ABSENCE and a broken detector reports absence perfectly.
+if timeout 120 python3 "$ROOT/tools/_t585-human-ac-visibility-census.py" > "$TMP/leg-_t585-ac-visibility.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a task carries an unchecked Human AC the approvals queue cannot see, so the operator is not being asked a question the tree thinks it asked (run 'python3 tools/_t585-human-ac-visibility-census.py'; it names the task and the anchor that drops it. rc 2 means the CONTROL failed — the detector could not separate a mis-sectioned AC from a correct one on fixtures, so the repo was NOT swept and this leg's silence is not evidence)"
+  show_output "$TMP/leg-_t585-ac-visibility.out" "_t585-human-ac-visibility-census.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Every document lacking <aef:workflowMeta> gains one on export (T-565 / T-501 IW-0) =="
 # T-501 IW-0 asks whether export should ALWAYS emit <aef:workflowMeta>, and is deferred with
 # an exit condition naming the 24 rendered maps. All 24 already carry the element, so that

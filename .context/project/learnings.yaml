@@ -1842,3 +1842,31 @@ learnings:
   date: 2026-08-23
   context: Added via context agent
   application: TBD
+- id: PL-259
+  learning: "A shared predicate makes two readers agree; it does not make them right. count_unchecked_human_acs is used by both /approvals and 'fw review-queue' (centralised by T-2075 to kill their drift). Both returned 0 for T-344, whose real unchecked [REVIEW] AC sat in a '### Human' block under '## Measurements' instead of '## Acceptance Criteria'. Centralising removed the disagreement that was the only visible symptom, and the shared answer was wrong. The failure renders as an EMPTY QUEUE, which reads as 'nothing pending' rather than as an error."
+  source: P-001
+  task: T-344
+  date: 2026-08-25
+  context: Added via context agent
+  application: TBD
+- id: PL-260
+  learning: "Do not cite a queue you have not fetched. I printed http://<watchtower>/approvals every session for weeks claiming four operator rulings were waiting on it. Measured: its pending queue reads .context/approvals/pending-*.yaml, written ONLY by check-tier0.sh for blocked destructive commands with a 1hr TTL, and that directory is empty and always was. Two of the four items were not queued anywhere; one had zero unchecked Human ACs at all. One curl would have caught it at any point."
+  source: P-001
+  task: T-344
+  date: 2026-08-25
+  context: Added via context agent
+  application: TBD
+- id: PL-261
+  learning: "A surface whose healthy state is EMPTY cannot report its own failure. /approvals and fw review-queue show nothing when no operator decision is pending, and they also show nothing when a decision exists but the predicate cannot see it. There is no red state to notice, so no gate, alert or suite leg can be built on the surface itself — the only instrument that works is a CENSUS that names both populations (what the surface shows vs what the corpus actually contains) and compares them. T-344 was found by an operator complaining; T-402, the same defect in another file, was found by the census in under a second."
+  source: P-001
+  task: T-585
+  date: 2026-08-25
+  context: Added via context agent
+  application: TBD
+- id: PL-262
+  learning: "A negative fixture that exercises the same predicate as the positive ones is a second net obtained for free, and reasoning about which net catches what is not a substitute for running it. T-585's teeth predicted that substituting a stub for the live predicate would be invisible to the census sweep and visible only to the cross-check. Measured: the sweep exits 2, because the NEG 'correctly sectioned' fixture calls that same predicate and a stub turns a plainly visible AC into an apparently invisible one. The note asserting the blind spot had to be rewritten after the run. Write the claim, then run it, then keep whichever survives."
+  source: P-001
+  task: T-585
+  date: 2026-08-25
+  context: Added via context agent
+  application: TBD

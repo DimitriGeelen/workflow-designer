@@ -164,6 +164,27 @@ both sides, so it goes to the operator rather than being taken by initiative.
 
       **DONE** — `git diff --stat .agentic-framework/agents/context/budget-gate.sh`
       reports no changes. The file is untouched by this task.
+### Human
+<!-- T-585: this block was written under `## Findings`, outside the section
+     `count_unchecked_human_acs` scopes to, so the queue predicate returned 0 and
+     neither /approvals nor `fw review-queue` ever showed it. Moved here VERBATIM —
+     no word of the criterion is changed and the box is not ticked. -->
+- [ ] [REVIEW] **Decide local containment while upstream fixes it.**
+      **Steps:**
+      1. Read the probe table in this task's `## Findings` section (added by the agent).
+      2. Pick one:
+         **A · Wait for upstream.** No local change. The bypass stays open here until
+            AEF ships and we re-vendor. Cleanest history, longest exposure.
+         **B · Carry a local patch and register it as a known fork**, so the next
+            re-vendor's conflict is expected rather than a surprise silent revert.
+         **C · Neither — close as accepted risk**, on the grounds that the practical
+            effect is small (see the bounding AC above).
+      3. Reply with the letter.
+      **Expected:** one of A / B / C recorded as a decision on this task.
+      **If not:** the task stays open; nothing is patched, which is outcome A by default
+      — and "A by choice" and "A by nobody deciding" are the same observable, which is
+      the reason this is being asked rather than assumed.
+
 ## Findings
 
 **Probe, 2026-08-11.** The allow-expression was **extracted from the shipping file at
@@ -216,23 +237,6 @@ the only thing holding.
 The file's path would have given the same answer here by luck. It would have given the
 **wrong** answer for `86a256fd` (T-401), a 6-file local edit to files under
 `.agentic-framework/`. Recording the instrument's verdict rather than the coincidence.
-
-### Human
-- [ ] [REVIEW] **Decide local containment while upstream fixes it.**
-      **Steps:**
-      1. Read the probe table in this task's `## Findings` section (added by the agent).
-      2. Pick one:
-         **A · Wait for upstream.** No local change. The bypass stays open here until
-            AEF ships and we re-vendor. Cleanest history, longest exposure.
-         **B · Carry a local patch and register it as a known fork**, so the next
-            re-vendor's conflict is expected rather than a surprise silent revert.
-         **C · Neither — close as accepted risk**, on the grounds that the practical
-            effect is small (see the bounding AC above).
-      3. Reply with the letter.
-      **Expected:** one of A / B / C recorded as a decision on this task.
-      **If not:** the task stays open; nothing is patched, which is outcome A by default
-      — and "A by choice" and "A by nobody deciding" are the same observable, which is
-      the reason this is being asked rather than assumed.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

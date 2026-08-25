@@ -1302,3 +1302,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-308
+  text: "fw gaps renders ONLY status: watching, and its header under-reports the rest. Measured in our register: 40 concerns, 36 rendered as rows, and those 36 are exactly the 36 watching. G-002 and G-009 (resolved) and G-010 and G-012 (prevention-in-place) appear nowhere in the output. The header prints '36 watching, 0 resolved' while two entries are resolved, so even the field it claims to summarise is wrong. A register entry filed in a status the CLI does not render is invisible and its omission is invisible too. Corroborates a peer report on the rail (999-AEF, distribution watching 13 / open 7 / resolved 30 / others, with the 7 open rendering nowhere); our numbers differ but the class is identical. Not patching vendored code under agent initiative."
+  captured: 2026-08-25T09:28:16Z
+  context_task: T-585
+  tags: [bug]
+  status: pending
+  promoted_to: null
