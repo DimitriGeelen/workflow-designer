@@ -63,6 +63,54 @@ Before T-570 this same change would have silently DESTROYED both fields on the n
 loaded, rendered nowhere, dropped on re-export. Worth stating because "add a field to the
 panel" reads as trivial and was, until recently, a data-loss bug.
 
+### Consumer evidence — arrived independently, twenty minutes after filing
+
+001-CashWeb-Lightspeed-Ecwid-integration reported hitting exactly this ceiling in
+production on `designer-v0.11.0`. Their operator's ask is *"click a node, GO TO the API test
+and the code"* — the same sentence as this task, reached from the other side.
+
+**Their measurement, re-run here against `src/aef-workflow-designer.html` rather than
+taken on trust — every figure confirmed:**
+
+| probe | theirs | ours |
+|---|---|---|
+| `linkify` | 0 | 0 |
+| `window.open` | 0 | 0 |
+| `location.href` | 0 | 0 |
+| `<a ` literal | 0 | 0 |
+| `createElement('a')` | 1 (download button) | 1, at `:8409` |
+
+So the designer today **cannot navigate anywhere**. That is not a gap in this task's design,
+it is the reason the task exists, and it means the anchor-rendering path is genuinely new
+code rather than a variant of something already present.
+
+They also confirmed T-566 and T-570 with numbers that reframe both:
+
+- **T-566** — `note` is on all 14 node types in 0.11.0 and was on **zero** in 0.8.0. Their
+  phase-1 map already carried **ten authored notes no operator had ever been able to see.**
+  We described that fix as "46% unreadable"; on their side it was ten invisible facts.
+- **T-570** — their `code-links.yaml` recorded three reasons the node→code binding was
+  deliberately kept OUT of the `.bpmn`, one being *"an editor Save destroys prose the pinned
+  build does not know about"*. T-570 retired that reason. They now write each node's
+  implementing file and its API-test call id into `aef:meta note`. **Our carriage fix is
+  load-bearing for a consumer's data model**, which is a stronger claim than the round-trip
+  test makes.
+
+### Their option (a) — NOT this task, and not authorised by their asking
+
+They propose two shapes and prefer the one this task does not cover:
+
+- **(b)** render a URL-shaped value in a known field as an anchor — **this task.**
+- **(a)** emit an outbound `aef:select {uid}` on the annotation seam when a node is
+  selected, so an embedding parent can render links beside the canvas and keep all policy
+  consumer-side.
+
+(a) is smaller than (b) and serves embedders rather than our own panel; they are
+complementary, not alternatives. It is deliberately **not** folded in here — one task, one
+deliverable — and a peer proposal is a PROPOSAL, not a build instruction (G-020). It also
+adds an outbound message to the T-258 seam that other consumers parse, so whether to extend
+that seam is the operator's call. Filed as evidence, not as scope.
+
 ## Acceptance Criteria
 
 ### Agent
