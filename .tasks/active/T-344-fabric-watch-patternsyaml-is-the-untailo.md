@@ -155,6 +155,20 @@ patterns without it makes the audit print two contradictory fabric lines side by
       the next `fw context init` regenerates the inert default and the pass returns.
 - [x] The audit's new standing verdict (pass/warn/fail totals) is reported before and after.
 
+
+### Human
+- [ ] [REVIEW] Approve the watch scope and the registration debt it makes visible
+      **Steps:**
+      1. `cd /opt/832-Workflow-designer && python3 .agentic-framework/agents/fabric/lib/expand_patterns.py .fabric/watch-patterns.yaml /opt/832-Workflow-designer | wc -l`
+      2. `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw audit --section structure 2>&1 | grep -i fabric`
+      **Expected:** the expansion is non-empty and the reported unregistered count is a
+      number you are willing to carry as a standing WARN until the cards are written.
+      **If not:** narrow the patterns (e.g. exclude `dist/` and `tools/_*-verify.py`) and
+      re-run both commands.
+      <!-- T-499 session: this ### Human block was under ## Measurements, outside the
+           ## Acceptance Criteria section the /approvals queue parses. count_unchecked_human_acs
+           returned 0 and the task never appeared in the review queue. Relocated, NOT ticked. -->
+
 ## Measurements
 
 All taken at `8b60b22d` (the commit before this task's changes), except where noted.
@@ -211,16 +225,6 @@ PASS|Fabric drift: All watched source files registered (17 cards)
 ```
 
 Those are the exact strings the audit had been printing since 28 Jul.
-
-### Human
-- [ ] [REVIEW] Approve the watch scope and the registration debt it makes visible
-      **Steps:**
-      1. `cd /opt/832-Workflow-designer && python3 .agentic-framework/agents/fabric/lib/expand_patterns.py .fabric/watch-patterns.yaml /opt/832-Workflow-designer | wc -l`
-      2. `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw audit --section structure 2>&1 | grep -i fabric`
-      **Expected:** the expansion is non-empty and the reported unregistered count is a
-      number you are willing to carry as a standing WARN until the cards are written.
-      **If not:** narrow the patterns (e.g. exclude `dist/` and `tools/_*-verify.py`) and
-      re-run both commands.
 
 ## RCA
 
