@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, TypeVar
 
+from markupsafe import Markup
 import yaml
 from flask import render_template, request
 
@@ -659,21 +660,29 @@ def _auto_link_files(html: str) -> str:
     return _ARTEFACT_PATH_RE.sub(_replace, html)
 
 
-def render_markdown_safe(text: str) -> str:
+def render_markdown_safe(text: str) -> Markup:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
-    mark returned string `| safe` in templates.
+    tasks.py's AC-specific helpers. Returns '' for empty input.
+
+    T-606: returns markupsafe.Markup, so callers no longer have to remember
+    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
+    was NOT sufficient for the reported symptom: /approvals' AC fields never
+    reach this function, they come from tasks.py's _render_md_inline. The
+    docstring below claims the blueprint-private parser pattern was broken by
+    promoting this helper here; the promotion happened and the private pair
+    survived. Both are now fixed. A contract with two definitions is one
+    definition and one impostor, and the impostor is where the bug lives.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
     private parser pattern called out in the T-1575 RCA.
     """
     if not text:
-        return ""
+        return Markup("")
     try:
         import markdown2
     except ImportError:
@@ -685,7 +694,12 @@ def render_markdown_safe(text: str) -> str:
         # week's defects: the failure renders as health, and nothing in the output says the
         # renderer degraded.
         from markupsafe import escape as _escape
-        return str(_escape(text))
+        # T-606: was str(_escape(text)) — correct only because every caller then
+        # applied `| safe`. Now that this function owns the safety, return the
+        # Markup escape() already produced: the entities stay visible as literal
+        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
+        # escaping; it must not inherit the happy path's trust.
+        return _escape(text)
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = _BARE_URL_RE_SHARED.sub(lambda m: f"[{m.group(1).rstrip('.,;:!?')}]({m.group(1).rstrip('.,;:!?')})", text)
     html = markdown2.markdown(text, safe_mode="escape").strip()
@@ -700,7 +714,7 @@ def render_markdown_safe(text: str) -> str:
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return html
+    return Markup(html)
 
 
 _REC_MARKER_RE = re_mod.compile(
