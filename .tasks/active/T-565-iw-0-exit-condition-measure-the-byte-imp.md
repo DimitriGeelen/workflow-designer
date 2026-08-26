@@ -4,12 +4,12 @@ name: "IW-0 exit condition: measure the byte impact of always emitting aef:workf
 description: >
   T-501 IW-0 is DEFERRED, not answered — the operator has not ruled on whether export should always emit <aef:workflowMeta>. This task produces the evidence that deferral names as its exit condition and NOTHING ELSE: measure whether always emitting the element changes the bytes of any of the 24 rendered maps, and run the T-308/T-358 byte-identity gates against the result. It does NOT change the emitter. If nothing moves, the carve-out's motivating risk is absent; if something moves, the failure is attributable to this change alone.
 
-status: started-work
+status: work-completed
 workflow_type: test
-owner: agent
+owner: human
 horizon: now
 tags: []
-components: []
+components: [tools/_t451-unwired-guard-census.py]
 related_tasks: [T-501, T-562]
 arc_id: designer-authoring-surface
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -17,8 +17,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T09:48:13Z
-last_update: 2026-08-23T21:56:38Z
-date_finished: null
+last_update: 2026-08-26T16:45:21Z
+date_finished: 2026-08-26T16:45:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -334,6 +334,40 @@ grep -q '_t565-workflowmeta-emission-census.mjs' tests/run-bridge-tests.sh
      without auto-creating; T-1832 added auto-create as fallback for
      legacy tasks lacking this section. -->
 
+## Recommendation
+
+**Recommendation:** GO on the evidence; the ruling on IW-0 itself is yours and this task
+does not pre-empt it.
+
+**Rationale:** IW-0 was deferred with an exit condition that reads as a measurement:
+*measure whether emitting `<aef:workflowMeta>` on every export changes the bytes of any of
+the 24 rendered corpus maps.* The measurement was taken and the answer is that it cannot
+change any of them, because **all 24 already contain exactly one `aef:workflowMeta`**. A
+population where the triggering condition occurs zero times cannot falsify a change
+conditioned on it. Always-emit is already the behaviour for that corpus.
+
+So the exit condition, as written, names a corpus that cannot exercise the change it asks
+about. It would have sat deferred indefinitely while appearing to carry a clear, objective
+release criterion — the same population-pin shape as T-423's `aef:forceStraight` (0
+instances, guard green forever) and G-015.
+
+The population that *can* move is the one T-501 IW-1 already located: documents with no
+`<aef:workflowMeta>` that reach the id fallback chain. The census puts **14** documents
+there — that is the real blast radius of an always-emit rule, and the number your ruling
+should be weighed against, not zero.
+
+This task produced that evidence and stopped. It does not change the emitter; that is
+T-501's carved-out item and remains your ruling.
+
+**Evidence:**
+- `tools/_t565-workflowmeta-emission-census.mjs` — census over the rendered corpus and the
+  fallback population; wired into `tests/run-bridge-tests.sh` so it does not rot
+- Census output: all 24 rendered corpus maps already carry exactly one `aef:workflowMeta`
+  → `ALWAYS-EMIT IS ALREADY THE BEHAVIOUR` for that population
+- `UNEXERCISED` verdict on the corpus arm — the exit condition's own population is inert
+- `14 can be changed by an always-emit rule` — the documents that actually move
+- P-011 5/5 passed at completion
+
 ## Updates
 
 ### 2026-08-20T09:48:13Z — task-created [task-create-agent]
@@ -347,3 +381,15 @@ grep -q '_t565-workflowmeta-emission-census.mjs' tests/run-bridge-tests.sh
 ### 2026-08-23T21:37:19Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-78d7b738
+- **Timestamp:** 2026-08-26T16:45:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-26T16:45:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

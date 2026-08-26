@@ -4,9 +4,9 @@ name: "upstream ships an unanchored verification extractor that can silently dro
 description: >
   upstream ships an unanchored verification extractor that can silently drop a leg — rule NO-UPDATE and send our anchored one upstream
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-25T21:46:47Z
-last_update: 2026-08-26T09:56:05Z
-date_finished: null
+last_update: 2026-08-26T16:46:18Z
+date_finished: 2026-08-26T16:46:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -523,9 +523,73 @@ they are right.
      without auto-creating; T-1832 added auto-create as fallback for
      legacy tasks lacking this section. -->
 
+## Recommendation
+
+**Recommendation:** A — selective merge, under a scoped task, with the counts re-measured
+before and after.
+
+**Rationale:** Upstream's verification extractor
+(`lib/verification-port.sh:177`) is `sed -n '/^## Verification/,/^## /p' | sed '$d'`, and
+that one line carries three distinct defects: D1, no closing `## ` so the range runs to
+end-of-file; D2, ranges restart on a second `^## Verification` match; D3, `/^## Verification/`
+is a *prefix* match, so `## Verification Notes` opens a range that swallows prose.
+
+Measured, not assumed: their tree shows **14** D2 instances (3 in `active/`) and **1** D3;
+ours shows **0/0/0**. The gap is not that our task files are better written. **It is one line
+wrap** — the identical template text in our copy is indented, so `## Verification` never
+matches at column 0. Our zero is luck, not design, which is exactly why our gate refuses
+rather than parsing: a future reflow of that comment re-arms all three.
+
+I demonstrated D3 accidentally while verifying this very task. I extracted T-588's
+verification block with an ad-hoc `awk` range instead of the framework's extractor, over-ran
+the section, and fed forty-odd lines of prose and markdown tables to the shell as commands.
+The real P-011 extractor, run seconds later, found exactly **4** legs. That is the defect
+reproducing itself in-session, on the task that documents it.
+
+Why A rather than C: option C is `fw update`, and the version bump is your call, not mine —
+AEF said so directly and I am not going to launder it through a bug fix. A takes the specific
+correction into our vendored copy under a scoped task with before/after counts. Why A rather
+than B: B leaves us relying on an indentation accident, and 001-CashWeb's G-047 (a `fw upgrade`
+silently reverting 0.11.0 → 0.8.0 past a sha check satisfied by a stale file) is an independent
+data point that vendoring tools do quietly revert deliberate local decisions.
+
+**Evidence:**
+- `tools/_t588-verification-extractor-difference.sh` — differential harness, P-011 4/4
+- Positive control: purpose-built fixtures score D1 1 / D2 2 / D3 1, so a zero elsewhere is a
+  measurement and not a broken detector
+- 832: 590 task files, 590 with a Verification block, **0/0/0**
+- AEF upstream at `67aeacc` (2026-08-25, VERSION 1.6.29): 3123 files, 2990 with a block,
+  **D2 14, D3 1**
+- Worked D3 case: `T-3130-…md` — headings at line 168 (inside an HTML comment) and 191;
+  upstream opens at 168, closes at 191, and hands template prose to the eval loop while the
+  real block at 191 is never reached
+- AEF acknowledged and gave it a home: **their T-3148**, six sites, four gate-bearing
+
 ## Updates
 
 ### 2026-08-25T21:46:47Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-588-upstream-ships-an-unanchored-verificatio.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2b42a916
+- **Timestamp:** 2026-08-26T16:46:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Each suspected defect in upstream `lib/verification-port.sh:177` is individually
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/verification-port.sh in: Each suspected defect in upstream `lib/verification-port.sh:177` is individually`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 51
+     - evidence: `sh -c 'unset T588_UPSTREAM; out=$(tools/_t588-verification-extractor-differential.sh 2>&1); rc=$?; [ "$rc" = "2" ] && echo "$out" | grep -q "Nothing was compared"'`
+
+### 2026-08-26T16:46:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
