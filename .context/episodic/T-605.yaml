@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-605: Input-fidelity census still expects documentation to be dropped, so T-602's fix leaves a red driver
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-26T20:31:54Z
+# ============================================================================
+
+task_id: T-605
+task_name: "Input-fidelity census still expects documentation to be dropped, so T-602's fix leaves a red driver"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-26T20:28:14Z
+completed: 2026-08-26T20:31:42Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-26T22:31:37+02:00
+last_commit: 2026-08-26T22:31:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  reconcile the fidelity baseline T-602 invalidated — deliberately, with the ratchet proven to still bite.
+
+# Key outcomes
+outcomes:
+  - 'The preservation is INDEPENDENTLY confirmed before the baseline moves — documentation'
+  - '`EXPECTED_CONTENT[''documentation'']` is `CONTENT-PRESERVED`, and carries an inline'
+  - '`node tools/_t338-input-fidelity-cdp.mjs` exits 0 — the driver is green on master again'
+  - 'The ratchet is proven to still bite: a poison arm that reverts T-602''s emit turns the'
+  - 'No other row in `EXPECTED_CONTENT` or `EXPECTED_ROOT` was touched — the change is'
+  - 'The census has no self-test to lean on — checked, not assumed — so independence is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-605-input-fidelity-census-still-expects-docu.md'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-26T22:31:37"
+    action: 'T-605: reconcile the fidelity baseline T-602 invalidated — deliberately, with the ratchet proven to still bite.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 3
+  lines_added: 291
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-605-input-fidelity-census-still-expects-docu.md
+generated_by: context-agent-hybrid
