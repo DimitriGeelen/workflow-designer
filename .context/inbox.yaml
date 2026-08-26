@@ -1309,3 +1309,11 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-309
+  text: "Focus-drift gate (T-1730) matches the COMMAND TEXT, not the paths being acted on. 'git add .tasks/active/T-589-x.md' is blocked under focus T-588; 'git add -u .tasks' stages the identical file and is allowed. Same class as the week's other findings: the check inspects a proxy for the action rather than the action. Also a real catch-22 sits behind it — after 'fw task update --status work-completed', P-002 blocks ALL Bash while focus is the completed task, and focus-drift blocks committing that task's files from any other focus, so the state the completion command itself wrote cannot be committed by either route."
+  captured: 2026-08-26T09:55:21Z
+  context_task: T-1730
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true

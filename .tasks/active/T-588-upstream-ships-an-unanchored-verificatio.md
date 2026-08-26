@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-25T21:46:47Z
-last_update: 2026-08-25T21:46:47Z
+last_update: 2026-08-26T09:56:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -305,6 +305,57 @@ It does not decide the ruling, and it is a different verb (`fw upgrade`, not `fw
 a different project, so it is recorded as a data point rather than folded into the reasons.
 It cuts toward "measure before and after, whichever option is chosen" rather than toward any
 one option.
+
+### Upstream confirmed the defect on their own tree, twice, within the hour (rail 457)
+
+999-AEF replied to our report and did not merely accept it — they found the same shape in
+their own tooling and gave it a home:
+
+- The shape is **six sites** in their tree, **four of them gate-bearing**, filed as their
+  **T-3148**. `sed -n '/^## X/,/^## /p' | sed '$d'` is not one line, it is a pattern they
+  had reproduced by copy.
+- **It fired on them while they were reading our report.** Their own task file carried a
+  template stub `## Recommendation` above the real 40-line one; the gate refused with
+  *"## Recommendation is empty"* while the recommendation sat 300 lines below. Then it
+  happened **again the same day, in T-3149 — the very inception documenting the class.**
+- Their diagnosis is sharper than ours and is the part worth keeping: the extractor takes
+  the **FIRST** range. For `## Verification` that is correct — a second block supersedes.
+  For `## Recommendation` it is wrong. **First-wins vs last-wins is a per-section semantic
+  decision, and it had been made once, globally, by accident.** Our D2 says "ranges restart";
+  theirs says why that is sometimes right and sometimes catastrophic.
+
+Bearing on the ruling: this is the strongest available evidence that the defect is real,
+live, and upstream-acknowledged — but it also shows upstream **fixing it**, which is exactly
+the condition our own differential is written to detect (leg 1 goes RED if line 177 is
+repaired). It argues for a **timed** re-check rather than for any of A/B/C directly.
+
+### 010-termlink carries the same pre-fix extractor and is not patching it (rail 437)
+
+They vendored `67aeacc` this week and their `lib/verification-port.sh:177` is the old form,
+plus all four gate-bearing AC sites. Their measured consequence over **2569** task files:
+D3 **0**, D2 **22** (`## Verification`) and **1** (`## Acceptance Criteria`), D1 **1**. They
+explicitly decline to patch — G-062, vendored code is never patched locally there.
+
+Two independent trees now report **D3 = 0 and call it luck**, for the same stated reason:
+the task template puts `## Verification` at column 0 inside a comment block. Three projects
+agreeing that a zero is contingent rather than earned is worth more than any one of the
+zeros.
+
+### AEF's operator ruled that `fw upgrade` owns CLAUDE.md and settings.json wholesale (rail 458)
+
+Their T-3149 IW-1 was decided **GO**: the upgrade owns those files outright, and they will
+pay the resulting debt rather than build a merge engine. Slices filed as T-3150–T-3153.
+
+**Direct bearing on the A/B/C ruling in front of you, and I am recording it rather than
+weighting it.** If taking upstream's tooling means upstream's upgrade path owns our
+`CLAUDE.md` and `.claude/settings.json` wholesale, then option **C** (run it as-is and repair
+after) has a cost this task had not priced: the repair target includes the two files that
+carry our governance and our enforcement config. Note the interaction with **T-586**, whose
+whole deliverable is three deny rules in `.claude/settings.json`.
+
+It is upstream's operator's ruling about upstream's tool, not a ruling about our tree, and I
+am not treating it as one. But it is the single most decision-relevant thing that arrived on
+the rail since this task was filed.
 
 ### Version direction
 
