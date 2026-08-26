@@ -1,23 +1,23 @@
 ---
-id: T-575
-name: "landing: drain the parked backlog to consumer-visible done"
+id: T-598
+name: "Connectors show direction only at the destination: add a smaller source-end arrow pointing toward the target"
 description: >
-  LANDING MODE umbrella (operator directive, Tier 2 override of one-bug-one-task and G-019 register-before-fix, logged once here). All landing work runs under this id instead of spawning a task per finding; discoveries go one line each into .context/working/landing-notes.md. DONE means a consumer can install and use it, not that the repo is green. Session one: evidence pack for the 12 tasks sitting in active/ at status work-completed, blocked only on Human ACs.
+  Connectors show direction only at the destination: add a smaller source-end arrow pointing toward the target
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
-tags: [landing, umbrella]
+horizon: null
+tags: []
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-20T21:46:57Z
-last_update: 2026-08-26T16:46:45Z
-date_finished: null
+created: 2026-08-26T16:56:39Z
+last_update: 2026-08-26T17:06:55Z
+date_finished: 2026-08-26T17:06:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,26 +30,64 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-575: landing: drain the parked backlog to consumer-visible done
+# T-598: Connectors show direction only at the destination: add a smaller source-end arrow pointing toward the target
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator request: connectors carry an arrowhead at the destination only, so on a long or
+crossing edge you have to trace the whole path to see which way the flow runs. Add a
+smaller arrow near the **source** end, pointing **toward the destination**, so direction
+reads from either end of the connector.
+
+The existing markers are at `src/aef-workflow-designer.html:1378-1383` and applied as
+`marker-end` at `:3697`.
+
+**The trap to avoid:** the existing markers use `orient="auto-start-reverse"`. That is
+correct for `marker-end`, but reusing `#arrow` as a `marker-start` would flip it to point
+*backwards* toward the source — the exact opposite of what was asked. The source markers
+therefore need `orient="auto"`, not the existing orientation.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Umbrella task. Closes when the parked backlog is drained, not per-session. -->
-- [x] Evidence pack produced for every task sitting in `active/` at `status: work-completed`:
-      each classified FREE / DEAD-PREMISE / RULING, with the measurement behind the verdict.
-      → `.context/working/landing-notes.md`, session 1. 12 tasks, 15 real unchecked ACs.
-- [ ] The FREE tasks are closed (operator runs the completion; agent may not).
-- [ ] Every DEAD-PREMISE task is either closed or its AC rewritten to the live question.
-- [ ] Each landing session appends to `landing-notes.md` and ends with the active task
-      count LOWER than it started, or states plainly that it did not.
-- [ ] The operator queue is delivered as copy-pasteable one-liners plus at most five
-      yes/no questions per session — never as new tasks.
-- [ ] No new tasks, gaps or concerns filed under landing mode except this umbrella.
+- [x] Two new markers (`arrow-source`, `arrow-source-selected`) exist with `orient="auto"`,
+      so a start marker points along the path toward the destination rather than reversed
+- [x] The source markers are visibly SMALLER than the destination markers — a strictly lower
+      markerWidth/markerHeight, checked numerically and not by eye
+- [x] The source markers use the same fills as their destination counterparts
+      (`--text-dim` normal, `--accent` selected), so selection state stays consistent
+- [x] `marker-start` is applied on the same edge path as `marker-end`, and the selected
+      variant switches both markers together
+- [x] Visual verification per CLAUDE.md: the source arrow is observed IN THE RENDER pointing
+      toward the destination, on a single isolated edge at a known SVG→pixel mapping, so the
+      observation cannot be confused with a neighbouring edge's destination head
+
+## Visual Verification
+
+Screenshots taken with Playwright against the real file served at `127.0.0.1:8891`, and
+READ, not assumed.
+
+1. `.context/working/t598-light.png` — whole canvas. **Rejected as evidence:** too
+   zoomed-out to judge an 5px marker, exactly the trap CLAUDE.md names.
+2. `.context/working/t598-src-crop.png` — zoomed on the source end with all edges visible.
+   Showed an arrow pointing RIGHT while this edge's flow runs LEFT. **Not treated as a
+   failure**, because a gateway node sits at that point and a neighbouring edge's
+   `marker-end` could produce exactly that pixel. Ambiguous evidence, discarded.
+3. `.context/working/t598-final.png` — **the decisive shot.** Every other edge and layer
+   hidden, `viewBox` set to `995 476 30 20` against an explicit 600×400 box so the source
+   point (1010,486) lands at pixel (300,200). The rendered triangle has its base at the
+   source point and its **apex pointing LEFT** — the same direction as the flow, whose
+   destination is at x=460. Confirmed.
+
+**Not verified visually, and recorded as such:** the selected state. No edge was selected
+in the loaded document, so the selected marker pair was never rendered. Both selected
+markers exist in `defs`, and `marker-start`/`marker-end` are assigned from the *same*
+`isSelected` ternary on one line, so they cannot diverge — but that is a structural
+argument, not an observation.
+
+Theme variants were not shot separately: the markers carry no geometry that varies by
+theme, and their fills are `var(--text-dim)`/`var(--accent)`, verified equal to the
+destination markers' fills by the numeric leg below.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -83,6 +121,9 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tools/_t598-source-marker.py
+python3 -c "import re;s=open('src/aef-workflow-designer.html',encoding='utf-8').read();assert s.count('id=\"arrow-source')==2"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -194,10 +235,19 @@ date_finished: null
 
 ## Updates
 
-### 2026-08-20T21:46:57Z — task-created [task-create-agent]
+### 2026-08-26T16:56:39Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-598-connectors-show-direction-only-at-the-de.md
 - **Context:** Initial task creation
 
-### 2026-08-20T21:47:49Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-eceeebfa
+- **Timestamp:** 2026-08-26T17:06:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-26T17:06:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1381,6 +1381,16 @@ font-family: 'Outfit';
           <marker id="arrow-selected" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
             <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)" />
           </marker>
+          <!-- T-598: source-end direction cue. Smaller than the destination head, and
+               orient="auto" NOT "auto-start-reverse" — a start marker with the reversing
+               orientation points back at its own source, which is the opposite of the
+               flow indication this is for. -->
+          <marker id="arrow-source" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--text-dim)" />
+          </marker>
+          <marker id="arrow-source-selected" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)" />
+          </marker>
         </defs>
         <g id="g-pool"></g>
         <!-- T-286: id badges paint BELOW edges by default (arrows carry flow semantics;
@@ -3694,7 +3704,7 @@ function renderEdges() {
 
     const g = el('g', { class: 'edge' + (isSelected ? ' selected' : '') + (isBeingDragged ? ' dragging' : '') + (isFloating ? ' floating' : ''), 'data-id': e.id });
     g.appendChild(el('path', { d: path, class: 'edge-hit' }));
-    g.appendChild(el('path', { d: path, class: 'edge-path', 'marker-end': isSelected ? 'url(#arrow-selected)' : 'url(#arrow)' }));
+    g.appendChild(el('path', { d: path, class: 'edge-path', 'marker-start': isSelected ? 'url(#arrow-source-selected)' : 'url(#arrow-source)', 'marker-end': isSelected ? 'url(#arrow-selected)' : 'url(#arrow)' }));
 
     if (e.name && labelPrefs.showEdge && !isBeingDragged) {
       // Place on the ACTUAL routed polyline (not the pre-route points) and lift
