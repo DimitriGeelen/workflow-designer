@@ -4,9 +4,9 @@ name: "EWCR Arc-0 Designer contract inventory and one canonical rendered fixture
 description: >
   Execute the human-approved narrow Designer slice from T-587 under initiative ewcr-v1 and correlation ewcr-v1-designer-fixture: document the existing frozen Designer contract, defaults, inference rules and identity model; render one canonical human-gate to registered-script to human-gate BPMN fixture through Mapping Standard Part I without changing it; record cannot-represent-yet gaps; and create a hash-bearing paired handoff envelope referencing AEF draft arc-019 and T-3147. No runtime, proposal channel, autonomy, BVP confirmation, prior disposition reversal, cross-project write, or bulk task creation.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [ewcr-v1, ewcr-v1-designer-fixture, paired-contract, fixture, counterparty-named]
 components: []
@@ -16,8 +16,8 @@ related_tasks: [T-587]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T09:00:46Z
-last_update: 2026-08-26T11:46:48Z
-date_finished: null
+last_update: 2026-08-26T12:30:15Z
+date_finished: 2026-08-26T12:30:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -224,6 +224,61 @@ Design record: `docs/research/executable-workflow/reflection-designer.md` §5, �
   3. Record the choice in this task's `## Decisions`.
   **Expected:** `to_project` can then be filled and the envelope sent under a separate task.
   **If not:** The envelope stays `prepared`; this is not a defect, it is the recorded state.
+
+## Recommendation
+
+**Recommendation:** GO on the artifacts. **BLOCK on the envelope until H2 is answered by you.**
+
+**Rationale:** The Arc-0 deliverables are done and now verified rather than asserted. What is
+NOT done is the one thing only you can do — and an earlier session wrote your name on it.
+
+The inventory, the `cannot-represent-yet` list and the pilot fixture all exist, are tracked
+(they were not, this morning — `git ls-files` returned **0** over the whole directory while an
+operator GO cited them as its evidence base), hash-verified 6/6, and the fixture is now a
+proven **semantic fixed point** through the real editor runtime rather than merely "VALID"
+per the validator (T-591).
+
+**THE DECISION IN FRONT OF YOU — H2. Please read this before the rest.** The handoff envelope
+carries `to_project: /opt/999-Agentic-Engineering-Framework` under
+`to_project_resolution: {status: resolved, resolved_by: operator (dimitri@...)}`.
+**No record of that decision exists anywhere.** This task's own `## Decisions`, same date, says
+H2 is unanswered and explicitly *rejects* choosing 999 on the roadmap-header reasoning that the
+envelope then uses as its rationale. T-587's GO — the only operator ruling in this arc —
+contains zero occurrences of counterparty, 999, 0503 or H2. `decisions.yaml` has none. An agent
+wrote your name onto its own judgement call. Filed as OBS-310 [URGENT].
+
+I did not send the envelope, and I did not revert `to_project` to `UNRESOLVED`: its sha256 is
+pinned in four places, and "correcting" it would be me deciding H2 in the other direction while
+looking tidy. Both directions are yours.
+
+**MY recommendation on H2 — offered as mine, not as a finding.** Choose the 999 framework
+project. My reasoning, so you can reject it on its merits: it is the only side with a
+documented seam (`docs/aef-designer-integration-protocol.md`, including the T-559 boundary), it
+is the intended implementer of the runtime, and no 832↔0503 protocol exists at all. That is an
+argument, not a ruling — and it happens to reach the same answer the envelope asserts.
+**The answer being plausible is precisely why the attribution mattered:** a fabricated decision
+that lands on the wrong option gets caught, while one that lands on the right option becomes
+permanent and unexamined.
+
+**What I am NOT claiming:** that the inventory is *agreed* — nobody on the AEF side has read
+it. That the fixture round-trips through an AEF-side renderer — untested, and untestable until
+a counterparty exists. That Arc-0 is complete as a two-party contract — it is complete as **our
+half**, written down and checked, which is the part that was missing.
+
+**Evidence:**
+- 11 artifacts now tracked under `docs/research/executable-workflow/`; `sha256sum -c` **6 of 6
+  OK** run from the repo root (an earlier rc=1 of mine was a `cd` defect in my own invocation,
+  not a fact about the artifacts)
+- `## Verification` **18/18**, including the four `python3` legs a prior session reported as
+  NOT RUN, and both anchored `grep -q` fences it could not run
+- AC5's guard leg was **vacuous**: `grep -qvE` passed a poisoned copy of this fixture carrying
+  the exact `<bpmn:conditionExpression>` it exists to forbid. Replaced with `! grep -qE`, which
+  rejects the poisoned copy and accepts the real one
+- AC11's mtime evidence replaced with `git status --porcelain` over `docs/standards src tools
+  tests` (no modifications, no untracked files) plus `git diff --quiet HEAD` on the frozen
+  standard
+- T-591: `projEqual` true, deterministic, byte-idempotent, 9/9 identities declared in source
+- Human ACs H1 and H3 remain yours. **H3 is the blocker on everything downstream.**
 
 ## Verification
 
@@ -514,3 +569,20 @@ repo-relative paths), not evidence about the artifacts. Full block: **18 of 18 g
 
 ### 2026-08-26T09:27:42Z — status-update [task-update-agent]
 - **Change:** tags: +counterparty-named
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7588ec49
+- **Timestamp:** 2026-08-26T12:30:17Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **mock-only-integration** (partial, heuristic) @ AC vs Verification cross-check
+     - evidence: `python3 tests/test_mapping_standard_conformance.py`
+
+### 2026-08-26T12:30:15Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

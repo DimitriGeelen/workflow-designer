@@ -4,9 +4,9 @@ name: "Verification legs that pipe a self-reporting command into grep discard it
 description: >
   Verification legs that pipe a self-reporting command into grep discard its exit status
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T12:31:10Z
-last_update: 2026-08-26T12:31:10Z
-date_finished: null
+last_update: 2026-08-26T12:47:17Z
+date_finished: 2026-08-26T12:47:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -105,6 +105,28 @@ caught because deleting it left the over-eager control passing unchanged, which 
 visible if you run controls in both directions. Removed.
 
 ### Human
+
+- [ ] [REVIEW] Decide whether the vacuous-verification detector becomes a blocking gate
+  **Steps:**
+  1. See the live population for yourself — 24 legs across 15 active tasks:
+     `cd /opt/832-Workflow-designer && python3 tools/check-vacuous-verification.py`
+  2. Confirm the detector is not blind, by making it prove it can see a planted defect:
+     `cd /opt/832-Workflow-designer && python3 tools/check-vacuous-verification.py --self-test`
+  3. Pick one:
+     **(a) Gate now** — reddens 15 active tasks immediately, all written in good faith
+     against CLAUDE.md's own recommended idiom.
+     **(b) Fix forward, then gate (my recommendation)** — land the detector advisory,
+     fix the 24 legs in a follow-up task, gate after. Each fix is mechanical: the bare
+     command, or `cmd > /tmp/.out 2>&1 && grep -q PAT /tmp/.out`.
+     **(c) Advisory only, permanently** — cheapest, and it will rot, because the defective
+     form is the one CLAUDE.md recommends.
+  4. Whichever you pick, the CLAUDE.md fix is separate and is the one that stops the 25th:
+     L-387 recommends the capture form, T-352 says the gate judges `a; b` on `b` alone.
+     Both are in the same file and nobody joined them.
+  **Expected:** one of (a)/(b)/(c) recorded, plus a yes/no on the CLAUDE.md paragraph edit.
+  **If not:** the detector stays advisory and unreferenced by any gate; new instances keep
+  arriving, because the guidance that produces them is unchanged.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -308,3 +330,19 @@ grep -q "matches\[-1\]" tools/check-vacuous-verification.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a9b39f52
+- **Timestamp:** 2026-08-26T12:47:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -rf`
+
+### 2026-08-26T12:47:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

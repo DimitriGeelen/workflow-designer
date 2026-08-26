@@ -1921,3 +1921,59 @@ decisions:
     date: 2026-08-23
     task: T-578
     rationale: "The ratchet detects MOVEMENT between two commits under a fixed rule, and does that correctly whether or not prose counts as an edge. Redefining it to ~110+ turns a movement detector into a backlog gauge for a debt nobody can drain in one pass, and a number that is always large and never actionable stops being read. Evidence for the resolution argument: this task's own census shipped unwired in 34ac6287 and the ratchet caught it at 66-vs-67 — one part in 66 is visible, one part in 110+ is not. The prose-only population is a real problem and needs its OWN ratchet with its own baseline, so 'did a guard go dark this week' and 'how many guards are held up by a sentence' stay separable. Mitigation landed instead: _t451's LIMIT paragraph now states the SCALE of each blind spot (110 of 237, 46%) rather than only its kind."
+
+  - id: PD-254
+    decision: "the baseline is 11 committed `.golden` files — the uid-normalised emission of a"
+    scope: project
+    date: 2026-08-24
+    task: T-581
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-255
+    decision: "relocate the block into `## Acceptance Criteria` verbatim, never edit its"
+    scope: project
+    date: 2026-08-25
+    task: T-585
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-256
+    decision: "emit `href=\"/fabric/component/<name>\"` and let the browser resolve it against"
+    scope: project
+    date: 2026-08-26
+    task: T-589
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-257
+    decision: "only `https?://…` and root-relative `/path` render as anchors. Everything else"
+    scope: project
+    date: 2026-08-26
+    task: T-589
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-258
+    decision: "one scalar string holding one URL per line."
+    scope: project
+    date: 2026-08-26
+    task: T-589
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-259
+    decision: "`docs/research/executable-workflow/fixtures/`, not `tests/fixtures/aef-bpmn/`."
+    scope: project
+    date: 2026-08-26
+    task: T-590
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-260
+    decision: "emit `horizon`, `tier` and `agentType` explicitly on all three task-like"
+    scope: project
+    date: 2026-08-26
+    task: T-590
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-261
+    decision: "build the full envelope with both source hashes, the exact fixture hash,"
+    scope: project
+    date: 2026-08-26
+    task: T-590
+    rationale: "Auto-captured from task file on completion"
