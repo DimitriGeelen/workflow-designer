@@ -254,7 +254,14 @@ const CONTENT_CASES = [
         + `xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${MARK}</bpmn:conditionExpression>` },
 ];
 const EXPECTED_CONTENT = {
-  'documentation':       'CONTENT-DROPPED',
+  // T-605: moved DROPPED -> PRESERVED on 2026-08-26 because T-602 (a6eb86ce) made
+  // bpmn:documentation survive import->export. NOT a rubber stamp: the flip rests on
+  // tools/_t602-documentation-roundtrip.mjs, which measures the round-tripped text, id,
+  // textFormat, element count and child ORDER independently of this census — this file
+  // agreeing with itself would prove nothing. The expectation is a RATCHET, not a
+  // description: reverting T-602's emit turns this row red again, which is the property
+  // that makes the flip safe to make. Every other row is untouched.
+  'documentation':       'CONTENT-PRESERVED',
   'ext-foreign-child':   'CONTENT-DROPPED',
   'property':            'CONTENT-DROPPED',
   'multiInstanceLoop':   'CONTENT-DROPPED',

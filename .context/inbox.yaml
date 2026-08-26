@@ -1361,6 +1361,13 @@ observations:
   tags: [learning]
   status: pending
   promoted_to: null
+- id: OBS-317
+  text: "A fix that IMPROVES fidelity has no mechanism telling it which baselines it just invalidated. T-602 fixed bpmn:documentation round-trip; tools/_t338-input-fidelity-cdp.mjs encoded the old broken behaviour as its expectation and went RED on master, and nobody noticed until a driver-health sweep two tasks later. From inside T-602 this was invisible: the census is not in T-602's ## Verification block, so no gate ran it, its own verifier was green, and the handover had nothing to report. The census's refusal to auto-absorb an improvement is CORRECT and must stay — a guard that silently accepts a verdict moving in the good direction will also silently accept it moving back — but the refusal is only useful if it reaches someone. Candidate remedies, none built: (a) a cheap cross-driver health sweep at completion that runs every driver naming a changed source file and reports reds the task did not cause, (b) baselines declaring which behaviour they pin so a fix touching that behaviour can name its own dependants, (c) at minimum, a handover line listing drivers red on master that the session did not make red. Reconciled once under T-605; the NEXT fidelity improvement will redden something the same way."
+  captured: 2026-08-26T20:32:00Z
+  context_task: T-605
+  tags: [bug]
+  status: pending
+  promoted_to: null
 - id: OBS-314
   text: "contentRightEdge() encloses the right-most node BOX, not its label, so the pool border can be drawn tighter than the content it contains. Measured under T-601: a below-label centred on the right-most node overhangs the pool border with no better candidate available (right is further out, left collides with the previous node), so the placement pass correctly keeps it and the overhang stands. This is a pool SIZING defect, not a placement defect. Fix belongs in contentRightEdge() (and probably poolHeight() for the same reason at the floor): size the pool to the rendered label extents, not the node boxes. Kept out of T-601 deliberately — merging it would have hidden it behind a placement fix."
   captured: 2026-08-26T19:37:07Z
