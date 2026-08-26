@@ -553,7 +553,7 @@ repo-relative paths), not evidence about the artifacts. Full block: **18 of 18 g
   - `designer-contract-inventory.md` — `1a6a45413c29c6b2032bb61db99a004284166b9bc6a40058a03b8cef47632879`
   - `fixtures/ewcr-pilot-human-gate-script-human-gate.bpmn` — `b6a9afd7eb03abeaba43513f45176dd439838887b588901f5a2aa2a83da1685b`
   - `cannot-represent-yet.md` — `24b2c7c126dc2752bfd349cb21e60900d8d2f5030f40782956e85f9329a86330`
-  - `handoff-ewcr-v1-designer-fixture.yaml` — `7d4f6b9519db6f0a1293fe3e641596fb3266d9186b68625395f4d2419d8b897e`
+  - `handoff-ewcr-v1-designer-fixture.yaml` — `33cba2cbb453db2feb2bc631974df0f68dfd7aea706f9967ecc6a74258b2d12f`
   - `sha256sum -c docs/research/executable-workflow/source-manifest.sha256` → **6 of 6 OK**
 - **Envelope state:** `prepared`. Not delivered, not accepted, not read back. H2 is resolved
   (`/opt/999-Agentic-Engineering-Framework`) so `to_project` is filled, but sending is a

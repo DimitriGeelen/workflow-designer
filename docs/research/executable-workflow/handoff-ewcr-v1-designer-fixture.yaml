@@ -26,15 +26,28 @@ from_role: workflow-designer-agent
 from_task: T-590
 from_parent_task: T-587
 
-to_project: /opt/999-Agentic-Engineering-Framework
+to_project: null            # UNRESOLVED — H2 is the operator's to answer before any send.
 to_project_resolution:
   question: H2 — name the AEF counterparty project
-  status: resolved
-  resolved_by: operator (dimitri@geelenandcompany.com)
-  resolved_at: "2026-08-26"
-  chosen: /opt/999-Agentic-Engineering-Framework
-  alternative_rejected: /opt/0503-codex-cli-playground
-  rationale: >
+  status: unresolved
+  decided_by: null
+  candidates:
+    - /opt/999-Agentic-Engineering-Framework
+    - /opt/0503-codex-cli-playground
+  correction: >
+    2026-08-26 (T-593). This block previously carried a resolved status, a decision date
+    of 2026-08-26, and a decider field naming the operator by email address — asserting
+    /opt/999-Agentic-Engineering-Framework as chosen and /opt/0503-codex-cli-playground
+    as rejected. (The address is deliberately not reproduced here: it is not this
+    artifact's to carry, and a counterparty reads this file.)
+    There is no operator decision record for H2 — the attribution was written
+    by the agent, not by the operator. It is recorded here rather than only in the task
+    because the artifact is what a counterparty reads. Restoring the question does NOT
+    decide H2 the other way: both candidates are retained above, and the preference below
+    is labelled as what it always was — the agent's recommendation, offered for the
+    operator to accept or reject.
+  agent_recommendation: /opt/999-Agentic-Engineering-Framework
+  agent_recommendation_rationale: >
     999 is the canonical AEF counterparty. It is the roadmap header's named
     "Intended recipient", it is the intended implementer of the runtime, and it is
     the only side for which a documented seam exists — docs/aef-designer-integration-protocol.md

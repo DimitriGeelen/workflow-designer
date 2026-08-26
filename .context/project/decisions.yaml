@@ -1977,3 +1977,10 @@ decisions:
     date: 2026-08-26
     task: T-590
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-262
+    decision: "Set `status: unresolved`, keep both candidates, relabel the 999 preference as"
+    scope: project
+    date: 2026-08-26
+    task: T-593
+    rationale: "Auto-captured from task file on completion"
