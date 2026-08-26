@@ -4,11 +4,11 @@ name: "designer properties panel: add a clickable component-fabric link and a UR
 description: >
   designer properties panel: add a clickable component-fabric link and a URL field for code/tests
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
-tags: []
+tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-25T22:39:21Z
-last_update: 2026-08-26T09:27:38Z
-date_finished: null
+last_update: 2026-08-26T09:51:02Z
+date_finished: 2026-08-26T09:51:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -307,6 +307,40 @@ grep -q "^PASS  unsafe-shapes-are-text-not-links" /tmp/.t589-probe.out
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+## Recommendation
+
+**Recommendation:** GO — accept the build; the two remaining Human ACs are taste calls, not
+defect checks, and neither blocks use of the feature.
+
+**Rationale:** every Agent AC is discharged against evidence read back from a running page,
+not from the source. The one thing that could have made this a cross-project negotiation —
+a dialect change — was checked before building and is not present: `metaKeys` is still 20 and
+bridge parity passes, so nothing needs AEF's ratification. The change is additive and proven
+inert on documents that do not use it. What is left for you is genuinely a matter of
+preference (each URL currently shows twice — raw in the editable box, rendered as an anchor
+below), and one confirmation that the field name and target are the ones you meant.
+
+**Evidence:**
+- `tools/_t589-panel-links-cdp.mjs` — **10/10 legs**, including a control arm that loads the
+  pre-change build (pinned `12c10d09`) and requires it to render **0** anchors. The control
+  is not decorative: it caught a post-commit run where 9 legs passed and byte-identity
+  reported "identical from both builds" while comparing a build to itself.
+- `tests/test_editor_bridge_meta_parity.py` — exit 0, all 20 editor `metaKeys` in bridge
+  `META_KEYS`. Not a contract change.
+- `tools/_t570-meta-carriage-cdp.mjs` — 8/8 still green; the carriage this rides is undisturbed.
+- `tests/test_mapping_standard_conformance.py` — exit 0; the four frozen governance keys are
+  untouched.
+- Byte-identity on a document using neither field: **3381 bytes, identical** from the
+  pre-change build and this one, measured in one run rather than against a stored golden.
+- End-to-end: `curl /fabric/component/bpmn-cli` on the live Watchtower →
+  `<title>Component: bpmn-cli</title>`. The href shape resolves to a real page.
+- Screenshots `.playwright-mcp/t589-{populated,empty}.png`, both read back, taken against a
+  locally served copy whose sha was verified against the working tree first — `/designer`
+  serves a pinned build that does **not** contain this change (FP-009).
+
+**What I am NOT claiming:** that the double display of each URL is the right UX. I did not
+pick a shape for you; it is one branch in the `linkList` renderer either way.
+
 ## Visual Verification
 
 Screenshots are element-level (the two field wrappers, lifted into one container), taken
@@ -359,6 +393,24 @@ by my own taste.
   truer thing, and a new leg requires the keys to *leave* the read-only readout when they
   become fields — one fact, one surface, because two surfaces drift into disagreeing.
 - **Triggered:** no new task. Rewritten in place as leg 1 and leg 2 of the probe.
+
+### 2026-08-26 — the control arm dissolved the moment the change was committed
+
+- **What changed:** the probe took its baseline from `git show HEAD:src/…`. That is correct
+  right up to the commit, at which point **HEAD becomes the change** and the control compares
+  the build against itself. The completion gate ran the probe post-commit and blocked:
+  `HEAD build had 3 anchor(s)`.
+- **Plan impact:** the run that failed is more instructive than the fix. **9 of 10 legs
+  passed**, and leg 10 — byte-identity between the two builds — reported
+  `3381 bytes, identical from both builds` while comparing a build to **itself**. A
+  tautology, green. Only the control arm noticed, which is the entire argument for having
+  one. Fixed by pinning `T589_BASELINE_REF` to `12c10d09` (the commit before this change),
+  plus a guard that refuses outright if the named baseline already contains `fabricLink` —
+  a baseline containing the change is not a baseline, and it must refuse rather than report.
+  Verified both ways: `10 passed, 0 failed` on the pin, and `rc 2` with an explicit refusal
+  when pointed at the post-change commit.
+- **Triggered:** no new task. The gate did its job — this is the P-011 verification gate
+  catching a defect in the instrument that P-011 itself runs.
 
 ### 2026-08-26 — a leg that passed because it could not read the panel
 
@@ -465,3 +517,23 @@ by my own taste.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-589-designer-properties-panel-add-a-clickabl.md
 - **Context:** Initial task creation
+
+### 2026-08-26T09:49:07Z — status-update [task-update-agent]
+- **Change:** tags: +arc:designer-authoring-surface
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0fb14f88
+- **Timestamp:** 2026-08-26T09:51:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **mock-only-integration** (partial, heuristic) @ AC vs Verification cross-check
+     - evidence: `python3 tests/test_editor_bridge_meta_parity.py`
+
+### 2026-08-26T09:51:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

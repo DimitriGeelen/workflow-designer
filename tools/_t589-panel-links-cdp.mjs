@@ -184,11 +184,22 @@ async function main() {
   const udd = mkdtempSync(join(tmpdir(), 't589-udd-'));
   copyFileSync(EDITOR, join(doc, 'designer.html'));
 
-  // The control arm: the editor as it stands in HEAD, i.e. before this task's change.
-  // Taken from git rather than from a hand-kept copy — a copy agrees today and drifts
-  // tomorrow, and "these two builds differ" is the entire claim being made.
-  const g = spawnSync('git', ['-C', REPO, 'show', 'HEAD:src/aef-workflow-designer.html'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  if (g.status !== 0 || !g.stdout) { console.log('CANNOT RUN: could not read HEAD:src/aef-workflow-designer.html for the control arm'); return 2; }
+  // The control arm: the editor as it stood BEFORE this task's change. Taken from git
+  // rather than from a hand-kept copy — a copy agrees today and drifts tomorrow, and
+  // "these two builds differ" is the entire claim being made.
+  //
+  // PINNED, NOT `HEAD`. The first version of this read HEAD, which worked exactly until the
+  // change was committed — at which point HEAD *became* the change and the control compared
+  // the build against itself. The completion gate caught it. Worth recording precisely
+  // because of what ELSE happened in that run: leg 10 (byte-identity) went GREEN while
+  // comparing a build to itself, which is a tautology, and 9 of 10 legs passed. Only the
+  // control noticed, which is the whole argument for having one.
+  const BASELINE_REF = process.env.T589_BASELINE_REF || '12c10d09';
+  const g = spawnSync('git', ['-C', REPO, 'show', `${BASELINE_REF}:src/aef-workflow-designer.html`], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  if (g.status !== 0 || !g.stdout) { console.log(`CANNOT RUN: could not read ${BASELINE_REF}:src/aef-workflow-designer.html for the control arm`); return 2; }
+  // A baseline that already contains the change is not a baseline. Refuse rather than
+  // report, since every leg below is "these two differ".
+  if (/fabricLink/.test(g.stdout)) { console.log(`CANNOT RUN: baseline ${BASELINE_REF} already contains this change — it is not a pre-change build. Re-point T589_BASELINE_REF.`); return 2; }
   writeFileSync(join(doc, 'baseline.html'), g.stdout);
 
   mkdirSync(join(doc, 'rendered'), { recursive: true });
