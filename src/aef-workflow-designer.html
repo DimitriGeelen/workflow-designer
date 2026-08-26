@@ -1539,6 +1539,11 @@ font-family: 'Outfit';
             <span>Fit lane names — wrap on '·'/word, then shrink to 8px, then ellipsize (full name on hover)</span>
           </label>
           <label class="settings-row">
+            <input type="checkbox" id="set-wrap-labels">
+            <span>Wrap long labels — break event/gateway names wider than the cap onto stacked lines</span>
+            <span class="settings-hint">off = one line however long, the pre-T-600 behaviour</span>
+          </label>
+          <label class="settings-row">
             <span>Label size</span>
             <select id="set-label-size" class="settings-num">
               <option value="s">S</option>
@@ -2312,11 +2317,11 @@ function setSnapPref(key, value) {
 
 // Lane-label fit ladder (T-084) — editor-local (localStorage), same seam
 // discipline as routingPrefs/snapPrefs: render-only, never in the document.
-let labelPrefs = { laneFit: true, showLane: true, showIds: true, showEdge: true, showPool: true, size: 'm' };
+let labelPrefs = { laneFit: true, wrapNames: true, showLane: true, showIds: true, showEdge: true, showPool: true, size: 'm' };
 try {
   const _storedLabel = JSON.parse(localStorage.getItem('aefLabelPrefs') || '{}');
   if (typeof _storedLabel.laneFit === 'boolean') labelPrefs.laneFit = _storedLabel.laneFit;
-  for (const k of ['showLane', 'showIds', 'showEdge', 'showPool'])
+  for (const k of ['wrapNames', 'showLane', 'showIds', 'showEdge', 'showPool'])
     if (typeof _storedLabel[k] === 'boolean') labelPrefs[k] = _storedLabel[k];
   if (['s', 'm', 'l'].includes(_storedLabel.size)) labelPrefs.size = _storedLabel.size;
 } catch (_) {}
@@ -3240,11 +3245,70 @@ function renderNodes() {
     gNodes.appendChild(g);
   }
   fitNodeLabels();
+  wrapOverlongBelowLabels();
   deCollideBelowLabels();
   adjustLabelPlacements();
   adjustEdgeLabelPlacements();
   addIdBadgeHalos();
   layerIdBadges();
+}
+
+// Overlong below-label wrap (T-600): gateway/event names render on a single line
+// below the shape, and T-105's de-collision only re-wraps the ones that actually HIT
+// another below-label. A long sentence with no neighbour therefore never wrapped —
+// it stayed one line and sprawled sideways out of the geometry it belongs to
+// (operator screenshot 2026-08-26: hum_3_run "run halted - operator kill switch"
+// running across the lane divider). This pass gives every below-label a WIDTH CAP and
+// wraps the ones that exceed it, contested or not.
+//
+// It runs BEFORE deCollideBelowLabels() and adjustLabelPlacements() on purpose: both
+// of those already handle multi-line blocks, and adjustLabelPlacements() only re-stacks
+// the text elements it finds — it never re-wraps — so a label moved to the side of a
+// circle would otherwise stay one long line no matter how wide.
+//
+// The cap is MEASURED (getComputedTextLength), never a char estimate: PL-008 — estimated
+// char widths diverged from real metrics far enough to move labels onto other edges.
+// Labels at or under the cap are left alone, so T-105's contract that uncontested short
+// labels stay single-line and tightly packed is preserved exactly. Render-only (PD-044).
+function wrapOverlongBelowLabels() {
+  if (!labelPrefs.wrapNames) return;
+  const CAP = { s: 150, m: 165, l: 180 }[labelPrefs.size];
+  const lineH = { s: 11, m: 12, l: 14 }[labelPrefs.size];
+  const MIN_CH = 8;   // floor: below this even short words stop fitting on a line
+  const isBelow = n => n.type === 'startEvent' || n.type === 'endEvent' ||
+    n.type.endsWith('Gateway') || n.type.startsWith('linkEvent') || n.type.startsWith('event');
+  for (const n of state.nodes) {
+    if (!isBelow(n)) continue;
+    const all = Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`));
+    let els = all.filter(t => t.getAttribute('class') === 'node-label');
+    if (els.length !== 1) continue;                      // already multi-line — leave it
+    const w = els[0].getComputedTextLength();
+    if (!w || w <= CAP) continue;                        // fits — single line stands
+    const g = els[0].parentNode;
+    const lx = els[0].getAttribute('x');
+    const ly = +els[0].getAttribute('y');                // first line keeps its baseline
+    const idEl = all.find(t => t.getAttribute('class') === 'node-id-badge');
+    // Seed the char budget from the measured overshoot, then tighten until every
+    // rendered line is inside the cap. Bounded by MIN_CH so an unbreakable token
+    // (one long word) terminates instead of looping.
+    let ch = Math.max(MIN_CH, Math.floor(n.name.length * CAP / w));
+    for (;;) {
+      for (const t of els) t.remove();
+      els = wrapText(n.name, ch).map((line, i) => {
+        const t = el('text', { x: lx, y: ly + i * lineH, class: 'node-label',
+                               'text-anchor': 'middle', 'data-nl': n.uid }, [text(line)]);
+        // INSERT before the id badge, never append after it. adjustLabelPlacements()
+        // stacks a node's label elements in DOCUMENT ORDER, so appending would put the
+        // id above the name once the block moves to the side of the shape.
+        if (idEl && idEl.parentNode === g) g.insertBefore(t, idEl); else g.appendChild(t);
+        return t;
+      });
+      if (ch <= MIN_CH || els.every(t => t.getComputedTextLength() <= CAP)) break;
+      ch--;
+    }
+    // The id badge sat one line-height under a single-line name; push it below the block.
+    if (idEl) idEl.setAttribute('y', ly + els.length * lineH);
+  }
 }
 
 // Below-label de-collision (T-105): gateway/event names render single-line below the
@@ -3274,9 +3338,14 @@ function deCollideBelowLabels() {
     const ly = +els[0].getAttribute('y'); // first line keeps its original baseline
     for (const t of els) t.remove();
     const lines = wrapText(n.name, ch);
-    for (let i = 0; i < lines.length; i++)
-      g.appendChild(el('text', { x: lx, y: ly + i * lineH, class: 'node-label', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(lines[i])]));
     const idEl = Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`)).find(t => t.getAttribute('class') === 'node-id-badge');
+    for (let i = 0; i < lines.length; i++) {
+      const t = el('text', { x: lx, y: ly + i * lineH, class: 'node-label', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(lines[i])]);
+      // T-600: insert before the id badge, never after — adjustLabelPlacements() stacks
+      // a node's label elements in DOCUMENT ORDER, so an appended name line ends up
+      // BELOW the id once the block is moved to the side of the shape.
+      if (idEl && idEl.parentNode === g) g.insertBefore(t, idEl); else g.appendChild(t);
+    }
     if (idEl) idEl.setAttribute('y', ly + lines.length * lineH);
   };
   const budgets = { s: [17, 14, 12], m: [15, 13, 11], l: [13, 11, 10] }[labelPrefs.size];
@@ -6414,6 +6483,7 @@ function syncSettingsUI() {
   $('set-snap-grid').checked = snapPrefs.grid;
   $('set-grid-size').value = snapPrefs.gridSize;
   $('set-lane-fit').checked = labelPrefs.laneFit;
+  $('set-wrap-labels').checked = labelPrefs.wrapNames;
   $('set-row-spacing').value = viewPrefs.rowSpacing;
   $('set-col-spacing').value = viewPrefs.colSpacing;
   $('set-branch-pitch').value = viewPrefs.branchPitch;
@@ -6452,6 +6522,7 @@ $('set-routing-margin').addEventListener('change', e => setRoutingMargin(parseIn
 $('set-snap-magnet').addEventListener('change', e => setSnapPref('magnet', e.target.checked));
 $('set-snap-grid').addEventListener('change', e => setSnapPref('grid', e.target.checked));
 $('set-lane-fit').addEventListener('change', e => setLabelPref('laneFit', e.target.checked));
+$('set-wrap-labels').addEventListener('change', e => setLabelPref('wrapNames', e.target.checked));
 // Density / branch pitch are VIEW controls — apply them LIVE so the change is
 // visibly reflected on the canvas immediately (T-104: field report that changing
 // them "did nothing" — the old design only stored the pref and waited for a
