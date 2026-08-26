@@ -4,10 +4,10 @@ name: "Side-placed labels have no pool or lane boundary awareness"
 description: >
   adjustLabelPlacements() scores candidate placements against edge segments, node boxes and other label texts only. The pool rect and the lane bands are not obstacles, so a label beside a node at the pool's left edge is scored CLEAN while sitting on top of the lane header and outside the pool (reproduced in .context/working/t600-wrap-off.png and still visible, narrowed, in t600-wrap-on.png). T-600 wrapped the text, which shortens the overrun; it does not clamp the placement. Fix: add the pool interior as a containment constraint to bboxScore, so a placement that leaves the pool scores worse than the default below placement.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T17:38:45Z
-last_update: 2026-08-26T17:38:45Z
+last_update: 2026-08-26T19:23:32Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,45 +34,120 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`adjustLabelPlacements()` scores a candidate placement with `bboxScore()` (:3469), which
+counts exactly two obstacle families: rendered edge segments (`segCrossings`) and other
+nodes' shape boxes (`nodeOverlaps`). The pool outline, the pool header band and the
+per-lane header strip are drawn by `renderPool()` (:2910) and are invisible to the scorer.
+So a placement lying on top of the lane header, spilling out of the pool, or straddling a
+lane divider scores a clean **0** and is kept.
+
+This is the unfixed half of the operator's own 2026-08-26 report. Their screenshot showed
+`run halted - operator kill switch` running across the lane divider; T-600 made it WRAP,
+which narrows the overrun but cannot clamp it, because the placement scorer still cannot
+see the furniture it is overrunning. T-600's own visual verification recorded the residual:
+the off-state capture measured 263px against a 165px cap, "running left across the lane
+header and out of the pool".
+
+Crossing a lane divider is not merely untidy. A lane encodes WHO acts (the authority band,
+`AUTHORITY_COLOR[lane.authority]`), so a label rendered over the neighbouring lane visually
+attributes a step to the wrong actor. That is a claim about what the diagram MEANS, not a
+cosmetic complaint.
+
+Geometry is all reachable from the scorer without threading new state: `POOL_X`, `POOL_Y`,
+`POOL_HEADER`, `LANE_HEADER`, `contentRightEdge()`, `poolHeight()` and `getLanes()` are
+module scope, and lane bands stack from `POOL_Y + POOL_HEADER` by `lane.height`.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `bboxScore()` counts a placement overlapping the LANE HEADER strip as contested
+- [x] It counts a placement straddling a lane divider — a rect spanning two lane bands — as contested, because a label over the next lane attributes the step to the wrong actor
+- [x] It counts a placement leaving the pool (left of `POOL_X`, right of the content edge, below the pool, or up into the pool header band) as contested
+- [x] A label lying wholly inside its own lane body still scores ZERO from the new term, so the T-105 contract that uncontested labels keep their default placement holds and the existing corpus does not reflow
+- [x] The operator's reported case is measured, not argued: a below-label on a node at the pool's left edge no longer overlaps the lane header after the pass runs
+- [x] The new legs assert GEOMETRY (measured rects against measured furniture), not counts of how many labels moved
+- [x] `node tools/_t601-lane-boundary.mjs --self-test` passes, with a poison arm FAITHFUL to the pre-T-601 scorer (the whole pool term removed, not merely one clause disabled) failing the pool legs
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+- [ ] [REVIEW] Labels stay inside the lane they belong to, and the map is no less readable for it
+  **Steps:**
+  1. Open the designer and load a map with a node near the pool's left edge carrying a long name
+  2. Look at whether any event/gateway label sits on the grey lane header strip or crosses a lane divider
+  3. Compare against the T-600 screenshots in `.context/working/`
+  **Expected:** No label overlaps the lane header strip or extends into a neighbouring lane; labels with nowhere clean to go sit below their shape as before, rather than in a worse position
+  **If not:** Screenshot the offending label, note which lane it belongs to and which one it overlaps
 
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+## Visual Verification
 
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
+Element-level captures of the operator's own reported case, produced by the same harness
+that measures it (`node tools/_t601-lane-boundary.mjs --shots .context/working`), so the
+image and the numbers come from one build. Both were READ, not merely captured.
 
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- `.context/working/t601-before.png` — the pre-T-601 build. The wrapped label runs LEFT
+  across the vertical `HUMAN SOVEREIGNTY` lane header and past the pool border, obscuring
+  the header text; the `frw_1_investigation` id badge sits on the lane divider, reaching
+  into the lane below. This is the operator's screenshot reproduced from source.
+- `.context/working/t601-after.png` — current build. The block is placed right of the
+  circle, clear of the header strip, inside its own band, badge above the divider. The
+  lane header text is legible again.
+
+Honest trade visible in the after image: the label now overlaps the outgoing connector.
+The scorer counted that crossing and still judged it cheaper than sitting on the lane
+header — which is the intended ordering, since the header overlap also mis-attributes the
+step to the wrong actor. It is a trade, not a free win.
+
+A first capture attempt clipped the wrong region entirely (the node palette) because the
+clip was computed from viewBox arithmetic. It was discarded rather than filed: a screenshot
+of the wrong region is worse than no screenshot, because it still looks like evidence. The
+clip is now the union of real `getBoundingClientRect()` values.
+
+## Decisions
+
+- **Three changes, not one.** Making the scorer pool-aware was necessary and not
+  sufficient: measured, the label did not move at all, because the pass tries only right
+  and left and then RESTORES the default. A scorer that knows the placement is bad but has
+  no way to act on it changes nothing. So the fallback now keeps the strictly best
+  candidate, and `place()` clamps a side-placed stack into the node's own lane band.
+- **Ties keep the default.** The original rule ("rather than trade one collision for
+  another") was right while every obstacle was an edge or a node box and the candidates
+  were interchangeable. Pool furniture makes them comparable, so only a STRICTLY better
+  candidate wins and an unimproved label never moves for nothing. That is also what keeps
+  the corpus from reflowing.
+- **The containment leg was retargeted rather than kept green.** Its first scenario (a node
+  at the pool's left edge) never actually left the pool, so the leg passed under the poison
+  arm and asserted nothing. It now uses a node at the pool floor, where the default label
+  falls past the border and a side placement fits — a case the pass can genuinely satisfy.
+- **The control was made decisive.** The no-reflow leg first ran against a node whose own
+  edges and neighbours contested it, so it was asserting the opposite of what it claimed.
+  It now runs with a single node and no edges: nothing can contest it except the pool
+  furniture, which is exactly the thing under test.
+- **NOT fixed, and captured separately:** `contentRightEdge()` encloses the right-most node
+  BOX, not its label, so the pool border can be drawn tighter than the content it contains.
+  A label on the right-most node then overhangs with nowhere better to go. That is a pool
+  sizing defect, not a placement defect, and merging it here would have hidden it.
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** The mechanical claims are measured against measured furniture and proven
+failable. What remains is the one thing only the operator can judge: whether the map reads
+BETTER now. The pass buys lane containment by accepting other collisions, and that trade is
+a matter of taste on real maps, not something a leg can settle.
+
+**Evidence:**
+- `node tools/_t601-lane-boundary.mjs --self-test` -> PASS, 5 live legs, 3 proven failable.
+- The poison arm restores ALL THREE parts of the fix. A one-part poison would have left the
+  other two live and the legs would have gone green on broken code. T-603 shipped exactly
+  that mistake earlier today and its self-test caught it; the same discipline was applied
+  here from the start.
+- Both control legs (no-reflow, furniture integrity) stay GREEN under the poison, proving
+  they are independent of the thing being poisoned rather than moving with it.
+- Before and after screenshots read, not just captured (see Visual Verification).
+
+**What a NO-GO means:** the fallback ordering is one line — ties already keep the default,
+so preferring the default more aggressively is a small change, and the scorer term can stay
+either way.
 
 ## Verification
 
@@ -122,6 +197,9 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+node tools/_t601-lane-boundary.mjs
+node tools/_t601-lane-boundary.mjs --self-test
 
 ## RCA
 
@@ -190,3 +268,9 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-601-side-placed-labels-have-no-pool-or-lane-.md
 - **Context:** Initial task creation
+
+### 2026-08-26T19:23:32Z — status-update [task-update-agent]
+- **Change:** horizon: later → now
+
+### 2026-08-26T19:23:32Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

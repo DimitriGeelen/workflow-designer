@@ -1340,3 +1340,17 @@ observations:
   tags: [governance]
   status: pending
   promoted_to: null
+- id: OBS-313
+  text: "P-011 verification gate is FLAKY on Chromium-driven legs: T-603's --self-test failed exit 2 inside 'fw task update --status work-completed', then passed on immediate re-run and passed standalone, under the gate's exact subshell form, and back-to-back. The gate runs each Chromium-spawning leg in sequence; the self-test spawns TWO browsers, and the second appears to hit the fixed 25s editor-load / DevToolsActivePort timeout under contention, surfacing as DRIVER ERROR exit 2. The gate truncates failure output to 5 lines, which cut off the poison-arm section that would have named the cause. Direction matters: this fails CLOSED (blocks completion on correct code), which is the safe direction — but a gate that intermittently reddens good work is exactly the pressure that trains --skip-verification into people's fingers. Two candidate fixes: (a) raise/derive the timeouts in the CDP drivers, (b) have the gate show the TAIL of failure output, not the head, since drivers print their verdict last."
+  captured: 2026-08-26T19:23:14Z
+  context_task: T-575
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-314
+  text: "contentRightEdge() encloses the right-most node BOX, not its label, so the pool border can be drawn tighter than the content it contains. Measured under T-601: a below-label centred on the right-most node overhangs the pool border with no better candidate available (right is further out, left collides with the previous node), so the placement pass correctly keeps it and the overhang stands. This is a pool SIZING defect, not a placement defect. Fix belongs in contentRightEdge() (and probably poolHeight() for the same reason at the floor): size the pool to the rendered label extents, not the node boxes. Kept out of T-601 deliberately — merging it would have hidden it behind a placement fix."
+  captured: 2026-08-26T19:37:07Z
+  context_task: T-601
+  tags: [bug]
+  status: pending
+  promoted_to: null

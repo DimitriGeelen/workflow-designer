@@ -3462,6 +3462,33 @@ function adjustLabelPlacements() {
     }
     return count;
   };
+  // Pool and lane furniture as obstacles (T-601). segCrossings and nodeOverlaps
+  // are the only two families the scorer used to know, so a placement sitting on
+  // the lane header strip, hanging outside the pool, or reaching over a lane
+  // divider scored a clean 0 and was kept. The divider case is the one that
+  // matters most: a lane encodes WHO acts, so a label drawn over the next lane
+  // attributes the step to the wrong actor. Geometry mirrors renderPool() exactly
+  // — same px/pw/ph, same band stacking from POOL_Y + POOL_HEADER.
+  const px = POOL_X, py = POOL_Y;
+  const pw = contentRightEdge() - POOL_X;
+  const ph = poolHeight();
+  const bandTop = py + POOL_HEADER;
+  const laneBands = [];
+  let bandY = bandTop;
+  for (const lane of getLanes()) { laneBands.push({ y1: bandY, y2: bandY + lane.height }); bandY += lane.height; }
+  // No lanes means no furniture to respect — score exactly as before rather than
+  // calling every label out-of-bounds against a pool that isn't there.
+  const hasPool = laneBands.length > 0 && pw > 0 && ph > 0;
+  const poolPenalty = (r) => {
+    if (!hasPool) return 0;
+    let c = 0;
+    if (r.x1 < px || r.x2 > px + pw || r.y1 < bandTop || r.y2 > py + ph) c++;  // left the pool interior
+    if (r.x1 < px + LANE_HEADER) c++;                                          // on the lane header strip
+    let touched = 0;
+    for (const b of laneBands) if (r.y2 > b.y1 && r.y1 < b.y2) touched++;
+    if (touched > 1) c++;                                                      // straddles a divider
+    return c;
+  };
   // Score a placement by MEASURING the rendered text (getBBox) against the
   // stashed polylines and neighbouring node boxes. Estimated char widths
   // diverged enough from real metrics to move labels onto other edges —
@@ -3472,7 +3499,7 @@ function adjustLabelPlacements() {
       const bb = t.getBBox();
       if (bb.width === 0) continue;
       const r = { x1: bb.x - 1, x2: bb.x + bb.width + 1, y1: bb.y - 1, y2: bb.y + bb.height + 1 };
-      sc += segCrossings(r) + nodeOverlaps(r, self);
+      sc += segCrossings(r) + nodeOverlaps(r, self) + poolPenalty(r);
     }
     return sc;
   };
@@ -3480,27 +3507,47 @@ function adjustLabelPlacements() {
     if (!isLabelBelow(n)) continue;
     const els = Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`));
     if (els.length < 2) continue;
-    if (bboxScore(els, n) === 0) continue; // uncontested — keep the default placement
+    const scDefault = bboxScore(els, n);
+    if (scDefault === 0) continue; // uncontested — keep the default placement
     const d = NODE_DEFAULTS[n.type];
     const cy = n.y + d.h / 2;
     const orig = els.map(t => ({ x: t.getAttribute('x'), y: t.getAttribute('y'), a: t.getAttribute('text-anchor') }));
     // Stack all label lines (wrapped name lines + id, T-105) vertically centred on
     // the shape's cy at the side. For the legacy 2-element (name+id) case this
     // reproduces the original cy-2 / cy+10 placement exactly.
+    // The node's own lane band, so a side-placed stack can be kept inside it.
+    const band = laneBands.find(b => cy >= b.y1 && cy < b.y2);
     const place = (x, anchor) => {
-      const total = els.length, LH = 12;
+      const total = els.length, LH = 12, ASC = 11, DESC = 7;
+      // First baseline. Unclamped this is the historical cy-2 / cy+10 stack for
+      // the 2-element name+id case, and stays so whenever the band has room.
+      let b0 = cy - (total - 1) / 2 * LH + 4;
+      if (band) {
+        const lo = band.y1 + ASC, hi = band.y2 - DESC - (total - 1) * LH;
+        if (hi >= lo) b0 = Math.max(lo, Math.min(b0, hi));   // slide into the lane, never squash
+      }
       els.forEach((t, i) => {
         t.setAttribute('x', x);
-        t.setAttribute('y', cy + (i - (total - 1) / 2) * LH + 4);
+        t.setAttribute('y', b0 + i * LH);
         t.setAttribute('text-anchor', anchor);
       });
     };
-    place(n.x + d.w + 8, 'start');            // try right of the shape
-    if (bboxScore(els, n) === 0) continue;
+    const RIGHT = () => place(n.x + d.w + 8, 'start');
+    RIGHT();                                  // try right of the shape
+    const scRight = bboxScore(els, n);
+    if (scRight === 0) continue;
     place(n.x - 8, 'end');                    // try left of the shape
-    if (bboxScore(els, n) === 0) continue;
-    // No perfectly clean side — restore the default below placement rather
-    // than trade one collision for another.
+    const scLeft = bboxScore(els, n);
+    if (scLeft === 0) continue;
+    // No perfectly clean side. The original rule restored the default here,
+    // "rather than trade one collision for another" — sound while every obstacle
+    // was an edge line or a node box and the candidates were interchangeable.
+    // T-601 made them comparable: a placement on the lane header, or reaching
+    // over a divider into the next lane, is worse than crossing an edge, because
+    // the lane says WHO acts. So keep the STRICTLY best candidate, and let ties
+    // keep the default so an unimproved label never moves for nothing.
+    if (scLeft < scDefault && scLeft < scRight) continue;             // already placed left
+    if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }
     els.forEach((t, i) => { t.setAttribute('x', orig[i].x); t.setAttribute('y', orig[i].y); t.setAttribute('text-anchor', orig[i].a); });
   }
 }
