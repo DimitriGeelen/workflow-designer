@@ -305,11 +305,26 @@ _under_agent_control() {
 if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && [ -n "$CURRENT_TASK" ]; then
     TARGET_TASK=""
     # Bash built-in regex (no subprocess fork — keeps hook fast).
+    #
+    # T-607: the path anchor is ([^[:space:]]*/)? — any directory prefix — NOT (bin/)?.
+    # CLAUDE.md mandates `cd /opt/... && .agentic-framework/bin/fw ...`, where the char
+    # before `bin/fw` is `/`, and the old alternation had no branch for it. Measured:
+    # bare `fw task update T-N` exited 2 with FOCUS-DRIFT while the SAME command written
+    # with the mandated path prefix exited 0, silent. The gate was blind to the only form
+    # the project tells people to use. Pattern 3 was unaffected because it anchors on the
+    # commit message, not on fw — which is why the gate looked alive: every drift block
+    # anyone actually saw was pattern 3.
+    #
+    # The trailing `/` inside the group is load-bearing: it keeps `myfw task update` from
+    # matching. A guard that fires on the wrong command trains people to bypass it.
+    #
+    # NOT fixed here (T-392): the safe-command early-return at the top of this file exits
+    # 0 before this block runs, so pattern 2 stays unreachable regardless of this anchor.
     # Pattern 1: fw task update T-NNNN (mutation)
-    if [[ "$BASH_CMD" =~ (^|[[:space:]])(bin/)?fw[[:space:]]+task[[:space:]]+update[[:space:]]+(T-[0-9]+) ]]; then
+    if [[ "$BASH_CMD" =~ (^|[[:space:]])([^[:space:]]*/)?fw[[:space:]]+task[[:space:]]+update[[:space:]]+(T-[0-9]+) ]]; then
         TARGET_TASK="${BASH_REMATCH[3]}"
     # Pattern 2: fw context add-* --task T-NNNN
-    elif [[ "$BASH_CMD" =~ (^|[[:space:]])(bin/)?fw[[:space:]]+context[[:space:]]+add- ]] && \
+    elif [[ "$BASH_CMD" =~ (^|[[:space:]])([^[:space:]]*/)?fw[[:space:]]+context[[:space:]]+add- ]] && \
          [[ "$BASH_CMD" =~ --task[[:space:]=]+(T-[0-9]+) ]]; then
         TARGET_TASK="${BASH_REMATCH[1]}"
     # Pattern 3: git commit ... T-NNNN: (the canonical T-XXX: prefix marker)
