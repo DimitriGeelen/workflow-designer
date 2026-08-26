@@ -1850,9 +1850,13 @@ const AEF_FIELDS = {
   // the node's lane authority (Axis 1). The panel shows it read-only via
   // ownerFromAuthority(); it is retained in the metaKeys writer for O-2
   // reverse-render laning, but never offered as an editable field here.
-  serviceTask:  ['horizon', 'workflowType', 'tier', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites', 'note'],
-  userTask:     ['horizon', 'workflowType', 'tier', 'endpoint', 'decisionOutputs', 'note'],
-  scriptTask:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'note'],
+  // T-589: `fabricRef` and `links` are offered on the four task-like types — the ones
+  // that can carry an implementation and therefore have code, tests and a fabric card to
+  // point at. Both sit ABOVE `note` per the ordering rule stated above: they are
+  // structured fields, and `note` stays last.
+  serviceTask:  ['horizon', 'workflowType', 'tier', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites', 'fabricRef', 'links', 'note'],
+  userTask:     ['horizon', 'workflowType', 'tier', 'endpoint', 'decisionOutputs', 'fabricRef', 'links', 'note'],
+  scriptTask:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'fabricRef', 'links', 'note'],
   exclusiveGateway: ['decisionInput', 'decisionOwner', 'note'],
   parallelGateway: ['note'],
   linkEventThrow: ['workflowRef', 'name', 'targetWorkflow', 'linkId', 'note'],
@@ -1865,7 +1869,7 @@ const AEF_FIELDS = {
   eventError:   ['errorStatus', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
   eventTimer:   ['timerSpec', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
   eventMessage: ['busTopic', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
-  subProcess:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'scopeOf', 'note'],
+  subProcess:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'scopeOf', 'fabricRef', 'links', 'note'],
 };
 
 // T-308 (T-244 GO, path b): neutral presentation for a BARE catch event.
@@ -1967,6 +1971,13 @@ const FIELD_META = {
   // read-only. This entry is retained only as the value-vocabulary of record;
   // it is not rendered by the panel loop.
   owner:          { label: 'Owner',           hint: 'derived from lane authority — read-only (IW-9)', special: 'derived', options: ['', 'human', 'agent'] },
+  // T-589: the two navigation fields. Both are SCALARS by deliberate constraint — they ride
+  // T-570's <aef:meta> carriage (any scalar key not in scalarHandled is carried verbatim), so
+  // neither adds an aef: element, neither touches metaKeys (still 20), and neither puts the
+  // frozen standard in scope. A structured value would need its own emitter and would then be
+  // a contract change, which is why `links` is newline-separated text and not an array.
+  fabricRef:      { label: 'Fabric component', hint: 'component card name · opens the card', special: 'fabricLink' },
+  links:          { label: 'Links',            hint: 'code · tests · one URL per line', special: 'linkList' },
 };
 
 // I/O contract — which node types declare typed inputs/outputs, and the type vocabulary.
@@ -5840,6 +5851,29 @@ function renderProperties() {
         jumpBtn.title = _tw ? ('Open ' + _tw) : 'Set a target workflow first';
         jumpBtn.onclick = () => jumpToWorkflow(_tw);
         sAef.appendChild(jumpBtn);
+      } else if (meta.special === 'fabricLink') {
+        // T-589: a normal text field, plus a live anchor to the component card when the
+        // value is non-empty. The href is ROOT-RELATIVE by design: this page is served at
+        // /designer by the same Watchtower origin that serves /fabric/component/<name>, so
+        // the browser resolves it against whatever host and port actually served the page.
+        // That is what makes the link follow a moved Watchtower for free. A base read from
+        // .context/working/watchtower.url cannot work here — this is a browser, it has no
+        // filesystem — and a hard-coded :3000 would already be wrong (it serves on 3013).
+        const wrapFR = field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, hint: meta.hint });
+        const refVal = (n.aef[f] || '').trim();
+        // Empty renders as a plain field with NO anchor — a dead link that always looks
+        // clickable is worse than no link, and /fabric/component/ with no name is a 404.
+        if (refVal) wrapFR.appendChild(linkRow('/fabric/component/' + encodeURIComponent(refVal), '→ open ' + refVal + ' card'));
+        sAef.appendChild(wrapFR);
+      } else if (meta.special === 'linkList') {
+        // T-589: newline-separated URLs, each rendered as its own anchor. A line that is
+        // not navigable renders as muted TEXT rather than a broken link, so a note-to-self
+        // among the URLs neither disappears nor pretends to be clickable.
+        const wrapLL = field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: true, hint: meta.hint });
+        for (const ln of (n.aef[f] || '').split('\n').map(s => s.trim()).filter(Boolean)) {
+          wrapLL.appendChild(isNavigableUrl(ln) ? linkRow(ln, ln) : plainRow(ln));
+        }
+        sAef.appendChild(wrapLL);
       } else {
         sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
       }
@@ -6067,6 +6101,46 @@ function field(label, value, onInput, opts = {}) {
   }
   wrap.appendChild(inp);
   return wrap;
+}
+// ── T-589: the designer's entire navigation surface ────────────────────────────────
+// Measured before building (and independently by 001-CashWeb on the pinned 0.11.0):
+// `linkify` 0, `window.open` 0, `location.href` 0, literal `<a ` 0, and the sole
+// createElement('a') in the file is the download button. The page could not navigate
+// anywhere. Everything below is therefore new code, not a variant of an existing path,
+// which is why the rule about what becomes a link is written down rather than assumed.
+function isNavigableUrl(s) {
+  // WHITELIST, not a blacklist of dangerous schemes. This value is authored in one
+  // project and rendered inside another's embedded designer, so the rendering side must
+  // not have to trust the authoring side. Only two shapes are made clickable:
+  //   - a root-relative path (/fabric/component/x) — same origin as whatever served us
+  //   - an explicit http:// or https:// URL
+  // Everything else renders as text: a bare word, a filesystem path, and — the reason
+  // this is a whitelist — `javascript:`, `data:` and any other scheme, which a
+  // "reject the ones I know are bad" rule would have to enumerate correctly forever.
+  // `//host/path` is excluded too: it looks root-relative but is protocol-relative and
+  // resolves off-origin.
+  if (/^\/[^/]/.test(s)) return true;
+  return /^https?:\/\/\S+$/i.test(s);
+}
+function linkRow(href, text) {
+  const a = document.createElement('a');
+  a.href = href;
+  a.textContent = text;
+  a.target = '_blank';
+  // noopener: the opened page must not get a handle on this window via opener.
+  a.rel = 'noopener noreferrer';
+  a.className = 'field-link';
+  a.style.cssText = 'display:block;margin:3px 0 0;font-size:.86em;word-break:break-all;'
+    + 'color:var(--accent,#4da3ff)';
+  return a;
+}
+function plainRow(text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  d.title = 'Not shown as a link — only http(s):// URLs and root-relative /paths are made clickable';
+  d.style.cssText = 'display:block;margin:3px 0 0;font-size:.86em;word-break:break-all;'
+    + 'color:var(--muted,#8b95a5)';
+  return d;
 }
 function selectField(label, value, options, onInput, hint) {
   const wrap = document.createElement('div');
