@@ -1998,3 +1998,17 @@ decisions:
     date: 2026-08-26
     task: T-595
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-265
+    decision: "treat H1 and H3 as still open, with an `operative_state` describing what"
+    scope: project
+    date: 2026-08-26
+    task: T-596
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-266
+    decision: "three exit codes — 0 satisfied, 1 blocked-but-honest, 2 integrity violation."
+    scope: project
+    date: 2026-08-26
+    task: T-596
+    rationale: "Auto-captured from task file on completion"

@@ -1,0 +1,152 @@
+# EWCR — operator decision register (H1–H6)
+#
+# WHY THIS FILE EXISTS
+#
+# The Arc-0 exit gate (roadmap-5be23719.md:147) requires that "no unresolved
+# source-of-truth ambiguity enters Arc 1". Those ambiguities are H1–H6, and until
+# T-596 they existed only as a prose table at reflection-designer.md:201-208 with no
+# status column and no reader. The third clause of the Arc-0 exit gate was therefore
+# unevaluable by anyone. This file makes it evaluable.
+#
+# WHAT THIS FILE IS NOT
+#
+# It is not a place where decisions get made. Recording an operator decision is not
+# making one. The agent writes `agent_recommendation`; only the operator's own
+# artifacts move a question to `resolved`.
+#
+# THE SELF-CERTIFICATION RULE (PL-148)
+#
+# An entry may not assert its own resolution. Every `status: resolved` entry MUST name
+# a `source_of_truth` — an external artifact that independently carries the decision.
+# tools/_t596-arc0-exit-gate.sh resolves each one and confirms the two agree. A
+# resolution with no checkable source is precisely the defect T-593 removed from the
+# handoff envelope; the shape must not be reintroduced here.
+#
+# STATUS VALUES
+#   open      — no operator decision recorded. Blocks the Arc-0 exit gate.
+#   resolved  — decided, with a source_of_truth that independently carries it.
+#
+# `operative_state` on an open entry describes what currently holds in the ABSENCE of a
+# decision. It is not an answer and does not unblock the gate; it exists so the operator
+# can see what is de facto in force while the question stands open.
+
+schema_version: 1
+task: T-596
+source_table: docs/research/executable-workflow/reflection-designer.md:201-208
+arc_0_exit_gate: docs/research/executable-workflow/roadmap-5be23719.md:147
+
+questions:
+
+  - id: H1
+    question: >
+      Do the roadmap's Arcs 4–6 supersede the standing DEFERs (T-279/280/281/282) and
+      AEF's T-2669 NO-GO?
+    why_operator: >
+      Reversing a recorded disposition is a sovereignty act. Until answered, treat those
+      arcs as not actionable, whatever they score.
+    status: open
+    blocks_arc_0_exit: true
+    operative_state: >
+      The DEFERs and the NO-GO STAND. T-587's recorded GO decided the scope of one narrow
+      Arc-0 slice and explicitly declined to reverse them — its rationale names the
+      absence directly: "without a superseding decision. Scheduling those would reverse
+      recorded dispositions on a document's say-so." Deciding a slice's scope is not the
+      same act as answering H1, so T-587 is NOT this question's source_of_truth.
+    agent_recommendation: >
+      Keep the DEFERs standing. Nothing has changed on the evidence side since they were
+      recorded; the roadmap re-proposing the work is a document's say-so, which is the
+      exact input T-587 already declined to treat as superseding.
+
+  - id: H2
+    question: >
+      Name the AEF counterparty project — 0503 (author/governance) or 999 (intended
+      implementer)?
+    why_operator: >
+      Determines to_project for every envelope and every paired task (IW-8).
+    status: resolved
+    blocks_arc_0_exit: true
+    decided_by: operator
+    decided_at: "2026-08-26"
+    chosen: /opt/999-Agentic-Engineering-Framework
+    source_of_truth:
+      file: docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml
+      path: to_project_resolution
+      carries: [status, decided_by, chosen, decision_record]
+    recorded_under: T-595
+    note: >
+      RATIFICATION IS SEPARATE AND STILL OPEN. T-590's H2 acceptance criterion is a Human
+      AC and remains unticked. The agent recorded this decision; it did not ratify it.
+      The register follows the envelope, which is the source of truth — if the two ever
+      disagree, the gate goes red rather than picking a winner.
+
+  - id: H3
+    question: >
+      Assign the two correlations — one for this agent, one for the initiative.
+    why_operator: >
+      Phase 4 completion is undefined without them (IW-9).
+    status: open
+    blocks_arc_0_exit: true
+    operative_state: >
+      `ewcr-v1` (initiative) and `ewcr-v1-designer-fixture` (correlation) are already in
+      DE FACTO use — in T-590's description and in the handoff envelope. Nothing records
+      that the operator assigned them. In-use is not ratified: they were chosen by an
+      agent and have been carried forward by repetition, which is how an unratified value
+      acquires the appearance of a decision.
+    agent_recommendation: >
+      Ratify the two values already in use rather than minting new ones. They are
+      consistent across T-590 and the envelope, and changing them now would invalidate the
+      envelope's correlation without buying anything.
+
+  - id: H4
+    question: >
+      GO/NO-GO on the §5 slice.
+    why_operator: >
+      Phase 3: only the next justified slice, operator-authorised.
+    status: resolved
+    blocks_arc_0_exit: true
+    decided_by: operator
+    decided_at: "2026-08-26T08:55:40Z"
+    chosen: >
+      GO — narrow Arc-0 Designer slice only (write down the existing contract; render one
+      canonical fixture through the frozen mapping). Explicitly NOT Arcs 4–6.
+    source_of_truth:
+      file: .tasks/completed/T-587-ingest-and-reflect-on-the-aef-executable-w.md
+      path: "## Decision"
+      carries: [Decision, Rationale, Date]
+    note: >
+      The scope limit is part of the decision, not commentary on it. This GO authorised
+      T-590 and nothing wider.
+
+  - id: H5
+    question: >
+      Reconcile the governance deviations in §9.
+    why_operator: >
+      The framework CLI was unavailable; task state needs operator reconciliation.
+    status: open
+    blocks_arc_0_exit: true
+    operative_state: >
+      The four disclosed deviations (reflection-designer.md §9) stand unreconciled: Phase 0
+      steps 2–3 never performed mechanically, T-587 created by hand-writing a conforming
+      task file rather than via `fw task create`, focus.yaml deliberately left stale, and
+      no commit made in that session. All four were disclosed rather than routed around,
+      but disclosure is not reconciliation.
+    agent_recommendation: >
+      Reconcile by inspection rather than replay. The three artefacts are now committed and
+      the CLI is available again; the cheap check is whether T-587's hand-written file
+      matches what `fw task create` would have produced, which the audit already passes.
+
+  - id: H6
+    question: >
+      Route R6 and R7 to AEF.
+    why_operator: >
+      Cross-project asks with a named decision owner.
+    status: open
+    blocks_arc_0_exit: true
+    operative_state: >
+      Not routed. No R6/R7 ask has been sent to AEF. This is coupled to the send-
+      authorisation boundary: transmitting anything to the counterparty is a separate act
+      requiring separate operator authorisation, and no such authorisation exists.
+    agent_recommendation: >
+      Decide H6 together with send authorisation rather than separately — both are the same
+      question of whether we open a channel to 999, and answering one without the other
+      leaves a routed ask with no sanctioned way to travel.
