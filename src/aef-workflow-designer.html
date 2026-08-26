@@ -10154,6 +10154,14 @@ function buildBpmnXml(s) {
     const outgoing = s.edges.filter(e => e.source === n.id).map(e => `      <bpmn:outgoing>${displayIdOf(e)}</bpmn:outgoing>`).join('\n');
     lines.push(``);
     lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}" name="${escAttr(n.name)}"${boundaryAttrs}>`);
+    // T-602: documentation first — the BPMN XSD orders tBaseElement as
+    // documentation* then extensionElements?, so emitting it after the aef block
+    // would produce a schema-invalid element.
+    for (const d of (n.documentation || [])) {
+      const attrs = (d.id ? ` id="${escAttr(d.id)}"` : '') +
+                    (d.textFormat ? ` textFormat="${escAttr(d.textFormat)}"` : '');
+      lines.push(`      <bpmn:documentation${attrs}>${escText(d.text)}</bpmn:documentation>`);
+    }
     const aefBlock = aefExtensionXml(n);
     if (aefBlock) lines.push(aefBlock.trimEnd());
     if (incoming) lines.push(incoming);
@@ -10740,6 +10748,22 @@ function parseBpmnXml(text) {
         }
       }
 
+      // T-602: <bpmn:documentation> children of a flow node. Field-reported by
+      // 001-CashWeb: eight of them, each carrying a vendor API binding, auth shape and
+      // policy, vanished in one save. They were never READ — parseBpmnXml reaches into
+      // an accepted element for ~10 NAMED children and export writes only from state,
+      // so a child not on that list cannot survive. This adds documentation to the list.
+      // Order matters on the way out: the BPMN XSD puts documentation BEFORE
+      // extensionElements on tBaseElement, so the emitter writes it above the aef block.
+      const documentation = byBpmn(el, 'documentation')
+        .filter(d => d.parentNode === el)   // direct children only — never a nested element's
+        .map(d => {
+          const entry = { text: d.textContent || '' };
+          if (d.hasAttribute('id')) entry.id = d.getAttribute('id');
+          if (d.hasAttribute('textFormat')) entry.textFormat = d.getAttribute('textFormat');
+          return entry;
+        });
+
       // Derive slug from name if not encoded
       const slug = deriveSlug(name);
 
@@ -10758,6 +10782,7 @@ function parseBpmnXml(text) {
         uid, id: uid, slug, type, name, lane: laneId,
         x, y,
         aef, io,
+        ...(documentation.length ? { documentation } : {}),
         ...(foreignTag ? { foreignTag } : {}),
       });
       displayIdToUid.set(displayId, uid);
