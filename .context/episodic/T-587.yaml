@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-587: ingest and reflect on the AEF executable workflow-contract source packet
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-26T08:55:43Z
+# ============================================================================
+
+task_id: T-587
+task_name: "ingest and reflect on the AEF executable workflow-contract source packet"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-25T00:00:00Z
+completed: 2026-08-26T08:55:40Z
+duration_days: 1
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Both source hashes verified against the pinned manifest values'
+  - 'Immutable hash-addressed snapshots + source manifest stored'
+  - 'Five-pass ingestion completed; operating digest written'
+  - 'Questions/dispositions register written with IW-N shape'
+  - 'Designer reflection artifact written (gap matrix, dispositions, next'
+  - '[REVIEW] Review the reflection and decide GO/NO-GO on the proposed next slice'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 1975 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1975
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-587-ingest-and-reflect-on-the-aef-executable-w.md
+generated_by: context-agent-hybrid
