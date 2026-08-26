@@ -1341,10 +1341,24 @@ observations:
   status: pending
   promoted_to: null
 - id: OBS-313
-  text: "P-011 verification gate is FLAKY on Chromium-driven legs: T-603's --self-test failed exit 2 inside 'fw task update --status work-completed', then passed on immediate re-run and passed standalone, under the gate's exact subshell form, and back-to-back. The gate runs each Chromium-spawning leg in sequence; the self-test spawns TWO browsers, and the second appears to hit the fixed 25s editor-load / DevToolsActivePort timeout under contention, surfacing as DRIVER ERROR exit 2. The gate truncates failure output to 5 lines, which cut off the poison-arm section that would have named the cause. Direction matters: this fails CLOSED (blocks completion on correct code), which is the safe direction — but a gate that intermittently reddens good work is exactly the pressure that trains --skip-verification into people's fingers. Two candidate fixes: (a) raise/derive the timeouts in the CDP drivers, (b) have the gate show the TAIL of failure output, not the head, since drivers print their verdict last."
+  text: "RESOLVED under T-604, and my recorded cause was WRONG. Measured: the failing run took 3s against 5-6s for passing runs — it failed FASTER, so the '25s editor-load timeout under contention' I wrote down could never have been the cause, and raising the timeouts would have changed nothing while looking addressed. The real mechanism, reproduced under 2x CPU load at 1-in-6: DevToolsActivePort is written when the BROWSER is listening, which is not the instant the PAGE target is registered in /json, so targets.find(t => t.type === 'page') returns undefined and the property access throws a bare TypeError, surfacing as DRIVER ERROR exit 2. This was NOT a new defect: OBS-304 already named the same race and was fixed at four call sites, while seventy-three others kept it and tools/_t366-uid-shape-agnostic.mjs documented it in prose as a 'remaining unguarded race' without fixing it. A fix applied at the call site instead of the definition site gets re-found as a new bug. Fixed by one shared tools/_cdp-attach.mjs and a scan leg that reddens when any driver hand-rolls the deref again. Second candidate fix from the original note still stands and is NOT done: the gate truncates failure output to head -5, which cut off the driver's verdict — drivers print their verdict last."
   captured: 2026-08-26T19:23:14Z
   context_task: T-575
   tags: [bug]
+  status: resolved
+  promoted_to: T-604
+- id: OBS-315
+  text: "T-602 fixed bpmn:documentation round-trip and left the input-fidelity census stale: tools/_t338-input-fidelity-cdp.mjs expects 'documentation' to be CONTENT-DROPPED and now measures CONTENT-PRESERVED, so the driver is RED in the tree as of today. This is the census working exactly as designed — its own failure text says 'CONTENT-PRESERVED where DROPPED was expected is good news the guard must not absorb — update EXPECTED_CONTENT deliberately'. The tripwire refuses to absorb an improvement silently, which is right, but it means a landed fix left a red driver behind and nobody reconciled the baseline. Deliberate baseline update needed, as its own instructions demand. Kept out of T-604 because merging a baseline change into an attach-race sweep would hide both."
+  captured: 2026-08-26T20:18:00Z
+  context_task: T-604
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-316
+  text: "A repro harness that is not faithful to the real call sequence produces a FALSE NEGATIVE, and that is the exact mirror of an unfaithful poison arm's false positive. Measured under T-604: a standalone probe reproducing the driver's Chromium spawn sequence line-for-line reported NOT REPRODUCED across 26 spawns, quiet and under 2x CPU load, because it killed each browser before starting the next. The real failure needs the SECOND browser of a self-test, spawned during the first's lifetime. Had I trusted the clean repro I would have discarded a correct hypothesis and gone on to fix the timeouts instead. Same root cause as 010-termlink's pycache finding and their duplicated-classifier finding: the test and its subject have to be the same object, and 'the same object' includes the SEQUENCE it runs in, not just the bytes it runs on."
+  captured: 2026-08-26T20:18:00Z
+  context_task: T-604
+  tags: [learning]
   status: pending
   promoted_to: null
 - id: OBS-314

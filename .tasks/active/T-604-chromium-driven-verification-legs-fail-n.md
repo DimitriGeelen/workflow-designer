@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T19:52:53Z
-last_update: 2026-08-26T19:52:53Z
+last_update: 2026-08-26T20:11:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,21 +66,21 @@ into an operator's fingers, so an unexplained flake is a governance defect, not 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The race is REPRODUCED and measured before any fix is written: a recorded run that
+- [x] The race is REPRODUCED and measured before any fix is written: a recorded run that
       catches `/json` returning no page target, with counts and the port-ready timing window.
       If it does not reproduce, the hypothesis is discarded and re-formed rather than assumed
-- [ ] Every CDP driver that resolves a page target from `/json` retries within a bounded
+- [x] Every CDP driver that resolves a page target from `/json` retries within a bounded
       budget instead of dereferencing an unguarded `find()`
-- [ ] A driver that genuinely cannot attach fails with a message NAMING the cause, not a bare
+- [x] A driver that genuinely cannot attach fails with a message NAMING the cause, not a bare
       `TypeError` — the failure is distinguishable from a real leg failure at a glance
-- [ ] Determinism is asserted on the OUTCOME, not on the instrument's belief: N consecutive
+- [x] Determinism is asserted on the OUTCOME, not on the instrument's belief: N consecutive
       runs of a real self-test under deliberate CPU contention return the SAME verdict on
       unchanged code, and the run count and verdicts are recorded
-- [ ] A poison arm restores the unguarded `find()` and drives the attach legs RED, proving
+- [x] A poison arm restores the unguarded `find()` and drives the attach legs RED, proving
       they can fail; controls unrelated to attach stay green under the same arm
-- [ ] The fix is applied to every affected driver in `tools/`, enumerated by a scan rather
+- [x] The fix is applied to every affected driver in `tools/`, enumerated by a scan rather
       than by memory, and the scan is part of the verifier so a new driver cannot regress it
-- [ ] `.context/inbox.yaml` OBS-313 records the measured cause, and explicitly corrects the
+- [x] `.context/inbox.yaml` OBS-313 records the measured cause, and explicitly corrects the
       timeout guess if the measurement disproves it
 
 ### Human
@@ -235,3 +235,41 @@ taste call to make, so routing one to the operator would be manufactured review 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-604-chromium-driven-verification-legs-fail-n.md
 - **Context:** Initial task creation
+
+## Verification (T-604 legs)
+
+node tools/_t604-cdp-attach-race.mjs
+node tools/_t604-cdp-attach-race.mjs --self-test
+
+## Decisions
+
+- **One shared definition, not a pattern to re-type.** OBS-304 named this race and it was
+  fixed at four call sites. Seventy-three others kept the defect and _t366 documented it in
+  prose as a "remaining unguarded race" without fixing it. A guard that exists in four copies
+  and is absent from seventy-three is not a guard, it is a coincidence. So the retry lives in
+  tools/_cdp-attach.mjs and every driver imports it.
+- **The hypothesis was tested and the first repro LIED.** A standalone probe reproducing the
+  driver's spawn sequence reported NOT REPRODUCED across 26 spawns, quiet and under 2x CPU
+  load, because it killed each browser before starting the next. The real failure needs the
+  SECOND browser of a self-test, spawned during the first's lifetime. An unfaithful repro
+  yields a false NEGATIVE — the mirror of an unfaithful poison arm's false positive, same
+  root: the test and its subject must be the same object.
+- **The timeout diagnosis in OBS-313 was wrong and is corrected, not quietly dropped.** The
+  failing run took 3s against 5-6s for passing runs. It failed FASTER, so a 25s load timeout
+  could never have been the cause. Raising the timeouts would have changed nothing while
+  looking addressed.
+- **Two poison arms, because one cannot reach both defects.** The helper's retry and the call
+  sites are different code. Arm A restores the pre-fix helper (single unretried read) and
+  drives L2/L3 red; arm B restores a hand-rolled deref in one driver COPY and drives L1 red.
+  A single arm would have left the other leg asserting nothing.
+- **L2 is the discriminator, L5 is the faithful check.** L5 spawns a real Chromium, but a real
+  browser attaches successfully most of the time — it passed 26/26 before the fix too, so it
+  cannot discriminate on its own. L2 uses a stub /json that withholds the page target for four
+  polls, which makes the race deterministic and the poison signal reliable.
+- **execFile, not execFileSync, inside the poison arm.** The stub server lives in the same
+  process, so a synchronous child blocks the event loop that must answer it. The first arm
+  deadlocked rather than reporting. A poison arm that hangs proves as little as one that never
+  executed.
+- **The verifier is excluded from its own scan by NAME, in a fixed two-entry set.** Its job is
+  to contain the pre-fix shape. The exemption is a literal list rather than a pattern so a new
+  driver cannot quietly qualify for it.
