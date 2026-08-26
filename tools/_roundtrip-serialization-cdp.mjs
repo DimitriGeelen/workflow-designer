@@ -43,7 +43,18 @@ import net from 'node:net';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
-const FIXturesDir = join(REPO, 'tests', 'fixtures', 'aef-bpmn');
+// T-591: aimable. Default is unchanged (`tests/fixtures/aef-bpmn`), so every existing caller
+// and every gate that invokes this harness bare is byte-for-byte unaffected. The override
+// exists so the EWCR Arc-0 pilot fixture — which lives outside the corpus, in
+// docs/research/executable-workflow/fixtures/ — can be held to the SAME fixed-point bar as a
+// corpus member without first being adopted into the corpus. Adoption is a contract decision;
+// conformance is a measurement, and the measurement should not have to wait on the decision.
+// A relative value resolves against the repo root, not the cwd, so the variable means the same
+// thing from anywhere.
+const _fxOverride = (process.env.ROUNDTRIP_FIXTURES_DIR || '').trim();
+const FIXturesDir = _fxOverride
+  ? (_fxOverride.startsWith('/') ? _fxOverride : join(REPO, _fxOverride))
+  : join(REPO, 'tests', 'fixtures', 'aef-bpmn');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -458,8 +469,28 @@ const ROUNDTRIP_EXPR = `(function(){
     state = m2; refreshDisplayIds();
     var emit2 = buildBpmnXml(state);
     var p1 = proj(m1), p2 = proj(m2);
+    // T-591: these two count uids on the PARSED model, and parseBpmnXml MINTS an identity for
+    // any node or edge that arrives without one (src/aef-workflow-designer.html:10284 — a
+    // deliberate affordance so third-party BPMN can be imported at all). So m1 is always fully
+    // populated and both counters are zero BY CONSTRUCTION: the missingNodeUid===0 clause in
+    // the gate below has never been capable of being false. Proven, not inferred — deleting one
+    // of the pilot fixture's nine aef:uid elements still yielded missingNodeUid 0 and ok:true.
+    // They are kept because they are honest about the parsed model and cost nothing; the leg
+    // with teeth is declaredUid* below, which reads the SOURCE.
     var missingNodeUid = m1.nodes.filter(function(n){return !n.uid;}).length;
     var missingEdgeUid = m1.edges.filter(function(e){return !e.uid;}).length;
+    // The question the header comment meant to ask: does the FIXTURE declare its own
+    // identities, or did the editor have to invent them? A corpus member that silently relies
+    // on minting is not carrying a stable identity across the seam — the uid it round-trips is
+    // one this run created, and the next run creates a different one.
+    // NO REGEX ESCAPES HERE. This whole expression is a JS template literal, so a backslash is
+    // eaten before the browser ever sees it: /<aef:uid\s+value="/ arrives as /<aef:uid s+value="/
+    // and matches nothing. The first version of this leg reported declaredUids 0 on a fixture
+    // carrying nine of them — an instrument that could not see its subject, reporting the same
+    // number it would report for a fixture that genuinely had none. Split on a literal instead.
+    var declaredUids = text.split('<aef:uid ').length - 1;
+    var expectedUids = m1.nodes.length + m1.edges.length;
+    var undeclaredUid = expectedUids - declaredUids;
     var deterministic = (emit1a===emit1b);
     var projEqual = (JSON.stringify(p1)===JSON.stringify(p2));
     // localise the first semantic drift, if any, for diagnosis
@@ -470,9 +501,14 @@ const ROUNDTRIP_EXPR = `(function(){
       drift = { at:i, a:s1.slice(Math.max(0,i-40), i+40), b:s2.slice(Math.max(0,i-40), i+40) };
     }
     return {
-      ok: projEqual && deterministic && missingNodeUid===0 && missingEdgeUid===0,
+      // T-591: undeclaredUid===0 is the leg with teeth. Gating it is safe because it was
+      // MEASURED across all 19 corpus fixtures first and every one declares every identity
+      // (undeclared 0), so this turns nothing red today — it can only go red on a fixture
+      // that starts relying on the parser to invent identities for it.
+      ok: projEqual && deterministic && missingNodeUid===0 && missingEdgeUid===0 && undeclaredUid===0,
       nodes:m1.nodes.length, edges:m1.edges.length, lanes:(m1.lanes||[]).length,
       missingNodeUid:missingNodeUid, missingEdgeUid:missingEdgeUid,
+      declaredUids:declaredUids, expectedUids:expectedUids, undeclaredUid:undeclaredUid,
       deterministic:deterministic, projEqual:projEqual,
       byteIdempotent:(emit1a===emit2), len1:emit1a.length, len2:emit2.length,
       drift:drift
