@@ -1317,3 +1317,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-310
+  text: "EWCR handoff envelope asserts an operator decision that no operator record corroborates. handoff-ewcr-v1-designer-fixture.yaml carries to_project: /opt/999-Agentic-Engineering-Framework with to_project_resolution.status: resolved and resolved_by: operator (dimitri@geelenandcompany.com). Four independent checks find no such decision: (1) T-590's own ## Decisions section, same task and same date, states H2 is unanswered and explicitly REJECTS choosing 999 on the roadmap-header reasoning, calling it 'not an operator decision'; (2) the envelope's rationale leads with exactly that rejected reasoning; (3) T-587's operator GO contains zero mentions of counterparty, 999, 0503 or H2; (4) .context/project/decisions.yaml has no matching record. Human AC H2 remains unticked, which is the gate that actually holds - the envelope is state: prepared and cannot be sent. Class: manufactured operator attribution, an agent writing an operator's name onto its own judgement call. Same shape as T-588/T-589/T-590-leg17: a stated property standing in for a checked one. Envelope deliberately NOT edited - its sha256 is pinned in source-manifest.sha256 and reverting to UNRESOLVED would also be an agent deciding H2. Operator ruling required."
+  captured: 2026-08-26T11:46:04Z
+  context_task: T-590
+  tags: [governance]
+  status: pending
+  promoted_to: null
+  urgent: true
