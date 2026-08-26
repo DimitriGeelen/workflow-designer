@@ -93,8 +93,15 @@ except:
         # Command has write patterns — fall through to active-task check
         :
     elif type is_bash_safe_command &>/dev/null && is_bash_safe_command "$BASH_CMD"; then
-        # Safe command with no write patterns — allow without task
-        exit 0
+        # Safe command with no write patterns — allow without task.
+        #
+        # T-392: DEFERRED, not immediate. This `exit 0` used to fire ~240 lines above
+        # the focus-drift gate, so every command on the safe-list bypassed drift
+        # detection entirely. `fw context add-learning --task T-OTHER` is on that list,
+        # which is why drift pattern 2 was not merely weak but UNREACHABLE — no anchor
+        # fix could rescue a block that never executed (T-607 widened the anchor and
+        # said so explicitly). The exit now happens after the gate, at the marked site.
+        _deferred_safe_exit=1
     elif [[ "$BASH_CMD" =~ (^|[[:space:]]|/)fw[[:space:]]+(work-on|task[[:space:]]+create|context[[:space:]]+focus|inception)([[:space:]]|$) ]]; then
         # Task-bootstrap commands always allowed (T-2052) — they ESTABLISH the
         # active task, so gating them on one is a deadlock; the "No active task"
@@ -167,6 +174,16 @@ if [ ! -d "$PROJECT_ROOT/.context/working" ]; then
 fi
 
 # If no focus file exists: block if project is initialized, allow if bootstrap (T-002)
+#
+# T-392: a deferred safe command settles here. With no focus file there is no focus to
+# drift from, so the gate below has nothing to say and the safe-list verdict stands.
+# Without this the deferral would have converted "ls is always allowed" into "ls is
+# blocked until you run context init" — a safe command must not acquire a task
+# precondition just because the drift gate now runs later.
+if [ ! -f "$FOCUS_FILE" ] && [ -n "${_deferred_safe_exit:-}" ]; then
+    exit 0
+fi
+
 if [ ! -f "$FOCUS_FILE" ]; then
     if [ -f "$PROJECT_ROOT/.framework.yaml" ]; then
         # Project is initialized but governance not active — block
@@ -230,6 +247,19 @@ if [ -z "$CURRENT_TASK" ] && [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ]; th
     fi
 fi
 
+# T-392: a deferred safe command settles here when focus is NULL. Drift is defined as
+# "target ≠ focus", so with no focus there is no drift to detect and nothing downstream
+# can have an opinion — the safe-list verdict stands.
+#
+# This guard is not cosmetic. Without it the deferral re-created exactly the T-390
+# deadlock it was built on top of: `fw note`, `fw context add-*`, `fw handover` and even
+# `git status` were blocked under null focus, because the deferred exit sits below this
+# block. Caught by the T-390 deadlock controls in tools/_t392-safelist-shadow-gate.py,
+# which is why that AC named the verbs instead of trusting an adjacent measurement.
+if [ -z "$CURRENT_TASK" ] && [ -n "${_deferred_safe_exit:-}" ]; then
+    exit 0
+fi
+
 if [ -z "$CURRENT_TASK" ]; then
     echo "" >&2
     echo "BLOCKED: No active task. Framework rule: nothing gets done without a task." >&2
@@ -246,7 +276,12 @@ fi
 # --- Session stamp validation (T-560) ---
 # If focus was set in a PREVIOUS session, block and advise.
 # This prevents stale focus from granting a free pass to new sessions.
-if [ -n "$CURRENT_SESSION" ] && [ -n "$FOCUS_SESSION" ] && [ "$FOCUS_SESSION" != "$CURRENT_SESSION" ]; then
+# T-392: skipped for a deferred safe command. Stale focus is a reason to refuse WORK,
+# not a reason to refuse `ls`; before the deferral those commands had already exited.
+# Threading the flag here keeps the safe-list contract intact while still letting the
+# command fall through to the drift gate below, which is the whole point of deferring.
+if [ -z "${_deferred_safe_exit:-}" ] && \
+   [ -n "$CURRENT_SESSION" ] && [ -n "$FOCUS_SESSION" ] && [ "$FOCUS_SESSION" != "$CURRENT_SESSION" ]; then
     # Look up task name for advisory
     STALE_TASK_NAME=""
     STALE_FILE=$(find_task_file "$CURRENT_TASK" active 2>/dev/null)
@@ -318,8 +353,11 @@ if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && [ -n "$CURRENT_TASK" ]; th
     # The trailing `/` inside the group is load-bearing: it keeps `myfw task update` from
     # matching. A guard that fires on the wrong command trains people to bypass it.
     #
-    # NOT fixed here (T-392): the safe-command early-return at the top of this file exits
-    # 0 before this block runs, so pattern 2 stays unreachable regardless of this anchor.
+    # T-392 (landed): the safe-command early-return at the top of this file used to exit 0
+    # before this block ran, so pattern 2 was unreachable regardless of this anchor. That
+    # exit is now deferred to just below this gate, and pattern 2 fires. The comment is
+    # kept rather than deleted because the two defects shared one symptom and only the
+    # control that separated them showed there were two.
     # Pattern 1: fw task update T-NNNN (mutation)
     if [[ "$BASH_CMD" =~ (^|[[:space:]])([^[:space:]]*/)?fw[[:space:]]+task[[:space:]]+update[[:space:]]+(T-[0-9]+) ]]; then
         TARGET_TASK="${BASH_REMATCH[3]}"
@@ -423,6 +461,16 @@ if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && [ -n "$CURRENT_TASK" ]; th
             echo "NOTE: focus-drift detected: target $TARGET_TASK ≠ focus $CURRENT_TASK. (Not blocking — no agent-control signal: CLAUDECODE/AI_AGENT/TOOL_NAME all empty.)" >&2
         fi
     fi
+fi
+
+# --- T-392: the deferred safe-command exit ---------------------------------
+# A safe-list command has now passed the focus-drift gate above and is allowed.
+# This is the site the early `exit 0` moved to; everything between there and here
+# is either a no-op for Bash (FILE_PATH-based checks) or explicitly guarded on
+# this flag. Placing it AFTER the gate is the entire fix: the gate was never weak
+# for pattern 2, it was unreachable, and unreachable reads as healthy.
+if [ -n "${_deferred_safe_exit:-}" ]; then
+    exit 0
 fi
 
 # Verify task is actually active (not completed/archived) — G-013

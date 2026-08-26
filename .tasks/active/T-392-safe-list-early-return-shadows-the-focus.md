@@ -11,9 +11,9 @@ description: >
   that never runs is silent in exactly the way a drift check that finds nothing is
   silent.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -23,8 +23,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T18:57:24Z
-last_update: 2026-08-26T21:17:28Z
-date_finished:
+last_update: 2026-08-26T22:42:10Z
+date_finished: 2026-08-26T22:42:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -109,14 +109,14 @@ cost_estimate_proposed:
       — `tools/_t392-drift-shadow-probe.sh`, 11 legs, exit 0, VERDICT
       "shadowing REPRODUCED on this copy"; leg 0 anti-vacuity control proves the
       fixture was visible (block message names both T-9001 and T-9002)
-- [ ] After the fix, all three drift patterns reach the gate under the same
+- [x] After the fix, all three drift patterns reach the gate under the same
       conditions
-- [ ] The T-390 deadlock stays fixed: with focus NULL, every capture verb
+- [x] The T-390 deadlock stays fixed: with focus NULL, every capture verb
       (`fw note`, `fw context add-*`, `fw handover`) is still ALLOWED — the fix
       must not re-introduce the deadlock it is built on top of
-- [ ] Positive control against over-correction: a safe verb carrying NO task id
+- [x] Positive control against over-correction: a safe verb carrying NO task id
       (`fw doctor`, `git status`) still exits early and never consults focus
-- [ ] Mutation teeth: reverting the fix must make the pre-fix probe leg go red
+- [x] Mutation teeth: reverting the fix must make the pre-fix probe leg go red
 
 ### Human
 - [ ] [REVIEW] Approve changing the central governance hook
@@ -210,6 +210,9 @@ behind it.
 
 ## Verification
 
+python3 tools/_t392-safelist-shadow-gate.py
+python3 tools/_t607-drift-gate-reach.py
+
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -259,19 +262,37 @@ behind it.
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** A command targeting a task other than the focused one exited 0 in silence.
+Identical presentation to T-607's defect, which is why one cause was nearly credited for
+two: probes for both exited 0, and only the bare-form control discriminated them.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** Not a weak gate — an unreachable one. The Bash safe-command fast path
+called `exit 0` roughly 240 lines above the focus-drift gate. `fw context add-learning
+--task T-OTHER` is on the safe-list, so drift pattern 2 never executed for ANY invocation
+form. T-607 widened the gate's path anchor and stated in-code that it did not fix this,
+because no anchor can rescue a block that never runs.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** Reachability is not binary (PL-182). The gate was live for
+pattern 1 (once T-607 landed) and pattern 3 (which anchors on the commit message, not on
+fw), so every drift block anyone actually witnessed came from a pattern that worked. A
+gate that fires for the shapes you happen to test looks alive. The safe-list and the drift
+gate were each individually correct; the defect lived only in their ORDER, which no test
+of either one in isolation could see.
+
+**Prevention:** `tools/_t392-safelist-shadow-gate.py` drives the real hook over stdin
+across all four invocation forms for pattern 2, and its poison arm restores the immediate
+`exit 0` — reddening all four forms, which is what proves the deferral is load-bearing
+rather than incidental. T-607's independently authored gate carries the cross-check: its
+`pattern2_status()` probe flipped from `[KNOWN-OPEN]` to `[CHANGED]` on this fix, from a
+verifier written before it.
+
+**What the fix's own controls caught:** deferring the exit re-created the T-390 deadlock
+under NULL focus — `fw note`, `fw context add-*`, `fw handover` and `git status` all
+blocked, because the deferred exit sits below the no-active-task gate. The AC named those
+verbs explicitly instead of trusting the adjacent "safe cmd with focus" measurement, and
+that is the only reason it surfaced before commit rather than in the next session's first
+command. Three guards now thread the flag: no focus file, null focus, stale session — each
+one a gate that has an opinion about WORK and no business refusing `ls`.
 
 ## Evolution
 
@@ -484,3 +505,15 @@ the second, and nothing reports a check that stopped being consulted.
 
 ### 2026-08-08T19:45:19Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0028dc88
+- **Timestamp:** 2026-08-26T22:42:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-26T22:42:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
