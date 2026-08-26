@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_ewcr-pilot-human-gate-script-human-gate"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- EWCR Arc-0 canonical pilot fixture. Authored under 832 task T-590, initiative
+       ewcr-v1, correlation ewcr-v1-designer-fixture. AEF-side references (draft arc-019
+       / ewcr-arc0-contract-evidence, anchor T-3147) are cited for correlation only;
+       nothing here was read from or written to an AEF repository.
+
+       WHAT THIS IS. The dossier's §2.5 pilot — `human gate -> registered script ->
+       human gate` — drawn in the vocabulary this project has ALREADY frozen, so AEF can
+       see exactly what our surface produces before designing the runtime extension. It
+       is the Arc 1 joint-gate exhibit: "the Designer can render the canonical fixture
+       WITHOUT INVENTING SEMANTICS".
+
+       WHAT THIS IS NOT. It is not executable, and it does not describe execution. Per
+       mapping-v1 §3 a diagram compiles only into PROPOSED governed work; per dossier
+       §6.1 an executable procedure needs a separately versioned runtime-contract
+       extension that does not exist yet. Accordingly this document encodes NO guard or
+       outcome expression, NO action-catalogue reference, NO execution or access profile,
+       NO credential of any kind, NO failure-route policy, and NO ratification state.
+       Every one of those is AEF-owned (dossier §5.1 prohibited overlap) and every one is
+       listed in cannot-represent-yet.md as a thing our Part I surface cannot carry.
+
+       HOW THE PILOT'S SIX STEPS LAND. Dossier §2.5 lists six. Only three are nodes here:
+
+         §2.5 step 1  human gate: owner authorises  -> hum_1_authorise (userTask)
+         §2.5 step 2  runner preflight              -> NOT REPRESENTABLE (runner-owned)
+         §2.5 step 3  bounded execution             -> agt_2_verify   (scriptTask)
+         §2.5 step 4  evidence capture              -> NOT REPRESENTABLE (ledger-owned)
+         §2.5 step 5  human gate: owner reviews     -> hum_3_review   (userTask)
+         §2.5 step 6  task handoff                  -> NOT REPRESENTABLE (AEF task lifecycle)
+
+       The three absent steps are the finding, not an omission — see
+       cannot-represent-yet.md §2. A fixture that drew them would be inventing exactly
+       the semantics the Arc 1 gate forbids.
+
+       AUTHORITY. `owner` is DERIVED from lane authority and is never overridden on a
+       node (IW-9, mapping-v1 §3): sovereignty->human, initiative->agent. The two gates
+       sit in the sovereignty lane and the script sits in the initiative lane, so
+       task-type and lane agree on every node and O-1 raises nothing.
+
+       GOVERNANCE KEYS ARE EXPLICIT ON PURPOSE. mapping-v1 §2 supplies absent-value
+       DEFAULTS (`horizon`->now) and INFERENCE (`workflowType` from the BPMN type), and
+       `tier`'s absent default is still Part II provisional/unratified. A renderer that
+       leans on those is supplying semantics the runtime contract has not agreed to
+       (IW-7). So every task-like node states `horizon`, `tier` and `agentType` outright
+       and nothing here relies on a default.
+
+       THE ONE DELIBERATE ABSENCE — `workflowType` on the two gates. §2's closed value
+       set is build|test|refactor|decommission|specification|design|inception. None of
+       those means "human authorisation gate". §2's own inference rule for a userTask
+       yields `human-facing`, which is NOT a member of that set — recorded as defect D-1
+       in designer-contract-inventory.md §3. Emitting a member would invent an intent the
+       dossier never states; emitting `human-facing` would emit a value the standard's
+       own allowed-values column forbids. Absence is the only truthful encoding, and it
+       is raised to AEF as request R3a rather than resolved here: changing Part I needs a
+       version bump and a conformance-test update, which is out of scope for this slice.
+
+       NOT A CORPUS MEMBER. This file deliberately lives outside tests/fixtures/aef-bpmn/,
+       which is a jointly-pinned normative corpus (test_corpus_fixture_pins.py,
+       tools/_t365-normative-fixture-guard.py, plus AEF-side digest pins). A research
+       slice must not perturb pinned joint state as a side effect. See T-590 §Decisions. -->
+
+  <bpmn:collaboration id="Collaboration_ewcr-pilot-human-gate-script-human-gate">
+    <bpmn:participant id="Pool_ewcr_pilot" name="EWCR pilot — verify a governed change" processRef="Process_ewcr-pilot-human-gate-script-human-gate"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_ewcr-pilot-human-gate-script-human-gate" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="ewcr-pilot-human-gate-script-human-gate" version="1" schemaVersion="2" title="EWCR pilot — human gate, registered script, human gate" tier_default="1"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_0_request</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_verify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_4_recorded</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_1_authorise</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_3_review</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="agt_0_request" name="verification requested">
+      <bpmn:extensionElements>
+        <aef:uid value="n_request"/>
+        <aef:position x="180.0" y="120.0"/>
+        <aef:meta triggeredBy="a declared component changed under an owned AEF task and its known test suite is due"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- §2.5 step 1 — HUMAN GATE. Sovereignty-laned, so owner derives to human. This is
+         the node dossier §6.2 calls "human gate: cannot auto-advance without mapped
+         decision". Part I gives us the AUTHORITY (the lane) but no carrier for the
+         DECISION MAPPING itself, so the mapping is described in prose here and listed as
+         gap G-1. `workflowType` is deliberately absent — see the header note on D-1. -->
+    <bpmn:userTask id="hum_1_authorise" name="human gate — authorise verification">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gate_authorise"/>
+        <aef:position x="320.0" y="300.0"/>
+        <aef:meta horizon="now" tier="1" agentType="human" note="owner authorises verification for the bound task; owner derives from the sovereignty lane, no node-level override (IW-9). workflowType is deliberately absent: the frozen closed set has no member for a human decision gate and §2's userTask inference yields human-facing, which is outside that set (defect D-1, request R3a). No decision-option vocabulary exists in Part I, so the admissible outcomes are prose here, not data (gap G-1)."/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- §2.5 step 3 — REGISTERED SCRIPT. Initiative-laned, so owner derives to agent.
+         mapping-v1 §3 lets a scriptTask disambiguate build vs test through workflowType;
+         this is a verification run, so `test`. Part I carries the FACT that a registered
+         deterministic script runs, and nothing about WHICH one: there is no carrier for
+         an action-catalogue reference, a pinned implementation hash, an interpreter, a
+         structured argument vector, a working directory, or typed inputs and outputs
+         (dossier §6.2.1). All six are gap G-2. The name below is a human-readable label,
+         NOT a resolvable reference, and must not be read as one. -->
+    <bpmn:scriptTask id="agt_2_verify" name="registered script — run the verified test suite">
+      <bpmn:extensionElements>
+        <aef:uid value="n_script_verify"/>
+        <aef:position x="500.0" y="120.0"/>
+        <aef:meta horizon="now" workflowType="test" tier="1" agentType="primary" note="a registered deterministic project script is invoked once by the runner; owner derives from the initiative lane, no node-level override (IW-9). Part I carries no carrier for the action-catalogue reference, pinned implementation hash, interpreter, argument vector, working directory or typed inputs/outputs that dossier §6.2.1 requires — see gap G-2. This node asserts only that such a step exists at this position in the procedure."/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <!-- §2.5 step 5 — HUMAN GATE. Same shape and the same two absences as step 1. The
+         evidence this gate reviews is produced by §2.5 step 4, which has no node here at
+         all: evidence is ledger-owned and Part I has no evidence reference (gap G-3). -->
+    <bpmn:userTask id="hum_3_review" name="human gate — review evidence, accept or reject">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gate_review"/>
+        <aef:position x="680.0" y="300.0"/>
+        <aef:meta horizon="now" tier="1" agentType="human" note="owner reviews the captured evidence and accepts or rejects; owner derives from the sovereignty lane (IW-9). workflowType deliberately absent (defect D-1, request R3a). The evidence under review is produced by §2.5 step 4, which is ledger-owned and has no representation in Part I (gap G-3); acceptance here is not task completion, which stays with the AEF task lifecycle (gap G-4)."/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="agt_4_recorded" name="gate decision recorded">
+      <bpmn:extensionElements>
+        <aef:uid value="n_recorded"/>
+        <aef:position x="880.0" y="120.0"/>
+        <aef:meta terminalKind="success" state="reviewed" note="the procedure reaches its boundary; any resulting task-state change is a separate governed AEF action and is NOT implied by arriving here (dossier §2.5 step 6)."/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Edges carry ordering only. Dossier §6.3 wants an edge to be an interface — typed
+         output-to-input mapping, outcome guard, required evidence, authority handoff,
+         escalation route, correlation data. Part I gives a sequence flow a stable
+         aef:uid and nothing else, so all six are gap G-5. No conditions appear on these
+         flows because there is no branch here, and because a guard would be exactly the
+         invented semantics this fixture exists to avoid. -->
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_0_request" targetRef="hum_1_authorise">
+      <bpmn:extensionElements>
+        <aef:uid value="e_1"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="hum_1_authorise" targetRef="agt_2_verify">
+      <bpmn:extensionElements>
+        <aef:uid value="e_2"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_2_verify" targetRef="hum_3_review">
+      <bpmn:extensionElements>
+        <aef:uid value="e_3"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_4" sourceRef="hum_3_review" targetRef="agt_4_recorded">
+      <bpmn:extensionElements>
+        <aef:uid value="e_4"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

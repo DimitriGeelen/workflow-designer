@@ -1,0 +1,320 @@
+# Paired handoff envelope — EWCR Arc-0 Designer contract evidence
+#
+# Written under 832-Workflow-designer task T-590. This file is a PREPARED envelope.
+# It has NOT been delivered, accepted, or read back. See `delivery:` below.
+#
+# Nothing in this envelope asks the Designer to be an authority, and nothing in it
+# claims a delivery that did not happen. Per architecture-c9070637.md §5.1 the
+# Designer authors and visualises; AEF governs, validates, ratifies and executes.
+# Every item under `request:` is a decision AEF owns.
+
+envelope_version: 1
+envelope_id: ewcr-v1-designer-fixture-r1
+
+# ── Correlation (IW-9: Phase 4 completion is undefinable without these) ──────────
+correlation:
+  initiative: ewcr-v1
+  agent_correlation: ewcr-v1-designer-fixture
+  note: >
+    Completion is read-back on the SAME correlation, not delivery. Hub delivery,
+    file_send and inject are transport evidence only (architecture-c9070637.md
+    §5.1 "Collaboration and communication sequence"; dossier §5.1 last paragraph).
+
+# ── Parties ─────────────────────────────────────────────────────────────────────
+from_project: 832-Workflow-designer
+from_role: workflow-designer-agent
+from_task: T-590
+from_parent_task: T-587
+
+to_project: /opt/999-Agentic-Engineering-Framework
+to_project_resolution:
+  question: H2 — name the AEF counterparty project
+  status: resolved
+  resolved_by: operator (dimitri@geelenandcompany.com)
+  resolved_at: "2026-08-26"
+  chosen: /opt/999-Agentic-Engineering-Framework
+  alternative_rejected: /opt/0503-codex-cli-playground
+  rationale: >
+    999 is the canonical AEF counterparty. It is the roadmap header's named
+    "Intended recipient", it is the intended implementer of the runtime, and it is
+    the only side for which a documented seam exists — docs/aef-designer-integration-protocol.md
+    documents the 832<->999 seam including the T-559 project-boundary enforcement.
+    No 832<->0503 protocol exists. 0503-codex-cli-playground remains the AUTHORING
+    and governance home of the pinned packet (T-027/T-033/T-034/T-036/T-037) and is
+    cited for provenance below, but it is not the counterparty for this envelope.
+  recorded_in:
+    - ".tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md — ## Decisions section"
+    - "docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml — this block"
+  tag_not_applied:
+    tag: counterparty-named
+    reason: >
+      The task tag was NOT applied. `fw` is denied by this session's permission
+      profile (every invocation of .agentic-framework/bin/fw returns
+      "This command requires approval"; the session is non-interactive so approval
+      cannot be obtained). Tags are framework state and were not hand-edited.
+      Operator reconciliation command is in the task file and in the receipt.
+
+human_decision_owner: operator (dimitri@geelenandcompany.com)
+human_decision_owner_role: >
+  Sole owner of every decision in `request:` on the 832 side, and the only party who
+  may authorise sending this envelope. The agent may not send, may not accept a
+  reply as ratification, and may not treat transport as completion.
+
+# ── AEF-side references (BY REFERENCE ONLY) ─────────────────────────────────────
+# Nothing in T-590 wrote to, read from, or assumed state in an AEF repository.
+aef_references:
+  draft_arc: arc-019
+  draft_arc_slug: ewcr-arc0-contract-evidence
+  anchor_task: T-3147
+  disposition_mirrors_cited:
+    - T-2668  # DEFER, mirrors our T-279 (guided/strict enforcement)
+    - T-2669  # NO-GO  ("write-mostly corpus, no read-pull yet")
+    - T-2670  # DEFER
+    - T-2663  # SD-1 RATIFIED 2026-07-28T17:10Z, rail offset 287 — see request R7
+  status: cited-not-read
+  note: >
+    These identifiers are quoted from the pinned sources and from
+    docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md,
+    which is an 832-local file. They were not verified against an AEF repository and
+    must be confirmed on the AEF side before use.
+
+# ── Provenance: the two hash-pinned sources this work derives from ──────────────
+sources:
+  - id: architecture-dossier
+    title: Executable Workflow Contract Runtime
+    sha256: c9070637b09493a24abc99982ae966a3b3ae8cd4a358a44fdceb59bdceb6ac2d
+    stored_path: docs/research/executable-workflow/architecture-c9070637.md
+    bytes: 62863
+    authoring_project: 0503-codex-cli-playground
+    source_task: T-037
+    governance_container: T-036
+  - id: delivery-roadmap
+    title: Executable Workflow Runtime — Research and Delivery Roadmap
+    sha256: 5be23719b976e37a6461b4b1f6f309985b5ba033ef0b801769edd2627fbae5b8
+    stored_path: docs/research/executable-workflow/roadmap-5be23719.md
+    bytes: 21135
+    authoring_project: 0503-codex-cli-playground
+    source_task: T-037
+    governance_container: T-036
+
+contract_versions:
+  mapping_standard: v1.1
+  mapping_standard_path: docs/standards/aef-bpmn-mapping-v1.md
+  mapping_standard_state: Part I frozen; Part II provisional and unratified since 2026-07-11
+  runtime_contract: none — does not exist yet; its FORM is request R1
+  designer_release: 0.11.0
+
+# ── What we supply ──────────────────────────────────────────────────────────────
+artifacts:
+  - id: pilot-fixture
+    role: the exhibit for Arc 1's joint gate
+    path: docs/research/executable-workflow/fixtures/ewcr-pilot-human-gate-script-human-gate.bpmn
+    sha256: b6a9afd7eb03abeaba43513f45176dd439838887b588901f5a2aa2a83da1685b
+    renders: architecture-c9070637.md §2.5 pilot — human gate -> registered script -> human gate
+    vocabulary: "already-shipped Mapping Standard Part I only — no new node kind, no new aef: element, no runtime attribute"
+    encodes_no: >
+      no guard expression, no outcome expression, no action-catalogue reference, no
+      capability profile, no execution profile, no secret or secret binding, no
+      retry or compensation policy, no ratification state, no instance or attempt state.
+    deliberate_absences:
+      - key: workflowType
+        applies_to: the two userTask human gates (hum_1_authorise, hum_3_review)
+        why: >
+          defect D-1 — the frozen closed set has no member meaning "human authorisation
+          gate", and §2's own userTask inference yields `human-facing`, which is outside
+          that set. Emitting a member would invent intent; emitting the inferred
+          non-member would be non-conformant. Absence is the only truthful encoding.
+        raised_as: R3a
+      - key: §2.5 steps 2, 4 and 6
+        applies_to: the procedure as a whole
+        why: >
+          runner preflight is runner-owned, evidence capture is ledger-owned, and task
+          handoff is AEF task-lifecycle-owned (§5.1). Drawing them would be inventing
+          exactly the semantics the Arc 1 gate forbids.
+        raised_as: cannot-represent-yet.md §2.1
+    not_a_corpus_member: >
+      Deliberately outside tests/fixtures/aef-bpmn/, which is a jointly-pinned normative
+      corpus (test_corpus_fixture_pins.py, tools/_t365-normative-fixture-guard.py, plus
+      AEF-side digest pins). A research slice must not perturb pinned joint state.
+  - id: contract-inventory
+    role: the negotiating document — our defaults, inference and derivation rules, stated
+    path: docs/research/executable-workflow/designer-contract-inventory.md
+  - id: gap-list
+    role: what our surface cannot carry, against dossier §6.2 / §6.2.1 / §6.2.2 / §6.3
+    path: docs/research/executable-workflow/cannot-represent-yet.md
+
+# ── What we ask for ─────────────────────────────────────────────────────────────
+# Each item is a decision AEF owns. None asks the Designer to decide anything.
+request:
+  - id: R1
+    ask: >
+      Decide the FORM of the runtime-contract extension — explicit BPMN extension vs
+      referenced companion manifest — and give it a version identifier.
+    we_supply: this inventory, plus the constraint that Mapping Standard Part I is unmoved
+    we_need_back: a decision with a version identifier
+    acceptance_evidence: a named `runtime-contract v0.x` with a compatibility statement against mapping v1.1
+    source: architecture-c9070637.md §6.1, §14.1
+  - id: R2
+    ask: >
+      Ratify Part II — the absent-value default for `tier`, and AC-seeding. Open on
+      termlink thread T-175 since 2026-07-11.
+    we_supply: the standard's Part II text verbatim
+    we_need_back: a ruling
+    acceptance_evidence: Part II graduates to Part I, or is explicitly re-deferred WITH A DATE
+  - id: R3
+    ask: >
+      Rule, RULE BY RULE, whether the runtime contract adopts or overrides our
+      defaults/inference/derivation — `horizon` -> `now`; `workflowType` inferred from
+      BPMN type; `owner` derived from lane authority with no node override; O-1
+      lane-wins-warn-not-refuse; O-3 inception go/no-go is a compile-time MUST.
+    we_supply: designer-contract-inventory.md §3, the full table with citations
+    we_need_back: accept or override, per rule
+    acceptance_evidence: >
+      IW-7 resolved. Without it, Arc 1's "render the canonical fixture without inventing
+      semantics" gate is unpassable, because a renderer that supplies a default is
+      inventing semantics unless the runtime contract declares the same default normatively.
+  - id: R3a
+    ask: >
+      Rule on defect D-1. `workflowType`'s allowed-values column is the closed set
+      build|test|refactor|decommission|specification|design|inception, and the SAME ROW's
+      absent-value column infers `human-facing` for a userTask — which is not a member.
+      A userTask with no explicit workflowType therefore has no conformant compiled value.
+      Add a set member for a human decision gate, change the inference, or declare the
+      pair legal.
+    we_supply: the fixture with workflowType deliberately absent on both gates, and the reason in each node's aef:meta note
+    we_need_back: one of the three rulings
+    acceptance_evidence: >
+      A Part I version bump plus a conformance-test update, authored on our side under a
+      separate task once the ruling exists. T-590 does not move Part I.
+  - id: R4
+    ask: >
+      Supply the diagnostic schema — stable codes, affected element IDs, failed predicate,
+      severity, lawful remediation.
+    we_supply: our current rule vocabulary and its parity gaps (T-317, T-320, T-321, T-325)
+    we_need_back: the schema
+    acceptance_evidence: T-309 (surface validator findings in the editor) becomes buildable
+    source: architecture-c9070637.md §5.1 shared contract 3
+  - id: R5
+    ask: >
+      READ BACK the pilot fixture by sha256 and return a substantive
+      accepted / refused / needs-decision on correlation `ewcr-v1-designer-fixture`.
+    we_supply: sha256 b6a9afd7eb03abeaba43513f45176dd439838887b588901f5a2aa2a83da1685b
+    we_need_back: the exact hash echoed, plus a substantive verdict
+    acceptance_evidence: Arc 1's joint gate. Delivery is NOT acceptance.
+  - id: R5b
+    ask: >
+      Decide the fixture-pair contract for the AEF-side REVERSE RENDERER, or state
+      explicitly that it is out of joint scope.
+    we_supply: >
+      tools/_t515-external-uid-conformance.mjs names this as the sole remaining uncovered
+      gap. We can state exactly what is IN a document and have no way to know what AEF
+      SHOULD produce from it — "correct" there means the records they would have produced
+      from a natively-authored workflow, which is a fact about their data model.
+    we_need_back: a fixture-pair contract, or an out-of-scope statement
+    acceptance_evidence: the gap closes, or it is recorded as closed-by-agreement
+    source: proposed at rail 11911; open by agreement, not by neglect
+  - id: R6
+    ask: Supply the DeepSeek and Mistral review dispositions.
+    we_supply: nothing
+    we_need_back: the two missing disposition tables
+    acceptance_evidence: >
+      Arc 0's exit gate ("every blocker finding has a contract disposition") becomes
+      satisfiable. The pinned dossier carries tables for Claude (§17) and Z.ai (§18) only,
+      while roadmap §4 Arc 0 task 3 and §8 require all four.
+  - id: R7
+    ask: Reconcile the dossier with AEF's already-ratified SD-1 (T-2663).
+    we_supply: the disposition record we hold (DISPOSITION-2026-07-28.md addendum)
+    we_need_back: their ruling
+    acceptance_evidence: >
+      No unresolved source-of-truth conflict. SD-1 ratified "corpus + conformance rails +
+      overlay ARE the AEF Process layer; code is the enforced machine, maps conform"; the
+      dossier proposes a ratified PROCEDURE driving a runner. These may be compatible
+      (layer identity vs execution machinery), but the pinned dossier never cites or
+      reconciles T-2663. Escalate rather than average — the AEF agent owns this.
+
+# ── Out of scope, stated so silence is not read as agreement ─────────────────────
+not_requested:
+  - id: H1
+    subject: >
+      Whether the roadmap's Arcs 4-6 supersede the standing DEFERs T-279 / T-280 / T-281 /
+      T-282 and AEF's T-2669 NO-GO.
+    status: unanswered — 832 operator decision, NOT an agent call and NOT an AEF ask
+    consequence: >
+      Reversing a recorded disposition is a sovereignty act. Until answered, those arcs are
+      NOT ACTIONABLE on the Designer side whatever they score. This envelope does not ask
+      AEF to reverse them and must not be read as doing so.
+  - subject: proposal channel / authenticated operator proposals
+    status: out of scope for this slice; a security-relevant change to the annotation seam
+  - subject: BVP confirmation, arc start, arc close
+    status: refused by standing constraint — sovereignty gate
+  - subject: any new node kind, any DI/geometry decision, any Fabric navigation, any audience lens
+    status: explicitly out of the T-587 §5 slice
+
+# ── How a reply is judged complete ──────────────────────────────────────────────
+acceptance_schema:
+  completion_rule: >
+    Delivery is not completion. This exchange completes only on receiver READ-BACK of the
+    exact artifact version and hash, plus a substantive accepted / refused / needs-decision,
+    returned on correlation `ewcr-v1-designer-fixture`.
+  required_fields:
+    - correlation            # MUST equal ewcr-v1-designer-fixture
+    - envelope_id            # MUST equal ewcr-v1-designer-fixture-r1
+    - fixture_sha256_readback # MUST equal b6a9afd7eb03abeaba43513f45176dd439838887b588901f5a2aa2a83da1685b
+    - source_sha256_readback  # both source hashes, echoed
+    - verdict                # one of: accepted | refused | needs-decision
+    - per_request_response   # one entry per id in `request:` — R1 R2 R3 R3a R4 R5 R5b R6 R7
+    - responder_project
+    - responder_task
+    - responder_human_owner
+  verdict_vocabulary:
+    accepted: the artifact is admitted as Arc 0/Arc 1 contract evidence at this exact hash
+    refused: admitted-and-rejected, WITH the failed predicate and the affected element IDs
+    needs-decision: a named human decision is required first — say which, and who owns it
+  mismatch_rule: >
+    If the echoed fixture hash or either source hash does not match, this is VERSION
+    MISMATCH: stop, do not reconcile by re-sending, require a new manifest revision.
+    (reflection-designer.md §8, stop condition 1.)
+  not_acceptance:
+    - hub delivery receipt
+    - file_send / inject confirmation
+    - a TermLink acknowledgement
+    - any reply that does not echo the hash
+    - any reply on a different correlation
+
+# ── Delivery state ──────────────────────────────────────────────────────────────
+# THIS ENVELOPE HAS NOT BEEN SENT. Nothing below claims otherwise.
+delivery:
+  state: prepared
+  delivered: false
+  delivered_at: null
+  transport: null
+  accepted: false
+  accepted_at: null
+  read_back_received: false
+  read_back_hash: null
+  verdict: null
+  why_prepared_and_not_sent: >
+    No verified channel was opened in this session. `fw`, `git`, `curl` and `python3` are
+    all denied by the session permission profile and the session is non-interactive, so no
+    transport could be exercised and none was attempted. Sending is also a separate
+    authorisation: T-587 §7 requires a correlation AND a named counterparty before a paired
+    task may be opened. Both now exist — correlations `ewcr-v1` / `ewcr-v1-designer-fixture`,
+    counterparty /opt/999-Agentic-Engineering-Framework per the operator's H2 resolution —
+    so the remaining blocker is authorisation and transport, not identification.
+  next_action: >
+    Operator authorises a send under a SEPARATE task. This task (T-590) prepares the
+    envelope and stops. On send, append a delivery record; never overwrite this block.
+  boundary_note: >
+    Per architecture-c9070637.md §5.1 "Prohibited overlap": neither agent may edit the other
+    project's files directly. This envelope is a versioned PROPOSAL. 999 evaluates and
+    implements under its own tasks and gates.
+
+# ── Integrity ───────────────────────────────────────────────────────────────────
+integrity:
+  checksum_file: docs/research/executable-workflow/source-manifest.sha256
+  verify_command: sha256sum -c docs/research/executable-workflow/source-manifest.sha256
+  manifest_revision: 1
+  note: >
+    The checksum file pins the two sources (revision 0) and the four T-590 artifacts
+    (revision 1), including this envelope. Re-verify at session start and before any
+    cross-project handoff.

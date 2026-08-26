@@ -1,0 +1,193 @@
+# Source manifest — executable workflow-contract initiative
+# Written under T-587 (832-Workflow-designer). Immutable: never overwrite a
+# stored snapshot; add a new hash-addressed revision instead.
+
+manifest_version: 1
+receiver_project: 832-Workflow-designer
+receiver_task: T-587
+receiver_role: workflow-designer-agent
+received_at: "2026-08-25T21:46:26Z"
+
+governance:
+  source_task: T-037
+  governance_container: T-036
+  prompt_artifact: /opt/0503-codex-cli-playground/docs/prompts/T-036-aef-workflow-designer-governed-execution-prompts.md
+  authoring_project: 0503-codex-cli-playground
+  peer_implementer_project: /opt/999-Agentic-Engineering-Framework   # per roadmap §"Intended recipient"
+  human_decision_owner: operator (dimitri@geelenandcompany.com)
+
+correlation:
+  designer_agent_correlation: UNASSIGNED   # operator checklist requires one per agent; not supplied in dispatch
+  shared_initiative_correlation: UNASSIGNED
+  note: >
+    The operator dispatch checklist (prompt artifact §"Operator dispatch checklist")
+    requires one correlation per agent and one shared initiative correlation.
+    Neither was supplied. No peer handoff may be opened until they are assigned,
+    because Phase 4 completion is defined as read-back on the SAME correlation.
+
+documents:
+  - id: architecture-dossier
+    title: Executable Workflow Contract Runtime
+    declared_source_url: http://192.168.10.107:3001/file/docs/architecture/executable-workflow-contract-runtime.md
+    expected_sha256: c9070637b09493a24abc99982ae966a3b3ae8cd4a358a44fdceb59bdceb6ac2d
+    observed_sha256: c9070637b09493a24abc99982ae966a3b3ae8cd4a358a44fdceb59bdceb6ac2d
+    hash_match: true
+    stored_path: docs/research/executable-workflow/architecture-c9070637.md
+    stored_sha256_readback: c9070637b09493a24abc99982ae966a3b3ae8cd4a358a44fdceb59bdceb6ac2d
+    read_back_succeeded: true
+    bytes: 62863
+    transport: local-filesystem-copy
+    transport_detail: >
+      HTTP retrieval from the declared URL was NOT possible in the dispatch
+      session (curl is denied by the session permission profile; see
+      environment_constraints below). The bytes were taken from the authoring
+      project's working tree at
+      /opt/0503-codex-cli-playground/docs/architecture/executable-workflow-contract-runtime.md,
+      which is an explicitly configured additional working directory for this
+      session. Provenance is intact because the pinned SHA-256 matched exactly
+      before the copy and again after it.
+
+  - id: delivery-roadmap
+    title: Executable Workflow Runtime — Research and Delivery Roadmap
+    declared_source_url: http://192.168.10.107:3001/file/docs/architecture/executable-workflow-runtime-delivery-roadmap.md
+    expected_sha256: 5be23719b976e37a6461b4b1f6f309985b5ba033ef0b801769edd2627fbae5b8
+    observed_sha256: 5be23719b976e37a6461b4b1f6f309985b5ba033ef0b801769edd2627fbae5b8
+    hash_match: true
+    stored_path: docs/research/executable-workflow/roadmap-5be23719.md
+    stored_sha256_readback: 5be23719b976e37a6461b4b1f6f309985b5ba033ef0b801769edd2627fbae5b8
+    read_back_succeeded: true
+    bytes: 21135
+    transport: local-filesystem-copy
+    transport_detail: same as architecture-dossier
+
+verification:
+  command: sha256sum -c docs/research/executable-workflow/source-manifest.sha256
+  run_from: project root
+  result_at_manifest_time: both files OK
+
+derived_artifacts:
+  - docs/research/executable-workflow/operating-digest.md
+  - docs/research/executable-workflow/questions-and-dispositions.md
+  - docs/research/executable-workflow/reflection-designer.md
+
+authority_note: >
+  The digest is a navigation aid, never a replacement authority. If the digest
+  conflicts with a stored snapshot, the stored hash-pinned source wins and the
+  digest must be corrected under a task.
+
+environment_constraints:
+  session_permission_profile_denied:
+    - fw (all subcommands, including `fw doctor`, `fw context status`,
+      `fw task create`, `fw fabric`, `fw arc`, `fw bvp`, `fw assumption`)
+    - git (all subcommands)
+    - curl
+  consequence: >
+    Phase 0 steps 2 and 3 (command-surface discovery and declared read-only
+    health/session checks) could not be executed mechanically. Task T-587 was
+    created by writing a conforming task file directly rather than via
+    `fw task create`; focus.yaml was NOT hand-edited and still points at T-586.
+    See reflection-designer.md §"Governance deviations" for the reconciliation
+    commands the operator must run.
+  unreadable_evidence:
+    - .claude/settings.json (root-owned 0600 — enforcement/hook config unread)
+    - .context/working/session.yaml (root-owned 0600 — session stamp unread)
+    - .tasks/active/T-309*.md, T-357*.md, T-501*.md (root-owned 0600)
+
+# ────────────────────────────────────────────────────────────────────────────────
+# REVISIONS — append-only. A revision NEVER overwrites `documents:` above (rev 0).
+# Each entry adds hash-addressed artifacts derived from the rev-0 sources.
+# ────────────────────────────────────────────────────────────────────────────────
+revisions:
+  - revision: 1
+    revision_task: T-590
+    revision_role: workflow-designer-agent
+    revision_written_at: "2026-08-26"
+    supersedes: nothing — rev 0 `documents:` is unchanged and remains authoritative for the two pinned sources
+    initiative_correlation: ewcr-v1
+    agent_correlation: ewcr-v1-designer-fixture
+    aef_references_by_reference_only:
+      draft_arc: arc-019
+      draft_arc_slug: ewcr-arc0-contract-evidence
+      anchor_task: T-3147
+      note: >
+        Cited for correlation only. T-590 wrote to, read from, and assumed state in
+        no AEF repository.
+    derives_from:
+      - architecture-dossier   # sha256 c9070637b09493a24abc99982ae966a3b3ae8cd4a358a44fdceb59bdceb6ac2d
+      - delivery-roadmap       # sha256 5be23719b976e37a6461b4b1f6f309985b5ba033ef0b801769edd2627fbae5b8
+    artifacts:
+      - id: designer-contract-inventory
+        title: Designer contract inventory — what our frozen surface actually says
+        stored_path: docs/research/executable-workflow/designer-contract-inventory.md
+        sha256: 1a6a45413c29c6b2032bb61db99a004284166b9bc6a40058a03b8cef47632879
+        purpose: >
+          States the frozen Part I surface, the §1 semantic/presentational partition,
+          the four frozen governance meta-keys with their defaults, inference and
+          derivation rules, the owner-from-lane derivation and the O-1/O-3 rulings,
+          the aef:uid identity model with its MEASURED defects, and the round-trip /
+          export guarantees with their guard tests named. This is the resolvable form
+          of IW-7.
+      - id: pilot-fixture
+        title: EWCR pilot — human gate, registered script, human gate
+        stored_path: docs/research/executable-workflow/fixtures/ewcr-pilot-human-gate-script-human-gate.bpmn
+        sha256: b6a9afd7eb03abeaba43513f45176dd439838887b588901f5a2aa2a83da1685b
+        purpose: >
+          Renders the dossier §2.5 pilot in already-shipped Mapping Standard Part I
+          vocabulary only. No new node kind, no new aef element, no runtime attribute,
+          no guard or outcome expression, no action reference, no profile, no secret,
+          no retry or compensation policy, no ratification state.
+        deliberately_outside: tests/fixtures/aef-bpmn/
+        deliberately_outside_why: >
+          That directory is a jointly-pinned normative corpus (test_corpus_fixture_pins.py,
+          tools/_t365-normative-fixture-guard.py, plus AEF-side digest pins). A research
+          slice must not perturb pinned joint state as a side effect.
+      - id: cannot-represent-yet
+        title: What the Designer cannot represent yet
+        stored_path: docs/research/executable-workflow/cannot-represent-yet.md
+        sha256: 24b2c7c126dc2752bfd349cb21e60900d8d2f5030f40782956e85f9329a86330
+        purpose: >
+          The gap list against dossier §6.2 node vocabulary and §6.2.1 / §6.2.2 / §6.3,
+          each row carrying its Part I evidence and the standing disposition that
+          governs it.
+      - id: handoff-envelope
+        title: Paired handoff envelope — EWCR Arc-0 Designer contract evidence
+        stored_path: docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml
+        sha256: 7d4f6b9519db6f0a1293fe3e641596fb3266d9186b68625395f4d2419d8b897e
+        delivery_state: prepared
+        purpose: >
+          Carries both pinned source hashes, the correlations, the AEF arc and anchor
+          references, the exact fixture sha256, the request set R1..R7, the
+          acceptance/read-back schema, and the named human owner. NOT sent.
+    counterparty:
+      question: H2 — name the AEF counterparty project
+      status: resolved
+      resolved_by: operator (dimitri@geelenandcompany.com)
+      chosen: /opt/999-Agentic-Engineering-Framework
+      rejected: /opt/0503-codex-cli-playground
+      rationale: >
+        999 is the canonical AEF counterparty — the roadmap header's named intended
+        recipient, the intended implementer, and the only side with a documented seam
+        (docs/aef-designer-integration-protocol.md, 832<->999, including T-559
+        project-boundary enforcement). 0503 remains the authoring and governance home
+        of the pinned packet and is unchanged as such above.
+      note: >
+        The `counterparty-named` task tag was NOT applied — `fw` is denied by this
+        session's permission profile and the session is non-interactive.
+    verification:
+      command: sha256sum -c docs/research/executable-workflow/source-manifest.sha256
+      run_from: project root
+      result_at_revision_time: all six files OK (2 rev-0 sources, 4 rev-1 artifacts)
+      rev0_lines_byte_unchanged: true
+    environment_constraints:
+      session_permission_profile_denied:
+        - fw (all subcommands)
+        - git (all subcommands)
+        - curl
+        - python3 (all invocations, including `python3 -c`)
+        - node
+      consequence: >
+        The python3 members of T-590's `## Verification` block could not be executed in
+        this session — the workflow validator, the mapping-standard conformance test and
+        the two YAML parse checks. Every sha256sum-, grep- and test-based command WAS
+        executed and passed. The unexecutable commands are reported as NOT RUN, not as
+        passed, and the acceptance criteria that depend on them are left unchecked.
