@@ -2244,6 +2244,11 @@ function laneAtY(y) {
 // incapable of reaching the exporter (same discipline as T-308's session-intent Set).
 let _laneReconcileCount = 0;
 
+// T-603: which <bpmn:process> elements the last parse did NOT import, and how much
+// content each held. Same discipline as _laneReconcileCount above — a report about the
+// import, kept outside `state` so it is structurally incapable of reaching the exporter.
+let _processSkipReport = [];
+
 // T-315: which lanes the last parse had to GROW to contain their own declared
 // members, and by how much. Same discipline as _laneReconcileCount above — a
 // report about the import, kept outside `state` so it is structurally incapable
@@ -7649,6 +7654,15 @@ function maybeShowLaneFixNotice() {
                `${g.length === 1 ? 'its' : 'their'} own content — band${g.length === 1 ? '' : 's'} ` +
                `grown, no nodes moved: ${which}`);
   }
+  // T-603: a skipped process is the only one of the three that means CONTENT IS NOT ON
+  // THIS CANVAS. It is stated last because it is the one the reader must not miss, and
+  // it names the element ids so the operator can go and look at what was left behind.
+  const sk = _processSkipReport || [];
+  if (sk.length) {
+    const which = sk.map(x => `${x.id}${x.name ? ` "${x.name}"` : ''} (${x.n} element${x.n === 1 ? '' : 's'})`).join(', ');
+    parts.push(`this file declares ${sk.length + 1} processes and only one can be opened — ` +
+               `NOT imported, and NOT saved back: ${which}`);
+  }
   const show = parts.length > 0;
   if (show && msg) msg.textContent = '⚠ ' + parts.join('; ');
   el.style.display = show ? '' : 'none';
@@ -10367,7 +10381,33 @@ function parseBpmnXml(text) {
 
   const processes = byBpmn(doc, 'process');
   if (!processes.length) return null;
-  const proc = processes[0];
+  // T-603: this used to be processes[0] unconditionally, and that silently discarded
+  // every later <bpmn:process>. tests/fixtures/third-party/bizagi-nested-ns.bpmn declares
+  // two — the first holds an empty laneSet, the second holds the whole diagram — so the
+  // editor imported nothing, drew nothing, and wrote the empty process back on save.
+  // Measured: nodesInState 0, outProcesses 1. Nothing counted DOWN from any baseline the
+  // corpus holds, so no instrument reported it for as long as the fixture has existed.
+  //
+  // Choosing the process with the most flow content is a heuristic, and it is deliberately
+  // paired with a REPORT rather than presented as correct: a document with real content in
+  // two processes still loses one, and the operator has to be told which. Silence was the
+  // defect; picking better without saying so would only make it rarer, not visible.
+  // Merging processes (or modelling them as pools) is a semantic change and stays out —
+  // see the task for why that is a separate decision.
+  const PROC_NON_CONTENT = new Set(['documentation', 'extensionElements', 'laneSet',
+    'auditing', 'monitoring', 'property', 'ioSpecification', 'resourceRole', 'performer',
+    'correlationSubscription', 'supports']);
+  const contentCount = pr => Array.from(pr.children || []).filter(
+    c => c.namespaceURI === BPMN_NS && !PROC_NON_CONTENT.has(c.localName)).length;
+  const procCounts = processes.map(pr => ({ pr, n: contentCount(pr) }));
+  // Ties keep the earliest, so a single-process document and every document whose first
+  // process is the richest behave exactly as before — the corpus moves no bytes.
+  let best = procCounts[0];
+  for (const c of procCounts) if (c.n > best.n) best = c;
+  const proc = best.pr;
+  _processSkipReport = procCounts
+    .filter(c => c.pr !== proc)
+    .map(c => ({ id: c.pr.getAttribute('id') || '(no id)', name: c.pr.getAttribute('name') || '', n: c.n }));
 
   // ---- uid derivation (T-364) ----
   // A node or edge that arrives without <aef:uid> still needs an identity, and that

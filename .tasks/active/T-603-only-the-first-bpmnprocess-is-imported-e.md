@@ -4,7 +4,7 @@ name: "Only the first bpmn:process is imported: every later process is silently 
 description: >
   MEASURED 2026-08-26 while landing T-602. parseBpmnXml takes processes[0] (src/aef-workflow-designer.html:10370) and ignores every other bpmn:process in the document. tests/fixtures/third-party/bizagi-nested-ns.bpmn declares two: the first holds only an empty laneSet, the second holds all the flow content. Round-tripping it through the real editor yields nodesInState 0, outDocs 0, outProcesses 1 - the entire diagram is discarded and the save writes an empty process back. Counts do not go down from any baseline the corpus holds, so no existing instrument reports it; T-347's census attributes the loss to 'documentation' because that is the only shape it counts. Severity is total data loss on any collaboration or multi-pool document, which is the normal shape for third-party exports (Bizagi here). Decide whether the fix is import-all-processes, import-the-largest, or refuse-with-a-named-reason - silently keeping the empty one is the only option that is certainly wrong.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T17:47:20Z
-last_update: 2026-08-26T17:47:20Z
+last_update: 2026-08-26T17:55:56Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,159 +34,57 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Found while landing T-602. `parseBpmnXml` took `processes[0]` unconditionally
+(src/aef-workflow-designer.html:10370), so every later `<bpmn:process>` was discarded
+without a word. `tests/fixtures/third-party/bizagi-nested-ns.bpmn` declares two: the first
+holds an empty `laneSet`, the second holds the entire diagram. Measured through the real
+editor before any change: `nodesInState 0, outDocs 0, outProcesses 1` — the editor imported
+nothing, drew nothing, and would have written the empty process back over the file on save.
+
+Nothing counts DOWN from a baseline the corpus holds, so no instrument reported it. The one
+census that touched the file (T-347) attributed the total loss to a "documentation" row,
+because documentation is the only shape it counts there. The fixture has been in-tree for
+months reading as a documentation defect.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [x] The process carrying flow content is the one imported, not blindly the first
+- [x] Ties keep the earliest process, so single-process documents and documents whose first process is richest behave exactly as before
+- [x] Every process NOT imported is reported to the operator by element id and content count — the residual loss is visible, not silent
+- [x] A single-process document raises no process notice at all
+- [x] `node tools/_t603-multiprocess-import.mjs --self-test` passes, with a poison arm faithful to pre-T-603 code failing L1-L4
+- [x] The T-347 census is re-run as evidence: bizagi moves from `LOST 8->0` to `LOST 8->2`
 
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
-# Lines starting with # are comments (skipped). Empty lines ignored.
-# The completion gate runs each command — if any exits non-zero, completion is blocked.
-#
-# Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
-# *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
-# pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
-# past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
-#
-# ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
-# P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.
-# Measured, not assumed (tools/_t352-p011-errexit-probe.sh): the gate runs each line as
-# `if ( … eval "$cmd" ); then` (update-task.sh:1018) and that subshell is the CONDITION
-# of an `if`, which neutralises errexit inside it. pipefail survives; errexit does not.
-# CONSEQUENCE: a line of the form `a; b` IS JUDGED ON `b` ALONE. `a`'s exit code is
-# discarded, so a command that fails outright can still leave the line green.
-#   Proven false green:
-#     out=$(python3 tools/validate-workflow.py BROKEN.bpmn 2>&1); echo "$out" | grep -q "VALID"
-#   -> PASSES on a document the validator exits 2 on and labels INVALID, because
-#      `grep -q "VALID"` matches INVALID as a SUBSTRING. Two defects stacked.
-# PREFER a single command whose own exit code is the verdict — then no context question
-# arises. When you must chain, the LAST command has to be the one that can fail, and its
-# pattern must not be matchable by the earlier command's FAILURE output.
-# Note `set -e` re-issued inside the subshell does NOT fix this: the suppressed context is
-# inherited and re-setting the option does not clear it. See T-352 for the remedy.
-#
-# Pipefail/SIGPIPE hint (L-387): `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep
-# matches and closes stdin while the upstream is still writing — verification then
-# "fails" even though the pattern was present. The capture pattern below fixes THAT,
-# and creates the errexit exposure described above; the file form fixes both:
-#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out     # PREFERRED: && not ;
-#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"        # SIGPIPE-safe, errexit-blind
-# Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
-#
-# Single pipe only — no intermediate tail/awk/sed stages between capture and grep
-# (T-2090): `echo "$out" | tail -3 | grep -q PAT` re-introduces the SIGPIPE risk
-# the capture step closed off — the middle stage is what `grep -q` slams its
-# stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
-# string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
-#
-# Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
-# (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
-# Verification block. Otherwise the canonical hash diverges and `fw doctor`
-# reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
-# Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
-# the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-
-## RCA
-
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
-
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
-
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
-
-## Evolution
-
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
-
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+node tools/_t603-multiprocess-import.mjs
+node tools/_t603-multiprocess-import.mjs --self-test
+node tools/_t602-documentation-roundtrip.mjs
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
-
-## Decision
-
-<!-- Filled at completion of inception tasks via:
-     fw inception decide T-XXX go|no-go|defer --rationale "..."
-
-     For non-inception tasks this section is ignored. Kept in template
-     so `fw inception decide` (lib/inception.sh) finds the anchor heading
-     without auto-creating; T-1832 added auto-create as fallback for
-     legacy tasks lacking this section. -->
+- **Pick the richest process AND report the rest, not one or the other.** Choosing better is
+  a heuristic: a document with real content in two processes still loses one. Selection alone
+  would make the defect rarer without making it visible, which is how it survived this long.
+  The report is the half that keeps the residual loss survivable.
+- **Do not merge processes or model them as pools.** That is a semantic change to what a
+  document means — participants, message flows, pool identity — and it belongs to the
+  collaboration question, not to a data-loss fix.
+- **Ties keep the earliest.** This is what makes the change byte-neutral for the entire
+  existing corpus rather than merely low-risk.
+- **The notice is stated last and names ids.** The other two import notices (T-310 lane
+  moves, T-315 band growth) report cosmetic or positional repairs. This one means CONTENT IS
+  NOT ON THIS CANVAS, so it is worded as not-imported-and-not-saved and carries the element
+  ids so the operator can go and look at what was left behind.
 
 ## Updates
 
-### 2026-08-26T17:47:20Z — task-created [task-create-agent]
-- **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-603-only-the-first-bpmnprocess-is-imported-e.md
-- **Context:** Initial task creation
+- The self-test caught a defect in its own poison arm. Neutering only the SELECTION left the
+  skip report in place naming the wrong process, so L3 ("a skip was reported") passed on
+  broken code — it asserted nothing until the poison removed both halves. A poison arm that
+  is not faithful to the pre-fix code produces exactly the vacuous leg it exists to prevent.
+
+### 2026-08-26T17:55:56Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
