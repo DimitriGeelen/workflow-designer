@@ -4,20 +4,20 @@ name: "Chromium-driven verification legs fail nondeterministically on unchanged 
 description: >
   Chromium-driven verification legs fail nondeterministically on unchanged code, reddening the P-011 gate
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_cdp-attach.mjs, tools/_t338-input-fidelity-cdp.mjs, tools/_t511-unwired-node-roundtrip.mjs, tools/_t513-thirdparty-identity-roundtrip.mjs, tools/_t518-uid-collision.mjs, tools/_t520-uid-xml-safety.mjs, tools/_t523-subprocess-nesting.mjs, tools/_t563-fallback-id-derivation-cdp.mjs, tools/_t604-cdp-attach-race.mjs]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T19:52:53Z
-last_update: 2026-08-26T20:11:15Z
-date_finished: null
+last_update: 2026-08-26T20:13:31Z
+date_finished: 2026-08-26T20:13:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -168,6 +168,10 @@ taste call to make, so routing one to the operator would be manufactured review 
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+
+node tools/_t604-cdp-attach-race.mjs
+node tools/_t604-cdp-attach-race.mjs --self-test
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -183,6 +187,44 @@ taste call to make, so routing one to the operator would be manufactured review 
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+
+**Symptom:** `fw task update T-603 --status work-completed` failed the P-011 gate on
+`node tools/_t603-multiprocess-import.mjs --self-test` with exit 2, then passed on immediate
+re-run, standalone, under the gate's exact subshell form, and back-to-back. Identical bytes,
+two verdicts. Reproduced at 1-in-6 under 2x CPU load, always on the SECOND browser of the run.
+
+**Root cause:** `DevToolsActivePort` is written when the Chromium *browser* starts listening,
+which is not the instant the *page* target is registered in `/json`. Every driver read the
+target list once and dereferenced it with no retry, so in that window
+`targets.find(t => t.type === 'page')` returned `undefined` and `.webSocketDebuggerUrl` threw
+a bare `TypeError`, surfacing as `DRIVER ERROR ... exit 2`.
+
+**Why structurally allowed:** it was not undetected — it was detected and left standing.
+OBS-304 had already named this exact race, and the fix was applied at FOUR call sites while
+seventy-three others kept the defect. `tools/_t366-uid-shape-agnostic.mjs` even carries a
+comment describing it as a "remaining unguarded race, named as a suspect and NOT as a
+finding". The structural gap is that the guard was a PATTERN to be re-typed per driver rather
+than a DEFINITION to import, and nothing scanned for sites that had not adopted it. A guard
+present in four copies and absent from seventy-three is a coincidence, not a guard.
+
+A second gap compounded it: my own recorded diagnosis in OBS-313 blamed a 25s load timeout.
+The failing run took 3s against 5-6s for passing runs — it failed *faster* — so the timeout
+was never plausible, and acting on that note would have produced a change that looked like a
+fix and moved nothing. The note recorded an appearance as if it were a measurement.
+
+**Prevention:**
+- `tools/_cdp-attach.mjs` — one shared `pageWsUrl()` with a bounded retry; all 76 drivers import it.
+- `tools/_t604-cdp-attach-race.mjs` L1 is a SCAN over `tools/`, not a memory: any driver that
+  hand-rolls the deref turns it red, so a driver written tomorrow cannot silently re-introduce it.
+  Poison arm B proves L1 can fail by restoring a hand-rolled deref in a COPY of the tree.
+- Attach failure now throws a message naming `CDP ATTACH FAILED ... this is a BROWSER ATTACH
+  failure, not a verification leg failing`, so the next occurrence cannot be mistaken for a
+  real leg going red — which is what made the first instance easy to wave away.
+- Learning registered as OBS-316: an unfaithful repro yields a false NEGATIVE, mirroring an
+  unfaithful poison arm's false positive. My first repro reported NOT REPRODUCED over 26 spawns
+  because it killed each browser before the next; the failure needs the second browser spawned
+  during the first's lifetime.
 
 ## Evolution
 
@@ -208,6 +250,7 @@ taste call to make, so routing one to the operator would be manufactured review 
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -219,29 +262,6 @@ taste call to make, so routing one to the operator would be manufactured review 
      - **Rejected:** [alternatives and why not]
 -->
 
-## Decision
-
-<!-- Filled at completion of inception tasks via:
-     fw inception decide T-XXX go|no-go|defer --rationale "..."
-
-     For non-inception tasks this section is ignored. Kept in template
-     so `fw inception decide` (lib/inception.sh) finds the anchor heading
-     without auto-creating; T-1832 added auto-create as fallback for
-     legacy tasks lacking this section. -->
-
-## Updates
-
-### 2026-08-26T19:52:53Z — task-created [task-create-agent]
-- **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-604-chromium-driven-verification-legs-fail-n.md
-- **Context:** Initial task creation
-
-## Verification (T-604 legs)
-
-node tools/_t604-cdp-attach-race.mjs
-node tools/_t604-cdp-attach-race.mjs --self-test
-
-## Decisions
 
 - **One shared definition, not a pattern to re-type.** OBS-304 named this race and it was
   fixed at four call sites. Seventy-three others kept the defect and _t366 documented it in
@@ -273,3 +293,37 @@ node tools/_t604-cdp-attach-race.mjs --self-test
 - **The verifier is excluded from its own scan by NAME, in a fixed two-entry set.** Its job is
   to contain the pre-fix shape. The exemption is a literal list rather than a pattern so a new
   driver cannot quietly qualify for it.
+
+## Decision
+
+<!-- Filled at completion of inception tasks via:
+     fw inception decide T-XXX go|no-go|defer --rationale "..."
+
+     For non-inception tasks this section is ignored. Kept in template
+     so `fw inception decide` (lib/inception.sh) finds the anchor heading
+     without auto-creating; T-1832 added auto-create as fallback for
+     legacy tasks lacking this section. -->
+
+## Updates
+
+### 2026-08-26T19:52:53Z — task-created [task-create-agent]
+- **Action:** Created task via task-create agent
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-604-chromium-driven-verification-legs-fail-n.md
+- **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2fce52af
+- **Timestamp:** 2026-08-26T20:13:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#7 (Agent)** — `.context/inbox.yaml` OBS-313 records the measured cause, and explicitly corrects the
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=context/inbox.yaml in: `.context/inbox.yaml` OBS-313 records the measured cause, and explicitly corrects the`
+
+### 2026-08-26T20:13:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

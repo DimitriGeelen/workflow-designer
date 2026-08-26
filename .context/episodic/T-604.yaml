@@ -1,0 +1,160 @@
+# ============================================================================
+# EPISODIC MEMORY - T-604: Chromium-driven verification legs fail nondeterministically on unchanged code, reddening the P-011 gate
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-26T20:13:39Z
+# ============================================================================
+
+task_id: T-604
+task_name: "Chromium-driven verification legs fail nondeterministically on unchanged code, reddening the P-011 gate"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-26T19:52:53Z
+completed: 2026-08-26T20:13:31Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-26T22:11:04+02:00
+last_commit: 2026-08-26T22:12:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a race the register already named was fixed at four call sites and left standing at seventy-three — now one shared definition, swept and scanned.. correct the OBS-313 diagnosis I got wrong, and register the two findings the measurement turned up.
+
+# Key outcomes
+outcomes:
+  - 'The race is REPRODUCED and measured before any fix is written: a recorded run that'
+  - 'Every CDP driver that resolves a page target from `/json` retries within a bounded'
+  - 'A driver that genuinely cannot attach fails with a message NAMING the cause, not a bare'
+  - 'Determinism is asserted on the OUTCOME, not on the instrument''s belief: N consecutive'
+  - 'A poison arm restores the unguarded `find()` and drives the attach legs RED, proving'
+  - 'The fix is applied to every affected driver in `tools/`, enumerated by a scan rather'
+  - '`.context/inbox.yaml` OBS-313 records the measured cause, and explicitly corrects the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a race the register already named was fixed at four call sites and left standing at seventy-three — now one shared definition, swept and scanned.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.fabric/components/tools-_cdp-attach.yaml'
+  - '.fabric/components/tools-_t604-cdp-attach-race.yaml'
+  - '.tasks/active/T-604-chromium-driven-verification-legs-fail-n.md'
+  - 'tools/_align-distribute-diag.mjs'
+  - 'tools/_autoload-verify-cdp.mjs'
+  - 'tools/_autosave-verify-cdp.mjs'
+  - 'tools/_bridge-seam-roundtrip-cdp.mjs'
+  - 'tools/_cdp-attach.mjs'
+  - 'tools/_clean-layout-cdp.mjs'
+  - 'tools/_edge-straighten-verify-cdp.mjs'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+  - 'tools/_endpoint-hover-verify-cdp.mjs'
+  - 'tools/_endpoint-overlap-verify-cdp.mjs'
+  - 'tools/gen-rendered-thumbs.mjs'
+  - 'tools/_horizontal-spacing-verify-cdp.mjs'
+  - 'tools/_label-overlap-probe.mjs'
+  - 'tools/_node-cuts-cdp.mjs'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_saveproject-verify-cdp.mjs'
+  - 'tools/_selection-align-verify-cdp.mjs'
+  - 'tools/_t125-lane-compaction-cdp.mjs'
+  - 'tools/_t233-ghost-cards-cdp.mjs'
+  - 'tools/_t249-spike-zoom-cdp.mjs'
+  - 'tools/_t251-visual-shots.mjs'
+  - 'tools/_t253-live-url-probe.mjs'
+  - 'tools/_t255-visual-shots.mjs'
+  - 'tools/_t258-annotation-seam-cdp.mjs'
+  - 'tools/_t259-eventdef-preservation-cdp.mjs'
+  - 'tools/_t263-save-target-cdp.mjs'
+  - 'tools/_t264-save-target-guards-cdp.mjs'
+  - 'tools/_t293-endpoint-reach-cdp.mjs'
+  - 'tools/_t308-bare-catch-render-cdp.mjs'
+  - 'tools/_t308-export-byte-identity-cdp.mjs'
+  - 'tools/_t310-lane-position-conflict-cdp.mjs'
+  - 'tools/_t311-doc-comment-roundtrip-cdp.mjs'
+  - 'tools/_t315-lane-grow-on-import-cdp.mjs'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+  - 'tools/_t341-orphan-lane-probe.mjs'
+  - 'tools/_t347-accepted-element-content-cdp.mjs'
+  - 'tools/_t355-foreign-tag-render-cdp.mjs'
+  - 'tools/_t356-third-party-fidelity-cdp.mjs'
+  - 'tools/_t358-byteid-thirdparty.mjs'
+  - 'tools/_t358-empty-lanes-blast-radius.mjs'
+  - 'tools/_t358-export-determinism.mjs'
+  - 'tools/_t358-lane-provenance-cdp.mjs'
+  - 'tools/_t358-repair-options-cdp.mjs'
+  - 'tools/_t364-aef-ext-roundtrip.mjs'
+  - 'tools/_t364-tie-permutes-ids.mjs'
+  - 'tools/_t366-uid-shape-agnostic.mjs'
+  - 'tools/_t367-aef-injection-footprint.mjs'
+  - 'tools/_t372-aef-cycle-roundtrip.mjs'
+  - 'tools/_t406-doc-comment-provenance-cdp.mjs'
+  - 'tools/_t407-exporter-passthrough-cdp.mjs'
+  - 'tools/_t423-additive-export-cdp.mjs'
+  - 'tools/_t423-carrier-agreement-cdp.mjs'
+  - 'tools/_t423-di-roundtrip-idempotence-cdp.mjs'
+  - 'tools/_t479-endpoint-roundtrip-cdp.mjs'
+  - 'tools/_t482-scalar-projection-falsify.mjs'
+  - 'tools/_t483-structured-projection-falsify.mjs'
+  - 'tools/_t485-unknown-extension-survival.mjs'
+  - 'tools/_t511-unwired-node-roundtrip.mjs'
+  - 'tools/_t513-thirdparty-identity-roundtrip.mjs'
+  - 'tools/_t515-external-uid-conformance.mjs'
+  - 'tools/_t518-uid-collision.mjs'
+  - 'tools/_t520-uid-xml-safety.mjs'
+  - 'tools/_t523-subprocess-nesting.mjs'
+  - 'tools/_t562-workflow-id-helpers-cdp.mjs'
+  - 'tools/_t563-fallback-id-derivation-cdp.mjs'
+  - 'tools/_t565-workflowmeta-emission-census.mjs'
+  - 'tools/_t566-note-field-cdp.mjs'
+  - 'tools/_t570-meta-carriage-cdp.mjs'
+  - 'tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs'
+  - 'tools/_t589-panel-links-cdp.mjs'
+  - 'tools/_t600-label-wrap.mjs'
+  - 'tools/_t601-lane-boundary.mjs'
+  - 'tools/_t602-documentation-roundtrip.mjs'
+  - 'tools/_t603-multiprocess-import.mjs'
+  - 'tools/_t604-cdp-attach-race.mjs'
+  - 'tools/_typed-events-cdp.mjs'
+  - 'tools/_undo-verify-cdp.mjs'
+  - 'tools/_versions-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-26T22:11:04"
+    action: 'T-604: a race the register already named was fixed at four call sites and left standing at seventy-three — now one shared definition, swept and scanned.'
+  - time: "2026-08-26T22:12:18"
+    action: 'T-604: correct the OBS-313 diagnosis I got wrong, and register the two findings the measurement turned up.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 20
+  commits: 2
+  files_changed: 82
+  lines_added: 820
+  lines_removed: 179
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-604-chromium-driven-verification-legs-fail-n.md
+generated_by: context-agent-hybrid
