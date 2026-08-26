@@ -14,6 +14,7 @@ import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join } from 'node:path';
+import { pageWsUrl } from './_cdp-attach.mjs';
 
 const URL_ = process.argv[2] || 'http://localhost:8834/designer.html';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -69,8 +70,7 @@ async function main() {
   let client; const verdict = { steps: [], pass: false };
   try {
     const { port } = await waitForPortFile(join(udd, 'DevToolsActivePort'));
-    const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
-    const page = targets.find(t => t.type === 'page');
+    const page = { webSocketDebuggerUrl: await pageWsUrl(port) };
     client = cdpClient(page.webSocketDebuggerUrl); await client.ready;
     const { cmd } = client;
     await cmd('Page.enable'); await cmd('Runtime.enable');

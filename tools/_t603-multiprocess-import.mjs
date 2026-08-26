@@ -30,6 +30,7 @@ import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { pageWsUrl } from './_cdp-attach.mjs';
 
 const HERE = resolve(new URL('.', import.meta.url).pathname);
 const ROOT = resolve(HERE, '..');
@@ -96,8 +97,7 @@ async function probe(editorPath) {
       await sleep(100);
     }
     if (!port) throw new Error('Chromium DevTools port timeout');
-    const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
-    client = cdpClient(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
+    client = cdpClient(await pageWsUrl(port));
     await client.ready;
     const { cmd } = client;
     await cmd('Page.enable'); await cmd('Runtime.enable');

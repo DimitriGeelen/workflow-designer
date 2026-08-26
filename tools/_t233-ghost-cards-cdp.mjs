@@ -27,6 +27,7 @@ import { spawn } from 'node:child_process';
 import { readFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { pageWsUrl } from './_cdp-attach.mjs';
 
 const HERE = resolve(new URL('.', import.meta.url).pathname);
 const ROOT = resolve(HERE, '..');
@@ -138,9 +139,7 @@ async function main() {
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
   try {
     const { port } = await waitForPortFile(join(udd, 'DevToolsActivePort'));
-    const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
-    const page = targets.find(t => t.type === 'page');
-    if (!page) throw new Error('no page target');
+    const page = { webSocketDebuggerUrl: await pageWsUrl(port) };
     const client = cdpClient(page.webSocketDebuggerUrl);
     await client.ready;
     const { cmd } = client;

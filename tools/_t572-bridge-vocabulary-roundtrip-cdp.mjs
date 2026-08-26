@@ -48,6 +48,7 @@ import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
+import { pageWsUrl } from './_cdp-attach.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
@@ -159,9 +160,7 @@ try {
   const dp = await waitPortFile(join(udd, 'DevToolsActivePort'));
   // OBS-304: the page target is not listed the instant DevTools answers; poll rather than
   // index [0] into a list that is still empty.
-  let page = null;
-  for (let i = 0; i < 40 && !page; i++) { try { page = (await (await fetch(`http://127.0.0.1:${dp}/json`)).json()).find(t => t.type === 'page'); } catch (_) { } if (!page) await sleep(150); }
-  if (!page) die('no CDP page target after 40 attempts');
+  const page = { webSocketDebuggerUrl: await pageWsUrl(dp) };
   cl = cdp(page.webSocketDebuggerUrl); await cl.ready;
   const { cmd } = cl;
   await cmd('Page.enable'); await cmd('Runtime.enable');

@@ -25,6 +25,7 @@ import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, resolve, basename } from 'node:path';
+import { pageWsUrl } from './_cdp-attach.mjs';
 
 const HERE = resolve(new URL('.', import.meta.url).pathname);
 const ROOT = resolve(HERE, '..');
@@ -109,8 +110,7 @@ async function main() {
   const perMap = {};
   try {
     const dp = await waitPortFile(join(udd, 'DevToolsActivePort'));
-    const tg = await (await fetch(`http://127.0.0.1:${dp}/json`)).json();
-    const page = tg.find(t => t.type === 'page');
+    const page = { webSocketDebuggerUrl: await pageWsUrl(dp) };
     cl = cdp(page.webSocketDebuggerUrl); await cl.ready; const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Page.navigate', { url: 'file://' + EDITOR });

@@ -38,6 +38,7 @@ import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
+import { pageWsUrl } from './_cdp-attach.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
@@ -180,7 +181,7 @@ async function main() {
     if (!up) throw new Error('sidecar did not answer /api/health within 30s:\n' + pyErr.slice(-400));
     const dp = await waitPortFile(join(udd, 'DevToolsActivePort'));
     const tg = await (await fetch(`http://127.0.0.1:${dp}/json`)).json();
-    cl = cdp(tg.find(t => t.type === 'page').webSocketDebuggerUrl); await cl.ready;
+    cl = cdp(await pageWsUrl(dp)); await cl.ready;
     const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Page.navigate', { url: `${BASE}/designer.html` });

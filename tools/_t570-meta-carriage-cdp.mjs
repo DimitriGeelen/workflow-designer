@@ -27,6 +27,7 @@ import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
+import { pageWsUrl } from './_cdp-attach.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
@@ -179,12 +180,7 @@ async function main() {
     if (!up) throw new Error('sidecar down:\n' + pyErr.slice(-400));
     const dp = await waitPortFile(join(udd, 'DevToolsActivePort'));
     // OBS-304: a single /json query races Chromium's page-target registration under load.
-    let page = null;
-    for (let i = 0; i < 40 && !page; i++) {
-      try { page = (await (await fetch(`http://127.0.0.1:${dp}/json`)).json()).find(t => t.type === 'page'); } catch (_) {}
-      if (!page) await sleep(150);
-    }
-    if (!page) throw new Error('no page target after retries');
+    const page = { webSocketDebuggerUrl: await pageWsUrl(dp) };
     cl = cdp(page.webSocketDebuggerUrl); await cl.ready;
     const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable');

@@ -6,6 +6,7 @@ import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join } from 'node:path';
+import { pageWsUrl } from './_cdp-attach.mjs';
 
 const URL_UNDER_TEST = process.argv[2] || 'http://192.168.10.107:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -20,8 +21,7 @@ async function main() {
   let cl;
   try {
     const dp = await waitPortFile(join(udd, 'DevToolsActivePort'));
-    const tg = await (await fetch(`http://127.0.0.1:${dp}/json`)).json();
-    cl = cdp(tg.find(t => t.type === 'page').webSocketDebuggerUrl); await cl.ready; const { cmd } = cl;
+    cl = cdp(await pageWsUrl(dp)); await cl.ready; const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable'); await cmd('Log.enable');
     await cmd('Page.navigate', { url: URL_UNDER_TEST });
     await sleep(3500);

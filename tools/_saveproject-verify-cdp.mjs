@@ -11,6 +11,7 @@ import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
+import { pageWsUrl } from './_cdp-attach.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
@@ -55,8 +56,7 @@ async function main() {
     push('sidecar-up', up); if (!up) throw new Error('sidecar down:\n' + pyErr.slice(-400));
 
     const dp = await waitPortFile(join(udd, 'DevToolsActivePort'));
-    const tg = await (await fetch(`http://127.0.0.1:${dp}/json`)).json();
-    const page = tg.find(t => t.type === 'page');
+    const page = { webSocketDebuggerUrl: await pageWsUrl(dp) };
     cl = cdp(page.webSocketDebuggerUrl); await cl.ready; const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Emulation.setDeviceMetricsOverride', { width: 1200, height: 820, deviceScaleFactor: 1, mobile: false });
