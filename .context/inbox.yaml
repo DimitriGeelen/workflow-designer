@@ -1325,3 +1325,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-311
+  text: "OBS-309 reproduced cleanly with BOTH jaws in one sequence, on T-590. Jaw 1: with focus on T-590, P-002 check-active-task blocks ALL file modification and git commit because the task status is work-completed. Jaw 2: with focus moved to any other task, T-1730 focus-drift blocks the commit because it resolves 'Action target: T-590' FROM THE COMMIT MESSAGE TEXT, not from the staged paths. So the state that the completion command itself just wrote (task frontmatter status/owner/date_finished plus the auto-captured decisions in decisions.yaml) cannot be committed by either route. The only exits offered are Tier 2 bypasses (--switch-focus, FW_SWITCH_FOCUS=1), which an agent operating under delegated initiative must not take. Consequence: every partial-complete task leaves uncommitted state behind, and the agent that produced it cannot land it. Suggested remedy for operator consideration: P-002 should permit git commit (not arbitrary edits) when the ONLY staged paths belong to the focused task, regardless of its completed status - committing a completion is part of completing it, not new work under a closed task. Related: the same command-text matching underlies the T-559 boundary hook blocking a Bash heredoc today because the PROSE mentioned a peer project path."
+  captured: 2026-08-26T12:32:07Z
+  context_task: T-592
+  tags: [governance]
+  status: pending
+  promoted_to: null
+  urgent: true
