@@ -1991,3 +1991,10 @@ decisions:
     date: 2026-08-26
     task: T-594
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-264
+    decision: "Write the resolution into the envelope with a `decision_record` quoting the"
+    scope: project
+    date: 2026-08-26
+    task: T-595
+    rationale: "Auto-captured from task file on completion"

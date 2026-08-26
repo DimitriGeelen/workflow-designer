@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-595: Record the operator's H2 answer — AEF named as counterparty — and unblock the EWCR envelope
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-26T15:02:14Z
+# ============================================================================
+
+task_id: T-595
+task_name: "Record the operator's H2 answer — AEF named as counterparty — and unblock the EWCR envelope"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-26T14:58:19Z
+completed: 2026-08-26T15:02:08Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The envelope records H2 as resolved, naming `/opt/999-Agentic-Engineering-Framework`,'
+  - 'The attribution carries **provenance**: a `decision_record` quoting the operator''s'
+  - 'The record states explicitly that T-590''s H2 Human AC remains **unticked** — an'
+  - 'The `correction:` note from T-593 is **preserved**, not overwritten — the artifact'
+  - 'T-594''s prose guard is **updated, not deleted**: it no longer forbids an operator'
+  - 'T-590''s Envelope-state line reflects H2 resolved and names the counterparty'
+  - '`sha256sum -c` passes 6/6 from the repo root; T-590 still passes its full block'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-26 — record the operator''s answer with provenance, rather than treat it as ratification'
+    chose: 'Write the resolution into the envelope with a `decision_record` quoting the operator, while leaving T-590''s H2 Human AC unticked and saying so inside the record.'
+    rationale: 'Their statement *is* the decision — refusing to act on it would be theatre. But ticking their acceptance criterion is a different act, and the whole point of this week''s findings is that the two must stay distinguishable on disk. Provenance is what separates this record from the one T-593 deleted.'
+    alternatives_rejected: ['(a) treating the remark as informal and continuing to block — they answered, and stalling on ceremony is its own failure; (b) ticking the Human AC as "obviously satisfied" — that is the operator''s act, never the agent''s; (c) keeping T-594''s absence guard — it would now fire on a legitimate record and reward deleting the decision.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-595-record-the-operators-h2-answer--aef-name.md
+generated_by: context-agent-hybrid

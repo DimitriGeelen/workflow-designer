@@ -152,7 +152,7 @@ revisions:
       - id: handoff-envelope
         title: Paired handoff envelope — EWCR Arc-0 Designer contract evidence
         stored_path: docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml
-        sha256: ed29d5da4d93dc44892d6d610e0e4ccd8a20046fcc2c7d08b5576c72d2771a43
+        sha256: 623f3b04e98aa2eb766be688ea630bfc625d9ebef1bef51b512e85b7ecf9bb90
         delivery_state: prepared
         purpose: >
           Carries both pinned source hashes, the correlations, the AEF arc and anchor

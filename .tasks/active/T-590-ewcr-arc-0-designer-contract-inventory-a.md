@@ -218,21 +218,28 @@ Design record: `docs/research/executable-workflow/reflection-designer.md` §5, �
 
 - [ ] [RUBBER-STAMP] Answer H2 — name the AEF counterparty project (0503 authoring/governance
       or 999 intended implementer)
-  My recommendation is `/opt/999-Agentic-Engineering-Framework` — it is the roadmap's named
-  intended recipient, the intended implementer of the runtime, and the only side with a
-  documented seam. That is a recommendation, not a finding: 0503 remains a real option.
+  **You answered this on 2026-08-26**, in session: *"huh its a colaboration of aef and
+  workflow designer of course"*. Recorded under T-595 as
+  `/opt/999-Agentic-Engineering-Framework` — AEF by name, the framework this repo vendors
+  under `.agentic-framework/` and upstreams to under G-008, and the only side with a
+  documented seam. `0503-codex-cli-playground` stays cited as the packet's authoring and
+  provenance home, but is not the collaborator.
+
+  **This box is still yours to tick.** Recording your decision is not ratifying it, and the
+  agent did not tick it. What remains is your confirmation that I read you correctly.
 
   **Steps:**
-  1. Decide between `/opt/0503-codex-cli-playground` and `/opt/999-Agentic-Engineering-Framework`.
-  2. Record the choice in this task's `## Decisions` section. **That record is the decision** —
-     it is what makes the answer auditable.
-  3. Only then mark it, so the tag follows the decision instead of standing in for one:
-     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-590 --add-tag counterparty-named`
-  **Expected:** `to_project` can then be filled and the envelope sent under a separate task.
-  **If not:** The envelope stays `prepared`; this is not a defect, it is the recorded state.
+  1. `cd /opt/832-Workflow-designer && sed -n '30,60p' docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml`
+  2. Confirm `decision_record` quotes you accurately and names the right project.
+  3. Apply the tag, which is now true: `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-590 --add-tag counterparty-named`
+  **Expected:** `to_project` is `/opt/999-Agentic-Engineering-Framework`; sending is still a
+  separate authorisation under a separate task.
+  **If not — i.e. if you meant 0503, or meant something else by "AEF":** say so and it is
+  corrected in one edit. Nothing has been sent; the envelope is still `prepared`.
 
-  *(T-594: the tag was previously present in this task's frontmatter and the envelope
-  asserted you had already resolved H2. Both are corrected — H2 is open and yours.)*
+  *(Trail: T-593 removed a fabricated version of this attribution that had no source;
+  T-594 removed the same claim where it survived in prose; T-595 recorded your real answer
+  with provenance. The difference is not the wording, it is whether anyone can check it.)*
 
 ## Recommendation
 
@@ -562,14 +569,20 @@ repo-relative paths), not evidence about the artifacts. Full block: **18 of 18 g
   - `designer-contract-inventory.md` — `1a6a45413c29c6b2032bb61db99a004284166b9bc6a40058a03b8cef47632879`
   - `fixtures/ewcr-pilot-human-gate-script-human-gate.bpmn` — `b6a9afd7eb03abeaba43513f45176dd439838887b588901f5a2aa2a83da1685b`
   - `cannot-represent-yet.md` — `24b2c7c126dc2752bfd349cb21e60900d8d2f5030f40782956e85f9329a86330`
-  - `handoff-ewcr-v1-designer-fixture.yaml` — `ed29d5da4d93dc44892d6d610e0e4ccd8a20046fcc2c7d08b5576c72d2771a43`
+  - `handoff-ewcr-v1-designer-fixture.yaml` — `623f3b04e98aa2eb766be688ea630bfc625d9ebef1bef51b512e85b7ecf9bb90`
   - `sha256sum -c docs/research/executable-workflow/source-manifest.sha256` → **6 of 6 OK**
 - **Envelope state:** `prepared`. Not delivered, not accepted, not read back. **H2 is
-  UNRESOLVED** — `to_project` is `null` and the counterparty is not named. Sending is
-  blocked on H2 first, and then separately on authorisation under a separate task.
-  (Corrected under T-594: this line previously described H2 as settled in favour of the
-  999 project and `to_project` as filled. No operator ruling exists; see T-593. Paraphrased
-  rather than quoted, so the false assertion is not left searchable in this file.)
+  ANSWERED** — the operator named the AEF counterparty as
+  `/opt/999-Agentic-Engineering-Framework` in session on 2026-08-26, and `to_project` is
+  filled. The decision is recorded with provenance in the envelope's
+  `to_project_resolution.decision_record`, which quotes the operator directly.
+  Sending remains blocked on **authorisation and transport** under a separate task — the
+  agent may not send, may not treat a reply as ratification, and may not treat transport as
+  completion.
+  (Trail: T-593 removed a fabricated version of this attribution that had no source behind
+  it; T-594 removed the same claim where it survived in prose; T-595 recorded the operator's
+  real answer. The difference between the first and the last is provenance, not wording.
+  **The H2 Human AC below is still unticked — recording a decision is not ratifying it.**)
 - **Not run — reported as NOT RUN, not as passed:** the four `python3` members of
   `## Verification` (workflow validator, mapping-standard conformance test, two YAML parse
   checks). `python3` is denied by this session's permission profile

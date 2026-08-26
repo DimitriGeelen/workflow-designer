@@ -1,23 +1,23 @@
 ---
-id: T-575
-name: "landing: drain the parked backlog to consumer-visible done"
+id: T-595
+name: "Record the operator's H2 answer — AEF named as counterparty — and unblock the EWCR envelope"
 description: >
-  LANDING MODE umbrella (operator directive, Tier 2 override of one-bug-one-task and G-019 register-before-fix, logged once here). All landing work runs under this id instead of spawning a task per finding; discoveries go one line each into .context/working/landing-notes.md. DONE means a consumer can install and use it, not that the repo is green. Session one: evidence pack for the 12 tasks sitting in active/ at status work-completed, blocked only on Human ACs.
+  Record the operator's H2 answer — AEF named as counterparty — and unblock the EWCR envelope
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
-tags: [landing, umbrella]
+horizon: null
+tags: []
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-20T21:46:57Z
-last_update: 2026-08-26T14:48:27Z
-date_finished: null
+created: 2026-08-26T14:58:19Z
+last_update: 2026-08-26T15:02:08Z
+date_finished: 2026-08-26T15:02:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,26 +30,46 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-575: landing: drain the parked backlog to consumer-visible done
+# T-595: Record the operator's H2 answer — AEF named as counterparty — and unblock the EWCR envelope
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The operator answered H2 in session on 2026-08-26, verbatim:
+
+> "huh its a colaboration of aef and workflow designer of course"
+
+H2 asked which project is the AEF counterparty: `/opt/0503-codex-cli-playground`
+(authoring/governance home of the pinned packet) or `/opt/999-Agentic-Engineering-Framework`
+(intended implementer). The answer names **AEF**, which resolves to
+`/opt/999-Agentic-Engineering-Framework` — it is the Agentic Engineering Framework by name,
+the framework this repo vendors under `.agentic-framework/` and upstreams to under G-008,
+and the only side with a documented seam. 0503 is provenance for the packet, not the
+collaborator.
+
+**This is the operator's decision, obtained in conversation — not an agent inference.**
+T-593 removed a fabricated version of exactly this attribution; the distinction that
+matters is that one had no source and this one quotes theirs.
+
+**What this task does NOT do:** tick T-590's H2 Human AC. The operator ticks their own ACs.
+This records the decision and unblocks the artifact; ratification stays theirs.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Umbrella task. Closes when the parked backlog is drained, not per-session. -->
-- [x] Evidence pack produced for every task sitting in `active/` at `status: work-completed`:
-      each classified FREE / DEAD-PREMISE / RULING, with the measurement behind the verdict.
-      → `.context/working/landing-notes.md`, session 1. 12 tasks, 15 real unchecked ACs.
-- [ ] The FREE tasks are closed (operator runs the completion; agent may not).
-- [ ] Every DEAD-PREMISE task is either closed or its AC rewritten to the live question.
-- [ ] Each landing session appends to `landing-notes.md` and ends with the active task
-      count LOWER than it started, or states plainly that it did not.
-- [ ] The operator queue is delivered as copy-pasteable one-liners plus at most five
-      yes/no questions per session — never as new tasks.
-- [ ] No new tasks, gaps or concerns filed under landing mode except this umbrella.
+- [x] The envelope records H2 as resolved, naming `/opt/999-Agentic-Engineering-Framework`,
+      with `to_project` filled
+- [x] The attribution carries **provenance**: a `decision_record` quoting the operator's
+      own words and naming where the decision was made, so it is auditable rather than
+      merely asserted
+- [x] The record states explicitly that T-590's H2 Human AC remains **unticked** — an
+      operator statement in conversation is the decision; ticking their AC is still theirs
+- [x] The `correction:` note from T-593 is **preserved**, not overwritten — the artifact
+      keeps the record that a fabricated attribution once stood here
+- [x] T-594's prose guard is **updated, not deleted**: it no longer forbids an operator
+      resolution outright (one now legitimately exists), but requires any `resolved` status
+      to carry a `decision_record`. Poison-controlled in both directions.
+- [x] T-590's Envelope-state line reflects H2 resolved and names the counterparty
+- [x] `sha256sum -c` passes 6/6 from the repo root; T-590 still passes its full block
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -130,6 +150,25 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# T-595 legs. Bare commands and `! grep` only — no `cmd | grep -q` (T-592).
+
+# H2 is recorded as resolved and to_project is filled.
+python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'));r=d['to_project_resolution'];assert r['status']=='resolved' and d['to_project']=='/opt/999-Agentic-Engineering-Framework' and r['chosen']==d['to_project'],r"
+# PROVENANCE: the record quotes the operator's actual words, so a reader can check it.
+python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'))['to_project_resolution'];t=r['decision_record'];assert 'colaboration of aef' in t and len(t)>400 and r['decided_by']=='operator',len(t)"
+# The T-593 correction survives — the artifact keeps evidence a fabrication once stood here.
+python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'))['to_project_resolution'];c=r['correction'];assert 'T-593' in c and len(c)>200,len(c)"
+# The record itself states that ratification is separate and still open.
+python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'))['to_project_resolution'];t=r['decision_record'];assert 'UNTICKED' in t and 'did not tick' in t,t[-200:]"
+# SELF-POLICING: T-590's H2 Human AC must still be UNCHECKED. The agent records a decision;
+# it never ticks the operator's box. If this leg ever goes green on a ticked box, the task
+# that ticked it is the bug.
+python3 -c "import re;s=open('.tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md',encoding='utf-8').read();i=s.find('Answer H2');assert i!=-1;line=s[s.rfind('\n',0,i)+1:i];assert '[ ]' in line and '[x]' not in line.lower(),repr(line)"
+# The guard changed PROPERTY (absence -> provenance) and still has teeth in both directions.
+bash tools/_t594-prose-claim-teeth.sh
+# Hash pins re-established across all three sites.
+sha256sum -c docs/research/executable-workflow/source-manifest.sha256
 
 ## RCA
 
@@ -171,7 +210,53 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO.
+
+**Rationale:** The operator answered H2 directly. This records their answer with the
+provenance the fabricated version lacked, and unblocks the last identification gate on EWCR
+Arc-0. It does not send anything and does not ratify anything.
+
+The one thing worth your eye: I resolved "AEF" to `/opt/999-Agentic-Engineering-Framework`
+rather than `/opt/0503-codex-cli-playground`. That inference is stated openly in the record
+and is a single edit to reverse if I read you wrong — nothing has been transmitted.
+
+**Evidence:**
+- P-011 **7/7**; T-590 re-run **18/18**; manifest **6/6**.
+- `decision_record` quotes the operator verbatim and names where they said it, so the claim
+  is checkable rather than trusted. Leg 2 asserts the quote is actually present.
+- T-593's `correction:` note is **preserved** and re-tensed as history — the artifact keeps
+  evidence that a fabricated attribution once stood in this exact field. Guarded by a leg,
+  because a "fix" that quietly dropped it would look identical to a clean history.
+- **The guard changed property rather than being deleted.** T-594's check forbade any claim
+  of an operator resolution; that claim is now true, so absence was the wrong property and
+  an absence check would have pushed the fix toward deleting the operator's own decision.
+  It now requires any `resolved` status to carry a quoted `decision_record` and a
+  `decided_by`. Four poison arms — no record, empty record, record quoting nobody, no
+  decider — each rejected; the accept path proven reachable. **7/7.**
+- A **self-policing leg** asserts T-590's H2 Human AC is still `[ ]`. The agent recorded a
+  decision; it did not tick the operator's box, and the verification block now fails if any
+  future task does.
+
+**What remains:** ratification (your tick on T-590), then authorisation and transport for
+the send — a separate act under a separate task. The agent may not send, may not treat a
+reply as ratification, and may not treat transport as completion.
+
 ## Decisions
+
+### 2026-08-26 — record the operator's answer with provenance, rather than treat it as ratification
+
+- **Chose:** Write the resolution into the envelope with a `decision_record` quoting the
+  operator, while leaving T-590's H2 Human AC unticked and saying so inside the record.
+- **Why:** Their statement *is* the decision — refusing to act on it would be theatre. But
+  ticking their acceptance criterion is a different act, and the whole point of this week's
+  findings is that the two must stay distinguishable on disk. Provenance is what separates
+  this record from the one T-593 deleted.
+- **Rejected:** (a) treating the remark as informal and continuing to block — they answered,
+  and stalling on ceremony is its own failure; (b) ticking the Human AC as "obviously
+  satisfied" — that is the operator's act, never the agent's; (c) keeping T-594's absence
+  guard — it would now fire on a legitimate record and reward deleting the decision.
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
@@ -194,10 +279,19 @@ date_finished: null
 
 ## Updates
 
-### 2026-08-20T21:46:57Z — task-created [task-create-agent]
+### 2026-08-26T14:58:19Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-595-record-the-operators-h2-answer--aef-name.md
 - **Context:** Initial task creation
 
-### 2026-08-20T21:47:49Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1df754f1
+- **Timestamp:** 2026-08-26T15:02:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-26T15:02:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
