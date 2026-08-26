@@ -17,10 +17,10 @@ gone permanently blind would be indistinguishable from a gate correctly reportin
 work — and the poison controls in --self-test could not tell the two apart either.
 
 WHAT THIS GATE DOES NOT CHECK, stated so nobody reads its output as more than it is:
-the Arc-0 exit gate has three clauses. Clauses 1 (topology non-empty and validated) and
-2 (every blocker finding has a contract disposition and testable scenario) have no
-executable definition yet — "which topology" and "which findings" are not pinned down
-anywhere. Only clause 3 is mechanised here. A clause-3 pass is NOT "Arc 0 is done".
+the Arc-0 exit gate has three clauses and this file evaluates only the third. T-597
+found the other two in roadmap §6's fence table and established that both are owned by
+the AEF agent, so they are evaluated by tools/_t597_arc0_clauses.py against a recorded
+counterparty attestation. A clause-3 pass is NOT "Arc 0 is done".
 """
 import sys
 import os
@@ -122,8 +122,7 @@ def main():
 
     if not quiet:
         print("Arc-0 exit gate — clause 3: no unresolved source-of-truth ambiguity")
-        print("  clause 1 (topology validated)        NOT-CHECKED — no executable definition")
-        print("  clause 2 (blocker dispositions)      NOT-CHECKED — no executable definition")
+        print("  clauses 1 and 2 are evaluated separately by tools/_t597_arc0_clauses.py")
         if problems:
             print("  clause 3                             INTEGRITY VIOLATION")
             for p in problems:
@@ -136,7 +135,7 @@ def main():
         else:
             print("  clause 3                             SATISFIED")
             print(f"      resolved: {', '.join(resolved)}")
-            print("      NOTE: clauses 1 and 2 remain unchecked. This is not 'Arc 0 is done'.")
+            print("      NOTE: clause 3 only. Clauses 1 and 2 are AEF-owned; see T-597.")
     sys.exit(code)
 
 

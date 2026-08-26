@@ -27,8 +27,24 @@ for f in "$REG" "$ENV_FILE" "$CHECK"; do
   [ -f "$f" ] || { echo "FAIL  missing input: $f"; exit 2; }
 done
 
+CLAUSES="docs/research/executable-workflow/arc-0-exit-clauses.yaml"
+CLAUSE_CHECK="tools/_t597_arc0_clauses.py"
+ROADMAP="docs/research/executable-workflow/roadmap-5be23719.md"
+for f in "$CLAUSES" "$CLAUSE_CHECK" "$ROADMAP"; do
+  [ -f "$f" ] || { echo "FAIL  missing input: $f"; exit 2; }
+done
+
 if [ "${1:-}" != "--self-test" ]; then
-  exec python3 "$CHECK" "$REG" "$ENV_FILE" "$REPO"
+  # Clause 3 defers to the H-register, so its verdict is computed first and handed over.
+  python3 "$CHECK" "$REG" "$ENV_FILE" "$REPO"
+  h_rc=$?
+  echo
+  python3 "$CLAUSE_CHECK" "$CLAUSES" "$ROADMAP" "$h_rc"
+  clause_rc=$?
+  # The overall verdict is the worse of the two: an integrity violation anywhere outranks
+  # a clean block, and a clean block outranks satisfied.
+  [ "$h_rc" -gt "$clause_rc" ] && exit "$h_rc"
+  exit "$clause_rc"
 fi
 
 fail=0
@@ -110,9 +126,82 @@ poison "register-contradicts-env"  disagree_chosen
 poison "agent-recorded-as-decider" agent_decided
 poison "open-flipped-unsourced"    unsourced_new_resolution
 
+# ── T-597 clause arms ─────────────────────────────────────────────────────────
+# Same discipline: an integrity poison must return 2. rc 1 would mean the clause checker
+# noticed nothing and was red only because clauses 1 and 2 are awaiting attestation
+# anyway — which they always are. That would be a blind pass.
+clause_poison() {
+  local label="$1" mode="$2"
+  local tmp; tmp="$(mktemp -d)"
+  python3 - "$CLAUSES" "$tmp/c.yaml" "$mode" <<'PY'
+import sys, yaml
+d = yaml.safe_load(open(sys.argv[1], encoding='utf-8'))
+mode = sys.argv[3]
+by_id = {c['id']: c for c in d['clauses']}
+if mode == 'satisfied_unratified':
+    by_id['clause-2']['satisfied'] = True
+elif mode == 'satisfied_no_attestation':
+    by_id['clause-2']['definition_ratified'] = True
+    by_id['clause-2']['satisfied'] = True
+elif mode == 'owner_reassigned':
+    # The tempting edit: make the refusal matrix ours, so the clause looks actionable.
+    by_id['clause-2']['owner'] = 'designer'
+elif mode == 'attestation_unsigned':
+    by_id['clause-2']['definition_ratified'] = True
+    by_id['clause-2']['satisfied'] = True
+    by_id['clause-2']['attestation'] = {'note': 'AEF said it was fine'}
+yaml.safe_dump(d, open(sys.argv[2], 'w', encoding='utf-8'))
+PY
+  python3 "$CLAUSE_CHECK" "$tmp/c.yaml" "$ROADMAP" 1 --quiet >/dev/null 2>&1
+  local rc=$?
+  if [ "$rc" -eq 2 ]; then
+    echo "PASS  clause-poison-caught [$label]"
+  else
+    echo "FAIL  clause-poison-caught [$label]  (rc $rc — expected 2; BLIND to this shape)"
+    fail=1
+  fi
+  rm -rf "$tmp"
+}
+
+clause_poison "satisfied-while-unratified"  satisfied_unratified
+clause_poison "satisfied-no-attestation"    satisfied_no_attestation
+clause_poison "owner-reassigned-to-us"      owner_reassigned
+clause_poison "attestation-names-nobody"    attestation_unsigned
+
+# The real clause register must be BLOCKED (1), not integrity-violating (2).
+python3 "$CLAUSE_CHECK" "$CLAUSES" "$ROADMAP" 1 --quiet >/dev/null 2>&1
+rc=$?
+if [ "$rc" -eq 1 ]; then
+  echo "PASS  real-clauses-blocked-cleanly    (rc 1 — awaiting attestation, integrity intact)"
+else
+  echo "FAIL  real-clauses-blocked-cleanly    (rc $rc)"
+  fail=1
+fi
+
+# And the clause accept path must be reachable, or the block above means nothing.
+tmp="$(mktemp -d)"
+python3 - "$CLAUSES" "$tmp/accept.yaml" <<'PY'
+import sys, yaml
+d = yaml.safe_load(open(sys.argv[1], encoding='utf-8'))
+for c in d['clauses']:
+    if (c.get('evaluation') or {}).get('method') == 'counterparty-attestation':
+        c['definition_ratified'] = True
+        c['satisfied'] = True
+        c['attestation'] = {'attested_by': 'aef-agent', 'attested_at': '2026-01-01'}
+yaml.safe_dump(d, open(sys.argv[2], 'w', encoding='utf-8'))
+PY
+python3 "$CLAUSE_CHECK" "$tmp/accept.yaml" "$ROADMAP" 0 --quiet >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+  echo "PASS  clause-accept-path-reachable    (ratified + attested + H-register green)"
+else
+  echo "FAIL  clause-accept-path-reachable    (gate rejects a fully satisfied register)"
+  fail=1
+fi
+rm -rf "$tmp"
+
 if [ "$fail" -eq 0 ]; then
-  echo "7/7 T-596 Arc-0 exit gate control legs passed"
+  echo "13/13 Arc-0 exit gate control legs passed (T-596 H-register + T-597 clauses)"
   exit 0
 fi
-echo "T-596 Arc-0 exit gate control legs FAILED"
+echo "Arc-0 exit gate control legs FAILED"
 exit 1

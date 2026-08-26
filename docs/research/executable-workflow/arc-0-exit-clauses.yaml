@@ -1,0 +1,119 @@
+# EWCR — Arc-0 exit gate, clause by clause
+#
+# The Arc-0 exit gate (roadmap-5be23719.md:147) has three clauses. T-596 mechanised the
+# third and left the other two marked NOT-CHECKED for want of an executable definition.
+# The definitions were there all along, in roadmap §6's fence table; what was missing was
+# anyone asking who owns them.
+#
+# THE ANSWER, AND WHY IT MATTERS
+#
+# Roadmap §2.1 (line 64) assigns Arc 0 as: AEF agent owns "Runtime schemas, invariants,
+# refusal matrix, task/evidence contracts, AEF topology"; the Workflow Designer agent owns
+# "Inventory visual/mapping schema, stable IDs, import/export and round-trip constraints".
+#
+# So clauses 1 and 2 are COUNTERPARTY-OWNED. Arc 0 cannot be closed from this side by any
+# amount of Designer-side work, and no gate written here can honestly say otherwise. What
+# it needs is an attestation from AEF — which requires send authorisation that does not
+# exist. That is the real state, and it should be visible rather than inferred.
+#
+# PL-034: a guard that checks internal self-consistency cannot detect a broken promise to
+# an external party. A clause owned by the counterparty must therefore be blocked on a
+# named attestation, never satisfied by anything observable from inside this repository.
+#
+# RATIFICATION STATUS OF THESE DEFINITIONS
+#
+# Every `evaluation` block below was written by the agent from the §6 fence text. They are
+# PROPOSALS. `definition_ratified: false` on a clause means the gate refuses to treat that
+# clause as satisfiable at all — an unratified definition cannot certify anything, because
+# an agent that may invent the property and then declare it met has certified nothing.
+# This is the same defect as a resolution with no source (T-593), one level up.
+
+schema_version: 1
+task: T-597
+exit_gate: docs/research/executable-workflow/roadmap-5be23719.md:147
+fence_table: docs/research/executable-workflow/roadmap-5be23719.md:353-362
+ownership_table: docs/research/executable-workflow/roadmap-5be23719.md:64
+
+# Ownership is cross-checked against the roadmap table above by the gate. The register does
+# not get to assert who owns what; it gets to record what the roadmap already says.
+ownership_corroboration:
+  aef_column_must_contain: [refusal matrix, AEF topology]
+  designer_column_must_contain: [Inventory visual/mapping schema, round-trip constraints]
+
+clauses:
+
+  - id: clause-1
+    text: topology is non-empty and validated
+    fence: Component Fabric non-empty, enriched, validated
+    fence_required_before: implementation decomposition
+    owner: aef
+    roadmap_key_phrase: AEF topology
+    owner_evidence: >
+      §2.1 Arc 0 assigns "AEF topology" to the AEF agent column. The fence's evidence owner
+      is "Arc 0 task owner; operator reviews uncertainty", and for topology that owner is
+      AEF — the roadmap's own §7 asks the AEF agent to "validate whether its Component
+      Fabric/topology supports the stated boundaries".
+    proposed_by: agent
+    definition_ratified: false
+    evaluation:
+      method: counterparty-attestation
+      what_would_satisfy: >
+        An attestation from AEF that its Component Fabric is non-empty, enriched and
+        validated for the Arc-0 scope, carrying the numbers it was measured on.
+      why_not_local: >
+        This repository's own fabric coverage (67 registered / 235 unregistered, 44/67
+        cards without edges) is a real and separately-tracked concern, but it is NOT this
+        clause. Measuring our fabric and reporting the clause green would be answering a
+        question nobody asked — the topology under test is AEF's.
+    attestation: null
+    blocks_arc_0_exit: true
+
+  - id: clause-2
+    text: every blocker finding has a contract disposition and testable scenario
+    fence: Contract/refusal matrix complete
+    fence_required_before: Arc 1
+    owner: aef
+    roadmap_key_phrase: refusal matrix
+    owner_evidence: >
+      §2.1 Arc 0 assigns "refusal matrix" to the AEF agent column, and §6 names the
+      "architecture task owner" as evidence owner — the architecture is AEF's.
+    proposed_by: agent
+    definition_ratified: false
+    evaluation:
+      method: counterparty-attestation
+      what_would_satisfy: >
+        The consolidated refusal/threat matrix built from the Claude, Z.ai, DeepSeek and
+        Mistral findings (roadmap Arc-0 candidate task 3), with every blocker finding
+        carrying a contract disposition and a testable scenario.
+      why_not_local: >
+        The artifact does not exist in this repository. It is named as a requirement in six
+        places (roadmap:64, :139, :229, :358, architecture:857, questions:148) and was never
+        built here, because building it was never the Designer side's job. Its absence is
+        not a Designer-side defect and must not be reported as one.
+    artifact_absent_locally: true
+    attestation: null
+    blocks_arc_0_exit: true
+
+  - id: clause-3
+    text: no unresolved source-of-truth ambiguity enters Arc 1
+    fence: operator decisions H1-H6 answered with checkable provenance
+    fence_required_before: Arc 1
+    owner: shared
+    owner_evidence: >
+      The H-questions are operator decisions about this project's own handoff (to_project,
+      correlations, dispositions, routing). They are tracked here and answered by the
+      operator; neither side owns them alone.
+    proposed_by: agent
+    definition_ratified: false
+    ratification_pending: >
+      T-596 built this definition and its Human AC is still unticked. Recording it as
+      ratified because a task exists would be the agent ratifying its own definition —
+      the same move the register forbids everywhere else. It becomes ratified when the
+      operator ticks T-596's Human AC, not before.
+    evaluation:
+      method: local-register
+      register: docs/research/executable-workflow/operator-decisions.yaml
+      what_would_satisfy: >
+        Every question with blocks_arc_0_exit true carries status resolved and a
+        source_of_truth that independently agrees.
+    blocks_arc_0_exit: true
