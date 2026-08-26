@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-591: EWCR Arc-0: prove the pilot fixture is a semantic fixed point through the real editor runtime
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-26T12:23:48Z
+# ============================================================================
+
+task_id: T-591
+task_name: "EWCR Arc-0: prove the pilot fixture is a semantic fixed point through the real editor runtime"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-26T12:15:11Z
+completed: 2026-08-26T12:23:39Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-26T14:23:06+02:00
+last_commit: 2026-08-26T14:23:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the EWCR pilot fixture round-trips — and the leg guarding identity in the shared corpus harness could never have failed.
+
+# Key outcomes
+outcomes:
+  - '`tools/_roundtrip-serialization-cdp.mjs` accepts a fixture directory override via an'
+  - 'Aimed at `docs/research/executable-workflow/fixtures/`, the harness reports the EWCR'
+  - 'Every node and every edge in the parsed fixture carries an `aef:uid` (the identity'
+  - '`buildBpmnXml` is deterministic for this fixture: `emit(state) === emit(state)`.'
+  - 'The harness **refuses rather than passes** when pointed at a directory containing no'
+  - '**The instrument is proven able to fail on THIS fixture, not merely in principle:** a'
+  - 'The default-path run over `tests/fixtures/aef-bpmn/` still passes, so the shared'
+  - 'T-590''s recorded fixture sha256 `b6a9afd7…` is unchanged by this task — the fixture is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the EWCR pilot fixture round-trips — and the leg guarding identity in the shared corpus harness could never have failed.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-591-ewcr-arc-0-prove-the-pilot-fixture-is-a-.md'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_t591-roundtrip-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-26T14:23:06"
+    action: 'T-591: the EWCR pilot fixture round-trips — and the leg guarding identity in the shared corpus harness could never have failed.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 3
+  lines_added: 465
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-591-ewcr-arc-0-prove-the-pilot-fixture-is-a-.md
+generated_by: context-agent-hybrid
