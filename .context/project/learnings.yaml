@@ -1870,3 +1870,10 @@ learnings:
   date: 2026-08-25
   context: Added via context agent
   application: TBD
+- id: PL-263
+  learning: "An advisory that ENUMERATES the instances of a defect invites a scan for those instances, when the correct predicate is the general rule. T-570's fix was right but the advisory that travelled with it named the nine aef:meta keys OUR bridge emits. 999-AEF scanned for those nine, found zero, and read it as not-exposed. The true population is 'any key absent from the 20-key export whitelist', which every consumer must compute against their OWN corpus: AEF carries 14 keys over 644 attribute occurrences, of which 38 occurrences across 8 keys were off-whitelist and would have been dropped on any editor save. A scan for someone else's instance list is a scan for someone else's exposure, and it returns green. When publishing a defect advisory, lead with the PREDICATE and give instances only as illustration, explicitly labelled as non-exhaustive."
+  source: P-001
+  task: T-590
+  date: 2026-08-26
+  context: Added via context agent
+  application: TBD
