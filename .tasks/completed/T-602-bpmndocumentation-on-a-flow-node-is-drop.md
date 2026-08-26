@@ -4,10 +4,10 @@ name: "bpmn:documentation on a flow node is dropped on open to save"
 description: >
   Field-reported by 001-CashWeb 2026-08-26 (termlink agent-chat-arc offset 531): a save dropped all 8 bpmn:documentation elements from their phase-1 map, each carrying a per-node vendor API binding, auth shape and policy. Re-measured against current src with tools/_t347-accepted-element-content-cdp.mjs: documentation 2/2 carriers LOSE it. Not a 0.11.0 regression - parseBpmnXml reads ~10 NAMED children per accepted element and export writes only from state, so documentation was never read and never could be written. Narrow slice of T-347 (five shapes); this task takes the documentation shape on flow nodes only, because that is the field-reported carrier.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T17:44:07Z
-last_update: 2026-08-26T17:48:11Z
-date_finished: null
+last_update: 2026-08-26T19:19:52Z
+date_finished: 2026-08-26T19:19:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -90,3 +90,15 @@ node tools/_t602-documentation-roundtrip.mjs --self-test
 
 ### 2026-08-26T17:48:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-32ceb308
+- **Timestamp:** 2026-08-26T19:19:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-26T19:19:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

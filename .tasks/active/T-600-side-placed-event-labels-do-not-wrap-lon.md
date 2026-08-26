@@ -4,9 +4,9 @@ name: "Side-placed event labels do not wrap: long label text overruns the lane b
 description: >
   Operator screenshot 2026-08-26: the label 'run halted - operator kill switch' on event node hum_3_run renders as one unwrapped line to the right of the circle and overruns the lane divider. Node labels rendered INSIDE a shape already wrap (src/aef-workflow-designer.html:3206 iterates a 'lines' array), so wrapping logic exists; the side-placed label path for circular event nodes bypasses it. Add wrapping there, with a width budget that respects the lane boundary rather than the node box.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T17:23:44Z
-last_update: 2026-08-26T17:33:24Z
-date_finished: null
+last_update: 2026-08-26T19:20:38Z
+date_finished: 2026-08-26T19:20:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -107,3 +107,56 @@ obstacles to it. Wrapping narrows the overrun; it does not clamp the placement.
   fixed with it — same defect, same mechanism, one line each.
 - **Exposed as `labelPrefs.wrapNames`, default on.** The operator asked for the option, and
   the pre-T-600 behaviour stays reachable from Settings.
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** The mechanical half is settled — the wrap triggers on a MEASURED width
+(`getComputedTextLength()`), not a guessed character count, so it fires exactly when the
+text actually overruns and never on a label that already fits. The one remaining AC is a
+taste call that only the operator can make: does a wrapped sentence read better on the map
+than a long one. That is why it stays `[REVIEW]` and why this is a recommendation rather
+than a completion.
+
+Two honest limits the operator should weigh before ticking:
+
+1. **Wrapping narrows, it does not clamp.** A wrapped label on a node at the pool's left
+   edge still crosses the lane header, because `bboxScore()` scores against edges, node
+   boxes and other labels — the pool and lane bands are not obstacles to it. Captured
+   separately as T-601. If the review finds labels still landing on lane furniture, that
+   is T-601, not a defect in this change.
+2. **It is opt-out, defaulted ON.** `labelPrefs.wrapNames` is exposed in Settings and
+   persisted like every other label pref, so a NO-GO on taste costs the operator one
+   checkbox rather than a revert.
+
+**Evidence:**
+- `node tools/_t600-label-wrap.mjs --self-test` → PASS, 7 live legs, 4 proven failable
+  across 2 poison arms. Arm A (wrap pass removed) fails L1/L2/L7; arm B
+  (`insertBefore` → `appendChild`) fails L3. Arm B exists because arm A could not
+  exercise L3 at all — with one line the id badge sits below trivially, so the leg
+  passed without the fix and asserted nothing until a second arm was written.
+- Screenshots taken at element level and READ, not merely captured, in four modes:
+  `.context/working/t600-wrap-off.png`, `t600-wrap-on.png`, `t600-wrap-s.png`,
+  `t600-wrap-l.png` (both size ends, and the pref both ways).
+- A second, latent bug was found and fixed en route: `deCollideBelowLabels()`'s `rewrap`
+  carried the identical `appendChild` ordering flaw, which renders the id badge ABOVE the
+  name once the block moves to the side of the shape — `adjustLabelPlacements()` stacks a
+  node's label elements in DOCUMENT ORDER.
+- Cap is size-scaled (s/m/l → 150/165/180px) with an 8-character floor, so the pass
+  terminates rather than shrinking indefinitely on a long unbroken token.
+
+**What a NO-GO means:** uncheck nothing and say so — the pref defaults flip to `false` in
+one line, and T-601 remains the open structural question either way.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d7a7180f
+- **Timestamp:** 2026-08-26T19:20:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-26T19:20:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

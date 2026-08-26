@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-603: Only the first bpmn:process is imported: every later process is silently discarded
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-26T19:19:37Z
+# ============================================================================
+
+task_id: T-603
+task_name: "Only the first bpmn:process is imported: every later process is silently discarded"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-26T17:47:20Z
+completed: 2026-08-26T19:19:31Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-26T19:56:11+02:00
+last_commit: 2026-08-26T19:56:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a document with more than one bpmn:process no longer loses everything but the first, silently.
+
+# Key outcomes
+outcomes:
+  - 'The process carrying flow content is the one imported, not blindly the first'
+  - 'Ties keep the earliest process, so single-process documents and documents whose first process is richest behave exactly as before'
+  - 'Every process NOT imported is reported to the operator by element id and content count — the residual loss is visible, not silent'
+  - 'A single-process document raises no process notice at all'
+  - '`node tools/_t603-multiprocess-import.mjs --self-test` passes, with a poison arm faithful to pre-T-603 code failing L1-L4'
+  - 'The T-347 census is re-run as evidence: bizagi moves from `LOST 8->0` to `LOST 8->2`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-603-only-the-first-bpmnprocess-is-imported-e.md'
+  - 'tools/_t603-multiprocess-import.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-26T19:56:11"
+    action: 'T-603: a document with more than one bpmn:process no longer loses everything but the first, silently.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 92 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 92
+  commits: 2
+  files_changed: 5
+  lines_added: 739
+  lines_removed: 145
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-603-only-the-first-bpmnprocess-is-imported-e.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-602: bpmn:documentation on a flow node is dropped on open to save
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-26T19:19:56Z
+# ============================================================================
+
+task_id: T-602
+task_name: "bpmn:documentation on a flow node is dropped on open to save"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-26T17:44:07Z
+completed: 2026-08-26T19:19:52Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-26T19:48:38+02:00
+last_commit: 2026-08-26T19:48:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  bpmn:documentation on a flow node now survives open to save — a field-reported data loss that never worked.
+
+# Key outcomes
+outcomes:
+  - '`<bpmn:documentation>` on a flow node is read into state on import and re-emitted on export'
+  - 'The TEXT survives byte-for-byte, including `<`, `>`, `&` and non-ASCII — a count-only check would pass on empty elements, which is the plausible way to ship this broken'
+  - '`id` and `textFormat` attributes survive'
+  - 'Multiple documentation elements on one node survive in order'
+  - 'documentation is emitted BEFORE extensionElements, per the BPMN XSD tBaseElement order'
+  - 'A node carrying no documentation emits none, so the existing corpus moves no bytes'
+  - '`node tools/_t602-documentation-roundtrip.mjs --self-test` passes with the emit block disabled failing L1-L5'
+  - 'The T-347 census improves on the documentation row and is re-run as evidence'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-602-bpmndocumentation-on-a-flow-node-is-drop.md'
+  - '.tasks/active/T-603-only-the-first-bpmnprocess-is-imported-e.md'
+  - 'tools/_t602-documentation-roundtrip.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-26T19:48:38"
+    action: 'T-602: bpmn:documentation on a flow node now survives open to save — a field-reported data loss that never worked.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 95 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 95
+  commits: 1
+  files_changed: 4
+  lines_added: 479
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-602-bpmndocumentation-on-a-flow-node-is-drop.md
+generated_by: context-agent-hybrid
