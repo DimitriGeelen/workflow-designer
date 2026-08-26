@@ -8,7 +8,7 @@ status: work-completed
 workflow_type: build
 owner: human
 horizon: now
-tags: [ewcr-v1, ewcr-v1-designer-fixture, paired-contract, fixture, counterparty-named]
+tags: [ewcr-v1, ewcr-v1-designer-fixture, paired-contract, fixture]
 components: []
 related_tasks: [T-587]
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -218,12 +218,21 @@ Design record: `docs/research/executable-workflow/reflection-designer.md` §5, �
 
 - [ ] [RUBBER-STAMP] Answer H2 — name the AEF counterparty project (0503 authoring/governance
       or 999 intended implementer)
+  My recommendation is `/opt/999-Agentic-Engineering-Framework` — it is the roadmap's named
+  intended recipient, the intended implementer of the runtime, and the only side with a
+  documented seam. That is a recommendation, not a finding: 0503 remains a real option.
+
   **Steps:**
   1. Decide between `/opt/0503-codex-cli-playground` and `/opt/999-Agentic-Engineering-Framework`.
-  2. `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-590 --add-tag "counterparty-named"`
-  3. Record the choice in this task's `## Decisions`.
+  2. Record the choice in this task's `## Decisions` section. **That record is the decision** —
+     it is what makes the answer auditable.
+  3. Only then mark it, so the tag follows the decision instead of standing in for one:
+     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-590 --add-tag counterparty-named`
   **Expected:** `to_project` can then be filled and the envelope sent under a separate task.
   **If not:** The envelope stays `prepared`; this is not a defect, it is the recorded state.
+
+  *(T-594: the tag was previously present in this task's frontmatter and the envelope
+  asserted you had already resolved H2. Both are corrected — H2 is open and yours.)*
 
 ## Recommendation
 
@@ -553,11 +562,14 @@ repo-relative paths), not evidence about the artifacts. Full block: **18 of 18 g
   - `designer-contract-inventory.md` — `1a6a45413c29c6b2032bb61db99a004284166b9bc6a40058a03b8cef47632879`
   - `fixtures/ewcr-pilot-human-gate-script-human-gate.bpmn` — `b6a9afd7eb03abeaba43513f45176dd439838887b588901f5a2aa2a83da1685b`
   - `cannot-represent-yet.md` — `24b2c7c126dc2752bfd349cb21e60900d8d2f5030f40782956e85f9329a86330`
-  - `handoff-ewcr-v1-designer-fixture.yaml` — `33cba2cbb453db2feb2bc631974df0f68dfd7aea706f9967ecc6a74258b2d12f`
+  - `handoff-ewcr-v1-designer-fixture.yaml` — `ed29d5da4d93dc44892d6d610e0e4ccd8a20046fcc2c7d08b5576c72d2771a43`
   - `sha256sum -c docs/research/executable-workflow/source-manifest.sha256` → **6 of 6 OK**
-- **Envelope state:** `prepared`. Not delivered, not accepted, not read back. H2 is resolved
-  (`/opt/999-Agentic-Engineering-Framework`) so `to_project` is filled, but sending is a
-  separate authorisation under a separate task.
+- **Envelope state:** `prepared`. Not delivered, not accepted, not read back. **H2 is
+  UNRESOLVED** — `to_project` is `null` and the counterparty is not named. Sending is
+  blocked on H2 first, and then separately on authorisation under a separate task.
+  (Corrected under T-594: this line previously described H2 as settled in favour of the
+  999 project and `to_project` as filled. No operator ruling exists; see T-593. Paraphrased
+  rather than quoted, so the false assertion is not left searchable in this file.)
 - **Not run — reported as NOT RUN, not as passed:** the four `python3` members of
   `## Verification` (workflow validator, mapping-standard conformance test, two YAML parse
   checks). `python3` is denied by this session's permission profile

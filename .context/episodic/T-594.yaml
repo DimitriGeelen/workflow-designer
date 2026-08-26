@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-594: Residual prose still claims the operator resolved H2 after T-593 cleaned the structured fields
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-26T14:47:54Z
+# ============================================================================
+
+task_id: T-594
+task_name: "Residual prose still claims the operator resolved H2 after T-593 cleaned the structured fields"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-26T14:42:18Z
+completed: 2026-08-26T14:47:49Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'No prose in any EWCR artifact asserts that the operator resolved, decided, chose or'
+  - 'The envelope''s `why_prepared_and_not_sent` no longer claims identification is settled;'
+  - 'T-590''s Envelope-state line reads `H2 is UNRESOLVED`, matching the artifact it'
+  - 'The `counterparty-named` tag is removed from T-590''s **frontmatter** — a tag is a'
+  - 'T-590''s Human AC no longer instructs the operator to apply `counterparty-named`'
+  - 'The T-593 verdict still holds: structured fields remain clean (`status: unresolved`,'
+  - 'A verification leg exists that would have caught THIS class — scanning prose, not just'
+  - '`sha256sum -c` passes 6/6 from the repo root after re-pinning; T-590 still passes its'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-26 — paraphrase the false claim rather than quote it'
+    chose: 'In every correction note, describe what the text asserted instead of reproducing it, and extend the prose leg to cover this task''s own file.'
+    rationale: 'A correction that quotes the false sentence leaves it searchable in one more file and blinds the check guarding it. Consistency matters more than fidelity here — the verbatim wording is preserved in git history, which is where a record belongs.'
+    alternatives_rejected: ['(a) quoting verbatim for fidelity — that is what tripped the control; (b) exempting task files from the leg — the defect does not care which file it is in, and an exemption written for my own convenience is how the next instance survives.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-594-residual-prose-still-claims-the-operator.md
+generated_by: context-agent-hybrid

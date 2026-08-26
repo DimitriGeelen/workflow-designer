@@ -311,9 +311,16 @@ delivery:
     all denied by the session permission profile and the session is non-interactive, so no
     transport could be exercised and none was attempted. Sending is also a separate
     authorisation: T-587 §7 requires a correlation AND a named counterparty before a paired
-    task may be opened. Both now exist — correlations `ewcr-v1` / `ewcr-v1-designer-fixture`,
-    counterparty /opt/999-Agentic-Engineering-Framework per the operator's H2 resolution —
-    so the remaining blocker is authorisation and transport, not identification.
+    task may be opened. The correlations exist (`ewcr-v1` / `ewcr-v1-designer-fixture`).
+    The counterparty does NOT: H2 is unresolved and is the operator's to answer. So
+    identification is still a blocker, alongside authorisation and transport.
+    (Corrected 2026-08-26 under T-594. This field previously attributed the counterparty
+    choice to an operator ruling on H2 and declared identification no longer a blocker.
+    No such ruling exists — see `to_project_resolution.correction` above. T-593 cleaned the
+    structured fields but its verification walked YAML keys, so the claim survived here in
+    free text. The wording is deliberately paraphrased rather than quoted: reproducing the
+    original sentence would leave the false assertion searchable in this file and would
+    blind the very check that now guards it.)
   next_action: >
     Operator authorises a send under a SEPARATE task. This task (T-590) prepares the
     envelope and stops. On send, append a delivery record; never overwrite this block.

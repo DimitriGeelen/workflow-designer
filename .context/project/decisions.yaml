@@ -1984,3 +1984,10 @@ decisions:
     date: 2026-08-26
     task: T-593
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-263
+    decision: "In every correction note, describe what the text asserted instead of"
+    scope: project
+    date: 2026-08-26
+    task: T-594
+    rationale: "Auto-captured from task file on completion"
