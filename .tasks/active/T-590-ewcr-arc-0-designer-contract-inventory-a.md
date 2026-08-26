@@ -229,11 +229,19 @@ Design record: `docs/research/executable-workflow/reflection-designer.md` §5, �
   agent did not tick it. What remains is your confirmation that I read you correctly.
 
   **Steps:**
-  1. `cd /opt/832-Workflow-designer && sed -n '30,60p' docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml`
-  2. Confirm `decision_record` quotes you accurately and names the right project.
-  3. Apply the tag, which is now true: `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-590 --add-tag counterparty-named`
-  **Expected:** `to_project` is `/opt/999-Agentic-Engineering-Framework`; sending is still a
-  separate authorisation under a separate task.
+  1. **YOU ALREADY ANSWERED THIS on 2026-08-26**, in session: *"huh its a colaboration of
+     aef and workflow designer of course"*. Recorded under T-595 as
+     `/opt/999-Agentic-Engineering-Framework` — AEF by name, the framework this repo vendors
+     and upstreams to under G-008, and the only side with a documented seam.
+     `0503-codex-cli-playground` remains the packet's authoring/provenance home, not the
+     collaborator. **This box is still yours to tick: recording your decision is not
+     ratifying it, and the agent did not tick it.**
+  2. `cd /opt/832-Workflow-designer && sed -n '30,60p' docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml`
+  3. Confirm `decision_record` quotes you accurately and names the right project.
+  4. Apply the tag, which is now true: `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-590 --add-tag counterparty-named`
+  **Expected:** `to_project` is `/opt/999-Agentic-Engineering-Framework`, `decision_record`
+  quotes you, and this box is unticked and awaiting you. Sending remains a separate
+  authorisation under a separate task.
   **If not — i.e. if you meant 0503, or meant something else by "AEF":** say so and it is
   corrected in one edit. Nothing has been sent; the envelope is still `prepared`.
 
