@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-08-16T15:54:59Z
+last_update: 2026-08-27T21:17:35Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -241,10 +241,32 @@ and should be decided with it, not before it.
 > **Not independently verified by us** — this is their report of their own code, taken at its
 > word. It does not change that our fabrication is measured on our side (3/3 diagnosis above).
 
-- [ ] **Repair does not silently reverse into the opposite defect.** Emitting zero
+- [x] **Repair does not silently reverse into the opposite defect.** Emitting zero
       lanes for a lane-less input must be checked against the corpus: if any existing
       map relies on the fabricated default, that reliance is a finding to file, not a
       reason to keep fabricating.
+
+      **DONE 2026-08-27 — measured, no reliance found.**
+      `tools/_t358-corpus-lane-provenance-probe.py`, rc=0. The test is provenance, not
+      count: every lane in each rendered BPMN must be declared by name in its source
+      `.workflow.yaml` `lanes:` array. Result: **0 of 24 maps carry a lane the source
+      never declared.** So the repair changes no bytes for our corpus and cannot reverse
+      into the opposite defect here — the corpus is not leaning on the bug.
+
+      Reported but deliberately NOT a finding: 7 lanes hold zero `flowNodeRef`
+      (assumption-validation, audit-process, harvest-pipeline, revisit-due-scan ×2,
+      session-handover, upgrade-process). **All 7 are declared in source.** An empty
+      AUTHORED lane and a FABRICATED lane are different things, and collapsing them
+      would be the same missing-versus-default confusion this task exists to fix.
+
+      Two wrong readings were produced before this one and discarded before reporting;
+      both are recorded in the probe's docstring. (1) A regex hunting `lane:`/`role:`
+      keys called 67 lane names undeclared — the names live in a top-level `lanes:`
+      array it never read. (2) A debug dump sliced lists to `v[:2]`, making a 3-lane
+      source read as 2 and manufacturing a discrepancy that did not exist; the
+      truncation was in my instrument, not the data. Same shape both times, and the
+      same shape AEF and I compared notes on at rail 650: searching for the shape you
+      expect instead of the place the thing lives.
 
       > ### Measurement 2026-08-04 — the AC fires. NOT ticked, and that is the result.
       >
@@ -529,6 +551,7 @@ by drift.
 
 bash tests/run-bridge-tests.sh
 node tools/_t356-third-party-fidelity-cdp.mjs
+python3 tools/_t358-corpus-lane-provenance-probe.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
