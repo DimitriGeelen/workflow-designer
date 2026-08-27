@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-585: the approvals queue cannot tell an empty queue from a mis-sectioned Human AC
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-25T09:47:58Z
+# ============================================================================
+
+task_id: T-585
+task_name: "the approvals queue cannot tell an empty queue from a mis-sectioned Human AC"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-25T09:17:44Z
+completed: 2026-08-25T09:47:49Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-25T11:47:19+02:00
+last_commit: 2026-08-25T11:47:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the queue that answers "does the operator owe a decision?" could not tell an empty answer from a blind one, and it was blind twice.
+
+# Key outcomes
+outcomes:
+  - 'A census tool enumerates BOTH sides of the comparison and PRINTS the population'
+  - 'The census calls the REAL predicate by import, not a reimplementation of it.'
+  - 'The census carries a CONTROL on fixtures that runs FIRST and ABORTS the run on'
+  - 'Every discrepancy class the census can distinguish is reported separately'
+  - 'The census is wired into `tests/run-bridge-tests.sh` with a failure message that'
+  - 'Any task the census finds mis-sectioned has its `### Human` block RELOCATED into'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-25 — report-only vs relocate, for a mis-sectioned Human AC'
+    chose: 'relocate the block into `## Acceptance Criteria` verbatim, never edit its text, never tick it, and report the relocation to the operator.'
+    rationale: 'the AC was originally written "report, do not repair", on the reasoning that relocating changes what the operator is asked to rule on. The first real finding (T-402) showed that reasoning is wrong. Relocation does not change WHAT is asked — the words are untouched — it changes WHETHER it is asked. Leaving the block where it is means filing a report about a decision the operator still cannot see on `/approvals`, which reproduces the defect while documenting it. This is also what was already done for T-344, so report-only would have made the two findings inconsistent.'
+    alternatives_rejected: ['*Relocate and rewrite the AC to fit its new section.* Any edit to the wording is the agent restating the operator''s question. Verbatim move or nothing.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-402-budget-gate-allow-regex-matches-anywhere.md'
+  - '.tasks/active/T-585-the-approvals-queue-cannot-tell-an-empty.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t585-census-teeth.sh'
+  - 'tools/_t585-human-ac-visibility-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-25T11:47:19"
+    action: 'T-585: the queue that answers "does the operator owe a decision?" could not tell an empty answer from a blind one, and it was blind twice.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 30 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 30
+  commits: 1
+  files_changed: 7
+  lines_added: 886
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-585-the-approvals-queue-cannot-tell-an-empty.md
+generated_by: context-agent-hybrid

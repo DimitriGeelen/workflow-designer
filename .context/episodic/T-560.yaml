@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-560: Verification legs that assert ABSENCE cannot distinguish a satisfied assertion from a broken pattern (OBS-297)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-20T22:02:50Z
+# ============================================================================
+
+task_id: T-560
+task_name: "Verification legs that assert ABSENCE cannot distinguish a satisfied assertion from a broken pattern (OBS-297)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-20T06:56:14Z
+completed: 2026-08-20T21:53:02Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-20T09:18:27+02:00
+last_commit: 2026-08-20T09:18:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a Verification leg that asserts ABSENCE is satisfied by silence, and 78 of them in this corpus carry no control at all. Two legs were caught mis-quoted in one session — T-501 leg 2 (a \[ that matches nothing as a BRE) and T-301 leg 4 (a double-quoted ${encodeURIComponent(id)} the shell emptied before grep ran) — and BOTH were caught for the same reason: they asserted PRESENCE, so a broken pattern went red. OBS-297 filed them as a quoting problem. They are not. Quoting was never the discriminator, DIRECTION was: the identical two mistakes in ! grep -q exit 0, and the assertion and its own failure become the same observable. P-011 treats a zero exit as proof, which is exactly what makes a leg whose zero exit is unconditional worse here than anywhere else. MEASURED BEFORE DESIGNED: 478 files carry a Verification block, 2316 executable legs, 92 assert absence — 4 with a PATTERN control, 10 with an EXISTENCE control, 78 with nothing establishing the search could have succeeded. Largest single cluster is test -z "$(git status --porcelain -- .agentic-framework)" across a dozen completed dogfood tasks, a real instance (a mistyped path yields empty output and passes) and also not worth 12 retroactive edits. Hence a RATCHET not a gate: the point is to stop the 79th. A permanently-red leg teaches readers to rerun rather than to look (OBS-293). BOTH REFINEMENTS THIS SESSION MOVED THE NUMBER, IN OPPOSITE DIRECTIONS, AND NEITHER WAS VISIBLE FROM THE FIRST PLAUSIBLE OUTPUT. (1) The control detector accepted any sibling leg whose TEXT CONTAINED the pattern and scored 13 PATTERN-controlled; requiring the string to BE one of the sibling's own grep patterns dropped it to 4, so the loose rule was reporting nine uncontrolled legs as covered — hiding findings while recording coverage. The example that exposed it is this week's shape exactly: T-301:283 was called controlled because a neighbouring census leg happened to contain the word workflowMeta inside a Python snippet. Mention is not invocation, again. (2) Dogfooding flagged this task's OWN suite leg: the first classifier read every -eq 0 as an absence assertion. Those zeros come from a PARSED NUMBER, not an empty search — if the parse breaks, test "" -eq 0 errors and the leg fails LOUD, which is the entire distinction being drawn. count-eq-zero now fires only when the line also runs a search. 99 -> 92 absence legs, uncontrolled 81 -> 78. The four surviving PATTERN controls were read individually rather than trusted, and all four are the construction this tool exists to encourage. TEETH 5/5 because '78 uncontrolled' is indistinguishable from 'flags everything' and from 'control detector always returns NONE' unless something pins both edges; leg 2 (a controlled absence leg must NOT be flagged) is the load-bearing arm, and without it 'flag everything' passes legs 1, 3 and 4. Mutants are planted OUTSIDE .tasks/ against T-558 precedent, because the scanned directory here is read by a 15-minute audit cron and every task-counting artifact — the T560_TASK_ROOT door is closed from the other side by leg 5, which runs unoverridden and requires the real 2316-leg corpus back. SUITE RUN, NOT GREPPED FOR REGISTRATION: 115 passed, 0 failed, up from T-558's 114 floor — run TWICE, because the first run measured a census the refinements then replaced. Every Verification leg on this task asserts a POSITIVE fact; a task about absence assertions verified by absence assertions would be flagged by its own census and would deserve it. FOUND WHILE RUNNING THIS AND FILED SEPARATELY: OBS-301, the handover's urgent-observation count is a CONSTANT — all 51 handovers that report it say '(3 urgent)' while the pending count beside it moves 29 to 69 and the register holds 26. handover.sh:386 splits inbox.yaml on '\n  - ' but records begin at column zero, so the separator never occurs at record level and '3' counts arbitrary prose fragments. I quoted that number twice yesterday without noticing it had never moved. Also OBS-300: fw work-on minted T-559 for this task, and T-559 is AEF's 'Project Boundary Enforcement' cited unqualified 154 times in our own corpus; renamed to T-560 before the first commit, chosen by measurement (T-560 has 0 such citations)
+
+# Key outcomes
+outcomes:
+  - 'The corpus is **measured before the detector is designed**: how many `## Verification`'
+  - 'A detector at `tools/_t560-absence-assertion-census.py` reports every absence-asserting'
+  - 'The detector distinguishes an absence leg that carries a **positive control** (a'
+  - 'Teeth at `tools/_t560-absence-census-teeth.py`, planted-mutant style (T-558 shape):'
+  - 'The teeth are wired into `tests/run-bridge-tests.sh` **and the suite is run**, with its'
+  - 'The detector reports its own denominator: how many Verification legs it examined and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a Verification leg that asserts ABSENCE is satisfied by silence, and 78 of them in this corpus carry no control at all. Two legs were caught mis-quoted in one session — T-501 leg 2 (a \[ that matches nothing as a BRE) and T-301 leg 4 (a double-quoted ${encodeURIComponent(id)} the shell emptied before grep ran) — and BOTH were caught for the same reason: they asserted PRESENCE, so a broken pattern went red. OBS-297 filed them as a quoting problem. They are not. Quoting was never the discriminator, DIRECTION was: the identical two mistakes in `! grep -q` exit 0, and the assertion and its own failure become the same observable. P-011 treats a zero exit as proof, which is exactly what makes a leg whose zero exit is unconditional worse here than anywhere else. MEASURED BEFORE DESIGNED: 478 files carry a Verification block, 2316 executable legs, 92 assert absence — 4 with a PATTERN control, 10 with an EXISTENCE control, 78 with nothing establishing the search could have succeeded. Largest single cluster is `test -z "$(git status --porcelain -- .agentic-framework)"` across a dozen completed dogfood tasks, a real instance (a mistyped path yields empty output and passes) and also not worth 12 retroactive edits. Hence a RATCHET not a gate: the point is to stop the 79th. A permanently-red leg teaches readers to rerun rather than to look (OBS-293). BOTH REFINEMENTS THIS SESSION MOVED THE NUMBER, IN OPPOSITE DIRECTIONS, AND NEITHER WAS VISIBLE FROM THE FIRST PLAUSIBLE OUTPUT. (1) The control detector accepted any sibling leg whose TEXT CONTAINED the pattern and scored 13 PATTERN-controlled; requiring the string to BE one of the sibling''s own grep patterns dropped it to 4, so the loose rule was reporting nine uncontrolled legs as covered — hiding findings while recording coverage. The example that exposed it is this week''s shape exactly: T-301:283 was called controlled because a neighbouring census leg happened to contain the word workflowMeta inside a Python snippet. Mention is not invocation, again. (2) Dogfooding flagged this task''s OWN suite leg: the first classifier read every `-eq 0` as an absence assertion. Those zeros come from a PARSED NUMBER, not an empty search — if the parse breaks, `test "" -eq 0` errors and the leg fails LOUD, which is the entire distinction being drawn. count-eq-zero now fires only when the line also runs a search. 99 -> 92 absence legs, uncontrolled 81 -> 78. The four surviving PATTERN controls were read individually rather than trusted, and all four are the construction this tool exists to encourage. TEETH 5/5 because ''78 uncontrolled'' is indistinguishable from ''flags everything'' and from ''control detector always returns NONE'' unless something pins both edges; leg 2 (a controlled absence leg must NOT be flagged) is the load-bearing arm, and without it ''flag everything'' passes legs 1, 3 and 4. Mutants are planted OUTSIDE .tasks/ against T-558 precedent, because the scanned directory here is read by a 15-minute audit cron and every task-counting artifact — the T560_TASK_ROOT door is closed from the other side by leg 5, which runs unoverridden and requires the real 2316-leg corpus back. SUITE RUN, NOT GREPPED FOR REGISTRATION: 115 passed, 0 failed, up from T-558''s 114 floor — run TWICE, because the first run measured a census the refinements then replaced. Every Verification leg on this task asserts a POSITIVE fact; a task about absence assertions verified by absence assertions would be flagged by its own census and would deserve it. FOUND WHILE RUNNING THIS AND FILED SEPARATELY: OBS-301, the handover''s urgent-observation count is a CONSTANT — all 51 handovers that report it say ''(3 urgent)'' while the pending count beside it moves 29 to 69 and the register holds 26. handover.sh:386 splits inbox.yaml on ''\n  - '' but records begin at column zero, so the separator never occurs at record level and ''3'' counts arbitrary prose fragments. I quoted that number twice yesterday without noticing it had never moved. Also OBS-300: fw work-on minted T-559 for this task, and T-559 is AEF''s ''Project Boundary Enforcement'' cited unqualified 154 times in our own corpus; renamed to T-560 before the first commit, chosen by measurement (T-560 has 0 such citations)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-560-verification-legs-that-assert-absence-ca.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t560-absence-assertion-census.py'
+  - 'tools/_t560-absence-baseline.txt'
+  - 'tools/_t560-absence-census-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-20T09:18:27"
+    action: 'T-560: a Verification leg that asserts ABSENCE is satisfied by silence, and 78 of them in this corpus carry no control at all. Two legs were caught mis-quoted in one session — T-501 leg 2 (a \[ that matches nothing as a BRE) and T-301 leg 4 (a double-quoted ${encodeURIComponent(id)} the shell emptied before grep ran) — and BOTH were caught for the same reason: they asserted PRESENCE, so a broken pattern went red. OBS-297 filed them as a quoting problem. They are not. Quoting was never the discriminator, DIRECTION was: the identical two mistakes in `! grep -q` exit 0, and the assertion and its own failure become the same observable. P-011 treats a zero exit as proof, which is exactly what makes a leg whose zero exit is unconditional worse here than anywhere else. MEASURED BEFORE DESIGNED: 478 files carry a Verification block, 2316 executable legs, 92 assert absence — 4 with a PATTERN control, 10 with an EXISTENCE control, 78 with nothing establishing the search could have succeeded. Largest single cluster is `test -z "$(git status --porcelain -- .agentic-framework)"` across a dozen completed dogfood tasks, a real instance (a mistyped path yields empty output and passes) and also not worth 12 retroactive edits. Hence a RATCHET not a gate: the point is to stop the 79th. A permanently-red leg teaches readers to rerun rather than to look (OBS-293). BOTH REFINEMENTS THIS SESSION MOVED THE NUMBER, IN OPPOSITE DIRECTIONS, AND NEITHER WAS VISIBLE FROM THE FIRST PLAUSIBLE OUTPUT. (1) The control detector accepted any sibling leg whose TEXT CONTAINED the pattern and scored 13 PATTERN-controlled; requiring the string to BE one of the sibling''s own grep patterns dropped it to 4, so the loose rule was reporting nine uncontrolled legs as covered — hiding findings while recording coverage. The example that exposed it is this week''s shape exactly: T-301:283 was called controlled because a neighbouring census leg happened to contain the word workflowMeta inside a Python snippet. Mention is not invocation, again. (2) Dogfooding flagged this task''s OWN suite leg: the first classifier read every `-eq 0` as an absence assertion. Those zeros come from a PARSED NUMBER, not an empty search — if the parse breaks, `test "" -eq 0` errors and the leg fails LOUD, which is the entire distinction being drawn. count-eq-zero now fires only when the line also runs a search. 99 -> 92 absence legs, uncontrolled 81 -> 78. The four surviving PATTERN controls were read individually rather than trusted, and all four are the construction this tool exists to encourage. TEETH 5/5 because ''78 uncontrolled'' is indistinguishable from ''flags everything'' and from ''control detector always returns NONE'' unless something pins both edges; leg 2 (a controlled absence leg must NOT be flagged) is the load-bearing arm, and without it ''flag everything'' passes legs 1, 3 and 4. Mutants are planted OUTSIDE .tasks/ against T-558 precedent, because the scanned directory here is read by a 15-minute audit cron and every task-counting artifact — the T560_TASK_ROOT door is closed from the other side by leg 5, which runs unoverridden and requires the real 2316-leg corpus back. SUITE RUN, NOT GREPPED FOR REGISTRATION: 115 passed, 0 failed, up from T-558''s 114 floor — run TWICE, because the first run measured a census the refinements then replaced. Every Verification leg on this task asserts a POSITIVE fact; a task about absence assertions verified by absence assertions would be flagged by its own census and would deserve it. FOUND WHILE RUNNING THIS AND FILED SEPARATELY: OBS-301, the handover''s urgent-observation count is a CONSTANT — all 51 handovers that report it say ''(3 urgent)'' while the pending count beside it moves 29 to 69 and the register holds 26. handover.sh:386 splits inbox.yaml on ''\n  - '' but records begin at column zero, so the separator never occurs at record level and ''3'' counts arbitrary prose fragments. I quoted that number twice yesterday without noticing it had never moved. Also OBS-300: fw work-on minted T-559 for this task, and T-559 is AEF''s ''Project Boundary Enforcement'' cited unqualified 154 times in our own corpus; renamed to T-560 before the first commit, chosen by measurement (T-560 has 0 such citations)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 896 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 896
+  commits: 1
+  files_changed: 6
+  lines_added: 874
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-560-verification-legs-that-assert-absence-ca.md
+generated_by: context-agent-hybrid

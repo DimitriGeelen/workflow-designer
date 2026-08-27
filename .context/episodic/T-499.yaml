@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-499: watchtower liveness confirms A server answers, not THIS project's server
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-25T06:08:32Z
+# ============================================================================
+
+task_id: T-499
+task_name: "watchtower liveness confirms A server answers, not THIS project's server"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-14T11:51:25Z
+completed: 2026-08-25T06:08:24Z
+duration_days: 11
+updates_count: 1
+first_commit: 2026-08-14T13:56:35+02:00
+last_commit: 2026-08-25T08:08:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  I handed the operator a link to AEF's dashboard and called it ours. Asked for the Watchtower link, I read the triple file, curled it, got HTTP 200 and reported it as this project's. It was /opt/999-Agentic-Engineering-Framework on :3000; our own Watchtower was not running at all. The disconfirming evidence was already on screen — 'pid 8448 NOT running' printed two lines above the 200 — and I explained it away as a stale pid instead of reading it as 'this is not our server'. A 200 is not evidence of identity, it is the shape of the right answer.. "I cannot tell whose server that is" now has its own channel — and the AC that was parked as sovereign was parked one level too wide.
+
+# Key outcomes
+outcomes:
+  - 'The existing ownership machinery is MEASURED before anything is written:'
+  - 'The failure is reproducible on demand: a triple file pointing at a FOREIGN'
+  - 'Identity is confirmed by something the foreign server cannot also satisfy — a'
+  - 'Negative control: with the triple file pointed at AEF''s :3000, the check FAILS;'
+  - 'Any fix to vendored `.agentic-framework/` is reported upstream to AEF over the'
+  - 'Abstention is distinguishable from a verdict: "cannot determine ownership" must'
+  - 'Bridge suite still green'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-14-1345.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/watchtower.log'
+  - '.context/working/watchtower.pid'
+  - '.context/working/watchtower.port'
+  - '.context/working/watchtower.url'
+  - '.tasks/active/T-498-scope-the-onboarding-experience-arc-iter.md'
+  - '.tasks/active/T-499-watchtower-liveness-confirms-a-server-an.md'
+  - '.tasks/active/T-579-the-third-party-byte-identity-gate-is-re.md'
+  - '.tasks/active/T-584-episodic-git-mining-runs-one-commit-too-.md'
+  - '.tasks/completed/T-581-the-byte-identity-gates-baseline-is-a-ha.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t499-ownership-teeth.py'
+  - 'tools/_t499-watchtower-ownership.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-14T13:56:35"
+    action: 'T-499: I handed the operator a link to AEF''s dashboard and called it ours. Asked for the Watchtower link, I read the triple file, curled it, got HTTP 200 and reported it as this project''s. It was /opt/999-Agentic-Engineering-Framework on :3000; our own Watchtower was not running at all. The disconfirming evidence was already on screen — ''pid 8448 NOT running'' printed two lines above the 200 — and I explained it away as a stale pid instead of reading it as ''this is not our server''. A 200 is not evidence of identity, it is the shape of the right answer.'
+  - time: "2026-08-25T08:08:05"
+    action: 'T-499: "I cannot tell whose server that is" now has its own channel — and the AC that was parked as sovereign was parked one level too wide.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 15496 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 15496
+  commits: 2
+  files_changed: 19
+  lines_added: 1036
+  lines_removed: 2606
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-499-watchtower-liveness-confirms-a-server-an.md
+generated_by: context-agent-hybrid

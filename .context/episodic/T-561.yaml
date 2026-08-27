@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-561: Completion crashes on inception tasks: update-task.sh derives sys.path from __file__ inside a python3 - heredoc, where __file__ is '<stdin>'
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-20T22:03:05Z
+# ============================================================================
+
+task_id: T-561
+task_name: "Completion crashes on inception tasks: update-task.sh derives sys.path from __file__ inside a python3 - heredoc, where __file__ is '<stdin>'"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-20T09:22:33Z
+completed: 2026-08-20T22:03:02Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-20T11:25:39+02:00
+last_commit: 2026-08-20T11:25:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  every inception completion in every project has been dying AFTER passing all its gates, and the expression that does it is correct code in the wrong execution mode. T-501 cleared verification 5/5, the disposition gate and the inception-decision check, printed all three ticks, and then raised ModuleNotFoundError: No module named 'lib.inception_decisions'. Nothing was mutated — the task stayed started-work in active/ with no episodic — so the failure was clean, but what the operator saw was a task that passed every check and still did not complete. CAUSE: update-task.sh:595 runs its reachability helper as python3 - and set sys.path with os.path.dirname x3 of os.path.abspath(__file__). Code read from STDIN has __file__ set to the literal string '<stdin>'. MEASURED, not reasoned: abspath('<stdin>') resolves against the CWD, so from /opt/832-Workflow-designer the three dirname calls yield '/'. The framework root was never added and the very next statement raised. The expression is DEAD RIGHT for a script at <framework>/agents/task-create/ — which is why it reads as fine on every review and why nothing about it looks like a bug in isolation. FIX: pass FRAMEWORK_ROOT through the environment. The value was already in hand — the shell stats "$FRAMEWORK_ROOT/lib/inception_decisions.py" ONE LINE ABOVE the heredoc and then the heredoc re-derives the same root from a __file__ that does not exist. The env channel is required rather than stylistic: the heredoc is quoted (<<'PYEOF') so no shell expansion reaches it. WHY IT SURVIVED THIS LONG: the block is reached only by an inception task whose gates have ALL passed AND whose frontmatter carries a populated inception_decisions: field, and the grandfather guard immediately above ([ -f "$lib_py" ] || return 0) makes a project WITHOUT the helper skip silently. So the bug fires only where the feature is fully installed and fully exercised — the least-travelled corner by construction, reached here for the first time by T-501 twenty minutes after its GO. POPULATION CHECKED RATHER THAN ASSUMED UNIQUE: one other abspath(__file__) root derivation exists in the vendored tree, agents/audit/audit.sh:5624, and it is GUARDED as os.environ.get("PROJECT_ROOT", <derivation>), so the broken expression is a fallback that PROJECT_ROOT normally pre-empts. Latent, not firing, and deliberately left alone — a second bug in a second file earns its own task if it ever bites, rather than a drive-by edit under this one. NO ABSENCE ASSERTION IN THE VERIFICATION BLOCK, DELIBERATELY, and T-560 committed ninety minutes ago is the reason. The obvious leg is 'the broken derivation is gone', which passes just as readily when the pattern is mis-quoted as when the code is fixed, and would need a positive control to carry information. Leg 3 asserts the POSITIVE fact instead — env var to sys.path to a resolving import — which the old code could not have satisfied under any quoting. This is the first task written after that census exists and the discipline is applied rather than merely recorded. VENDORED UNDER G-008 AND DECLARED, not silently carried: .vendor-divergence.yaml entry marks it upstream: fix with GENERIC debt, because this crashes inception completion in AEF's own tree too. Checker green at 34 diverged, 34 declared. Upstream push is the operator's. T-501 is NOT completed here — it is owner: human and the completion is theirs to re-run
+
+# Key outcomes
+outcomes:
+  - '`update-task.sh`''s `inception_decisions` reachability gate resolves the framework'
+  - 'A reproduction is recorded showing what the original line actually computed, not'
+  - '`fw task update T-501 --status work-completed` reaches a real verdict instead of a'
+  - 'The vendored divergence is DECLARED in `.vendor-divergence.yaml` with the upstream'
+  - 'The same defect is searched for elsewhere in the vendored tree rather than assumed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'every inception completion in every project has been dying AFTER passing all its gates, and the expression that does it is correct code in the wrong execution mode. T-501 cleared verification 5/5, the disposition gate and the inception-decision check, printed all three ticks, and then raised ModuleNotFoundError: No module named ''lib.inception_decisions''. Nothing was mutated — the task stayed started-work in active/ with no episodic — so the failure was clean, but what the operator saw was a task that passed every check and still did not complete. CAUSE: update-task.sh:595 runs its reachability helper as `python3 -` and set sys.path with os.path.dirname x3 of os.path.abspath(__file__). Code read from STDIN has __file__ set to the literal string ''<stdin>''. MEASURED, not reasoned: abspath(''<stdin>'') resolves against the CWD, so from /opt/832-Workflow-designer the three dirname calls yield ''/''. The framework root was never added and the very next statement raised. The expression is DEAD RIGHT for a script at <framework>/agents/task-create/ — which is why it reads as fine on every review and why nothing about it looks like a bug in isolation. FIX: pass FRAMEWORK_ROOT through the environment. The value was already in hand — the shell stats "$FRAMEWORK_ROOT/lib/inception_decisions.py" ONE LINE ABOVE the heredoc and then the heredoc re-derives the same root from a __file__ that does not exist. The env channel is required rather than stylistic: the heredoc is quoted (<<''PYEOF'') so no shell expansion reaches it. WHY IT SURVIVED THIS LONG: the block is reached only by an inception task whose gates have ALL passed AND whose frontmatter carries a populated inception_decisions: field, and the grandfather guard immediately above ([ -f "$lib_py" ] || return 0) makes a project WITHOUT the helper skip silently. So the bug fires only where the feature is fully installed and fully exercised — the least-travelled corner by construction, reached here for the first time by T-501 twenty minutes after its GO. POPULATION CHECKED RATHER THAN ASSUMED UNIQUE: one other abspath(__file__) root derivation exists in the vendored tree, agents/audit/audit.sh:5624, and it is GUARDED as os.environ.get("PROJECT_ROOT", <derivation>), so the broken expression is a fallback that PROJECT_ROOT normally pre-empts. Latent, not firing, and deliberately left alone — a second bug in a second file earns its own task if it ever bites, rather than a drive-by edit under this one. NO ABSENCE ASSERTION IN THE VERIFICATION BLOCK, DELIBERATELY, and T-560 committed ninety minutes ago is the reason. The obvious leg is ''the broken derivation is gone'', which passes just as readily when the pattern is mis-quoted as when the code is fixed, and would need a positive control to carry information. Leg 3 asserts the POSITIVE fact instead — env var to sys.path to a resolving import — which the old code could not have satisfied under any quoting. This is the first task written after that census exists and the discipline is applied rather than merely recorded. VENDORED UNDER G-008 AND DECLARED, not silently carried: .vendor-divergence.yaml entry marks it upstream: fix with GENERIC debt, because this crashes inception completion in AEF''s own tree too. Checker green at 34 diverged, 34 declared. Upstream push is the operator''s. T-501 is NOT completed here — it is owner: human and the completion is theirs to re-run'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-561-completion-crashes-on-inception-tasks-up.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-20T11:25:39"
+    action: 'T-561: every inception completion in every project has been dying AFTER passing all its gates, and the expression that does it is correct code in the wrong execution mode. T-501 cleared verification 5/5, the disposition gate and the inception-decision check, printed all three ticks, and then raised ModuleNotFoundError: No module named ''lib.inception_decisions''. Nothing was mutated — the task stayed started-work in active/ with no episodic — so the failure was clean, but what the operator saw was a task that passed every check and still did not complete. CAUSE: update-task.sh:595 runs its reachability helper as `python3 -` and set sys.path with os.path.dirname x3 of os.path.abspath(__file__). Code read from STDIN has __file__ set to the literal string ''<stdin>''. MEASURED, not reasoned: abspath(''<stdin>'') resolves against the CWD, so from /opt/832-Workflow-designer the three dirname calls yield ''/''. The framework root was never added and the very next statement raised. The expression is DEAD RIGHT for a script at <framework>/agents/task-create/ — which is why it reads as fine on every review and why nothing about it looks like a bug in isolation. FIX: pass FRAMEWORK_ROOT through the environment. The value was already in hand — the shell stats "$FRAMEWORK_ROOT/lib/inception_decisions.py" ONE LINE ABOVE the heredoc and then the heredoc re-derives the same root from a __file__ that does not exist. The env channel is required rather than stylistic: the heredoc is quoted (<<''PYEOF'') so no shell expansion reaches it. WHY IT SURVIVED THIS LONG: the block is reached only by an inception task whose gates have ALL passed AND whose frontmatter carries a populated inception_decisions: field, and the grandfather guard immediately above ([ -f "$lib_py" ] || return 0) makes a project WITHOUT the helper skip silently. So the bug fires only where the feature is fully installed and fully exercised — the least-travelled corner by construction, reached here for the first time by T-501 twenty minutes after its GO. POPULATION CHECKED RATHER THAN ASSUMED UNIQUE: one other abspath(__file__) root derivation exists in the vendored tree, agents/audit/audit.sh:5624, and it is GUARDED as os.environ.get("PROJECT_ROOT", <derivation>), so the broken expression is a fallback that PROJECT_ROOT normally pre-empts. Latent, not firing, and deliberately left alone — a second bug in a second file earns its own task if it ever bites, rather than a drive-by edit under this one. NO ABSENCE ASSERTION IN THE VERIFICATION BLOCK, DELIBERATELY, and T-560 committed ninety minutes ago is the reason. The obvious leg is ''the broken derivation is gone'', which passes just as readily when the pattern is mis-quoted as when the code is fixed, and would need a positive control to carry information. Leg 3 asserts the POSITIVE fact instead — env var to sys.path to a resolving import — which the old code could not have satisfied under any quoting. This is the first task written after that census exists and the discipline is applied rather than merely recorded. VENDORED UNDER G-008 AND DECLARED, not silently carried: .vendor-divergence.yaml entry marks it upstream: fix with GENERIC debt, because this crashes inception completion in AEF''s own tree too. Checker green at 34 diverged, 34 declared. Upstream push is the operator''s. T-501 is NOT completed here — it is owner: human and the completion is theirs to re-run'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 760 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 760
+  commits: 1
+  files_changed: 3
+  lines_added: 291
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-561-completion-crashes-on-inception-tasks-up.md
+generated_by: context-agent-hybrid

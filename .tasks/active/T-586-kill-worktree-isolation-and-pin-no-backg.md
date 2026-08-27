@@ -4,9 +4,9 @@ name: "kill worktree isolation and pin no-background-install as policy"
 description: >
   kill worktree isolation and pin no-background-install as policy
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-25T12:11:15Z
-last_update: 2026-08-27T19:29:50Z
-date_finished: null
+last_update: 2026-08-27T19:30:22Z
+date_finished: 2026-08-27T19:30:22Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -324,3 +324,20 @@ route still open and reprints the one-line command.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-586-kill-worktree-isolation-and-pin-no-backg.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f18cf755
+- **Timestamp:** 2026-08-27T19:30:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — `fw enforcement baseline` refreshed, since `.claude/settings.json` changed (L-398),
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=claude/settings.json in: `fw enforcement baseline` refreshed, since `.claude/settings.json` changed (L-398),`
+
+### 2026-08-27T19:30:22Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

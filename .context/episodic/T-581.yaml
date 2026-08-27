@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-581: The byte-identity gate's baseline is a hand-picked git literal, so it goes stale on a clock nobody watches
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-24T21:13:08Z
+# ============================================================================
+
+task_id: T-581
+task_name: "The byte-identity gate's baseline is a hand-picked git literal, so it goes stale on a clock nobody watches"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-24T18:03:43Z
+completed: 2026-08-24T21:12:55Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-24T21:20:41+02:00
+last_commit: 2026-08-24T23:12:43+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the byte-identity gate's baseline is now recorded bytes, so it has no staleness clock left to run down.. AC1 ticked on measurement, AC2-5 deliberately left open — and the suite's one red is not mine.. the byte-identity gate now has teeth, a live caller, and a refusal that has been shown to refuse.
+
+# Key outcomes
+outcomes:
+  - '**The baseline is recorded bytes, not a build.** One golden per third-party fixture under'
+  - '**The cross-build uid precondition is gone because the second build is gone — and what'
+  - '**Re-recording is a deliberate act that the suite cannot perform.** Goldens are written'
+  - '**Mutation teeth, each red for its own predicted reason:** (a) a changed golden byte goes'
+  - '**The instrument acquires a live caller.** Wired into `tests/run-bridge-tests.sh`, and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-24 — recorded golden bytes, not a git ref'
+    chose: 'the baseline is 11 committed `.golden` files — the uid-normalised emission of a reviewed build — read from disk. The gate builds the editor **once**.'
+    rationale: 'it removes the staleness clock rather than resetting it. A git ref names a *build*, so it ages against every legitimate exporter change and drags the cross-build uid hazard in with it; recorded bytes name an *output*, and an accepted change becomes a diff someone reads in review. It is also strictly cheaper — one build instead of two — and the tree already uses this shape for ratchets (`tools/_t560-absence-baseline.txt`, `tools/unwired-guard-baseline.txt`). - **Rejected — re-pin `BASELINE_REF` to a newer commit.** This is the obvious move and it is the defect: the successor goes stale on the same clock, and the choice of *when* is made by whoever is next inconvenienced rather than by anyone deciding. - **Rejected — `git merge-base`.** Degenerate here. This repo has one long-lived branch, so the merge-base of `HEAD` with anything is `HEAD` or an arbitrary ancestor; it would encode "compare against nothing" as a computation and read as rigour. - **Rejected — a last-green marker the gate advances itself.** The worst of the three, and the attractive one: a gate that re-records its baseline whenever it passes ratchets forward silently and can never report drift that accumulated one green run at a time. That is this week''s whole failure class — a stated property standing in for a checked one, with the failure rendering as health. `--record` is therefore explicit, refused by default, and absent from the suite''s call.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-581-the-byte-identity-gates-baseline-is-a-ha.md'
+  - 'tests/goldens/third-party/aef-draft-inception-readiness-v2.bpmn.golden'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/i18n-documentation.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/multiple-diagrams.bpmn.golden'
+  - 'tests/goldens/third-party/nested-subprocesses.bpmn.golden'
+  - 'tests/goldens/third-party/simple.bpmn.golden'
+  - 'tests/goldens/third-party/zeebe-service-task.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t358-byteid-thirdparty.mjs'
+  - 'tools/_t581-byteid-baseline-teeth.py'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-24T21:20:41"
+    action: 'T-581: the byte-identity gate''s baseline is now recorded bytes, so it has no staleness clock left to run down.'
+  - time: "2026-08-24T21:32:55"
+    action: 'T-581: AC1 ticked on measurement, AC2-5 deliberately left open — and the suite''s one red is not mine.'
+  - time: "2026-08-24T23:12:43"
+    action: 'T-581: the byte-identity gate now has teeth, a live caller, and a refusal that has been shown to refuse.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 189 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 189
+  commits: 3
+  files_changed: 17
+  lines_added: 3302
+  lines_removed: 111
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-581-the-byte-identity-gates-baseline-is-a-ha.md
+generated_by: context-agent-hybrid

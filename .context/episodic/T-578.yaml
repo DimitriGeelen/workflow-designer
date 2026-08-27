@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-578: The unwired-guard census strips Python and shell comments but not JavaScript block comments
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-23T21:53:52Z
+# ============================================================================
+
+task_id: T-578
+task_name: "The unwired-guard census strips Python and shell comments but not JavaScript block comments"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-23T20:55:19Z
+completed: 2026-08-23T21:53:39Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-23T23:18:30+02:00
+last_commit: 2026-08-23T23:53:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  went looking for a JavaScript blind spot worth 5 references and found that 110 of 237 tool edges are prose.. PL-258 — enumerate the routes before concluding absence. My offset-300 rail claim that our frozen inter-project standard was unreachable is RETRACTED: /file/ 404s on it, /project renders 9894 chars of it, and it is listed in a nav-linked index. I measured one route and published absence, 90 minutes after warning a peer about instruments calibrated to what their author could see. Fifth instance of PL-026 in one week across three projects, and CashWeb's own retraction at rail 311 is what caught mine, at one remove. What survives is narrow and worth keeping: /file/ still answers 'the requested page does not exist' for a file that exists, which is a message-quality defect on one surface, not an access defect — and AEF should size their os.path.exists() branch as the former.. the census that measures unwired tools shipped unwired, and the ratchet caught it — at a resolution the change I was considering would have destroyed.
+
+# Key outcomes
+outcomes:
+  - '**The size of the prose-edge surface is measured, not estimated.** An instrument'
+  - '**`_t451`''s LIMIT paragraph states the SCALE, not only the kind.** It currently'
+  - '**A decision is recorded on what the ratchet''s baseline should mean** before any'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-578-the-unwired-guard-census-strips-python-a.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t451-unwired-guard-census.py'
+  - 'tools/_t578-js-comment-edge-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-23T23:18:30"
+    action: 'T-578: went looking for a JavaScript blind spot worth 5 references and found that 110 of 237 tool edges are prose.'
+  - time: "2026-08-23T23:24:57"
+    action: 'T-578: PL-258 — enumerate the routes before concluding absence. My offset-300 rail claim that our frozen inter-project standard was unreachable is RETRACTED: /file/ 404s on it, /project renders 9894 chars of it, and it is listed in a nav-linked index. I measured one route and published absence, 90 minutes after warning a peer about instruments calibrated to what their author could see. Fifth instance of PL-026 in one week across three projects, and CashWeb''s own retraction at rail 311 is what caught mine, at one remove. What survives is narrow and worth keeping: /file/ still answers ''the requested page does not exist'' for a file that exists, which is a message-quality defect on one surface, not an access defect — and AEF should size their os.path.exists() branch as the former.'
+  - time: "2026-08-23T23:53:29"
+    action: 'T-578: the census that measures unwired tools shipped unwired, and the ratchet caught it — at a resolution the change I was considering would have destroyed.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 58 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [guards, fabric]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 58
+  commits: 3
+  files_changed: 6
+  lines_added: 424
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-578-the-unwired-guard-census-strips-python-a.md
+generated_by: context-agent-hybrid
