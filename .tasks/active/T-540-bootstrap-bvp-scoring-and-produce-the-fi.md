@@ -440,6 +440,27 @@ test "$(grep -rlE '^bvp_scores_proposed:' .tasks/active/ | wc -l)" -ge 60
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** Ready for your ruling. The scoring bootstrap is done and measured; the
+driver-register change is yours because the CLI refuses it from me.
+
+**What was established:** 69 active tasks now carry estimator-proposed scores, the ranking runs,
+and `fw bvp --quadrant hv-lc/hv-hc --include-proposed` returns a usable ordering. No task carries
+confirmed `bvp_scores:` — correctly, since `fw bvp confirm` is §ACD-gated.
+
+**Why the remaining criterion is yours:** `fw bvp driver --add/--remove` and `fw bvp confirm`
+refuse under `$CLAUDECODE=1` unless passed `--i-am-human`. That flag asserts *your* sovereignty
+marker, so passing it on your behalf is not something I will do — it would make the gate
+decorative. The cap is 9 (`lib/bvp.sh:950`) and the register is full, so **each add requires a
+drop**, and the three proposed drops are ranked on measured contribution across 69 tasks, not on
+taste.
+
+**Why it sat invisible until now:** filed under `### Agent` while naming you as approver, so
+`/approvals` never surfaced it. T-621 reclassified it and guarded the shape.
+
+**Each of the three rows is independent** — take none, some, or all. Rejection needs no command.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
