@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T21:46:57Z
-last_update: 2026-08-27T07:28:17Z
+last_update: 2026-08-27T21:14:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -45,9 +45,9 @@ date_finished: null
       → `.context/working/landing-notes.md`, session 1. 12 tasks, 15 real unchecked ACs.
 - [ ] The FREE tasks are closed (operator runs the completion; agent may not).
 - [ ] Every DEAD-PREMISE task is either closed or its AC rewritten to the live question.
-- [ ] Each landing session appends to `landing-notes.md` and ends with the active task
+- [x] Each landing session appends to `landing-notes.md` and ends with the active task
       count LOWER than it started, or states plainly that it did not.
-- [ ] The operator queue is delivered as copy-pasteable one-liners plus at most five
+- [x] The operator queue is delivered as copy-pasteable one-liners plus at most five
       yes/no questions per session — never as new tasks.
 - [ ] No new tasks, gaps or concerns filed under landing mode except this umbrella.
 

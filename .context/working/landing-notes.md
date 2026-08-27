@@ -330,3 +330,120 @@ BVP ranking of agent-ownable work:
 **Stopped here at 269K/300K (urgent).** Starting T-392 or T-423 now risks a write-block
 mid-edit, and an unfinished edit costs more than a deferred start. Next session opens on
 T-392 with full context.
+
+## Session 8 — 2026-08-27 — seven landed, active count unmoved, and that is the finding
+
+**AC 3 requires this section to end with the active task count LOWER than it started, or to
+state plainly that it did not. It did not. 95 at open, 95 at close.**
+
+That is not a failure to work. Seven tasks landed: T-620, T-621, T-586, T-609, T-537, T-540
+(pre-compact) and T-623 (post-compact). The count did not move because **landing to
+partial-complete does not reduce the active count** — a task with its agent column finished
+and one operator criterion left goes `owner: human` and stays in `.tasks/active/` by design.
+Five of the seven landed that way. Two closed outright (T-620, T-623), and two were filed
+(T-622, T-623), netting zero.
+
+**So AC 3's metric cannot move under agent effort alone.** It measures operator throughput,
+not landing throughput, and reading it as the latter would report six sessions of real work
+as six sessions of nothing. Naming this rather than quietly missing the target: the metric is
+not wrong, it is measuring the other half of the pipeline, and the other half is where the
+queue now is.
+
+### The bottleneck, measured task by task rather than asserted
+
+Every `horizon: now` task still open is blocked on an operator ruling. Measured 2026-08-27:
+
+    TASK     OPEN AGENT ACs   MARKED BLOCKED   NOTE
+    T-341    3                3                every remaining AC blocked on its Human AC
+    T-358    3                2                one free AC (corpus check), two blocked
+    T-423    2                0                Context: blocked behind T-340's ruling —
+                                               T-340 is work-completed/owner:human, 1 Human
+                                               AC unticked. Verified, not assumed.
+    T-575    5                0                this umbrella; ACs 1 and 4 are operator-run
+    T-619    3                0                inception awaiting go/no-go
+    T-402    0                0                owner:human, on /approvals, needs nothing
+    T-501    0                0                owner:human
+
+I attempted T-402 believing its agent column was mine to close. **The sovereignty gate R-033
+refused it — correctly — because the task was already `owner: human`.** My first read of the
+refusal was wrong: the output was truncated to its QR-code tail and I took it for success.
+The gate was right and I was wrong; recorded here because a gate that holds and is
+misreported as a gate that opened is worse than one that fails loudly.
+
+### AEF answered Arc 0 clause 1, and answered it red
+
+agent-chat-arc offset 650. Their own measurement: 1134 cards, 52 edgeless, 749 outside any
+watch pattern. They **refuse** to let us record the clause green — "I would rather hand you a
+red number I trust than a green one neither of us can reproduce." Recorded in
+`arc-0-exit-clauses.yaml` under `clause-1.counterparty_response`; `attestation` stays null and
+`definition_ratified` stays false on all three clauses.
+
+They extended the verdict to our fabric numbers without measuring them. Measured: 66 of 69
+cards inside the watch set, 3 outside, all three documented fixtures — 4.3% against their
+66.0%, and 319 − 66 = 253 closes the audit's number exactly. The scoping defect is REFUTED
+here; the coverage criticism (21% carded, 46/69 edgeless) is ACCEPTED in full. Kept separate
+on purpose: conflating them would let a true criticism hide behind a refuted one.
+Standing guard at `tools/_t623-fabric-denominator-scope-probe.py`. Replied at offset 656 and
+offered them `tools/_t344-watch-set-denominator.sh`, which cures the class they described.
+
+**Arc 0 remains 0 of 3.** Clause 1 moved from "no answer" to "answered, red". That is progress
+in knowledge and none toward the gate.
+
+### AC 5 tension, named rather than buried
+
+AC 5 forbids filing new tasks under landing mode except this umbrella. **I filed T-623.**
+Recording AEF's answer required file edits, and the framework blocks Write/Edit without an
+active task, so the alternative was not recording the counterparty's answer at all. It opened
+and closed in the same session, 7/7 ACs, 4/4 verification. Stated because a rule bent quietly
+is a rule repealed.
+
+### The operator queue — copy-pasteable, dependency-ordered (AC 4)
+
+Ordered by what each decision UNBLOCKS, not by task number. The first two are the only ones
+that release agent work; the rest close tasks that are otherwise finished.
+
+**1 · T-340 — releases the largest blocked build on the board.**
+Its single unticked Human AC is the DI repair-semantics ruling. T-423 (BPMN DI emission,
+6 of 8 ACs already done) cannot start until it lands, and T-341's three remaining ACs are
+all marked blocked on the same class of ruling.
+    http://192.168.10.107:3013/review/T-340
+
+**2 · T-619 — retry-safety go/no-go.** Filed NO-GO on unilateral authorship; overturns to GO
+the moment AEF returns a vocabulary. Their answer is pending at rail offset 636.
+    .agentic-framework/bin/fw inception decide T-619 no-go --rationale 'Gap is real (37/39 deterministic nodes span all three retry classes) but the vocabulary is AEF Arc 1 per roadmap 2.1; revisit on their answer at rail 636.'
+
+**3 · T-402 — A/B/C containment ruling**, coupled: the recommendation is A (wait for upstream)
+only if T-433's bump is actually coming. A ruling of A with T-433 unresolved is
+A-by-nobody-deciding wearing a decision's clothes.
+    http://192.168.10.107:3013/review/T-402
+
+**4 · Rubber-stamps — evidence already recorded in each task's `## Recommendation`.**
+    http://192.168.10.107:3013/review/T-586   worktree deny rules applied; guard green 3/3
+    http://192.168.10.107:3013/review/T-609   review cards render; attribution → T-622
+
+**5 · Arc 0 ratifications and the two reclassified tasks.**
+    http://192.168.10.107:3013/review/T-596   ratifies clause 3's definition
+    http://192.168.10.107:3013/review/T-597   2 unticked — SEE DEAD-PREMISE WARNING BELOW
+    http://192.168.10.107:3013/review/T-590   3 unticked
+    http://192.168.10.107:3013/review/T-537   (a) upstream or (b) standardise
+    http://192.168.10.107:3013/review/T-540   three driver proposals, each add needs a drop
+
+**DEAD-PREMISE WARNING on T-597.** Its second criterion asks whether to authorise contact
+with AEF. That premise was dissolved by the operator's own T-610 correction — *"Collaboration
+is the structure of the instruction set, not a permission to be requested"* — and we have
+messaged AEF on that channel all session, including today's offsets 643 and 656. The
+criterion text is left VERBATIM and unticked because it is the operator's ballot and not the
+agent's to rewrite. The live question, if any survives, is narrower: not *may we contact
+them* but *what do we do with a counterparty measurement that refuses its own attestation.*
+
+**The five yes/no questions for this session (AC 4 cap):**
+1. T-340 DI repair semantics — rule it, so T-423 and T-341 can move? (the only real unblock)
+2. T-619 — record the NO-GO as filed?
+3. T-402 — A, B, or C, and is T-433's bump coming?
+4. T-586 and T-609 — rubber-stamp both?
+5. T-597's contact-authorisation criterion — dead premise: strike it, or is there a live
+   question underneath it?
+
+**Blocked on AEF, not on us:** clause-1 attestation (they declined, with numbers), clause-2
+(fails by arithmetic — two of four model families have no disposition table), R6 and R7 (both
+now with THEIR operator), and the retry-safety vocabulary at offset 636.
