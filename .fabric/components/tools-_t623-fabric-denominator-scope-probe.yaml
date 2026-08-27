@@ -1,0 +1,20 @@
+id: tools/_t623-fabric-denominator-scope-probe.py
+name: _t623-fabric-denominator-scope-probe
+type: script
+subsystem: unknown
+location: tools/_t623-fabric-denominator-scope-probe.py
+tags: []
+
+purpose: "TODO: describe what this component does"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-08-27
+created_by: unknown
