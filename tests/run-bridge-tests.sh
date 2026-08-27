@@ -1348,6 +1348,26 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-621: an Agent AC that names the operator as decider is a deadlock ──────────────
+#
+# /approvals surfaces ### Human ACs and inception decisions. An UNCHECKED criterion under
+# ### Agent whose text says the outcome is the operator's is shown to nobody, while P-010
+# refuses completion because it is unchecked and the agent must not check it. The only exit
+# is a bypass, which is how a governance gate becomes a formality. T-537 and T-540 sat in
+# that state and appeared on no operator surface.
+#
+# rc 2 is a REFUSAL: either the matcher failed its own self-test (including the end-to-end
+# check that a TICKED operator-mention is ignored while an unticked one is reported), or no
+# task carries a '### Agent' section at all — a renamed AC split would otherwise make this
+# leg pass by finding nothing to check.
+if timeout 60 python3 "$ROOT/tools/_t621-operator-ac-classification-guard.py" > "$TMP/leg-_t621-operator-ac.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an operator decision is filed as an Agent AC — run 'python3 tools/_t621-operator-ac-classification-guard.py'; it names the task and the matched phrase. Move the criterion to '### Human' with Steps/Expected/If-not so /approvals shows it. rc 2 means the guard's self-test failed or no task has an '### Agent' section, so nothing was actually checked"
+  show_output "$TMP/leg-_t621-operator-ac.out" "_t621-operator-ac-classification-guard.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "== No unchecked Human AC is invisible to the approvals queue (T-585) =="
 # T-344 carried a real unchecked [REVIEW] under `## Measurements` instead of under

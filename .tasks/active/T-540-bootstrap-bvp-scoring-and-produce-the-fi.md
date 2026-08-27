@@ -255,9 +255,15 @@ acted on.
       under `$CLAUDECODE=1` without `--i-am-human`/`--from-watchtower`. Passing that flag on the
       operator's behalf would be the agent asserting the operator's own sovereignty marker, which
       is the one thing the flag exists to prevent.
-- [ ] **Operator approves or rejects the three proposals**, and rules on the displaced drivers.
-      Cap is enforced at 9 total (`lib/bvp.sh:950`) and the register is at 9 (4 protected +
-      5 free), so each add requires a drop. Drops proposed on measured contribution, not taste.
+
+<!-- T-621: this criterion named the operator as decider while filed under ### Agent, which
+     made it invisible to /approvals while P-010 blocked completion on it. Moved verbatim in
+     substance to ### Human below. Guard: tools/_t621-operator-ac-classification-guard.py -->
+
+**Operator ruling on the three driver proposals has moved to the `### Human` section below.**
+It was never an agent-verifiable criterion: `fw bvp driver --add/--remove` and `fw bvp confirm`
+are §ACD-gated and refuse under `$CLAUDECODE=1`, so the agent cannot satisfy it even in
+principle.
 
 ### Proposals filed (pending operator approval)
 
@@ -277,6 +283,34 @@ carries the estimator caveat, so it cannot be approved without the reader seeing
 scores 0 until a handler exists.
 
 ### Human
+
+- [ ] [REVIEW] Approve or reject the three driver proposals, and rule on the displaced drivers
+
+  **Why this is yours:** the driver register is §ACD-gated — `fw bvp driver --add/--remove`
+  and `fw bvp confirm` refuse under `$CLAUDECODE=1`. The cap is 9 total (`lib/bvp.sh:950`) and
+  the register is already at 9 (4 protected + 5 free), so **each add requires a drop**. The
+  drops below were proposed on measured contribution across 69 active tasks, not on taste.
+
+  | id | driver to add | weight | proposed drop | drop rationale (measured) |
+  |---|---|---|---|---|
+  | `P-bced1426` | `V_WORKFLOW_ROUTING` | 9 | F1 `V_CONTEXT_FABRIC` | 17/69 non-zero, mean 0.45 — weakest in the free set |
+  | `P-0b1db872` | `V_AEF_INTEGRATION` | 9 | F3 `V_PROMPT_QUALITY` | 17/69 non-zero, mean 0.55 — framework-authoring axis |
+  | `P-86588453` | `V_SDLC_ENABLEMENT` | 9 | F-AUTONOMY | 15/69 non-zero, mean 0.46 — AEF's axis, not this project's |
+
+  **Steps:**
+  1. Review the three rows above. Each is independent — you may take none, some, or all.
+  2. For each one you accept, run (single line, substituting the row's values):
+     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw bvp driver --add "V_WORKFLOW_ROUTING" --weight 9 --drop F1 --rationale "<your reason>" --i-am-human`
+  3. For any you reject, no command is needed — rejection is the default and the proposal lapses.
+
+  **Expected:** `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw bvp driver --list`
+  shows the drivers you accepted, and the register still totals 9.
+
+  **If not:** If the cap makes the trade unattractive, say so and the agent will re-measure
+  contribution with a different window rather than pushing the same three proposals again.
+  Note the agent must NOT pass `--i-am-human` on your behalf — that flag asserts your
+  sovereignty marker, so these commands are yours to run or not run.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.

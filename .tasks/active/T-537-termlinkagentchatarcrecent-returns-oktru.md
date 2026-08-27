@@ -215,14 +215,36 @@ believing the other is unresponsive while both are posting.**
       predicts zero everywhere and is refuted by their own `ring20-dashboard` rows passing through
       the same helper; the cause must be per-envelope. Recorded with the reasoning that forces it,
       so the next reader can disagree with the conclusion rather than inherit it.
-- [ ] **Operator decision recorded.** termlink is shared tooling outside this repo. Either the
-      finding goes upstream to the termlink owner, or it is recorded that both projects
-      standardise on `channel_*` with an explicit topic and treat `chat_arc_recent` as unusable
-      for this rail. Blocked on the operator — this task claims no fix and builds no guard,
-      because a probe asserting a third party's MCP behaviour would go red on their release
-      schedule, not on a regression here.
+
+<!-- T-621: the criterion that used to sit here named the operator as decider while filed
+     under ### Agent. That is a deadlock — /approvals surfaces Human ACs, so the operator was
+     never shown a decision only they could make, while P-010 refused completion because the
+     box was unticked and the agent must not tick it. Moved to ### Human below, verbatim in
+     substance, with the Steps/Expected/If-not it always needed. Guard:
+     tools/_t621-operator-ac-classification-guard.py -->
 
 ### Human
+
+- [ ] [REVIEW] Rule on how both projects treat `termlink_agent_chat_arc_recent`
+
+  **Background:** termlink is shared tooling outside this repo, so this task deliberately
+  claims no fix and builds no guard — a probe asserting a third party's MCP behaviour would go
+  red on their release schedule, not on a regression here. The finding stands measured; what is
+  missing is a ruling on what to do about it.
+
+  **Steps:**
+  1. Read the finding: `cd /opt/832-Workflow-designer && sed -n '/## Context/,/## Acceptance/p' .tasks/active/T-537-termlinkagentchatarcrecent-returns-oktru.md`
+  2. Choose one:
+     - **(a) Upstream it** — the finding goes to the termlink owner as a bug report.
+     - **(b) Standardise around it** — record that both projects use `channel_*` with an
+       explicit topic and treat `chat_arc_recent` as unusable for this rail.
+  3. Record the choice: `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "termlink chat_arc_recent: <a|b> — <one-line reason>" --task T-537`
+
+  **Expected:** A decision exists in `.context/project/decisions.yaml` naming (a) or (b).
+
+  **If not:** If neither option fits, say which third path you want and the agent will write
+  it up. Do not leave it open on the assumption the agent will pick — it will not, because
+  choosing how a shared tool is treated across two projects is not the agent's call.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
