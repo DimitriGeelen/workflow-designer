@@ -195,3 +195,70 @@ governance tasks (`.tasks/`, `workflow_type: build|design|inception|…`) and th
 node types. This artifact answers for **node types**. If the intent was also to add an
 `execution` workflow_type to the governance task system, that is a separate and much smaller
 question, and it should not be bundled — one inception, one question.
+
+---
+
+## The second half: should `execution` be a governance `workflow_type`?
+
+The phrase "as tasks" is ambiguous and the first half of this artifact answered only for BPMN
+node types. This section answers for the framework's own task system, measured rather than
+recalled.
+
+### The framework already runs the loop the proposal describes
+
+Both halves of the operator's proposal exist at the governance layer today, and they are
+exactly the two mechanisms named:
+
+| proposal | existing mechanism | evidence |
+|---|---|---|
+| deterministic: a script, a CLI command, code calling an API | `## Verification` — commands run mechanically, non-zero blocks completion (P-011) | `update-task.sh:979 run_verification_commands()` |
+| stochastic: on failure, route back to an agent to evaluate and remediate | `status: issues` auto-triggers healing diagnose → classify, lookup, suggest, log | `update-task.sh:1949` "Trigger 1: issues/blocked → healing diagnosis" |
+
+So design → failure → agent recovery is **already a closed loop once**, at the governance
+layer. What does not exist is the same contract at the *diagram* layer, and a join between
+the two. That join is the actual product gap — not a missing task type.
+
+### `workflow_type` is a gate selector, not a label
+
+Five gates in `update-task.sh` branch on exact string match, each opening with `|| return 0`:
+
+| line | gate | fires for |
+|---|---|---|
+| 446 | `check_render_surface_human_ac()` | build, refactor, test |
+| 532 | `check_inception_decision()` | inception |
+| 580 | `check_inception_scope_trace()` | inception |
+| 713 | `check_evolution_log()` | build |
+| 888 | `check_task_pair_acd()` | build |
+
+A new `execution` type matches none of them, so it would be **born ungated** — every gate
+silently no-ops rather than refusing. That cost is invisible if the field is read as a label.
+
+### The type list has no source of truth in this repo
+
+`lib/enums.sh` documents itself as reading `status-transitions.yaml` and "falls back to inline
+definitions if YAML file or python3 unavailable". Measured:
+
+- `find . -name status-transitions.yaml` returns **nothing** — the file does not exist here
+- sourcing `enums.sh` yields `VALID_TYPES=[specification design build test refactor decommission inception]`, the **inline fallback** at `enums.sh:65`
+
+The framework is permanently in fallback mode and the two paths are indistinguishable at
+runtime. So adding a type is not a data edit; it is an edit to vendored framework code
+(G-008 territory, upstreamable). Worth registering independently of this inception: a
+declared single source of truth that is absent, with a silent fallback, is a lookup that
+cannot fail loudly.
+
+### Recommendation on this half: **NO — do not add `execution` as a workflow_type**
+
+1. A governance task tracks *work someone does*; an execution is *an event with a timestamp
+   and an outcome*. Real execution produces thousands of them. `.tasks/active/` is a directory
+   of markdown files a human reads — it would be unreadable within a day.
+2. It would be born ungated (five gates above).
+3. The thing actually wanted — "this ran, it failed, an agent recovered it" — is a **run
+   record**, a different storage shape with different retention.
+
+**The join, instead of a new type:** an execution *produces* a governance task only when it
+needs a human — which is precisely what `status: issues` plus the healing trigger already do.
+The node's `verify` and `idempotent` scalars decide which: `verify` says whether the runtime
+can tell the step failed at all, and `idempotent` says whether it may retry silently or must
+escalate. `verify: none` + `idempotent: no` is the cell that must always file a task and never
+auto-retry. That is one integration point, no new type, and both gate layers stay honest.
