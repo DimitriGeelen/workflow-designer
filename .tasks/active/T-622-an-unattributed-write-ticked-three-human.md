@@ -1,13 +1,13 @@
 ---
-id: T-609
-name: "Review cards drop Steps/Expected/If-not, so the operator sees the AC title and not the decision it asks for"
+id: T-622
+name: "An unattributed write ticked three Human ACs, and five candidates are now excluded"
 description: >
-  Review cards drop Steps/Expected/If-not, so the operator sees the AC title and not the decision it asks for
+  Split out of T-609, which had parked on it. On 2026-08-26 three Human ACs across T-597 and T-608 were ticked in the working tree with no operator action behind them (exactly one POST exists in the whole Watchtower log, an inception decide at 26 Aug 10:55, none at the 00:29 mtime). T-609 restored true state and preserved the ticked copies. Five candidates are now excluded by reproduction: the 30-minute structural audit, the hourly oe-hourly audit, fw bvp --include-proposed, a background session (only two transcripts exist on this machine and the second is from 08-14), and this session's own Agent-AC tick script (full command recovered from the transcript; its partition boundary is correct and it writes only before the ### Human header, verified against T-597 whose Human ACs sit at lines 93 and 111, after the needle at 91). Why this matters beyond tidiness: a tick is a sovereignty signal. Something that can forge one can forge an approval.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-27T07:01:04Z
-last_update: 2026-08-27T07:09:08Z
+created: 2026-08-27T19:39:06Z
+last_update: 2026-08-27T19:39:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,82 +30,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-609: Review cards drop Steps/Expected/If-not, so the operator sees the AC title and not the decision it asks for
+# T-622: An unattributed write ticked three Human ACs, and five candidates are now excluded
 
 ## Context
 
-Opened as a render defect and closed as a misdiagnosis. Worth keeping the trail.
-
-Rail 588 (010-termlink) warned that an approval card can pass its own checker and still
-show the operator an empty page, and that HTTP 200 does not discriminate — "verify against
-RENDERED BYTES, never the checker". I applied that to our own cards because I had spent
-three sessions printing `/review/T-597` links at the operator and getting no ruling.
-
-The measurement was worse than expected: "Steps", "Expected" and "If not" appeared **0**
-times on every card, including T-597, whose (a)/(b)/(c) options live inside `Expected`.
-The decision I kept asking for was not on the page.
-
-The cause was not the renderer. `_review_acs.html` renders those fields, and the parser
-populates them; the guard `{% if not ac.checked ... %}` was hiding them because the ACs
-read `- [x]` on disk — three `[REVIEW]` criteria, ticked without the operator, while
-`fw task update` for the same file reported "Human: 0/1 checked".
-
-Two lessons, both already in the register and both re-earned here. First: the framework's
-own instruments disagreed, and the sovereignty-bearing reader was the wrong one — the same
-two-definitions shape as T-1575/T-606. Second: my first four causal hypotheses were all
-wrong (web POST, structural audit, hourly audit, bvp), and each was excluded by reverting
-and re-running rather than by reasoning. A blocker assumed is not a blocker verified
-(rail 587).
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
-**The premise this task opened with was wrong, and the ACs below record what was actually
-established.** The original ACs claimed a renderer defect ("review cards drop
-Steps/Expected/If-not"). The renderer is correct. The cards were blank because the Human
-ACs had been ticked, and `_review_acs.html` deliberately suppresses the steps of a
-decision it believes is already made. Rewriting the criteria to match the corrected
-diagnosis rather than to match the fix I expected to write.
-
 ### Agent
-- [x] Measured against RENDERED BYTES over HTTP, not the parser and not an HTTP 200:
-      `/review/T-597` and `/review/T-608` returned 200 with ~23-25KB and a verdict, while
-      "Steps", "Expected" and "If not" each appeared **0** times — a usable and an unusable
-      card are indistinguishable by status code (rail 588)
-- [x] Cause discriminated rather than assumed: the parser was probed directly and returns
-      `steps`/`expected`/`if_not` fully populated, so the data was never lost — the
-      template guard `{% if not ac.checked and (...) %}` was suppressing it, and
-      `checked=True` was the actual finding
-- [x] Established that the checkbox state on disk was `- [x]` on three Human ACs across
-      T-597 and T-608 while `fw task update` itself reported "Human: 0/1 checked" — two
-      readers, two answers, and the sovereignty-bearing one was wrong
-- [x] Established the tick was NOT the operator acting through the review UI: exactly one
-      POST exists in the whole Watchtower log (an inception decide, 26 Aug 10:55), none at
-      the 00:29 mtime
-- [x] Candidates ruled out by reproduction, each reverted-then-rerun: the 30-minute
-      structural audit, the hourly `oe-hourly` audit, and `fw bvp --include-proposed`
-      (which the help warns persists proposed scores into task files). None re-ticked.
-- [x] Scope of the event bounded: only T-597 and T-608 were affected — not a sweep, and
-      both are the tasks cross-referenced by T-608's recommendation
-- [x] True state restored: the ticks existed only in the working tree, so reverting them
-      restored the committed state exactly; the ticked copies are preserved in the session
-      scratchpad so nothing is destroyed if the operator says the ticks were theirs
-- [x] Re-measured after the revert: `/review/T-597` now renders Steps/Expected/If-not for
-      both ACs, including "authorise a scoped send" and "hold, and accept" — the exact
-      (a)/(b)/(c) options that were invisible for three sessions
-- [x] Attribution **bounded and escalated, not parked**. Two more candidates excluded this
-      session: (a) the "background session started 9h ago" hypothesis has no artifact behind
-      it — only two transcripts exist for this project on this machine, this one and one from
-      08-14; (b) this session's own Agent-AC tick script, which looked like the culprit and is
-      not. Its full command was recovered from the transcript:
-      `head,sep,tail=s.partition('### Human'); head=head.replace('- [ ] ','- [x] ')` — the
-      boundary is correct, it writes only before the `### Human` header, and T-597's two
-      `[REVIEW]` ACs sit at lines 93 and 111, after the needle at 91. Hypothesis formed,
-      tested against the real bytes, **disproved**.
-      Five candidates are now excluded and the writer is still unnamed. That question is
-      about the integrity of task-file writes, not about how review cards render, so it moves
-      to **T-622** under its own ID rather than holding this task open indefinitely
-      (one bug = one task). Nothing is dropped: T-622 carries the full exclusion list and the
-      preserved ticked copies.
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -137,27 +73,6 @@ diagnosis rather than to match the fix I expected to write.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-
-- [ ] [REVIEW] Did you tick these three Human ACs? This is the one fact the agent cannot establish
-
-  **Steps:**
-  1. The agent found `- [x]` on three `[REVIEW]` acceptance criteria — two on T-597
-     (ratify the clause definitions; authorise contact with AEF) and one on T-608
-     (approve the draft) — and reverted them to `- [ ]`.
-  2. The ticks were never committed, so the revert restored the committed state exactly.
-     The ticked copies are kept in this session's scratchpad; nothing was destroyed.
-  3. Answer one question: **did you tick them?**
-
-  **Expected:** Either "no, I did not" — in which case something ticked the operator's
-  decisions unattended, the revert was right, and the remaining work is to name the
-  writer. Or "yes, I did" — in which case the revert erased three real decisions, please
-  re-tick them and the agent will treat T-597's clause definitions as ratified and its
-  option-(a)/(b)/(c) question as answered.
-
-  **If not:** If you are not sure, leave them unticked. Unticked is the safe state: it
-  asserts no decision was made, whereas a stray tick tells every downstream gate that the
-  EWCR question is settled when it may not be.
-
 
 ## Verification
 
@@ -207,29 +122,6 @@ diagnosis rather than to match the fix I expected to write.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-
-## Recommendation
-
-**Recommendation:** KEEP-OPEN — the state is restored and safe, but the writer is unnamed.
-
-**Rationale:** The operator-facing symptom is fixed: `/review/T-597` again shows both
-decisions with their (a)/(b)/(c) options, which had been invisible for three sessions. But
-the fix was a revert, not a repair — nothing prevents a recurrence, and mitigation is not
-prevention (G-019). A tick on a `[REVIEW]` acceptance criterion is a sovereignty-bearing
-write: it tells every gate downstream that the human has ruled. Something performed three
-of them unattended and four candidates have been excluded without finding it. Closing this
-task on "the page renders again" would be exactly the false-green move the register
-forbids elsewhere.
-
-**Evidence:**
-- `/review/T-597`: "Steps"/"Expected"/"If not" 0 -> 2 each; "authorise a scoped send" 0 -> 1
-- `/review/T-608`: same fields 0 -> 1 each
-- Parser probe: `steps`/`expected`/`if_not` populated all along; `checked` was the defect
-- `fw task update` reported "Human: 0/1 checked" while the file on disk read `- [x]`
-- Watchtower log: 1 POST total, 26 Aug 10:55, an inception decide — none at the 00:29 mtime
-- Reverted-then-rerun, no re-tick: structural audit (exit 2), oe-hourly audit (exit 0),
-  `fw bvp --quadrant hv-lc --include-proposed` (exit 0)
-- Blast radius bounded to T-597 and T-608; no other task file carries a working-tree tick
 
 ## RCA
 
@@ -294,7 +186,7 @@ forbids elsewhere.
 
 ## Updates
 
-### 2026-08-27T07:01:04Z — task-created [task-create-agent]
+### 2026-08-27T19:39:06Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-609-review-cards-drop-stepsexpectedif-not-so.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-622-an-unattributed-write-ticked-three-human.md
 - **Context:** Initial task creation
