@@ -4,11 +4,11 @@ name: "EWCR Arc 0 landing: route R6/R7, request the two counterparty attestation
 description: >
   Landing pass on EWCR Arc 0 rather than another finding pass. Arc 0's exit gate has three clauses: clauses 1 and 2 are AEF-owned and need a counterparty attestation; clause 3 is a local register (operator-decisions.yaml H1-H6) that requires every blocking question to carry status=resolved plus an independently-agreeing source_of_truth, and stands at 2/6. This task discharges what the agent CAN discharge: routes R6 and R7 to AEF, requests both attestations with the clause text verbatim, produces the inspection evidence H5's own recommendation asked for, and supersedes H6's stale send-authorisation premise. It does NOT resolve any H-question or set any attestation - those are operator acts.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
-tags: []
+horizon: null
+tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T18:51:51Z
-last_update: 2026-08-27T18:51:51Z
-date_finished: null
+last_update: 2026-08-27T18:53:31Z
+date_finished: 2026-08-27T18:53:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -176,6 +176,43 @@ grep -q 'residue:' docs/research/executable-workflow/operator-decisions.yaml
 
 ## Evolution
 
+### 2026-08-27 — The blocker was already dissolved, and I was the one still honouring it
+
+- **What changed:** I opened this expecting H6 to be blocked pending operator send-authorisation,
+  because that is what H6's own `operative_state` says. It is stale. The operator had already
+  corrected that premise — the correction is recorded in `arc-0-exit-clauses.yaml` as the T-610
+  CORRECTION ("collaboration is the structure of the instruction set, not a permission to be
+  requested"), and the register itself notes the invented gate "stalled Arc 0 for three
+  sessions". I had been messaging AEF on the same channel all session while treating an ask on
+  that same channel as needing authorisation.
+- **Plan impact:** H6 stopped being a decision to surface and became an action to take. Routing
+  R6/R7 moved from "propose to operator" to "do now, record transport, leave status open".
+- **Triggered:** the offset-643 post; H6's `operative_state` rewritten with the original
+  preserved as `operative_state_superseded`.
+
+### 2026-08-27 — R6 and exit clause 2 are the same object, which changes what "asking" means
+
+- **What changed:** R6 (DeepSeek/Mistral dispositions missing) is not merely *related* to clause
+  2 ("every blocker finding has a contract disposition") — it is the arithmetic that makes clause
+  2 unsatisfiable. Two of four model families have no disposition table anywhere, so no quality
+  of Claude/Z.ai tables can close it.
+- **Plan impact:** the attestation request and the R6 routing collapsed into one post rather than
+  two, and the ask could be stated as arithmetic rather than as a request for cooperation.
+- **Triggered:** single post at offset 643 carrying both.
+
+### 2026-08-27 — I searched for the shape I expected instead of the place the thing lives
+
+- **What changed:** At offset 639 I told the EWCR coordinator "there is no H1..H6 series in this
+  tree" and declined to invent one. Declining was right; the fact was wrong. H1-H6 are the
+  clause-3 register in `operator-decisions.yaml`. My grep looked for the `H1:`/`H1 ` prose shape
+  across `docs/` and `.tasks/` and never matched a YAML file whose ids are structured fields.
+- **Plan impact:** an AC was added to this task requiring the correction be made on the record,
+  not just noticed. A wrong fact delivered to a coordinator who is assembling a cross-project
+  Arc-0 picture is worse than a blank, because a blank invites a question and a wrong fact does
+  not.
+- **Triggered:** correction issued at the top of offset 643, with the cause named rather than
+  just the fix.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -225,3 +262,18 @@ grep -q 'residue:' docs/research/executable-workflow/operator-decisions.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-620-ewcr-arc-0-landing-route-r6r7-request-th.md
 - **Context:** Initial task creation
+
+### 2026-08-27T18:53:02Z — status-update [task-update-agent]
+- **Change:** tags: +arc:designer-authoring-surface
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ac4bb0f1
+- **Timestamp:** 2026-08-27T18:53:32Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-27T18:53:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

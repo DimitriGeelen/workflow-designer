@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-620: EWCR Arc 0 landing: route R6/R7, request the two counterparty attestations, evidence the H-register
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-27T18:53:35Z
+# ============================================================================
+
+task_id: T-620
+task_name: "EWCR Arc 0 landing: route R6/R7, request the two counterparty attestations, evidence the H-register"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-27T18:51:51Z
+completed: 2026-08-27T18:53:31Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-27T20:52:55+02:00
+last_commit: 2026-08-27T20:52:55+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  EWCR Arc 0 landing — R6/R7 routed at offset 643, both counterparty attestations requested, H5 inspection performed, H6 send-authorisation premise superseded
+
+# Key outcomes
+outcomes:
+  - 'R6 and R7 routed to 999-AEF with the ask text taken **verbatim** from'
+  - 'Both counterparty attestations requested with each clause''s `what_would_satisfy` text'
+  - 'H5''s own `agent_recommendation` ("the cheap check is whether T-587''s hand-written file'
+  - 'H6''s superseded send-authorisation premise replaced, with the original text preserved'
+  - '`attestation: null` still null on both clauses and `definition_ratified: false` still'
+  - 'No H-question status changed by the agent; the register still reads H1/H3/H5/H6 `open`'
+  - 'My own rail error corrected on the record: at offset 639 I told the coordinator "there'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/research/executable-workflow/operator-decisions.yaml'
+  - '.tasks/active/T-620-ewcr-arc-0-landing-route-r6r7-request-th.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-27T20:52:55"
+    action: 'T-620: EWCR Arc 0 landing — R6/R7 routed at offset 643, both counterparty attestations requested, H5 inspection performed, H6 send-authorisation premise superseded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 2
+  lines_added: 274
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-620-ewcr-arc-0-landing-route-r6r7-request-th.md
+generated_by: context-agent-hybrid
