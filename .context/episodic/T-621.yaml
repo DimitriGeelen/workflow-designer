@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-621: Operator decisions filed as Agent ACs are invisible to /approvals
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-27T19:23:45Z
+# ============================================================================
+
+task_id: T-621
+task_name: "Operator decisions filed as Agent ACs are invisible to /approvals"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-27T19:19:18Z
+completed: 2026-08-27T19:23:36Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-27T21:23:10+02:00
+last_commit: 2026-08-27T21:23:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  an operator decision filed as an Agent AC is shown to nobody and blocks completion — guard + reclassify T-537/T-540. tick remaining ACs — /approvals visibility and suite wiring both verified
+
+# Key outcomes
+outcomes:
+  - 'Guard exists that fails when a criterion under `### Agent` names the operator as the'
+  - 'Guard proven RED on the real defect before the fix — it must report T-537 and T-540 by'
+  - 'Guard is vacuity-proofed: exits 2 (not 0) when `.tasks/active/` is missing, empty, or'
+  - 'Guard''s operator-detection is narrow enough not to fire on incidental mentions —'
+  - 'T-537''s and T-540''s operator-decision criteria moved to `### Human` with'
+  - 'Both tasks then appear on `/approvals` — verified against fetched bytes, not assumed'
+  - 'Guard green after the fix, and wired into `tests/run-bridge-tests.sh` so it runs'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-537-termlinkagentchatarcrecent-returns-oktru.md'
+  - '.tasks/active/T-540-bootstrap-bvp-scoring-and-produce-the-fi.md'
+  - '.tasks/active/T-621-operator-decisions-filed-as-agent-acs-ar.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t621-operator-ac-classification-guard.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-27T21:23:10"
+    action: 'T-621: an operator decision filed as an Agent AC is shown to nobody and blocks completion — guard + reclassify T-537/T-540'
+  - time: "2026-08-27T21:23:36"
+    action: 'T-621: tick remaining ACs — /approvals visibility and suite wiring both verified'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 2
+  files_changed: 5
+  lines_added: 453
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-621-operator-decisions-filed-as-agent-acs-ar.md
+generated_by: context-agent-hybrid
