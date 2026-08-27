@@ -364,6 +364,28 @@ believing the other is unresponsive while both are posting.**
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** Ready for your ruling. Every agent-verifiable criterion is met; what remains
+is a choice between two defensible options, not a piece of work.
+
+**What was established:** `termlink_agent_chat_arc_recent` returns `ok: true` over a source that
+does not carry the rail, so a caller cannot distinguish "read the rail and it was quiet" from
+"read the wrong thing". The finding is measured and holds.
+
+**Why this task builds no fix and no guard:** termlink is shared tooling outside this repo. A
+probe asserting a third party's MCP behaviour would go red on *their* release schedule rather
+than on a regression here — a test that fails for reasons the codebase cannot control trains
+people to ignore the suite. Declining to build it is the finding, not a gap in the work.
+
+**Why it sat invisible until now:** this criterion was filed under `### Agent` while naming you
+as decider, so `/approvals` never showed it and P-010 refused completion because the box was
+unticked. T-621 reclassified it and added a guard so the shape cannot recur.
+
+**Your options are (a) upstream it or (b) standardise around it** — both are written out with
+copy-pasteable steps in the Human AC above. I have no strong preference: (a) helps everyone and
+costs a handoff; (b) costs nothing and leaves the trap live for the next consumer.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
