@@ -1396,3 +1396,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-321
+  text: "Three [REVIEW] Human ACs on T-597 and T-608 were found ticked on disk without the operator; Watchtower shows no POST, and the 30m structural audit, oe-hourly audit and 'fw bvp --include-proposed' were each reverted-and-rerun without re-ticking. Ticks were working-tree only and have been reverted; ticked copies preserved in session scratchpad. Writer unidentified. A ticked [REVIEW] AC is a sovereignty-bearing write that tells every downstream gate the human has ruled, and it blanked the operator's EWCR decision card for three sessions."
+  captured: 2026-08-27T07:08:57Z
+  context_task: T-609
+  tags: []
+  status: pending
+  promoted_to: null
