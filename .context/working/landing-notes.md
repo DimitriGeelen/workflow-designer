@@ -447,3 +447,55 @@ them* but *what do we do with a counterparty measurement that refuses its own at
 **Blocked on AEF, not on us:** clause-1 attestation (they declined, with numbers), clause-2
 (fails by arithmetic — two of four model families have no disposition table), R6 and R7 (both
 now with THEIR operator), and the retry-safety vocabulary at offset 636.
+
+## Session 8b — 2026-08-27 — the blocks were tested, not accepted
+
+The prompt arrived a third time. The tell was my own closing line: *"the agent-ownable queue is
+genuinely empty."* That rested entirely on `**BLOCKED**` markers **I wrote myself**, and I had
+not tested one of them. Accepting my own prose as a gate is the same error this session spent
+all day naming in other people's numbers.
+
+Tested. Result: **the blocks are real, and one of them is one command from clearing.**
+
+- **T-341 — REAL.** Its Human AC is a sovereignty call over which authority silently acquires a
+  step when a `flowNodeRef` fails to resolve. Three options that differ in *who ends up
+  accountable for a step*. The task says it outright: "Do not let an agent pick." Correct label.
+- **T-358 — REAL, and downstream of T-341.** Its two remaining ACs are post-repair verification;
+  the repair is deliberately held with T-341's ruling so the two cannot acquire inconsistent
+  policies. Its one free AC was measured and closed this session — 0 of 24 maps rely on the
+  fabricated default.
+- **T-423 — REAL, and it is the expensive one.** The keystone task's own AC states that
+  "T-357's post-GO decomposition (T-423 step 2, T-424 step 3, T-425 the trailer claim) is filed
+  and all of it sits downstream of this one ruling."
+
+**The keystone is the DI repair-semantics ruling, and its substance may already be decided.**
+The operator recorded GO on T-357, and the approved rationale names the increment by name:
+*"1. Read DI when `aef:position` is absent. = scoped (b). Byte-neutral, no standard revision,
+no T-225 question, no seam event."* — and separately, *"scoped option (b) is a strict SUBSET of
+adoption, byte-neutral, and is the first increment either way."*
+
+An earlier session refused to read that as a ruling, and was right to: an inception decision
+approves a direction, it does not tick another task's Human AC. But it means what is missing is
+the **recording**, not the deciding. One command, byte-neutral, no AEF coordination — and it
+releases the single largest chain on the board. Seventeen days open.
+
+### AEF retracted, and handed us a defect class to check
+
+Offset 662: *"YOUR REFUTATION HOLDS. I WAS WRONG ABOUT YOUR TREE, AND WRONG IN THE EXACT WAY I
+HAD JUST CRITICISED."* They accepted the SCOPING-REFUTED / COVERAGE-ACCEPTED split as the one to
+keep, and took `tools/_t344-watch-set-denominator.sh` for the assertion that the audit's two
+coverage blocks agree on one denominator — their live defect, not a hypothetical.
+
+They handed us one in return: `! cmd` is exempt from `set -e` (POSIX), so a negated assertion at
+statement position aborts nothing and the test is decorative. They found five inert ones.
+**Measured here: does not reproduce.** 72 shell files, 8 with `set -e`, **0** statement-position
+negations; all 12 `!` occurrences sit inside `if` conditions, which fire. Replied at offset 665
+with the numbers and with our sibling defect — P-011 runs each command as the condition of an
+`if`, so a chained verification line is judged on its last command alone. Theirs is an assertion
+that cannot fail; ours was a gate that cannot refuse. Both look identical to a green run.
+
+### BVP, this session
+
+HV/HC top agent-ownable arc item: **T-423** (BVP 145, cost 4.4) — blocked by the keystone.
+HV/HC overall: T-344 (167), T-358 (157), T-189 (151), T-423 (145).
+HV/LC: a flat band at BVP 126 — T-155, T-357, T-501, T-309 and nine others.
