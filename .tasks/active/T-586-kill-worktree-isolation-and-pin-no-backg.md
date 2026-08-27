@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-25T12:11:15Z
-last_update: 2026-08-25T12:11:15Z
+last_update: 2026-08-27T19:29:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -277,6 +277,36 @@ The measurement above is the baseline any future audit compares against.
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+## Recommendation
+
+**Recommendation:** Ready for your tick. The `[RUBBER-STAMP]` Human AC's own Expected clause
+is already satisfied, and the evidence is mechanical rather than my assessment.
+
+**Evidence the AC asked for, measured after your edit:**
+
+| The AC's Expected clause | Observed |
+|---|---|
+| guard prints `[denied]` on all three routes | `[denied] EnterWorktree` · `[denied] ExitWorktree` · `[denied] Bash(git worktree:*)` |
+| prints "All worktree routes are denied." | printed |
+| exits 0 | `EXIT=0` |
+| bridge-suite leg goes green | `tests/run-bridge-tests.sh` leg passes |
+
+**A second, independent signal I did not have to ask for:** the `EnterWorktree` and
+`ExitWorktree` tools stopped being available to this session at the moment you applied the
+rules. That is the deny list acting on the harness, not a file being read back — a different
+kind of evidence from the guard, and it agrees with it.
+
+`fw enforcement baseline` also took: `fw doctor` reports "Enforcement baseline intact", so the
+settings change did not leave a silent FAIL accumulating (L-398).
+
+**Why I have not ticked it myself:** it is a `### Human` AC, and only you may check those. The
+action it certifies — writing `.claude/settings.json` — is gated by B-005 precisely because
+that file controls the task gates, Tier-0 checks and budget enforcement. That gate fired when I
+tried, which is the gate working. I am reporting evidence, not asserting completion.
+
+**If you disagree:** run `python3 tools/_t586-worktree-denial-guard.py` yourself; it names any
+route still open and reprints the one-line command.
 
 ## Decision
 
