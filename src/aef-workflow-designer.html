@@ -1859,8 +1859,24 @@ const NODE_DEFAULTS = {
 // authorable everywhere. Note the ordering: `note` is LAST in each list so it renders
 // below the structured fields rather than pushing them down.
 const AEF_FIELDS = {
-  startEvent:   ['triggeredBy', 'contextReads', 'note'],
-  endEvent:     ['emits', 'note'],
+  // T-618: `determinism` is not a new field — it is an AUTHORED one the panel could not
+  // show. Census (tools/_t618-determinism-census.py): 215 occurrences across 7 node types
+  // in examples/, vocabulary `deterministic` (166) / `stochastic` (42) / `human` (7).
+  // Before T-570 the editor loaded those values, rendered them nowhere, and destroyed them
+  // on save; after T-570 it carries them invisibly. Either way the operator could not see
+  // or edit a single one. It is offered on exactly the types the corpus annotates —
+  // including events and gateways, which is where a guess would have missed it.
+  //
+  // `sideEffect` (40 uses, task-like only) rides alongside because it is the field that
+  // actually decides retry safety, and determinism does NOT imply it: customer-refund's
+  // n_execute is determinism="deterministic" with sideEffect="charge reversed on payment
+  // provider; ledger entry written; receipt emailed". Deterministic and never re-runnable.
+  //
+  // NOT a contract change. metaKeys stays at 20 and both keys ride T-570's carriage
+  // (carriedKeys, below) — nothing here is ratified with 999-AEF, and the frozen standard
+  // docs/standards/aef-bpmn-mapping-v1.md is untouched.
+  startEvent:   ['determinism', 'triggeredBy', 'contextReads', 'note'],
+  endEvent:     ['determinism', 'emits', 'note'],
   // T-197 (IW-9 v1.1): node-level `owner` is NOT authorable — it derives from
   // the node's lane authority (Axis 1). The panel shows it read-only via
   // ownerFromAuthority(); it is retained in the metaKeys writer for O-2
@@ -1869,10 +1885,10 @@ const AEF_FIELDS = {
   // that can carry an implementation and therefore have code, tests and a fabric card to
   // point at. Both sit ABOVE `note` per the ordering rule stated above: they are
   // structured fields, and `note` stays last.
-  serviceTask:  ['horizon', 'workflowType', 'tier', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites', 'fabricRef', 'links', 'note'],
-  userTask:     ['horizon', 'workflowType', 'tier', 'endpoint', 'decisionOutputs', 'fabricRef', 'links', 'note'],
-  scriptTask:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'fabricRef', 'links', 'note'],
-  exclusiveGateway: ['decisionInput', 'decisionOwner', 'note'],
+  serviceTask:  ['horizon', 'workflowType', 'tier', 'determinism', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'fabricRef', 'links', 'note'],
+  userTask:     ['horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'decisionOutputs', 'fabricRef', 'links', 'note'],
+  scriptTask:   ['horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'fabricRef', 'links', 'note'],
+  exclusiveGateway: ['determinism', 'decisionInput', 'decisionOwner', 'note'],
   parallelGateway: ['note'],
   linkEventThrow: ['workflowRef', 'name', 'targetWorkflow', 'linkId', 'note'],
   linkEventCatch: ['workflowRef', 'name', 'targetWorkflow', 'linkId', 'note'],
@@ -1884,7 +1900,7 @@ const AEF_FIELDS = {
   eventError:   ['errorStatus', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
   eventTimer:   ['timerSpec', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
   eventMessage: ['busTopic', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
-  subProcess:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'scopeOf', 'fabricRef', 'links', 'note'],
+  subProcess:   ['horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'scopeOf', 'fabricRef', 'links', 'note'],
 };
 
 // T-308 (T-244 GO, path b): neutral presentation for a BARE catch event.
@@ -1950,6 +1966,23 @@ const FIELD_META = {
   emits:          { label: 'Emits',           hint: 'event name(s)', textarea: false },
   tier:           { label: 'Tier',            hint: '0=tier0 / 1 / 2 / 3', special: 'tier' },
   agentType:      { label: 'Agent type',      hint: 'primary | termlink-worker | human', special: 'select', options: ['primary', 'termlink-worker', 'human'] },
+  // T-618: the vocabulary is NOT designed here — it is read off the corpus. Census over
+  // examples/ (tools/_t618-determinism-census.py): deterministic 166, stochastic 42,
+  // human 7, across 7 node types. A select rather than free text because those three are
+  // the whole authored set and a runtime has to branch on them.
+  //
+  // `human` is the value a first-principles design would have missed: the axis is not
+  // agent-vs-code, it is whether the result can be checked without re-running the step,
+  // and a human decision is the third case. It is why this is a select of the corpus's
+  // three values and not a boolean.
+  determinism:    { label: 'Determinism',     hint: 'deterministic | stochastic | human', special: 'select', options: ['', 'deterministic', 'stochastic', 'human'] },
+  // Prose, deliberately. It records WHAT the step already did to the world, and a runtime
+  // that wants to know "may I retry this?" cannot infer that from `determinism`:
+  // customer-refund's n_execute is deterministic AND carries "charge reversed on payment
+  // provider; ledger entry written; receipt emailed". Deterministic and never re-runnable.
+  // A decidable retry-safety flag is a separate field and a separate question (T-617 IW-4,
+  // which roadmap §2.1 puts in AEF's Arc 1) — this one stays honest prose until that lands.
+  sideEffect:     { label: 'Side effect',     hint: 'what this step already did to the world (retry hazard)', textarea: true },
   endpoint:       { label: 'Endpoint',        hint: 'fw … | agent prompt | watchtower view', textarea: true },
   decisionInput:  { label: 'Decision input',  hint: 'expression, e.g. ${findings.confidence}', textarea: false },
   decisionOwner:  { label: 'Decision owner',  hint: 'agent | human | framework', special: 'select', options: ['agent', 'human', 'framework'] },

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T12:35:29Z
-last_update: 2026-08-27T12:35:29Z
+last_update: 2026-08-27T12:37:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -52,21 +52,37 @@ The editor mentions `determinism` in exactly two places, both COMMENTS (`src/…
 — it is in no `AEF_FIELDS` list, so the operator cannot see or edit any of the 207 values.
 Pre-T-570 the editor silently DESTROYED them on save; post-T-570 it carries them invisibly.
 
-- [ ] `determinism` is offered as an editable field with the corpus vocabulary
+- [x] `determinism` is offered as an editable field with the corpus vocabulary
       (`deterministic` | `stochastic` | `human`) — the existing key and existing values, not
-      an invented `execution` axis
-- [ ] It is offered on the node types the CORPUS actually annotates, which include events and
-      gateways (`examples/app-processes/rendered/customer-refund.bpmn` carries it on
-      `startEvent`, `exclusiveGateway`, `endEvent`), not only the four task-like types
-- [ ] `sideEffect` is offered as an editable field (39 authored uses)
-- [ ] `metaKeys` count is UNCHANGED (20) — T-570's carriage (`carriedKeys`, `src/…:9837`)
-      already round-trips any scalar outside `scalarHandled`, so nothing is ratified with
-      999-AEF and `docs/standards/aef-bpmn-mapping-v1.md` is not edited
+      an invented `execution` axis. Rendered as `special: 'select'` over exactly those three,
+      so the vocabulary is constrained rather than free text.
+- [x] It is offered on the node types the CORPUS actually annotates — all 7:
+      `scriptTask` 105, `serviceTask` 42, `startEvent` 19, `exclusiveGateway` 19,
+      `userTask` 13, `endEvent` 13, `subProcess` 4. Events and gateways included, which a
+      task-like-only guess (my first draft of this AC) would have missed.
+- [x] `sideEffect` is offered as an editable field (40 authored uses, 3 task-like types)
+- [x] `metaKeys` count is UNCHANGED (20) — measured, list unchanged, neither new key present.
+      T-570's carriage (`carriedKeys`, `src/…:9837`) round-trips any scalar outside
+      `scalarHandled`, so nothing is ratified with 999-AEF and
+      `docs/standards/aef-bpmn-mapping-v1.md` is untouched (`git status docs/standards/` clean)
 - [ ] Round trip verified on a real corpus file: `customer-refund.bpmn` imported, exported,
       and re-imported yields all 8 of its `determinism` values unchanged on the same node ids
-- [ ] No new BPMN node type is introduced, and no new key is invented in this task
-- [ ] A guard script proves the above and is proven to go RED before it is trusted GREEN
-      (an arm that removes `determinism` from the field list must fail the guard)
+      NOT TICKED, AND NOT VERIFIED. `tools/_roundtrip-serialization-cdp.mjs` returns
+      `pass: true` on that fixture, but its fixed point projects a FIXED 36-key `KEYSPEC`
+      that does not contain `determinism` — the green is adjacent to the change, not over it.
+      Growing `KEYSPEC` was rejected here: `METAKEYS` is derived from it (`:134`) and a key
+      that rides carriage rather than the whitelist would show up as a denominator orphan,
+      i.e. reshaping the shared instrument to score this task's own change. Needs its own
+      harness. Carried to a follow-up rather than ticked on adjacent evidence.
+- [x] No new BPMN node type is introduced, and no new key is invented in this task
+- [x] A guard script proves the above and is proven to go RED before it is trusted GREEN.
+      `tools/_t618-determinism-census.py`, two independent arms both demonstrated:
+      (a) reverting `exclusiveGateway` alone → red on that one type (partial fix caught);
+      (b) deleting the `determinism` FIELD_META entry → red naming the TypeError.
+      Arm (b) guards the defect this task nearly shipped: `AEF_FIELDS` → `FIELD_META` is
+      dereferenced unguarded at `src/…:5936`, so a field added to one list and not the other
+      takes the whole properties panel down for that node type. The guard asserts the
+      RELATION over every field, not a count, and not only the two fields touched here.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -100,6 +116,14 @@ Pre-T-570 the editor silently DESTROYED them on save; post-T-570 it carries them
 -->
 
 ## Verification
+
+python3 tools/_t618-determinism-census.py
+python3 tests/test_editor_bridge_meta_parity.py
+python3 tests/test_editor_bridge_field_coverage.py
+python3 tests/test_designer_export_contract.py
+python3 tests/test_designer_render.py
+python3 tests/test_editor_behavior.py
+git diff --quiet -- docs/standards/ && echo "frozen standard untouched"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
