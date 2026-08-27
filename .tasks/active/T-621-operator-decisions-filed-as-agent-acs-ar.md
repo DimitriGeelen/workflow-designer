@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T19:19:18Z
-last_update: 2026-08-27T19:19:18Z
+last_update: 2026-08-27T19:23:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -61,8 +61,8 @@ rulings"), one level in: here the ruling is filed as the *wrong kind of checkbox
       "the operator will see X" is context, not a decision; asserted by a self-test
 - [x] T-537's and T-540's operator-decision criteria moved to `### Human` with
       Steps/Expected/If-not, and their Agent sections left with only agent-verifiable criteria
-- [ ] Both tasks then appear on `/approvals` — verified against fetched bytes, not assumed
-- [ ] Guard green after the fix, and wired into `tests/run-bridge-tests.sh` so it runs
+- [x] Both tasks then appear on `/approvals` — verified against fetched bytes, not assumed
+- [x] Guard green after the fix, and wired into `tests/run-bridge-tests.sh` so it runs
       unattended rather than only when someone remembers
 
 ### Human
