@@ -87,6 +87,21 @@ cost_estimate_proposed:
 
 # T-200: Release designer with IW-9 editor (VERSION bump) + flip render-gate SIG
 
+> **STALE — 2026-08-27 (T-615). This task's work SHIPPED IN JULY. Do not defer to it.**
+>
+> The title reads as "the designer release task", and it is not. It is **the 0.3.0 release**,
+> cut on 2026-07-18: `dist/aef-workflow-designer-0.3.0.html`, sha `36be033d…`, 826,643 bytes,
+> AEF notified at rail offset 61. All five Agent ACs are ticked and describe completed work.
+> `VERSION` has since moved to **0.11.0** and `dist/` carries every release through it.
+>
+> It remains open only because it is `owner: human` and nobody closed it. `status: captured`
+> + `horizon: later` make it look like pending backlog. **I deferred work to it twice in one
+> session on the strength of its title**, and told the operator twice that the release
+> CashWeb needs was "T-200's scope". That was wrong both times.
+>
+> The 0.12.0 release carrying T-589's navigation is **T-615**, not this. This task needs
+> closing, not doing — see the evidence block in T-615's Recommendation.
+
 ## Context
 
 The next designer release (VERSION bump, rebuild dist from src) now carries TWO

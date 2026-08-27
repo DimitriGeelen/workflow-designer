@@ -1,0 +1,71 @@
+# ============================================================================
+# EPISODIC MEMORY - T-615: cut a 0.12.0 release candidate for the T-589 navigation up to but not including the VERSION bump, so the operator decides on bytes rather than on a question
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-27T09:00:30Z
+# ============================================================================
+
+task_id: T-615
+task_name: "cut a 0.12.0 release candidate for the T-589 navigation up to but not including the VERSION bump, so the operator decides on bytes rather than on a question"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-27T08:57:46Z
+completed: 2026-08-27T09:00:26Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'A 0.12.0 candidate is built to a scratch path with its **sha256 and byte count'
+  - 'The release render gate (`tests/test_designer_render.py`) is run **against the'
+  - 'The consumer-visible delta between 0.11.0 and the candidate is enumerated from the'
+  - 'The 0.11.0 baseline figures are **re-measured here**, not quoted from rail 604. A'
+  - 'T-200''s staleness is recorded where the next agent will hit it — in T-200 itself — so'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-615-cut-a-0120-release-candidate-for-the-t-5.md
+generated_by: context-agent-hybrid
