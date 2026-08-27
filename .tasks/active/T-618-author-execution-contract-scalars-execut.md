@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T12:35:29Z
-last_update: 2026-08-27T12:37:53Z
+last_update: 2026-08-27T12:51:42Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -65,15 +65,14 @@ Pre-T-570 the editor silently DESTROYED them on save; post-T-570 it carries them
       T-570's carriage (`carriedKeys`, `src/…:9837`) round-trips any scalar outside
       `scalarHandled`, so nothing is ratified with 999-AEF and
       `docs/standards/aef-bpmn-mapping-v1.md` is untouched (`git status docs/standards/` clean)
-- [ ] Round trip verified on a real corpus file: `customer-refund.bpmn` imported, exported,
-      and re-imported yields all 8 of its `determinism` values unchanged on the same node ids
-      NOT TICKED, AND NOT VERIFIED. `tools/_roundtrip-serialization-cdp.mjs` returns
-      `pass: true` on that fixture, but its fixed point projects a FIXED 36-key `KEYSPEC`
-      that does not contain `determinism` — the green is adjacent to the change, not over it.
-      Growing `KEYSPEC` was rejected here: `METAKEYS` is derived from it (`:134`) and a key
-      that rides carriage rather than the whitelist would show up as a denominator orphan,
-      i.e. reshaping the shared instrument to score this task's own change. Needs its own
-      harness. Carried to a follow-up rather than ticked on adjacent evidence.
+- [x] Round trip verified on a real corpus file, through the REAL editor import path
+      (`state = m; refreshDisplayIds(); buildBpmnXml(m)`), by
+      `tools/_t618-determinism-roundtrip-cdp.mjs`: `customer-refund.bpmn`, 9 authored values
+      on 8 nodes, survive save AND resave. Proven red by making the emitter skip the key
+      (add `determinism` to `scalarHandled`) — exit 0 / 1 / 0 across green, arm, restore.
+      NOT ticked on the existing harness's green: `_roundtrip-serialization-cdp.mjs` returns
+      `pass: true` on this same fixture while projecting a fixed 36-key `KEYSPEC` that does
+      not contain `determinism` — an adjacent measurement, not the control.
 - [x] No new BPMN node type is introduced, and no new key is invented in this task
 - [x] A guard script proves the above and is proven to go RED before it is trusted GREEN.
       `tools/_t618-determinism-census.py`, two independent arms both demonstrated:
@@ -118,6 +117,7 @@ Pre-T-570 the editor silently DESTROYED them on save; post-T-570 it carries them
 ## Verification
 
 python3 tools/_t618-determinism-census.py
+node tools/_t618-determinism-roundtrip-cdp.mjs
 python3 tests/test_editor_bridge_meta_parity.py
 python3 tests/test_editor_bridge_field_coverage.py
 python3 tests/test_designer_export_contract.py
