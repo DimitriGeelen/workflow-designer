@@ -499,3 +499,57 @@ that cannot fail; ours was a gate that cannot refuse. Both look identical to a g
 HV/HC top agent-ownable arc item: **T-423** (BVP 145, cost 4.4) — blocked by the keystone.
 HV/HC overall: T-344 (167), T-358 (157), T-189 (151), T-423 (145).
 HV/LC: a flat band at BVP 126 — T-155, T-357, T-501, T-309 and nine others.
+
+## Session 8c — 2026-08-27 — the board was never scanned, only filtered
+
+Fourth send of the same prompt. The miss this time was structural: every "queue is empty"
+claim I made was computed over `horizon: now` + `started-work`, which is **7 of 95 active
+tasks**. The other 88 were never looked at. A filtered view reported as a board is the same
+false-green shape as a scoped denominator reported as coverage — the third instance of that
+family today, and the first one that was mine at this scale.
+
+### What the full scan found
+
+**Free landings (agent column complete, not human-owned, unclosed): 0.** The earlier claim
+was correct — but it had never been measured, and being right by luck is not being right.
+
+**The operator queue is 75 human-owned tasks, not the 8–9 I have been reporting all session.**
+Roughly 155 unticked Human ACs. I under-reported the queue by an order of magnitude and
+presented a curated slice as the whole.
+
+**Seven tasks have EVERY Agent AC and EVERY Human AC ticked and are still open.** These are
+finished work that was never banked — precisely what AC 1 of this umbrella was written about.
+Pre-flighted their verification so the operator's close commands cannot fail on arrival:
+
+    T-178   3/3 pass    closes cleanly
+    T-195   7/7 pass    closes cleanly
+    T-228   5/5 pass    closes cleanly
+    T-309   inception — no verification block; needs `fw inception decide`, not `task update`
+    T-357   inception — same
+    T-105   1 FAIL      dead check, see below
+    T-501   2 FAIL      subject moved, see below
+
+**T-105 — its verification is a dead check.** `diff -q src/aef-workflow-designer.html
+build/gallery/designer.html` fails: 43KB and 961 diff lines apart. The AC "change synced
+byte-identical to build/gallery" was true when ticked and has since drifted, because src moved
+on. The gallery is served on `:8834`, which is retired. So the task is held open by a
+byte-identity assertion against a surface nobody serves. **Not silently re-synced** — copying
+now would bank 900+ lines of unrelated drift under this task's name. Operator decision:
+rewrite the check or drop it. This is an AC-2 dead-premise instance.
+
+**T-501 — the defects it pinned appear to be fixed.** Both failing assertions expect the
+DEFECTIVE source to be present: `id: aefMetaEl?.getAttribute('id') || procName || 'imported',`
+and three occurrences of the old sanitizer pattern. Measured now: the line exists at `:10558`
+**without the fallback chain**, and the sanitizer pattern count is **0, not 3**. So the
+verification fails *because the problem was repaired*. That is evidence, not proof — two greps
+do not audit a derivation. But nobody should rule on T-501's proposal before someone checks
+whether it still describes reality.
+
+### A measurement error of mine, caught before it reached the operator
+
+The first pre-flight run reported 39 failures on T-309, 86 on T-357, 63 on T-501. All garbage:
+my extraction ran past `## Verification` into `## Recommendation` and executed English prose as
+shell — the `FAIL(127)`s were "command not found" on sentences. Fixed the section boundary to
+end at the next `^## ` heading; real counts are 1/3/7/5/5 and two tasks have no verification
+block at all. **A false red is the same defect as a false green**, and it would have sent the
+operator to investigate seven healthy tasks.
