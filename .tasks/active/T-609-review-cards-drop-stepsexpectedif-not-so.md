@@ -4,9 +4,9 @@ name: "Review cards drop Steps/Expected/If-not, so the operator sees the AC titl
 description: >
   Review cards drop Steps/Expected/If-not, so the operator sees the AC title and not the decision it asks for
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T07:01:04Z
-last_update: 2026-08-27T07:09:08Z
-date_finished: null
+last_update: 2026-08-27T19:39:24Z
+date_finished: 2026-08-27T19:39:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -298,3 +298,20 @@ forbids elsewhere.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-609-review-cards-drop-stepsexpectedif-not-so.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2817f3d0
+- **Timestamp:** 2026-08-27T19:39:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Human)** — [REVIEW] Did you tick these three Human ACs? This is the one fact the agent cannot establish
+  - **human-ac-mechanical-signal** (partial, heuristic) — `matched='name the\n  w' in Expected: Either "no, I did not" — in which case something ticked the operator's   decisions unattended, the revert was right, and the remaining work `
+
+### 2026-08-27T19:39:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
