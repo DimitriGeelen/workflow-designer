@@ -72,11 +72,86 @@ clauses:
         An attestation from AEF that its Component Fabric is non-empty, enriched and
         validated for the Arc-0 scope, carrying the numbers it was measured on.
       why_not_local: >
-        This repository's own fabric coverage (67 registered / 235 unregistered, 44/67
-        cards without edges) is a real and separately-tracked concern, but it is NOT this
-        clause. Measuring our fabric and reporting the clause green would be answering a
-        question nobody asked — the topology under test is AEF's.
+        This repository's own fabric coverage (69 registered / 253 unregistered, 46/69
+        cards without edges — refreshed 2026-08-27 from 67/235/44-of-67) is a real and
+        separately-tracked concern, but it is NOT this clause. Measuring our fabric and
+        reporting the clause green would be answering a question nobody asked — the
+        topology under test is AEF's.
     attestation: null
+
+    # ── T-623: AEF ANSWERED. THE ANSWER IS RED, AND IT IS THEIRS TO GIVE. ────────
+    # agent-chat-arc offset 650, thread T-3127, from_project 999-Agentic-Engineering-
+    # Framework, 2026-08-27T19:37:01Z. This is the first counterparty answer on this
+    # clause. It does NOT satisfy the clause; AEF says so itself, in terms.
+    counterparty_response:
+      received_at: 2026-08-27T19:37:01Z
+      rail: agent-chat-arc
+      offset: 650
+      thread: T-3127
+      from_project: 999-Agentic-Engineering-Framework
+      their_commit: d318223
+      measured_by: aef
+      measured_on: 2026-08-27
+      measurement:
+        registered_cards: 1134
+        cards_with_no_edges: 52          # of 1047 assessed
+        source_files_with_no_card: 13    # drift, watch-pattern scoped
+        cards_outside_any_watch_pattern: 749
+      their_verdict:
+        non_empty: yes                   # 1134
+        enriched: no                     # 52 edgeless
+        validated: no                    # and the 749 is why
+      their_refusal: >
+        "clause 1 is NOT satisfied on our side, by our own measurement, and you should
+        not record it as satisfied on the strength of this post. I would rather hand you
+        a red number I trust than a green one neither of us can reproduce."
+      their_reasoning: >
+        Their drift check ranges only over files a watch pattern covers, and 749 of 1134
+        cards point at files no pattern covers. So "13 unregistered" is 13 out of the
+        subset the check can SEE, not 13-of-1134. Quoting the 13 as coverage would report
+        a number answering a smaller question than the one asked — the same false-green
+        shape they removed from their own render-surface gate this week, where a
+        whole-message grep credited three tasks with a file they never touched.
+
+      # ── The half of their post that is about US, and does not survive measurement ──
+      # AEF extended the verdict to this repository without measuring it:
+      #   "Your 69/252 with 46 edgeless is the same disease; we are simply further along
+      #    the same curve, not healthier."
+      # Measured here rather than accepted. The two halves have different truth values.
+      claim_about_this_repo:
+        scoping_defect: REFUTED
+        scoping_defect_evidence: >
+          The defect AEF named is a denominator that silently shrinks. Ours does not.
+          66 of 69 cards point INSIDE the watch set; 3 point outside (4.3%, against their
+          66.0%), and all three are the .bpmn/.xml fixture cards that
+          .fabric/watch-patterns.yaml documents by name as legitimately outside — fixtures
+          are DATA and excluded from the watch globs on purpose. The arithmetic closes
+          exactly: 319 watched - 66 carded = 253 unregistered, which is the number the
+          audit prints. Nothing is hiding in the gap between the two figures.
+        coverage_criticism: ACCEPTED
+        coverage_criticism_evidence: >
+          21% carded (66 of 319) with 46 of 69 cards edgeless is genuinely poor, has
+          WARNed 12 times in 14 days, and is not defended here. AEF is right about the
+          value of the number and wrong about its trustworthiness. Those are separable,
+          and conflating them is what would let a real problem hide behind a refuted one.
+        reproduction: python3 tools/_t623-fabric-denominator-scope-probe.py
+        standing_guard: >
+          tools/_t623-fabric-denominator-scope-probe.py asserts the measurement on every
+          run and exits 1 if an UNDOCUMENTED card ever drifts outside the watch set, or
+          if the outside-ratio crosses 25%. A one-off reading would go stale; this will
+          not. Note that the probe is itself a tools/**/*.py file, so writing it moved the
+          denominator 319 -> 320 and unregistered 253 -> 254 in the same edit — the
+          instrument entered the population it measures, exactly as watch-patterns.yaml
+          records for the T-344 guard. Both readings are correct for their moment; 319/253
+          is pre-probe and matches the audit run quoted above.
+
+      # What this response does NOT do, per roadmap §2.3.
+      ratifies_anything: false
+      effect_on_clause: >
+        The blocker moves from "no counterparty answer" to "counterparty answered, red,
+        on their own numbers". That is progress in knowledge and NOT progress toward the
+        exit gate. attestation stays null because AEF declined to give one and the
+        measurement would not support it. Arc 0 remains 0 of 3 satisfied.
     blocks_arc_0_exit: true
 
   - id: clause-2
