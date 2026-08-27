@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-08-27T09:16:58Z
-last_update: 2026-08-27T09:17:17Z
+last_update: 2026-08-27T09:19:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -46,8 +46,8 @@ The goal behind it: design → build → execution in one artifact, producing ap
 - **IW-1: Can an execution contract ride the existing `<aef:meta>` scalar carriage, or does
   it need a new element or node type?**
   confidence: 1
-  disposition:
-  rationale:
+  disposition: answered
+  rationale: confidence 3. AEF_FIELDS/metaKeys read from src: scalars ride <aef:meta>, metaKeys still 20 (T-589 precedent). No new element, no AEF ratification.
   <br>This is the question the whole cost turns on. T-589 proved that *scalar* fields ride
   `<aef:meta>` with `metaKeys` unchanged and **nothing for AEF to ratify**. A new node type or
   a structured element is a change to `docs/standards/aef-bpmn-mapping-v1.md`, which is frozen
@@ -56,8 +56,8 @@ The goal behind it: design → build → execution in one artifact, producing ap
 
 - **IW-2: Does the failure-routing half need any dialect change at all?**
   confidence: 1
-  disposition:
-  rationale:
+  disposition: answered
+  rationale: confidence 3. AEF_FIELDS.eventError = ['errorStatus','hostRef','boundaryPos','interrupting','note'] — a BPMN error boundary event, authorable today. No dialect change needed.
   <br>BPMN already has error boundary events, escalation and compensation — the standard's own
   answer to "this step failed, go there instead". If the editor already carries them, the
   operator's routing requirement may be *authoring*, not *dialect*. Inventing an `onFailure`
@@ -66,8 +66,8 @@ The goal behind it: design → build → execution in one artifact, producing ap
 
 - **IW-3: What is the authority boundary of a recovery agent invoked on failure?**
   confidence: 0
-  disposition:
-  rationale:
+  disposition: deferred
+  rationale: confidence 0. Governance, not rendering. Arc 2/3, AEF on the other side. BLOCKS execution: fields without this ship a diagram that authorises autonomous remediation.
   <br>The proposal introduces an agent that *acts* when something breaks. The Authority Model
   gives agents INITIATIVE, not AUTHORITY. A remediation node that can retry, roll back or call
   an API is an agent taking consequential action with no human in the loop, at runtime, in a
@@ -78,8 +78,8 @@ The goal behind it: design → build → execution in one artifact, producing ap
 
 - **IW-4: Is retrying a failed step safe, and who declares that?**
   confidence: 0
-  disposition:
-  rationale:
+  disposition: deferred
+  rationale: confidence 0. Idempotency is AEF's Arc 1 per roadmap 2.1 — a node may DECLARE it, we cannot DEFINE it. The one genuine joint-handoff item in the proposal.
   <br>"Route the failure back to an agent to recover" presumes the failed step can be re-run.
   A step that partially completed — wrote half its rows, charged the card, sent the mail — is
   not re-runnable, and an agent that retries it double-applies. Roadmap §2.1 puts
@@ -88,8 +88,8 @@ The goal behind it: design → build → execution in one artifact, producing ap
 
 - **IW-5: Is "deterministic vs stochastic" the axis that actually pays, or a proxy for one?**
   confidence: 2
-  disposition:
-  rationale:
+  disposition: dissolved
+  rationale: confidence 2. The axis is a proxy. Dialect keys on WHO PERFORMS (agentType); a runtime needs IS THE RESULT CHECKABLE and IS RETRY SAFE. Replaced by three orthogonal scalars: execution / verify / idempotent.
   <br>My own doubt, filed as a question rather than smuggled in as a conclusion. The property a
   runtime needs at a failure boundary may not be *how* the node computed its answer, but
   **whether the answer can be checked without re-running it**. Those correlate but are not the
