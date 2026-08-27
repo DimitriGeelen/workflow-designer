@@ -2012,3 +2012,24 @@ decisions:
     date: 2026-08-26
     task: T-596
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-267
+    decision: "Do not run `fw update`. Send the finding and our extractor upstream instead."
+    scope: project
+    date: 2026-08-26
+    task: T-588
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-268
+    decision: "build a differential that executes both extractors' real bytes over shared"
+    scope: project
+    date: 2026-08-26
+    task: T-588
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-269
+    decision: "file with full diagnosis; do not start the reorder this session."
+    scope: project
+    date: 2026-08-26
+    task: T-392
+    rationale: "Auto-captured from task file on completion"
