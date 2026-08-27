@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-618: author execution contract scalars: execution, verify, idempotent on task-like nodes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-27T16:28:12Z
+# ============================================================================
+
+task_id: T-618
+task_name: "author execution contract scalars: execution, verify, idempotent on task-like nodes"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-27T12:35:29Z
+completed: 2026-08-27T16:27:44Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-27T14:37:53+02:00
+last_commit: 2026-08-27T18:26:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  scope corrected by census — determinism is authored on 207 nodes and the editor shows none of them. surface determinism + sideEffect — 215 authored values the panel could not show. round-trip harness that actually projects determinism — the existing green was adjacent
+
+# Key outcomes
+outcomes:
+  - '`determinism` is offered as an editable field with the corpus vocabulary'
+  - 'It is offered on the node types the CORPUS actually annotates — all 7:'
+  - '`sideEffect` is offered as an editable field (40 authored uses, 3 task-like types)'
+  - '`metaKeys` count is UNCHANGED (20) — measured, list unchanged, neither new key present.'
+  - 'Round trip verified on a real corpus file, through the REAL editor import path'
+  - 'No new BPMN node type is introduced, and no new key is invented in this task'
+  - 'A guard script proves the above and is proven to go RED before it is trusted GREEN.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-618-author-execution-contract-scalars-execut.md'
+  - 'tools/_t618-determinism-census.py'
+  - 'tools/_t618-determinism-roundtrip-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-27T14:37:53"
+    action: 'T-618: scope corrected by census — determinism is authored on 207 nodes and the editor shows none of them'
+  - time: "2026-08-27T14:51:42"
+    action: 'T-618: surface determinism + sideEffect — 215 authored values the panel could not show'
+  - time: "2026-08-27T18:26:41"
+    action: 'T-618: round-trip harness that actually projects determinism — the existing green was adjacent'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 232 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 232
+  commits: 3
+  files_changed: 4
+  lines_added: 745
+  lines_removed: 30
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-618-author-execution-contract-scalars-execut.md
+generated_by: context-agent-hybrid
