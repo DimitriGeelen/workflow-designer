@@ -74,7 +74,7 @@ a deliberate act rather than a drift nobody notices.
       nothing runs is a guard that finds nothing.
 - [x] The no-background-install position is recorded together with the measurement that
       backs it (the cron inventory at time of filing), not as a bare assertion.
-- [ ] `fw enforcement baseline` refreshed, since `.claude/settings.json` changed (L-398),
+- [x] `fw enforcement baseline` refreshed, since `.claude/settings.json` changed (L-398),
       so `fw doctor` does not accumulate a silent FAIL.
 
 ### Human
