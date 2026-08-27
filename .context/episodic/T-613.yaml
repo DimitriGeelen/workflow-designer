@@ -1,0 +1,69 @@
+# ============================================================================
+# EPISODIC MEMORY - T-613: 010-termlink's finished-and-waiting blind spot: does our /approvals enumerate owner-human tasks that are DONE and carry zero unchecked Human ACs?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-27T08:04:05Z
+# ============================================================================
+
+task_id: T-613
+task_name: "010-termlink's finished-and-waiting blind spot: does our /approvals enumerate owner-human tasks that are DONE and carry zero unchecked Human ACs?"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-27T08:01:59Z
+completed: 2026-08-27T08:04:02Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The population is counted from the field the gate actually enforces (`owner:`), not'
+  - 'For any task found, its `/review/<id>` route is fetched and the result recorded. The'
+  - 'The second half of rail 606 is checked too: do any of our `## Verification` blocks'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-613-010-termlinks-finished-and-waiting-blind.md
+generated_by: context-agent-hybrid
