@@ -11,7 +11,7 @@ THE POINT OF THIS FILE (PL-034)
 
 A guard that checks internal self-consistency cannot detect a broken promise to an
 external party. Clauses 1 and 2 belong to the AEF agent: their evidence lives in a
-repository this one cannot read and has no authorisation to contact. Everything
+repository this one cannot read. Contact is mandated by roadmap §2.1/§2.3. Everything
 observable from here is silent about them, and silence is not a pass.
 
 So a counterparty-owned clause is satisfiable ONLY by a recorded attestation naming who
@@ -170,10 +170,20 @@ def main():
                 print(f"  {cid:<10} BLOCKED — {why}")
             if blocked:
                 print()
+                # T-610: the previous wording said the attestation needed "a counterparty
+                # we have no authorisation to contact". That was never true and the
+                # operator corrected it: roadmap §2.1 carries a "Required joint handoff"
+                # column for every arc and §7 is "Recommended AEF-agent handoff" —
+                # collaboration is the structure of the instruction set, not a permission.
+                # A gate that states an invented constraint teaches it to every reader,
+                # and this one stalled Arc 0 for three sessions.
                 print("  Clauses 1 and 2 are owned by the AEF agent (roadmap §2.1, Arc 0 row).")
                 print("  No amount of Designer-side work closes them; they need an attestation")
-                print("  from a counterparty we have no authorisation to contact. Arc 0 cannot")
-                print("  be closed from this side.")
+                print("  from AEF. Requested 2026-08-27 on agent-chat-arc offset 602,")
+                print("  thread EWCR-ARC0-ATTEST-832, under the roadmap §2.3 envelope.")
+                print("  Awaiting a substantive accepted/refused/needs-decision response —")
+                print("  §2.3: transport is not collaboration completion. Arc 0 stays open")
+                print("  until that response lands AND the operator ratifies the definitions.")
     sys.exit(code)
 
 

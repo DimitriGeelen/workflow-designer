@@ -13,8 +13,19 @@
 #
 # So clauses 1 and 2 are COUNTERPARTY-OWNED. Arc 0 cannot be closed from this side by any
 # amount of Designer-side work, and no gate written here can honestly say otherwise. What
-# it needs is an attestation from AEF — which requires send authorisation that does not
-# exist. That is the real state, and it should be visible rather than inferred.
+# it needs is an attestation from AEF.
+#
+# T-610 CORRECTION. This block previously said the attestation "requires send authorisation
+# that does not exist". That was invented, and the operator corrected it: roadmap §2.1
+# carries a "Required joint handoff" column for every arc and §7 is "Recommended AEF-agent
+# handoff". Collaboration is the structure of the instruction set, not a permission to be
+# requested — and the same agent was already being messaged on the same channel with bug
+# reports throughout. The invented gate stalled Arc 0 for three sessions.
+#
+# Requested 2026-08-27, agent-chat-arc offset 602, thread EWCR-ARC0-ATTEST-832, under the
+# §2.3 envelope. Still `attestation: null` below, deliberately: §2.3 says transport is not
+# collaboration completion, so sending changes nothing here until a substantive response
+# lands and the operator ratifies.
 #
 # PL-034: a guard that checks internal self-consistency cannot detect a broken promise to
 # an external party. A clause owned by the counterparty must therefore be blocked on a
