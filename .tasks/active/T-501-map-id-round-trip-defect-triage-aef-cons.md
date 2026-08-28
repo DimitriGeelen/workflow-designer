@@ -277,18 +277,48 @@ change and does not belong in the same task as a derivation change.
 # that check for this task: if the derivation, the sanitizers or the corpus change between now
 # and the decision, this gate goes red rather than letting a stale ruling land quietly.
 #
-# Leg 1 — D1 is still present and unfixed. If someone fixes it before the ruling, the
-#         recommendation is moot and should not pass silently.
-grep -q "id: aefMetaEl?.getAttribute('id') || procName || 'imported'," src/aef-workflow-designer.html
-# Leg 2 — there are still exactly THREE sanitizer sites (2685, 5223, 9162). The proposal found
-#         two. A fourth appearing, or one being unified away, changes the scope above.
-test 3 -eq "$(grep -cF "trim().toLowerCase().replace(/[^a-z0-9_" src/aef-workflow-designer.html)"
+# ── LEGS REWRITTEN 2026-08-28 under T-575 AC 3. THE GATE DID ITS JOB; READ THIS FIRST. ──
+#
+# Leg 1 was written to go RED if D1 got fixed before the ruling: "if someone fixes it before
+# the ruling, the recommendation is moot and should not pass silently." IT WENT RED. D1 was
+# fixed by T-563 (commit b70c46dd, "every document with no <aef:workflowMeta> imported with an
+# id our own save guard rejects — all 14 of them"). Line 10558 now reads
+# `id: aefMetaEl?.getAttribute('id')` with no `|| procName || 'imported'` fallback.
+#
+# So the primary defect this inception was convened to triage IS ALREADY REPAIRED, and the
+# Recommendation below is moot on D1 by the task's own stated rule. That is the operator's
+# ruling to make, not the agent's; the legs are rewritten to describe the live system so the
+# ruling is made against reality instead of against a 2026-05 snapshot.
+#
+# Leg 1 (rewritten) — REGRESSION GUARD. The fabricating fallback must not come back. This is
+#         the same assertion inverted: it was "the defect is still here", it is now "the fix
+#         is still here", and it keeps teeth in both directions.
+grep -q "id: aefMetaEl?.getAttribute('id')" src/aef-workflow-designer.html && ! grep -q "getAttribute('id') || procName || 'imported'," src/aef-workflow-designer.html
+# Leg 2 (rewritten) — DRIFT DETECTOR ONLY, and deliberately weaker than it looks.
+#         The old leg grepped the literal `trim().toLowerCase().replace(/[^a-z0-9_`, which now
+#         matches ZERO times because the character classes changed. That was a stale
+#         INSTRUMENT, not a moot claim — a false red, which is the same defect as a false
+#         green. Three `toLowerCase().replace` sites do still exist (1746, 5728, 5861), but
+#         they are NOT established to be the three the proposal named (2685, 5223, 9162): the
+#         purposes differ — lane abbreviation, abbr, slug. This leg therefore asserts only
+#         that the population has not drifted, and the identity of those sites must be
+#         re-derived before anyone rules on the proposal's scope claim.
+test 3 -eq "$(grep -c "toLowerCase()\.replace" src/aef-workflow-designer.html)"
 # Leg 3 — deriveSlug is still the SUMMARISER. The census in leg 4 reimplements it in python;
 #         if the real function changed, that reimplementation would silently stop matching it.
 grep -q "function deriveSlug(displayName) {" src/aef-workflow-designer.html && grep -q ".filter(w => w.length > 1)" src/aef-workflow-designer.html
-# Leg 4 — the corpus census still produces the numbers the recommendation is built on. Every
-#         figure cited in Evidence is in this one line, so a corpus change cannot leave the
-#         rationale standing on counts that are no longer true.
+# Leg 4 — CORPUS-DRIFT DETECTOR. WHAT THIS LEG DOES *NOT* ASSERT (PL-178).
+#         This leg was green throughout the period in which D1 was repaired, and it would have
+#         stayed green forever, because it REIMPLEMENTS the old derivation in python — its own
+#         lambda hard-codes `or 'imported'`. It therefore measures what the pre-T-563 code
+#         WOULD have done to this corpus. It says nothing whatever about what the shipped code
+#         does now, and `FALLBACK=14 CURRENT_INVALID=14` must NOT be read as "14 documents
+#         still import with an invalid id" — that fallback no longer exists in the source.
+#         Leg 1 is the leg that tracks live behaviour; this one tracks the corpus only.
+#         Retained because the numbers are the historical baseline the Recommendation was
+#         built on, and a corpus change would still invalidate the rationale's arithmetic.
+#         A green leg that asserts nothing is the defect PL-178 names; this comment is what
+#         stops it being read as corroboration.
 python3 -c "import os,re,xml.etree.ElementTree as ET; B='{http://www.omg.org/spec/BPMN/20100524/MODEL}'; ok=lambda s: bool(re.fullmatch(r'[a-z0-9][a-z0-9_-]*', s or '')); ds=lambda s:(([x for x in re.split(r'[\s\-]+',re.sub(r'[^a-z0-9\s\-]',' ',(s or '').lower())) if len(x)>1] or ['node'])[0])[:16]; sl=lambda s: re.sub(r'[^a-z0-9_\-]','-',(s or '').strip().lower()).strip('-_') or 'workflow'; F=[os.path.join(dp,f) for rt in ['examples/aef-processes/rendered','tests/fixtures/aef-bpmn','tests/fixtures/third-party','tests/fixtures/lane-provenance'] for dp,_,fs in os.walk(rt) for f in fs if f.endswith(('.bpmn','.xml'))]; R=[ET.parse(p).getroot() for p in F]; N=[x for x in R if not any('workflowMeta' in e.tag for e in x.iter())]; P=[[e for e in x.iter(B+'process')] for x in N]; D=[(((p[0].get('id') if p else None) or 'imported'), (p[0].get('name') if p else None)) for p in P]; D=[(i,(n or re.sub(r'^Pool_','',i))) for i,n in D]; print('META=%d FALLBACK=%d CURRENT_INVALID=%d PROPOSED_DISTINCT=%d CORRECTED_DISTINCT=%d CORRECTED_INVALID=%d' % (len(R)-len(N), len(D), sum(1 for i,n in D if not ok(n or i)), len(set(ds(i) for i,_ in D)), len(set(sl(i) for i,_ in D)), sum(1 for i,_ in D if not ok(sl(i)))))" > /tmp/.t501-census 2>&1 && grep -q "META=46 FALLBACK=14 CURRENT_INVALID=14 PROPOSED_DISTINCT=4 CORRECTED_DISTINCT=10 CORRECTED_INVALID=0" /tmp/.t501-census
 # Leg 5 — the report still carries its §0 currency warning. Deleting §0 would restore a
 #         document whose Executive Summary recommends the fix leg 4 measures as harmful.
