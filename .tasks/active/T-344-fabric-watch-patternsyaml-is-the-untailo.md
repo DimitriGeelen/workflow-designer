@@ -288,23 +288,33 @@ default at any time.
 actually selects is the residue of its two generic globs. Approving a debt figure
 produced by patterns aimed at a different project's layout would ratify an accident.
 
-**Evidence — both AC steps run today, 2026-08-12:**
+**Evidence — both AC steps re-run 2026-08-28.** The figures below replace a set measured
+on 2026-08-12 (206 watched / 171 unregistered / 83 instruments). Those were still sitting
+here labelled "run today", sixteen days after they stopped being true, which is the same
+stale-literal defect this task exists to fix — so they are recorded above as history and
+no longer presented as the basis of your ruling.
 
-    expand_patterns.py .fabric/watch-patterns.yaml   ->  206 files
-    fw audit --section structure | grep -i fabric    ->  38 registered, 171 unregistered
-                                                         34/38 cards have no edges
+    expand_patterns.py .fabric/watch-patterns.yaml   ->  321 files      (was 206)
+    fw audit --section structure | grep -i fabric    ->  71 registered, 253 unregistered
+                                                         48/71 cards have no edges
 
-Composition of the 206, which is the part that decides the ruling:
+Composition of the 321, which is the part that decides the ruling:
 
-    tools    154        <- 75% of the watch scope
-    tests     48
+    tools    268        <- 83% of the watch scope (was 75%)
+    tests     49
     scripts    3
-    src        1        <- the product. One file in 206.
+    src        1        <- the product. Still one file, now in 321.
 
-    of the 206, one-shot instruments (*-teeth / *-probe / *-mutation-check / *-cdp):  83
+    of the 321, one-shot instruments (*-teeth / *-probe / *-mutation-check / *-cdp):  142
 
-**So 83 of the 171 unregistered are instruments that ran once and will never be edited
-again.** The Component Fabric exists to answer *"what depends on this file, and what
+**107 of the 253 unregistered files are one-shot instruments — 42%.** Measured by joining
+the expansion against the `location:` field of every card in `.fabric/components/`, not
+inferred from the totals: 35 of the 142 instruments *are* already carded, so the naive
+"142 of 253" would have overstated it by a third.
+
+**The argument got stronger, not weaker, in sixteen days.** Instruments went 83 -> 142 while
+the product stayed at one file. Every WARN this task would ratify is drifting further from
+the question the fabric exists to answer. The Component Fabric exists to answer *"what depends on this file, and what
 breaks if I change it"* (CLAUDE.md §Component Fabric). That question is not meaningful for
 a mutation-check written to prove a guard had teeth on the day it was authored. Writing
 cards for them buys nothing and dilutes the 38 real ones — and note the second WARN:
