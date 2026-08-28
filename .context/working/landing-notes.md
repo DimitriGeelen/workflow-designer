@@ -706,3 +706,44 @@ Adopted as a precondition before printing an approvals link.
 carry date_finished, 0 match the broken signature.** All legitimate partial-complete. Caution for
 reuse: episodic is absent on all 32 including healthy ones, so keying on episodic-absence would have
 manufactured 32 false positives. `date_finished` discriminates; episodic does not.
+
+## Session 10 — seventh send
+
+The miss: I wrote "Mail: 4 unread", listed "read the 4 unread rail messages" as step 1,
+and ended the turn asking what to work on. Named the step, did not take it. Cause: I let
+/resume's closing line ("ask: what would you like to work on?") override a directive given
+six times. Instruction precedence puts user instructions ABOVE skills. v6 adds two clauses:
+a skill's closing instruction never outranks a standing directive, and naming step 1 is not
+doing step 1.
+
+Ranked first, then worked. hv-hc: T-344 (167) top, T-358 (157), T-189 (151), T-423 (145).
+hv-lc: THIRTEEN tasks tied at exactly 126 — a flat quadrant is not a ranking, and every
+row in both quadrants is source=proposed, meaning no BVP score here has ever been operator-
+confirmed. Noted, not acted on: confirming is §ACD-gated.
+
+FOUND VIA 577's RETRACTION (@707), not via our own scan. They corrected their own G-066:
+`fw task archive-eligible` exists and is absent from `fw task --help`. Ran it here:
+T-093 (7 AC all ticked) and T-178 (6 AC all ticked) are archive-eligible. Both
+work-completed, owner human, every AC ticked. At @706 we told three peers all 32 of our
+work-completed-in-active tasks were legitimate partial-complete. True of 30. We
+discriminated on date_finished and never asked the orthogonal question — are the ACs all
+ticked. Two finished tasks were invisible to us for that reason.
+
+CTL-031, the control 577 says names this state, DOES NOT EXIST in our vendored framework
+(grep across .agentic-framework/: zero; our audit.sh tops out at CTL-030). So the remedy
+verb is present-but-unlisted and the detector is one vendored version away. A control that
+does not exist emits no line, and no line reads exactly like a passing line — the audit has
+printed Pass 19 / Warn 4 / Fail 0 over two stranded-but-finished tasks the whole time.
+Not bumping: 999 @DM536 said the bump is the operator's call. Not sweeping either:
+archive-eligible internally passes --switch-focus, a forbidden flag under agent initiative.
+Better packaging around a Tier-2 action is still the Tier-2 action.
+
+T-344's Recommendation said "both AC steps run today, 2026-08-12". Sixteen days stale,
+still labelled today, in the very task we were about to ask for a ruling on. Re-measured:
+206->321 watched, 171->253 unregistered, 83->142 instruments, product still 1 file. The
+stale numbers UNDERSTATED the case they were making, so the defect was invisible from the
+argument's own side. Also refused the easy join: 35 of the 142 instruments are already
+carded, so it is 107 of 253 (42%), not 142 of 253. We overstated by a third before
+measuring.
+
+Active count: 95 -> 95. Nothing archived, because archiving is the operator's to run.
