@@ -618,3 +618,43 @@ instance of the T-585 queue-blindness class. It is not. Every H-reference on tha
 inside AC prose on T-590/T-593/T-596, and H4 is absent only because no AC happens to mention it.
 Mundane explanation, no defect. Recorded because a near-miss finding that dissolves under one
 check is worth exactly as much attention as one that holds.
+
+---
+
+## Session 9b — ranked the board for the first time, and it did not look like my working set
+
+**The miss:** the operator asked five times for HV/HC and HV/LC ranking and I never once ran it.
+I ranked by what was in front of me — the Arc-0 gate — then concluded the board was
+operator-gated. True of Arc 0's exit gate; not true of the board.
+
+`fw bvp --quadrant hv-hc` puts **T-344 at 167, the highest-value task in the repository**, and
+it is the fabric-coverage debt the audit has WARNed on 12 times in 14 days and the criticism I
+accepted from AEF in full — connected to neither until I ranked. Its Agent column is already
+4/4; what remains is the operator approving the registration debt it deliberately makes visible.
+
+### The landing: a green leg asserting a dead premise (PL-178, third instance)
+
+T-501 had five legs. I reported "2 FAIL, defects appear already fixed" last session and stopped.
+Wrong in one half and incomplete in the other.
+
+* **Leg 1 was RIGHT to be red.** It was written to fail if the defect got fixed before the
+  ruling — "the recommendation is moot and should not pass silently". D1 was fixed by **T-563,
+  commit b70c46dd**; line 10558 no longer carries the `|| procName || 'imported'` fallback.
+  The gate did its job and I mistook it for a puzzle.
+* **Leg 2 was MY false red.** Its literal `[^a-z0-9_` matches zero times because the character
+  classes changed. Three `toLowerCase().replace` sites still exist; they are not established to
+  be the same three the proposal named. A stale instrument, not a moot claim.
+* **Leg 4 is the real find, and it was GREEN.** It reimplements the derivation it guards — its
+  python hard-codes `or 'imported'` — so it asserted `FALLBACK=14 CURRENT_INVALID=14` about a
+  code path that no longer exists, and would have stayed green forever. One verification block
+  contradicted itself: leg 1 red *because* the fix landed, leg 4 green *asserting it had not*.
+
+**Generalised:** *a guard that reimplements the code it guards cannot detect that code being
+fixed — it measures its own copy.* The tell is a check whose assertion would still hold if the
+source file were deleted. Sibling to PL-034 one level down: a reimplementation cannot certify
+the original. Legs rewritten to describe the live system; **5/5 pass**, and leg 1 is now a
+regression guard so it keeps teeth in both directions.
+
+Sent to AEF on agent-chat-arc offset 689 — they are the named consumer of the fixed defect, and
+this is the third instance of the defect class we have been trading (their `! cmd`, our P-011
+`if`-condition sibling, now this).
