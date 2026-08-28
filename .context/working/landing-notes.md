@@ -553,3 +553,68 @@ shell — the `FAIL(127)`s were "command not found" on sentences. Fixed the sect
 end at the next `^## ` heading; real counts are 1/3/7/5/5 and two tasks have no verification
 block at all. **A false red is the same defect as a false green**, and it would have sent the
 operator to investigate seven healthy tasks.
+
+---
+
+## Session 9 — the Arc-0 ballot nobody had ever put to the operator
+
+Active count: 95 → 95. **Not lower, and stated plainly per AC 3.** Nothing closed this session;
+what changed is that a decision which could not previously be made is now makeable.
+
+### Arc 0 is 100% operator- and counterparty-gated, and this was measured, not assumed
+
+Three clauses. Clauses 1 and 2 are AEF's by roadmap §2.1. Clause 3 is ours, and it needs two
+separate things the agent cannot supply: its *definition* ratified (T-596's one unticked Human
+AC) and its four open questions answered (H1/H3/H5/H6). There is no agent-side work anywhere in
+Arc 0's exit gate. That is not a complaint; it is the shape of the gate.
+
+### The finding: the four blocking questions had no approval card
+
+`/approvals` builds its queue from exactly five sources — Tier-0 files, pending inception
+GO/NO-GO, Human ACs parsed from task files, paused dispatches, close-ready arcs. There is **no
+source for a standing decision register**. So H1/H3/H5/H6 reached the operator only as prose
+inside T-596's AC, and that AC asks them to *confirm the questions are correctly marked open* —
+ticking it would change nothing about whether they are answered.
+
+Arc 0's local clause has been stuck because **nobody ever asked the operator to answer it.**
+
+I did not build a sixth queue source. T-575 AC 6 forbids filing new tasks under landing mode,
+and attributing a framework feature to a backlog-drain umbrella would be misfiling it. Recorded
+here instead so the option survives the session.
+
+### The landing: a dead-premise AC rewritten to the live question (AC 3)
+
+T-597's second Human AC asked the operator to *"decide whether to authorise contact with AEF"*
+and offered *"(a) authorise a scoped send."* Dead twice over. The operator's own T-610
+correction established contact is **structural, not gated** (roadmap §2.1 "Required joint
+handoff", §7), and the send had already happened — offsets 602, 643, 650, 662, with AEF
+answering red at 650. Ticking that AC as written would have collected a **ratification of a
+fiction**.
+
+Rewritten to the ruling that is actually live: (a) escalate to AEF's operator, (b) hold and
+record Arc 0 open honestly, (c) re-scope the exit gate. Option (c) is flagged as a sovereignty
+act the agent will not pick — letting an agent redefine the condition it is measured against is
+the one move the whole register exists to forbid. Left unticked. Verified rendering at
+`/approvals`; the rationale comment is stripped from the served HTML, and because that comment
+quotes the old AC title verbatim, `grep "authorise contact with AEF"` still joins the rewrite to
+T-609's record of the tick-reversion incident on this same AC.
+
+### A second instance of the same defect, in the tool the AC tells you to run
+
+The exit gate's closing paragraph hard-coded *"Awaiting a substantive accepted/refused/
+needs-decision response."* AEF responded on 2026-08-27. The gate was telling every reader to
+wait for something that had already arrived — the same shape as the dead AC, one layer down.
+
+Fixed by **deriving the paragraph from the register instead of restating it**, so it cannot go
+stale again, and by splitting the blocked reason: clause 1 now reads "aef answered … and did NOT
+attest" while clause 2 still reads "awaiting attestation". Those are materially different
+blockers and the operator needs them apart to rule between (a), (b) and (c). All 13 self-test
+legs still pass, poison arms included.
+
+### What did NOT survive checking
+
+I noticed H4 missing from `/approvals` while H1/H2/H3/H5/H6 appeared, and it looked like a third
+instance of the T-585 queue-blindness class. It is not. Every H-reference on that page sits
+inside AC prose on T-590/T-593/T-596, and H4 is absent only because no AC happens to mention it.
+Mundane explanation, no defect. Recorded because a near-miss finding that dissolves under one
+check is worth exactly as much attention as one that holds.
