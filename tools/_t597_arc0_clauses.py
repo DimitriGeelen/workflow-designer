@@ -131,7 +131,19 @@ def check(clause_path, roadmap_path, h_gate_result):
             if satisfied_claim:
                 satisfied.append(cid)
             elif c.get("blocks_arc_0_exit"):
-                blocked.append((cid, f"awaiting attestation from {owner}"))
+                # T-575: "awaiting attestation" was hard-coded and went stale the moment
+                # AEF answered. A clause can be blocked for two materially different
+                # reasons — nobody has replied, or the counterparty replied and said no —
+                # and an operator ruling on Arc 0 needs to be able to tell them apart.
+                resp = c.get("counterparty_response") or {}
+                if resp:
+                    blocked.append((
+                        cid,
+                        f"{owner} answered on {resp.get('received_at', 'an unrecorded date')} "
+                        f"and did NOT attest",
+                    ))
+                else:
+                    blocked.append((cid, f"awaiting attestation from {owner}"))
 
         elif method == "local-register":
             # Clause 3 defers to the H-register gate, whose verdict is passed in.
@@ -179,11 +191,45 @@ def main():
                 # and this one stalled Arc 0 for three sessions.
                 print("  Clauses 1 and 2 are owned by the AEF agent (roadmap §2.1, Arc 0 row).")
                 print("  No amount of Designer-side work closes them; they need an attestation")
-                print("  from AEF. Requested 2026-08-27 on agent-chat-arc offset 602,")
-                print("  thread EWCR-ARC0-ATTEST-832, under the roadmap §2.3 envelope.")
-                print("  Awaiting a substantive accepted/refused/needs-decision response —")
-                print("  §2.3: transport is not collaboration completion. Arc 0 stays open")
-                print("  until that response lands AND the operator ratifies the definitions.")
+                print("  from AEF.")
+                # T-575: this paragraph used to hard-code "Awaiting a substantive response",
+                # which stayed on screen after the response arrived and told every reader to
+                # wait for something that had already happened. It is now derived from the
+                # register, so it cannot describe a state the register does not hold.
+                try:
+                    reg = yaml.safe_load(open(clause_path)) or {}
+                except (OSError, yaml.YAMLError):
+                    reg = {}
+                answered = [
+                    (c.get("id"), c.get("counterparty_response"))
+                    for c in (reg.get("clauses") or [])
+                    if c.get("counterparty_response")
+                ]
+                if answered:
+                    print()
+                    for cid_a, resp in answered:
+                        print(f"  {cid_a}: ANSWERED {resp.get('received_at', '?')} by "
+                              f"{resp.get('from_project', 'the counterparty')} "
+                              f"(rail {resp.get('rail', '?')} offset {resp.get('offset', '?')}).")
+                        verdict = resp.get("their_verdict") or {}
+                        if verdict:
+                            print("        their own verdict: " + ", ".join(
+                                f"{k}={v}" for k, v in verdict.items()))
+                        print("        The answer did NOT attest. Per §2.3 a reply is input to")
+                        print("        the operator's ruling, never the ruling itself, so this")
+                        print("        clause stays BLOCKED rather than becoming satisfied.")
+                    print()
+                    print("  What changed is the KIND of blocker, not the count: from 'nobody has")
+                    print("  answered' to 'answered, red, on their own numbers'. Arc 0 is still")
+                    print("  0 of 3, and no Designer-side work moves it.")
+                else:
+                    print("  Requested 2026-08-27 on agent-chat-arc offset 602, thread")
+                    print("  EWCR-ARC0-ATTEST-832, under the roadmap §2.3 envelope. Awaiting a")
+                    print("  substantive accepted/refused/needs-decision response — §2.3:")
+                    print("  transport is not collaboration completion.")
+                print()
+                print("  Arc 0 stays open until the operator rules. That ruling is on the")
+                print("  T-597 review card at /approvals.")
     sys.exit(code)
 
 

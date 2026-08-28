@@ -108,25 +108,46 @@ evaluated only what is visible from here would report Arc 0 as fine.
   Do not set `definition_ratified: true` to move things along — the gate treats an
   unratified definition as unable to certify anything, which is the point of the field.
 
-- [ ] [REVIEW] Decide whether to authorise contact with AEF — this is the EWCR critical path
+- [ ] [REVIEW] AEF answered, and answered RED. Rule on what Arc 0 does now.
+
+  <!-- REWRITTEN 2026-08-28 under T-575 AC 3 (dead-premise AC rewritten to the live
+       question). The original asked you to "decide whether to authorise contact with AEF"
+       and offered "(a) authorise a scoped send". That premise is dead twice over: your
+       T-610 correction established that contact is STRUCTURAL, not gated — roadmap §2.1
+       carries a "Required joint handoff" column and §7 is "Recommended AEF-agent handoff"
+       — and the send has since happened (agent-chat-arc offsets 602, 643, 650, 662).
+       Asking you to authorise an ungated act that already occurred would have collected a
+       ratification of a fiction. The original text is preserved in git history at the
+       commit that carries this rewrite. Nothing was ticked on your behalf. -->
 
   **Steps:**
   1. Run the gate: `cd /opt/832-Workflow-designer && tools/_t596-arc0-exit-gate.sh`
-  2. Read the closing paragraph. Two of Arc 0's three exit clauses need an attestation from
-     the AEF agent, and the consolidated refusal/threat matrix that clause 2 depends on does
-     not exist in this repository — it was never the Designer side's to build.
-  3. Weigh the consequence: **no further Designer-side work closes Arc 0.** T-590 delivered
-     the whole Designer column. What remains is a conversation with a counterparty we have
-     never been authorised to contact.
+  2. Read clause 1's `counterparty_response` block in
+     `docs/research/executable-workflow/arc-0-exit-clauses.yaml`. AEF measured their own
+     Component Fabric (1134 cards, 52 edgeless, 749 pointing outside any watch pattern) and
+     **refused to give the attestation**, in their words: *"I would rather hand you a red
+     number I trust than a green one neither of us can reproduce."*
+  3. Note what that changes and what it does not. The blocker moved from "no counterparty
+     answer" to "counterparty answered, red, on their own numbers". That is progress in
+     knowledge and **not** progress toward the exit gate. Arc 0 is still 0 of 3.
+  4. Note clause 2's separate and harder problem: the consolidated refusal/threat matrix it
+     depends on **does not exist anywhere**, and two of its four model families (DeepSeek,
+     Mistral) have no disposition table at all. R6 asked AEF for exactly that on offset 643
+     and is unanswered. Clause 2 cannot go green by arithmetic on either side.
 
-  **Expected:** A decision on one of — (a) authorise a scoped send to AEF under a new task
-  so the attestation can be requested, (b) hold, and accept that Arc 0 stays open and Arc 1
-  cannot start, (c) something else you can see that the agent cannot.
+  **Expected:** A ruling on one of —
+  **(a)** *Escalate to AEF's operator.* R6 and R7 sit with their agent and their agent has
+  said the matrix is not built. Their operator, not ours, can commit to building it.
+  **(b)** *Hold.* Arc 0 stays open, Arc 1 does not start, and that is recorded as the
+  honest state rather than worked around. This is the current de facto position.
+  **(c)** *Re-scope the exit gate.* If clause 2's matrix is not going to be built, a gate
+  requiring it can never go green, and a permanently unsatisfiable gate is furniture
+  (T-382). Redefining an exit clause is a sovereignty act and is yours alone — it is the
+  same act `definition_ratified:` exists to protect.
 
-  **If not:** If you want option (a), say so and the agent will create the send-authorisation
-  task with real ACs and bring the envelope and transport back for your approval before
-  anything leaves this machine. The agent will not send on its own initiative under any
-  reading of "proceed as you see fit".
+  **If not:** If none of the three fits, name what you see that the agent does not. The
+  agent will not pick between these: (c) in particular would let an agent redefine the
+  condition it is measured against, which is the one move the whole register forbids.
 
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
