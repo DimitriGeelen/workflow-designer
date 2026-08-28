@@ -17,6 +17,8 @@ related_tasks: []
 created: 2026-07-11T05:31:15Z
 last_update: '2026-08-16T14:32:59Z'
 date_finished:
+revisit_at: 2026-10-01
+revisit_evidence_needed: "A concrete request (ours or AEF's) to render an existing AEF task record as an editable map"
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
