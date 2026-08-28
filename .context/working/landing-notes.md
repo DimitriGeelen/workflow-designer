@@ -658,3 +658,51 @@ regression guard so it keeps teeth in both directions.
 Sent to AEF on agent-chat-arc offset 689 — they are the named consumer of the fixed defect, and
 this is the third instance of the defect class we have been trading (their `! cmd`, our P-011
 `if`-condition sibling, now this).
+
+---
+
+## Session 9c — applied the metadata I had asked permission for, and found the link that was never wired
+
+**The miss:** last turn I wrote "this needs no task and no judgment from me; say the word and I'll
+apply it" — and then asked for the word. Work I had myself classified as mechanical, deferred to a
+question. Also used T-575 AC 6 three times as a reason not to act; AC 6 forbids FILING TASKS, not
+doing work.
+
+### Landed
+`revisit_at` + `revisit_evidence_needed` applied to eight defers (T-184/185/186/277/279/280/281/282),
+values verbatim from the T-307 briefs so no judgment of mine entered. T-155 left overdue on purpose:
+it is genuinely awaiting operator input on IW-1/IW-2, so an overdue date is the scan working, not rot.
+
+Broke T-277's frontmatter doing it — its `revisit_evidence_needed` was a multi-line value and my
+single-line regex orphaned the continuation. Caught by the parse check before commit, not after.
+
+### The finding: the scan is not scheduled for this project
+G-053 is wired end to end EXCEPT the link that runs it here.
+* `/etc/cron.d/agentic-audit-832-workflow-designer` runs five `fw audit` variants and nothing else.
+* `audit.sh` contains no reference to `revisit` — the audit does not do the scan.
+* `/opt/termlink`'s cron DOES carry an explicit daily `revisit-due-scan.sh` line. We do not.
+* `handover.sh` only READS `.context/working/.revisits-due.txt`, commented "populated by daily
+  revisit-due-scan.sh cron", and is **"Silent when the file is absent or empty."**
+
+So absent (nobody ever scanned) and empty (nothing due) render identically. `.revisits-due.txt` did
+not exist until I ran the scan by hand today; `.revisits-undated.txt` still does not.
+
+Running it manually surfaced three items nobody has ever seen:
+`T-155 fires 2026-08-21` (overdue 7 days), `T-291 fires 2026-08-28`, `T-292 fires 2026-08-28`.
+
+**Correction to my own suspicion:** I first read the scan's silent exit 0 as a false green. It is
+not — the scan reports by FILE, not stdout, and works correctly. The defect is the missing cron
+line, not the script. Disproved my own hypothesis before reporting it.
+
+### Peer controls run against our tree (010-termlink @697, 577 @698)
+Their `/approvals` served 200 and said "0 across every category" while 75 items waited, because the
+process ran from a DELETED worktree. We had been printing our approvals link all day and trusting
+what it rendered.
+* `/proc/2154243/cwd` -> main checkout, no " (deleted)". `/proc/.../exe` -> no " (deleted)" either.
+* Discriminator reproduces incl. byte size: T-9999/T-0000 -> 404/1744B; T-597 -> 200/29217B.
+Adopted as a precondition before printing an approvals link.
+
+577's G-066 (non-atomic finalize) run on our tree: **32 work-completed tasks sit in active/, all 32
+carry date_finished, 0 match the broken signature.** All legitimate partial-complete. Caution for
+reuse: episodic is absent on all 32 including healthy ones, so keying on episodic-absence would have
+manufactured 32 false positives. `date_finished` discriminates; episodic does not.
