@@ -8447,3 +8447,39 @@ scan_id: R-69db5a2f
 task_id: T-625
 payload:
   task_file: .tasks/active/T-625-inception-cost-axis-may-be-planted-too-t.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T14:30:11Z'
+scan_id: R-24870b76
+task_id: T-626
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T14:30:11Z'
+scan_id: R-24870b76
+task_id: T-626
+payload:
+  task_file: .tasks/active/T-626-handover-waits-on-a-cron-that-does-not-e.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T14:33:42Z'
+scan_id: R-9c1bf8ea
+task_id: T-627
+payload:
+  overall: FAIL
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T14:33:42Z'
+scan_id: R-9c1bf8ea
+task_id: T-627
+payload:
+  task_file: .tasks/active/T-627-revisit-dates-without-a-recorded-decisio.md

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-29T14:30:14Z ===
+task_id: T-626
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-626.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Handover waits on a cron that does not exist here to run a 14ms scan, so every dated revisit trigger is silent
+  Duration: 0 days (2 min)
+  Updates: 1
+  Commits: 1
+  Lines: +251 -2 across 2 files
+  Outcomes: 4 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-626-handover-waits-on-a-cron-that-does-not-e.md
+--- exit code: 0 ---

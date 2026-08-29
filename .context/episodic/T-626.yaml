@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-626: Handover waits on a cron that does not exist here to run a 14ms scan, so every dated revisit trigger is silent
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T14:30:15Z
+# ============================================================================
+
+task_id: T-626
+task_name: "Handover waits on a cron that does not exist here to run a 14ms scan, so every dated revisit trigger is silent"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T14:27:45Z
+completed: 2026-08-29T14:30:09Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-29T16:30:09+02:00
+last_commit: 2026-08-29T16:30:09+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  handover now runs the 14ms scan it was waiting on a cron to run, so dated revisit triggers fire without the operator
+
+# Key outcomes
+outcomes:
+  - '`handover.sh` refreshes both revisit files itself immediately before rendering'
+  - 'The refresh is **best-effort and cannot break handover**. A handover that dies'
+  - 'Proven by deletion, not by reading: remove both files, run the refresh, and'
+  - 'The stale comment naming cron as the producer is corrected, since it is the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.tasks/active/T-626-handover-waits-on-a-cron-that-does-not-e.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-29T16:30:09"
+    action: 'T-626: handover now runs the 14ms scan it was waiting on a cron to run, so dated revisit triggers fire without the operator'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 2
+  lines_added: 251
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-626-handover-waits-on-a-cron-that-does-not-e.md
+generated_by: context-agent-hybrid

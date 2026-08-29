@@ -4,10 +4,10 @@ name: "Revisit dates without a recorded Decision look like a governed defer and 
 description: >
   Revisit dates without a recorded Decision look like a governed defer and are an ungoverned park
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-29T14:31:48Z
-last_update: 2026-08-29T14:31:48Z
-date_finished: null
+last_update: 2026-08-29T14:33:41Z
+date_finished: 2026-08-29T14:33:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -233,3 +233,20 @@ grep -q "check_inception_decision" .agentic-framework/agents/task-create/update-
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-627-revisit-dates-without-a-recorded-decisio.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9c1bf8ea
+- **Timestamp:** 2026-08-29T14:33:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** FAIL
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **swallowed-errors** (severe, deterministic) @ Verification:line 52
+     - evidence: `python3 tools/_t627-undecided-defer.py > /tmp/.t627 2>&1 || true`
+
+### 2026-08-29T14:33:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

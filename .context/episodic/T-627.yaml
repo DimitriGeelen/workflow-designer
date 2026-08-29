@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-627: Revisit dates without a recorded Decision look like a governed defer and are an ungoverned park
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T14:33:45Z
+# ============================================================================
+
+task_id: T-627
+task_name: "Revisit dates without a recorded Decision look like a governed defer and are an ungoverned park"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T14:31:48Z
+completed: 2026-08-29T14:33:41Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-29T16:33:40+02:00
+last_commit: 2026-08-29T16:33:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  eight inceptions carry the machinery of a DEFER without the DEFER, and are uncloseable because of it
+
+# Key outcomes
+outcomes:
+  - 'A check reports any inception carrying `revisit_at:` with no `**Decision**:` line —'
+  - 'The check reads the SAME regex the completion gate enforces'
+  - 'The current 7 are reported, and the check exits non-zero so it cannot be green'
+  - 'The agent records **no** `**Decision**:` line on any task. Recording a sovereignty'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-627-revisit-dates-without-a-recorded-decisio.md'
+  - '.tasks/completed/T-626-handover-waits-on-a-cron-that-does-not-e.md'
+  - 'tools/_t627-undecided-defer.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-29T16:33:40"
+    action: 'T-627: eight inceptions carry the machinery of a DEFER without the DEFER, and are uncloseable because of it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 3
+  lines_added: 341
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-627-revisit-dates-without-a-recorded-decisio.md
+generated_by: context-agent-hybrid
