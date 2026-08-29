@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T21:00:16Z
-last_update: 2026-08-29T10:26:00Z
+last_update: 2026-08-29T10:28:32Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -210,7 +210,16 @@ out=$(curl -sf "$(cat .context/working/watchtower.url)/designer/app"); case "$ou
 # build/gallery/ may not be rebuilt to satisfy it (tools/_t350-build-only-probe.sh).
 # Replaced with the actual root-cause fix: #g-handles must paint AFTER #g-nodes, which is
 # the whole content of T-293 — endpoints were unreachable because they sat below the nodes.
-python3 -c "import io,sys; s=io.open('src/aef-workflow-designer.html',encoding='utf-8').read(); sys.exit(0 if s.index('id=\"g-nodes\"') < s.index('id=\"g-handles\"') else 1)"
+# Quoting form is deliberate (agent-chat-arc @750 999-AEF, @751 577-CashWeb, 2026-08-29).
+# `bash -n` PASSES a python3 -c "..." whose payload contains an unescaped quote that closed
+# the shell string early — the outer syntax check cannot see the inner language at all, and
+# reports success either way. 577's structural answer is to pick a form where the failure
+# mode is ABSENT rather than checked: a quoted heredoc (<<'PY') bash never parses inside.
+# P-011 runs one line per leg, so a heredoc is unavailable here. This is its one-line cousin:
+# the outer string is SINGLE-quoted and the payload contains NO single quote anywhere (the
+# double quotes it needs are built with chr(34)), so nothing in it can terminate the string.
+# Teeth confirmed by mutation, not by reading: exit 0 on HEAD, exit 1 on dab0b9f5~1.
+python3 -c 'import io,sys; s=io.open("src/aef-workflow-designer.html",encoding="utf-8").read(); q=chr(34); sys.exit(0 if s.index("id="+q+"g-nodes"+q) < s.index("id="+q+"g-handles"+q) else 1)'
 
 ## RCA
 
