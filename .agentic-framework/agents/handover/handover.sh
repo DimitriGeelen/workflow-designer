@@ -609,8 +609,28 @@ if [ -f "$ARC_FOCUS_FILE" ]; then
     fi
 fi
 
-# T-1452 / G-053: surface ripe revisit_at deferrals (populated by daily
-# revisit-due-scan.sh cron). Silent when the file is absent or empty.
+# T-1452 / G-053: surface ripe revisit_at deferrals. Silent when the file is absent
+# or empty.
+#
+# T-626: this block used to attribute the two files to a daily cron invocation of
+# revisit-due-scan.sh, and read them without ever running it. That sentence made the omission
+# invisible: it names a producer, so every reader assumed one existed. In this project
+# none did — the only revisit-due-scan cron entry on the host is rooted at another
+# project — so the two files were written exactly once, by hand, and T-155's revisit sat
+# 8 days past its date unseen.
+#
+# The scan costs 14ms (measured). Making a 14ms check depend on a scheduled job is what
+# turned its cost of observation from negligible into infinite (G-044). Handover already
+# runs every session, so it refreshes what it is about to render.
+#
+# Best-effort by design: a handover that aborts because a diagnostic scan failed is a
+# worse outcome than the blindness it replaces, since generating the handover is the
+# load-bearing act and the revisit list is advisory. Failure here is silent by intent.
+_T626_SCAN="$FRAMEWORK_ROOT/agents/context/revisit-due-scan.sh"
+if [ -x "$_T626_SCAN" ]; then
+    PROJECT_ROOT="$PROJECT_ROOT" "$_T626_SCAN" >/dev/null 2>&1 || true
+fi
+
 REVISITS_FILE="$PROJECT_ROOT/.context/working/.revisits-due.txt"
 if [ -s "$REVISITS_FILE" ]; then
     echo "## Revisits Ripe Today"
