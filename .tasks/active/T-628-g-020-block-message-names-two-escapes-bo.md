@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-29T14:56:05Z
-last_update: 2026-08-29T14:56:05Z
+last_update: 2026-08-29T15:05:26Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -87,36 +87,6 @@ missing an entry; its exemption model has no expression on one of its two surfac
 Result: 13/13 legs green, teeth proven by mutation of live source. T-386 (the sibling
 gate's prober, same file) re-run at 11/0 — no regression.
 
-## Evolution
-
-### 2026-08-29 — three of my own legs were red for three different wrong reasons
-
-Worth recording because each red was a defect in the MEASUREMENT, and each would have
-been "fixed" by relaxing the leg:
-
-- **The scoped control was not a control.** The gate reads the AC block with a range
-  regex piped to a delete-last-line `sed`. My "scoped" fixture ended at its ACs, so the
-  range ran to EOF and the delete removed the only AC — the fixture read as unscoped no
-  matter what it said. Real task files always carry later sections, so this was a
-  property of my fixture. A fixture that cannot express the negative case is not a
-  control, and it fails silently in the direction of agreement.
-- **A leg asserted the wrong gate's banner.** `fw task update <OTHER> --type inception`
-  is refused with rc 2 — by the FOCUS-DRIFT gate, before G-020 is reached. My leg
-  demanded the G-020 banner and went red while the tree was correct. A false red is the
-  same defect as a false green; it just costs you differently. The leg now asserts the
-  absence of the exemption's own NOTE, which nothing else can emit.
-- **The mutation ate the wrong `if`.** `if [ "$TOOL_NAME" = "Bash" ]` occurs three times
-  in the hook; a non-greedy match from the first swallowed the focus-drift gate whole.
-  The mutant failed to parse, which is the only reason it was visible — a mutation that
-  removes too little fails loudly, one that removes too much can pass quietly.
-
-And one finding about the harness we already had: **T-386's mutant-in-sandbox idiom is
-sound for T-386 and silently vacuous for G-020.** The hook derives `FRAMEWORK_ROOT` from
-its own `SCRIPT_DIR`, so a copy outside the framework has no `find_task_file` and dies at
-P-002 ~200 lines before G-020. The drift gate sits above that failure point; G-020 sits
-below it. Same harness, same file, sound for one gate and testing nothing for its
-neighbour. This prober stages its mutant beside the original and guards the teeth with a
-reachability leg so the next refactor cannot make it vacuous without saying so.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -269,6 +239,35 @@ sibling G-067 gate in the same file prints three remedies that have never been p
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-08-29 — three of my own legs were red for three different wrong reasons
+
+Worth recording because each red was a defect in the MEASUREMENT, and each would have
+been "fixed" by relaxing the leg:
+
+- **The scoped control was not a control.** The gate reads the AC block with a range
+  regex piped to a delete-last-line `sed`. My "scoped" fixture ended at its ACs, so the
+  range ran to EOF and the delete removed the only AC — the fixture read as unscoped no
+  matter what it said. Real task files always carry later sections, so this was a
+  property of my fixture. A fixture that cannot express the negative case is not a
+  control, and it fails silently in the direction of agreement.
+- **A leg asserted the wrong gate's banner.** `fw task update <OTHER> --type inception`
+  is refused with rc 2 — by the FOCUS-DRIFT gate, before G-020 is reached. My leg
+  demanded the G-020 banner and went red while the tree was correct. A false red is the
+  same defect as a false green; it just costs you differently. The leg now asserts the
+  absence of the exemption's own NOTE, which nothing else can emit.
+- **The mutation ate the wrong `if`.** `if [ "$TOOL_NAME" = "Bash" ]` occurs three times
+  in the hook; a non-greedy match from the first swallowed the focus-drift gate whole.
+  The mutant failed to parse, which is the only reason it was visible — a mutation that
+  removes too little fails loudly, one that removes too much can pass quietly.
+
+And one finding about the harness we already had: **T-386's mutant-in-sandbox idiom is
+sound for T-386 and silently vacuous for G-020.** The hook derives `FRAMEWORK_ROOT` from
+its own `SCRIPT_DIR`, so a copy outside the framework has no `find_task_file` and dies at
+P-002 ~200 lines before G-020. The drift gate sits above that failure point; G-020 sits
+below it. Same harness, same file, sound for one gate and testing nothing for its
+neighbour. This prober stages its mutant beside the original and guards the teeth with a
+reachability leg so the next refactor cannot make it vacuous without saying so.
 
 ## Decisions
 
