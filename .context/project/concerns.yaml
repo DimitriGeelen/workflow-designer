@@ -2627,3 +2627,54 @@ concerns:
   - T-577
   - T-575
   closure_check_command: "python3 -c \"import re,json,glob\nrecs={}\nfor f in glob.glob('.tasks/active/*.md')+glob.glob('.tasks/completed/*.md'):\n    t=open(f,encoding='utf-8',errors='replace').read()\n    m=re.search(r'^\\\\*\\\\*Recommendation:\\\\*\\\\*\\\\s*(\\\\w+)',t,re.M)\n    i=re.search(r'^id:\\\\s*(T-\\\\d+)',t,re.M)\n    if m and i: recs[i.group(1)]=m.group(1).upper()\nV=('KILL','RETIRE','DELETE')\nc=[]\nfor f in glob.glob('.context/working/*.md'):\n    for n,l in enumerate(open(f,encoding='utf-8',errors='replace'),1):\n        u=l.upper()\n        if not any(v in u for v in V) or 'SUPERSEDED' in u or 'WITHDRAWN' in u: continue\n        for t in re.findall(r'\\\\bT-\\\\d+\\\\b',l):\n            if t in recs: c.append({'task':t,'recorded':recs[t],'file':f,'line':n})\nprint(json.dumps({'verdict':'READY' if not c else 'NOT_READY','ready':not c,'tasks_with_recorded_recommendation':len(recs),'prose_conflicts':len(c),'examples':c[:4],'gap':'G-043'}))\""
+- id: G-044
+  title: The only place 5 gating guards are evaluated is a 13-minute suite nothing schedules, so a guard
+    can fail correctly for weeks and the failure is never observed
+  severity: high
+  status: watching
+  registered: '2026-08-29'
+  detail: 'tests/run-bridge-tests.sh is the sole caller of several standing guards. It takes ~13 minutes,
+    no cron entry runs it, and no gate requires it, so its verdict is only ever seen when a human or agent
+    chooses to spend the 13 minutes. The defect is entirely in the COST OF OBSERVATION: the guards are
+    correct, wired, and committed, and their output goes unread.
+
+
+    MEASURED, NOT ARGUED. Run today: EXIT=1, 132 passed, 5 failed.
+
+
+    (1) tools/_t517-vendor-divergence.py had been FAILING since commit 10a537c1, when a T-606 patch to
+    the vendored web/blueprints/tasks.py was made and never declared in .vendor-divergence.yaml. The guard
+    was right the entire time and nobody read it.
+
+
+    (2) The T-560 absence-assertion ratchet was armed 2026-08-20 with an explicitly stated purpose: ''the
+    ratchet''s job is to stop the 79th''. It is at 84. SIX uncontrolled absence assertions were admitted
+    in nine days by the exact mechanism the ratchet exists to prevent, because the only place it runs
+    is this suite. Confirmed by re-running the census against the arming commit''s tree via T560_TASK_ROOT:
+    that tree still reports exactly 78, so the rise is real corpus change, not drift in the instrument.
+
+
+    (3) The T-293 endpoint-reconnect leg went red at a51e6235 (2026-08-26) and stayed red. It was a FALSE
+    red, which matters: nobody observed it in either direction, so the suite was equally silent about
+    a guard that was wrong and guards that were right.
+
+
+    WHY THIS IS ITS OWN GAP RATHER THAN AN INSTANCE. Four existing gap triggers already name this pattern
+    in their exclusion clauses -- G-040''s says a bridge-suite leg ''runs only when someone runs the suite,
+    which is exactly the "a human was watching" condition that failed here''. The pattern has been recognised
+    repeatedly as a reason NOT to close other gaps, while never being registered as a gap itself. That
+    is how it survived: every author saw it, each in the course of closing something else.'
+  decision_trigger: 'CLOSES when a ROUTINE, UNATTENDED instrument evaluates the gating guards and puts
+    a failure where a human sees it without choosing to look -- e.g. the 15-minute audit cron gains the
+    suite (or a fast gating subset), or a scheduled runner posts its verdict to Watchtower/the rail. Explicitly
+    NOT closure: (a) fixing today''s 5 failures -- that is the mess cleaned up, and it leaves the next
+    failure equally unobservable; (b) making the suite faster -- cheaper observation that still nobody
+    schedules is the same blindness at a lower price; (c) a convention or checklist item saying ''run
+    the bridge suite before X'' -- every author who skipped it knew it existed, and the two guards above
+    failed while people were actively working in the same files; (d) an agent running it during a session,
+    which is precisely the ''a human was watching'' condition that has already failed.'
+  tasks:
+  - T-293
+  - T-575
+  - T-560
+  - T-606
