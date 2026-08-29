@@ -1884,3 +1884,10 @@ learnings:
   date: 2026-08-29
   context: Added via context agent
   application: TBD
+- id: PL-265
+  learning: "The inception commit-budget gate derives its governed task from the FIRST T-NNN in the COMMIT MESSAGE (.git/hooks/commit-msg:39), never from the staged files. So a blocked inception edit that stays staged lands on the next commit under any other task's message, with no bypass flag and no warning. Happened to me on T-619: the gate refused the commit, the file stayed in the index, and the change shipped inside a T-293-titled commit one step later. Same family as the focus-drift gate firing on prose and the boundary hook matching command text — a check keyed to a string that names the work rather than to the work itself — but this instance defeated a governance gate rather than producing a false positive. After ANY blocked commit, run git diff --cached before the next one: the block leaves the index populated."
+  source: P-002
+  task: T-293
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
