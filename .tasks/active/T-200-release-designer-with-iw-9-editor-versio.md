@@ -162,9 +162,25 @@ Human-owned: a release is a sovereignty promise (immutable versioned bytes, G-00
 
 ## Verification
 
-test "$(tr -d '[:space:]' < VERSION)" = "0.3.0"
+# T-575 2026-08-29 — legs 1 and 3 asserted MOVING GLOBALS and had gone red for a reason
+# that is not this task's defect. They read `VERSION == "0.3.0"` and `latest: "0.3.0"` in
+# dist/MANIFEST.yaml. Both are now 0.11.0, correctly: eight further releases were cut after
+# this one. A task that CUT a release cannot assert it is still the current release without
+# claiming no release may ever follow it — textbook G-015 (a line must assert what ITS OWN
+# TASK delivered, not a global that decays when anyone else acts).
+# What T-200 actually delivered is IMMUTABLE and still fully checkable: the 0.3.0 artifact,
+# at the exact bytes recorded in its own AC3 (sha 36be033d…, 826643 bytes). That is now
+# leg 1, and it is a STRONGER check than the version literal ever was — it would catch the
+# artifact being altered, which `VERSION == 0.3.0` never could.
+# NOTE FOR WHOEVER READS THIS NEXT: dist/MANIFEST.yaml carries no record of 0.3.0 at all.
+# It is a single-release pointer (latest/artifact/sha256) with a one-hop `supersedes` chain,
+# so release history is reachable only by walking dist/ itself. The BYTES of every release
+# survived; the manifest's memory of them did not. Not repaired here — G-007 makes dist/
+# and MANIFEST.yaml the operator's, and this task is not the place to change a release
+# format. Surfaced to /approvals instead.
+test "$(sha256sum dist/aef-workflow-designer-0.3.0.html | cut -d' ' -f1)" = "36be033d66aa1c159a9e75df674f02032eb9f308882af288fad909e6d754a4bb"
 test -f dist/aef-workflow-designer-0.3.0.html
-grep -q 'latest: "0.3.0"' dist/MANIFEST.yaml
+test "$(stat -c%s dist/aef-workflow-designer-0.3.0.html)" = "826643"
 python3 tests/test_designer_render.py
 
 # Shell commands that MUST pass before work-completed. One per line.
