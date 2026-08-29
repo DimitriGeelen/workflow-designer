@@ -407,6 +407,15 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 
 - [ ] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
 
+      > **RULE THIS TOGETHER WITH T-341, NOT AFTER IT.** The consolidated brief
+      > (`docs/reports/T-397-import-repair-semantics-brief.md:262`) states the constraint
+      > directly: *"Q2a and Q2b must agree — both decide what the importer may invent."*
+      > T-341 is Q2a, this is Q2b; they are one decision wearing two task IDs. T-341's own
+      > Human AC already says so (*"T-358 follows from whatever is decided here"*) — this
+      > card did not say it back, so the dependency was visible from one side only and a
+      > reader arriving at this card first would not have known to hold it. Added
+      > 2026-08-29; nothing about either ruling changed.
+
       **This ruling already existed — it was recorded in prose and never filed as an
       AC.** `## Decisions` says *"the default choice remains the operator's"*, and the
       three remaining Agent ACs are all downstream of it, so the task has read as
