@@ -372,3 +372,83 @@ def test_no_second_copy_of_the_redirect_predicate():
     )
     assert "[^>]>[^>]" not in code, "the drifted redirect regex is back"
     assert code.count("_sc_strip_quoted()") == 1
+
+
+# --------------------------------------------------------------------------
+# T-636: the conservative verb scan above meets an argument it must not judge.
+#
+# `test_destructive_verbs_are_judged_conservatively` documents the asymmetry and
+# the price it charges: a quoted mention of a destructive verb reads as a write.
+# That price is paid by whoever writes the command, and it is cheap — until the
+# command is `fw note`, whose entire argument is prose, and whose prose in this
+# project is overwhelmingly ABOUT shell behaviour.
+#
+# The observed failure: an observation about a runner that `rm -f`s a shared path
+# could not be filed, and was refused with "No active task" — the one message
+# guaranteed to send the reader to the remedy T-390 added the note exemption to
+# avoid. These two blocks pin both sides of the resulting boundary.
+# --------------------------------------------------------------------------
+
+PROSE_VERBS_ON_THE_SAFE_LIST = [
+    'fw note "the runner greps a shared path and rm -f s it"',
+    'fw note "tee writes a second copy"',
+    "fw context add-learning \"a census that rm's its own fixture is not idempotent\"",
+    'fw context add-pattern failure "rmdir on a non-empty dir"',
+    'fw context add-decision "chose tee over a redirect"',
+    'fw task create --name "rmdir leaves the parent behind"',
+    "bin/fw note \"path-qualified fw still counts\"",
+    ".agentic-framework/bin/fw note \"and a deep path with rm in the text\"",
+]
+
+
+@pytest.mark.parametrize("cmd", PROSE_VERBS_ON_THE_SAFE_LIST)
+def test_prose_arguments_do_not_veto_their_own_verb(cmd):
+    """The framework must be able to record sentences about destructive commands."""
+    assert gate_allows(cmd), f"a stored-prose verb was vetoed by its own text: {cmd!r}"
+
+
+def test_git_commit_message_is_prose_too():
+    """`fw git commit` is NOT on the no-task allowlist — the hook admits it by a
+    separate branch (T-2054, checkpointing completed work). So the corpus can only
+    assert the half that lives in this library: its message must not read as a write.
+    Asserting gate_allows here would encode the hook's branch in the wrong file.
+    """
+    assert not is_write('fw git commit -m "drop the rm -rf call"')
+
+
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        # Outside the quotes: the exemption scans the STRIPPED string, it does not
+        # skip the scan, so a second clause is judged exactly as before.
+        'fw note "harmless" && rm -rf /tmp/x',
+        'fw note "harmless"; tee /tmp/x',
+        # A command substitution IS a route from the argument back to the shell,
+        # which is the execution case the asymmetry is actually about.
+        'fw note "$(rm -rf /tmp/x)"',
+        "fw note \"`rm -rf /tmp/x`\"",
+        # Near-misses on the verb list. The set is closed by construction and
+        # matched on whole tokens, not prefixes.
+        'fw notes-something-else "rm -rf"',
+        'fw noteworthy "rm -rf"',
+        'fw task update T-1 --status "rm -rf"',
+        'fw context add-thing "rm -rf"',
+    ],
+)
+def test_the_prose_exemption_does_not_widen_the_gate(cmd):
+    assert is_write(cmd), f"the exemption let a real write through: {cmd!r}"
+
+
+def test_the_prose_verb_helper_does_not_fork():
+    """Same perf contract as test_base_extraction_does_not_fork, for the same
+    reason: this helper is called from has_bash_write_pattern, so it runs on every
+    Bash tool call. The first draft used three awks and the corpus caught it.
+    """
+    code = LIB.read_text()
+    start = code.index("_sc_is_framework_prose_verb() {")
+    body = code[start : code.index("\n}", start)]
+    executable = "\n".join(
+        line for line in body.splitlines() if not line.lstrip().startswith("#")
+    )
+    for forking in ("awk ", "sed ", "$(echo", "| cut"):
+        assert forking not in executable, f"{forking!r} forks a process per Bash call"

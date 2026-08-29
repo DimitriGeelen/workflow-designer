@@ -400,6 +400,49 @@ _sc_strip_quoted() {
     _SC_STRIPPED="$out"
 }
 
+# T-636: does this command hand FREE PROSE to a framework verb that stores it?
+#
+# The set is closed by construction — it is the verbs the framework itself declares
+# safe with no active task (`note`, `context add-*`, `task create`) plus `git commit`,
+# whose message is the one other place an agent writes sentences. It is not an open
+# class, so enumerating it does not run into the G-025/G-026 objection.
+#
+# Deliberately NOT generalised to "any `fw` verb": that would rest on the claim that no
+# fw subcommand ever evaluates an argument, which nobody has measured. Naming the four
+# costs a line each and rests on nothing.
+# Pure parameter expansion, zero forks. This runs inside has_bash_write_pattern, which
+# runs on EVERY Bash tool call, and web/test_safe_commands.py holds a perf contract
+# against exactly this — the first draft here used three awks and the corpus failed it.
+# The rejected draft is worth a line: it is the same lesson as the predicate it sits in,
+# one level up. A helper written to answer a cheap question expensively is a cost paid by
+# every command in the session, not by the four it is about.
+_sc_is_framework_prose_verb() {
+    local c="$1" tok1 tok2 tok3 rest
+    rest="${c#"${c%%[![:space:]]*}"}"          # ltrim
+    tok1="${rest%%[[:space:]]*}"
+    case "$tok1" in
+        fw|*/fw) ;;
+        *) return 1 ;;
+    esac
+    rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
+    tok2="${rest%%[[:space:]]*}"
+    rest="${rest#"$tok2"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
+    tok3="${rest%%[[:space:]]*}"
+    case "$tok2" in
+        note) return 0 ;;
+        context)
+            case "$tok3" in add-learning|add-pattern|add-decision) return 0 ;; esac
+            ;;
+        task)
+            case "$tok3" in create) return 0 ;; esac
+            ;;
+        git)
+            case "$tok3" in commit) return 0 ;; esac
+            ;;
+    esac
+    return 1
+}
+
 # Check if a command contains file-write patterns
 has_bash_write_pattern() {
     local cmd="$1"
@@ -442,6 +485,30 @@ has_bash_write_pattern() {
             *) return 0 ;;              # a real target → genuine write
         esac
     done
+
+    # T-636: the raw-string verb scans below are deliberately over-broad, on an
+    # asymmetry argument spelled out in the block that follows: a false positive costs
+    # only "you need an active task", a false negative lets `sh -c "rm -rf x"` past.
+    #
+    # THAT ARGUMENT IS ABOUT EXECUTION, and it inverts where the quoted argument is
+    # prose the framework STORES rather than runs. `fw note`, `fw context add-*`,
+    # `fw task create --name` and `fw git commit -m` all take free text, and in this
+    # project that text is overwhelmingly ABOUT shell behaviour — so the "mild" false
+    # positive is not mild. Measured at T-636: a single word vetoes all four. The
+    # observation inbox refuses observations that mention `rm`, and refuses them with
+    # "No active task", which sends the reader to create a task — the exact remedy
+    # T-390 added the `note` allowlist (line ~240) to avoid. The framework could not
+    # record the observation that it cannot record observations about `rm`.
+    #
+    # The exemption scans the STRIPPED string rather than skipping the scan, so a
+    # destructive verb outside the quotes is still caught: `fw note "x" && rm -rf y`
+    # still vetoes. And any command substitution disqualifies the exemption outright —
+    # that IS a route from the argument back to the shell, so the execution asymmetry
+    # applies again and the raw scan runs as before.
+    if _sc_is_framework_prose_verb "$cmd" \
+       && [[ "$cmd" != *'$('* ]] && [[ "$cmd" != *'`'* ]]; then
+        cmd="$_SC_STRIPPED"
+    fi
 
     # --- Destructive/writing VERBS: deliberately still judged on the RAW string ---
     # T-404 decision: quote-stripping is applied to redirects only. For verbs the

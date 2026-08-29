@@ -1415,5 +1415,26 @@ observations:
   captured: 2026-08-29T16:10:23Z
   context_task: null
   tags: []
+  status: dismissed
+  promoted_to: null
+- id: OBS-324
+  text: "The writer-side shared-tmp census scanned tools/*.sh only and reported the tree clean. Its denominator excluded .agentic-framework/, where the P-011 runner writes verification output to a predictable /tmp path, greps it, and rm -f s it — as root, on a host measured to carry three projects. Impact is low (PID-scoped, and the redirect truncates so there is no stale-read route; worst case is a FAIL's diagnostic lines lost to a colliding delete), but the census said 'our own shell tools' while measuring one directory. A census's denominator is a claim, and this one was narrower than its sentence."
+  captured: 2026-08-29T22:47:26Z
+  context_task: T-636
+  tags: [census]
+  status: pending
+  promoted_to: null
+- id: OBS-325
+  text: "The active-task hook allows any command CONTAINING 'git commit' with no active task, so a session can checkpoint completed work (commit-msg still enforces the task ref). It matches the string, not the first clause, so a compound command led by a commit carries its second clause past the gate whole: 'fw git commit -m x; rm -rf y' is allowed with focus null. Measured through the real hook, and confirmed pre-existing — an exemption-free mutant of the classifier allows it identically, so this is not caused by the prose-verb exemption. Tier 0 is a separate hook and still sees the second clause, so it is a hole in one layer rather than an open door. One bug, one task: recorded, not fixed."
+  captured: 2026-08-29T22:47:36Z
+  context_task: T-636
+  tags: [gate]
+  status: pending
+  promoted_to: null
+- id: OBS-326
+  text: "Third member of the same family, found while probing the other two: the focus-drift gate reads task-id-shaped tokens out of QUOTED TEST FIXTURES. A probe whose argument contained a task-id-shaped string was blocked for drifting toward a task that does not exist. Same shape as the prose-verb veto just fixed and as the shared-tmp census before it: a character-level scan over the whole command text, standing in for shell structure, so an argument that only MENTIONS a thing is treated as an action on it. The general remedy is the one already applied twice — judge the stripped string, not the raw one — but the drift gate needs its own measurement first, because unlike the write veto its conservative direction has never been argued."
+  captured: 2026-08-29T22:47:44Z
+  context_task: T-636
+  tags: [gate]
   status: pending
   promoted_to: null
