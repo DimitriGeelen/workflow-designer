@@ -814,3 +814,28 @@ entries:
       ranges, because each prefix currently has exactly one match. They are latent, not
       broken, and are reported as such rather than fixed here — widening this task to twelve
       call sites is how a bounded fix becomes an unbounded one.
+
+  - path: .agentic-framework/web/blueprints/tasks.py
+    kind: content
+    task: T-606
+    upstream: fix
+    reason: |
+      /approvals rendered 205 escaped `&lt;code&gt;` sequences to the operator for as long
+      as that page had existed. `_render_markdown` and its AC-body sibling returned plain
+      `str` under the contract "the caller must mark returned strings safe" — correctness
+      living in every template author's memory rather than in the function. Two of the
+      four consumers forgot. The fix moves the decision into the function: both now return
+      `markupsafe.Markup`, so Jinja stops escaping already-safe HTML a second time.
+      markdown2's `safe_mode='escape'` still neutralises raw HTML arriving from the task
+      file, so this widens no injection surface — it stops double-escaping our own output.
+
+      WHY THIS ENTRY EXISTS AND THE FIX DOES NOT: the change landed at 10a537c1 and was
+      never declared here, so `_t517-vendor-divergence.py` has been FAILING in the bridge
+      suite ever since — "1 unrecorded". The guard was right and nobody read it, because
+      the bridge suite takes ~13 minutes and nothing runs it on a schedule. Declared
+      2026-08-29 after the suite was run to completion for the first time in weeks.
+
+      UPSTREAM because the defect is in vendored rendering shared with AEF's register,
+      not local policy: any project rendering an AC body through this blueprint shows its
+      operator escaped markup. Same class as T-557 — a vendored function whose contract
+      delegated correctness to its callers.

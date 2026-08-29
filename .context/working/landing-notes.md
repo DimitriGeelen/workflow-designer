@@ -794,3 +794,40 @@ to both (52 review, 101 tasks). The 404 body differs per route family — 1744B 
 calibrated on /review proves nothing about /tasks.
 
 Active count: 95 -> 95. Nothing closed by me; both closable things are operator-gated.
+
+## Session 10c — the bridge suite finished, and it was red
+
+CORRECTION to session 10b: I reported the leg "did not finish in 300s" and framed it as a
+patience problem. Wrong framing. Run to completion under 900s it takes ~13 minutes and
+returns EXIT=1 — 130 passed, 7 FAILED. The leg is not slow-and-green, it is slow-and-RED,
+and the slowness is why nobody had seen the red. T-358's P-011 gate cannot pass today even
+after the operator rules.
+
+TWO OF THE SEVEN ARE MINE, FROM EARLIER SESSIONS:
+
+1. _t517-vendor-divergence: "1 unrecorded — .agentic-framework/web/blueprints/tasks.py".
+   I patched vendored code at 10a537c1 (T-606, the /approvals escaped-<code> fix) and
+   never declared it in .vendor-divergence.yaml. The guard has been failing ever since.
+   The guard was RIGHT and nobody read it, because the only thing that runs it takes 13
+   minutes and nothing runs that on a schedule. A correct guard nobody executes is
+   indistinguishable from no guard — same family as the revisit scan that was never
+   scheduled, and as "absent and empty render identically".
+   FIXED AND VERIFIED: entry declared, _t517 now exits 0, "38 declared / 38 diverged".
+
+   Closure worth noting: the function I failed to declare is _render_markdown/_auto_link_files
+   — the very code that auto-linked T-341 into an <a href> and produced ghost #3 an hour
+   ago. I was misled by my own undeclared patch.
+
+2. verification-hygiene: 2 G-015 carriers in .tasks/completed/T-616-*.md, both
+   hard-coded http://192.168.10.107:3013 in ## Verification. Mine, commit 8c0123c2.
+   CLAUDE.md says never hard-code the port — the triple file is the source of truth.
+   NOT fixed: the task is in completed/, and rewriting a completed task's verification
+   is not obviously mine to do. Surfaced instead.
+
+THE OTHER FIVE ARE PRE-EXISTING AND NOT MINE: reconnect e2e edge.target rewiring
+(T-293/G-003 class), unwired-guard backlog moved, T-509 instrument sweep regression,
+_t358-byteid-thirdparty drift, and the absence-assertion census (leg 5, rc=1 over 2579
+legs — either the live corpus regressed or T560_TASK_ROOT leaked; it appears twice
+because two guards consume the same census).
+
+Bridge suite is 1164 lines and 13 minutes. It is the only place these seven are visible.
