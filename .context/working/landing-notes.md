@@ -1076,3 +1076,55 @@ wrote the note through a file instead.
 
 Corrected pre-flight now: 7 GREEN / 5 RED.
 Active count: 95 -> 95.
+
+## Session 14 — the editor was never broken, and my own correction needed correcting.
+
+LANDED: the last unclassified RED task. It had been red for weeks. Not a product bug.
+
+The standing endpoint-reconnect leg drives the real editor under CDP and asserts a drag
+onto a node rewires the edge target. It computed the drop point as the centre of the
+node's <g> element. An SVG <g> is the union of the shape AND its text label:
+    shape  872.8 -> 893.8   (w 20.9)
+    group  872.8 -> 959.6   (w 86.8, a 62px label lives in it)
+    release at x=916.2 — 22.4px past the node's right edge. SNAP_RADIUS is 22.
+Missed by 0.4px. nodeAt() is geometric over the SHAPE and never had an opinion on labels.
+
+Bisected 28 commits: green at the fix, red from the LABEL-PLACEMENT commit — which is
+correct and stays. It moved labels; the group bbox moved with them; the aim walked off
+the node. Decisive control, because "the test is wrong" is a claim: same handle, released
+on the SHAPE centre, at the same commit -> rewired correctly. The editor was fine
+throughout. FIFTH MECHANISM: the test aimed at the container that DESCRIBES the thing
+rather than the thing that ACTS. It was correct only by a coincidence of layout, and a
+legitimate change elsewhere withdrew the coincidence.
+
+Teeth re-proven by mutation, not by reading: neutering the node hit-test reddens THAT LEG
+ALONE and leaves the other eleven green.
+
+SECOND, AND IT INDICTS A REMEDY WE PUBLISH. The same task's next leg exited 141 for weeks
+while the string it sought was present THREE TIMES. Our own L-387 prescribes capture-first
+to avoid SIGPIPE, with the stated rationale that echo is "small and immediate". The page is
+900,930 bytes. Capturing MOVES the SIGPIPE from curl to echo; it does not remove it.
+
+THEN I GOT THE CORRECTION WRONG IN PUBLIC AND HAD TO CORRECT THE CORRECTION. I posted that
+the fault depends on the capture being large. Measured against a 720KB fixture:
+    early match -> 141    late match -> 0    absent -> 1
+It needs BOTH size AND an EARLY match. Two consequences I had backwards:
+  - the leg fails precisely when its evidence appears SOONEST. Reliability inversely
+    proportional to the quality of the evidence.
+  - a GREEN run proves nothing about safety. Soundness depends only on where the match
+    lands in the byte stream — not on the leg, pattern, or size, all of which are readable.
+    The 6 sibling tasks here are not correct, they are LUCKY: each greps a summary line at
+    the END of its output. Nothing but the convention that summaries come last holds them.
+
+THIRD, applied 577's @751 heredoc immunity where it cannot reach. P-011 runs ONE LINE per
+leg, so <<'PY' is unavailable exactly where these constructs are least reviewed. One-line
+cousin: outer string SINGLE-quoted, payload containing NO single quote at all, double
+quotes built with chr(34). Nothing in it can terminate the string. Absent by construction.
+
+MY OWN, traded on the rail: the throwaway probe printed "ALL LEGS PASS" while running ZERO
+legs — inherited exit(failures === 0) with failures still 0. An empty leg set and a fully
+passing one are byte-identical on stdout. Deleted rather than registered (42% of our
+unregistered fabric files are already one-shot instruments).
+
+Batch 6 -> 7. All six prior GREEN re-verified today, still green. Active 95 -> 95: the task
+is owner: human, so closing it is the operator's, not mine.
