@@ -94,7 +94,14 @@ echo
 echo "--- population: which registered PreToolUse hooks could refuse their own remedy?"
 # Re-derived from the enforcement registry every run rather than pinned as a list, so a
 # newly added hook widens the check instead of silently escaping it.
-python3 - "$SETTINGS" <<'PY'
+# T-633: the manifest goes in this run's sandbox, not a fixed path in shared /tmp.
+# 999-AEF @788 and 577 @789 established that this host carries at least three projects
+# and that we are one of the root ones — so a fixed `/tmp/t631-*.txt` is a path we would
+# write, grep AND `rm -f` with permissions that never deny us. The read hazard here was
+# nil (`>` truncates before the write, T-633), but the delete was not: as root the
+# cleanup below would have removed a same-named file belonging to anyone.
+MANIFEST="$SANDBOX/bash-matched-hooks.txt"
+python3 - "$SETTINGS" "$MANIFEST" <<'PY'
 import json, sys
 d = json.load(open(sys.argv[1]))
 bash_matched = []
@@ -108,20 +115,21 @@ for m in d.get("hooks", {}).get("PreToolUse", []):
 print("  Bash-matched PreToolUse hooks: %d" % len(bash_matched))
 for n in sorted(bash_matched):
     print("    - %s" % n)
-open("/tmp/t631-bashmatched.txt", "w").write("\n".join(sorted(bash_matched)))
+open(sys.argv[2], "w").write("\n".join(sorted(bash_matched)))
 PY
 
 # The two that are Bash-matched AND print Bash-shaped remedies are the two already
 # probed. budget-gate and check-project-boundary are Bash-matched but their remedies are
 # not commands they would refuse (budget-gate explicitly allowlists commit/handover at
 # critical; the boundary gate's remedy is "write inside the project", not a command).
-UNPROBED=$(grep -vE 'check-tier0|check-active-task|budget-gate|check-project-boundary' /tmp/t631-bashmatched.txt 2>/dev/null || true)
+UNPROBED=$(grep -vE 'check-tier0|check-active-task|budget-gate|check-project-boundary' "$MANIFEST" 2>/dev/null || true)
 if [ -z "$UNPROBED" ]; then
     ok "every Bash-matched hook is either probed (tier0, active-task) or has a non-command remedy"
 else
     bad "Bash-matched hook(s) with no remedy-reachability probe: $(echo $UNPROBED | tr '\n' ' ')"
 fi
-rm -f /tmp/t631-bashmatched.txt
+# No explicit cleanup: the manifest lives in $SANDBOX, which the EXIT trap removes.
+# One owner for the lifetime of the file, rather than a delete that could land anywhere.
 
 echo
 echo "--- teeth (mutate live source, assert the remedy leg goes RED)"

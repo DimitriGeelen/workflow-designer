@@ -1403,3 +1403,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-322
+  text: "CLAUDE.md's PREFERRED verification form 'cmd > /tmp/.out 2>&1 && grep -q PAT /tmp/.out', check-vacuous-verification.py's remediation advice, and check-dispatch.sh's '/tmp/fw-agent-*.md' all recommend a FIXED path in shared /tmp. Reader-safe (T-633 leg 1: '>' truncates before the command runs), but as root they silently take that path from every other project on this host — measured: 3 projects share this machine (999-AEF @788, 577 @789, us). Changing the documented idiom touches every existing Verification block, so it needs a wider decision than T-633's scope."
+  captured: 2026-08-29T16:00:58Z
+  context_task: T-633
+  tags: []
+  status: pending
+  promoted_to: null
