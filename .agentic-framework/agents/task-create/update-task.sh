@@ -1206,7 +1206,16 @@ print(text)
         # etc.) cannot inherit the lock FD and block future fw task ops.
         local _close_locks_cmd
         _close_locks_cmd=$(type keylock_subshell_close_cmd >/dev/null 2>&1 && keylock_subshell_close_cmd || true)
-        if (unset TASKS_DIR CONTEXT_DIR _FW_PATHS_LOADED; eval "$_close_locks_cmd"; cd "$PROJECT_ROOT" && eval "$cmd") > /tmp/verify-$$.out 2>&1; then
+        # T-630: `< /dev/null` is load-bearing, not hygiene. Without it `eval` inherits
+        # the loop's stdin — which IS the list of remaining verification commands — and
+        # any command that reads stdin consumes them. They stay in `verify_total` (that
+        # was computed by `wc -l` before the loop) and never run, so they produce neither
+        # a PASS nor a FAIL line and `verify_fail` stays 0. Observed on T-629: four
+        # commands declared, two executed, "Verification: 2/4 passed ✓", task completed.
+        # The reconciliation guard after the loop is the second half of this fix; this
+        # line stops the swallowing, that one refuses to call the result a pass if
+        # anything ever swallows again by another route.
+        if (unset TASKS_DIR CONTEXT_DIR _FW_PATHS_LOADED; eval "$_close_locks_cmd"; cd "$PROJECT_ROOT" && eval "$cmd") > /tmp/verify-$$.out 2>&1 < /dev/null; then
             echo -e "  ${GREEN}PASS${NC}: $display_cmd"
             verify_pass=$((verify_pass + 1))
         else
@@ -1220,6 +1229,30 @@ print(text)
     done <<< "$verify_cmds"
 
     echo ""
+    # T-630 — RECONCILIATION. Every counted command must have produced a verdict.
+    #
+    # The old summary was reached whenever `verify_fail` was 0, and never compared
+    # `verify_pass` with `verify_total`. That made "silently never executed"
+    # indistinguishable from "passed" — the exact equivalence 010-termlink named on the
+    # rail (@772): a runner that executes nothing and a runner whose every command passed
+    # produce the same summary. Ours went one worse, because it PRINTED the discrepancy
+    # (`2/4 passed ✓`) and completed the task anyway.
+    #
+    # This is deliberately a hard failure and deliberately not bypassable by
+    # --skip-verification. That flag means "I accept these failures"; an unreconciled
+    # count is not a failure the operator can accept, it is the runner reporting that it
+    # does not know what it ran. There is nothing to accept until that is fixed.
+    _verify_seen=$((verify_pass + verify_fail))
+    if [ "$_verify_seen" -ne "$verify_total" ]; then
+        echo -e "${RED}=== Verification Gate (P-011): RUNNER DEFECT ===${NC}" >&2
+        echo "Declared $verify_total command(s); only $_verify_seen produced a verdict" >&2
+        echo "($verify_pass passed, $verify_fail failed, $((verify_total - _verify_seen)) never ran)." >&2
+        echo "" >&2
+        echo "A command that was never executed is not a command that passed. Completion is" >&2
+        echo "blocked until every declared command reports. Most likely cause: one of the" >&2
+        echo "commands above reads stdin and consumed the rest of the list (T-630)." >&2
+        return 1
+    fi
     if [ "$verify_fail" -gt 0 ]; then
         if [ "$SKIP_VERIFICATION" = true ]; then
             echo -e "${YELLOW}WARNING: $verify_fail/$verify_total verification(s) failed (--skip-verification bypass)${NC}"
