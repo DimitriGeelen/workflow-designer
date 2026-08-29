@@ -8591,3 +8591,21 @@ scan_id: R-d5c27bab
 task_id: T-633
 payload:
   task_file: .tasks/active/T-633-shared-tmp-sinks-we-are-on-the-same-host.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T16:09:30Z'
+scan_id: R-5f0cb754
+task_id: T-634
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T16:09:30Z'
+scan_id: R-5f0cb754
+task_id: T-634
+payload:
+  task_file: .tasks/active/T-634-p-011s-runner-defect-and-malformed-block.md

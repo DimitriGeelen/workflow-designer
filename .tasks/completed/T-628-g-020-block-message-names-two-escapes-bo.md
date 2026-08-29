@@ -4,10 +4,10 @@ name: "G-020 block message names two escapes; both are refused by the gate that 
 description: >
   G-020 block message names two escapes; both are refused by the gate that prints them
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-29T14:56:05Z
-last_update: 2026-08-29T15:05:26Z
-date_finished: null
+last_update: 2026-08-29T15:05:54Z
+date_finished: 2026-08-29T15:05:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -296,3 +296,15 @@ reachability leg so the next refactor cannot make it vacuous without saying so.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-628-g-020-block-message-names-two-escapes-bo.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ed087a12
+- **Timestamp:** 2026-08-29T15:06:01Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-29T15:05:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

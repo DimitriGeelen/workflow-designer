@@ -1947,3 +1947,10 @@ learnings:
   date: 2026-08-29
   context: Added via context agent
   application: TBD
+- id: PL-274
+  learning: "A guard's teeth may live entirely outside the guard. P-011's three 'return 1' guards block only because of 'set -euo pipefail' on line 14, 1700 lines from the call site — proven by mutation: remove errexit and a task whose gate printed 'Nothing was run' completes. AEF's identical-shaped guards were toothless for the opposite reason (bare caller, no errexit). Neither fact is visible at the 'return 1'. A test must drive the real caller AND mutate the thing it believes is doing the work."
+  source: P-001
+  task: T-634
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
