@@ -747,3 +747,50 @@ carded, so it is 107 of 253 (42%), not 142 of 253. We overstated by a third befo
 measuring.
 
 Active count: 95 -> 95. Nothing archived, because archiving is the operator's to run.
+
+## Session 10b — T-358, and three ghosts
+
+Worked the ranked board top-down. T-344 (167) done last turn; T-358 (157) this one.
+
+RE-RAN T-358's VERIFICATION so the ruling rests on today, not on 2026-08-04:
+  _t356-third-party-fidelity-cdp.mjs      exit 0 — fabrication LIVE, 11/11 fixtures,
+                                          lanes in=0 out=3, participants in=0 out=1
+  _t358-corpus-lane-provenance-probe.py   exit 0 — PASS, 24/24 maps declare every lane,
+                                          so the "reverses into the opposite defect"
+                                          hazard does not fire on our population
+  tests/run-bridge-tests.sh               did NOT finish in 300s (exit 124). Recorded as
+                                          a property of the leg: P-011 runs this line at
+                                          completion, so that is where a completion
+                                          attempt spends its patience.
+
+FIXED A STALE COUNT IN THE BRIEF ITSELF. T-358's Recommendation said "3 of 6 Agent ACs
+are ticked ... the remaining three". Actual: 4 ticked, 2 blocked. The brief UNDERSTATED
+its own readiness to the one reader whose ruling it was waiting on. Same class as T-344's
+"run today, 2026-08-12".
+
+THE ONE STRUCTURAL FIND. T-341 (Q2a) and T-358 (Q2b) are one decision wearing two task
+IDs — the brief at :262 says "Q2a and Q2b must agree". T-341's Human AC says so. T-358's
+did NOT say it back, so the dependency was visible from one side only and a reader
+arriving at T-358 first could rule it alone. Now step 0 of T-358's Steps block, verified
+rendering on the card.
+
+THREE GHOSTS, ALL MINE, ALL CAUGHT BY MEASURING INSTEAD OF REPORTING:
+1. "T-358's review card renders nothing." FALSE — I probed T-358 with different strings
+   than the three cards I compared it against. Scoped-comparison error, the same one I
+   refuted from 999 and then committed at @706. Re-measured all four identically: same.
+2. "The checkbox line anchor is off by 85 lines." FALSE — `line` is a BODY index, not a
+   file line (_toggle_ac_line, tasks.py:606). body[323] IS the AC and the regex matches.
+   I could not test this by POSTing, because that would tick a Human AC, so I read the
+   handler. Reading the code was the only permitted instrument and it was sufficient.
+3. "The pairing warning does not render." FALSE — the renderer auto-links T-341 into
+   <a href="/tasks/T-341">, which splits any literal spanning that token. GREPPING
+   RENDERED HTML FOR A STRING CONTAINING AN AUTO-LINKED TOKEN ALWAYS RETURNS ZERO.
+   New instrument trap, sibling to the week's false-greens but on the reader's side.
+
+Also learned: /review/<id> and /tasks/<id> are different pages. /review is the decision
+card (title, Steps, Expected, tick box); /tasks is the full document. /approvals links
+to both (52 review, 101 tasks). The 404 body differs per route family — 1744B under
+/review, 67277B under /tasks — so a discriminator is route-family-specific and one
+calibrated on /review proves nothing about /tasks.
+
+Active count: 95 -> 95. Nothing closed by me; both closable things are operator-gated.
