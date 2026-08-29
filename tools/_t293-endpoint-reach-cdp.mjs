@@ -168,7 +168,17 @@ async function main() {
       renderEdges(); renderNodes();
       const h = gHandles.querySelector('.edge-handle-endpoint-hit[data-role="tgt"]');
       const r = h.getBoundingClientRect();
-      const d = gNodes.querySelector('g[data-id="n_join"]').getBoundingClientRect();
+      // Aim at the node's SHAPE, not its <g>. The group's bounding box is the union of
+      // the shape and its text label, so the group centre is only on the node while the
+      // label happens to sit under it. T-601 legitimately repositioned labels and the
+      // centre drifted 22.4px past n_join's right edge — 0.4px outside SNAP_RADIUS (22),
+      // so the drop landed in open space, nothing snapped, and this leg went red while
+      // the editor was behaving correctly. Verified: pressing the same handle and
+      // releasing on the shape centre rewires n_h_claude -> n_join at the same commit.
+      // PL-098: a pass-before/fail-after predicate aggregates EVERY cause of the change;
+      // this one silently aggregated label geometry into a reconnect assertion.
+      const dg = gNodes.querySelector('g[data-id="n_join"]');
+      const d = (dg.querySelector('rect,ellipse,circle,polygon,path') || dg).getBoundingClientRect();
       return { hx: r.x+r.width/2, hy: r.y+r.height/2, dx: d.x+d.width/2, dy: d.y+d.height/2,
                before: state.edges.find(e=>e.uid==='e_16').target };
     })()`);

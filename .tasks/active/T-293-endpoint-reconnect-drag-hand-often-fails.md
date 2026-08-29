@@ -4,10 +4,10 @@ name: "Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_h
 description: >
   Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_harvest
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T21:00:16Z
-last_update: 2026-08-23T10:24:10Z
+last_update: 2026-08-29T10:26:00Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -194,8 +194,23 @@ coordinate transforms, capture-phase preempt). Hypothesis-driven debugging, max
 grep -q 'id="g-handles"' src/aef-workflow-designer.html
 grep -q "test_t293_endpoint_reach" tests/run-bridge-tests.sh
 python3 tests/test_t293_endpoint_reach.py
-out=$(curl -sf "$(cat .context/working/watchtower.url)/designer/app"); echo "$out" | grep -q "g-handles"  # :8834 retired (T-253 ufw RCA); triple file is source of truth, T-305
-ls build/gallery/t293-handles-selected.png
+# L-387 AMENDED HERE (T-293, 2026-08-29). The capture-then-grep pattern this block
+# recommends above is NOT safe for large payloads, and this leg was the counterexample:
+# it exited 141 (SIGPIPE) for weeks while `g-handles` was present in the served page 3x.
+# The hint's stated rationale is `echo "$out"` is small and immediate — the served
+# designer is 900,930 bytes, so echo is still writing when `grep -q` matches and closes
+# stdin. Capturing first moves the SIGPIPE from curl to echo; it does not remove it.
+# Use a pipeline-free test instead. 79 active tasks use the capture-then-grep pattern;
+# 6 of those pipe a curl payload and carry this same latent false-red.
+out=$(curl -sf "$(cat .context/working/watchtower.url)/designer/app"); case "$out" in *g-handles*) true;; *) false;; esac  # :8834 retired (T-253 ufw RCA); triple file is source of truth, T-305
+# G-015: the previous leg here was `ls build/gallery/t293-handles-selected.png` — a
+# screenshot taken during the original verification session. It was NEVER COMMITTED
+# (no object for it in any ref), so it could only ever pass on the machine that made it,
+# and it asserted an artifact OF the verification rather than anything the task DELIVERED.
+# build/gallery/ may not be rebuilt to satisfy it (tools/_t350-build-only-probe.sh).
+# Replaced with the actual root-cause fix: #g-handles must paint AFTER #g-nodes, which is
+# the whole content of T-293 — endpoints were unreachable because they sat below the nodes.
+python3 -c "import io,sys; s=io.open('src/aef-workflow-designer.html',encoding='utf-8').read(); sys.exit(0 if s.index('id=\"g-nodes\"') < s.index('id=\"g-handles\"') else 1)"
 
 ## RCA
 
@@ -376,3 +391,7 @@ already approved in T-286, extended to the interactive chrome.
 ### 2026-08-23T10:24:10Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: started-work → captured (auto-sync)
+
+### 2026-08-29T10:26:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

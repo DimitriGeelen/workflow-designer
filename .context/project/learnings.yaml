@@ -1877,3 +1877,10 @@ learnings:
   date: 2026-08-26
   context: Added via context agent
   application: TBD
+- id: PL-264
+  learning: "L-387's capture-then-grep remedy is unsafe for large payloads: out=$(curl ...); echo \"$out\" | grep -q PAT still dies of SIGPIPE (141) when the capture is big, because echo is still writing when grep -q matches and closes stdin. Capturing moves the SIGPIPE from curl to echo, it does not remove it. The hint's rationale 'echo is small and immediate' is false at 900KB. Use a pipeline-free test: case \"$out\" in *PAT*) true;; *) false;; esac. Found on T-293, whose leg had been falsely red for weeks while the string was present 3x."
+  source: P-011
+  task: T-293
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
