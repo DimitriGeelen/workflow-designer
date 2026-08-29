@@ -625,17 +625,30 @@ if [ -n "$ACTIVE_FILE" ] && grep -q "^workflow_type: inception" "$ACTIVE_FILE" 2
                 echo "Inception work cannot edit source files until at least one Open Question is declared." >&2
                 echo "" >&2
                 echo "To unblock:" >&2
-                echo "  1. Edit $CURRENT_TASK and add at least one entry under '## Open Questions':" >&2
+                # T-629: name the surface. Remedies 1 and 2 are both task-file edits, and
+                # `.tasks/*` IS exempt — via a FILE_PATH test that a Bash call cannot
+                # satisfy, because it carries no file path. Stated bare, they read as
+                # available from the shell; measured, every shell form is refused. Same
+                # correction as G-020's remedy 1 (T-628), same reason, 25 lines apart.
+                echo "  1. Edit $CURRENT_TASK with the Edit/Write tool and add at least one entry under '## Open Questions':" >&2
                 echo "       - **IW-1: <question text>**" >&2
                 echo "         confidence: 0-3" >&2
                 echo "         disposition: answered|deferred|dissolved   # filled later" >&2
                 echo "         rationale: <one-line evidence>              # filled later" >&2
                 echo "" >&2
-                echo "  2. Or remove the '## Open Questions' section entirely (grandfathered)." >&2
+                echo "  2. Or remove the '## Open Questions' section entirely, also with the Edit/Write tool (grandfathered)." >&2
+                echo "     (shell edits — sed -i, heredoc, redirect — are refused here: no FILE_PATH, so the .tasks/ exemption cannot apply)" >&2
                 echo "" >&2
                 echo "  3. Override (logged Tier 2):  FW_ALLOW_INCEPTION_OPEN_QUESTIONS_DRIFT=1 <command>" >&2
                 echo "" >&2
-                echo "Attempting to modify: $FILE_PATH" >&2
+                # T-629: FILE_PATH is empty for every Bash call, so this line used to read
+                # "Attempting to modify: " with nothing after it — a blank exactly where
+                # the reader looks for the cause.
+                if [ -n "$FILE_PATH" ]; then
+                    echo "Attempting to modify: $FILE_PATH" >&2
+                else
+                    echo "Attempting to run (Bash): ${BASH_CMD:-<unknown>}" >&2
+                fi
                 echo "Policy: T-2194 / G-067 (Inception Open Questions readiness gate)" >&2
                 echo "See: 050-Inceptions.md §Disposition Gate, CLAUDE.md §Inception Discipline" >&2
                 exit 2
