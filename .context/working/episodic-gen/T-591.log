@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-26T12:23:48Z ===
+task_id: T-591
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-591.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: EWCR Arc-0: prove the pilot fixture is a semantic fixed point through the real editor runtime
+  Duration: 0 days (8 min)
+  Updates: 1
+  Commits: 1
+  Lines: +465 -2 across 3 files
+  Outcomes: 8 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-591-ewcr-arc-0-prove-the-pilot-fixture-is-a-.md
+--- exit code: 0 ---

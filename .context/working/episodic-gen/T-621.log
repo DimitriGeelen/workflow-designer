@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-27T19:23:44Z ===
+task_id: T-621
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-621.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Operator decisions filed as Agent ACs are invisible to /approvals
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 2
+  Lines: +453 -12 across 5 files
+  Outcomes: 7 AC checked
+  Artifacts: 5 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-621-operator-decisions-filed-as-agent-acs-ar.md
+--- exit code: 0 ---

@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-20T22:02:50Z ===
+task_id: T-560
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-560.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Verification legs that assert ABSENCE cannot distinguish a satisfied assertion from a broken pattern (OBS-297)
+  Duration: 0 days (896 min)
+  Updates: 2
+  Commits: 1
+  Lines: +874 -0 across 6 files
+  Outcomes: 6 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-560-verification-legs-that-assert-absence-ca.md
+--- exit code: 0 ---

@@ -7441,3 +7441,1009 @@ scan_id: R-14a82916
 task_id: T-570
 payload:
   task_file: .tasks/active/T-570-aefmeta-keys-absent-from-metakeys-are-im.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T18:16:50Z'
+scan_id: R-cfccf6dc
+task_id: T-572
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T18:16:50Z'
+scan_id: R-cfccf6dc
+task_id: T-572
+payload:
+  task_file: .tasks/active/T-572-meta-parity-guard-checks-a-subset-not-pa.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T22:02:47Z'
+scan_id: R-736781de
+task_id: T-560
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T22:02:47Z'
+scan_id: R-736781de
+task_id: T-560
+payload:
+  task_file: .tasks/active/T-560-verification-legs-that-assert-absence-ca.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T22:03:03Z'
+scan_id: R-24c2657f
+task_id: T-561
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T22:03:03Z'
+scan_id: R-24c2657f
+task_id: T-561
+payload:
+  task_file: .tasks/active/T-561-completion-crashes-on-inception-tasks-up.md
+---
+kind: scan_emitted
+timestamp: '2026-08-22T09:56:45Z'
+scan_id: R-1329dd47
+task_id: T-432
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-22T09:56:45Z'
+scan_id: R-1329dd47
+task_id: T-432
+payload:
+  task_file: .tasks/active/T-432-full-fw-audit-reports-60-fail-across-non.md
+---
+kind: scan_emitted
+timestamp: '2026-08-22T09:58:01Z'
+scan_id: R-0b2f0052
+task_id: T-542
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-22T09:58:01Z'
+scan_id: R-0b2f0052
+task_id: T-542
+payload:
+  task_file: .tasks/active/T-542-populate-cost-estimates-so-the-hvhc-and-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-22T09:59:31Z'
+scan_id: R-1e95ffb9
+task_id: T-433
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-22T09:59:31Z'
+scan_id: R-1e95ffb9
+task_id: T-433
+payload:
+  task_file: .tasks/active/T-433-fw-upgrade-refuses-the-sanctioned-consum.md
+---
+kind: scan_emitted
+timestamp: '2026-08-22T10:15:07Z'
+scan_id: R-39484edc
+task_id: T-574
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-22T10:15:07Z'
+scan_id: R-39484edc
+task_id: T-574
+payload:
+  task_file: .tasks/active/T-574-p-011-gate-passes-silently-when-its-veri.md
+---
+kind: scan_emitted
+timestamp: '2026-08-23T21:53:50Z'
+scan_id: R-9ba7328e
+task_id: T-578
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-23T21:53:50Z'
+scan_id: R-9ba7328e
+task_id: T-578
+payload:
+  task_file: .tasks/active/T-578-the-unwired-guard-census-strips-python-a.md
+---
+kind: scan_emitted
+timestamp: '2026-08-24T18:11:48Z'
+scan_id: R-3e0f0629
+task_id: T-563
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-24T18:11:48Z'
+scan_id: R-3e0f0629
+task_id: T-563
+payload:
+  task_file: .tasks/active/T-563-t-501-build-2-replace-the-9950-id-deriva.md
+---
+kind: scan_emitted
+timestamp: '2026-08-24T21:13:05Z'
+scan_id: R-082965ec
+task_id: T-581
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-24T21:13:05Z'
+scan_id: R-082965ec
+task_id: T-581
+payload:
+  task_file: .tasks/active/T-581-the-byte-identity-gates-baseline-is-a-ha.md
+---
+kind: scan_emitted
+timestamp: '2026-08-24T21:30:46Z'
+scan_id: R-26624be4
+task_id: T-579
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-24T21:30:46Z'
+scan_id: R-26624be4
+task_id: T-579
+payload:
+  task_file: .tasks/active/T-579-the-third-party-byte-identity-gate-is-re.md
+---
+kind: scan_emitted
+timestamp: '2026-08-24T22:38:46Z'
+scan_id: R-cb9b61c5
+task_id: T-576
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-24T22:38:46Z'
+scan_id: R-cb9b61c5
+task_id: T-576
+payload:
+  task_file: .tasks/active/T-576-t-423-fallout-the-trailer-probe-asserts-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-25T06:08:29Z'
+scan_id: R-ad973779
+task_id: T-499
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-25T06:08:29Z'
+scan_id: R-ad973779
+task_id: T-499
+payload:
+  task_file: .tasks/active/T-499-watchtower-liveness-confirms-a-server-an.md
+---
+kind: scan_emitted
+timestamp: '2026-08-25T09:47:55Z'
+scan_id: R-c9d5933b
+task_id: T-585
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-25T09:47:55Z'
+scan_id: R-c9d5933b
+task_id: T-585
+payload:
+  task_file: .tasks/active/T-585-the-approvals-queue-cannot-tell-an-empty.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T08:55:41Z'
+scan_id: R-a7106a3d
+task_id: T-587
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T08:55:41Z'
+scan_id: R-a7106a3d
+task_id: T-587
+payload:
+  task_file: .tasks/active/T-587-ingest-and-reflect-on-the-aef-executable-w.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-08-26T08:55:41Z'
+scan_id: RC-c80deb9b
+task_id: T-587
+payload:
+  overall: CONTRADICTED
+  claim_count: 9
+---
+kind: scan_emitted
+timestamp: '2026-08-26T09:51:07Z'
+scan_id: R-0fb14f88
+task_id: T-589
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T09:51:07Z'
+scan_id: R-0fb14f88
+task_id: T-589
+payload:
+  task_file: .tasks/active/T-589-designer-properties-panel-add-a-clickabl.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T12:23:45Z'
+scan_id: R-990c91ba
+task_id: T-591
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T12:23:45Z'
+scan_id: R-990c91ba
+task_id: T-591
+payload:
+  task_file: .tasks/active/T-591-ewcr-arc-0-prove-the-pilot-fixture-is-a-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T12:30:17Z'
+scan_id: R-7588ec49
+task_id: T-590
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T12:30:17Z'
+scan_id: R-7588ec49
+task_id: T-590
+payload:
+  task_file: .tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T12:47:18Z'
+scan_id: R-a9b39f52
+task_id: T-592
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T12:47:18Z'
+scan_id: R-a9b39f52
+task_id: T-592
+payload:
+  task_file: .tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T14:25:46Z'
+scan_id: R-9ea3ec80
+task_id: T-593
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T14:25:46Z'
+scan_id: R-9ea3ec80
+task_id: T-593
+payload:
+  task_file: .tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T14:47:51Z'
+scan_id: R-b6672488
+task_id: T-594
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T14:47:51Z'
+scan_id: R-b6672488
+task_id: T-594
+payload:
+  task_file: .tasks/active/T-594-residual-prose-still-claims-the-operator.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T15:02:11Z'
+scan_id: R-1df754f1
+task_id: T-595
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T15:02:11Z'
+scan_id: R-1df754f1
+task_id: T-595
+payload:
+  task_file: .tasks/active/T-595-record-the-operators-h2-answer--aef-name.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T15:34:44Z'
+scan_id: R-0013e349
+task_id: T-596
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T15:34:44Z'
+scan_id: R-0013e349
+task_id: T-596
+payload:
+  task_file: .tasks/active/T-596-arc-0-exit-gate-is-uncheckable-the-opera.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T16:30:58Z'
+scan_id: R-5469d73e
+task_id: T-597
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T16:30:58Z'
+scan_id: R-5469d73e
+task_id: T-597
+payload:
+  task_file: .tasks/active/T-597-both-remaining-arc-0-exit-clauses-are-co.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T16:45:23Z'
+scan_id: R-78d7b738
+task_id: T-565
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T16:45:23Z'
+scan_id: R-78d7b738
+task_id: T-565
+payload:
+  task_file: .tasks/active/T-565-iw-0-exit-condition-measure-the-byte-imp.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T16:46:23Z'
+scan_id: R-2b42a916
+task_id: T-588
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T16:46:23Z'
+scan_id: R-2b42a916
+task_id: T-588
+payload:
+  task_file: .tasks/active/T-588-upstream-ships-an-unanchored-verificatio.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T17:06:56Z'
+scan_id: R-eceeebfa
+task_id: T-598
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T17:06:56Z'
+scan_id: R-eceeebfa
+task_id: T-598
+payload:
+  task_file: .tasks/active/T-598-connectors-show-direction-only-at-the-de.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T19:19:35Z'
+scan_id: R-c01c56a3
+task_id: T-603
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T19:19:35Z'
+scan_id: R-c01c56a3
+task_id: T-603
+payload:
+  task_file: .tasks/active/T-603-only-the-first-bpmnprocess-is-imported-e.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T19:19:55Z'
+scan_id: R-32ceb308
+task_id: T-602
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T19:19:55Z'
+scan_id: R-32ceb308
+task_id: T-602
+payload:
+  task_file: .tasks/active/T-602-bpmndocumentation-on-a-flow-node-is-drop.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T19:20:42Z'
+scan_id: R-d7a7180f
+task_id: T-600
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T19:20:42Z'
+scan_id: R-d7a7180f
+task_id: T-600
+payload:
+  task_file: .tasks/active/T-600-side-placed-event-labels-do-not-wrap-lon.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T19:37:22Z'
+scan_id: R-9f510de3
+task_id: T-601
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T19:37:22Z'
+scan_id: R-9f510de3
+task_id: T-601
+payload:
+  task_file: .tasks/active/T-601-side-placed-labels-have-no-pool-or-lane-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T20:13:36Z'
+scan_id: R-2fce52af
+task_id: T-604
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T20:13:36Z'
+scan_id: R-2fce52af
+task_id: T-604
+payload:
+  task_file: .tasks/active/T-604-chromium-driven-verification-legs-fail-n.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T20:31:51Z'
+scan_id: R-3710b631
+task_id: T-605
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T20:31:51Z'
+scan_id: R-3710b631
+task_id: T-605
+payload:
+  task_file: .tasks/active/T-605-input-fidelity-census-still-expects-docu.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T21:03:51Z'
+scan_id: R-33c66305
+task_id: T-606
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T21:03:51Z'
+scan_id: R-33c66305
+task_id: T-606
+payload:
+  task_file: .tasks/active/T-606-renderer-output-is-escaped-at-the-templa.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T21:22:51Z'
+scan_id: R-a4cd16b9
+task_id: T-607
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T21:22:51Z'
+scan_id: R-a4cd16b9
+task_id: T-607
+payload:
+  task_file: .tasks/active/T-607-focus-drift-gate-cannot-see-the-fw-invoc.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T22:13:31Z'
+scan_id: R-331519b5
+task_id: T-608
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T22:13:31Z'
+scan_id: R-331519b5
+task_id: T-608
+payload:
+  task_file: .tasks/active/T-608-draft-the-aef-attestation-request-for-ar.md
+---
+kind: scan_emitted
+timestamp: '2026-08-26T22:42:35Z'
+scan_id: R-0028dc88
+task_id: T-392
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-26T22:42:35Z'
+scan_id: R-0028dc88
+task_id: T-392
+payload:
+  task_file: .tasks/active/T-392-safe-list-early-return-shadows-the-focus.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T07:27:56Z'
+scan_id: R-200a60af
+task_id: T-610
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T07:27:56Z'
+scan_id: R-200a60af
+task_id: T-610
+payload:
+  task_file: .tasks/active/T-610-send-the-arc-0-attestation-request-to-ae.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T07:51:28Z'
+scan_id: R-2a8f4803
+task_id: T-611
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T07:51:28Z'
+scan_id: R-2a8f4803
+task_id: T-611
+payload:
+  task_file: .tasks/active/T-611-ewcr-arc-4-diagram-fabric-navigation-pro.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T07:55:07Z'
+scan_id: R-a1b05b20
+task_id: T-612
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T07:55:07Z'
+scan_id: R-a1b05b20
+task_id: T-612
+payload:
+  task_file: .tasks/active/T-612-make-the-t-589-operator-review-actionabl.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T08:04:03Z'
+scan_id: R-aab6257b
+task_id: T-613
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T08:04:03Z'
+scan_id: R-aab6257b
+task_id: T-613
+payload:
+  task_file: .tasks/active/T-613-010-termlinks-finished-and-waiting-blind.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T08:42:17Z'
+scan_id: R-fc49cc1f
+task_id: T-614
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T08:42:17Z'
+scan_id: R-fc49cc1f
+task_id: T-614
+payload:
+  task_file: .tasks/active/T-614-claudemd-context-budget-thresholds-are-2.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T09:00:27Z'
+scan_id: R-4f6a1c36
+task_id: T-615
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T09:00:27Z'
+scan_id: R-4f6a1c36
+task_id: T-615
+payload:
+  task_file: .tasks/active/T-615-cut-a-0120-release-candidate-for-the-t-5.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T09:02:53Z'
+scan_id: R-2f9d7325
+task_id: T-616
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T09:02:53Z'
+scan_id: R-2f9d7325
+task_id: T-616
+payload:
+  task_file: .tasks/active/T-616-verify-which-operator-surface-if-any-car.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T12:34:04Z'
+scan_id: R-39edbc2a
+task_id: T-617
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T12:34:04Z'
+scan_id: R-39edbc2a
+task_id: T-617
+payload:
+  task_file: .tasks/active/T-617-designer-node-execution-contract-determi.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-08-27T12:34:04Z'
+scan_id: RC-87c4f54d
+task_id: T-617
+payload:
+  overall: CONFIRMED
+  claim_count: 1
+---
+kind: scan_emitted
+timestamp: '2026-08-27T16:28:09Z'
+scan_id: R-9daaa7ee
+task_id: T-618
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T16:28:09Z'
+scan_id: R-9daaa7ee
+task_id: T-618
+payload:
+  task_file: .tasks/active/T-618-author-execution-contract-scalars-execut.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T18:53:32Z'
+scan_id: R-ac4bb0f1
+task_id: T-620
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T18:53:32Z'
+scan_id: R-ac4bb0f1
+task_id: T-620
+payload:
+  task_file: .tasks/active/T-620-ewcr-arc-0-landing-route-r6r7-request-th.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T19:23:42Z'
+scan_id: R-266c017a
+task_id: T-621
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T19:23:42Z'
+scan_id: R-266c017a
+task_id: T-621
+payload:
+  task_file: .tasks/active/T-621-operator-decisions-filed-as-agent-acs-ar.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T19:30:23Z'
+scan_id: R-f18cf755
+task_id: T-586
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T19:30:23Z'
+scan_id: R-f18cf755
+task_id: T-586
+payload:
+  task_file: .tasks/active/T-586-kill-worktree-isolation-and-pin-no-backg.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T19:39:25Z'
+scan_id: R-2817f3d0
+task_id: T-609
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T19:39:25Z'
+scan_id: R-2817f3d0
+task_id: T-609
+payload:
+  task_file: .tasks/active/T-609-review-cards-drop-stepsexpectedif-not-so.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T19:41:03Z'
+scan_id: R-300d582e
+task_id: T-537
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T19:41:03Z'
+scan_id: R-300d582e
+task_id: T-537
+payload:
+  task_file: .tasks/active/T-537-termlinkagentchatarcrecent-returns-oktru.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T19:41:18Z'
+scan_id: R-d85b55ac
+task_id: T-540
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T19:41:18Z'
+scan_id: R-d85b55ac
+task_id: T-540
+payload:
+  task_file: .tasks/active/T-540-bootstrap-bvp-scoring-and-produce-the-fi.md
+---
+kind: scan_emitted
+timestamp: '2026-08-27T21:10:19Z'
+scan_id: R-13f7fda7
+task_id: T-623
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-27T21:10:19Z'
+scan_id: R-13f7fda7
+task_id: T-623
+payload:
+  task_file: .tasks/active/T-623-aef-answered-clause-1-red-their-same-dis.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T14:06:52Z'
+scan_id: R-9d6584b3
+task_id: T-624
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T14:06:52Z'
+scan_id: R-9d6584b3
+task_id: T-624
+payload:
+  task_file: .tasks/active/T-624-inception-ranking-carries-no-information.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T14:11:35Z'
+scan_id: R-69db5a2f
+task_id: T-625
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T14:11:35Z'
+scan_id: R-69db5a2f
+task_id: T-625
+payload:
+  task_file: .tasks/active/T-625-inception-cost-axis-may-be-planted-too-t.md

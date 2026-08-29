@@ -1,0 +1,8 @@
+=== episodic-gen NOT REACHED: 2026-08-22T10:15:07Z ===
+task_id: T-574
+detected_by: T-522 completion watchdog (EXIT trap)
+script_exit_code: 0
+reason: the work-completed transition began but execution left update-task.sh
+        before the Episodic Generation block. Under set -euo pipefail this is
+        almost always an unguarded non-zero command between the move to
+        completed/ and that block. Re-run with 'bash -x' to find the line.

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-23T21:53:52Z ===
+task_id: T-578
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-578.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: The unwired-guard census strips Python and shell comments but not JavaScript block comments
+  Duration: 0 days (58 min)
+  Updates: 2
+  Commits: 3
+  Lines: +424 -14 across 6 files
+  Outcomes: 3 AC checked
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-578-the-unwired-guard-census-strips-python-a.md
+--- exit code: 0 ---

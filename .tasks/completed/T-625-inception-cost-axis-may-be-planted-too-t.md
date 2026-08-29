@@ -4,10 +4,10 @@ name: "Inception cost axis may be planted too: target_blast_radius ships pre-fil
 description: >
   Inception cost axis may be planted too: target_blast_radius ships pre-filled beside voi_score
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-29T14:07:31Z
-last_update: 2026-08-29T14:07:31Z
-date_finished: null
+last_update: 2026-08-29T14:11:19Z
+date_finished: 2026-08-29T14:11:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -229,3 +229,15 @@ grep -q "^target_blast_radius: 3" .tasks/templates/inception.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-625-inception-cost-axis-may-be-planted-too-t.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-69db5a2f
+- **Timestamp:** 2026-08-29T14:11:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-29T14:11:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

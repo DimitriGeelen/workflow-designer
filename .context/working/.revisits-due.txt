@@ -1,1 +1,3 @@
-T-155 fires 2026-08-01: Hierarchical tree grouping for Open-project map browser
+T-155 fires 2026-08-21: Hierarchical tree grouping for Open-project map browser
+T-291 fires 2026-08-28: Document workflow 'review-map' (referenced, not yet created)
+T-292 fires 2026-08-28: Document workflow 'future-map' (referenced, not yet created)

@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-08-27T07:51:31Z ===
+task_id: T-611
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-611.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: EWCR Arc 4 diagram-Fabric navigation: prove the built link path end to end, hand the operator a one-click review, answer CashWeb's parked question
+  Duration: 0 days (6 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-611-ewcr-arc-4-diagram-fabric-navigation-pro.md
+--- exit code: 0 ---

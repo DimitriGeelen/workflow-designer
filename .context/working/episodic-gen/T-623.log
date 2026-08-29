@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-27T21:10:22Z ===
+task_id: T-623
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-623.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: AEF answered clause 1 red; their same-disease verdict on our fabric denominator does not hold - measured 3 of 69 not 749 of 1134
+  Duration: 0 days (5 min)
+  Updates: 2
+  Commits: 1
+  Lines: +568 -4 across 3 files
+  Outcomes: 7 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-623-aef-answered-clause-1-red-their-same-dis.md
+--- exit code: 0 ---

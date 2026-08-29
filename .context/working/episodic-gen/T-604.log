@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-26T20:13:38Z ===
+task_id: T-604
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-604.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Chromium-driven verification legs fail nondeterministically on unchanged code, reddening the P-011 gate
+  Duration: 0 days (20 min)
+  Updates: 1
+  Commits: 2
+  Lines: +820 -179 across 82 files
+  Outcomes: 7 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 82 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-604-chromium-driven-verification-legs-fail-n.md
+--- exit code: 0 ---

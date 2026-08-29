@@ -1,22 +1,22 @@
 === Handover Agent ===
-Session: S-2026-0820-1215
-Timestamp: 2026-08-20T10:15:19Z
+Session: S-2026-0827-1121
+Timestamp: 2026-08-27T09:21:10Z
 
 Gathering state...
 
 Checking episodic completeness...
 ✓ All recent completed tasks have enriched episodics
-⚠ Observation inbox: 76 pending (3 urgent)
+⚠ Observation inbox: 92 pending (3 urgent)
   Run: cd /opt/832-Workflow-designer && fw note triage
-Concerns register: 33 watching
-Session metrics extracted: 51274 turns, 1383 commits, 1411 errors, 1340 edit bursts
-  Cumulative — CPT: 0.027 | FTC rate: 0.0551 | PTR: 0.3455
-  Per-session (8 turns) — CPT: 0.0 | FTC rate: 0.0 | PTR: 0.375
+Concerns register: 36 watching
+Session metrics extracted: 57351 turns, 1531 commits, 1566 errors, 1452 edit bursts
+  Cumulative — CPT: 0.0267 | FTC rate: 0.0544 | PTR: 0.3509
+  Per-session (126 turns) — CPT: 0.0397 | FTC rate: 0.0938 | PTR: 0.4286
   Output: /opt/832-Workflow-designer/.context/working/.session-metrics.yaml
 Creating handover document...
 
 === Handover Created ===
-File: /opt/832-Workflow-designer/.context/handovers/S-2026-0820-1215.md
+File: /opt/832-Workflow-designer/.context/handovers/S-2026-0827-1121.md
 Latest: /opt/832-Workflow-designer/.context/handovers/LATEST.md
 
 Auto-committing handover...
@@ -25,16 +25,16 @@ WARNING: Task T-005 is closed (in .tasks/completed/)
   Consider: create a new task, or reopen this one.
   Commit allowed (Tier 1 warning).
 
-[master 8ccdfb1b] T-005: Session handover S-2026-0820-1215
- 2 files changed, 679 insertions(+), 1 deletion(-)
- create mode 100644 .context/handovers/S-2026-0820-1215.md
+[master 38de3789] T-005: Session handover S-2026-0827-1121
+ 2 files changed, 731 insertions(+), 1 deletion(-)
+ create mode 100644 .context/handovers/S-2026-0827-1121.md
 
 Pushing to remotes...
 
 === Pre-Push Audit Check ===
 
 === AUDIT REPORT ===
-Timestamp: 2026-08-20T12:15:34+02:00
+Timestamp: 2026-08-27T11:21:29+02:00
 Project: /opt/832-Workflow-designer
 Sections: structure
 
@@ -53,44 +53,47 @@ Sections: structure
 [PASS] No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)
 [PASS] No stale-slice-references (L-417)
 [PASS] No GO-scope-not-propagated inception(s) (sibling to L-417)
-[WARN] Fabric: 65 registered, 206 unregistered (of 268 watched — 24% covered, cards flat since earlier today (65))
-       Evidence: 206 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
+[WARN] Fabric: 69 registered, 250 unregistered (of 316 watched — 21% covered, cards flat since earlier today (69))
+       Evidence: 250 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
        Mitigation: Run: fw fabric scan
-[WARN] Fabric: 42/65 cards have no edges
+[WARN] Fabric: 46/69 cards have no edges
        Evidence: Graph coverage below target
        Mitigation: Run: fw fabric enrich
-[WARN] Fabric drift: 206 source file(s) have no fabric card
-       Evidence: 206 of 268 watched files matching watch-patterns.yaml are unregistered
+[WARN] Fabric drift: 250 source file(s) have no fabric card
+       Evidence: 250 of 316 watched files matching watch-patterns.yaml are unregistered
        Mitigation: Run: fw fabric scan
 [PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
 [PASS] Hook threshold: no hooks failing over threshold
 [PASS] Secret scan: tracked tree clean
 [PASS] Designer ghost registry: ghost↔task joins clean
 [PASS] Release lag: src, released artifact and peer pin are in step
-[PASS] Gap register: every watching gap has a renderable closure condition
+[WARN] Watching gap(s) with no closure condition: G-043
+       Evidence: A gap that cannot be closed is permanent furniture (T-382)
+       Mitigation: Add decision_trigger: to each, or downgrade/close the gap
 
 === SUMMARY ===
-Pass: 20
-Warn: 3
+Pass: 19
+Warn: 4
 Fail: 0
 
 === PRIORITY ACTIONS ===
-     1	Run: fw fabric enrich
-     2	Run: fw fabric scan
+     1	Add decision_trigger: to each, or downgrade/close the gap
+     2	Run: fw fabric enrich
+     3	Run: fw fabric scan
 
 === TREND ANALYSIS ===
 Repeated issues detected in last 14 days (candidates for practice):
-  - Fabric drift: 200 source file(s) have no fabric card (11 times)
-  - Fabric: 41/64 cards have no edges (11 times)
-  - Fabric: 40 registered, 185 unregistered (of 222 watched) (7 times)
-  - Fabric: 64 registered, 200 unregistered (of 261 watched — 24% covered, cards flat since earlier today (64)) (3 times)
+  - Fabric drift: 245 source file(s) have no fabric card (12 times)
+  - Fabric: 46/69 cards have no edges (12 times)
+  - Fabric: 69 registered, 245 unregistered (of 311 watched — 22% covered, cards flat since earlier today (69)) (8 times)
+  - Watching gap(s) with no closure condition: G-043 (4 times)
 
 Consider creating a practice to address these recurring issues.
 Run: fw context add-learning "description" --task T-XXX
 
-Audit history: 11 audit(s) in last 14 days + today
+Audit history: 12 audit(s) in last 14 days + today
 
-Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-08-20.yaml
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-08-27.yaml
 
 === END AUDIT ===
 
@@ -98,5 +101,5 @@ WARNING: Audit has warnings (push allowed)
 Consider addressing the issues above.
 
 To ssh://192.168.10.201:6611/workflow-designer
-   08c03ecf..8ccdfb1b  HEAD -> master
+   7b486b45..38de3789  HEAD -> master
   Pushed to origin ✓

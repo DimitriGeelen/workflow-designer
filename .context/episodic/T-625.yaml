@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-625: Inception cost axis may be planted too: target_blast_radius ships pre-filled beside voi_score
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T14:11:37Z
+# ============================================================================
+
+task_id: T-625
+task_name: "Inception cost axis may be planted too: target_blast_radius ships pre-filled beside voi_score"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T14:07:31Z
+completed: 2026-08-29T14:11:19Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-29T16:11:18+02:00
+last_commit: 2026-08-29T16:11:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the cost axis is planted too — same 38 tasks, so the quadrant assignment is as template-authored as the score inside it
+
+# Key outcomes
+outcomes:
+  - 'The distribution of `target_blast_radius:` across all inception tasks is measured'
+  - 'The finding is acted on either way, and the negative result is recorded as'
+  - 'G-045 is amended with the result, since it is the same mechanism and the same'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-inception-schema.py'
+  - '.context/episodic/T-624.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/patterns.yaml'
+  - '.tasks/active/T-625-inception-cost-axis-may-be-planted-too-t.md'
+  - '.tasks/completed/T-624-inception-ranking-carries-no-information.md'
+  - '.tasks/templates/inception.md'
+  - 'tools/_t624-voi-provenance.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-29T16:11:18"
+    action: 'T-625: the cost axis is planted too — same 38 tasks, so the quadrant assignment is as template-authored as the score inside it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 9
+  lines_added: 411
+  lines_removed: 42
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-625-inception-cost-axis-may-be-planted-too-t.md
+generated_by: context-agent-hybrid
