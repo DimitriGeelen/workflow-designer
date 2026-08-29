@@ -2706,3 +2706,65 @@ concerns:
   - T-575
   - T-560
   - T-606
+- id: G-045
+  title: A required field pre-filled by the template converts a presence gate into a gate that cannot
+    fail, and the estimator's own branch for the unscored case became unreachable
+  severity: high
+  status: watching
+  registered: '2026-08-29'
+  detail: 'For inception tasks the BVP estimator does not run its nine per-driver scorers. _score_inception_voi
+    (estimator.py:2429) makes the voi_score: frontmatter field the entire composite. That is a deliberate
+    and defensible design (T-2188): for an exploration, the value IS the information it buys.
+
+
+    The consequence is not deliberate. .tasks/templates/inception.md plants voi_score: 0.5, so every
+    inception is born at the midpoint. MEASURED 2026-08-29 with tools/_t624-voi-provenance.py over 41
+    inception tasks: 1 deliberately scored, 38 still carrying the planted default, 2 with the field
+    absent. fw bvp --quadrant hv-lc therefore returns THIRTEEN active tasks at an identical BVP 126 /
+    norm 0.40, ordered by tiebreak, while hv-hc spreads 118 to 167 normally. The one quadrant holding
+    the inceptions the operator is asked to rule on is the one quadrant that is not ranked.
+
+
+    THE MECHANISM, AND EVERY LINK IN IT BEHAVES AS DESIGNED. (1) The template supplies 0.5. (2) The
+    schema gate requires the field present and in 0..1; 0.5 passes, and the gate''s own remediation text
+    offered voi_score: 0.5 as its worked example while the line above it promised the estimator could
+    rank the task -- the two halves of one message contradicted each other, and 38 authors reasonably
+    followed the example. (3) The estimator derives all nine drivers from that single number. (4) The
+    estimator DOES carry a branch for the unscored case, returning the evidence string
+    voi-absent-grandfathered when voi_score is None -- and it is UNREACHABLE for any template-created
+    task, because step 1 guarantees the field is never None. It fires for exactly 2 of 41. (5) Both
+    branches yield 2, and the ranking table prints neither evidence string.
+
+
+    THE GENERAL FORM, which is why this is registered rather than just fixed: A PRE-FILLED REQUIRED
+    FIELD CONVERTS A GATE FOR PRESENCE INTO A GATE THAT IS STRUCTURALLY INCAPABLE OF FAILING. It can
+    only ever confirm the default it planted. This is the shadow side of PL-167 ("when a gate demands
+    a shape, the SHIPPED template must supply it"), which is correct and which we should keep: the cost
+    of satisfying a gate from the template is that the gate stops being able to detect absence. Any
+    other required-and-pre-filled field in this framework carries the same exposure and none has been
+    audited for it.
+
+
+    Sibling to the week''s other instrument findings and arriving the same day: 999-AEF''s mutation
+    control that only controlled in a bare shell; 010-termlink''s self-test whose three fixtures were
+    a claim about which failures the author imagined; 577-CashWeb''s guard whose discriminator was the
+    variable name of the single instance they found; our own T-293, a test aimed at the container that
+    DESCRIBES a node rather than the shape that ACTS. In all five the instrument answers a question
+    adjacent to the one its reader believes it is answering, and every one of them was GREEN.
+
+
+    NOT AGENT-CLOSABLE. voi_score IS the composite, which makes it the sovereignty equivalent of
+    confirmed bvp_scores:, and unlike bvp_scores/cost_estimate it has NO _proposed: lane an agent may
+    write into. So the framework gives an agent no legitimate way to contribute an inception ranking at
+    all, which is a plausible reason nobody ever moved the value. Scoring the 38 is the operator''s act.
+    The missing _proposed: lane is the part that should be designed, not patched.'
+  decision_trigger: 'Close when either (a) the operator scores the 13 active inceptions so the hv-lc
+    quadrant discriminates, and a check pins the deliberately-scored count so a silent regression to
+    the default is caught; or (b) a voi_score_proposed: lane is designed so agents can propose and the
+    operator confirms, mirroring bvp_scores/bvp_scores_proposed. Downgrade to low only if the operator
+    rules that inceptions are not meant to be ranked against each other at all -- in which case the
+    hv-lc quadrant should stop displaying a BVP number for them rather than displaying a tie.'
+  tasks:
+  - T-624
+  - T-619
+  - T-309
