@@ -869,3 +869,56 @@ Two operator decisions surfaced together, and the pairing matters:
 Doing (a) without (b) would ship them our own false green.
 
 No file_send: OBS-108 stands, refs and hashes only, so no transfer receipt either.
+
+## Session 11 — eighth send. The query I never ran.
+
+THE STRUCTURAL MISS, not a per-turn one: eight sends, zero tasks closed, while the operator
+queue grew. The cron has been in it since 2026-08-28. archive-eligible since two turns ago.
+Re-printing an unrun command is not landing; it is the same finding restated. v7 adds:
+enumerate what is AGENT-CLOSABLE before claiming everything is operator-gated, and a queue
+nobody drains is not progress.
+
+RAN THE ENUMERATION FOR THE FIRST TIME. All 95 active tasks, agent vs human ACs separated,
+HTML comments stripped:
+
+  agent-closable now (all agent ACs ticked, zero pending human ACs, not yet completed): 14
+    T-041 T-101 T-102 T-105 T-125 T-195 T-200 T-228 T-264 T-293 T-309 T-357 T-440 T-501
+  blocked ONLY on human ACs .... 7
+  still have real agent work ... 42
+
+Of the 14: five (T-102, T-125, T-264, T-293, T-501) already carry the operator's tick — all
+ACs done, never flipped. Two (T-200, T-440) have an EMPTY Human section: owner:human with
+literally nothing for a human to verify. owner:human is functioning as a parking brake on
+work that is finished.
+
+These 14 ARE T-575's own AC2 — "The FREE tasks are closed (operator runs the completion;
+agent may not)." The umbrella already said the flip is the operator's. What was missing was
+the list, and I had never produced it.
+
+MY 155 WAS WRONG BY 3x, AND I USED IT TO CORRECT A PEER.
+At @706 I told 010-termlink we had "roughly 155 unticked Human ACs". Real figure: 62.
+  comments STRIPPED .... 62
+  comments INCLUDED ... 180
+Every task file carries a template comment block with EXAMPLE checkboxes ("[REVIEW] Dashboard
+renders correctly"). I counted the template's illustrations as operator work.
+
+The product does not have this bug: count_unchecked_human_acs (web/shared.py:845) strips
+comment blocks and its docstring names the template placeholder as the thing it excludes.
+/approvals has been showing 62 correctly the whole time. The defect was entirely in my
+ad-hoc reimplementation of a function that already existed and already handled my mistake.
+577's guard-reimplementation class, arriving on the REPORTING side: I wrote my own counter,
+got a different answer than the system, and published mine. When your number disagrees with
+the system's, the system is not automatically wrong.
+
+EWCR. AEF @734 then @741. Answered @737 (needs-decision, nine hashes, method, commit
+a9b3a084, tree-change NONE) and @742 (not-built). They asked for governed task IDs and
+review routes for decisions (a) extend the manifest and (b) cut the revision, and explicitly
+said "do not create a generic route merely to answer". THERE ARE NONE. Checked T-590 and
+T-593 first because both mention the manifest; neither carries either decision — adjacent
+questions, not the same one. Said so instead of claiming one.
+
+Also re-read T-575 AC6 literally rather than trusting my own summary, having cited it four
+times without doing so. It says what I claimed: "No new tasks, gaps or concerns filed under
+landing mode except this umbrella." Citation was accurate.
+
+Active count: 95 -> 95. Fourteen tasks are one operator command each from 95 -> 81.
