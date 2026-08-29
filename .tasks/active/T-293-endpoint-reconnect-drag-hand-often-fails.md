@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T21:00:16Z
-last_update: 2026-08-29T10:30:20Z
+last_update: 2026-08-29T10:36:27Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -209,7 +209,7 @@ python3 tests/test_t293_endpoint_reach.py
 # safety — greenness depends only on where the match happens to land. That is why the 6
 # sibling tasks do not trip today: each greps a summary line at the END of its test output.
 # Here the token appeared near the top of a 900,930-byte page, which is the worst case.
-out=$(curl -sf "$(cat .context/working/watchtower.url)/designer/app"); case "$out" in *g-handles*) true;; *) false;; esac  # :8834 retired (T-253 ufw RCA); triple file is source of truth, T-305
+out=$(curl -sf "$(cat .context/working/watchtower.url)/designer/app"); case "$out" in *g-handles*) true;; *) false;; esac  # port 8834 retired (T-253 ufw RCA); triple file is source of truth, T-305
 # G-015: the previous leg here was `ls build/gallery/t293-handles-selected.png` — a
 # screenshot taken during the original verification session. It was NEVER COMMITTED
 # (no object for it in any ref), so it could only ever pass on the machine that made it,

@@ -345,7 +345,19 @@ def main():
     for name, keys in sorted(carriers.items()):
         present = findings.get(name)
         if present is None:
-            stale.append((name, "task file no longer present under .tasks/ (deleted?)"))
+            # `findings` holds only files that STILL CARRY a carrier line, so "absent from
+            # findings" has two causes that a reader must not confuse: the file was deleted,
+            # or the file was fully CLEANED and is sitting right there. Reporting the second
+            # as "deleted?" sends whoever is ruling on this baseline hunting for a file that
+            # exists. That is the T-409 defect noted above wearing a different route: the
+            # stored-path test was replaced, and the conflation came back through the scan.
+            # Decide it by looking, not by inferring from an absence.
+            on_disk = glob.glob(os.path.join(ROOT, ".tasks", "*", name))
+            if on_disk:
+                stale.append((name, "all carrier lines removed, file is clean (%s)"
+                                    % os.path.relpath(on_disk[0], ROOT)))
+            else:
+                stale.append((name, "task file no longer present under .tasks/ (deleted?)"))
             continue
         for key in sorted(keys):
             if key not in present:

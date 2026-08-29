@@ -118,12 +118,20 @@ not list it.
 
 ## Verification
 
+# G-015 repair (T-293, 2026-08-29): the two legs below hardcoded the Watchtower host
+# and port. What they ASSERT is task-specific and correct - that /approvals carries
+# T-589 and not T-615, and that the T-615 review card carries its Recommendation and
+# hash - so only the host was the decaying global. It now resolves from the triple
+# file .context/working/watchtower.{pid,port,url}, the source of truth. Both legs were
+# re-run after the change and still exit 0: the assertions are unchanged, only their
+# dependence on a port that moves has been removed.
+
 # The link actually printed to the operator must contain the recommendation AND the sha
 # they are approving. Own exit code is the verdict (T-352); identity, not HTTP 200.
-python3 -c "import urllib.request,sys; h=urllib.request.urlopen('http://192.168.10.107:3013/review/T-615',timeout=20).read().decode('utf-8','replace'); sys.exit(0 if ('Recommendation' in h and 'fc78717d' in h) else 1)"
+python3 -c "import urllib.request,sys; h=urllib.request.urlopen('$(cat .context/working/watchtower.url)/review/T-615',timeout=20).read().decode('utf-8','replace'); sys.exit(0 if ('Recommendation' in h and 'fc78717d' in h) else 1)"
 # And the control: /approvals still works for its own predicate, so 'T-615 absent' is a
 # statement about the predicate rather than about the page being down.
-python3 -c "import urllib.request,sys; h=urllib.request.urlopen('http://192.168.10.107:3013/approvals',timeout=20).read().decode('utf-8','replace'); sys.exit(0 if ('T-589' in h and 'T-615' not in h) else 1)"
+python3 -c "import urllib.request,sys; h=urllib.request.urlopen('$(cat .context/working/watchtower.url)/approvals',timeout=20).read().decode('utf-8','replace'); sys.exit(0 if ('T-589' in h and 'T-615' not in h) else 1)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
