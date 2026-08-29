@@ -1891,3 +1891,10 @@ learnings:
   date: 2026-08-29
   context: Added via context agent
   application: TBD
+- id: PL-266
+  learning: "A PRE-FILLED REQUIRED FIELD CONVERTS A GATE FOR PRESENCE INTO A GATE THAT CANNOT FAIL — it can only ever confirm the default it planted. Shadow side of PL-167 (a gate that demands a shape needs the shipped template to supply it), which stays correct: the unpriced cost is that satisfying a gate from the template destroys its ability to detect absence. T-624: .tasks/templates/inception.md plants voi_score: 0.5; that field IS the entire BVP composite for an inception; 38 of 41 inceptions still carried it, so the whole hv-lc quadrant ranked as one flat tie at 126. The estimator's own branch for the unscored case (voi-absent-grandfathered) was UNREACHABLE because the template guarantees the field is never None — it fired for 2 of 41. Both branches return 2 and the table prints neither evidence string, so a real score and an abstention are the same row. Every gate in the chain was green. AUDIT ANY FIELD THAT IS BOTH REQUIRED BY A GATE AND PRE-FILLED BY A TEMPLATE."
+  source: P-011
+  task: T-624
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD

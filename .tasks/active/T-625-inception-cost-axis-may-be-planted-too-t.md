@@ -1,8 +1,8 @@
 ---
-id: T-624
-name: "Inception ranking carries no information: the template default is indistinguishable from an unscored task"
+id: T-625
+name: "Inception cost axis may be planted too: target_blast_radius ships pre-filled beside voi_score"
 description: >
-  Inception ranking carries no information: the template default is indistinguishable from an unscored task
+  Inception cost axis may be planted too: target_blast_radius ships pre-filled beside voi_score
 
 status: started-work
 workflow_type: build
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-29T13:59:52Z
-last_update: 2026-08-29T13:59:52Z
+created: 2026-08-29T14:07:31Z
+last_update: 2026-08-29T14:07:31Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,49 +30,45 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-624: Inception ranking carries no information: the template default is indistinguishable from an unscored task
+# T-625: Inception cost axis may be planted too: target_blast_radius ships pre-filled beside voi_score
 
 ## Context
 
-For inception tasks the BVP estimator does not run its nine per-driver scorers at
-all. `_score_inception_voi` (estimator.py:2429) short-circuits every driver to a
-single value derived from the `voi_score:` frontmatter field, because for an
-exploration the value IS the information the exploration buys — a deliberate and
-defensible design (T-2188).
+`target_blast_radius:` ships pre-filled at `3` on the template line directly above
+`voi_score:`, and feeds the F8 cost formula. T-624 established the mechanism for the
+value axis; this task asks whether the cost axis is planted the same way.
 
-The consequence is not deliberate. `voi_score: 0.5` ships in
-`.tasks/templates/inception.md:22`, so every inception is born at the midpoint,
-and 38 of our 41 inceptions still carry it (1 deliberately scored, 2 with the
-field absent). `fw bvp --quadrant hv-lc` therefore
-prints **thirteen active tasks at an identical BVP 126 / norm 0.40**, ordered by
-tiebreak, while the other three quadrants spread normally (hv-hc runs 118→167).
-The quadrant the operator is asked to rule on is the one quadrant that is not
-ranked.
+**Measured — it is, and identically.** Across the same 41 inception tasks:
+1 deliberately set, 38 still at the planted `3`, 2 absent. It is the *same 38 tasks*
+on both axes. So the ranking was not merely unscored on one dimension: value and cost
+are both the template's, which means the quadrant **assignment** (hv-lc rather than
+hv-hc) is as planted as the score printed inside it.
 
-Found while answering "what's needed to bring the outstanding inceptions
-forward". The answer turned out to be upstream of every individual task: nothing
-ranks them, so there is no defensible order in which to bring them forward.
+The single deliberate instance is T-587, `target_blast_radius: 5`, written **at
+creation** — one commit, never edited. T-624's rule needed its second clause (value
+differs from template default) to see that, and that clause existed only because
+010-termlink @764 and 577-CashWeb @766 argued the same afternoon that a fixture set is
+a claim about which failures the author imagined. That shape did not occur in the
+voi_score population. It was real one axis over, and a corpus-only test would have
+reported T-587 unscored on cost.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] A measurement tool reports, per inception, whether `voi_score:` has ever been
-      changed from the value the template shipped, using the file's own git history
-      (PL-149: a population contains its own provenance). Distinguishing "scored 0.5
-      on purpose" from "never scored" is impossible from the value alone and trivial
-      from the history.
-- [x] The inception-schema gate stops teaching the midpoint. Its remediation text
-      currently reads "so the BVP estimator can rank them against build tasks" and
-      then hands the author `voi_score: 0.5` as the worked example — the stated
-      purpose and the supplied value contradict each other in the same message.
-- [x] The gap is registered in `.context/project/concerns.yaml` with the measured
-      chain, and the register still parses with no duplicate ids.
-- [x] **No task's `voi_score:` is written by this task.** `voi_score` IS the composite
-      for an inception, which makes it the sovereignty equivalent of confirmed
-      `bvp_scores:`. Unlike `bvp_scores`/`cost_estimate` it has no `_proposed:` lane,
-      so there is no legitimate way for an agent to contribute one. That absence is
-      itself part of the finding, not a licence to write the field.
+- [x] The distribution of `target_blast_radius:` across all inception tasks is measured
+      and recorded here, using the same provenance discriminator T-624 established
+      (value differs from template default, OR the line was edited after the commit
+      that created the file). The template plants `3`; the question is how many of the
+      41 inceptions still carry it.
+- [x] The finding is acted on either way, and the negative result is recorded as
+      plainly as a positive one. If the axis is planted, `tools/_t624-voi-provenance.py`
+      is extended to report both scoring fields rather than a second near-duplicate
+      tool being written, and the template/gate warnings are extended to match. If the
+      values are genuinely varied, that is stated here as a measured negative — the
+      cost axis discriminates and only the value axis was blind.
+- [x] G-045 is amended with the result, since it is the same mechanism and the same
+      register entry: one gap, both axes, not two gaps.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -153,61 +149,20 @@ ranks them, so there is no defensible order in which to bring them forward.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-#
-# Every leg below greps a FILE directly rather than a pipeline. L-387's capture-then-grep
-# remedy is unnecessary here and, per our own correction on rail @755, would itself be
-# unsound for an early match: `grep -q PAT file` never has an upstream writer to SIGPIPE.
+
 python3 tools/_t624-voi-provenance.py --self-test
 python3 tools/_t624-voi-provenance.py --assert-scored 1
-# The count above is the sovereignty leg, not a statistic: it fails if any agent writes a
-# voi_score, which is the operator's field and has no _proposed: lane. AC-4 in machine form.
-grep -q "NOT 0.5 unless you mean it" .agentic-framework/agents/context/check-inception-schema.py
-grep -q "CHANGE THIS (T-624)" .tasks/templates/inception.md
-python3 -c 'import yaml; c=yaml.safe_load(open(".context/project/concerns.yaml"))["concerns"]; g=[x for x in c if x["id"]=="G-045"]; raise SystemExit(0 if g and g[0].get("decision_trigger") else 1)'
-# The template still SHIPS voi_score: 0.5 and must — removing it re-breaks PL-167 and would
-# fail every new inception at the schema gate. This leg pins that we warned rather than deleted.
-grep -q "^voi_score: 0.5" .tasks/templates/inception.md
+# --assert-scored now checks BOTH axes and fails if either moves; it is the sovereignty
+# leg, since neither field has a _proposed: lane an agent may write into.
+grep -q "CHANGE THIS TOO (T-625)" .tasks/templates/inception.md
+grep -q "target_blast_radius is the cost axis" .agentic-framework/agents/context/check-inception-schema.py
+grep -q 'FIELDS = ("voi_score", "target_blast_radius")' tools/_t624-voi-provenance.py
+python3 -c 'import yaml; c=yaml.safe_load(open(".context/project/concerns.yaml"))["concerns"]; g=[x for x in c if x["id"]=="G-045"]; raise SystemExit(0 if g and "AMENDED 2026-08-29 (T-625)" in g[0]["detail"] else 1)'
+# Both fields must still SHIP in the template: removing either re-breaks PL-167 and fails
+# every new inception at the schema gate. We warned in place rather than deleting.
+grep -q "^target_blast_radius: 3" .tasks/templates/inception.md
 
 ## RCA
-
-**Symptom:** `fw bvp --quadrant hv-lc --include-proposed` returns 13 active tasks
-at an identical BVP 126 / norm 0.40. `fw bvp estimate` on any two of them returns
-byte-identical driver vectors (`D1=2 D2=2 D3=2 D4=2 F-RECALL=2 F2=2 F4=2 F3=2 F1=2`)
-for tasks with nothing in common — T-184 (reverse discovery from AEF records) and
-T-501 (map ID round-trip triage). Latency gives it away before the scores do: the
-flat tasks return in ~0.024s against ~0.08–0.11s for differentiated ones, because
-the nine scorers never run.
-
-**Root cause:** a chain in which *every link behaves as designed*.
-1. `.tasks/templates/inception.md:22` ships `voi_score: 0.5`.
-2. `check-inception-schema.py` requires the field present and in 0..1 — `0.5` passes,
-   and its own remediation text (line 172) offers `voi_score: 0.5` as the example.
-3. `_score_inception_voi` (estimator.py:2429) makes that single field the entire
-   composite for inceptions, bypassing per-driver scoring.
-4. The estimator *does* carry a branch for the unscored case — `voi is None` returns
-   `→2 (voi-absent-grandfathered)`. It is unreachable for any template-created task,
-   because step 1 guarantees the field is never `None`. Measured: 38/39 inceptions
-   report `→2 (voi:0.50)`; the grandfathering branch fires for exactly one (T-155).
-5. Both branches yield 2, and the ranking table prints neither evidence string.
-
-**Why structurally allowed:** the two states the estimator carefully distinguishes —
-"deliberately scored 0.5" and "never scored" — are collapsed by the surface that
-consumes them. The distinction exists in code, is computed correctly, is emitted in
-`evidence`, and is dropped before it reaches any reader. Nothing is red anywhere:
-schema gate green, estimator green, table green, and the ranking it produces has no
-discriminating power over the quadrant it ranks.
-
-This is the inverse of PL-167 ("when a gate demands a shape, the SHIPPED template
-must supply it"). PL-167 is right; the shadow is that once the template supplies the
-shape, the gate can no longer detect its *absence* — it can only ever confirm the
-default it planted. A pre-filled required field converts a gate for presence into a
-gate that is structurally incapable of failing.
-
-**Prevention:** the fix is not to empty the template — that would re-break PL-167 and
-fail every new inception at creation. It is to make "never deliberately scored"
-*measurable* from the file's own history, so the state that is currently invisible
-becomes a number someone can be accountable for. Scoring the 13 is the operator's
-act, not this task's.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -270,7 +225,7 @@ act, not this task's.
 
 ## Updates
 
-### 2026-08-29T13:59:52Z — task-created [task-create-agent]
+### 2026-08-29T14:07:31Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-624-inception-ranking-carries-no-information.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-625-inception-cost-axis-may-be-planted-too-t.md
 - **Context:** Initial task creation

@@ -2757,7 +2757,25 @@ concerns:
     confirmed bvp_scores:, and unlike bvp_scores/cost_estimate it has NO _proposed: lane an agent may
     write into. So the framework gives an agent no legitimate way to contribute an inception ranking at
     all, which is a plausible reason nobody ever moved the value. Scoring the 38 is the operator''s act.
-    The missing _proposed: lane is the part that should be designed, not patched.'
+    The missing _proposed: lane is the part that should be designed, not patched.
+
+
+    AMENDED 2026-08-29 (T-625) — BOTH AXES, NOT ONE. The sibling field on the adjacent template
+    line fails identically. target_blast_radius ships pre-filled at 3 and feeds the F8 cost formula.
+    Measured across the same 41: 1 deliberately set, 38 still at the planted default, 2 absent --
+    and it is the SAME 38 tasks on both axes. voi_score is the value axis and target_blast_radius
+    the cost axis, so between them they fix each inception''s ENTIRE BVP position. The ranking was
+    not merely unscored on one dimension; it was the template''s opinion on both, and the quadrant
+    ASSIGNMENT (hv-lc rather than hv-hc) is as planted as the score inside it.
+
+
+    The one deliberately-set instance is instructive and was found by an invented fixture. T-587
+    carries target_blast_radius: 5 written AT CREATION -- one commit, never edited. T-624''s
+    provenance rule needed a second clause (value differs from the template default) to catch that
+    shape, and that clause was added purely because 010-termlink @764 and 577-CashWeb @766 argued
+    the same afternoon that a fixture set is a claim about which failures the author imagined. The
+    shape did not occur in the voi_score population; it was real one axis over. A corpus-only test
+    would have called T-587 unscored on cost.'
   decision_trigger: 'Close when either (a) the operator scores the 13 active inceptions so the hv-lc
     quadrant discriminates, and a check pins the deliberately-scored count so a silent regression to
     the default is caught; or (b) a voi_score_proposed: lane is designed so agents can propose and the

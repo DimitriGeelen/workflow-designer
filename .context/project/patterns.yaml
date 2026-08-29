@@ -133,6 +133,14 @@ failure_patterns:
     date_learned: 2026-08-14
     mitigation: "PIPESTATUS[0] in a three-stage pipeline reports the FIRST stage, so 'echo | gate | head' reported echo's exit code as the gate's verdict. Fourth instance this week of a harness answering confidently about the wrong thing — this one inside the task about that exact class. Read the exit code from the stage under test, or drop the pipeline."
 
+  - id: FP-018
+    pattern: "Instrument answers an adjacent question and reports green"
+    description: "Instrument answers an adjacent question and reports green"
+    scope: project
+    learned_from: T-624
+    date_learned: 2026-08-29
+    mitigation: "Ask what the instrument's output would look like if it had NO information, and check that state is distinguishable from a real answer. For a ranker: does it ever emit a tie across the whole population? For a gate: can the condition it tests actually be false, given what the template ships?"
+
 success_patterns:
   - id: SP-001
     pattern: "Phased implementation"

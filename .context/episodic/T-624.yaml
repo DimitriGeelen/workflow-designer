@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-624: Inception ranking carries no information: the template default is indistinguishable from an unscored task
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T14:06:55Z
+# ============================================================================
+
+task_id: T-624
+task_name: "Inception ranking carries no information: the template default is indistinguishable from an unscored task"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T13:59:52Z
+completed: 2026-08-29T14:06:45Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-29T16:05:57+02:00
+last_commit: 2026-08-29T16:05:57+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the inception quadrant ranks nothing — a template-planted voi_score makes the estimator's own unscored branch unreachable
+
+# Key outcomes
+outcomes:
+  - 'A measurement tool reports, per inception, whether `voi_score:` has ever been'
+  - 'The inception-schema gate stops teaching the midpoint. Its remediation text'
+  - 'The gap is registered in `.context/project/concerns.yaml` with the measured'
+  - '**No task''s `voi_score:` is written by this task.** `voi_score` IS the composite'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-inception-schema.py'
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-624-inception-ranking-carries-no-information.md'
+  - '.tasks/templates/inception.md'
+  - 'tools/_t624-voi-provenance.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-29T16:05:57"
+    action: 'T-624: the inception quadrant ranks nothing — a template-planted voi_score makes the estimator''s own unscored branch unreachable'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 5
+  lines_added: 562
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-624-inception-ranking-carries-no-information.md
+generated_by: context-agent-hybrid

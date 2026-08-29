@@ -46,28 +46,37 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE = os.path.join(ROOT, ".tasks", "templates", "inception.md")
-RE_VOI = re.compile(r"^voi_score:\s*([0-9.]+)", re.M)
+# T-625: both inception scoring fields are checked, not just voi_score. They ship on
+# adjacent lines of the same template and failed identically — 38 planted, 1 deliberate,
+# 2 absent, on each axis. voi_score is the VALUE axis, target_blast_radius the COST axis,
+# so between them they fix the task's entire BVP position. Reporting only one would have
+# implied the other was sound.
+FIELDS = ("voi_score", "target_blast_radius")
 
 
-def template_default():
+def _re_field(field):
+    return re.compile(r"^%s:\s*([0-9.]+)" % re.escape(field), re.M)
+
+
+def template_default(field):
     """The value the template plants. Read, never assumed — if the template changes,
     every verdict below changes with it, and silently hard-coding 0.5 would freeze
     this instrument at today's shape."""
     try:
         with open(TEMPLATE, encoding="utf-8") as fh:
-            m = RE_VOI.search(fh.read())
+            m = _re_field(field).search(fh.read())
         return m.group(1) if m else None
     except OSError:
         return None
 
 
-def voi_line_commits(path):
-    """Commits that touched the file's `voi_score:` line, newest first."""
+def field_line_commits(path, field):
+    """Commits that touched the file's `<field>:` line, newest first."""
     rel = os.path.relpath(path, ROOT)
     try:
         out = subprocess.run(
             ["git", "-C", ROOT, "log", "--format=%h|%ad|%s", "--date=short",
-             "-L", "/^voi_score:/,+1:" + rel],
+             "-L", "/^%s:/,+1:%s" % (field, rel)],
             capture_output=True, text=True, timeout=60,
         ).stdout
     except (OSError, subprocess.SubprocessError):
@@ -90,24 +99,24 @@ def decide(value, n_commits, default):
     return "scored" if (edited_after_creation or differs_from_template) else "template-default"
 
 
-def classify(path, default):
+def classify(path, default, field):
     """-> (state, value, n_commits, newest_subject)
 
     States: `scored` (deliberate), `template-default` (never scored),
     `absent` (no field at all — the estimator's grandfathered path).
     """
     with open(path, encoding="utf-8") as fh:
-        m = RE_VOI.search(fh.read())
+        m = _re_field(field).search(fh.read())
     if not m:
         return "absent", None, 0, ""
     value = m.group(1)
-    commits = voi_line_commits(path)
+    commits = field_line_commits(path, field)
     subject = commits[0].split("|", 2)[2] if commits else ""
     return decide(value, len(commits), default), value, len(commits), subject
 
 
-def collect():
-    default = template_default()
+def collect(field="voi_score"):
+    default = template_default(field)
     rows = []
     for path in sorted(glob.glob(os.path.join(ROOT, ".tasks", "*", "*.md"))):
         # `.tasks/*/` includes templates/, and the templates carry
@@ -125,7 +134,7 @@ def collect():
             continue
         if "workflow_type: inception" not in head:
             continue
-        state, value, n, subject = classify(path, default)
+        state, value, n, subject = classify(path, default, field)
         rows.append((os.path.basename(path), state, value, n, subject))
     return default, rows
 
@@ -141,33 +150,32 @@ def main():
     if args.self_test:
         return self_test()
 
-    default, rows = collect()
-    scored = [r for r in rows if r[1] == "scored"]
-    planted = [r for r in rows if r[1] == "template-default"]
-    absent = [r for r in rows if r[1] == "absent"]
+    rc = 0
+    for field in FIELDS:
+        default, rows = collect(field)
+        scored = [r for r in rows if r[1] == "scored"]
+        planted = [r for r in rows if r[1] == "template-default"]
+        absent = [r for r in rows if r[1] == "absent"]
 
-    print("T-624 — voi_score provenance across %d inception task(s)" % len(rows))
-    print("  template plants: voi_score: %s" % default)
-    print()
-    print("  deliberately scored ....... %d" % len(scored))
-    print("  still at template default . %d   <- the estimator reports these as a" % len(planted))
-    print("                                     computed 'voi:0.50', never as unscored")
-    print("  field absent (grandfathered) %d" % len(absent))
-    print()
-    for name, state, value, n, subject in scored:
-        print("  SCORED  %-52s voi=%-5s %s" % (name[:52], value, subject[:40]))
-    if planted:
+        axis = "VALUE" if field == "voi_score" else "COST"
+        print("%s axis — %s provenance across %d inception task(s)" % (axis, field, len(rows)))
+        print("  template plants: %s: %s" % (field, default))
+        print("  deliberately set .......... %d" % len(scored))
+        print("  still at template default . %d" % len(planted))
+        print("  field absent .............. %d" % len(absent))
+        for name, state, value, n, subject in scored:
+            print("    SET  %-46s %s=%-5s %s" % (name[:46], field, value, subject[:34]))
         print()
-        print("  The %d below share one BVP score and cannot be ranked against each" % len(planted))
-        print("  other. Scoring them is the operator's act: voi_score IS the composite,")
-        print("  and it has no _proposed: lane an agent may write.")
 
-    if args.assert_scored is not None and len(scored) != args.assert_scored:
-        print()
-        print("FAIL: expected %d deliberately-scored inception(s), found %d"
-              % (args.assert_scored, len(scored)))
-        return 1
-    return 0
+        if args.assert_scored is not None and len(scored) != args.assert_scored:
+            print("FAIL: %s — expected %d deliberately-set inception(s), found %d"
+                  % (field, args.assert_scored, len(scored)))
+            rc = 1
+
+    print("  Both axes fix the task's BVP position, and both are the template's rather")
+    print("  than anyone's judgment. Setting them is the operator's act: each field IS a")
+    print("  composite input with no _proposed: lane an agent may write into.")
+    return rc
 
 
 def self_test():
