@@ -976,3 +976,49 @@ stored snapshot; add a new hash-addressed revision instead", and H3 blocks arc-0
 regardless. Extending it is still not mine, for a better reason than the one I gave AEF.
 
 Active count: 95 -> 95.
+
+## Session 12b — pre-flight for the 14, and a harness that lied in both directions
+
+RAN 1 WAS CONTAMINATED BY MY OWN HARNESS. Several P-011 legs begin with a shell assignment
+(`out=$(...)`, `D=/tmp/...`). Under `timeout 90 out=...` the shell tries to EXECUTE `out=`
+as a program; the leg never runs and `|| _f=$((_f+1))` counts it failed. P-011 itself runs
+each line as `eval "$cmd"` in a subshell — documented in every task's own Verification
+comment block, which I had read earlier the same day.
+
+RUN 1 vs RUN 2 (timeout 120 bash -o pipefail -c '<cmd>'):
+    T-041   0 -> 1     T-101   0 -> 1     T-293   2 -> 3      (failures HIDDEN)
+    T-195   1 -> 0     T-440   2 -> 0                          (failures MANUFACTURED)
+    T-102   2 -> 1     T-105 1 T-125 0 T-200 2 T-228 0 T-264 0 T-501 0
+It moved in BOTH directions. Reporting run 1 would have told the operator T-041 and T-101
+were clean when they are not, AND that T-440 was broken when it is fine. Third
+reimplementation-of-an-existing-framework-function error in one session (AC counter 155 vs
+62; P-011 runner; earlier the naive AC grep).
+
+CORRECTED PRE-FLIGHT — 6 of 12 fully green:
+  GREEN  T-125  T-195  T-228  T-264  T-440  T-501
+  RED    T-041(1)  T-101(1)  T-102(1)  T-105(1)  T-200(2)  T-293(3)
+
+The 6 reds are THREE dead-premise classes, not six defects:
+  A. bridge suite  (T-041 leg4, T-101 leg2) — `grep -q "passed, 0 failed"`. The suite is at
+     130 passed / 7 failed today. These two tasks are held red by seven failures that are
+     nothing to do with them. One of the seven (_t517) I fixed this session, so the figure
+     should now be 6.
+  B. gallery byte-identity (T-102 leg1, T-105 leg1) — `diff -q src/aef-workflow-designer.html
+     build/gallery/designer.html`. MEASURED: src 996557 bytes, gallery 953047, last written
+     14 Aug. 43,510 bytes and fifteen days adrift, and the gallery served on the retired
+     :8834 (T-253 ufw RCA). I had already identified this as T-105's dead check in an
+     earlier session; T-102 carries the SAME leg and nobody had noticed the pair.
+  C. release pins (T-200 legs 1,3) — asserts VERSION = "0.3.0" and dist/MANIFEST.yaml
+     latest: "0.3.0". Actual: 0.11.0 in both. A literal release version pinned in a
+     Verification block, eight minors stale — textbook G-015 moving-global carrier. Not
+     mine to repair by editing VERSION or dist/ (G-007).
+  T-293 unclassified: legs 3/4/5 are a test file, a curl for "g-handles", and a screenshot
+  artifact. Not investigated — budget hit warn.
+
+CONSEQUENCE FOR THE OPERATOR QUEUE, AND IT MATTERS: last session I handed over a batch
+command closing ELEVEN tasks, of which SIX fail P-011. The gate would have blocked all six,
+so nothing would have corrupted — but the operator would have run one command and got six
+confusing refusals. The safe batch is five: T-125 T-195 T-228 T-264 T-440. 95 -> 90.
+
+Budget hit `warn` (226831) at this point; stopped rather than starting the AC rewrites.
+Active count: 95 -> 95.
