@@ -1410,3 +1410,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-323
+  text: "tools/_t630-p011-stdin-swallow.sh models the runner with two pinned text shapes and BOTH end in 'exit 1' while the live guard uses 'return 1' (T-634) — and its leg 3 fixture (a whitespace-only line) cannot produce an unreconciled count against the real gate, because the extractor strips blank lines before wc -l. So the reconciliation guard T-630 added is not exercised against the live gate by its own prober; T-634 exercises the shared exit path behaviourally, which covers it, but T-630's leg 3 is a green leg measuring a scenario the gate cannot reach. Rewrite it to drive the real update-task.sh like _t634 does."
+  captured: 2026-08-29T16:10:23Z
+  context_task: null
+  tags: []
+  status: pending
+  promoted_to: null
