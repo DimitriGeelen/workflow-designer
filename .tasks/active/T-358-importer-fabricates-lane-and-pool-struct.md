@@ -407,15 +407,6 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 
 - [ ] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
 
-      > **RULE THIS TOGETHER WITH T-341, NOT AFTER IT.** The consolidated brief
-      > (`docs/reports/T-397-import-repair-semantics-brief.md:262`) states the constraint
-      > directly: *"Q2a and Q2b must agree — both decide what the importer may invent."*
-      > T-341 is Q2a, this is Q2b; they are one decision wearing two task IDs. T-341's own
-      > Human AC already says so (*"T-358 follows from whatever is decided here"*) — this
-      > card did not say it back, so the dependency was visible from one side only and a
-      > reader arriving at this card first would not have known to hold it. Added
-      > 2026-08-29; nothing about either ruling changed.
-
       **This ruling already existed — it was recorded in prose and never filed as an
       AC.** `## Decisions` says *"the default choice remains the operator's"*, and the
       three remaining Agent ACs are all downstream of it, so the task has read as
@@ -462,6 +453,11 @@ green 24/24 here says nothing about the population this repair is aimed at — u
          our generator, not the population (same shape as T-340's DI census).
 
       **Steps:**
+      0. **Do not rule this alone — rule it in the same sitting as T-341.** The brief
+         (`docs/reports/T-397-import-repair-semantics-brief.md:262`) states it as a
+         constraint: *"Q2a and Q2b must agree — both decide what the importer may
+         invent."* T-341 is Q2a, this is Q2b. Its Human AC already says so; this one
+         did not say it back, so the dependency was visible from one side only.
       1. Read `## Decisions` → *"Candidates MEASURED 2026-08-04"* for the full run.
       2. Choose one. Note that **A and AB are identical on every measured column**, so
          B buys nothing on top of A *as measured* — if you pick AB, pick it for a reason
