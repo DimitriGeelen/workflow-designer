@@ -179,5 +179,12 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "deny": [
+      "EnterWorktree",
+      "ExitWorktree",
+      "Bash(git worktree:*)"
+    ]
   }
 }
