@@ -657,6 +657,35 @@ if [ -n "$ACTIVE_FILE" ]; then
             HAS_PLACEHOLDER=$(echo "$AC_SECTION" | grep -ciE '\[(First|Second|Third|Fourth|Fifth) criterion\]' 2>/dev/null || true)
             REAL_AC_COUNT=$(echo "$AC_SECTION" | grep -cE '^\s*-\s*\[[ x]\]' 2>/dev/null || true)
             if [ "${HAS_PLACEHOLDER:-0}" -gt 0 ] || [ "${REAL_AC_COUNT:-0}" -eq 0 ]; then
+                # T-628 — THE ESCAPE THIS GATE PRINTS MUST BE RUNNABLE FROM THE STATE IT PRINTS IT IN.
+                #
+                # Reported by 999-AEF (rail @775, their T-3216), reproduced by 577-CashWeb
+                # (@776) and then here from inside the blocked state. Both printed remedies
+                # are actions on `.tasks/`, and `.tasks/*` IS exempt — for Write/Edit, where
+                # this hook has a FILE_PATH to test the exemption against. A Bash command has
+                # no single file path, so the exemption cannot be evaluated on one of the two
+                # surfaces this gate restricts, and every shell form of both remedies fell
+                # through to the block. The gate then reprinted the command it had just refused.
+                #
+                # This is the SAME reasoning T-2052 already applied to the no-active-task gate
+                # ~560 lines above: "they ESTABLISH the active task, so gating them on one is a
+                # deadlock; the block message below even lists them as the unblock path." That
+                # fix was never generalised to the sibling gates in this file. It is generalised
+                # to this one now; the remaining sibling (G-067, inception open-questions) is
+                # left alone deliberately — its remedy 1 is a task-file edit with no `fw` verb
+                # to allowlist, so it needs the wording fix below, not an exemption.
+                #
+                # BOUNDED ON PURPOSE. Only the conversion of the CURRENTLY FOCUSED task is
+                # admitted. `--type` on any other id stays blocked, so this cannot become a
+                # route to retype an arbitrary task from inside a block. Write patterns are
+                # re-tested rather than assumed absent: `… --type inception > /etc/x` is the
+                # remedy plus a payload, and it is the payload that matters.
+                if [ "$TOOL_NAME" = "Bash" ] && [ -n "${BASH_CMD:-}" ] \
+                   && [[ "$BASH_CMD" =~ (^|[[:space:]]|/)fw[[:space:]]+task[[:space:]]+update[[:space:]]+"$CURRENT_TASK"[[:space:]]+--type[[:space:]] ]] \
+                   && ! { type has_bash_write_pattern &>/dev/null && has_bash_write_pattern "$BASH_CMD"; }; then
+                    echo "NOTE: G-020 is firing for $CURRENT_TASK; allowing its own prescribed conversion (T-628)." >&2
+                    exit 0
+                fi
                 echo "" >&2
                 echo "BLOCKED: Task $CURRENT_TASK is a $WORKFLOW_TYPE task with placeholder/missing ACs." >&2
                 echo "" >&2
@@ -664,11 +693,24 @@ if [ -n "$ACTIVE_FILE" ]; then
                 echo "This prevents unscoped building. (G-020: Scope-Aware Task Gate)" >&2
                 echo "" >&2
                 echo "To unblock:" >&2
-                echo "  1. Edit the task file: replace [First criterion] with real ACs" >&2
-                echo "  2. Or change to inception:" >&2
+                # Surface-accurate wording (T-628). Remedy 1 was previously stated as a bare
+                # "edit the task file", which reads as available from any surface. It is not:
+                # for Bash there is no FILE_PATH, so the `.tasks/*` exemption cannot fire and
+                # every shell form of the edit is refused. Saying so costs one clause and
+                # saves an agent from concluding the gate is simply broken.
+                echo "  1. Edit the task file with the Edit/Write tool: replace [First criterion] with real ACs" >&2
+                echo "     (shell edits — sed -i, heredoc, redirect — are refused here: no FILE_PATH, so the .tasks/ exemption cannot apply)" >&2
+                echo "  2. Or change to inception (allowed from this state, T-628):" >&2
                 echo "     $(_fw_cmd) task update $CURRENT_TASK --type inception" >&2
                 echo "" >&2
-                echo "Attempting to modify: $FILE_PATH" >&2
+                # T-628: name the actual restricted call. FILE_PATH is empty for every Bash
+                # invocation, so this line used to read "Attempting to modify: " with nothing
+                # after it — a blank where the reader looks for the cause.
+                if [ -n "$FILE_PATH" ]; then
+                    echo "Attempting to modify: $FILE_PATH" >&2
+                else
+                    echo "Attempting to run (Bash): ${BASH_CMD:-<unknown>}" >&2
+                fi
                 echo "Policy: G-020 (Pickup message governance bypass prevention)" >&2
                 exit 2
             fi
