@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-29T22:59:46Z
-last_update: 2026-08-29T22:59:46Z
+last_update: 2026-08-29T23:06:45Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -58,25 +58,42 @@ everything on the agent's side of that line already closed.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Every inception task in the tree is enumerated with its MEASURED decision state —
+- [x] Every inception task in the tree is enumerated with its MEASURED decision state —
       not the eight carried forward in handovers. Count reconciled against
       `fw inception status` so the census and the framework's own view agree
-- [ ] For each undecided inception the specific blocker is named and classified:
-      OPERATOR-ONLY (a ruling, or a field only the operator may write),
-      AGENT-CLOSABLE (evidence that can be measured, a question answerable from the
-      tree), or STALE (the question has dissolved, or shipped code already answers it)
-- [ ] Every blocker classified AGENT-CLOSABLE is closed in this task or filed as its own
+      — 41 inception tasks, 14 active, **10 undecided**. Two independent methods (YAML
+      frontmatter parse; the scan's own line logic) agree on the same 10
+- [x] For each undecided inception the specific blocker is named and classified:
+      OPERATOR-ONLY / AGENT-CLOSABLE / STALE — table in the report, one row each
+- [x] Every blocker classified AGENT-CLOSABLE is closed in this task or filed as its own
       task carrying the evidence needed — none left as a note in a report
-- [ ] The STALE classification is verified against the artifact, not the task text: any
-      claim that an inception's question is already answered by shipped code is checked
-      against that code (T-617's "already built" finding is the precedent, and the
-      failure mode is believing a task file's description of the world over the world)
-- [ ] `docs/reports/T-307-inception-decision-briefs.md` is reconciled with the current
-      set rather than assumed current — gaps in its coverage named explicitly
-- [ ] The operator route is ONE copy-pasteable single-line command per inception, and the
+      — T-498's own precondition ("DEFER until the arc set here is enumerated") closed by
+      measurement: exactly one arc here, no onboarding arcs. T-619's "blocked on AEF"
+      tested rather than repeated: zero mentions of the retry vocabulary from AEF across
+      all 107 rail posts since the question. All eight deferral triggers tested: none
+      fired
+- [x] The STALE classification is verified against the artifact, not the task text
+      — `callActivity` DOES appear in the designer source, once, inside a comment. The
+      node type is not built. Nothing in the set is stale, and the grep hit alone would
+      have made "already shipped" an easy false claim
+- [x] `docs/reports/T-307-inception-decision-briefs.md` is reconciled with the current
+      set rather than assumed current — covers 8 of 10; both gaps postdate it, named
+- [x] The operator route is ONE copy-pasteable single-line command per inception, and the
       /approvals link is printed
-- [ ] Nothing records a decision on the operator's behalf and `fw inception decide` is
+- [x] Nothing records a decision on the operator's behalf and `fw inception decide` is
       never invoked; a prober asserts the report contains no `**Decision**:` line
+      — and a second leg asserts it offers no pre-filled `decide --rationale` either,
+      because drafting the ruling is the same act one step removed
+
+Added during the work, because widening the scan exposed a latent defect:
+- [x] `tools/_t627-undecided-defer.py` selected the population on "carries a revisit
+      date" while its name and output are about "was never ruled on". Two live tasks sat
+      in that difference and had never reached a handover. Fixed; both now surface
+- [x] Widening it turned a latent false positive live: the selector was a whole-file
+      substring test, and two tasks whose BODY mentions `workflow_type: inception` (a
+      table cell, a sentence) were reported as unruled inceptions. Their real types are
+      `test` and `build`. Now anchored to the frontmatter block, with teeth for both
+      directions
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -157,6 +174,8 @@ everything on the agent's side of that line already closed.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+bash tools/_t637-inception-coverage.sh
 
 ## RCA
 
