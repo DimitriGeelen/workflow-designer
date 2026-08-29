@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-637: What actually blocks each outstanding inception ruling, measured per task
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T23:09:02Z
+# ============================================================================
+
+task_id: T-637
+task_name: "What actually blocks each outstanding inception ruling, measured per task"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T22:59:46Z
+completed: 2026-08-29T23:08:57Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-30T01:06:45+02:00
+last_commit: 2026-08-30T01:08:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the undecided-inception scan counted only inceptions carrying a revisit date, and selected them by a substring that two non-inceptions matched. ten undecided inceptions not eight, and no deferral trigger has fired for any of the eight
+
+# Key outcomes
+outcomes:
+  - 'Every inception task in the tree is enumerated with its MEASURED decision state —'
+  - 'For each undecided inception the specific blocker is named and classified:'
+  - 'Every blocker classified AGENT-CLOSABLE is closed in this task or filed as its own'
+  - 'The STALE classification is verified against the artifact, not the task text'
+  - '`docs/reports/T-307-inception-decision-briefs.md` is reconciled with the current'
+  - 'The operator route is ONE copy-pasteable single-line command per inception, and the'
+  - 'Nothing records a decision on the operator''s behalf and `fw inception decide` is'
+  - '`tools/_t627-undecided-defer.py` selected the population on "carries a revisit'
+  - 'Widening it turned a latent false positive live: the selector was a whole-file'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-637-inception-blockers.md'
+  - '.tasks/active/T-637-what-actually-blocks-each-outstanding-in.md'
+  - 'tools/_t627-undecided-defer.py'
+  - 'tools/_t637-inception-coverage.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-30T01:06:45"
+    action: 'T-637: the undecided-inception scan counted only inceptions carrying a revisit date, and selected them by a substring that two non-inceptions matched'
+  - time: "2026-08-30T01:08:56"
+    action: 'T-637: ten undecided inceptions not eight, and no deferral trigger has fired for any of the eight'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 2
+  files_changed: 4
+  lines_added: 615
+  lines_removed: 20
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-637-what-actually-blocks-each-outstanding-in.md
+generated_by: context-agent-hybrid

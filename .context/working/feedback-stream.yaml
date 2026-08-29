@@ -8609,3 +8609,57 @@ scan_id: R-5f0cb754
 task_id: T-634
 payload:
   task_file: .tasks/active/T-634-p-011s-runner-defect-and-malformed-block.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T22:37:51Z'
+scan_id: R-1a4847d6
+task_id: T-635
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T22:37:51Z'
+scan_id: R-1a4847d6
+task_id: T-635
+payload:
+  task_file: .tasks/active/T-635-t-630s-prober-asserts-against-a-model-of.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T22:49:06Z'
+scan_id: R-498c586d
+task_id: T-636
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T22:49:06Z'
+scan_id: R-498c586d
+task_id: T-636
+payload:
+  task_file: .tasks/active/T-636-fw-note-is-allowlisted-for-the-no-task-c.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T23:08:59Z'
+scan_id: R-a285e50c
+task_id: T-637
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T23:08:59Z'
+scan_id: R-a285e50c
+task_id: T-637
+payload:
+  task_file: .tasks/active/T-637-what-actually-blocks-each-outstanding-in.md
