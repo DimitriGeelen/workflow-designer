@@ -1878,7 +1878,7 @@ learnings:
   context: Added via context agent
   application: TBD
 - id: PL-264
-  learning: "L-387's capture-then-grep remedy is unsafe for large payloads: out=$(curl ...); echo \"$out\" | grep -q PAT still dies of SIGPIPE (141) when the capture is big, because echo is still writing when grep -q matches and closes stdin. Capturing moves the SIGPIPE from curl to echo, it does not remove it. The hint's rationale 'echo is small and immediate' is false at 900KB. Use a pipeline-free test: case \"$out\" in *PAT*) true;; *) false;; esac. Found on T-293, whose leg had been falsely red for weeks while the string was present 3x."
+  learning: "L-387's capture-then-grep remedy is unsafe for large payloads: out=$(curl ...); echo \"$out\" | grep -q PAT still dies of SIGPIPE (141) when the capture is big, because echo is still writing when grep -q matches and closes stdin. Capturing moves the SIGPIPE from curl to echo, it does not remove it. The hint's rationale 'echo is small and immediate' is false at 900KB. Use a pipeline-free test: case \"$out\" in *PAT*) true;; *) false;; esac. REFINED BY MEASUREMENT (720KB fixture): the fault needs BOTH a large capture AND an EARLY match - early match exit=141, late match exit=0, absent exit=1. A leg therefore fails precisely when its evidence appears soonest, and a GREEN run proves nothing about safety, because greenness depends only on where the match happens to land. This is why 6 sibling tasks with the same pattern did not trip: they grep a summary line at the END of test output. Found on T-293, whose leg had been falsely red for weeks while the string was present 3x near the top of a 900,930-byte page."
   source: P-011
   task: T-293
   date: 2026-08-29
