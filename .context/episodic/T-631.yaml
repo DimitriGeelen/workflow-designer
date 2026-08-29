@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-631: Is the Tier-0 approval command reachable while Tier 0 is blocking, or does the gate refuse its own approval route
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T15:21:37Z
+# ============================================================================
+
+task_id: T-631
+task_name: "Is the Tier-0 approval command reachable while Tier 0 is blocking, or does the gate refuse its own approval route"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T15:16:52Z
+completed: 2026-08-29T15:21:09Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-29T17:21:02+02:00
+last_commit: 2026-08-29T17:21:02+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Tier-0's approval route is reachable — clean negative, and the remedy population is now closed at two
+
+# Key outcomes
+outcomes:
+  - 'Measured from inside a firing Tier-0 block: is `fw tier0 approve` refused by the'
+  - 'Every command the Tier-0 block message names as a route forward is probed, not'
+  - 'If any is unreachable it is made reachable or the wording is corrected — and if'
+  - 'The probe never approves a real pending Tier-0 command: fixture state only, in a'
+  - '`tools/_t631-tier0-approval-reachable.sh` guards its teeth with a reachability leg'
+  - 'The other seven registered PreToolUse hooks are enumerated with a one-line verdict'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-631-is-the-tier-0-approval-command-reachable.md'
+  - '.tasks/completed/T-630-p-011-reported-verification-24-passed-an.md'
+  - 'tools/_t631-tier0-approval-reachable.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-29T17:21:02"
+    action: 'T-631: Tier-0''s approval route is reachable — clean negative, and the remedy population is now closed at two'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 3
+  lines_added: 469
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-631-is-the-tier-0-approval-command-reachable.md
+generated_by: context-agent-hybrid

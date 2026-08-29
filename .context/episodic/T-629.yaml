@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-629: G-067 inception open-questions gate prints three remedies that have never been probed for reachability
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T15:10:22Z
+# ============================================================================
+
+task_id: T-629
+task_name: "G-067 inception open-questions gate prints three remedies that have never been probed for reachability"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T15:06:32Z
+completed: 2026-08-29T15:10:08Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-29T17:10:03+02:00
+last_commit: 2026-08-29T17:10:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  G-067 had the same unreachable-remedy defect 25 lines up; all three gates in the hook now probed
+
+# Key outcomes
+outcomes:
+  - 'Each of G-067''s three printed remedies is run verbatim from inside the firing'
+  - 'The hand-off is measured: taking G-020''s remedy 2 (build → inception) either'
+  - 'Any remedy found unreachable is either made reachable or its wording corrected to'
+  - '`tools/_t629-g067-remedy-reachable.sh` guards its teeth with a reachability leg'
+  - 'The prober stages its mutant beside the original, not in the sandbox — G-067 sits'
+  - 'T-386 and the T-628 prober both still pass — three probers, one hook, no regression'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.tasks/active/T-629-g-067-inception-open-questions-gate-prin.md'
+  - '.tasks/completed/T-628-g-020-block-message-names-two-escapes-bo.md'
+  - 'tools/_t629-g067-remedy-reachable.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-29T17:10:03"
+    action: 'T-629: G-067 had the same unreachable-remedy defect 25 lines up; all three gates in the hook now probed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 4
+  lines_added: 533
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-629-g-067-inception-open-questions-gate-prin.md
+generated_by: context-agent-hybrid

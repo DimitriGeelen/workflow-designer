@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-630: P-011 reported 'Verification: 2/4 passed' and still returned PASS, completing the task
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T15:14:14Z
+# ============================================================================
+
+task_id: T-630
+task_name: "P-011 reported 'Verification: 2/4 passed' and still returned PASS, completing the task"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T15:10:44Z
+completed: 2026-08-29T15:13:57Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-29T17:13:53+02:00
+last_commit: 2026-08-29T17:13:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  P-011 counted commands it never ran and called it a pass — eval was eating the command list off stdin
+
+# Key outcomes
+outcomes:
+  - 'A verification command that reads stdin no longer consumes the commands after it:'
+  - '`verify_pass + verify_fail == verify_total` is enforced, not assumed. If they'
+  - 'The green summary line cannot be reached while `verify_pass < verify_total`'
+  - '`tools/_t630-p011-stdin-swallow.sh` reproduces the original defect against a'
+  - 'The prober uses an INVENTED fixture — a verification block whose first command'
+  - 'T-629''s own four-command block, replayed through the fixed runner, reports 4/4'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.tasks/active/T-630-p-011-reported-verification-24-passed-an.md'
+  - '.tasks/completed/T-629-g-067-inception-open-questions-gate-prin.md'
+  - 'tools/_t630-p011-stdin-swallow.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-29T17:13:53"
+    action: 'T-630: P-011 counted commands it never ran and called it a pass — eval was eating the command list off stdin'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 4
+  lines_added: 464
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-630-p-011-reported-verification-24-passed-an.md
+generated_by: context-agent-hybrid

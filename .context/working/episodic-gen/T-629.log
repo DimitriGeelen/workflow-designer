@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-29T15:10:21Z ===
+task_id: T-629
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-629.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: G-067 inception open-questions gate prints three remedies that have never been probed for reachability
+  Duration: 0 days (3 min)
+  Updates: 1
+  Commits: 1
+  Lines: +533 -3 across 4 files
+  Outcomes: 6 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-629-g-067-inception-open-questions-gate-prin.md
+--- exit code: 0 ---

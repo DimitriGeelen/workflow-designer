@@ -1898,3 +1898,52 @@ learnings:
   date: 2026-08-29
   context: Added via context agent
   application: TBD
+- id: PL-267
+  learning: "Following a gate's remedy successfully proves that YOUR route works; it is NOT evidence the remedy is reachable. Three trees hit G-020 and escaped via the Edit tool, each concluding the gate was fine, while every shell form of both printed escapes was refused. Corollary for probers: a harness that copies a hook into a sandbox only tests gates ABOVE the line where the copy's path-derived dependencies fail — T-386's idiom is sound for the drift gate at line 340 and silently vacuous for G-020 at line 683."
+  source: P-001
+  task: T-628
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
+- id: PL-268
+  learning: "P-011's runner counted commands it never ran and called the result a pass: the loop is fed by a herestring and eval inherited its stdin, so any verification command that reads stdin swallowed the remaining commands. They stayed in the wc -l denominator, produced no verdict, verify_fail stayed 0, and the green summary is reached on verify_fail==0 without ever comparing verify_pass to verify_total. Observed as 'Verification: 2/4 passed' followed by task completion. A DENOMINATOR IS EVIDENCE ONLY IF SOMETHING COMPARES IT TO THE NUMERATOR — printing 2/4 next to a tick is worse than printing nothing, because it looks like reporting. Fix is two halves: '< /dev/null' on the eval, and a reconciliation guard that refuses a pass verdict when pass+fail != total for ANY reason."
+  source: P-001
+  task: T-630
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
+- id: PL-269
+  learning: "Remedy-reachability needs two clauses beyond 'run it while the gate fires': (1) BY THE PARTY THE REMEDY ADDRESSES — 'fw tier0 approve' is the operator's act, typed in their own terminal where PreToolUse hooks never run, so it is reachable by construction and measuring it against the agent's surface answers a question nobody asked; (2) A REMEDY IS ONLY AT RISK WHEN THE HOOK THAT PRINTS IT MATCHES THE TOOL THE REMEDY NEEDS — a Write-matched hook prescribing a Bash command cannot refuse it. That triage closes the population: 9 registered PreToolUse hooks -> 4 Bash-matched -> 2 printing Bash-shaped remedies. Also: a mutation aimed at the wrong layer produces a green leg. check-tier0 has a bash keyword pre-filter before its Python PATTERNS list; a PATTERNS mutation could not move a command the pre-filter already released."
+  source: P-001
+  task: T-631
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
+- id: PL-270
+  learning: "On a host with more than one root agent, file OWNERSHIP cannot identify a writer: root-owned means 'written by some privileged session', which is a set, not a name. 577 cleared /tmp/.r as theirs on exactly that evidence while we were equally root on the same box. Their own clause applies one level up — an ownership check that cannot distinguish you from your neighbour is not an attribution you made."
+  source: P-001
+  task: T-633
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
+- id: PL-271
+  learning: "A census that OVER-reports is not erring on the safe side. It is unvalidated in the same way an under-reporting one is, and harder to notice because the output looks like work. T-633's writer-side census was wrong twice, both times reporting MORE: a regex desynchronised by apostrophes in English comments, then shlex — a real tokenizer for the wrong grammar, which cannot see heredocs."
+  source: P-001
+  task: T-633
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
+- id: PL-272
+  learning: "Shell '>' TRUNCATES the sink before the command runs; 'curl -o' opens only on SUCCESS. So a failed curl leaves foreign content for the grep while a failed redirect cannot. This separates the two shared-path failure modes: reader-side (stale content read as yours) needs -o semantics; writer-side (silent clobber) applies to both and is where privilege bites."
+  source: P-001
+  task: T-633
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
+- id: PL-273
+  learning: "A test corpus assembled from the commands an incident blocked pins those INSTANCES and never tests the CLASS around them. web/test_safe_commands.py is PL-025's own prescribed remedy, 49 tests long, and it pins the exact command T-632 found broken — but the variant it pins writes '2>/dev/null || echo ...', where the '||' splits the segment before the close paren, so that copy never contains the failing adjacency. Measured, not argued: the pinned constant passes the pre-fix predicate."
+  source: P-001
+  task: T-632
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD

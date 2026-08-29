@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-29T15:53:35Z ===
+task_id: T-632
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-632.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Read-only commands classified as writes: sed -n and >/dev/null are refused by the no-active-task gate
+  Duration: 0 days (9 min)
+  Updates: 1
+  Commits: 1
+  Lines: +732 -3 across 4 files
+  Outcomes: 6 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-632-read-only-commands-classified-as-writes-.md
+--- exit code: 0 ---

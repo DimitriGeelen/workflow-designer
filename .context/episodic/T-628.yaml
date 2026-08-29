@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-628: G-020 block message names two escapes; both are refused by the gate that prints them
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T15:06:04Z
+# ============================================================================
+
+task_id: T-628
+task_name: "G-020 block message names two escapes; both are refused by the gate that prints them"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T14:56:05Z
+completed: 2026-08-29T15:05:54Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-29T17:05:25+02:00
+last_commit: 2026-08-29T17:05:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  G-020 refused both escapes it prints; the exemption is a FILE_PATH test and Bash has no file path. repair section order — Evolution had swallowed the Human AC heading
+
+# Key outcomes
+outcomes:
+  - 'Remedy 2 (`fw task update <TASK> --type <type>`) is reachable from Bash while'
+  - 'Remedy 1''s wording is surface-accurate: it no longer implies a shell edit is'
+  - 'The block message no longer prints a bare `Attempting to modify: ` with an empty'
+  - '`tools/_t628-g020-remedy-reachable.sh` probes each printed remedy verbatim from'
+  - 'The prober carries at least one INVENTED fixture that does not occur in our'
+  - 'Widening is bounded: the allowlist admits the conversion command for the CURRENTLY'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.tasks/active/T-628-g-020-block-message-names-two-escapes-bo.md'
+  - 'tools/_t628-g020-remedy-reachable.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-29T17:05:25"
+    action: 'T-628: G-020 refused both escapes it prints; the exemption is a FILE_PATH test and Bash has no file path'
+  - time: "2026-08-29T17:05:50"
+    action: 'T-628: repair section order — Evolution had swallowed the Human AC heading'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 2
+  files_changed: 3
+  lines_added: 649
+  lines_removed: 34
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-628-g-020-block-message-names-two-escapes-bo.md
+generated_by: context-agent-hybrid

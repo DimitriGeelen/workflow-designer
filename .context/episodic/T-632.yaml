@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-632: Read-only commands classified as writes: sed -n and >/dev/null are refused by the no-active-task gate
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T15:53:36Z
+# ============================================================================
+
+task_id: T-632
+task_name: "Read-only commands classified as writes: sed -n and >/dev/null are refused by the no-active-task gate"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T15:43:51Z
+completed: 2026-08-29T15:53:28Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-29T17:52:56+02:00
+last_commit: 2026-08-29T17:52:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the gate refused pure reads two ways — a close paren the redirect walk never stopped at, and read-only text tools never on the allowlist at all
+
+# Key outcomes
+outcomes:
+  - 'Both refusals are reproduced against the LIVE predicate before any fix, so the'
+  - '(a) is fixed at the redirect walk: a command-substitution close paren no longer'
+  - '(b) is fixed by admitting only verbs that cannot write in the admitted form;'
+  - 'A prober exists with real teeth: it mutates the live source and asserts the'
+  - 'The genuine-write corpus still fails closed: the prober asserts that the forms'
+  - 'The framework''s own `/resume` step 5 runs unblocked from a null-focus session.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/web/test_safe_commands.py'
+  - '.tasks/active/T-632-read-only-commands-classified-as-writes-.md'
+  - 'tools/_t632-read-only-misclassification.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-29T17:52:56"
+    action: 'T-632: the gate refused pure reads two ways — a close paren the redirect walk never stopped at, and read-only text tools never on the allowlist at all'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 1
+  files_changed: 4
+  lines_added: 732
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-632-read-only-commands-classified-as-writes-.md
+generated_by: context-agent-hybrid

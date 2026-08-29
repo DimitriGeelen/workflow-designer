@@ -8483,3 +8483,111 @@ scan_id: R-9c1bf8ea
 task_id: T-627
 payload:
   task_file: .tasks/active/T-627-revisit-dates-without-a-recorded-decisio.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T15:06:01Z'
+scan_id: R-ed087a12
+task_id: T-628
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T15:06:01Z'
+scan_id: R-ed087a12
+task_id: T-628
+payload:
+  task_file: .tasks/active/T-628-g-020-block-message-names-two-escapes-bo.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T15:10:19Z'
+scan_id: R-4a14e200
+task_id: T-629
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T15:10:19Z'
+scan_id: R-4a14e200
+task_id: T-629
+payload:
+  task_file: .tasks/active/T-629-g-067-inception-open-questions-gate-prin.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T15:14:11Z'
+scan_id: R-0a5d20af
+task_id: T-630
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T15:14:11Z'
+scan_id: R-0a5d20af
+task_id: T-630
+payload:
+  task_file: .tasks/active/T-630-p-011-reported-verification-24-passed-an.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T15:21:33Z'
+scan_id: R-c843ed5d
+task_id: T-631
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T15:21:33Z'
+scan_id: R-c843ed5d
+task_id: T-631
+payload:
+  task_file: .tasks/active/T-631-is-the-tier-0-approval-command-reachable.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T15:53:33Z'
+scan_id: R-f7e01c82
+task_id: T-632
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T15:53:33Z'
+scan_id: R-f7e01c82
+task_id: T-632
+payload:
+  task_file: .tasks/active/T-632-read-only-commands-classified-as-writes-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-29T16:01:51Z'
+scan_id: R-d5c27bab
+task_id: T-633
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-29T16:01:51Z'
+scan_id: R-d5c27bab
+task_id: T-633
+payload:
+  task_file: .tasks/active/T-633-shared-tmp-sinks-we-are-on-the-same-host.md
