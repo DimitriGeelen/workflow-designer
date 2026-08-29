@@ -2451,30 +2451,30 @@ concerns:
     \    try: yaml.safe_load(open(f,encoding='utf-8'))\n    except Exception: bad.append(f)\nsrc=open('.agentic-framework/agents/audit/audit.sh',encoding='utf-8',errors='replace').read()\n\
     wired='.context/episodic' in src and 'safe_load' in src\nprint(json.dumps({'verdict':'READY' if (wired\
     \ and not bad) else 'NOT_READY','ready':bool(wired and not bad),'unparseable_episodics':len(bad),'audit_parses_episodics':wired,'gap':'G-040'}))\""
-
 - id: G-041
   type: blindness
   status: watching
   severity: high
-  title: A guard can carry, in its own prose, a safety argument for the direction it does not check — and the argument is what stops anyone adding the check
+  title: A guard can carry, in its own prose, a safety argument for the direction it does not check —
+    and the argument is what stops anyone adding the check
   detected: '2026-08-20'
   origin_task: T-572
-  context: 'tests/test_editor_bridge_meta_parity.py asserts editor_metaKeys ⊆ bridge_META_KEYS. That
-    is a correct and useful check. The defect is not the narrow scope — it is that the file''s docstring
-    ARGUED the other direction needed no check: "those flow bridge→editor via the generic absorption, so
-    the reverse direction is not a data-loss risk." That is a claim about a ROUND TRIP, justified by
+  context: 'tests/test_editor_bridge_meta_parity.py asserts editor_metaKeys ⊆ bridge_META_KEYS. That is
+    a correct and useful check. The defect is not the narrow scope — it is that the file''s docstring
+    ARGUED the other direction needed no check: "those flow bridge→editor via the generic absorption,
+    so the reverse direction is not a data-loss risk." That is a claim about a ROUND TRIP, justified by
     reading the READ side only. Import was generic; export was not. Nine bridge keys were destroyed on
     every save for 47 days and the sentence named three of them as its reassurance. A narrow guard with
     no claim invites the next person to widen it. A narrow guard carrying a written argument for its own
     sufficiency actively deters them, and the argument is never evaluated by anything. This is distinct
-    from G-023 (an AGENT citing a gate beyond its scope) and G-034 (an instrument examining an empty
-    population): here the ARTIFACT itself carries the false reassurance, in the place a reader goes to
-    find out what is covered.'
+    from G-023 (an AGENT citing a gate beyond its scope) and G-034 (an instrument examining an empty population):
+    here the ARTIFACT itself carries the false reassurance, in the place a reader goes to find out what
+    is covered.'
   evidence:
-  - 'test_editor_bridge_meta_parity.py:24-27 asserted "the reverse direction is not a data-loss risk" and
-    named determinism/endpoint/sideEffect as examples — all three were among the nine keys being destroyed'
-  - '47 days green (added 2026-07-04, 2baf13ce; corrected 2026-08-20, T-572) with check() returning [] the
-    whole time'
+  - test_editor_bridge_meta_parity.py:24-27 asserted "the reverse direction is not a data-loss risk" and
+    named determinism/endpoint/sideEffect as examples — all three were among the nine keys being destroyed
+  - 47 days green (added 2026-07-04, 2baf13ce; corrected 2026-08-20, T-572) with check() returning []
+    the whole time
   - 'SIX tasks committed on 2026-08-20 share the shape "a stated property standing in for a checked one,
     with the failure rendering as health": T-562, T-566, T-568, T-569, T-570, T-572. T-572 is the first
     found inside a GUARD rather than in product code'
@@ -2482,151 +2482,163 @@ concerns:
     keys and measured as eight, because `endpoint` survives on its own element — a whitelist difference
     asserted where a round trip was meant, one task after T-570 corrected exactly that error'
   decision_trigger: 'CLOSES when a routine, unattended instrument makes a guard''s COVERAGE legible next
-    to its claims — e.g. each seam guard declares which direction(s)/properties it evaluates, and a
-    scheduled check flags prose asserting a property no leg evaluates. Explicitly NOT closure: (a) T-572
-    adding the round-trip probe — that repairs this one seam and leaves every other guard''s prose
-    unexamined; (b) correcting this one docstring — that is the mess cleaned up; (c) a convention or
-    learning that says "do not write unchecked safety claims" — the claim here was written in good faith
-    by someone who believed it, so a rule against writing it does not detect the next one.
+    to its claims — e.g. each seam guard declares which direction(s)/properties it evaluates, and a scheduled
+    check flags prose asserting a property no leg evaluates. Explicitly NOT closure: (a) T-572 adding
+    the round-trip probe — that repairs this one seam and leaves every other guard''s prose unexamined;
+    (b) correcting this one docstring — that is the mess cleaned up; (c) a convention or learning that
+    says "do not write unchecked safety claims" — the claim here was written in good faith by someone
+    who believed it, so a rule against writing it does not detect the next one.
 
     READ THE CLOSURE CHECK''S COUNT AS A CENSUS TO REVIEW, NOT A DEFECT COUNT. It is a phrase grep, so
     it matches text that QUOTES a reassurance as much as text that makes one — at registration it returns
-    3, of which two are T-572''s own artifacts quoting the very sentence being corrected. The third,
-    tools/_t364-x-tie-census.py, is unexamined and is a lead, not a finding. A crude proxy is used
-    deliberately: the honest instrument is the coverage manifest, and the grep only says how much prose
-    a human still has to read.'
+    3, of which two are T-572''s own artifacts quoting the very sentence being corrected. The third, tools/_t364-x-tie-census.py,
+    is unexamined and is a lead, not a finding. A crude proxy is used deliberately: the honest instrument
+    is the coverage manifest, and the grep only says how much prose a human still has to read.'
   related_tasks:
   - T-572
   - T-570
   - T-566
-  closure_check_command: "python3 -c \"import glob,re,json,os\nPAT=re.compile(r'not a (data-loss )?risk|is safe|cannot happen|no need to check|does not need|not a concern',re.I)\nhits=[]\nfor f in glob.glob('tests/*.py')+glob.glob('tools/_t*.py')+glob.glob('tools/_t*.mjs'):\n    t=open(f,encoding='utf-8',errors='replace').read()\n    if PAT.search(t): hits.append(os.path.basename(f))\nmanifest=os.path.exists('.context/guard-coverage.yaml')\nprint(json.dumps({'verdict':'READY' if (manifest and not hits) else 'NOT_READY','ready':bool(manifest and not hits),'guards_with_reassurance_prose':len(hits),'files':hits[:12],'coverage_manifest_exists':manifest,'gap':'G-041'}))\""
+  closure_check_command: "python3 -c \"import glob,re,json,os\nPAT=re.compile(r'not a (data-loss )?risk|is\
+    \ safe|cannot happen|no need to check|does not need|not a concern',re.I)\nhits=[]\nfor f in glob.glob('tests/*.py')+glob.glob('tools/_t*.py')+glob.glob('tools/_t*.mjs'):\n\
+    \    t=open(f,encoding='utf-8',errors='replace').read()\n    if PAT.search(t): hits.append(os.path.basename(f))\n\
+    manifest=os.path.exists('.context/guard-coverage.yaml')\nprint(json.dumps({'verdict':'READY' if (manifest\
+    \ and not hits) else 'NOT_READY','ready':bool(manifest and not hits),'guards_with_reassurance_prose':len(hits),'files':hits[:12],'coverage_manifest_exists':manifest,'gap':'G-041'}))\""
 - id: G-042
-  title: The unwired-guard baseline records that an instrument is not run, and nothing records
-    whether what it asserts is still true
+  title: The unwired-guard baseline records that an instrument is not run, and nothing records whether
+    what it asserts is still true
   severity: medium
   status: watching
   registered: 2026-08-23
-  detail: 'T-423 stopped emitting the DI trailer at 389133c8. The suite went 126 passed / 0
-    failed, the instrument sweep went 51/51, and both were correct: nothing that RUNS asserts
-    the trailer is emitted. But tools/_t361-export-trailer-cdp.mjs does assert exactly that
-    — its whole subject is "prove the repaired trailer survives a REAL export" — and it sat
-    green-by-absence because it is unwired. It was found by reading an unrelated file a day
-    later, not by any check.
+  detail: 'T-423 stopped emitting the DI trailer at 389133c8. The suite went 126 passed / 0 failed, the
+    instrument sweep went 51/51, and both were correct: nothing that RUNS asserts the trailer is emitted.
+    But tools/_t361-export-trailer-cdp.mjs does assert exactly that — its whole subject is "prove the
+    repaired trailer survives a REAL export" — and it sat green-by-absence because it is unwired. It was
+    found by reading an unrelated file a day later, not by any check.
 
-    Measured at registration: a current export carries 0 occurrences of the trailer string;
-    tests/fixtures/exported/t361-trailer-witness.bpmn carries 1 and was last written under
-    T-399 at 4c40414c. tools/unwired-guard-baseline.txt lists 66 instruments in this
-    condition, and what it records about each of them is that nothing calls it. That is one
-    fact where two are needed. An instrument nothing calls because it is slow, and an
-    instrument nothing calls whose claim has since been retired, are the same row.
+    Measured at registration: a current export carries 0 occurrences of the trailer string; tests/fixtures/exported/t361-trailer-witness.bpmn
+    carries 1 and was last written under T-399 at 4c40414c. tools/unwired-guard-baseline.txt lists 66
+    instruments in this condition, and what it records about each of them is that nothing calls it. That
+    is one fact where two are needed. An instrument nothing calls because it is slow, and an instrument
+    nothing calls whose claim has since been retired, are the same row.
 
-    THE SECOND-ORDER HAZARD IS NOT HYPOTHETICAL. _t361-export-trailer-cdp.mjs writes
-    tests/fixtures/exported/t361-trailer-witness.bpmn unconditionally, before its own verdict.
-    Running it today replaces a trailer-carrying witness with a trailer-free one, and
-    tools/_t361-guard-teeth.py cases 7 and 8 both mutate that witness — case 8 raising
-    "witness did not carry the current trailer — nothing mutated". So running one unwired
-    probe breaks a WIRED teeth script. Filed as T-576; this gap is the reason it happened,
-    not the mess itself.
+    THE SECOND-ORDER HAZARD IS NOT HYPOTHETICAL. _t361-export-trailer-cdp.mjs writes tests/fixtures/exported/t361-trailer-witness.bpmn
+    unconditionally, before its own verdict. Running it today replaces a trailer-carrying witness with
+    a trailer-free one, and tools/_t361-guard-teeth.py cases 7 and 8 both mutate that witness — case 8
+    raising "witness did not carry the current trailer — nothing mutated". So running one unwired probe
+    breaks a WIRED teeth script. Filed as T-576; this gap is the reason it happened, not the mess itself.
 
-    RELATION TO G-041, which is close but not this. G-041 is about a guard whose PROSE claims
-    coverage its legs do not evaluate. This is about an instrument whose legs are perfectly
-    honest and whose SUBJECT has been retired underneath it. G-041 asks "does anything check
-    what this file says it checks?"; this asks "is what this file checks still a thing?"'
+    RELATION TO G-041, which is close but not this. G-041 is about a guard whose PROSE claims coverage
+    its legs do not evaluate. This is about an instrument whose legs are perfectly honest and whose SUBJECT
+    has been retired underneath it. G-041 asks "does anything check what this file says it checks?"; this
+    asks "is what this file checks still a thing?"'
   evidence:
-  - 'A current export (tests/fixtures/exported/t423-carrier-witness.bpmn, written 2026-08-23 by
-    the real designer through a real browser) contains 0 occurrences of "BPMN DI (visual layout)
-    omitted"; _t361-export-trailer-cdp.mjs fails its own PREFIX assertion on a CORRECT designer'
-  - 'The failure would read as "the designer lost the trailer" — a true statement about the
-    bytes and a false one about what should be — so even running it does not, on its own,
-    report the right finding'
-  - '66 instruments in tools/unwired-guard-baseline.txt carry no record of when their claim was
-    last true, only that nothing calls them'
-  - 'Found by reading _t361-export-trailer-cdp.mjs while looking for a CDP harness to clone for
-    T-423''s carrier-agreement probe. No check surfaced it; the discovery was incidental.'
-  decision_trigger: 'CLOSES when the unwired-guard baseline carries, per instrument, a record of
-    the last time its claim was evaluated against the current source — and a routine check flags
-    an instrument whose subject has been removed. Explicitly NOT closure: (a) repairing
-    _t361-export-trailer-cdp.mjs — that is the one mess cleaned up, and T-576 is where it belongs;
-    (b) wiring every unwired instrument into the suite — several are excluded for reasons the
-    sweep already documents by name, and wiring them would trade this blindness for a slower one;
-    (c) a convention that says "when you remove a behaviour, grep for instruments asserting it" —
-    the removal here was deliberate and well-reasoned and the grep still did not happen, so a rule
-    telling me to do it does not detect the next one.
+  - A current export (tests/fixtures/exported/t423-carrier-witness.bpmn, written 2026-08-23 by the real
+    designer through a real browser) contains 0 occurrences of "BPMN DI (visual layout) omitted"; _t361-export-trailer-cdp.mjs
+    fails its own PREFIX assertion on a CORRECT designer
+  - The failure would read as "the designer lost the trailer" — a true statement about the bytes and a
+    false one about what should be — so even running it does not, on its own, report the right finding
+  - 66 instruments in tools/unwired-guard-baseline.txt carry no record of when their claim was last true,
+    only that nothing calls them
+  - Found by reading _t361-export-trailer-cdp.mjs while looking for a CDP harness to clone for T-423's
+    carrier-agreement probe. No check surfaced it; the discovery was incidental.
+  decision_trigger: 'CLOSES when the unwired-guard baseline carries, per instrument, a record of the last
+    time its claim was evaluated against the current source — and a routine check flags an instrument
+    whose subject has been removed. Explicitly NOT closure: (a) repairing _t361-export-trailer-cdp.mjs
+    — that is the one mess cleaned up, and T-576 is where it belongs; (b) wiring every unwired instrument
+    into the suite — several are excluded for reasons the sweep already documents by name, and wiring
+    them would trade this blindness for a slower one; (c) a convention that says "when you remove a behaviour,
+    grep for instruments asserting it" — the removal here was deliberate and well-reasoned and the grep
+    still did not happen, so a rule telling me to do it does not detect the next one.
 
-    READ THE CLOSURE CHECK''S COUNT AS A CENSUS, NOT A DEFECT COUNT. It reports how many baseline
-    rows carry no evaluation record. At registration that is all 66, because the column does not
-    exist yet — the number says how much is unexamined, not how much is broken.'
+    READ THE CLOSURE CHECK''S COUNT AS A CENSUS, NOT A DEFECT COUNT. It reports how many baseline rows
+    carry no evaluation record. At registration that is all 66, because the column does not exist yet
+    — the number says how much is unexamined, not how much is broken.'
   related_tasks:
   - T-576
   - T-423
   - T-361
-  closure_check_command: "python3 -c \"import os,json,re\nb='tools/unwired-guard-baseline.txt'\nrows=[l.strip() for l in open(b,encoding='utf-8')] if os.path.exists(b) else []\nrows=[l for l in rows if l and not l.startswith('#')]\ndated=[l for l in rows if re.search(r'\\\\d{4}-\\\\d{2}-\\\\d{2}',l)]\nprint(json.dumps({'verdict':'READY' if rows and len(dated)==len(rows) else 'NOT_READY','ready':bool(rows and len(dated)==len(rows)),'unwired_instruments':len(rows),'with_evaluation_record':len(dated),'gap':'G-042'}))\""
+  closure_check_command: 'python3 -c "import os,json,re
+
+    b=''tools/unwired-guard-baseline.txt''
+
+    rows=[l.strip() for l in open(b,encoding=''utf-8'')] if os.path.exists(b) else []
+
+    rows=[l for l in rows if l and not l.startswith(''#'')]
+
+    dated=[l for l in rows if re.search(r''\\d{4}-\\d{2}-\\d{2}'',l)]
+
+    print(json.dumps({''verdict'':''READY'' if rows and len(dated)==len(rows) else ''NOT_READY'',''ready'':bool(rows
+    and len(dated)==len(rows)),''unwired_instruments'':len(rows),''with_evaluation_record'':len(dated),''gap'':''G-042''}))"'
 - id: G-043
-  title: An agent's recorded recommendation and its prose recommendation for the same task can
-    contradict each other, and nothing compares them
+  title: An agent's recorded recommendation and its prose recommendation for the same task can contradict
+    each other, and nothing compares them
   severity: medium
   status: watching
   registered: 2026-08-23
-  detail: 'The operator has asked, across seven sessions, for outstanding decisions to be
-    surfaced. They already were. /approvals renders 40 pending items — 9 GO/NO-GO decisions and
-    36 Human-AC verifications across 58 task IDs — and 136 task files carry a recorded
-    **Recommendation:** block that the page renders with its rationale and evidence. In parallel
-    I maintained a hand-written disposition table in .context/working/landing-notes.md and
-    re-issued it in every session report.
+  detail: 'The operator has asked, across seven sessions, for outstanding decisions to be surfaced. They
+    already were. /approvals renders 40 pending items — 9 GO/NO-GO decisions and 36 Human-AC verifications
+    across 58 task IDs — and 136 task files carry a recorded **Recommendation:** block that the page renders
+    with its rationale and evidence. In parallel I maintained a hand-written disposition table in .context/working/landing-notes.md
+    and re-issued it in every session report.
 
-    WHERE THE TWO DISAGREE, THE PROSE WAS WRONG. Three ways, all found by checking rather than
-    by any instrument:
+    WHERE THE TWO DISAGREE, THE PROSE WAS WRONG. Three ways, all found by checking rather than by any
+    instrument:
 
-    (1) CRITERION NOT CHECKED. The table caption reads "a task at started-work with zero commits
-    never started". Running `git log --all --grep "^T-NNN:"` for its eleven members returns 2
-    commits for T-277 and 1 for T-289. T-277 filed three payload-defect reports upstream (AEF
-    T-2655/56/57) and added a C-001 research artifact. Both sat on a list captioned "never
-    touched" and were recommended for deletion every session.
+    (1) CRITERION NOT CHECKED. The table caption reads "a task at started-work with zero commits never
+    started". Running `git log --all --grep "^T-NNN:"` for its eleven members returns 2 commits for T-277
+    and 1 for T-289. T-277 filed three payload-defect reports upstream (AEF T-2655/56/57) and added a
+    C-001 research artifact. Both sat on a list captioned "never touched" and were recommended for deletion
+    every session.
 
-    (2) THE COMMAND DID NOT FIT THE TASKS. Eight of the eleven are workflow_type: inception and
-    cannot close via `fw task update --status work-completed` at all; they need a GO/NO-GO,
-    which agents are structurally forbidden from recording. The supplied one-liner would have
-    hit the inception gate for 8 of 11.
+    (2) THE COMMAND DID NOT FIT THE TASKS. Eight of the eleven are workflow_type: inception and cannot
+    close via `fw task update --status work-completed` at all; they need a GO/NO-GO, which agents are
+    structurally forbidden from recording. The supplied one-liner would have hit the inception gate for
+    8 of 11.
 
-    (3) OPPOSITE VERDICTS, SAME AUTHOR. T-184/T-185/T-186 render on /approvals with an agent
-    recommendation of DEFER and the rationale "no agent work has started... skip in the current
-    review pass". The prose said delete. `fw bvp --quadrant hv-lc` scores all eight at 126,
-    inside the quadrant the operator directs work from. Three surfaces, three verdicts, nothing
-    reconciling them.
+    (3) OPPOSITE VERDICTS, SAME AUTHOR. T-184/T-185/T-186 render on /approvals with an agent recommendation
+    of DEFER and the rationale "no agent work has started... skip in the current review pass". The prose
+    said delete. `fw bvp --quadrant hv-lc` scores all eight at 126, inside the quadrant the operator directs
+    work from. Three surfaces, three verdicts, nothing reconciling them.
 
-    WHY THE FRAMEWORK WAS BLIND, which is the part that matters. Writing a recommendation into
-    a task file is gated, rendered, and auditable. Writing one into a handover or a working note
-    is neither — and the prose copy is the one the operator actually reads, because it arrives
-    in the session report while /approvals must be visited. Nothing in the audit compares a
-    recorded verdict against any prose assertion about the same task. The duplicate was not
-    caught for seven sessions because both halves looked healthy in isolation: the recorded
-    recommendations were well-formed, and the prose table was internally consistent.
+    WHY THE FRAMEWORK WAS BLIND, which is the part that matters. Writing a recommendation into a task
+    file is gated, rendered, and auditable. Writing one into a handover or a working note is neither —
+    and the prose copy is the one the operator actually reads, because it arrives in the session report
+    while /approvals must be visited. Nothing in the audit compares a recorded verdict against any prose
+    assertion about the same task. The duplicate was not caught for seven sessions because both halves
+    looked healthy in isolation: the recorded recommendations were well-formed, and the prose table was
+    internally consistent.
 
-    THIS IS THE WEEK''S RECURRING SHAPE, FIFTH INSTANCE, AND THE FIRST ONE I AUTHORED. T-566
-    (AEF_FIELDS vs metaKeys), T-570 (import vs export whitelists), T-572 (a test named parity
-    asserting a subset), T-574 (a completion gate passing silently): a stated property standing
-    in for a checked one, with the failure rendering as health. Here the stated property is
-    "zero commits", the checked one is git log, and the failure rendered as the healthiest
-    artefact the agent produces — a confident one-line command closing eleven tasks at once. A
-    shorter list looks like less progress, which is why nobody re-derives it.
+    THIS IS THE WEEK''S RECURRING SHAPE, FIFTH INSTANCE, AND THE FIRST ONE I AUTHORED. T-566 (AEF_FIELDS
+    vs metaKeys), T-570 (import vs export whitelists), T-572 (a test named parity asserting a subset),
+    T-574 (a completion gate passing silently): a stated property standing in for a checked one, with
+    the failure rendering as health. Here the stated property is "zero commits", the checked one is git
+    log, and the failure rendered as the healthiest artefact the agent produces — a confident one-line
+    command closing eleven tasks at once. A shorter list looks like less progress, which is why nobody
+    re-derives it.
 
-    MITIGATION IS NOT CLOSURE. Annotating the offending line flips the closure check to READY —
-    verified, both directions, on a temp tree — and prevents nothing. The check is deliberately
-    left RED at registration. Closure requires a WIRED reconciliation leg, filed as T-577, not
-    an annotation.'
+    MITIGATION IS NOT CLOSURE. Annotating the offending line flips the closure check to READY — verified,
+    both directions, on a temp tree — and prevents nothing. The check is deliberately left RED at registration.
+    Closure requires a WIRED reconciliation leg, filed as T-577, not an annotation.'
   evidence:
-  - 'git log --all --oneline --grep "^T-277:" returns 2 commits (bd4ca21d, d4e45b76); "^T-289:"
-    returns 1 (770c959a). The KILL table lists both under the caption "never touched".'
-  - '/approvals renders 40 pending (9 Decisions + 36 Verifications) across 58 task IDs, including
-    every member of the prose KILL list except T-289, T-291, T-292.'
-  - 'Closure check at registration: 136 tasks carry a recorded recommendation; 2 prose conflicts
-    remain (landing-notes.md:169 asserts "retire" for T-279 and T-280, both recorded DEFER).'
-  - 'Control: the same check returns prose_conflicts 0 on a temp tree with that line annotated,
-    so it discriminates rather than always-reds.'
+  - git log --all --oneline --grep "^T-277:" returns 2 commits (bd4ca21d, d4e45b76); "^T-289:" returns
+    1 (770c959a). The KILL table lists both under the caption "never touched".
+  - /approvals renders 40 pending (9 Decisions + 36 Verifications) across 58 task IDs, including every
+    member of the prose KILL list except T-289, T-291, T-292.
+  - 'Closure check at registration: 136 tasks carry a recorded recommendation; 2 prose conflicts remain
+    (landing-notes.md:169 asserts "retire" for T-279 and T-280, both recorded DEFER).'
+  - 'Control: the same check returns prose_conflicts 0 on a temp tree with that line annotated, so it
+    discriminates rather than always-reds.'
   related_tasks:
   - T-577
   - T-575
-  closure_check_command: "python3 -c \"import re,json,glob\nrecs={}\nfor f in glob.glob('.tasks/active/*.md')+glob.glob('.tasks/completed/*.md'):\n    t=open(f,encoding='utf-8',errors='replace').read()\n    m=re.search(r'^\\\\*\\\\*Recommendation:\\\\*\\\\*\\\\s*(\\\\w+)',t,re.M)\n    i=re.search(r'^id:\\\\s*(T-\\\\d+)',t,re.M)\n    if m and i: recs[i.group(1)]=m.group(1).upper()\nV=('KILL','RETIRE','DELETE')\nc=[]\nfor f in glob.glob('.context/working/*.md'):\n    for n,l in enumerate(open(f,encoding='utf-8',errors='replace'),1):\n        u=l.upper()\n        if not any(v in u for v in V) or 'SUPERSEDED' in u or 'WITHDRAWN' in u: continue\n        for t in re.findall(r'\\\\bT-\\\\d+\\\\b',l):\n            if t in recs: c.append({'task':t,'recorded':recs[t],'file':f,'line':n})\nprint(json.dumps({'verdict':'READY' if not c else 'NOT_READY','ready':not c,'tasks_with_recorded_recommendation':len(recs),'prose_conflicts':len(c),'examples':c[:4],'gap':'G-043'}))\""
+  closure_check_command: "python3 -c \"import re,json,glob\nrecs={}\nfor f in glob.glob('.tasks/active/*.md')+glob.glob('.tasks/completed/*.md'):\n\
+    \    t=open(f,encoding='utf-8',errors='replace').read()\n    m=re.search(r'^\\\\*\\\\*Recommendation:\\\
+    \\*\\\\*\\\\s*(\\\\w+)',t,re.M)\n    i=re.search(r'^id:\\\\s*(T-\\\\d+)',t,re.M)\n    if m and i:\
+    \ recs[i.group(1)]=m.group(1).upper()\nV=('KILL','RETIRE','DELETE')\nc=[]\nfor f in glob.glob('.context/working/*.md'):\n\
+    \    for n,l in enumerate(open(f,encoding='utf-8',errors='replace'),1):\n        u=l.upper()\n   \
+    \     if not any(v in u for v in V) or 'SUPERSEDED' in u or 'WITHDRAWN' in u: continue\n        for\
+    \ t in re.findall(r'\\\\bT-\\\\d+\\\\b',l):\n            if t in recs: c.append({'task':t,'recorded':recs[t],'file':f,'line':n})\n\
+    print(json.dumps({'verdict':'READY' if not c else 'NOT_READY','ready':not c,'tasks_with_recorded_recommendation':len(recs),'prose_conflicts':len(c),'examples':c[:4],'gap':'G-043'}))\""
 - id: G-044
   title: The only place 5 gating guards are evaluated is a 13-minute suite nothing schedules, so a guard
     can fail correctly for weeks and the failure is never observed
@@ -2663,7 +2675,23 @@ concerns:
     in their exclusion clauses -- G-040''s says a bridge-suite leg ''runs only when someone runs the suite,
     which is exactly the "a human was watching" condition that failed here''. The pattern has been recognised
     repeatedly as a reason NOT to close other gaps, while never being registered as a gap itself. That
-    is how it survived: every author saw it, each in the course of closing something else.'
+    is how it survived: every author saw it, each in the course of closing something else.
+
+
+    (4) FOURTH INSTANCE, AND THE SHARPEST VARIANT — THE SCHEDULER ENTRY EXISTS, FOR ANOTHER PROJECT. .agentic-framework/agents/context/revisit-due-scan.sh
+    is correct, has tests, and has a real consumer (handover.sh prints its output file). A cron line invoking
+    it by name EXISTS in /etc/cron.d/ -- rooted at a different project. This project has none. Run manually
+    on 2026-08-29 it immediately produced three ripe deferrals nobody had seen: T-155 due 2026-08-21 (8
+    days), T-291 and T-292 due 2026-08-28. Its output file had not been refreshed until that manual run.
+
+
+    Why this variant is worse than an unscheduled guard: the EVIDENCE OF BEING WIRED IS PRESENT AND POINTS
+    THE WRONG WAY. A reader asking ''is the revisit scan scheduled?'' greps /etc/cron.d, finds the script''s
+    own filename, and stops. Confirming the blindness requires noticing that the PROJECT_ROOT in that
+    line is somebody else''s. It is 010-termlink''s ''a guard in the wrong tree is not a weak guard, it
+    is an absent one'' relocated into the scheduler: a cron entry in the right file for the wrong root.
+    Adding our line is an operator action -- /etc/cron.d is outside the T-559 write boundary -- which
+    is why it has sat in the printed queue across sessions.'
   decision_trigger: 'CLOSES when a ROUTINE, UNATTENDED instrument evaluates the gating guards and puts
     a failure where a human sees it without choosing to look -- e.g. the 15-minute audit cron gains the
     suite (or a fast gating subset), or a scheduled runner posts its verdict to Watchtower/the rail. Explicitly

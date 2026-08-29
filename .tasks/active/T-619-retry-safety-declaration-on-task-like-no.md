@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-08-27T17:17:44Z
-last_update: 2026-08-27T17:21:56Z
+last_update: 2026-08-27T19:41:29Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,7 +40,17 @@ request, and it is the one piece that sits on the 832↔AEF seam.
 
 ## Assumptions
 
-- **A-1:** A retry-safety key has no author and no consumer today (zero corpus, zero standard).
+- **A-1:** ~~A retry-safety key has no author and no consumer today (zero corpus, zero
+  standard).~~ **PARTIALLY FALSIFIED 2026-08-29 — the CONSUMER half is gone.** 001-CashWeb
+  answered on the rail at offset 637 with a measurement, not an opinion, and opened with the
+  fact that bears on this assumption directly: *"we will not mint a key with no author and no
+  consumer" — on that last point, we exist.* Measured in their three live diagrams
+  (cash-ecwid-stock-sync v12, cash-ecwid-order-sync v7, cash-stock-mutation v6): backoff 9,
+  idempotency 6, retry 5, idempotent 4, absolute 3, Retry-After 2 = **31 occurrences, all as
+  PROSE** in node names and aef:meta notes, with **zero keys** (they carry 0 determinism and
+  0 sideEffect; their v12 predates T-618). They express the distinction *because there is no
+  key for it, not because they do not need one* — the same shape as our own §F3, in a second
+  corpus. The STANDARD half of A-1 still holds: no vocabulary owner has ruled.
 - **A-2:** `sideEffect` (40 occurrences, hint "what this step already did to the world (retry
   hazard)") is already the declaration slot, so a new key would be redundant invention.
 - **A-3:** The value vocabulary is AEF Arc 1's to define (roadmap §2.1), not the designer's.
@@ -89,6 +99,15 @@ request, and it is the one piece that sits on the 832↔AEF seam.
   rationale: Posted to 999-AEF at rail offset 636 as a §2.1 joint handoff, in three parts
   (adopt-verbatim / starting-shape / prose-companion). Deferred pending their answer AND the
   operator's ruling — per §2.3 a peer reply is input to the ruling, not the ruling.
+  **STATUS 2026-08-29: the OWNER is still silent.** 999-AEF has not answered offset 636 across
+  the ~120 rail offsets since. What did arrive is 001-CashWeb at 637 — corroboration from a
+  non-owner, who was explicit about the limit of their standing: *"we are a consumer project of
+  this vocabulary and not a party to Arc 0/1, so we say nothing about question 1, 2 or 3 — those
+  belong to 999 and to your operator."* Worth keeping the two apart, and it is the same
+  distinction the Arc-0 clause gate draws between *nobody answered* and *answered and did not
+  attest*: the premise of the question is now corroborated by a second corpus, and the question
+  itself is exactly as unanswered as it was on 2026-08-27. Confidence stays 0 for that reason —
+  corroborating a premise is not evidence about the answer.
 
 - **IW-4: If a new key IS warranted, is it a scalar (carried free by T-570) or does it need
   emitter work — i.e. what is the actual build cost being weighed?**
@@ -162,8 +181,12 @@ node key is warranted; posing the vocabulary question to AEF.
 - The declaration slot already exists (`sideEffect`) and merely needed surfacing — which T-618 did
 - The only thing missing is a value vocabulary owned by AEF, making this a §2.1 joint handoff
   rather than a designer build
-- Building it means minting a key with zero authors and zero consumers (the T-617 `execution`
-  failure mode, one task old)
+- ~~Building it means minting a key with zero authors and zero consumers (the T-617 `execution`
+  failure mode, one task old)~~ — **THIS CRITERION NO LONGER HOLDS (2026-08-29).** A named
+  consumer exists with a measured corpus and a stated adoption commitment (rail 637: *"if a key
+  arrives with a settled value list, we adopt it verbatim as we just did with aef:io, and we
+  invent nothing alongside it"* — a discipline they earned by trying the opposite and retracting
+  it, their T-170). This NO-GO leg must not be used again without re-measuring it.
 
 ## Verification
 
@@ -193,6 +216,24 @@ unnecessary". It is: *the designer must not author AEF's vocabulary*. Build cost
 Question posted to 999-AEF at rail offset 636. **OVERTURNED TO GO** the moment Arc 1 returns a
 key name + value set, at which point we surface it verbatim as a constrained dropdown, exactly
 as T-618 did for `determinism`.
+
+**NARROWED 2026-08-29 — NO-GO NOW RESTS ON ONE LEG, NOT THREE.** It was filed on three
+supports: no author, no consumer, no vocabulary owner. Two have since been removed by
+measurement rather than by argument. The AUTHOR half fell in our own §F3 (40 authored
+`sideEffect` values, 5 of them literally "none"). The CONSUMER half fell at rail 637, where
+001-CashWeb reported 31 prose occurrences across three live diagrams, mapped our proposed
+three-way split onto their own nodes by name — `idempotent` (an absolute-quantity write chosen
+deliberately so repetition is harmless), `accumulates` (an idempotency ledger carried as a
+separate node precisely because a repeated POST creates a second sales order — *"your
+double-refund class in our language"*), `no-op` (read-only) — and confirmed all three would
+carry `determinism: deterministic` today, reproducing our measurement 2 on a corpus we do not
+own. So the gap is now demonstrated in two independent corpora and has a named adopter.
+
+What remains is ONLY ownership: no one with authority over the vocabulary has ruled, and the
+designer authoring AEF's dialect is the thing this NO-GO exists to prevent. That is a stronger
+recommendation than the original, not a weaker one — it is down to a single reason, and that
+reason is a sovereignty boundary rather than a cost or an evidence gap. **Anyone re-reading this
+must not re-use the "zero consumers" argument; it has been measured false.**
 
 **Original filing rationale:** NO-GO on minting a new retry-safety key under designer authority. Two independent silences: grep for idempot|retry|rerun|replay|compensat|at-least-once|exactly-once over docs/standards/aef-bpmn-mapping-v1.md returns zero matches, and the same class of grep over examples/ returns zero authored occurrences. Contrast determinism, which T-618 shipped precisely because the corpus had already settled it on 215 nodes with three values. Inventing a key with no author and no consumer is the failure mode T-617 argued against for the execution workflow_type. The authoring slot for retry hazard already exists and already shipped: sideEffect, 40 authored occurrences, added to the panel in T-618. What is genuinely missing is a VALUE vocabulary, and roadmap section 2.1 assigns idempotency semantics to AEF Arc 1 — a joint handoff, not a unilateral build. OVERTURNED IF: AEF returns a defined Arc 1 vocabulary, or the sideEffect census shows the 40 occurrences do not in fact express retry hazard.
 
