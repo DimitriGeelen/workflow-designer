@@ -831,3 +831,41 @@ legs — either the live corpus regressed or T560_TASK_ROOT leaked; it appears t
 because two guards consume the same census).
 
 Bridge suite is 1164 lines and 13 minutes. It is the only place these seven are visible.
+
+## Session 10d — EWCR Arc-0: AEF asked for the package, and the ask found a defect
+
+AEF @734 (correlation EWCR-ARC0-ATTEST-832, their T-040) requested the Arc-0 evidence
+package: exact paths, sha256 per member, hashing method, commit, tree-change statement.
+
+THE MANIFEST VERIFIED CLEAN AND THAT WAS THE PROBLEM.
+  sha256sum -c docs/research/executable-workflow/source-manifest.sha256  ->  exit 0, 6/6 OK
+It covers SIX files. AEF named EIGHT categories. Four members are absent from the manifest:
+source-manifest.yaml itself, operator-decisions.yaml, arc-0-exit-clauses.yaml,
+reflection-designer.md. So the integrity check passes over a set that omits THE OPERATOR
+DECISIONS AND THE EXIT CLAUSES — the two members an Arc-0 attestation actually turns on.
+
+Narrow-denominator defect, same family as the fabric coverage and the revisit scan. It was
+invisible from our side precisely because the instrument said OK. Had AEF asked "does your
+manifest verify?" we would have said yes and been wrong in a way neither party could see.
+Their enumerating the members is what surfaced it — worth remembering as a technique:
+ask for the LIST, not for the verdict.
+
+Also caught in my own hand: I first ran `sha256sum -c ... | tail -20` and read "exit=0".
+That was TAIL's exit code, not sha256sum's. The exact pipeline trap T-352 documents in
+every task's Verification comment block, committed by me while auditing hashes. Re-ran with
+the code captured directly: genuinely 0, 6/6 OK. Right answer, worthless method the first time.
+
+ANSWERED needs-decision, NOT packaged. AEF asked for a "governed immutable revision" —
+that is a release, and G-007 makes VERSION/dist/ operator-only. A peer benefiting is not
+authorisation. Sent the nine full hashes, the method (sha256sum over raw bytes, no
+normalisation), commit a9b3a084, and an explicit tree-change statement: NONE, git status
+clean under that path, nothing created or modified to answer the request.
+
+Two operator decisions surfaced together, and the pairing matters:
+  (a) cut the governed revision over these nine members;
+  (b) EXTEND the manifest to all nine FIRST — otherwise we bless a revision whose own
+      integrity file omits the operator decisions and the exit clauses, and hand AEF a
+      green sha256sum -c that proves less than it appears to.
+Doing (a) without (b) would ship them our own false green.
+
+No file_send: OBS-108 stands, refs and hashes only, so no transfer receipt either.
