@@ -147,6 +147,55 @@ _sc_simple_is_safe() {
             return 0
             ;;
 
+        # Category 2b: read-only text processing (T-632)
+        #
+        # These were not misclassified as writes — they were never classified at all.
+        # Absent from every category, they fell through to "not in allowlist", and
+        # because T-405 judges EVERY segment of a pipeline, one such stage condemned
+        # the whole pipeline: `cat f | sed -n 1,20p` was refused while `cat f` passed.
+        # That is a false RED, and a false red is the same defect as a false green —
+        # it moves the gate's verdict away from the truth and teaches the reader to
+        # route around it.
+        #
+        # ADMISSION RULE, applied per verb: admit only what cannot write a file
+        # WITHOUT a shell redirect, because a shell redirect is already caught above.
+        # Two verbs are deliberately NOT here, and the reasons are the interesting part:
+        #
+        #   awk   — a language with unrestricted `print > "file"` and `system()`. Its
+        #           write syntax sits inside the quoted program, which the stripper
+        #           removes before this predicate ever sees it. There is no honest
+        #           check to make, so it stays gated.
+        #   uniq  — its SECOND positional operand is an output file (`uniq in out`).
+        #           Counting operands here is not reliable: the stripper deletes
+        #           quoted content entirely, so `uniq "in" "out"` presents as
+        #           operand-free. `sort -u` covers the same need and is guarded.
+        #
+        # `sed` IS admitted, but only because has_bash_write_pattern above was given a
+        # matching raw-string check for `-i` and the `w` flag in the same change. The
+        # ordering in check-active-task.sh:92-97 (write check first, verdict overrides
+        # the allowlist) is what makes that guard load-bearing rather than advisory.
+        cut|tr|nl|rev|comm|cmp|diff|tac|fold|paste|join|column|jq|xxd|od|strings|base64|cksum|md5sum|sha1sum|sha256sum|seq)
+            return 0
+            ;;
+        sed)
+            # Write forms are caught by has_bash_write_pattern, which runs first and
+            # overrides this verdict. Delegating keeps ONE implementation of the
+            # question, the way the echo/printf branch does (T-404's copy-drift lesson).
+            if ! has_bash_write_pattern "$cmd"; then
+                return 0
+            fi
+            ;;
+        sort)
+            # `sort -o out` / `--output=out` write without a shell redirect. The check
+            # lives in has_bash_write_pattern, not here: "does this write a file" has
+            # exactly one implementation, and a guard that lived only in the allowlist
+            # would leave has_bash_write_pattern answering NO for a command that
+            # demonstrably writes — wrong for every caller that asks it directly.
+            if ! has_bash_write_pattern "$cmd"; then
+                return 0
+            fi
+            ;;
+
         # Category 3: Searching
         grep|rg|find|which|where|type|command)
             return 0
@@ -370,7 +419,19 @@ has_bash_write_pattern() {
     # \>\>? group silently matches word boundaries and never sees a redirect at
     # all. Held as a variable because an unquoted $var is the one form bash
     # reliably treats as a regex rather than a literal.
-    local sc_redirect_re='(&?[0-9]*)([>][>]?[|]?)[[:space:]]*([^[:space:];|]*)(.*)$'
+    # T-632: `)` is a TERMINATOR of the target, not part of it. Without it the walk
+    # reads `$(cat f 2>/dev/null)` as a redirect onto a file named `/dev/null)` — which
+    # is not the string `/dev/null`, so the sink exclusion below misses and the whole
+    # command is classified as a write. Same for `x=$(cmd 2>&1)`: the target reads `&1)`
+    # and the fd-dup exclusion misses too. Both were live: `WURL=$(cat url 2>/dev/null)`
+    # was refused by the active-task gate on a session that had written nothing.
+    #
+    # This is PL-025's own class — a character class standing in for shell structure —
+    # recurring inside the branch T-404 added to fix PL-025. The stripper handles
+    # quotes; nothing handled nesting. A `)` cannot be part of an unquoted redirect
+    # target anyway (bash would take it as syntax), so stopping there costs nothing:
+    # `> f)bar` still yields target `f` and is still a write.
+    local sc_redirect_re='(&?[0-9]*)([>][>]?[|]?)[[:space:]]*([^[:space:];|)]*)(.*)$'
     while [[ "$rest" =~ $sc_redirect_re ]]; do
         tgt="${BASH_REMATCH[3]}"
         rest="${BASH_REMATCH[4]}"
@@ -391,8 +452,27 @@ has_bash_write_pattern() {
     # $_SC_STRIPPED. Consequence, accepted knowingly: `grep -n "rm" f` is still
     # classified as a write. That is the conservative side of the boundary.
 
-    # In-place sed
-    if echo "$cmd" | grep -qE '\bsed\b.*-i'; then
+    # sed writes files two ways, and only one of them was checked.
+    #   sed -i ...            in-place edit
+    #   sed 's/a/b/w out' f   the `w` flag; also the bare `w` command
+    # T-632 added the second. It matters now because `sed` was admitted to the
+    # read-only allowlist below, and sed's write syntax lives INSIDE the quoted
+    # program — where the redirect walk above, which strips quoted content, cannot
+    # see it. So this raw-string check is the only thing standing behind it.
+    #
+    # Deliberately over-broad, on the same asymmetry the block below documents: a
+    # false positive costs "you need an active task", a false negative silently
+    # authors a file with no task. `sed 's/x/ w /'` will read as a write. Accepted.
+    if echo "$cmd" | grep -qE '\bsed\b.*(-i|--in-place)'; then
+        return 0
+    fi
+    if echo "$cmd" | grep -qE "\bsed\b.*[^[:alnum:]]w[[:space:]]+[^[:space:]'\"]"; then
+        return 0
+    fi
+
+    # sort writes without a shell redirect too (T-632). Same reason as sed: it is on
+    # the read-only allowlist now, so this is the guard standing behind it.
+    if echo "$cmd" | grep -qE '\bsort\b.*(^|[[:space:]])(-o([[:space:]]|$)|--output)'; then
         return 0
     fi
 

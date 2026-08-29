@@ -232,6 +232,115 @@ def test_segments_are_judged_individually(cmd, expected):
     assert is_safe(cmd) is expected, f"{cmd!r} expected safe={expected}"
 
 
+# --------------------------------------------------------------------------
+# T-632: nesting. The stripper handled quotes; nothing handled `)`.
+#
+# The redirect walk captured its target with a class that did not stop at a close
+# paren, so inside a command substitution `2>/dev/null)` was a write onto a file
+# named `/dev/null)` and `2>&1)` was a write onto `&1)`. Both exclusions missed by
+# exactly one character.
+#
+# WHY THIS FILE STAYED GREEN FOR IT, which is the finding worth keeping. RESUME_STEP5
+# above pins this exact command — and pins the variant that writes
+# `2>/dev/null || echo ...`, where the `||` splits the segment BEFORE the paren. That
+# copy never contains the failing adjacency. This corpus was assembled from the three
+# commands blocked in the 2026-08-09 incident; it pinned those instances faithfully and
+# never tested the class around them. Every fixture below is INVENTED rather than
+# harvested, for that reason.
+# --------------------------------------------------------------------------
+
+NESTED_BENIGN = [
+    # the form actually refused, on a session that had written nothing
+    "WURL=$(cat .context/working/watchtower.url 2>/dev/null)",
+    # the fd-duplication sibling: same off-by-one, different exclusion missed
+    "x=$(make 2>&1)",
+    "out=$(cmd 2>&- )",
+    # a subshell is not a command substitution but has the same terminator
+    "(cat f 2>/dev/null)",
+]
+
+
+@pytest.mark.parametrize("cmd", NESTED_BENIGN)
+def test_close_paren_terminates_a_redirect_target(cmd):
+    assert not is_write(cmd), f"read inside a substitution read as a write: {cmd!r}"
+
+
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        "y=$(generate > result.json)",
+        "out=$(cmd 2> errors.log)",
+        "(echo hi > out.txt)",
+    ],
+)
+def test_writes_inside_a_substitution_are_still_writes(cmd):
+    """TEETH for the paren fix specifically.
+
+    Stopping the target at `)` must not stop the walk from SEEING a redirect that
+    happens to sit inside a substitution. A fix that simply bailed out on nesting
+    would pass every benign case above and fail here.
+    """
+    assert is_write(cmd), f"genuine write inside a substitution NOT caught: {cmd!r}"
+
+
+# --------------------------------------------------------------------------
+# T-632 (b): read-only text tools were absent from the allowlist entirely.
+# Not misclassified as writes — never classified. Because T-405 judges every
+# segment, one such stage condemned a whole pipeline.
+# --------------------------------------------------------------------------
+
+READ_ONLY_TEXT_TOOLS = [
+    "sed -n '1,20p' file.sh",
+    "cat file.sh | sed -n '1,20p'",
+    "sort -u names.txt",
+    "cut -d: -f1 /etc/passwd",
+    "tr -d '\\r' < file",
+    "diff a.txt b.txt",
+    "sha256sum dist/artifact.tar",
+    "git log --oneline -5 | tac",
+    "jq '.level' .context/working/.budget-status",
+]
+
+
+@pytest.mark.parametrize("cmd", READ_ONLY_TEXT_TOOLS)
+def test_read_only_text_tools_reach_the_allowlist(cmd):
+    assert gate_allows(cmd), f"pure read still blocked with null focus: {cmd!r}"
+
+
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        'sed -i "s/a/b/" file.txt',
+        "sed 's/a/b/w captured.txt' file.txt",  # the `w` flag writes too
+        "sort -o sorted.txt names.txt",
+        "sort --output=sorted.txt names.txt",
+    ],
+)
+def test_write_capable_forms_of_admitted_verbs_stay_blocked(cmd):
+    """The guard that makes admitting sed and sort defensible.
+
+    sed's write syntax lives INSIDE the quoted program, where the stripper has
+    already deleted it — so the raw-string check in has_bash_write_pattern is the
+    only thing standing behind the allowlist entry, and the hook's ordering
+    (write check first, verdict overrides the allowlist) is what makes it bind.
+    """
+    assert is_write(cmd), f"write-capable form not caught: {cmd!r}"
+    assert not gate_allows(cmd), f"write-capable form reached the allowlist: {cmd!r}"
+
+
+@pytest.mark.parametrize("cmd", ['awk \'{print > "out"}\' f', "uniq input.txt output.txt"])
+def test_deliberate_exclusions_stay_excluded(cmd):
+    """Documents two omissions as decisions, so a later widening trips here.
+
+    awk is a language with unrestricted `print > file` and `system()`, both living
+    inside the quoted program the stripper removes — there is no honest check to
+    make. uniq's SECOND positional operand is an output file, and quoted operands
+    collapse to nothing under the stripper, so operand counting cannot see it.
+    `sort -u` covers the same need and is guarded.
+    """
+    assert not gate_allows(cmd), f"a write-capable verb was admitted: {cmd!r}"
+
+
 def test_base_extraction_does_not_fork():
     """Perf contract: this predicate runs on EVERY Bash tool call.
 
