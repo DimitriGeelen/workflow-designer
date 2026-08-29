@@ -96,6 +96,25 @@ questions:
       Ratify the two values already in use rather than minting new ones. They are
       consistent across T-590 and the envelope, and changing them now would invalidate the
       envelope's correlation without buying anything.
+    superseding_observation_2026_08_29: >
+      THE RECOMMENDATION ABOVE IS NOW INCOMPLETE, AND ITS OWN DIAGNOSIS IS WHY. It says
+      "the two values already in use". There are now THREE. The live peer traffic with
+      999-AEF is transacting on `EWCR-ARC0-ATTEST-832` — agent-chat-arc offsets 602, 734,
+      737, 741, 742 — which is neither `ewcr-v1` nor `ewcr-v1-designer-fixture`. It is a
+      rail THREAD NAME minted by an agent at offset 602 (T-610) and adopted by the
+      counterparty because we used it, which is precisely the mechanism this entry already
+      names: "carried forward by repetition, which is how an unratified value acquires the
+      appearance of a decision". The entry described the disease and then the disease
+      happened again, one layer out, while the entry sat open.
+      WHY IT MATTERS RATHER THAN BEING BOOKKEEPING: source-manifest.yaml's correlation note
+      states that Phase 4 completion is defined as read-back on the SAME correlation, and
+      that no peer handoff may be opened until the correlations are assigned. A handoff has
+      been open since 2026-08-27 on an unassigned value, so as things stand there is no
+      correlation on which Phase 4 read-back could be judged complete.
+      NOT DECIDED HERE. Which of the three (or a fourth, operator-minted) becomes canonical
+      is H3 itself and stays open; an agent choosing would repeat the original defect a
+      third time. Recorded 2026-08-29 so the ruling is made against what is actually on the
+      wire rather than against a two-value picture that stopped being true.
 
   - id: H4
     question: >
