@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-08-27T21:17:35Z
+last_update: 2026-08-27T21:20:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -536,10 +536,31 @@ opposite defect"* — and it excludes a half-move without preferring any whole o
 **Evidence:** `tools/_t358-repair-options-cdp.mjs`, measured 2026-08-04 — every candidate
 applied to a temp copy and round-tripped through the real importer/emitter. All five leave
 **corpus bytes identical**, so byte cost does not discriminate between them and cannot be
-used to smuggle in a preference. Diagnosis is complete: 3 of 6 Agent ACs are ticked (the
+used to smuggle in a preference. Diagnosis is complete: **4 of 6** Agent ACs are ticked (the
 fabrication reproduced, its site named, the two causes separated, and a negative control
-proving the probe can report *no* fabrication). The remaining three are all repair, and
+proving the probe can report *no* fabrication). The remaining **two** are both repair, and
 they are BLOCKED on this ruling — not on further measurement.
+
+*(The two counts above read "3 of 6" and "the remaining three" until 2026-08-29. A fourth
+AC had been ticked and the prose was never updated, so the brief understated its own
+readiness to the one reader whose ruling it was waiting on.)*
+
+**Re-confirmed 2026-08-29, because a ruling should not rest on 25-day-old measurement.**
+Two of the three `## Verification` legs re-run today, unchanged in outcome:
+
+    node tools/_t356-third-party-fidelity-cdp.mjs        exit 0
+      -> 11/11 third-party fixtures still lose content; the fabrication is live:
+         lanes in=0 out=3 and participants in=0 out=1 on every affected fixture.
+    python3 tools/_t358-corpus-lane-provenance-probe.py  exit 0
+      -> PASS, every lane in all 24 rendered maps is declared in its source yaml.
+         So no corpus map relies on the fabricated default, and the "reverses into
+         the opposite defect" hazard does not fire on our own population.
+
+The third leg, `bash tests/run-bridge-tests.sh`, **did not finish inside 300s** (exit 124).
+That is recorded as an observation about the leg, not about the repair: P-011 executes this
+line at completion, so whatever the gate's own patience is, this leg is where a completion
+attempt will spend it. It does not affect the ruling below, which is gated on none of the
+three.
 
 **Seam context you may want:** AEF measured their own importer (rail 484/486, our T-403)
 and does **not** fabricate. On this axis we are currently the outlier at the seam. I record
