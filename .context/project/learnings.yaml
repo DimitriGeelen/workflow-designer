@@ -1954,3 +1954,31 @@ learnings:
   date: 2026-08-29
   context: Added via context agent
   application: TBD
+- id: PL-275
+  learning: "A model of a runner drifts from the runner; a mutant derived from the live source cannot. T-630 pinned two runner shapes as text to avoid the git-history anchor problem (a HEAD~1 reference starts testing the fix against itself one commit later). The pinned copy has the opposite failure and had already suffered it twice — and one of the drifts was load-bearing: the model counted before stripping blank lines while the gate strips first, which is the only reason its reconciliation leg produced a gap at all. Deleting the redirect from the live source gives the pre-fix behaviour with neither weakness."
+  source: unknown
+  task: T-635
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
+- id: PL-276
+  learning: "A guard that no input can reach is not untested — it is testable by mutation or not at all. P-011's reconciliation guard cannot be tripped by any Verification block: the extraction filter removes every line the loop would skip, so pass+fail always equals total. It is a regression detector, not an input validator, and an instrument that tries to reach it with data will either fail or (as T-630's did) reach a MODEL that can be reached and report green."
+  source: unknown
+  task: T-635
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
+- id: PL-277
+  learning: "An over-broad predicate's cost must be argued per ARGUMENT KIND, not per command. The destructive-verb scan reads the raw string on a documented asymmetry: a false positive costs 'you need an active task', a false negative lets sh -c with a destructive verb past. That reasoning is about EXECUTION and is right for arguments that are code. It inverts for the four framework verbs whose argument is prose the framework stores and never runs — and in this project that prose is overwhelmingly about shell behaviour, so the cheap side became the expensive one. The remedy is not to reverse the asymmetry but to scan the stripped string for those verbs, so clauses outside the quotes are judged exactly as before."
+  source: unknown
+  task: T-636
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD
+- id: PL-278
+  learning: "A gate whose block message names the wrong cause is worse than the block. The write veto refused fw note and the message said 'No active task', so the remedy it handed over was 'create a task' — exactly what the note exemption exists to avoid, and exactly wrong for an observation you are not acting on. The reader follows a useful-looking instruction away from the real fault. When a gate has several independent reasons to refuse, the message must name which one fired, or every diagnosis downstream of it starts from a false premise."
+  source: unknown
+  task: T-636
+  date: 2026-08-29
+  context: Added via context agent
+  application: TBD

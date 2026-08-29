@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-636: fw note is allowlisted for the no-task case and was refused anyway
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T22:49:09Z
+# ============================================================================
+
+task_id: T-636
+task_name: "fw note is allowlisted for the no-task case and was refused anyway"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T22:39:02Z
+completed: 2026-08-29T22:48:50Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-30T00:48:45+02:00
+last_commit: 2026-08-30T00:48:45+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the observation inbox refused an observation about rm — the write veto reads prose, and it runs before the allowlist that exempts fw note
+
+# Key outcomes
+outcomes:
+  - 'The mechanism is identified by MEASUREMENT: which predicate refuses the command, and'
+  - '`fw note "<text>"` with focus genuinely null is accepted by the hook, measured'
+  - 'The fix does not widen the gate: with focus still null, a command that must be'
+  - 'A prober pins the no-task case for EVERY verb the framework declares safe with no'
+  - 'Teeth: reverting the fix turns the prober red, and any mutation anchor is asserted'
+  - 'The observation that could not be filed is filed — OBS-324'
+  - 'The corpus perf contract caught the first draft of `_sc_is_framework_prose_verb`'
+  - 'The must-not-widen list caught a case that turned out to be pre-existing (a'
+  - 'Corpus extended 71 → 89 with both sides of the new boundary'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/web/test_safe_commands.py'
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-636-fw-note-is-allowlisted-for-the-no-task-c.md'
+  - '.tasks/completed/T-635-t-630s-prober-asserts-against-a-model-of.md'
+  - 'tools/_t636-prose-verbs-vetoed-by-their-own-text.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-30T00:48:45"
+    action: 'T-636: the observation inbox refused an observation about rm — the write veto reads prose, and it runs before the allowlist that exempts fw note'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 1
+  files_changed: 6
+  lines_added: 669
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-636-fw-note-is-allowlisted-for-the-no-task-c.md
+generated_by: context-agent-hybrid

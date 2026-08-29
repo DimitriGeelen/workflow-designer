@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-635: T-630's prober asserts against a model of the runner, and the model has drifted from it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-29T22:37:54Z
+# ============================================================================
+
+task_id: T-635
+task_name: "T-630's prober asserts against a model of the runner, and the model has drifted from it"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T22:33:09Z
+completed: 2026-08-29T22:37:42Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-30T00:37:36+02:00
+last_commit: 2026-08-30T00:37:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-630's prober asserted against a model that had drifted — its leg 3 was green against a line the live gate strips before counting
+
+# Key outcomes
+outcomes:
+  - '`tools/_t630-p011-stdin-swallow.sh` drives the real `update-task.sh` against a'
+  - 'An anti-vacuity control completes a clean task in that sandbox first, so every'
+  - 'The stdin-swallowing fixture (four commands, the second reads stdin) completes'
+  - 'The same fixture through a mutant with `< /dev/null` removed is refused with'
+  - 'Every mutation anchor is asserted to occur exactly once and the run aborts loudly'
+  - '`--skip-verification` does not buy past RUNNER DEFECT, measured against the mutant'
+  - 'The unreachability claim is measured, not asserted: a whitespace-only verification'
+  - 'The prober passes, and `tools/_t634-guard-verdict-reaches-caller.sh` still passes'
+  - 'The general claim''s structural premise is pinned — the runner loop is asserted to'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-635-t-630s-prober-asserts-against-a-model-of.md'
+  - 'tools/_t630-p011-stdin-swallow.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-30T00:37:36"
+    action: 'T-635: T-630''s prober asserted against a model that had drifted — its leg 3 was green against a line the live gate strips before counting'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 2
+  lines_added: 452
+  lines_removed: 94
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-635-t-630s-prober-asserts-against-a-model-of.md
+generated_by: context-agent-hybrid
