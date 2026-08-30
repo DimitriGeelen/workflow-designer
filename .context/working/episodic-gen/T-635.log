@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-29T22:37:54Z ===
+task_id: T-635
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-635.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: T-630's prober asserts against a model of the runner, and the model has drifted from it
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 1
+  Lines: +452 -94 across 2 files
+  Outcomes: 9 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-635-t-630s-prober-asserts-against-a-model-of.md
+--- exit code: 0 ---

@@ -541,6 +541,52 @@ def test_a_safe_listed_clause_alongside_the_commit_is_admitted_on_purpose():
     )
 
 
+def drift_target(cmd):
+    """Return the task _sc_drift_target identifies, or '' for none."""
+    script = f'source "{LIB}"; _sc_drift_target "$1"; printf "%s" "$_SC_DRIFT_TARGET"'
+    return subprocess.run(
+        ["bash", "-c", script, "_", cmd], capture_output=True, text=True
+    ).stdout.strip()
+
+
+@pytest.mark.parametrize(
+    "cmd,expected",
+    [
+        # Genuine targets — the gate's reason to exist.
+        ("fw task update T-1 --status issues", "T-1"),
+        ("/opt/p/.agentic-framework/bin/fw task update T-42 --status work-completed", "T-42"),
+        ('fw context add-learning "x" --task T-7', "T-7"),
+        ('git commit -m "T-9: real commit"', "T-9"),
+        ("git commit -m 'T-9: single quoted'", "T-9"),
+        # T-639: mentions. The command acts on nothing.
+        ('echo "the form is: git commit -m \\"T-1: msg\\""', ""),
+        ('echo "next run fw task update T-1 --status issues"', ""),
+        ('bash tools/probe.sh " git commit -m \\"T-1: fixture\\""', ""),
+        ('grep -c " fw task update T-1" tools/t.sh', ""),
+        # The id must PREFIX the message. A task named in the body is a reference,
+        # not a target — commit-msg enforces the prefix, so that is the definition
+        # the rest of the framework already uses.
+        ('git commit -m "T-9: supersedes the approach in T-1: see notes"', "T-9"),
+        # Not a commit invocation at all, so the -m value is irrelevant.
+        ('echo "git commit -m \\"T-1: x\\"" > /dev/null', ""),
+    ],
+)
+def test_drift_target_reads_the_target_not_the_mention(cmd, expected):
+    assert drift_target(cmd) == expected, f"wrong drift target for {cmd!r}"
+
+
+def test_the_drift_predicate_does_not_fork():
+    """Third helper on the PreToolUse path, same contract as the other two."""
+    code = LIB.read_text()
+    start = code.index("_sc_drift_target() {")
+    body = code[start : code.index("\n}", start)]
+    executable = "\n".join(
+        line for line in body.splitlines() if not line.lstrip().startswith("#")
+    )
+    for forking in ("awk ", "sed ", "$(echo", "| cut", "python3", "grep "):
+        assert forking not in executable, f"{forking!r} forks a process per Bash call"
+
+
 def test_the_commit_predicate_does_not_fork():
     """Same perf contract as the two above — it runs on the PreToolUse path."""
     code = LIB.read_text()

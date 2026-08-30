@@ -369,17 +369,17 @@ if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && [ -n "$CURRENT_TASK" ]; th
     # exit is now deferred to just below this gate, and pattern 2 fires. The comment is
     # kept rather than deleted because the two defects shared one symptom and only the
     # control that separated them showed there were two.
-    # Pattern 1: fw task update T-NNNN (mutation)
-    if [[ "$BASH_CMD" =~ (^|[[:space:]])([^[:space:]]*/)?fw[[:space:]]+task[[:space:]]+update[[:space:]]+(T-[0-9]+) ]]; then
-        TARGET_TASK="${BASH_REMATCH[3]}"
-    # Pattern 2: fw context add-* --task T-NNNN
-    elif [[ "$BASH_CMD" =~ (^|[[:space:]])([^[:space:]]*/)?fw[[:space:]]+context[[:space:]]+add- ]] && \
-         [[ "$BASH_CMD" =~ --task[[:space:]=]+(T-[0-9]+) ]]; then
-        TARGET_TASK="${BASH_REMATCH[1]}"
-    # Pattern 3: git commit ... T-NNNN: (the canonical T-XXX: prefix marker)
-    elif [[ "$BASH_CMD" =~ (^|[[:space:]])git[[:space:]]+commit ]] && \
-         [[ "$BASH_CMD" =~ (T-[0-9]+): ]]; then
-        TARGET_TASK="${BASH_REMATCH[1]}"
+    # T-639: the three patterns moved into _sc_drift_target (lib/safe-commands.sh),
+    # because each read task ids out of QUOTED arguments and so treated a command
+    # that merely mentioned a task as an action on it. The predicate keeps patterns
+    # 1 and 2 on the quote-stripped command (their id is a bare argument) while
+    # pattern 3 reads the raw -m value (its id is legitimately quoted) and anchors
+    # `T-NNN:` at the START of that value. Rationale in full at the definition.
+    # `type` guard, not decoration: the library is sourced with `|| true`, so an
+    # unguarded call would emit "command not found" into the hook's stderr on every
+    # Bash invocation if it ever failed to load.
+    if type _sc_drift_target &>/dev/null && _sc_drift_target "$BASH_CMD"; then
+        TARGET_TASK="$_SC_DRIFT_TARGET"
     fi
 
     # If a target was identified and differs from focused task: drift

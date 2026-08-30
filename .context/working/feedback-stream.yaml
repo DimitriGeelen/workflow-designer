@@ -8663,3 +8663,21 @@ scan_id: R-a285e50c
 task_id: T-637
 payload:
   task_file: .tasks/active/T-637-what-actually-blocks-each-outstanding-in.md
+---
+kind: scan_emitted
+timestamp: '2026-08-30T08:41:43Z'
+scan_id: R-34c4fe51
+task_id: T-638
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-30T08:41:43Z'
+scan_id: R-34c4fe51
+task_id: T-638
+payload:
+  task_file: .tasks/active/T-638-t-2054-commit-exemption-matches-git-comm.md

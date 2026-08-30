@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-29T22:49:08Z ===
+task_id: T-636
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-636.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: fw note is allowlisted for the no-task case and was refused anyway
+  Duration: 0 days (9 min)
+  Updates: 1
+  Commits: 1
+  Lines: +669 -0 across 6 files
+  Outcomes: 9 AC checked
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-636-fw-note-is-allowlisted-for-the-no-task-c.md
+--- exit code: 0 ---

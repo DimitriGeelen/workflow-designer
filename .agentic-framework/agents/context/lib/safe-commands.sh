@@ -598,6 +598,88 @@ has_bash_write_pattern() {
 # hand-rolled list would have to rediscover it and would drift from the real one.
 #
 # Pure bash, no fork beyond what the callees already pay: PreToolUse path.
+# T-639: which task does this command ACT ON? (empty = none)
+#
+# The focus-drift gate (T-1730) used three regexes over the RAW command, so each
+# read task ids out of quoted arguments. Pattern 3 carried two over-matches at once:
+# `git commit` anywhere (the T-638 defect verbatim) AND an entirely unanchored
+# `(T-[0-9]+):`. A command that merely CONTAINED a task id became an action on it.
+#
+# Self-demonstrating consequence: a prober exercising the gate's own git-commit path
+# is blocked by the gate, because its fixtures contain task ids. Reproduced live.
+# During T-638 every fixture was written `T-x:` rather than `T-1:` to stay under the
+# pattern — the gate was shaping test data to avoid itself, which is the exact
+# failure the file's own comments warn about ("a guard that fires on the wrong
+# command trains people to bypass it").
+#
+# THE ASYMMETRY, which is the whole design. Patterns 1 and 2 take the task id as a
+# BARE ARGUMENT, so the quote-stripped command is the correct read and a quoted
+# mention correctly disappears. Pattern 3's id lives INSIDE the quoted -m value —
+# stripping would delete precisely what it must read. So P3 instead asks two
+# structural questions: does some clause actually INVOKE git commit, and does the
+# message value START with `T-NNN:`? That prefix is the canonical form commit-msg
+# enforces and `fw git log --task` reads, so anchoring there is not a heuristic —
+# it is the same definition the rest of the framework already uses.
+#
+# Result in the global _SC_DRIFT_TARGET; returns 0 when a target was identified.
+_sc_drift_target() {
+    local cmd="$1"
+    _SC_DRIFT_TARGET=""
+
+    _sc_strip_quoted "$cmd"
+    local stripped="$_SC_STRIPPED"
+
+    # Pattern 1: fw task update T-NNNN — bare argument, judged on the stripped string.
+    if [[ "$stripped" =~ (^|[[:space:]])([^[:space:]]*/)?fw[[:space:]]+task[[:space:]]+update[[:space:]]+(T-[0-9]+) ]]; then
+        _SC_DRIFT_TARGET="${BASH_REMATCH[3]}"
+        return 0
+    fi
+
+    # Pattern 2: fw context add-* --task T-NNNN — also a bare argument.
+    if [[ "$stripped" =~ (^|[[:space:]])([^[:space:]]*/)?fw[[:space:]]+context[[:space:]]+add- ]] && \
+       [[ "$stripped" =~ --task[[:space:]=]+(T-[0-9]+) ]]; then
+        _SC_DRIFT_TARGET="${BASH_REMATCH[1]}"
+        return 0
+    fi
+
+    # Pattern 3, first half: does a clause actually INVOKE git commit? Asking
+    # "does the string contain `git commit`" is what let a quoted fixture through.
+    local segs="$stripped" line rest tok1 tok2 invokes_commit=0
+    segs="${segs//&&/$'\n'}"
+    segs="${segs//||/$'\n'}"
+    segs="${segs//;/$'\n'}"
+    segs="${segs//|/$'\n'}"
+    while IFS= read -r line; do
+        [ -n "${line//[[:space:]]/}" ] || continue
+        rest="${line#"${line%%[![:space:]]*}"}"
+        tok1="${rest%%[[:space:]]*}"
+        rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
+        tok2="${rest%%[[:space:]]*}"
+        if [ "${tok1##*/}" = "git" ] && [ "$tok2" = "commit" ]; then
+            invokes_commit=1
+            break
+        fi
+    done <<< "$segs"
+    [ "$invokes_commit" -eq 1 ] || return 1
+
+    # Pattern 3, second half: the id must PREFIX the message value. Read from the
+    # raw command on purpose — this is the one id that is legitimately quoted.
+    local msg=""
+    if [[ "$cmd" =~ (^|[[:space:]])(-m|--message)[[:space:]]*=?[[:space:]]*\"([^\"]*)\" ]]; then
+        msg="${BASH_REMATCH[3]}"
+    elif [[ "$cmd" =~ (^|[[:space:]])(-m|--message)[[:space:]]*=?[[:space:]]*\'([^\']*)\' ]]; then
+        msg="${BASH_REMATCH[3]}"
+    elif [[ "$cmd" =~ (^|[[:space:]])(-m|--message)[[:space:]]+([^[:space:]]+) ]]; then
+        msg="${BASH_REMATCH[3]}"
+    fi
+    if [[ "$msg" =~ ^(T-[0-9]+): ]]; then
+        _SC_DRIFT_TARGET="${BASH_REMATCH[1]}"
+        return 0
+    fi
+
+    return 1
+}
+
 _sc_is_commit_only_command() {
     local cmd="$1"
 
