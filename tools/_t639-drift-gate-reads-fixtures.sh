@@ -44,8 +44,30 @@ for f in "$HOOK" "$LIB"; do
     [ -f "$f" ] || { echo "COULD-NOT-MEASURE: missing $f" >&2; exit 3; }
 done
 
-mkdir -p "$SANDBOX/.context/working"
-printf 'current_task: T-639\npriorities: []\n' > "$SANDBOX/.context/working/focus.yaml"
+# THE SANDBOX MUST DECLARE ITSELF A PROJECT OR IT IS NOT ONE.
+#
+# check-active-task.sh calls fw_reanchor_from_hook_stdin, which walks UP from the
+# stdin `cwd` looking for `.framework.yaml` or a `.tasks/` directory (paths.sh:98).
+# Find neither and it returns 0 having changed nothing — the hook then reads the
+# REAL .context/working/focus.yaml and the sandbox is inert. Not an error: a silent
+# no-op. This file shipped in exactly that state, so every verdict below was a
+# measurement of the live session rather than of the fixture, and the run went from
+# 16/16 to 13/16 with no code change at all once the session's focus moved off
+# T-639. A prober whose result depends on the operator's current focus is not a
+# prober.
+#
+# `.tasks/` is the marker. Once re-anchored TASKS_DIR points here too, so the
+# focused task must EXIST here as well — hence the fixture file. The focus id is
+# synthetic on purpose: pinning a real id makes the prober self-invalidating the
+# moment that task completes, which is the second half of how this broke.
+mkdir -p "$SANDBOX/.context/working" "$SANDBOX/.tasks/active"
+printf 'current_task: T-9001\npriorities: []\n' > "$SANDBOX/.context/working/focus.yaml"
+printf -- '---\nid: T-9001\nname: drift-gate fixture\nstatus: started-work\n---\n# fixture\n' \
+    > "$SANDBOX/.tasks/active/T-9001-drift-gate-fixture.md"
+
+# The live focus, read for the inversion assertion. If the sandbox ever goes inert
+# again, THIS is the id the hook will silently be judging against instead.
+REAL_FOCUS=$(sed -n 's/^current_task:[[:space:]]*//p' "$PROJ/.context/working/focus.yaml" 2>/dev/null | head -1)
 
 PASS=0; FAIL=0
 ok()  { PASS=$((PASS+1)); echo "  PASS  $1"; }
@@ -66,7 +88,7 @@ print(json.dumps({'tool_name':'Bash','cwd':sys.argv[1],'tool_input':{'command':s
 # The fixtures. Every one of these contains a task-id-shaped string; the
 # question in each case is whether the command ACTS on that task.
 # ---------------------------------------------------------------------------
-ONFOCUS='git commit -m "T-639: a real commit on the focused task"'
+ONFOCUS='git commit -m "T-9001: a real commit on the focused task"'
 
 # Genuine drift — the gate's whole reason to exist. Must keep blocking.
 DRIFT_COMMIT='git commit -m "T-1: a real commit on another task"'
@@ -100,8 +122,28 @@ GREP_FOR_IT='grep -c "git commit -m \"T-1: x\"" tools/t.sh'
 # right for the wrong reason: it took the FIRST `T-N:` anywhere in the command,
 # which happened to be the prefix. Put the mention earlier and it targets the
 # wrong task — so this case was one word-order away from a false BLOCK.
-BODY_MENTION='git commit -m "T-639: supersedes the approach taken in T-1: see notes"'
+BODY_MENTION='git commit -m "T-9001: supersedes the approach taken in T-1: see notes"'
 
+echo "--- the sandbox is actually in effect (this leg is the reason the file was wrong)"
+# Every verdict below is meaningless unless the hook is reading THIS focus.yaml. The
+# assertion is an inversion rather than a spot-check: a commit on the sandbox's
+# synthetic focus must be ALLOWED, and a commit on the session's real focus must be
+# BLOCKED as drift. If the sandbox goes inert those two swap, so no single accident
+# can make both hold. Nothing else here can distinguish "fixture honoured" from
+# "live state happened to agree" — which is exactly how this shipped green.
+if [ -z "$REAL_FOCUS" ] || [ "$REAL_FOCUS" = "null" ] || [ "$REAL_FOCUS" = "T-9001" ]; then
+    echo "  SKIP  live focus is '${REAL_FOCUS:-unset}' — inversion is not decidable against it"
+else
+    run "$HOOK" "$ONFOCUS"; A=$RC
+    run "$HOOK" "git commit -m \"$REAL_FOCUS: a commit on the SESSION's focus, not the sandbox's\""; B=$RC
+    if [ "$A" -eq 0 ] && [ "$B" -ne 0 ]; then
+        ok "sandbox focus governs, live focus ($REAL_FOCUS) does not"
+    else
+        bad "SANDBOX INERT — the hook is judging against $REAL_FOCUS, so every leg below measures the live session (add a .tasks/ marker; see paths.sh fw_reanchor_from_cwd)"
+    fi
+fi
+
+echo
 echo "--- genuine drift still blocks (the gate must not be weakened)"
 for pair in "DRIFT_COMMIT:off-focus commit" "DRIFT_UPDATE:off-focus task update" \
             "DRIFT_LEARN:off-focus add-learning"; do
