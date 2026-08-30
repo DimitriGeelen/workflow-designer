@@ -1,13 +1,13 @@
 ---
-id: T-640
-name: "Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule"
+id: T-645
+name: "test_htmx_returns_fragment[/timeline] fails on a substring scan: task PROSE containing the characters <html"
 description: >
-  Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule
+  web/test_app.py:143 asserts '<html' not in html to prove an HX-Request returns a fragment rather than a full page. /timeline renders task and report PROSE, and one of those bodies contains the literal characters '<html' while discussing HTMX fragments. The fragment IS a fragment (the response opens with <nav>), so the assertion is a false positive: a character-level scan standing in for a structural question. The structural test is whether the response has a root <html> ELEMENT, not whether those five characters appear anywhere in the rendered body. Ninth member of the family first named in T-633. Found while verifying T-643.
 
-status: work-completed
+status: started-work
 workflow_type: build
 owner: agent
-horizon: null
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-30T10:02:16Z
-last_update: 2026-08-30T10:42:04Z
-date_finished: 2026-08-30T10:42:04Z
+created: 2026-08-30T18:08:53Z
+last_update: 2026-08-30T18:23:09Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,52 +30,65 @@ date_finished: 2026-08-30T10:42:04Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-640: Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule
+# T-645: test_htmx_returns_fragment[/timeline] fails on a substring scan: task PROSE containing the characters <html
 
 ## Context
 
-The Bash safe-list states its own admission rule, in the T-632 block:
+`web/test_app.py:143`, in `test_htmx_returns_fragment`, asserts:
 
-> admit only what cannot write a file WITHOUT a shell redirect, because a shell redirect
-> is already caught above.
+```python
+assert "<!DOCTYPE" not in html
+assert "<html" not in html
+```
 
-It applies that rule carefully and excludes two verbs on exactly this basis — `awk`
-(unrestricted `print > "file"`, and the write syntax sits inside the quoted program the
-stripper removes) and `uniq` (its second positional operand is an output file).
+The intent is structural: *an HX-Request must return a fragment, not a whole page.*
+The implementation is a character scan over the entire response body.
 
-`curl` and `wget` break the same rule and are admitted anyway, in the Category-5 system
--utilities arm. `curl -o FILE` and `wget -O FILE` write a file with no shell redirect, and
-`has_bash_write_pattern` does not flag either — measured: `curl -o /tmp/f http://x` returns
-SAFE and no-write, so it is admitted with **no active task**. `wget` is worse in one
-respect: with no flag at all it writes the fetched file into the working directory.
+**The first reading was wrong and is worth keeping visible.** I filed this as a false
+positive — the response opens with `<nav class="wt-breadcrumb" …`, so it *is* a fragment,
+and the match came from task prose discussing HTMX fragments. Then I measured what the
+page actually emits:
 
-The precedent for the fix is already in the file. `sed` is on the read-only list only
-because a matching raw-string guard for `-i` and the `w` flag was added in the same change,
-and `sort` has one for `-o`/`--output`. This is the third instance of that pattern, not a
-new mechanism.
+```
+GET /timeline (HX-Request)  -> 200, 13,324,594 bytes, starts with '<nav class=…'
+  occurrences of '<html'    : 2
+  occurrences of '&lt;html' : 0
+  context: '… the SHAPE (a fragment, no <html>) and the CONSEQUENCE …'
+```
 
-Found while composing the T-638 clause predicate, which correctly admits these (a clause
-that is independently safe-listed stays admitted) — so the composition site was the wrong
-place to fix it. One bug, one task.
+Zero escaped. The page renders task prose containing `<` **as markup**. So the assertion
+did not fire on nothing: it fired on a real `<html` in the delivered HTML — just not for
+the reason it was written to detect. **A test can be structurally wrong and still be
+right about the byte it found.**
+
+That splits into two defects, and they belong to two tasks:
+
+1. **This task:** the assertion answers "does this response have a root `<html>` element?"
+   with "do these five characters appear anywhere?". Ninth member of the family named in
+   T-633 — a character-level scan standing in for structure.
+2. **T-646:** the timeline emits unescaped `<` from task bodies. That is the reason the
+   characters were there, and it is a rendering defect independent of any test.
+
+Fixing (1) alone would turn the test green while the page still emits raw tags — which is
+precisely why the two are separate and why this task must not simply relax the assertion.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] `has_bash_write_pattern` flags `curl` with `-o` / `--output` / `-O` / `--remote-name`,
-      and `wget` with `-O` / `--output-document`. Guard sits with the `sed -i` and
-      `sort -o` guards and follows their form.
-- [x] `wget` with NO output flag is flagged too — it writes the fetched file into the
-      working directory by default, which is the same defect without the flag.
-- [x] Read-only uses stay admitted: `curl -sf URL`, `curl -s URL | jq .`, and
-      `curl URL -H "x: y"` are not writes. The `/resume` skill's own step-5 command
-      (`curl -sf "$WURL/"`) must keep working — it is already a regression anchor in the
-      corpus for a different defect.
-- [x] The flag is matched as a whole token, so `--output-dir` alone (curl's directory
-      option, harmless without `-o`) and a URL containing the letters do not trip it.
-- [x] Corpus tests added for both directions; the existing 120 still pass.
-- [x] A prober drives the REAL gate ordering (write-check-then-allowlist, as
-      `check-active-task.sh` composes them) and shows the writing forms are refused with no
-      active task while the reading forms are admitted.
+- [ ] The fragment assertion is structural: it decides whether the response has a root
+      `<html>`/`<!DOCTYPE>` **element**, not whether a byte sequence occurs. Parsing the
+      response, or anchoring on the start of the document, are both acceptable; a longer
+      substring is not.
+- [ ] The new assertion is shown to still catch a genuine full-page response — a probe
+      feeds it an actual rendered page (a non-HX GET of the same route) and the assertion
+      must reject it. An assertion that cannot fail is not an assertion.
+- [ ] The new assertion does **not** silently absorb T-646: with the raw `<html>` still
+      present in task prose, this test passes (it is a fragment) while T-646's own check
+      fails (the page escapes nothing). The two must be independently observable.
+- [ ] All ten parametrised routes pass: `pytest -k test_htmx_returns_fragment`.
+- [ ] The 13.3 MB `/timeline` fragment is recorded as an observation if it is not already
+      one — it is not this task's to fix, but a 13 MB HTMX swap is worth someone knowing
+      about.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -157,15 +170,6 @@ place to fix it. One bug, one task.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# The gate probe: drives the REAL hook, so it pins the ORDERING (write-check before
-# allowlist, and exiting rather than falling through) that the corpus cannot see.
-# Its own teeth are inside it — a mutant with both guards stripped must admit all 9
-# downloads, or the run aborts COULD-NOT-MEASURE rather than passing.
-bash tools/_t640-fetchers-that-write-are-writes.sh
-# The predicate corpus, which caught the first draft of the curl guard flagging
-# `curl -s -o /dev/null -w "%{http_code}"` — the standard status-probe idiom.
-python3 -m pytest .agentic-framework/web/test_safe_commands.py -q
-
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -229,26 +233,10 @@ python3 -m pytest .agentic-framework/web/test_safe_commands.py -q
 
 ## Updates
 
-### 2026-08-30T10:02:16Z — task-created [task-create-agent]
+### 2026-08-30T18:08:53Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-640-safe-list-admits-curl-and-wget-unconditi.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-645-testhtmxreturnsfragmenttimeline-fails-on.md
 - **Context:** Initial task creation
 
-### 2026-08-30T10:11:01Z — status-update [task-update-agent]
-- **Change:** status: started-work → issues
-- **Reason:** Code fix landed and verified by 132/132 corpus, but AC 6 (a prober driving the real gate ordering) is not met: the shared hook-prober harness is unsound, see OBS-328.
-
-### 2026-08-30T10:37:43Z — status-update [task-update-agent]
-- **Change:** status: issues → started-work
-
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-59783093
-- **Timestamp:** 2026-08-30T10:42:29Z
-- **Catalogue:** v1.3-seed
-- **Overall:** PASS
-- **Needs Human:** no
-- **Findings:** none
-
-### 2026-08-30T10:42:04Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
+### 2026-08-30T18:23:09Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

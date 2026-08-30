@@ -1,8 +1,8 @@
 ---
-id: T-641
-name: "T-639 prober sandbox is ignored so it measures live session state"
+id: T-644
+name: "fw ask crashes in a vendored install: PROJECT_ROOT overrides ask.py's correct __file__ default"
 description: >
-  T-639 prober sandbox is ignored so it measures live session state
+  lib/ask.py:22 does sys.path.insert(0, os.environ.get('PROJECT_ROOT', dirname(dirname(abspath(__file__))))). The __file__ default is CORRECT (it resolves to FRAMEWORK_ROOT); the PROJECT_ROOT env var that bin/fw exports overrides it with the project root, where web/ does not exist in a vendored install. Measured: PROJECT_ROOT=/opt/832-Workflow-designer python3 -c 'sys.path.insert(0,PROJECT_ROOT); import web.embeddings' -> ModuleNotFoundError: No module named 'web'. Unlike T-643's review-queue site there is no fallback, so this is a loud crash, not a silent substitution. Found by T-643's audit of every 'from web.' import site.
 
 status: work-completed
 workflow_type: build
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-30T10:29:29Z
-last_update: 2026-08-30T10:36:58Z
-date_finished: 2026-08-30T10:36:58Z
+created: 2026-08-30T18:08:43Z
+last_update: 2026-08-30T18:21:10Z
+date_finished: 2026-08-30T18:21:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,51 +30,77 @@ date_finished: 2026-08-30T10:36:58Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-641: T-639 prober sandbox is ignored so it measures live session state
+# T-644: fw ask crashes in a vendored install: PROJECT_ROOT overrides ask.py's correct __file__ default
 
 ## Context
 
-`tools/_t639-drift-gate-reads-fixtures.sh` writes a `focus.yaml` into a scratchpad
-sandbox and passes that directory as the hook's stdin `cwd`. The hook re-anchors via
-`fw_reanchor_from_cwd` (`.agentic-framework/lib/paths.sh:98`), which walks UP from
-`cwd` looking for `.framework.yaml` or a `.tasks/` directory. The sandbox has
-neither, so the walk finds nothing, the function returns 0 having changed nothing,
-and the hook reads the **real** `.context/working/focus.yaml`. The sandbox is inert
-— silently, with no error.
+Found by T-643's audit of every `from web.` import site. Sibling defect, different file,
+different failure mode — hence a separate task (one bug, one task).
 
-Two consequences, both observed:
+`lib/ask.py:22`:
 
-1. **The prober measured live session state.** It was committed green at 16/16 while
-   the session's focus happened to be T-639. With no code change whatsoever it is now
-   13/16, because focus moved to T-640. All three failures are the harness, not the
-   T-639 fix.
-2. **OBS-328 named the wrong marker.** It says `.git`. The marker is `.tasks/` (or
-   `.framework.yaml`). A remedy written from that note would not have worked, and the
-   same note was posted to the peer rail at @826 with the blast radius overstated as
-   "every hook prober" — measured here as exactly one.
+```python
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, PROJECT_ROOT)
+from web.embeddings import rag_retrieve, build_index
+```
 
-The generalizable defect is that the prober never asserted its own fixture took
-hold. A sandbox that silently degrades to live state is a false-green generator, so
-the fix is not just "add the marker" but "prove the marker worked, every run".
+The `__file__` default is **correct** — it resolves to `FRAMEWORK_ROOT`, where `web/`
+actually lives. The `PROJECT_ROOT` environment variable that `bin/fw` exports overrides
+it with the project root, where in a vendored install `web/` does not exist. The fallback
+is right and the primary is wrong.
+
+Measured:
+
+```
+$ PROJECT_ROOT=/opt/832-Workflow-designer python3 -c \
+    "import sys; sys.path.insert(0, '/opt/832-Workflow-designer'); import web.embeddings"
+ModuleNotFoundError: No module named 'web'
+```
+
+Unlike T-643's site there is no `except ImportError`, so this fails loudly rather than
+substituting a different program. Loud is better. It is still broken.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] The sandbox carries a `.tasks/` marker and a fixture task file, so
-      `fw_reanchor_from_cwd` re-anchors and the focused task resolves inside it
-- [x] The focus id is synthetic (not a live task id), so completing a real task
-      cannot invalidate the prober a second time
-- [x] A self-validation leg asserts the sandbox is actually in effect, by asserting
-      the verdict INVERTS against the real focus — this leg must fail if the marker
-      is removed
-- [x] Removing the `.tasks/` marker makes that leg go red (its teeth are shown, not
-      assumed)
-- [x] `tools/_t639-drift-gate-reads-fixtures.sh` passes all legs, and passes when the
-      live focus is some *other* task
-- [x] The audit of which probers share this defect is recorded in the task, with the
-      sound ones distinguished from the affected one by reason, not by count
-- [x] OBS-328 is corrected in place (marker and blast radius), and the correction is
-      posted to the rail where the overstatement was posted
+- [x] `web.embeddings` and `web.ask` resolve for `lib/ask.py` in a vendored install, and
+      the fix does not depend on the `PROJECT_ROOT` env var being correct — the framework
+      root is derived from `__file__`, which is right in both layouts.
+      → `lib/ask.py:31-35`. Both roots inserted; `PROJECT_ROOT` stays first-searched so a
+      project may still shadow a module deliberately, `FRAMEWORK_ROOT` is the backstop.
+- [x] Proven by **executing** the import path, not by reading it: a probe imports the two
+      modules through ask.py's own preamble under the environment `fw` actually exports
+      (`PROJECT_ROOT` set to the project, not the framework).
+      → `tools/_t644-ask-imports-survive-a-wrong-project-root.sh`, 5/5. It reads ask.py,
+      splits at the first `from web.` line and `exec`s the real preamble — it does not
+      retype it, because a retyped preamble tests a model of the file (T-635).
+      Second leg points `PROJECT_ROOT` at an empty temp dir and the imports still resolve:
+      the env var is no longer able to decide the outcome.
+- [x] Measured against the real entry point: `fw ask` no longer terminates with
+      `ModuleNotFoundError: No module named 'web'`. If it then fails for an unrelated
+      environmental reason (no ollama daemon, no model pulled), that is recorded as a
+      distinct outcome and **not** claimed as success.
+      → Before: `fw ask "what is a task"` → traceback, `ModuleNotFoundError: No module
+      named 'web'` at `ask.py:24`. After: no traceback; the command proceeds past the
+      import into RAG/LLM work.
+      **Stated plainly rather than rounded up:** an end-to-end answer was NOT observed.
+      `fw ask --concise` ran past 240s without returning (index build and/or model load
+      on this host). What is verified is the import barrier, which is what this task is
+      about. Whether `fw ask` produces a good answer here is a separate question and is
+      not claimed.
+- [x] A prober with an inversion (the defect's precondition still holds — `PROJECT_ROOT`
+      alone does not resolve `web`) and a teeth leg (revert the fix, the prober goes red).
+      → Both present. The teeth leg rebuilds the shipped two-line preamble into a mutant
+      copy and shows it still reporting `MISSING-WEB` — so the fix, not the environment,
+      is what changed the outcome.
+- [x] Every remaining `sys.path` insertion under `.agentic-framework/lib` is checked for
+      the same `PROJECT_ROOT`-derived defect; findings fixed if in this file, filed if not.
+      → Surveyed all 10 `sys.path.insert` sites under `lib/*.py`. **ask.py was the only
+      one** that took its root from the environment; every other derives from `__file__`
+      (`Path(__file__).resolve().parents[1]`, `_LIB_DIR`, `fw_lib_dir`). Nothing to file.
+      The prober keeps the *shape* from returning; it does not re-run the survey, and the
+      leg says so in its own comment rather than implying more coverage than it has.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -107,58 +133,10 @@ the fix is not just "add the marker" but "prove the marker worked, every run".
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-## Audit — which probers share this defect
-
-Measured, not assumed. Fourteen files build a `focus.yaml` and feed a `cwd` to a hook.
-They fall into three groups, and the group boundary is a *reason*, not a count:
-
-| Group | Files | Verdict |
-|---|---|---|
-| Sandbox + `.tasks/` marker, testing the **no-active-task** path | `_t381`, `_t385`, `_t386`, `_t390`, `_t632`, `_t636`, `_t638` | **Sound.** An empty `.tasks/` is the correct fixture for "no active task", and the marker means the sandbox genuinely governs. |
-| Sandbox + marker + fixture task file, testing the **focused** path | `_t392` (×2), `_t628` (×1), `_t629` (×3) | **Sound.** Both halves present. |
-| Deliberately mutates the **real** focus under a snapshot/restore trap | `t404-gate-e2e.sh` | **Not this class.** A declared design, documented at its head; it never claims to be sandboxed. |
-| No marker at all | `_t639` | **Affected — the only one.** |
-
-So the blast radius is exactly one prober. The rail post at @826 said "a false-green
-generator for every hook prober"; that was an overstatement of the same shape as the
-5-vs-3 miscount inside T-639 itself, and it is corrected here and on the rail.
-
-## RCA
-
-Three distinct errors, only one of which was in the code:
-
-1. **The sandbox was never in effect.** No `.tasks/` marker, so `fw_reanchor_from_cwd`
-   found no project root and returned 0 unchanged. Silent no-op, not an error.
-2. **OBS-328 named `.git` as the marker.** It is `.tasks/` or `.framework.yaml`. A
-   remedy written from that note would not have worked. Corrected in place.
-3. **The prober never asserted its own fixture took hold** — the generalizable defect.
-   It could not distinguish "fixture honoured" from "live state happened to agree",
-   which is precisely how it shipped green at 16/16 and silently decayed to 13/16.
-
-The fix for (3) is an inversion, not a spot-check: the sandbox's synthetic focus must
-be allowed AND the session's live focus must be blocked. No single accident makes both
-hold, so the leg cannot pass while inert.
-
-**Also re-encountered: G-037**, the registered instrument-substitution gap. A
-throwaway check-line of mine printed `MUTATION FAILED` while the mutation had in fact
-applied, because the agent shell's `grep` is ugrep 7.8.4, which anchors on a
-mid-pattern `$` where GNU grep takes it literally. The gap is open and known; this is
-one more incident, and notably `fw work-on` surfaced PL-199 — *"a limit I had written
-down that morning did not reach me that afternoon"* — at the moment this task was
-created. Documentation-as-mitigation did not reach the point of use. No new gap filed;
-G-037 already says this, and re-filing it would inflate the register rather than the
-prevention. The safe idiom when grepping for literal shell source is `grep -F` or an
-escaped `\$`.
-
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
-bash tools/_t639-drift-gate-reads-fixtures.sh
-# the sandbox must be self-asserting: strip the marker and the inversion leg must go red
-bash -c 'S=$(mktemp -d); sed "s#mkdir -p \"\$SANDBOX/.context/working\" \"\$SANDBOX/.tasks/active\"#mkdir -p \"\$SANDBOX/.context/working\"#" tools/_t639-drift-gate-reads-fixtures.sh > "$S/n.sh"; bash "$S/n.sh" 2>&1 | grep -qF "SANDBOX INERT"; rc=$?; rm -rf "$S"; exit $rc'
-# the T-639 fix it guards is still pinned by the corpus
-python3 -m pytest .agentic-framework/web/test_safe_commands.py -q 2>&1 | tail -1
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
@@ -204,21 +182,64 @@ python3 -m pytest .agentic-framework/web/test_safe_commands.py -q 2>&1 | tail -1
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+bash tools/_t644-ask-imports-survive-a-wrong-project-root.sh
+python3 -c "import os,sys;f='.agentic-framework/lib/ask.py';h=open(f).read().partition(chr(10)+'from web.')[0];ns={'__file__':os.path.abspath(f)};exec(compile(h,f,'exec'),ns);import web.embeddings,web.ask"
+python3 -c "import ast,sys; ast.parse(open('.agentic-framework/lib/ask.py').read())"
+
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** `fw ask <anything>` terminates immediately with
+`ModuleNotFoundError: No module named 'web'` at `lib/ask.py:24`. The command has never
+worked in this project.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** `ask.py:21` read its module root as
+`os.environ.get("PROJECT_ROOT", <__file__-derived>)`. The `__file__`-derived default is
+correct — it resolves to `FRAMEWORK_ROOT`, where `web/` lives. `lib/ask.sh:32` exports
+`PROJECT_ROOT` unconditionally, so the default never applied, and in a vendored install
+the exported value points at a directory with no `web/` in it.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**A default that is right does not help when the override is always set.** The correct
+value was sitting in the file, in the position that never runs.
+
+**Why structurally allowed:** the same reason as T-643 — the framework's own repo layout
+puts `web/` under the project root, so `PROJECT_ROOT` and `FRAMEWORK_ROOT` are the same
+directory there and the two spellings are indistinguishable. Every consumer install
+separates them. The framework tests itself in the one layout where the bug is invisible.
+
+**Prevention:** `tools/_t644-ask-imports-survive-a-wrong-project-root.sh`. The
+load-bearing leg is the second one: it points `PROJECT_ROOT` at an empty directory and
+requires the imports to resolve anyway. That asserts the property that actually matters —
+*the env var cannot decide this* — rather than the weaker "it works right now".
+
+**Not prevented:** the next module to reach for `PROJECT_ROOT` when it means
+`FRAMEWORK_ROOT`. Two instances in two files in one session is a pattern; the fix for a
+pattern is a convention or a lint, not a third prober. Recorded as a learning.
+
+## Recommendation
+
+**Recommendation:** CLOSE — agent-verifiable throughout, nothing here needs your ruling.
+
+**Rationale:** A one-line class of defect with a measured before/after on the real entry
+point and a prober whose teeth leg reproduces the failure. No taste, no policy, no
+sovereignty question. The one honest gap — that an end-to-end `fw ask` answer was never
+observed on this host — is recorded in AC 3 rather than papered over, and it is a
+question about ollama throughput, not about this fix.
+
+**Evidence:**
+
+- Before: `fw ask "what is a task"` → `ModuleNotFoundError: No module named 'web'`.
+- After: no traceback; execution proceeds past the import.
+- `tools/_t644-ask-imports-survive-a-wrong-project-root.sh` — 5/5, including a mutant
+  that restores the shipped preamble and still reports `MISSING-WEB`.
+- Survey: 10 `sys.path.insert` sites under `lib/*.py`; ask.py was the only env-derived
+  one. Nothing further to file.
+
+**Captured learning:** `PROJECT_ROOT` and `FRAMEWORK_ROOT` are the same directory in the
+framework's own repo and different everywhere else, so the framework's self-tests cannot
+distinguish them. Any code that says one and means the other is correct at home and
+broken at every consumer — T-643 and T-644 are the same bug in two files, found on the
+same afternoon.
+
 
 ## Evolution
 
@@ -267,28 +288,26 @@ python3 -m pytest .agentic-framework/web/test_safe_commands.py -q 2>&1 | tail -1
 
 ## Updates
 
-### 2026-08-30T10:29:29Z — task-created [task-create-agent]
+### 2026-08-30T18:08:43Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-641-t-639-prober-sandbox-is-ignored-so-it-me.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-644-fw-ask-crashes-in-a-vendored-install-pro.md
 - **Context:** Initial task creation
+
+### 2026-08-30T18:14:06Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-25ec5ff7
-- **Timestamp:** 2026-08-30T10:37:20Z
+- **Scan ID:** R-ea5fe244
+- **Timestamp:** 2026-08-30T18:21:15Z
 - **Catalogue:** v1.3-seed
-- **Overall:** CONCERN
+- **Overall:** PASS
 - **Needs Human:** yes
-- **Findings:** 1
-
-**Verification-level findings:**
-
-  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 5
-     - evidence: `bash -c 'S=$(mktemp -d); sed "s#mkdir -p \"\$SANDBOX/.context/working\" \"\$SANDBOX/.tasks/active\"#mkdir -p \"\$SANDBOX/.context/working\"#" tools/_t639-drift-gate-reads-fixtures.sh > "$S/n.sh"; bash`
+- **Findings:** none
 
 - **Layer-1 escalations:** 1
-  1. **destructive-action** (high) — Destructive operation in verification or AC
-     - matched: `rm -rf`
+  1. **cross-project-blast** (medium) — Cross-project or cross-repo change
+     - matched: `vendored install`
 
-### 2026-08-30T10:36:58Z — status-update [task-update-agent]
+### 2026-08-30T18:21:10Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed

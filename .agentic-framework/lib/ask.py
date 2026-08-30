@@ -18,8 +18,21 @@ import os
 import sys
 
 # Add project root to path so web modules are importable
-PROJECT_ROOT = os.environ.get("PROJECT_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, PROJECT_ROOT)
+# T-644: the __file__-derived value below was written as the FALLBACK and was the
+# correct one all along — it resolves to FRAMEWORK_ROOT, which is where web/ lives.
+# lib/ask.sh exports PROJECT_ROOT unconditionally (ask.sh:32), so the env var always
+# won, and in a VENDORED install (framework at <project>/.agentic-framework/) it points
+# somewhere with no web/ at all. Measured before the fix, on the real entry point:
+#     $ fw ask "what is a task"
+#     ModuleNotFoundError: No module named 'web'
+# Insert both. PROJECT_ROOT stays first-searched so a project may still shadow a module
+# deliberately; FRAMEWORK_ROOT is the backstop that makes the env var unable to render
+# `fw ask` unrunnable. Sibling of T-643 (same class, bin/fw, silent instead of loud).
+FRAMEWORK_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", FRAMEWORK_ROOT)
+for _root in (FRAMEWORK_ROOT, PROJECT_ROOT):
+    if _root and _root not in sys.path:
+        sys.path.insert(0, _root)
 
 from web.embeddings import rag_retrieve, build_index
 from web.ask import get_model, should_think, SYSTEM_PROMPT, format_rag_context

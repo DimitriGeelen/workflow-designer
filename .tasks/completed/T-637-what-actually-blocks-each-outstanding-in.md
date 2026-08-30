@@ -4,10 +4,10 @@ name: "What actually blocks each outstanding inception ruling, measured per task
 description: >
   What actually blocks each outstanding inception ruling, measured per task
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-29T22:59:46Z
-last_update: 2026-08-29T23:06:45Z
-date_finished: null
+last_update: 2026-08-29T23:08:57Z
+date_finished: 2026-08-29T23:08:57Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -244,3 +244,20 @@ bash tools/_t637-inception-coverage.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-637-what-actually-blocks-each-outstanding-in.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a285e50c
+- **Timestamp:** 2026-08-29T23:08:59Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#8 (Agent)** — `tools/_t627-undecided-defer.py` selected the population on "carries a revisit
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t627-undecided-defer.py in: `tools/_t627-undecided-defer.py` selected the population on "carries a revisit`
+
+### 2026-08-29T23:08:57Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

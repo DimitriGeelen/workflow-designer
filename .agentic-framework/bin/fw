@@ -5631,7 +5631,19 @@ from pathlib import Path
 from datetime import datetime
 
 # T-1533: shared helper. Robust to running from /opt/999-... where web/ is on the path.
-sys.path.insert(0, os.environ.get("PROJECT_ROOT", "."))
+# T-643: ...which is exactly the layout it was tested in, and the only one. In a
+# VENDORED install the framework lives at <project>/.agentic-framework/, so web/ is
+# not under PROJECT_ROOT, the import below raises, and the `except ImportError`
+# substitutes the inline fallback — silently, every single time. Measured in
+# 832-Workflow-designer: `sys.path.insert(0, PROJECT_ROOT); import web.shared` ->
+# ModuleNotFoundError, so the shared predicate had never once executed in this CLI
+# while `/approvals` (which lives inside web/) used it. The two surfaces drifted in
+# precisely the manner count_unchecked_human_acs' docstring says sharing prevents.
+# FRAMEWORK_ROOT is exported unconditionally at the top of this file and is correct
+# in both modes, so try it first and keep PROJECT_ROOT for the framework-repo layout.
+for _root in (os.environ.get("FRAMEWORK_ROOT", ""), os.environ.get("PROJECT_ROOT", ".")):
+    if _root:
+        sys.path.insert(0, _root)
 try:
     from web.shared import extract_recommendation_state, count_unchecked_human_acs
 except ImportError:
@@ -5648,8 +5660,14 @@ except ImportError:
         body2 = re.sub(r"<!--.*?-->", "", m.group(1), flags=re.DOTALL).strip()
         if not body2:
             return "NO-REC"
-        v = re.search(r"\*\*Recommendation:\*\*\s*(NO-GO|GO|DEFER)\b", body2, re.IGNORECASE)
-        return v.group(1).upper() if v else "?"
+        # T-643: vocabulary kept IDENTICAL to web/shared.py:791, alternation order
+        # included (longest-first, so NO-GO is not matched as GO). The shipped set was
+        # (NO-GO|GO|DEFER) — it rendered CLOSE (T-579) and KEEP-OPEN (T-609) as '?',
+        # i.e. as "the agent owes a verdict", when the agent had given one the library
+        # accepts. `_` form normalised to `-` per the T-1391 contract, as the library does.
+        v = re.search(r"\*\*Recommendation:\*\*\s*(KEEP-OPEN|NO[-_]GO|CLOSE|GO|DEFER)\b",
+                      body2, re.IGNORECASE)
+        return v.group(1).upper().replace("_", "-") if v else "?"
     # T-2075 (T-2064 GO) inline fallback — kept in sync with web.shared.count_unchecked_human_acs.
     # Same predicate the queue uses; consumer projects without web/ get equivalent behaviour.
     def count_unchecked_human_acs(body):
@@ -5826,7 +5844,13 @@ NAME_W = 60
 def _verdict_color(v):
     # T-1576: NO-REC in cyan (call-to-action — agent should write a recommendation),
     # distinct from grey '?' (deferred/unknown verdict in an existing block).
+    # T-643: CLOSE and KEEP-OPEN fell through to the default and rendered in the SAME
+    # grey as '?' — a stated verdict wearing the colour of "no readable verdict". Both
+    # are resolutions rather than call-to-action, so: magenta for CLOSE (terminal
+    # disposition), blue for KEEP-OPEN (stay-of-execution). Colour choice is taste and
+    # is the [REVIEW] Human AC on T-643.
     return {"GO": "\033[32m", "DEFER": "\033[33m", "NO-GO": "\033[31m",
+            "CLOSE": "\033[35m", "KEEP-OPEN": "\033[34m",
             "NO-REC": "\033[36m"}.get(v, "\033[90m")
 
 # T-1571 / F5: DECISIONS section — pending inception GO/NO-GO/DEFER decisions.
@@ -5862,17 +5886,20 @@ if rows:
         truncated = (name[:NAME_W] + "...") if len(name) > NAME_W else name
         col = _verdict_color(verdict)
         print(f"{col}{verdict:<7}\033[0m  {str(age_days)+'d':>4}  {tid_v:<8}  {truncated}")
-go = sum(1 for r in rows if r[0] == "GO")
-defer = sum(1 for r in rows if r[0] == "DEFER")
-nogo = sum(1 for r in rows if r[0] == "NO-GO")
-unk = sum(1 for r in rows if r[0] == "?")
-no_rec = sum(1 for r in rows if r[0] == "NO-REC")
-parts = []
-if go: parts.append(f"\033[32m{go} GO\033[0m")
-if defer: parts.append(f"\033[33m{defer} DEFER\033[0m")
-if nogo: parts.append(f"\033[31m{nogo} NO-GO\033[0m")
-if unk: parts.append(f"\033[90m{unk} ?\033[0m")
-if no_rec: parts.append(f"\033[36m{no_rec} NO-REC\033[0m")
+# T-643: the tally used to name its five buckets one at a time, so a verdict the
+# vocabulary accepts but this list forgot was counted NOWHERE — the parenthetical
+# silently summed to less than the total beside it. That is exactly what happened the
+# moment CLOSE and KEEP-OPEN started parsing: 53 awaiting review, 51 accounted for.
+# Count what is there instead of what was expected. VERDICT_ORDER fixes the reading
+# order for the verdicts we know; anything else appends alphabetically rather than
+# disappearing, so the next addition to the vocabulary (OBS-329's ABSTAIN, say) shows
+# up uncounted-but-visible rather than not at all.
+VERDICT_ORDER = ["GO", "DEFER", "NO-GO", "CLOSE", "KEEP-OPEN", "?", "NO-REC"]
+counts = {}
+for r in rows:
+    counts[r[0]] = counts.get(r[0], 0) + 1
+ordered = VERDICT_ORDER + sorted(k for k in counts if k not in VERDICT_ORDER)
+parts = [f"{_verdict_color(v)}{counts[v]} {v}\033[0m" for v in ordered if counts.get(v)]
 total = len(rows) + len(decision_rows) + len(paused_rows)
 verif_only = f"{len(rows)} task(s) awaiting human review" if rows else ""
 dec_only = f"{len(decision_rows)} pending decision(s)" if decision_rows else ""
