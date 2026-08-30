@@ -2003,3 +2003,17 @@ learnings:
   date: 2026-08-30
   context: Added via context agent
   application: TBD
+- id: PL-282
+  learning: "A gate whose false positives block the probes that would expose it is self-concealing, and the adaptation it causes is invisible in the record. The focus-drift gate read task ids out of quoted fixtures, so any prober exercising its git-commit path was blocked by it. During the previous task every fixture was written 'T-x:' rather than 'T-1:' to stay under the pattern — the gate was shaping test data to avoid itself, and because the blocked commands were never run there is no trace of it anywhere. When a guard has no tests, ask specifically whether it blocks its own test harness; that class cannot be found by reading pass rates."
+  source: P-001
+  task: T-639
+  date: 2026-08-30
+  context: Added via context agent
+  application: TBD
+- id: PL-283
+  learning: "A prober that only asserts 'the bad cases now pass' claims credit it may not have earned. I listed five false positives for the drift gate; the pre-fix mutant blocked only three. The other two passed before by ACCIDENT — a quote character happened to precede the match, so the whitespace anchor missed — and one added space inside the quoted argument flips them to blocked. Splitting fixtures into 'blocked before' and 'passed before' and asserting BOTH groups against the mutant is what caught the overstatement. Without the second group the leg would have gone green on a five-case claim backed by three."
+  source: P-001
+  task: T-639
+  date: 2026-08-30
+  context: Added via context agent
+  application: TBD
