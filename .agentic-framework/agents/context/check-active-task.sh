@@ -239,8 +239,19 @@ fi
 # git commit must still reach the focus-drift gate (T-1730) — a context-free
 # allowlist entry would short-circuit that. `git add` (task-agnostic, no drift)
 # stays in is_bash_safe_command.
+#
+# T-638: the match used to be a raw-string `=~ git[[:space:]]+commit` over the
+# WHOLE command. It therefore admitted every clause of `git commit -m "..."; X`,
+# admitted a `| tee` the write check above had already flagged (that check falls
+# through rather than exiting, so it reached here anyway), and admitted an
+# arbitrary unknown binary whose QUOTED ARGUMENT merely contained the words. The
+# predicate now judges each clause of the quote-stripped command; the paragraph
+# above is the argument for why that, and not "contains a commit", is the rule.
+# Fails CLOSED if the library did not load — this exemption runs with no task, so
+# an absent predicate must block, never allow.
 if [ -z "$CURRENT_TASK" ] && [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ]; then
-    if [[ "$BASH_CMD" =~ (^|[[:space:]])git[[:space:]]+commit($|[[:space:]]) ]] && \
+    if type _sc_is_commit_only_command &>/dev/null && \
+       _sc_is_commit_only_command "$BASH_CMD" && \
        ! [[ "$BASH_CMD" =~ (^|[[:space:]])(--no-verify|-n)([[:space:]]|$) ]]; then
         echo "NOTE: no active task — allowing 'git commit' to checkpoint completed work (T-2054). commit-msg hook still enforces T-XXX." >&2
         exit 0

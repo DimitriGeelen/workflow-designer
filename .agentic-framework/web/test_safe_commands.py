@@ -452,3 +452,118 @@ def test_the_prose_verb_helper_does_not_fork():
     )
     for forking in ("awk ", "sed ", "$(echo", "| cut"):
         assert forking not in executable, f"{forking!r} forks a process per Bash call"
+
+
+# --------------------------------------------------------------------------
+# T-638 — the T-2054 commit exemption admits a command with NO ACTIVE TASK, so
+# it is the one predicate here whose false-green is a governance bypass rather
+# than an inconvenience. It used to ask whether the command CONTAINED
+# `git commit`, unanchored, on the unstripped string.
+#
+# `commit_only` is the predicate the hook now calls. The end-to-end proof (the
+# real hook vs a mutant carrying the old regex) lives in
+# tools/_t638-commit-exemption-is-clause-scoped.sh; what is pinned here is the
+# predicate's own contract, in the corpus that runs on every change to this lib.
+# --------------------------------------------------------------------------
+
+
+def commit_only(cmd):
+    return _call("_sc_is_commit_only_command", cmd)
+
+
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        # The bare form the exemption exists for.
+        'git commit -m "T-1: y"',
+        # The project's documented copy-pasteable shape.
+        'cd /opt/832-Workflow-designer && git commit -m "T-1: y"',
+        # The real post-completion form: `git add` is safe-listed precisely so
+        # this composes. A hand-rolled second allowlist would have missed it.
+        'git add -A && git commit -m "T-1: y"',
+        'git commit -m "T-1: y" && git push',
+        # A separator INSIDE the message is message text. This is why the split
+        # runs on the quote-stripped command and not the raw one.
+        'git commit -m "T-1: msg with ; a semicolon"',
+        'git commit -m "T-1: fix a && b"',
+    ],
+)
+def test_real_commits_keep_the_exemption(cmd):
+    assert commit_only(cmd), f"a legitimate post-completion form lost the exemption: {cmd!r}"
+
+
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        # The hole: every clause of a compound command rode in on the first one.
+        'git commit -m "T-1: y"; touch /tmp/t638-marker',
+        'git commit -m "T-1: y" && touch /tmp/t638-marker',
+        # Flagged as a write upstream, then admitted here — the hook's write
+        # check falls through rather than exiting, so this branch was its override.
+        'git commit -m "T-1: y" | tee /tmp/t638-marker',
+        'git commit -m "T-1: y" > /tmp/t638-marker',
+        # A QUOTED ARGUMENT that merely says the words. Nothing is committed.
+        'someunknownbinary --flag "please git commit this"',
+        'echo "remember to git commit" && touch /tmp/t638-marker',
+        # Substitution is opaque to a clause check, so it never takes the
+        # exemption — same call T-636 made for the prose verbs.
+        'git commit -m "$(cat /etc/hostname)"',
+        "git commit -m \"`cat /etc/hostname`\"",
+        # Not a commit at all.
+        "git push",
+        "git add -A",
+    ],
+)
+def test_mentions_and_compounds_do_not_get_the_exemption(cmd):
+    assert not commit_only(cmd), f"admitted with no active task: {cmd!r}"
+
+
+def test_a_safe_listed_clause_alongside_the_commit_is_admitted_on_purpose():
+    """`git commit … || curl …` IS admitted, and that is the composition rule
+    working rather than a hole.
+
+    The predicate's contract is "every clause would be admissible on its own with
+    no active task, and at least one is the commit". `curl` is on the safe list,
+    so `curl …` alone already passes this gate; pairing it with a commit admits
+    nothing new. Writing this down because the natural reading of the block list
+    above is that any second clause is suspect, and a future reader "fixing" this
+    would break `git add && git commit` by the same stroke.
+
+    Whether `curl` BELONGS on the safe list is a separate question with a real
+    answer — `curl -o f` and `wget -O f` write a file with no shell redirect,
+    which is exactly the admission rule the list states for itself and applies to
+    `awk` and `uniq`. Filed separately; one bug, one task. It is not this
+    predicate's defect and must not be fixed by widening this one.
+    """
+    assert commit_only('git commit -m "T-1: y" || curl http://example.com')
+    assert is_safe("curl http://example.com"), (
+        "premise of this test: curl is independently safe-listed"
+    )
+
+
+def test_the_commit_predicate_does_not_fork():
+    """Same perf contract as the two above — it runs on the PreToolUse path."""
+    code = LIB.read_text()
+    start = code.index("_sc_is_commit_only_command() {")
+    body = code[start : code.index("\n}", start)]
+    executable = "\n".join(
+        line for line in body.splitlines() if not line.lstrip().startswith("#")
+    )
+    for forking in ("awk ", "sed ", "$(echo", "| cut", "python3"):
+        assert forking not in executable, f"{forking!r} forks a process per Bash call"
+
+
+def test_the_hook_fails_closed_if_the_predicate_is_missing():
+    """The exemption runs with no active task, so an absent predicate must block.
+
+    `source … || true` in the hook means a library that fails to load leaves the
+    function undefined; without the `type` guard the `if` would then be a syntax
+    -level truth test on the remaining conjuncts rather than a refusal.
+    """
+    hook = (LIB.parent.parent / "check-active-task.sh").read_text()
+    assert "type _sc_is_commit_only_command &>/dev/null" in hook, (
+        "the hook must guard the predicate call, and the guard must precede it"
+    )
+    guard = hook.index("type _sc_is_commit_only_command")
+    call = hook.index('_sc_is_commit_only_command "$BASH_CMD"')
+    assert guard < call, "the existence guard must run before the call"

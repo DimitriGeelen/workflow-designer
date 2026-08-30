@@ -560,3 +560,83 @@ has_bash_write_pattern() {
 
     return 1
 }
+
+# T-638: is this command NOTHING BUT a git commit (plus safe-listed company)?
+#
+# The T-2054 exemption in check-active-task.sh admits a command with NO ACTIVE
+# TASK, and its written justification is precise: committing "persists work
+# already produced under the Write/Edit task gate — it is not new work." That is
+# true of a command that IS a git commit. The branch asked whether the command
+# CONTAINED one:
+#
+#     [[ "$BASH_CMD" =~ (^|[[:space:]])git[[:space:]]+commit($|[[:space:]]) ]]
+#
+# A raw-string match, on the unstripped command, unanchored to any clause. So it
+# admitted, measured against the live hook with focus null:
+#
+#   * `git commit -m "..." ; <anything>`  — every clause, past the gate
+#   * `git commit -m "..." | tee f`       — a write the gate had already flagged
+#   * `somebinary --flag "please git commit this"` — an ARBITRARY UNKNOWN BINARY,
+#     admitted because a QUOTED ARGUMENT contained the words. Nothing was
+#     committed; the sentence was enough.
+#
+# The last one is the family this project has now found six times in three days,
+# in six different instruments: a character-level scan standing in for structure,
+# so a command that MENTIONS an act is treated as the act. The remedy is the same
+# every time — split the QUOTE-STRIPPED command into clauses and judge each one.
+#
+# Note the ordering bug this also closes. In check-active-task.sh the write-pattern
+# check at line ~91 does not exit; it falls through. So a command whose second
+# clause has_bash_write_pattern correctly identified as destructive still reached
+# this branch and was handed `exit 0`. The gate saw the write and admitted it.
+#
+# ADMISSION RULE: every clause must already be allowed with no active task —
+# `_sc_simple_is_safe`, which is where `cd`, `git add` and `git push` live — or be
+# the git commit itself, and at least one clause must be that commit. Composing
+# with the existing allowlist rather than enumerating a second one is deliberate:
+# `git add -A && git commit -m "..."` is the documented post-completion form, and a
+# hand-rolled list would have to rediscover it and would drift from the real one.
+#
+# Pure bash, no fork beyond what the callees already pay: PreToolUse path.
+_sc_is_commit_only_command() {
+    local cmd="$1"
+
+    # Substitution is opaque to any clause check — `git commit -m "$(anything)"`
+    # runs code this function cannot see. Refuse the exemption rather than reason
+    # about it. Same call T-636 made for the prose verbs, for the same reason.
+    case "$cmd" in
+        *'$('*|*'`'*) return 1 ;;
+    esac
+
+    # Called BEFORE our own strip: has_bash_write_pattern sets _SC_STRIPPED too,
+    # and would otherwise clobber ours between the strip and the split.
+    has_bash_write_pattern "$cmd" && return 1
+
+    _sc_strip_quoted "$cmd"
+    local segs="$_SC_STRIPPED"
+    segs="${segs//&&/$'\n'}"
+    segs="${segs//||/$'\n'}"     # before the single-pipe pass, or `||` splits twice
+    segs="${segs//;/$'\n'}"
+    segs="${segs//|/$'\n'}"
+
+    local line rest tok1 tok2 saw_commit=0
+    while IFS= read -r line; do
+        [ -n "${line//[[:space:]]/}" ] || continue
+        rest="${line#"${line%%[![:space:]]*}"}"      # ltrim
+        tok1="${rest%%[[:space:]]*}"
+        rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
+        tok2="${rest%%[[:space:]]*}"
+        case "${tok1##*/}" in
+            git)
+                if [ "$tok2" = "commit" ]; then
+                    saw_commit=1
+                    continue
+                fi
+                ;;
+        esac
+        _sc_simple_is_safe "$line" || return 1
+    done <<< "$segs"
+
+    [ "$saw_commit" -eq 1 ] || return 1
+    return 0
+}

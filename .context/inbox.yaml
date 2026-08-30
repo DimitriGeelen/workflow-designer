@@ -1438,3 +1438,10 @@ observations:
   tags: [gate]
   status: pending
   promoted_to: null
+- id: OBS-327
+  text: "The Bash safe-list admits curl and wget unconditionally, which violates the admission rule the list states for itself. That rule, written into the T-632 block: admit only verbs that cannot write a file WITHOUT a shell redirect, because a redirect is already caught upstream. It excludes awk (unrestricted print > file) and uniq (second operand is an output file) on exactly that basis. But curl -o FILE and wget -O FILE write a file with no redirect, and has_bash_write_pattern does not flag either, so both are admitted with NO ACTIVE TASK: measured, curl -o /tmp/f http://x returns SAFE and no-write. Same class as the two verbs the list deliberately kept out; found while composing the T-638 clause predicate, which correctly admits them and must not be the place this is fixed."
+  captured: 2026-08-30T08:39:05Z
+  context_task: T-638
+  tags: []
+  status: pending
+  promoted_to: null
