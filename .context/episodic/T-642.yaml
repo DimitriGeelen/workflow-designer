@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-642: Review queue shows 8 agent recommendations as unreadable because the verdict vocabulary is narrower than the positions agents hold
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-30T11:00:32Z
+# ============================================================================
+
+task_id: T-642
+task_name: "Review queue shows 8 agent recommendations as unreadable because the verdict vocabulary is narrower than the positions agents hold"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-30T10:56:07Z
+completed: 2026-08-30T11:00:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-30T13:00:21+02:00
+last_commit: 2026-08-30T13:00:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  four considered verdicts the queue could not read now parse; the two ABSTAINs stay unreadable on purpose and the gap is filed instead
+
+# Key outcomes
+outcomes:
+  - 'The four expressible verdicts (T-537, T-540, T-586, T-588) carry a canonical token'
+  - 'Substance is preserved, not rewritten: the original wording survives as the clause'
+  - 'T-341 and T-358 are left as `ABSTAIN` and are NOT remapped, with the reason recorded'
+  - 'The `ABSTAIN` vocabulary gap is registered as an observation, so the surface''s'
+  - 'Defect (b) — library parses, CLI shows `?` — is filed as its own task, not fixed here'
+  - '`fw review-queue`''s `?` count drops by exactly 4, and the survivors are accounted for'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md'
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-537-termlinkagentchatarcrecent-returns-oktru.md'
+  - '.tasks/active/T-540-bootstrap-bvp-scoring-and-produce-the-fi.md'
+  - '.tasks/active/T-586-kill-worktree-isolation-and-pin-no-backg.md'
+  - '.tasks/active/T-588-upstream-ships-an-unanchored-verificatio.md'
+  - '.tasks/active/T-642-review-queue-shows-8-agent-recommendatio.md'
+  - '.tasks/active/T-643-review-queue-renders-close-and-keep-open.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-30T13:00:21"
+    action: 'T-642: four considered verdicts the queue could not read now parse; the two ABSTAINs stay unreadable on purpose and the gap is filed instead'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 9
+  lines_added: 467
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-642-review-queue-shows-8-agent-recommendatio.md
+generated_by: context-agent-hybrid

@@ -2038,3 +2038,10 @@ learnings:
   date: 2026-08-30
   context: Added via context agent
   application: TBD
+- id: PL-287
+  learning: "A DECISION SURFACE WITH A NARROWER VOCABULARY THAN THE POSITIONS PEOPLE HOLD RENDERS CONSIDERED JUDGEMENT AS SILENCE. fw review-queue showed 8 of 53 tasks as '?' — which an operator reads as 'the agent has not done its part' — when in every case the agent had written a position the parser could not accept. Four were expressible and were restated with a canonical token, preserving the original wording as the clause after it. Two were ABSTAIN: a deliberate refusal to choose among options that are the operator's to choose, which is arguably the most honest position available on a sovereignty-gated call and the one position the surface cannot show. Remapping ABSTAIN onto DEFER was rejected — DEFER says decide later, ABSTAIN says decide now without me — because a wrong token in the operator's own decision surface is worse than an unreadable one. When the vocabulary is the defect, widen the vocabulary; do not launder the content into the nearest accepted word."
+  source: P-001
+  task: T-642
+  date: 2026-08-30
+  context: Added via context agent
+  application: TBD
