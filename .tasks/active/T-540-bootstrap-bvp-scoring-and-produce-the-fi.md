@@ -442,7 +442,7 @@ test "$(grep -rlE '^bvp_scores_proposed:' .tasks/active/ | wc -l)" -ge 60
 
 ## Recommendation
 
-**Recommendation:** Ready for your ruling. The scoring bootstrap is done and measured; the
+**Recommendation:** GO — ready for your ruling. The scoring bootstrap is done and measured; the
 driver-register change is yours because the CLI refuses it from me.
 
 **What was established:** 69 active tasks now carry estimator-proposed scores, the ranking runs,

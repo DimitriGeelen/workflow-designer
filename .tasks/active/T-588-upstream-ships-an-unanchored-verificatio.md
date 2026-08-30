@@ -525,7 +525,7 @@ they are right.
 
 ## Recommendation
 
-**Recommendation:** A — selective merge, under a scoped task, with the counts re-measured
+**Recommendation:** GO — option A: selective merge, under a scoped task, with the counts re-measured
 before and after.
 
 **Rationale:** Upstream's verification extractor

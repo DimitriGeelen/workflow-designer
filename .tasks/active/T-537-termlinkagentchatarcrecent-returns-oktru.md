@@ -366,7 +366,7 @@ believing the other is unresponsive while both are posting.**
 
 ## Recommendation
 
-**Recommendation:** Ready for your ruling. Every agent-verifiable criterion is met; what remains
+**Recommendation:** GO — ready for your ruling. Every agent-verifiable criterion is met; what remains
 is a choice between two defensible options, not a piece of work.
 
 **What was established:** `termlink_agent_chat_arc_recent` returns `ok: true` over a source that

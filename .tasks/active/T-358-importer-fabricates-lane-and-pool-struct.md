@@ -513,6 +513,12 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 ## Recommendation
 
 **Recommendation:** ABSTAIN — the choice among A · B · C · AB · no-repair is yours, and
+
+> **Left as ABSTAIN on purpose (T-642, 2026-08-30).** The review queue cannot read this
+> verdict and renders it `?`, which is indistinguishable from the agent having written
+> nothing. It was not remapped anyway: `DEFER` means *decide later* and `ABSTAIN` means
+> *decide now, without me* — putting the wrong one in your decision surface would be worse
+> than an unreadable one. The vocabulary gap is registered as an observation instead.
 this block exists to make that decidable rather than to pick one.
 
 **Why abstention rather than a preference.** The consolidated brief

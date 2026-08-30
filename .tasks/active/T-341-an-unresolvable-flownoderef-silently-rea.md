@@ -167,6 +167,12 @@ measurement moves it from *the wrong lane* to *no lane policy at all*.
 ## Recommendation
 
 **Recommendation:** ABSTAIN — the agent declines to recommend, and the two positions below
+
+> **Left as ABSTAIN on purpose (T-642, 2026-08-30).** The review queue cannot read this
+> verdict and renders it `?`, which is indistinguishable from the agent having written
+> nothing. It was not remapped anyway: `DEFER` means *decide later* and `ABSTAIN` means
+> *decide now, without me* — putting the wrong one in your decision surface would be worse
+> than an unreadable one. The vocabulary gap is registered as an observation instead.
 are what you are being asked to reconcile.
 
 > **2026-08-12 (T-454) — I tried to make this parseable and nearly got it wrong.** This block

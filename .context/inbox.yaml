@@ -1452,3 +1452,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-329
+  text: "The review queue has no representation for a principled ABSTAIN. extract_recommendation accepts KEEP-OPEN|NO-GO|CLOSE|GO|DEFER (shared.py:791); ABSTAIN falls through to '?', which the operator reads as 'the agent has not done its part'. Both live uses are deliberate refusals to choose among options that are the operator's to choose (T-358: 'the choice among A B C AB no-repair is yours'; T-341 likewise). That is arguably the most honest position an agent can hold on a sovereignty-gated choice, and it is the one position the surface renders as silence. Remapping onto DEFER was rejected: DEFER says decide later, ABSTAIN says decide now without me, and the wrong token in the operator's own decision surface is worse than an unreadable one. Fix direction is a vocabulary addition plus a display state, not a content change in the tasks."
+  captured: 2026-08-30T10:59:02Z
+  context_task: T-642
+  tags: []
+  status: pending
+  promoted_to: null
