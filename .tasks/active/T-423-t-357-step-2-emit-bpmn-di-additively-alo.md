@@ -38,7 +38,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-23T21:08:32Z
+last_update: 2026-08-30T10:44:34Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -421,7 +421,7 @@ caught one commit later instead of twelve days.
       and the round trip still drifts.
       **Load-bearing only since yesterday:** before DI was unconditional the output looked
       like the input and idempotence was inherited rather than measured.
-- [ ] ~~**Re-pin is coordinated, not announced.**~~ **VOID 2026-08-12 (T-473)** — this AC
+- [x] ~~**Re-pin is coordinated, not announced.**~~ **VOID 2026-08-12 (T-473)** — this AC
       required agreement AEF has no stake in. It read: *"AEF's `source_bpmn_sha` fixtures are
       pinned over whole files; all 24 change. Agreed with AEF on the rail BEFORE the bytes
       change."* They pin none of the 24 and hold no copy of the corpus (rail 584 Q1/Q3).
@@ -430,6 +430,19 @@ caught one commit later instead of twelve days.
       change moves one of the six, announce per § Seam cost → Announcement protocol — a
       rail post, one line per artifact, `path + old → new`, before the bytes change. Notice,
       not permission.
+      **TICKED 2026-08-30 (T-641 session) — the replacement obligation is DISCHARGED, and it
+      is discharged by measurement rather than by the AC having been declared void.** The
+      trigger is "if any of the six moves"; none moved. Of the six, three are AEF's own files
+      at their own paths and untouchable from here. The three that exist in this tree were
+      last written *before* the DI work began on 2026-08-12:
+      `typed-events.bpmn` 2026-07-19 (`34ec2433`), `boundary-events.bpmn` 2026-07-19
+      (`e8d611e8`), `s4-exemplar.bpmn` 2026-07-22 (`907b43c9`). `git log --since=2026-08-12 --
+      tests/fixtures/aef-bpmn/` returns two commits and **neither is this task**: T-489 and
+      T-490, and T-489 is the case that proves the protocol is live rather than decorative —
+      it needed a new key-coverage fixture and created a NEW file specifically because
+      `boundary-events.bpmn` is digest-pinned as `SHA_832_BOUNDARY`, so the one-line edit
+      would have turned AEF's guard red and made a legitimate change read as tampering.
+      So no announcement is owed. The obligation stays armed for any future change.
 - [x] A competing-carrier guard exists, in AEF's shape rather than ours: they pin
       `test_di_drop_has_a_competing_carrier`, which asserts the rival carrier *exists* —
       delete `aef:position` and the test goes red. Our equivalent must fail loudly the day
@@ -515,6 +528,94 @@ caught one commit later instead of twelve days.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+- [ ] [REVIEW] **May five third-party OMG schema files be vendored into this repo?**
+
+  This is the *only* thing standing between T-423 and done. The emitter is built and
+  verified by four standing suite guards; one Agent AC — "validate an exported map
+  against the BPMN 2.0 DI schema, **not** by grepping for the element names" — cannot be
+  ticked without a schema to validate against.
+
+  **Why it is your call and not mine.** Vendoring third-party files into the tree is a
+  scoping and licensing choice. "Proceed as you see fit" delegates initiative, not
+  authority, so I have neither vendored them nor reworded the AC into the structural
+  check it explicitly excludes. T-510 priced the decision by measurement rather than
+  assumption, and two of the four options it once offered are now withdrawn as dominated:
+  a validator is **already installed** (`lxml.etree.XMLSchema`, libxml2 2.9.14 — the same
+  engine `xmllint --schema` drives), so nothing needs installing and nothing is written
+  outside `/opt/832-Workflow-designer`.
+
+  **What "yes" costs:** five files — `BPMN20.xsd`, `Semantic.xsd`, `BPMNDI.xsd`, `DC.xsd`,
+  `DI.xsd`. The closure was walked from each schema's own import list, not assumed. DI
+  cannot be validated standalone: `BPMNDI.xsd` references BPMN element ids, so it is all
+  five or none.
+
+  **Two things I have NOT verified, stated because this task's own history is what
+  happens when a mechanism ships unchecked (PL-204):** the OMG licence terms (the schema
+  bodies carry no notice; the spec page's terms were not read — and this half is yours
+  regardless), and whether libxml2 2.9.14 loads this particular set cleanly. The second is
+  one command away the moment the files exist and untestable before.
+
+  **Steps:**
+  1. Decide whether OMG's BPMN 2.0 schema files may live in this repository.
+  2. Record the ruling either way:
+     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task review T-423`
+  3. If yes, tick this box — I will vendor the five files, wire an `lxml` schema leg into
+     `tests/run-bridge-tests.sh`, and tick the remaining Agent AC.
+
+  **Expected:** a recorded ruling. Yes → T-423 finishes with no further asks. No → the
+  Agent AC is unsatisfiable as written and the honest close is an explicit scope
+  amendment, which is also yours to record.
+
+  **If not:** if the licence question is the sticking point rather than the vendoring,
+  say so and I will scope a task to find a redistributable equivalent — that is a
+  different question and should not block this one silently, which is what has been
+  happening.
+
+## Recommendation
+
+**Recommendation:** GO — vendor the five OMG schema files.
+
+**Rationale:** The emitter is built and behaving; what is missing is the one check that
+would catch it being wrong in a way our own guards cannot. Our four guards are all
+*internal-consistency* checks — the two carriers agree with each other, export is additive
+against itself, the round trip is stable against itself. Every one of them stays green if we
+emit DI that is self-consistent and still malformed against the standard, and that is
+precisely the failure mode that matters here, because the entire justification for step 2 is
+portability to bpmn.io and Camunda. Nobody in this project is waiting for these bytes; a
+standard viewer is, and no check we own reads the standard.
+
+The price of "yes" fell substantially once it was measured rather than assumed: the
+validator is already installed, nothing is written outside the project boundary, and the
+closure is five files walked from each schema's own import list. Against that, "no" leaves a
+built emitter whose only unverified property is the one the AC was written to verify — and
+the honest consequence is not a small gap but an explicit scope amendment, because the AC
+rules out the cheap substitute by name.
+
+I did not take this decision on my own initiative, and the reason is not procedural
+squeamishness: vendoring third-party files carries a licence question I have not read and
+should not guess at, and "proceed as you see fit" delegates initiative, not authority.
+
+**Evidence:**
+- Emitter and guards, all four wired as standing suite legs (the `.py` guards run via their
+  `-cdp.mjs` drivers — checked, because T-490 in this same tree is the case where a probe
+  was invoked by no runner and every green it ever produced was hand-run):
+  `_t423-additive-export` (24 pairs, 24 identical outside DI, 2012 DI elements added),
+  `_t423-carrier-agreement` (306 node pairs, 0 disagreements, tolerance 0.05, teeth 12/12
+  including AEF's decoy shape), `_t423-di-roundtrip-idempotence` (24/24 stable over three
+  generations, teeth 4/4), `_t423-position-carrier-guard` (teeth 6/6).
+- The blocker is a decision, not a task: `lxml.etree.XMLSchema` present (libxml2 2.9.14),
+  `xmllint` absent and unnecessary; exports are validatable by construction because every
+  `aef:` element sits inside `bpmn:extensionElements`, which `Semantic.xsd` types as
+  `##other` / `processContents="lax"`.
+- **Second-hand, flagged as such:** the `Semantic.xsd` quote and the five-file closure were
+  read from the served OMG schemas, not byte-verified here — byte-verifying them means
+  writing them into the tree, which is the decision itself.
+- **Not measured, and yours regardless:** the OMG licence terms.
+- **Not measured, one command away once the files exist:** whether libxml2 2.9.14 loads this
+  particular schema set cleanly.
+- Deliberately not done: rewording the AC into a structural check (stronger than a grep, but
+  still not what the AC says), and building ahead of the ruling.
 
 ## Verification
 
