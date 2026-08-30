@@ -4,10 +4,10 @@ name: "Focus-drift gate reads task-id-shaped tokens out of quoted test fixtures,
 description: >
   Focus-drift gate reads task-id-shaped tokens out of quoted test fixtures, blocking probes that only mention a task id
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T09:52:37Z
-last_update: 2026-08-30T09:52:37Z
-date_finished: null
+last_update: 2026-08-30T10:00:50Z
+date_finished: 2026-08-30T10:00:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -271,3 +271,15 @@ which is what caught my overstatement.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-639-focus-drift-gate-reads-task-id-shaped-to.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9836463f
+- **Timestamp:** 2026-08-30T10:01:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-30T10:00:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

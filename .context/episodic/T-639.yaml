@@ -1,0 +1,104 @@
+# ============================================================================
+# EPISODIC MEMORY - T-639: Focus-drift gate reads task-id-shaped tokens out of quoted test fixtures, blocking probes that only mention a task id
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-30T10:01:12Z
+# ============================================================================
+
+task_id: T-639
+task_name: "Focus-drift gate reads task-id-shaped tokens out of quoted test fixtures, blocking probes that only mention a task id"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-30T09:52:37Z
+completed: 2026-08-30T10:00:50Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-30T12:00:44+02:00
+last_commit: 2026-08-30T12:00:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the drift gate read task ids out of quoted fixtures, so a probe of the gate was blocked by the gate
+
+# Key outcomes
+outcomes:
+  - 'Patterns 1 and 2 (`fw task update T-N`, `fw context add-* --task T-N`) match against'
+  - 'Pattern 3 fires only when the command actually INVOKES git commit — some clause''s'
+  - 'Pattern 3 takes its task id from the `-m` / `--message` VALUE and anchors it at the'
+  - 'Genuine drift still blocks — every existing block case is preserved. Verified against'
+  - 'The three false-positive shapes are admitted: a fixture passed to a prober, a `grep`'
+  - 'Both documented bypasses (`--switch-focus`, `FW_SWITCH_FOCUS=1`) still work unchanged.'
+  - 'A mutation prober drives the REAL hook against a mutant carrying the pre-fix patterns'
+  - 'No per-call fork added — this runs on every Bash tool call.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the drift gate read task ids out of quoted fixtures, so a probe of the gate was blocked by the gate'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/web/test_safe_commands.py'
+  - '.context/audits/2026-08-30.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/locks/T-635.lock'
+  - '.context/locks/T-636.lock'
+  - '.context/locks/T-637.lock'
+  - '.context/locks/T-638.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/episodic-gen/T-635.log'
+  - '.context/working/episodic-gen/T-636.log'
+  - '.context/working/episodic-gen/T-637.log'
+  - '.context/working/episodic-gen/T-638.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-639-focus-drift-gate-reads-task-id-shaped-to.md'
+  - 'tools/_t639-drift-gate-reads-fixtures.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-30T12:00:44"
+    action: 'T-639: the drift gate read task ids out of quoted fixtures, so a probe of the gate was blocked by the gate'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 27
+  lines_added: 2468
+  lines_removed: 1662
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-639-focus-drift-gate-reads-task-id-shaped-to.md
+generated_by: context-agent-hybrid
