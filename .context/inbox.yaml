@@ -1445,3 +1445,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-328
+  text: "T-639's mutation prober self-invalidates on its own task's completion, and the reason generalises to every hook prober here. It pins sandbox focus to a REAL task id (T-639); completing T-639 moved the file out of active/ and the hook's stale-focus check turned the prober red for a reason unrelated to what it measures. Two further findings while trying to fix it: (1) fw_reanchor_from_hook_stdin only re-anchors PROJECT_ROOT to the stdin cwd when that directory looks like a repo, so WITHOUT a .git marker the hook silently reads the REAL focus.yaml and the sandbox is ignored entirely — every leg then reports on live session state while looking like a clean measurement, which is a false-green generator for any hook prober; (2) once re-anchored, task EXISTENCE also resolves against the sandbox, so a fixture task file is required too. A synthetic fixture id plus .git plus a fixture task file is the shape that works; that combination was still 9/16 when budget ran out, so the prober is currently RED and the T-639 code fix rests on its 11 corpus cases instead."
+  captured: 2026-08-30T10:10:56Z
+  context_task: T-640
+  tags: []
+  status: pending
+  promoted_to: null

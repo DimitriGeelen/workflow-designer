@@ -4,7 +4,7 @@ name: "Safe-list admits curl and wget unconditionally though curl -o writes a fi
 description: >
   Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule
 
-status: started-work
+status: issues
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T10:02:16Z
-last_update: 2026-08-30T10:02:16Z
+last_update: 2026-08-30T10:11:01Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -224,3 +224,7 @@ place to fix it. One bug, one task.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-640-safe-list-admits-curl-and-wget-unconditi.md
 - **Context:** Initial task creation
+
+### 2026-08-30T10:11:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → issues
+- **Reason:** Code fix landed and verified by 132/132 corpus, but AC 6 (a prober driving the real gate ordering) is not met: the shared hook-prober harness is unsound, see OBS-328.
