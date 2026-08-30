@@ -2017,3 +2017,24 @@ learnings:
   date: 2026-08-30
   context: Added via context agent
   application: TBD
+- id: PL-284
+  learning: "A TEST FIXTURE THAT CAN SILENTLY DEGRADE TO LIVE STATE IS A FALSE-GREEN GENERATOR. A hook prober wrote focus.yaml into a scratchpad and passed it as the hook's cwd, but fw_reanchor_from_cwd only re-anchors when it finds .framework.yaml or .tasks/ walking up; finding neither it returns 0 UNCHANGED — a silent no-op, not an error — so the hook read the real focus.yaml. The prober shipped green at 16/16 and decayed to 13/16 with no code change, purely because the operator's focus moved. It had been measuring the live session all along while looking like a clean measurement. Remedy: the prober must ASSERT ITS OWN FIXTURE TOOK HOLD every run, and the assertion must be an INVERSION rather than a spot-check — sandbox focus allowed AND live focus blocked — because no single accident satisfies both halves, whereas a spot-check passes just as happily when the fixture is inert."
+  source: P-011
+  task: T-641
+  date: 2026-08-30
+  context: Added via context agent
+  application: TBD
+- id: PL-285
+  learning: "A PROBER THAT PINS A LIVE TASK ID INVALIDATES ITSELF THE MOMENT THAT TASK COMPLETES. The T-639 prober pinned its sandbox focus to T-639; completing T-639 moved the file out of active/ and turned its own prober red for a reason unrelated to what it measures. A prober whose verdict depends on which task the operator is currently on is not a prober. Pin a SYNTHETIC id and create the matching fixture task file inside the sandbox — once re-anchored, task EXISTENCE resolves against the sandbox too, so the marker alone is not enough."
+  source: P-011
+  task: T-641
+  date: 2026-08-30
+  context: Added via context agent
+  application: TBD
+- id: PL-286
+  learning: "A PREDICATE TEST AND A GATE TEST ANSWER DIFFERENT QUESTIONS: the corpus pins WHAT a predicate decides, only the live hook pins WHEN it is consulted and whether its verdict WINS. curl sits ON the safe-list, so a guard flagging 'curl -o' as a write is load-bearing only if the write-check runs BEFORE the allowlist and exits rather than falling through — precisely the defect T-638 found next door in the same function. A predicate-level pass proves nothing about that. The demonstration is a same-command inversion against a mutant with the guards stripped: identical allowlist, opposite verdicts."
+  source: P-011
+  task: T-640
+  date: 2026-08-30
+  context: Added via context agent
+  application: TBD

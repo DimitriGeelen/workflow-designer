@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-640: Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-30T10:42:32Z
+# ============================================================================
+
+task_id: T-640
+task_name: "Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-30T10:02:16Z
+completed: 2026-08-30T10:42:04Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-08-30T12:10:47+02:00
+last_commit: 2026-08-30T12:42:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  curl -o and wget write a file with no redirect, breaking the safe-list's own stated admission rule. OBS-328 and status issues — code verified, prober AC unmet because the shared hook-prober harness is unsound. gate probe lands AC 6 — curl is safe-listed in both, refused only with the guards (carries T-641 completion metadata)
+
+# Key outcomes
+outcomes:
+  - '`has_bash_write_pattern` flags `curl` with `-o` / `--output` / `-O` / `--remote-name`,'
+  - '`wget` with NO output flag is flagged too — it writes the fetched file into the'
+  - 'Read-only uses stay admitted: `curl -sf URL`, `curl -s URL | jq .`, and'
+  - 'The flag is matched as a whole token, so `--output-dir` alone (curl''s directory'
+  - 'Corpus tests added for both directions; the existing 120 still pass.'
+  - 'A prober drives the REAL gate ordering (write-check-then-allowlist, as'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'OBS-328 and status issues — code verified, prober AC unmet because the shared hook-prober harness is unsound'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/web/test_safe_commands.py'
+  - '.context/episodic/T-641.yaml'
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-640-safe-list-admits-curl-and-wget-unconditi.md'
+  - '.tasks/completed/T-641-t-639-prober-sandbox-is-ignored-so-it-me.md'
+  - 'tools/_t640-fetchers-that-write-are-writes.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-30T12:10:47"
+    action: 'T-640: curl -o and wget write a file with no redirect, breaking the safe-list''s own stated admission rule'
+  - time: "2026-08-30T12:11:07"
+    action: 'T-640: OBS-328 and status issues — code verified, prober AC unmet because the shared hook-prober harness is unsound'
+  - time: "2026-08-30T12:42:00"
+    action: 'T-640: gate probe lands AC 6 — curl is safe-listed in both, refused only with the guards (carries T-641 completion metadata)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 39 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 39
+  commits: 3
+  files_changed: 7
+  lines_added: 631
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-640-safe-list-admits-curl-and-wget-unconditi.md
+generated_by: context-agent-hybrid
