@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-638: T-2054 commit exemption matches git commit anywhere, so a compound command carries its other clauses past the active-task gate
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-30T08:41:46Z
+# ============================================================================
+
+task_id: T-638
+task_name: "T-2054 commit exemption matches git commit anywhere, so a compound command carries its other clauses past the active-task gate"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-30T08:32:22Z
+completed: 2026-08-30T08:41:16Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-30T10:40:56+02:00
+last_commit: 2026-08-30T10:40:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the no-task commit exemption matched a command that MENTIONED a commit, so every clause of a compound rode in on the first
+
+# Key outcomes
+outcomes:
+  - 'The T-2054 exemption fires only when **every** clause of the command is a `cd` or a'
+  - 'Clause splitting reads the **quote-stripped** command, so a `;` or `&&` inside a commit'
+  - 'A command containing `$(` or a backtick never takes the exemption — substitution runs'
+  - '`git commit ... ; rm -rf <path>` is BLOCKED with no active task, and the rest of the'
+  - '`--no-verify` / `-n` exclusion is preserved unchanged.'
+  - 'A mutation prober drives the REAL hook (not a pinned copy) and dies if the fix is'
+  - 'The fix does not widen the gate: no command blocked before this change is allowed after'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/web/test_safe_commands.py'
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-638-t-2054-commit-exemption-matches-git-comm.md'
+  - 'tools/_t638-commit-exemption-is-clause-scoped.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-30T10:40:56"
+    action: 'T-638: the no-task commit exemption matched a command that MENTIONED a commit, so every clause of a compound rode in on the first'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 6
+  lines_added: 679
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-638-t-2054-commit-exemption-matches-git-comm.md
+generated_by: context-agent-hybrid
