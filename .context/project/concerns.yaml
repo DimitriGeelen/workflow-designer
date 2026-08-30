@@ -2786,3 +2786,59 @@ concerns:
   - T-624
   - T-619
   - T-309
+- id: G-046
+  title: A task blocked on an operator DECISION written as an Agent AC is invisible to every
+    review surface, so it can sit indefinitely with nothing reporting it
+  severity: high
+  status: watching
+  registered: '2026-08-30'
+  detail: 'T-423 was one acceptance criterion from done and that criterion needed a scoping
+    ruling from the operator (may five third-party OMG schema files be vendored into this
+    repo?). Because the criterion lives under ### Agent, no review surface showed it: the
+    canonical predicate is count_unchecked_human_acs (web/shared.py:845), which both
+    /approvals and fw review-queue call, and it counts only unchecked boxes inside the
+    ### Human block. An unchecked Agent AC contributes nothing to any queue.
+
+    MEASURED: T-423 sat in this state from 2026-08-15 (when T-510 priced the decision and
+    put it "in front of the operator") to 2026-08-30 — 15 days — appearing in no queue at
+    all. The task file said the decision was in front of the operator; no surface the
+    operator actually reads agreed. The agent had done everything correct except the one
+    thing that routes: the analysis, the pricing, the refusal to reword the AC into
+    something satisfiable, all recorded in the task body where only an agent re-reading
+    that task would find them.
+
+    This is not the same as G-027 (all ACs ticked + owner human + still started-work is
+    invisible). That gap is about a task past the finish line; this one is about a task
+    stopped at a gate, where the gate is unmanned because nobody was told it exists. It is
+    also the inverse of the usual failure: not an agent claiming false progress, but an
+    agent correctly declining to proceed and the decline going nowhere.
+
+    Remedy applied to the instance, NOT to the class: a [REVIEW] Human AC carrying the
+    question plus Steps/Expected/If-not, and a ## Recommendation so the entry stops reading
+    NO-REC. T-423 now shows GO in the queue.
+
+    FIRST CENSUS, run the day this was registered so the gap carries a population rather
+    than an anecdote. Over .tasks/active/, an unticked Agent AC whose text defers to the
+    operator: 4 tasks, of which 3 are invisible to the queue (no unchecked Human AC to
+    carry them there) — T-155, T-575, T-599. Witnesses rather than a bare count:
+    T-155 "A recommended approach + GO/NO-GO/DEFER presented to the operator with
+    rationale"; T-575 "The FREE tasks are closed (operator runs the completion; agent may
+    not)"; T-599 "The router-vs-operator precedence rule is written down".
+
+    THE CENSUS IS A MENTION SCAN AND MUST NOT BE READ AS A STRUCTURAL ONE. It matches text
+    like "operator" inside an AC body, which is the same character-level substitution for
+    structure this project has now hit seven times (T-633, the fw note write veto, T-2054,
+    the focus-drift gate, _t627, T-638, T-639). T-599 is the visible false positive: its AC
+    asks for a precedence rule to be WRITTEN DOWN, which is agent work that merely mentions
+    the operator, not work awaiting a ruling. Treat 3 as an upper bound on the invisible
+    population and as a starting list for a real classifier, not as a measurement.'
+  decision_trigger: 'Either an instrument reports tasks whose Agent ACs are unticked with a
+    stated operator dependency (so the class is detectable rather than remembered), or the
+    convention is made structural — an operator-gated criterion MUST be written as a Human
+    AC and an Agent AC may never carry a decision — with a gate that enforces it. Closing
+    because T-423 was surfaced is not closure: that is mitigation of one instance, and the
+    gap is the framework''s inability to see the class. First step is a census: how many
+    active tasks have unticked Agent ACs whose text defers to the operator?'
+  tasks:
+  - T-423
+  - T-510
