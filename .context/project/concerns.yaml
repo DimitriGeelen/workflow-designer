@@ -2842,3 +2842,54 @@ concerns:
   tasks:
   - T-423
   - T-510
+- id: G-047
+  title: A task's own work cannot be committed after it is completed — the completed-task
+    gate and the focus-drift gate are jointly unsatisfiable
+  severity: medium
+  status: watching
+  registered: '2026-08-30'
+  detail: 'Hit while landing T-643. Sequence: complete the task, then try to commit its
+    diff.
+
+    (a) With focus on the completed task, check-active-task.sh:523 refuses every Bash
+    write — "BLOCKED: Task T-643 has status work-completed" — so git add and git commit
+    both fail. Its own advice is "fw work-on T-XXX (resume another task)".
+
+    (b) Take that advice and the focus-drift gate (T-1730, check-active-task.sh:385)
+    refuses the commit instead, because the message starts "T-643:" while focus is
+    elsewhere.
+
+    (c) work-completed is terminal in the status machine — the valid transitions are
+    captured→started-work, started-work→{captured,issues,work-completed},
+    issues→{started-work,work-completed}. Nothing leaves work-completed, so the task
+    cannot be reopened to satisfy (a).
+
+    (d) With focus null (the state completion leaves behind) T-2054 admits git commit but
+    NOT git add, so anything untracked — a new prober, a newly filed task file — cannot be
+    staged. Staging before completion does not help either: completion MOVES the task file
+    from active/ to completed/, so a pre-staged path is stale by the time the commit runs.
+
+    The only exits the framework offers are the two Tier-2 bypasses (--switch-focus,
+    FW_SWITCH_FOCUS=1), and those are operator authority, not agent initiative. This is not
+    a gate being too strict; it is two correct gates with no gap between them.
+
+    WORKAROUND USED, recorded so it is not mistaken for the intended path: the commit was
+    made under the focus of the next open task (T-645) with a subject that names it first
+    and states in the body that the bulk of the diff belongs to T-643 and T-644. Honest,
+    but it degrades per-commit traceability, which is the exact property P-002 exists to
+    protect. Doing this routinely would hollow out fw git log --task.
+
+    THE CADENCE RULE THAT AVOIDS IT: commit BEFORE fw task update --status work-completed.
+    That is already the framework''s implicit expectation and is nowhere written down; the
+    trap is only reachable by completing first, which CLAUDE.md''s own "When completing"
+    list arguably encourages by putting verification and status change before any mention
+    of committing.'
+  decision_trigger: 'Either (a) work-completed→started-work becomes a legal transition
+    (reopening a task is a normal act and the status machine currently forbids it), or (b)
+    the completed-task gate admits git add/git commit whose staged paths are the completed
+    task''s own files, or (c) CLAUDE.md''s completion checklist states commit-before-complete
+    explicitly and the completion command refuses to run with a dirty tree for that task.
+    Closing on "an agent worked around it once" is not closure.'
+  tasks:
+  - T-643
+  - T-644
