@@ -1982,3 +1982,24 @@ learnings:
   date: 2026-08-29
   context: Added via context agent
   application: TBD
+- id: PL-279
+  learning: "An exemption's own justification names its scope, and the predicate must test that scope. T-2054's comment says committing 'persists work already produced under the Write/Edit task gate' — true of a command that IS a commit, false of one that CONTAINS the words. The branch tested CONTAINS on the raw string, so an arbitrary unknown binary whose quoted argument said 'git commit' was admitted with no active task. When a gate carries a written rationale, the rationale is a specification: read it and check the code implements that sentence, not a cheaper one."
+  source: P-002
+  task: T-638
+  date: 2026-08-30
+  context: Added via context agent
+  application: TBD
+- id: PL-280
+  learning: "A check that falls through is not a guard. check-active-task.sh computes has_bash_write_pattern and, on a positive verdict, falls through rather than exiting — so a later branch handed the same command exit 0. The gate detected the write and admitted it anyway. Wherever a security-relevant verdict is computed but not acted on at the point of computation, some downstream branch will eventually override it; test the pairing, not just the detector."
+  source: P-002
+  task: T-638
+  date: 2026-08-30
+  context: Added via context agent
+  application: TBD
+- id: PL-281
+  learning: "Compose with the existing allowlist rather than enumerating a second one. The clause predicate for the commit exemption needed to know which non-commit clauses are acceptable; a hand-rolled list of 'cd and git commit' would have blocked 'git add -A && git commit', the documented post-completion form, because git add's admissibility lives in _sc_simple_is_safe. Calling that predicate per clause got git add, git push and cd for free and cannot drift from the real list. Corollary found the same hour: composition also inherits the list's existing defects — curl and wget are admitted unconditionally though curl -o writes a file, filed as its own observation rather than patched at the composition site."
+  source: P-001
+  task: T-638
+  date: 2026-08-30
+  context: Added via context agent
+  application: TBD
