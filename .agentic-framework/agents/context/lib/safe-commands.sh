@@ -543,6 +543,40 @@ has_bash_write_pattern() {
         return 0
     fi
 
+    # T-640: curl and wget write files with NO shell redirect — the exact condition
+    # this list states as its own admission rule, and the basis on which it excludes
+    # awk and uniq. Both are nevertheless on the Category-5 allowlist, so without a
+    # guard `curl -o FILE URL` was admitted with no active task (measured: SAFE and
+    # no-write). This is the third instance of the same relationship, not a new
+    # mechanism: `sed` is admitted only because a raw-string guard for `-i`/`w` sits
+    # here, and `sort` only because one for `-o`/`--output` does.
+    #
+    # The bundled short-flag branch `-[a-zA-Z]*[oO]` is load-bearing: `curl -sO URL`
+    # writes, and a bare `(^|[[:space:]])-O` anchor misses it. `--output-dir` is NOT
+    # matched — the character after `--output` must be a separator, and there it is
+    # `-`. That distinction is the whole reason the alternation spells the separators
+    # out instead of ending at the flag name.
+    # `-o /dev/null` is the standard status-probe idiom — `curl -s -o /dev/null -w
+    # "%{http_code}" URL` discards the body to read a status code, and writes nothing.
+    # The corpus already carried it as a benign read and caught the first draft of
+    # this guard, which is the second time that suite has stopped an over-broad
+    # predicate from shipping.
+    if echo "$cmd" | grep -qE '\bcurl\b.*(^|[[:space:]])(-[a-zA-Z]*[oO]([[:space:]]|$)|--output([[:space:]]|=)|--remote-name([[:space:]]|$))' \
+       && ! echo "$cmd" | grep -qE '(-o|--output)[[:space:]]*=?[[:space:]]*/dev/null([[:space:]]|$)'; then
+        return 0
+    fi
+
+    # wget is flagged with or without a flag, and that breadth is the point: its
+    # DEFAULT behaviour is to write the fetched file into the working directory, so
+    # "no output flag" is the defect rather than the safe case. Cost of the breadth,
+    # stated rather than hidden: the two genuinely read-only forms (`wget -O -` and
+    # `wget --spider`) now need an active task. That is a mild, correct-direction
+    # cost — unlike a prose argument to a framework verb (T-636), nothing here is
+    # stored-and-never-run; every wget invocation really does execute.
+    if echo "$cmd" | grep -qE '\bwget\b'; then
+        return 0
+    fi
+
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
     if echo "$cmd" | grep -qE '\b(rm|rmdir)\b'; then
         return 0

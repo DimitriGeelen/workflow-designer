@@ -541,6 +541,50 @@ def test_a_safe_listed_clause_alongside_the_commit_is_admitted_on_purpose():
     )
 
 
+# --------------------------------------------------------------------------
+# T-640 — curl and wget write a file with NO shell redirect, which is the exact
+# admission rule this list states for itself (and the basis on which it excludes
+# awk and uniq). They were on the allowlist with no guard behind them.
+# --------------------------------------------------------------------------
+
+FETCHERS_THAT_WRITE = [
+    "curl -o /tmp/f http://example.com",
+    "curl --output /tmp/f http://example.com",
+    "curl -O http://example.com/f.txt",
+    # Bundled short flags — a bare `-O` anchor misses this one.
+    "curl -sO http://example.com/f.txt",
+    "curl --remote-name http://example.com/f",
+    # No flag at all: wget's DEFAULT is to write into the working directory.
+    "wget http://example.com/f.txt",
+    "wget -O /tmp/f http://example.com",
+]
+
+
+@pytest.mark.parametrize("cmd", FETCHERS_THAT_WRITE)
+def test_fetchers_that_write_a_file_are_writes(cmd):
+    assert is_write(cmd), f"writes a file with no redirect, not flagged: {cmd!r}"
+    assert not gate_allows(cmd), f"admitted with no active task: {cmd!r}"
+
+
+FETCHERS_THAT_READ = [
+    "curl -sf http://example.com/y",
+    "curl -s http://example.com | jq .",
+    # The /resume skill's own step-5 shape. Already a regression anchor for T-404;
+    # this task must not become the third mechanism that blocks it.
+    'curl -sf "$WURL/"',
+    # curl's directory option is harmless on its own — and it is the near-miss the
+    # separator alternation exists to exclude.
+    "curl --output-dir /tmp http://example.com",
+    "curl http://example.com -H 'a: b'",
+]
+
+
+@pytest.mark.parametrize("cmd", FETCHERS_THAT_READ)
+def test_read_only_fetches_stay_admitted(cmd):
+    assert not is_write(cmd), f"read-only fetch flagged as a write: {cmd!r}"
+    assert gate_allows(cmd), f"read-only fetch refused: {cmd!r}"
+
+
 def drift_target(cmd):
     """Return the task _sc_drift_target identifies, or '' for none."""
     script = f'source "{LIB}"; _sc_drift_target "$1"; printf "%s" "$_SC_DRIFT_TARGET"'
