@@ -4,7 +4,7 @@ name: "Safe-list admits curl and wget unconditionally though curl -o writes a fi
 description: >
   Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule
 
-status: issues
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T10:02:16Z
-last_update: 2026-08-30T10:11:01Z
+last_update: 2026-08-30T10:37:43Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -61,19 +61,19 @@ place to fix it. One bug, one task.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `has_bash_write_pattern` flags `curl` with `-o` / `--output` / `-O` / `--remote-name`,
+- [x] `has_bash_write_pattern` flags `curl` with `-o` / `--output` / `-O` / `--remote-name`,
       and `wget` with `-O` / `--output-document`. Guard sits with the `sed -i` and
       `sort -o` guards and follows their form.
-- [ ] `wget` with NO output flag is flagged too — it writes the fetched file into the
+- [x] `wget` with NO output flag is flagged too — it writes the fetched file into the
       working directory by default, which is the same defect without the flag.
-- [ ] Read-only uses stay admitted: `curl -sf URL`, `curl -s URL | jq .`, and
+- [x] Read-only uses stay admitted: `curl -sf URL`, `curl -s URL | jq .`, and
       `curl URL -H "x: y"` are not writes. The `/resume` skill's own step-5 command
       (`curl -sf "$WURL/"`) must keep working — it is already a regression anchor in the
       corpus for a different defect.
-- [ ] The flag is matched as a whole token, so `--output-dir` alone (curl's directory
+- [x] The flag is matched as a whole token, so `--output-dir` alone (curl's directory
       option, harmless without `-o`) and a URL containing the letters do not trip it.
-- [ ] Corpus tests added for both directions; the existing 120 still pass.
-- [ ] A prober drives the REAL gate ordering (write-check-then-allowlist, as
+- [x] Corpus tests added for both directions; the existing 120 still pass.
+- [x] A prober drives the REAL gate ordering (write-check-then-allowlist, as
       `check-active-task.sh` composes them) and shows the writing forms are refused with no
       active task while the reading forms are admitted.
 
@@ -157,6 +157,15 @@ place to fix it. One bug, one task.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The gate probe: drives the REAL hook, so it pins the ORDERING (write-check before
+# allowlist, and exiting rather than falling through) that the corpus cannot see.
+# Its own teeth are inside it — a mutant with both guards stripped must admit all 9
+# downloads, or the run aborts COULD-NOT-MEASURE rather than passing.
+bash tools/_t640-fetchers-that-write-are-writes.sh
+# The predicate corpus, which caught the first draft of the curl guard flagging
+# `curl -s -o /dev/null -w "%{http_code}"` — the standard status-probe idiom.
+python3 -m pytest .agentic-framework/web/test_safe_commands.py -q
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -228,3 +237,6 @@ place to fix it. One bug, one task.
 ### 2026-08-30T10:11:01Z — status-update [task-update-agent]
 - **Change:** status: started-work → issues
 - **Reason:** Code fix landed and verified by 132/132 corpus, but AC 6 (a prober driving the real gate ordering) is not met: the shared hook-prober harness is unsound, see OBS-328.
+
+### 2026-08-30T10:37:43Z — status-update [task-update-agent]
+- **Change:** status: issues → started-work

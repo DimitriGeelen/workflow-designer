@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-641: T-639 prober sandbox is ignored so it measures live session state
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-30T10:37:23Z
+# ============================================================================
+
+task_id: T-641
+task_name: "T-639 prober sandbox is ignored so it measures live session state"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-30T10:29:29Z
+completed: 2026-08-30T10:36:58Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-30T12:36:53+02:00
+last_commit: 2026-08-30T12:36:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the prober's sandbox was never in effect — it now asserts, by inversion, that its own fixture governs
+
+# Key outcomes
+outcomes:
+  - 'The sandbox carries a `.tasks/` marker and a fixture task file, so'
+  - 'The focus id is synthetic (not a live task id), so completing a real task'
+  - 'A self-validation leg asserts the sandbox is actually in effect, by asserting'
+  - 'Removing the `.tasks/` marker makes that leg go red (its teeth are shown, not'
+  - '`tools/_t639-drift-gate-reads-fixtures.sh` passes all legs, and passes when the'
+  - 'The audit of which probers share this defect is recorded in the task, with the'
+  - 'OBS-328 is corrected in place (marker and blast radius), and the correction is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the prober''s sandbox was never in effect — it now asserts, by inversion, that its own fixture governs'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-641-t-639-prober-sandbox-is-ignored-so-it-me.md'
+  - 'tools/_t639-drift-gate-reads-fixtures.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-30T12:36:53"
+    action: 'T-641: the prober''s sandbox was never in effect — it now asserts, by inversion, that its own fixture governs'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 3
+  lines_added: 320
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-641-t-639-prober-sandbox-is-ignored-so-it-me.md
+generated_by: context-agent-hybrid
