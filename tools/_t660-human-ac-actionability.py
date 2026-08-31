@@ -67,12 +67,20 @@ def audit_task(path):
     if not re.search(r"^\s*-\s*\[ \]", human, re.M):
         return None
 
+    # PREFIX matches, not exact strings. The first version of this checker required the
+    # literal `**Steps:**` / `**Expected:**` / `**If not:**` and flagged T-426 and T-579,
+    # both of which are among the best-written ACs in the queue: T-426 heads its block
+    # `**Steps — option A (recommended), ...:**` and T-579 closes with `**If it is still
+    # red after that:**`, which is a more useful fallback than the generic wording. That
+    # was a chosen-set assertion — it could only find the spellings I had thought of, and
+    # it would have had me rewrite good prose to satisfy a matcher. An instrument for
+    # actionability must not become an instrument for house style.
     reasons = []
-    if "**Steps:**" not in human:
+    if not re.search(r"\*\*Steps\b", human):
         reasons.append("no Steps: block")
-    if "**Expected:**" not in human:
+    if not re.search(r"\*\*Expected\b", human):
         reasons.append("no Expected: clause")
-    if "**If not:**" not in human:
+    if not re.search(r"\*\*If\b", human):
         reasons.append("no If-not: fallback")
     for tok in sorted(set(PLACEHOLDER.findall(human))):
         reasons.append("unresolved placeholder %r" % tok)

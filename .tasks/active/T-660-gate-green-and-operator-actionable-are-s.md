@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T18:58:58Z
-last_update: 2026-08-31T19:04:29Z
+last_update: 2026-08-31T19:07:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -171,9 +171,12 @@ rather than shipping a checker for a problem that may not exist at this scale.
 # The prober over the checker: 8 legs, exit code is the verdict.
 bash tools/_t660-actionability-checker-must-have-teeth.sh
 
-# The root-cause fix: no active task may still carry the literal placeholder in its
-# Human section. This is the repair, asserted rather than remembered.
-test 0 -eq "$(grep -l 'T-XXX' .tasks/active/*.md 2>/dev/null | wc -l)"
+# The repair, asserted rather than remembered — and asserted through the instrument that
+# knows where to look. A whole-file grep for the placeholder CANNOT pass here: this task
+# documents the defect, so its own file quotes the string it eliminated. That first
+# version failed the gate and was right to; the check was self-referential, not the tree
+# dirty. Exit code is the verdict.
+python3 tools/_t660-human-ac-actionability.py
 
 # Both edited framework files must still parse, and the changes must be declared (G-008).
 bash -n .agentic-framework/agents/audit/audit.sh

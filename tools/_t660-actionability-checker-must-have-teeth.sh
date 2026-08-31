@@ -136,6 +136,24 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Found the hard way: the first matcher demanded the literal `**Steps:**` and flagged two of
+# the best-written ACs in the live queue. A chosen-set assertion finds only the spellings its
+# author thought of, and this one would have had me rewrite good prose to satisfy it.
+echo "--- real-world block spellings are accepted, not just the template's exact wording"
+R="$TMP/g"
+write_task "$R" T-007 human '- [ ] [REVIEW] Pick the new baseline ref
+  **Steps — option A (recommended), register it as a Stop hook:**
+  1. Run: `cd /opt/x && bin/fw hook-enable --name thing`
+  **Expected:** the gate goes green
+  **If it is still red after that:** the residue is something later than the stamp'
+OUT=$(run_checker "$R")
+if echo "$OUT" | grep -q 'rc0'; then
+    ok "variant Steps/If- headings accepted — actionability, not house style"
+else
+    bad "a well-written AC was flagged on wording: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
+fi
+
+# ---------------------------------------------------------------------------
 echo "--- teeth: blind the comment stripper and the trap fixture must flip to actionable"
 MUT="$TMP/checker-mutant.py"
 sed 's|^COMMENT = re.compile(r"<!--.\*?-->", re.S)|COMMENT = re.compile(r"(?!x)x")|' "$CHECKER" > "$MUT"
