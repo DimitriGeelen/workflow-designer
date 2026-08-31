@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T13:13:14Z
-last_update: 2026-08-31T13:13:14Z
+last_update: 2026-08-31T13:16:20Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -31,10 +31,6 @@ date_finished: null
 ---
 
 # T-652: fw git commit is refused where git commit is allowed — the T-2054 exemption keys on spelling too
-
-## Context
-
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Context
 
