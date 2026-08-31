@@ -2927,6 +2927,31 @@ concerns:
     task''s own files, or (c) CLAUDE.md''s completion checklist states commit-before-complete
     explicitly and the completion command refuses to run with a dirty tree for that task.
     Closing on "an agent worked around it once" is not closure.'
+  shipped_2026_08_31: |
+    Clause (b) is now HALF closed, and the half that shipped is not the half the
+    clause described. The gate did not need to learn about staged paths -- it needed
+    to stop keying on spelling. Two exemptions were justified by EFFECT and
+    implemented against a NAME, so an alias of an exempt command was refused:
+      T-650  fw fix-learned   (execs context.sh add-learning, exempt since T-390)
+      T-652  fw git commit    (execs git commit, exempt since T-2054)
+    T-652 is the one that matters for this gap: CLAUDE.md's Quick Reference mandates
+    `fw git commit`, and this gate's own block message offers bare `git commit` as
+    the escape. The documented command was refused and the undocumented one admitted,
+    so anyone following our instructions hit the deadlock and only someone ignoring
+    them got through. Held by tools/_t650-an-alias-is-the-command-it-aliases.sh (16
+    legs), asserting alias/target parity pairwise so a third alias costs one row.
+  
+    STILL OPEN, stated so this is not read as closure:
+    - (a) untouched. work-completed -> started-work is still not a legal transition.
+    - (b) remainder: a NON-alias command under null focus is still refused. Measured
+      today: a bare `true`, an `ls`, a read-only `cat`, a `grep`, and a compound
+      beginning `git add` chained to a commit. This entry understated itself by
+      saying the gate refuses WRITES. It refuses READS.
+    - (c) operator's, unchanged: add to CLAUDE.md Working with Tasks / When
+      completing, ahead of the current step 4 -- commit the task's work BEFORE
+      setting status. T-649 shipped the warning; the checklist line is not written.
+    - OBS-331 resolved by T-650. OBS-332 is new and unowned: a P-011 Verification
+      line invoking `fw audit` hangs on the lock FDs the transition itself holds.
   tasks:
   - T-643
   - T-644
