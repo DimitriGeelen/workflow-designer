@@ -1100,3 +1100,32 @@ entries:
       the real runner region from update-task.sh and giving it a function context so
       `return`/`exit` behave as in situ. Boundary legs assert 128 is NOT read as a signal
       death (it is not 128+N for any N>=1).
+
+  - path: .agentic-framework/agents/git/lib/hooks.sh
+    kind: content
+    task: T-659
+    upstream: fix
+    reason: >-
+      Adds a pre-commit guard refusing staged DELETIONS under .context/audits/cron/ when
+      running under agent control ($CLAUDECODE=1). A retention cron prunes that directory and
+      leaves the deletions pending in the working tree; committing them is the operator's
+      housekeeping decision, not a byproduct of whatever task the agent is on.
+
+      Why it is a mechanism and not a resolution: three sessions held this line by staging
+      explicit paths every time, and it broke the moment a single `git add .context/` — run
+      to pick up one episodic file — swept 338 deletions into the index. The rule lived in
+      the agent's head; the index does not consult it. The block message names the actual
+      cause (directory-wide add) and prints the unstage command, because the failure mode to
+      avoid is an agent discarding its real work alongside the mistake.
+
+      `--diff-filter=D` is load-bearing: a cron audit being ADDED or MODIFIED is not a sweep,
+      and without the filter the daily audit could not commit its own output. The operator is
+      never blocked, and FW_ALLOW_RETENTION_SWEEP=1 is the documented deliberate-sweep path.
+
+      UPSTREAM because the retention cron and .context/audits/cron/ are framework structures,
+      so every project running this framework accumulates the same pending deletions and the
+      same chance of sweeping them in.
+
+      Witness: tools/_t659-retention-sweep-must-not-be-agent-staged.sh, 6 legs, all on
+      throwaway repos — it never touches this repository's index. Includes a leg asserting
+      the printed remedy leaves a still-committable index with the legitimate file intact.

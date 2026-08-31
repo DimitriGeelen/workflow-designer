@@ -2040,3 +2040,31 @@ decisions:
     date: 2026-08-31
     task: T-650
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-271
+    decision: "the audit line WARNs on undeclared divergence."
+    scope: project
+    date: 2026-08-31
+    task: T-657
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-272
+    decision: "classify this task's own vendored edit as `local-config` while all six"
+    scope: project
+    date: 2026-08-31
+    task: T-657
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-273
+    decision: "did-not-finish increments `verify_fail` exactly as before; only the wording"
+    scope: project
+    date: 2026-08-31
+    task: T-658
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-274
+    decision: "classify how commands already die; add no timeout."
+    scope: project
+    date: 2026-08-31
+    task: T-658
+    rationale: "Auto-captured from task file on completion"

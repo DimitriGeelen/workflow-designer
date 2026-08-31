@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-657: Vendor-divergence guard has no delivery surface: 6 unrecorded, red twice unnoticed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T18:37:16Z
+# ============================================================================
+
+task_id: T-657
+task_name: "Vendor-divergence guard has no delivery surface: 6 unrecorded, red twice unnoticed"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-31T18:27:39Z
+completed: 2026-08-31T18:36:47Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T20:36:35+02:00
+last_commit: 2026-08-31T20:36:47+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the divergence guard was priced at its host — 13 minutes for a 300ms check, so it ran nowhere and was right twice into the void.. fabric card for the prober
+
+# Key outcomes
+outcomes:
+  - 'The divergence check runs as an **audit line**, not only as a member of the bridge'
+  - 'The added line is **cheap enough to belong in the audit**: measured wall-clock for'
+  - 'Each of the 6 currently-unrecorded entries is **dispositioned individually**, with'
+  - 'After disposition, the new audit line reads green **or** its remaining count is'
+  - 'A prober asserts the audit line has teeth: it greps the real region out of'
+  - 'The prober asserts **which** surface produced the verdict, not merely that a verdict'
+  - 'Any framework-file change is declared in `.vendor-divergence.yaml` with an'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-31 — WARN, not FAIL'
+    chose: 'the audit line WARNs on undeclared divergence.'
+    rationale: 'a structure-section FAIL blocks push (`agents/git/lib/hooks.sh:844`) and its only bypass is `--no-verify`, which is Tier-0 gated and not mine to use. The defect this task fixes is that nobody SAW the verdict; appearing in an audit read on every push and every cron run is the whole remedy for that. Escalating enforcement is a wider blast radius than the task scope and a decision that should be made on evidence rather than bundled in here.'
+    alternatives_rejected: ['FAIL. The case for it is genuinely strong — unlike the stray-root-files WARN whose debris is inert, an undeclared fix is *destroyed* by the next re-vendor, which is the T-517 learning this whole manifest exists to encode. It is rejected on blast radius, not on merit, and the escalation trigger is written into the block: **if an unrecorded entry survives three consecutive audits, WARN has failed exactly as the bridge suite did and this becomes FAIL.**']
+  - decision: '2026-08-31 — the audit.sh change is `local-config`, not `fix`'
+    chose: 'classify this task''s own vendored edit as `local-config` while all six pre-existing entries are `fix`.'
+    rationale: 'the block calls a *project*-local tool and validates a manifest that exists only because this project vendors the framework. Upstream does not vendor itself and would receive a block that never fires — nothing is owed to them. The six others are real code fixes upstream lacks and genuinely are debt.'
+    alternatives_rejected: ['marking it `fix` by reflex because the file is vendored. The taxonomy is only worth having if its verdicts differ when the facts differ; six `fix` and one `local-config` in the same commit is the taxonomy being used rather than defaulted.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.fabric/components/tools-_t657-vendor-divergence-must-reach-an-audit-line.yaml'
+  - '.tasks/active/T-657-vendor-divergence-guard-has-no-delivery-.md'
+  - 'tools/_t657-vendor-divergence-must-reach-an-audit-line.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T20:36:35"
+    action: 'T-657: the divergence guard was priced at its host — 13 minutes for a 300ms check, so it ran nowhere and was right twice into the void.'
+  - time: "2026-08-31T20:36:47"
+    action: 'T-657: fabric card for the prober'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 2
+  files_changed: 5
+  lines_added: 678
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-657-vendor-divergence-guard-has-no-delivery-.md
+generated_by: context-agent-hybrid

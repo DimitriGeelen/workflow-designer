@@ -2101,3 +2101,31 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-296
+  learning: "A CHECK INHERITS ITS HOST'S PRICE, AND THEREFORE ITS HOST'S FREQUENCY. tools/_t517-vendor-divergence.py was believed to cost ~13 minutes and so was scheduled nowhere; it was found red after long unread stretches twice and was correct both times. Measured standalone it is 250-340ms over a 2158-file baseline — the 13 minutes belonged to the bridge suite it happened to live in, not to the check. Nobody had ever separated the two costs, so the guard inherited the suite's price and with it the suite's frequency: never. Before accepting that a control is too expensive to run often, time the CONTROL, not the thing it is packaged with. Sibling of T-654: there the detector's output had no reader, here it had no run."
+  source: P-001
+  task: T-657
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
+- id: PL-297
+  learning: "SILENCE AFTER A MUTATION ONLY MEANS SOMETHING IF THERE WAS NOISE BEFORE IT. T-657's teeth leg reported PASS while its own fixture was broken: an unbound-variable bug left the fixture root empty, so the unmutated block emitted nothing, the mutant also emitted nothing, and 'the mutant swallowed the verdict' was indistinguishable from 'the subject was never exercised'. A mutation leg must assert BOTH that the mutation landed (T-656: assert the sed's substitution count) AND that the unmutated subject demonstrably produces the signal on that exact fixture. Otherwise the leg certifies teeth the prober does not have — the same false-green family as T-654's first prober passing through the wrong branch."
+  source: P-001
+  task: T-657
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
+- id: PL-298
+  learning: "A SUCCESS TEST SILENTLY BECOMES A WRONG EXPLANATION WHEN ITS RESULT IS LATER READ AS A DIAGNOSIS. P-011's runner branched if-then-PASS-else-FAIL, which is exactly right for the question it was written to answer — 'did this command succeed?'. The defect appeared only because a downstream summary consumed that boolean as a REASON, telling the operator 'your check is wrong' about a command that had been killed and had said nothing at all. Nothing in the code marked the transition from verdict to explanation, so a correct test became an incorrect story with no edit and no bug. When a boolean crosses from control flow into a human-facing message, that crossing is where outcomes have to be re-counted: a two-outcome test cannot answer a three-outcome question no matter how correct it is at its original job. Sibling of T-656 and OBS-329."
+  source: P-001
+  task: T-658
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
+- id: PL-299
+  learning: "AN ABSENCE ASSERTION IS TRIVIALLY SATISFIED BY A RUN THAT PRODUCED NOTHING. T-658's boundary leg asserted 'exit 128 must NOT be labelled a kill' and reported PASS while a harness syntax error meant no leg ran at all — 'no kill language' is perfectly true of an error message. It was the only green in a board of ten reds, which is the tell: a leg that passes when everything around it fails is usually measuring nothing. Every negative assertion needs a paired positive one on the same run ('...and a FAIL verdict WAS produced'), otherwise it certifies the absence of a symptom in the absence of a subject. Same family as PL-297 but distinct: PL-297 is about mutation legs needing prior noise, this is about ordinary legs whose predicate is a negation."
+  source: P-001
+  task: T-658
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD

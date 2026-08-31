@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-658: P-011 reports a killed verification command as a plain FAIL — 'did not finish' reads as 'your check is wrong'
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T18:45:07Z
+# ============================================================================
+
+task_id: T-658
+task_name: "P-011 reports a killed verification command as a plain FAIL — 'did not finish' reads as 'your check is wrong'"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-31T18:39:41Z
+completed: 2026-08-31T18:45:00Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T20:44:53+02:00
+last_commit: 2026-08-31T20:44:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a two-outcome test answering a three-outcome question — 'killed' was rendered in the words of 'wrong'.
+
+# Key outcomes
+outcomes:
+  - 'The runner distinguishes at least three outcomes: PASS, FAIL (ran, returned'
+  - 'The distinction survives into the **summary block** the operator actually sees on a'
+  - 'A killed command with **no captured output** says so explicitly rather than printing'
+  - 'The timeout/kill branch names the `fw audit` hazard from OBS-332(a): a whole-audit'
+  - 'Exit-code classification is correct at the boundaries: 124 → timeout; 128 → not'
+  - 'A prober drives the **real** runner region extracted from `update-task.sh` (not a'
+  - '`verify_pass + verify_fail == verify_total` reconciliation (T-630) still holds: a'
+  - 'The change is declared in `.vendor-divergence.yaml` with an `upstream:` lane (G-008).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-31 — a killed command still counts as a failure'
+    chose: 'did-not-finish increments `verify_fail` exactly as before; only the wording changes. The new counter is a subset tracked alongside, not a third bucket taken out.'
+    rationale: 'T-630''s reconciliation compares `verify_pass + verify_fail` against `verify_total` and hard-fails on a mismatch, deliberately un-bypassable. Peeling did-not-finish out of `verify_fail` would have made every killed command trip the runner''s own defect detector — the fix manufacturing the alarm.'
+    alternatives_rejected: ['a genuine third counter outside the tally, which is the more obvious implementation and reads cleaner. The prober asserts against it.']
+  - decision: '2026-08-31 — classify, do not impose a timeout'
+    chose: 'classify how commands already die; add no timeout.'
+    rationale: 'OBS-332''s incident was killed by something external at five minutes. Adding a gate-side timeout would silently kill legitimately long verifications — builds, full suites — turning a legibility fix into a new failure mode, and the correct duration is not knowable from here.'
+    alternatives_rejected: ['a default timeout with an opt-out. Worth its own task and its own evidence about how long real verification blocks actually take.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-658-p-011-reports-a-killed-verification-comm.md'
+  - '.tasks/completed/T-657-vendor-divergence-guard-has-no-delivery-.md'
+  - 'tools/_t658-p011-must-distinguish-killed-from-failed.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T20:44:53"
+    action: 'T-658: a two-outcome test answering a three-outcome question — ''killed'' was rendered in the words of ''wrong''.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 5
+  lines_added: 603
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-658-p-011-reports-a-killed-verification-comm.md
+generated_by: context-agent-hybrid

@@ -296,6 +296,40 @@ if [ -f "$MASTER_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
 fi
 
+# T-659: retention-sweep deletions are not the agent's to commit.
+#
+# A retention cron prunes .context/audits/cron/ and leaves the deletions pending in the
+# working tree indefinitely. Committing them is a housekeeping decision belonging to the
+# operator, not a side effect of whatever the agent was doing. Three sessions held this
+# line by staging explicit paths every time — until one `git add .context/` to pick up a
+# single episodic file swept 338 of them into the index. The rule lived in the agent's
+# head; the index does not consult it. Habit is what failed, so a habit is not the fix.
+#
+# Blocks only under agent control ($CLAUDECODE). The operator committing a retention
+# sweep deliberately is the intended path and is not obstructed.
+if [ "${CLAUDECODE:-0}" = "1" ] && [ "${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" ]; then
+    _rs_n=$(git diff --cached --name-only --diff-filter=D 2>/dev/null \
+            | grep -c '^\.context/audits/cron/' || true)
+    if [ "${_rs_n:-0}" -gt 0 ]; then
+        echo "" >&2
+        echo "ERROR: Commit blocked — $_rs_n retention-sweep deletion(s) staged (T-659)." >&2
+        echo "" >&2
+        echo "  .context/audits/cron/ is pruned by a retention cron. Those deletions are" >&2
+        echo "  the operator's to commit, not a byproduct of the current task." >&2
+        echo "" >&2
+        echo "  Almost always the cause: a directory-wide 'git add .context/' rather than" >&2
+        echo "  explicit paths. Unstage them and keep the rest of your work:" >&2
+        echo "" >&2
+        echo "    git reset HEAD .context/audits/" >&2
+        echo "" >&2
+        echo "  Then re-add only the files your task produced, by name." >&2
+        echo "" >&2
+        echo "  Operator, or a deliberate sweep: FW_ALLOW_RETENTION_SWEEP=1 git commit ..." >&2
+        echo "" >&2
+        exit 1
+    fi
+fi
+
 SCANNER="$FRAMEWORK_ROOT/agents/git/lib/secret-scan.sh"
 # T-2061: gate on -f not -x. We invoke via `bash "$SCANNER"` below, so the
 # exec bit is irrelevant — gating on -x silently disabled the scanner when

@@ -1,0 +1,20 @@
+id: tools/_t658-p011-must-distinguish-killed-from-failed.sh
+name: _t658-p011-must-distinguish-killed-from-failed
+type: script
+subsystem: unknown
+location: tools/_t658-p011-must-distinguish-killed-from-failed.sh
+tags: []
+
+purpose: "TODO: describe what this component does"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-08-31
+created_by: unknown

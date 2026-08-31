@@ -1,8 +1,8 @@
 ---
-id: T-658
-name: "P-011 reports a killed verification command as a plain FAIL — 'did not finish' reads as 'your check is wrong'"
+id: T-659
+name: "Constraint T-571 near-miss: git add .context/ swept 338 cron retention deletions into the index"
 description: >
-  P-011 reports a killed verification command as a plain FAIL — 'did not finish' reads as 'your check is wrong'
+  Constraint T-571 near-miss: git add .context/ swept 338 cron retention deletions into the index
 
 status: started-work
 workflow_type: build
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-31T18:39:41Z
-last_update: 2026-08-31T18:39:41Z
+created: 2026-08-31T18:46:17Z
+last_update: 2026-08-31T18:46:17Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,64 +30,40 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-658: P-011 reports a killed verification command as a plain FAIL — 'did not finish' reads as 'your check is wrong'
+# T-659: Constraint T-571 near-miss: git add .context/ swept 338 cron retention deletions into the index
 
 ## Context
 
-OBS-332, part (b). The P-011 verification runner (`update-task.sh`, the loop at ~1272)
-reports every non-zero exit identically: `FAIL: <cmd> (exit N)`. A command that RAN and
-returned a verdict of "wrong" and a command that never finished at all are rendered in the
-same words, so the operator reads "your check is wrong" when the truth is "your check did
-not finish". Observed under T-651: a `fw audit` verification line returned on the first
-invocation and hung on an immediate second until something external killed it at five
-minutes; the gate called that a plain FAIL.
+My own error, caught by my own check, one command after making it. Wrapping up T-658 I ran
+`git add .context/` to pick up an episodic file. `.context/audits/cron/` holds 338 pending
+deletions from the 7-day retention cron — not mine to commit (T-571) — and a directory-wide
+add takes all of them. The very next line I ran counted them and printed `338`.
 
-The exit code already carries the distinction and the runner discards it. `timeout(1)`
-exits **124**; a process killed by signal N exits **128+N**, so **137** is SIGKILL and
-**143** is SIGTERM. These are not failures the operator can act on by fixing their command.
+Three windows of discipline held this line by staging explicit paths every time. It broke
+the moment I typed a directory instead of a filename, while *believing* I was following the
+rule, because the rule lives in my head and the index does not consult it.
 
-Same missing-third-outcome shape as T-656 (a control that summarised two states needing
-different actions into one) and OBS-329 (a surface that cannot distinguish "no verdict"
-from "a verdict I cannot parse"). This one is the runner's own version of it.
-
-Part (a) of OBS-332 — advising against whole-audit invocations in P-011 — is not a separate
-task: its natural home is the remedy text this task adds to the timeout branch, where the
-person who just hit it is actually reading.
-
-**Explicitly out of scope:** imposing a timeout on verification commands. That is a
-behaviour change that would kill legitimately long verifications (builds, suites) and needs
-its own decision. This task classifies what already happens; it does not add a new way to
-die.
+The correction (unstage) is trivial. What is worth the task is that the gate which caught
+it was a habit, not a mechanism — and habits are exactly what fail under wrap-up fatigue.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] The runner distinguishes at least three outcomes: PASS, FAIL (ran, returned
-      non-zero), and DID-NOT-FINISH (exit 124, or 128+N signal death). The third is
-      labelled in words that do not read as "your command is wrong".
-- [x] The distinction survives into the **summary block** the operator actually sees on a
-      blocked completion, not only in the per-line output — a per-line label that the
-      final message flattens back into "N failed" has not fixed the reported defect.
-- [x] A killed command with **no captured output** says so explicitly rather than printing
-      an empty evidence block. Silence after a kill is the normal case, and an empty
-      `head -5` is exactly what made the original incident unreadable.
-- [x] The timeout/kill branch names the `fw audit` hazard from OBS-332(a): a whole-audit
-      invocation inside P-011 makes one task's completion depend on every unrelated warning
-      in the tree, and contends with the lock FDs the transition itself holds. It points at
-      `--section <name>` as the supported form.
-- [x] Exit-code classification is correct at the boundaries: 124 → timeout; 128 → not
-      treated as signal death (it is not 128+N for any N≥1); 137/143 → killed; 1, 2, 127 →
-      ordinary FAIL. Asserted, not asserted-by-inspection.
-- [x] A prober drives the **real** runner region extracted from `update-task.sh` (not a
-      retyped copy), covers each classification above, and has a mutation leg whose
-      substitution count is asserted AND whose unmutated baseline is shown to produce the
-      signal first (PL-297 — silence after a mutation means nothing without prior noise).
-- [x] `verify_pass + verify_fail == verify_total` reconciliation (T-630) still holds: a
-      did-not-finish command must still be COUNTED, not quietly reclassified out of the
-      tally. Regression-asserted, because the obvious implementation of a third bucket is
-      to stop incrementing the second one.
-- [x] The change is declared in `.vendor-divergence.yaml` with an `upstream:` lane (G-008).
+- [x] The index contains zero `.context/audits/cron/` paths, and the 338 deletions remain
+      in the working tree unstaged — reverted from the index, not resurrected on disk and
+      not committed.
+- [x] The files that genuinely belong to T-658's completion (fabric card, episodic,
+      completed task file) are still staged. Fixing the over-stage must not throw away the
+      correct part of it.
+- [x] A **mechanism** replaces the habit: something that fails loudly when cron-retention
+      deletions are staged, so the next occurrence is not caught by my remembering. Habit
+      is what just failed; re-resolving to be careful is not a fix.
+- [x] That mechanism is proven to fire on a staged cron deletion and to stay silent on a
+      normal `.context/` staging — asserted on a throwaway repo, never on this one's index.
+- [x] The check is **not** a new bespoke reimplementation if the framework already has a
+      staging guard to extend. Checked first, and which way it went is recorded here.
+- [x] Any framework-file change is declared in `.vendor-divergence.yaml` (G-008).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -169,14 +145,18 @@ die.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# The prober over the real runner region: 11 legs, exit code is the verdict.
-bash tools/_t658-p011-must-distinguish-killed-from-failed.sh
+# The guard, proven on throwaway repos only. Exit code is the verdict.
+bash tools/_t659-retention-sweep-must-not-be-agent-staged.sh
 
-# The edited gate must still parse. It is the file that runs THIS block, so a syntax
-# error here would be discovered by the transition failing in a confusing way.
-bash -n .agentic-framework/agents/task-create/update-task.sh
+# The mechanism must be LIVE, not merely written into the generator. A guard that exists
+# only in hooks.sh and was never installed is the exact defect this session kept fixing.
+grep -q 'T-659' .git/hooks/pre-commit
 
-# G-008: the change must be declared. Exit code is the verdict.
+# No cron path may be staged right now.
+test 0 -eq "$(git diff --cached --name-only | grep -c 'audits/cron/')"
+
+# The edited generator must still parse, and the change must be declared (G-008).
+bash -n .agentic-framework/agents/git/lib/hooks.sh
 python3 tools/_t517-vendor-divergence.py
 
 ## RCA
@@ -195,33 +175,29 @@ python3 tools/_t517-vendor-divergence.py
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
-**Symptom:** a verification command that was killed before finishing was reported as
-`FAIL: <cmd> (exit 124)` — the same words used for a command that ran and returned a
-failing verdict. The operator reads that as "your check is wrong" and starts fixing a
-check that never got to say anything.
+**Symptom:** `git add .context/`, run to stage one episodic file, staged 338 pending
+retention-cron deletions along with it. Caught one command later by a count I happened to
+print in the same breath.
 
-**Root cause:** the runner branched on `if (...); then PASS else FAIL`, a two-outcome
-shape for a three-outcome world. The exit code already distinguished the third case —
-timeout(1) exits 124, signal death exits 128+N — and the `else` discarded it into a
-single label.
+**Root cause:** the constraint "stage explicit paths, never a directory" was enforced by
+agent memory. It survived three sessions of deliberate application and then failed on the
+first command where the agent's attention was on the *destination* file rather than on the
+directory it named.
 
-**Why structurally allowed:** the two-outcome shape is correct for the question "did this
-command succeed?" and that was the question the runner was written to answer. It becomes
-wrong only when the answer is consumed as a diagnosis rather than a verdict, which is what
-the summary block does. Nothing in the code marked that transition, so a correct success
-test silently became an incorrect explanation. Same family as T-656 (a control that
-summarised two states needing different actions) and OBS-329 (a surface that cannot
-distinguish "no verdict" from "a verdict I cannot parse").
+**Why structurally allowed:** nothing in the commit path knew that
+`.context/audits/cron/` deletions have a different owner from everything else in
+`.context/`. Git treats a directory add as an unremarkable operation, and it is — the
+policy distinction existed only in prose.
 
-**Prevention:** `tools/_t658-p011-must-distinguish-killed-from-failed.sh` drives the real
-extracted region across 124/137/143 and the 128/127/2 boundary, asserts the distinction
-survives into the summary, and asserts the T-630 reconciliation still holds — the obvious
-implementation of a third bucket is to stop incrementing the second, which would make the
-runner report a defect in itself.
+**Prevention:** a pre-commit guard that refuses staged deletions under that path when
+$CLAUDECODE=1, prints the unstage command, and leaves the operator's own sweep untouched.
+Distinct from the fix (unstaging today's 338): that recurs by definition; this reports it.
+Proven live — the AC and Verification both assert the guard is present in
+`.git/hooks/pre-commit`, not merely in the generator that emits it.
 
-**Known residual:** no timeout is imposed, so an unbounded hang is still unbounded. This
-task makes an externally-killed command legible; it does not bound one. Deliberate — see
-the scope note in Context.
+**Known residual:** the guard is path-specific. Another directory acquiring a
+different-owner subset would need its own entry; there is no general notion of
+"paths this actor may not stage".
 
 ## Evolution
 
@@ -258,26 +234,26 @@ the scope note in Context.
      - **Rejected:** [alternatives and why not]
 -->
 
-### 2026-08-31 — a killed command still counts as a failure
+### 2026-08-31 — extend the existing pre-commit hook, do not add a new surface
 
-- **Chose:** did-not-finish increments `verify_fail` exactly as before; only the wording
-  changes. The new counter is a subset tracked alongside, not a third bucket taken out.
-- **Why:** T-630's reconciliation compares `verify_pass + verify_fail` against
-  `verify_total` and hard-fails on a mismatch, deliberately un-bypassable. Peeling
-  did-not-finish out of `verify_fail` would have made every killed command trip the
-  runner's own defect detector — the fix manufacturing the alarm.
-- **Rejected:** a genuine third counter outside the tally, which is the more obvious
-  implementation and reads cleaner. The prober asserts against it.
+- **Chose:** the guard lives in the pre-commit hook `hooks.sh` already generates, ahead of
+  the secret scan and beside the master-guard.
+- **Why:** a pre-commit hook is where staging policy is already enforced in this project,
+  and it is the last point before the mistake becomes history. Checked before writing:
+  `hooks.sh` already inspects `git diff --cached` in two places, so this is an extension of
+  an existing pattern rather than a second mechanism competing with it.
+- **Rejected:** a PreToolUse hook on `git add`. It would fire on the command rather than on
+  the resulting index, so `git add -A` and `git commit -a` would both slip past, and it
+  would nag on adds that are entirely correct.
 
-### 2026-08-31 — classify, do not impose a timeout
+### 2026-08-31 — block the agent, never the operator
 
-- **Chose:** classify how commands already die; add no timeout.
-- **Why:** OBS-332's incident was killed by something external at five minutes. Adding a
-  gate-side timeout would silently kill legitimately long verifications — builds, full
-  suites — turning a legibility fix into a new failure mode, and the correct duration is
-  not knowable from here.
-- **Rejected:** a default timeout with an opt-out. Worth its own task and its own
-  evidence about how long real verification blocks actually take.
+- **Chose:** gate on `$CLAUDECODE=1`, with `FW_ALLOW_RETENTION_SWEEP=1` as the documented
+  deliberate path.
+- **Why:** the deletions must reach git eventually or the pruned files return. The problem
+  was never that they get committed — it is *who* decides to commit them. A guard that
+  blocked everyone would convert an ownership rule into an obstruction and be bypassed
+  routinely, which is how gates stop being read.
 
 ## Decision
 
@@ -291,7 +267,7 @@ the scope note in Context.
 
 ## Updates
 
-### 2026-08-31T18:39:41Z — task-created [task-create-agent]
+### 2026-08-31T18:46:17Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-658-p-011-reports-a-killed-verification-comm.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-659-constraint-t-571-near-miss-git-add-conte.md
 - **Context:** Initial task creation
