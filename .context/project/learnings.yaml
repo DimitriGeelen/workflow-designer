@@ -2052,3 +2052,10 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-289
+  learning: "An allowlist of EFFECTS must not be indexed by SPELLING. fw fix-learned execs context.sh add-learning, so it IS the exempt command under a shorter name — yet it was refused while its target was admitted, because membership in safe-commands.sh is written out verbatim per verb. T-390 diagnosed this exact deadlock and quoted the LEARNING PROMPT as motivation, but exempted the long spelling while the prompt printed the short one: the fix and the message it was fixing never named the same command. When a command grows a second name, every list keyed on its first name silently stops covering it."
+  source: P-001
+  task: T-650
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD

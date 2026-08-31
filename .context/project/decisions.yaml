@@ -2033,3 +2033,10 @@ decisions:
     date: 2026-08-26
     task: T-392
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-270
+    decision: "The mutation leg requires three facts together: the mutant refuses the alias,"
+    scope: project
+    date: 2026-08-31
+    task: T-650
+    rationale: "Auto-captured from task file on completion"

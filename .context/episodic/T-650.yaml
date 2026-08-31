@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-650: the completion path suggests a command it then forbids (OBS-331)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T12:44:38Z
+# ============================================================================
+
+task_id: T-650
+task_name: "the completion path suggests a command it then forbids (OBS-331)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-31T12:34:20Z
+completed: 2026-08-31T12:44:07Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T14:43:58+02:00
+last_commit: 2026-08-31T14:43:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the allowlist was keyed on spelling — fw fix-learned IS fw context add-learning
+
+# Key outcomes
+outcomes:
+  - 'With focus null, the REAL hook admits `fw fix-learned T-1 "text"` — driven via the'
+  - 'The alias is exempt at BOTH sites, because they answer different questions:'
+  - 'ADMIT controls still pass — `fw context add-learning "x" --task T-1`, `fw note "x"`,'
+  - 'BLOCK controls still blocked with focus null: `rm -rf f`, `echo hi > f`,'
+  - '`tools/_t650-an-alias-is-the-command-it-aliases.sh` passes, and its teeth leg'
+  - 'No regression: `tools/_t392-safelist-shadow-gate.py` and'
+  - 'OBS-331 flipped `pending` → `resolved` with `promoted_to: T-650`, and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the allowlist was keyed on spelling — fw fix-learned IS fw context add-learning'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-31 — the teeth leg must assert BOTH halves, not just the bypass half'
+    chose: 'The mutation leg requires three facts together: the mutant refuses the alias, the mutant STILL admits the target, and the live lib admits the alias. Not just the first.'
+    rationale: '001-CashWeb reported this at @851 against their own detector, and it cost them a cycle. Their first mutant had a bash syntax error, so the file failed to parse, so the predicate blocked *everything* — and against bypass probes alone, **a mutant that cannot parse is indistinguishable from a correct fix**. Only an ADMIT control separates them. The same asymmetry applies to my T-640 no-widening sweep: that leg asks "does the fix refuse anything the old version allowed"; the symmetric question is "does it still allow what it was supposed to". Both halves or neither.'
+    alternatives_rejected: ['Asserting only that the mutant blocks the alias. That is the leg I would have written a week ago, and it passes against a broken mutant.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-650-the-completion-path-suggests-a-command-i.md'
+  - 'tools/_t650-an-alias-is-the-command-it-aliases.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T14:43:58"
+    action: 'T-650: the allowlist was keyed on spelling — fw fix-learned IS fw context add-learning'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 1
+  files_changed: 4
+  lines_added: 523
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-650-the-completion-path-suggests-a-command-i.md
+generated_by: context-agent-hybrid
