@@ -144,11 +144,11 @@ Agent may draft the delta on operator GO; agent must NOT unilaterally edit froze
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
+         1. Run `bin/fw reviewer T-189`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-189 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 - [ ] [REVIEW] Operator sign-off to graduate the IW-9 delta into the FROZEN v1 standard (v1 → v1.1)
   **Steps:**

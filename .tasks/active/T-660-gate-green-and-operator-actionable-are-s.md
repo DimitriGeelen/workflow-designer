@@ -1,12 +1,12 @@
 ---
-id: T-608
-name: "Draft the AEF attestation request for Arc-0 clauses 1 and 2 - written and unsent, so the operator rules on concrete text"
+id: T-660
+name: "Gate-green and operator-actionable are separate properties: nothing measures whether a Human AC can actually be acted on"
 description: >
-  Draft the AEF attestation request for Arc-0 clauses 1 and 2 - written and unsent, so the operator rules on concrete text
+  Gate-green and operator-actionable are separate properties: nothing measures whether a Human AC can actually be acted on
 
-status: work-completed
+status: started-work
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-26T22:07:26Z
-last_update: 2026-08-26T22:13:30Z
-date_finished: 2026-08-26T22:13:30Z
+created: 2026-08-31T18:58:58Z
+last_update: 2026-08-31T18:58:58Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,50 +30,63 @@ date_finished: 2026-08-26T22:13:30Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-608: Draft the AEF attestation request for Arc-0 clauses 1 and 2 - written and unsent, so the operator rules on concrete text
+# T-660: Gate-green and operator-actionable are separate properties: nothing measures whether a Human AC can actually be acted on
 
 ## Context
 
-T-597 established that both remaining Arc-0 exit clauses are counterparty-owned, and put
-option (a) — "authorise a scoped send to AEF" — to the operator. That question has been on
-`/approvals` for three sessions without moving, and this task takes the reason seriously:
-**"do you authorise contact with a counterparty?" is a hard question in the abstract and an
-easy one against concrete text.** Nobody can weigh a send they cannot read.
+G-046, and independently confirmed from outside. 010-termlink at rail @891: *"A verification
+gate that passes 7/7 can still carry an unactionable Human AC: ours literally read 'run fw
+task review T-XXX', placeholder unresolved. Gate-green and operator-actionable are separate
+properties, and only the first is measured."*
 
-So this task writes the send — and does not send it. It converts the operator's decision
-from a leap into a review: approve, edit, or reject specific words.
+That is our gap too. CLAUDE.md §Human AC Format Requirements (T-325) demands every Human AC
+carry **Steps / Expected / If not**, with steps that start from the operator's actual
+environment (T-358). Nothing checks it. P-010 gates on Agent ACs; P-011 runs Verification;
+the Human section is explicitly non-blocking — so the one class of criterion that a *person*
+has to act on is the only one with no instrument at all.
 
-Scope boundary, stated so it cannot drift: this task produces **one draft document**. It
-does not create the send-authorisation task, because T-597's own "If not" text promises
-that task only *after* the operator chooses (a). Creating it now would be the agent
-answering the question it was asked to make answerable. Constraint: never send, never treat
-a reply as ratification, never treat transport as completion.
+This matters right now for a specific reason. The operator queue is the thing that has not
+been draining: T-423 has gated EWCR for weeks, ten inceptions are unruled, and T-655 found
+two tasks sitting 57 and 51 days that were *already fully signed off*. Queue length has been
+treated as an operator-availability problem. Nobody has measured how much of it is
+**unactionable on arrival** — an AC that cannot be executed without first reconstructing what
+its author meant costs a sitting, and gets deferred rather than done.
 
-The load-bearing honesty here is the third bullet below. Both attestations arriving would
-still leave Arc 0 open, because clause-3 is blocked on the operator ticking T-596's Human
-AC. An operator who authorises a send believing it closes the arc has been mis-sold it.
+Measure first. The remedy depends on what the number is, and this task says so up front
+rather than shipping a checker for a problem that may not exist at this scale.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] `docs/research/executable-workflow/aef-attestation-request-draft.md` exists and is
-      marked `DRAFT — UNSENT` within its first five lines
-- [x] The draft requests exactly two attestations, one per counterparty-owned clause, and
-      each is traceable to that clause's `what_would_satisfy` in `arc-0-exit-clauses.yaml`
-      by a cross-artifact key-phrase match — the gate reads the register rather than
-      restating it, so a drift between the two reddens instead of agreeing with itself
-- [x] The draft states that a reply is **not** ratification: an attestation is recorded in
-      the clause's `attestation:` field, and `definition_ratified: false` stays false until
-      the operator rules (PL-028 — respect the peer's governance hold, and our own)
-- [x] The draft states that both attestations still leave Arc 0 open, naming clause-3 and
-      T-596's unticked Human AC as the reason
-- [x] The draft names the transport (termlink DM to the AEF agent, carrying producer
-      attribution) and contains no seam bytes, no credentials and no `payload_b64` block —
-      refs only, because OBS-108 is still open
-- [x] `tools/_t608-attestation-draft-gate.py` checks the above against the real files and is
-      proven failable by at least one poison arm that reddens a specific leg
-- [x] Nothing is sent and no send-authorisation task is created — option (a) is the
-      operator's to choose, not the agent's to assume
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] The unticked Human ACs across all active tasks are **measured** for actionability:
+      presence of Steps/Expected/If-not, and unresolved placeholders (`T-XXX`, `<your...>`,
+      `TBD`, bare "..."). Count and per-task breakdown recorded in this task.
+- [ ] The measurement distinguishes the **operator's live queue** (tasks actually waiting on
+      them) from active tasks generally. A defect rate over tasks nobody is waiting on
+      would overstate the problem.
+- [ ] **Branch, decided by the number, and stated here before it is known:**
+      (a) if a material share of the live queue is unactionable → ship a checker that
+          reports it, hosted where it will be READ (audit line or `fw task verify`), not in
+          a suite nothing runs (PL-296);
+      (b) if the rate is negligible → do NOT ship a checker. Record the measurement as the
+          finding, say plainly that the queue's problem is operator time and not AC
+          quality, and close. A checker for a non-problem is new furniture.
+      Whichever branch runs, the reasoning and the number are recorded in Decisions.
+- [ ] The instrument, if built, **strips HTML comments non-greedily before counting**
+      (`re.sub(r"<!--.*?-->", ...)`). The task template keeps worked `[REVIEW]`/`[REVIEWER]`
+      examples with real `- [ ]` boxes AND full Steps/Expected/If-not inside the comment;
+      counting them inverts the result — every task would look perfectly actionable.
+      Asserted against a known task, not assumed (T-655 hit exactly this).
+- [ ] It **never ticks or edits a Human AC**, and never reports one as satisfied. It reports
+      whether the criterion can be ACTED ON, which is a different question from whether it
+      has been met, and conflating them would be the agent grading the operator's work.
+- [ ] If a checker ships: a prober extracts the real region (no retyped copy), covers
+      actionable / missing-section / placeholder-bearing fixtures, and carries a mutation
+      leg with an asserted substitution count and a demonstrated unmutated baseline
+      (PL-297). Every negative assertion is paired with a positive one on the same run
+      (PL-299).
+- [ ] Any framework-file change is declared in `.vendor-divergence.yaml` (G-008).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -99,37 +112,14 @@ AC. An operator who authorises a send believing it closes the arc has been mis-s
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-608`
+         1. Run `bin/fw reviewer T-660`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-608 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-660 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-- [ ] [REVIEW] Approve, edit, or reject the draft — and with it, rule on T-597 option (a)
-
-  **Steps:**
-  1. Read the draft:
-     `cd /opt/832-Workflow-designer && cat docs/research/executable-workflow/aef-attestation-request-draft.md`
-  2. Read it as the AEF agent would. It asks a counterparty for two attestations and
-     concedes, in writing, that neither closes Arc 0 on its own.
-  3. Decide the three things the agent cannot: **is the ask correct**, **is the tone right
-     for a counterparty we have never contacted**, and **do you authorise it to be sent.**
-
-  **Expected:** One of — (a) "send it" (with edits, if any), and the agent creates the
-  send-authorisation task with real ACs and brings the envelope and transport back before
-  anything leaves this machine; (b) "hold", and Arc 0 stays open and Arc 1 cannot start —
-  a legitimate answer, and the draft keeps until you want it; (c) a correction to the ask
-  itself.
-
-  **If not:** If the draft is wrong in substance, name which of the two attestation
-  requests is mis-scoped and the agent will rewrite it against the clause register. Do not
-  edit `definition_ratified:` to move things along — an unratified definition is what stops
-  the gate certifying a property nobody checked.
-
 ## Verification
-
-python3 tools/_t608-attestation-draft-gate.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -177,51 +167,6 @@ python3 tools/_t608-attestation-draft-gate.py
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-
-## Recommendation
-
-**Recommendation:** GO — authorise option (a), the scoped send, and do one cheaper thing
-first that does not depend on AEF at all.
-
-**Rationale:** The ask is bounded, obliges the counterparty to build nothing, and a
-negative answer still closes clause 2 honestly ("not built, and here is why") instead of
-leaving it NOT-CHECKED indefinitely. The cost of asking is one message; the cost of not
-asking is that Arc 0 has no path to closure at all, since T-590 already delivered the
-entire Designer column. Independently of that call, clause 3 is closable by the operator
-alone and is the only movement available that costs no counterparty anything.
-
-**Evidence:**
-- `docs/research/executable-workflow/arc-0-exit-clauses.yaml` — clauses 1 and 2 `owner: aef`,
-  clause 3 `owner: shared`; all three `definition_ratified: false`, none `satisfied`
-- `tools/_t608-attestation-draft-gate.py` — PASS, 8/8 legs, 2/2 poison arms proven failable
-- `docs/research/executable-workflow/aef-attestation-request-draft.md` — the exact text,
-  unsent
-- Ownership corroborated against `roadmap-5be23719.md:64` by the T-597 gate, not self-asserted
-- Clause 2's artifact is absent from this repository and named as a requirement in six
-  places (roadmap:64, :139, :229, :358, architecture:857, questions:148)
-
-**Why (a).** The ask is bounded, costs the counterparty little, and explicitly obliges them
-to build nothing. Critically, a negative answer is still a closing answer: if the refusal
-matrix does not exist on their side either, "not built, and here is why" lets clause 2 be
-recorded honestly instead of sitting as NOT-CHECKED forever. The downside of asking is one
-message; the downside of not asking is that Arc 0 stays open indefinitely with no path.
-
-Note also that this is a smaller governance step than "contact a counterparty we have never
-been authorised to contact" makes it sound. We already exchange findings with 999-AEF on
-`agent-chat-arc` several times a day. What is new here is the *kind* of ask — a governance
-attestation rather than a bug report — which is exactly why it deserves your ruling rather
-than the agent's initiative.
-
-**The cheaper thing, which is independent of your (a)/(b) call.** Of the three Arc-0 exit
-clauses, **exactly one is closable today by you alone.** Clause 3 is `shared`, its register
-is built and mechanised, and it is blocked on nothing but your tick of T-596's Human AC.
-Clause 1 and clause 2 need AEF; clause 3 needs a review you can do without leaving the
-machine. Whatever you decide about the send, that tick moves Arc 0 from three open clauses
-to two, and it is the only movement available that costs no counterparty anything.
-
-**If you choose (b) — hold.** That is a legitimate answer and nothing is lost. The draft
-keeps, the gate keeps it honest against the register, and if the register moves the gate
-reddens rather than the draft silently going stale.
 
 ## RCA
 
@@ -286,19 +231,7 @@ reddens rather than the draft silently going stale.
 
 ## Updates
 
-### 2026-08-26T22:07:26Z — task-created [task-create-agent]
+### 2026-08-31T18:58:58Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-608-draft-the-aef-attestation-request-for-ar.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-660-gate-green-and-operator-actionable-are-s.md
 - **Context:** Initial task creation
-
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-331519b5
-- **Timestamp:** 2026-08-26T22:13:31Z
-- **Catalogue:** v1.3-seed
-- **Overall:** PASS
-- **Needs Human:** no
-- **Findings:** none
-
-### 2026-08-26T22:13:30Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed

@@ -440,6 +440,15 @@ t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])
 t = t.replace('created:', 'created: ' + e['TC_TIMESTAMP'], 1)
 t = t.replace('last_update:', 'last_update: ' + e['TC_TIMESTAMP'], 1)
 t = t.replace('# T-XXX: [Inception Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
+# T-660: substitute the id EVERYWHERE, not only in the frontmatter and the H1.
+# The inception template's Human AC reads 'Run: fw task review T-XXX' and shipped that
+# literal placeholder into every inception ever created here — nine of the ten unruled
+# inceptions on the operator's queue carry it, and 010-termlink reported the identical
+# string in their tree at rail @891, which is how a shared template announces itself.
+# The substitution mechanism already existed and simply stopped at the title. An AC whose
+# first step cannot be pasted costs the operator a reconstruction before they can even
+# begin, and that is what a deferred queue item looks like from the inside.
+t = t.replace('T-XXX', e['TC_TASK_ID'])
 t = t.replace('[Chronological log', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created inception task\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation\n\n[Chronological log')
 with open(e['TC_FILEPATH'], 'w') as f:
     f.write(t)
@@ -467,6 +476,7 @@ t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])
 t = t.replace('created:', 'created: ' + e['TC_TIMESTAMP'], 1)
 t = t.replace('last_update:', 'last_update: ' + e['TC_TIMESTAMP'], 1)
 t = t.replace('# T-XXX: [Task Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
+t = t.replace('T-XXX', e['TC_TASK_ID'])  # T-660: see the inception branch above
 t = t.replace('<!-- Auto-populated by git mining at task completion.\\n     Manual entries optional during execution. -->', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created task via task-create agent\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation')
 with open(e['TC_FILEPATH'], 'w') as f:
     f.write(t)

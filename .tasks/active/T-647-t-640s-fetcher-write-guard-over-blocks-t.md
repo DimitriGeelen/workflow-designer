@@ -4,9 +4,9 @@ name: "T-640's fetcher write-guard over-blocks the stdout idioms: curl -o - and 
 description: >
   Found by 999-AEF at rail @841, confirmed against our tree by measurement. Our T-640 guard treats any -o/-O argument as a file write. Two of them are not: 'curl -o -' and 'wget -O -' write to STDOUT, so they are readers and the pre-T-640 behaviour admitted them. Measured 2026-08-30 with a null-focus sandbox against the live hook: curl -o - -> BLOCKED (should be ADMITTED); wget -O - -> BLOCKED (should be ADMITTED); curl -s -o /dev/null -w '%{http_code}' -> ADMITTED (correct, already covered); curl -o out.txt -> BLOCKED (correct); wget URL -> BLOCKED (correct). So the guard is right about writers and wrong about the two stdout spellings. AEF carries a no-widening leg asserting their fix blocks nothing the pre-fix version allowed; ours has no such leg, which is why this got through - the prober asserted that writers are refused and that five readers are admitted, but never that the fix refuses NOTHING the unguarded version allowed. That missing leg is the more valuable half of this task. Their commit d6cfc31b1.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:28:29Z
-last_update: 2026-08-31T11:10:35Z
-date_finished: null
+last_update: 2026-08-31T11:20:11Z
+date_finished: 2026-08-31T11:20:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -131,11 +131,11 @@ The comment recording this is left in the manifest rather than tidied away.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
+         1. Run `bin/fw reviewer T-647`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-647 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 - [ ] [REVIEW] The manifest is the right governance object
@@ -283,3 +283,20 @@ python3 -m pytest .agentic-framework/web/test_safe_commands.py -q 2>&1 | tail -1
 
 ### 2026-08-31T11:10:35Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-20e99d64
+- **Timestamp:** 2026-08-31T11:21:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 6
+     - evidence: `python3 -m pytest .agentic-framework/web/test_safe_commands.py -q 2>&1 | tail -1 | grep -qv "failed"`
+
+### 2026-08-31T11:20:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
