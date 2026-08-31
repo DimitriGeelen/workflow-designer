@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T19:36:43Z
-last_update: 2026-08-31T19:36:43Z
+last_update: 2026-08-31T19:44:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -174,7 +174,10 @@ bash tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh
 # No prober may reintroduce the shape: an equality on a count of substituted markers.
 # Asserts the failure SHAPE (zero occurrences of the broken form), not a total — which
 # is the very lesson this task is about, so it must not be written the other way.
-test 0 -eq "$(grep -lE '(MUTATED|REVERTED|SUBST)[^=]*-(ne|eq) [0-9]' tools/_t*.sh 2>/dev/null | wc -l)"
+# The `[ "$` anchor is load-bearing: the first draft matched the bare words and flagged
+# _t661's own witness leg, which NAMES the retired form inside a message string. Same
+# false-positive class as T-660's house-style matcher — match the assertion, not the prose.
+test 0 -eq "$(grep -lE '\[ "\$(MUTATED|REVERTED|SUBST)[A-Z_]*" -(ne|eq) [0-9]' tools/_t*.sh 2>/dev/null | wc -l)"
 
 # Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
 # (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your

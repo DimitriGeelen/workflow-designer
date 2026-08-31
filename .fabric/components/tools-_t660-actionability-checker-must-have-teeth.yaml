@@ -1,20 +1,19 @@
 id: tools/_t660-actionability-checker-must-have-teeth.sh
 name: _t660-actionability-checker-must-have-teeth
 type: script
-subsystem: unknown
+subsystem: verification-probes
 location: tools/_t660-actionability-checker-must-have-teeth.sh
-tags: []
+tags: [prober, mutation-testing]
 
-purpose: "TODO: describe what this component does"
+purpose: "Prober: the Human-AC actionability checker must have teeth. Mutation legs assert completeness via tools/lib/mutation-assert.sh (T-661)."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/lib/mutation-assert.sh
+    type: calls
 
 depended_by:
   # Same format as depends_on — filled by enrich.py or manually
   []
 
 last_verified: 2026-08-31
-created_by: unknown
+created_by: T-661

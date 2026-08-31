@@ -1,0 +1,25 @@
+id: tools/_t661-mutation-count-is-a-floor.sh
+name: _t661-mutation-count-is-a-floor
+type: script
+subsystem: verification-probes
+location: tools/_t661-mutation-count-is-a-floor.sh
+tags: [prober, mutation-testing, T-661]
+
+purpose: >
+  Prober for tools/lib/mutation-assert.sh. The load-bearing leg is two-correct-sites:
+  a subject with TWO mutable sites, both mutated, must NOT read as a failure — that is
+  the regression 999-AEF reported at rail @897, where a suite went red because someone
+  added a third correct call site. A companion leg witnesses that the retired
+  `MUTATED -ne 1` form would have read 2 there, so the suite proves the OLD form was
+  broken and not merely that the new one works.
+
+depends_on:
+  - target: tools/lib/mutation-assert.sh
+    type: calls
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-08-31
+created_by: T-661

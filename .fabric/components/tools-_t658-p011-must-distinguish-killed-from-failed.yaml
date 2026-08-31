@@ -1,20 +1,19 @@
 id: tools/_t658-p011-must-distinguish-killed-from-failed.sh
 name: _t658-p011-must-distinguish-killed-from-failed
 type: script
-subsystem: unknown
+subsystem: verification-probes
 location: tools/_t658-p011-must-distinguish-killed-from-failed.sh
-tags: []
+tags: [prober, mutation-testing]
 
-purpose: "TODO: describe what this component does"
+purpose: "Prober: P-011 must say 'killed', not 'failed', when a command is signalled. Mutation legs assert completeness via tools/lib/mutation-assert.sh (T-661)."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/lib/mutation-assert.sh
+    type: calls
 
 depended_by:
   # Same format as depends_on — filled by enrich.py or manually
   []
 
 last_verified: 2026-08-31
-created_by: unknown
+created_by: T-661

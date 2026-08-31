@@ -1,0 +1,38 @@
+id: tools/lib/mutation-assert.sh
+name: mutation-assert
+type: script
+subsystem: verification-probes
+location: tools/lib/mutation-assert.sh
+tags: [prober, mutation-testing, shared-lib, T-661]
+
+purpose: >
+  Single writer for "did this mutation actually land?" in the tools/_t*.sh prober
+  family. Asserts the PRE-mutation form is gone (before >= 1, after == 0) rather than
+  counting the substituted marker, so N correct call sites stay green and a rotted sed
+  anchor is named (STALE ANCHOR) apart from a half-applied one (MUTATION INCOMPLETE).
+  Exists because PL-061 named this defect a month before seven probers committed it:
+  the fix for a known-but-unapplied rule is a callable, not a better-worded learning.
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  - target: tools/_t650-an-alias-is-the-command-it-aliases.sh
+    type: calls
+  - target: tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh
+    type: calls
+  - target: tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh
+    type: calls
+  - target: tools/_t657-vendor-divergence-must-reach-an-audit-line.sh
+    type: calls
+  - target: tools/_t658-p011-must-distinguish-killed-from-failed.sh
+    type: calls
+  - target: tools/_t659-retention-sweep-must-not-be-agent-staged.sh
+    type: calls
+  - target: tools/_t660-actionability-checker-must-have-teeth.sh
+    type: calls
+
+last_verified: 2026-08-31
+created_by: T-661
