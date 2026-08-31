@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-655: sweep the stuck partial-complete tasks through the newly-fixed archive path
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T15:19:27Z
+# ============================================================================
+
+task_id: T-655
+task_name: "sweep the stuck partial-complete tasks through the newly-fixed archive path"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-31T15:15:03Z
+completed: 2026-08-31T15:19:23Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T17:18:06+02:00
+last_commit: 2026-08-31T17:19:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the sweep stopped at the ownership check — both candidates are owner: human, and one is a release. Evidence pack for the operator instead, plus the D2 finding: the review queue is built from age alone and counts two tasks where the human has already ticked everything.. the AC-count check moves to a file — the inline form was split by the gate, and two instruments disagreed about whether the operator had already signed these off. sed's range strip yields 1 of 7 on T-093; the non-greedy match agrees with archive-eligible.
+
+# Key outcomes
+outcomes:
+  - 'The two CTL-029 candidates are IDENTIFIED and their `owner:` is stated before'
+  - 'The evidence pack the operator needs to decide in one glance: for each task, owner,'
+  - 'The AC counts are established with an instrument that survives the template. A naive'
+  - 'The finding that is worth more than the two tasks is stated: whether the D2 review'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-655-sweep-the-stuck-partial-complete-tasks-t.md'
+  - 'tools/_t655-review-queue-ac-counts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T17:18:06"
+    action: 'T-655: the sweep stopped at the ownership check — both candidates are owner: human, and one is a release. Evidence pack for the operator instead, plus the D2 finding: the review queue is built from age alone and counts two tasks where the human has already ticked everything.'
+  - time: "2026-08-31T17:19:17"
+    action: 'T-655: the AC-count check moves to a file — the inline form was split by the gate, and two instruments disagreed about whether the operator had already signed these off. sed''s range strip yields 1 of 7 on T-093; the non-greedy match agrees with archive-eligible.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 2
+  files_changed: 2
+  lines_added: 329
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-655-sweep-the-stuck-partial-complete-tasks-t.md
+generated_by: context-agent-hybrid
