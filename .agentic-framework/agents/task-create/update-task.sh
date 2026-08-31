@@ -1588,6 +1588,29 @@ if [ -n "$NEW_STATUS" ]; then
                 fi
                 echo -e "${GREEN}Moved to completed/${NC}"
 
+                # T-654: null the stored horizon here too. This branch is the OTHER way a
+                # file reaches completed/ — and until now the only one that left the
+                # horizon behind. The null at ~line 2147 (T-2163/T-2300) cannot cover it:
+                # that site lives inside Trigger 2, gated on `OLD_STATUS != work-completed`,
+                # and this branch's entry condition is OLD_STATUS == work-completed. The two
+                # conditions are exact complements, so no amount of lifting the other site
+                # out of ITS conditionals will ever reach this one.
+                #
+                # T-2300 already widened that site once, for the re-close path, after eight
+                # CTL-030 instances. It did not widen to here because the fix was aimed at
+                # the site where the symptom appeared rather than at the invariant. The
+                # invariant is one line long: A FILE THAT ARRIVES IN completed/ HAS NO
+                # HORIZON. It is now asserted at both arrival points, which is two — and
+                # `git grep -n 'completed/\$(basename' update-task.sh` is how a third would
+                # be found.
+                #
+                # This matters beyond tidiness because `fw task archive-eligible`
+                # (bin/fw:3403) re-invokes `--status work-completed` and therefore drives
+                # EXCLUSIVELY through this branch. The command `fw audit` recommends for
+                # stuck partial-complete tasks was the command that manufactured the
+                # CTL-030 FAILs the same audit then reported.
+                _sed_i "s/^horizon:.*/horizon: null/" "$TASK_FILE"  # T-654
+
                 # T-2345: clean orphan review marker — marker exists to unblock
                 # fw inception decide (T-973), moot once task is in completed/.
                 # Idempotent; sibling cleanup at lib/inception.sh:731.

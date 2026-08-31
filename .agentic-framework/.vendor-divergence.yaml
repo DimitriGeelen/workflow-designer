@@ -839,3 +839,58 @@ entries:
       not local policy: any project rendering an AC body through this blueprint shows its
       operator escaped markup. Same class as T-557 — a vendored function whose contract
       delegated correctness to its callers.
+
+  - path: .agentic-framework/agents/task-create/update-task.sh
+    kind: content
+    task: T-654
+    upstream: fix
+    reason: |
+      A task archived through the PARTIAL-COMPLETE RECHECK branch reached
+      .tasks/completed/ still storing `horizon: now`. update-task.sh has two branches that
+      move a file into completed/, and only one of them nulled the horizon:
+
+        Trigger 2 (~line 2064)  ordinary started-work -> work-completed. Nulls (T-2163).
+        The recheck (~line 1541) OLD_STATUS == NEW_STATUS == work-completed, file still in
+                                 active/. Moves, generates the episodic, left horizon alone.
+
+      Their entry conditions are exact COMPLEMENTS -- `OLD_STATUS != work-completed` versus
+      `OLD_STATUS == work-completed` -- so no widening of the first site can ever reach the
+      second. T-2300 had already widened it once, for the re-close path, after eight CTL-030
+      instances; that widening was aimed at the site where the symptom showed rather than at
+      the invariant, which is one line long: A FILE THAT ARRIVES IN completed/ HAS NO HORIZON.
+
+      UPSTREAM because `fw task archive-eligible` (bin/fw:3403) re-invokes
+      `--status work-completed` and therefore drives EXCLUSIVELY through the unfixed branch.
+      Any project that runs the sweep `fw audit` recommends manufactures the CTL-030 FAILs
+      the same audit then reports -- the tool and its own remedy in a closed loop.
+
+      Witness: tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh, 7 legs,
+      driving the real script against a throwaway PROJECT_ROOT. Its leg 3 exists because leg 2
+      went green through the OTHER branch: a partial-complete run leaves `status:
+      started-work`, so the obvious fixture never enters the recheck branch at all. The leg
+      asserts WHICH branch archived the file, not only that the field ended up right.
+
+  - path: .agentic-framework/agents/audit/audit.sh
+    kind: content
+    task: T-654
+    upstream: fix
+    reason: |
+      EPISODIC MEMORY Check 1b: unrecovered completion-watchdog detections now surface.
+
+      update-task.sh installs a T-522 EXIT trap that catches a work-completed transition
+      leaving the script before the episodic stage. It works: it fired twice here (T-542 and
+      T-574, both 2026-08-22), each time with the correct diagnosis and the exact recovery
+      command. Both sat unrecovered for nine days across twelve audits, because its output
+      goes to .context/working/episodic-gen/<task>.log -- a file nobody opens -- and to a
+      stderr line that scrolls past. 100% of its detections were lost.
+
+      The existing "Completed task X has no episodic summary" WARN cannot supply the reason,
+      so it reads as "the generator has not run yet", a chore. The new check says the
+      framework already knew, to the second, that a completion aborted. Same facts, different
+      sentence, different response.
+
+      UPSTREAM because the detector is vendored and so is the blindness: any project running
+      this framework has a watchdog whose findings reach no surface.
+
+      Witness: tools/_t654-watchdog-detections-must-be-surfaced.sh, 6 legs, extracting the
+      real block from audit.sh rather than retyping it.

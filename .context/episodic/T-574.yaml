@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-574: P-011 gate passes SILENTLY when its Verification section is present but unreachable: 0 legs run reads identical to all legs passed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T15:02:35Z
+# ============================================================================
+
+task_id: T-574
+task_name: "P-011 gate passes SILENTLY when its Verification section is present but unreachable: 0 legs run reads identical to all legs passed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-20T18:19:38Z
+completed: 2026-08-22T10:15:05Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-08-20T20:30:44+02:00
+last_commit: 2026-08-22T12:16:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the completion gate reported success on T-572 with all TEN of its verification legs UNRUN, and printed nothing to say so. This commit files the gate defect and carries the T-572 repair plus the hand re-run that revealed it.. T-575: landing lane 1 — T-574 closed. The completion gate can no longer report success on a block it could not read.
+
+# Key outcomes
+outcomes:
+  - 'The gate prints its leg count UNCONDITIONALLY, so a run that executed zero commands says'
+  - 'COULD-NOT-LOOK IS ITS OWN FAILURE LINE, printed separately from a defect finding — never'
+  - 'A verification heading whose text is present in the file but NOT anchored at column 0 is'
+  - 'Regression test drives the three states apart — no section (passes, says 0), malformed'
+  - 'The T-572 fixture is one of the test cases: a heading preceded on the same line by a'
+  - 'Mutation teeth: reverting the fix must redden the malformed-section leg and ONLY that leg;'
+  - 'Wired into a standing runner in the SAME commit, not left callable only from this task''s'
+  - 'Declared in `.vendor-divergence.yaml` with upstream intent, and the divergence checker is'
+  - 'Population checked, not assumed unique: every other `sed -n` style heading-range'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/episodic/T-572.yaml'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/episodic-gen/T-572.log'
+  - '.tasks/active/T-574-p-011-gate-passes-silently-when-its-veri.md'
+  - '.tasks/completed/T-572-meta-parity-guard-checks-a-subset-not-pa.md'
+  - '.tasks/completed/T-574-p-011-gate-passes-silently-when-its-veri.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t574-p011-block-locator-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-20T20:30:44"
+    action: 'T-574: the completion gate reported success on T-572 with all TEN of its verification legs UNRUN, and printed nothing to say so. This commit files the gate defect and carries the T-572 repair plus the hand re-run that revealed it.'
+  - time: "2026-08-22T12:16:20"
+    action: 'T-575: landing lane 1 — T-574 closed. The completion gate can no longer report success on a block it could not read.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2395 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, framework, vendored, gate]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2395
+  commits: 2
+  files_changed: 11
+  lines_added: 1470
+  lines_removed: 251
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-574-p-011-gate-passes-silently-when-its-veri.md
+generated_by: context-agent-hybrid

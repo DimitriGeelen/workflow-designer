@@ -2707,6 +2707,52 @@ if [ "$missing_episodic" -eq 0 ]; then
     pass "All completed tasks have episodic summaries"
 fi
 
+# Check 1b: the T-522 completion watchdog's own detections must be ACTED ON (T-654).
+#
+# update-task.sh installs an EXIT trap (_t522_completion_watchdog) that fires when a
+# work-completed transition began but execution left the script before the episodic
+# stage. It writes `=== episodic-gen NOT REACHED ===` to
+# .context/working/episodic-gen/<task>.log and prints a recovery command to stderr.
+#
+# It has fired exactly twice in this project's history — T-542 and T-574, both on
+# 2026-08-22 — and BOTH were still unrecovered nine days and twelve audits later. The
+# detector is not the problem: it caught both, immediately, with the right diagnosis and
+# the right recovery command. The problem is that its output goes to a file nobody opens
+# and to a stderr line that scrolls past. 100% of its detections were lost.
+#
+# Check 1 above already warns that the episodic is missing. It cannot say WHY, so it
+# reads as "the generator did not run yet" — a chore. This check supplies the causality
+# Check 1 lacks: the framework already knows, to the second, that a completion aborted.
+# That is a different sentence and it earns a different response.
+#
+# WARN, not FAIL: the loss is real but one command undoes it, and the two records that
+# motivated this were repaired in the same task. A FAIL here would be indistinguishable
+# from Check 1's warning in urgency while adding nothing to it.
+_egdir="$CONTEXT_DIR/working/episodic-gen"
+if [ -d "$_egdir" ]; then
+    _wd_total=0; _wd_unrecovered=""
+    for _wdlog in "$_egdir"/*.log; do
+        [ -f "$_wdlog" ] || continue
+        grep -q 'NOT REACHED' "$_wdlog" 2>/dev/null || continue
+        _wd_total=$((_wd_total + 1))
+        _wd_task=$(basename "$_wdlog" .log)
+        # Recovered = the episodic exists now, however it got there.
+        [ -f "$episodic_dir/${_wd_task}.yaml" ] && continue
+        _wd_when=$(grep -m1 'NOT REACHED' "$_wdlog" 2>/dev/null | sed 's/.*NOT REACHED: //; s/ ===.*//')
+        _wd_unrecovered="${_wd_unrecovered:+$_wd_unrecovered }${_wd_task}(${_wd_when:-unknown})"
+    done
+    if [ -n "$_wd_unrecovered" ]; then
+        _wd_n=$(printf '%s\n' $_wd_unrecovered | grep -c . || true)
+        warn "Completion watchdog: $_wd_n detected abort(s) never recovered (T-654)" \
+             "$_wd_unrecovered" \
+             "The framework caught these when they happened and logged $_egdir/<task>.log. Recover: fw context generate-episodic <task>"
+    elif [ "$_wd_total" -gt 0 ]; then
+        pass "Completion watchdog: $_wd_total detected abort(s), all recovered"
+    else
+        pass "Completion watchdog: no aborted completions on record"
+    fi
+fi
+
 # Check 2: Episodic quality (non-empty required fields, enrichment status)
 low_quality_episodic=0
 pending_enrichment=0
