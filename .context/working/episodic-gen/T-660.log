@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-08-31T19:09:30Z ===
+task_id: T-660
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-660.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Gate-green and operator-actionable are separate properties: nothing measures whether a Human AC can actually be acted on
+  Duration: 0 days (10 min)
+  Updates: 1
+  Commits: 3
+  Lines: +881 -167 across 88 files
+  Outcomes: 7 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 88 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-660-gate-green-and-operator-actionable-are-s.md
+--- exit code: 0 ---

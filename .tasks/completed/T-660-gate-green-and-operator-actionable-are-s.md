@@ -4,20 +4,20 @@ name: "Gate-green and operator-actionable are separate properties: nothing measu
 description: >
   Gate-green and operator-actionable are separate properties: nothing measures whether a Human AC can actually be acted on
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t660-actionability-checker-must-have-teeth.sh, tools/_t660-human-ac-actionability.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T18:58:58Z
-last_update: 2026-08-31T19:07:37Z
-date_finished: null
+last_update: 2026-08-31T19:09:25Z
+date_finished: 2026-08-31T19:09:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -278,3 +278,15 @@ python3 tools/_t517-vendor-divergence.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-660-gate-green-and-operator-actionable-are-s.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2acd2c66
+- **Timestamp:** 2026-08-31T19:09:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-31T19:09:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,174 @@
+# ============================================================================
+# EPISODIC MEMORY - T-660: Gate-green and operator-actionable are separate properties: nothing measures whether a Human AC can actually be acted on
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T19:09:31Z
+# ============================================================================
+
+task_id: T-660
+task_name: "Gate-green and operator-actionable are separate properties: nothing measures whether a Human AC can actually be acted on"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-31T18:58:58Z
+completed: 2026-08-31T19:09:25Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T21:04:27+02:00
+last_commit: 2026-08-31T21:09:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the operator's queue told them to run a command containing the literal string T-XXX.. checker for the residue, after fixing the template that caused 11 of the 13.. my matcher was a chosen set, and it flagged two of the best ACs in the queue.
+
+# Key outcomes
+outcomes:
+  - 'The unticked Human ACs across all active tasks are **measured** for actionability:'
+  - 'The measurement distinguishes the **operator''s live queue** (tasks actually waiting on'
+  - '**Branch, decided by the number, and stated here before it is known:**'
+  - 'The instrument, if built, **strips HTML comments non-greedily before counting**'
+  - 'It **never ticks or edits a Human AC**, and never reports one as satisfied. It reports'
+  - 'If a checker ships: a prober extracts the real region (no retyped copy), covers'
+  - 'Any framework-file change is declared in `.vendor-divergence.yaml` (G-008).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'checker for the residue, after fixing the template that caused 11 of the 13.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-31 — the measurement, and the branch it selected'
+    chose: 'branch (a), ship a checker — but fix the ROOT first. The 11 placeholders were one defect in `create-task.sh`, not 11 authoring lapses.'
+    alternatives_rejected: ['shipping only the checker (reports a problem it cannot fix); and repairing only the 80 files (the next inception created would reintroduce it immediately).']
+  - decision: '2026-08-31 — repairing an operator-owned AC is not verifying it'
+    chose: 'rewrite `T-XXX` to the real id inside `### Human` sections of 80 active tasks, including tasks with `owner: human`.'
+    rationale: 'fixing a broken instruction is not the same act as judging whether the criterion has been met. The boundary that matters is the tick, and it was held mechanically: 359 `- [x]` before, 359 after, and zero changed lines matching a checkbox — asserted, not asserted-by-inspection, because this is exactly the boundary where an agent should not be trusted on its own account.'
+    alternatives_rejected: ['leaving them for the operator. The operator is the person the placeholder was obstructing; handing them 80 files of clerical repair as a precondition for draining their own queue would have been the queue defending itself.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.fabric/components/tools-_t660-actionability-checker-must-have-teeth.yaml'
+  - '.fabric/components/tools-_t660-human-ac-actionability.yaml'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-093-branch-pitch-setting-parallel-block-stac.md'
+  - '.tasks/active/T-101-bake-clean-layout-into-the-rendered-corp.md'
+  - '.tasks/active/T-102-mapmessiness-false-positive-branch-stack.md'
+  - '.tasks/active/T-125-vertical-lane-compaction-in-cleanlayout-.md'
+  - '.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md'
+  - '.tasks/active/T-184-child-3-reverse-discovery-aef-record---e.md'
+  - '.tasks/active/T-185-child-4-collaboration-and-concurrency-pe.md'
+  - '.tasks/active/T-186-child-5-hosting-and-tenancy-tenant-neutr.md'
+  - '.tasks/active/T-189-iw-9-v11-mapping-standard-delta--collaps.md'
+  - '.tasks/active/T-200-release-designer-with-iw-9-editor-versio.md'
+  - '.tasks/active/T-233-s5b-gallery-ghost-cards-render-ghosts-as.md'
+  - '.tasks/active/T-241-apithumb-graceful-fallback-for-server-si.md'
+  - '.tasks/active/T-246-consumer-facing-release-metadata-changel.md'
+  - '.tasks/active/T-264-save-target-guard-set-id-field-collision.md'
+  - '.tasks/active/T-265-adopt-the-t-145-tail-5-editor-saved-corp.md'
+  - '.tasks/active/T-277-ratify-process-level-conformance-key-and.md'
+  - '.tasks/active/T-279-guided-mode-procedural-guardrail-package.md'
+  - '.tasks/active/T-280-workflow-fabric-sd-15-process-dependency.md'
+  - '.tasks/active/T-281-audience-render-lenses-sd-1422-businessl.md'
+  - '.tasks/active/T-282-callactivity-node-type-sd-9-sync-sub-wor.md'
+  - '.tasks/active/T-286-edge-arrowheads-render-above-node-id-bad.md'
+  - '.tasks/active/T-289-mapping-v1-alignment-note-framework-node.md'
+  - '.tasks/active/T-291-document-workflow-review-map-referenced-.md'
+  - '.tasks/active/T-292-document-workflow-future-map-referenced-.md'
+  - '.tasks/active/T-293-endpoint-reconnect-drag-hand-often-fails.md'
+  - '.tasks/active/T-294-port-indicator-pin-click-does-not-regist.md'
+  - '.tasks/active/T-309-surface-workflow-validator-findings-in-t.md'
+  - '.tasks/active/T-310-nodes-render-outside-every-lane-band-pen.md'
+  - '.tasks/active/T-340-standard-bpmn-di-is-silently-discarded-o.md'
+  - '.tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md'
+  - '.tasks/active/T-351-serve-gallerysh-can-never-stop-its-own-s.md'
+  - '.tasks/active/T-353-prepare-the-corpus-for-the-p-011-errexit.md'
+  - '.tasks/active/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md'
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-368-release-state-blindness-8-src-commits-ah.md'
+  - '.tasks/active/T-392-safe-list-early-return-shadows-the-focus.md'
+  - '.tasks/active/T-410-watchtower-session-signing-key-is-commit.md'
+  - '.tasks/active/T-422-check-arc-id-register-the-hook-or-delete.md'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-424-t-357-step-3-retire-aefposition.md'
+  - '.tasks/active/T-426-obs-017-misfire-audit-what-t-420-and-t-4.md'
+  - '.tasks/active/T-439-claudemd-documents-the-context-budget-la.md'
+  - '.tasks/active/T-440-t-429-measured-35-of-35-counter-bearing-.md'
+  - '.tasks/active/T-441-toolsconcerns-schemapy-accounts-for-no-f.md'
+  - '.tasks/active/T-442-t429-zero-leg-probesh-reads-a-non-zero-p.md'
+  - '.tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md'
+  - '.tasks/active/T-449-provenance-pair-draft-rows-are-two-sided.md'
+  - '.tasks/active/T-467-fw-arc-tag-writes-the-deprecated-tags-fo.md'
+  - '.tasks/active/T-498-scope-the-onboarding-experience-arc-iter.md'
+  - '.tasks/active/T-501-map-id-round-trip-defect-triage-aef-cons.md'
+  - '.tasks/active/T-537-termlinkagentchatarcrecent-returns-oktru.md'
+  - '.tasks/active/T-540-bootstrap-bvp-scoring-and-produce-the-fi.md'
+  - '.tasks/active/T-553-sweep-report-must-survive-a-callers-stdo.md'
+  - '.tasks/active/T-554-record-browser-version-viewport-and-dpr-.md'
+  - '.tasks/active/T-555-population-wide-check-for-guards-that-ar.md'
+  - '.tasks/active/T-564-t-501-build-3-load-time-id-normalisation.md'
+  - '.tasks/active/T-565-iw-0-exit-condition-measure-the-byte-imp.md'
+  - '.tasks/active/T-573-emits-panel-field-writes-a-scalar-where-.md'
+  - '.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md'
+  - '.tasks/active/T-577-prose-dispositions-are-never-reconciled-.md'
+  - '.tasks/active/T-579-the-third-party-byte-identity-gate-is-re.md'
+  - '.tasks/active/T-580-decide-take-aef-5c33f7208-the-two-fabric.md'
+  - '.tasks/active/T-582-byte-identity-goldens-are-recorded-from-.md'
+  - '.tasks/active/T-583-nothing-enumerates-the-instruments-that-.md'
+  - '.tasks/active/T-584-episodic-git-mining-runs-one-commit-too-.md'
+  - '.tasks/active/T-586-kill-worktree-isolation-and-pin-no-backg.md'
+  - '.tasks/active/T-588-upstream-ships-an-unanchored-verificatio.md'
+  - '.tasks/active/T-589-designer-properties-panel-add-a-clickabl.md'
+  - '.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md'
+  - '.tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md'
+  - '.tasks/active/T-596-arc-0-exit-gate-is-uncheckable-the-opera.md'
+  - '.tasks/active/T-597-both-remaining-arc-0-exit-clauses-are-co.md'
+  - '.tasks/active/T-599-manual-connector-routing-addremove-waypo.md'
+  - '.tasks/active/T-606-renderer-output-is-escaped-at-the-templa.md'
+  - '.tasks/active/T-608-draft-the-aef-attestation-request-for-ar.md'
+  - '.tasks/active/T-609-review-cards-drop-stepsexpectedif-not-so.md'
+  - '.tasks/active/T-619-retry-safety-declaration-on-task-like-no.md'
+  - '.tasks/active/T-643-review-queue-renders-close-and-keep-open.md'
+  - '.tasks/active/T-647-t-640s-fetcher-write-guard-over-blocks-t.md'
+  - '.tasks/active/T-660-gate-green-and-operator-actionable-are-s.md'
+  - 'tools/_t660-actionability-checker-must-have-teeth.sh'
+  - 'tools/_t660-human-ac-actionability.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T21:04:27"
+    action: 'T-660: the operator''s queue told them to run a command containing the literal string T-XXX.'
+  - time: "2026-08-31T21:07:36"
+    action: 'T-660: checker for the residue, after fixing the template that caused 11 of the 13.'
+  - time: "2026-08-31T21:09:24"
+    action: 'T-660: my matcher was a chosen set, and it flagged two of the best ACs in the queue.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 3
+  files_changed: 88
+  lines_added: 881
+  lines_removed: 167
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-660-gate-green-and-operator-actionable-are-s.md
+generated_by: context-agent-hybrid

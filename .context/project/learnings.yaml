@@ -2136,3 +2136,17 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-301
+  learning: "GATE-GREEN AND OPERATOR-ACTIONABLE ARE SEPARATE PROPERTIES, AND ONLY THE FIRST WAS EVER MEASURED. P-010 gates Agent ACs, P-011 runs Verification, and the ### Human section is explicitly non-blocking — so the one class of criterion a PERSON must act on was the only one with no instrument at all. Measured 2026-08-31: 13 of 51 live-queue tasks could not be executed as written, and nine were unruled inceptions whose first step read 'Run: fw task review T-XXX'. Root cause was one line: create-task.sh substituted the id into the frontmatter and the H1 and nowhere else, so every inception ever created shipped an unrunnable first step. 010-termlink independently reported the identical string in their tree (rail @891) — when two projects hit the same literal, suspect a shared generator, not two authors. Queue length had been read as an operator-availability problem for weeks; a quarter of it was unactionable on arrival. Before concluding that a queue is blocked on someone's time, check whether it can be acted on at all."
+  source: P-001
+  task: T-660
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
+- id: PL-302
+  learning: "FIX THE GENERATOR BEFORE SHIPPING THE DETECTOR, OR THE DETECTOR JUST REPORTS THE SAME ITEMS FOREVER. T-660's plan was 'measure, then ship a checker'. Measuring showed 11 of the 13 defects were one template bug, so a checker shipped first would have re-reported the same 11 tasks every day while none of them improved — a control that is correct, loud, and completely inert. Fixing create-task.sh and repairing the existing files took the number 13 -> 2, and only then was a checker worth having, because what remained was a small real residue instead of an echo of a template. The ordering test: if the detector fired tomorrow, would anything about the underlying cause have changed? If not, the detector is not the next piece of work."
+  source: P-001
+  task: T-660
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD

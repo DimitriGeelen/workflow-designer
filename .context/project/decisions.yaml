@@ -2082,3 +2082,17 @@ decisions:
     date: 2026-08-31
     task: T-659
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-277
+    decision: "branch (a), ship a checker — but fix the ROOT first. The 11 placeholders were"
+    scope: project
+    date: 2026-08-31
+    task: T-660
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-278
+    decision: "rewrite `T-XXX` to the real id inside `### Human` sections of 80 active tasks,"
+    scope: project
+    date: 2026-08-31
+    task: T-660
+    rationale: "Auto-captured from task file on completion"
