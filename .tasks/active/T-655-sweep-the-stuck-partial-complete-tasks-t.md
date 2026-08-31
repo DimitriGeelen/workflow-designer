@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T15:15:03Z
-last_update: 2026-08-31T15:15:03Z
+last_update: 2026-08-31T15:18:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -193,7 +193,11 @@ test "$(grep -l '^owner: human' .tasks/active/T-093-*.md .tasks/active/T-178-*.m
 # the naive grep's (which sees the template's [REVIEW] examples and reports work
 # outstanding that does not exist). If this ever disagrees with `archive-eligible`, one of
 # the two instruments has drifted and the operator is being told the wrong thing.
-python3 -c "$(printf '%s\n' 'import re,glob' 'for t,exp in (("T-093",7),("T-178",6)):' '    s=re.sub(r"<!--.*?-->","",open(glob.glob(".tasks/active/%s-*.md"%t)[0]).read(),flags=re.S)' '    ac=re.search(r"## Acceptance Criteria(.*?)\n## ",s,re.S).group(1)' '    tot=len(re.findall(r"^\s*-\s*\[[ x]\]",ac,re.M)); tick=len(re.findall(r"^\s*-\s*\[x\]",ac,re.M))' '    assert tick==tot==exp, (t,tick,tot,exp)')"
+# In a file, not inline. The inline form was tried and the gate rejected it: a `\n` inside
+# the one-liner is expanded before execution and the command arrives split across lines
+# (T-352/T-394's class). The file also carries the reasoning about which counting
+# instrument is correct, which a one-liner cannot.
+python3 tools/_t655-review-queue-ac-counts.py
 
 ## RCA
 
