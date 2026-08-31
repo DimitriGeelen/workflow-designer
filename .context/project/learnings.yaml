@@ -2094,3 +2094,10 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-295
+  learning: "A CONTROL MAY SUMMARISE BUT MAY NOT CONFLATE THINGS THAT NEED DIFFERENT ACTIONS. D2 built the human review queue from age alone, so two tasks the operator had already signed off (7/7 and 6/6 ticked) counted as 57 and 51 days of pending judgement, and the remediation line pointed at fw task verify — which lists unchecked Human ACs, of which they had none. The queue was asking for something already given, using a command that would have shown nothing. Test for the class: read the control's own remediation against each member it names, and ask whether running it would do anything. Fix by splitting the message and keeping the total — dropping the quiet group turns a FAIL into a PASS by losing the work it found."
+  source: P-001
+  task: T-656
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
