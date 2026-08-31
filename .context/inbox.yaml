@@ -1480,3 +1480,10 @@ observations:
   tags: [framework]
   status: pending
   promoted_to: null
+- id: OBS-333
+  text: "tools/_t517-vendor-divergence.py has been FAILING with 6 unrecorded entries, and the count is rising rather than being worked off. Today: .agentic-framework/agents/context/check-inception-schema.py, bin/fw, lib/ask.py, web/conftest.py, web/test_app.py, web/test_costs.py — all local changes to vendored code that no manifest entry claims. This is the SECOND time the same guard has been found red after a long unread stretch: the register's own T-606 entry documents it sitting at '1 unrecorded' from commit 10a537c1 until 2026-08-29, because the bridge suite takes ~13 minutes and nothing runs it on a schedule. The guard is correct both times; nothing looks at it. Same delivery-surface shape as T-654's watchdog. Two candidate remedies, neither taken here: run the divergence check alone (it is seconds, not 13 minutes) as an audit line, or make re-vendor safety a gate rather than a suite member. Not folded into T-654 — one bug, one task, and these 6 predate it."
+  captured: 2026-08-31T15:13:34Z
+  context_task: null
+  tags: [framework]
+  status: pending
+  promoted_to: null

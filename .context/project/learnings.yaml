@@ -2073,3 +2073,24 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-292
+  learning: "WIDENING A FIX CANNOT REACH A BRANCH WHOSE ENTRY CONDITION IS THE COMPLEMENT OF THE FIXED ONE. update-task.sh nulls a completed task's horizon at one site, gated on OLD_STATUS != work-completed; the other branch that moves a file into completed/ is gated on OLD_STATUS == work-completed. T-2300 widened the first site out of its inner conditional after EIGHT CTL-030 instances and still never reached the second, because no amount of lifting escapes a complement. The tell: the fix was aimed at the site where the symptom appeared instead of at the invariant (a file that arrives in completed/ has no horizon). Assert invariants at every arrival point and name the grep that finds a third."
+  source: P-001
+  task: T-654
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
+- id: PL-293
+  learning: "A DETECTOR WHOSE OUTPUT GOES TO A FILE NOBODY OPENS IS FIELD-EQUIVALENT TO NO DETECTOR. The T-522 completion watchdog fired exactly twice in this project's history, caught both aborts the instant they happened, and wrote the correct diagnosis plus the exact recovery command to .context/working/episodic-gen/<task>.log. Both sat unrecovered for nine days across twelve audits: a 100 percent loss rate for a detector that was working perfectly. Detection quality was never the variable. When adding a detector, the delivery surface is part of the deliverable — route it into something already read daily, or it is a diary."
+  source: P-001
+  task: T-654
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
+- id: PL-294
+  learning: "A GREEN THAT DOES NOT NAME THE PATH IT TOOK IS NOT EVIDENCE ABOUT THE PATH YOU MEANT. The T-654 prober built the fixture the obvious way — drive a task to partial-complete, tick the human box, re-run — and passed. It passed through the WRONG BRANCH: a partial-complete run leaves status started-work, so the re-run is an ordinary transition and the branch under test is never entered. Adding one line that asserts WHICH branch archived the file turned a false green into the real failure. Rule: when a subject has two paths to the same observable, assert the path, not only the observable. Same shape as the mutant that fails to parse — indistinguishable from a correct fix until the rig reports what it DID."
+  source: P-001
+  task: T-654
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD

@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-654: CTL-030: two completed tasks kept horizon:now and got no episodic — find the finalization path that skipped both
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T15:12:48Z
+# ============================================================================
+
+task_id: T-654
+task_name: "CTL-030: two completed tasks kept horizon:now and got no episodic — find the finalization path that skipped both"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-31T14:53:51Z
+completed: 2026-08-31T15:12:39Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T17:12:32+02:00
+last_commit: 2026-08-31T17:12:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the two branches that reach completed/ are exact complements, and only one nulled the horizon. fw task archive-eligible drives the other — the sweep the audit recommends manufactured the FAILs the audit reported. Second fix: the T-522 watchdog has fired twice in this project's history, caught both aborts correctly, and 100% of its detections were lost to a log file nobody opens; audit Check 1b surfaces them.
+
+# Key outcomes
+outcomes:
+  - 'Root cause identified: an explanation of why exactly T-542 and T-574 kept `horizon: now`'
+  - 'The correlated `no episodic summary` WARN on the SAME two tasks is either shown to'
+  - '`fw audit` reports 0 CTL-030 FAILs (both records corrected, by whatever the root cause'
+  - 'Prevention, or an honest statement that prevention is out of scope with the gap'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the two branches that reach completed/ are exact complements, and only one nulled the horizon. fw task archive-eligible drives the other — the sweep the audit recommends manufactured the FAILs the audit reported. Second fix: the T-522 watchdog has fired twice in this project''s history, caught both aborts correctly, and 100% of its detections were lost to a log file nobody opens; audit Check 1b surfaces them.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/episodic/T-542.yaml'
+  - '.context/episodic/T-574.yaml'
+  - '.tasks/active/T-654-ctl-030-two-completed-tasks-kept-horizon.md'
+  - '.tasks/completed/T-542-populate-cost-estimates-so-the-hvhc-and-.md'
+  - '.tasks/completed/T-574-p-011-gate-passes-silently-when-its-veri.md'
+  - 'tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh'
+  - 'tools/_t654-watchdog-detections-must-be-surfaced.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T17:12:32"
+    action: 'T-654: the two branches that reach completed/ are exact complements, and only one nulled the horizon. fw task archive-eligible drives the other — the sweep the audit recommends manufactured the FAILs the audit reported. Second fix: the T-522 watchdog has fired twice in this project''s history, caught both aborts correctly, and 100% of its detections were lost to a log file nobody opens; audit Check 1b surfaces them.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 18
+  commits: 1
+  files_changed: 10
+  lines_added: 1616
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-654-ctl-030-two-completed-tasks-kept-horizon.md
+generated_by: context-agent-hybrid
