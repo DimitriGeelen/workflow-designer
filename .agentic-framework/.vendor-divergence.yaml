@@ -945,3 +945,119 @@ entries:
 
       Witness: tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh, 8 legs,
       extracting the real D2 region from audit.sh rather than retyping it.
+
+  # ── T-657 ────────────────────────────────────────────────────────────────────────────
+  # The six below were found by the guard on 2026-08-31 and are recorded together only
+  # because they were MISSED together. Each is dispositioned on its own evidence (task,
+  # commit, and the diff read) and each independently comes out `fix`. That uniformity is
+  # the finding, not a shortcut: four consecutive tasks — T-624/T-625, T-643/T-644/T-645,
+  # T-648 — each shipped a real fix to vendored code and none of them declared it, so our
+  # stated upstream debt to AEF was six entries short of the truth. Not one forgetful
+  # agent; a guard with no surface at the moment of the edit. See OBS-333.
+
+  - path: .agentic-framework/agents/context/check-inception-schema.py
+    kind: content
+    task: T-624, T-625
+    upstream: fix
+    reason: >-
+      The gate's own error message offered `voi_score: 0.5` as its worked example while the
+      line above it promised the estimator could rank the task. For an inception voi_score IS
+      the whole BVP composite, so the midpoint does not rank it — it abstains, and abstentions
+      are indistinguishable from real scores in `fw bvp --quadrant`. Measured 2026-08-29: the
+      same 38 of 41 inceptions carried the template default on BOTH axes and shared one
+      identical BVP of 126. The message now gives ranges rather than a plantable literal and
+      names why the midpoint is not a safe default. UPSTREAM because the defect is in the
+      guidance every project's authors read, and 38 of them reasonably followed the example.
+
+  - path: .agentic-framework/bin/fw
+    kind: content
+    task: T-643, T-645
+    upstream: fix
+    reason: >-
+      Two vendored-path defects on one file. (1) `sys.path.insert(0, PROJECT_ROOT)` assumes
+      the framework-repo layout; in a vendored install web/ is not under PROJECT_ROOT, so the
+      import raised and `except ImportError` substituted the inline fallback SILENTLY on every
+      invocation — the shared predicate had never once executed in this CLI while /approvals
+      used it, which is exactly the drift the shared helper exists to prevent. FRAMEWORK_ROOT
+      is tried first and is correct in both layouts. (2) The recommendation vocabulary was
+      (NO-GO|GO|DEFER), so CLOSE and KEEP-OPEN rendered as '?' — "the agent owes a verdict" —
+      when the agent had given one the library accepts. Vocabulary is now identical to
+      web/shared.py:791, alternation order included so NO-GO is not matched as GO.
+
+  - path: .agentic-framework/lib/ask.py
+    kind: content
+    task: T-644
+    upstream: fix
+    reason: >-
+      Sibling of T-643, same class, loud instead of silent. The __file__-derived value was
+      written as the FALLBACK and was the correct one all along; lib/ask.sh exports
+      PROJECT_ROOT unconditionally (ask.sh:32) so the env var always won, and in a vendored
+      install it points somewhere with no web/ at all. Measured on the real entry point:
+      `fw ask "what is a task"` -> ModuleNotFoundError: No module named 'web'. Both roots are
+      now inserted, PROJECT_ROOT still first-searched so a project may deliberately shadow a
+      module. UPSTREAM: `fw ask` is unrunnable in every vendored install without this.
+
+  - path: .agentic-framework/web/conftest.py
+    kind: content
+    task: T-648
+    upstream: fix
+    reason: >-
+      Adds the shared `document_shell` fixture. It lives in conftest rather than test_app.py
+      because test_costs.py importing from a sibling test module would make one suite's
+      collection depend on another's. Three call sites, one definition. See test_app.py below
+      for why the thing it replaces was wrong in both directions at once.
+
+  - path: .agentic-framework/web/test_app.py
+    kind: content
+    task: T-645, T-648
+    upstream: fix
+    reason: >-
+      The fragment tests asserted `"<!DOCTYPE" not in html` — a CHARACTER SCAN standing in for
+      a STRUCTURAL property. HTML tag names are case-insensitive and Python's `in` is not, and
+      a substring cannot tell whether it sits in a comment, a script body, or an attribute
+      value. Measured, it was wrong in both directions: `<HTML><BODY>x</BODY></HTML>`,
+      `<!doctype html><p>x</p>`, `<body><p>x</p></body>` and `<Html lang="en">` all PASSED a
+      test meant to reject document shells, while `<!-- <html> -->` and a `<script>` string
+      containing "<html>" FAILED on text that is not markup. Four ways to ship a whole
+      document past the test, two ways to be failed by prose. Now asks html.parser, which
+      lowercases tag names and treats script bodies as CDATA. The detector gets its own
+      parametrised tests — it is the new instrument, so it is not trusted for being short.
+
+  - path: .agentic-framework/web/test_costs.py
+    kind: content
+    task: T-648
+    upstream: fix
+    reason: >-
+      Third call site of the same substring scan described under test_app.py, converted to the
+      shared `document_shell` fixture. Found by grepping for the SHAPE of the original
+      instance rather than waiting for it to fail — the assertion also now names which
+      construct was found instead of just failing.
+
+  - path: .agentic-framework/agents/audit/audit.sh
+    kind: content
+    task: T-657
+    upstream: local-config
+    reason: >-
+      Adds a structure-section line that runs tools/_t517-vendor-divergence.py and reports its
+      verdict. LOCAL-CONFIG, not `fix`, and the distinction is the point: the block calls a
+      PROJECT-local tool and checks a manifest that only exists because this project vendors
+      the framework. Upstream does not vendor itself, has no manifest, and would get a block
+      that never fires — so there is nothing owed to them here. The block is guarded on both
+      `PROJECT_ROOT != FRAMEWORK_ROOT` and the tool existing precisely so it is inert rather
+      than noisy if it ever does travel.
+
+      Why it exists: the guard was correct and unread. Twice — at "1 unrecorded" from
+      10a537c1 until 2026-08-29, and at 6 on 2026-08-31 — because its only host was a
+      ~13-minute bridge suite nothing schedules. Standalone the check is 250-340ms over a
+      2158-file baseline, so it was hostage to its host's price, never its own. That is what
+      made "run it more often" look unaffordable when it was always nearly free.
+
+      WARN rather than FAIL is deliberate and revisitable: a structure FAIL blocks push
+      (git/lib/hooks.sh:844) with only Tier-0 `--no-verify` as bypass. The defect being fixed
+      is that nobody SAW the verdict, and the audit is read on every push and every cron run.
+      Escalation trigger recorded in the block: if an unrecorded entry survives three
+      consecutive audits, WARN has failed the same way the suite did.
+
+      Witness: tools/_t657-vendor-divergence-must-reach-an-audit-line.sh, 7 legs, extracting
+      the real region from audit.sh rather than retyping it, with a path assertion that the
+      WARN carries the tool's own bytes and a precondition guard on the mutation leg.

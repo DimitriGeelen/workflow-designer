@@ -1965,6 +1965,44 @@ if [ -x "$LARGE_FILE_SCANNER" ]; then
     fi
 fi
 
+# T-657: give the vendored-divergence guard a delivery surface.
+#
+# WHY THIS IS AN AUDIT LINE AND NOT A BETTER CHECK. tools/_t517-vendor-divergence.py was
+# already correct. It has been found red after a long unread stretch TWICE — once at "1
+# unrecorded" from commit 10a537c1 until 2026-08-29, and again on 2026-08-31 at 6 — and it
+# was right both times. Its only host was a ~13-minute bridge suite that nothing runs on a
+# schedule, so its verdict reached no one. Detection was never the variable; delivery was.
+# Same shape as the T-522 completion watchdog (T-654 Check 1b): a detector firing perfectly
+# into a file nobody opens is field-equivalent to no detector.
+#
+# The 13 minutes was never THIS check's cost. Measured standalone on 2026-08-31: 270-340ms
+# over a 2158-file baseline. The guard was hostage to its host's price, not its own — which
+# is what made "run it more often" look unaffordable when it was always nearly free.
+#
+# WARN, NOT FAIL, DELIBERATELY. A structure-section FAIL blocks push (git/lib/hooks.sh:844)
+# and its only bypass is --no-verify, which is Tier-0 gated. Undeclared divergence IS
+# destroyed by the next re-vendor, so the case for FAIL is real — but this task's defect is
+# that nobody SAW the verdict, and appearing in an audit read on every push and every cron
+# run is the fix for that. Escalating enforcement is a separate decision with a wider blast
+# radius. Trigger to revisit: if an unrecorded entry survives three consecutive audits, WARN
+# has failed the same way the bridge suite did and this should become FAIL.
+#
+# Guarded on the tool existing, so this is inert in the framework's own repo (which does not
+# vendor itself and has no manifest to check against).
+_vd_tool="$PROJECT_ROOT/tools/_t517-vendor-divergence.py"
+if [ "$PROJECT_ROOT" != "$FRAMEWORK_ROOT" ] && [ -f "$_vd_tool" ]; then
+    _vd_out=$(cd "$PROJECT_ROOT" && python3 "$_vd_tool" 2>&1)
+    if [ $? -ne 0 ]; then
+        _vd_n=$(printf '%s\n' "$_vd_out" | grep -c 'UNRECORDED\|STALE\|RECLASSIFIED' || true)
+        warn "Vendor divergence: $_vd_n undeclared or stale entry/entries in .vendor-divergence.yaml (T-657)" \
+             "$(printf '%s\n' "$_vd_out" | grep -E 'UNRECORDED|STALE|RECLASSIFIED|^FAIL' | head -5)" \
+             "A local fix recorded nowhere is destroyed by the next re-vendor. Declare each with an upstream: lane: python3 tools/_t517-vendor-divergence.py"
+    else
+        _vd_dec=$(printf '%s\n' "$_vd_out" | grep -oE 'declared +: *[0-9]+' | grep -oE '[0-9]+' || true)
+        pass "Vendor divergence: all ${_vd_dec:-0} diverged path(s) declared"
+    fi
+fi
+
 # T-2244: Self-vendor drift FAIL (F2 N×M daily-cron backstop). Mirrors
 # `bin/fw doctor` Check 2b (T-1434 + T-2243) and the pre-push gate
 # (T-2240/T-2241). Audit is the third surface — daily cron catches any
