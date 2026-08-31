@@ -2059,3 +2059,10 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-290
+  learning: "A filter applied to a noisy signal becomes a blind spot with the same shape as the noise. 832's rule 'never git add -A, stage explicit paths' is correct, and the cron sweep puts ~185 deletions in every git status, so every status read in this project is filtered — which trained the eye past the '??' block where 23 stray files sat for five days across twelve audits. Nothing missed them; nothing LOOKED. When a standing discipline forces you to filter a routine output, ask what else lives in the region you are filtering, and put the check somewhere that reads the tree instead of your summary of it."
+  source: P-001
+  task: T-651
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD

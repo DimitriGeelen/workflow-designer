@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-651: three files in the repo root are named after markdown fragments
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T13:12:09Z
+# ============================================================================
+
+task_id: T-651
+task_name: "three files in the repo root are named after markdown fragments"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-31T12:45:11Z
+completed: 2026-08-31T13:12:05Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T14:59:48+02:00
+last_commit: 2026-08-31T15:12:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  23 empty files in the repo root were markdown executed as a shell script. context — three was what I could see, twenty-three was what was there. the verification line failed because the audit never finished, not because the check was wrong
+
+# Key outcomes
+outcomes:
+  - 'The creating mechanism is named with evidence, not guessed. **It was not three files'
+  - 'Established whether anything was DESTROYED. No. Every 0-byte tracked file in the'
+  - 'The 23 files removed, each guarded individually (0-byte AND untracked re-checked'
+  - 'Prevention shipped, not just assessed: an audit check (`audit.sh`, T-651 block)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.context/episodic/T-650.yaml'
+  - '.context/inbox.yaml'
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-651-three-files-in-the-repo-root-are-named-a.md'
+  - '.tasks/completed/T-650-the-completion-path-suggests-a-command-i.md'
+  - 'tools/_t651-stray-root-files-are-caught.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T14:59:48"
+    action: 'T-651: 23 empty files in the repo root were markdown executed as a shell script'
+  - time: "2026-08-31T15:00:05"
+    action: 'T-651: context — three was what I could see, twenty-three was what was there'
+  - time: "2026-08-31T15:12:05"
+    action: 'T-651: the verification line failed because the audit never finished, not because the check was wrong'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 26 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 26
+  commits: 3
+  files_changed: 8
+  lines_added: 589
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-651-three-files-in-the-repo-root-are-named-a.md
+generated_by: context-agent-hybrid
