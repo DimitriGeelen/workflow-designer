@@ -103,6 +103,14 @@ ok "BLOCK controls block — the gate is live in this sandbox"
 echo "--- parity: two spellings of one process must get one verdict"
 PAIRS=(
   'fw context add-learning "x" --task T-1 --source P-001|fw fix-learned T-1 "x"'
+  # T-652, added when the invariant this file asserts caught its own second instance:
+  # `git commit` was admitted under focus-null and `fw git commit` refused — the spelling
+  # CLAUDE.md's Quick Reference actually mandates. Same shape, different exemption (this
+  # one lives in the T-2054 block, not the allowlist), found by walking into it twenty
+  # minutes after the first. Pairs are cheap; that is the argument for keeping this a
+  # table rather than a test per alias.
+  'git commit -m "T-1: x"|fw git commit -m "T-1: x"'
+  'git commit -m "T-1: x"|bin/fw git commit -m "T-1: x"'
 )
 for pair in "${PAIRS[@]}"; do
     TARGET="${pair%%|*}"; ALIAS="${pair##*|}"
@@ -141,6 +149,14 @@ if [ "$(verdict 'fw fix-learned T-1 "a > b and c && d; rm -rf x"')" = "ADMIT" ];
 else
     bad "prose argument read as a write — _sc_is_framework_prose_verb entry missing"
 fi
+
+echo "--- T-652: the alias inherits the commit exemption's LIMITS, not just its permission"
+for c in 'fw git commit --no-verify -m "T-1: x"' \
+         'fw git commit -m "T-1: x" && rm -rf f' \
+         'fw git commit -m "$(evil)"'; do
+    if [ "$(verdict "$c")" = "BLOCK" ]; then ok "still blocked: $c"
+    else bad "ALIAS WIDENED THE EXEMPTION — admitted: $c"; fi
+done
 
 echo "--- but a destructive verb OUTSIDE the quotes is still caught"
 if [ "$(verdict 'fw fix-learned T-1 "x" && rm -rf f')" = "BLOCK" ]; then

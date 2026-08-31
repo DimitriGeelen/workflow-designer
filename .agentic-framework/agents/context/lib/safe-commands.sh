@@ -806,16 +806,35 @@ _sc_is_commit_only_command() {
     segs="${segs//;/$'\n'}"
     segs="${segs//|/$'\n'}"
 
-    local line rest tok1 tok2 saw_commit=0
+    local line rest tok1 tok2 tok3 saw_commit=0
     while IFS= read -r line; do
         [ -n "${line//[[:space:]]/}" ] || continue
         rest="${line#"${line%%[![:space:]]*}"}"      # ltrim
         tok1="${rest%%[[:space:]]*}"
         rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
         tok2="${rest%%[[:space:]]*}"
+        rest="${rest#"$tok2"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
+        tok3="${rest%%[[:space:]]*}"
         case "${tok1##*/}" in
             git)
                 if [ "$tok2" = "commit" ]; then
+                    saw_commit=1
+                    continue
+                fi
+                ;;
+            # T-652: `fw git commit` is `git commit` with the traceability and secret-scan
+            # wrapper in front of it — strictly MORE checking, not less. It was refused
+            # while the bare spelling was admitted, which is T-650's defect in a second
+            # place, and worse here: CLAUDE.md's Quick Reference mandates THIS spelling
+            # ("Commit changes | fw git commit -m 'T-XXX: ...'"), so the gate refused the
+            # documented command and admitted the undocumented one. An agent following the
+            # project's own instructions was the one that got blocked.
+            #
+            # Deliberately matched as tok1=fw + tok2=git + tok3=commit rather than by
+            # loosening the git branch: `fw git` is the only fw subcommand that commits,
+            # and every other fw verb must keep falling through to _sc_simple_is_safe.
+            fw)
+                if [ "$tok2" = "git" ] && [ "$tok3" = "commit" ]; then
                     saw_commit=1
                     continue
                 fi
