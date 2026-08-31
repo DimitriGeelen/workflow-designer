@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T12:45:11Z
-last_update: 2026-08-31T12:45:11Z
+last_update: 2026-08-31T12:59:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,7 +34,10 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Noticed in `git status` while staging T-650: three untracked root files named `**How`,
+`**Recommendation:**`, `**their**`. Enumerating properly turned three into 23, spanning
+two incidents four and five days old. The title undercounts by design — it is what I could
+see at filing, and the first AC is what corrected it. See `## RCA`.
 
 ## Acceptance Criteria
 
