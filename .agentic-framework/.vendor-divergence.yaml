@@ -1163,3 +1163,36 @@ entries:
       one that matters — a task whose only well-formed criteria live inside the template's
       HTML comment must be reported NOT actionable. An instrument reading through the comment
       sees perfect Steps/Expected/If-not and passes every task in the queue.
+
+  - path: .agentic-framework/agents/context/check-active-task.sh
+    kind: content
+    task: T-662
+    upstream: fix
+    reason: >
+      Second divergence in this file, same family as T-386's: the gate refused without
+      saying which rule it applied. Under NULL focus (the state --status work-completed
+      leaves behind) the post-completion commit IS permitted — git add via
+      is_bash_safe_command, git commit via the T-2054 exemption — but a $(...) substitution
+      sharing the commit's line defeats the exemption, because T-638 judges each clause of
+      the quote-stripped command and the substitution's contents become a clause that is
+      not commit-only. The block message named neither the cause nor the way through, so
+      the deadlock was inferred rather than measured and written into our gap register as
+      "jointly unsatisfiable" (G-047), where it justified proposals to make work-completed
+      non-terminal. It never needed to be.
+
+      The diff adds a conditional advisory to the existing null-focus block, printed only
+      when the refused command contains `git commit`. No admission logic is touched — the
+      same commands are allowed and refused before and after; only the refusal explains
+      itself. Owed upstream because the misdiagnosis is a property of the message, and any
+      consumer reading that message will reach the same wrong conclusion we did.
+
+      Measured, all under null focus: `echo hi; fw git commit` -> allowed;
+      `git add x; fw git commit` -> allowed; `echo "n=$(wc -l < f)"; fw git commit` ->
+      BLOCKED; `echo "n=$(wc -l < f)"; git add y` -> allowed (control — the substitution
+      alone is not the cause; the pairing is).
+
+      Witness: tools/_t662-null-focus-commit-path-must-be-discoverable.sh, 9 legs, driving
+      the real hook via its stdin JSON envelope against a null-focus fixture root. The
+      first draft asserted "add and commit cannot share a line" and FAILED — the claim was
+      wrong, not the gate; both directions are now pinned so the message cannot drift back
+      to the wrong explanation.

@@ -278,6 +278,25 @@ if [ -z "$CURRENT_TASK" ]; then
     echo "To unblock:" >&2
     echo "  1. Create a task:  $(_fw_cmd) task create --name '...' --type build --start" >&2
     echo "  2. Set focus:      $(_fw_cmd) context focus T-XXX" >&2
+    # T-662: the post-completion commit reaches here and reads as a deadlock — G-047 was
+    # registered as "jointly unsatisfiable" on exactly this evidence. It is not one.
+    # `git add` is safe-listed and `git commit` has the T-2054 null-focus exemption, and
+    # they may share a line: `git add x; fw git commit -m "T-1: c"` is ADMITTED.
+    # What defeats the exemption is a $(...) substitution on the same line as the commit —
+    # T-638 judges each clause of the quote-stripped command, and the substitution's
+    # contents become another clause, which is not commit-only. Measured, all under null
+    # focus (tools/_t662-...sh): `echo hi; fw git commit` -> allowed;
+    # `echo "n=$(wc -l < f)"; fw git commit` -> BLOCKED; drop the commit and the same
+    # substitution is allowed again. Name that, or the next agent concludes it is stuck
+    # and reaches for a borrowed focus or a Tier-2 bypass — which is what happened at T-643.
+    if [ "$TOOL_NAME" = "Bash" ] && [[ "$BASH_CMD" =~ git[[:space:]]+commit ]]; then
+        echo "" >&2
+        echo "Committing a just-completed task is NOT blocked, even with no focus (T-2054)." >&2
+        echo "What blocks here is a \$(...) substitution sharing the line with the commit:" >&2
+        echo "its contents count as another clause (T-638). Put the commit on its own line:" >&2
+        echo "     git add <explicit paths>" >&2
+        echo "     $(_fw_cmd) git commit -m \"T-XXX: ...\"" >&2
+    fi
     echo "" >&2
     echo "Attempting to modify: $FILE_PATH" >&2
     echo "Policy: P-002 (Structural Enforcement Over Agent Discipline)" >&2

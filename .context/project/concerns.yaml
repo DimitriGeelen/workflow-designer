@@ -2869,6 +2869,53 @@ concerns:
     staged. Staging before completion does not help either: completion MOVES the task file
     from active/ to completed/, so a pre-staged path is stale by the time the commit runs.
 
+    CORRECTION 2026-08-31 (T-662) — CLAUSE (d) IS WRONG, AND WITH IT THE TITLE. Measured
+    while committing T-661''s completion: under NULL focus, `git add` staged an UNTRACKED
+    file (.context/episodic/T-661.yaml) together with the active/→completed/ rename, and
+    `fw git commit` then landed it. Two commands, no bypass, no borrowed focus, full
+    per-commit traceability. Verified against the code that acts, not just the observation:
+    check-active-task.sh:240 states it outright — "`git add` (task-agnostic, no drift)
+    stays in is_bash_safe_command."
+
+    THE WORKING SEQUENCE, for the next agent who lands here:
+      git add <explicit paths>                        # allowed: is_bash_safe_command
+      fw git commit -m "T-XXX: ..."                   # allowed: T-2054 null-focus exemption
+
+    WHAT ACTUALLY BLOCKS — and the first version of this correction got it wrong too, so
+    it is written from the prober''s legs rather than from memory. It is NOT "compound
+    commands": `git add x; fw git commit -m "T-1: c"` is ADMITTED, and so is
+    `echo hi; fw git commit`. What defeats the T-2054 exemption is a $(...) SUBSTITUTION
+    sharing the line with the commit — T-638 made _sc_is_commit_only_command judge each
+    clause of the quote-stripped command, and the substitution''s contents become a clause
+    that is not commit-only. Measured, all under null focus:
+      echo hi; fw git commit                     -> allowed
+      git add x; fw git commit                   -> allowed
+      echo "n=$(wc -l < f)"; fw git commit       -> BLOCKED
+      echo "n=$(wc -l < f)"; git add y           -> allowed  (control: not the $() alone)
+    Every session that hit this was writing `echo "staged=$(git diff --cached ...)"` beside
+    the commit for a progress line. T-638 itself is deliberate and correct; it is not this
+    gap. Witness: tools/_t662-null-focus-commit-path-must-be-discoverable.sh, 9 legs.
+
+    CONSEQUENCE FOR THIS ENTRY: "jointly unsatisfiable" overstates it. The post-completion
+    commit is satisfiable today, and was on the day this was registered. What remains is a
+    DISCOVERABILITY defect — the block said "No active task" and named neither the cause
+    nor the way through — and the T-643 workaround recorded below (committing under the
+    next task''s focus, degrading fw git log --task) was therefore never necessary.
+    Triggers (a) and (c) are aimed at a problem that does not exist: the status machine
+    does not need to admit reopening.
+
+    RECOMMENDED, operator call since a concern flip is operator authority: downgrade to
+    `low`, retitle to name discoverability rather than impossibility, and retain only
+    trigger (b) in the narrowed form "the block message names the cause and the way
+    through" — which T-662 has now implemented in check-active-task.sh, so (b) is
+    verifiable immediately by running the witness prober.
+
+    NOTE ON HOW THIS ENTRY GOT ITS TITLE, because the shape is likely to recur: nobody
+    tested the gate. The claim "git add is refused under null focus" was inferred from a
+    block message that fires for many reasons and names none of them, and once written
+    down it was quoted forward for a day. The remedy that stuck was not a better register
+    entry, it was making the gate SAY which rule it applied.
+
     The only exits the framework offers are the two Tier-2 bypasses (--switch-focus,
     FW_SWITCH_FOCUS=1), and those are operator authority, not agent initiative. This is not
     a gate being too strict; it is two correct gates with no gap between them.
