@@ -237,6 +237,29 @@ _sc_simple_is_safe() {
                             ;;
                     esac
                     ;;
+                # T-650 (OBS-331): `fw fix-learned T-XXX "text"` is not merely SIMILAR to
+                # `fw context add-learning` — bin/fw's branch ends with
+                #   exec "$AGENTS_DIR/context/context.sh" add-learning "$fl_text" \
+                #        --task "$fl_task" --source P-001
+                # so it IS that command under a shorter name. Every ground given for the
+                # exemption directly above (writes only under .context/, cannot author
+                # source, --task preserves attribution) therefore holds for it verbatim,
+                # by identity rather than by analogy.
+                #
+                # Worth stating plainly, because it is the whole defect: the T-390 comment
+                # above quotes the LEARNING PROMPT as its motivation — and the prompt
+                # prints THIS spelling (update-task.sh:2428, via _emit_user_command
+                # "fix-learned ..."), not the one T-390 exempted. The fix and the message
+                # it was written to fix have never named the same command. So the gate was
+                # keying on the STRING while its own justification was about the EFFECT,
+                # and the two diverged the moment an alias was added.
+                #
+                # The general rule this instance argues for: an allowlist of effects must
+                # not be indexed by spelling. tools/_t650-*.sh asserts alias/target parity
+                # pairwise so the next alias added without an entry turns it red.
+                fix-learned)
+                    return 0
+                    ;;
                 # T-390: `fw note` is the lightweight observation inbox — the verb for
                 # recording something you noticed but are not acting on now. Blocking
                 # it with no active task is self-defeating in a specific way: the
@@ -403,13 +426,19 @@ _sc_strip_quoted() {
 # T-636: does this command hand FREE PROSE to a framework verb that stores it?
 #
 # The set is closed by construction — it is the verbs the framework itself declares
-# safe with no active task (`note`, `context add-*`, `task create`) plus `git commit`,
-# whose message is the one other place an agent writes sentences. It is not an open
-# class, so enumerating it does not run into the G-025/G-026 objection.
+# safe with no active task (`note`, `context add-*`, `fix-learned`, `task create`) plus
+# `git commit`, whose message is the one other place an agent writes sentences. It is not
+# an open class, so enumerating it does not run into the G-025/G-026 objection.
 #
 # Deliberately NOT generalised to "any `fw` verb": that would rest on the claim that no
-# fw subcommand ever evaluates an argument, which nobody has measured. Naming the four
+# fw subcommand ever evaluates an argument, which nobody has measured. Naming the five
 # costs a line each and rests on nothing.
+#
+# T-650 adds the fifth, and is worth reading as a maintenance note on this comment: the
+# set is closed by construction only against the verb list AS IT STOOD. `fix-learned`
+# aliased a member of this set and did not inherit membership, because membership is
+# spelled out here by name. "Closed by construction" describes the set; it does not
+# defend it against the target growing a second name.
 # Pure parameter expansion, zero forks. This runs inside has_bash_write_pattern, which
 # runs on EVERY Bash tool call, and web/test_safe_commands.py holds a perf contract
 # against exactly this — the first draft here used three awks and the corpus failed it.
@@ -430,6 +459,13 @@ _sc_is_framework_prose_verb() {
     tok3="${rest%%[[:space:]]*}"
     case "$tok2" in
         note) return 0 ;;
+        # T-650: the alias needs its OWN entry here, not just in _sc_simple_is_safe.
+        # The two lists answer different questions — "is this verb safe with no task?"
+        # and "does this verb take free prose that must not be read as shell?" — and
+        # `fw fix-learned T-XXX "<sentence>"` needs a yes from both. With only the first,
+        # the command is admitted and then trips on its own argument the moment a learning
+        # contains `>` or `&&`, which is exactly the kind of sentence a bugfix learning is.
+        fix-learned) return 0 ;;
         context)
             case "$tok3" in add-learning|add-pattern|add-decision) return 0 ;; esac
             ;;

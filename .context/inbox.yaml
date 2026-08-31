@@ -1466,3 +1466,10 @@ observations:
   tags: [perf]
   status: pending
   promoted_to: null
+- id: OBS-331
+  text: "The completion path suggests a command the completion path then forbids. On 'fw task update T-XXX --status work-completed' for a bug-class task, update-task.sh prints a LEARNING PROMPT: 'Consider: fw fix-learned T-XXX ...'. But completion leaves focus null, and with focus null check-active-task.sh refuses fw fix-learned with 'BLOCKED: No active task'. Measured 2026-08-31 immediately after completing T-649: the prompt printed, the suggested command was refused. Same family as G-047 (the state completion leaves behind forbids ordinary follow-up work), but a distinct instance because this one is the tool contradicting its OWN advice one line later, which no cadence rule can avoid - unlike the commit case, there is no earlier moment at which the agent could have run fix-learned, because the prompt is what tells you to. Fix is probably either (a) capture the learning inline during the same transition, or (b) exempt fw fix-learned/fw context add-learning from the null-focus block the way git commit is exempted by T-2054."
+  captured: 2026-08-31T12:05:19Z
+  context_task: null
+  tags: [framework]
+  status: resolved
+  promoted_to: T-650
