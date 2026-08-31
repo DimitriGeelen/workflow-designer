@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-662: G-047 is recorded as jointly unsatisfiable but its third focus state was never measured
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T19:58:28Z
+# ============================================================================
+
+task_id: T-662
+task_name: "G-047 is recorded as jointly unsatisfiable but its third focus state was never measured"
+workflow_type: refactor
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-31T19:49:30Z
+completed: 2026-08-31T19:58:16Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T21:58:10+02:00
+last_commit: 2026-08-31T21:58:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  G-047 was registered as an impossibility nobody had tested; the gate permits the commit and never said so.
+
+# Key outcomes
+outcomes:
+  - 'The claim is verified against the code that acts, not only the one incidental'
+  - 'G-047''s `detail` is corrected in `.context/project/concerns.yaml`: clause (d)''s'
+  - 'G-047''s status is NOT flipped and its severity is NOT changed — concern flips are'
+  - 'The block message in `check-active-task.sh` names the two-command path, so the next'
+  - 'The message change is proven to fire: a probe shows the new text appears on the'
+  - 'Vendored-file divergence for `check-active-task.sh` is declared in'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-662-g-047-is-recorded-as-jointly-unsatisfiab.md'
+  - 'tools/_t662-null-focus-commit-path-must-be-discoverable.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T21:58:10"
+    action: 'T-662: G-047 was registered as an impossibility nobody had tested; the gate permits the commit and never said so.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 5
+  lines_added: 498
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-662-g-047-is-recorded-as-jointly-unsatisfiab.md
+generated_by: context-agent-hybrid

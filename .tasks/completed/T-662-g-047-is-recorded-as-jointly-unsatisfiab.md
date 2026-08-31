@@ -4,10 +4,10 @@ name: "G-047 is recorded as jointly unsatisfiable but its third focus state was 
 description: >
   G-047 is recorded as jointly unsatisfiable but its third focus state was never measured
 
-status: started-work
+status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T19:49:30Z
-last_update: 2026-08-31T19:49:30Z
-date_finished: null
+last_update: 2026-08-31T19:58:16Z
+date_finished: 2026-08-31T19:58:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -248,3 +248,15 @@ python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.ya
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-662-g-047-is-recorded-as-jointly-unsatisfiab.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c9c81cd9
+- **Timestamp:** 2026-08-31T19:58:24Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-31T19:58:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
