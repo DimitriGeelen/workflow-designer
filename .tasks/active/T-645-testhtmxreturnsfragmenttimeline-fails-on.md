@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:08:53Z
-last_update: 2026-08-30T18:23:09Z
+last_update: 2026-08-31T11:37:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -72,23 +72,92 @@ That splits into two defects, and they belong to two tasks:
 Fixing (1) alone would turn the test green while the page still emits raw tags — which is
 precisely why the two are separate and why this task must not simply relax the assertion.
 
+## Measured 2026-08-31, after T-646 closed
+
+T-646 removed the bytes this test was firing on, so it is green today. It is still the wrong
+instrument, and measurement says so in BOTH directions. Comparing the shipped scan against an
+actual HTML parser (asking only "was an `html`/`head`/`body` start tag or a doctype emitted"):
+
+| payload | substring scan | parser |
+|---------|----------------|--------|
+| `<HTML><BODY>x</BODY></HTML>` | **PASS** | FAIL `<html>,<body>` |
+| `<!doctype html><p>x</p>` | **PASS** | FAIL `<!DOCTYPE>` |
+| `<body><p>x</p></body>` | **PASS** | FAIL `<body>` |
+| `<Html lang="en"><p>x</p></Html>` | **PASS** | FAIL `<html>` |
+| `<!-- <html> --><p>hi</p>` | **FAIL** | PASS |
+| `<script>var s = "<html>";</script>` | **FAIL** | PASS |
+| `<nav class="x">hi</nav>` | PASS | PASS |
+
+**Four ways to ship a full document past this test, and two ways to be failed by text that is
+not markup at all.** Both halves are the same mistake: HTML tag names are case-insensitive and
+Python's `in` is not, and a substring cannot tell whether it sits in a comment, a script body,
+or an attribute value. The check is blind to the very thing it is named after.
+
+Eleventh instance of the house failure mode — a character-level scan standing in for a
+structural property — and the remedy is the one the other ten got: ask the parser.
+
+Note on the boundary with T-646: the structural version does NOT absorb it. A raw `<html>` in
+prose really is a start tag to any parser, so the new check still catches unescaped prose — it
+just reports it as "a document shell was found", which is the honest thing a fragment test can
+say. The escaping defect remains T-646's to detect, and T-646's own prober does.
+
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The fragment assertion is structural: it decides whether the response has a root
+- [x] The fragment assertion is structural: it decides whether the response has a root
       `<html>`/`<!DOCTYPE>` **element**, not whether a byte sequence occurs. Parsing the
       response, or anchoring on the start of the document, are both acceptable; a longer
       substring is not.
-- [ ] The new assertion is shown to still catch a genuine full-page response — a probe
+- [x] The new assertion is shown to still catch a genuine full-page response — a probe
       feeds it an actual rendered page (a non-HX GET of the same route) and the assertion
       must reject it. An assertion that cannot fail is not an assertion.
-- [ ] The new assertion does **not** silently absorb T-646: with the raw `<html>` still
+- [x] The new assertion does **not** silently absorb T-646: with the raw `<html>` still
       present in task prose, this test passes (it is a fragment) while T-646's own check
       fails (the page escapes nothing). The two must be independently observable.
-- [ ] All ten parametrised routes pass: `pytest -k test_htmx_returns_fragment`.
-- [ ] The 13.3 MB `/timeline` fragment is recorded as an observation if it is not already
+- [x] All ten parametrised routes pass: `pytest -k test_htmx_returns_fragment`.
+- [x] All four documents the old assertion ADMITTED are now rejected: `<HTML><BODY>`, lowercase `<!doctype html>`, a bare `<body>`, mixed-case `<Html>`
+- [x] Both non-markup cases are ADMITTED: a tag name inside an HTML comment, and a tag name inside an inline `<script>` body
+- [x] The detector has its own tests in `test_app.py`, positive and negative, so the new instrument is not itself unverified
+- [x] The failure message names WHICH shell construct was found and on which path, rather than asserting a bare absence
+- [x] `test_full_page_has_wrapper` — which asserts the OPPOSITE for non-HX responses — still passes, so the change did not simply weaken the pair
+- [x] Suite total no worse than the post-T-646 baseline of 4 failed / 141 passed, with the 4 being the known `@pytest.mark.framework_repo` ones
+- [x] The 13.3 MB `/timeline` fragment is recorded as an observation if it is not already
       one — it is not this task's to fix, but a 13 MB HTMX swap is worth someone knowing
       about.
+
+**Evidence.**
+
+`document_shell_constructs()` replaces the two substring assertions; `test_htmx_returns_fragment`
+now calls it and reports what it found. Nine new parametrized tests cover the detector itself —
+four shells it must catch, five payloads it must not.
+
+Fed REAL rendered pages through the new detector (not synthetic strings):
+
+```
+/timeline   full-page GET -> ['<!DOCTYPE>', '<html>', '<head>', '<body>']
+/timeline   HX-Request    -> clean (fragment)
+/tasks      full-page GET -> ['<!DOCTYPE>', '<html>', '<head>', '<body>']
+/tasks      HX-Request    -> clean (fragment)
+/           full-page GET -> ['<!DOCTYPE>', '<html>', '<head>', '<body>']
+/           HX-Request    -> clean (fragment)
+```
+
+So the assertion can still fail, on the real thing, for the real reason.
+
+Suite: **4 failed / 141 passed → 4 failed / 150 passed.** Same four known
+`@pytest.mark.framework_repo` failures; +9 from the new detector tests. Targeted run of the
+affected classes: **24 passed**.
+
+**On independence from T-646, stated precisely rather than waved at.** Each defect is
+observable without the other: T-646's prober tests `linkify_tasks` as a function and its teeth
+leg fails on the pre-fix source with no page served at all; T-645's four detector rows fail on
+the old substring logic with no escaping involved. Neither hides the other. What is *not* true
+is that the new fragment check ignores unescaped prose — a raw `<html>` in a page body is a
+start tag to any parser, so it would still be reported here, as "a document shell was found".
+That is the honest limit of what a fragment test can say about an escaping bug, and it is
+written into the helper's docstring rather than left for the next reader to discover.
+
+OBS-330 filed for the 13.3 MB fragment.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -121,11 +190,29 @@ precisely why the two are separate and why this task must not simply relax the a
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** CLOSE — the change is an instrument swap with measured before/after in both
+directions, and needs no ruling.
+
+**Rationale:** The old assertion was wrong twice over and both are now demonstrated, not argued:
+four document shells it admitted are rejected, two non-markup payloads it rejected are admitted.
+The new detector is itself tested rather than trusted, and it is shown rejecting real rendered
+pages, so it can still fail. Nothing here is taste or policy.
+
+**Not done, deliberately:** the identical `<!DOCTYPE`/`<html` substring pattern may exist in
+other test files; I did not sweep for it. Widening this task into a codebase-wide scan would
+make it a second deliverable, and the sweep is the kind of thing that deserves its own
+no-widening discipline rather than being tacked onto a fix.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+python3 -m pytest .agentic-framework/web/test_app.py -q -k "htmx_returns_fragment or document_shell or merely_mentions or full_page_has_wrapper" 2>&1 | tail -1 | grep -q "24 passed"
+python3 -c "import sys,importlib.util; spec=importlib.util.spec_from_file_location('t','.agentic-framework/web/test_app.py'); m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m); assert m.document_shell_constructs('<HTML><BODY>x</BODY></HTML>')==['<html>','<body>']; assert m.document_shell_constructs('<script>var s = \"<html>\";</script>')==[]"
+grep -q "document_shell_constructs(resp.data.decode())" .agentic-framework/web/test_app.py
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;

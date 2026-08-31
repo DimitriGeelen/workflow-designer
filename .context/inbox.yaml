@@ -1459,3 +1459,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-330
+  text: "The /timeline HTMX fragment is 13.3 MB. Measured 2026-08-31: GET /timeline with HX-Request returns 13,341,738 bytes, and that is the payload swapped into the DOM on every navigation to the Timeline tab. It renders correctly, so nothing complains. Two consequences worth someone deciding about: (1) any test or probe that fetches this route pays ~2-4s and a large parse, which is a slice of the web suite's 3-minute runtime; (2) the page inlines every session narrative in full rather than paginating or truncating, so the size grows monotonically with project history and there is no point at which it stops. Not a defect and not this task's to fix - surfaced from T-645 because a 13 MB HTMX swap is worth knowing about before it becomes 30."
+  captured: 2026-08-31T11:46:10Z
+  context_task: T-645
+  tags: [perf]
+  status: pending
+  promoted_to: null
