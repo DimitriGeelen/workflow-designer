@@ -2068,3 +2068,17 @@ decisions:
     date: 2026-08-31
     task: T-658
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-275
+    decision: "the guard lives in the pre-commit hook `hooks.sh` already generates, ahead of"
+    scope: project
+    date: 2026-08-31
+    task: T-659
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-276
+    decision: "gate on `$CLAUDECODE=1`, with `FW_ALLOW_RETENTION_SWEEP=1` as the documented"
+    scope: project
+    date: 2026-08-31
+    task: T-659
+    rationale: "Auto-captured from task file on completion"

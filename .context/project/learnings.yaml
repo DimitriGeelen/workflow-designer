@@ -2129,3 +2129,10 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-300
+  learning: "REPEATED COMPLIANCE WITH A REMEMBERED RULE IS EVIDENCE OF ATTENTION, NOT OF SAFETY — AND IT READS IDENTICALLY TO A MECHANISM RIGHT UP TO THE MOMENT IT FAILS. 'Stage explicit paths, never a directory' was applied correctly across three sessions and every commit in them. That track record was worth nothing: it broke on the first command where attention was on the destination file rather than on the directory being named, and 338 retention-cron deletions entered the index. The tell to look for is not 'have I been following this rule' but 'what would catch me if I stopped' — if the answer is 'I would notice', the rule is unenforced no matter how long the clean streak is. A long clean streak under a remembered rule should INCREASE suspicion, because it is exactly the evidence that makes building the mechanism feel unnecessary."
+  source: P-001
+  task: T-659
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD

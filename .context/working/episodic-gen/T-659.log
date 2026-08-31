@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-31T18:50:49Z ===
+task_id: T-659
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-659.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Constraint T-571 near-miss: git add .context/ swept 338 cron retention deletions into the index
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 1
+  Lines: +813 -7 across 13 files
+  Outcomes: 6 AC checked
+  Artifacts: 13 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-659-constraint-t-571-near-miss-git-add-conte.md
+--- exit code: 0 ---

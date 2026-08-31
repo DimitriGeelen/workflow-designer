@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-659: Constraint T-571 near-miss: git add .context/ swept 338 cron retention deletions into the index
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T18:50:49Z
+# ============================================================================
+
+task_id: T-659
+task_name: "Constraint T-571 near-miss: git add .context/ swept 338 cron retention deletions into the index"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-31T18:46:17Z
+completed: 2026-08-31T18:50:43Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T20:50:37+02:00
+last_commit: 2026-08-31T20:50:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the rule lived in my head and the index does not consult it.
+
+# Key outcomes
+outcomes:
+  - 'The index contains zero `.context/audits/cron/` paths, and the 338 deletions remain'
+  - 'The files that genuinely belong to T-658''s completion (fabric card, episodic,'
+  - 'A **mechanism** replaces the habit: something that fails loudly when cron-retention'
+  - 'That mechanism is proven to fire on a staged cron deletion and to stay silent on a'
+  - 'The check is **not** a new bespoke reimplementation if the framework already has a'
+  - 'Any framework-file change is declared in `.vendor-divergence.yaml` (G-008).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-31 — extend the existing pre-commit hook, do not add a new surface'
+    chose: 'the guard lives in the pre-commit hook `hooks.sh` already generates, ahead of the secret scan and beside the master-guard.'
+    rationale: 'a pre-commit hook is where staging policy is already enforced in this project, and it is the last point before the mistake becomes history. Checked before writing: `hooks.sh` already inspects `git diff --cached` in two places, so this is an extension of an existing pattern rather than a second mechanism competing with it.'
+    alternatives_rejected: ['a PreToolUse hook on `git add`. It would fire on the command rather than on the resulting index, so `git add -A` and `git commit -a` would both slip past, and it would nag on adds that are entirely correct.']
+  - decision: '2026-08-31 — block the agent, never the operator'
+    chose: 'gate on `$CLAUDECODE=1`, with `FW_ALLOW_RETENTION_SWEEP=1` as the documented deliberate path.'
+    rationale: 'the deletions must reach git eventually or the pruned files return. The problem was never that they get committed — it is *who* decides to commit them. A guard that blocked everyone would convert an ownership rule into an obstruction and be bypassed routinely, which is how gates stop being read.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/episodic/T-657.yaml'
+  - '.context/episodic/T-658.yaml'
+  - '.context/inbox.yaml'
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/working/episodic-gen/T-657.log'
+  - '.context/working/episodic-gen/T-658.log'
+  - '.fabric/components/tools-_t658-p011-must-distinguish-killed-from-failed.yaml'
+  - '.tasks/active/T-659-constraint-t-571-near-miss-git-add-conte.md'
+  - '.tasks/completed/T-658-p-011-reports-a-killed-verification-comm.md'
+  - 'tools/_t659-retention-sweep-must-not-be-agent-staged.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T20:50:37"
+    action: 'T-659: the rule lived in my head and the index does not consult it.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 13
+  lines_added: 813
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-659-constraint-t-571-near-miss-git-add-conte.md
+generated_by: context-agent-hybrid
