@@ -1473,3 +1473,10 @@ observations:
   tags: [framework]
   status: resolved
   promoted_to: T-650
+- id: OBS-332
+  text: "P-011 verification lines that invoke 'fw audit' hang. update-task.sh:1272 runs each verification command as (unset ...; eval \"$_close_locks_cmd\"; cd \"$PROJECT_ROOT\" && eval \"$cmd\") - the close-locks call exists because the subshell inherits the task update's lock FDs. A full 'fw audit' from inside there contends with the transition that invoked it: measured 2026-08-31 under T-651, the first invocation returned and an immediate second one hung until a 5-minute timeout killed it. The gate reported it as a plain verification FAIL, which reads as 'your check is wrong' rather than 'your check did not finish' - the same missing-third-outcome shape as OBS-329 (a surface that cannot distinguish no-verdict from unparseable-verdict). Two things worth separating: (a) advise against whole-audit invocations in P-011 since it makes one task's completion depend on every unrelated warning in the tree, and (b) the gate should distinguish a command that FAILED from one that TIMED OUT or was killed."
+  captured: 2026-08-31T13:11:59Z
+  context_task: T-651
+  tags: [framework]
+  status: pending
+  promoted_to: null

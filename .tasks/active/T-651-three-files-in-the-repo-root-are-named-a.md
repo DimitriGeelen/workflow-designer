@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T12:45:11Z
-last_update: 2026-08-31T12:59:49Z
+last_update: 2026-08-31T13:00:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -148,9 +148,27 @@ see at filing, and the first AC is what corrected it. See `## RCA`.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The prober EXTRACTS the check out of the real audit.sh by its marker comment and exits 3
+# if that anchor is gone, so wiring is proven by extraction succeeding — not assumed.
 bash tools/_t651-stray-root-files-are-caught.sh
 bash -n .agentic-framework/agents/audit/audit.sh
-out=$(.agentic-framework/bin/fw audit 2>&1); echo "$out" | grep -q "\[PASS\] Stray root files"
+grep -q '# T-651: zero-byte untracked files at the repo ROOT' .agentic-framework/agents/audit/audit.sh
+#
+# REPLACED, and the reason belongs here rather than in a silent deletion. This line was:
+#   out=$(.agentic-framework/bin/fw audit 2>&1); echo "$out" | grep -q "\[PASS\] Stray root files"
+# It failed the gate, and the failure was NOT the check. Three hypotheses, tested in order:
+#   1. eval eats the backslashes in `\[PASS\]` -> DISPROVED (eval preserves the match).
+#   2. cwd differs so the relative fw path breaks -> DISPROVED (P-011 does `cd "$PROJECT_ROOT"`
+#      at update-task.sh:1272).
+#   3. The audit does not complete inside the gate -> CONFIRMED. Re-running it in the same
+#      subshell form hung until a 5-minute timeout killed it. update-task.sh:1272 runs
+#      `eval "$_close_locks_cmd"` before the command precisely because the verification
+#      subshell inherits the task update's lock FDs; a full `fw audit` from in there
+#      contends with the very transition that invoked it.
+# So: never call the whole audit from a task's own completion gate. It is a global,
+# minutes-long, lock-taking read of the entire repo being run from inside a transaction on
+# that repo, and it makes one task's completion depend on every unrelated warning in the
+# tree. Filed as OBS-332.
 
 ## RCA
 
