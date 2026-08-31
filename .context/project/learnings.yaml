@@ -2157,3 +2157,10 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-304
+  learning: "A gate that refuses without naming WHICH rule it applied gets its behaviour inferred from the refusal, and the inference becomes the record. G-047 was registered as 'jointly unsatisfiable' — justifying proposals to make work-completed non-terminal — on the strength of a 'No active task' message. Measured: git add IS safe-listed and git commit HAS a null-focus exemption; what defeats it is a $(...) substitution sharing the commit's line, because T-638 judges each clause of the quote-stripped command. Two wrong explanations preceded the right one, and the second ('compounds are blocked') was also disproved by the prober, not by re-reading. Ask of any gap sourced from a block message: did anyone drive the gate, or did we read the error and write down what it seemed to mean?"
+  source: P-001
+  task: T-662
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
