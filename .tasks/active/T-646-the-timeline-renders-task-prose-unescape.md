@@ -4,7 +4,7 @@ name: "the timeline renders task prose unescaped: raw < from a task body reaches
 description: >
   GET /timeline returns 2 occurrences of the literal characters '<html' and 0 of '&lt;html'. The source is task prose discussing HTMX fragments; the page emits it as markup rather than text. Measured via app.test_client() on 2026-08-30. Task bodies are authored in-repo so this is not an external injection vector, but any task text containing < renders as a tag and can silently break the page's structure. Found while investigating T-645, which fired on exactly this byte for an unrelated reason. Sibling: T-645 fixes the ASSERTION, this task fixes the ESCAPING; fixing either alone leaves the other defect standing.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:24:16Z
-last_update: 2026-08-30T18:24:16Z
+last_update: 2026-08-31T11:22:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,96 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`web/app.py:162` registers the Jinja filter as:
+
+```python
+app.jinja_env.filters["linkify_tasks"] = lambda text: Markup(linkify_tasks(text))
+```
+
+and `shared.py:1086` `linkify_tasks()` substitutes `T-\d{3,}` into `<a href=…>` over the
+RAW string. So the order is *linkify, then declare trusted* — and the declaration covers
+the whole string, not just the anchors the function added. Every other character of the
+source prose is handed to the browser as markup.
+
+**The source is a file on disk.** `blueprints/timeline.py:159` reads `session_narrative`
+from handover frontmatter, falling back to a regex capture of the "Where We Are" section.
+That is committed markdown written by sessions, i.e. arbitrary prose. Measured on the live
+Watchtower at `/timeline`: 2 occurrences of a raw `<html` reach the browser as a tag, from a
+task narrative that was *discussing* HTML fragments. The same paragraph also shows a live
+`<a href="/tasks/T-2309">` — which is what proves the string was marked safe rather than
+merely containing a stray character.
+
+This is XSS-shaped: a narrative containing `<script>` would execute. It is not an open
+door — the input is our own repository, not a network attacker — so the honest severity is
+*rendering corruption with an injection shape*, and the fix is the same either way.
+
+Two filters call it: `templates/timeline.html:23,50` and `templates/fleet.html:319`. Both
+pass plain prose, so escaping is correct for both; neither is passing pre-built HTML that
+escaping would break.
+
+Fix: escape first, then linkify. The anchors are then the only markup the function created,
+which is the only markup it is entitled to vouch for.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `linkify_tasks()` escapes HTML metacharacters (`<`, `>`, `&`, `"`) BEFORE inserting anchors, so the returned Markup vouches only for the anchors it added
+- [x] The feature is not lost: `T-123` in prose still becomes `<a href="/tasks/T-123">T-123</a>`, and a T-ref adjacent to escaped metacharacters still links
+- [x] A narrative containing `<script>alert(1)</script>` yields no `<script` element in the rendered output — it renders as visible text
+- [x] Live `/timeline` (HX-Request) contains ZERO raw `<html` originating from prose; the occurrences that were raw are escaped
+- [x] Exactly ONE escaping pass, not two: input `a & b` produces `a &amp; b`, never `a &amp;amp; b` (a reader sees a single `&` on screen)
+- [x] A prober `tools/_t646-*.sh` pins the above and has teeth: reverting to the pre-fix `Markup(linkify_tasks(raw))` order makes it fail by naming the injected element
+- [x] `python3 -m pytest .agentic-framework/web/test_app.py -q` shows no NEW failures against the pre-change baseline (the baseline is 5 known failures: 4 `@pytest.mark.framework_repo` + the T-645 assertion)
+
+**Evidence.**
+
+`bash tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh` → **8 passed, 0 failed.**
+
+Function-level, on the live code:
+
+| input | output |
+|-------|--------|
+| `see T-123 for <html> and & stuff` | `see <a href="/tasks/T-123">T-123</a> for &lt;html&gt; and &amp; stuff` |
+| `<script>alert(1)</script> in T-2309` | `&lt;script&gt;alert(1)&lt;/script&gt; in <a href="/tasks/T-2309">T-2309</a>` |
+| `a & b` | `a &amp; b` (one pass, not `&amp;amp;`) |
+
+Teeth: the prober extracts the REAL `linkify_tasks` source out of `shared.py`, reverses the two
+tokens the fix introduced, executes that, and requires the injection back —
+`'<script>alert(1)</script> in <a href="/tasks/T-2…'`. It reports COULD-NOT-MEASURE rather
+than passing if the function is ever rewritten into a shape the mutation cannot find.
+
+Live board, `/timeline` with `HX-Request`: **0 raw `<html`, 4 escaped** (was 2 raw / 2 escaped).
+Watchtower had to be restarted to pick the change up — it had been running 4d 14h on pre-fix
+code, and the prober's end-to-end leg said exactly that rather than going green on stale bytes.
+
+Suite: **5 failed / 140 passed → 4 failed / 141 passed.** No new failures; one *fixed* — the
+T-645 assertion `test_htmx_returns_fragment[/timeline]` was firing on these very bytes and now
+passes. The remaining 4 are the pre-existing `@pytest.mark.framework_repo` ones a vendored
+consumer is expected to fail. **T-645 is NOT closed by this** — its assertion is still a
+substring scan, it just no longer has anything to scan. That is its own task, as filed.
+
+## Visual Verification
+
+`.playwright-mcp/t646-after.png` — element screenshot of the affected narrative on the live
+board, read back with the Read tool. The sentence renders as
+`the SHAPE (a fragment, no <html>) and the CONSEQUENCE`, with the tag visible as text.
+
+Live DOM at the same element: `textShowsTag: true`, `noHtmlElementInside: true`,
+`anchorsStillLive: 17` — the escaping took effect and the linkification survived it.
+
+**What the reader saw BEFORE, measured rather than assumed.** Parsing the exact pre-fix output
+in the browser:
+
+```
+innerHTML: 'the SHAPE (a fragment, no <html>) and the CONSEQUENCE'
+textContent -> 'the SHAPE (a fragment, no ) and the CONSEQUENCE'
+elements created: 0
+```
+
+So the practical harm was not the injection shape at all. **THE BROWSER ATE THE TAG AND
+SILENTLY DELETED WORDS FROM THE OPERATOR'S OWN NOTES** — no error, no gap, just a sentence
+that reads as if it were written wrong. A narrative describing HTML was the one kind of
+narrative this page could not display, and the page said nothing about it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -74,9 +156,29 @@ date_finished: null
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** CLOSE — mechanically verified in both directions, nothing here needs a ruling.
+
+**Rationale:** One-line ordering defect (escape before you vouch), a prober with teeth that
+reverses the real source rather than pinning a copy, a live-board before/after, and a screenshot
+read back. No taste question, no policy question, no sovereignty question. The one judgement I
+made without asking is recorded plainly: I called the severity *rendering corruption with an
+injection shape* rather than "XSS", because the input is our own repository rather than a
+network attacker — and the fix is identical under either reading, so nothing turns on it.
+
+**Adjacent, deliberately not done here:** `blueprints/inception.py:34` and `blueprints/tasks.py`
+also return `Markup(...)`. Those wrap markdown that has already been through
+`render_markdown_safe()`, which is a different contract; auditing them is a separate task, not
+a silent widening of this one.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
+bash tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh
+bash -n tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh
+python3 -W error::SyntaxWarning -c "import sys; sys.path.insert(0,'.agentic-framework'); import web.shared"
+python3 -c "import sys; sys.path.insert(0,'.agentic-framework'); from web.shared import linkify_tasks as l; assert '<script' not in str(l('<script>x</script> T-1')), 'unescaped script survived'"
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 #
@@ -190,3 +292,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-646-the-timeline-renders-task-prose-unescape.md
 - **Context:** Initial task creation
+
+### 2026-08-31T11:22:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, TypeVar
 
-from markupsafe import Markup
+from markupsafe import Markup, escape
 import yaml
 from flask import render_template, request
 
@@ -1084,14 +1084,30 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    """Convert T-XXX references to clickable Watchtower links (T-851)."""
+    r"""Convert T-XXX references to clickable Watchtower links (T-851).
+
+    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
+    Jinja filter in app.py, and a function may only vouch for markup it created
+    itself. Before this, the substitution ran over the RAW string and the whole
+    result was wrapped in Markup(), so every `<` in the source prose was published
+    as a tag. The source is not incidental: timeline narratives are read out of
+    committed handover markdown (blueprints/timeline.py:159), so the text is prose
+    that sessions wrote, and sessions write about HTML. Measured on the live
+    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
+    fragments. Injection-shaped rather than an open door — the input is our own
+    repository — but the ordering is wrong either way, and the fix is one line.
+
+    escape() is applied to the whole input; the anchors are then inserted into
+    already-escaped text, so they are the only markup this function vouches for.
+    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
+    """
     if not text:
         return text
-    return re_mod.sub(
+    return Markup(re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(text),
-    )
+        str(escape(text)),
+    ))
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (
