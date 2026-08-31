@@ -16,6 +16,10 @@
 
 set -uo pipefail
 
+# T-661: mutation completeness is asserted by the shared helper — "the original form is
+# gone", not "my marker appears exactly N times". See tools/lib/mutation-assert.sh.
+. "$(dirname "${BASH_SOURCE[0]}")/lib/mutation-assert.sh"
+
 PROJ="${T659_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SRC="$PROJ/.agentic-framework/agents/git/lib/hooks.sh"
 
@@ -140,10 +144,10 @@ fi
 echo "--- teeth: drop the agent-control test and the operator must start being blocked"
 MUT="$TMP/guard-mutant.sh"
 sed 's|^if \[ "\${CLAUDECODE:-0}" = "1" \] && \[ "\${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" \]; then|if true; then|' "$GUARD" > "$MUT"
-MUTATED=$(grep -c '^if true; then' "$MUT" || true)
 BASE=$(run_guard "$R4" 0)
-if [ "$MUTATED" -ne 1 ]; then
-    bad "MUTATION FAILED — expected exactly 1 control test to neutralise, got $MUTATED"
+# T-661: completeness, not a marker count. See tools/lib/mutation-assert.sh.
+if ! MUTATED=$(assert_mutation_complete "$GUARD" "$MUT" '^if \[ "\${CLAUDECODE:-0}" = "1" \]' 'agent-control test'); then
+    bad "$MUTATED"
 elif [ "${BASE%%|*}" != "rc0" ]; then
     # PL-297 / PL-299: the unmutated subject must demonstrably behave the other way first.
     bad "PRECONDITION FAILED — unmutated guard already blocks the operator, so the mutant proves nothing"

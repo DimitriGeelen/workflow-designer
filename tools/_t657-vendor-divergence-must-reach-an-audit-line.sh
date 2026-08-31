@@ -21,6 +21,10 @@
 
 set -uo pipefail
 
+# T-661: mutation completeness is asserted by the shared helper — "the original form is
+# gone", not "my marker appears exactly N times". See tools/lib/mutation-assert.sh.
+. "$(dirname "${BASH_SOURCE[0]}")/lib/mutation-assert.sh"
+
 PROJ="${T657_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SRC="$PROJ/.agentic-framework/agents/audit/audit.sh"
 REAL_TOOL="$PROJ/tools/_t517-vendor-divergence.py"
@@ -174,12 +178,14 @@ MUT="$TMP/block-mutant.sh"
 # Force the failure branch unreachable — the pre-T-657 world, where the tool's verdict
 # existed and reached no one. Reached without touching anything else in the block.
 sed 's|^    if \[ \$? -ne 0 \]; then|    if false; then|' "$BLOCK" > "$MUT"
-MUTATED=$(grep -c 'if false; then' "$MUT" || true)
 BASELINE=$(verdict "$RED" "$TMP/framework")
-if [ "$MUTATED" -ne 1 ]; then
-    # T-656: assert the mutation LANDED. A sed that matched nothing leaves an unmutated
-    # subject that passes every leg and certifies teeth the prober does not have.
-    bad "MUTATION FAILED — expected exactly 1 exit-code test to neutralise, got $MUTATED"
+# T-656: assert the mutation LANDED. A sed that matched nothing leaves an unmutated
+# subject that passes every leg and certifies teeth the prober does not have.
+# T-661: asked as "the original form is gone", not "'if false' appears exactly once" —
+# the latter is an equality where the invariant is a floor, and it also cannot tell a
+# landed mutation from an `if false` the subject already contained.
+if ! MUTATED=$(assert_mutation_complete "$BLOCK" "$MUT" '^    if \[ \$? -ne 0 \]; then' 'exit-code test'); then
+    bad "$MUTATED"
 elif ! echo "$BASELINE" | grep -q '^WARN::'; then
     # AND assert the FIXTURE landed. Caught live while writing this: an unbound-variable
     # bug left $RED empty, the unmutated block emitted nothing, the mutant also emitted

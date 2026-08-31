@@ -16,6 +16,10 @@
 
 set -uo pipefail
 
+# T-661: mutation completeness is asserted by the shared helper — "the original form is
+# gone", not "my marker appears exactly N times". See tools/lib/mutation-assert.sh.
+. "$(dirname "${BASH_SOURCE[0]}")/lib/mutation-assert.sh"
+
 PROJ="${T658_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SRC="$PROJ/.agentic-framework/agents/task-create/update-task.sh"
 
@@ -176,10 +180,10 @@ fi
 echo "--- teeth: collapse the classification and 124 must read as a plain failure"
 MUT="$TMP/region-mutant.sh"
 sed 's|^            if \[ -n "\$_vk_signal" \]; then|            if false; then|' "$REGION" > "$MUT"
-MUTATED=$(grep -c 'if false; then' "$MUT" || true)
 BASELINE=$(run "$REGION" 'exit 124')
-if [ "$MUTATED" -ne 1 ]; then
-    bad "MUTATION FAILED — expected exactly 1 classification branch to neutralise, got $MUTATED"
+# T-661: completeness, not a marker count. See tools/lib/mutation-assert.sh.
+if ! MUTATED=$(assert_mutation_complete "$REGION" "$MUT" '^            if \[ -n "\$_vk_signal" \]; then' 'classification branch'); then
+    bad "$MUTATED"
 elif ! echo "$BASELINE" | grep -q 'DID NOT FINISH'; then
     # PL-297: silence after a mutation only means something if there was noise before it.
     bad "PRECONDITION FAILED — unmutated region does not classify 124, so the mutant's silence proves nothing"

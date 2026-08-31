@@ -17,6 +17,10 @@
 
 set -uo pipefail
 
+# T-661: mutation completeness is asserted by the shared helper — "the original form is
+# gone", not "my marker appears exactly N times". See tools/lib/mutation-assert.sh.
+. "$(dirname "${BASH_SOURCE[0]}")/lib/mutation-assert.sh"
+
 PROJ="${T656_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SRC="$PROJ/.agentic-framework/agents/audit/audit.sh"
 
@@ -147,9 +151,12 @@ MUT="$TMP/d2-mutant.sh"
 # Force both classification tests false, so every task falls to the judgement group — the
 # pre-T-656 behaviour, reached without touching anything else in the block.
 sed 's|if \[ "\$unticked" -eq 0 \]; then|if false; then|g' "$D2" > "$MUT"
-REVERTED=$(grep -c 'if false; then' "$MUT" || true)
-if [ "$REVERTED" -ne 2 ]; then
-    bad "MUTATION FAILED — expected 2 classification tests to neutralise, got $REVERTED. Assert the count: a half-mutation reads like a passing subject."
+# T-661: this is the literal shape 999-AEF reported at @897 — a count pinned at 2 where
+# the invariant is "none of them survive". A third correct classification test would have
+# turned this leg red for being right. Half-mutation is still caught, by the survivor
+# count rather than by the total.
+if ! REVERTED=$(assert_mutation_complete "$D2" "$MUT" 'if \[ "\$unticked" -eq 0 \]; then' 'classification test'); then
+    bad "$REVERTED"
 else
     OUT=$(verdict "$(scan 'T-1:800:2' 'T-2:800:0')" "$MUT")
     if ! echo "$OUT" | grep -q 'signed off' && echo "$OUT" | grep -q '2 awaiting judgement'; then

@@ -41,6 +41,10 @@
 
 set -uo pipefail
 
+# T-661: mutation completeness is asserted by the shared helper — "the original form is
+# gone", not "my marker appears exactly N times". See tools/lib/mutation-assert.sh.
+. "$(dirname "${BASH_SOURCE[0]}")/lib/mutation-assert.sh"
+
 PROJ="${T650_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 HOOK="$PROJ/.agentic-framework/agents/context/check-active-task.sh"
 LIB="$PROJ/.agentic-framework/agents/context/lib/safe-commands.sh"
@@ -181,11 +185,12 @@ MUT="$TMP/mutant-safe-commands.sh"
 # `$` and silently reverted only one of them, then reported the count. Anchoring on the
 # token and asserting the count is what turned a half-mutation into a visible failure.
 sed -e 's/^\([[:space:]]*\)fix-learned)/\1__t650_reverted)/' "$LIB" > "$MUT"
-REVERTED=$(grep -c '__t650_reverted)' "$MUT" || true)
 if ! bash -n "$MUT" 2>/dev/null; then
     bad "MUTATION FAILED — mutant does not parse; it would block everything and prove nothing"
-elif [ "$REVERTED" -ne 2 ]; then
-    bad "MUTATION FAILED — expected 2 'fix-learned)' entries to revert, neutralised $REVERTED"
+# T-661: "no fix-learned) arm survives", not "exactly 2 were reverted". A third arm is a
+# correct change; the old equality would have reported it as a mutation failure.
+elif ! REVERTED=$(assert_mutation_complete "$LIB" "$MUT" '^[[:space:]]*fix-learned)' 'fix-learned arm'); then
+    bad "$REVERTED"
 else
     probe() { ( set +u; source "$MUT" >/dev/null 2>&1; \
                 is_bash_safe_command "$1" >/dev/null 2>&1 && echo ADMIT || echo BLOCK ); }

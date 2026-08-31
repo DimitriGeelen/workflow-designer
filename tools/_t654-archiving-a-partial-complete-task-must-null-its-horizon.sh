@@ -45,6 +45,10 @@
 
 set -uo pipefail
 
+# T-661: mutation completeness is asserted by the shared helper — "the original form is
+# gone", not "my marker appears exactly N times". See tools/lib/mutation-assert.sh.
+. "$(dirname "${BASH_SOURCE[0]}")/lib/mutation-assert.sh"
+
 PROJ="${T654_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 UPDATE="$PROJ/.agentic-framework/agents/task-create/update-task.sh"
 
@@ -283,10 +287,13 @@ MUT="$FARM/agents/task-create/update-task.sh"
 # path too, and then leg 3's regression cannot be attributed to region A at all — which
 # is what this leg reported before the marker existed.
 sed 's|^\([[:space:]]*\)_sed_i .*# T-654$|\1: # T-654 reverted|' "$UPDATE" > "$MUT"
-REVERTED=$(grep -c '# T-654 reverted' "$MUT" || true)
 REMAINING=$(grep -c 'horizon: null/" "\$TASK_FILE"' "$MUT" || true)
-if [ "$REVERTED" -ne 1 ]; then
-    bad "MUTATION FAILED — expected exactly 1 T-654-marked null to revert, neutralised $REVERTED. Assert the count: a partial mutation is indistinguishable from a passing subject."
+# T-661: "every T-654-marked null is gone" rather than "exactly one was". The upper bound
+# was never the property — region A gaining a second marked null is a correct change, and
+# the old equality would have called it a mutation failure. Region B's survival is still
+# asserted separately below; that one IS an exactness claim and stays.
+if ! REVERTED=$(assert_mutation_complete "$UPDATE" "$MUT" '^[[:space:]]*_sed_i .*# T-654$' 'T-654-marked null'); then
+    bad "$REVERTED"
 elif [ "$REMAINING" -lt 1 ]; then
     bad "MUTATION TOO BROAD — region B's null was neutralised as well ($REMAINING left); leg 1 would fail for the wrong reason."
 else

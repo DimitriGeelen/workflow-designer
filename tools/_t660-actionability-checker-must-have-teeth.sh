@@ -14,6 +14,10 @@
 
 set -uo pipefail
 
+# T-661: mutation completeness is asserted by the shared helper — "the original form is
+# gone", not "my marker appears exactly N times". See tools/lib/mutation-assert.sh.
+. "$(dirname "${BASH_SOURCE[0]}")/lib/mutation-assert.sh"
+
 PROJ="${T660_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 CHECKER="$PROJ/tools/_t660-human-ac-actionability.py"
 
@@ -157,10 +161,10 @@ fi
 echo "--- teeth: blind the comment stripper and the trap fixture must flip to actionable"
 MUT="$TMP/checker-mutant.py"
 sed 's|^COMMENT = re.compile(r"<!--.\*?-->", re.S)|COMMENT = re.compile(r"(?!x)x")|' "$CHECKER" > "$MUT"
-MUTATED=$(grep -c 're.compile(r"(?!x)x")' "$MUT" || true)
 BASE=$(run_checker "$TMP/d")
-if [ "$MUTATED" -ne 1 ]; then
-    bad "MUTATION FAILED — expected exactly 1 comment stripper to neutralise, got $MUTATED"
+# T-661: completeness, not a marker count. See tools/lib/mutation-assert.sh.
+if ! MUTATED=$(assert_mutation_complete "$CHECKER" "$MUT" '^COMMENT = re.compile(r"<!--' 'comment stripper'); then
+    bad "$MUTATED"
 elif ! echo "$BASE" | grep -q 'rc1'; then
     # PL-297/PL-299: the unmutated subject must demonstrably fail this fixture first.
     bad "PRECONDITION FAILED — unmutated checker already passes the trap fixture, so the mutant proves nothing"

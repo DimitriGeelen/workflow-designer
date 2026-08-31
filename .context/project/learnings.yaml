@@ -2150,3 +2150,10 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-303
+  learning: "PL-061 already named this exact defect ('exact-count source greps — use -ge floor') and seven probers violated it anyway, all written by an agent that had been shown PL-061 by fw work-on. A learning that is CORRECT and SPECIFIC still does not reach code, because recall happens at the moment you write the assertion and the ledger is consulted at the moment you open the task. The repair is not a better-worded learning, it is a shared callable: tools/lib/mutation-assert.sh, so the right form is the only form available. 999-AEF hit the identical shape at rail @897 in a bats file pinned to 2 correct call sites. Ask of any learning: is there a place a caller could reach for the wrong form? If yes, the learning is decoration."
+  source: P-011
+  task: T-661
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
