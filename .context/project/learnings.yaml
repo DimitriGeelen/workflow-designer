@@ -2045,3 +2045,10 @@ learnings:
   date: 2026-08-30
   context: Added via context agent
   application: TBD
+- id: PL-288
+  learning: "A CHOSEN-SET ASSERTION CANNOT FIND WHAT YOU FORGOT TO CHOOSE. A guard's test that asserts 'the bad inputs are refused AND these N good inputs are still admitted' is green precisely on the inputs its author thought of, so an over-block on a spelling nobody listed is invisible to it forever. The leg that finds it is a NO-WIDENING SWEEP: enumerate the corpus from the flag/input SPACE rather than from beliefs about what is safe, diff pre-fix against post-fix verdicts, and require every ADMITTED->BLOCKED transition to appear in a hand-authored manifest. What the fix TAKES AWAY then becomes a written, reviewable object instead of an implicit one. Evidence: T-640 shipped refusing 'curl -o -' and 'wget -O -' for a week with an 18-leg green prober; a peer found it from outside our tree with exactly this leg. Second-order evidence: the leg failed on its own author within a minute, catching a wrong manifest entry the ACs contradicted."
+  source: P-001
+  task: T-647
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
