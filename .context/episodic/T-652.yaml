@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-652: fw git commit is refused where git commit is allowed — the T-2054 exemption keys on spelling too
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T13:17:07Z
+# ============================================================================
+
+task_id: T-652
+task_name: "fw git commit is refused where git commit is allowed — the T-2054 exemption keys on spelling too"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-31T13:13:14Z
+completed: 2026-08-31T13:16:33Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T15:16:19+02:00
+last_commit: 2026-08-31T15:16:33+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the gate refused the documented commit spelling and admitted the undocumented one. drop duplicate Context heading
+
+# Key outcomes
+outcomes:
+  - 'With focus null, `fw git commit -m "T-1: x"` and `bin/fw git commit -m "T-1: x"` are'
+  - 'The exemption still lives in the T-2054 block, NOT in `is_bash_safe_command` — the'
+  - '`--no-verify` is still excluded through the alias: `fw git commit --no-verify` blocked.'
+  - 'T-638''s clause discipline survives the alias — `fw git commit -m "x" && rm -rf f`'
+  - 'The T-650 prober is EXTENDED (not duplicated) with this pair: 11 legs → 16, all pass.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.tasks/active/T-652-fw-git-commit-is-refused-where-git-commi.md'
+  - 'tools/_t650-an-alias-is-the-command-it-aliases.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T15:16:19"
+    action: 'T-652: the gate refused the documented commit spelling and admitted the undocumented one'
+  - time: "2026-08-31T15:16:33"
+    action: 'T-652: drop duplicate Context heading'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 3
+  lines_added: 286
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-652-fw-git-commit-is-refused-where-git-commi.md
+generated_by: context-agent-hybrid
