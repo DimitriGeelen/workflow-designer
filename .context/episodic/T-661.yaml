@@ -1,0 +1,100 @@
+# ============================================================================
+# EPISODIC MEMORY - T-661: Probers pin an exact substitution count where the invariant is a floor
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T19:47:34Z
+# ============================================================================
+
+task_id: T-661
+task_name: "Probers pin an exact substitution count where the invariant is a floor"
+workflow_type: refactor
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-31T19:36:43Z
+completed: 2026-08-31T19:47:21Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T21:44:55+02:00
+last_commit: 2026-08-31T21:47:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  seven probers pinned a substitution count at an equality where the invariant has no upper bound; PL-061 named it a month ago and that did not reach the code.. fabric cards for the prober family carry real edges and a subsystem, not TODO stubs.
+
+# Key outcomes
+outcomes:
+  - 'Every `tools/_t*.sh` prober is measured for the exact-count-on-substitution shape,'
+  - 'Each affected assertion is changed from an equality to a floor (`-lt 1` / `-eq 0`),'
+  - 'A prober proves the repair discriminates: a subject with TWO correct occurrences of'
+  - 'All previously-green probers still pass after the change (no leg silently loosened'
+  - 'AEF''s specific question is answered by measurement on our tree and the answer is'
+  - 'PL-061''s scope is widened to name mutation-substitution counts, since the existing'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-31 — not every equality on a count is the defect'
+    chose: 'Convert 7 probers; leave `_t634:157` (`NSITE -ne 1`) exactly as it is.'
+    rationale: '`_t634` counts CALL SITES of `run_verification_commands` in the subject and says "expected exactly 1 call site — the analysis covers only one". There, exactness IS the property: if a second site appeared, the leg''s conclusion would cover half its subject and the equality going red is the correct outcome. That is the same single-writer invariant 999-AEF deliberately created in their own bug-1 fix at @897. The defect is not "an equality on a count"; it is an equality standing in for a property that has no upper bound. Blanket-converting would have destroyed a real guard while claiming to fix a class.'
+    alternatives_rejected: ['A sweep over every `-ne <n>` in tools/. It would have been faster, larger-looking, and would have removed the one assertion in the group that was right.']
+  - decision: '2026-08-31 — assert the original form is gone, not that the marker appeared'
+    chose: '`assert_mutation_complete <subject> <mutant> <original-pattern>`, checking `before >= 1 && after == 0`, rather than the minimal fix of `-ne 1` → `-lt 1`.'
+    rationale: 'The floor alone still asks the wrong question. `grep -c ''if false; then''` cannot tell a landed mutation from an `if false; then` the subject already contained, so a subject that was never mutated can report a healthy count and certify teeth the prober does not have. "Zero occurrences of the pre-mutation form survive" answers the question the leg actually depends on, has no upper bound, and additionally names a STALE ANCHOR distinctly from a PARTIAL mutation.'
+    alternatives_rejected: ['Six bespoke in-place fixes. Six copies of a subtle assertion is the shape that produced both this bug and AEF''s; one writer is the point.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.fabric/components/tools-lib-mutation-assert.yaml'
+  - '.fabric/components/tools-_t657-vendor-divergence-must-reach-an-audit-line.yaml'
+  - '.fabric/components/tools-_t658-p011-must-distinguish-killed-from-failed.yaml'
+  - '.fabric/components/tools-_t659-retention-sweep-must-not-be-agent-staged.yaml'
+  - '.fabric/components/tools-_t660-actionability-checker-must-have-teeth.yaml'
+  - '.fabric/components/tools-_t661-mutation-count-is-a-floor.yaml'
+  - '.tasks/active/T-661-probers-pin-an-exact-substitution-count-.md'
+  - 'tools/lib/mutation-assert.sh'
+  - 'tools/_t650-an-alias-is-the-command-it-aliases.sh'
+  - 'tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh'
+  - 'tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh'
+  - 'tools/_t657-vendor-divergence-must-reach-an-audit-line.sh'
+  - 'tools/_t658-p011-must-distinguish-killed-from-failed.sh'
+  - 'tools/_t659-retention-sweep-must-not-be-agent-staged.sh'
+  - 'tools/_t660-actionability-checker-must-have-teeth.sh'
+  - 'tools/_t661-mutation-count-is-a-floor.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T21:44:55"
+    action: 'T-661: seven probers pinned a substitution count at an equality where the invariant has no upper bound; PL-061 named it a month ago and that did not reach the code.'
+  - time: "2026-08-31T21:47:17"
+    action: 'T-661: fabric cards for the prober family carry real edges and a subsystem, not TODO stubs.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 2
+  files_changed: 17
+  lines_added: 652
+  lines_removed: 53
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-661-probers-pin-an-exact-substitution-count-.md
+generated_by: context-agent-hybrid
