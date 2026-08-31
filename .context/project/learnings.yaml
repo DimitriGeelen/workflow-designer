@@ -2066,3 +2066,10 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-291
+  learning: "Two instances in one session make this a class, not a coincidence: an exemption justified by EFFECT but implemented against a SPELLING. fw fix-learned execs context.sh add-learning; fw git commit execs git commit with more checking in front. Both were refused while their targets were admitted. The second is the instructive one — CLAUDE.md's Quick Reference mandates 'fw git commit' and the hook's own block message suggests bare 'git commit', so the gate refused the documented command and admitted the undocumented one, and following the project's instructions was the failing path. Note WHY hardening did not catch it: T-638 had already tightened this exact predicate, but the question you ask when hardening is 'what does this wrongly ADMIT', and an alias gap is the opposite failure. Test alias/target parity pairwise; a new alias then costs one table row."
+  source: P-001
+  task: T-652
+  date: 2026-08-31
+  context: Added via context agent
+  application: TBD
