@@ -1032,6 +1032,8 @@ PYRELATED
 # Runs shell commands from ## Verification section before allowing work-completed.
 run_verification_commands() {
     local verify_section verify_cmds verify_total verify_pass verify_fail verify_failures
+    # T-658: a command that never finished is not a command that failed. See the loop below.
+    local verify_unfinished verify_unfinished_list
     local cmd display_cmd exit_code
     local _v_exact _v_prefix _v_inline _v_exact_ln _v_prefix_ln _v_why
 
@@ -1234,6 +1236,8 @@ print(text)
     verify_pass=0
     verify_fail=0
     verify_failures=""
+    verify_unfinished=0
+    verify_unfinished_list=""
 
     echo ""
     echo -e "${CYAN}=== Verification Gate (P-011) ===${NC}"
@@ -1274,8 +1278,44 @@ print(text)
             verify_pass=$((verify_pass + 1))
         else
             exit_code=$?
-            echo -e "  ${RED}FAIL${NC}: $display_cmd (exit $exit_code)"
-            head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+            # T-658: classify. "Ran and returned a verdict of wrong" and "never finished"
+            # were rendered in identical words, so the operator read "your check is wrong"
+            # when the truth was "your check did not finish" (OBS-332, seen on T-651: an
+            # `fw audit` line returned once, hung on an immediate second invocation, and
+            # was killed externally at five minutes — reported as a plain FAIL).
+            #
+            # The exit code already carries this and the runner was discarding it:
+            # timeout(1) exits 124; a process killed by signal N exits 128+N, so 137 is
+            # SIGKILL and 143 is SIGTERM. 128 itself is excluded — it is not 128+N for any
+            # N>=1 and shells use it for other purposes.
+            _vk_signal=""
+            if [ "$exit_code" -eq 124 ]; then
+                _vk_signal="timeout"
+            elif [ "$exit_code" -gt 128 ] && [ "$exit_code" -le 192 ]; then
+                _vk_signal="signal $((exit_code - 128))"
+            fi
+
+            if [ -n "$_vk_signal" ]; then
+                echo -e "  ${YELLOW}DID NOT FINISH${NC}: $display_cmd (killed — $_vk_signal, exit $exit_code)"
+                if [ -s /tmp/verify-$$.out ]; then
+                    head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+                else
+                    # An empty evidence block after a kill is the normal case and is
+                    # exactly what made the original incident unreadable — it looked like
+                    # a check that failed for no stated reason.
+                    echo "    (no output captured before the process was killed)"
+                fi
+                verify_unfinished=$((verify_unfinished + 1))
+                verify_unfinished_list="${verify_unfinished_list}\n  - $display_cmd (killed — $_vk_signal)"
+            else
+                echo -e "  ${RED}FAIL${NC}: $display_cmd (exit $exit_code)"
+                head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+            fi
+            # BOTH kinds still count as failures. Completion must stay blocked, and the
+            # T-630 reconciliation below compares verify_pass+verify_fail against
+            # verify_total — so peeling did-not-finish into its own bucket INSTEAD of
+            # incrementing this one would make the runner report a defect in itself.
+            # The distinction is in what we SAY, not in whether it counts.
             verify_fail=$((verify_fail + 1))
             verify_failures="${verify_failures}\n  - $display_cmd (exit $exit_code)"
         fi
@@ -1312,8 +1352,34 @@ print(text)
             echo -e "${YELLOW}WARNING: $verify_fail/$verify_total verification(s) failed (--skip-verification bypass)${NC}"
             log_gate_bypass "--skip-verification" "run_verification_commands"
         else
-            echo -e "${RED}ERROR: Cannot complete — $verify_fail/$verify_total verification(s) failed:${NC}" >&2
-            echo -e "$verify_failures" >&2
+            # T-658: the count stays whole, but the two kinds are named separately. A
+            # per-line "DID NOT FINISH" that this summary flattens back into "N failed"
+            # would not have fixed the reported defect — this block is what the operator
+            # actually reads on a blocked completion.
+            _vk_ran=$((verify_fail - verify_unfinished))
+            if [ "$verify_unfinished" -gt 0 ]; then
+                echo -e "${RED}ERROR: Cannot complete — $verify_fail/$verify_total verification(s) did not pass:${NC}" >&2
+                if [ "$_vk_ran" -gt 0 ]; then
+                    echo "" >&2
+                    echo "  $_vk_ran ran and reported a failure:" >&2
+                    echo -e "$verify_failures" >&2
+                fi
+                echo "" >&2
+                echo "  $verify_unfinished never finished (killed, not failed):" >&2
+                echo -e "$verify_unfinished_list" >&2
+                echo "" >&2
+                echo "A killed command has told you nothing about your code. Do not 'fix' it" >&2
+                echo "until you know it can complete at all." >&2
+                echo "" >&2
+                echo "Most common cause (OBS-332): a whole \`fw audit\` invocation in ## Verification." >&2
+                echo "It runs from inside the very transaction it is auditing and contends with the" >&2
+                echo "lock FDs this transition holds, so it can hang indefinitely — and it makes this" >&2
+                echo "task's completion depend on every unrelated warning in the tree. Use a single" >&2
+                echo "section instead: fw audit --section <name>" >&2
+            else
+                echo -e "${RED}ERROR: Cannot complete — $verify_fail/$verify_total verification(s) failed:${NC}" >&2
+                echo -e "$verify_failures" >&2
+            fi
             echo "" >&2
             echo "Options:" >&2
             echo "  1. Fix the issues and retry" >&2

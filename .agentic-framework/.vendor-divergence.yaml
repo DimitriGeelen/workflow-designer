@@ -1061,3 +1061,42 @@ entries:
       Witness: tools/_t657-vendor-divergence-must-reach-an-audit-line.sh, 7 legs, extracting
       the real region from audit.sh rather than retyping it, with a path assertion that the
       WARN carries the tool's own bytes and a precondition guard on the mutation leg.
+
+  - path: .agentic-framework/agents/task-create/update-task.sh
+    kind: content
+    task: T-658
+    upstream: fix
+    reason: >-
+      The P-011 verification runner rendered every non-zero exit as `FAIL: <cmd> (exit N)`.
+      A command that RAN and returned a verdict of "wrong" and a command that was killed
+      before producing one read in identical words, so the operator was told "your check is
+      wrong" when the truth was "your check did not finish". Observed on T-651 (OBS-332): an
+      `fw audit` verification line returned on its first invocation, hung on an immediate
+      second against the lock FDs the transition itself holds, and was killed externally at
+      five minutes — reported as a plain FAIL.
+
+      The exit code already carried the distinction and the runner discarded it: timeout(1)
+      exits 124, a process killed by signal N exits 128+N. Now classified into a third
+      outcome, DID NOT FINISH, carried through to the summary block the operator actually
+      reads on a blocked completion — a per-line label that the summary flattened back into
+      "N failed" would not have fixed the reported defect. A kill with no captured output
+      says so rather than printing an empty evidence block, which is what made the original
+      incident unreadable. The timeout branch names the whole-audit hazard and points at
+      `fw audit --section <name>`.
+
+      Deliberately NOT a new timeout: this classifies how commands already die and does not
+      add a way to die. Imposing one would kill legitimately long verifications (builds,
+      suites) and needs its own decision.
+
+      Both kinds still increment verify_fail, so completion stays blocked and the T-630
+      reconciliation (verify_pass + verify_fail == verify_total) still holds — peeling
+      did-not-finish into its own bucket INSTEAD would make the runner report a defect in
+      itself. The distinction is in what it SAYS, not in whether it counts.
+
+      UPSTREAM because the gate is framework-wide: every project running this framework gets
+      told "your check is wrong" when its check was killed.
+
+      Witness: tools/_t658-p011-must-distinguish-killed-from-failed.sh, 11 legs, extracting
+      the real runner region from update-task.sh and giving it a function context so
+      `return`/`exit` behave as in situ. Boundary legs assert 128 is NOT read as a signal
+      death (it is not 128+N for any N>=1).
