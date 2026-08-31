@@ -2883,7 +2883,44 @@ concerns:
     That is already the framework''s implicit expectation and is nowhere written down; the
     trap is only reachable by completing first, which CLAUDE.md''s own "When completing"
     list arguably encourages by putting verification and status change before any mention
-    of committing.'
+    of committing.
+
+
+    UPDATE 2026-08-31 (T-649). Two things learned by living with it for a day.
+
+
+    FIRST, THE ENTRY UNDERSTATED IT. Clause (d) says focus-null admits git commit but not
+    git add. Measured today: with focus null the gate refuses even a READ — a plain `cat
+    .context/working/.budget-status` came back "BLOCKED: No active task ... Policy: P-002".
+    So the null-focus state is not a narrow escape hatch with one hole in it; it is very
+    nearly no hatch at all.
+
+
+    SECOND, THE CADENCE HOLDS. Commit-before-complete was followed on all four tasks landed
+    today (T-647, T-646, T-645, T-648). Nothing was stranded, no bypass was used, and no
+    commit had to borrow another task''s subject the way T-643''s did. Four for four is not
+    proof, but it is the difference between a rule that sounds right and one that has been
+    run.
+
+
+    PREVENTION SHIPPED (T-649), against decision_trigger clause (c), which is now HALF met.
+    update-task.sh warns on the work-completed transition when tracked, modified,
+    non-.context/ files are present, naming up to five of them, the cadence, and this gap.
+    It WARNS rather than refuses, deliberately: .context/ churn is constant and completing
+    anyway is often right, so a refusal would punish the common case to prevent the rare
+    one. The failure is an AWARENESS failure — nothing told you that you were one command
+    from an unsatisfiable position — and it fires on the run that actually makes the diff
+    uncommittable, which is the only moment when acting on it is still free. Prober:
+    tools/_t649-completing-with-uncommitted-work-warns.sh, 8 legs, teeth included.
+
+
+    WHAT IS STILL MISSING, so this is not mistaken for closure: clause (c) also asks that
+    CLAUDE.md''s completion checklist state the cadence, and its "When completing" list
+    still puts status change before any mention of committing. That edit is to the
+    project''s own operating instructions, which is the operator''s call, not the agent''s.
+    Clauses (a) and (b) are untouched — the status machine still forbids reopening, and the
+    completed-task gate still refuses the completed task''s own paths. A warning tells you
+    the trap is ahead; it does not build a way out of it once you are in.'
   decision_trigger: 'Either (a) work-completed→started-work becomes a legal transition
     (reopening a task is a normal act and the status machine currently forbids it), or (b)
     the completed-task gate admits git add/git commit whose staged paths are the completed
@@ -2893,3 +2930,4 @@ concerns:
   tasks:
   - T-643
   - T-644
+  - T-649

@@ -415,6 +415,60 @@ PYRCA
 }
 
 # Render-surface Human-AC Gate (T-1766, P-013)
+# === Uncommitted-work Warning (T-649, G-047 prevention) ===
+# Fires on --status work-completed when tracked, modified, non-.context/ files are
+# present. WARNS; never blocks.
+#
+# Origin: G-047. After this transition a task's own diff cannot be committed under its
+# own id. Focus on the completed task refuses every write; focus elsewhere trips
+# focus-drift on a `T-NNN:` subject; work-completed is terminal so the task cannot be
+# reopened; and with focus null the gate refuses even a READ (measured 2026-08-31,
+# `cat` of a .context/working file blocked by P-002). Every exit is a Tier-2 bypass,
+# i.e. the operator's to grant. The cadence that avoids the trap — COMMIT BEFORE YOU
+# COMPLETE — was written down nowhere, which is the actual defect: not that the gates
+# conflict, but that nothing tells you you are one command away from the conflict.
+#
+# Deliberately a warning. Uncommitted working-memory churn under .context/ is normal
+# and constant, and completing anyway is often right. Blocking would punish the common
+# case to prevent the rare one. The failure being addressed is an AWARENESS failure, so
+# the remedy is to say so at the last moment when acting on it is still free.
+#
+# The predicate is a heuristic — it cannot know which edits belong to this task — so
+# the wording claims nothing about ownership. It names files and names the cadence.
+warn_uncommitted_work() {
+    [ "$NEW_STATUS" = "work-completed" ] || return 0
+    command -v git >/dev/null 2>&1 || return 0
+    git -C "$PROJECT_ROOT" rev-parse --git-dir >/dev/null 2>&1 || return 0
+
+    local task_rel dirty count
+    task_rel=$(basename "$TASK_FILE")
+
+    # Tracked modifications only (` M`/`M `/`MM`). Untracked files are excluded: a new
+    # prober that has never been added is not something this transition takes away.
+    dirty=$(git -C "$PROJECT_ROOT" status --porcelain --untracked-files=no 2>/dev/null \
+            | grep -E '^[ MARC][MD]|^[MARC][ MD]' \
+            | sed 's/^...//' \
+            | grep -v '^\.context/' \
+            | grep -v "$task_rel" \
+            || true)
+    [ -n "$dirty" ] || return 0
+
+    count=$(printf '%s\n' "$dirty" | grep -c . )
+    echo "" >&2
+    echo "  ⚠ $count tracked file(s) modified and not committed:" >&2
+    printf '%s\n' "$dirty" | head -5 | sed 's/^/      /' >&2
+    [ "$count" -gt 5 ] && echo "      ... and $((count - 5)) more" >&2
+    echo "" >&2
+    echo "  After this transition they can no longer be committed under $TASK_ID:" >&2
+    echo "  focus here refuses all writes, focus elsewhere trips focus-drift on the" >&2
+    echo "  subject line, and work-completed is terminal. Every way out is a Tier-2" >&2
+    echo "  bypass, which is the operator's to grant. See G-047." >&2
+    echo "" >&2
+    echo "  The cadence that avoids it: COMMIT BEFORE YOU COMPLETE." >&2
+    echo "" >&2
+    return 0
+}
+
 # Fires on --status work-completed for build tasks whose components or body
 # references touch a render surface (web/templates, web/static, web/blueprints,
 # web/shared.py, etc.). Requires at least one Human AC prefixed with
@@ -1711,6 +1765,17 @@ PY
         # === Verification Gate (P-011) ===
         if [ "$NEW_STATUS" = "work-completed" ]; then
             run_verification_commands
+        fi
+
+        # === Uncommitted-work Warning (T-649, G-047 prevention) ===
+        # Warns, never blocks. Placed AFTER the structural gates (sovereignty, P-010,
+        # P-011) and before the advisory ones: if a hard gate refuses, the transition
+        # did not happen and nothing has been lost yet, so the warning would be noise
+        # on an attempt that was never going to complete. It fires on the run that is
+        # actually about to make the diff uncommittable, which is the only run where
+        # acting on it is both necessary and still free.
+        if [ "$NEW_STATUS" = "work-completed" ]; then
+            warn_uncommitted_work
         fi
 
         # === Recommendation Gate (T-679 / T-1529) ===
