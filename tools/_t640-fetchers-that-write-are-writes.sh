@@ -210,6 +210,136 @@ else
     bad "ordering not demonstrated (real=$REAL mutant=$MUT); a fall-through here would admit the download"
 fi
 
+# ---------------------------------------------------------------------------
+echo
+echo "--- NO-WIDENING: every verdict this guard TOOK AWAY is on a reviewed list (T-647)"
+# WHY THIS LEG EXISTS, AND WHY THE ONE ABOVE IT WAS NOT ENOUGH.
+#
+# The READERS loop asserts that five hand-picked read commands are still admitted.
+# That is a CHOSEN-SET assertion, and a chosen set cannot find what you forgot to
+# choose. `curl -o -` and `wget -O -` were never in it, so T-640 shipped refusing
+# both, and this suite was green the whole time. 999-AEF found them from the outside
+# (rail @841) with the leg below, which is theirs, not ours.
+#
+# The shape that finds it: do not ask "are the commands I believe are safe still
+# admitted". Ask "WHAT DID THIS CHANGE TAKE AWAY, AND DID ANYONE AGREE TO IT". The
+# corpus is enumerated from each tool's OUTPUT-FLAG VOCABULARY rather than from a
+# belief about which spellings are harmless — the flags are the axis, so a spelling
+# cannot be omitted on the grounds that it looked fine. Every command whose verdict
+# went ADMITTED -> BLOCKED must appear in EXPECTED_NEWLY_BLOCKED, which is written by
+# hand from one question per entry: DOES THIS CREATE A FILE? Anything blocked that is
+# not on the list is a cost nobody priced. Anything on the list that is no longer
+# blocked means the list has gone stale and stopped describing the guard.
+#
+# The manifest is deliberately not generated from the source. A manifest derived from
+# the code it audits agrees with the code by construction and asserts nothing.
+
+CURL_FLAGS=( '' '-s' '-sf' '-L' '-I' '-H "x: y"'
+             '-o F' '-o -' '-o /dev/null' '-sfo -' '-sO' '-O'
+             '--output F' '--output -' '--output=-' '--output=F'
+             '--output-dir /tmp' '--output-dir /tmp -O' '--remote-name' )
+WGET_FLAGS=( '' '-q' '-nv' '-P /tmp' '--spider'
+             '-O F' '-O -' '-O-' '-qO-' '-O - -o log'
+             '--output-document F' '--output-document -' '--output-document=-'
+             '--output-document=F' '-o log' '-a log' '--output-file=log' )
+
+NW_CORPUS=()
+for f in "${CURL_FLAGS[@]}"; do NW_CORPUS+=("curl ${f:+$f }https://example.com/x"); done
+for f in "${WGET_FLAGS[@]}"; do NW_CORPUS+=("wget ${f:+$f }https://example.com/x"); done
+
+# Hand-authored. One question per line: does running this leave a file behind?
+EXPECTED_NEWLY_BLOCKED=(
+    'curl -o F https://example.com/x'
+    # NOTE: `curl -sfo - ...` was on this list on the leg's first run, and the leg
+    # failed as STALE the moment it executed. The manifest was wrong, not the guard:
+    # a bundled `-o` still ends in `-`, so it is stdout and admitted. Left recorded
+    # because it is the leg working on its author within a minute of being written.
+    'curl -sO https://example.com/x'
+    'curl -O https://example.com/x'
+    'curl --output F https://example.com/x'
+    'curl --output=F https://example.com/x'
+    'curl --output-dir /tmp -O https://example.com/x'
+    'curl --remote-name https://example.com/x'
+    'wget https://example.com/x'
+    'wget -q https://example.com/x'
+    'wget -nv https://example.com/x'
+    'wget -P /tmp https://example.com/x'
+    'wget -O F https://example.com/x'
+    'wget -O - -o log https://example.com/x'
+    'wget --output-document F https://example.com/x'
+    'wget --output-document=F https://example.com/x'
+    'wget -o log https://example.com/x'
+    'wget -a log https://example.com/x'
+    'wget --output-file=log https://example.com/x'
+)
+
+nw_sweep() {   # nw_sweep <post-fix-hook> -> writes newly-blocked commands to stdout
+    local hook="$1" c
+    for c in "${NW_CORPUS[@]}"; do
+        run "$MUTANT" "$c";  local before=$RC
+        run "$hook"   "$c";  local after=$RC
+        [ "$before" -eq 0 ] && [ "$after" -ne 0 ] && printf '%s\n' "$c"
+    done
+    return 0
+}
+
+NW_ACTUAL="$SANDBOX/nw-actual"; NW_EXPECT="$SANDBOX/nw-expect"
+nw_sweep "$HOOK" | LC_ALL=C sort > "$NW_ACTUAL"
+printf '%s\n' "${EXPECTED_NEWLY_BLOCKED[@]}" | LC_ALL=C sort > "$NW_EXPECT"
+
+UNEXPECTED=$(LC_ALL=C comm -23 "$NW_ACTUAL" "$NW_EXPECT")
+STALE=$(LC_ALL=C comm -13 "$NW_ACTUAL" "$NW_EXPECT")
+if [ -z "$UNEXPECTED" ] && [ -z "$STALE" ]; then
+    ok "$(wc -l < "$NW_ACTUAL" | tr -d ' ') of ${#NW_CORPUS[@]} generated commands lost admission, and every one is on the reviewed list"
+else
+    [ -n "$UNEXPECTED" ] && bad "WIDENING NOBODY PRICED — blocked but not on the list:$(printf '\n          %s' $(echo "$UNEXPECTED" | tr ' ' '\001') | tr '\001' ' ')"
+    [ -n "$STALE" ] && bad "manifest is stale — listed but no longer blocked:$(printf '\n          %s' $(echo "$STALE" | tr ' ' '\001') | tr '\001' ' ')"
+fi
+
+# Teeth for the leg itself. Revert JUST the T-647 stdout exemptions and the sweep must
+# name the readers as unpriced widening — otherwise this leg cannot fail and the same
+# hole could reopen under it. Reverting is done by deleting the nested T-647 block from
+# the wget guard and dropping `-` from the curl exemption's alternation, i.e. by
+# reconstructing the SHIPPED T-640 text, not by pinning a copy of it.
+echo "--- teeth: revert the T-647 exemptions and the sweep must report unpriced widening"
+T647_LIB="$CTX/lib/.t647-mutant-lib-$$.sh"
+T647_HOOK="$CTX/.t647-mutant-$$.sh"
+trap 'rm -f "$MUTANT" "$MUTANT_LIB" "$T647_LIB" "$T647_HOOK" 2>/dev/null; rm -rf "$SANDBOX" 2>/dev/null || true' EXIT INT TERM
+python3 - "$LIB" "$T647_LIB" <<'PY'
+import sys, re
+src = open(sys.argv[1]).read()
+# 1. curl: drop `-` and the widened cluster anchor from the exemption alternation.
+curl_new = """(^|[[:space:]])(-[a-zA-Z]*o|--output)[[:space:]]*=?[[:space:]]*(/dev/null|-)([[:space:]]|$)"""
+curl_old = """(-o|--output)[[:space:]]*=?[[:space:]]*/dev/null([[:space:]]|$)"""
+if curl_new not in src:
+    sys.stderr.write("MUTATION FAILED: the T-647 curl exemption is not in the source as written.\n"); sys.exit(1)
+src = src.replace(curl_new, curl_old, 1)
+# 2. wget: collapse the nested reader check back to an unconditional `return 0`.
+m = re.search(r"\n(        # T-647:.*?\n        fi\n)", src, re.S)
+if not m:
+    sys.stderr.write("MUTATION FAILED: could not find the nested T-647 wget block.\n"); sys.exit(1)
+src = src.replace(m.group(1), "        return 0\n", 1)
+open(sys.argv[2], "w").write(src)
+PY
+if [ $? -ne 0 ]; then
+    bad "could not build the T-647 revert mutant — the teeth leg is meaningless"
+else
+    python3 - "$HOOK" "$T647_HOOK" "$T647_LIB" <<'PY'
+import sys
+src = open(sys.argv[1]).read()
+anchor = '    source "$SCRIPT_DIR/lib/safe-commands.sh" 2>/dev/null || true\n'
+open(sys.argv[2], "w").write(src.replace(anchor, '    source "%s" 2>/dev/null || true\n' % sys.argv[3], 1))
+PY
+    nw_sweep "$T647_HOOK" | LC_ALL=C sort > "$SANDBOX/nw-reverted"
+    REOPENED=$(LC_ALL=C comm -23 "$SANDBOX/nw-reverted" "$NW_EXPECT" | tr '\n' ';')
+    case "$REOPENED" in
+        *'curl -o - '*|*'wget -O - h'*)
+            ok "reverting T-647 makes the sweep report the stdout forms as unpriced: ${REOPENED%;}" ;;
+        '') bad "reverted mutant widened nothing — this leg cannot fail and proves nothing" ;;
+        *)  bad "reverted mutant widened, but not on the stdout forms: ${REOPENED%;}" ;;
+    esac
+fi
+
 echo
 echo "=== $PASS passed, $FAIL failed ==="
 [ "$FAIL" -eq 0 ]

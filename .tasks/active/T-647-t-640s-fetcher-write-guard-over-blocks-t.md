@@ -4,7 +4,7 @@ name: "T-640's fetcher write-guard over-blocks the stdout idioms: curl -o - and 
 description: >
   Found by 999-AEF at rail @841, confirmed against our tree by measurement. Our T-640 guard treats any -o/-O argument as a file write. Two of them are not: 'curl -o -' and 'wget -O -' write to STDOUT, so they are readers and the pre-T-640 behaviour admitted them. Measured 2026-08-30 with a null-focus sandbox against the live hook: curl -o - -> BLOCKED (should be ADMITTED); wget -O - -> BLOCKED (should be ADMITTED); curl -s -o /dev/null -w '%{http_code}' -> ADMITTED (correct, already covered); curl -o out.txt -> BLOCKED (correct); wget URL -> BLOCKED (correct). So the guard is right about writers and wrong about the two stdout spellings. AEF carries a no-widening leg asserting their fix blocks nothing the pre-fix version allowed; ours has no such leg, which is why this got through - the prober asserted that writers are refused and that five readers are admitted, but never that the fix refuses NOTHING the unguarded version allowed. That missing leg is the more valuable half of this task. Their commit d6cfc31b1.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:28:29Z
-last_update: 2026-08-30T18:28:29Z
+last_update: 2026-08-31T11:10:35Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,78 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+999-AEF found this at rail @841 and it is real. Confirmed by measurement against our live
+hook on 2026-08-30 (null-focus sandbox, so the task gate admits nothing on its own):
+
+| command                                   | now      | should be | writes a file? |
+|-------------------------------------------|----------|-----------|----------------|
+| `curl -o - URL`                           | BLOCKED  | ADMITTED  | no — stdout    |
+| `wget -O - URL`                           | BLOCKED  | ADMITTED  | no — stdout    |
+| `curl -s -o /dev/null -w '%{http_code}'`  | ADMITTED | ADMITTED  | no             |
+| `curl -o out.txt URL`                     | BLOCKED  | BLOCKED   | yes            |
+| `wget URL`                                | BLOCKED  | BLOCKED   | yes            |
+
+The guard is right about writers and wrong about the two stdout spellings. T-640's own
+header calls this out as accepted collateral ("stated rather than hidden because it is a
+real cost") — so it was known, priced, and shipped. AEF's contribution is that it did not
+have to be priced at all: `-o -` is distinguishable from `-o FILE` by the same regex that
+already distinguishes `-o /dev/null`.
+
+THE PATCH IS THE SMALL HALF. The reason it got through is the finding:
+`tools/_t640-fetchers-that-write-are-writes.sh` asserts that WRITERS ARE REFUSED and that
+five HAND-PICKED READERS ARE ADMITTED. It never asserts that the guard refuses nothing the
+unguarded version allowed. **A chosen-set assertion cannot find what you forgot to choose.**
+A no-widening sweep can, and AEF's did.
+
+So the deliverable is two things, and the second is the load-bearing one:
+1. exempt the stdout spellings;
+2. add a no-widening leg whose corpus is GENERATED from the flag space rather than chosen,
+   diffing pre-guard against post-guard admission and requiring every newly-blocked command
+   to appear in an explicit reviewed manifest. Anything blocked that is not in the manifest
+   is a widening nobody signed off on — which is exactly the shape `curl -o -` had.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `curl -o -`, `curl --output -`, `curl --output=-` and the bundled `curl -sfo -` are ADMITTED under a null focus
+- [x] `wget -O -`, `wget -O-`, `wget -qO-`, `wget --output-document=-` are ADMITTED under a null focus
+- [x] Writers still BLOCK: `curl -o out.txt`, `curl -sO`, `curl -O`, `curl --output f`, `curl --remote-name`, bare `wget URL`, `wget -O f`, `wget --output-document f`
+- [x] `wget -O - -o log URL` still BLOCKS — the stdout exemption does not swallow wget's LOG-file flag (`-o`/`--output-file`/`--append-output`), which writes a file even when the body goes to stdout
+- [x] `curl -s -o /dev/null -w '%{http_code}' URL` is still ADMITTED (the pre-existing status-probe exemption is not regressed)
+- [x] `_t640` carries a NO-WIDENING leg: a mechanically generated corpus over the curl/wget output-flag space, run against both a pre-T-640 mutant lib and the live lib, asserting the newly-blocked set is EXACTLY the reviewed manifest — no unexpected blocks, and no stale manifest entries that no longer block
+- [x] The no-widening leg has teeth: reverting the T-647 exemption makes it FAIL by naming `curl -o -` / `wget -O -` as unmanifested blocks (demonstrated by a mutant run, not asserted)
+- [x] `bash -n` clean on both edited files; the full `_t640` suite and the safe-commands corpus both pass
+- [x] SCOPE EXTENDED BEYOND WHAT AEF NAMED: `wget --spider` is admitted too. It was the third form T-640's header priced as collateral, it writes nothing, and fixing its two siblings while leaving it would have parked a known-wrong entry in the reviewed manifest below
+
+**Evidence.**
+
+`bash tools/_t640-fetchers-that-write-are-writes.sh` → **20 passed, 0 failed** (was 18 legs; +2).
+`python3 -m pytest .agentic-framework/web/test_safe_commands.py -q` → **132 passed**.
+`bash -n` clean on `lib/safe-commands.sh` and on the prober.
+
+Direct predicate sweep over all 21 spellings named in the ACs — every verdict as required:
+
+```
+read  | curl -o -            read  | curl --output -       read  | curl --output=-
+read  | curl -sfo -          read  | curl -s -o /dev/null -w "%{http_code}"
+WRITE | curl -o out.txt      WRITE | curl -sO              WRITE | curl -O
+WRITE | curl --output f      WRITE | curl --remote-name    WRITE | curl --output-dir /tmp -O
+read  | wget -O -            read  | wget -O-              read  | wget -qO-
+read  | wget --output-document=-   read | wget --output-document -   read | wget --spider
+WRITE | wget -O - -o log     WRITE | wget --spider -o log
+WRITE | wget                 WRITE | wget -O f             WRITE | wget --output-document f
+```
+
+The no-widening leg: **18 of 36 generated commands lost admission, and every one is on the
+reviewed list.** Teeth: reverting the T-647 exemptions makes the sweep report all ten stdout
+and spider spellings as unpriced widening, by name.
+
+**THE LEG FAILED ON ITS AUTHOR WITHIN A MINUTE OF BEING WRITTEN, AND THAT IS THE RESULT.**
+Its first run came back `manifest is stale — listed but no longer blocked: curl -sfo -`. I had
+hand-written that entry into EXPECTED_NEWLY_BLOCKED while the AC four lines above it says the
+same command must be ADMITTED. The guard was right and my manifest was wrong. A chosen-set
+assertion would have had nothing to disagree with, because I would simply not have chosen it.
+The comment recording this is left in the manifest rather than tidied away.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -74,10 +138,36 @@ date_finished: null
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+- [ ] [REVIEW] The manifest is the right governance object
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && sed -n '/^EXPECTED_NEWLY_BLOCKED=/,/^)/p' tools/_t640-fetchers-that-write-are-writes.sh`
+  **Expected:** A short list of command spellings that T-640 deliberately took away, every one of them a genuine file-writer. It is the list of things you can no longer do without an active task.
+  **If not:** Any entry you would NOT have signed off on is a live over-block — name it, and it becomes a task exactly like this one.
+
+## Recommendation
+
+**Recommendation:** GO — the code half needs no ruling; the one Human AC is a review of the
+manifest, not of the patch.
+
+**Rationale:** The exemptions are mechanically verified in both directions and the corpus suite
+is unchanged at 132 passed. What genuinely wants your eye is the new
+`EXPECTED_NEWLY_BLOCKED` list, because it is now the written record of *what this guard costs
+you* — nineteen command spellings you can no longer run without an active task. That list was
+previously implicit, which is exactly how `curl -o -` survived in it for a week without anyone
+being asked. Reading it takes under a minute and the [REVIEW] AC gives the one-line command.
+
+**What I did not do:** I did not widen the guard to other fetchers (`aria2c`, `httpie`, `scp`).
+They are not on the safe-list, so they are already refused for a different reason, and adding
+them would be a second deliverable.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
+bash tools/_t640-fetchers-that-write-are-writes.sh
+bash -n .agentic-framework/agents/context/lib/safe-commands.sh
+bash -n tools/_t640-fetchers-that-write-are-writes.sh
+python3 -m pytest .agentic-framework/web/test_safe_commands.py -q 2>&1 | tail -1 | grep -qv "failed"
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
@@ -190,3 +280,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-647-t-640s-fetcher-write-guard-over-blocks-t.md
 - **Context:** Initial task creation
+
+### 2026-08-31T11:10:35Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

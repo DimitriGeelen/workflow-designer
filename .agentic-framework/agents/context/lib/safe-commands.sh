@@ -561,8 +561,15 @@ has_bash_write_pattern() {
     # The corpus already carried it as a benign read and caught the first draft of
     # this guard, which is the second time that suite has stopped an over-broad
     # predicate from shipping.
+    #
+    # T-647: `-o -` is the same shape and was missed — the body goes to STDOUT, no
+    # file is created. It is now exempted alongside /dev/null, and the anchor was
+    # widened to `-[a-zA-Z]*o` so the bundled spelling `curl -sfo -` is exempt too.
+    # Note the exemption's tail `([[:space:]]|$)`: it is what keeps `--output-dir`
+    # from matching (the character after the `-` there is `d`, not a separator), so
+    # `curl --output-dir /tmp -O URL` is still correctly a write.
     if echo "$cmd" | grep -qE '\bcurl\b.*(^|[[:space:]])(-[a-zA-Z]*[oO]([[:space:]]|$)|--output([[:space:]]|=)|--remote-name([[:space:]]|$))' \
-       && ! echo "$cmd" | grep -qE '(-o|--output)[[:space:]]*=?[[:space:]]*/dev/null([[:space:]]|$)'; then
+       && ! echo "$cmd" | grep -qE '(^|[[:space:]])(-[a-zA-Z]*o|--output)[[:space:]]*=?[[:space:]]*(/dev/null|-)([[:space:]]|$)'; then
         return 0
     fi
 
@@ -570,11 +577,39 @@ has_bash_write_pattern() {
     # DEFAULT behaviour is to write the fetched file into the working directory, so
     # "no output flag" is the defect rather than the safe case. Cost of the breadth,
     # stated rather than hidden: the two genuinely read-only forms (`wget -O -` and
-    # `wget --spider`) now need an active task. That is a mild, correct-direction
-    # cost — unlike a prose argument to a framework verb (T-636), nothing here is
-    # stored-and-never-run; every wget invocation really does execute.
+    # `wget --spider`) now need an active task.
+    #
+    # T-647 RETRACTS THAT PRICE. The paragraph above is kept because it is the record
+    # of a judgement that turned out to be avoidable, not because it is still true.
+    # Both forms are admitted again by the nested check below. The cost was accepted
+    # on the reasoning that breadth is the correct direction to err in — which is
+    # sound, and was still the wrong call here, because the two forms are separable by
+    # the same regex that already separated `-o /dev/null`. ACCEPTING A COST IS NOT
+    # THE SAME AS ESTABLISHING THAT IT IS NECESSARY, and a stated cost reads like the
+    # latter once it is written down.
     if echo "$cmd" | grep -qE '\bwget\b'; then
-        return 0
+        # T-647: ...but `-O -` is not "an output flag", it is the ABSENCE of a file.
+        # The body goes to stdout, nothing is created, and the pre-T-640 allowlist
+        # admitted it. Found by 999-AEF at rail @841 with a no-widening sweep --
+        # the leg this project's prober did not have. Spellings covered: `-O -`,
+        # `-O-`, bundled `-qO-`, `--output-document -` and `--output-document=-`.
+        #
+        # The second grep is the part that is easy to forget: wget's LOWERCASE `-o`
+        # is the LOG file, and it writes one whatever the body does. So
+        # `wget -O - -o log URL` sends the page to stdout AND creates `log`, and
+        # stays a write. Exempting on the stdout spelling alone would have opened
+        # exactly the hole this guard exists to close.
+        # `--spider` is here for the same reason and not because AEF named it: it
+        # issues the request and saves nothing ("will not download the pages, just
+        # check that they are there"). It was the OTHER form T-640's header priced as
+        # collateral. Fixing its two siblings and leaving it would have left a
+        # known-wrong entry sitting in the manifest below, reviewed and signed off.
+        if echo "$cmd" | grep -qE '(^|[[:space:]])(-[a-zA-Z]*O[[:space:]]*-([[:space:]]|$)|--output-document[[:space:]]*=?[[:space:]]*-([[:space:]]|$)|--spider([[:space:]]|$))' \
+           && ! echo "$cmd" | grep -qE '(^|[[:space:]])(-[a-zA-Z]*[oa]([[:space:]]|$)|--output-file|--append-output)'; then
+            :   # reader -- fall through to the remaining write checks
+        else
+            return 0
+        fi
     fi
 
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
