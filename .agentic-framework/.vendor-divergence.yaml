@@ -1129,3 +1129,37 @@ entries:
       Witness: tools/_t659-retention-sweep-must-not-be-agent-staged.sh, 6 legs, all on
       throwaway repos — it never touches this repository's index. Includes a leg asserting
       the printed remedy leaves a still-committable index with the legitimate file intact.
+
+  - path: .agentic-framework/agents/task-create/create-task.sh
+    kind: content
+    task: T-660
+    upstream: fix
+    reason: >-
+      Substituted the task id in exactly two places — `id: T-XXX` in the frontmatter and the
+      H1 heading — and nowhere else in the instantiated template. The inception template's
+      Human AC reads `Run: fw task review T-XXX`, so every inception ever created shipped
+      that literal placeholder as the operator's FIRST STEP. Measured 2026-08-31: nine of the
+      ten unruled inceptions on this project's queue carry it, and 010-termlink reported the
+      identical string in their tree at rail @891 — which is how a shared template announces
+      itself rather than ten authors making the same typo. Now substitutes throughout, on
+      both the inception and default template paths.
+
+      UPSTREAM because the templates and the substitution are both framework-owned, so every
+      project on this framework has been handing its operator an unrunnable first step.
+
+  - path: .agentic-framework/agents/audit/audit.sh
+    kind: content
+    task: T-660
+    upstream: local-config
+    reason: >-
+      Adds a structure-section line reporting how much of the live operator queue carries a
+      Human AC that cannot be executed as written. LOCAL-CONFIG for the same reason as the
+      T-657 line: it calls a project-local tool (tools/_t660-human-ac-actionability.py) and
+      is guarded on that tool existing, so it is inert where the tool is absent. The
+      create-task.sh fix above is the part owed upstream; this is the local surface for the
+      residue it cannot reach (a Human AC hand-written without Steps or If-not).
+
+      Witness: tools/_t660-actionability-checker-must-have-teeth.sh, 8 legs, including the
+      one that matters — a task whose only well-formed criteria live inside the template's
+      HTML comment must be reported NOT actionable. An instrument reading through the comment
+      sees perfect Steps/Expected/If-not and passes every task in the queue.

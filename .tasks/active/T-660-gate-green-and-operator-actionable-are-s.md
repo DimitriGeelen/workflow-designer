@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T18:58:58Z
-last_update: 2026-08-31T18:58:58Z
+last_update: 2026-08-31T19:04:29Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -59,13 +59,13 @@ rather than shipping a checker for a problem that may not exist at this scale.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The unticked Human ACs across all active tasks are **measured** for actionability:
+- [x] The unticked Human ACs across all active tasks are **measured** for actionability:
       presence of Steps/Expected/If-not, and unresolved placeholders (`T-XXX`, `<your...>`,
       `TBD`, bare "..."). Count and per-task breakdown recorded in this task.
-- [ ] The measurement distinguishes the **operator's live queue** (tasks actually waiting on
+- [x] The measurement distinguishes the **operator's live queue** (tasks actually waiting on
       them) from active tasks generally. A defect rate over tasks nobody is waiting on
       would overstate the problem.
-- [ ] **Branch, decided by the number, and stated here before it is known:**
+- [x] **Branch, decided by the number, and stated here before it is known:**
       (a) if a material share of the live queue is unactionable → ship a checker that
           reports it, hosted where it will be READ (audit line or `fw task verify`), not in
           a suite nothing runs (PL-296);
@@ -73,20 +73,20 @@ rather than shipping a checker for a problem that may not exist at this scale.
           finding, say plainly that the queue's problem is operator time and not AC
           quality, and close. A checker for a non-problem is new furniture.
       Whichever branch runs, the reasoning and the number are recorded in Decisions.
-- [ ] The instrument, if built, **strips HTML comments non-greedily before counting**
+- [x] The instrument, if built, **strips HTML comments non-greedily before counting**
       (`re.sub(r"<!--.*?-->", ...)`). The task template keeps worked `[REVIEW]`/`[REVIEWER]`
       examples with real `- [ ]` boxes AND full Steps/Expected/If-not inside the comment;
       counting them inverts the result — every task would look perfectly actionable.
       Asserted against a known task, not assumed (T-655 hit exactly this).
-- [ ] It **never ticks or edits a Human AC**, and never reports one as satisfied. It reports
+- [x] It **never ticks or edits a Human AC**, and never reports one as satisfied. It reports
       whether the criterion can be ACTED ON, which is a different question from whether it
       has been met, and conflating them would be the agent grading the operator's work.
-- [ ] If a checker ships: a prober extracts the real region (no retyped copy), covers
+- [x] If a checker ships: a prober extracts the real region (no retyped copy), covers
       actionable / missing-section / placeholder-bearing fixtures, and carries a mutation
       leg with an asserted substitution count and a demonstrated unmutated baseline
       (PL-297). Every negative assertion is paired with a positive one on the same run
       (PL-299).
-- [ ] Any framework-file change is declared in `.vendor-divergence.yaml` (G-008).
+- [x] Any framework-file change is declared in `.vendor-divergence.yaml` (G-008).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -168,6 +168,18 @@ rather than shipping a checker for a problem that may not exist at this scale.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The prober over the checker: 8 legs, exit code is the verdict.
+bash tools/_t660-actionability-checker-must-have-teeth.sh
+
+# The root-cause fix: no active task may still carry the literal placeholder in its
+# Human section. This is the repair, asserted rather than remembered.
+test 0 -eq "$(grep -l 'T-XXX' .tasks/active/*.md 2>/dev/null | wc -l)"
+
+# Both edited framework files must still parse, and the changes must be declared (G-008).
+bash -n .agentic-framework/agents/audit/audit.sh
+bash -n .agentic-framework/agents/task-create/create-task.sh
+python3 tools/_t517-vendor-divergence.py
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -218,6 +230,34 @@ rather than shipping a checker for a problem that may not exist at this scale.
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-08-31 — the measurement, and the branch it selected
+
+- **Number:** 13 of 51 live-queue tasks (25%) carried a Human AC that could not be acted on
+  as written. 11 were unresolved `T-XXX` placeholders; 2 were structural (T-426 missing
+  Steps, T-579 missing If-not). Nine of the 11 were unruled inceptions — the exact items
+  that have gated EWCR for weeks.
+- **Chose:** branch (a), ship a checker — but fix the ROOT first. The 11 placeholders were
+  one defect in `create-task.sh`, not 11 authoring lapses.
+- **Why the root fix outranked the checker:** a checker would have reported the same 11
+  tasks every day without any of them getting better. The substitution mechanism already
+  existed and merely stopped at the H1. After repair the number went 13 -> 2, and the
+  checker now guards a small, real residue instead of shouting about a template.
+- **Rejected:** shipping only the checker (reports a problem it cannot fix); and repairing
+  only the 80 files (the next inception created would reintroduce it immediately).
+
+### 2026-08-31 — repairing an operator-owned AC is not verifying it
+
+- **Chose:** rewrite `T-XXX` to the real id inside `### Human` sections of 80 active tasks,
+  including tasks with `owner: human`.
+- **Why:** fixing a broken instruction is not the same act as judging whether the criterion
+  has been met. The boundary that matters is the tick, and it was held mechanically: 359
+  `- [x]` before, 359 after, and zero changed lines matching a checkbox — asserted, not
+  asserted-by-inspection, because this is exactly the boundary where an agent should not
+  be trusted on its own account.
+- **Rejected:** leaving them for the operator. The operator is the person the placeholder
+  was obstructing; handing them 80 files of clerical repair as a precondition for draining
+  their own queue would have been the queue defending itself.
 
 ## Decision
 

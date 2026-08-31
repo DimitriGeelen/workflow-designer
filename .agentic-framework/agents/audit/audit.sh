@@ -2003,6 +2003,30 @@ if [ "$PROJECT_ROOT" != "$FRAMEWORK_ROOT" ] && [ -f "$_vd_tool" ]; then
     fi
 fi
 
+# T-660: is the operator's queue actionable, not merely present?
+#
+# P-010 gates on Agent ACs, P-011 runs Verification, and the ### Human section is explicitly
+# non-blocking — so the one class of criterion a PERSON must act on had no instrument at all.
+# 010-termlink put it exactly at rail @891: gate-green and operator-actionable are separate
+# properties, and only the first was measured. Measured here 2026-08-31: 13 of 51 live-queue
+# tasks could not be acted on as written, nine of them unruled inceptions whose first step
+# read `Run: fw task review T-XXX` — the literal placeholder.
+#
+# WARN, not FAIL: an unactionable AC costs the operator a sitting, it does not corrupt
+# anything, and a structure FAIL blocks push. Same reasoning as the T-657 line above.
+_ha_tool="$PROJECT_ROOT/tools/_t660-human-ac-actionability.py"
+if [ -f "$_ha_tool" ]; then
+    _ha_out=$(cd "$PROJECT_ROOT" && PROJECT_ROOT="$PROJECT_ROOT" python3 "$_ha_tool" 2>&1)
+    if [ $? -ne 0 ]; then
+        _ha_n=$(printf '%s\n' "$_ha_out" | grep -c 'NOT ACTIONABLE' || true)
+        warn "Human AC actionability: $_ha_n live-queue task(s) ask for something that cannot be executed as written (T-660)" \
+             "$(printf '%s\n' "$_ha_out" | grep -A1 'NOT ACTIONABLE' | head -5)" \
+             "An AC the operator must decode before running is a deferred sitting, not a pending decision. Detail: python3 tools/_t660-human-ac-actionability.py"
+    else
+        pass "Human AC actionability: every unticked Human AC in the live queue is executable as written"
+    fi
+fi
+
 # T-2244: Self-vendor drift FAIL (F2 N×M daily-cron backstop). Mirrors
 # `bin/fw doctor` Check 2b (T-1434 + T-2243) and the pre-push gate
 # (T-2240/T-2241). Audit is the third surface — daily cron catches any
