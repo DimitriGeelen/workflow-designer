@@ -894,3 +894,54 @@ entries:
 
       Witness: tools/_t654-watchdog-detections-must-be-surfaced.sh, 6 legs, extracting the
       real block from audit.sh rather than retyping it.
+
+  - path: .agentic-framework/agents/audit/active-task-scan.py
+    kind: content
+    task: T-656
+    upstream: fix
+    reason: |
+      Each D2 review-queue entry now carries `unticked`: how many acceptance criteria are
+      still unchecked, with HTML comments stripped first. Previously the entry held only an
+      age, so D2 could not tell a task the human had fully signed off from one they had not
+      opened.
+
+      The comment strip is load-bearing, not hygiene. Every task template keeps two worked
+      `[REVIEW]`/`[REVIEWER]` examples INSIDE the `### Human` section's HTML comment, and
+      they carry real `- [ ]` boxes. A counter that sees them reports outstanding judgement
+      on every task in the queue — the exact error the field exists to prevent.
+
+      A non-greedy match, and NOT a line-range delete: the range form pairs each comment
+      opener with the next closer anywhere in the file, and over T-093 it yields ONE ticked
+      criterion instead of seven. Measured; it was the first thing tried.
+
+      FIRST ENTRY for this path — it had no divergence record at all before T-656.
+
+  - path: .agentic-framework/agents/audit/audit.sh
+    kind: content
+    task: T-656
+    upstream: fix
+    reason: |
+      D2 splits its message by WHAT the queue is waiting for, not only by how long.
+
+      Measured here on 2026-08-31: of the four tasks in the >30d FAIL, T-093 (57 days,
+      7/7 ticked) and T-178 (51 days, 6/6 ticked) were fully signed off and waiting only on
+      the administrative status flip. Half the queue was not a queue. Worse, the control's
+      remediation line sent the operator to `fw task verify`, which lists unchecked Human
+      ACs — of which those two tasks have none. Fifty-seven days of a FAIL asking for
+      something that had already been given.
+
+      Both groups stay in the message and the total is preserved: quieting the control by
+      dropping the signed-off tasks would fix the sentence by losing the work. The
+      remediation is now composed per group. An `unticked` field absent from an older scan
+      sorts to the judgement group — over-reporting a decision as pending costs a glance;
+      under-reporting one costs the decision.
+
+      Same shape as T-534 on this very check, one axis over: that fix stopped the >14d tier
+      being merged into the >30d count, this one stops two different KINDS of outstanding
+      being merged into one.
+
+      UPSTREAM because the queue is the operator's primary surface in every project running
+      this framework, and the miscount is in vendored logic, not local policy.
+
+      Witness: tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh, 8 legs,
+      extracting the real D2 region from audit.sh rather than retyping it.

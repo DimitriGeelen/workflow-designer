@@ -4052,20 +4052,45 @@ fi
 # message string is not a bar the instrument holds. The defect is invisible unless BOTH tiers
 # are populated, which is why it survived — with only one tier live the shared list happens to
 # equal that tier's list.
+# T-656: the queue is split by WHAT IT IS WAITING FOR, not only by how long.
+# Until now D2 was built from age alone, so a task the human had fully signed off counted
+# identically to one they had not opened. Measured 2026-08-31: T-093 (57d, 7/7 ticked) and
+# T-178 (51d, 6/6 ticked) were half of the >30d FAIL and neither was waiting on judgement.
+# Both groups stay in the message — dropping the signed-off ones would quiet the control by
+# losing the work it found. What changes is that they are named as a different KIND of
+# outstanding, with the command that actually clears them.
 d2_info=0
 d2_warn=0
 d2_fail=0
 d2_fail_details=""
 d2_warn_details=""
+d2_fail_flip=0
+d2_warn_flip=0
+d2_fail_flip_details=""
+d2_warn_flip_details=""
 if [ -n "$ACTIVE_SCAN" ]; then
-    while IFS='|' read -r t_id age_hours age_days; do
+    while IFS='|' read -r t_id age_hours age_days unticked; do
         [ -z "$t_id" ] && continue
+        # `unticked` is absent on a scan predating T-656; treat that as "unknown", which
+        # sorts into the judgement group — the conservative side, because over-reporting a
+        # decision as pending costs a glance and under-reporting one costs the decision.
+        [ -z "$unticked" ] && unticked=1
         if [ "$age_hours" -ge 720 ]; then
-            d2_fail=$((d2_fail + 1))
-            d2_fail_details="$d2_fail_details $t_id(${age_days}d)"
+            if [ "$unticked" -eq 0 ]; then
+                d2_fail_flip=$((d2_fail_flip + 1))
+                d2_fail_flip_details="$d2_fail_flip_details $t_id(${age_days}d)"
+            else
+                d2_fail=$((d2_fail + 1))
+                d2_fail_details="$d2_fail_details $t_id(${age_days}d)"
+            fi
         elif [ "$age_hours" -ge 336 ]; then
-            d2_warn=$((d2_warn + 1))
-            d2_warn_details="$d2_warn_details $t_id(${age_days}d)"
+            if [ "$unticked" -eq 0 ]; then
+                d2_warn_flip=$((d2_warn_flip + 1))
+                d2_warn_flip_details="$d2_warn_flip_details $t_id(${age_days}d)"
+            else
+                d2_warn=$((d2_warn + 1))
+                d2_warn_details="$d2_warn_details $t_id(${age_days}d)"
+            fi
         else
             d2_info=$((d2_info + 1))
         fi
@@ -4073,25 +4098,44 @@ if [ -n "$ACTIVE_SCAN" ]; then
 import sys, json
 data = json.load(sys.stdin)
 for item in data['review_queue']['tasks']:
-    print(f\"{item['id']}|{item['age_hours']}|{item['age_days']}\")
+    print(f\"{item['id']}|{item['age_hours']}|{item['age_days']}|{item.get('unticked', '')}\")
 " 2>/dev/null)
 fi
 
 # shellcheck disable=SC2034 # d2_total available for debug/summary
-d2_total=$((d2_info + d2_warn + d2_fail))
-if [ "$d2_fail" -gt 0 ]; then
+d2_total=$((d2_info + d2_warn + d2_fail + d2_warn_flip + d2_fail_flip))
+# T-656: the remediation differs per group, so it is composed rather than fixed. Sending
+# someone to `fw task verify` about a task with nothing unchecked is what the old line did
+# — it lists unchecked Human ACs, of which those tasks have none — and it is a large part
+# of why two of them sat for 51 and 57 days looking like they needed something.
+d2_remedy="Review with: fw task verify (lists unchecked Human ACs)"
+if [ "$((d2_fail_flip + d2_warn_flip))" -gt 0 ]; then
+    d2_remedy="$d2_remedy. The signed-off ones need no review at all — close them: fw task update T-XXX --status work-completed (or fw task archive-eligible for all of them)"
+fi
+if [ "$d2_fail" -gt 0 ] || [ "$d2_fail_flip" -gt 0 ]; then
     # T-534: the >14d tier is appended with its OWN count and label rather than merged into
     # the >30d list. Dropping it would "fix" the count/list mismatch by hiding a real queue,
     # so the aging tier stays visible — just under the predicate it actually satisfies.
-    d2_msg="D2: Human review queue — $d2_fail task(s) waiting >30d:$d2_fail_details"
-    [ "$d2_warn" -gt 0 ] && d2_msg="$d2_msg; $d2_warn waiting >14d:$d2_warn_details"
+    # T-656: same principle one axis over — the signed-off group is named, not merged and
+    # not dropped.
+    d2_msg="D2: Human review queue — $((d2_fail + d2_fail_flip)) task(s) waiting >30d"
+    [ "$d2_fail" -gt 0 ] && d2_msg="$d2_msg: $d2_fail awaiting judgement:$d2_fail_details"
+    [ "$d2_fail_flip" -gt 0 ] && d2_msg="$d2_msg; $d2_fail_flip signed off, awaiting only the status flip:$d2_fail_flip_details"
+    if [ "$((d2_warn + d2_warn_flip))" -gt 0 ]; then
+        d2_msg="$d2_msg; $((d2_warn + d2_warn_flip)) waiting >14d"
+        [ "$d2_warn" -gt 0 ] && d2_msg="$d2_msg:$d2_warn_details"
+        [ "$d2_warn_flip" -gt 0 ] && d2_msg="$d2_msg (of which $d2_warn_flip signed off:$d2_warn_flip_details)"
+    fi
     fail "$d2_msg" \
          "Tasks may be forgotten" \
-         "Review with: fw task verify (lists unchecked Human ACs)"
-elif [ "$d2_warn" -gt 0 ]; then
-    warn "D2: Human review queue — $d2_warn task(s) waiting >14d:$d2_warn_details" \
+         "$d2_remedy"
+elif [ "$((d2_warn + d2_warn_flip))" -gt 0 ]; then
+    d2_msg="D2: Human review queue — $((d2_warn + d2_warn_flip)) task(s) waiting >14d"
+    [ "$d2_warn" -gt 0 ] && d2_msg="$d2_msg: $d2_warn awaiting judgement:$d2_warn_details"
+    [ "$d2_warn_flip" -gt 0 ] && d2_msg="$d2_msg; $d2_warn_flip signed off, awaiting only the status flip:$d2_warn_flip_details"
+    warn "$d2_msg" \
          "Aging review items" \
-         "Review with: fw task verify"
+         "$d2_remedy"
 elif [ "$d2_info" -gt 0 ]; then
     pass "D2: Human review queue — $d2_info task(s) awaiting human action (normal)"
 else

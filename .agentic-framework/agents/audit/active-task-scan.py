@@ -193,7 +193,33 @@ def scan_active_tasks(tasks_dir, reports_dir):
                         ts = ts.replace(tzinfo=timezone.utc)
                     age_hours = int((now - ts).total_seconds() / 3600)
                     age_days = age_hours // 24
-                    review_queue.append({"id": task_id, "age_hours": age_hours, "age_days": age_days})
+                    # T-656: how much of this queue is actually waiting on a DECISION?
+                    # D2 has always been built from age alone, so a task whose every
+                    # criterion the human already ticked counts the same as one where they
+                    # have not looked. Measured on 2026-08-31: two of the four entries
+                    # over 30 days (T-093 at 57d, T-178 at 51d) were fully signed off and
+                    # waiting only on the status flip. Half the queue was not a queue.
+                    #
+                    # Comments are stripped FIRST and this is not optional: the task
+                    # template keeps two worked `[REVIEW]`/`[REVIEWER]` examples, with real
+                    # `- [ ]` boxes, inside the `### Human` section's HTML comment. Count
+                    # them and every task in the queue looks like it has outstanding
+                    # judgement — the precise error this field exists to stop.
+                    #
+                    # Non-greedy `.*?` and not a line-range delete: `sed '/<!--/,/-->/d'`
+                    # over T-093 yields ONE ticked criterion instead of seven, because the
+                    # range pairs each opener with the next closer anywhere in the file.
+                    ac_body = re.sub(r"<!--.*?-->", "", content, flags=re.S)
+                    ac_section = re.search(r"## Acceptance Criteria(.*?)\n## ", ac_body, re.S)
+                    unticked = 0
+                    if ac_section:
+                        unticked = len(re.findall(r"^\s*-\s*\[ \]", ac_section.group(1), re.M))
+                    review_queue.append({
+                        "id": task_id,
+                        "age_hours": age_hours,
+                        "age_days": age_days,
+                        "unticked": unticked,
+                    })
                 except (ValueError, TypeError):
                     pass
 
