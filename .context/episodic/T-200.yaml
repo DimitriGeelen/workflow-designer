@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-200: Release designer with IW-9 editor (VERSION bump) + flip render-gate SIG
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-01T19:37:46Z
+# ============================================================================
+
+task_id: T-200
+task_name: "Release designer with IW-9 editor (VERSION bump) + flip render-gate SIG"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-18T07:39:35Z
+completed: 2026-09-01T19:37:39Z
+duration_days: 45
+updates_count: 4
+first_commit: 2026-07-18T09:56:43+02:00
+last_commit: 2026-07-18T11:57:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  note release now carries T-176 offline fonts + T-197 owner-retire (render-gate SIG flip). release designer 0.3.0 — IW-9 editor (owner retired) + embedded fonts; flip render-gate SIG. agent ACs checked (release 0.3.0 verified); awaiting human REVIEW /review/T-200
+
+# Key outcomes
+outcomes:
+  - 'VERSION bumped 0.2.0 → 0.3.0 (new release; the immutability guard G-007 forbids re-cutting 0.2.0 with different bytes). — `VERSION` = 0.3.0.'
+  - '`tests/test_designer_render.py` flipped for the retired-owner (IW-9) build: `owner` dropped from `SIG`, from the `AEF_FIELDS.serviceTask` marker loop, and from the rendered-DOM select assertions — horizon + workflowType still asserted. Docstring/console-note updated (T-176 embedded fonts ⇒ no CDN font request). — commit `af90f67`.'
+  - '`scripts/release-designer.sh` cut `dist/aef-workflow-designer-0.3.0.html`; the render gate passed against it; `dist/MANIFEST.yaml` updated to `latest: 0.3.0` with the new sha256 + byte count (larger — embedded fonts). — sha `36be033d…`, 826643 bytes; render gate "PASS (0.3.0)".'
+  - 'Released artifact is byte-identical to `src/` (retired owner + embedded fonts); `python3 tests/test_designer_render.py` exits 0 against 0.3.0. — release script `diff -q` guarantee + render gate green.'
+  - 'AEF notified of the 0.3.0 release on the rail with version + sha256 + bytes, per `docs/aef-designer-integration-protocol.md` (AEF-side re-pin/adoption is AEF''s action, out of 832''s control). — rail offset 61.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-workflow-designer-0.3.0.html'
+  - 'dist/MANIFEST.yaml'
+  - '.tasks/active/T-200-release-designer-with-iw-9-editor-versio.md'
+  - 'tests/test_designer_render.py'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-18T09:56:43"
+    action: 'T-200: note release now carries T-176 offline fonts + T-197 owner-retire (render-gate SIG flip)'
+  - time: "2026-07-18T11:56:34"
+    action: 'T-200: release designer 0.3.0 — IW-9 editor (owner retired) + embedded fonts; flip render-gate SIG'
+  - time: "2026-07-18T11:57:29"
+    action: 'T-200: agent ACs checked (release 0.3.0 verified); awaiting human REVIEW /review/T-200'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 65518 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 65518
+  commits: 3
+  files_changed: 5
+  lines_added: 8568
+  lines_removed: 32
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-200-release-designer-with-iw-9-editor-versio.md
+generated_by: context-agent-hybrid

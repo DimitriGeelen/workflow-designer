@@ -1,0 +1,247 @@
+# ============================================================================
+# EPISODIC MEMORY - T-440: Zero-leg blindness beyond bash: the 60+ .mjs CDP probes and every python check
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-01T18:45:18Z
+# ============================================================================
+
+task_id: T-440
+task_name: "Zero-leg blindness beyond bash: the 60+ .mjs CDP probes and every python check"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-11T22:02:17Z
+completed: 2026-09-01T18:45:08Z
+duration_days: 21
+updates_count: 5
+first_commit: 2026-08-12T08:23:44+02:00
+last_commit: 2026-08-12T11:42:49+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the T-429 question asked of .mjs and .py — population census (73 of 101) plus an execution harness, because static reachability is not decidable here (failures++ lives in a helper whose call sites are elsewhere). Both instruments caught their own version of the defect first: the census's tally regex required a character BEFORE the keyword so 'failures'/'passed' never matched and it printed PASS over 88-of-101 out-of-population; the drive harness set GALLERY_DIR on a script that overrides it at :74 and filed a fully-executed green as BLIND. Positive control added — a knob is only load-bearing if a poisoned population moves the rc/line/verdict signature. the drive knob is the TREE, not the environment — probes resolve REPO from their own file path, so no env var can empty their population. Harness rebuilt around a hollow copy of the repo plus a poisoned control copy. Two control bugs found and fixed by their own symptoms: emptying parent dirs deleted the child dirs the poison was written into (all 5 smoke instruments read CANNOT-DRIVE), and poison placed only at each population's top left subdirectories empty in BOTH copies. An under-placed control does not report as under-placed — it reports as a sealed instrument. measured — 5 of 14 drivable instruments report success having examined nothing, and 59 of 73 cannot be driven at all. bake-clean-layout.py prints 'Baked Clean into 0 maps; ... gallery mirror synced.' and exits 0, with open arc task T-101 reading that code; _norec-verify.py reports its own zero in the same voice as the silent zero it was built to catch. Nine instruments refused (four by exiting 2), which is what makes the five a finding rather than a harness artifact. Registered as G-034 — the class had four instances in the register (G-016/G-017/G-031/T-429) and no entry describing the class; its closure condition runs rather than reads, and refuses BLIND-0-over-a-shrinking-driven-count and fix-the-five-leave-the-59. PL-160 — a control that fails to place itself reports the same thing as a subject that cannot be moved. re-measured after the first repair — driven 14 (unchanged), BLIND 5->4, guarded 9->10, CANNOT-DRIVE 59. The stable denominator is the point: G-034 refuses a falling BLIND count over a shrinking driven count, and 14->14 with BLIND 5->4 is the one shape that means a repair happened rather than an instrument becoming untestable. Corrected this task's own claim that T-101 reads bake-clean-layout's exit code — nothing does; the caller was inferred from provenance, not grepped for, and the real finding is T-448 (documented gate, invoked by nothing, red at 0/24). OBS-033 (P-002 blocks a partial-complete task from committing its own state under its own id — the ordinary end-state of every such task) and OBS-034 (fw note silently discards its payload on an unrecognised subcommand: 'fw note add <1200 chars> --urgent' stored text='add' at exit 0 and inflated the urgent queue) filed. strike the contradicting sentence — the findings section asserted both that nothing reads bake-clean-layout's exit code and that T-101 does. _norec-verify.py takes the load-bearing title instead: it is the operator's approvals-queue guard, built because a silent zero once misled them, reporting its own zero in the same voice
+
+# Key outcomes
+outcomes:
+  - 'Population named and counted, not sampled: every `.mjs` and `.py` check under `tools/`'
+  - 'Blindness is **measured by execution**, not inferred from source reading — a check'
+  - 'The census abstains (rc 2, `ABSTAINED` line) rather than reporting 0 blind when it'
+  - 'Every instrument found blind is recorded by name in this task, with the evidence line'
+  - 'The finding is escalated where it can be acted on after this task closes — registered'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'measured — 5 of 14 drivable instruments report success having examined nothing, and 59 of 73 cannot be driven at all. bake-clean-layout.py prints ''Baked Clean into 0 maps; ... gallery mirror synced.'' and exits 0, with open arc task T-101 reading that code; _norec-verify.py reports its own zero in the same voice as the silent zero it was built to catch. Nine instruments refused (four by exiting 2), which is what makes the five a finding rather than a harness artifact. Registered as G-034 — the class had four instances in the register (G-016/G-017/G-031/T-429) and no entry describing the class; its closure condition runs rather than reads, and refuses BLIND-0-over-a-shrinking-driven-count and fix-the-five-leave-the-59'
+    source: git-mined
+  - description: 'the drive knob is the TREE, not the environment — probes resolve REPO from their own file path, so no env var can empty their population. Harness rebuilt around a hollow copy of the repo plus a poisoned control copy. Two control bugs found and fixed by their own symptoms: emptying parent dirs deleted the child dirs the poison was written into (all 5 smoke instruments read CANNOT-DRIVE), and poison placed only at each population''s top left subdirectories empty in BOTH copies. An under-placed control does not report as under-placed — it reports as a sealed instrument'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.context/working/.fleet-failure-state.json'
+  - '.context/approvals/pending-0f79d867cbc5.yaml'
+  - '.context/audits/2026-08-12.yaml'
+  - '.context/audits/cron/2026-08-04-0100.yaml'
+  - '.context/audits/cron/2026-08-04-0200.yaml'
+  - '.context/audits/cron/2026-08-04-0230.yaml'
+  - '.context/audits/cron/2026-08-04-0300.yaml'
+  - '.context/audits/cron/2026-08-04-0330.yaml'
+  - '.context/audits/cron/2026-08-04-0400.yaml'
+  - '.context/audits/cron/2026-08-04-0430.yaml'
+  - '.context/audits/cron/2026-08-04-0445.yaml'
+  - '.context/audits/cron/2026-08-04-0500.yaml'
+  - '.context/audits/cron/2026-08-04-0515.yaml'
+  - '.context/audits/cron/2026-08-04-0530.yaml'
+  - '.context/audits/cron/2026-08-04-0545.yaml'
+  - '.context/audits/cron/2026-08-04-0600.yaml'
+  - '.context/audits/cron/2026-08-04-0615.yaml'
+  - '.context/audits/cron/2026-08-04-0645.yaml'
+  - '.context/audits/cron/2026-08-04-0700.yaml'
+  - '.context/audits/cron/2026-08-04-0715.yaml'
+  - '.context/audits/cron/2026-08-04-0730.yaml'
+  - '.context/audits/cron/2026-08-04-0745.yaml'
+  - '.context/audits/cron/2026-08-04-0800.yaml'
+  - '.context/audits/cron/2026-08-04-0815.yaml'
+  - '.context/audits/cron/2026-08-04-0830.yaml'
+  - '.context/audits/cron/2026-08-04-0900.yaml'
+  - '.context/audits/cron/2026-08-04-0915.yaml'
+  - '.context/audits/cron/2026-08-04-0930.yaml'
+  - '.context/audits/cron/2026-08-04-0945.yaml'
+  - '.context/audits/cron/2026-08-04-1000.yaml'
+  - '.context/audits/cron/2026-08-04-1015.yaml'
+  - '.context/audits/cron/2026-08-04-1045.yaml'
+  - '.context/audits/cron/2026-08-04-1100.yaml'
+  - '.context/audits/cron/2026-08-04-1115.yaml'
+  - '.context/audits/cron/2026-08-04-1145.yaml'
+  - '.context/audits/cron/2026-08-04-1200.yaml'
+  - '.context/audits/cron/2026-08-04-1230.yaml'
+  - '.context/audits/cron/2026-08-04-1300.yaml'
+  - '.context/audits/cron/2026-08-04-1330.yaml'
+  - '.context/audits/cron/2026-08-04-1345.yaml'
+  - '.context/audits/cron/2026-08-04-1400.yaml'
+  - '.context/audits/cron/2026-08-04-1415.yaml'
+  - '.context/audits/cron/2026-08-04-1430.yaml'
+  - '.context/audits/cron/2026-08-04-1445.yaml'
+  - '.context/audits/cron/2026-08-04-1500.yaml'
+  - '.context/audits/cron/2026-08-04-1515.yaml'
+  - '.context/audits/cron/2026-08-04-1530.yaml'
+  - '.context/audits/cron/2026-08-04-1545.yaml'
+  - '.context/audits/cron/2026-08-04-1600.yaml'
+  - '.context/audits/cron/2026-08-04-1630.yaml'
+  - '.context/audits/cron/2026-08-04-1645.yaml'
+  - '.context/audits/cron/2026-08-04-1700.yaml'
+  - '.context/audits/cron/2026-08-04-1715.yaml'
+  - '.context/audits/cron/2026-08-04-1730.yaml'
+  - '.context/audits/cron/2026-08-04-1745.yaml'
+  - '.context/audits/cron/2026-08-04-1800.yaml'
+  - '.context/audits/cron/2026-08-04-1815.yaml'
+  - '.context/audits/cron/2026-08-04-1830.yaml'
+  - '.context/audits/cron/2026-08-04-1845.yaml'
+  - '.context/audits/cron/2026-08-04-1900.yaml'
+  - '.context/audits/cron/2026-08-04-1915.yaml'
+  - '.context/audits/cron/2026-08-04-1930.yaml'
+  - '.context/audits/cron/2026-08-04-1945.yaml'
+  - '.context/audits/cron/2026-08-04-2000.yaml'
+  - '.context/audits/cron/2026-08-04-2015.yaml'
+  - '.context/audits/cron/2026-08-04-2030.yaml'
+  - '.context/audits/cron/2026-08-04-2045.yaml'
+  - '.context/audits/cron/2026-08-04-2100.yaml'
+  - '.context/audits/cron/2026-08-04-2115.yaml'
+  - '.context/audits/cron/2026-08-04-2130.yaml'
+  - '.context/audits/cron/2026-08-04-2145.yaml'
+  - '.context/audits/cron/2026-08-04-2200.yaml'
+  - '.context/audits/cron/2026-08-04-2215.yaml'
+  - '.context/audits/cron/2026-08-04-2230.yaml'
+  - '.context/audits/cron/2026-08-04-2245.yaml'
+  - '.context/audits/cron/2026-08-04-2300.yaml'
+  - '.context/audits/cron/2026-08-04-2315.yaml'
+  - '.context/audits/cron/2026-08-04-2330.yaml'
+  - '.context/audits/cron/2026-08-04-2345.yaml'
+  - '.context/audits/cron/2026-08-12-0045.yaml'
+  - '.context/audits/cron/2026-08-12-0100.yaml'
+  - '.context/audits/cron/2026-08-12-0115.yaml'
+  - '.context/audits/cron/2026-08-12-0130.yaml'
+  - '.context/audits/cron/2026-08-12-0145.yaml'
+  - '.context/audits/cron/2026-08-12-0200.yaml'
+  - '.context/audits/cron/2026-08-12-0215.yaml'
+  - '.context/audits/cron/2026-08-12-0230.yaml'
+  - '.context/audits/cron/2026-08-12-0245.yaml'
+  - '.context/audits/cron/2026-08-12-0300.yaml'
+  - '.context/audits/cron/2026-08-12-0315.yaml'
+  - '.context/audits/cron/2026-08-12-0330.yaml'
+  - '.context/audits/cron/2026-08-12-0345.yaml'
+  - '.context/audits/cron/2026-08-12-0400.yaml'
+  - '.context/audits/cron/2026-08-12-0415.yaml'
+  - '.context/audits/cron/2026-08-12-0430.yaml'
+  - '.context/audits/cron/2026-08-12-0445.yaml'
+  - '.context/audits/cron/2026-08-12-0500.yaml'
+  - '.context/audits/cron/2026-08-12-0515.yaml'
+  - '.context/audits/cron/2026-08-12-0530.yaml'
+  - '.context/audits/cron/2026-08-12-0545.yaml'
+  - '.context/audits/cron/2026-08-12-0600.yaml'
+  - '.context/audits/cron/2026-08-12-0615.yaml'
+  - '.context/audits/cron/2026-08-12-0630.yaml'
+  - '.context/audits/cron/2026-08-12-0645.yaml'
+  - '.context/audits/cron/2026-08-12-0700.yaml'
+  - '.context/audits/cron/2026-08-12-0715.yaml'
+  - '.context/audits/cron/2026-08-12-0730.yaml'
+  - '.context/audits/cron/2026-08-12-0745.yaml'
+  - '.context/audits/cron/2026-08-12-0800.yaml'
+  - '.context/audits/cron/2026-08-12-0815.yaml'
+  - '.context/audits/cron/2026-08-12-0830.yaml'
+  - '.context/audits/cron/2026-08-12-0845.yaml'
+  - '.context/audits/cron/2026-08-12-0900.yaml'
+  - '.context/audits/cron/2026-08-12-0915.yaml'
+  - '.context/audits/cron/2026-08-12-0930.yaml'
+  - '.context/audits/cron/2026-08-12-0945.yaml'
+  - '.context/audits/cron/2026-08-12-1000.yaml'
+  - '.context/audits/cron/2026-08-12-1015.yaml'
+  - '.context/audits/cron/2026-08-12-1030.yaml'
+  - '.context/audits/cron/2026-08-12-1045.yaml'
+  - '.context/audits/cron/2026-08-12-1100.yaml'
+  - '.context/audits/cron/2026-08-12-1115.yaml'
+  - '.context/audits/cron/2026-08-12-1130.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-445.yaml'
+  - '.context/episodic/T-446.yaml'
+  - '.context/episodic/T-447.yaml'
+  - '.context/inbox.yaml'
+  - '.context/locks/T-445.lock'
+  - '.context/locks/T-446.lock'
+  - '.context/locks/T-447.lock'
+  - '.context/locks/T-449.lock'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-445.log'
+  - '.context/working/episodic-gen/T-446.log'
+  - '.context/working/episodic-gen/T-447.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.handover.stderr'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.reviewed-T-449'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-440-t-429-measured-35-of-35-counter-bearing-.md'
+  - '.tasks/active/T-449-provenance-pair-draft-rows-are-two-sided.md'
+  - '.tasks/completed/T-445-g-032-closure-condition-is-satisfiable-w.md'
+  - '.tasks/completed/T-446-provenancemd-and-the-t-365-guard-must-su.md'
+  - '.tasks/completed/T-447-bake-clean-layout---check-passes-on-an-e.md'
+  - 'tools/_t440-drive-empty.sh'
+  - 'tools/_t440-zero-population-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T08:23:44"
+    action: 'T-440: the T-429 question asked of .mjs and .py — population census (73 of 101) plus an execution harness, because static reachability is not decidable here (failures++ lives in a helper whose call sites are elsewhere). Both instruments caught their own version of the defect first: the census''s tally regex required a character BEFORE the keyword so ''failures''/''passed'' never matched and it printed PASS over 88-of-101 out-of-population; the drive harness set GALLERY_DIR on a script that overrides it at :74 and filed a fully-executed green as BLIND. Positive control added — a knob is only load-bearing if a poisoned population moves the rc/line/verdict signature'
+  - time: "2026-08-12T08:38:26"
+    action: 'T-440: the drive knob is the TREE, not the environment — probes resolve REPO from their own file path, so no env var can empty their population. Harness rebuilt around a hollow copy of the repo plus a poisoned control copy. Two control bugs found and fixed by their own symptoms: emptying parent dirs deleted the child dirs the poison was written into (all 5 smoke instruments read CANNOT-DRIVE), and poison placed only at each population''s top left subdirectories empty in BOTH copies. An under-placed control does not report as under-placed — it reports as a sealed instrument'
+  - time: "2026-08-12T08:51:20"
+    action: 'T-440: measured — 5 of 14 drivable instruments report success having examined nothing, and 59 of 73 cannot be driven at all. bake-clean-layout.py prints ''Baked Clean into 0 maps; ... gallery mirror synced.'' and exits 0, with open arc task T-101 reading that code; _norec-verify.py reports its own zero in the same voice as the silent zero it was built to catch. Nine instruments refused (four by exiting 2), which is what makes the five a finding rather than a harness artifact. Registered as G-034 — the class had four instances in the register (G-016/G-017/G-031/T-429) and no entry describing the class; its closure condition runs rather than reads, and refuses BLIND-0-over-a-shrinking-driven-count and fix-the-five-leave-the-59'
+  - time: "2026-08-12T08:51:54"
+    action: 'T-440: PL-160 — a control that fails to place itself reports the same thing as a subject that cannot be moved'
+  - time: "2026-08-12T11:42:33"
+    action: 'T-440: re-measured after the first repair — driven 14 (unchanged), BLIND 5->4, guarded 9->10, CANNOT-DRIVE 59. The stable denominator is the point: G-034 refuses a falling BLIND count over a shrinking driven count, and 14->14 with BLIND 5->4 is the one shape that means a repair happened rather than an instrument becoming untestable. Corrected this task''s own claim that T-101 reads bake-clean-layout''s exit code — nothing does; the caller was inferred from provenance, not grepped for, and the real finding is T-448 (documented gate, invoked by nothing, red at 0/24). OBS-033 (P-002 blocks a partial-complete task from committing its own state under its own id — the ordinary end-state of every such task) and OBS-034 (fw note silently discards its payload on an unrecognised subcommand: ''fw note add <1200 chars> --urgent'' stored text=''add'' at exit 0 and inflated the urgent queue) filed'
+  - time: "2026-08-12T11:42:49"
+    action: 'T-440: strike the contradicting sentence — the findings section asserted both that nothing reads bake-clean-layout''s exit code and that T-101 does. _norec-verify.py takes the load-bearing title instead: it is the operator''s approvals-queue guard, built because a silent zero once misled them, reporting its own zero in the same voice'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 30042 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 30042
+  commits: 6
+  files_changed: 161
+  lines_added: 5067
+  lines_removed: 12963
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-440-t-429-measured-35-of-35-counter-bearing-.md
+generated_by: context-agent-hybrid

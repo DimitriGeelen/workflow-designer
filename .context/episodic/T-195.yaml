@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-195: Draft G-3 collapsed-inception v1.1 delta proposal + reconcile forward-compile
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-01T19:36:52Z
+# ============================================================================
+
+task_id: T-195
+task_name: "Draft G-3 collapsed-inception v1.1 delta proposal + reconcile forward-compile"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-12T19:38:17Z
+completed: 2026-09-01T19:36:48Z
+duration_days: 51
+updates_count: 2
+first_commit: 2026-07-12T21:42:14+02:00
+last_commit: 2026-07-28T00:14:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  draft G-3 collapsed-inception v1.1 delta proposal + reconcile forward-compile §8 (frozen mapping-v1 untouched; graduation held for Dimitri). GRADUATE G-3 to v1.1 (Dimitri sovereign GO) — collapsed subProcess inception marker frozen into mapping-v1 Part I §7; reverse-map row (§4) + version bumped; strawman removed from Part II. IW-9 owner-model stays provisional (T-189). Tests green.. record G-3 v1.1 graduation decision (Dimitri sovereign GO). owner agent → human — agent ACs 4/4 verified green (proposal doc + §8 reconcile + frozen standard untouched + fixtures conformant); awaiting Dimitri's G-3 v1.1 graduation decision (docs/reports/T-195-g3-collapsed-inception-delta.md §3 has both before→after edits)
+
+# Key outcomes
+outcomes:
+  - 'Proposal doc `docs/reports/T-195-g3-collapsed-inception-delta.md` created, capturing: the problem (old strawman vs ratified collapsed form + provenance on the rail), the exact **ratified G-3 form definition** (§2), the **exact before→after edit** for the frozen mapping-v1 Part II G-3 bullet (§3A), the **exact before→after edit** for forward-compile §8 (§3B), graduation blast-radius §4 (fixtures/tests/editor/bridge all conformance-safe), and a §5 sign-off-boundary section (graduation is Dimitri''s, not transferable from AEF''s operator ratification)'
+  - 'forward-compile **§8** open-item line reconciled to the ratified framing — the stale "subProcess-with-decision vs. single-node-with-marker" open-question phrasing is gone (grep count 0); marks G-3 RESOLVED ratified-AEF-side pending v1.1 graduation, consistent with §5. Single diff hunk at §8; §2/§3 untouched'
+  - 'Frozen `docs/standards/aef-bpmn-mapping-v1.md` **NOT modified** under agent control — `git diff --exit-code` clean (zero change)'
+  - '`tests/test_forward_fixtures.py` green (`OK: 5 fixture(s) ... conformant`) — the form the delta proposes is exactly what `inception-gonogo.bpmn` already embodies (delta is implementation-consistent)'
+  - '[REVIEW] Graduate (or rule on) the G-3 collapsed-inception v1.1 delta'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'owner agent → human — agent ACs 4/4 verified green (proposal doc + §8 reconcile + frozen standard untouched + fixtures conformant); awaiting Dimitri''s G-3 v1.1 graduation decision (docs/reports/T-195-g3-collapsed-inception-delta.md §3 has both before→after edits)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-12 — Split the delta: apply §8 (support-doc) now, hold §3A (frozen) for Dimitri'
+    chose: 'Author the full proposal doc (both before→after edits), but *apply* only the forward-compile §8 reconcile (3B) under agent control; hold the frozen mapping-v1 Part II edit (3A) for Dimitri''s v1.1 graduation.'
+    rationale: '§8 is a stale open-item line on the 832-owned support deliverable that already contradicted §5 (post-T-194) — reconciling it is non-normative maintenance, un-gated. The mapping-v1 Part II bullet is the *frozen standard*; graduating it is sovereignty (same boundary as T-189 IW-9). AEF''s operator ratification clears the AEF side only.'
+    alternatives_rejected: ['(a) applying 3A too (would edit the frozen standard under agent initiative — a sovereignty breach); (b) holding 3B as well (leaves §5-vs-§8 self-contradiction sitting in a 832 doc I own and just touched); (c) folding G-3 into the T-189 delta (violates one-task-one-deliverable — G-3 shape and IW-9 authority are independent clauses).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/T-195-g3-collapsed-inception-delta.md'
+  - 'docs/standards/aef-bpmn-forward-compile-v1.md'
+  - 'docs/standards/aef-bpmn-mapping-v1.md'
+  - '.tasks/active/T-195-draft-g-3-collapsed-inception-v11-delta-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-12T21:42:14"
+    action: 'T-195: draft G-3 collapsed-inception v1.1 delta proposal + reconcile forward-compile §8 (frozen mapping-v1 untouched; graduation held for Dimitri)'
+  - time: "2026-07-12T22:18:45"
+    action: 'T-195: GRADUATE G-3 to v1.1 (Dimitri sovereign GO) — collapsed subProcess inception marker frozen into mapping-v1 Part I §7; reverse-map row (§4) + version bumped; strawman removed from Part II. IW-9 owner-model stays provisional (T-189). Tests green.'
+  - time: "2026-07-12T22:19:32"
+    action: 'T-195: record G-3 v1.1 graduation decision (Dimitri sovereign GO)'
+  - time: "2026-07-28T00:14:13"
+    action: 'T-195: owner agent → human — agent ACs 4/4 verified green (proposal doc + §8 reconcile + frozen standard untouched + fixtures conformant); awaiting Dimitri''s G-3 v1.1 graduation decision (docs/reports/T-195-g3-collapsed-inception-delta.md §3 has both before→after edits)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 73438 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 73438
+  commits: 4
+  files_changed: 12
+  lines_added: 396
+  lines_removed: 47
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-195-draft-g-3-collapsed-inception-v11-delta-.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,103 @@
+# ============================================================================
+# EPISODIC MEMORY - T-228: S4a: off-page claim UX — editor 'create from pending ref' picker (name-match
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-01T19:38:16Z
+# ============================================================================
+
+task_id: T-228
+task_name: "S4a: off-page claim UX — editor 'create from pending ref' picker (name-match"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-21T21:50:40Z
+completed: 2026-09-01T19:38:11Z
+duration_days: 42
+updates_count: 3
+first_commit: 2026-07-21T23:51:25+02:00
+last_commit: 2026-07-22T09:41:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file S4 (off-page claim UX + fw bpmn claim CLI) with real ACs — next-window arc slice after S3 complete. rescope to S4a (editor 'create from pending ref' picker only); split fw bpmn claim CLI out to S4b/T-230 (operator-decided: vendored fw subcommand). Real ACs + split decision recorded. S4a server-side claim-on-save — a save whose own uuid matches a pending ghost records {via:ui} claim + drops the ghost (referrers resolve, no diagram edit); idempotent; merged_ghosts never surfaces a now-live uuid. tools/_gallery-claim-verify.py 11/11, no regression (22/22+17/17). S4a server half done (AC 2-6 checked) — claim-on-save landed + verified; picker UI + Human REVIEW remain (deferred at 68% budget). Evolution note: claim is server-side, CLI reuses same path. root-cause committed!=serving (2nd occ) — stale pre-S4a process held :8834 port, redeploy failed to bind; fixed (clean re-exec), claim now live-verified. Learning + T-231 serve-gallery.sh hardening filed. S4a picker BUILT + live-verified — 'create from pending ref' seeds a map adopting a pending ghost uuid; Save fires the server claim (via:ui). write ## Recommendation (GO) — review page showed NO-REC/'not ready', operator saw no actionable approval; dual-party E2E evidence cited
+
+# Key outcomes
+outcomes:
+  - 'Editor picker **"create from pending ref"**: lists `/api/list ghosts[]` (uuid, name, referrer count); selecting one seeds a NEW map whose `workflowMeta.uuid` == the ghost uuid; **name-match is suggest-only** (a same-named live map is surfaced as a suggestion, never auto-adopted/opened)'
+  - 'Saving the picker-seeded map **claims** the ghost: the server records `{uuid, project, ts, via:"ui"}` in `registry.claims` and the ghost drops from `registry.ghosts` (its uuid is now a live map); recorded through the one authoritative `/api/save` path'
+  - 'After the claim, `/api/list`: the uuid is **absent** from `ghosts[]` and present as that map''s `maps[].uuid` — every referrer now resolves (S3a derivation: referrer `workflowRef` matches a live map uuid → no ghost) with **NO diagram-XML edit** to the referrers'
+  - '`claims[]` is an append-only audit trail; re-seeding/re-saving the same already-claimed uuid is idempotent (no duplicate claim entry, ghost stays gone)'
+  - 'A verify tool (`tools/_gallery-claim-verify.py`) exercises the ui-claim path end-to-end (seed uuid → save → ghost dropped + claim `via:"ui"` recorded + referrer resolves; idempotent re-claim). Passes'
+  - 'No regression: S3a/S3b verifiers (`_gallery-list-verify.py` 22/22, `_gallery-registry-verify.py` 17/17), save-allowlist, corpus-adopt, byte-pins all still green; editor byte-diff vs deployed `designer.html` limited to this change'
+  - '[REVIEW] The "create from pending ref" picker reads clearly and the suggest-only affordance is unambiguous'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'root-cause committed!=serving (2nd occ) — stale pre-S4a process held :8834 port, redeploy failed to bind; fixed (clean re-exec), claim now live-verified. Learning + T-231 serve-gallery.sh hardening filed'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-22 — S4 decomposition + claim-CLI home (operator-decided)'
+    chose: 'Split S4 → S4a (this task, editor picker) built first; S4b (T-230, `fw bpmn claim` CLI) separate. Picker is the primary operator UX and is fully 832-product-owned (no boundary question), so it doesn''t wait on the CLI-home call.'
+    rationale: 'Task-sizing rule (one task = one deliverable); T-228 bundled picker + CLI. Picker-first also unblocks AEF''s S4 claim-picker re-verify sooner.'
+    alternatives_rejected: ['CLI-first (needs the home decision up front, delays the higher-value UX); both-under-one-task (larger multi-commit unit, mixes a clean product deliverable with a boundary-touching one).']
+  - decision: '2026-07-22 — where 832''s claim CLI lives (S4b/T-230, operator-decided)'
+    chose: 'Add a real `bpmn` subcommand to the vendored `.agentic-framework/bin/fw`, so the operator command is literally `fw bpmn claim <uuid> <project>` (matches the ratified contract shape verbatim).'
+    rationale: 'Operator preference for the ratified command shape; the vendored `fw` has no project-local subcommand hook (dispatcher hard-fails on unknown commands, `bin/fw:6622`), so a local tool wouldn''t be `fw bpmn`. G-008 upstream path applies to the vendored edit.'
+    alternatives_rejected: ['832-local `tools/bpmn.py` (cleaner product/governance separation + portability, but the operator command wouldn''t be `fw bpmn claim` and would need rail-coordination with AEF on the exact invocation).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.playwright-mcp/t228-picker-dark.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-228-s4-off-page-claim-ux--create-from-pendin.md'
+  - '.tasks/active/T-230-s4b-fw-bpmn-claim-cli--add-bpmn-subcomma.md'
+  - '.tasks/active/T-231-harden-serve-gallerysh-clean-stop-before.md'
+  - 'tools/_gallery-claim-verify.py'
+  - 'tools/gallery-serve.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-21T23:51:25"
+    action: 'T-228: file S4 (off-page claim UX + fw bpmn claim CLI) with real ACs — next-window arc slice after S3 complete'
+  - time: "2026-07-22T00:43:05"
+    action: 'T-228: rescope to S4a (editor ''create from pending ref'' picker only); split fw bpmn claim CLI out to S4b/T-230 (operator-decided: vendored fw subcommand). Real ACs + split decision recorded'
+  - time: "2026-07-22T00:45:50"
+    action: 'T-228: S4a server-side claim-on-save — a save whose own uuid matches a pending ghost records {via:ui} claim + drops the ghost (referrers resolve, no diagram edit); idempotent; merged_ghosts never surfaces a now-live uuid. tools/_gallery-claim-verify.py 11/11, no regression (22/22+17/17)'
+  - time: "2026-07-22T00:47:42"
+    action: 'T-228: S4a server half done (AC 2-6 checked) — claim-on-save landed + verified; picker UI + Human REVIEW remain (deferred at 68% budget). Evolution note: claim is server-side, CLI reuses same path'
+  - time: "2026-07-22T01:29:36"
+    action: 'T-228: root-cause committed!=serving (2nd occ) — stale pre-S4a process held :8834 port, redeploy failed to bind; fixed (clean re-exec), claim now live-verified. Learning + T-231 serve-gallery.sh hardening filed'
+  - time: "2026-07-22T07:22:56"
+    action: 'T-228: S4a picker BUILT + live-verified — ''create from pending ref'' seeds a map adopting a pending ghost uuid; Save fires the server claim (via:ui)'
+  - time: "2026-07-22T09:41:44"
+    action: 'T-228: write ## Recommendation (GO) — review page showed NO-REC/''not ready'', operator saw no actionable approval; dual-party E2E evidence cited'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 60347 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 60347
+  commits: 7
+  files_changed: 8
+  lines_added: 1026
+  lines_removed: 71
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-228-s4-off-page-claim-ux--create-from-pendin.md
+generated_by: context-agent-hybrid

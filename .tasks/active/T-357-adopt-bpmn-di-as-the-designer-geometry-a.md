@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-08-03T13:14:20Z
-last_update: 2026-08-23T10:24:11Z
+last_update: 2026-09-01T19:38:48Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
