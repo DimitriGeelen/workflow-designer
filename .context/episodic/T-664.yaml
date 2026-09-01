@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-664: Approvals queue has one representation for three states — never-looked-at, deferred, genuinely-waiting — so 61 unticked boxes all read as blockers
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-01T10:05:24Z
+# ============================================================================
+
+task_id: T-664
+task_name: "Approvals queue has one representation for three states — never-looked-at, deferred, genuinely-waiting — so 61 unticked boxes all read as blockers"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-01T09:58:43Z
+completed: 2026-09-01T10:05:19Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The raw count is separated from the claim it was being used to support.**'
+  - '**The structural cause is named and is not a matter of opinion.** The queue'
+  - '**One dissolved-but-still-queued item is proven, and the claim is bounded to'
+  - '**The failed classifier is reported as a negative result, not shipped.** Keyword'
+  - '**Nothing was decided on the operator''s behalf — checked, not promised.** No'
+  - '**The result persists as a file.**'
+  - '**The missing representation is named, and deliberately not built.** Of'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-664-approvals-queue-has-one-representation-f.md
+generated_by: context-agent-hybrid
