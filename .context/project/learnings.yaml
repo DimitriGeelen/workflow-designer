@@ -2164,3 +2164,10 @@ learnings:
   date: 2026-08-31
   context: Added via context agent
   application: TBD
+- id: PL-305
+  learning: "An exclusion is a standing CLAIM about why a check may be skipped, and nothing re-tests it. _t509 excluded _t364-t308-teeth.py with a precise, correct reason (+51 bytes, T-399's producer trailer). Three weeks later the real drift was +7913 across 20 further emitter commits: the exclusion outlived its own cause and went on excusing a red for a reason that had stopped being the reason. The sweep checks that an excluded FILE still exists; it does not check that the excluded REASON still holds. Corollary from the same run: teeth that die announce themselves as ABSTAINED, which reads as acceptable — _t358-teeth.py is sitting in that state now."
+  source: P-001
+  task: T-663
+  date: 2026-09-01
+  context: Added via context agent
+  application: TBD

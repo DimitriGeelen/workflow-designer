@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-663: T-364 teeth are dead: the control pins an emitter baseline 22 commits old, so _t308 unusable:0 is an unproven zero again
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-01T09:52:12Z
+# ============================================================================
+
+task_id: T-663
+task_name: "T-364 teeth are dead: the control pins an emitter baseline 22 commits old, so _t308 unusable:0 is an unproven zero again"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-01T09:31:36Z
+completed: 2026-09-01T09:52:01Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-01T11:51:55+02:00
+last_commit: 2026-09-01T11:51:55+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the teeth proving _t308's unusable bucket can fill had been dead since T-399 — the control asserted this arc's own repairs had not happened. Control no longer pins a baseline (self-compares one build, cannot rot); injection moved from a document to a build via T308_OLD_SRC, because after T-364 no real document is unstable any more. Teeth 8/8 in 5s, sweep exclusion lifted so the next death is a regression not a comment.
+
+# Key outcomes
+outcomes:
+  - '**The death is reproduced and dated, not merely asserted.**'
+  - '**The repaired control does not depend on any pinned historical build.**'
+  - '**The injection fires the `unusable` bucket in the CURRENT build.**'
+  - '**`identical` neither inflates nor shrinks when the injection is present.**'
+  - '**The teeth fail for their own predicted reason, checked per-mutation.**'
+  - '**The next death is loud.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-663-t-364-teeth-are-dead-the-control-pins-an.md'
+  - 'tools/_t308-export-byte-identity-cdp.mjs'
+  - 'tools/_t364-t308-teeth.py'
+  - 'tools/_t509-instrument-sweep.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-01T11:51:55"
+    action: 'T-663: the teeth proving _t308''s unusable bucket can fill had been dead since T-399 — the control asserted this arc''s own repairs had not happened. Control no longer pins a baseline (self-compares one build, cannot rot); injection moved from a document to a build via T308_OLD_SRC, because after T-364 no real document is unstable any more. Teeth 8/8 in 5s, sweep exclusion lifted so the next death is a regression not a comment.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 20
+  commits: 1
+  files_changed: 4
+  lines_added: 601
+  lines_removed: 113
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-663-t-364-teeth-are-dead-the-control-pins-an.md
+generated_by: context-agent-hybrid
