@@ -1,0 +1,34 @@
+id: tools/_t667-d2-format-derivation-teeth.py
+name: _t667-d2-format-derivation-teeth
+type: script
+subsystem: instruments
+location: tools/_t667-d2-format-derivation-teeth.py
+tags: [teeth, meta-teeth, audit, d2, derivation-guard, t667, t666]
+
+purpose: >
+  Proves that _t534's anti-aging guard actually fires, and fires as a DEAD CONTROL (rc 4)
+  rather than as an abstention (rc 2). _t534 parses the audit's D2 human-review-queue line;
+  T-656 reworded that line and _t534's transcribed regex silently stopped matching for five
+  days. T-667 repaired it by deriving the expectation from audit.sh instead of restating it —
+  and this file exists because that derivation guard is itself a hand-written claim, which
+  would fail the same silent way if nobody drove it red (PL-308).
+
+  Three arms: (A) a reworded COPY of audit.sh must kill _t534 rc 4 naming the moved fragment;
+  (B) a line with no tier header must not parse, so the deliberately-permissive positional
+  parse cannot swallow anything; (C) refuse() still exits 2 and dead() still exits 4, so a
+  later repair cannot re-merge the two states T-666 separated.
+
+  Never mutates the real audit.sh — arm A works on a mktemp copy.
+
+depends_on:
+  - target: tools/_t534-d2-queue-tier-teeth.py
+    type: reads
+  - target: .agentic-framework/agents/audit/audit.sh
+    type: reads
+
+depended_by:
+  - target: tools/_t509-instrument-sweep.sh
+    type: calls
+
+last_verified: 2026-09-01
+created_by: T-667
