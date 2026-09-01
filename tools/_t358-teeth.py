@@ -37,13 +37,47 @@ def run_probe(root):
     return p.returncode, (p.stdout or "") + (p.stderr or "")
 
 
+def local_deps(entry, _seen=None):
+    """Every sibling .mjs the probe pulls in, transitively, derived from its source.
+
+    T-665: this list used to be the literal tuple
+    ("_t358-lane-provenance-cdp.mjs", "gallery-serve.py"). On 2026-08-26 T-604 added
+    `import { pageWsUrl } from './_cdp-attach.mjs'` to the probe and did not update the
+    tuple, so every temp copy from that day on was missing a module the probe imports.
+    The control died on ERR_MODULE_NOT_FOUND and every mutation below it stopped meaning
+    anything — silently, for a week, because a broken control reports ABSTAINED and the
+    sweep reads abstention as acceptable.
+
+    A hand-maintained dependency list is a claim that has to be re-checked by hand every
+    time an import changes, which is the same shape as the aged pin in T-663 and the
+    stale exclusion in PL-305. Deriving it from the file means the next import cannot
+    desynchronise it: adding one updates this automatically, and a missing file is a
+    loud COULD-NOT-MEASURE rather than a control that fails for an unrelated reason.
+    """
+    seen = _seen if _seen is not None else set()
+    name = os.path.basename(entry)
+    if name in seen:
+        return seen
+    seen.add(name)
+    path = os.path.join(HERE, name)
+    if not os.path.exists(path):
+        print("COULD-NOT-MEASURE: the probe imports '%s', which is not in tools/" % name,
+              file=sys.stderr)
+        sys.exit(3)
+    src = open(path, encoding="utf-8").read()
+    # `from './x.mjs'` / `from "./x.mjs"`, plus bare `import './x.mjs'` side-effect form.
+    for m in re.finditer(r"""(?:from|import)\s+['"]\./([A-Za-z0-9_.-]+\.mjs)['"]""", src):
+        local_deps(m.group(1), seen)
+    return seen
+
+
 def mutated_tree():
     """A full temp copy of the pieces the probe touches. The real tree is never edited."""
     d = tempfile.mkdtemp(prefix="t358-teeth-")
     for sub in ("src", "tools", os.path.join("tests", "fixtures", "lane-provenance")):
         os.makedirs(os.path.join(d, sub), exist_ok=True)
     shutil.copy2(SRC, os.path.join(d, "src", "aef-workflow-designer.html"))
-    for f in ("_t358-lane-provenance-cdp.mjs", "gallery-serve.py"):
+    for f in sorted(local_deps("_t358-lane-provenance-cdp.mjs")) + ["gallery-serve.py"]:
         shutil.copy2(os.path.join(HERE, f), os.path.join(d, "tools", f))
     for f in os.listdir(FIX):
         shutil.copy2(os.path.join(FIX, f), os.path.join(d, "tests", "fixtures", "lane-provenance", f))

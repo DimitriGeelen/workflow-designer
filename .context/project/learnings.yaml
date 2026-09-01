@@ -2171,3 +2171,10 @@ learnings:
   date: 2026-09-01
   context: Added via context agent
   application: TBD
+- id: PL-306
+  learning: "BEING WIRED IS NOT BEING WATCHED. _t358-teeth.py was never excluded from the instrument sweep and ran on every bridge run, and still sat dead for six days — because a broken control exits 2, the sweep classifies exit 2 as ABSTAINED, and abstention reads as an acceptable outcome rather than a dead instrument. T-663's teeth were invisible because they were excluded; these were invisible because their failure mode had a benign-sounding name. Cause was a hand-written dependency list (mutated_tree copied a literal tuple) that T-604 desynchronised by adding an import the list did not know about. Third instance of the same family in one day: a pinned ref (T-663), an exclusion's stated reason (PL-305), and a copy list — each a hand-maintained claim about the world that nothing re-checks when the world moves. Fix pattern: derive the claim from the artifact instead of restating it."
+  source: P-001
+  task: T-665
+  date: 2026-09-01
+  context: Added via context agent
+  application: TBD
