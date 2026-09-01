@@ -2096,3 +2096,59 @@ decisions:
     date: 2026-08-31
     task: T-660
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-279
+    decision: "Convert 7 probers; leave `_t634:157` (`NSITE -ne 1`) exactly as it is."
+    scope: project
+    date: 2026-08-31
+    task: T-661
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-280
+    decision: "`assert_mutation_complete <subject> <mutant> <original-pattern>`, checking"
+    scope: project
+    date: 2026-08-31
+    task: T-661
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-281
+    decision: "Author the full proposal doc (both before→after edits), but *apply* only the forward-compile §8 reconcile (3B) under agent control; hold the frozen mapping-v1 Part II edit (3A) for Dimitri's v1.1 graduation."
+    scope: project
+    date: 2026-09-01
+    task: T-195
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-282
+    decision: "Split S4 → S4a (this task, editor picker) built first; S4b (T-230, `fw bpmn claim` CLI) separate. Picker is the primary operator UX and is fully 832-product-owned (no boundary question), so it doesn't wait on the CLI-home call."
+    scope: project
+    date: 2026-09-01
+    task: T-228
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-283
+    decision: "Add a real `bpmn` subcommand to the vendored `.agentic-framework/bin/fw`, so the operator command is literally `fw bpmn claim <uuid> <project>` (matches the ratified contract shape verbatim)."
+    scope: project
+    date: 2026-09-01
+    task: T-228
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-284
+    decision: "replace the transcribed regex with a positional parse (tier headers + token"
+    scope: project
+    date: 2026-09-01
+    task: T-667
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-285
+    decision: "yes — `tools/_t667-d2-format-derivation-teeth.py`, 3 arms, added to the permanent"
+    scope: project
+    date: 2026-09-01
+    task: T-667
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-286
+    decision: "yes, they count; the probe enforces the union via leg 3 rather than via a new leg."
+    scope: project
+    date: 2026-09-01
+    task: T-667
+    rationale: "Auto-captured from task file on completion"

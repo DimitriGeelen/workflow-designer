@@ -2185,3 +2185,10 @@ learnings:
   date: 2026-09-01
   context: Added via context agent
   application: TBD
+- id: PL-308
+  learning: "A DERIVATION GUARD IS ITSELF A HAND-MAINTAINED CLAIM UNTIL ITS RED ARM IS DRIVEN. PL-306's fix pattern — derive the claim from the artifact instead of restating it — produces a new hand-written mechanism (the extractor, the anchor list, the 'does the source still contain X' check) that fails in exactly the way it was built to prevent: silently, because a guard that stops matching yields no findings and reads as clean. T-667 repaired _t534 by asserting audit.sh still contains the six fragments its parse depends on, then put THAT assertion under teeth (_t667-d2-format-derivation-teeth.py) driven against a mutated copy of audit.sh and shown red against a neutered copy of _t534. The test: after deriving instead of restating, ask 'what drives this derivation red?' — if the answer is 'the next person to notice', the bet that just failed has been placed again one level up. Corollary from the same task: the arm most worth keeping asserts the exit codes stay separated (refuse=2, dead=4), because a later repair that re-merges them returns the bug wearing the fix as a disguise."
+  source: P-001
+  task: T-667
+  date: 2026-09-01
+  context: Added via context agent
+  application: TBD

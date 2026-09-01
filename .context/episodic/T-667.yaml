@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-667: _t534's D2 regex has aged out of agreement with the audit line it parses — dead teeth, visible only since T-666
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-01T21:16:42Z
+# ============================================================================
+
+task_id: T-667
+task_name: "_t534's D2 regex has aged out of agreement with the audit line it parses — dead teeth, visible only since T-666"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-01T12:11:34Z
+completed: 2026-09-01T21:16:10Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The mismatch is stated as a measurement, not a diff reading: the exact emitted D2 line'
+  - '`_t534` parses the current D2 line and evaluates its legs — verified by the probe'
+  - 'The legs still assert what they asserted before. A parse repair that makes the probe'
+  - 'The new expectation cannot age silently the same way: either it is derived from the'
+  - 'The signed-off clause is not merely tolerated but understood: the task records whether'
+  - '`bash tools/_t509-instrument-sweep.sh` no longer reports `_t534` under `DEAD CONTROL`.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-01 — repair the regex, or change how the expectation is held'
+    chose: 'replace the transcribed regex with a positional parse (tier headers + token regions) PLUS a derivation guard that asserts the depended-on fragments still exist in audit.sh.'
+    rationale: 'the AC for this task warns that making the probe green by loosening what it checks is the failure mode. A minimal repair — change `>30d:` to `>30d;` and add the two new clauses to the regex — would have been green today and would have aged out again on the next D2 rewording, which is the defect, not the fix. The positional parse is *deliberately* permissive about the clauses between the headers, because those are presentation and this file has no business policing them; it is strict about the two things it actually claims, the totals and which tier each task token falls in. Permissiveness aimed at the part you do not assert is not loosening.'
+    alternatives_rejected: ['(a) *patch the regex* — restates the same hand-maintained claim, ages out again. (b) *parse the audit''s YAML output instead of its stdout* — the message string IS the artefact under test; PL-159''s whole point is that a bar stated in a message is not necessarily a bar the instrument holds, so reading a structured field would stop testing the sentence an operator actually reads. (c) *delete the probe as too brittle* — it is guarding a real defect that was real (count 2, list 5) and remains the only thing checking it.']
+  - decision: '2026-09-01 — whether to add teeth for the new guard'
+    chose: 'yes — `tools/_t667-d2-format-derivation-teeth.py`, 3 arms, added to the permanent instrument population.'
+    rationale: 'the repair''s anti-aging mechanism is itself a hand-written claim. Leaving it undriven would place exactly the bet that failed in T-665 (a control broken for six days) and T-667 (an expectation drifted for five). Arm C is the one I would keep if I could keep only one: it asserts that `refuse()` still exits 2 and `dead()` still exits 4 — that a future repair cannot quietly re-merge the two states T-666 separated, which would return this class of bug wearing the fix as a disguise. Cost is ~1s per sweep; it invokes no audit.'
+    alternatives_rejected: ['proving the guard once in the task write-up and moving on. That is a measurement with a shelf life, and this task exists because of a measurement whose shelf life expired unnoticed.']
+  - decision: '2026-09-01 — do signed-off tasks count toward the D2 bar'
+    chose: 'yes, they count; the probe enforces the union via leg 3 rather than via a new leg.'
+    rationale: 'audit.sh:4183 sums both groups into the header total, and T-656''s comment argues it explicitly — dropping the signed-off ones "would quiet the control by losing the work it found." This session is the evidence: T-093 and T-178, the two tasks T-656 was written about, are still outstanding and outstanding for a *structural* reason. A queue that hid them would have hidden a framework deadlock. Signed-off is not finished; it is waiting on a different actor, and the remediation string already says which one.'
+    alternatives_rejected: ['treating signed-off tasks as out-of-queue (would have made leg 3 pass by shrinking what it counts — the exact loosening this task''s ACs forbid).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 544 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 544
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-667-t534s-d2-regex-has-aged-out-of-agreement.md
+generated_by: context-agent-hybrid
