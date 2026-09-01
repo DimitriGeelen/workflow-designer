@@ -2701,7 +2701,7 @@ concerns:
     the bridge suite before X'' -- every author who skipped it knew it existed, and the two guards above
     failed while people were actively working in the same files; (d) an agent running it during a session,
     which is precisely the ''a human was watching'' condition that has already failed.'
-  tasks:
+  related_tasks:
   - T-293
   - T-575
   - T-560
@@ -2782,7 +2782,7 @@ concerns:
     operator confirms, mirroring bvp_scores/bvp_scores_proposed. Downgrade to low only if the operator
     rules that inceptions are not meant to be ranked against each other at all -- in which case the
     hv-lc quadrant should stop displaying a BVP number for them rather than displaying a tie.'
-  tasks:
+  related_tasks:
   - T-624
   - T-619
   - T-309
@@ -2839,7 +2839,7 @@ concerns:
     because T-423 was surfaced is not closure: that is mitigation of one instance, and the
     gap is the framework''s inability to see the class. First step is a census: how many
     active tasks have unticked Agent ACs whose text defers to the operator?'
-  tasks:
+  related_tasks:
   - T-423
   - T-510
 - id: G-047
@@ -2974,7 +2974,7 @@ concerns:
     task''s own files, or (c) CLAUDE.md''s completion checklist states commit-before-complete
     explicitly and the completion command refuses to run with a dirty tree for that task.
     Closing on "an agent worked around it once" is not closure.'
-  shipped_2026_08_31: |
+  evidence_2026_08_31_T653: |
     Clause (b) is now HALF closed, and the half that shipped is not the half the
     clause described. The gate did not need to learn about staged paths -- it needed
     to stop keying on spelling. Two exemptions were justified by EFFECT and
@@ -2999,7 +2999,7 @@ concerns:
       setting status. T-649 shipped the warning; the checklist line is not written.
     - OBS-331 resolved by T-650. OBS-332 is new and unowned: a P-011 Verification
       line invoking `fw audit` hangs on the lock FDs the transition itself holds.
-  tasks:
+  related_tasks:
   - T-643
   - T-644
   - T-649
