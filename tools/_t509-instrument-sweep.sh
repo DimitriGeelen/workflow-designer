@@ -14,6 +14,12 @@
 #   probe that prompted it. This applies it to the population.
 #
 # WHAT THE UNWATCHED STATE WAS HIDING, found in the first sweep:
+#   RESOLVED 2026-09-01 (T-663) — the exclusion below is GONE and the script is wired.
+#   The control no longer pins a baseline at all (it self-compares one build, so it cannot
+#   decay), and the injection moved from a document to a build via T308_OLD_SRC, because
+#   after T-364 no real document is unstable any more. Teeth 8/8. Left standing as the
+#   record of what the unwatched state hid:
+#
 #   _t364-t308-teeth.py's CONTROL leg is red — `maps=24 identical=0 drifted=24`. A pinned
 #   baseline decaying silently, inside the instrument whose job is to prove another
 #   instrument works. Nobody could have known, because nothing ran it. That is the whole
@@ -63,7 +69,6 @@ EXCLUDE=(
 "_t351-teeth.sh|drives real shutdown probes with live server PIDs; exceeded 90s. Same family as _t350 and the same operator question."
 "_t430-abstention-teeth.sh|PARAMETERISED, not standalone: it takes suite paths as argv and correctly refuses with 'UNKNOWN - no suites named' when given none. Wiring it bare would gate the suite on a usage error, which would look like a finding and be noise."
 "_t423-additive-export-teeth.py|PARAMETERISED, same shape as _t430: it needs T423_EXPORT_DIR pointing at a directory of REAL browser-produced exports, because it damages an export and requires the guard to notice - damaging a hand-written stand-in would test the stand-in. Run bare it correctly REFUSES (rc 2) rather than inventing an input. It IS wired: tests/run-bridge-tests.sh runs the cdp probe with T423_EXPORT_OUT and hands the directory straight to these teeth in the same leg, so the sweep excluding it costs no coverage."
-"_t364-t308-teeth.py|exits 2 with a red control - maps=24 identical=0 drifted=24 - because it compares the current build against a PINNED GIT REF (3bf37909~1, 2026-08-04) that the exporter has moved past. Every map drifts by exactly +51 bytes: T-399's producer-identity line. EXPECTED, not a regression. Not wired because the remedy is not a mere re-pin - moving BASELINE_REF past T-364 makes the injected fixture comparable, so 'unusable' goes to 0 and the teeth leg goes red for the opposite reason. Its docstring prescribes a NEW genuinely-unstable injection, and choosing that is a decision."
 )
 
 is_excluded() { # $1 = basename -> prints reason, returns 0 if excluded

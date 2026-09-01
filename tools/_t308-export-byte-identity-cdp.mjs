@@ -31,6 +31,22 @@ const SERVER = join(HERE, 'gallery-serve.py');
 const CORPUS = process.env.T308_CORPUS || join(REPO, 'examples', 'aef-processes', 'rendered');
 const REF = process.argv[2] || 'HEAD';
 const SRC = 'src/aef-workflow-designer.html';
+// T-663: overridable OLD-side build, same purpose and same shape as T308_CORPUS above.
+// The `unusable` bucket can only be shown fillable by feeding this gate something that
+// is not byte-stable with itself, and after T-364 no real DOCUMENT is: the parse->build
+// path has no remaining nondeterminism, so the instability has to come from a build.
+// (The one live mint, workflowMeta uuid at adoptImportedXml, is on the open wrapper this
+// gate does not call — see the teeth docstring.)
+//
+// A result produced with this override is NOT a gate result, so it declares itself in
+// the JSON (`srcOverride`) rather than looking like one. That is G-023's own rule turned
+// on this tool: report what you ranged over in the same breath as the verdict.
+const OLD_SRC = process.env.T308_OLD_SRC || null;
+// One label for the old side, used by BOTH the verdict and the per-map `unstableIn`
+// attribution. Reporting "unstable in HEAD" while the build actually came from an
+// override would misname which build carries the defect — the exact confusion this
+// gate exists to prevent, reintroduced in its own output.
+const OLD_LABEL = OLD_SRC ? `T308_OLD_SRC:${OLD_SRC}` : REF;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -79,8 +95,13 @@ async function main() {
   const maps = files.map(f => ({ name: basename(f, '.bpmn'), text: readFileSync(join(CORPUS, f), 'utf8') }));
 
   let oldHtml;
-  try { oldHtml = execFileSync('git', ['show', `${REF}:${SRC}`], { cwd: REPO, maxBuffer: 64 * 1024 * 1024 }).toString(); }
-  catch (e) { console.log(JSON.stringify({ ok: false, error: `cannot read ${REF}:${SRC} — ${e.message}` })); process.exitCode = 2; return; }
+  if (OLD_SRC) {
+    if (!existsSync(OLD_SRC)) { console.log(JSON.stringify({ ok: false, error: `T308_OLD_SRC does not exist: ${OLD_SRC}` })); process.exitCode = 2; return; }
+    oldHtml = readFileSync(OLD_SRC, 'utf8');
+  } else {
+    try { oldHtml = execFileSync('git', ['show', `${REF}:${SRC}`], { cwd: REPO, maxBuffer: 64 * 1024 * 1024 }).toString(); }
+    catch (e) { console.log(JSON.stringify({ ok: false, error: `cannot read ${REF}:${SRC} — ${e.message}` })); process.exitCode = 2; return; }
+  }
 
   const doc = mkdtempSync(join(tmpdir(), 't308-bi-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't308-bi-repo-'));
@@ -110,14 +131,14 @@ async function main() {
     for (const m of maps) {
       const B = before[m.name] || {}, A = after[m.name] || {};
       const b = B.xml, a = A.xml;
-      if (typeof b !== 'string' || b.startsWith('ERROR:')) errors.push(`${m.name} (${REF}): ${b}`);
+      if (typeof b !== 'string' || b.startsWith('ERROR:')) errors.push(`${m.name} (${OLD_LABEL}): ${b}`);
       if (typeof a !== 'string' || a.startsWith('ERROR:')) errors.push(`${m.name} (working tree): ${a}`);
       if (typeof b === 'string' && typeof a === 'string' && !b.startsWith('ERROR:') && !a.startsWith('ERROR:')) {
         // Void before verdict: an unstable document cannot be compared across builds,
         // so it is neither identical nor drifted. Counting it either way would be a
         // number that does not mean what it says.
         if (B.selfStable === false || A.selfStable === false) {
-          unusable.push({ map: m.name, unstableIn: [B.selfStable === false ? REF : null, A.selfStable === false ? 'working tree' : null].filter(Boolean) });
+          unusable.push({ map: m.name, unstableIn: [B.selfStable === false ? OLD_LABEL : null, A.selfStable === false ? 'working tree' : null].filter(Boolean) });
           continue;
         }
         if (b !== a) drift.push({ map: m.name, refSha: sha(b), treeSha: sha(a), refBytes: b.length, treeBytes: a.length });
@@ -129,7 +150,8 @@ async function main() {
     // hole is exactly the failure G-023 records.
     const ok = drift.length === 0 && errors.length === 0 && unusable.length === 0;
     console.log(JSON.stringify({
-      ok, ref: REF, maps: maps.length,
+      ok, ref: OLD_LABEL,
+      srcOverride: OLD_SRC || null, maps: maps.length,
       identical: rows.length, drifted: drift.length, unusable: unusable.length,
       population: {
         source: 'examples/aef-processes/rendered',
