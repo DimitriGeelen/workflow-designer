@@ -341,6 +341,10 @@ grep -q "receiver_task: T-587" docs/research/executable-workflow/source-manifest
 # — true of almost any multi-line file. Proven vacuous with a poisoned control: a copy of
 # this fixture with a <bpmn:conditionExpression> appended still PASSED the old form.
 # `! grep -qE` asserts absence, and rejects the poisoned copy while accepting the real one.
+# T-669: control for the absence assertion below. The alternation is asserted POSITIVELY
+# where it must be present, so a mistyped pattern fails here loudly instead of making the
+# absence leg pass by finding nothing. Without this the two outcomes share one green.
+grep -qE "conditionExpression|capability|secret|actionRef|action_ref|retry|compensat" docs/research/executable-workflow/cannot-represent-yet.md
 ! grep -qE "conditionExpression|capability|secret|actionRef|action_ref|retry|compensat" docs/research/executable-workflow/fixtures/ewcr-pilot-human-gate-script-human-gate.bpmn
 # The gap list must be explicit, not a placeholder.
 grep -q "call workflow" docs/research/executable-workflow/cannot-represent-yet.md

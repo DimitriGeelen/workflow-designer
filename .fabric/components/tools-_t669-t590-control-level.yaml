@@ -1,0 +1,30 @@
+id: tools/_t669-t590-control-level.py
+name: _t669-t590-control-level
+type: script
+subsystem: instruments
+tags: [verification, absence-assertion, t669, t560, control, pattern-control]
+location: tools/_t669-t590-control-level.py
+
+purpose: >
+  Asserts that T-590's repaired absence-asserting Verification leg is classified
+  PATTERN by the T-560 census's own control_level(). Exists as a script rather than
+  as a grep because the obvious verification — "T-590 no longer appears in the census
+  output" — is itself an uncontrolled absence assertion, passing identically whether
+  the leg was repaired, the census stopped printing, or the output file was never
+  written. Verifying a task about absence assertions with an absence assertion would
+  be self-refuting, so the classifier is called and its answer required to EQUAL
+  "PATTERN".
+
+  Separates refusal (rc 2, subject not established, nothing evaluated) from failure
+  (rc 1, classification is wrong) per the T-666 exit-code separation.
+
+depends_on:
+  - target: tools/_t560-absence-assertion-census.py
+    type: imports
+  - target: .tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-09-02
+created_by: T-669
