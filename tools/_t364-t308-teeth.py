@@ -99,6 +99,22 @@ def bad(msg):
     print("  FAIL  " + msg)
 
 
+DEAD = []
+
+
+def dead(msg):
+    """The control leg ran and did not pass — rc 4, T-666.
+
+    Distinct from die() (rc 3, could not measure) and from bad() (rc 1, a real
+    regression in the thing this guards). A failed control is neither: it says the
+    instrument is broken and makes every leg below it meaningless, which is exactly
+    what this file's own docstring has claimed since T-663 while the code went on to
+    run them anyway and report rc 1.
+    """
+    DEAD.append(msg)
+    print("  TEETH BROKEN — " + msg)
+
+
 def die(msg):
     print("COULD-NOT-MEASURE: " + msg, file=sys.stderr)
     sys.exit(3)
@@ -168,13 +184,13 @@ def main():
         d, rc = run(corpus)
         print("  " + brief(d))
         if d.get("srcOverride") is not None:
-            bad("control ran with an override set — it is not a clean-gate result")
+            dead("control ran with an override set — it is not a clean-gate result")
         elif not (d.get("ok") and rc == 0):
-            bad("control did not pass, so nothing below proves anything: " + brief(d))
+            dead("control did not pass, so nothing below proves anything: " + brief(d))
         elif d.get("unusable") != 0 or d.get("drifted") != 0:
-            bad("control is not clean: " + brief(d))
+            dead("control is not clean: " + brief(d))
         elif d.get("identical") != n or d.get("maps") != n:
-            bad("control denominator wrong: expected %d/%d, got %s" % (n, n, brief(d)))
+            dead("control denominator wrong: expected %d/%d, got %s" % (n, n, brief(d)))
         else:
             ok("clean gate: ok=true, identical=%d/%d, unusable=0, no pinned baseline" % (n, n))
 
@@ -264,6 +280,11 @@ def main():
 
     print()
     print("=== %d passed, %d failed ===" % (len(PASS), len(FAIL)))
+    # T-666: a dead control outranks a leg failure. If the control did not pass, the leg
+    # results below it are not evidence either way, so reporting them as a regression
+    # would be asserting something this run cannot know.
+    if DEAD:
+        return 4
     return 1 if FAIL else 0
 
 

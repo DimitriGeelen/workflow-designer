@@ -81,6 +81,21 @@ def refuse(msg):
     sys.exit(2)
 
 
+def dead(msg):
+    """T-666: rc 4 — these teeth are broken, as distinct from declining to look.
+
+    refuse() is for a subject that is not there or has said nothing: nothing ran,
+    nobody is at fault, and the sweep is right to file it as an abstention needing
+    no action. This is the opposite case — the subject spoke and THIS FILE could not
+    parse it, which means the anchor here has aged out of agreement with the audit.
+    An abstention hides that; a dead control reports it.
+    """
+    print("TEETH BROKEN — %s" % msg)
+    print("This is a DEAD CONTROL, not an abstention: the subject answered and the")
+    print("expectation in this file is what failed to match it.")
+    sys.exit(4)
+
+
 def leg(name, ok, detail=""):
     global passes
     if ok:
@@ -181,7 +196,7 @@ try:
 
     parsed = parse(line)
     if parsed is None:
-        refuse("a D2 line was emitted but did not match the expected shape, so the legs "
+        dead("a D2 line was emitted but did not match the expected shape, so the legs "
                "below would be asserting against a failed parse rather than against the "
                "audit. Line was:\n         %s" % line)
 

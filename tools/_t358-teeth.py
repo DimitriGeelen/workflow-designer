@@ -89,7 +89,10 @@ def edit_src(root, old, new, required=True):
     s = open(p, encoding="utf-8").read()
     if old not in s:
         if required:
-            raise SystemExit(f"TEETH BROKEN — anchor not found in source: {old[:70]!r}")
+            # T-666: was a bare-string SystemExit, which exits 1 — a REGRESSION verdict
+            # about the subject, for a condition that is entirely about these teeth.
+            print(f"TEETH BROKEN — anchor not found in source: {old[:70]!r}")
+            raise SystemExit(4)
         return False
     open(p, "w", encoding="utf-8").write(s.replace(old, new, 1))
     return True
@@ -99,7 +102,9 @@ def edit_fixture(root, name, old, new):
     p = os.path.join(root, "tests", "fixtures", "lane-provenance", name)
     s = open(p, encoding="utf-8").read()
     if old not in s:
-        raise SystemExit(f"TEETH BROKEN — anchor not found in {name}: {old[:50]!r}")
+        # T-666: same as above — dead teeth, not a regression in what they guard.
+        print(f"TEETH BROKEN — anchor not found in {name}: {old[:50]!r}")
+        raise SystemExit(4)
     open(p, "w", encoding="utf-8").write(s.replace(old, new, 1))
 
 
@@ -131,7 +136,7 @@ finally:
 if rc != 0:
     print("TEETH BROKEN — the UNMUTATED copy fails, so no mutation below proves anything.")
     print(out[-1500:])
-    raise SystemExit(2)
+    raise SystemExit(4)  # T-666: DEAD CONTROL, was 2 (which reads as an honest abstention)
 print("control: unmutated copy PASSES\n")
 
 # 1. Collapse (iii) into (ii): drop the later-laneSet branch.

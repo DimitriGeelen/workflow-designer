@@ -54,7 +54,7 @@ if [ "$rc" -ne 0 ]; then
     echo "TEETH BROKEN: an unmutated copy of the census exits $rc, not 0."
     echo "Every leg below asserts a non-zero exit and would be satisfied by that alone,"
     echo "so they are NOT run. Nothing has been measured."
-    exit 2
+    exit 4  # T-666: DEAD CONTROL — the control RAN and failed; site above never ran.
 fi
 echo "  [ok  ] CONTROL/intact copy sweeps clean    rc=0"
 

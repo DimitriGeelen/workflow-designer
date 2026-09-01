@@ -60,9 +60,10 @@ rc_ctl, out_ctl = run(SRC)
 print(f"control : rc={rc_ctl}  NONE={'NO SHAPE CONSTRAINT' in out_ctl}  "
       f"FOUND={'SHAPE CONSTRAINT FOUND' in out_ctl}")
 if rc_ctl != 0 or "NO SHAPE CONSTRAINT" not in out_ctl:
+    # T-666: rc 4 = DEAD CONTROL. Was 2, which the sweep files as an honest abstention.
     print("TEETH BROKEN — the real source does not pass, so nothing below proves anything.")
     print(out_ctl[-900:])
-    raise SystemExit(2)
+    raise SystemExit(4)  # T-666: DEAD CONTROL, was 2 (which reads as an honest abstention)
 
 text = open(SRC, encoding="utf-8").read()
 for old, new in ((ANCHOR, MUTANT), (ANCHOR_E, MUTANT_E)):
@@ -70,7 +71,7 @@ for old, new in ((ANCHOR, MUTANT), (ANCHOR_E, MUTANT_E)):
         print(f"TEETH BROKEN — expected exactly one occurrence of the import anchor, found "
               f"{text.count(old)}:\n  {old}\nThe import path moved; re-anchor before trusting "
               f"this result.")
-        raise SystemExit(2)
+        raise SystemExit(4)  # T-666: DEAD CONTROL, was 2 (which reads as an honest abstention)
     text = text.replace(old, new)
 
 d = tempfile.mkdtemp(prefix="t366-teeth-")

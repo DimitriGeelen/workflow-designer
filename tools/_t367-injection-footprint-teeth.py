@@ -83,7 +83,7 @@ def mutate(pairs):
         if text.count(old) != 1:
             print(f"TEETH BROKEN — anchor is not unique ({text.count(old)} occurrences):\n"
                   f"  {old}\nThe emitter moved; re-anchor before trusting this result.")
-            raise SystemExit(2)
+            raise SystemExit(4)  # T-666: DEAD CONTROL, was 2 (which reads as an honest abstention)
         text = text.replace(old, new)
     d = tempfile.mkdtemp(prefix="t367-teeth-")
     path = os.path.join(d, "designer-mutated.html")
@@ -107,7 +107,7 @@ if rc != 0 or ctl_total is None:
     print("TEETH BROKEN — the real source does not produce a clean census, so no leg below\n"
           "proves anything.")
     print(out[-1200:])
-    raise SystemExit(2)
+    raise SystemExit(4)  # T-666: DEAD CONTROL, was 2 (which reads as an honest abstention)
 
 # ---- leg (a): positive control must fire ----
 d, path = mutate([(UID_ANCHOR, "/* teeth(a): node uid emission removed */;"),

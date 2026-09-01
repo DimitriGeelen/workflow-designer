@@ -45,14 +45,21 @@
 #   REASON, printed on every run, because a silent exclusion is how a sweep comes to cover
 #   less than its name claims.
 #
-# EXIT CODES
+# EXIT CODES (this sweep's own)
 #   0  every non-excluded script ran and passed
-#   1  at least one REGRESSED, or an exclusion is stale
+#   1  at least one REGRESSED or reported a DEAD CONTROL, or an exclusion is stale
 #   2  refusal — could not establish a population. Never 1 from a broken scan (T-430).
 #   3  INCOMPLETE (T-548) — no regression, but at least one instrument did not finish
 #      (rc=124) or declined to certify (rc=2). Distinct from 1 because "it broke" and
 #      "I never found out" are different claims and only one of them sends a reader
 #      looking for a bug. Still non-zero: an uncovered instrument is not a green.
+#
+# PROBE EXIT CODES (what a teeth script tells THIS file)
+#   0  passed          1  a leg failed — a regression in the thing it guards
+#   2  ABSTAINED       — declined to certify. Parameterised and run without its input.
+#   4  DEAD CONTROL    — the UNMUTATED control leg failed, so no mutation below it proves
+#                        anything. The guard itself is broken. T-666.
+# 124  did not finish within the cap.
 
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -128,6 +135,21 @@ echo
 #        passes 7/7 standalone, so it crosses whenever the machine is busy, and the reader
 #        was sent hunting a fabric-coverage bug that does not exist.
 #
+#     4  DEAD CONTROL (T-666). Split out of 2, because 2 was carrying two opposite claims.
+#        An honest refusal and a dead control are not the same event and must not read the
+#        same. `_t358-teeth.py` guarded T-358's lane-fabrication diagnosis and was dead for
+#        six days (T-665): it was never excluded, it ran on every sweep, and every one of
+#        those runs printed "ABSTAINED … rather than treating this as a regression in what
+#        it guards" — advice that is correct for a parameterised probe and exactly backwards
+#        for a broken one. Nothing regressed in what it guards; the guard died, which is
+#        strictly worse, and the reader was told to relax about it.
+#
+#        So DEAD exits 1, not 3. Uncovered ground (124, 2) is "I never found out". A dead
+#        control is "I found out, and the instrument is broken" — a finding needing a fix,
+#        which is what 1 means here. It does NOT get the regression sentence: a dead control
+#        says nothing whatsoever about the thing it guards, so claiming a regression there
+#        would be the mislabel running in the other direction.
+#
 #     2  ABSTENTION. The exclusion list above already argues this, for one file, by name:
 #        _t364 "exits 2 BY DESIGN, refusing to certify … converting that to a suite failure
 #        would punish the honesty." That reasoning is about a PROPERTY and was written into
@@ -160,7 +182,7 @@ trap 'rm -rf "$CAPDIR"' EXIT INT TERM
 CAPTURE_LINES="${T509_CAPTURE_LINES:-30}"
 
 pass=0; ran=0
-declare -a REGRESSED=() TIMEDOUT=() ABSTAINED=() TIGHT=()
+declare -a REGRESSED=() TIMEDOUT=() ABSTAINED=() DEAD=() TIGHT=()
 declare -A CAPFILE=()
 
 # Print what a probe actually said, bounded. The tail is the right end to keep: these scripts
@@ -196,6 +218,7 @@ for f in "${ALL[@]}"; do
     0)   pass=$((pass + 1)); rm -f "$cap";;
     124) TIMEDOUT+=("$f (did not finish within ${TIMEOUT}s)");;
     2)   ABSTAINED+=("$f (rc=2, declined to certify)");;
+    4)   DEAD+=("$f (rc=4, its own control leg failed)");;
     *)   REGRESSED+=("$f (rc=$rc)");;
   esac
   # Headroom, reported on GREEN runs too. _t525 sat at 86s of a 90s budget — 95.6% — and
@@ -213,7 +236,7 @@ if [ "$ran" -eq 0 ]; then
   exit 2
 fi
 
-echo "RAN $ran, passed $pass, regressed ${#REGRESSED[@]}, did-not-finish ${#TIMEDOUT[@]}, abstained ${#ABSTAINED[@]}"
+echo "RAN $ran, passed $pass, regressed ${#REGRESSED[@]}, dead-control ${#DEAD[@]}, did-not-finish ${#TIMEDOUT[@]}, abstained ${#ABSTAINED[@]}"
 
 if [ "${#TIGHT[@]}" -ne 0 ]; then
   echo
@@ -229,8 +252,8 @@ fi
 # leg 5 of _t548's teeth on their first run, not by reading the code back.
 if [ "${#TIMEDOUT[@]}" -ne 0 ] || [ "${#ABSTAINED[@]}" -ne 0 ]; then
   echo >&2
-  if [ "${#REGRESSED[@]}" -ne 0 ]; then
-    echo "SWEEP INCOMPLETE — separately from the regression(s) below, the sweep did not" >&2
+  if [ "${#REGRESSED[@]}" -ne 0 ] || [ "${#DEAD[@]}" -ne 0 ]; then
+    echo "SWEEP INCOMPLETE — separately from the finding(s) below, the sweep did not" >&2
     echo "cover everything it names:" >&2
   else
     echo "SWEEP INCOMPLETE — no regression found, but the sweep did not cover everything" >&2
@@ -255,6 +278,23 @@ if [ "${#TIMEDOUT[@]}" -ne 0 ] || [ "${#ABSTAINED[@]}" -ne 0 ]; then
   done
 fi
 
+# DEAD prints before REGRESSED and neither one exits: the combined exit is at the bottom.
+# Same argument as the INCOMPLETE ordering above — an exit inside the first branch makes the
+# second unreachable in exactly the runs where both are true (PL-203), and a run with both a
+# regression and a dead guard is the run where you most need to see both.
+if [ "${#DEAD[@]}" -ne 0 ]; then
+  echo >&2
+  echo "SWEEP FAIL — an instrument's own CONTROL leg failed. It is not reporting on what" >&2
+  echo "it guards; it is broken, and every leg below its control proves nothing:" >&2
+  for x in "${DEAD[@]}"; do
+    echo "  - DEAD CONTROL: $x" >&2
+    echo "      Deliberately NOT filed as an abstention. A parameterised probe that" >&2
+    echo "      declines is doing its job; this one cannot do its job. Nothing is claimed" >&2
+    echo "      here about the thing it guards — that claim is exactly what died." >&2
+    emit_capture "${x%% *}"
+  done
+fi
+
 if [ "${#REGRESSED[@]}" -ne 0 ]; then
   echo >&2
   echo "SWEEP FAIL — an instrument that passed on 2026-08-15 no longer does:" >&2
@@ -271,6 +311,9 @@ if [ "${#REGRESSED[@]}" -ne 0 ]; then
   echo "Its own output is above — and note that for the class of probes that fail only" >&2
   echo "inside a full run, re-running it directly is precisely what does NOT reproduce" >&2
   echo "it, so the capture above may be the only account this failure will ever have (T-551)." >&2
+fi
+
+if [ "${#REGRESSED[@]}" -ne 0 ] || [ "${#DEAD[@]}" -ne 0 ]; then
   exit 1
 fi
 

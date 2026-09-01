@@ -79,6 +79,13 @@ PROBES = {
     "regress": "#!/bin/bash\nexit 1\n",
     "hang":    "#!/bin/bash\nsleep 30\n",
     "slow":    "#!/bin/bash\nsleep 3\nexit 0\n",
+    # T-666. rc 4 is a DEAD CONTROL: the probe's own unmutated control leg ran and
+    # failed, so nothing below it proves anything. It used to be spelled `exit 2`,
+    # which put it in the same bucket as a parameterised probe honestly declining —
+    # and the sweep's abstention text then told the reader, correctly for the one
+    # case and backwards for the other, not to treat it as a regression.
+    "dead":    "#!/bin/bash\necho 'TEETH BROKEN — the UNMUTATED copy fails, so no "
+               "mutation below proves anything.'\nexit 4\n",
 }
 
 
@@ -185,16 +192,48 @@ def main():
             "leg6b: HEADROOM WARNING fired for an instrument that used none of "
             "its budget. A warning that is always on is not a warning.")
 
+    # ── Leg 7 (T-666) — a DEAD CONTROL is not an abstention. This is the leg the
+    #    six above could not have caught: `exit 2` was a legal, documented, green-
+    #    looking way to say "my control is broken", and _t358-teeth.py said it on
+    #    every sweep run for six days while the sweep printed "ABSTAINED … rather
+    #    than treating this as a regression in what it guards" (T-665).
+    #
+    #    must_not carries BOTH mislabels, because there are two ways to get this
+    #    wrong and only one of them is the old bug: filing it as an abstention
+    #    (too quiet — a state that needs no action) or filing it as a regression
+    #    in the guarded thing (too loud, and a claim this run cannot make, since a
+    #    dead control measured nothing about the subject either way).
+    out = check("dead-control", ["pass", "dead"], 10, 1,
+                ["DEAD CONTROL", "SWEEP FAIL"], ["ABSTAINED"] + REGRESSION_PHRASES)
+    if "_t548-fake-dead-teeth.sh" not in out.split("DEAD CONTROL", 1)[-1]:
+        failures.append(
+            "leg7: DEAD CONTROL fired but does not name the broken instrument. "
+            "A sweep that says an unnamed guard is dead has moved the search "
+            "problem, not solved it.")
+
+    # ── Leg 8 (T-666) — precedence and coexistence, the same argument as leg 5.
+    #    A dead control and an honest abstention in one run must BOTH be reported
+    #    and must not be merged: the exit code follows the dead control (1, a
+    #    finding), and the abstention still appears by name.
+    out = check("dead-and-abstain", ["dead", "abstain"], 10, 1,
+                ["DEAD CONTROL", "ABSTAINED"], REGRESSION_PHRASES)
+    if out.count("_t548-fake-dead-teeth.sh") == 0 or "_t548-fake-abstain-teeth.sh" not in out:
+        failures.append(
+            "leg8: a dead control and an abstention occurred together and one of "
+            "them was not named. These are the two states this task exists to "
+            "keep apart; collapsing them under load is the defect returning.")
+
     if failures:
         print("T-548 TEETH: %d finding(s)" % len(failures))
         for f in failures:
             print("  - %s" % f)
         return 1
-    print("T-548 TEETH: 6 legs green — the sweep distinguishes regressed (1) "
-          "from did-not-finish and abstained (3) from passed (0), says which "
-          "in words, withholds the regression claim from both, keeps a real "
-          "regression loud, and names an instrument running out of budget "
-          "while it is still passing")
+    print("T-548/T-666 TEETH: 8 legs green — the sweep distinguishes regressed (1) "
+          "and dead-control (1, its own bucket) from did-not-finish and abstained "
+          "(3) from passed (0), says which in words, withholds the regression "
+          "claim from all three, never files a dead control as an abstention, "
+          "keeps a real regression loud, and names an instrument running out of "
+          "budget while it is still passing")
     return 0
 
 

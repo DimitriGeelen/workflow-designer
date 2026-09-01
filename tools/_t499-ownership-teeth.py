@@ -105,7 +105,7 @@ print()
 
 if not os.access(TOOL, os.X_OK):
     print("TEETH BROKEN: %s is missing or not executable — measured nothing" % TOOL)
-    sys.exit(2)
+    sys.exit(4)  # T-666: DEAD CONTROL, was 2 (which reads as an honest abstention)
 
 # ── CONTROL ───────────────────────────────────────────────────────────────────────────
 print("-- control (must pass, or every refusal below is meaningless) --")
@@ -117,7 +117,7 @@ if not leg("CONTROL/ours", rc, 0, out, "IDENTITY-CONFIRMED"):
     print("Every leg below asserts a non-zero exit and would be satisfied by a broken")
     print("tool, so they are NOT run. Nothing has been measured.")
     srv.shutdown()
-    sys.exit(2)
+    sys.exit(4)  # T-666: DEAD CONTROL, was 2 (which reads as an honest abstention)
 srv.shutdown()
 print()
 

@@ -2178,3 +2178,10 @@ learnings:
   date: 2026-09-01
   context: Added via context agent
   application: TBD
+- id: PL-307
+  learning: "AN HONEST ABSTENTION AND A DEAD CONTROL ARE OPPOSITE EVENTS SHARING ONE EXIT CODE. rc 2 meant both 'I am parameterised and correctly decline to invent an input' (needs no action) and 'my control leg ran and failed, so nothing below proves anything' (the guard is broken). _t509 could only see the code, so it applied the first reading to both and printed 'its abstention IS its output; read that rather than treating this as a regression' over a dead instrument -- for six days, on every run, for the teeth guarding the arc's central task (T-665). The repair is a distinct code (4) so a caller reading only the status cannot conflate them. The general form: when one signal carries two claims and only one of them is benign, the benign reading wins by default and the other becomes invisible."
+  source: P-001
+  task: T-666
+  date: 2026-09-01
+  context: Added via context agent
+  application: TBD

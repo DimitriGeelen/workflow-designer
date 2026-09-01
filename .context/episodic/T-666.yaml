@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-666: A dead control and an honest abstention both exit 2, so the sweep tells the reader to trust a dead instrument
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-01T12:11:08Z
+# ============================================================================
+
+task_id: T-666
+task_name: "A dead control and an honest abstention both exit 2, so the sweep tells the reader to trust a dead instrument"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-01T11:52:02Z
+completed: 2026-09-01T12:10:03Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The defect is proven by execution **before** it is fixed: a teeth script whose control'
+  - '`_t509-instrument-sweep.sh` gains a bucket for rc 4 (`DEAD CONTROL`), documented in its'
+  - 'The literal sentence "a real regression in the thing it guards" is NOT printed for a'
+  - 'All seven scripts that detect a dead control exit 4 for that condition — including the'
+  - 'Every one of the seven still passes on the real tree after the change: the new code is'
+  - '`_t548-sweep-classification-teeth.py` gains a leg proving an rc-4 probe is filed as DEAD'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 18
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-666-a-dead-control-and-an-honest-abstention-.md
+generated_by: context-agent-hybrid

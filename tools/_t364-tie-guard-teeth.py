@@ -54,7 +54,7 @@ print(f"control : rc={rc_ctl}  HOLDS={'REPAIR HOLDS' in out_ctl}  "
 if rc_ctl != 0 or "REPAIR HOLDS" not in out_ctl:
     print("TEETH BROKEN — the real source does not pass, so nothing below proves anything.")
     print(out_ctl[-900:])
-    raise SystemExit(2)
+    raise SystemExit(4)  # T-666: DEAD CONTROL, was 2 (which reads as an honest abstention)
 
 text = open(SRC, encoding="utf-8").read()
 for old, new in MUTATIONS:
@@ -62,7 +62,7 @@ for old, new in MUTATIONS:
         print(f"TEETH BROKEN — expected exactly one occurrence of {old!r}, found "
               f"{text.count(old)}. The repair moved; re-anchor this mutation before "
               f"trusting the guard.")
-        raise SystemExit(2)
+        raise SystemExit(4)  # T-666: DEAD CONTROL, was 2 (which reads as an honest abstention)
     text = text.replace(old, new)
 
 d = tempfile.mkdtemp(prefix="t364-guard-teeth-")
