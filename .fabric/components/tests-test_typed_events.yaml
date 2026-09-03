@@ -1,0 +1,26 @@
+id: tests/test_typed_events.py
+name: test_typed_events
+type: script
+subsystem: ewcr-arc-0
+location: tests/test_typed_events.py
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
+
+purpose: "test_typed_events — T-204 Slice 1 correctness guard for typed intermediate events (error / timer / message), arc: designer-authoring-surface. The real work is `tools/_typed-events-cdp.mjs`, which drives the REAL editor runtime (parseBpmnXml → buildBpmnXml) in an isolated headless chromium and asserts CORRECTNESS — distinct from the fixed-point round-trip guard (test_roundtrip_serialization.py),..."
+
+depends_on:
+  - target: tests/fixtures/aef-bpmn/typed-events.bpmn
+    type: reads
+  - target: tools/_typed-events-cdp.mjs
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

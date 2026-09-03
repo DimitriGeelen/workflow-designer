@@ -1,0 +1,67 @@
+id: tools/validate-workflow.py
+name: validate-workflow
+type: script
+subsystem: ewcr-arc-0
+location: tools/validate-workflow.py
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
+
+purpose: "Schema validator for AEF Workflow Designer files. Validates the workflow files produced by the AEF Workflow Designer against the contract in docs/designer/schema.md (see especially section 7.3 \"Validation\", the required-field tables in sections 3/4.1/5/6.1, and the XML mapping in 7.1/7.2). Two produced formats are supported and auto-detected: * YAML canonical form (section 3) -- the AEF-canonic..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tests/run-validator-tests.sh
+    type: calls
+  - target: tests/test_check_pass_reachability.py
+    type: calls
+  - target: tests/test_corpus_fixture_pins.py
+    type: calls
+  - target: tests/test_dead_leg_census.py
+    type: calls
+  - target: tests/test_editor_namespace_consistency.py
+    type: calls
+  - target: tests/test_finding_anchorability.py
+    type: calls
+  - target: tests/test_harness_cross_form_agreement.py
+    type: calls
+  - target: tests/test_harness_emitter_fidelity.py
+    type: calls
+  - target: tests/test_promote_contract.py
+    type: calls
+  - target: tests/test_rule_dialect_axis.py
+    type: calls
+  - target: tests/test_rule_form_parity.py
+    type: calls
+  - target: tests/test_t312_lane_geometry.py
+    type: calls
+  - target: tests/test_t313_lane_capacity.py
+    type: calls
+  - target: tests/test_t314_fixture_repin.py
+    type: calls
+  - target: tests/test_t317_gw_ambiguous_parity.py
+    type: calls
+  - target: tests/test_validate_iw9.py
+    type: calls
+  - target: tests/test_xml_node_type_vocab.py
+    type: calls
+  - target: tools/_t343-write-equivalence.py
+    type: calls
+  - target: tools/_t352-p011-errexit-probe.sh
+    type: calls
+  - target: tools/_t353-classify.py
+    type: calls
+  - target: tools/_t353-repair-probe.sh
+    type: calls
+  - target: tools/_t497-census-controls.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

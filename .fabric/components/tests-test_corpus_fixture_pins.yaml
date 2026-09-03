@@ -1,0 +1,30 @@
+id: tests/test_corpus_fixture_pins.py
+name: test_corpus_fixture_pins
+type: script
+subsystem: ewcr-arc-0
+location: tests/test_corpus_fixture_pins.py
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
+
+purpose: "Corpus fixture byte-pin guard (T-216) — the 832-authored canonical corpus diagrams delivered to the AEF peer over the collaboration rail (arc: designer-authoring-surface), which AEF now cross-validates byte-exact and holds behind its own sha-guard tests. WHY a sha-pin contract for these: unlike the typed-event fixtures (guarded by test_typed_event_fixture_contract.py, T-212), the pair-draft cor..."
+
+depends_on:
+  - target: tests/fixtures/aef-bpmn/dispatch-loop.bpmn
+    type: reads
+  - target: tests/fixtures/aef-bpmn/offpage-seam.bpmn
+    type: reads
+  - target: tests/fixtures/aef-bpmn/s4-exemplar.bpmn
+    type: reads
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

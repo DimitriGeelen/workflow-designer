@@ -1,0 +1,23 @@
+id: tools/_t671-arc0-edge-derive.py
+name: _t671-arc0-edge-derive
+type: script
+subsystem: instruments
+location: tools/_t671-arc0-edge-derive.py
+tags: [ewcr, arc-0, fabric, instrument, arc:ewcr-governed-delivery]
+
+purpose: "Derives Component Fabric edges for the Arc-0 component set by extracting
+  references from each file's own non-comment bytes, in both directions (forward from
+  the 28 members, inbound from every tracked code file). Recognises full paths, Python
+  imports, and unique basenames; refuses ambiguous bare names. Language-aware comment
+  stripping keeps mentions from becoming edges (T-669: mention is not invocation)."
+
+depends_on:
+  - target: docs/research/executable-workflow/arc-0-component-set.txt
+    type: reads
+
+depended_by:
+  - target: tools/_t671-arc0-card-gen.py
+    type: reads
+
+last_verified: 2026-09-03
+created_by: T-671

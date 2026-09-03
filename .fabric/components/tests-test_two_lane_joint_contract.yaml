@@ -1,0 +1,26 @@
+id: tests/test_two_lane_joint_contract.py
+name: test_two_lane_joint_contract
+type: script
+subsystem: ewcr-arc-0
+location: tests/test_two_lane_joint_contract.py
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
+
+purpose: "Two-lane joint promote-fixture contract (T-208) — the 832-authored canonical joint fixture for the compile→promote seam (rail offset 69, option (a); AEF ref `tests/unit/bpmn_promote_e2e.bats`, T-2545/T-2546). WHY a second contract test beside test_promote_contract.py: the proven shared fixture `inception-gonogo.bpmn` has ONE owner-bearing node — the human/sovereignty inception — so it exercises..."
+
+depends_on:
+  - target: tests/fixtures/aef-bpmn/two-lane-joint.bpmn
+    type: reads
+  - target: tests/test_promote_contract.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

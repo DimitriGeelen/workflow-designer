@@ -1,0 +1,26 @@
+id: tests/test_mapping_standard_conformance.py
+name: test_mapping_standard_conformance
+type: script
+subsystem: ewcr-arc-0
+location: tests/test_mapping_standard_conformance.py
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
+
+purpose: "test_mapping_standard_conformance — guard the mapping STANDARD against the implementation (T-182, arc: designer-authoring-surface child-1). `docs/standards/aef-bpmn-mapping-v1.md` freezes a list of governance meta-keys (§2) that a v1-conformant editor MUST emit and the bridge MUST round-trip. This test parses that frozen list from the standard and asserts every key is actually present in BOTH t..."
+
+depends_on:
+  - target: docs/standards/aef-bpmn-mapping-v1.md
+    type: reads
+  - target: tests/test_editor_bridge_meta_parity.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

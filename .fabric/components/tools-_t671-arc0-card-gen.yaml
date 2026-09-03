@@ -1,0 +1,24 @@
+id: tools/_t671-arc0-card-gen.py
+name: _t671-arc0-card-gen
+type: script
+subsystem: instruments
+location: tools/_t671-arc0-card-gen.py
+tags: [ewcr, arc-0, fabric, instrument, arc:ewcr-governed-delivery]
+
+purpose: "Writes one Component Fabric card per member of the Arc-0 component set,
+  consuming the derived-edge TSV. Purposes are sourced from each file's own docstring
+  or header rather than invented; edges come from the TSV rather than from hand. Cards
+  outside the Arc-0 set are never touched. Purpose overrides live in the generator, not
+  in the cards, so regeneration stays idempotent."
+
+depends_on:
+  - target: docs/research/executable-workflow/arc-0-component-set.txt
+    type: reads
+  - target: tools/_t671-arc0-edge-derive.py
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-671

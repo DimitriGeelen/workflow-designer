@@ -1,0 +1,25 @@
+id: tools/_t671-arc0-fabric-fence.py
+name: _t671-arc0-fabric-fence
+type: script
+subsystem: instruments
+location: tools/_t671-arc0-fabric-fence.py
+tags: [ewcr, arc-0, fabric, instrument, gate, arc:ewcr-governed-delivery]
+
+purpose: "The roadmap section 6 Arc-0 fence, evidenced one word at a time: NON-EMPTY
+  (every member carded), ENRICHED (every card carries real edges and a sourced purpose,
+  and a missing card fails here too), VALIDATED (every member inside the watch set, no
+  dangling edge target). Reports a SCOPED pass over the Arc-0 set and states explicitly
+  that the repo-wide fabric warning is NOT cleared by it. All three red arms are driven
+  via T671_SET_FILE / T671_CARD_DIR against a throwaway fixture (PL-308)."
+
+depends_on:
+  - target: docs/research/executable-workflow/arc-0-component-set.txt
+    type: reads
+  - target: .fabric/watch-patterns.yaml
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-671

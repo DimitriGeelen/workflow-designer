@@ -1,20 +1,26 @@
 id: tests/test_editor_extension_shape_consistency.py
 name: test_editor_extension_shape_consistency
 type: script
-subsystem: unknown
+subsystem: ewcr-arc-0
 location: tests/test_editor_extension_shape_consistency.py
-tags: []
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
 
-purpose: "TODO: describe what this component does"
+purpose: "test_editor_extension_shape_consistency — pin aef: field *shape* across the JS↔Python seam (T-053). Sibling to test_editor_namespace_consistency (T-044). That test pinned the aef: namespace *URI* across editor and bridge. This one pins the per-field *serialization shape*: whether a field lives in element text (`<aef:F>value</aef:F>`) or in an attribute (`<aef:F attr=\"value\"/>`). The T-053 bug:..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/yaml-to-bpmn.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
 
-last_verified: 2026-07-03
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

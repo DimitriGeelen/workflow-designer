@@ -1,0 +1,26 @@
+id: tests/test_t311_doc_comment_roundtrip.py
+name: test_t311_doc_comment_roundtrip
+type: script
+subsystem: ewcr-arc-0
+location: tests/test_t311_doc_comment_roundtrip.py
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
+
+purpose: "test_t311_doc_comment_roundtrip — T-311 regression guard for the authored doc block, arc: designer-authoring-surface. The real work is `tools/_t311-doc-comment-roundtrip-cdp.mjs`, which drives the REAL editor runtime in an isolated headless chromium against tests/fixtures/aef-bpmn/doc-comment.bpmn. Background: the leading comment child of <bpmn:definitions> carries the map's authored rationale,..."
+
+depends_on:
+  - target: tests/fixtures/aef-bpmn/doc-comment.bpmn
+    type: reads
+  - target: tools/_t311-doc-comment-roundtrip-cdp.mjs
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

@@ -1,11 +1,11 @@
-id: tests/test_xml_node_type_vocab.py
-name: test_xml_node_type_vocab
+id: tests/test_editor_namespace_consistency.py
+name: test_editor_namespace_consistency
 type: script
 subsystem: ewcr-arc-0
-location: tests/test_xml_node_type_vocab.py
+location: tests/test_editor_namespace_consistency.py
 tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
 
-purpose: "T-321 — the XML flow-node vocabulary is DERIVED, and stays agreed with both emitters. `XML_NODE_TYPES` in tools/validate-workflow.py is not a hand-written list beside `NODE_TYPES`. It is `{XML_TYPE_MAP.get(t, t) for t in NODE_TYPES} | XML_ONLY_NODE_TYPES` — a translation of the canonical vocabulary plus one declared extension. Two hand-maintained lists describing one modelling language drift, w..."
+purpose: "test_editor_namespace_consistency — pin the aef: extension namespace (T-044). Prevention for the T-042 class: the editor's XML *import* path (`parseBpmnXml` in src/aef-workflow-designer.html) used a different `aef:` namespace URI than the bridge, validator, corpus, and schema. `byAef` (getElementsByTagNameNS) then matched zero extension elements and silently dropped every aef:uid / aef:position..."
 
 depends_on:
   - target: src/aef-workflow-designer.html

@@ -1,14 +1,24 @@
 id: tools/bpmn-cli.py
 name: bpmn-cli
 type: script
-subsystem: unknown
+subsystem: ewcr-arc-0
 location: tools/bpmn-cli.py
-tags: []
-purpose: 'TODO: describe what this component does'
-depends_on: []
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
+
+purpose: "bpmn-cli.py — headless off-page connector operations (T-230 / S4b). `fw bpmn claim <uuid> <project>` claims a pending off-page-connector ghost for an existing project WITHOUT the editor. It: 1. resolves <uuid> against a pending ghost in .context/designer/registry.yaml, 2. splices the uuid into <project>'s stored BPMN <aef:workflowMeta> (a new version, so it becomes the authoritative + served +..."
+
+depends_on:
+  - target: tools/gallery-serve.py
+    type: calls
+
 depended_by:
-- target: tools/_bpmn-claim-cli-verify.py
-  type: called_by
-last_verified: 2026-07-22
-created_by: unknown
-last_enriched: '2026-08-01'
+  - target: tools/_bpmn-claim-cli-verify.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

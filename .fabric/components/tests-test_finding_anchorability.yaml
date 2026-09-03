@@ -1,15 +1,13 @@
-id: tests/test_xml_node_type_vocab.py
-name: test_xml_node_type_vocab
+id: tests/test_finding_anchorability.py
+name: test_finding_anchorability
 type: script
 subsystem: ewcr-arc-0
-location: tests/test_xml_node_type_vocab.py
+location: tests/test_finding_anchorability.py
 tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
 
-purpose: "T-321 — the XML flow-node vocabulary is DERIVED, and stays agreed with both emitters. `XML_NODE_TYPES` in tools/validate-workflow.py is not a hand-written list beside `NODE_TYPES`. It is `{XML_TYPE_MAP.get(t, t) for t in NODE_TYPES} | XML_ONLY_NODE_TYPES` — a translation of the canonical vocabulary plus one declared extension. Two hand-maintained lists describing one modelling language drift, w..."
+purpose: "T-335 — can a validator finding be POINTED AT? (T-309 IW-1a, made answerable) T-309 asks where findings should surface in the designer: gutter markers on the canvas, an on-demand panel, or a save-time gate. Two of those three require every finding to name a thing that EXISTS ON THE CANVAS AT A POSITION, which is a property of the emitter and the renderer rather than anyone's preference. The spi..."
 
 depends_on:
-  - target: src/aef-workflow-designer.html
-    type: reads
   - target: tools/validate-workflow.py
     type: calls
   - target: tools/yaml-to-bpmn.py

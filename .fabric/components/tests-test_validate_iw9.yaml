@@ -1,0 +1,26 @@
+id: tests/test_validate_iw9.py
+name: test_validate_iw9
+type: script
+subsystem: ewcr-arc-0
+location: tests/test_validate_iw9.py
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
+
+purpose: "IW-9 v1.1 validator-enforcement tests (T-196). Covers the two BPMN-form rules added to tools/validate-workflow.py when the IW-9/G-3 deltas graduated to v1.1 (mapping-v1 §3/§7): O-3 E-INCEPTION-NOT-SOVEREIGN (ERROR) — a subProcess carrying aef:meta workflowType=\"inception\" MUST be in a lane whose aef:laneMeta authority=\"sovereignty\". O-1 W-TYPE-LANE-MISMATCH (WARN) — a userTask/serviceTask/scrip..."
+
+depends_on:
+  - target: tests/fixtures/aef-bpmn/inception-gonogo.bpmn
+    type: reads
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

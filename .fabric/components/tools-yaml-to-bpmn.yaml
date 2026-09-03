@@ -1,0 +1,55 @@
+id: tools/yaml-to-bpmn.py
+name: yaml-to-bpmn
+type: script
+subsystem: ewcr-arc-0
+location: tools/yaml-to-bpmn.py
+tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
+
+purpose: "yaml-to-bpmn — render a Workflow Designer canonical YAML file as BPMN-XML. Part of the T-038 operator review surface (phase P2). The canonical corpus is `*.workflow.yaml`, but the diagram editor (`src/aef-workflow-designer.html`) reads BPMN-XML. This bridge emits the BPMN-XML form documented in `docs/designer/schema.md` §7 — the same grammar the golden `tests/fixtures/valid/investigate.bpmn` us..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tests/test_bridge_aef_passthrough.py
+    type: calls
+  - target: tests/test_editor_bridge_field_coverage.py
+    type: calls
+  - target: tests/test_editor_bridge_meta_parity.py
+    type: calls
+  - target: tests/test_editor_bridge_structured_parity.py
+    type: calls
+  - target: tests/test_editor_extension_shape_consistency.py
+    type: calls
+  - target: tests/test_editor_namespace_consistency.py
+    type: calls
+  - target: tests/test_finding_anchorability.py
+    type: calls
+  - target: tests/test_harness_cross_form_agreement.py
+    type: calls
+  - target: tests/test_harness_emitter_fidelity.py
+    type: calls
+  - target: tests/test_rule_form_parity.py
+    type: calls
+  - target: tests/test_xml_node_type_vocab.py
+    type: calls
+  - target: tools/_bridge-seam-roundtrip-cdp.mjs
+    type: calls
+  - target: tools/_t484-coverage-list-behaviour-audit.py
+    type: calls
+  - target: tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs
+    type: calls
+  - target: tools/_t572-bridge-vocabulary-teeth.py
+    type: calls
+  - target: tools/serve-gallery.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-671
+
+# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
+# extracts them from the referring file's own non-comment bytes. Regenerate with
+#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
+#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv

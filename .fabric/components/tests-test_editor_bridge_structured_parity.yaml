@@ -1,17 +1,15 @@
-id: tests/test_xml_node_type_vocab.py
-name: test_xml_node_type_vocab
+id: tests/test_editor_bridge_structured_parity.py
+name: test_editor_bridge_structured_parity
 type: script
 subsystem: ewcr-arc-0
-location: tests/test_xml_node_type_vocab.py
+location: tests/test_editor_bridge_structured_parity.py
 tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
 
-purpose: "T-321 — the XML flow-node vocabulary is DERIVED, and stays agreed with both emitters. `XML_NODE_TYPES` in tools/validate-workflow.py is not a hand-written list beside `NODE_TYPES`. It is `{XML_TYPE_MAP.get(t, t) for t in NODE_TYPES} | XML_ONLY_NODE_TYPES` — a translation of the canonical vocabulary plus one declared extension. Two hand-maintained lists describing one modelling language drift, w..."
+purpose: "test_editor_bridge_structured_parity — the editor and the bridge handle the SAME set of structured aef keys, on both the import and export sides (T-063). Fifth sibling in the editor↔bridge seam-guard family (namespace: T-044; shape: T-053; coverage: T-059; meta-parity: T-060; structured: this). T-063 gave the five structured-valued aef keys — emits, compensates (list) and aggregation, multiInst..."
 
 depends_on:
   - target: src/aef-workflow-designer.html
     type: reads
-  - target: tools/validate-workflow.py
-    type: calls
   - target: tools/yaml-to-bpmn.py
     type: calls
 
