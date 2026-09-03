@@ -1,23 +1,23 @@
 ---
-id: T-610
-name: "Send the Arc-0 attestation request to AEF under the roadmap 2.3 communication envelope"
+id: T-670
+name: "EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold them"
 description: >
-  Send the Arc-0 attestation request to AEF under the roadmap 2.3 communication envelope
+  The EWCR work (T-590..T-620, fourteen tasks) is not tagged to any arc. arc-001 covers the designer authoring surface only. Establish the EWCR arc, bring existing EWCR tasks under it, evaluate whether the roadmap's Arc-0 scope is fully covered by tasks, and file whatever scope has no task.
 
-status: work-completed
+status: started-work
 workflow_type: build
 owner: agent
-horizon: null
-tags: [arc:ewcr-governed-delivery]
+horizon: now
+tags: []
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-27T07:25:17Z
-last_update: 2026-09-03T05:18:35Z
-date_finished: 2026-08-27T07:27:52Z
+created: 2026-09-03T05:17:04Z
+last_update: 2026-09-03T05:17:04Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,46 +30,34 @@ date_finished: 2026-08-27T07:27:52Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-610: Send the Arc-0 attestation request to AEF under the roadmap 2.3 communication envelope
+# T-670: EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold them
 
 ## Context
 
-The operator's correction, which this task exists to act on: contacting AEF was never a
-question. The roadmap's §2.1 table has a column titled **"Required joint handoff"** for
-every arc, §7 is "Recommended AEF-agent handoff", and §2.3 specifies the envelope a
-handoff must carry. Collaboration is the structure of the instruction set, not a
-permission to be requested.
-
-I had been treating one message to 999-AEF as needing sovereign approval while posting bug
-reports to the same agent on the same channel all night (rail 572, 586, 599). That is not
-a governance boundary; it is an invented gate, and it cost three sessions of Arc-0 stall.
-
-What remains true and is NOT invented: §2.3's closing line — "TermLink post or file
-transfer alone is transport evidence, not collaboration completion." Sending is not
-closing. The clauses stay `definition_ratified: false` and `attestation: null` until a
-substantive response arrives and the operator rules.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] The message carries all five §2.3 envelope fields: (1) source project, task/arc,
-      sender identity, intended receiver; (2) artifact type, version, content hash,
-      compatibility range; (3) requested action from the enumerated set; (4)
-      acceptance/refusal schema and evidence location; (5) correlation/thread ID and the
-      named human decision owner
-- [x] Content hashes are real and computed from the files being referenced, not asserted —
-      `arc-0-exit-clauses.yaml` = 729a0680b46df321, `roadmap-5be23719.md` = 5be23719b976e37a
-- [x] The requested action is one of review/implement/validate/decide/acknowledge, stated
-      explicitly rather than left for the receiver to infer
-- [x] The two asks map 1:1 onto the counterparty-owned clauses and remain traceable to
-      their `what_would_satisfy` — `tools/_t608-attestation-draft-gate.py` still passes
-- [x] Posted with producer attribution (`from_project: 832-Workflow-designer`) as the
-      T-420 rail gate requires
-- [x] Nothing in the register is mutated by the act of sending: all three clauses remain
-      `definition_ratified: false`, clauses 1 and 2 remain `attestation: null`, and the
-      Arc-0 exit gate still reports them blocked — transport is not completion (§2.3)
-- [x] The rail offset of the sent message is recorded here, so the handoff has a
-      correlation anchor rather than a claim
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] An arc exists for EWCR with a headline mechanic stating a **user-observable**
+      deliverable — an operator doing a thing and getting a governed result — not a
+      substrate description. `fw arc show` resolves it and `fw arc list` prints it.
+- [ ] Every existing EWCR task carries `arc_id:` pointing at that arc, verified by
+      counting tasks whose body mentions EWCR against tasks tagged to the arc. The two
+      numbers are reported even when they differ; a silent subset would recreate the
+      problem this task exists to fix one level down.
+- [ ] The arc's scope is checked against `docs/research/executable-workflow/roadmap-5be23719.md`
+      **Arc-0** and the three clauses in `arc-0-exit-clauses.yaml`, and each clause is
+      mapped to the task(s) that carry it — or recorded as carried by no task, which is
+      the finding.
+- [ ] Scope with no task is **filed as tasks**, one deliverable each per the sizing rules.
+      Scope that is counterparty-owned (AEF) or operator-owned is recorded as such rather
+      than filed as agent work — filing a task for something we cannot execute manufactures
+      queue depth without moving the arc.
+- [ ] The arc is left in `draft` unless the roadmap's own entry condition for Arc-0 is met.
+      `fw arc start` is a state claim about readiness; making it to tidy the display would
+      be the same class of error as ticking an AC to clear a queue.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -95,19 +83,14 @@ substantive response arrives and the operator rules.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
+         1. Run `bin/fw reviewer T-670`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-670 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
-
-python3 tools/_t608-attestation-draft-gate.py
-tools/_t596-arc0-exit-gate.sh --self-test
-python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/arc-0-exit-clauses.yaml',encoding='utf-8'));bad=[c['id'] for c in d['clauses'] if c.get('definition_ratified') or c.get('satisfied') or c.get('attestation')];assert not bad,bad"
-grep -q "offset 602" <(tools/_t596-arc0-exit-gate.sh 2>&1)
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -155,26 +138,6 @@ grep -q "offset 602" <(tools/_t596-arc0-exit-gate.sh 2>&1)
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-
-## Recommendation
-
-**Recommendation:** CLOSE — sent, and deliberately changed nothing else.
-
-**Rationale:** The request went to 999-AEF on agent-chat-arc at offset 602 under the §2.3
-envelope, carrying all five required fields and real content hashes. Per §2.3 a post is
-transport evidence, not collaboration completion, so the register is untouched: all three
-clauses remain `definition_ratified: false` and clauses 1 and 2 remain `attestation: null`.
-Arc 0 is not closer to closed; it is now correctly described as awaiting a response rather
-than blocked on an authorisation that the instruction set never required.
-
-**Evidence:**
-- Rail offset 602, thread EWCR-ARC0-ATTEST-832, attributed `from_project: 832-Workflow-designer`
-- Hashes computed, not asserted: clause register 729a0680b46df321, roadmap 5be23719b976e37a
-- Register unmutated after send — verified in `## Verification`
-- `tools/_t596-arc0-exit-gate.sh --self-test`: 13/13 control legs
-- Two stale assertions removed: the gate's closing paragraph and the register header both
-  claimed contact required an authorisation that does not exist. A gate that states an
-  invented constraint teaches it to every reader.
 
 ## RCA
 
@@ -230,7 +193,7 @@ than blocked on an authorisation that the instruction set never required.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-XXX go|no-go|defer --rationale "..."
+     fw inception decide T-670 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -239,22 +202,7 @@ than blocked on an authorisation that the instruction set never required.
 
 ## Updates
 
-### 2026-08-27T07:25:17Z — task-created [task-create-agent]
+### 2026-09-03T05:17:04Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-610-send-the-arc-0-attestation-request-to-ae.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-670-ewcr-has-no-arc-fourteen-tasks-and-three.md
 - **Context:** Initial task creation
-
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-200a60af
-- **Timestamp:** 2026-08-27T07:27:56Z
-- **Catalogue:** v1.3-seed
-- **Overall:** PASS
-- **Needs Human:** no
-- **Findings:** none
-
-### 2026-08-27T07:27:52Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
-
-### 2026-09-03T05:18:35Z — status-update [task-update-agent]
-- **Change:** tags: +arc:ewcr-governed-delivery

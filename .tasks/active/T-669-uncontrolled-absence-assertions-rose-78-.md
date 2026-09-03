@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-01T21:38:40Z
-last_update: 2026-09-01T21:54:24Z
+last_update: 2026-09-01T22:05:52Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -310,6 +310,24 @@ the frozen stratum as a tamper-evident count. Neither is done under this task.
   this class, and the tool header states the sanctioned direction is down); using `--force` on the
   verification gate (not delegated); arguing the alarm away via the classifier defects — measured
   and refused, since the rise survives the repair at +9.
+
+### 2026-09-03 — OPERATOR APPROVED option 1; implementation parked, not abandoned
+
+- **Ruling:** the operator chose to re-scope the ratchet to the **active** stratum (baseline
+  measured at the arming commit) and hold the completed stratum as a reported, tamper-evident
+  count that fails if it ever FALLS — a fall meaning history was rewritten. This supersedes the
+  "reported, not patched" decision below for the census; that decision stands as the record of
+  why it was not done under agent initiative.
+- **State:** implementation was begun and then reverted to HEAD (hash equality verified) when
+  EWCR was made the priority mid-session. A half-wired governance instrument is worse than an
+  unmodified red one, so the tree was left clean rather than partially migrated. The census is
+  byte-identical to its committed state and still correctly red at 89.
+- **What the implementation needs, so it is not re-derived:** the three classifier repairs
+  (dotfile-only redirect; same-line positive grep as EXISTENCE, with QUOTE-AWARE `&&`/`||`/`;`
+  splitting — a naive split corrupts T-501's pattern, which itself contains `||`); the
+  comparand-scoped `zero_from_search`; a two-value baseline file; and teeth legs for BOTH
+  directions — the active ratchet biting upward, and the completed floor biting downward.
+  Measured targets: active 8 → **7** after T-590's repair; completed floor 77.
 
 ### 2026-09-02 — the classifier defects are reported, not silently patched
 

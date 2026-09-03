@@ -1,0 +1,21 @@
+id: arc-002
+slug: ewcr-governed-delivery
+name: "EWCR \u2014 Executable Workflow Contract Runtime: From Evidence to Governed Delivery"
+description: "Arc-0 establishes the evidence base and the contract seam with 999-AEF before any\
+  \ runtime is built. Exit is gated on three clauses in docs/research/executable-workflow/arc-0-exit-clauses.yaml,\
+  \ all currently unratified and blocking."
+status: draft
+anchor_task: T-590
+headline_mechanic: "An operator opens a workflow authored in the Designer, exports it as an executable\
+  \ contract, and a runtime executes it \u2014 where every step is traceable to the\
+  \ evidence that justified it and to the operator decision that authorised it, and\
+  \ any step lacking either is refused rather than run."
+demo_evidence: null
+created: 2026-09-03T05:18:09Z
+closed_at: null
+decision: null
+# T-1918 (arc-006, value-prioritisation): BVP scoring fields. Semantics in
+# docs/reports/T-1915-bvp-inception.md §4 (D7-reframe) and §7 (M2).
+bvp_scores: {}
+scoped_drivers: []           # max 3, weight ≤6 each (M2). Approved by fw arc approve-driver (T-1926).
+proposed_scoped_drivers: []  # uncapped persistence (D7-reframe). Estimator may write here freely.

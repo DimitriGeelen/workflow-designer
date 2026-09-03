@@ -8,7 +8,7 @@ status: work-completed
 workflow_type: build
 owner: human
 horizon: now
-tags: [ewcr-v1, ewcr-v1-designer-fixture, paired-contract, fixture]
+tags: [ewcr-v1, ewcr-v1-designer-fixture, paired-contract, fixture, arc:ewcr-governed-delivery]
 components: []
 related_tasks: [T-587]
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -16,7 +16,7 @@ related_tasks: [T-587]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T09:00:46Z
-last_update: 2026-08-26T12:30:15Z
+last_update: 2026-09-03T05:18:33Z
 date_finished: 2026-08-26T12:30:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -623,3 +623,6 @@ repo-relative paths), not evidence about the artifacts. Full block: **18 of 18 g
 
 ### 2026-08-26T12:30:15Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+### 2026-09-03T05:18:33Z — status-update [task-update-agent]
+- **Change:** tags: +arc:ewcr-governed-delivery

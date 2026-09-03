@@ -8,7 +8,7 @@ status: work-completed
 workflow_type: build
 owner: agent
 horizon: null
-tags: [arc:designer-authoring-surface]
+tags: [arc:designer-authoring-surface, arc:ewcr-governed-delivery]
 components: []
 related_tasks: [T-589, T-570, T-609, T-200]
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -16,7 +16,7 @@ related_tasks: [T-589, T-570, T-609, T-200]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T07:45:08Z
-last_update: 2026-08-27T07:51:23Z
+last_update: 2026-09-03T05:18:35Z
 date_finished: 2026-08-27T07:51:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -345,3 +345,6 @@ node tools/_t589-panel-links-cdp.mjs
 
 ### 2026-08-27T07:51:23Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+### 2026-09-03T05:18:35Z — status-update [task-update-agent]
+- **Change:** tags: +arc:ewcr-governed-delivery

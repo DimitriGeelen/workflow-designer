@@ -8,11 +8,11 @@ status: started-work
 workflow_type: inception
 owner: claude-code
 horizon: now
-tags: []
+tags: [arc:ewcr-governed-delivery]
 components: []
 related_tasks: []
 created: 2026-08-27T17:17:44Z
-last_update: 2026-08-27T19:41:29Z
+last_update: 2026-09-03T05:18:35Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -256,3 +256,6 @@ must not re-use the "zero consumers" argument; it has been measured false.**
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-09-03T05:18:35Z — status-update [task-update-agent]
+- **Change:** tags: +arc:ewcr-governed-delivery

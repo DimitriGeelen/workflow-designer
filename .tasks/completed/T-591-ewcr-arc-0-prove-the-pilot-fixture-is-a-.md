@@ -8,7 +8,7 @@ status: work-completed
 workflow_type: test
 owner: agent
 horizon: null
-tags: []
+tags: [arc:ewcr-governed-delivery]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T12:15:11Z
-last_update: 2026-08-26T12:23:39Z
+last_update: 2026-09-03T05:18:33Z
 date_finished: 2026-08-26T12:23:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -337,3 +337,6 @@ morning. I read it, then did it.
 
 ### 2026-08-26T12:23:39Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+### 2026-09-03T05:18:33Z — status-update [task-update-agent]
+- **Change:** tags: +arc:ewcr-governed-delivery
