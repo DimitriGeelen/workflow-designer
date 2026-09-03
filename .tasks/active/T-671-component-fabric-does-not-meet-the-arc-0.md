@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T05:31:57Z
-last_update: 2026-09-03T09:48:30Z
+last_update: 2026-09-03T10:03:23Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -280,6 +280,40 @@ python3 -c "import subprocess,sys,os; w=set(subprocess.run([sys.executable,'.age
 - **Triggered:** No new task. Records the general form: *a check that iterates over what
   it found, rather than over what it was asked about, passes vacuously when the thing is
   missing entirely.*
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** All five Agent ACs are met and every one of the six Verification legs is
+green, including the two that could only pass after commit. The single open item is a
+`[REVIEW]` Human AC asking whether the **scope** is right — which is genuinely a taste
+judgment about ownership boundaries, not something I can settle by measurement. The
+fence itself is mechanically evidenced; what needs your eye is whether 28 files is the
+correct reading of the §2.1 Designer row.
+
+The one thing I want to flag rather than bury: **this fence is an input to Arc-0 exit
+clause 1, not the clause.** All three clauses remain `definition_ratified: false` in
+`arc-0-exit-clauses.yaml`, and that ratification is yours and AEF's, not mine. A green
+fence here does not move a clause, and I have not recorded anything as if it did.
+
+**Evidence:**
+- `python3 tools/_t671-arc0-fabric-fence.py` → PASS/PASS/PASS over 28 members
+  (NON-EMPTY 28/28, ENRICHED 28/28, VALIDATED 28/28, 0 dangling targets)
+- `python3 tools/_t671-arc0-fabric-fence.py --self-test` → all three red arms refuse
+  independently; this is what caught a false green in the fence itself (a missing card
+  was reporting ENRICHED PASS because an empty population satisfies "all are enriched")
+- `python3 tools/_t623-fabric-denominator-scope-probe.py` → 3 PASS, outside-ratio 2.9%
+  vs AEF's 66%; the denominator defect that sank their clause-1 numbers is not ours
+- Baseline measured, not assumed: **0 of 28 Arc-0 members had a complete card**. All 6
+  pre-existing cards were `TODO` stubs; 3 were edgeless; `src/aef-workflow-designer.html`
+  (112 inbound references) had **no card at all**
+- Idempotence leg proves the cards match what the tools generate — it went red once and
+  correctly caught two stale cards (commit `c17a3087`)
+- Scope + rationale: `docs/research/executable-workflow/arc-0-component-set.md`;
+  manifest: `arc-0-component-set.txt`
+- Residual, deliberately not claimed as cleared: repo-wide `102 registered, 259
+  unregistered (28% covered)` and `46/102 cards have no edges` both persist
 
 ## Decisions
 
