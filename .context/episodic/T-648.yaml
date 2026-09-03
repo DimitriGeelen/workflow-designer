@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-648: the other two fragment assertions still use the substring scan, and are weaker than the one T-645 fixed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T11:58:42Z
+# ============================================================================
+
+task_id: T-648
+task_name: "the other two fragment assertions still use the substring scan, and are weaker than the one T-645 fixed"
+workflow_type: refactor
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-31T11:49:45Z
+completed: 2026-08-31T11:57:43Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T13:57:38+02:00
+last_commit: 2026-08-31T13:57:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  instances 12 and 13, found by grepping for the shape of instance 11
+
+# Key outcomes
+outcomes:
+  - '`document_shell_constructs()` lives in `web/conftest.py`; `test_app.py` and `test_costs.py` both use that one definition, and no copy of the logic remains in either'
+  - 'Both `test_cockpit_htmx_returns_fragment` and `test_costs_htmx_returns_fragment` decide via the detector — no `<!DOCTYPE`/`<html` substring assertion survives anywhere in the web test suite'
+  - 'Both now reject what they used to admit: a lowercase `<!doctype html>` document AND a bare `<HTML><BODY>` shell with no doctype (demonstrated by feeding both payloads to the detector, not asserted in prose)'
+  - 'The detector''s own nine tests move with it and still pass'
+  - 'Both refactored tests still pass against the real routes, and their failure messages name which shell construct was found'
+  - 'Suite total no worse than the post-T-645 baseline of 4 failed / 150 passed on `test_app.py`, and `test_costs.py` unchanged in pass count'
+  - 'A grep proving the pattern is gone from the suite is recorded in the evidence — the same grep that found these two'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-648-the-other-two-fragment-assertions-still-.md'
+  - '.tasks/completed/T-645-testhtmxreturnsfragmenttimeline-fails-on.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T13:57:38"
+    action: 'T-648: instances 12 and 13, found by grepping for the shape of instance 11'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 6
+  lines_added: 364
+  lines_removed: 59
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-648-the-other-two-fragment-assertions-still-.md
+generated_by: context-agent-hybrid

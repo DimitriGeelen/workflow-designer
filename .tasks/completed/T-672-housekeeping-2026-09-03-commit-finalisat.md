@@ -4,10 +4,10 @@ name: "housekeeping 2026-09-03: commit finalisation backlog, repair T-600 Update
 description: >
   housekeeping 2026-09-03: commit finalisation backlog, repair T-600 Updates, give G-043 a decision trigger, triage inbox
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T13:19:39Z
-last_update: 2026-09-03T15:39:38Z
-date_finished: null
+last_update: 2026-09-03T15:40:48Z
+date_finished: 2026-09-03T15:40:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -325,3 +325,15 @@ test -z "$(git status --porcelain .tasks/ ':(exclude).tasks/active/T-672-*')"
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-672-housekeeping-2026-09-03-commit-finalisat.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-899bbee4
+- **Timestamp:** 2026-09-03T15:40:49Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-03T15:40:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

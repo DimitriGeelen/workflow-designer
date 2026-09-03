@@ -1,0 +1,104 @@
+# ============================================================================
+# EPISODIC MEMORY - T-672: housekeeping 2026-09-03: commit finalisation backlog, repair T-600 Updates, give G-043 a decision trigger, triage inbox
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-03T15:40:53Z
+# ============================================================================
+
+task_id: T-672
+task_name: "housekeeping 2026-09-03: commit finalisation backlog, repair T-600 Updates, give G-043 a decision trigger, triage inbox"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-03T13:19:39Z
+completed: 2026-09-03T15:40:48Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-03T15:20:50+02:00
+last_commit: 2026-09-03T17:40:43+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  commit two days of task finalisation backlog — date_finished stamps verified as real completion times, not a repair pass stamping today.. housekeeping — G-043 gets the trigger its own text demanded, T-600's Updates section was misfiled not missing, and the inbox has a capture path with no closure path.. move findings out of the Acceptance Criteria block — it had orphaned the Human AC subsection under the wrong heading.. audit round 2 — CTL-003's stale-budget alarm was a throttle artifact, not broken wiring, but the disproof surfaced a real fail-open underneath it.. leg 4 asserted a state its own satisfaction destroys — fw git commit re-dirties the task file after committing it.
+
+# Key outcomes
+outcomes:
+  - 'The 15 uncommitted task-file finalisations are committed. Verified first that the'
+  - '`T-600` has an `## Updates` section (audit priority action 4).'
+  - '`G-043` has a `decision_trigger:`, or is downgraded/closed. A gap that cannot be'
+  - 'The observation inbox is triaged: every pending observation is either dispositioned'
+  - 'Operator-only items found during housekeeping are SURFACED, not executed. In'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-31.yaml'
+  - '.context/audits/2026-09-01.yaml'
+  - '.context/audits/2026-09-02.yaml'
+  - '.context/audits/2026-09-03.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/project/decisions.yaml'
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md'
+  - '.tasks/active/T-600-side-placed-event-labels-do-not-wrap-lon.md'
+  - '.tasks/active/T-670-ewcr-has-no-arc-fourteen-tasks-and-three.md'
+  - '.tasks/active/T-672-housekeeping-2026-09-03-commit-finalisat.md'
+  - '.tasks/completed/T-195-draft-g-3-collapsed-inception-v11-delta-.md'
+  - '.tasks/completed/T-200-release-designer-with-iw-9-editor-versio.md'
+  - '.tasks/completed/T-228-s4-off-page-claim-ux--create-from-pendin.md'
+  - '.tasks/completed/T-440-t-429-measured-35-of-35-counter-bearing-.md'
+  - '.tasks/completed/T-501-map-id-round-trip-defect-triage-aef-cons.md'
+  - '.tasks/completed/T-645-testhtmxreturnsfragmenttimeline-fails-on.md'
+  - '.tasks/completed/T-646-the-timeline-renders-task-prose-unescape.md'
+  - '.tasks/completed/T-648-the-other-two-fragment-assertions-still-.md'
+  - '.tasks/completed/T-649-warn-when-a-task-is-completed-with-its-o.md'
+  - '.tasks/completed/T-651-three-files-in-the-repo-root-are-named-a.md'
+  - '.tasks/completed/T-657-vendor-divergence-guard-has-no-delivery-.md'
+  - '.tasks/completed/T-666-a-dead-control-and-an-honest-abstention-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-03T15:20:50"
+    action: 'T-672: commit two days of task finalisation backlog — date_finished stamps verified as real completion times, not a repair pass stamping today.'
+  - time: "2026-09-03T15:27:27"
+    action: 'T-672: housekeeping — G-043 gets the trigger its own text demanded, T-600''s Updates section was misfiled not missing, and the inbox has a capture path with no closure path.'
+  - time: "2026-09-03T15:28:01"
+    action: 'T-672: move findings out of the Acceptance Criteria block — it had orphaned the Human AC subsection under the wrong heading.'
+  - time: "2026-09-03T17:39:38"
+    action: 'T-672: audit round 2 — CTL-003''s stale-budget alarm was a throttle artifact, not broken wiring, but the disproof surfaced a real fail-open underneath it.'
+  - time: "2026-09-03T17:40:43"
+    action: 'T-672: leg 4 asserted a state its own satisfaction destroys — fw git commit re-dirties the task file after committing it.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 141 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 141
+  commits: 5
+  files_changed: 23
+  lines_added: 1263
+  lines_removed: 98
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-672-housekeeping-2026-09-03-commit-finalisat.md
+generated_by: context-agent-hybrid

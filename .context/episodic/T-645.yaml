@@ -1,0 +1,108 @@
+# ============================================================================
+# EPISODIC MEMORY - T-645: test_htmx_returns_fragment[/timeline] fails on a substring scan: task PROSE containing the characters <html
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T11:48:12Z
+# ============================================================================
+
+task_id: T-645
+task_name: "test_htmx_returns_fragment[/timeline] fails on a substring scan: task PROSE containing the characters <html"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-30T18:08:53Z
+completed: 2026-08-31T11:47:16Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-08-30T20:24:45+02:00
+last_commit: 2026-08-31T13:47:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  scope the substring-assertion defect — and land T-643 + T-644, the two vendored-path bugs that surfaced it. register G-047 — a task's own work cannot be committed after it is completed. file T-647 — AEF's no-widening leg found a real over-block in our T-640 fix. ask the parser — the fragment test was a character scan wearing a structural name
+
+# Key outcomes
+outcomes:
+  - 'The fragment assertion is structural: it decides whether the response has a root'
+  - 'The new assertion is shown to still catch a genuine full-page response — a probe'
+  - 'The new assertion does **not** silently absorb T-646: with the raw `<html>` still'
+  - 'All ten parametrised routes pass: `pytest -k test_htmx_returns_fragment`.'
+  - 'All four documents the old assertion ADMITTED are now rejected: `<HTML><BODY>`, lowercase `<!doctype html>`, a bare `<body>`, mixed-case `<Html>`'
+  - 'Both non-markup cases are ADMITTED: a tag name inside an HTML comment, and a tag name inside an inline `<script>` body'
+  - 'The detector has its own tests in `test_app.py`, positive and negative, so the new instrument is not itself unverified'
+  - 'The failure message names WHICH shell construct was found and on which path, rather than asserting a bare absence'
+  - '`test_full_page_has_wrapper` — which asserts the OPPOSITE for non-HX responses — still passes, so the change did not simply weaken the pair'
+  - 'Suite total no worse than the post-T-646 baseline of 4 failed / 141 passed, with the 4 being the known `@pytest.mark.framework_repo` ones'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'file T-647 — AEF''s no-widening leg found a real over-block in our T-640 fix'
+    source: git-mined
+  - description: 'scope the substring-assertion defect — and land T-643 + T-644, the two vendored-path bugs that surfaced it'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/lib/ask.py'
+  - '.agentic-framework/web/test_app.py'
+  - '.context/episodic/T-644.yaml'
+  - '.context/inbox.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/working/.reviewed-T-643'
+  - '.tasks/active/T-643-review-queue-renders-close-and-keep-open.md'
+  - '.tasks/active/T-645-testhtmxreturnsfragmenttimeline-fails-on.md'
+  - '.tasks/active/T-646-the-timeline-renders-task-prose-unescape.md'
+  - '.tasks/active/T-647-t-640s-fetcher-write-guard-over-blocks-t.md'
+  - '.tasks/completed/T-635-t-630s-prober-asserts-against-a-model-of.md'
+  - '.tasks/completed/T-636-fw-note-is-allowlisted-for-the-no-task-c.md'
+  - '.tasks/completed/T-637-what-actually-blocks-each-outstanding-in.md'
+  - '.tasks/completed/T-640-safe-list-admits-curl-and-wget-unconditi.md'
+  - '.tasks/completed/T-641-t-639-prober-sandbox-is-ignored-so-it-me.md'
+  - '.tasks/completed/T-642-review-queue-shows-8-agent-recommendatio.md'
+  - '.tasks/completed/T-644-fw-ask-crashes-in-a-vendored-install-pro.md'
+  - '.tasks/completed/T-646-the-timeline-renders-task-prose-unescape.md'
+  - 'tools/_t643-review-queue-uses-the-shared-predicate.sh'
+  - 'tools/_t644-ask-imports-survive-a-wrong-project-root.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-30T20:24:45"
+    action: 'T-645: scope the substring-assertion defect — and land T-643 + T-644, the two vendored-path bugs that surfaced it'
+  - time: "2026-08-30T20:25:58"
+    action: 'T-645: register G-047 — a task''s own work cannot be committed after it is completed'
+  - time: "2026-08-30T20:29:15"
+    action: 'T-645: file T-647 — AEF''s no-widening leg found a real over-block in our T-640 fix'
+  - time: "2026-08-31T13:47:10"
+    action: 'T-645: ask the parser — the fragment test was a character scan wearing a structural name'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 1058 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1058
+  commits: 4
+  files_changed: 21
+  lines_added: 2155
+  lines_removed: 57
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-645-testhtmxreturnsfragmenttimeline-fails-on.md
+generated_by: context-agent-hybrid

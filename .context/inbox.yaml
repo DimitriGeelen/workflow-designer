@@ -1487,3 +1487,10 @@ observations:
   tags: [framework]
   status: dismissed
   promoted_to: null
+- id: OBS-334
+  text: "status"
+  captured: 2026-09-03T15:38:42Z
+  context_task: T-672
+  tags: []
+  status: dismissed
+  promoted_to: null

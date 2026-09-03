@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-649: warn when a task is completed with its own work still uncommitted (G-047 prevention)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T12:04:45Z
+# ============================================================================
+
+task_id: T-649
+task_name: "warn when a task is completed with its own work still uncommitted (G-047 prevention)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-31T11:59:20Z
+completed: 2026-08-31T12:04:41Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-31T14:04:36+02:00
+last_commit: 2026-08-31T14:04:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  warn before the trap, not after — G-047 prevention
+
+# Key outcomes
+outcomes:
+  - '`update-task.sh` prints a warning on the `work-completed` transition when tracked, modified, non-`.context/` files are present, naming up to 5 of them'
+  - 'The warning names the CADENCE (commit before complete) and the gap (G-047), so the reader can act rather than just feel warned'
+  - 'It is a WARNING, not a gate: exit status of the transition is unchanged and the task still completes — proven by completing a task with a dirty tree'
+  - 'It does not fire on a clean tree, and does not fire when the only modifications are under `.context/` (working-memory churn) or the task file itself'
+  - 'It does not fire on non-`work-completed` transitions'
+  - 'A prober `tools/_t649-*.sh` pins all of the above against the REAL script in a throwaway git repo — no append-only ledger or live task is touched, and no live `.tasks/` state is mutated'
+  - 'The prober has teeth: removing the check makes it fail'
+  - 'G-047 is updated with today''s evidence (cadence held 4/4) and with the null-focus read-block, which the original entry did not know about'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-649-warn-when-a-task-is-completed-with-its-o.md'
+  - '.tasks/completed/T-648-the-other-two-fragment-assertions-still-.md'
+  - 'tools/_t649-completing-with-uncommitted-work-warns.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T14:04:36"
+    action: 'T-649: warn before the trap, not after — G-047 prevention'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 5
+  lines_added: 552
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-649-warn-when-a-task-is-completed-with-its-o.md
+generated_by: context-agent-hybrid

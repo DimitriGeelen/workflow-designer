@@ -2192,3 +2192,10 @@ learnings:
   date: 2026-09-01
   context: Added via context agent
   application: TBD
+- id: PL-309
+  learning: "A P-011 verification leg that asserts 'no uncommitted task files' can never pass: fw git commit bumps last_update: in the focused task's own file AFTER creating the commit, so the file is dirty the instant the commit that would clean it returns. Assert the claim minus the task's own file, via git pathspec ':(exclude)...' — not '| grep -v', which under pipefail exits 1 when it filters every line and so fails the leg exactly when it is satisfied. Same family as OBS-033: recording that work happened re-dirties the artifact whose cleanliness is the gate."
+  source: P-001
+  task: T-672
+  date: 2026-09-03
+  context: Added via context agent
+  application: TBD

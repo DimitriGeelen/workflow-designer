@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-646: the timeline renders task prose unescaped: raw < from a task body reaches the browser as markup
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-31T11:37:45Z
+# ============================================================================
+
+task_id: T-646
+task_name: "the timeline renders task prose unescaped: raw < from a task body reaches the browser as markup"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-30T18:24:16Z
+completed: 2026-08-31T11:37:32Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-08-31T13:37:25+02:00
+last_commit: 2026-08-31T13:37:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  escape the prose BEFORE declaring it trusted — the timeline was deleting the operator's words
+
+# Key outcomes
+outcomes:
+  - '`linkify_tasks()` escapes HTML metacharacters (`<`, `>`, `&`, `"`) BEFORE inserting anchors, so the returned Markup vouches only for the anchors it added'
+  - 'The feature is not lost: `T-123` in prose still becomes `<a href="/tasks/T-123">T-123</a>`, and a T-ref adjacent to escaped metacharacters still links'
+  - 'A narrative containing `<script>alert(1)</script>` yields no `<script` element in the rendered output — it renders as visible text'
+  - 'Live `/timeline` (HX-Request) contains ZERO raw `<html` originating from prose; the occurrences that were raw are escaped'
+  - 'Exactly ONE escaping pass, not two: input `a & b` produces `a &amp; b`, never `a &amp;amp; b` (a reader sees a single `&` on screen)'
+  - 'A prober `tools/_t646-*.sh` pins the above and has teeth: reverting to the pre-fix `Markup(linkify_tasks(raw))` order makes it fail by naming the injected element'
+  - '`python3 -m pytest .agentic-framework/web/test_app.py -q` shows no NEW failures against the pre-change baseline (the baseline is 5 known failures: 4 `@pytest.mark.framework_repo` + the T-645 assertion)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/web/shared.py'
+  - '.playwright-mcp/t646-after.png'
+  - '.tasks/active/T-646-the-timeline-renders-task-prose-unescape.md'
+  - 'tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-31T13:37:25"
+    action: 'T-646: escape the prose BEFORE declaring it trusted — the timeline was deleting the operator''s words'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1033 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1033
+  commits: 1
+  files_changed: 4
+  lines_added: 277
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-646-the-timeline-renders-task-prose-unescape.md
+generated_by: context-agent-hybrid
