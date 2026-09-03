@@ -4,20 +4,20 @@ name: "budget-gate writes an UNMEASURED state into .budget-status as a measured 
 description: >
   A failed transcript scan in budget-gate.sh degrades to TOKENS=0 (deliberate fail-open, so a broken scan never blocks every tool call). But 0 then derives LEVEL=ok through the normal ladder and is written to .budget-status indistinguishably from a measured healthy session. CLAUDE.md 'Context Budget Management' says to read 'level' from that file and that 'level' wins over the agent's own arithmetic; the /resume skill reads it too. So the gate's failure mode writes MAXIMUM HEADROOM into the file that is authoritative by rule. Measured live this session: cache said {level: ok, tokens: 0} while checkpoint.sh status measured 82719. Benign at 27%, inverted at 95%. Second defect, same file: the gate rejects its own cache above BUDGET_STATUS_MAX_AGE (90s), but external readers (/resume, doctor, the agent) apply no freshness check, so a cache from a prior session reads as current. Third: the /resume skill mandates 'checkpoint.sh budget' as the safe read; that subcommand does not exist (Usage: post-tool|reset|status), so the hardening is inert here.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t675-budget-read-fence.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T21:31:36Z
-last_update: 2026-09-03T21:31:43Z
-date_finished: null
+last_update: 2026-09-03T21:41:00Z
+date_finished: 2026-09-03T21:41:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -149,7 +149,11 @@ bash -n .agentic-framework/agents/context/post-compact-resume.sh
 
 # The subcommand the /resume skill has been mandating all along now exists.
 .agentic-framework/agents/context/checkpoint.sh budget >/dev/null 2>&1 || test $? -eq 3
-bash .agentic-framework/agents/context/checkpoint.sh nosuchcmd 2>&1 | grep -q 'post-tool|reset|status|budget'
+# NOT `checkpoint.sh nosuchcmd | grep -q ...`. The usage branch exits 1 BY DESIGN, and
+# under P-011's pipefail a nonzero producer fails the whole pipeline even though grep
+# matched — the leg would fail precisely when the behaviour is correct. Same shape as
+# T-672's leg 4 and the `| grep -v` class: capture first, then assert.
+_u=$(bash .agentic-framework/agents/context/checkpoint.sh nosuchcmd 2>&1 || true); printf '%s' "$_u" | grep -q 'post-tool|reset|status|budget'
 
 # Both unmeasured writers stamp themselves. Greps the SOURCE, so a future edit that
 # drops the stamp while keeping the value is caught here rather than in production.
@@ -285,3 +289,15 @@ test -f .fabric/components/tools-_t675-budget-read-fence.yaml
 
 ### 2026-09-03T21:31:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c02ae717
+- **Timestamp:** 2026-09-03T21:41:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-03T21:41:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

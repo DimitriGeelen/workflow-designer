@@ -2206,3 +2206,10 @@ learnings:
   date: 2026-09-03
   context: Added via context agent
   application: TBD
+- id: PL-311
+  learning: "A FAIL-OPEN MUST RECORD THAT IT FAILED OPEN. budget-gate degraded a failed transcript scan to TOKENS=0 — correct, so a broken scan never blocks every tool call — but 0 then derived LEVEL=ok through the normal ladder and landed in .budget-status indistinguishable from a measured healthy session. The degraded default occupied the VALUE SPACE OF HEALTH. CLAUDE.md then made it worse by ruling that 'level' wins over the agent's own arithmetic, so the gate's failure mode wrote maximum headroom into the file that is authoritative by rule, and the moment the scan breaks is the moment the file is least trustworthy and most trusted. Test: 'if this degrades, does it land on a value that means everything is fine?' If yes, the degraded state needs its OWN value (unknown) or a provenance flag (measured:false) — the fix is never to remove the fail-open. Sibling: post-compact-resume's T-1087 seed, an assumption with a 90s shelf life that external readers applied no freshness check to and read hours later."
+  source: P-009
+  task: T-675
+  date: 2026-09-03
+  context: Added via context agent
+  application: TBD

@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-675: budget-gate writes an UNMEASURED state into .budget-status as a measured 'ok' — the one file CLAUDE.md tells the agent to trust over its own arithmetic
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-03T21:41:08Z
+# ============================================================================
+
+task_id: T-675
+task_name: "budget-gate writes an UNMEASURED state into .budget-status as a measured 'ok' — the one file CLAUDE.md tells the agent to trust over its own arithmetic"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-03T21:31:36Z
+completed: 2026-09-03T21:41:00Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-03T23:40:22+02:00
+last_commit: 2026-09-03T23:40:22+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the budget gauge's failure mode wrote maximum headroom into the file CLAUDE.md says to trust over your own arithmetic.
+
+# Key outcomes
+outcomes:
+  - 'Every writer of `.budget-status` stamps whether the value was MEASURED. The two'
+  - 'The cache carries `session_id`, so a reader can tell a prior session''s file'
+  - '**The fail-open is preserved.** A failed scan still never blocks a tool call:'
+  - '**The T-1087 seed still seeds `level: ok`.** It exists to stop a worse'
+  - '`checkpoint.sh budget` exists and is the safe read the `/resume` skill already'
+  - 'Both arms driven (PL-308): a fence drives each refusal case against a throwaway'
+  - 'The live instance that prompted this no longer reads as a plausible `ok`.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/budget-gate.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/post-compact-resume.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - 'CLAUDE.md'
+  - '.fabric/components/tools-_t675-budget-read-fence.yaml'
+  - '.tasks/active/T-675-budget-gate-writes-an-unmeasured-state-i.md'
+  - 'tools/_t675-budget-read-fence.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-03T23:40:22"
+    action: 'T-675: the budget gauge''s failure mode wrote maximum headroom into the file CLAUDE.md says to trust over your own arithmetic.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 1
+  files_changed: 8
+  lines_added: 671
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-675-budget-gate-writes-an-unmeasured-state-i.md
+generated_by: context-agent-hybrid
