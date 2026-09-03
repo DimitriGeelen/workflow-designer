@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T13:19:39Z
-last_update: 2026-09-03T13:20:51Z
+last_update: 2026-09-03T13:27:27Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -74,31 +74,6 @@ date_finished: null
       → Not run. Also not run: closing T-093/T-178 (the audit's own mitigation text
       suggests it; completing `owner: human` tasks is not delegated). Both surfaced.
 
-## Housekeeping findings
-
-### The observation inbox has a capture path and no closure path
-
-**79 of the 98 pending observations have a `context_task` that is now COMPLETED.**
-The observation correctly outlives the task that found it — that is why the register
-exists — but nothing reassigns ownership when the task archives, so it stays `pending`
-with no one accountable. That is the structural reason the queue is 98 deep and every
-one of them dates from August.
-
-Theme distribution across the 98: 44 touch the AEF seam, 34 the termlink rail, 9 the
-`fw note` UX itself, 8 the Human-AC gate, 7 verification/false-green, 7 fabric, 4 the
-P-002 deadlock. 33 are tagged `bug`.
-
-### The queue is already costing real time
-
-**OBS-033**, captured 2026-08-12, reads: *"P-002 makes a partial-complete task unable to
-commit its own state change under its own id... This is the ordinary end-state of EVERY
-partial-complete task, not an edge case."*
-
-I hit exactly that today completing T-671, diagnosed it from scratch, and worked around
-it by carrying the commit under T-670. The finding had been sitting in the inbox for 22
-days. An untriaged register is not neutral — it lets the same defect be rediscovered at
-full cost. This is the concrete argument for giving the 98 an owner rather than a sweep.
-
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -129,6 +104,31 @@ full cost. This is the concrete argument for giving the 98 an owner rather than 
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-672 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+## Housekeeping findings
+
+### The observation inbox has a capture path and no closure path
+
+**79 of the 98 pending observations have a `context_task` that is now COMPLETED.**
+The observation correctly outlives the task that found it — that is why the register
+exists — but nothing reassigns ownership when the task archives, so it stays `pending`
+with no one accountable. That is the structural reason the queue is 98 deep and every
+one of them dates from August.
+
+Theme distribution across the 98: 44 touch the AEF seam, 34 the termlink rail, 9 the
+`fw note` UX itself, 8 the Human-AC gate, 7 verification/false-green, 7 fabric, 4 the
+P-002 deadlock. 33 are tagged `bug`.
+
+### The queue is already costing real time
+
+**OBS-033**, captured 2026-08-12, reads: *"P-002 makes a partial-complete task unable to
+commit its own state change under its own id... This is the ordinary end-state of EVERY
+partial-complete task, not an edge case."*
+
+I hit exactly that today completing T-671, diagnosed it from scratch, and worked around
+it by carrying the commit under T-670. The finding had been sitting in the inbox for 22
+days. An untriaged register is not neutral — it lets the same defect be rediscovered at
+full cost. This is the concrete argument for giving the 98 an owner rather than a sweep.
 
 ## Verification
 
