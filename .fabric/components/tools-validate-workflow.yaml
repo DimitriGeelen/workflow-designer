@@ -57,6 +57,8 @@ depended_by:
     type: calls
   - target: tools/_t497-census-controls.sh
     type: calls
+  - target: tools/_t671-arc0-fabric-fence.py
+    type: calls
 
 last_verified: 2026-09-03
 created_by: T-671

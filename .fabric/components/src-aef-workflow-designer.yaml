@@ -225,6 +225,8 @@ depended_by:
     type: reads
   - target: tools/_t618-determinism-roundtrip-cdp.mjs
     type: reads
+  - target: tools/_t671-arc0-card-gen.py
+    type: reads
   - target: tools/_typed-events-cdp.mjs
     type: reads
   - target: tools/_undo-verify-cdp.mjs
