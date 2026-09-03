@@ -185,9 +185,11 @@ def main():
                 f"{len(dangling)} dangling edge target(s)")
 
     if a and b and c:
-        print("\nSCOPED PASS — this fence ranges over the Arc-0 set only. The repo-wide"
-              "\nfabric coverage warning is NOT cleared by this and is expected to"
-              "\npersist; reporting it as cleared would be the false green.")
+        print("\nSCOPED PASS — this fence ranges over the Arc-0 set only, and a pass here"
+              "\nis not a statement about the tree. The repo-wide fabric coverage warning"
+              "\nwas cleared separately by T-673 (whole watch set carded with sourced"
+              "\npurposes and derived edges) — NOT by this fence, which never ranged over"
+              "\nit. Crediting this pass with that clear would be the false green.")
         return 0
     print("\nFENCE NOT MET — the Arc-0 set above does not satisfy every word of the"
           "\nroadmap section 6 fence. Implementation decomposition is gated on it.")
