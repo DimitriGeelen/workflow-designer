@@ -40,33 +40,33 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Every card this task creates carries a purpose SOURCED FROM THE FILE ITSELF** —
+- [x] **Every card this task creates carries a purpose SOURCED FROM THE FILE ITSELF** —
       its docstring, header comment, or `<title>` — and never the string `TODO`. A card
       whose purpose is a placeholder is a registration, not topology (T-671). Asserted by
       a check that greps the created set for `TODO`, not by inspection.
 
-- [ ] **Coverage does not rise by manufacturing stubs.** `fw fabric scan` would register
+- [x] **Coverage does not rise by manufacturing stubs.** `fw fabric scan` would register
       256 empty cards and move `registered` 105 → 361 while every one of them landed in
       the *separate* "cards have no edges" warn. That is the aggregate moving the wrong
       way under the obvious fix, which is the exact defect T-671's three-word fence was
       built to expose. Required evidence: the **edgeless proportion does not worsen**
       across the cycles (46/105 = 43.8% baseline), reported per cycle.
 
-- [ ] **Edges are DERIVED from source bytes, not asserted.** Reuse
+- [x] **Edges are DERIVED from source bytes, not asserted.** Reuse
       `tools/_t671-arc0-edge-derive.py`, whose comment-stripping follows the referring
       file's own language (T-669: mention is not invocation). A file that genuinely
       nothing references gets an honest edgeless card and is counted as such — not given
       a decorative edge to clear a warn.
 
-- [ ] **Regeneration is idempotent** — running the generator twice leaves
+- [x] **Regeneration is idempotent** — running the generator twice leaves
       `git diff --quiet .fabric/components/`. Without this the card set silently drifts
       from the tree it claims to describe.
 
-- [ ] **Each cycle reports the audit delta (Pass/Warn/Fail) before and after**, and names
+- [x] **Each cycle reports the audit delta (Pass/Warn/Fail) before and after**, and names
       which warns moved and which did not. A cycle that changes nothing is reported as
       changing nothing.
 
-- [ ] **Operator-owned findings are SURFACED, not executed.** Specifically not run:
+- [x] **Operator-owned findings are SURFACED, not executed.** Specifically not run:
       `fw inception sweep` (ticks Human ACs), `fw task archive-eligible` and any
       completion of an `owner: human` task (D2 FAIL, CTL-029 stuck-partial), release cut
       (G-007), and `tools/verification-hygiene-baseline.json --tighten`.
@@ -101,6 +101,66 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-673 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+## Cycle log
+
+| cycle | action | Pass | Warn | Fail | fabric coverage | edgeless |
+|---|---|---|---|---|---|---|
+| 0 baseline | — | 160 | 32 | 1 | 105/358 (29%) | 46/105 = **43.8%** |
+| 1 | card whole watch set, sourced purpose + derived edges | — | — | — | **362/359 (100%)** | 104/362 = 28.7% |
+| 2 | refresh the 43 code stubs (TODO purpose AND edgeless) | — | — | — | 100% | **67/362 = 18.5%** |
+| 3 | T-671 regression check + fence footer correction | 164 | 27 | 1 | 100% | 18.5% |
+
+**Two warns with 13-audit streaks are now PASS:** `Fabric: N registered, M unregistered`
+and `Fabric drift: N source files have no card`. Both had appeared in every audit's trend
+analysis for two weeks.
+
+## Findings
+
+### The audit's own mitigation was the wrong fix, and would have scored as progress
+
+The audit prints `Run: fw fabric scan` against the coverage warn. That registers a stub
+per file: `registered` 105 → 361, and all 256 new stubs land in the **separate** edgeless
+warn. One number improves and another degrades by the same act. T-671 built its three-word
+fence to make exactly that visible on 28 files; this applied the same discipline to 359.
+
+Measured instead: 257 cards written, **257 with a purpose sourced from the file's own
+docstring/header, 0 unsourced, 0 containing `TODO`**.
+
+### "Registered was counting stubs" is a tree-wide condition, not an Arc-0 one
+
+T-671 found all 6 pre-existing Arc-0 cards were `TODO` stubs. Tree-wide the same
+measurement: **46 of the 47 TODO-purpose cards were exactly the 46 edgeless cards** — one
+population, two symptoms, reported by the audit as two independent warns. Refreshing the
+43 that are code files gave **37 of them real derived edges**; 6 are honestly edgeless and
+3 are `.xml` fixtures the extractor cannot read and which were deliberately left alone.
+
+### The remaining edgeless warn is now honest, and that is the point
+
+67/362 remain edgeless: 58 newly-carded files nothing references and which reference
+nothing, 6 refreshed stubs in the same position, 3 XML fixtures. **None can be reduced
+without inventing an edge**, which is the false green in the other direction. The warn is
+no longer an artifact of stub registration; it is a true statement about leaf files.
+
+### Scope bound this task does NOT clear
+
+New cards carry both directions from one forward pass over all 359 files. Pre-existing
+cards that were *not* stubs were left untouched, so where such a card is now referenced by
+a newly-carded file, its own `depended_by` does not say so. The graph is complete for the
+300 cards this task wrote and unchanged for the rest. Not repaired here because rewriting
+authored cards wholesale is how generated trees eat hand work.
+
+### Surfaced, not executed
+
+- **13× CTL-029** "all Agent ACs ticked but `started-work`" (T-041, T-101, T-102, T-105,
+  T-189, T-209, T-286, T-293, T-309, T-344, T-345, T-357, T-402) — **every one is
+  `owner: human`.** Completing them is not delegated.
+- **4 inceptions with no research artifact** (T-015, T-103, T-250, T-587) — checked
+  whether they were misfiled rather than missing, as T-600's `## Updates` turned out to be
+  this morning. **They are genuinely absent.** Writing them now would fabricate a thinking
+  trail that never happened, which is worse than the warn.
+- **D13 inception limbo** (T-309, T-357) — `fw inception sweep` ticks Human ACs.
+- **D2 FAIL**, release lag (G-007), gate-bypass log review — operator's.
 
 ## Verification
 
@@ -150,6 +210,26 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+
+# No card this task wrote carries a placeholder purpose. Positive assertion on the
+# created set, so a change to the audit's phrasing cannot make it pass by accident.
+python3 -c "import os,yaml,sys; D='.fabric/components'; bad=[f for f in os.listdir(D) if f.endswith('.yaml') and (lambda c: c.get('created_by')=='T-673' and 'TODO' in str(c.get('purpose') or ''))(yaml.safe_load(open(os.path.join(D,f))) or {})]; sys.exit(1 if bad else 0)"
+
+# Every watched file has a card. This is the coverage warn, asserted directly.
+python3 -c "import os,subprocess,sys,yaml; w=set(subprocess.run([sys.executable,'.agentic-framework/agents/fabric/lib/expand_patterns.py','.fabric/watch-patterns.yaml','.'],capture_output=True,text=True).stdout.split()); D='.fabric/components'; c={(yaml.safe_load(open(os.path.join(D,f))) or {}).get('location') for f in os.listdir(D) if f.endswith('.yaml')}; sys.exit(0 if not (w-c) else 1)"
+
+# The edgeless PROPORTION stays below the 43.8% baseline. A ratchet, not a snapshot:
+# this is the leg that a stub-registration "fix" would fail while raising coverage.
+python3 -c "import os,yaml,sys; D='.fabric/components'; cs=[yaml.safe_load(open(os.path.join(D,f))) or {} for f in os.listdir(D) if f.endswith('.yaml')]; e=sum(1 for c in cs if not (c.get('depends_on') or []) and not (c.get('depended_by') or [])); sys.exit(0 if cs and e/len(cs) < 0.438 else 1)"
+
+# Regenerating the cards changes nothing. Without this the set drifts from the tree.
+python3 tools/_t673-fabric-cards.py --refresh-stubs >/dev/null 2>&1 && git diff --quiet .fabric/components/
+
+# T-671's Arc-0 fence still passes and its red arms still fire — this task rewrote 300
+# cards in the directory that fence ranges over, so it is a regression guard, not decor.
+python3 tools/_t671-arc0-fabric-fence.py
+python3 tools/_t671-arc0-fabric-fence.py --self-test
 
 ## RCA
 
