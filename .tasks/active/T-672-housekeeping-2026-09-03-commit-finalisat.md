@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T13:19:39Z
-last_update: 2026-09-03T13:27:27Z
+last_update: 2026-09-03T15:32:16Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -129,6 +129,39 @@ I hit exactly that today completing T-671, diagnosed it from scratch, and worked
 it by carrying the commit under T-670. The finding had been sitting in the inbox for 22
 days. An untriaged register is not neutral — it lets the same defect be rediscovered at
 full cost. This is the concrete argument for giving the 98 an owner rather than a sweep.
+
+### `fw note`'s argument parser turns a mistyped query into a finding
+
+I ran `fw note status` expecting a query subcommand. There isn't one — `list`, `count`,
+`triage`, `promote`, `dismiss` are the verbs — and every non-keyword argument is treated
+as observation TEXT. So the word "status" was captured as OBS-334, and the inbox I was
+in the middle of diagnosing grew by one because I asked it a question.
+
+Dismissed rather than deleted, so the husk records the mis-invocation. Worth noting that
+9 of the 98 pending observations already concern `fw note` UX; this is a tenth instance
+of the same class, self-inflicted, and it is the cheapest possible demonstration that a
+capture-by-default parser with no unknown-subcommand check will keep doing this.
+
+### CTL-003 fired on a benign state and its mitigation named the wrong cause
+
+The audit reported `Budget status file stale (46min old)` with the mitigation *"Check
+PreToolUse hook wiring for budget-gate.sh"*. The wiring is correct and the gate is
+running: `.budget-status` rewrote itself to `tokens: 93930` mid-investigation, agreeing
+with `checkpoint.sh`'s independent 92701.
+
+The staleness was a throttle artifact. `budget-gate.sh` re-reads the transcript only on
+every 5th tool call, and `FORCE_RECHECK` is armed **only when the cached level is already
+`critical`** — staleness at level `ok` never forces a re-read. Immediately after a
+compaction the cached figure is a legitimate `tokens: 0`, and it simply sits there until
+the counter next lands on a recheck boundary. Nothing was broken.
+
+What IS worth carrying forward, found while disproving the above: `budget-gate.sh:294-299`
+falls back to `TOKENS=0` on *any* failure of the token scan — missing transcript, script
+error, non-numeric output — and 0 derives `level: ok`, which it then writes to
+`.budget-status` as though measured. **The gate's failure mode is to report maximum
+headroom in the file CLAUDE.md §33 and the `/resume` skill both instruct the agent to
+trust ahead of its own arithmetic.** It is a latent fail-open, not today's cause, and it
+is vendored AEF code (G-008) — recorded here rather than fixed under a housekeeping task.
 
 ## Verification
 
