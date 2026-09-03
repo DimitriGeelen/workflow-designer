@@ -1,22 +1,22 @@
 ---
-id: T-670
-name: "EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold them"
+id: T-671
+name: "Component Fabric does not meet the Arc-0 fence for the EWCR scope"
 description: >
-  The EWCR work (T-590..T-620, fourteen tasks) is not tagged to any arc. arc-001 covers the designer authoring surface only. Establish the EWCR arc, bring existing EWCR tasks under it, evaluate whether the roadmap's Arc-0 scope is fully covered by tasks, and file whatever scope has no task.
+  Roadmap section 6 makes 'Component Fabric non-empty, enriched, validated' a fence required BEFORE implementation decomposition, with evidence owner 'Arc 0 task owner'. Our fabric is 79 registered / 278 unregistered of 354 watched (22 percent) with 49 of 79 cards edgeless, and has WARNed 12 times in 14 days. AEF refused exit clause 1 on their own numbers and separately criticised our coverage; that criticism was ACCEPTED as valid in arc-0-exit-clauses.yaml. This is the only part of clause 1 this side can move.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
-tags: []
+horizon: next
+tags: [ewcr, fabric, arc-0-fence, arc:ewcr-governed-delivery]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-03T05:17:04Z
-last_update: 2026-09-03T05:19:24Z
+created: 2026-09-03T05:31:57Z
+last_update: 2026-09-03T05:32:46Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,94 +30,44 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-670: EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold them
+# T-671: Component Fabric does not meet the Arc-0 fence for the EWCR scope
 
 ## Context
 
-arc-002 `ewcr-governed-delivery` created (draft), anchor T-590, eleven tasks tagged.
-Membership decided by reading names: T-609 and T-660 mention EWCR but are not part of it.
-
-### Arc-0 scope coverage — roadmap §4 "Candidate tasks" mapped to owner and task
-
-Ownership from roadmap §2.1: **AEF owns** runtime schemas, invariants, refusal matrix,
-task/evidence contracts, AEF topology. **We own** inventory visual/mapping schema, stable
-IDs, import/export and round-trip constraints. **Joint**: version matrix, canonical IDs,
-diagnostic shape, worked procedure fixture.
-
-| # | Arc-0 candidate task | Owner | Carried by |
-|---|---|---|---|
-| 1 | Register/enrich Component Fabric, validate edges | **us** (our tree) / AEF (theirs) | **NOTHING — now T-671** |
-| 2 | Freeze v1 schemas (procedure, instance, transition envelope, attempt, evidence ref, refusal, deadline) | AEF | no task here, correctly |
-| 3 | Consolidated refusal/threat matrix (Claude, Z.ai, DeepSeek, Mistral) | AEF | requested via DM; AEF-owned |
-| 4 | Pilot task lifecycle + task-state revalidation contract | AEF | T-619 carries only the Designer-side declaration |
-| 5 | Evidence snapshot/hash ordering, compensation idempotency | AEF | no task here, correctly |
-| 6 | Worked human-gate → registered-script → human-gate procedure | joint | **T-590, T-591 — done this side** |
-
-### Exit clauses mapped
-
-| Clause | Owner | State | Task |
-|---|---|---|---|
-| 1 topology non-empty and validated | aef | AEF **refused it on their own numbers** (rail @650: 1134 cards, enriched false, validated false, 749 outside any watch pattern). Their coverage criticism of us was ACCEPTED. | T-671 (our half) |
-| 2 every blocker has disposition + testable scenario | aef | no attestation | T-610, T-620 requested it |
-| 3 no source-of-truth ambiguity into Arc 1 | shared | unratified | T-596, T-597 record why it cannot be checked from here |
-
-### The finding
-
-**Five of the six Arc-0 candidate tasks are AEF-owned or joint, and our half of the joint
-one is already done.** EWCR is not stalled on our capacity — it is stalled on counterparty
-attestation, with four DMs sent and zero replies. Exactly **one** item is ours, uncovered,
-and executable: the Component Fabric fence. That is now T-671, horizon `next`.
-
-No further tasks were filed. Items 2, 3, 4 and 5 belong to AEF; filing agent tasks for work
-this side cannot execute would manufacture queue depth without moving the arc, which is what
-AC 4 forbids.
-
-### AC 2 cannot be ticked — `fw arc tag` does not write what its own help calls the source of truth
-
-`fw arc --help` states: *"Legacy: also appends to arc's constituent_tasks: if present
-(T-1851 deprecation). Source-of-truth is task-side `arc_id:` (T-1849)."* But `fw arc tag`
-writes **only** `tags: [… arc:ewcr-governed-delivery]`; every one of the eleven tasks still
-has `arc_id:` commented out. So the field the CLI names as authoritative is the one field it
-does not set, while the audit separately carries a check named *"No inline `arc:<slug>`
-tag-only scans outside canonical lib (T-1881)"* — i.e. the mechanism actually used is the one
-being deprecated.
-
-`fw arc show` resolves membership anyway, because it reads the tag. That is exactly what makes
-this the hand-maintained-claim shape again: the display agrees with the intent, so nothing
-reddens, and the divergence between the documented source of truth and the written one is
-visible only to someone who opens a task file. Left unticked and unfixed here — writing
-`arc_id:` by hand across eleven tasks would paper over a CLI defect with hand-maintained data,
-which is the wrong direction. Filed as a finding for the framework, not patched in the corpus.
-
-**Overlap noted, not resolved:** T-501 and T-564 (load-time id normalisation) carry the
-"stable IDs" surface that Arc-0 §2.1 assigns to us, but they are tagged `arc-001` where they
-also legitimately belong. A task holds one arc, so they were left where they are rather than
-moved to inflate arc-002's membership.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] An arc exists for EWCR with a headline mechanic stating a **user-observable**
-      deliverable — an operator doing a thing and getting a governed result — not a
-      substrate description. `fw arc show` resolves it and `fw arc list` prints it.
-- [ ] Every existing EWCR task carries `arc_id:` pointing at that arc, verified by
-      counting tasks whose body mentions EWCR against tasks tagged to the arc. The two
-      numbers are reported even when they differ; a silent subset would recreate the
-      problem this task exists to fix one level down.
-- [x] The arc's scope is checked against `docs/research/executable-workflow/roadmap-5be23719.md`
-      **Arc-0** and the three clauses in `arc-0-exit-clauses.yaml`, and each clause is
-      mapped to the task(s) that carry it — or recorded as carried by no task, which is
-      the finding.
-- [x] Scope with no task is **filed as tasks**, one deliverable each per the sizing rules.
-      Scope that is counterparty-owned (AEF) or operator-owned is recorded as such rather
-      than filed as agent work — filing a task for something we cannot execute manufactures
-      queue depth without moving the arc.
-- [x] The arc is left in `draft` unless the roadmap's own entry condition for Arc-0 is met.
-      `fw arc start` is a state claim about readiness; making it to tidy the display would
-      be the same class of error as ticking an AC to clear a queue.
+- [ ] The **Arc-0 component set is defined explicitly** — which files the fence actually
+      ranges over — before any carding begins. The fence reads "sufficient topology to
+      decompose code safely"; that is a scope, not the whole tree. Carding 278 files to
+      move a percentage would be optimising the metric rather than clearing the fence.
+- [ ] Every file in that set has a component card with **real `depends_on`/`depended_by`
+      edges**, not a stub. An edgeless card raises `registered` while feeding the separate
+      "49/79 cards have no edges" warning — it moves one number by worsening another.
+- [ ] The fence's three words are each evidenced separately: **non-empty** (count),
+      **enriched** (edge coverage over the Arc-0 set), **validated** (`fw fabric drift`
+      reports no unregistered or orphaned member of that set). A single aggregate number
+      cannot show which of the three is unmet, and clause 1 names all three.
+- [ ] The denominator is stated and defended. AEF's clause-1 refusal turned on exactly this
+      — 749 of their 1134 cards point outside any watch pattern, so their drift check ranged
+      over a silently shrinking population. `tools/_t623-fabric-denominator-scope-probe.py`
+      already asserts ours does not have that defect; this task must not introduce it.
+- [ ] The audit's fabric WARNs are re-read **after** the work and the residual reported.
+      If the whole-tree WARN persists because the Arc-0 set is a subset, that is stated
+      plainly as a scoped pass, never as a cleared warning.
 
 ### Human
+- [ ] [REVIEW] The Arc-0 component set is the right scope
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && cat docs/research/executable-workflow/arc-0-component-set.md`
+  2. Compare against roadmap §4 Arc 0 "Candidate tasks" and the Designer column of §2.1
+  **Expected:** the set covers the mapping/inventory, stable-ID and import/export-round-trip
+  surfaces this side owns, and excludes runtime schemas (AEF-owned)
+  **If not:** name the file that is wrongly in or out and why
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -141,11 +91,11 @@ moved to inflate arc-002's membership.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-670`
+         1. Run `bin/fw reviewer T-671`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-670 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-671 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -251,7 +201,7 @@ moved to inflate arc-002's membership.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-670 go|no-go|defer --rationale "..."
+     fw inception decide T-671 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -260,7 +210,13 @@ moved to inflate arc-002's membership.
 
 ## Updates
 
-### 2026-09-03T05:17:04Z — task-created [task-create-agent]
+### 2026-09-03T05:31:57Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-670-ewcr-has-no-arc-fourteen-tasks-and-three.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-671-component-fabric-does-not-meet-the-arc-0.md
 - **Context:** Initial task creation
+
+### 2026-09-03T05:32:46Z — status-update [task-update-agent]
+- **Change:** tags: +arc:ewcr-governed-delivery
+
+### 2026-09-03T05:32:46Z — status-update [task-update-agent]
+- **Change:** horizon: now → next
