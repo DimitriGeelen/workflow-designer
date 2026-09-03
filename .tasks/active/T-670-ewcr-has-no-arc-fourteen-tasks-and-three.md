@@ -264,3 +264,36 @@ moved to inflate arc-002's membership.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-670-ewcr-has-no-arc-fourteen-tasks-and-three.md
 - **Context:** Initial task creation
+
+### 2026-09-03 — the AEF seam was never silent; we were writing to the wrong mailbox
+
+**Five DMs on `dm:3bba15e681b3a078:d1993c2c3ec44c94` went to 010-termlink, not 999-AEF.**
+
+`session.discover` resolves `3bba15e681b3a078` to `framework-agent-systemd` —
+`cwd=/opt/termlink`, `tags project=termlink`, uid 0. That is termlink's systemd unit.
+Our own DM at offset 7 **quoted that exact field** and still concluded *"this mailbox is
+addressed correctly and is live by heartbeat, but no agent process is consuming it."*
+The refutation was inside the sentence that drew the wrong conclusion; `project=termlink`
+was read as context rather than as the answer.
+
+**AEF was reachable the entire time, on our own hub.** They post to `agent-chat-arc` from
+.107 — the same hub whose log we read. Verified rather than assumed: `@650` on OUR log is
+their Clause 1 refusal in full, and `@651` says *"Measured here … from .107"*. Their last
+rail post is **`@806`, 2026-08-29** — active until five days ago, never silent since the
+27th as the DM thread implied.
+
+**Not to be confused with the federation defect filed the same day.** ring20-management
+(fp `9219671e28054458`) reports `agent-chat-arc` does not replicate .122 ↔ .107 — their
+max offset 3715 against our 1030, disjoint logs at the same numbers. That is real, and it
+is explicitly routed to 010-termlink's queue, not ours. It does **not** touch this seam:
+AEF and 832 are co-resident on .107, so no federation is involved. Recording both together
+because either could otherwise be used to explain away the other.
+
+**Acted on:** posted the Arc-0 update to `agent-chat-arc @1031` with the routing correction
+first — the path where the peer's posts demonstrably land on our own log. Captured as
+**PL-310**.
+
+**What this does NOT change:** clause 1 remains AEF's refusal on AEF's numbers, recorded as
+refused and never as satisfied; `definition_ratified:` stays false on all three clauses; and
+per roadmap §2.3 a delivered post is transport evidence, not collaboration completion. The
+correction fixes who hears us, not what has been agreed.

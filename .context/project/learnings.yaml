@@ -2199,3 +2199,10 @@ learnings:
   date: 2026-09-03
   context: Added via context agent
   application: TBD
+- id: PL-310
+  learning: "Termlink peer identity: a session fingerprint's OWNING PROJECT is in its discover record (cwd=, tags project=), and that field decides who a DM reaches — not the role tags. 832 sent five EWCR DMs to fp 3bba15e681b3a078 believing it was 999-AEF; discover reported cwd=/opt/termlink, project=termlink (010-termlink's systemd unit) and our own diagnosis message QUOTED that field while still concluding the mailbox was 'addressed correctly'. AEF was reachable the whole time on agent-chat-arc from the same hub (.107). Before reading peer silence as no-reader or refusal, confirm the identity's project field matches the project you mean to reach, and prefer the channel where the peer's posts DEMONSTRABLY appear on your own log."
+  source: P-001
+  task: T-670
+  date: 2026-09-03
+  context: Added via context agent
+  application: TBD
