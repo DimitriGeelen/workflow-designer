@@ -158,5 +158,12 @@ one line, and T-601 remains the open structural question either way.
 - **Needs Human:** no
 - **Findings:** none
 
+## Updates
+
+<!-- T-672 housekeeping: this heading was MISSING while the dated entries below already
+     existed — they had been appended under `## Reviewer Verdict`, so every instrument
+     that looks for `## Updates` reported the section absent while the content was
+     sitting one heading up. The entries are unchanged; only the heading was added. -->
+
 ### 2026-08-26T19:20:38Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed

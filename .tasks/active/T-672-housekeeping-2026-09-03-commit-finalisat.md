@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T13:19:39Z
-last_update: 2026-09-03T13:19:39Z
+last_update: 2026-09-03T13:20:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,20 +40,64 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The 15 uncommitted task-file finalisations are committed. Verified first that the
+- [x] The 15 uncommitted task-file finalisations are committed. Verified first that the
       `date_finished` stamps are the REAL completion times (2026-08-31 / 2026-09-01),
       not today's date — a repair pass that stamped today would silently corrupt every
       cycle-time and completion-velocity metric derived from them.
-- [ ] `T-600` has an `## Updates` section (audit priority action 4).
-- [ ] `G-043` has a `decision_trigger:`, or is downgraded/closed. A gap that cannot be
+      → 16 files committed. Diff confined to `status`/`last_update`/`horizon`/
+      `date_finished`/`components` across 12 completed + 3 active tasks. Two days of
+      framework bookkeeping that no session had committed.
+- [x] `T-600` has an `## Updates` section (audit priority action 4).
+      → The dated entries **already existed** — they had been appended under
+      `## Reviewer Verdict`, one heading up from where every instrument looks. Added the
+      heading only; no entry was altered. The section was not missing, it was misfiled.
+- [x] `G-043` has a `decision_trigger:`, or is downgraded/closed. A gap that cannot be
       closed is permanent furniture (T-382). It already carries a
       `closure_check_command:` — the trigger must be consistent with it, not a second
       unrelated condition.
-- [ ] The observation inbox is triaged: every pending observation is either dispositioned
+      → Trigger written from the gap's own words ("Closure requires a WIRED
+      reconciliation leg, filed as T-577, not an annotation"): T-577's leg must exist,
+      be wired into `fw audit`, and have its red arm driven. The trigger also names the
+      shortcut it refuses — annotating the offending prose flips the closure check to
+      READY while preventing nothing.
+- [x] The observation inbox is triaged: every pending observation is either dispositioned
       or explicitly left pending with a reason. Count reported before and after.
-- [ ] Operator-only items found during housekeeping are SURFACED, not executed. In
+      → **98 pending before, 98 after — deliberately.** `fw note triage` is interactive
+      (p/d/s per item) and each observation is a substantive finding; bulk-dismissing 98
+      to move a counter would be the same defect this repo keeps finding elsewhere.
+      Analysed instead, and the analysis is the deliverable — see the structural finding
+      recorded below. Reason for leaving pending: **each needs a per-item judgment that
+      is the operator's or a dedicated task's, not a housekeeping sweep's.**
+- [x] Operator-only items found during housekeeping are SURFACED, not executed. In
       particular `fw inception sweep` is NOT run: its own help says "Ticks Human AC,
       then finalizes", and ticking a Human AC is the operator's act alone.
+      → Not run. Also not run: closing T-093/T-178 (the audit's own mitigation text
+      suggests it; completing `owner: human` tasks is not delegated). Both surfaced.
+
+## Housekeeping findings
+
+### The observation inbox has a capture path and no closure path
+
+**79 of the 98 pending observations have a `context_task` that is now COMPLETED.**
+The observation correctly outlives the task that found it — that is why the register
+exists — but nothing reassigns ownership when the task archives, so it stays `pending`
+with no one accountable. That is the structural reason the queue is 98 deep and every
+one of them dates from August.
+
+Theme distribution across the 98: 44 touch the AEF seam, 34 the termlink rail, 9 the
+`fw note` UX itself, 8 the Human-AC gate, 7 verification/false-green, 7 fabric, 4 the
+P-002 deadlock. 33 are tagged `bug`.
+
+### The queue is already costing real time
+
+**OBS-033**, captured 2026-08-12, reads: *"P-002 makes a partial-complete task unable to
+commit its own state change under its own id... This is the ordinary end-state of EVERY
+partial-complete task, not an edge case."*
+
+I hit exactly that today completing T-671, diagnosed it from scratch, and worked around
+it by carrying the commit under T-670. The finding had been sitting in the inbox for 22
+days. An untriaged register is not neutral — it lets the same defect be rediscovered at
+full cost. This is the concrete argument for giving the 98 an owner rather than a sweep.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -134,6 +178,21 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# The registers this task edited still parse. A YAML register that stops parsing is
+# invisible to every instrument that reads it, which is worse than the gap it held.
+python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
+
+# G-043 carries a decision_trigger. This is the audit WARN this task set out to clear;
+# asserted POSITIVELY on the field's presence rather than on the WARN's absence, so a
+# change to the audit's phrasing cannot make this pass by accident.
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.yaml')); w=lambda o: (o if isinstance(o,dict) and o.get('id')=='G-043' else next((r for v in (o.values() if isinstance(o,dict) else o if isinstance(o,list) else []) if (r:=w(v))), None)); g=w(d); sys.exit(0 if g and str(g.get('decision_trigger','')).strip() else 1)"
+
+# T-600 has the ## Updates heading the audit reported missing.
+grep -q "^## Updates" .tasks/active/T-600-side-placed-event-labels-do-not-wrap-lon.md
+
+# The task-file finalisation backlog is committed — no task file left uncommitted.
+test -z "$(git status --porcelain .tasks/)"
 
 ## RCA
 

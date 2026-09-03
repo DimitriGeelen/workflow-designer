@@ -2152,3 +2152,24 @@ decisions:
     date: 2026-09-01
     task: T-667
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-287
+    decision: "Scope the Arc-0 fence to the 28 files implementing or pinning the §2.1"
+    scope: project
+    date: 2026-09-03
+    task: T-671
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-288
+    decision: "Extract every edge with `_t671-arc0-edge-derive.py` from each referring"
+    scope: project
+    date: 2026-09-03
+    task: T-671
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-289
+    decision: "State in the fence output, the scope document, and the task ACs that the"
+    scope: project
+    date: 2026-09-03
+    task: T-671
+    rationale: "Auto-captured from task file on completion"

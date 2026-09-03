@@ -2575,6 +2575,16 @@ concerns:
   severity: medium
   status: watching
   registered: 2026-08-23
+  decision_trigger: 'T-577 lands a reconciliation leg that mechanically compares each task''s recorded
+    **Recommendation:** verdict against every prose assertion about the same task ID in .context/working/*.md
+    and .context/handovers/*.md, AND that leg is WIRED into `fw audit` so it runs without being remembered,
+    AND its red arm has been driven (a deliberate conflict makes it fail, a clean tree makes it pass —
+    the discriminating control already recorded in this gap''s evidence). Then close G-043.
+
+    NOT sufficient, and named here because it is the tempting shortcut this gap already refused once:
+    annotating or deleting the offending prose lines. That flips closure_check_command to READY while
+    preventing nothing — the gap''s own detail calls this out as mitigation-not-closure. The check is
+    deliberately RED at registration and must stay RED until the leg exists.'
   detail: 'The operator has asked, across seven sessions, for outstanding decisions to be surfaced. They
     already were. /approvals renders 40 pending items — 9 GO/NO-GO decisions and 36 Human-AC verifications
     across 58 task IDs — and 136 task files carry a recorded **Recommendation:** block that the page renders
