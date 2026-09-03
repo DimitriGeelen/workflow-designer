@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-09-01T09:27:23Z
+last_update: 2026-09-03T18:35:08Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -452,6 +452,17 @@ green 24/24 here says nothing about the population this repair is aimed at — u
          laundered into the "has lanes" bucket at its first save. The census measures
          our generator, not the population (same shape as T-340's DI census).
 
+      **Evidence freshness, re-measured 2026-09-03 (the ruling is 24 days old; this
+      task's own standard is that a ruling should not rest on stale measurement):**
+      the defect and the candidate table are unchanged and live — `lanes in=0 out=3`
+      still measured across the affected third-party rows, partition still total at 4/4
+      distinct verdicts. **One thing did change: T-603 (completed 2026-08-26) retired the
+      total-data-loss case** that this task's Updates section closes on. `bizagi-nested-ns`
+      no longer returns an empty document; it round-trips its nodes and reports `docs
+      8->2`. That paragraph was the most alarming thing in the file and it no longer
+      describes the tree — rule on the fabricated-sovereignty question, not on it. Full
+      re-measurement in `## Updates` → *"2026-09-03 — the worst case above is RETIRED"*.
+
       **Steps:**
       0. **Do not rule this alone — rule it in the same sitting as T-341.** The brief
          (`docs/reports/T-397-import-repair-semantics-brief.md:262`) states it as a
@@ -757,3 +768,42 @@ selection — two axes, one of them unreported.** This does not make the taxonom
 it makes it non-diagnostic exactly where the outcome is worst. Whatever ruling lands on
 the default, the provenance signal should not be the only thing a caller sees, or the
 total-loss case will keep reporting as an ordinary default.
+
+### 2026-09-03 — the worst case above is RETIRED by T-603; re-measured, not inferred
+
+The entry above is the strongest sentence in this task's case for urgency, and **it is
+now stale.** T-603 ("Only the first `bpmn:process` is imported") completed 2026-08-26 and
+fixed the process-selection axis: *"the process carrying flow content is the one imported,
+not blindly the first"*, with every non-imported process reported to the operator by
+element id and content count.
+
+Re-measured today rather than reasoned from T-603's ACs —
+`node tools/_t356-third-party-fidelity-cdp.mjs`, `bizagi-nested-ns` row:
+
+    lanes         in=0  out=3     <- the fabrication, unchanged, still this task's defect
+    participants  in=2  out=1
+    processes     in=2  out=1
+    docs          in=8  out=2
+
+**There is no `nodes in=4 out=0` row any more.** The 9 KB document that came back empty
+now round-trips its content, and `docs 8->2` is exactly the figure T-603 recorded. So the
+specific hazard — *a total loss reported to the caller as an ordinary `defaulted:*`
+verdict, attributing our process-selection bug to the author's omission* — no longer has
+an instance in the corpus.
+
+**What this does and does not change for the pending ruling:**
+
+- **Does not change the defect.** `lanes in=0 out=3` is still there on the same row, and
+  the fabrication is untouched by T-603. Every column in the candidate table still holds.
+- **Does not change the partition.** `node tools/_t358-lane-provenance-cdp.mjs` re-run
+  today: **4 fixtures, 4 distinct verdicts, PASS.** Worth being precise about why T-603
+  did not disturb it — there are TWO first-only reads in this importer, and T-603 fixed
+  the `processes[0]` one. Path (iii) `defaulted:later-laneset-ignored` is the `laneSets[0]`
+  one, which is still live and still correctly classified.
+- **Does change the urgency argument.** Anyone reading this task top-to-bottom would have
+  ended on a total-data-loss paragraph that no longer describes the tree. The ruling is
+  about fabricated sovereignty on a peer's document, and it should be decided on that,
+  not on a data-loss case that has since been fixed.
+
+Also re-run today, unchanged: `11/11 third-party fixtures still lose content` and the
+fabrication live at `lanes in=0 out=3` across the affected rows.
