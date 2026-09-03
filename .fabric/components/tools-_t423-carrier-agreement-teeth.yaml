@@ -1,0 +1,26 @@
+id: tools/_t423-carrier-agreement-teeth.py
+name: _t423-carrier-agreement-teeth
+type: script
+subsystem: instruments
+location: tools/_t423-carrier-agreement-teeth.py
+tags: [derived]
+
+purpose: "_t423-carrier-agreement-teeth.py — prove _t423-carrier-agreement-guard.py DISCRIMINATES. A guard that has never been watched going red is a guard whose green means nothing yet. That sentence is AEF's, earned twice over on their own index canary (rail 11876), and it is why this file exists in the same commit as the guard rather than after it. THE POPULATION IS REAL, NOT SYNTHETIC. Every mutation..."
+
+depends_on:
+  - target: tests/fixtures/exported/t423-carrier-witness.bpmn
+    type: reads
+  - target: tools/_t423-carrier-agreement-cdp.mjs
+    type: calls
+  - target: tools/_t423-carrier-agreement-guard.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

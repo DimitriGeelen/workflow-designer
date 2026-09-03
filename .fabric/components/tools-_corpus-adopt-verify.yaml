@@ -1,0 +1,21 @@
+id: tools/_corpus-adopt-verify.py
+name: _corpus-adopt-verify
+type: script
+subsystem: instruments
+location: tools/_corpus-adopt-verify.py
+tags: [derived]
+
+purpose: "_corpus-adopt-verify.py — T-145 gate for adopting editor-saved layouts. For each of the 11 maps saved via \"Save to project\" (Jul 6 sessions), assert: 1. rendered/<id>.bpmn parses as well-formed XML 2. every .editor-versions/<id>/v*.bpmn snapshot parses as well-formed XML 3. rendered/<id>.bpmn is byte-identical to the latest saved version (index.json max v) Stdlib only. Exit 0 = all pass; exit 1..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

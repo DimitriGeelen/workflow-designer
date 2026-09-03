@@ -1,0 +1,22 @@
+id: tests/test_note_capture_refuses_lost_payload.py
+name: test_note_capture_refuses_lost_payload
+type: script
+subsystem: tests
+location: tests/test_note_capture_refuses_lost_payload.py
+tags: [derived]
+
+purpose: "T-557: `fw note` must refuse a call whose payload it would otherwise discard. WHAT THIS PINS -------------- `agents/observe/observe.sh` dispatches any unrecognised first word to the capture path, where it becomes the observation TEXT and everything after it is dropped by the flag loop's `*) shift ;;`. Two shapes lose data, both at exit 0 with `OBS-NNN captured`: fw note add \"<900 chars>\" -> tex..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

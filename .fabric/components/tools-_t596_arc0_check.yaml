@@ -1,0 +1,23 @@
+id: tools/_t596_arc0_check.py
+name: _t596_arc0_check
+type: script
+subsystem: instruments
+location: tools/_t596_arc0_check.py
+tags: [derived]
+
+purpose: "T-596 — the checkable core of the Arc-0 exit gate. Exit codes are the whole point, so they are documented before anything else: 0 clause 3 SATISFIED — every blocking question is resolved with a real, agreeing source of truth. 1 BLOCKED — the register is well-formed and honest, and at least one blocking question is still open. This is the expected state while Arc 0 is in flight. It is not a fail..."
+
+depends_on:
+  - target: tools/_t597_arc0_clauses.py
+    type: calls
+
+depended_by:
+  - target: tools/_t596-arc0-exit-gate.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

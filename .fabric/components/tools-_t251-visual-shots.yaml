@@ -1,0 +1,24 @@
+id: tools/_t251-visual-shots.mjs
+name: _t251-visual-shots
+type: script
+subsystem: instruments
+location: tools/_t251-visual-shots.mjs
+tags: [derived]
+
+purpose: "_t251-visual-shots.mjs — T-251 visual-verification screenshots (throwaway). Hermetic (same isolation as the G-010 suite); writes element-level PNGs to .playwright-mcp/ for the CLAUDE.md \"Visual Verification for UI Changes\" rule."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

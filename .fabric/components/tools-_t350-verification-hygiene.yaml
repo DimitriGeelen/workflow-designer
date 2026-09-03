@@ -1,0 +1,22 @@
+id: tools/_t350-verification-hygiene.py
+name: _t350-verification-hygiene
+type: script
+subsystem: instruments
+location: tools/_t350-verification-hygiene.py
+tags: [derived]
+
+purpose: "_t350-verification-hygiene.py — assert T-350's own ## Verification block does not commit the subject error G-015 records (T-350 AC8). G-015 is about verification lines that assert a GLOBAL, always-moving property instead of a property of the task that carries them. Two carriers are on record: 75 lines running `diff src/aef-workflow-designer.html build/gallery/designer.html`, and 11 lines with a..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t408-hygiene-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,23 @@
+id: tests/test_t264_save_target_guards.py
+name: test_t264_save_target_guards
+type: script
+subsystem: tests
+location: tests/test_t264_save_target_guards.py
+tags: [derived]
+
+purpose: "test_t264_save_target_guards — save-target guard set regression wrapper (T-264), arc: designer-authoring-surface. The real work is `tools/_t264-save-target-guards-cdp.mjs`, which drives the REAL editor in an isolated headless chromium against a hermetic throwaway gallery sidecar. It encodes the three guards built from the T-263 GO (the AEF rail-225 scratch-copy-overwrote-the-original incident)..."
+
+depends_on:
+  - target: tools/_t264-save-target-guards-cdp.mjs
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

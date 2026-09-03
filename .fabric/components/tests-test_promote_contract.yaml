@@ -1,0 +1,27 @@
+id: tests/test_promote_contract.py
+name: test_promote_contract
+type: script
+subsystem: tests
+location: tests/test_promote_contract.py
+tags: [derived]
+
+purpose: "Designer → AEF promote-contract test (T-206) — the 832-side half of the joint compile→promote→`fw task create` seam (AEF green light: DM offset 65, AEF ref `tests/unit/bpmn_promote_e2e.bats`, T-2545). BOUNDARY REALITY (decisive): T-559 is SYMMETRIC. 832 cannot run AEF's `fw bpmn compile`/`promote`; AEF cannot read 832's exports. There is no live end-to-end run from either side. The seam is a PR..."
+
+depends_on:
+  - target: tests/fixtures/aef-bpmn/inception-gonogo.bpmn
+    type: reads
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tests/test_two_lane_joint_contract.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

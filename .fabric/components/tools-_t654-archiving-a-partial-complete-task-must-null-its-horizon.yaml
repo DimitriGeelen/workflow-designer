@@ -1,0 +1,21 @@
+id: tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh
+name: _t654-archiving-a-partial-complete-task-must-null-its-horizon
+type: script
+subsystem: instruments
+location: tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh
+tags: [derived]
+
+purpose: "T-654 — a task that reaches .tasks/completed/ must not still store horizon: now."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

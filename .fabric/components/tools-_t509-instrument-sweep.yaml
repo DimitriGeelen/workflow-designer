@@ -1,0 +1,35 @@
+id: tools/_t509-instrument-sweep.sh
+name: _t509-instrument-sweep
+type: script
+subsystem: instruments
+location: tools/_t509-instrument-sweep.sh
+tags: [derived]
+
+purpose: "_t509-instrument-sweep.sh — run every teeth script that CAN be run, every time."
+
+depends_on:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t350-teeth.sh
+    type: calls
+  - target: tools/_t351-teeth.sh
+    type: calls
+  - target: tools/_t423-additive-export-teeth.py
+    type: calls
+  - target: tools/_t430-abstention-teeth.sh
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t548-sweep-classification-teeth.py
+    type: calls
+  - target: tools/_t551-sweep-capture-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

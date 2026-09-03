@@ -1,0 +1,21 @@
+id: tools/_t353-convert.py
+name: _t353-convert
+type: script
+subsystem: instruments
+location: tools/_t353-convert.py
+tags: [derived]
+
+purpose: "T-353 AC3 + AC4 — convert the 19 DIVERGENT lines and prove the conversions. All 19 are FAILURE-PATH-CORRECT (AC2, tools/_t353-classify.py): a command that exits non-zero BY DESIGN, with an assertion about that designed failure. Today the gate discards the non-zero exit; under the remedy it kills the line. Neither is the line saying what it means. The conversion makes the expectation explicit —..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

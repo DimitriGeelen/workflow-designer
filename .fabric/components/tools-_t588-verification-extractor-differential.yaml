@@ -1,0 +1,22 @@
+id: tools/_t588-verification-extractor-differential.sh
+name: _t588-verification-extractor-differential
+type: script
+subsystem: instruments
+location: tools/_t588-verification-extractor-differential.sh
+tags: [derived]
+
+purpose: "T-588 — differential: upstream's ## Verification extractor vs ours, same fixtures."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t588-differential-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

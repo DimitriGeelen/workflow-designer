@@ -1,0 +1,21 @@
+id: tools/_t608-attestation-draft-gate.py
+name: _t608-attestation-draft-gate
+type: script
+subsystem: instruments
+location: tools/_t608-attestation-draft-gate.py
+tags: [derived]
+
+purpose: "T-608 — does the unsent AEF attestation draft ask for what the clause register requires? WHAT THIS GUARDS. The draft's whole value is that the operator can rule on concrete text instead of an abstract \"authorise contact?\". That value is destroyed in two ways, both silent: 1. the draft drifts from the clause register (asks for something the gate will not accept as satisfying the clause), or 2. t..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

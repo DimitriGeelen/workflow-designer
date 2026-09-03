@@ -1,0 +1,22 @@
+id: tools/_gallery-save-allowlist-verify.py
+name: _gallery-save-allowlist-verify
+type: script
+subsystem: instruments
+location: tools/_gallery-save-allowlist-verify.py
+tags: [derived]
+
+purpose: "_gallery-save-allowlist-verify.py — regression test for T-138 corpus gating. Proves the /api/save canonical-corpus write is existence-or-promotion gated so scratch/test saves cannot pollute examples/aef-processes/rendered/. Dependency-free (stdlib only): builds an isolated temp repo, launches gallery-serve.py on an ephemeral port pointing at it, and POSTs the five cases. Cases: 1. new id -> NOT..."
+
+depends_on:
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

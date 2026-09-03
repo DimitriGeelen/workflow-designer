@@ -1,0 +1,27 @@
+id: tools/_t308-bare-catch-render-cdp.mjs
+name: _t308-bare-catch-render-cdp
+type: script
+subsystem: instruments
+location: tools/_t308-bare-catch-render-cdp.mjs
+tags: [derived]
+
+purpose: "_t308-bare-catch-render-cdp.mjs — T-308 (T-244 GO, path b) regression guard for the neutral presentation of a BARE catch event.  A <bpmn:intermediateCatchEvent> with no <aef:link> and no recognised <aef:eventDef> decodes to linkEventCatch through the REVERSE_TYPE fallback — there is no neutral landing type — and then wears the \"← Handoff\" glyph plus a link property schema whose target fields ca..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/aef-bpmn/bare-catch-event.bpmn
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/test_t308_bare_catch_render.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

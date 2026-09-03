@@ -1,0 +1,23 @@
+id: tests/test_check_pass_reachability.py
+name: test_check_pass_reachability
+type: script
+subsystem: tests
+location: tests/test_check_pass_reachability.py
+tags: [derived]
+
+purpose: "T-333 — can each validator rule PASS at all? (AEF OBS-124 counterpart) AEF's rail-380 observation: a 19-hook validator bug survived for weeks not because of the missing `${CLAUDE_PROJECT_DIR}` expansion, but because the check's PASSING STATE WAS UNREACHABLE for the config their own framework generates -- `os.path.exists(\"bash\")` is False for every wrapper hook, so the check failed on 100% of ru..."
+
+depends_on:
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

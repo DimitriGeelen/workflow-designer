@@ -1,0 +1,24 @@
+id: tools/_t585-human-ac-visibility-census.py
+name: _t585-human-ac-visibility-census
+type: script
+subsystem: instruments
+location: tools/_t585-human-ac-visibility-census.py
+tags: [derived]
+
+purpose: "T-585 — census of Human ACs that exist in a task file but are invisible to the queue. THE DEFECT. `/approvals` and `fw review-queue` both decide \"does this task need the operator?\" by calling `count_unchecked_human_acs` (web/shared.py). That predicate anchors on `^## Acceptance Criteria\\\\s*$` and scopes `### Human` to the block it opens. An unchecked Human AC written anywhere else returns 0 — t..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t585-census-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

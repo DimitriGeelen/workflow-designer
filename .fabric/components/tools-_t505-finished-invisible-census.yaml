@@ -1,0 +1,22 @@
+id: tools/_t505-finished-invisible-census.py
+name: _t505-finished-invisible-census
+type: script
+subsystem: instruments
+location: tools/_t505-finished-invisible-census.py
+tags: [derived]
+
+purpose: "Census: tasks in .tasks/active/ whose acceptance criteria are ALL ticked. WHY THIS EXISTS `fw task verify` enumerates tasks by their UNCHECKED Human ACs. That is the right surface for \"what does the operator still have to look at\", and it is structurally incapable of answering the opposite question: which tasks have nothing left to look at and were simply never transitioned. A task becomes invi..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

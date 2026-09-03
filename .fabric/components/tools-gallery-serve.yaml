@@ -1,0 +1,168 @@
+id: tools/gallery-serve.py
+name: gallery-serve
+type: script
+subsystem: instruments
+location: tools/gallery-serve.py
+tags: [derived]
+
+purpose: "gallery-serve.py — write-capable gallery/designer server (T-129 / B2). Serves the assembled gallery (designer.html + rendered/*.bpmn) exactly like the static `python -m http.server` does, AND adds a small `/api/*` surface so the editor can save the current document durably into the repo with per-map versioning. Design (T-128 GO, refined at B2 build): - Store format is BPMN (the editor's native..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_align-distribute-diag.mjs
+    type: calls
+  - target: tools/_bpmn-claim-cli-verify.py
+    type: calls
+  - target: tools/_bridge-seam-roundtrip-cdp.mjs
+    type: calls
+  - target: tools/_edge-straighten-verify-cdp.mjs
+    type: calls
+  - target: tools/_editor-behavior-verify-cdp.mjs
+    type: calls
+  - target: tools/_endpoint-hover-verify-cdp.mjs
+    type: calls
+  - target: tools/_endpoint-overlap-verify-cdp.mjs
+    type: calls
+  - target: tools/_gallery-claim-verify.py
+    type: calls
+  - target: tools/_gallery-list-verify.py
+    type: calls
+  - target: tools/_gallery-registry-verify.py
+    type: calls
+  - target: tools/_gallery-save-allowlist-verify.py
+    type: calls
+  - target: tools/_horizontal-spacing-verify-cdp.mjs
+    type: calls
+  - target: tools/_offpage-seam-parity-verify.py
+    type: calls
+  - target: tools/_roundtrip-serialization-cdp.mjs
+    type: calls
+  - target: tools/_save-api-verify.mjs
+    type: calls
+  - target: tools/_saveproject-verify-cdp.mjs
+    type: calls
+  - target: tools/_selection-align-verify-cdp.mjs
+    type: calls
+  - target: tools/_t249-spike-zoom-cdp.mjs
+    type: calls
+  - target: tools/_t251-visual-shots.mjs
+    type: calls
+  - target: tools/_t255-visual-shots.mjs
+    type: calls
+  - target: tools/_t258-annotation-seam-cdp.mjs
+    type: calls
+  - target: tools/_t259-eventdef-preservation-cdp.mjs
+    type: calls
+  - target: tools/_t263-save-target-cdp.mjs
+    type: calls
+  - target: tools/_t264-save-target-guards-cdp.mjs
+    type: calls
+  - target: tools/_t308-bare-catch-render-cdp.mjs
+    type: calls
+  - target: tools/_t308-export-byte-identity-cdp.mjs
+    type: calls
+  - target: tools/_t310-lane-position-conflict-cdp.mjs
+    type: calls
+  - target: tools/_t311-doc-comment-roundtrip-cdp.mjs
+    type: calls
+  - target: tools/_t315-lane-grow-on-import-cdp.mjs
+    type: calls
+  - target: tools/_t338-input-fidelity-cdp.mjs
+    type: calls
+  - target: tools/_t341-orphan-lane-probe.mjs
+    type: calls
+  - target: tools/_t347-accepted-element-content-cdp.mjs
+    type: calls
+  - target: tools/_t351-shutdown-probe.sh
+    type: calls
+  - target: tools/_t356-third-party-fidelity-cdp.mjs
+    type: calls
+  - target: tools/_t358-byteid-thirdparty.mjs
+    type: calls
+  - target: tools/_t358-empty-lanes-blast-radius.mjs
+    type: calls
+  - target: tools/_t358-export-determinism.mjs
+    type: calls
+  - target: tools/_t358-lane-provenance-cdp.mjs
+    type: calls
+  - target: tools/_t358-repair-options-cdp.mjs
+    type: calls
+  - target: tools/_t358-teeth.py
+    type: calls
+  - target: tools/_t364-aef-ext-roundtrip.mjs
+    type: calls
+  - target: tools/_t364-tie-permutes-ids.mjs
+    type: calls
+  - target: tools/_t366-uid-shape-agnostic.mjs
+    type: calls
+  - target: tools/_t367-aef-injection-footprint.mjs
+    type: calls
+  - target: tools/_t372-aef-cycle-roundtrip.mjs
+    type: calls
+  - target: tools/_t406-doc-comment-provenance-cdp.mjs
+    type: calls
+  - target: tools/_t407-exporter-passthrough-cdp.mjs
+    type: calls
+  - target: tools/_t423-additive-export-cdp.mjs
+    type: calls
+  - target: tools/_t423-carrier-agreement-cdp.mjs
+    type: calls
+  - target: tools/_t423-di-roundtrip-idempotence-cdp.mjs
+    type: calls
+  - target: tools/_t479-endpoint-roundtrip-cdp.mjs
+    type: calls
+  - target: tools/_t482-scalar-projection-falsify.mjs
+    type: calls
+  - target: tools/_t483-structured-projection-falsify.mjs
+    type: calls
+  - target: tools/_t485-unknown-extension-survival.mjs
+    type: calls
+  - target: tools/_t511-unwired-node-roundtrip.mjs
+    type: calls
+  - target: tools/_t513-thirdparty-identity-roundtrip.mjs
+    type: calls
+  - target: tools/_t515-external-uid-conformance.mjs
+    type: calls
+  - target: tools/_t518-uid-collision.mjs
+    type: calls
+  - target: tools/_t520-uid-xml-safety.mjs
+    type: calls
+  - target: tools/_t523-subprocess-nesting.mjs
+    type: calls
+  - target: tools/_t562-workflow-id-helpers-cdp.mjs
+    type: calls
+  - target: tools/_t563-fallback-id-derivation-cdp.mjs
+    type: calls
+  - target: tools/_t565-workflowmeta-emission-census.mjs
+    type: calls
+  - target: tools/_t566-note-field-cdp.mjs
+    type: calls
+  - target: tools/_t570-meta-carriage-cdp.mjs
+    type: calls
+  - target: tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs
+    type: calls
+  - target: tools/_t589-panel-links-cdp.mjs
+    type: calls
+  - target: tools/_t618-determinism-roundtrip-cdp.mjs
+    type: calls
+  - target: tools/_typed-events-cdp.mjs
+    type: calls
+  - target: tools/_undo-verify-cdp.mjs
+    type: calls
+  - target: tools/_versions-verify-cdp.mjs
+    type: calls
+  - target: tools/bpmn-cli.py
+    type: calls
+  - target: tools/gen-rendered-thumbs.mjs
+    type: calls
+  - target: tools/serve-gallery.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

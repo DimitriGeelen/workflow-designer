@@ -1,0 +1,31 @@
+id: tests/test_t313_lane_capacity.py
+name: test_t313_lane_capacity
+type: script
+subsystem: tests
+location: tests/test_t313_lane_capacity.py
+tags: [derived]
+
+purpose: "Lane capacity rule (T-313) — tests for W-XML-LANE-CAPACITY. Mirrors AEF's `tools/corpus_lint.py::lane_overflow` (their T-2689). Ordering compares lanes against each other; capacity asks whether a lane can contain its OWN members. The two are independent — a map can be perfectly ordered and still draw half a lane past its own band edge. Three things here are load-bearing and easy to get wrong: 1..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn
+    type: reads
+  - target: tests/fixtures/warn/W-XML-LANE-CAPACITY.xml
+    type: reads
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tests/test_harness_emitter_fidelity.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,23 @@
+id: tools/_t382-release-lag.py
+name: _t382-release-lag
+type: script
+subsystem: instruments
+location: tools/_t382-release-lag.py
+tags: [derived]
+
+purpose: "G-024 prevention — hold the PINNED artifact and src in one instrument. The gap: \"no instrument holds the pinned artifact and src at the same time, so a consumer-visible fix can sit unreleased indefinitely with nothing reporting it.\" That already happened — a peer waited 9 days for a fix that existed in src the whole time, because every gate we run is scoped to src and the consumer runs the arti..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  - target: scripts/release-designer.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

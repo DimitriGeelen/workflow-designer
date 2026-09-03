@@ -1,0 +1,23 @@
+id: tests/test_t314_fixture_repin.py
+name: test_t314_fixture_repin
+type: script
+subsystem: tests
+location: tests/test_t314_fixture_repin.py
+tags: [derived]
+
+purpose: "test_t314_fixture_repin — T-314: the two 832-owned shared fixtures were repaired by a laneSet reorder, and the repair must stay zero-semantic. Arc: designer-authoring-surface. Background. T-312's `lane_geometry` rule found, on the day it landed, that `inception-gonogo.bpmn` (the shared promote-contract fixture AEF's consumer test pins) and `two-lane-joint.bpmn` both declared `human` as the FIRS..."
+
+depends_on:
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,21 @@
+id: tools/_t631-tier0-approval-reachable.sh
+name: _t631-tier0-approval-reachable
+type: script
+subsystem: instruments
+location: tools/_t631-tier0-approval-reachable.sh
+tags: [derived]
+
+purpose: "T-631 — is the Tier-0 approval route reachable while Tier 0 is blocking? And is any OTHER registered hook printing a remedy it would refuse?"
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

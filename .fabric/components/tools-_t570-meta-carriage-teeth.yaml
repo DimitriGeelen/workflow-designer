@@ -1,0 +1,25 @@
+id: tools/_t570-meta-carriage-teeth.py
+name: _t570-meta-carriage-teeth
+type: script
+subsystem: instruments
+location: tools/_t570-meta-carriage-teeth.py
+tags: [derived]
+
+purpose: "_t570-meta-carriage-teeth.py — does the T-570 probe actually discriminate? A probe that passes on the fixed source proves nothing on its own: \"all legs green\" is also what a probe that asserts nothing produces. Each mutant below is a fix someone would plausibly ship, and each must redden EXACTLY the legs it breaks and no others. A mutant that reddens more than its own legs is not discriminating..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t570-meta-carriage-cdp.mjs
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

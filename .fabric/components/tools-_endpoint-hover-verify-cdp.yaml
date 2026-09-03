@@ -1,0 +1,24 @@
+id: tools/_endpoint-hover-verify-cdp.mjs
+name: _endpoint-hover-verify-cdp
+type: script
+subsystem: instruments
+location: tools/_endpoint-hover-verify-cdp.mjs
+tags: [derived]
+
+purpose: "_endpoint-hover-verify-cdp.mjs — verify T-133: edge endpoint handles have an enlarged, transparent grab/hover halo. Serves the editor from a TEMP docroot (gallery-serve.py) and drives it in ISOLATED headless chromium (own --user-data-dir; G-006). Selects an edge, asserts halo(r11)+dot(r6, pointer-events:none) structure, then does a REAL hover at a point outside the visible dot but inside the ha..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

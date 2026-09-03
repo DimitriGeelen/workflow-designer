@@ -1,0 +1,22 @@
+id: tools/_serve-gallery-verify.py
+name: _serve-gallery-verify
+type: script
+subsystem: instruments
+location: tools/_serve-gallery-verify.py
+tags: [derived]
+
+purpose: "_serve-gallery-verify.py — T-231 lifecycle guard for serve-gallery.sh. Reproduces the committed!=serving race and asserts the hardening holds: A. double-start on the SAME port -> exactly ONE FRESH listener answers /api/health (clean-stop-before-bind stopped the old server; no dual-process shadow). B. a SIGINT/SIGTERM-deaf holder on the port -> serve-gallery.sh fails LOUD (non-zero exit + FATAL..."
+
+depends_on:
+  - target: tools/serve-gallery.sh
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

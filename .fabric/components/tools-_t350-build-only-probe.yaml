@@ -1,0 +1,25 @@
+id: tools/_t350-build-only-probe.sh
+name: _t350-build-only-probe
+type: script
+subsystem: instruments
+location: tools/_t350-build-only-probe.sh
+tags: [derived]
+
+purpose: "_t350-build-only-probe.sh — verify serve-gallery.sh's --build-only path (T-350, G-015 leg 2)."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/serve-gallery.sh
+    type: calls
+
+depended_by:
+  - target: tools/_t350-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

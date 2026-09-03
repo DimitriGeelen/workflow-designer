@@ -1,0 +1,22 @@
+id: tools/_t364-x-tie-census.py
+name: _t364-x-tie-census
+type: script
+subsystem: instruments
+location: tools/_t364-x-tie-census.py
+tags: [derived]
+
+purpose: "_t364-x-tie-census.py — can two nodes in the same lane share an exact x? WHY THIS EXISTS. `computeDisplayId` ranks nodes by x within a lane and breaks a tie with `a.uid.localeCompare(b.uid)`. The source comment calls that \"deterministic\". It is deterministic within a session and NOT across parses, because T-364 showed `aef:uid` is minted randomly for any node that arrives without one. And `disp..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t364-tie-permutes-ids.mjs
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,29 @@
+id: tools/_t308-export-byte-identity-cdp.mjs
+name: _t308-export-byte-identity-cdp
+type: script
+subsystem: instruments
+location: tools/_t308-export-byte-identity-cdp.mjs
+tags: [derived]
+
+purpose: "_t308-export-byte-identity-cdp.mjs — prove a designer change has ZERO export surface: for every corpus map, buildBpmnXml(parseBpmnXml(map)) must be byte-identical between the working-tree designer and the designer at a given git ref.  Written for T-308 (T-244 GO, path b), whose load-bearing claim is that neutral rendering of bare catch events changes what the reader SEES and not one exported by..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t358-byteid-thirdparty.mjs
+    type: calls
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tools/_t364-t308-teeth.py
+    type: calls
+  - target: tools/_t565-workflowmeta-emission-census.mjs
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

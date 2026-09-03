@@ -1,0 +1,21 @@
+id: tools/_t429-apply-abstention-guard.py
+name: _t429-apply-abstention-guard
+type: script
+subsystem: instruments
+location: tools/_t429-apply-abstention-guard.py
+tags: [derived]
+
+purpose: "_t429-apply-abstention-guard.py — insert the \"no legs ran is not a pass\" guard. T-429. WHY AN APPLIER AND NOT 35 HAND EDITS ------------------------------------ Thirty-five identical one-line judgements typed thirty-five times is thirty-five chances to type it slightly differently, and the differences would be invisible — every variant still exits 0 on a full green run. A single applier makes t..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

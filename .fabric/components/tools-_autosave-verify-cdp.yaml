@@ -1,0 +1,21 @@
+id: tools/_autosave-verify-cdp.mjs
+name: _autosave-verify-cdp
+type: script
+subsystem: instruments
+location: tools/_autosave-verify-cdp.mjs
+tags: [derived]
+
+purpose: "_autosave-verify-cdp.mjs — verify editor document autosave (T-126 / G-005) in an ISOLATED headless Chromium (its own --user-data-dir). NEVER attaches to a shared or live browser — that is the exact failure this task exists to fix (G-006).  Steps (against the served gallery http://localhost:8834/designer.html): 1. load, clear localStorage, reload → assert NO restore banner (clean slate) 2. mutat..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

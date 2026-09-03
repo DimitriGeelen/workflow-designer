@@ -1,0 +1,29 @@
+id: tools/_t364-tie-permutes-ids.mjs
+name: _t364-tie-permutes-ids
+type: script
+subsystem: instruments
+location: tools/_t364-tie-permutes-ids.mjs
+tags: [derived]
+
+purpose: "Four maps the census named as holding same-lane x collisions, and TWO it named as tie-free. The tie-free rows are the discriminating half: if stripping aef:uid permuted ids there too, the cause would not be the tie and the whole reading would be wrong. The first version of this list had no genuine tie-free entry — context-memory was picked as one and turns out to hold a tie — so the run confirm..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t358-byteid-thirdparty.mjs
+    type: calls
+  - target: tools/_t364-x-tie-census.py
+    type: calls
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tools/_t364-tie-guard-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,25 @@
+id: tools/verification-hygiene.py
+name: verification-hygiene
+type: script
+subsystem: instruments
+location: tools/verification-hygiene.py
+tags: [derived]
+
+purpose: "verification-hygiene.py — a RATCHET on the G-015 carrier population. G-015 records that `## Verification` blocks carry lines asserting a GLOBAL, always-moving property instead of a property of the task that carries them. Two shapes are on record: (a) `diff src/aef-workflow-designer.html build/gallery/designer.html` — \"is the serve root built and current right now\", which decays the instant anyo..."
+
+depends_on:
+  - target: tools/verification-hygiene-baseline.json
+    type: reads
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t408-hygiene-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,23 @@
+id: tests/check-corpus-geometry.sh
+name: check-corpus-geometry
+type: script
+subsystem: tests
+location: tests/check-corpus-geometry.sh
+tags: [derived]
+
+purpose: "Corpus geometry sweep (T-052) — G-019 prevention for the blindness found in T-050."
+
+depends_on:
+  - target: tools/check-lane-bands.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

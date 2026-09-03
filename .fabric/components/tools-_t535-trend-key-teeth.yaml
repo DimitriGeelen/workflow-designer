@@ -1,0 +1,22 @@
+id: tools/_t535-trend-key-teeth.py
+name: _t535-trend-key-teeth
+type: script
+subsystem: instruments
+location: tools/_t535-trend-key-teeth.py
+tags: [derived]
+
+purpose: "T-535 teeth — the audit's trend detector must aggregate an issue whose NUMBERS move. Drives the REAL audit binary (.agentic-framework/agents/audit/audit.sh, vendored) against a controlled corpus of audit records supplied through the AUDITS_DIR seam. Nothing in the real .context/audits is read or written: the sandbox holds the corpus AND receives the run's output. WHAT IS UNDER TEST audit.sh's T..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

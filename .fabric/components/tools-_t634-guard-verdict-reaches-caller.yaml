@@ -1,0 +1,21 @@
+id: tools/_t634-guard-verdict-reaches-caller.sh
+name: _t634-guard-verdict-reaches-caller
+type: script
+subsystem: instruments
+location: tools/_t634-guard-verdict-reaches-caller.sh
+tags: [derived]
+
+purpose: "T-634 — do P-011's guards actually stop a completion, and WHAT makes them stop it?"
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

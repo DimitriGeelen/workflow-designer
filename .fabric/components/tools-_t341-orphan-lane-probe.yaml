@@ -1,0 +1,24 @@
+id: tools/_t341-orphan-lane-probe.mjs
+name: _t341-orphan-lane-probe
+type: script
+subsystem: instruments
+location: tools/_t341-orphan-lane-probe.mjs
+tags: [derived]
+
+purpose: "_t341-orphan-lane-probe.mjs — WHERE does an orphaned flow node land, and WHY?  T-341 is filed as \"an unresolvable flowNodeRef silently reassigns the orphaned node to the HUMAN (sovereignty) lane\", and T-339 measured `framework→human` on 5 of 24 corpus maps. But parseBpmnXml says  let laneId = lanes[0]?.id;  which is POSITIONAL -- the first lane declared in the laneSet -- and `human` is first on..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

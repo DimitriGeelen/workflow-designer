@@ -1,0 +1,23 @@
+id: tools/_t344-watch-set-denominator.sh
+name: _t344-watch-set-denominator
+type: script
+subsystem: instruments
+location: tools/_t344-watch-set-denominator.sh
+tags: [derived]
+
+purpose: "_t344-watch-set-denominator.sh — a coverage check whose denominator is empty must be RED, not green."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  - target: tools/_t550-audit-parse-anchor-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

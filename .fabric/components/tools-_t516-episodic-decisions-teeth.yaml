@@ -1,0 +1,22 @@
+id: tools/_t516-episodic-decisions-teeth.py
+name: _t516-episodic-decisions-teeth
+type: script
+subsystem: instruments
+location: tools/_t516-episodic-decisions-teeth.py
+tags: [derived]
+
+purpose: "_t516-episodic-decisions-teeth — prove the decisions extractor catches all three symptoms. T-516 fixed one root cause (a line-oriented parse of a block-structured document) with three symptoms. Green on the fixed extractor is only meaningful if each symptom is shown to be DETECTED — so every leg here constructs a document that exhibits the symptom and asserts the extractor's output differs in t..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

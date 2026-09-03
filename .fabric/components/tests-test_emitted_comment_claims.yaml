@@ -1,0 +1,27 @@
+id: tests/test_emitted_comment_claims.py
+name: test_emitted_comment_claims
+type: script
+subsystem: tests
+location: tests/test_emitted_comment_claims.py
+tags: [derived]
+
+purpose: "T-361 — our exported bytes must not make claims about anybody else. WHAT HAPPENED ------------- For two months every `.bpmn` we exported carried, verbatim: <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates --> AEF does not. They measured their own source (rail 417): `bpmndi` occurs exactly once in it, `tools/corpus_spec.py:347`, a namespace declaration wi..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/data/t361-legacy-di-trailer.txt
+    type: reads
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t361-guard-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

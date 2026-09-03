@@ -1,0 +1,27 @@
+id: tests/test_t315_lane_grow_on_import.py
+name: test_t315_lane_grow_on_import
+type: script
+subsystem: tests
+location: tests/test_t315_lane_grow_on_import.py
+tags: [derived]
+
+purpose: "test_t315_lane_grow_on_import — T-315 regression guard: an under-declared lane band is GROWN on import rather than the operator's nodes being moved into a band that was too small for them. Arc: designer-authoring-surface. The real work is `tools/_t315-lane-grow-on-import-cdp.mjs`, which drives the REAL editor runtime in an isolated headless chromium against two fixtures. Background. T-313 detec..."
+
+depends_on:
+  - target: tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn
+    type: reads
+  - target: tests/fixtures/aef-bpmn/lane-position-conflict.bpmn
+    type: reads
+  - target: tools/_t315-lane-grow-on-import-cdp.mjs
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

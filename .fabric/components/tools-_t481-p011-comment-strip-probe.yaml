@@ -1,0 +1,22 @@
+id: tools/_t481-p011-comment-strip-probe.py
+name: _t481-p011-comment-strip-probe
+type: script
+subsystem: instruments
+location: tools/_t481-p011-comment-strip-probe.py
+tags: [derived]
+
+purpose: "T-481 — reproduce, byte-exact, how the P-011 gate rewrites an executable command. update-task.sh:978-983 strips HTML comment SPANS from the ## Verification block before running it: text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL) The strip is span-based over raw block text, with no command-boundary and no quote awareness. So a LIVE command that carries '<!--' and '-->' as literal data —..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

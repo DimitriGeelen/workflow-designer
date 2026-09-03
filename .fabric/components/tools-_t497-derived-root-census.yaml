@@ -1,0 +1,22 @@
+id: tools/_t497-derived-root-census.py
+name: _t497-derived-root-census
+type: script
+subsystem: instruments
+location: tools/_t497-derived-root-census.py
+tags: [derived]
+
+purpose: "_t497-derived-root-census.py — count harnesses that derive a root from their own location and resolve a subject beneath it, and say how many verify the subject first. T-497. Supersedes the ad-hoc measurement in T-496, which produced \"70 python / 42 verify / 28 do not\" by hand and left no instrument, so the number could not be re-derived the next day. The shell half was stated as UNMEASURED rath..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t497-census-controls.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,24 @@
+id: tools/_t364-t308-teeth.py
+name: _t364-t308-teeth
+type: script
+subsystem: instruments
+location: tools/_t364-t308-teeth.py
+tags: [derived]
+
+purpose: "_t364-t308-teeth.py — prove _t308's `unusable` bucket can actually FILL. G-023's prevention added a self-stability check to the byte-identity gate: a document that is not byte-stable with itself is reported `unusable` rather than counted `identical`. The first run came back `unusable: 0` — which is exactly what a check that cannot fire also reports. A bucket whose count is the finding has to be..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t308-export-byte-identity-cdp.mjs
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

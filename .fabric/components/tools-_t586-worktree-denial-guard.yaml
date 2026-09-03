@@ -1,0 +1,22 @@
+id: tools/_t586-worktree-denial-guard.py
+name: _t586-worktree-denial-guard
+type: script
+subsystem: instruments
+location: tools/_t586-worktree-denial-guard.py
+tags: [derived]
+
+purpose: "T-586 — assert that worktree isolation is denied, by every route it has. WHY A GUARD AND NOT JUST THE CONFIG. The operator asked twice, in two sessions, whether we were \"stuck in a worktree again\". Both times the answer was no and this repo has never had one. But the question stayed askable because nothing prevented it: `permissions` in .claude/settings.json was empty, so `EnterWorktree`, `Agen..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

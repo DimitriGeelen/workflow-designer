@@ -1,0 +1,23 @@
+id: tools/_t352-p011-errexit-probe.sh
+name: _t352-p011-errexit-probe
+type: script
+subsystem: instruments
+location: tools/_t352-p011-errexit-probe.sh
+tags: [derived]
+
+purpose: "_t352-p011-errexit-probe.sh — does the P-011 verification gate judge `a; b` on `b` alone?"
+
+depends_on:
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tools/_t352-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

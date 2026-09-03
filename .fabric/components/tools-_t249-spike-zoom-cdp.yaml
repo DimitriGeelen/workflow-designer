@@ -1,0 +1,24 @@
+id: tools/_t249-spike-zoom-cdp.mjs
+name: _t249-spike-zoom-cdp
+type: script
+subsystem: instruments
+location: tools/_t249-spike-zoom-cdp.mjs
+tags: [derived]
+
+purpose: "_t249-spike-zoom-cdp.mjs — T-249 INCEPTION SPIKE (throwaway prototype, NOT a suite).  Question (IW-1): does explicit-SVG-element-sizing zoom (viewBox untouched, element width/height = viewBox × zoom via inline style, .canvas-wrap overflow:auto) survive the every-render viewBox recompute (syncCanvasSize) and keep pointer paths CTM-correct? Rider (IW-2): does a capture-phase pan handler on .canva..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

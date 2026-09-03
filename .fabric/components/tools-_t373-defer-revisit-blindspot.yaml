@@ -1,0 +1,21 @@
+id: tools/_t373-defer-revisit-blindspot.sh
+name: _t373-defer-revisit-blindspot
+type: script
+subsystem: instruments
+location: tools/_t373-defer-revisit-blindspot.sh
+tags: [derived]
+
+purpose: "_t373-defer-revisit-blindspot.sh — a DEFER decision with no revisit date is not \"nothing to do\", and until now the daily scan could not tell the difference."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

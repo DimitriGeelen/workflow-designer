@@ -1,0 +1,22 @@
+id: tools/_label-overlap-probe.mjs
+name: _label-overlap-probe
+type: script
+subsystem: instruments
+location: tools/_label-overlap-probe.mjs
+tags: [derived]
+
+purpose: "_label-overlap-probe.mjs — headless edge-label overlap census (T-105 investigation).  Loads the REAL editor, imports one or more .bpmn (or two git blobs of the same map for a pre/post comparison), runs the full render (which includes adjustEdgeLabelPlacements — the collision-avoidance post-pass), then reads back the MEASURED getBBox of every rendered edge-label text and counts: - label∩label ov..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

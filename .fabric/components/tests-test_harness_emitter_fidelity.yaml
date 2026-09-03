@@ -1,0 +1,31 @@
+id: tests/test_harness_emitter_fidelity.py
+name: test_harness_emitter_fidelity
+type: script
+subsystem: tests
+location: tests/test_harness_emitter_fidelity.py
+tags: [derived]
+
+purpose: "test_harness_emitter_fidelity.py — T-327. A harness that synthesises BPMN must synthesise a document our EMITTERS could actually produce. Otherwise it proves the consumer handles a shape that never occurs and says nothing about the shape that does — AEF's rail-367 phrasing: \"worse than an absent guard, because an absent guard does not report.\" That is not hypothetical. Three gallery harnesses b..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/test_t313_lane_capacity.py
+    type: calls
+  - target: tests/test_typed_event_fixture_contract.py
+    type: calls
+  - target: tools/validate-workflow.py
+    type: calls
+  - target: tools/yaml-to-bpmn.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

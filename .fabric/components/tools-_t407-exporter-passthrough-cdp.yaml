@@ -1,0 +1,26 @@
+id: tools/_t407-exporter-passthrough-cdp.mjs
+name: _t407-exporter-passthrough-cdp
+type: script
+subsystem: instruments
+location: tools/_t407-exporter-passthrough-cdp.mjs
+tags: [derived]
+
+purpose: "CONTROL on the INPUT. Without it, an \"ours-only\" verdict is equally consistent with an input that never carried a foreign identity in the first place — the probe would report \"we overwrite\" having overwritten nothing."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/third-party/simple.bpmn
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

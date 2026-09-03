@@ -1,0 +1,22 @@
+id: tools/_t436-inbox-route-probe.sh
+name: _t436-inbox-route-probe
+type: script
+subsystem: instruments
+location: tools/_t436-inbox-route-probe.sh
+tags: [derived]
+
+purpose: "_t436-inbox-route-probe.sh — does the handover actually carry observation CONTENT, or only the count?"
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t445-partial-state-mutation.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

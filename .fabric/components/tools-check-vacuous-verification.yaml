@@ -1,0 +1,21 @@
+id: tools/check-vacuous-verification.py
+name: check-vacuous-verification
+type: script
+subsystem: instruments
+location: tools/check-vacuous-verification.py
+tags: [derived]
+
+purpose: "check-vacuous-verification.py — find `## Verification` legs that cannot fail. Two defect shapes, both of which report health regardless of whether the thing they guard actually worked: LOUD grep -qv PATTERN `-v` selects NON-matching lines and `-q` exits 0 if ANY line is selected, so the leg asserts \"at least one line lacks PATTERN\" — true of nearly every multi-line file, and true whether or not..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

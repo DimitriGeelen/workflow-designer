@@ -1,0 +1,22 @@
+id: tools/_t627-undecided-defer.py
+name: _t627-undecided-defer
+type: script
+subsystem: instruments
+location: tools/_t627-undecided-defer.py
+tags: [derived]
+
+purpose: "T-627 — find inceptions equipped to be revisited that were never actually ruled on. THE STATE THIS FINDS An inception with `revisit_at:` set and no `**Decision**:` line carries the *machinery* of a DEFER without the DEFER. Two things follow, and neither is visible: * A reader seeing `revisit_at: 2026-10-01` reasonably concludes the deferral was ruled on. It was not. The date is the consequence..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t637-inception-coverage.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

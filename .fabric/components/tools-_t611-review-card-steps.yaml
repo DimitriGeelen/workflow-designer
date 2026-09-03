@@ -1,0 +1,21 @@
+id: tools/_t611-review-card-steps.py
+name: _t611-review-card-steps
+type: script
+subsystem: instruments
+location: tools/_t611-review-card-steps.py
+tags: [derived]
+
+purpose: "T-611 — does every UNCHECKED [REVIEW] criterion still render its Steps block? THE DEFECT CLASS THIS GUARDS (T-609). `/review/T-597` returned HTTP 200 and rendered its AC titles while rendering ZERO Steps/Expected/If-not blocks, so the operator's decision card was blank for three sessions and nobody noticed. The template was correct: it says `{% if not ac.checked %}`, and three `[REVIEW]` ACs ha..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,22 @@
+id: tools/_t612-operator-review-reachable.py
+name: _t612-operator-review-reachable
+type: script
+subsystem: instruments
+location: tools/_t612-operator-review-reachable.py
+tags: [derived]
+
+purpose: "T-612 — is the operator's T-589 review actually reachable, and is it the RIGHT build? The deliverable of T-612 is not a file on disk. It is a URL the operator can open and act on. So this verifier fetches, and it fails when the server is down — that is correct, not a fragility: if nothing is serving, the operator has nothing to review. WHY IDENTITY AND NOT HTTP 200 (PL-198). The failure this gu..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

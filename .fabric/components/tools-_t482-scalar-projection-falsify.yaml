@@ -1,0 +1,24 @@
+id: tools/_t482-scalar-projection-falsify.mjs
+name: _t482-scalar-projection-falsify
+type: script
+subsystem: instruments
+location: tools/_t482-scalar-projection-falsify.mjs
+tags: [derived]
+
+purpose: "_t482-scalar-projection-falsify.mjs — does projecting the eight scalar semantic keys actually give the round-trip fixed point teeth on each of them?  WHY a separate probe rather than the harness's own self-test: the preflight self-test in _roundtrip-serialization-cdp.mjs perturbs the FIRST key whose attribute regex matches and then breaks. It reports hit:\"tier\" and stops. It therefore proves th..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

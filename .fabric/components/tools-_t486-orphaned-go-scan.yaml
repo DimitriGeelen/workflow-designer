@@ -1,0 +1,21 @@
+id: tools/_t486-orphaned-go-scan.py
+name: _t486-orphaned-go-scan
+type: script
+subsystem: instruments
+location: tools/_t486-orphaned-go-scan.py
+tags: [derived]
+
+purpose: "T-486 — are there closed inception GO decisions with nothing carrying the work? Mirror of AEF's T-2925 (rail 601 §1): an inception closed with a GO whose build slices were never created, so the fix stayed unbuilt while the record read \"done\" and the archived task took the gap with it. TWO THINGS THIS PROBE REFUSES TO DO, both learned the hard way in this same task: 1. It does not classify a GO..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

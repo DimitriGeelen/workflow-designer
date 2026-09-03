@@ -1,0 +1,22 @@
+id: tools/_t428-disposition-mutation-check.sh
+name: _t428-disposition-mutation-check
+type: script
+subsystem: instruments
+location: tools/_t428-disposition-mutation-check.sh
+tags: [derived]
+
+purpose: "_t428-disposition-mutation-check.sh — prove the disposition check can move."
+
+depends_on:
+  - target: tools/_t428-assumption-disposition-check.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

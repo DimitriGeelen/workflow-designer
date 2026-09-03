@@ -1,0 +1,24 @@
+id: tools/_edge-straighten-verify-cdp.mjs
+name: _edge-straighten-verify-cdp
+type: script
+subsystem: instruments
+location: tools/_edge-straighten-verify-cdp.mjs
+tags: [derived]
+
+purpose: "_edge-straighten-verify-cdp.mjs — verify T-137: the \"Straighten\" edge action. Serves the editor from a TEMP docroot, drives it in ISOLATED headless chromium (own --user-data-dir; G-006). Loads task-gate, whose edge e_09 (gateway g_ready → n_allow) carries a persisted aef:loopDetour and renders as an up-and-over loop even though a direct route is clean. Proves: 1. e_09 starts as a loop (detourY..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

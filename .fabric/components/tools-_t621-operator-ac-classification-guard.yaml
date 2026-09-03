@@ -1,0 +1,22 @@
+id: tools/_t621-operator-ac-classification-guard.py
+name: _t621-operator-ac-classification-guard
+type: script
+subsystem: instruments
+location: tools/_t621-operator-ac-classification-guard.py
+tags: [derived]
+
+purpose: "T-621 — an Agent AC that names the operator as decider is a deadlock, not a criterion. WHY THIS EXISTS. /approvals surfaces `### Human` ACs and inception decisions. A criterion whose own text says the outcome is the operator's (\"Operator decision recorded\", \"Operator approves or rejects...\") but which is filed under `### Agent` is invisible to the person who must act on it. Meanwhile P-010 refu..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

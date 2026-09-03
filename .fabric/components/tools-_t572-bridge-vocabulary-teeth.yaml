@@ -1,0 +1,27 @@
+id: tools/_t572-bridge-vocabulary-teeth.py
+name: _t572-bridge-vocabulary-teeth
+type: script
+subsystem: instruments
+location: tools/_t572-bridge-vocabulary-teeth.py
+tags: [derived]
+
+purpose: "_t572-bridge-vocabulary-teeth.py — does the T-572 round-trip guard actually discriminate? The guard this replaces (tests/test_editor_bridge_meta_parity.py, ⊆ direction) was GREEN for the entire period in which the editor destroyed nine keys the bridge emits. So \"the new guard is green on the fixed source\" is worth nothing on its own — that is exactly what the old guard reported too. Each mutant..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs
+    type: calls
+  - target: tools/yaml-to-bpmn.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

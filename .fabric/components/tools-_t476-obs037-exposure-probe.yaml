@@ -1,0 +1,21 @@
+id: tools/_t476-obs037-exposure-probe.py
+name: _t476-obs037-exposure-probe
+type: script
+subsystem: instruments
+location: tools/_t476-obs037-exposure-probe.py
+tags: [derived]
+
+purpose: "T-476 — measure this tree's exposure to the OBS-037 phantom-checkbox misalignment. AEF's T-2954 (rail 588) fixed a defect in the Human-AC tick guard: `get_checkbox_states` counts `- [ ]` lines that live inside `<!-- ... -->` guidance comments, and `detect_toggle` zips old/new box lists POSITIONALLY. Phantoms at low indices shift every real AC's index, so deleting a COMMENT is reported as a Huma..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

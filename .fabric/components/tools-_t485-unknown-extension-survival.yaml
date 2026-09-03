@@ -1,0 +1,24 @@
+id: tools/_t485-unknown-extension-survival.mjs
+name: _t485-unknown-extension-survival
+type: script
+subsystem: instruments
+location: tools/_t485-unknown-extension-survival.mjs
+tags: [derived]
+
+purpose: "_t485-unknown-extension-survival.mjs — what does our editor do to extension content it was never told about?  ORIGIN: AEF rail 601 §3. Their `_KNOWN_EXT` is an INVERSE-POLARITY coverage list — it enumerates what a preserve-everything catch-all skips, so a member handled nowhere is dropped silently. We have no such catch-all: parseBpmnXml reads specific named elements. That makes ours a strict a..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,35 @@
+id: tools/_t358-byteid-thirdparty.mjs
+name: _t358-byteid-thirdparty
+type: script
+subsystem: instruments
+location: tools/_t358-byteid-thirdparty.mjs
+tags: [derived]
+
+purpose: "T-364: overridable so the precondition's hazard path can be exercised against a temp fixture set (tools/_t364-byteid-precondition-teeth.py) without touching the real one. A precondition that reports HOLDS and has never been shown able to report otherwise is a constant wearing a verdict."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t308-export-byte-identity-cdp.mjs
+    type: calls
+  - target: tools/_t358-export-determinism.mjs
+    type: calls
+  - target: tools/_t364-tie-permutes-ids.mjs
+    type: calls
+  - target: tools/_t565-workflowmeta-emission-census.mjs
+    type: calls
+  - target: tools/_t581-byteid-baseline-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

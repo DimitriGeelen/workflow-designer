@@ -1,0 +1,29 @@
+id: tools/_t315-lane-grow-on-import-cdp.mjs
+name: _t315-lane-grow-on-import-cdp
+type: script
+subsystem: instruments
+location: tools/_t315-lane-grow-on-import-cdp.mjs
+tags: [derived]
+
+purpose: "_t315-lane-grow-on-import-cdp — T-315: an under-declared lane band is GROWN on import, instead of the operator's nodes being moved into the band that was too small for them. Drives the REAL editor runtime in an isolated headless chromium.  Two fixtures, and the pairing is the whole point:  lane-capacity-large-spill.bpmn  ORDERING-CLEAN, agent lane declares 260 while its members span 567. A pure..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn
+    type: reads
+  - target: tests/fixtures/aef-bpmn/lane-position-conflict.bpmn
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/test_t315_lane_grow_on_import.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

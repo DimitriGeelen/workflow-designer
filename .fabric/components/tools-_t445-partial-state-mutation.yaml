@@ -1,0 +1,22 @@
+id: tools/_t445-partial-state-mutation.sh
+name: _t445-partial-state-mutation
+type: script
+subsystem: instruments
+location: tools/_t445-partial-state-mutation.sh
+tags: [derived]
+
+purpose: "_t445-partial-state-mutation.sh — does the inbox-route probe's THREE-state machine actually fire on all three states, or only on the one the live tree happens to be in?"
+
+depends_on:
+  - target: tools/_t436-inbox-route-probe.sh
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

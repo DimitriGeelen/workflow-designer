@@ -1,0 +1,22 @@
+id: tools/census-dead-legs.py
+name: census-dead-legs
+type: script
+subsystem: instruments
+location: tools/census-dead-legs.py
+tags: [derived]
+
+purpose: "Census of DEAD-leg honesty notes in BPMN maps. Convention (pair round #4, rail 324/325, AEF knowledge-leveling v3): a dead-but-reachable leg — control flow that is drawn live because it is structurally reachable, but whose real-world trigger is broken/unbuilt — carries an `aef:meta` note containing the token `DEAD:` (in practice inline: context first, then \"DEAD: <what is dead>\"). Each note cou..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/test_dead_leg_census.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

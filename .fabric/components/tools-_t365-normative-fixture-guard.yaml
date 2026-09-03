@@ -1,0 +1,21 @@
+id: tools/_t365-normative-fixture-guard.py
+name: _t365-normative-fixture-guard
+type: script
+subsystem: instruments
+location: tools/_t365-normative-fixture-guard.py
+tags: [derived]
+
+purpose: "_t365-normative-fixture-guard.py — every fixture path the STANDARDS name normatively must resolve on disk. T-365. The fixture directory `tests/fixtures/aef-bpmn/` is not an internal detail: it is named inside the frozen two-party standard (`aef-bpmn-mapping-v1.md`, Part I) and inside the forward-compile contract (§5, whose heading IS the path). A rename here strands a reference in a document th..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

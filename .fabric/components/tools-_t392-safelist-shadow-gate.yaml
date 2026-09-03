@@ -1,0 +1,21 @@
+id: tools/_t392-safelist-shadow-gate.py
+name: _t392-safelist-shadow-gate
+type: script
+subsystem: instruments
+location: tools/_t392-safelist-shadow-gate.py
+tags: [derived]
+
+purpose: "T-392 — does the focus-drift gate survive the safe-command fast path? THE DEFECT. `check-active-task.sh` exited 0 for any command on the safe-list roughly 240 lines above the focus-drift gate. `fw context add-learning --task T-OTHER` is on that list, so drift pattern 2 never executed. T-607 widened the gate's path anchor and reported this as still-open, because no anchor can rescue a block that..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

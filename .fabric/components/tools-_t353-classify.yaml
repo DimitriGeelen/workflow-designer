@@ -1,0 +1,24 @@
+id: tools/_t353-classify.py
+name: _t353-classify
+type: script
+subsystem: instruments
+location: tools/_t353-classify.py
+tags: [derived]
+
+purpose: "T-353 AC2 — classify each DIVERGENT verification line by MEASUREMENT. The DIVERGENT bucket from T-352 (\"passes under the current gate, fails under the remedy\") aggregates two causes pointing opposite ways: * a CORRECT failure-path test — the first command exits non-zero BY DESIGN and the assertion is about that designed failure. The remedy breaks it, and that break is a regression, not a fix. *..."
+
+depends_on:
+  - target: tests/fixtures/invalid/E-XML-NODE-TYPE.xml
+    type: reads
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

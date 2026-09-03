@@ -1,0 +1,24 @@
+id: tools/concerns-schema.py
+name: concerns-schema
+type: script
+subsystem: instruments
+location: tools/concerns-schema.py
+tags: [derived]
+
+purpose: "concerns-schema.py — refuse a register entry whose field name nothing reads (T-400). THE DEFECT THIS EXISTS FOR (G-027). A gap was written with `closure_condition:` — a plausible, readable, obviously-meant-well field name. Nothing reads it. The renderer and the audit both read `decision_trigger:`. So the entry contained a perfectly good closure condition and the audit reported it as having none..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t400-schema-teeth.sh
+    type: calls
+  - target: tools/_t464-derivation-probe.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

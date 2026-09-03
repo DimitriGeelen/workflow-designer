@@ -1,0 +1,22 @@
+id: tools/_t538-control-id-collision.py
+name: _t538-control-id-collision
+type: script
+subsystem: instruments
+location: tools/_t538-control-id-collision.py
+tags: [derived]
+
+purpose: "T-538 teeth — a control id in audit.sh must map to exactly ONE control. `audit.sh` defines two different controls under the id CTL-029: audit.sh:3639 T-1903/L-403 oe-daily only status == work-completed, 0 unchecked ACs -> remedy: bin/fw task archive-eligible audit.sh:3772 T-2055 compliance || oe-daily status in (started-work, issues), Agent ACs ticked -> remedy: bin/fw task update --status work..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

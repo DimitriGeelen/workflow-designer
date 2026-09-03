@@ -1,0 +1,21 @@
+id: tools/_t614-budget-threshold-drift.py
+name: _t614-budget-threshold-drift
+type: script
+subsystem: instruments
+location: tools/_t614-budget-threshold-drift.py
+tags: [derived]
+
+purpose: "T-614 — does CLAUDE.md's budget ladder still say what budget-gate.sh computes? THE INCIDENT. `budget-gate.sh` derives its thresholds as percentages of a configurable `CONTEXT_WINDOW` (default 300000): warn 75%, urgent 85%, critical 95%. CLAUDE.md carried a hard-coded 120K/150K/170K ladder with \"60% / 75% / 85%\" labels — a 200K-era calibration. At 154,476 tokens the gate wrote `\"level\": \"ok\"` (5..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

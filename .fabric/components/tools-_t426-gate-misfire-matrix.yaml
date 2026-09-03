@@ -1,0 +1,22 @@
+id: tools/_t426-gate-misfire-matrix.sh
+name: _t426-gate-misfire-matrix
+type: script
+subsystem: instruments
+location: tools/_t426-gate-misfire-matrix.sh
+tags: [derived]
+
+purpose: "_t426-gate-misfire-matrix.sh — the two-sided test for the T-420 rail-attribution gate."
+
+depends_on:
+  - target: tools/_t420-rail-attribution-gate.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

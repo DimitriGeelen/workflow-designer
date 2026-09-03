@@ -1,0 +1,22 @@
+id: tools/_t360-rail-sweep-teeth.py
+name: _t360-rail-sweep-teeth
+type: script
+subsystem: instruments
+location: tools/_t360-rail-sweep-teeth.py
+tags: [derived]
+
+purpose: "_t360-rail-sweep-teeth.py — prove rail-sweep.py can FAIL, and can also PASS. T-360 teeth. Reading a guard tells you it was written. Breaking the tree tells you it works. Every case below mutates one thing and asserts the verdict moves. Two of these matter more than the rest: CAN-PASS a sweep that can never say ALL-CLEAR is not a sweep, it is an alarm stuck on. If case `clean` did not exit 0, th..."
+
+depends_on:
+  - target: tools/rail-sweep.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

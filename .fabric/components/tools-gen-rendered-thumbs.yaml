@@ -1,0 +1,24 @@
+id: tools/gen-rendered-thumbs.mjs
+name: gen-rendered-thumbs
+type: script
+subsystem: instruments
+location: tools/gen-rendered-thumbs.mjs
+tags: [derived]
+
+purpose: "gen-rendered-thumbs.mjs — T-153: generate consistent tiles for the rendered corpus.  The Open-project modal shows a ▦ placeholder for every rendered-only corpus map because those BPMNs carry NO DI coordinates and NO saved PNG — layout is computed at render time by renderAll(). This batch generator renders each corpus map headlessly (the same CDP harness family as tools/_*-verify-cdp.mjs), captu..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

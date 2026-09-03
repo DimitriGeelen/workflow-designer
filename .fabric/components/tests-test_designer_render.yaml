@@ -1,0 +1,25 @@
+id: tests/test_designer_render.py
+name: test_designer_render
+type: script
+subsystem: tests
+location: tests/test_designer_render.py
+tags: [derived]
+
+purpose: "T-179: Playwright render-check guarding test for the designer BUILD. Complements ``tests/test_editor_bridge_meta_parity.py`` (STATIC parity check) with a DYNAMIC render-check: serve the current ``dist/`` build via a local static server (no backend — mirrors the AEF-served static condition at ``:3001/designer``), load it headless with python-playwright/chromium, and assert render + feature-marke..."
+
+depends_on:
+  - target: scripts/release-designer.sh
+    type: calls
+
+depended_by:
+  - target: scripts/release-designer.sh
+    type: calls
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

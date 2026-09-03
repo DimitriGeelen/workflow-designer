@@ -1,0 +1,24 @@
+id: tools/_t534-d2-queue-tier-teeth.py
+name: _t534-d2-queue-tier-teeth
+type: script
+subsystem: instruments
+location: tools/_t534-d2-queue-tier-teeth.py
+tags: [derived]
+
+purpose: "T-534 teeth — does the D2 human-review-queue line name only tasks that meet the bar it states? THE DEFECT. `audit.sh` accumulated `d2_details` in BOTH the >=720h (fail) and >=336h (warn) branches, then the fail message printed the fail-tier COUNT against that shared list: D2: Human review queue — 2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d) Count 2, list 5, thr..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t667-d2-format-derivation-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

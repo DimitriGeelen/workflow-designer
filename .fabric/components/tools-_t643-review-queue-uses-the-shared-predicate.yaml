@@ -1,0 +1,21 @@
+id: tools/_t643-review-queue-uses-the-shared-predicate.sh
+name: _t643-review-queue-uses-the-shared-predicate
+type: script
+subsystem: instruments
+location: tools/_t643-review-queue-uses-the-shared-predicate.sh
+tags: [derived]
+
+purpose: "T-643 — `fw review-queue` must render the verdict the SHARED predicate returns."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

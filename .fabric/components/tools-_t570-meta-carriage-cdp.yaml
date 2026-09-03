@@ -1,0 +1,25 @@
+id: tools/_t570-meta-carriage-cdp.mjs
+name: _t570-meta-carriage-cdp
+type: script
+subsystem: instruments
+location: tools/_t570-meta-carriage-cdp.mjs
+tags: [derived]
+
+purpose: "_t570-meta-carriage-cdp.mjs — the editor does not destroy <aef:meta> keys it does not name.  THE DEFECT. Import reads EVERY attribute of <aef:meta> into node.aef (src:10255, unconditional loop). Export emitted only the 20 keys on the metaKeys whitelist. The two lists are asymmetric, so a key present in a source document and absent from metaKeys was loaded, rendered nowhere, and DESTROYED on the..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tools/_t570-meta-carriage-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

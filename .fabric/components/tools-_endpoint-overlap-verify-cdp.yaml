@@ -1,0 +1,24 @@
+id: tools/_endpoint-overlap-verify-cdp.mjs
+name: _endpoint-overlap-verify-cdp
+type: script
+subsystem: instruments
+location: tools/_endpoint-overlap-verify-cdp.mjs
+tags: [derived]
+
+purpose: "_endpoint-overlap-verify-cdp.mjs — verify T-136: at a convergence point (two edges sharing a connection point) a click on the selected edge's endpoint grab-halo falls through to select the sibling line under the pointer, instead of being swallowed.  Serves the editor from a TEMP docroot, drives it in ISOLATED headless chromium (own --user-data-dir; G-006). Fit-to-view viewBox keeps the whole ma..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

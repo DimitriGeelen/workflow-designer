@@ -1,0 +1,31 @@
+id: tools/_t515-external-uid-conformance.mjs
+name: _t515-external-uid-conformance
+type: script
+subsystem: instruments
+location: tools/_t515-external-uid-conformance.mjs
+tags: [derived]
+
+purpose: "_t515-external-uid-conformance.mjs — does the editor honour uids it did not mint?  `docs/standards/aef-bpmn-mapping-v1.md` §6 conformance requirement 3: \"It carries a stable, externally-assignable aef:uid on every node and edge (§5).\" and §5, the clause AEF's reverse path is built on: \"aef:uid is externally assignable — the reference editor's import path honors arbitrary aef:uid values, so a re..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t518-uid-collision.mjs
+    type: calls
+  - target: tools/_t520-uid-xml-safety.mjs
+    type: calls
+  - target: tools/_t523-subprocess-nesting.mjs
+    type: calls
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

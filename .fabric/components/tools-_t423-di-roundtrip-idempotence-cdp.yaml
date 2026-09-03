@@ -1,0 +1,27 @@
+id: tools/_t423-di-roundtrip-idempotence-cdp.mjs
+name: _t423-di-roundtrip-idempotence-cdp
+type: script
+subsystem: instruments
+location: tools/_t423-di-roundtrip-idempotence-cdp.mjs
+tags: [derived]
+
+purpose: "Overridable so the teeth can point this at a DELIBERATELY non-idempotent designer. A gate whose green has never been watched turning red is a gate nobody has any grounds to trust, and this one came back 24/24 on its very first run — the least informative kind of pass there is. Without this override the only way to make it fail would be to break the real source in the working tree, which is how..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t423-di-roundtrip-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

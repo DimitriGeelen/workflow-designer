@@ -1,0 +1,21 @@
+id: tools/_t673-fabric-cards.py
+name: _t673-fabric-cards
+type: script
+subsystem: instruments
+location: tools/_t673-fabric-cards.py
+tags: [derived]
+
+purpose: "T-673: card the unregistered watch-set files with REAL purposes and DERIVED edges. The recurring audit warn (\"N registered, M unregistered\") has fired on 13 consecutive audits. The mitigation the audit prints is `fw fabric scan`, which registers a stub per file. THAT IS THE WRONG FIX AND THIS TASK EXISTS BECAUSE IT IS: it would move `registered` 105 -> 361 while every one of the 256 new stubs l..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

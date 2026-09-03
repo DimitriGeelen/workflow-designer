@@ -1,0 +1,27 @@
+id: tools/_t310-lane-position-conflict-cdp.mjs
+name: _t310-lane-position-conflict-cdp
+type: script
+subsystem: instruments
+location: tools/_t310-lane-position-conflict-cdp.mjs
+tags: [derived]
+
+purpose: "_t310-lane-position-conflict-cdp.mjs — drive the real editor against a map whose declared lane membership disagrees with its own <aef:position> geometry, and prove the T-310 contract:  1. conflicts are reconciled in favour of the DECLARED lane (membership is the `who`, T-189; position is view-layer) 2. agreements are left completely alone (no gratuitous geometry rewriting) 3. the move is REPORT..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/aef-bpmn/lane-position-conflict.bpmn
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/test_t310_lane_position_conflict.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

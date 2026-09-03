@@ -1,0 +1,21 @@
+id: tools/_t345-fabric-check-agreement.sh
+name: _t345-fabric-check-agreement
+type: script
+subsystem: instruments
+location: tools/_t345-fabric-check-agreement.sh
+tags: [derived]
+
+purpose: "_t345-fabric-check-agreement.sh — audit.sh asks the same fabric-coverage question twice. Before T-345 the two answers differed by 49 in a single run, and the one that read as reassurance was the broken one."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

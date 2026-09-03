@@ -1,0 +1,21 @@
+id: tools/_t392-drift-shadow-probe.sh
+name: _t392-drift-shadow-probe
+type: script
+subsystem: instruments
+location: tools/_t392-drift-shadow-probe.sh
+tags: [derived]
+
+purpose: "T-392 — does the safe-list early return shadow the focus-drift gate?"
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

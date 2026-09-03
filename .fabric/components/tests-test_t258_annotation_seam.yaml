@@ -1,0 +1,23 @@
+id: tests/test_t258_annotation_seam.py
+name: test_t258_annotation_seam
+type: script
+subsystem: tests
+location: tests/test_t258_annotation_seam.py
+tags: [derived]
+
+purpose: "test_t258_annotation_seam — T-258 (T-250 GO) guard for the annotation seam v0 (shape A postMessage), arc: designer-authoring-surface. The real work is `tools/_t258-annotation-seam-cdp.mjs`, which embeds the REAL editor in an iframe host page (the AEF Watchtower topology) in an isolated headless chromium and asserts the ratified loop end-to-end: * aef:ready (version 1, workflow id, uid list) on..."
+
+depends_on:
+  - target: tools/_t258-annotation-seam-cdp.mjs
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,27 @@
+id: tools/_t562-workflow-id-helpers-cdp.mjs
+name: _t562-workflow-id-helpers-cdp
+type: script
+subsystem: instruments
+location: tools/_t562-workflow-id-helpers-cdp.mjs
+tags: [derived]
+
+purpose: "Adversarial set. Every entry is here because some rule in the tree's history got it wrong: `_foo`/`__leading`/`___` are the leading-underscore hole the shipping :9162 rule left open (it stripped `-` only); `trailing__` is the control that stops the fix from over-trimming, since a trailing `_` is LEGAL per the validator."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t562-workflow-id-helpers-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

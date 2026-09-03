@@ -1,0 +1,22 @@
+id: tools/_t567-episodic-parse-check.py
+name: _t567-episodic-parse-check
+type: script
+subsystem: instruments
+location: tools/_t567-episodic-parse-check.py
+tags: [derived]
+
+purpose: "_t567-episodic-parse-check.py — episodic memory must be readable. Episodic memory is written once, at task completion, and until T-567 nothing ever read it back. That is how `.context/episodic/T-431.yaml` sat unparseable for nine days while being cited as ordinary completed work: the generator's ScannerError is raised to whoever happens to be watching that terminal, and an unread store cannot r..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,21 @@
+id: tools/_t472-stale-trigger-field.py
+name: _t472-stale-trigger-field
+type: script
+subsystem: instruments
+location: tools/_t472-stale-trigger-field.py
+tags: [derived]
+
+purpose: "T-472 — flag tasks whose frontmatter `description:` still advertises a PENDING trigger that the task's own body records as FIRED. Origin: T-443's description read \"TRIGGER: AEF answers DM 548 section 5\" while its `## Context`, four lines below, opened \"AEF HAS RULED: KEEP THE PATH (DM 549 §5)\". The description was read as current state 32 rails later and the already-answered question was put ba..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

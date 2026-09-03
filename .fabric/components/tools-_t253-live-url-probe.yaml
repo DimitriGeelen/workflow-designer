@@ -1,0 +1,21 @@
+id: tools/_t253-live-url-probe.mjs
+name: _t253-live-url-probe
+type: script
+subsystem: instruments
+location: tools/_t253-live-url-probe.mjs
+tags: [derived]
+
+purpose: "_t253-live-url-probe.mjs — read-only probe of the LIVE :8834 gallery URL the operator reported dead. Own isolated headless chromium + fresh profile (G-006); only GETs the served pages, writes nothing server-side."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

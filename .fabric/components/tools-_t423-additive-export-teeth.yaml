@@ -1,0 +1,25 @@
+id: tools/_t423-additive-export-teeth.py
+name: _t423-additive-export-teeth
+type: script
+subsystem: instruments
+location: tools/_t423-additive-export-teeth.py
+tags: [derived]
+
+purpose: "_t423-additive-export-teeth.py — prove _t423-additive-export-guard.py can go RED. The guard returned PASS on 24/24 pairs on its first run. That is equally consistent with \"the exporter is additive\" and with \"the comparison does not work\", and the second reading is not paranoid: this guard's whole body is one equality, and an equality between two things derived by the same function is the easies..."
+
+depends_on:
+  - target: tools/_t423-additive-export-guard.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t509-instrument-sweep.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

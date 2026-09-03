@@ -1,0 +1,21 @@
+id: tools/_t644-ask-imports-survive-a-wrong-project-root.sh
+name: _t644-ask-imports-survive-a-wrong-project-root
+type: script
+subsystem: instruments
+location: tools/_t644-ask-imports-survive-a-wrong-project-root.sh
+tags: [derived]
+
+purpose: "T-644 — `lib/ask.py` must reach its imports in a VENDORED install."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

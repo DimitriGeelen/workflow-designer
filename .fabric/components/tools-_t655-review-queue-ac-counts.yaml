@@ -1,0 +1,21 @@
+id: tools/_t655-review-queue-ac-counts.py
+name: _t655-review-queue-ac-counts
+type: script
+subsystem: instruments
+location: tools/_t655-review-queue-ac-counts.py
+tags: [derived]
+
+purpose: "T-655 — assert the AC tick counts reported to the operator for the review-queue tasks. WHY A FILE AND NOT A VERIFICATION ONE-LINER. Two instruments disagreed about the same question, and picking the wrong one would have told the operator that tasks they had already signed off were still awaiting their review: naive grep over the `### Human` range .... T-093 = 1 ticked of 3 HTML comments strippe..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

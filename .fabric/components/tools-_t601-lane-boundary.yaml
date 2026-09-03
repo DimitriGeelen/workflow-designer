@@ -1,0 +1,22 @@
+id: tools/_t601-lane-boundary.mjs
+name: _t601-lane-boundary
+type: script
+subsystem: instruments
+location: tools/_t601-lane-boundary.mjs
+tags: [derived]
+
+purpose: "_t601-lane-boundary.mjs — does the label placement pass respect the pool and the lane bands, or does it score a label sitting on the lane header as clean?  THE DEFECT. adjustLabelPlacements() scored candidates with bboxScore(), which counted rendered edge segments and other nodes' shape boxes and nothing else. The pool outline, the pool header band and the per-lane header strip are drawn by ren..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

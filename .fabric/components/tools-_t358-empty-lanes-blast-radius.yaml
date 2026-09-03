@@ -1,0 +1,28 @@
+id: tools/_t358-empty-lanes-blast-radius.mjs
+name: _t358-empty-lanes-blast-radius
+type: script
+subsystem: instruments
+location: tools/_t358-empty-lanes-blast-radius.mjs
+tags: [derived]
+
+purpose: "The exact fabrication site, anchored on its text (line numbers drift -- T-340's filed anchor already did)."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/lane-provenance/authored-lanes.bpmn
+    type: reads
+  - target: tests/fixtures/lane-provenance/no-laneset.bpmn
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

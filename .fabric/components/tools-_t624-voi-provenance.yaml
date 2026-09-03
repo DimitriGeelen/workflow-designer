@@ -1,0 +1,21 @@
+id: tools/_t624-voi-provenance.py
+name: _t624-voi-provenance
+type: script
+subsystem: instruments
+location: tools/_t624-voi-provenance.py
+tags: [derived]
+
+purpose: "T-624 — separate a DELIBERATE voi_score from the one the template planted. WHY THIS EXISTS For inception tasks the BVP estimator does not run its nine per-driver scorers. `_score_inception_voi` (estimator.py:2429) makes `voi_score:` the entire composite, which is the right design: for an exploration, the value IS the information it buys. But `.tasks/templates/inception.md:22` ships `voi_score:..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,27 @@
+id: tools/_bridge-seam-roundtrip-cdp.mjs
+name: _bridge-seam-roundtrip-cdp
+type: script
+subsystem: instruments
+location: tools/_bridge-seam-roundtrip-cdp.mjs
+tags: [derived]
+
+purpose: "_bridge-seam-roundtrip-cdp.mjs — close the SECOND half of G-002: the JS<->Python cross-seam.  T-187 (tools/_roundtrip-serialization-cdp.mjs) guards the editor-INTERNAL round trip. This harness guards the drift that was G-002's original motivation: the Python bridge (tools/yaml-to-bpmn.py) and the editor (src/aef-workflow-designer.html) independently serialize the aef: namespace and can DISAGREE..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+  - target: tools/yaml-to-bpmn.py
+    type: calls
+
+depended_by:
+  - target: tests/test_bridge_seam_roundtrip.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

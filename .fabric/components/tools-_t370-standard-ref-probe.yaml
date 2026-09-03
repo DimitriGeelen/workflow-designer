@@ -1,0 +1,22 @@
+id: tools/_t370-standard-ref-probe.sh
+name: _t370-standard-ref-probe
+type: script
+subsystem: instruments
+location: tools/_t370-standard-ref-probe.sh
+tags: [derived]
+
+purpose: "T-370: prove the pinned ref AEF is asked to vendor resolves, on ORIGIN, to exactly the bytes we published on the rail."
+
+depends_on:
+  - target: docs/standards/aef-bpmn-mapping-v1.md
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

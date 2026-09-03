@@ -1,0 +1,31 @@
+id: tests/test_t312_lane_geometry.py
+name: test_t312_lane_geometry
+type: script
+subsystem: tests
+location: tests/test_t312_lane_geometry.py
+tags: [derived]
+
+purpose: "Lane/geometry agreement rule (T-312) — tests for W-XML-LANE-GEOMETRY. The rule mirrors AEF's `fw corpus lint::lane_geometry`. The predicate was settled jointly on the integration rail (offset 339) and adopted verbatim: For lanes in laneSet DECLARATION order, the y-ranges of nodes grouped by DECLARED lane must be strictly ordered and non-overlapping. Evaluate only when >=2 lanes, >=2 lanes popul..."
+
+depends_on:
+  - target: tests/fixtures/aef-bpmn/lane-geometry-partial-overflow.bpmn
+    type: reads
+  - target: tests/fixtures/aef-bpmn/lane-geometry-unpositioned.bpmn
+    type: reads
+  - target: tests/fixtures/aef-bpmn/lane-position-conflict.bpmn
+    type: reads
+  - target: tests/fixtures/warn/W-XML-LANE-GEOMETRY.xml
+    type: reads
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

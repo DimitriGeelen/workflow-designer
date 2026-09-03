@@ -1,0 +1,30 @@
+id: tools/_t361-guard-teeth.py
+name: _t361-guard-teeth
+type: script
+subsystem: instruments
+location: tools/_t361-guard-teeth.py
+tags: [derived]
+
+purpose: "_t361-guard-teeth.py — prove tests/test_emitted_comment_claims.py can FAIL. Each case breaks exactly one thing in a COPY of the tree and asserts the guard goes red on the check that owns it. A guard read but never broken is a guard whose teeth are a matter of opinion. The case that matters most is the last one: the legacy ledger is an EXEMPTION, and an exemption that cannot fail for existing wr..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/data/t361-legacy-di-trailer.txt
+    type: reads
+  - target: tests/fixtures/exported/t361-trailer-witness.bpmn
+    type: reads
+  - target: tests/fixtures/third-party/aef-draft-inception-readiness-v2.bpmn
+    type: reads
+  - target: tests/test_emitted_comment_claims.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

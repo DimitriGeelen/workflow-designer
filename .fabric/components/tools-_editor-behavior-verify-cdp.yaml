@@ -1,0 +1,25 @@
+id: tools/_editor-behavior-verify-cdp.mjs
+name: _editor-behavior-verify-cdp
+type: script
+subsystem: instruments
+location: tools/_editor-behavior-verify-cdp.mjs
+tags: [derived]
+
+purpose: "_editor-behavior-verify-cdp.mjs — G-010 standing editor BEHAVIOR suite (T-238).  WHY: T-234 (jump-autosave poisoning) and T-237 (eventDef/linkEventCatch collision) were both field-found by the AEF peer — the editor's load/persistence behavior paths and import classification paths had no standing tests (gap G-010, concerns.yaml). This suite encodes the two blockers' verification matrices as a re..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/test_editor_behavior.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

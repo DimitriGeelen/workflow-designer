@@ -1,0 +1,25 @@
+id: tools/_t497-census-controls.sh
+name: _t497-census-controls
+type: script
+subsystem: instruments
+location: tools/_t497-census-controls.sh
+tags: [derived]
+
+purpose: "_t497-census-controls.sh — prove the derived-root census SEPARATES guarded from unguarded, instead of merely producing a number."
+
+depends_on:
+  - target: tools/_t497-derived-root-census.py
+    type: calls
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

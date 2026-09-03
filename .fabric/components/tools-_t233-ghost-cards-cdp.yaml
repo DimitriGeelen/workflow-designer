@@ -1,0 +1,22 @@
+id: tools/_t233-ghost-cards-cdp.mjs
+name: _t233-ghost-cards-cdp
+type: script
+subsystem: instruments
+location: tools/_t233-ghost-cards-cdp.mjs
+tags: [derived]
+
+purpose: "_t233-ghost-cards-cdp.mjs — do pending off-page refs appear in the Open-project browser, and are they distinguishable there from real maps?  WHY THIS IS HERMETIC RATHER THAN SERVED. The obvious probe boots tools/gallery-serve.py and reads whatever /api/list happens to return. That makes the instrument's population the repo's incidental ghost count — one, at the time of writing, and zero the mom..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

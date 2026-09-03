@@ -1,0 +1,28 @@
+id: tools/_t358-teeth.py
+name: _t358-teeth
+type: script
+subsystem: instruments
+location: tools/_t358-teeth.py
+tags: [derived]
+
+purpose: "_t358-teeth.py — prove the lane-provenance leg can FAIL, and fail for the right reason. A green probe is not evidence until it has been shown to go red. This mutates the SOURCE (a temp copy — the tree is never touched) and the FIXTURES, and requires each mutation to move the verdict in the predicted direction. The cases are chosen so that a probe which merely echoes its own input would survive..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/lane-provenance/authored-lanes.bpmn
+    type: reads
+  - target: tools/_t358-lane-provenance-cdp.mjs
+    type: calls
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

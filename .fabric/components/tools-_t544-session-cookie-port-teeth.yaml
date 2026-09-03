@@ -1,0 +1,22 @@
+id: tools/_t544-session-cookie-port-teeth.py
+name: _t544-session-cookie-port-teeth
+type: script
+subsystem: instruments
+location: tools/_t544-session-cookie-port-teeth.py
+tags: [derived]
+
+purpose: "T-544 teeth — the session cookie must be named for the port actually bound. `web/app.py` scopes the Flask session cookie by port on purpose. Its own comment (T-2278) says why: RFC 6265 does not scope cookies by port, so two Watchtowers on one host share `SESSION_COOKIE_NAME` and each overwrites the other's session, breaking CSRF on every cross-instance POST. The defence was reading the wrong po..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

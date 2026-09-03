@@ -1,0 +1,25 @@
+id: tools/_t560-absence-assertion-census.py
+name: _t560-absence-assertion-census
+type: script
+subsystem: instruments
+location: tools/_t560-absence-assertion-census.py
+tags: [derived]
+
+purpose: "T-560 — census of P-011 Verification legs that assert ABSENCE without a control. THE DEFECT. A Verification leg that asserts something is NOT there is satisfied by silence. If its pattern is broken — mis-quoted, shell-expanded before `grep` sees it, pointed at a path that does not exist — the leg finds nothing and goes green for the wrong reason. The assertion and its own failure produce the id..."
+
+depends_on:
+  - target: tools/_t560-absence-baseline.txt
+    type: reads
+
+depended_by:
+  - target: tools/_t560-absence-census-teeth.py
+    type: calls
+  - target: tools/_t669-t590-control-level.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

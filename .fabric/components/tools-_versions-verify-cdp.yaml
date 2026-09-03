@@ -1,0 +1,24 @@
+id: tools/_versions-verify-cdp.mjs
+name: _versions-verify-cdp
+type: script
+subsystem: instruments
+location: tools/_versions-verify-cdp.mjs
+tags: [derived]
+
+purpose: "_versions-verify-cdp.mjs — verify B4 (T-131): version history modal with thumbnails + revert. Sidecar on a free port against a TEMP repo+docroot; editor driven in ISOLATED headless chromium (own --user-data-dir; G-006). Saves v1 + v2, opens the modal, asserts 2 rows with loaded thumbnails, reverts to v1, asserts the editor holds v1 geometry. Screenshots. Exit 0=pass."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

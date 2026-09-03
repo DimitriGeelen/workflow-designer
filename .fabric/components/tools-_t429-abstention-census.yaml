@@ -1,0 +1,22 @@
+id: tools/_t429-abstention-census.py
+name: _t429-abstention-census
+type: script
+subsystem: instruments
+location: tools/_t429-abstention-census.py
+tags: [derived]
+
+purpose: "_t429-abstention-census.py — can any of our suites report success having run nothing? T-429. THE QUESTION ------------ Not \"do the suites pass\" — they do. The question is whether a suite that ran ZERO legs is distinguishable, from the outside, from one that ran forty and found nothing wrong. Our suites end on `[ \"$fail\" -eq 0 ] || exit 1`. A suite whose legs never executed has `fail=0`. It exit..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t429-guard-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,22 @@
+id: tools/_t569-card-purpose-markdown-teeth.py
+name: _t569-card-purpose-markdown-teeth
+type: script
+subsystem: instruments
+location: tools/_t569-card-purpose-markdown-teeth.py
+tags: [derived]
+
+purpose: "_t569-card-purpose-markdown-teeth.py — a card's purpose must be readable AND safe. THE DEFECT. `fabric_detail.html:35` rendered `{{ component.purpose }}` under Jinja autoescape, so a markdown link written into a project-owned card came out as literal text. Reported by 001-CashWeb-Lightspeed-Ecwid-integration, who verified it by writing a link into a purpose and fetching the page. The card is th..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

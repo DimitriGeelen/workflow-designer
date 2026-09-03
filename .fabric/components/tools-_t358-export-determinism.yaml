@@ -1,0 +1,34 @@
+id: tools/_t358-export-determinism.mjs
+name: _t358-export-determinism
+type: script
+subsystem: instruments
+location: tools/_t358-export-determinism.mjs
+tags: [derived]
+
+purpose: "Classify every differing line. uid is the tie-breaker in computeDisplayId's sort and displayIds ARE emitted, so a random uid could in principle permute emitted element ids too. \"All differing lines are uid lines\" is the claim that bounds the defect to aef:uid values; anything else is a wider defect."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/lane-provenance/authored-lanes.bpmn
+    type: reads
+  - target: tests/fixtures/lane-provenance/no-laneset.bpmn
+    type: reads
+  - target: tests/fixtures/third-party/kitchen-sink.bpmn
+    type: reads
+  - target: tests/fixtures/third-party/simple.bpmn
+    type: reads
+  - target: tools/_t358-byteid-thirdparty.mjs
+    type: calls
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

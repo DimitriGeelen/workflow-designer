@@ -1,0 +1,22 @@
+id: tools/_save-api-verify.mjs
+name: _save-api-verify
+type: script
+subsystem: instruments
+location: tools/_save-api-verify.mjs
+tags: [derived]
+
+purpose: "_save-api-verify.mjs — hermetic integration check for the B2 save sidecar (T-129). Spawns tools/gallery-serve.py against a TEMP repo+docroot (never the real repo), exercises every /api/* endpoint, asserts, tears down. No browser involved. Exit 0 = all pass. Safe to run from the P-011 verification gate."
+
+depends_on:
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

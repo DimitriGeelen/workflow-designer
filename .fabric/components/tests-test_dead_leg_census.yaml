@@ -1,0 +1,27 @@
+id: tests/test_dead_leg_census.py
+name: test_dead_leg_census
+type: script
+subsystem: tests
+location: tests/test_dead_leg_census.py
+tags: [derived]
+
+purpose: "DEAD-leg census contract test (T-304, rail 325). Pins the scan contract adopted in pair round #4: dead-but-reachable legs carry the DEAD: token inside aef:meta note ATTRIBUTES, and census tooling must read only those attributes — never raw-text grep (header comments mention the token too; on the pinned fixture a raw scan reads 9 where the truth is 4). Fixture is AEF's knowledge-leveling v3, sha..."
+
+depends_on:
+  - target: tests/fixtures/aef-overlay/draft-knowledge-leveling-v3.bpmn
+    type: reads
+  - target: tools/census-dead-legs.py
+    type: calls
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

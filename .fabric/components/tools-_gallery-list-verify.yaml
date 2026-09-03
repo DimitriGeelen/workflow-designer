@@ -1,0 +1,22 @@
+id: tools/_gallery-list-verify.py
+name: _gallery-list-verify
+type: script
+subsystem: instruments
+location: tools/_gallery-list-verify.py
+tags: [derived]
+
+purpose: "_gallery-list-verify.py — test for the T-143 read-only /api/list endpoint. Proves /api/list merges the rendered corpus with saved maps, resolves each map's latest saved version + openTarget, extracts titles, and excludes invalid ids. Dependency-free (stdlib only): builds an isolated temp repo, launches gallery-serve.py on an ephemeral port pointing at it, GETs /api/list, and asserts. Fixture re..."
+
+depends_on:
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

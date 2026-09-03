@@ -1,0 +1,21 @@
+id: tools/_t629-g067-remedy-reachable.sh
+name: _t629-g067-remedy-reachable
+type: script
+subsystem: instruments
+location: tools/_t629-g067-remedy-reachable.sh
+tags: [derived]
+
+purpose: "T-629 — are G-067's three printed remedies reachable from the state that prints them?"
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

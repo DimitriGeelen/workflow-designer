@@ -1,0 +1,27 @@
+id: tools/_t258-annotation-seam-cdp.mjs
+name: _t258-annotation-seam-cdp
+type: script
+subsystem: instruments
+location: tools/_t258-annotation-seam-cdp.mjs
+tags: [derived]
+
+purpose: "_t258-annotation-seam-cdp.mjs — T-258 (T-250 GO) correctness guard for the annotation seam v0 (shape A postMessage). Drives the REAL editor embedded in an iframe host page — exactly the AEF Watchtower topology — and asserts the full ratified loop: * aef:ready arrives at the parent on initial load, version 1, with the seed workflow's uid list; * aef:annotate renders read-only badges for known ui..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/aef-overlay/live-payload-2026-07-27.json
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/test_t258_annotation_seam.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

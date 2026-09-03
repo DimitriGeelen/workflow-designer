@@ -1,0 +1,23 @@
+id: tools/_t125-lane-compaction-cdp.mjs
+name: _t125-lane-compaction-cdp
+type: script
+subsystem: instruments
+location: tools/_t125-lane-compaction-cdp.mjs
+tags: [derived]
+
+purpose: "_t125-lane-compaction-cdp.mjs — T-125 regression guard: vertical lane-compaction in cleanLayout (the dominant rule from the T-122 operator correction pairs 1–3). Drives the REAL editor (file://) in isolated headless chromium, adopts every rendered corpus map, and asserts PASS/FAIL (exit 0 only if all pass): leg1 verticalOnly  — compactLanesFit() alone never changes any node.x (all maps) leg2 co..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  - target: tests/test_t125_lane_compaction.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

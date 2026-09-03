@@ -1,0 +1,24 @@
+id: tools/_t596-arc0-exit-gate.sh
+name: _t596-arc0-exit-gate
+type: script
+subsystem: instruments
+location: tools/_t596-arc0-exit-gate.sh
+tags: [derived]
+
+purpose: "_t596-arc0-exit-gate.sh — evaluate the Arc-0 exit gate's third clause, and prove the evaluation can fail."
+
+depends_on:
+  - target: tools/_t596_arc0_check.py
+    type: calls
+  - target: tools/_t597_arc0_clauses.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,29 @@
+id: tools/_t565-workflowmeta-emission-census.mjs
+name: _t565-workflowmeta-emission-census
+type: script
+subsystem: instruments
+location: tools/_t565-workflowmeta-emission-census.mjs
+tags: [derived]
+
+purpose: "The four directories T-501's census of 60 named, in its order. Written out rather than discovered by a find, because the corpus this ruling is made against must be the same one the earlier measurement used — a population that silently grows between two measurements makes the two numbers incomparable, and this file exists to be compared with T-501's."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t308-export-byte-identity-cdp.mjs
+    type: calls
+  - target: tools/_t358-byteid-thirdparty.mjs
+    type: calls
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

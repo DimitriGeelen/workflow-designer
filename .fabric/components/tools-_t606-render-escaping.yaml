@@ -1,0 +1,21 @@
+id: tools/_t606-render-escaping.py
+name: _t606-render-escaping
+type: script
+subsystem: instruments
+location: tools/_t606-render-escaping.py
+tags: [derived]
+
+purpose: "T-606 — renderer output must reach the page as HTML, and file content must not. WHAT THIS GUARDS. Watchtower has three markdown renderers. All three used to return a plain str carrying an unwritten obligation: \"the caller must mark this `| safe`\". Two of the four AC templates forgot, so /approvals served the operator 205 escaped &lt;code&gt; against 2 real ones, and /tasks/T-XXX served the same..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

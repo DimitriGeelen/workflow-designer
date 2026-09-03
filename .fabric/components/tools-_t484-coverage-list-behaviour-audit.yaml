@@ -1,0 +1,22 @@
+id: tools/_t484-coverage-list-behaviour-audit.py
+name: _t484-coverage-list-behaviour-audit
+type: script
+subsystem: instruments
+location: tools/_t484-coverage-list-behaviour-audit.py
+tags: [derived]
+
+purpose: "T-484 — audit the bridge's coverage enumerations by BEHAVIOUR rather than by membership. T-483 measured that appending seven non-scalar values to the round-trip harness's METAKEYS would have satisfied every membership check while moving detection from 0/7 to 2/7, because String() on a dict is the constant \"[object Object]\". The rule captured and published to AEF at rail 599: A name in a coverag..."
+
+depends_on:
+  - target: tools/yaml-to-bpmn.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

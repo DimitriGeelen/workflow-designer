@@ -1,0 +1,23 @@
+id: tests/test_designer_owner_derived.py
+name: test_designer_owner_derived
+type: script
+subsystem: tests
+location: tests/test_designer_owner_derived.py
+tags: [derived]
+
+purpose: "T-197 (IW-9 v1.1): src-served render guard — the node-level `owner` override is RETIRED from the editor authoring surface and shown read-only, derived from the node's lane authority. Sibling of ``tests/test_designer_render.py``, which guards the *released dist* build (resolves VERSION → dist/…-<version>.html) and is a release gate. That test legitimately still asserts owner renders for the rele..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

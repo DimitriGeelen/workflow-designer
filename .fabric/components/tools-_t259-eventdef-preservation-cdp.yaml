@@ -1,0 +1,27 @@
+id: tools/_t259-eventdef-preservation-cdp.mjs
+name: _t259-eventdef-preservation-cdp
+type: script
+subsystem: instruments
+location: tools/_t259-eventdef-preservation-cdp.mjs
+tags: [derived]
+
+purpose: "_t259-eventdef-preservation-cdp.mjs — T-259 (T-257 GO) correctness guard for the eventDef preservation passthrough on start/throw hosts. The fixed-point round-trip harness (_roundtrip-serialization-cdp.mjs) cannot catch a CONSISTENT drop: parse discarding <aef:eventDef> and build never emitting it is a perfectly stable fixed point — exactly the rail-201 field defect (AEF T-2620: layout-only ope..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/aef-bpmn/t257-eventdef-roundtrip/draft-trigger-handling-v1.bpmn
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/test_t259_eventdef_preservation.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

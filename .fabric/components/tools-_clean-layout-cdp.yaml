@@ -1,0 +1,22 @@
+id: tools/_clean-layout-cdp.mjs
+name: _clean-layout-cdp
+type: script
+subsystem: instruments
+location: tools/_clean-layout-cdp.mjs
+tags: [derived]
+
+purpose: "_clean-layout-cdp.mjs — headless browser driver for the Clean-layout bake (T-101).  Loads the REAL editor (src/aef-workflow-designer.html) in headless Chromium and, for each examples/aef-processes/rendered/*.bpmn, runs the editor's own cleanLayout() then reads back the resulting geometry. This reuses the editor's exact Clean logic (tidy row-snap + T-093 branch pitch + T-094 align-rows) rather t..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/bake-clean-layout.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,24 @@
+id: tools/_t364-aef-ext-roundtrip.mjs
+name: _t364-aef-ext-roundtrip
+type: script
+subsystem: instruments
+location: tools/_t364-aef-ext-roundtrip.mjs
+tags: [derived]
+
+purpose: "The 12 kinds AEF reported at RAIL-432, with instance counts, plus one control. `carrier` records where the kind legitimately sits — a kind put on the wrong carrier would come back DROPPED for a reason that has nothing to do with the seam."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

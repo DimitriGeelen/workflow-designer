@@ -1,0 +1,21 @@
+id: scripts/embed-fonts.py
+name: embed-fonts
+type: script
+subsystem: scripts
+location: scripts/embed-fonts.py
+tags: [derived]
+
+purpose: "embed-fonts.py — fetch the designer's web fonts and emit a self-contained `<style>` block with the woff2 faces inlined as base64 data URIs. T-176 (arc: designer-authoring-surface). The designer previously linked Google Fonts (fonts.googleapis.com / gstatic), so the \"single-file\" artifact AEF vendors made a live network call at load and lost fidelity offline. This generator produces the inline r..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,22 @@
+id: tools/_t429-guard-teeth.sh
+name: _t429-guard-teeth
+type: script
+subsystem: instruments
+location: tools/_t429-guard-teeth.sh
+tags: [derived]
+
+purpose: "_t429-guard-teeth.sh — prove the abstention census discriminates, and prove it on the row it originally got wrong."
+
+depends_on:
+  - target: tools/_t429-abstention-census.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

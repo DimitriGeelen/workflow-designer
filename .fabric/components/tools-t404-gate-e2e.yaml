@@ -1,0 +1,21 @@
+id: tools/t404-gate-e2e.sh
+name: t404-gate-e2e
+type: script
+subsystem: instruments
+location: tools/t404-gate-e2e.sh
+tags: [derived]
+
+purpose: "T-404 end-to-end: drive the REAL PreToolUse hook in the REAL null-focus state."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,31 @@
+id: tools/_t423-carrier-agreement-cdp.mjs
+name: _t423-carrier-agreement-cdp
+type: script
+subsystem: instruments
+location: tools/_t423-carrier-agreement-cdp.mjs
+tags: [derived]
+
+purpose: "Overridable for the same reason T308_CORPUS is (T-364): a bucket whose count is the finding has to be shown fillable against a temp corpus before its emptiness means anything."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/exported/t423-carrier-witness.bpmn
+    type: reads
+  - target: tools/_t423-carrier-agreement-guard.py
+    type: calls
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t423-carrier-agreement-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

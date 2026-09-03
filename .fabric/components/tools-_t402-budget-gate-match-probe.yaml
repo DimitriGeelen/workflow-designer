@@ -1,0 +1,21 @@
+id: tools/_t402-budget-gate-match-probe.py
+name: _t402-budget-gate-match-probe
+type: script
+subsystem: instruments
+location: tools/_t402-budget-gate-match-probe.py
+tags: [derived]
+
+purpose: "_t402-budget-gate-match-probe.py — does budget-gate's allowlist match shell STRUCTURE or English? T-402. WHY THIS IS A FILE AND NOT A PARAGRAPH -------------------------------------- The finding it records is about someone else's code that we have deliberately NOT patched (the line is a `vendored import` per T-427 — blame ebf0c721, a 1367-file re-vendor). A finding we cannot fix locally is exac..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

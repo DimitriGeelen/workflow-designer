@@ -1,0 +1,25 @@
+id: tools/_t566-note-field-cdp.mjs
+name: _t566-note-field-cdp
+type: script
+subsystem: instruments
+location: tools/_t566-note-field-cdp.mjs
+tags: [derived]
+
+purpose: "_t566-note-field-cdp.mjs — `note` is authorable, and nothing the document carries is invisible.  THE DEFECT. The Extensions panel iterates AEF_FIELDS[n.type] (src:5669) and renders one control per listed key. Anything the whitelist does not name is dropped silently — no readout, no count. `note` is in the export metaKeys set (src:9424), so the editor stores and re-emits it faithfully and shows..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tools/_t566-note-field-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

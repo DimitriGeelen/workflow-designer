@@ -1,0 +1,22 @@
+id: tools/_node-cuts-cdp.mjs
+name: _node-cuts-cdp
+type: script
+subsystem: instruments
+location: tools/_node-cuts-cdp.mjs
+tags: [derived]
+
+purpose: "_node-cuts-cdp.mjs — headless node-cut census over the rendered corpus (T-113).  A \"node-cut\" is an edge whose rendered orthogonal polyline passes through the bounding box of a node it does not connect to — a pure legibility defect. This driver loads the REAL editor (src/aef-workflow-designer.html) in headless Chromium and, for each examples/aef-processes/rendered/*.bpmn, reads back the editor'..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/check-corpus-node-cuts.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

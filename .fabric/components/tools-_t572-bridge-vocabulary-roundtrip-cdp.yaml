@@ -1,0 +1,29 @@
+id: tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs
+name: _t572-bridge-vocabulary-roundtrip-cdp
+type: script
+subsystem: instruments
+location: tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs
+tags: [derived]
+
+purpose: "_t572-bridge-vocabulary-roundtrip-cdp.mjs — every key our BRIDGE can emit survives an editor load→save round trip. Measured in the page, against the editor's behaviour.  WHAT THIS REPLACES, AND WHY A SET COMPARISON COULD NOT DO IT. tests/test_editor_bridge_meta_parity.py asserts editor_metaKeys ⊆ bridge_META_KEYS. Its docstring does not merely omit the other direction — it ARGUES the other dire..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/test_editor_bridge_meta_parity.py
+    type: calls
+  - target: tools/gallery-serve.py
+    type: calls
+  - target: tools/yaml-to-bpmn.py
+    type: calls
+
+depended_by:
+  - target: tools/_t572-bridge-vocabulary-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

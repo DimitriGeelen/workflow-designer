@@ -1,0 +1,24 @@
+id: tools/_t431-enumeration-teeth.sh
+name: _t431-enumeration-teeth
+type: script
+subsystem: instruments
+location: tools/_t431-enumeration-teeth.sh
+tags: [derived]
+
+purpose: "_t431-enumeration-teeth.sh — prove the A-012 probe moves when either enumeration moves."
+
+depends_on:
+  - target: docs/standards/aef-bpmn-mapping-v1.md
+    type: reads
+  - target: tools/_t431-a012-enumeration-probe.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

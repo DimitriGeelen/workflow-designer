@@ -1,0 +1,24 @@
+id: tools/_t541-bvp-driver-handler-teeth.py
+name: _t541-bvp-driver-handler-teeth
+type: script
+subsystem: instruments
+location: tools/_t541-bvp-driver-handler-teeth.py
+tags: [derived]
+
+purpose: "T-541 teeth — the three product BVP drivers must actually discriminate. T-540 measured that a BVP driver with no dedicated handler falls through to `score_free_driver`, which substring-matches the driver's OWN ID in the task body: 0 of 55 non-inception tasks scored non-zero. A driver that scores nothing ranks nothing, and it fails silently — `fw bvp` prints a column of zeros with the same confi..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t542-cost-blast-radius-teeth.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

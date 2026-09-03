@@ -1,0 +1,25 @@
+id: tests/test_t310_lane_position_conflict.py
+name: test_t310_lane_position_conflict
+type: script
+subsystem: tests
+location: tests/test_t310_lane_position_conflict.py
+tags: [derived]
+
+purpose: "test_t310_lane_position_conflict — T-310 regression guard for the lane membership vs position conflict, arc: designer-authoring-surface. The real work is `tools/_t310-lane-position-conflict-cdp.mjs`, which drives the REAL editor runtime in an isolated headless chromium against tests/fixtures/aef-bpmn/lane-position-conflict.bpmn. Background: a map can declare a node in lane A while its <aef:posi..."
+
+depends_on:
+  - target: tests/fixtures/aef-bpmn/lane-position-conflict.bpmn
+    type: reads
+  - target: tools/_t310-lane-position-conflict-cdp.mjs
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

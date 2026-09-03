@@ -1,0 +1,22 @@
+id: tools/_t600-label-wrap.mjs
+name: _t600-label-wrap
+type: script
+subsystem: instruments
+location: tools/_t600-label-wrap.mjs
+tags: [derived]
+
+purpose: "_t600-label-wrap.mjs — runtime verifier for T-600 (overlong below-label wrapping).  Loads the REAL editor in headless Chromium (PL-005: the editor's own render is the only honest oracle) and MEASURES rendered text (PL-008: char estimates lie), because the defect is a width overrun, not a structural one.  Legs (all must pass): L1  a long event/gateway name wraps onto >= 2 lines with wrapNames on..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

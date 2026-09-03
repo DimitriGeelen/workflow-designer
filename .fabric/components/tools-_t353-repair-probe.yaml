@@ -1,0 +1,24 @@
+id: tools/_t353-repair-probe.sh
+name: _t353-repair-probe
+type: script
+subsystem: instruments
+location: tools/_t353-repair-probe.sh
+tags: [derived]
+
+purpose: "_t353-repair-probe.sh — T-353 AC1 + AC3: prove the proposed repairs discriminate."
+
+depends_on:
+  - target: tests/fixtures/invalid/E-XML-NODE-TYPE.xml
+    type: reads
+  - target: tools/validate-workflow.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,26 @@
+id: tools/_t372-aef-cycle-roundtrip.mjs
+name: _t372-aef-cycle-roundtrip
+type: script
+subsystem: instruments
+location: tools/_t372-aef-cycle-roundtrip.mjs
+tags: [derived]
+
+purpose: "Identity AEF published on the rail. Measuring unverified bytes measures an unknown document, so this is asserted before anything else runs."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/third-party/aef-draft-inception-readiness-v2.bpmn
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

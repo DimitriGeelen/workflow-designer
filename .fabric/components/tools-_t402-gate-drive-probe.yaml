@@ -1,0 +1,22 @@
+id: tools/_t402-gate-drive-probe.py
+name: _t402-gate-drive-probe
+type: script
+subsystem: instruments
+location: tools/_t402-gate-drive-probe.py
+tags: [derived]
+
+purpose: "_t402-gate-drive-probe.py — drive the REAL budget gate, not the expression it uses. T-402. Supersedes the decision mechanism of `_t402-budget-gate-match-probe.py`. WHY A SECOND PROBE EXISTS ------------------------- The first one extracts `is_allowed_cmd = bool(re.search(...))` from budget-gate.sh and asks Python whether that pattern matches each command. That was a faithful test of the gate fo..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t402-gate-drive-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

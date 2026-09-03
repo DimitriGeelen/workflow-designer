@@ -1,0 +1,24 @@
+id: tools/_t589-panel-links-cdp.mjs
+name: _t589-panel-links-cdp
+type: script
+subsystem: instruments
+location: tools/_t589-panel-links-cdp.mjs
+tags: [derived]
+
+purpose: "_t589-panel-links-cdp.mjs — the properties panel can point at code, tests and a fabric card.  WHAT IS BEING PROVEN. Two new authorable fields (`fabricRef`, `links`) appear on the four task-like node types, render as real anchors, and survive a save. The interesting half is that they must do this WITHOUT a contract change: both are scalars, so they ride T-570's <aef:meta> carriage, metaKeys stay..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

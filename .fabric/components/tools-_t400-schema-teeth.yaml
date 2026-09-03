@@ -1,0 +1,23 @@
+id: tools/_t400-schema-teeth.sh
+name: _t400-schema-teeth
+type: script
+subsystem: instruments
+location: tools/_t400-schema-teeth.sh
+tags: [derived]
+
+purpose: "_t400-schema-teeth.sh — prove concerns-schema.py refuses what G-027 slipped through."
+
+depends_on:
+  - target: tools/concerns-schema.py
+    type: calls
+
+depended_by:
+  - target: tools/_t464-derivation-probe.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,27 @@
+id: tools/_t542-cost-blast-radius-teeth.py
+name: _t542-cost-blast-radius-teeth
+type: script
+subsystem: instruments
+location: tools/_t542-cost-blast-radius-teeth.py
+tags: [derived]
+
+purpose: "T-542 teeth — the cost axis must measure surface, and must decline to guess. `blast_radius` carries weight 0.6 in the F8 composite (0.6×br + 0.3×tier + 0.1×effort) — the dominant term. Before T-542 it was derived from the task's `components:` frontmatter alone, and `components:` was EMPTY on 59 of 59 non-completed active tasks here. Every non-inception task therefore scored br=0 via the `no-com..."
+
+depends_on:
+  - target: docs/standards/aef-bpmn-mapping-v1.md
+    type: reads
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t541-bvp-driver-handler-teeth.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

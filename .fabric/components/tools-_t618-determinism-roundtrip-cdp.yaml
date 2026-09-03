@@ -1,0 +1,24 @@
+id: tools/_t618-determinism-roundtrip-cdp.mjs
+name: _t618-determinism-roundtrip-cdp
+type: script
+subsystem: instruments
+location: tools/_t618-determinism-roundtrip-cdp.mjs
+tags: [derived]
+
+purpose: "T-618 — does an authored `determinism` value survive a real save in the real editor?  WHY A SECOND HARNESS AND NOT AN EDIT TO THE FIRST. `_roundtrip-serialization-cdp.mjs` returns pass:true on a fixture full of determinism values, and that green says nothing about them: its fixed point projects a FIXED 36-key KEYSPEC that does not contain `determinism`. Growing that KEYSPEC was the obvious move..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

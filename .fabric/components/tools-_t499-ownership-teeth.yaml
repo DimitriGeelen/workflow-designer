@@ -1,0 +1,23 @@
+id: tools/_t499-ownership-teeth.py
+name: _t499-ownership-teeth
+type: script
+subsystem: instruments
+location: tools/_t499-ownership-teeth.py
+tags: [derived]
+
+purpose: "Teeth for tools/_t499-watchtower-ownership.sh — does the abstention channel actually discriminate, or is exit 2 a code that exists and never fires? T-499's open AC asks for a property, not a file: \"abstention is distinguishable from a verdict\". A tool can satisfy the letter of that by declaring an exit code it can never reach, which is precisely the \"constant wearing a verdict\" this project spe..."
+
+depends_on:
+  - target: tools/_t499-watchtower-ownership.sh
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,21 @@
+id: tools/_t640-fetchers-that-write-are-writes.sh
+name: _t640-fetchers-that-write-are-writes
+type: script
+subsystem: instruments
+location: tools/_t640-fetchers-that-write-are-writes.sh
+tags: [derived]
+
+purpose: "T-640 — `curl` and `wget` sat on the safe-list unconditionally, so a command that fetches a URL INTO A FILE was admitted with no active task."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

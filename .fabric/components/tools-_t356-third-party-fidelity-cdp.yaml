@@ -1,0 +1,24 @@
+id: tools/_t356-third-party-fidelity-cdp.mjs
+name: _t356-third-party-fidelity-cdp
+type: script
+subsystem: instruments
+location: tools/_t356-third-party-fidelity-cdp.mjs
+tags: [derived]
+
+purpose: "_t356-third-party-fidelity-cdp.mjs — run REAL third-party BPMN through today's importer and measure what survives.  WHY THIS EXISTS SEPARATELY FROM _t338. That instrument's populations are all SYNTHESISED: it takes a corpus map we produced and injects a probe into it (injectDI, injectRoot, injectContent, inject). Injection answers \"does the importer drop X when X is spliced into a document we w..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

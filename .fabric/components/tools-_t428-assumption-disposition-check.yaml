@@ -1,0 +1,22 @@
+id: tools/_t428-assumption-disposition-check.py
+name: _t428-assumption-disposition-check
+type: script
+subsystem: instruments
+location: tools/_t428-assumption-disposition-check.py
+tags: [derived]
+
+purpose: "_t428-assumption-disposition-check.py — does every assumption still have somebody whose job it is to answer it? T-428. THE QUESTION THIS ASKS ---------------------- Not \"are there untested assumptions\" — untested is the normal, healthy state of a question that has just been asked. The question is whether the asking is still ATTACHED to anything. An assumption whose owning task is closed is not..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t428-disposition-mutation-check.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

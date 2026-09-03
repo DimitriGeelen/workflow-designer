@@ -1,0 +1,24 @@
+id: tools/_t483-structured-projection-falsify.mjs
+name: _t483-structured-projection-falsify
+type: script
+subsystem: instruments
+location: tools/_t483-structured-projection-falsify.mjs
+tags: [derived]
+
+purpose: "_t483-structured-projection-falsify.mjs — do the STRUCTURED semantic values have teeth in the round-trip fixed point, and is the obvious patch actually blind?  T-482 projected the eight SCALAR aef keys. It deliberately excluded aef:io, because io is not an aef.X scalar. Measuring that exclusion properly turned up six more structured values in the same blind spot: emits, compensates (string arra..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

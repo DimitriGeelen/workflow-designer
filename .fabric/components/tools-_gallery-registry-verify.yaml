@@ -1,0 +1,22 @@
+id: tools/_gallery-registry-verify.py
+name: _gallery-registry-verify
+type: script
+subsystem: instruments
+location: tools/_gallery-registry-verify.py
+tags: [derived]
+
+purpose: "_gallery-registry-verify.py — test for the T-227/S3b registry twin. Proves the persistent ghost registry (.context/designer/registry.yaml) that gallery-serve.py maintains on /api/save and /api/delete. Dependency-free (stdlib only): builds an isolated temp repo, launches gallery-serve.py on an ephemeral port, drives it via POST /api/save + /api/delete, and asserts on the registry file + GET /api..."
+
+depends_on:
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,22 @@
+id: tools/check-lane-bands.py
+name: check-lane-bands
+type: script
+subsystem: instruments
+location: tools/check-lane-bands.py
+tags: [derived]
+
+purpose: "check-lane-bands — assert node coordinates render legibly (T-042). The validator (tools/validate-workflow.py) and the bridge round-trip suite check *structure* — unique ids, refs resolve, lane assignment, gateway fan-out. None of them check *geometry*: whether a node's y-box actually falls inside the lane band it is assigned to, or whether two nodes in the same lane overlap. A workflow can ther..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/check-corpus-geometry.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

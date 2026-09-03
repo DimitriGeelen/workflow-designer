@@ -1,0 +1,22 @@
+id: tools/_t618-determinism-census.py
+name: _t618-determinism-census
+type: script
+subsystem: instruments
+location: tools/_t618-determinism-census.py
+tags: [derived]
+
+purpose: "T-618 — where is `determinism` actually authored, and does the editor offer it? WHY THIS EXISTS. T-617 set out to design an execution contract for the node dialect. The corpus already had one. `determinism` is authored on hundreds of nodes across the example workflows, with a settled three-value vocabulary, and `src/aef-workflow-designer.html` names it only in two COMMENTS — it is in no AEF_FIE..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

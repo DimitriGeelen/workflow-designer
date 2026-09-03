@@ -1,0 +1,22 @@
+id: tools/_t602-documentation-roundtrip.mjs
+name: _t602-documentation-roundtrip
+type: script
+subsystem: instruments
+location: tools/_t602-documentation-roundtrip.mjs
+tags: [derived]
+
+purpose: "_t602-documentation-roundtrip.mjs — does <bpmn:documentation> on a flow node survive open -> save, with its CONTENT intact?  WHY NOT JUST REUSE _t347's CENSUS. That instrument COUNTS documentation elements. A count is satisfied by emitting empty <bpmn:documentation/> elements in the right number — which is exactly the failure mode this task could plausibly ship, since the field report that open..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

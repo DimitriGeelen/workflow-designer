@@ -1,0 +1,23 @@
+id: tools/_t355-foreign-tag-render-cdp.mjs
+name: _t355-foreign-tag-render-cdp
+type: script
+subsystem: instruments
+location: tools/_t355-foreign-tag-render-cdp.mjs
+tags: [derived]
+
+purpose: "_t355-foreign-tag-render-cdp.mjs — does the canvas DISCLOSE that a node is a foreign BPMN element, or does it draw one it is not?  T-337 made the importer preserve an out-of-allowlist flow node (`foreignTag`, re-emitted verbatim). That is the subtraction half and it is done. This instrument covers the other half: a preserved element that renders as a serviceTask, complete with the blue service..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,25 @@
+id: tests/test_release_immutability.py
+name: test_release_immutability
+type: script
+subsystem: tests
+location: tests/test_release_immutability.py
+tags: [derived]
+
+purpose: "T-198 / G-007: release immutability guard tests for scripts/release-designer.sh. A release is a promise: version X means these exact bytes, forever. AEF vendors ``dist/aef-workflow-designer-<VERSION>.html`` and verifies it by sha256, so an in-place rewrite of an already-released version breaks a consumer's pin with no local signal. Before T-198 the script did an unconditional ``cp`` and every d..."
+
+depends_on:
+  - target: scripts/release-designer.sh
+    type: calls
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

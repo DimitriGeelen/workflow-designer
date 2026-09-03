@@ -1,0 +1,29 @@
+id: tests/test_harness_cross_form_agreement.py
+name: test_harness_cross_form_agreement
+type: script
+subsystem: tests
+location: tests/test_harness_cross_form_agreement.py
+tags: [derived]
+
+purpose: "T-328 — do PAIRED validator rules AGREE, or do both forms merely NAME them? `tests/test_rule_form_parity.py` classifies a rule PAIRED when both validator classes emit the same-or-counterpart rule id. It establishes that by regex over each class's source span (`extract_rules`, :255) and **never validates a document**. So two predicates reading the same carrier by different tests stay green forev..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/test_rule_form_parity.py
+    type: calls
+  - target: tools/validate-workflow.py
+    type: calls
+  - target: tools/yaml-to-bpmn.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

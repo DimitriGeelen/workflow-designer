@@ -1,0 +1,37 @@
+id: scripts/release-designer.sh
+name: release-designer
+type: script
+subsystem: scripts
+location: scripts/release-designer.sh
+tags: [derived]
+
+purpose: "release-designer.sh — cut a versioned, pinnable single-file build of the Workflow Designer for AEF to vendor."
+
+depends_on:
+  - target: scripts/announce-release.sh
+    type: calls
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/test_designer_render.py
+    type: calls
+  - target: tools/_t382-release-lag.py
+    type: calls
+
+depended_by:
+  - target: tests/test_designer_render.py
+    type: calls
+  - target: tests/test_release_immutability.py
+    type: calls
+  - target: tools/_t387-manifest-fields.sh
+    type: calls
+  - target: tools/_t389-release-envelope.sh
+    type: calls
+  - target: tools/_t396-release-tag-state.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

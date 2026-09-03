@@ -1,0 +1,24 @@
+id: tools/_t423-di-roundtrip-teeth.py
+name: _t423-di-roundtrip-teeth
+type: script
+subsystem: instruments
+location: tools/_t423-di-roundtrip-teeth.py
+tags: [derived]
+
+purpose: "_t423-di-roundtrip-teeth.py — prove _t423-di-roundtrip-idempotence-cdp.mjs can go RED. That probe returned 24/24 identical on its very first run. A gate that has only ever been green, on the first attempt, against the tree it was written for, is the least informative result available: it is equally consistent with \"the exporter is idempotent\" and with \"the comparison does not work\". These teeth..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t423-di-roundtrip-idempotence-cdp.mjs
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

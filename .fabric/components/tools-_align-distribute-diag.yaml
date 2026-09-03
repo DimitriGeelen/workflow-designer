@@ -1,0 +1,24 @@
+id: tools/_align-distribute-diag.mjs
+name: _align-distribute-diag
+type: script
+subsystem: instruments
+location: tools/_align-distribute-diag.mjs
+tags: [derived]
+
+purpose: "_align-distribute-diag.mjs — DIAGNOSTIC (not a gate). Loads the editor in isolated headless, captures console errors + uncaught exceptions, then invokes each layout action and reports whether it moved nodes or threw. Prints a JSON report. Used to reproduce the \"distribute / align broken\" field report (T-134)."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

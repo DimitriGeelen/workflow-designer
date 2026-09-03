@@ -1,0 +1,33 @@
+id: tools/_t406-doc-comment-provenance-cdp.mjs
+name: _t406-doc-comment-provenance-cdp
+type: script
+subsystem: instruments
+location: tools/_t406-doc-comment-provenance-cdp.mjs
+tags: [derived]
+
+purpose: "The exact string AEF's fixture carries, which is also the exact false trailer we shipped in 11 releases. Read from their fixture rather than retyped, so the day the two stop being identical this probe stops silently testing a straw man."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/aef-inbound/t406-clean-leading-boilerplate.bpmn
+    type: reads
+  - target: tests/fixtures/aef-inbound/t406-incidental-leading-boilerplate.bpmn
+    type: reads
+  - target: tests/fixtures/third-party/aef-draft-inception-readiness-v2.bpmn
+    type: reads
+  - target: tools/_t413-land-fixtures.py
+    type: calls
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tools/_t414-mutation-check.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

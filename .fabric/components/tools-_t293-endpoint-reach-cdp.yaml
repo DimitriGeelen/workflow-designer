@@ -1,0 +1,23 @@
+id: tools/_t293-endpoint-reach-cdp.mjs
+name: _t293-endpoint-reach-cdp
+type: script
+subsystem: instruments
+location: tools/_t293-endpoint-reach-cdp.mjs
+tags: [derived]
+
+purpose: "_t293-endpoint-reach-cdp.mjs — standing endpoint-reconnect reachability leg (T-293, G-003 class: pointer-interaction paths need trusted-input coverage).  Drives the REAL editor (src/aef-workflow-designer.html) in an isolated headless chromium with real Input.dispatchMouseEvent input — no synthetic dispatchEvent, so hit-testing and paint order are exercised exactly as a user's mouse would.  Fiel..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+
+depended_by:
+  - target: tests/test_t293_endpoint_reach.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

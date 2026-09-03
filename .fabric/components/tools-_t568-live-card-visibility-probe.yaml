@@ -1,0 +1,23 @@
+id: tools/_t568-live-card-visibility-probe.py
+name: _t568-live-card-visibility-probe
+type: script
+subsystem: instruments
+location: tools/_t568-live-card-visibility-probe.py
+tags: [derived]
+
+purpose: "_t568-live-card-visibility-probe.py — the HTTP-level version of the reported bug. The teeth script (`_t568-fabric-card-cache-teeth.sh`) proves `_load_components()` reacts to an in-place edit, with mutants pinning what each leg asserts. This probe answers the different question the report actually asked: does the RUNNING dashboard show the current card? A correct loader that the live process nev..."
+
+depends_on:
+  - target: tools/_t568-fabric-card-cache-teeth.sh
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

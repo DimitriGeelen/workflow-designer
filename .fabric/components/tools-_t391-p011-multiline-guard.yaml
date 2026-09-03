@@ -1,0 +1,21 @@
+id: tools/_t391-p011-multiline-guard.sh
+name: _t391-p011-multiline-guard
+type: script
+subsystem: instruments
+location: tools/_t391-p011-multiline-guard.sh
+tags: [derived]
+
+purpose: "T-391 probe: P-011 must refuse a ## Verification block containing a multi-line construct, instead of tearing it apart and eval'ing the fragments as bare shell commands in PROJECT_ROOT."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

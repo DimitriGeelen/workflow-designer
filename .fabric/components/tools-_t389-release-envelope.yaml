@@ -1,0 +1,24 @@
+id: tools/_t389-release-envelope.sh
+name: _t389-release-envelope
+type: script
+subsystem: instruments
+location: tools/_t389-release-envelope.sh
+tags: [derived]
+
+purpose: "_t389-release-envelope.sh — probe for the release-announce envelope (T-389)."
+
+depends_on:
+  - target: scripts/announce-release.sh
+    type: calls
+  - target: scripts/release-designer.sh
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

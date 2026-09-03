@@ -1,0 +1,21 @@
+id: tools/_t371-hook-teeth.sh
+name: _t371-hook-teeth
+type: script
+subsystem: instruments
+location: tools/_t371-hook-teeth.sh
+tags: [derived]
+
+purpose: "T-371 teeth: prove the git enforcement hooks FIRE, in both directions."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

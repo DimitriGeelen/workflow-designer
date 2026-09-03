@@ -1,0 +1,24 @@
+id: tools/_horizontal-spacing-verify-cdp.mjs
+name: _horizontal-spacing-verify-cdp
+type: script
+subsystem: instruments
+location: tools/_horizontal-spacing-verify-cdp.mjs
+tags: [derived]
+
+purpose: "_horizontal-spacing-verify-cdp.mjs — verify T-115: Horizontal spacing control (respaceColumns). Serves the editor from a TEMP docroot, drives it in ISOLATED headless chromium (own --user-data-dir; G-006). Loads a dense corpus map (verification-gate), then proves the respaceColumns(gap) contract empirically: it clusters nodes into pool-wide columns and re-spaces them so consecutive column CENTRE..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

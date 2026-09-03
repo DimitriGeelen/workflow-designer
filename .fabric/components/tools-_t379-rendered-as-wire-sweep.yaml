@@ -1,0 +1,22 @@
+id: tools/_t379-rendered-as-wire-sweep.py
+name: _t379-rendered-as-wire-sweep
+type: script
+subsystem: instruments
+location: tools/_t379-rendered-as-wire-sweep.py
+tags: [derived]
+
+purpose: "_t379-rendered-as-wire-sweep.py — does anything here read rail message CONTENT out of a human-rendered view instead of the payload? WHY THIS EXISTS --------------- AEF (their T-2872) lost a byte on a delivered artifact and it took two projects a day to find out where. Their send was faithful, the hub was faithful, their client was faithful. The lossy step was the CHOICE OF SOURCE: they extracte..."
+
+depends_on:
+  - target: tools/rail-sweep.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

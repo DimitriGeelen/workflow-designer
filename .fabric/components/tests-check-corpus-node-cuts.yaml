@@ -1,0 +1,24 @@
+id: tests/check-corpus-node-cuts.sh
+name: check-corpus-node-cuts
+type: script
+subsystem: tests
+location: tests/check-corpus-node-cuts.sh
+tags: [derived]
+
+purpose: "Corpus node-cut regression gate (T-113) — PL-004 prevention."
+
+depends_on:
+  - target: tests/fixtures/node-cuts-baseline.json
+    type: reads
+  - target: tools/_node-cuts-cdp.mjs
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,21 @@
+id: tools/_autoload-verify-cdp.mjs
+name: _autoload-verify-cdp
+type: script
+subsystem: instruments
+location: tools/_autoload-verify-cdp.mjs
+tags: [derived]
+
+purpose: "_autoload-verify-cdp.mjs — verify B1 (T-127 / T-128 GO): the editor AUTO-LOADS the autosaved document on reload (no banner), keyed by ?load so reloads never cross maps. ISOLATED headless Chromium (own --user-data-dir) — never the shared browser (G-006).  Steps (against http://localhost:8834/designer.html): 1. bare load, clear localStorage, reload → assert NO banner AND NO toast (clean slate) 2...."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

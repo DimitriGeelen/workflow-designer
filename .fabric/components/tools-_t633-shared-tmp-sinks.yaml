@@ -1,0 +1,21 @@
+id: tools/_t633-shared-tmp-sinks.sh
+name: _t633-shared-tmp-sinks
+type: script
+subsystem: instruments
+location: tools/_t633-shared-tmp-sinks.sh
+tags: [derived]
+
+purpose: "T-633 — shared /tmp sinks, measured from both ends."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

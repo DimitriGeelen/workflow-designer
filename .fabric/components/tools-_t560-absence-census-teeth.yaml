@@ -1,0 +1,25 @@
+id: tools/_t560-absence-census-teeth.py
+name: _t560-absence-census-teeth
+type: script
+subsystem: instruments
+location: tools/_t560-absence-census-teeth.py
+tags: [derived]
+
+purpose: "T-560 teeth — the absence-assertion census must discriminate, not merely count. WHY THIS EXISTS. A census that reports \"81 uncontrolled\" is indistinguishable, from the outside, from one that reports 81 because it flags EVERY absence leg, or because its control detector always returns NONE. Both would produce a plausible number and a green ratchet. These legs pin the two edges the number sits be..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t560-absence-assertion-census.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,23 @@
+id: tools/_t431-a012-enumeration-probe.py
+name: _t431-a012-enumeration-probe
+type: script
+subsystem: instruments
+location: tools/_t431-a012-enumeration-probe.py
+tags: [derived]
+
+purpose: "_t431-a012-enumeration-probe.py — does the frozen mapping still cover AEF's enumeration? T-431. Answers arc-anchor assumption A-012 without AEF's help. A-012: \"Every AEF `workflow_type` and `owner` is representable by (BPMN type + `aef:` extension) with no new BPMN shape.\" WHY THIS DID NOT NEED TO BE ASKED ON THE RAIL --------------------------------------------- It was sent to AEF at DM 527 §1..."
+
+depends_on:
+  - target: docs/standards/aef-bpmn-mapping-v1.md
+    type: reads
+
+depended_by:
+  - target: tools/_t431-enumeration-teeth.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

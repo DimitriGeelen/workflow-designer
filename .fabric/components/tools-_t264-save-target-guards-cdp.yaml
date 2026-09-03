@@ -1,0 +1,25 @@
+id: tools/_t264-save-target-guards-cdp.mjs
+name: _t264-save-target-guards-cdp
+type: script
+subsystem: instruments
+location: tools/_t264-save-target-guards-cdp.mjs
+tags: [derived]
+
+purpose: "_t264-save-target-guards-cdp.mjs — T-264 regression guard: the save-target guard set built from the T-263 GO (rail-225 scratch-copy overwrite incident). Guards under test (src/aef-workflow-designer.html): G1 collision feedback — props-panel ID rename onto an existing library key renders a one-shot `.id-rename-notice` naming the id; state stays unchanged. G2 commit-on-blur/Enter — the ID field (..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/test_t264_save_target_guards.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

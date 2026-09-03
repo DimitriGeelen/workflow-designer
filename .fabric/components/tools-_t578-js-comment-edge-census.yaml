@@ -1,0 +1,22 @@
+id: tools/_t578-js-comment-edge-census.py
+name: _t578-js-comment-edge-census
+type: script
+subsystem: instruments
+location: tools/_t578-js-comment-edge-census.py
+tags: [derived]
+
+purpose: "_t578-js-comment-edge-census.py — how many tool edges in this tree are held ONLY by a JavaScript comment? WHY THIS EXISTS. tools/_t451-unwired-guard-census.py decides that a tool is reachable when some file references `tools/<name>` in an EXECUTABLE position. T-495 taught it to ignore prose in two languages — Python (tokenize for comments, ast for bare string statements) and shell (a word-aware..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

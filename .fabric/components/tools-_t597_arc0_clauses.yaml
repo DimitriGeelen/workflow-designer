@@ -1,0 +1,24 @@
+id: tools/_t597_arc0_clauses.py
+name: _t597_arc0_clauses
+type: script
+subsystem: instruments
+location: tools/_t597_arc0_clauses.py
+tags: [derived]
+
+purpose: "T-597 — evaluate all three Arc-0 exit clauses, including the ones we do not own. Exit codes match _t596_arc0_check.py deliberately, so the two read the same way: 0 every blocking clause satisfied 1 BLOCKED — well-formed, and at least one clause is not satisfied. Expected. 2 INTEGRITY VIOLATION — the clause register cannot be trusted. THE POINT OF THIS FILE (PL-034) A guard that checks internal..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tools/_t596-arc0-exit-gate.sh
+    type: calls
+  - target: tools/_t596_arc0_check.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

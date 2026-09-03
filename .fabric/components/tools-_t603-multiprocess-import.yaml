@@ -1,0 +1,27 @@
+id: tools/_t603-multiprocess-import.mjs
+name: _t603-multiprocess-import
+type: script
+subsystem: instruments
+location: tools/_t603-multiprocess-import.mjs
+tags: [derived]
+
+purpose: "_t603-multiprocess-import.mjs — does a document with more than one <bpmn:process> lose its content on open, and is the loss REPORTED?  THE DEFECT. parseBpmnXml took processes[0] unconditionally. A file whose first process is a stub loses everything: bizagi-nested-ns imported ZERO nodes and saved an empty process back over a full diagram. Nothing counted DOWN from any baseline the corpus holds,..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/third-party/bizagi-nested-ns.bpmn
+    type: reads
+  - target: tests/fixtures/third-party/simple.bpmn
+    type: reads
+
+depended_by:
+  - target: tools/_t604-cdp-attach-race.mjs
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

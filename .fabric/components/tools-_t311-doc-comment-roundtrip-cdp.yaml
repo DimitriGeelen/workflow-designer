@@ -1,0 +1,27 @@
+id: tools/_t311-doc-comment-roundtrip-cdp.mjs
+name: _t311-doc-comment-roundtrip-cdp
+type: script
+subsystem: instruments
+location: tools/_t311-doc-comment-roundtrip-cdp.mjs
+tags: [derived]
+
+purpose: "_t311-doc-comment-roundtrip-cdp.mjs — drive the real editor against a map carrying an authored doc block (the leading comment child of <bpmn:definitions>, which AEF's corpus_spec treats as SEMANTIC) and prove the T-311 contract:  1. the doc block is CAPTURED at import (it used to be dropped — there was no COMMENT_NODE handling anywhere in the file) 2. it is re-emitted VERBATIM and LEADING, ahea..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/fixtures/aef-bpmn/doc-comment.bpmn
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/test_t311_doc_comment_roundtrip.py
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,0 +1,21 @@
+id: tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh
+name: _t656-review-queue-splits-judgement-from-the-status-flip
+type: script
+subsystem: instruments
+location: tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh
+tags: [derived]
+
+purpose: "T-656 — D2 must say WHAT the review queue is waiting for, not only how long."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

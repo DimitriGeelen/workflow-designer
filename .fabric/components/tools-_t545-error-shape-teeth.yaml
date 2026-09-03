@@ -1,0 +1,22 @@
+id: tools/_t545-error-shape-teeth.py
+name: _t545-error-shape-teeth
+type: script
+subsystem: instruments
+location: tools/_t545-error-shape-teeth.py
+tags: [derived]
+
+purpose: "T-545 teeth — a 403 must be written for the client that asked for it. The operator clicked Approve on /approvals and the toast read: Session expired — Workflow designer (function(){var t=localStorage.getItem(… That is not a garbled message, it is a whole HTML document being scraped. The 403 handler rendered the full T-2309 \"Session expired\" PAGE (66456 bytes) to an `hx-post`, and `web/static/ht..."
+
+depends_on:
+  []
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

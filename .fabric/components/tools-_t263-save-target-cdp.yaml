@@ -1,0 +1,24 @@
+id: tools/_t263-save-target-cdp.mjs
+name: _t263-save-target-cdp
+type: script
+subsystem: instruments
+location: tools/_t263-save-target-cdp.mjs
+tags: [derived]
+
+purpose: "_t263-save-target-cdp.mjs — T-263 inception probe: Save-to-project target binding. Peer incident (AEF rail 225/228): a scratch COPY whose workflowMeta id still named the original was saved onto the ORIGINAL project; editing \"the id input\" with a synthetic value-set + input/change events did not rebind the target. Code facts (src/aef-workflow-designer.html): saveToProject() POSTs /api/save with..."
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

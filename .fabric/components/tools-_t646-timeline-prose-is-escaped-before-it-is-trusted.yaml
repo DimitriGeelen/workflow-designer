@@ -1,0 +1,21 @@
+id: tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh
+name: _t646-timeline-prose-is-escaped-before-it-is-trusted
+type: script
+subsystem: instruments
+location: tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh
+tags: [derived]
+
+purpose: "T-646 — prose that reaches the browser through `linkify_tasks` must be ESCAPED before the result is declared trusted HTML."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

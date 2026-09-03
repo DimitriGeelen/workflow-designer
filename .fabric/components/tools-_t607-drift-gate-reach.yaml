@@ -1,0 +1,21 @@
+id: tools/_t607-drift-gate-reach.py
+name: _t607-drift-gate-reach
+type: script
+subsystem: instruments
+location: tools/_t607-drift-gate-reach.py
+tags: [derived]
+
+purpose: "T-607 — can the focus-drift gate SEE the command form this project mandates? WHAT THIS GUARDS. The drift gate anchored its fw patterns on `(^|[[:space:]])(bin/)?fw`. CLAUDE.md mandates `cd /opt/... && .agentic-framework/bin/fw ...`, where the character before `bin/fw` is `/` — a branch the alternation did not have. So the gate was blind to the only invocation form the project tells people to us..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

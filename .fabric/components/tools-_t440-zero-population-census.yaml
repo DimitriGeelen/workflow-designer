@@ -1,0 +1,23 @@
+id: tools/_t440-zero-population-census.py
+name: _t440-zero-population-census
+type: script
+subsystem: instruments
+location: tools/_t440-zero-population-census.py
+tags: [derived]
+
+purpose: "_t440-zero-population-census.py — the T-429 question, asked of .mjs and .py. T-429 asked 35 bash suites \"can you exit 0 having run no legs?\" and got 35 yeses. T-430 built teeth for one. This asks the same question of the two languages T-429 never touched: the CDP probes in `.mjs` (the instruments behind every \"bridge green\" number reported across the AEF seam) and the `.py` checks (the ones cit..."
+
+depends_on:
+  - target: tools/_t440-drive-empty.sh
+    type: calls
+
+depended_by:
+  - target: tools/_t440-drive-empty.sh
+    type: calls
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py
