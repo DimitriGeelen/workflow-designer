@@ -4,20 +4,20 @@ name: "Component Fabric does not meet the Arc-0 fence for the EWCR scope"
 description: >
   Roadmap section 6 makes 'Component Fabric non-empty, enriched, validated' a fence required BEFORE implementation decomposition, with evidence owner 'Arc 0 task owner'. Our fabric is 79 registered / 278 unregistered of 354 watched (22 percent) with 49 of 79 cards edgeless, and has WARNed 12 times in 14 days. AEF refused exit clause 1 on their own numbers and separately criticised our coverage; that criticism was ACCEPTED as valid in arc-0-exit-clauses.yaml. This is the only part of clause 1 this side can move.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [ewcr, fabric, arc-0-fence, arc:ewcr-governed-delivery]
-components: []
+components: [tools/_t671-arc0-card-gen.py, tools/_t671-arc0-edge-derive.py, tools/_t671-arc0-fabric-fence.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T05:31:57Z
-last_update: 2026-09-03T10:03:23Z
-date_finished: null
+last_update: 2026-09-03T10:04:25Z
+date_finished: 2026-09-03T10:04:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -394,3 +394,15 @@ fence here does not move a clause, and I have not recorded anything as if it did
 ### 2026-09-03T09:48:30Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5b526449
+- **Timestamp:** 2026-09-03T10:04:43Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-03T10:04:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
