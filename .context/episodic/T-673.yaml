@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-673: audit remediation cycles 2026-09-03: close the recurring fabric coverage warns with real cards, not stub registrations
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-03T20:09:46Z
+# ============================================================================
+
+task_id: T-673
+task_name: "audit remediation cycles 2026-09-03: close the recurring fabric coverage warns with real cards, not stub registrations"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-03T19:51:17Z
+completed: 2026-09-03T20:08:42Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-03T22:08:31+02:00
+last_commit: 2026-09-03T22:08:31+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  cycle log, findings, and verification legs — the edgeless proportion is a ratchet the stub fix would have failed.
+
+# Key outcomes
+outcomes:
+  - '**Every card this task creates carries a purpose SOURCED FROM THE FILE ITSELF** —'
+  - '**Coverage does not rise by manufacturing stubs.** `fw fabric scan` would register'
+  - '**Edges are DERIVED from source bytes, not asserted.** Reuse'
+  - '**Regeneration is idempotent** — running the generator twice leaves'
+  - '**Each cycle reports the audit delta (Pass/Warn/Fail) before and after**, and names'
+  - '**Operator-owned findings are SURFACED, not executed.** Specifically not run:'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'cycle log, findings, and verification legs — the edgeless proportion is a ratchet the stub fix would have failed.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-673-audit-remediation-cycles-2026-09-03-clos.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-03T22:08:31"
+    action: 'T-673: cycle log, findings, and verification legs — the edgeless proportion is a ratchet the stub fix would have failed.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 17 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 17
+  commits: 1
+  files_changed: 1
+  lines_added: 86
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-673-audit-remediation-cycles-2026-09-03-clos.md
+generated_by: context-agent-hybrid
