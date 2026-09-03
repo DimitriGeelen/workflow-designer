@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T13:19:39Z
-last_update: 2026-09-03T15:32:16Z
+last_update: 2026-09-03T15:39:38Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -163,6 +163,25 @@ headroom in the file CLAUDE.md §33 and the `/resume` skill both instruct the ag
 trust ahead of its own arithmetic.** It is a latent fail-open, not today's cause, and it
 is vendored AEF code (G-008) — recorded here rather than fixed under a housekeeping task.
 
+### A second instance of OBS-033's shape, in this task's own verification block
+
+This task's leg 4 was `test -z "$(git status --porcelain .tasks/)"` — "the finalisation
+backlog is committed". It can never pass. `fw git commit` bumps `last_update:` in the
+focused task's file **after** creating the commit, so the file is dirty again the moment
+the commit that would have cleaned it returns. The gate ran, and the leg failed on a
+one-line timestamp writeback caused by the commit the leg was asserting.
+
+This is OBS-033's shape a second time in one day, from a different direction: **the act
+of recording that work happened re-dirties the artifact whose cleanliness is the gate.**
+OBS-033 has it at the status-transition level (a partial-complete task cannot commit its
+own completion under its own id); this is the same collision at the commit level.
+
+Leg replaced with a git pathspec exclusion of this task's own file — narrowed to the
+claim the AC actually makes, not relaxed to manufacture a green. `| grep -v` was rejected
+as the exclusion mechanism: under P-011's pipefail a `grep -v` that filters every line
+exits 1, which would fail the leg exactly when it is satisfied — the same defect with the
+sign flipped.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
@@ -224,8 +243,20 @@ python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.ya
 # T-600 has the ## Updates heading the audit reported missing.
 grep -q "^## Updates" .tasks/active/T-600-side-placed-event-labels-do-not-wrap-lon.md
 
-# The task-file finalisation backlog is committed — no task file left uncommitted.
-test -z "$(git status --porcelain .tasks/)"
+# The task-file finalisation backlog is committed — no OTHER task file left uncommitted.
+#
+# The bare form `test -z "$(git status --porcelain .tasks/)"` is UNSATISFIABLE and was
+# replaced, not weakened. `fw git commit` bumps `last_update:` in the focused task's own
+# file AFTER making the commit, so this file is dirty the instant the commit that would
+# clean it returns. The leg asserted a state that satisfying it destroys.
+#
+# Excluded by git pathspec rather than `| grep -v`: under P-011's pipefail, a `grep -v`
+# that filters out every line exits 1 and would fail the leg precisely when it is
+# satisfied. Same defect class, inverted sign.
+#
+# What is asserted is the AC's actual claim: the finalisation BACKLOG is committed.
+# T-672's own live edits were never part of that backlog.
+test -z "$(git status --porcelain .tasks/ ':(exclude).tasks/active/T-672-*')"
 
 ## RCA
 
