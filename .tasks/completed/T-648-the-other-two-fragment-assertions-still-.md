@@ -4,10 +4,10 @@ name: "the other two fragment assertions still use the substring scan, and are w
 description: >
   the other two fragment assertions still use the substring scan, and are weaker than the one T-645 fixed
 
-status: started-work
+status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T11:49:45Z
-last_update: 2026-08-31T11:49:45Z
-date_finished: null
+last_update: 2026-08-31T11:57:43Z
+date_finished: 2026-08-31T11:57:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -278,3 +278,22 @@ test 0 -eq "$(grep -rn '\"<!DOCTYPE\" not in\|\"<html\" not in' --include=*.py .
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-648-the-other-two-fragment-assertions-still-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b693b828
+- **Timestamp:** 2026-08-31T11:58:39Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 48
+     - evidence: `python3 -m pytest .agentic-framework/web/test_costs.py -q 2>&1 | tail -1 | grep -q "24 passed"`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 49
+     - evidence: `python3 -m pytest .agentic-framework/web/test_app.py -q -k "htmx_returns_fragment or document_shell or merely_mentions or full_page_has_wrapper" 2>&1 | tail -1 | grep -q "24 passed"`
+
+### 2026-08-31T11:57:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

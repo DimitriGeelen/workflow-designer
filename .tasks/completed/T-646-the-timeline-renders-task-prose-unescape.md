@@ -4,10 +4,10 @@ name: "the timeline renders task prose unescaped: raw < from a task body reaches
 description: >
   GET /timeline returns 2 occurrences of the literal characters '<html' and 0 of '&lt;html'. The source is task prose discussing HTMX fragments; the page emits it as markup rather than text. Measured via app.test_client() on 2026-08-30. Task bodies are authored in-repo so this is not an external injection vector, but any task text containing < renders as a tag and can silently break the page's structure. Found while investigating T-645, which fired on exactly this byte for an unrelated reason. Sibling: T-645 fixes the ASSERTION, this task fixes the ESCAPING; fixing either alone leaves the other defect standing.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:24:16Z
-last_update: 2026-08-31T11:22:15Z
-date_finished: null
+last_update: 2026-08-31T11:37:32Z
+date_finished: 2026-08-31T11:37:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -295,3 +295,20 @@ python3 -c "import sys; sys.path.insert(0,'.agentic-framework'); from web.shared
 
 ### 2026-08-31T11:22:15Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c5a94dc3
+- **Timestamp:** 2026-08-31T11:37:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#7 (Agent)** — `python3 -m pytest .agentic-framework/web/test_app.py -q` shows no NEW failures against the pre-change baseline (the baseline is 5 known failures: 4 `@pytest.mark.framework_repo` + the T-645 assertion
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=agentic-framework/web/test_app.py in: `python3 -m pytest .agentic-framework/web/test_app.py -q` shows no NEW failures against the pre-change baseline (the baseline is 5 known failures: 4 ``
+
+### 2026-08-31T11:37:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

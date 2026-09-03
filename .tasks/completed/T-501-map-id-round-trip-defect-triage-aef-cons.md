@@ -4,16 +4,16 @@ name: "Map ID round-trip defect triage (AEF consumer)"
 description: >
   Inception: Map ID round-trip defect triage (AEF consumer)
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t563-fallback-id-derivation-cdp.mjs]
 related_tasks: []
 created: 2026-08-14T16:55:53Z
-last_update: 2026-08-20T09:17:18Z
-date_finished:
+last_update: 2026-09-01T19:39:34Z
+date_finished: 2026-09-01T19:39:34Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -585,3 +585,40 @@ Superseded 2026-08-14 recommendation, preserved verbatim:
 > Recommendation: DEFER
 >
 > Consumer defect report with three separable root causes well-diagnosed. Need to scope implementation cost and risk to existing exports/vendored builds before recommending GO. The fallback-to-display-name issue is a category error; the sanitizer/validator mismatch affects user-facing behavior; late validation creates poor UX. Evidence: hand-authored BPMN is a real corpus path. Decision depends on testing impact on v0.8.0 already in the wild and round-trip behavior for v0.9+ exports.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2327848c
+- **Timestamp:** 2026-09-01T19:39:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-eba1e12e
+- **Timestamp:** 2026-09-01T19:39:35Z
+- **Overall:** CONTRADICTED
+- **Claims:** 6
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-501-map-id-remediation-proposal.md` | file | ✓ pass |
+| `src/aef-workflow-designer.html:9950` | file_line | ✓ pass |
+| `xml.etree` | module | ✗ fail — symbol not found in lib/ agents/ bin/ |
+| `T-308` | task | ✓ pass |
+| `T-358` | task | ✓ pass |
+| `T-559` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+
+### 2026-09-01T19:39:34Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

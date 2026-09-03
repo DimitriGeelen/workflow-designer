@@ -1,22 +1,22 @@
 ---
-id: T-575
-name: "landing: drain the parked backlog to consumer-visible done"
+id: T-672
+name: "housekeeping 2026-09-03: commit finalisation backlog, repair T-600 Updates, give G-043 a decision trigger, triage inbox"
 description: >
-  LANDING MODE umbrella (operator directive, Tier 2 override of one-bug-one-task and G-019 register-before-fix, logged once here). All landing work runs under this id instead of spawning a task per finding; discoveries go one line each into .context/working/landing-notes.md. DONE means a consumer can install and use it, not that the repo is green. Session one: evidence pack for the 12 tasks sitting in active/ at status work-completed, blocked only on Human ACs.
+  housekeeping 2026-09-03: commit finalisation backlog, repair T-600 Updates, give G-043 a decision trigger, triage inbox
 
 status: started-work
 workflow_type: build
 owner: agent
 horizon: now
-tags: [landing, umbrella]
+tags: []
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-20T21:46:57Z
-last_update: 2026-09-01T21:37:14Z
+created: 2026-09-03T13:19:39Z
+last_update: 2026-09-03T13:19:39Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-575: landing: drain the parked backlog to consumer-visible done
+# T-672: housekeeping 2026-09-03: commit finalisation backlog, repair T-600 Updates, give G-043 a decision trigger, triage inbox
 
 ## Context
 
@@ -39,17 +39,21 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Umbrella task. Closes when the parked backlog is drained, not per-session. -->
-- [x] Evidence pack produced for every task sitting in `active/` at `status: work-completed`:
-      each classified FREE / DEAD-PREMISE / RULING, with the measurement behind the verdict.
-      → `.context/working/landing-notes.md`, session 1. 12 tasks, 15 real unchecked ACs.
-- [ ] The FREE tasks are closed (operator runs the completion; agent may not).
-- [ ] Every DEAD-PREMISE task is either closed or its AC rewritten to the live question.
-- [x] Each landing session appends to `landing-notes.md` and ends with the active task
-      count LOWER than it started, or states plainly that it did not.
-- [x] The operator queue is delivered as copy-pasteable one-liners plus at most five
-      yes/no questions per session — never as new tasks.
-- [ ] No new tasks, gaps or concerns filed under landing mode except this umbrella.
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] The 15 uncommitted task-file finalisations are committed. Verified first that the
+      `date_finished` stamps are the REAL completion times (2026-08-31 / 2026-09-01),
+      not today's date — a repair pass that stamped today would silently corrupt every
+      cycle-time and completion-velocity metric derived from them.
+- [ ] `T-600` has an `## Updates` section (audit priority action 4).
+- [ ] `G-043` has a `decision_trigger:`, or is downgraded/closed. A gap that cannot be
+      closed is permanent furniture (T-382). It already carries a
+      `closure_check_command:` — the trigger must be consistent with it, not a second
+      unrelated condition.
+- [ ] The observation inbox is triaged: every pending observation is either dispositioned
+      or explicitly left pending with a reason. Count reported before and after.
+- [ ] Operator-only items found during housekeeping are SURFACED, not executed. In
+      particular `fw inception sweep` is NOT run: its own help says "Ticks Human AC,
+      then finalizes", and ticking a Human AC is the operator's act alone.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,11 +79,11 @@ date_finished: null
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-575`
+         1. Run `bin/fw reviewer T-672`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-575 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-672 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -185,7 +189,7 @@ date_finished: null
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-XXX go|no-go|defer --rationale "..."
+     fw inception decide T-672 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -194,10 +198,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-08-20T21:46:57Z — task-created [task-create-agent]
+### 2026-09-03T13:19:39Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-672-housekeeping-2026-09-03-commit-finalisat.md
 - **Context:** Initial task creation
-
-### 2026-08-20T21:47:49Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work

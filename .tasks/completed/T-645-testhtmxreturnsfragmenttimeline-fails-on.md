@@ -4,10 +4,10 @@ name: "test_htmx_returns_fragment[/timeline] fails on a substring scan: task PRO
 description: >
   web/test_app.py:143 asserts '<html' not in html to prove an HX-Request returns a fragment rather than a full page. /timeline renders task and report PROSE, and one of those bodies contains the literal characters '<html' while discussing HTMX fragments. The fragment IS a fragment (the response opens with <nav>), so the assertion is a false positive: a character-level scan standing in for a structural question. The structural test is whether the response has a root <html> ELEMENT, not whether those five characters appear anywhere in the rendered body. Ninth member of the family first named in T-633. Found while verifying T-643.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:08:53Z
-last_update: 2026-08-31T11:37:51Z
-date_finished: null
+last_update: 2026-08-31T11:47:16Z
+date_finished: 2026-08-31T11:47:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -327,3 +327,20 @@ grep -q "document_shell_constructs(resp.data.decode())" .agentic-framework/web/t
 
 ### 2026-08-30T18:23:09Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9e147fbd
+- **Timestamp:** 2026-08-31T11:48:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 4
+     - evidence: `python3 -m pytest .agentic-framework/web/test_app.py -q -k "htmx_returns_fragment or document_shell or merely_mentions or full_page_has_wrapper" 2>&1 | tail -1 | grep -q "24 passed"`
+
+### 2026-08-31T11:47:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
