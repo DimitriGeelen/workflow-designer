@@ -1,20 +1,25 @@
 id: tools/_t451-unwired-guard-census.py
 name: _t451-unwired-guard-census
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t451-unwired-guard-census.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t451-unwired-guard-census.py — how many tools/ instruments have no live caller. A `## Verification` block is a ONE-SHOT COMPLETION GATE, not a standing guard. P-011 executes a task's Verification block on the `--status work-completed` transition and at no other time. So an instrument whose only call site is a task's Verification block runs exactly once — at that task's completion — and never a..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/unwired-guard-baseline.txt
+    type: reads
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t495-prose-edge-probe.py
+    type: calls
 
-last_verified: 2026-08-12
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

@@ -1,20 +1,22 @@
 id: tools/_t420-gate-mutation-check.sh
 name: _t420-gate-mutation-check
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t420-gate-mutation-check.sh
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t420-gate-mutation-check.sh — prove the attribution gate can BLOCK, can ALLOW, and discriminates between them for the right reason."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/_t420-rail-attribution-gate.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-10
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

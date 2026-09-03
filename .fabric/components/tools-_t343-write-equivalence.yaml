@@ -1,20 +1,22 @@
 id: tools/_t343-write-equivalence.py
 name: _t343-write-equivalence
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t343-write-equivalence.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-343: prove the discarded-edge collector is REPORTING-ONLY. The obvious form of this check — diff the card tree against the pre-change build from git — goes vacuous the moment the change is committed, because `HEAD` then IS the changed build and the tool compares a thing to itself. It is also vacuous in the stock registry, where enrich writes nothing at all: the trees match because both are em..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/validate-workflow.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-02
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

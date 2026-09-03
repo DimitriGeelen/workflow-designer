@@ -1,20 +1,24 @@
 id: tools/_t420-rail-attribution-gate.py
 name: _t420-rail-attribution-gate
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t420-rail-attribution-gate.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t420-rail-attribution-gate.py — PreToolUse gate. Refuse an MCP termlink call that puts content on the wire without saying which project produced it. T-420. Prevention for OBS-012. WHY THIS EXISTS --------------- `from_project` is free text in an envelope's metadata. It is the ONLY thing that separates cooperating producers at the seam, because `sender_id` does not: the shell surface on this ho..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
   []
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tools/_t420-gate-mutation-check.sh
+    type: calls
+  - target: tools/_t426-gate-misfire-matrix.sh
+    type: calls
 
-last_verified: 2026-08-10
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

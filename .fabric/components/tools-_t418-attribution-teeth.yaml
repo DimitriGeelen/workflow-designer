@@ -1,20 +1,23 @@
 id: tools/_t418-attribution-teeth.sh
 name: _t418-attribution-teeth
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t418-attribution-teeth.sh
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t418-attribution-teeth.sh — the producer-attribution detector must be able to return BOTH verdicts, and must not have learned the one fingerprint in hand."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/_t418-producer-attribution.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tools/_t418-mutation-check.sh
+    type: calls
 
-last_verified: 2026-08-09
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

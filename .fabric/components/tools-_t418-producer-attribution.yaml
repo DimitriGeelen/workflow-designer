@@ -1,20 +1,24 @@
 id: tools/_t418-producer-attribution.py
 name: _t418-producer-attribution
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t418-producer-attribution.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t418-producer-attribution.py — is a sender fingerprint on this hub attributable to ONE producer, or to several? T-418. Triggered by AEF rail 509, generalised past it. WHAT THIS ANSWERS ----------------- When a peer's post arrives, \"who sent this\" has two candidate answers and they are not the same answer: sender_id cryptographic, hub-derived from sender_pubkey_hex (T-1427), cannot be forged --..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
   []
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tools/_t418-attribution-teeth.sh
+    type: calls
+  - target: tools/_t418-mutation-check.sh
+    type: calls
 
-last_verified: 2026-08-09
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

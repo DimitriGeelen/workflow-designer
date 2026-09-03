@@ -1,20 +1,26 @@
 id: tools/_t623-fabric-denominator-scope-probe.py
 name: _t623-fabric-denominator-scope-probe
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t623-fabric-denominator-scope-probe.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-623 — is our fabric coverage number scoped the way AEF's is? 999-AEF answered Arc 0 clause 1 on agent-chat-arc offset 650 with a red measurement of its own fabric, and extended the verdict to us unmeasured: \"Your 69/252 with 46 edgeless is the same disease; we are simply further along the same curve, not healthier.\" The defect they described is specific, and it is NOT low coverage. It is this..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.xml
+    type: reads
+  - target: tests/fixtures/invalid/E-XML-NODE-TYPE.xml
+    type: reads
+  - target: tests/fixtures/warn/W-TYPE-LANE-MISMATCH.xml
+    type: reads
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-27
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

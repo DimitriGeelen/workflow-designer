@@ -1,20 +1,22 @@
 id: tools/_t547-hx-prompt-decode-teeth.py
 name: _t547-hx-prompt-decode-teeth
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t547-hx-prompt-decode-teeth.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-547 teeth — an operator's rationale must be stored as the operator wrote it. Two Watchtower routes take a policy-decision rationale from the browser through htmx's `hx-prompt` and store it as the audit record: web/blueprints/bvp.py bvp_driver_remove (SOVEREIGN — a policy edit) web/blueprints/bvp.py bvp_driver_reject (a queue decision) XHR forbids non-ASCII header values, so htmx (htmx.min.js,..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
   []
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
 
-last_verified: 2026-08-16
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

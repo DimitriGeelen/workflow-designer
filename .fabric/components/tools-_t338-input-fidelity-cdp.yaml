@@ -1,20 +1,27 @@
 id: tools/_t338-input-fidelity-cdp.mjs
 name: _t338-input-fidelity-cdp
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t338-input-fidelity-cdp.mjs
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t338-input-fidelity-cdp.mjs — does a load->save round trip PRESERVE what it was given? Compares the EXPORTED document against the INPUT document.  Prevention leg for G-016. The tree already has an export-safety instrument, tools/_t308-export-byte-identity-cdp.mjs, and it is differential: it runs buildBpmnXml(parseBpmnXml(map)) under the working tree AND under a git ref and compares the two out..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t419-carrier-mutation-check.sh
+    type: calls
 
-last_verified: 2026-08-02
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

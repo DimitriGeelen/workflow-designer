@@ -31,7 +31,20 @@ Edgeless is REPORTED, NEVER PAPERED OVER. A file nothing references and which re
 nothing gets an honest empty card and is counted in the summary. Inventing a decorative
 edge to clear the edgeless warn would be the same false green in the other direction.
 
-Usage:  _t673-fabric-cards.py [--dry-run] [--report-only]
+--refresh-stubs additionally REWRITES cards that are already registered but are stubs:
+purpose containing "TODO" AND no edges in either direction. Measured tree-wide, 46 of the
+47 TODO-purpose cards are exactly the 46 edgeless pre-existing cards — the two symptoms
+are one population, which is what "registered was counting stubs" (T-671, on the Arc-0
+set) looks like at tree scale.
+
+The refresh predicate is deliberately narrow: a card must be BOTH TODO-purposed AND
+edgeless to qualify. A hand-written card, a T-671 Arc-0 card, or any card someone gave a
+real purpose is never rewritten, because a generator that silently overwrites authored
+content is how generated trees eat hand work. Non-code cards (.xml fixtures) are skipped
+whatever their purpose: the extractor cannot read them, so a refresh could only downgrade
+them to the same stub with different words.
+
+Usage:  _t673-fabric-cards.py [--dry-run] [--report-only] [--refresh-stubs]
 """
 import importlib.util
 import os
@@ -85,6 +98,32 @@ def carded_locations():
     return seen
 
 
+def stub_locations():
+    """Cards that are BOTH TODO-purposed AND edgeless — the stub population, and only it.
+
+    Both conditions are required. Either alone would catch cards that carry real work:
+    a genuine card for a leaf script is legitimately edgeless, and a card someone
+    authored may mention TODO in passing. A stub is the conjunction.
+    """
+    import yaml
+    out = []
+    for f in sorted(os.listdir(CARD_DIR)):
+        if not f.endswith(".yaml"):
+            continue
+        try:
+            with open(os.path.join(CARD_DIR, f)) as fh:
+                c = yaml.safe_load(fh) or {}
+        except Exception:  # noqa: BLE001
+            continue
+        loc = c.get("location")
+        if not loc or os.path.splitext(loc)[1] not in SCAN_EXT:
+            continue
+        edgeless = not (c.get("depends_on") or []) and not (c.get("depended_by") or [])
+        if edgeless and "TODO" in str(c.get("purpose") or ""):
+            out.append(loc)
+    return out
+
+
 def derive_all(tracked, uniq):
     """Forward pass over every scanned file. Returns {src: [(target, kind)]}."""
     scan = [p for p in sorted(tracked)
@@ -125,6 +164,12 @@ def main():
                   if p not in existing
                   and os.path.splitext(p)[1] in SCAN_EXT
                   and os.path.exists(os.path.join(REPO, p)))
+
+    refreshed = []
+    if "--refresh-stubs" in sys.argv:
+        refreshed = [p for p in stub_locations()
+                     if os.path.exists(os.path.join(REPO, p)) and p not in todo]
+        todo = sorted(set(todo) | set(refreshed))
     unreachable = sorted(p for p in watched
                          if p not in existing and os.path.splitext(p)[1] not in SCAN_EXT)
 
@@ -180,6 +225,9 @@ def main():
     print(f"watch set        {len(watched)}")
     print(f"already carded   {len(watched & set(existing))}")
     print(f"{verb:<16} {written}")
+    if refreshed:
+        print(f"  of which stubs   {len(refreshed)}  (TODO purpose AND edgeless; "
+              f"rewritten with sourced purpose + derived edges)")
     print(f"  sourced purpose  {written - len(unsourced)}")
     print(f"  no self-descr.   {len(unsourced)}  (recorded as absent, never 'TODO')")
     print(f"  edgeless         {len(edgeless)}  (honest: nothing references them and "

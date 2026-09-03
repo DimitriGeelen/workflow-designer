@@ -1,20 +1,24 @@
 id: tools/_t604-cdp-attach-race.mjs
 name: _t604-cdp-attach-race
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t604-cdp-attach-race.mjs
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-604 — the CDP page-target attach race, and the sweep that keeps it fixed.  OBS-313 was OBS-304 resurfacing. OBS-304 named this race and was fixed at FOUR call sites; seventy-three others kept the defect, and _t366 even documents it in prose as a \"remaining unguarded race\". A fix applied at the call site instead of the definition site gets re-found as a new bug. So L1 is a SCAN, not a memory:..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/_cdp-attach.mjs
+    type: calls
+  - target: tools/_t603-multiprocess-import.mjs
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-26
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

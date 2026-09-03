@@ -1,20 +1,29 @@
 id: tests/test_t317_gw_ambiguous_parity.py
 name: test_t317_gw_ambiguous_parity
 type: script
-subsystem: unknown
+subsystem: tests
 location: tests/test_t317_gw_ambiguous_parity.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-317: W-XML-GW-AMBIGUOUS — branch-ambiguity parity between the two validators. The designer speaks BPMN. `Validator` (YAML) carried `W-GW-AMBIGUOUS`; `XmlValidator` (BPMN) did not. Surfacing \"the validator\" in the editor (T-309) would therefore have surfaced the weaker of the two rule sets, and would specifically have failed to answer the gateway question that prompted the inception. The gap w..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tests/fixtures/aef-overlay/draft-knowledge-leveling-v3.bpmn
+    type: reads
+  - target: tests/fixtures/valid/gw-single-default.xml
+    type: reads
+  - target: tests/fixtures/warn/W-XML-GW-AMBIGUOUS.xml
+    type: reads
+  - target: tools/validate-workflow.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
 
-last_verified: 2026-07-31
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

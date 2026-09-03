@@ -1,20 +1,22 @@
 id: tools/_t660-human-ac-actionability.py
 name: _t660-human-ac-actionability
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t660-human-ac-actionability.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-660 — is the operator's queue ACTIONABLE, not merely present? WHY THIS EXISTS. P-010 gates on Agent ACs. P-011 runs Verification. The `### Human` section is explicitly non-blocking — so the one class of criterion a *person* must act on is the only one with no instrument at all. 010-termlink put it exactly right at rail @891: gate-green and operator-actionable are separate properties, and only..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
   []
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tools/_t660-actionability-checker-must-have-teeth.sh
+    type: calls
 
-last_verified: 2026-08-31
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

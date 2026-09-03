@@ -1,20 +1,23 @@
 id: tools/_t550-audit-parse-anchor-teeth.py
 name: _t550-audit-parse-anchor-teeth
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t550-audit-parse-anchor-teeth.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-550 teeth — a stale anchor does not go quiet, it rebinds onto the archive of its own past. `tools/_t344-watch-set-denominator.sh` leg 8 compares the audit's two fabric coverage counts. It read them out of the whole report with `sed ... | head -1`, anchored on the literal text `unregistered (of N watched)`. T-525 changed that finding to `(of N watched — P% covered, <direction>)`. The anchor st..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/_t344-watch-set-denominator.sh
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
 
-last_verified: 2026-08-16
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

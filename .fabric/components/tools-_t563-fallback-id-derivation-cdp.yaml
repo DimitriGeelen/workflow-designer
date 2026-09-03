@@ -1,20 +1,25 @@
 id: tools/_t563-fallback-id-derivation-cdp.mjs
 name: _t563-fallback-id-derivation-cdp
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t563-fallback-id-derivation-cdp.mjs
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "The whole corpus, not only the fallback population — leg 4 needs the documents that DO carry the element, and the split is measured here rather than hard-coded so the probe reports the truth if the corpus moves."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
 
-last_verified: 2026-08-24
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

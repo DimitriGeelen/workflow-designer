@@ -1,20 +1,24 @@
 id: tools/_t419-carrier-mutation-check.sh
 name: _t419-carrier-mutation-check
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t419-carrier-mutation-check.sh
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t419-carrier-mutation-check.sh — the competing-carrier leg read the brief's table back correctly on its first run. That is when a check is least trustworthy: a row that has never been observed moving is not known to be capable of moving, and two of the three rows assert an ABSENCE, which is also what a broken detector reports."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t338-input-fidelity-cdp.mjs
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-10
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

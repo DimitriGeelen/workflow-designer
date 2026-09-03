@@ -1,20 +1,21 @@
 id: tools/_t358-corpus-lane-provenance-probe.py
 name: _t358-corpus-lane-provenance-probe
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t358-corpus-lane-provenance-probe.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-358 — does any corpus map RELY on the fabricated lane default? T-358's defect: the importer initialises `state` into our own lane skeleton, so an absent lane set and an empty one share a representation, and every one of five third-party fixtures gains `lanes 0->3 / participants 0->1` on open->save. The repair is to emit zero lanes for a lane-less input. This probe answers the AC that guards t..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
   []
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-27
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

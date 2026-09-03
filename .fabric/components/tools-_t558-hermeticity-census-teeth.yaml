@@ -1,20 +1,23 @@
 id: tools/_t558-hermeticity-census-teeth.py
 name: _t558-hermeticity-census-teeth
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t558-hermeticity-census-teeth.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-558 teeth — the T-532 census must still SEE a real whole-tree assertion after T-558 taught it to ignore prose. WHY THIS EXISTS. T-558 changed `tools/_t532-hermeticity-scope-census.py` so that Python docstrings are blanked before classification, the same way `#` comments already were. That change removed the census's single WHOLE-TREE finding — `tools/_writeset_hermeticity.py`, which contains..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/_t532-hermeticity-scope-census.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
 
-last_verified: 2026-08-20
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

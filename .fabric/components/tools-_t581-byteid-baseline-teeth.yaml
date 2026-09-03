@@ -1,20 +1,26 @@
 id: tools/_t581-byteid-baseline-teeth.py
 name: _t581-byteid-baseline-teeth
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t581-byteid-baseline-teeth.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t581-byteid-baseline-teeth.py — teeth for the recorded-golden byte-identity gate. WHAT THIS EXISTS TO PREVENT. T-581 moved tools/_t358-byteid-thirdparty.mjs off a hand-picked git ref (`3bf37909~1`) and onto 11 recorded goldens. That repair is only worth its weight if the new gate can still go RED — and the specific failure this task is repairing is a gate that reports health it never checked...."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t358-byteid-thirdparty.mjs
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-24
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

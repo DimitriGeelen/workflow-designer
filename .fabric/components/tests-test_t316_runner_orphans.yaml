@@ -1,20 +1,23 @@
 id: tests/test_t316_runner_orphans.py
 name: test_t316_runner_orphans
 type: script
-subsystem: unknown
+subsystem: tests
 location: tests/test_t316_runner_orphans.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-316: no collectable test file may sit outside the gating runner. A suite nobody runs cannot report a failure, so its silence is indistinguishable from health. Nine files in tests/ were named by no runner at all; all nine passed when finally run by hand, which is precisely why the condition survived. PREDICATE (adopted from AEF rail 349, their wording): MATCH WHAT A RUNNER WOULD COLLECT, NOT W..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
 
-last_verified: 2026-07-31
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

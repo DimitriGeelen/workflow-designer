@@ -1,20 +1,21 @@
 id: tools/_t342-fabric-edge-drop-probe.py
 name: _t342-fabric-edge-drop-probe
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t342-fabric-edge-drop-probe.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-342: establish the KIND of `fw fabric enrich`'s zero. Runs enrich.py's OWN pipeline (not a reimplementation — divergence between a probe's copy of the logic and the real logic is exactly how you measure the wrong thing) with resolve_edges wrapped so that, per card, we see: raw = edges the detectors produced (already existence-guarded against disk) resolved = edges that survived lookup in the..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
   []
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-02
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

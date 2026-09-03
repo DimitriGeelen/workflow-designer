@@ -1,20 +1,22 @@
 id: tools/_t430-abstention-teeth.sh
 name: _t430-abstention-teeth
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t430-abstention-teeth.sh
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t430-abstention-teeth.sh — prove an abstention guard FIRES, not merely that the suite died."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
   []
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tools/_t509-instrument-sweep.sh
+    type: calls
 
-last_verified: 2026-08-11
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

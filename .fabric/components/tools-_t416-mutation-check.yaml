@@ -1,20 +1,24 @@
 id: tools/_t416-mutation-check.sh
 name: _t416-mutation-check
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t416-mutation-check.sh
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t416-mutation-check.sh — prove the residue legs bite, by reverting to the T-412 span rule."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/_t416-qualifier-residue-teeth.sh
+    type: calls
+  - target: tools/tracked-secret-artifacts.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-09
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

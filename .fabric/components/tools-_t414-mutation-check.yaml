@@ -1,20 +1,24 @@
 id: tools/_t414-mutation-check.sh
 name: _t414-mutation-check
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t414-mutation-check.sh
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t414-mutation-check.sh — prove the two new provenance legs can actually go red."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/_t406-doc-comment-provenance-cdp.mjs
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-09
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

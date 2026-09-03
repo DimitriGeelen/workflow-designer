@@ -1,20 +1,23 @@
 id: tools/_t549-fabric-coverage-mutation-teeth.py
 name: _t549-fabric-coverage-mutation-teeth
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t549-fabric-coverage-mutation-teeth.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "T-549 teeth — a cheaper stimulus that can no longer fail is not a cheaper test. T-549 moved _t525's four branch legs off this repository and onto a 20-file fixture, taking the probe from 86.04s to ~24.6s. The saving is real and so is the risk it creates: a fixture is a stimulus somebody built, and a stimulus somebody built can be built — by accident — so that the legs it drives cannot go red. P..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/_t525-fabric-coverage-teeth.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
+  - target: tests/run-bridge-tests.sh
+    type: calls
 
-last_verified: 2026-08-16
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

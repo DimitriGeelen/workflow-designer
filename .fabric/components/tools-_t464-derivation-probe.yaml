@@ -1,20 +1,24 @@
 id: tools/_t464-derivation-probe.sh
 name: _t464-derivation-probe
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t464-derivation-probe.sh
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t464-derivation-probe.sh — prove the T-400 RECIPROC leg DERIVES its expected population instead of restating it, in both directions, without touching the live register."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tools/_t400-schema-teeth.sh
+    type: calls
+  - target: tools/concerns-schema.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-12
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

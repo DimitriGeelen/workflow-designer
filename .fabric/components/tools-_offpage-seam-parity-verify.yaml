@@ -1,20 +1,24 @@
 id: tools/_offpage-seam-parity-verify.py
 name: _offpage-seam-parity-verify
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_offpage-seam-parity-verify.py
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_offpage-seam-parity-verify.py — T-232 / S5a off-page seam parity guard. The PL-005/PL-030 drift counter for the off-page connector seam: a STATIC, pure-Python key-set-equality guard (PD-015) anchored on the SHARED byte-fixture that 832 AND AEF both pin — tests/fixtures/aef-bpmn/offpage-seam.bpmn (T-219, pair-draft #3). It turns S2's one-time round-trip check into a STANDING guard that runs eve..."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
+  - target: tests/fixtures/aef-bpmn/offpage-seam.bpmn
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-07-22
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

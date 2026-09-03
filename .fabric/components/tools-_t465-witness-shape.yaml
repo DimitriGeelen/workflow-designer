@@ -1,20 +1,21 @@
 id: tools/_t465-witness-shape.sh
 name: _t465-witness-shape
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t465-witness-shape.sh
-tags: []
+tags: [derived]
 
-purpose: "TODO: describe what this component does"
+purpose: "_t465-witness-shape.sh — the G-037 witness must state the QUESTION, not just the answer."
 
 depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
   []
 
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
   []
 
-last_verified: 2026-08-12
-created_by: unknown
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py
