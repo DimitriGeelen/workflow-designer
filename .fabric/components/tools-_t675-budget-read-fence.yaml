@@ -1,0 +1,21 @@
+id: tools/_t675-budget-read-fence.py
+name: _t675-budget-read-fence
+type: script
+subsystem: instruments
+location: tools/_t675-budget-read-fence.py
+tags: [derived]
+
+purpose: "T-675: drive every arm of the budget safe-read, and the gate's fail-open, against throwaway roots. PL-308: a guard that has only ever been green is a hand-maintained claim. Every case below is a state that USED TO READ AS `level: ok` — the whole defect is that a reader could not tell these apart from a measured healthy session, so a fence that only checked the happy path would restate the bug r..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

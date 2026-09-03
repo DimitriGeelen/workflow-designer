@@ -76,8 +76,17 @@ done
 # a usage block hasn't landed yet on the first few tool calls). Seeding with
 # ok lets fast path serve the correct initial state for STATUS_MAX_AGE (90s),
 # during which real post-compact usage entries accumulate in the JSONL.
+# T-675: the seed above is a DELIBERATE ASSUMPTION with a ~90s shelf life, not a
+# reading — nothing scanned a transcript to produce it. `"measured": false` says so
+# in the file. The seed's VALUE is unchanged (`level: ok` is exactly what T-1087
+# requires and the fast path still serves it for STATUS_MAX_AGE); the flag only lets
+# an external reader tell an assumption from a measurement once it has outlived its
+# 90 seconds. Measured live: this seed was still being read as an authoritative
+# `{level: ok}` hours after compaction, while the session held 82,719 tokens.
+_PCR_SESSION_ID=$(grep '^session_id:' "$PROJECT_ROOT/.context/working/session.yaml" \
+    2>/dev/null | head -1 | cut -d: -f2 | tr -d '[:space:]') || _PCR_SESSION_ID=""
 cat > "$PROJECT_ROOT/.context/working/.budget-status" <<BUDGET_EOF
-{"level": "ok", "tokens": 0, "timestamp": $(date +%s), "source": "post-compact-resume"}
+{"level": "ok", "tokens": 0, "timestamp": $(date +%s), "source": "post-compact-resume", "measured": false, "session_id": "${_PCR_SESSION_ID:-unknown}"}
 BUDGET_EOF
 
 # T-1088: Write the session-start timestamp in ISO-8601 Z format. budget-gate.sh

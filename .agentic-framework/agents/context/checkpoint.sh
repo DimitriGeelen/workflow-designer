@@ -13,6 +13,9 @@
 #   checkpoint.sh post-tool   — Called by Claude Code PostToolUse hook
 #   checkpoint.sh reset       — Reset tool call counter (on commit)
 #   checkpoint.sh status      — Show current context usage
+#   checkpoint.sh budget      — Safe read of .budget-status (T-675): refuses an
+#                               unmeasured, stale, or foreign-session cache and
+#                               reports `level: unknown` + reason. Exit 3 = refused.
 #
 # Part of: Agentic Engineering Framework (P-009: Context Budget Awareness)
 
@@ -447,8 +450,89 @@ except Exception: print('')
             echo "Context tokens: unavailable (no transcript)"
         fi
         ;;
+    budget)
+        # T-675: the SAFE READ of .budget-status. The /resume skill already mandates
+        # this subcommand; it did not exist, so the hardening it cites was inert and
+        # readers fell back to a raw `cat` — which cannot distinguish a measured
+        # healthy session from an assumption, a stale file, or another session's.
+        #
+        # Refuses rather than reassures. Prints `level: unknown` plus the REASON,
+        # because "unknown" with no reason is just a different way to be unhelpful.
+        # Exit 0 = trustworthy, 3 = refused. This is a reader, never a gate: it
+        # blocks nothing, it only declines to be quoted. `trap -` because 3 is a
+        # DELIBERATE code here and the shared crash trap would otherwise dress a
+        # correct refusal up as a hook malfunction.
+        trap - EXIT
+        #
+        # Freshness uses BUDGET_READ_MAX_AGE (default 900s), NOT the gate's
+        # BUDGET_STATUS_MAX_AGE (90s). Those two thresholds answer different
+        # questions. 90s is right for a hook that runs on every tool call and can
+        # cheaply re-measure. For a reader called once at session start it would
+        # refuse almost every time — and a refusal that always fires is one that gets
+        # ignored, which is worse than no check at all. 900s still catches what this
+        # is for: a cache left behind by a session that has since ended (the live
+        # instance was HOURS old), with session_id catching the rest.
+        python3 - "$CONTEXT_DIR/working/.budget-status" \
+                  "$CONTEXT_DIR/working/session.yaml" \
+                  "$(fw_config_int "BUDGET_READ_MAX_AGE" 900)" \
+                  "$CONTEXT_WINDOW" <<'BUDGET_READ_EOF'
+import json, os, re, sys, time
+
+cache_p, session_p, max_age, window = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
+
+
+def refuse(reason):
+    print("level: unknown")
+    print("reason: %s" % reason)
+    print("fallback: run `checkpoint.sh status` to measure the transcript directly")
+    sys.exit(3)
+
+
+if not os.path.exists(cache_p):
+    refuse("no .budget-status (the gate has not run in this session yet)")
+try:
+    with open(cache_p) as fh:
+        c = json.load(fh)
+except Exception as exc:
+    refuse("unparsable .budget-status: %s" % exc)
+
+level, tokens = c.get("level", "unknown"), c.get("tokens", 0)
+age = int(time.time()) - int(c.get("timestamp", 0) or 0)
+
+# `measured` is T-675 and absent from caches written before it. Infer it for those:
+# a NONZERO token count can only have come from a real scan, and a zero is exactly
+# the value both unmeasured writers emit. So absence degrades safely rather than
+# silently trusting every pre-T-675 file.
+measured = c.get("measured")
+if measured is None:
+    measured = bool(tokens)
+
+if not measured:
+    refuse("value is UNMEASURED — written by %s without scanning a transcript "
+           "(an assumption, not a reading)" % (c.get("source") or "an unknown writer"))
+if level == "unknown":
+    refuse("writer recorded level=unknown (its scan failed)")
+if age > max_age:
+    refuse("stale by %ds (cache is %ds old, limit %ds) — likely a previous session's"
+           % (age - max_age, age, max_age))
+
+# Only compare identities when BOTH are known; an unknown on either side is a gap in
+# the evidence, not proof of a match.
+cache_sid = (c.get("session_id") or "").strip()
+live_sid = ""
+if os.path.exists(session_p):
+    m = re.search(r"^session_id:\s*(\S+)", open(session_p).read(), re.M)
+    live_sid = m.group(1) if m else ""
+if cache_sid and live_sid and cache_sid not in ("unknown",) and cache_sid != live_sid:
+    refuse("written by session %s, this is %s" % (cache_sid, live_sid))
+
+print("level: %s" % level)
+print("tokens: %d (~%d%% of %d)" % (tokens, tokens * 100 // window, window))
+print("age: %ds  source: %s" % (age, c.get("source") or "unknown"))
+BUDGET_READ_EOF
+        ;;
     *)
-        echo "Usage: checkpoint.sh {post-tool|reset|status}"
+        echo "Usage: checkpoint.sh {post-tool|reset|status|budget}"
         exit 1
         ;;
 esac

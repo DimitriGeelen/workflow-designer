@@ -470,9 +470,19 @@ Each component has a YAML card in `.fabric/components/` with: id, name, type, su
   is configurable (`fw config get CONTEXT_WINDOW`, default 300000), so any absolute number
   written here is a derived illustration that goes stale the moment the window changes —
   which is exactly what happened (T-614).
-- **Read the level, do not recompute it.** `.context/working/.budget-status` carries the
-  gate's own verdict as `level`. If `level` and your arithmetic disagree, `level` wins: it is
-  produced by the code that enforces, and your arithmetic is produced by reading prose.
+- **Read the level, do not recompute it — but read it through the safe read.**
+  `.agentic-framework/agents/context/checkpoint.sh budget` reports the gate's own verdict
+  as `level`. If `level` and your arithmetic disagree, `level` wins: it is produced by the
+  code that enforces, and your arithmetic is produced by reading prose.
+- **Do not `cat .context/working/.budget-status` (T-675).** That file has two writers that
+  emit a value NOBODY MEASURED: the post-compaction seed (deliberate, ~90s shelf life) and
+  the gate's fail-open on a failed transcript scan (deliberate, so a broken scan never
+  blocks every tool call). Both used to render as `{"level": "ok", "tokens": 0}` — the
+  gate's failure mode wrote MAXIMUM HEADROOM into the file this rule makes authoritative.
+  Measured live on 2026-09-03: the cache read `ok / 0` while the session held 117,630
+  tokens. Both writers now stamp `"measured": false` and `checkpoint.sh budget` refuses an
+  unmeasured, stale, or foreign-session cache, reporting `level: unknown` plus the reason.
+  **`unknown` is not `ok`** — it means measure before deciding, via `checkpoint.sh status`.
 - Below 75%: proceed normally
 - 75–85% (`warn`): propose only small, bounded tasks; commit first
 - 85–95% (`urgent`): propose only wrap-up actions (commit, learnings, handover)

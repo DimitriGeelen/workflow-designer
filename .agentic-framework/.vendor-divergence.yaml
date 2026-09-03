@@ -321,7 +321,13 @@ entries:
     kind: content
     task: T-401
     upstream: fix
-    reason: Budget gauge read false-critical after compaction; usage scoped to the session's own mode.
+    reason: >
+      Budget gauge read false-critical after compaction; usage scoped to the session's own mode.
+      T-675 (also upstream: fix) additionally stamps `measured` and `session_id` into
+      .budget-status. The fail-open on a failed scan is unchanged and still exits 0, but it no
+      longer derives LEVEL=ok from TOKENS=0 — an unmeasured reading now writes LEVEL=unknown,
+      which matches no branch of either case statement. Both changes are additive to the JSON
+      shape; every existing reader keys on level/tokens/timestamp and is unaffected.
 
   - path: .agentic-framework/lib/context_tokens.py
     kind: added
@@ -339,7 +345,24 @@ entries:
     kind: content
     task: T-401
     upstream: fix
-    reason: Fallback path aligned with the corrected gauge.
+    reason: >
+      Fallback path aligned with the corrected gauge. T-675 adds the `budget` subcommand — the
+      safe read of .budget-status that the /resume skill already mandates but that shipped
+      nowhere, leaving readers to `cat` a file that cannot distinguish a measurement from an
+      assumption. Refuses unmeasured / stale / foreign-session caches with a reason. Strictly
+      additive: a new case branch plus one word in the usage line.
+
+  - path: .agentic-framework/agents/context/post-compact-resume.sh
+    kind: content
+    task: T-675
+    upstream: fix
+    reason: >
+      The T-1087 seed writes {level: ok, tokens: 0} after every compaction — deliberate, with a
+      ~90s shelf life, and it STAYS: it prevents the slow path reading pre-compact usage and
+      blocking a fresh session. T-675 marks it `"measured": false` so a reader can tell the
+      assumption from a measurement once it outlives those 90 seconds. Measured live: this seed
+      was still being read as authoritative `{level: ok}` hours after compaction, in a session
+      holding 117,630 tokens. Value and timing unchanged; only provenance added.
 
   - path: .agentic-framework/agents/context/lib/safe-commands.sh
     kind: content

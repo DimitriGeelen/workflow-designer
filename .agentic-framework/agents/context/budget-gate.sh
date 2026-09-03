@@ -291,15 +291,30 @@ fi
 # defenses (T-2322 boundary reset, T-1088 sidecar filter, <synthetic> skip)
 # filter by position in the log, and that entry was legitimately positioned --
 # only model identity separates it from the conversation.
+MEASURED=true
 TOKENS=$(python3 "$FRAMEWORK_ROOT/lib/context_tokens.py" \
-    "$TRANSCRIPT" "$CONTEXT_DIR/working/.session-start-ts" 2>/dev/null) || TOKENS=0
+    "$TRANSCRIPT" "$CONTEXT_DIR/working/.session-start-ts" 2>/dev/null) || {
+        TOKENS=0; MEASURED=false; }
 # This gate runs on EVERY tool call: a non-numeric reading must degrade to 0
 # (fail open) rather than crash the arithmetic below and block every tool.
 case "${TOKENS:-}" in
-    ''|*[!0-9]*) TOKENS=0 ;;
+    ''|*[!0-9]*) TOKENS=0; MEASURED=false ;;
 esac
+# T-675: A ZERO IS NOT A MEASUREMENT. A live session always has tokens, so 0 here
+# means the scan found nothing to read (absent/empty/unparsable transcript) — a
+# failure wearing the value of maximum headroom.
+[ "$TOKENS" -eq 0 ] && MEASURED=false
 
+# T-675: do NOT derive a level from an unmeasured reading. The fail-open above is
+# correct and STAYS — a broken scan must never block every tool call — but 0 used to
+# fall straight through this ladder to LEVEL=ok and get written to .budget-status
+# indistinguishably from a measured healthy session. CLAUDE.md tells the agent to read
+# `level` from that file and to let it win over its own arithmetic, so the gate's
+# FAILURE MODE was writing MAXIMUM HEADROOM into the authoritative file.
+# `unknown` matches no branch of either case statement below, so the gate still exits
+# 0 (fail open) while the cache now says: nobody measured this.
 LEVEL=ok
+[ "$MEASURED" = "false" ] && LEVEL=unknown
 if [ "$TOKENS" -ge "$TOKEN_CRITICAL" ]; then
     LEVEL=critical
 elif [ "$TOKENS" -ge "$TOKEN_URGENT" ]; then
@@ -308,10 +323,23 @@ elif [ "$TOKENS" -ge "$TOKEN_WARN" ]; then
     LEVEL=warn
 fi
 
-# Same JSON shape as before (level, tokens, timestamp, source) — .budget-status
-# is consumed by the fast path here, by fw doctor, and by /resume.
-printf '{"level": "%s", "tokens": %s, "timestamp": %s, "source": "budget-gate"}\n' \
-    "$LEVEL" "$TOKENS" "$(date +%s)" > "$STATUS_FILE" 2>/dev/null || true
+# .budget-status is consumed by the fast path here, by fw doctor, and by /resume.
+#
+# T-675 adds two fields, both PURELY ADDITIVE — every existing reader keys on
+# `level`/`tokens`/`timestamp` and is unaffected:
+#   measured    false when nobody actually read a transcript for this value. The
+#               distinction the file could not previously express, and the whole
+#               point: an unmeasured {ok, 0} is indistinguishable from a measured
+#               healthy session to a reader that only sees `level`.
+#   session_id  so a reader can tell a PRIOR session's cache from this one's. The
+#               gate rejects its own cache past BUDGET_STATUS_MAX_AGE (90s), but
+#               external readers applied no freshness check at all and would happily
+#               read a file written hours ago by a session that has since ended.
+_BG_SESSION_ID=$(grep '^session_id:' "$CONTEXT_DIR/working/session.yaml" 2>/dev/null \
+    | head -1 | cut -d: -f2 | tr -d '[:space:]') || _BG_SESSION_ID=""
+printf '{"level": "%s", "tokens": %s, "timestamp": %s, "source": "budget-gate", "measured": %s, "session_id": "%s"}\n' \
+    "$LEVEL" "$TOKENS" "$(date +%s)" "$MEASURED" "${_BG_SESSION_ID:-unknown}" \
+    > "$STATUS_FILE" 2>/dev/null || true
 
 case "$LEVEL" in
     ok)
