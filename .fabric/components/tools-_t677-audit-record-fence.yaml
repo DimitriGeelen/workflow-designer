@@ -1,0 +1,21 @@
+id: tools/_t677-audit-record-fence.py
+name: _t677-audit-record-fence
+type: script
+subsystem: instruments
+location: tools/_t677-audit-record-fence.py
+tags: [derived]
+
+purpose: "T-677: a partial audit run must not clobber a fuller record, and allowing more than one record per date must not inflate the recurrence counter. Two properties that pull against each other, which is why both are fenced: PRESERVE a section-scoped run writes alongside a fuller record for the same date instead of replacing it. The pre-push hook ran `--section structure` and wrote the same path a f..."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

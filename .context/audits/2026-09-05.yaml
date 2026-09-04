@@ -125,3 +125,296 @@ findings:
     check: "C-003: Research checkpoint logic present in checkpoint.sh"
   - level: PASS
     check: "C-006: All active inceptions have a real Recommendation block"
+  - level: PASS
+    check: "CTL-001: Focus file has active task (T-575)"
+  - level: WARN
+    check: "CTL-003: Budget status file stale (8min old)"
+    mitigation: "Check PreToolUse hook wiring for budget-gate.sh"
+  - level: PASS
+    check: "CTL-004: Tool counter at 2 (last commit: 10 minutes ago)"
+  - level: PASS
+    check: "CTL-018: Budget status valid JSON (level: ok)"
+  - level: PASS
+    check: "CTL-008: Task reference traceability 100% (0/20 without T-XXX)"
+  - level: PASS
+    check: "CTL-020: 4 cron audit file(s) in last hour"
+  - level: PASS
+    check: "CTL-002: Tier 0 guard installed and wired in settings.json"
+  - level: PASS
+    check: "CTL-005: Error watchdog installed and wired in settings.json"
+  - level: PASS
+    check: "CTL-006: Handover coverage for compactions (602 handovers, 268 compactions)"
+  - level: PASS
+    check: "CTL-007: Post-compact resume hook configured in settings.json"
+  - level: PASS
+    check: "CTL-009: Inception T-155 has decision (10 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-184 has decision (10 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-277 has decision (3 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-279 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-280 has decision (5 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-309 has decision (40 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-357 has decision (21 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-619 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-002 has decision (11 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-006 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-007 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-015 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-020 has decision (11 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-068 has decision (7 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-092 has decision (3 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-112 has decision (6 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-128 has decision (3 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-142 has decision (3 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-173 has decision (20 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-175 has decision (13 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-190 has decision (14 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-201 has decision (8 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-213 has decision (5 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-218 has decision (11 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-244 has decision (7 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-247 has decision (7 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-249 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-250 has decision (5 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-257 has decision (8 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-263 has decision (6 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-301 has decision (9 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-501 has decision (11 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-587 has decision (5 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-617 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-027: Inception T-155 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-184 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-185 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-186 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-277 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-279 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-280 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-281 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-282 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-309 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-357 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-498 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-619 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-010: Bypass log has 1 entries (post-commit detector working)"
+  - level: PASS
+    check: "CTL-011: pre-push hook installed and executable"
+  - level: PASS
+    check: "CTL-013: T-674 verification re-run: 7/7 pass"
+  - level: PASS
+    check: "CTL-013: T-675 verification re-run: 11/11 pass"
+  - level: PASS
+    check: "CTL-013: T-673 verification re-run: 6/6 pass"
+  - level: PASS
+    check: "CTL-019: claude-fw wrapper installed and executable"
+  - level: PASS
+    check: "CTL-025: T-093 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-178 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-233 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-308 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-310 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-325 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-340 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-351 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-353 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-368 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-392 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-410 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-432 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-433 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-449 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-537 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-540 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-565 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-579 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-586 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-588 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-589 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-590 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-592 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-593 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-596 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-597 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-600 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-601 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-606 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-608 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-609 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-643 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-647 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-671 partial-complete with owner:human ✓"
+  - level: WARN
+    check: "CTL-029: 2 stuck partial-complete task(s) — all ACs ticked, in active/ — run: bin/fw task archive-eligible"
+    mitigation: "Sweep with: bin/fw task archive-eligible (origin: T-1903, L-403)"
+  - level: PASS
+    check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
+  - level: PASS
+    check: "CTL-028: All completed/ tasks have frontmatter status: work-completed"
+  - level: PASS
+    check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009)"
+  - level: WARN
+    check: "CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-041 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-101 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-102 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-102 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-105 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-105 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-189 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-189 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-209 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-209 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-286 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-286 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-293 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-293 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-309 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-309 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-344 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-344 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-345 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-345 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-357 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-357 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-402 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-402 --status work-completed"
+  - level: PASS
+    check: "CTL-012: All 579 completed tasks have checked ACs"
+  - level: PASS
+    check: "D1: Episodic quality — 0% [TODO] (0/579)"
+  - level: FAIL
+    check: "D2: Human review queue — 7 task(s) waiting >30d: 5 awaiting judgement: T-308(37d) T-310(37d) T-325(34d) T-351(32d) T-353(32d); 2 signed off, awaiting only the status flip: T-093(61d) T-178(56d); 5 waiting >14d: T-233(21d) T-340(20d) T-368(27d) T-410(26d) T-449(23d)"
+    mitigation: "Review with: fw task verify (lists unchecked Human ACs). The signed-off ones need no review at all — close them: fw task update T-XXX --status work-completed (or fw task archive-eligible for all of them)"
+  - level: PASS
+    check: "D8: Handover quality — no [TODO] in LATEST.md"
+  - level: PASS
+    check: "D8b: Handover archive — 0/10 recent handovers have [TODO]s"
+  - level: PASS
+    check: "D10: Decision-without-dialogue — none detected"
+  - level: PASS
+    check: "D11: Gap register staleness — all gaps fresh"
+  - level: PASS
+    check: "D4: Audit trend — insufficient history (<3 entries)"
+  - level: WARN
+    check: "D5: Task lifecycle — 10 anomaly(s): T-341(33d-active) T-105(61d-active) T-189(55d-active) T-286(38d-active) T-423(25d-active) T-309(37d-active) T-357(32d-active) T-619(8d-active) T-358(32d-active) T-575(15d-active)"
+    mitigation: "Review flagged tasks for process issues"
+  - level: WARN
+    check: "D13: Inception limbo — 2 task(s): A=0/B=2 T-309(B) T-357(B)"
+    mitigation: "Recover both classes with: bin/fw inception sweep (T-1514)"
+  - level: PASS
+    check: "D3: Commit velocity — normal (PASS today=2 avg=25 ratio=0.1x)"
+  - level: PASS
+    check: "D7: Commit bunching — none (PASS 2_commits_24h)"
+  - level: WARN
+    check: "D6: Completion velocity — sustained drop (drop recent_avg=1.3 vs earlier_avg=10.0)"
+    mitigation: "Check for blockers or process issues slowing work"
+  - level: PASS
+    check: "D12: Bypass log — no log file"
+  - level: PASS
+    check: "D9: Control drift — normal (PASS 10_audits_checked)"
+  - level: PASS
+    check: "D14: Empty inception Recommendation — none (PASS no_empty_recommendations)"
+  - level: PASS
+    check: "D15: Inception limbo state — none (PASS no_limbo)"
+  - level: PASS
+    check: "CTL-016: No failure patterns recorded"
+  - level: INFO
+    check: "Orchestrator-arc MCP scan: no baseline on this install yet — drift scan skipped (seed from a framework checkout's .context/audits/ to enable)"
+  - level: INFO
+    check: "framework-mcp scan: status=missing (unexpected)"
+  - level: PASS
+    check: "Workflow dispatcher coverage: all 0 workflows route to a registered dispatcher and pi workflows declare a provider; declarable-but-unroutable: ['Task']"
+  - level: PASS
+    check: "Arc 'arc-001': 24/31 (0.7742) — below threshold 0.80, no closure pressure"

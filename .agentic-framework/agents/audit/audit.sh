@@ -5596,11 +5596,73 @@ else
     AUDIT_FILE="$EFFECTIVE_OUTPUT_DIR/$AUDIT_DATE.yaml"
 fi
 
+# T-677: A PARTIAL RUN MUST NOT CLOBBER A FULLER RECORD FOR THE SAME DAY.
+#
+# Both the pre-push hook (`--section structure`) and a full `fw audit` wrote
+# $AUDITS_DIR/<date>.yaml, so whichever ran last won. Measured on this project:
+# 08-23..08-29 = 23 findings each, 09-01..09-03 = 26 each, a hand-run full audit =
+# 192. Thirteen of fourteen days of "audit history" held ONLY the structure section.
+#
+# The damage is not the lost file, it is the TREND CORPUS. Trend analysis reads these
+# records, so it could only ever surface structure-section items — which is precisely
+# what it surfaced (fabric, gaps, release lag) and precisely what it never surfaced:
+# CTL-012 fired for 13 consecutive days and was never once promoted as a repeated
+# issue, because it was never in the corpus at all.
+#
+# The evidence needed to prevent this was ALREADY IN EVERY RECORD as `sections:
+# "structure"`, for fourteen days, and nothing read it.
+AUDIT_SECTIONS_LABEL="${SECTIONS:-all}"
+if [ -z "$OUTPUT_DIR" ]; then
+    AUDIT_FILE=$(python3 - "$AUDIT_FILE" "$AUDIT_SECTIONS_LABEL" <<'SECTION_GUARD_EOF'
+import os, re, sys
+
+path, incoming = sys.argv[1], sys.argv[2]
+
+
+def parse(label):
+    """None means 'all sections' — a full run, superset of every partial."""
+    if label == "all":
+        return None
+    return set(x for x in label.split(",") if x)
+
+
+new = parse(incoming)
+if new is not None and os.path.exists(path):
+    old = None
+    with open(path) as fh:
+        for line in fh:
+            m = re.match(r'^sections:\s*"?([^"\n]*)"?\s*$', line)
+            if m:
+                old = parse(m.group(1))
+                break
+            # `sections:` is emitted before these; reaching one means the record
+            # has no key, which (pre-T-677) is how a full run recorded itself.
+            if line.startswith(("summary:", "findings:")):
+                break
+    # Demote when the existing record covers strictly more than this run does.
+    if old is None or new < old:
+        slug = re.sub(r"[^a-z0-9]+", "-", incoming.lower()).strip("-")
+        path = "%s-%s.yaml" % (path[:-5], slug)
+print(path)
+SECTION_GUARD_EOF
+)
+    case "$AUDIT_FILE" in
+        *"$AUDIT_DATE-"*)
+            echo "Note: $AUDIT_DATE already holds a record covering more sections than" >&2
+            echo "      this run; writing alongside it rather than replacing it (T-677)." >&2
+            ;;
+    esac
+fi
+
 # Build YAML content
 {
     echo "# Audit Results - $AUDIT_DATETIME"
     echo "timestamp: $AUDIT_TIMESTAMP"
-    [ -n "$SECTIONS" ] && echo "sections: \"$SECTIONS\""
+    # T-677: emitted ALWAYS, "all" for a full run. Encoding full coverage as the
+    # ABSENCE of the key made a record unable to distinguish "covered everything"
+    # from "didn't say" — the same absence-as-meaning defect as T-675's unmeasured
+    # `ok`. A record that cannot state its own scope cannot be trended honestly.
+    echo "sections: \"$AUDIT_SECTIONS_LABEL\""
     echo "summary:"
     echo "  pass: $PASS_COUNT"
     echo "  warn: $WARN_COUNT"
@@ -5710,14 +5772,28 @@ else
     # Count how many times each warning/failure has appeared (temp file, POSIX-safe — no declare -A)
     ISSUE_COUNTS_FILE=$(mktemp)
 
+    # T-677: count each check at most once per DATE, not once per FILE.
+    #
+    # A date may now hold more than one record (a full audit plus a partial that was
+    # written alongside it rather than clobbering it). Without this, a check present
+    # in both would count twice for one day — the recurrence counter would be
+    # inflated by the very fix that stopped the records being destroyed, and "3+
+    # times" would stop meaning "3+ days".
+    _DATE_KEYED=$(mktemp)
     for audit_file in "${past_audits[@]}"; do
+        _adate=$(basename "$audit_file" .yaml)
+        _adate="${_adate:0:10}"
         while IFS= read -r line; do
             if [[ "$line" =~ ^[[:space:]]+check:[[:space:]]* ]]; then
                 check_name=$(echo "$line" | sed 's/.*check: "//' | sed 's/"$//')
-                echo "$check_name" >> "$ISSUE_COUNTS_FILE"
+                printf '%s\t%s\n' "$_adate" "$check_name" >> "$_DATE_KEYED"
             fi
         done < <(grep -A1 "level: WARN\|level: FAIL" "$audit_file" 2>/dev/null)
     done
+    # sort -u collapses (date, check) duplicates; the date is then dropped so the
+    # downstream counter still counts occurrences — now one per day at most.
+    sort -u "$_DATE_KEYED" 2>/dev/null | cut -f2- >> "$ISSUE_COUNTS_FILE"
+    rm -f "$_DATE_KEYED"
 
     # Find repeated issues (appeared 3+ times)
     #
@@ -5790,7 +5866,24 @@ TRENDPY
 
     # Show trend summary
     echo ""
-    echo "Audit history: ${#past_audits[@]} audit(s) in last ${TREND_WINDOW_DAYS} days + today"
+    # T-677: state the corpus composition. "13 audit(s) in last 14 days" was true and
+    # misleading at the same time — 12 of those 13 were structure-only, so no
+    # compliance check could ever appear in a trend. A count of records is not a
+    # statement of coverage, and this line was read as one.
+    _full=0; _partial=0
+    for _af in "${past_audits[@]}"; do
+        if grep -q '^sections: "all"' "$_af" 2>/dev/null || ! grep -q '^sections:' "$_af" 2>/dev/null; then
+            _full=$((_full + 1))
+        else
+            _partial=$((_partial + 1))
+        fi
+    done
+    _dates=$(for _af in "${past_audits[@]}"; do basename "$_af" .yaml | cut -c1-10; done | sort -u | wc -l)
+    echo "Audit history: ${#past_audits[@]} audit(s) across ${_dates} day(s) in last ${TREND_WINDOW_DAYS} days + today"
+    if [ "$_partial" -gt 0 ]; then
+        echo "  Coverage: ${_full} full, ${_partial} partial (section-scoped). Trends can only"
+        echo "  surface a check that was actually RUN in the records above (T-677)."
+    fi
 fi
 
 echo ""

@@ -4,7 +4,7 @@ name: "The pre-push structure-only audit OVERWRITES the day's full audit record,
 description: >
   MEASURED 2026-09-05. Audit records per day, by finding count: 2026-08-23..08-29 = 23 each; 09-01..09-03 = 26 each; 09-04 = 18; 09-05 = 192. Only today's is a full audit, and only because it was run by hand. Every other record is the STRUCTURE section alone, written by the pre-push hook to .context/audits/<date>.yaml - the same path a full audit writes. So a full audit run earlier in a day is DESTROYED by the next push. Two consequences. (1) 'Audit history: 13 audit(s) in last 14 days' asserts a coverage that does not exist: the compliance, observation, lifecycle and inception checks were never in 12 of those 13 records. (2) TREND ANALYSIS is computed over that corpus, so it can only ever surface structure-section items - which is exactly what it does surface (fabric, gaps, release lag) and exactly what it has never surfaced (CTL-012 fired for 13 consecutive days and never appeared as a repeated issue; CTL-029 has 13 instances and has never appeared either). The trend detector is structurally incapable of seeing the warns that dominate the full audit. Same family as T-671/T-673: a number that reads as coverage while measuring a subset. G-019: the framework was blind here for at least 14 days, so this is a gap, not just a bug. Candidate fix: partial runs write .context/audits/<date>-<section>.yaml or a sections: key, and never clobber a record whose section set is a superset; trend analysis must state which sections its corpus actually covers.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: claude-code
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-04T22:13:09Z
-last_update: 2026-09-04T22:13:09Z
+last_update: 2026-09-04T22:21:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,8 +40,31 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **A partial run can no longer clobber a fuller record.** When the day's record
+      already covers a superset of the incoming run's sections, the partial writes to
+      `<date>-<slug>.yaml` and says so. A full run still supersedes anything for that
+      date. Historical records (other dates) are never touched — they are immutable.
+- [x] `sections:` is emitted on EVERY record, `"all"` for a full run. Today a full run
+      encodes its coverage as the ABSENCE of the key, which is the same
+      absence-as-meaning defect as T-675's unmeasured `ok`: the reader cannot
+      distinguish "covered everything" from "did not say".
+- [x] **Trend counts each check at most once per DATE.** Allowing more than one record
+      per date without this would let a check present in both a full and a partial
+      record for the same day count twice — fixing the clobber by inflating the
+      counter it exists to feed.
+- [x] The history line states its corpus composition (how many records are full vs
+      partial) instead of implying uniform coverage. "13 audits in last 14 days" was
+      true and misleading at once.
+- [x] Both arms driven (PL-308) against a throwaway audits dir: a partial run over a
+      full record must NOT overwrite it; a full run MUST; and the per-date dedup must
+      collapse a duplicated check while still counting it across distinct dates.
+- [x] No historical record is rewritten. One was REPAIRED: `2026-09-03.yaml` was
+      caught mid-clobber in the working tree — committed content was the full audit
+      (160/32/1, 390 lines), working-tree content was the structure run (24/2/0).
+      Restored from git and the partial preserved as `2026-09-03-structure.yaml`,
+      which is exactly what the new code would have written. Lossless, and the
+      opposite of a rewrite: it undoes one. `2026-08-30.yaml` was checked and left
+      alone — structure over structure is a legitimate same-scope update, not a clobber.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +98,30 @@ date_finished: null
 -->
 
 ## Verification
+
+# Eight arms: six on the write-path decision, two on the per-date dedup. The fence
+# EXTRACTS the guard from audit.sh by marker rather than paraphrasing it, so an edit
+# that changes the rule without updating the fence fails at extraction instead of
+# silently testing dead code.
+python3 tools/_t677-audit-record-fence.py
+
+bash -n .agentic-framework/agents/audit/audit.sh
+
+# Measured end-to-end on the real scenario that destroyed 14 days of history: today's
+# full 192-finding record must still be there, and the structure run must have landed
+# beside it rather than on it.
+test -f .context/audits/2026-09-05-structure.yaml
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/audits/2026-09-05.yaml')); n=len(d['findings']); print('full record findings:',n); sys.exit(0 if n>100 else 1)"
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/audits/2026-09-05-structure.yaml')); sys.exit(0 if d.get('sections')=='structure' else 1)"
+
+# Every record now states its own scope; "full" is no longer encoded as absence.
+grep -q '^sections: "all"' .context/audits/2026-09-05.yaml
+
+# The 09-03 repair: the full audit is back (160/32/1) and the partial is preserved.
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/audits/2026-09-03.yaml')); s=d['summary']; print('09-03 restored:',s); sys.exit(0 if s['pass']==160 and s['warn']==32 else 1)"
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/audits/2026-09-03-structure.yaml')); sys.exit(0 if d.get('sections')=='structure' else 1)"
+
+test -f .fabric/components/tools-_t677-audit-record-fence.yaml
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -190,3 +237,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-677-the-pre-push-structure-only-audit-overwr.md
 - **Context:** Initial task creation
+
+### 2026-09-04T22:21:06Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
