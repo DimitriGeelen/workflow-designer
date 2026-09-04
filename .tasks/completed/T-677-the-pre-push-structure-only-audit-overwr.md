@@ -4,20 +4,20 @@ name: "The pre-push structure-only audit OVERWRITES the day's full audit record,
 description: >
   MEASURED 2026-09-05. Audit records per day, by finding count: 2026-08-23..08-29 = 23 each; 09-01..09-03 = 26 each; 09-04 = 18; 09-05 = 192. Only today's is a full audit, and only because it was run by hand. Every other record is the STRUCTURE section alone, written by the pre-push hook to .context/audits/<date>.yaml - the same path a full audit writes. So a full audit run earlier in a day is DESTROYED by the next push. Two consequences. (1) 'Audit history: 13 audit(s) in last 14 days' asserts a coverage that does not exist: the compliance, observation, lifecycle and inception checks were never in 12 of those 13 records. (2) TREND ANALYSIS is computed over that corpus, so it can only ever surface structure-section items - which is exactly what it does surface (fabric, gaps, release lag) and exactly what it has never surfaced (CTL-012 fired for 13 consecutive days and never appeared as a repeated issue; CTL-029 has 13 instances and has never appeared either). The trend detector is structurally incapable of seeing the warns that dominate the full audit. Same family as T-671/T-673: a number that reads as coverage while measuring a subset. G-019: the framework was blind here for at least 14 days, so this is a gap, not just a bug. Candidate fix: partial runs write .context/audits/<date>-<section>.yaml or a sections: key, and never clobber a record whose section set is a superset; trend analysis must state which sections its corpus actually covers.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t677-audit-record-fence.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-04T22:13:09Z
-last_update: 2026-09-04T22:21:06Z
-date_finished: null
+last_update: 2026-09-04T22:31:52Z
+date_finished: 2026-09-04T22:31:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -240,3 +240,15 @@ test -f .fabric/components/tools-_t677-audit-record-fence.yaml
 
 ### 2026-09-04T22:21:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-520531f4
+- **Timestamp:** 2026-09-04T22:31:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-04T22:31:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

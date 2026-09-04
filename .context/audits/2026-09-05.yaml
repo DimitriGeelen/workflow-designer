@@ -1,7 +1,8 @@
-# Audit Results - 2026-09-05-0010
-timestamp: 2026-09-04T22:10:19Z
+# Audit Results - 2026-09-05-0028
+timestamp: 2026-09-04T22:28:14Z
+sections: "all"
 summary:
-  pass: 163
+  pass: 164
   warn: 28
   fail: 1
 findings:
@@ -34,12 +35,12 @@ findings:
   - level: PASS
     check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
   - level: PASS
-    check: "Fabric: 364 registered, 0 unregistered (of 361 watched)"
+    check: "Fabric: 365 registered, 0 unregistered (of 362 watched)"
   - level: WARN
-    check: "Fabric: 69/364 cards have no edges"
+    check: "Fabric: 70/365 cards have no edges"
     mitigation: "Run: fw fabric enrich"
   - level: PASS
-    check: "Fabric drift: all 361 watched source file(s) registered (364 cards)"
+    check: "Fabric drift: all 362 watched source file(s) registered (365 cards)"
   - level: PASS
     check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
   - level: PASS
@@ -60,11 +61,11 @@ findings:
   - level: PASS
     check: "Gap register: every watching gap has a renderable closure condition"
   - level: PASS
-    check: "All 96 active tasks are valid"
+    check: "All 97 active tasks are valid"
   - level: PASS
     check: "All active tasks meet quality thresholds"
   - level: PASS
-    check: "Git traceability: 100% (2093/2093 commits reference tasks)"
+    check: "Git traceability: 100% (2095/2095 commits reference tasks)"
   - level: WARN
     check: "Uncommitted changes present"
     mitigation: "Commit changes with task reference or stash"
@@ -126,14 +127,13 @@ findings:
   - level: PASS
     check: "C-006: All active inceptions have a real Recommendation block"
   - level: PASS
-    check: "CTL-001: Focus file has active task (T-575)"
-  - level: WARN
-    check: "CTL-003: Budget status file stale (8min old)"
-    mitigation: "Check PreToolUse hook wiring for budget-gate.sh"
+    check: "CTL-001: Focus file has active task (T-677)"
   - level: PASS
-    check: "CTL-004: Tool counter at 2 (last commit: 10 minutes ago)"
+    check: "CTL-003: Budget status file fresh (< 5min old)"
   - level: PASS
-    check: "CTL-018: Budget status valid JSON (level: ok)"
+    check: "CTL-004: Tool counter at 2 (last commit: 2 minutes ago)"
+  - level: PASS
+    check: "CTL-018: Budget status valid JSON (level: warn)"
   - level: PASS
     check: "CTL-008: Task reference traceability 100% (0/20 without T-XXX)"
   - level: PASS
@@ -370,6 +370,9 @@ findings:
   - level: WARN
     check: "CTL-029: T-402 has all Agent ACs ticked but status='started-work' — completable, not closed"
     mitigation: "Run: bin/fw task update T-402 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-677 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-677 --status work-completed"
   - level: PASS
     check: "CTL-012: All 579 completed tasks have checked ACs"
   - level: PASS
@@ -394,9 +397,9 @@ findings:
     check: "D13: Inception limbo — 2 task(s): A=0/B=2 T-309(B) T-357(B)"
     mitigation: "Recover both classes with: bin/fw inception sweep (T-1514)"
   - level: PASS
-    check: "D3: Commit velocity — normal (PASS today=2 avg=25 ratio=0.1x)"
+    check: "D3: Commit velocity — normal (PASS today=4 avg=25 ratio=0.2x)"
   - level: PASS
-    check: "D7: Commit bunching — none (PASS 2_commits_24h)"
+    check: "D7: Commit bunching — none (PASS 4_commits_24h)"
   - level: WARN
     check: "D6: Completion velocity — sustained drop (drop recent_avg=1.3 vs earlier_avg=10.0)"
     mitigation: "Check for blockers or process issues slowing work"

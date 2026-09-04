@@ -2220,3 +2220,10 @@ learnings:
   date: 2026-09-04
   context: Added via context agent
   application: TBD
+- id: PL-313
+  learning: "A COUNT OF RECORDS IS NOT A STATEMENT OF COVERAGE. The pre-push structure-only audit and the full audit both wrote .context/audits/<date>.yaml, so 13 of 14 days of history held 23-26 findings instead of 192. The lost file was not the damage — TREND ANALYSIS reads that corpus, so it could only ever surface structure-section items, which is exactly what it surfaced (fabric, gaps, release lag) and exactly what it never surfaced: CTL-012 fired 13 consecutive days and was never once promoted as a repeated issue because it was never IN the corpus. A detector cannot trend a check that was never run, and 'Audit history: 13 audits in last 14 days' read as coverage while measuring attendance. Two rules. (1) Any artifact written by runs of differing SCOPE must record its scope and must not let a narrower run overwrite a wider one — and full coverage must never be encoded as the ABSENCE of a scope key (same absence-as-meaning defect as T-675's unmeasured 'ok'). (2) The evidence was already there: every partial record carried sections: 'structure' for fourteen days and nothing read it. Before building a new detector, check whether the existing records already answer the question."
+  source: P-009
+  task: T-677
+  date: 2026-09-04
+  context: Added via context agent
+  application: TBD

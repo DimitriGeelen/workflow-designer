@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-677: The pre-push structure-only audit OVERWRITES the day's full audit record, so 13 of 14 days of 'audit history' contain none of the compliance checks the trend analysis claims to trend
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-04T22:32:01Z
+# ============================================================================
+
+task_id: T-677
+task_name: "The pre-push structure-only audit OVERWRITES the day's full audit record, so 13 of 14 days of 'audit history' contain none of the compliance checks the trend analysis claims to trend"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-04T22:13:09Z
+completed: 2026-09-04T22:31:52Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-05T00:13:38+02:00
+last_commit: 2026-09-05T00:27:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  13 of 14 days of audit history are structure-only records, and the trend detector cannot see the checks that dominate the full audit.. 13 of 14 days of audit history held only the structure section, and the evidence to prevent it was in every record, unread.
+
+# Key outcomes
+outcomes:
+  - '**A partial run can no longer clobber a fuller record.** When the day''s record'
+  - '`sections:` is emitted on EVERY record, `"all"` for a full run. Today a full run'
+  - '**Trend counts each check at most once per DATE.** Allowing more than one record'
+  - 'The history line states its corpus composition (how many records are full vs'
+  - 'Both arms driven (PL-308) against a throwaway audits dir: a partial run over a'
+  - 'No historical record is rewritten. One was REPAIRED: `2026-09-03.yaml` was'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.context/audits/2026-09-03-structure.yaml'
+  - '.context/audits/2026-09-05-structure.yaml'
+  - '.context/audits/2026-09-05.yaml'
+  - '.fabric/components/tools-_t677-audit-record-fence.yaml'
+  - '.tasks/active/T-677-the-pre-push-structure-only-audit-overwr.md'
+  - 'tools/_t677-audit-record-fence.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-05T00:13:38"
+    action: 'T-677: 13 of 14 days of audit history are structure-only records, and the trend detector cannot see the checks that dominate the full audit.'
+  - time: "2026-09-05T00:27:53"
+    action: 'T-677: 13 of 14 days of audit history held only the structure section, and the evidence to prevent it was in every record, unread.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 18
+  commits: 2
+  files_changed: 7
+  lines_added: 1067
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-677-the-pre-push-structure-only-audit-overwr.md
+generated_by: context-agent-hybrid
