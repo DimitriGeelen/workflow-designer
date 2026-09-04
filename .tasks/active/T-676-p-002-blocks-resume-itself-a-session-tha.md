@@ -34,7 +34,27 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**THREE live instances in one session (2026-09-04/05), two of them not the filed
+shape.** The filed shape is a `captured` focus. The other two are the more common
+one and were not anticipated when this was written:
+
+| # | trigger | gate said |
+|---|---|---|
+| 1 | session ended by filing T-674, focus left `captured` | `Task T-674 has status 'captured'` |
+| 2 | completing T-674 cleared focus | `No active task` |
+| 3 | completing T-677 cleared focus | `No active task` |
+
+So the gate fires on the NORMAL end of every task, not just on an unusual leftover
+state: finishing work is what clears focus, and the next read-only command is refused.
+Each time the blocked call was `checkpoint.sh budget` or `git status` — commands that
+modify nothing. The workaround each time was `fw context focus T-575`, which is
+governance theatre: it satisfies the gate without any of the intent behind it.
+
+This strengthens the candidate fix. Exempting read-only Bash is not a loosening —
+the budget gate's own allow-regex already classifies `git status|log|diff`,
+`fw handover|git|task`, and `checkpoint.sh` as read-only, so the classification
+exists in-tree and would not be duplicated. A gate that must be routed around three
+times in one session to do ordinary work is training the operator to route around it.
 
 ## Acceptance Criteria
 
