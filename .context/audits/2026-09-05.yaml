@@ -1,0 +1,127 @@
+# Audit Results - 2026-09-05-0010
+timestamp: 2026-09-04T22:10:19Z
+summary:
+  pass: 163
+  warn: 28
+  fail: 1
+findings:
+  - level: PASS
+    check: "Tasks directory exists"
+  - level: PASS
+    check: "Tasks/active directory exists"
+  - level: PASS
+    check: "Tasks/completed directory exists"
+  - level: PASS
+    check: "Tasks/templates directory exists"
+  - level: PASS
+    check: "Task template exists"
+  - level: PASS
+    check: "No duplicate task IDs across active/ and completed/"
+  - level: PASS
+    check: "All 11 project YAML files parse correctly"
+  - level: PASS
+    check: "All 2 arc anchor_task references resolve to existing tasks"
+  - level: PASS
+    check: "All 1 in-progress arc(s) had task commits within 30 days"
+  - level: INFO
+    check: "free driver F2: retire_when text present, no recognition heuristic — manual review"
+  - level: PASS
+    check: "No inline arc:<slug> tag-only scans outside canonical lib (T-1881)"
+  - level: PASS
+    check: "No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)"
+  - level: PASS
+    check: "No stale-slice-references (L-417)"
+  - level: PASS
+    check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
+  - level: PASS
+    check: "Fabric: 364 registered, 0 unregistered (of 361 watched)"
+  - level: WARN
+    check: "Fabric: 69/364 cards have no edges"
+    mitigation: "Run: fw fabric enrich"
+  - level: PASS
+    check: "Fabric drift: all 361 watched source file(s) registered (364 cards)"
+  - level: PASS
+    check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
+  - level: PASS
+    check: "Hook threshold: no hooks failing over threshold"
+  - level: PASS
+    check: "Secret scan: tracked tree clean"
+  - level: PASS
+    check: "Stray root files: no zero-byte untracked files in repo root"
+  - level: PASS
+    check: "Vendor divergence: all 49 diverged path(s) declared"
+  - level: PASS
+    check: "Human AC actionability: every unticked Human AC in the live queue is executable as written"
+  - level: PASS
+    check: "Designer ghost registry: ghost↔task joins clean"
+  - level: WARN
+    check: "Release lag:   - oldest unshipped product change is 12d old (>= 7d)"
+    mitigation: "Cut a release, or record why the delay is intended"
+  - level: PASS
+    check: "Gap register: every watching gap has a renderable closure condition"
+  - level: PASS
+    check: "All 96 active tasks are valid"
+  - level: PASS
+    check: "All active tasks meet quality thresholds"
+  - level: PASS
+    check: "Git traceability: 100% (2093/2093 commits reference tasks)"
+  - level: WARN
+    check: "Uncommitted changes present"
+    mitigation: "Commit changes with task reference or stash"
+  - level: PASS
+    check: "All commit task refs resolve to actual tasks"
+  - level: PASS
+    check: "Bypass log exists"
+  - level: WARN
+    check: "Gate-bypass log: 11 safety bypasses in last 7 days (+ 7 drift overrides)"
+    mitigation: "Review .context/working/.gate-bypass-log.yaml — investigate --skip-* / --scope-reduction-acknowledged callers"
+  - level: PASS
+    check: "Commit-msg hook installed"
+  - level: PASS
+    check: "No Tier 0 violations detected"
+  - level: PASS
+    check: "Practices documented: 10 practice(s) in practices.yaml"
+  - level: PASS
+    check: "Bugfix-learning coverage: 60% (26/43 bugfixes have learnings)"
+  - level: PASS
+    check: "All completed tasks have episodic summaries"
+  - level: PASS
+    check: "Completion watchdog: 2 detected abort(s), all recovered"
+  - level: PASS
+    check: "All 579 episodic summaries have quality content"
+  - level: PASS
+    check: "No orphaned episodic files"
+  - level: WARN
+    check: "33 urgent observation(s) still pending"
+    mitigation: "Run: fw note triage"
+  - level: WARN
+    check: "90 observation(s) pending for >7 days"
+    mitigation: "Run: fw note triage — promote or dismiss stale items"
+  - level: PASS
+    check: "Gaps register: 40 watching, no triggers fired"
+  - level: PASS
+    check: "Handover open questions: none (section empty or template placeholder)"
+  - level: PASS
+    check: "Graduation pipeline: 0 learnings (threshold: 20)"
+  - level: WARN
+    check: "Inception task T-015 has no research artifact in docs/reports/"
+    mitigation: "Save research findings: docs/reports/T-015-*.md"
+  - level: WARN
+    check: "Inception task T-103 has no research artifact in docs/reports/"
+    mitigation: "Save research findings: docs/reports/T-103-*.md"
+  - level: WARN
+    check: "Inception task T-250 has no research artifact in docs/reports/"
+    mitigation: "Save research findings: docs/reports/T-250-*.md"
+  - level: WARN
+    check: "Inception task T-587 has no research artifact in docs/reports/"
+    mitigation: "Save research findings: docs/reports/T-587-*.md"
+  - level: PASS
+    check: "C-001: All 3 active inceptions have research artifacts"
+  - level: PASS
+    check: "C-002: commit-msg hook has research artifact check"
+  - level: PASS
+    check: "C-002: No research warnings logged (clean or first run)"
+  - level: PASS
+    check: "C-003: Research checkpoint logic present in checkpoint.sh"
+  - level: PASS
+    check: "C-006: All active inceptions have a real Recommendation block"
