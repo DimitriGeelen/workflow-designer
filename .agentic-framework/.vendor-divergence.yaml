@@ -352,6 +352,21 @@ entries:
       assumption. Refuses unmeasured / stale / foreign-session caches with a reason. Strictly
       additive: a new case branch plus one word in the usage line.
 
+  - path: .agentic-framework/agents/audit/completed-task-scan.py
+    kind: content
+    task: T-674
+    upstream: fix
+    reason: >
+      CTL-012 matched `- [ ]` on raw lines, so an AC that had been COMMENTED OUT still
+      counted as outstanding. The warn therefore fired on the honest practice — T-508 kept
+      its superseded ACs inside a `<!-- ... -->` block precisely so the supersession stayed
+      visible, and deleting the block would have cleared the warn. The detector rewarded the
+      laundering it exists to catch. Now strips comment regions before the section checks
+      (so a commented heading cannot steer section state either) and lstrips the residue,
+      which also closes a pre-existing FALSE NEGATIVE: `<!-- x --> - [ ] live` was invisible
+      to the ^-anchored match before and after the naive fix. Human/DEFERRED/missing-decide
+      behaviours fenced unchanged.
+
   - path: .agentic-framework/agents/context/post-compact-resume.sh
     kind: content
     task: T-675

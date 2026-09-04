@@ -1,0 +1,21 @@
+id: tools/_t674-ctl012-comment-fence.py
+name: _t674-ctl012-comment-fence
+type: script
+subsystem: instruments
+location: tools/_t674-ctl012-comment-fence.py
+tags: [derived]
+
+purpose: "T-674: CTL-012 must ignore ACs inside HTML comments — and must still catch real ones. This fences a FALSE-POSITIVE fix, which is the dangerous kind: the cheapest way to stop a detector reporting something is to stop it reporting anything. So the arms are deliberately asymmetric in importance — MUST NOT REPORT a completed task whose only unticked `- [ ]` lines sit inside a `<!-- ... -->` block...."
+
+depends_on:
+  []
+
+depended_by:
+  []
+
+last_verified: 2026-09-03
+created_by: T-673
+
+# Purpose is SOURCED from this file's own header; edges are DERIVED from
+# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
+#   python3 tools/_t673-fabric-cards.py

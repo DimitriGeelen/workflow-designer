@@ -1,12 +1,12 @@
 ---
-id: T-674
-name: "CTL-012 counts ACs inside HTML comment blocks, so preserving superseded ACs is punished as an unchecked-AC violation"
+id: T-676
+name: "P-002 blocks /resume itself: a session that ends by FILING a task cannot gather state in the next one"
 description: >
-  MEASURED 2026-09-03 during T-673 audit remediation. CTL-012 reports 'Completed task T-508 has unchecked AC' and quotes '- [ ] The two classes are separated mechanically'. That line and four others sit INSIDE an HTML comment block in .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md (lines ~189-212), opened with a rationale that is the opposite of a violation: 'ORIGINAL ACs, kept because a rewritten AC set that hides its own supersession is the laundering this project keeps catching.' T-508's live ACs are all ticked and it completed cleanly on 2026-08-15 with no bypass in the log. So the detector reads commented-out history as live criteria, and the warn fires precisely on the practice of preserving superseded ACs rather than silently deleting them - it punishes the honest form and rewards the laundering. Fix: strip <!-- ... --> regions before counting '- [ ]' in the CTL-012 scan. Guard: a task file with a ticked live AC set plus a commented block of unticked ones must NOT trigger CTL-012, and one with a genuinely unticked live AC still must - both arms driven, per PL-308. Framework code under .agentic-framework/ (vendored; G-008 allows in-tree fix plus upstream).
+  MEASURED 2026-09-04 at session start. The previous session ended by filing T-674, which left focus.yaml pointing at a task with status 'captured'. check-active-task then refused EVERY Bash call in the new session - including the read-only 'git status --short' and 'git log --oneline -5' that the /resume skill's own Step 1 requires. The recovery workflow cannot run on the exact state that filing a task produces, and filing a task at session end is the behaviour the framework asks for. Note the gate blocks on TASK STATE, not on write-intent: 'git status' modifies nothing. Same family as OBS-033 (P-002 catch-22) and the T-672 leg that asserted a state its own satisfaction destroys. Workaround used: 'fw context focus T-575' to a started-work task - no bypass flag. Candidate fix: exempt read-only Bash from the captured-task block (the budget gate already classifies git status/log/diff as read-only in its allow-regex, so the classification exists and is not duplicated), or have the gate treat a 'captured' focus as no-focus rather than as a blocking violation.
 
-status: started-work
+status: captured
 workflow_type: build
-owner: agent
+owner: claude-code
 horizon: now
 tags: []
 components: []
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-03T20:28:17Z
-last_update: 2026-09-04T21:55:55Z
+created: 2026-09-04T21:55:13Z
+last_update: 2026-09-04T21:55:13Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,63 +30,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-674: CTL-012 counts ACs inside HTML comment blocks, so preserving superseded ACs is punished as an unchecked-AC violation
+# T-676: P-002 blocks /resume itself: a session that ends by FILING a task cannot gather state in the next one
 
 ## Context
 
-Found while classifying the 27 remaining audit warns (T-673 round 2), not by a
-detector. See frontmatter for the measurement.
-
-## Findings
-
-**1. The fence caught a hole in the fix, and a pre-existing one behind it.** The naive
-strip leaves `<!-- x --> - [ ] live` as ` - [ ] live`, and the match is `^`-anchored,
-so it stopped matching. Measured against HEAD, that case was ALREADY invisible before
-this task — a pre-existing false negative that the naive fix would have preserved
-while looking like it had done its job. Fixed by lstripping only when a comment was
-actually removed, so authored indentation still means what it meant.
-
-**2. Comment-stripping had to move ahead of the section checks, not just the AC
-match.** Otherwise a commented-out `### Human` steers section state. (Measured: the
-old code happened to survive this because `<!-- ### Human -->` does not
-`startswith("### Human")` — so this arm is a regression guard for the new code, not a
-bug that was live. Stated precisely because "my change fixed it" would be false.)
-
-**3. I made the same mistake the detector made.** The script I used to tick the ACs
-did a blanket `- [ ]` → `- [x]` replace over everything above `## Verification`, and
-it rewrote two prose passages that QUOTED `- [ ]` while describing the bug — including
-the frontmatter sentence naming the exact line CTL-012 misread. A checkbox and a
-mention of a checkbox are not the same token, which is precisely what CTL-012 got
-wrong and what T-669 states as "mention is not invocation". Caught by grep, reverted.
-
-**4. Not fixed here, one bug one task:** the `decision_empty` pre-scan in the same
-function has its own comment handling that skips lines *starting* with `<!--` or
-*ending* with `-->`, but not the interior lines of a block. A multi-line comment inside
-a `## Decision` section therefore reads as content, making the section look filled.
-That flips `missing-decide` to `drift` — a misclassification, not a false positive,
-and a different symptom. Left for a separate task rather than widened into this one.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] `completed-task-scan.py` strips `<!-- ... -->` regions before matching an
-      unticked-AC line,
-      including blocks that span many lines and comments that open or close
-      mid-line. Stripping happens BEFORE the section checks, so a commented
-      `### Human` or `## Heading` can no longer steer section state either.
-- [x] **Both arms driven (PL-308), because this is a false-POSITIVE fix and the
-      failure mode of fixing one is silencing the detector.** A fixture whose only
-      unticked ACs are inside a comment block must NOT be reported; a fixture with a
-      genuinely unticked live AC MUST still be reported. The second arm is the one
-      that matters — a scanner that reports nothing would satisfy the first alone.
-- [x] The auto-tick / `missing-decide` classification still works, and prose-DEFERRED
-      markers are still skipped. Both are existing behaviour in the same loop.
-- [x] CTL-012 no longer fires on T-508, measured by running the real audit section —
-      not by reasoning about the fixture.
-- [x] T-508's commented block is left exactly as it is. It is the artifact that
-      exposed the defect and its rationale is the point: *"a rewritten AC set that
-      hides its own supersession is the laundering this project keeps catching."*
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,34 +67,14 @@ and a different symptom. Left for a separate task rather than widened into this 
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-674`
+         1. Run `bin/fw reviewer T-676`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-674 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-676 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
-
-# Seven arms. Two fail against HEAD's pre-fix scanner, so the fence DISCRIMINATES
-# rather than merely being green. The load-bearing one is "genuinely unticked live AC
-# MUST still fire": this is a false-positive fix, and the cheapest way to stop a
-# detector reporting something is to stop it reporting anything.
-python3 tools/_t674-ctl012-comment-fence.py
-
-python3 -c "import ast; ast.parse(open('.agentic-framework/agents/audit/completed-task-scan.py').read())"
-
-# The real corpus, measured — not reasoned about. Must be the PASS line, and the
-# grep must not match a CTL-012 warn for any task.
-.agentic-framework/bin/fw audit --section compliance 2>&1 | grep -q '\[PASS\] CTL-012'
-_c=$(.agentic-framework/bin/fw audit --section compliance 2>&1 || true); printf '%s' "$_c" | grep -q '\[WARN\] CTL-012' && exit 1 || true
-
-# T-508's commented block is the artifact that exposed the defect. Untouched: the
-# block still opens with its rationale, and its superseded ACs are still there.
-grep -q 'the laundering this project keeps catching' .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md
-test -z "$(git status --porcelain .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md)"
-
-test -f .fabric/components/tools-_t674-ctl012-comment-fence.yaml
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -242,7 +177,7 @@ test -f .fabric/components/tools-_t674-ctl012-comment-fence.yaml
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-674 go|no-go|defer --rationale "..."
+     fw inception decide T-676 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -251,10 +186,7 @@ test -f .fabric/components/tools-_t674-ctl012-comment-fence.yaml
 
 ## Updates
 
-### 2026-09-03T20:28:17Z — task-created [task-create-agent]
+### 2026-09-04T21:55:13Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-674-ctl-012-counts-acs-inside-html-comment-b.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md
 - **Context:** Initial task creation
-
-### 2026-09-04T21:55:55Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work

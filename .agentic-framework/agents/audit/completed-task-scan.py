@@ -180,7 +180,53 @@ def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
                 # Any non-blank, non-comment content means the section has been filled.
                 decision_empty = False
                 break
+        # T-674: strip HTML comment regions BEFORE any of the checks below.
+        #
+        # CTL-012 used to match `- [ ]` on the raw line, so an AC that had been
+        # COMMENTED OUT still counted as outstanding. That made the warn fire on
+        # exactly the honest practice: T-508 kept its superseded ACs inside a
+        # `<!-- ... -->` block under the rationale "a rewritten AC set that hides its
+        # own supersession is the laundering this project keeps catching", and was
+        # reported as having unchecked ACs for it. Deleting the block would have
+        # silenced the warn. THE DETECTOR REWARDED THE LAUNDERING IT EXISTS TO CATCH.
+        #
+        # Stripping happens before the section checks, not just before the `- [ ]`
+        # match, so a commented-out `### Human` or `## Heading` cannot steer section
+        # state either — the previous code would have honoured one.
+        in_comment = False
+
+        def strip_comments(raw):
+            """Remove <!-- ... --> regions, carrying open state across lines.
+
+            Whitespace left behind by a removed comment is SEPARATOR, not authored
+            indentation, so the residue is lstripped — but only when something was
+            actually removed. `- [ ]` is anchored at ^, so without this a line like
+            `<!-- note --> - [ ] live AC` would strip to ` - [ ] live AC` and stop
+            matching: the comment fix would have introduced a false NEGATIVE, which
+            is worse than the false positive it set out to remove. Lines containing
+            no comment are returned untouched, so real indentation still means what
+            it meant before.
+            """
+            nonlocal in_comment
+            out, touched = raw, False
+            if in_comment:
+                if "-->" not in out:
+                    return ""
+                out = out.split("-->", 1)[1]
+                in_comment, touched = False, True
+            while "<!--" in out:
+                before, _, rest = out.partition("<!--")
+                touched = True
+                if "-->" in rest:
+                    out = before + rest.split("-->", 1)[1]
+                else:
+                    in_comment = True
+                    out = before
+                    break
+            return out.lstrip() if touched else out
+
         for line in content.split("\n"):
+            line = strip_comments(line)
             if line.startswith("## Acceptance Criteria"):
                 in_ac = True
                 in_human = False
