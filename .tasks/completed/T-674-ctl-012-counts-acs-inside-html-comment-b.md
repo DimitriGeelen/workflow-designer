@@ -4,20 +4,20 @@ name: "CTL-012 counts ACs inside HTML comment blocks, so preserving superseded A
 description: >
   MEASURED 2026-09-03 during T-673 audit remediation. CTL-012 reports 'Completed task T-508 has unchecked AC' and quotes '- [ ] The two classes are separated mechanically'. That line and four others sit INSIDE an HTML comment block in .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md (lines ~189-212), opened with a rationale that is the opposite of a violation: 'ORIGINAL ACs, kept because a rewritten AC set that hides its own supersession is the laundering this project keeps catching.' T-508's live ACs are all ticked and it completed cleanly on 2026-08-15 with no bypass in the log. So the detector reads commented-out history as live criteria, and the warn fires precisely on the practice of preserving superseded ACs rather than silently deleting them - it punishes the honest form and rewards the laundering. Fix: strip <!-- ... --> regions before counting '- [ ]' in the CTL-012 scan. Guard: a task file with a ticked live AC set plus a commented block of unticked ones must NOT trigger CTL-012, and one with a genuinely unticked live AC still must - both arms driven, per PL-308. Framework code under .agentic-framework/ (vendored; G-008 allows in-tree fix plus upstream).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t674-ctl012-comment-fence.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T20:28:17Z
-last_update: 2026-09-04T21:55:55Z
-date_finished: null
+last_update: 2026-09-04T22:01:54Z
+date_finished: 2026-09-04T22:01:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -129,14 +129,22 @@ python3 tools/_t674-ctl012-comment-fence.py
 
 python3 -c "import ast; ast.parse(open('.agentic-framework/agents/audit/completed-task-scan.py').read())"
 
-# The real corpus, measured — not reasoned about. Must be the PASS line, and the
-# grep must not match a CTL-012 warn for any task.
-.agentic-framework/bin/fw audit --section compliance 2>&1 | grep -q '\[PASS\] CTL-012'
-_c=$(.agentic-framework/bin/fw audit --section compliance 2>&1 || true); printf '%s' "$_c" | grep -q '\[WARN\] CTL-012' && exit 1 || true
+# The real corpus, measured — not reasoned about: zero unchecked ACs across all 578
+# completed tasks (T-508 included).
+#
+# NOT `fw audit --section compliance`. Two such legs HUNG this task's own completion:
+# the audit runs from inside the transaction that is completing the task and contends
+# with the lock FDs that transition holds (OBS-332). Calling the scanner directly is
+# also the better assertion — it is the unit this task changed, it reads the same real
+# corpus, and it does not make completion depend on unrelated tree state. 0.36s.
+python3 -c "import json,subprocess,sys; d=json.loads(subprocess.run([sys.executable,'.agentic-framework/agents/audit/completed-task-scan.py','.tasks','.context/episodic','docs/reports'],capture_output=True,text=True).stdout); n=len(d.get('unchecked_ac',[])); print('unchecked_ac:',n,'of',d['stats']['total'],'completed'); sys.exit(0 if n==0 else 1)"
 
 # T-508's commented block is the artifact that exposed the defect. Untouched: the
 # block still opens with its rationale, and its superseded ACs are still there.
-grep -q 'the laundering this project keeps catching' .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md
+# The rationale is line-WRAPPED in the file ("...supersession is the\n laundering this
+# project keeps catching"), so match the fragment that actually occupies one line.
+grep -q 'laundering this project keeps catching' .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md
+grep -q 'ORIGINAL ACs, kept because a rewritten AC set that hides its own supersession' .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md
 test -z "$(git status --porcelain .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md)"
 
 test -f .fabric/components/tools-_t674-ctl012-comment-fence.yaml
@@ -258,3 +266,15 @@ test -f .fabric/components/tools-_t674-ctl012-comment-fence.yaml
 
 ### 2026-09-04T21:55:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5ad41115
+- **Timestamp:** 2026-09-04T22:01:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-04T22:01:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

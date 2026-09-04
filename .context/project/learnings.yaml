@@ -2213,3 +2213,10 @@ learnings:
   date: 2026-09-03
   context: Added via context agent
   application: TBD
+- id: PL-312
+  learning: "A CHECKBOX AND A MENTION OF A CHECKBOX ARE NOT THE SAME TOKEN — the T-669 'mention is not invocation' class, at the corpus-scanner level. CTL-012 matched '- [ ]' on raw lines, so ACs preserved inside an HTML comment counted as outstanding: the warn fired on T-508 precisely BECAUSE it kept its superseded ACs visible rather than deleting them, and deleting them would have cleared the warn. A detector that punishes the honest form and rewards the laundering is worse than no detector. Then I committed the same error inside the fix: my blanket '- [ ] -> - [x]' tick script rewrote two prose passages that QUOTED an unticked box while describing the bug, including the sentence naming the exact line CTL-012 misread. Rule: any scan or rewrite over checkbox syntax must first strip comment regions and must never treat a quoted or fenced occurrence as live. Second rule, from the same fix: a naive comment strip left ' - [ ] x' with leading space and stopped matching a ^-anchored pattern — removing a comment yields SEPARATOR whitespace, not authored indentation, so lstrip the residue but only when something was actually removed."
+  source: P-001
+  task: T-674
+  date: 2026-09-04
+  context: Added via context agent
+  application: TBD

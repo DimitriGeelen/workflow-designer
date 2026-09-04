@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-674: CTL-012 counts ACs inside HTML comment blocks, so preserving superseded ACs is punished as an unchecked-AC violation
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-04T22:02:03Z
+# ============================================================================
+
+task_id: T-674
+task_name: "CTL-012 counts ACs inside HTML comment blocks, so preserving superseded ACs is punished as an unchecked-AC violation"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-03T20:28:17Z
+completed: 2026-09-04T22:01:54Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-03T22:28:46+02:00
+last_commit: 2026-09-05T00:00:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  CTL-012 reads commented-out superseded ACs as live — the warn fires on the honest practice, not on a violation.. CTL-012 read commented-out superseded ACs as live, so the warn fired on the honest practice and would have cleared if the history were deleted.
+
+# Key outcomes
+outcomes:
+  - '`completed-task-scan.py` strips `<!-- ... -->` regions before matching an'
+  - '**Both arms driven (PL-308), because this is a false-POSITIVE fix and the'
+  - 'The auto-tick / `missing-decide` classification still works, and prose-DEFERRED'
+  - 'CTL-012 no longer fires on T-508, measured by running the real audit section —'
+  - 'T-508''s commented block is left exactly as it is. It is the artifact that'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.fabric/components/tools-_t674-ctl012-comment-fence.yaml'
+  - '.tasks/active/T-674-ctl-012-counts-acs-inside-html-comment-b.md'
+  - '.tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md'
+  - 'tools/_t674-ctl012-comment-fence.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-03T22:28:46"
+    action: 'T-674: CTL-012 reads commented-out superseded ACs as live — the warn fires on the honest practice, not on a violation.'
+  - time: "2026-09-05T00:00:48"
+    action: 'T-674: CTL-012 read commented-out superseded ACs as live, so the warn fired on the honest practice and would have cleared if the history were deleted.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1533 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1533
+  commits: 2
+  files_changed: 6
+  lines_added: 742
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-674-ctl-012-counts-acs-inside-html-comment-b.md
+generated_by: context-agent-hybrid
