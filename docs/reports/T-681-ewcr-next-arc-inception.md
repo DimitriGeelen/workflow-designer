@@ -198,3 +198,61 @@ Corollary worth carrying into the build tasks: the boundary enumeration should b
 rather than asserting they are unreachable. An absence reported as a successful defence is the
 T-674/675/677/678 failure class, and reporting it to AEF as an isolation proof would be exactly
 the harm §5 named.
+
+### The guard that is documented but not worn
+
+`_within_repo` (`tools/gallery-serve.py:109`) is the traversal guard, and its own docstring calls
+it *"belt-and-braces on top of the ID_RE format check — a valid id still shouldn't escape the
+tree."* It is referenced in exactly one place: `archive_move` (`:120`), on the **delete** path.
+
+**It is never applied on the `/api/save` write path.** The belt exists; the write path is not
+wearing it. Today `ID_RE` alone holds the line — one anchored regex is the entire distance between
+the browser and the git tree. §11 demonstrates that behaviourally rather than by reading.
+
+---
+
+## 11. S2 output (IW-2) — the mutation control, and its verdict
+
+**Question:** can the control be built without introducing a real breach path into the shipped
+tree? If no, the recommendation flips to NO-GO.
+
+**Answer: yes. IW-2 resolves positive.** Prototype:
+`scratchpad/s2-mutation-control.py` (throwaway; the shipped artefact is a build task).
+
+Method — the shipped file is *copied*, never edited. The copy runs with `--repo`/`--docroot`
+pointed into a throwaway root, so even a successful breach lands inside the scratchpad. The
+control POSTs `/api/save` with `id: "../escaped"`, which resolves
+`REPO/.editor-versions/../escaped` → `REPO/escaped`: outside the version store, inside the
+throwaway root.
+
+| phase | `ID_RE` | HTTP | escaped? | |
+|---|---|---|---|---|
+| 1 baseline | pristine | 400 | no | fence holds |
+| 2 mutated | widened to admit `.` and `/` | **200** | **yes** | **fence breaks — the red state** |
+| 3 reverted | pristine | 400 | no | fence restored |
+
+Plus a fourth leg asserting the shipped `tools/gallery-serve.py` is still byte-pristine at the
+end. All four pass; the spike exits 0.
+
+Phase 2 is the load-bearing result. Widening **one regex** — with no other edit — produced a
+write outside the version store, which confirms behaviourally what §10 found by reading: nothing
+else on the save path checks containment. The fence therefore has a demonstrated red state, and
+Arc 2's proof is not the trivially-green artefact §5 feared.
+
+### The control lied on its first run, and the reason matters more than the result
+
+Run 1 reported phase 2 as **no breach** and printed `IW-2 VERDICT: NOT BUILDABLE`. Taken at face
+value that is a failed GO condition, and the correct response would have been to hand the arc back
+to the operator as NO-GO.
+
+It was wrong. The witness was named `ESCAPED`, and the widened regex admits only `[a-z0-9_./-]` —
+so the **mutated** guard refused the id too, for reasons having nothing to do with containment.
+Phase 2 could not have gone red no matter how broken the fence was. This is PL-177 exactly: the
+control produced a confident verdict for a broken reason, and the verdict it produced was the
+*alarming* one, which is the direction least likely to be questioned.
+
+Two things follow for the build tasks. First, the shipped control needs a **meta-assertion**: the
+mutated phase must verify the escape id is actually *admitted* by the mutated guard, so "no breach"
+can be distinguished from "never tested". Second, this is the same shape as PL-178 — a leg that
+asserts nothing while reporting a definite result — and it is now the fifth instance in this
+project's register. A control is not evidence until it has been shown to fail for the right reason.
