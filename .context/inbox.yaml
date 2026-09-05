@@ -1494,3 +1494,10 @@ observations:
   tags: []
   status: dismissed
   promoted_to: null
+- id: OBS-335
+  text: "Focus-drift gate (T-1730) can be satisfied by an unrelated leading token: it reads the Bash command TEXT and matches the first T-NNN it finds, not the task the fw subcommand actually targets. Measured 2026-09-05, inadvertently. 'fw context focus T-575 >/dev/null; fw context add-learning ... --task T-467' PASSED and wrote PL-314 against T-467 while focus was T-575. The identical add-learning with --task T-679, run alone, was correctly BLOCKED. So chaining any command that mentions the focused task in front of a drifting one defeats the gate, with no bypass flag and nothing logged to bypass-log.yaml — which is worse than a bypass, because the Tier-2 path at least leaves a record. Found while recording learnings for T-467/T-679; not reused after discovery. Sibling of the mention-is-not-invocation class (T-669) at gate level: the gate matches a MENTION of a task id rather than the invocation's target."
+  captured: 2026-09-05T10:58:37Z
+  context_task: T-575
+  tags: []
+  status: pending
+  promoted_to: null

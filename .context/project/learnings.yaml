@@ -2227,3 +2227,10 @@ learnings:
   date: 2026-09-04
   context: Added via context agent
   application: TBD
+- id: PL-314
+  learning: "A compatibility UNION in the reader suppresses the signal that the PRODUCER is broken. fw arc tag wrote the deprecated tags:[arc:X] form and never the T-1849 source-of-truth arc_id:, and no view was ever wrong: lib/arc_membership.py unions both forms, so an arc recorded in two representations renders identically to one recorded canonically. A defect that cannot change any output cannot be found by checking outputs — which is what verification normally does. The union is correct and must stay; the cost is that a compatibility path needs its own assertion ON THE PRODUCER, because the consumer will never complain. T-466 caught it only because one leg asserted the field BY NAME instead of asserting the render looked right."
+  source: P-001
+  task: T-467
+  date: 2026-09-05
+  context: Added via context agent
+  application: TBD
