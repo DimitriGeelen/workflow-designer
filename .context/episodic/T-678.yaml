@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-678: The decision_empty pre-scan reads a multi-line comment as content, so an inception with an EMPTY Decision section is misclassified drift instead of missing-decide
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-05T08:00:46Z
+# ============================================================================
+
+task_id: T-678
+task_name: "The decision_empty pre-scan reads a multi-line comment as content, so an inception with an EMPTY Decision section is misclassified drift instead of missing-decide"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-05T07:58:03Z
+completed: 2026-09-05T08:00:29Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-05T10:00:21+02:00
+last_commit: 2026-09-05T10:00:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  two scans in one function disagreed about what a comment is, so an empty Decision section read as filled.
+
+# Key outcomes
+outcomes:
+  - 'The `decision_empty` pre-scan uses the SAME comment stripper as the AC loop.'
+  - 'An inception whose `## Decision` holds nothing but a multi-line comment is'
+  - 'A genuinely FILLED Decision section is still read as filled, so a real decision'
+  - 'T-674''s existing arms all still pass — the AC loop and this pre-scan now share'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.tasks/active/T-678-the-decisionempty-pre-scan-reads-a-multi.md'
+  - 'tools/_t674-ctl012-comment-fence.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-05T10:00:21"
+    action: 'T-678: two scans in one function disagreed about what a comment is, so an empty Decision section read as filled.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 3
+  lines_added: 313
+  lines_removed: 35
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-678-the-decisionempty-pre-scan-reads-a-multi.md
+generated_by: context-agent-hybrid

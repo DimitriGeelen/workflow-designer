@@ -4,20 +4,20 @@ name: "The decision_empty pre-scan reads a multi-line comment as content, so an 
 description: >
   MEASURED 2026-09-05, scoped in T-674 finding 4 and deliberately left out of it (one bug, one task). completed-task-scan.py computes decision_empty with its own comment handling that skips only lines STARTING with '<!--' or ENDING with '-->'. The interior lines of a multi-line comment match neither, so they count as content and the section reads as filled. Consequence: an inception task whose Decision section contains nothing but a comment is classified 'drift' rather than 'missing-decide'. The operator is then told 'Completed task has unchecked AC / AC gate may have been bypassed' when the true, actionable message is 'run fw inception decide T-678'. A misclassification, not a false positive - the warn still fires, but with the wrong diagnosis and the wrong remedy. Fix: reuse the same comment-region stripper T-674 added to the AC loop, so both scans in this function share one definition of what a comment is instead of two that disagree.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t674-ctl012-comment-fence.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T07:58:03Z
-last_update: 2026-09-05T07:58:14Z
-date_finished: null
+last_update: 2026-09-05T08:00:29Z
+date_finished: 2026-09-05T08:00:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -219,3 +219,15 @@ python3 -c "import json,subprocess,sys; d=json.loads(subprocess.run([sys.executa
 
 ### 2026-09-05T07:58:14Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c722f36e
+- **Timestamp:** 2026-09-05T08:00:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-05T08:00:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
