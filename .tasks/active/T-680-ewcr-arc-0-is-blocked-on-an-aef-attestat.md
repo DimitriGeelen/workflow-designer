@@ -1,6 +1,6 @@
 ---
 id: T-680
-name: "EWCR Arc-0 is blocked on an AEF attestation sent over two transports that have no reader"
+name: "The AEF seam was recorded as unreachable; it is live. Reader-confirmation by fingerprint is impossible because the mesh shares one cohort identity"
 description: >
   Arc-0 exit clauses 1 and 2 are counterparty-owned and can only be satisfied by an attestation from 999-AEF. The request went out twice: on agent-chat-arc (offsets 602/643) and on the DM to fingerprint 3bba15e681b3a078. Measured 2026-09-05: that DM identity resolves to framework-agent-systemd, an idle root shell with no agent consuming it (all 7 rows on the topic are our own outbound), and ring20-manager measured that agent-chat-arc does not federate across hubs (.122 offset 3715 vs .107 offset 1022, disjoint logs at the same offset numbers). No AEF session is discoverable on our hub. Deliverable: a measured, reproducible verdict on whether any working transport to 999-AEF exists, and either the attestation re-sent over it with read-back, or the absence recorded as evidence so the operator can rule on how Arc-0 proceeds.
 
@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T14:16:38Z
-last_update: 2026-09-05T14:17:41Z
+last_update: 2026-09-05T14:18:45Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -35,18 +35,53 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+This task was opened on a premise that measurement destroyed within the hour, and the
+correction is the deliverable.
+
+**The premise.** Arc-0 clauses 1 and 2 are counterparty-owned. The attestation request went
+out on `agent-chat-arc` and on the DM to `3bba15e681b3a078`. Two facts appeared to show both
+paths dead: the DM topic holds 7 rows and every one is ours (that fingerprint resolves to
+`framework-agent-systemd`, an idle root shell with no agent consuming it — diagnosed by us at
+DM offset 7), and ring20-manager measured `agent-chat-arc` as non-federating across hubs
+(`.122` at offset 3715 against `.107` at 1022, disjoint logs wearing one topic name).
+
+**What the measurement actually says.** AEF is live and answering. Its clause-1 response sits
+at `agent-chat-arc` offset 650, substantive and deliberately RED on its own numbers (1134
+cards, 52 edgeless of 1047 assessed, 749 outside any watch pattern). It has posted 18 times on
+that topic, most recently at offset 897 — today — in direct technical reply to our offset 879.
+The seam is not broken. One mailbox is.
+
+**Why the premise survived long enough to become a task.** Every post on `agent-chat-arc`
+carries sender `d1993c2c3ec44c94` — ours. So do 001-CashWeb's, 010-termlink's, and 999-AEF's.
+The mesh runs a *shared cohort identity*; projects distinguish themselves by a label inside the
+payload, never by key. This task's own original AC ("a transport counts as reader-confirmed
+only on a message authored by a fingerprint that is NOT ours") would therefore have classified
+a live, substantive AEF conversation as `no-reader`. The fence was written from an assumed
+shape of the world and would have confirmed the assumption that produced it.
+
+**PL-314 restated one level up.** A reader's compatibility union hides its producer's defect
+(T-679). Here a *shared identity* hides the sender's identity from every check keyed on sender.
+Any reachability, attribution, or provenance test on this mesh that keys on `sender_id` is
+measuring the hub, not the counterparty.
+
+**What Arc-0 is actually blocked on** — rulings, not plumbing:
+- clause 1: AEF measured it red and declined to attest. Not satisfiable now, by their choice.
+- clause 2: AEF called it a scope ruling for *their* operator (produce the DeepSeek/Mistral
+  disposition tables, or rule those findings out of Arc-0).
+- clause 3: shared, unratified.
+- all three carry `definition_ratified: false` — *our* operator's ruling, and not ours to set.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A probe script `tools/_t680-aef-reachability.py` enumerates every candidate transport to 999-AEF (agent-chat-arc on our hub, the DM to 3bba15e681b3a078, session discovery by tag/name/cwd, and any other hub in `fleet status`) and prints a per-transport verdict of `reader-confirmed`, `no-reader`, or `unreachable`, each with the evidence that produced it.
-- [ ] The probe distinguishes *delivery* from *readership* — a transport counts as `reader-confirmed` only on a message authored by a fingerprint that is NOT ours; our own outbound rows never satisfy it. (The DM topic to 3bba15e681b3a078 shows 7 rows and every one is ours; a naive unread count reads that as an active conversation.)
-- [ ] The federation claim is measured, not quoted: the probe reports agent-chat-arc's max offset on each reachable hub and flags disjointness, rather than repeating ring20's `.122=3715 / .107=1022` figures.
-- [ ] `docs/research/executable-workflow/aef-transport-verdict.md` records the run: date, per-transport verdict, the commands to reproduce, and the consequence for Arc-0 clauses 1 and 2.
-- [ ] If any transport comes back `reader-confirmed`, the Arc-0 attestation request is re-sent over it under the §2.3 envelope with producer attribution, and the read-back is recorded. If none does, that absence is written into `arc-0-exit-clauses.yaml` as the current blocking fact — `definition_ratified:` and `attestation:` are NOT changed, since neither is the agent's to set.
-- [ ] No transport is declared dead on a single probe: each `no-reader`/`unreachable` verdict is reproduced on two runs at least 10 minutes apart, and both timestamps appear in the verdict document.
+- [ ] A probe `tools/_t680-aef-reachability.py` classifies each candidate transport to 999-AEF as `live`, `no-reader`, or `unreachable`, and derives the verdict from **payload-declared producer labels**, never from `sender_id` — because `sender_id` is a shared cohort identity on this mesh and cannot separate counterparties.
+- [ ] The probe carries a **negative control that fails on the old logic**: run with `--by-fingerprint` it must classify the live `agent-chat-arc` seam as `no-reader`, proving the discarded rule was not merely unhelpful but wrong. If the control passes under both rules, the probe is not discriminating and the AC is unmet.
+- [ ] The probe reports, per reachable hub in `fleet status`, the `agent-chat-arc` content count and distinct producer labels, so the federation claim is measured here rather than quoted from ring20's `.122=3715 / .107=1022`.
+- [ ] `docs/research/executable-workflow/aef-transport-verdict.md` records: the cohort-identity finding with the offset that proves it (650, authored by our own fingerprint, unambiguously AEF's text), the per-transport verdict, reproduction commands, and the corrected statement of what blocks Arc-0.
+- [ ] A reply is posted to AEF on `agent-chat-arc` with producer attribution carrying (a) the answer to their OBS-359 back-report — measured: this consumer vendors no `tests/` directory at all, so that assertion cannot be red here and no consumer can run the framework's unit suite; (b) the cohort-identity finding, since it invalidates sender-keyed provenance for every project on the mesh, not just ours.
+- [ ] `arc-0-exit-clauses.yaml` is corrected only where it is factually stale. `definition_ratified:` and `attestation:` are NOT touched — neither is the agent's to set, and AEF declined clause 1 deliberately.
+- [ ] No learning is recorded claiming the seam was repaired. Nothing was repaired; a false belief was removed.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -80,6 +115,23 @@ date_finished: null
 -->
 
 ## Verification
+
+# The negative control is the load-bearing leg: it must FAIL under the discarded
+# sender_id rule. A green run of the positive probe alone proves nothing, because the
+# broken rule also returns "live" on this topic (for the wrong reason -- ring20's posts).
+python3 tools/_t680-aef-reachability.py --by-fingerprint 2>&1 | grep -q "NEGATIVE CONTROL: PASS"
+# The seam is live under the producer-label rule.
+python3 tools/_t680-aef-reachability.py 2>&1 | grep -qE "^agent-chat-arc +live"
+# The cohort-identity finding still holds -- if fingerprints ever start separating
+# producers, every conclusion in the verdict document needs re-deriving.
+python3 tools/_t680-aef-reachability.py 2>&1 | grep -q "sender_id CANNOT separate producers"
+# The verdict document exists and states what actually blocks Arc-0.
+grep -q "Rulings, on both sides" docs/research/executable-workflow/aef-transport-verdict.md
+# The operator's fields were not touched. Both must still be unset/false.
+grep -q "^    attestation: null" docs/research/executable-workflow/arc-0-exit-clauses.yaml
+# Anchored to column 4: an unanchored grep also matches the header PROSE explaining the
+# field, so it counted 4 and would have stayed green after a clause was ratified.
+test "$(grep -c '^    definition_ratified: false' docs/research/executable-workflow/arc-0-exit-clauses.yaml)" -eq 3
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
