@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-09-03T18:35:08Z
+last_update: 2026-09-05T16:36:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -522,6 +522,63 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 -->
 
 ## Recommendation
+
+### 2026-09-05 — NARROWED. Five candidates to two, without crossing the sovereignty line
+
+The operator's challenge was fair: an abstention handed over as a five-option menu is not
+surfacing a decision, it is outsourcing analysis and then calling the operator the blocker.
+The abstention below is still correct **about the part it covers** — but it covered more
+than its own argument justifies.
+
+**What the brief actually reserves.** Q2 is operator-only because *"an agent proposing where
+sovereignty defaults is an agent proposing its own authority."* That reserves the question
+**where an unowned step lands**. It does **not** reserve the separate, structural question:
+*may a document that declared no lanes be indistinguishable from one that declared an empty
+set?* That is information integrity, not authority allocation, and this project has ruled on
+it four times in one week — T-674, T-675, T-677, T-678 all fixed the same defect: a value
+that cannot distinguish "nothing was there" from "nobody looked."
+
+**Applying only that principle, on non-sovereignty grounds:**
+
+| candidate | asserts sovereignty | preserves "input had no lanes" | status |
+|---|---|---|---|
+| no repair | **yes** | no | **out** — asserts, and destroys the distinction |
+| **B** mark | **yes** | yes | **out** — still asserts sovereignty; marking a claim does not unmake it |
+| **C** neutral default | no | **no** | **out** — fabricates 1 lane and `laneProvenance` dies at first save (§2) |
+| **A** drop | no | by absence only | **candidate** |
+| **AB** drop + mark | no | **explicitly** | **candidate** |
+
+Three of five fall to a rule the operator has already set. Neither survivor asserts anything
+on the sovereignty axis, so **choosing between A and AB is not the reserved question.**
+
+**Recommendation between the two: AB.** They are identical on all six measured columns, and
+that identity is the argument. A preserves the fact by *absence* — the document simply has no
+lanes — which is the exact representation this task's own Context indicts: *"a missing thing
+and a default thing share one representation."* A leaves a later reader unable to distinguish
+"the input declared no lanes" from "we did not parse lanes." AB writes the fact down. The
+extra cost is one provenance marker; the thing bought is that the next importer, ours or a
+peer's, cannot repeat this defect by inference.
+
+**Two conditions on AB, both blocking:**
+1. **A must be taken in both halves** (importer *and* emitter) — constraint §1 above. AB
+   inherits that; a half-applied AB emits the empty-laneSet shape our own partition classifies
+   as a third-party defect.
+2. **The marker must be inert to third parties** — a namespaced annotation that a foreign tool
+   ignores and that never re-imports as `authored`. If it cannot be made inert, AB collapses
+   to A and the recommendation is A, because writing into a peer's bytes to fix our own
+   inference would be a worse version of the defect being repaired.
+
+**Still not recommended, and still yours:** whether already-saved documents are migrated.
+Per §2 no repair reaches files that passed through the editor before it lands, and 122 of 141
+carry our exporter's fingerprint. That is a sovereignty question about peers' documents, and
+it should be a separate task after this ruling, not folded into it.
+
+**Confidence:** high on the eliminations (they follow from a rule already ruled), moderate on
+AB over A (it rests on the marker being makeable inert, which is untested).
+
+---
+
+**Original abstention, retained — its argument is unchanged for the reserved question:**
 
 **Recommendation:** ABSTAIN — the choice among A · B · C · AB · no-repair is yours, and
 

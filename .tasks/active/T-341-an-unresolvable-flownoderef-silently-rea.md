@@ -21,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:07Z
-last_update: '2026-08-16T14:33:01Z'
+last_update: 2026-09-05T16:37:24Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -165,6 +165,57 @@ measurement moves it from *the wrong lane* to *no lane policy at all*.
 
 
 ## Recommendation
+
+### 2026-09-05 — SPLIT. One half is recommendable now; the other stays yours
+
+This ruling has two halves and the task itself says so: *"Announcing is orthogonal to
+(1)/(2)/(3) and can be adopted with any of them."* Abstaining on both treated them as one
+question. They are not, and the halves have very different evidence.
+
+**HALF 1 — ANNOUNCE: recommend YES. High confidence.**
+
+This is not a sovereignty question. It decides whether a repair is *visible*, not who ends up
+accountable, and three independent lines of evidence converge:
+
+1. **The codebase already contradicts itself.** `E-XML-LANEREF-DANGLING` exists as an **ERROR**
+   rule, and T-309 IW-3 measured it as repaired *inside* `parseBpmnXml` — so no surface can
+   ever show it. A rule classified ERROR that can never fire is not a policy, it is a dead
+   branch asserting coverage it does not provide.
+2. **The peer comparable transfers on exactly this half** (rail 487, T-403). AEF's lane
+   derivation is *loud* where it is weakest — a `serviceTask` in a human lane resolves
+   lane-wins **with a WARN**. Their placement policy does not transfer here (they never
+   manufacture the container, so they never reach the situation), but their announce posture
+   does, and the task's own text already says so.
+3. **It is free of the reserved question.** Announcing is compatible with (1), (2) and (3)
+   alike, so adopting it now costs nothing in optionality and stops the silent-promotion
+   window from staying open while the harder half waits.
+
+**HALF 2 — WHERE THE ORPHAN LANDS: still yours, and I am not narrowing this one.**
+
+Options (1) positional and (2) fixed-by-authority both *place* the node, and placing it is
+precisely "which authority silently acquires a step" — the question the brief reserves and the
+Authority Model puts at SOVEREIGNTY. Option (3) refuse-to-place is the only one that asserts
+nothing, but it is not therefore the safe default: it makes the importer fail on real
+third-party files, and T-358's evidence is that such files routinely arrive structurally thin.
+Trading a silent wrong answer for a tool that refuses real documents is a product decision with
+a real cost, not a technicality.
+
+**What I will say about half 2, because it is measurement and not preference:** option (1) is
+the status quo and its behaviour is *not* what this task's title claims. `lanes[0]` is
+positional — human is first on 13 of 24 corpus maps, agent on 10, working on 1. So under (1)
+the authority an orphan acquires is decided by **the order a third-party tool happened to
+serialise its laneSet in**. That is a fact about the current behaviour, and the operator should
+have it in front of them; it is not an argument for any particular replacement.
+
+**Decide this one before T-358.** T-358's brief files it as Q2b following from this Q2a, and
+ruling either alone is how the two acquire inconsistent policies. T-358 has now been narrowed
+to A vs AB on non-sovereignty grounds and carries its own recommendation.
+
+**Confidence:** high on announce; deliberately none on placement.
+
+---
+
+**Original abstention, retained — its argument stands for half 2:**
 
 **Recommendation:** ABSTAIN — the agent declines to recommend, and the two positions below
 
