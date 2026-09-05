@@ -2,7 +2,7 @@
 id: T-680
 name: "The AEF seam was recorded as unreachable; it is live. Reader-confirmation by fingerprint is impossible because the mesh shares one cohort identity"
 description: >
-  Arc-0 exit clauses 1 and 2 are counterparty-owned and can only be satisfied by an attestation from 999-AEF. The request went out twice: on agent-chat-arc (offsets 602/643) and on the DM to fingerprint 3bba15e681b3a078. Measured 2026-09-05: that DM identity resolves to framework-agent-systemd, an idle root shell with no agent consuming it (all 7 rows on the topic are our own outbound), and ring20-manager measured that agent-chat-arc does not federate across hubs (.122 offset 3715 vs .107 offset 1022, disjoint logs at the same offset numbers). No AEF session is discoverable on our hub. Deliverable: a measured, reproducible verdict on whether any working transport to 999-AEF exists, and either the attestation re-sent over it with read-back, or the absence recorded as evidence so the operator can rule on how Arc-0 proceeds.
+  Opened on the premise that the 999-AEF seam was dead, and the premise was false. Three true measurements produced it: the DM to 3bba15e681b3a078 holds 7 rows all our own (that fingerprint is framework-agent-systemd, an idle root shell with no consumer), ring20 measured agent-chat-arc as non-federating across hubs, and no AEF session is discoverable here. AEF had in fact answered clause 1 at agent-chat-arc offset 650 and was posting at 897 the same day. The chain held because every envelope on this mesh carries sender d1993c2c3ec44c94 — ours — as do AEF's, 001-CashWeb's and 010-termlink's: 3 distinct sender_id against 18 distinct producer labels, so sender_id cannot separate producers and 0 of AEF's 66 posts are attributable by it. This task's own original AC would have classified the live seam as no-reader. Delivered: tools/_t680-aef-reachability.py keyed on payload producer labels with a negative control proving the discarded rule wrong; docs/research/executable-workflow/aef-transport-verdict.md; a reply to AEF at offset 1096. arc-0-exit-clauses.yaml needed no correction — it already recorded AEF's answer; the stale belief came from reading the DM thread instead of the register. Arc-0 is blocked on rulings, not plumbing.
 
 status: started-work
 workflow_type: build
@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T14:16:38Z
-last_update: 2026-09-05T14:18:45Z
+last_update: 2026-09-05T16:15:46Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -31,7 +31,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-680: EWCR Arc-0 is blocked on an AEF attestation sent over two transports that have no reader
+# T-680: The AEF seam was recorded as unreachable; it is live. Reader-confirmation by fingerprint is impossible because the mesh shares one cohort identity
 
 ## Context
 
@@ -75,13 +75,13 @@ measuring the hub, not the counterparty.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A probe `tools/_t680-aef-reachability.py` classifies each candidate transport to 999-AEF as `live`, `no-reader`, or `unreachable`, and derives the verdict from **payload-declared producer labels**, never from `sender_id` — because `sender_id` is a shared cohort identity on this mesh and cannot separate counterparties.
-- [ ] The probe carries a **negative control that fails on the old logic**: run with `--by-fingerprint` it must classify the live `agent-chat-arc` seam as `no-reader`, proving the discarded rule was not merely unhelpful but wrong. If the control passes under both rules, the probe is not discriminating and the AC is unmet.
-- [ ] The probe reports, per reachable hub in `fleet status`, the `agent-chat-arc` content count and distinct producer labels, so the federation claim is measured here rather than quoted from ring20's `.122=3715 / .107=1022`.
-- [ ] `docs/research/executable-workflow/aef-transport-verdict.md` records: the cohort-identity finding with the offset that proves it (650, authored by our own fingerprint, unambiguously AEF's text), the per-transport verdict, reproduction commands, and the corrected statement of what blocks Arc-0.
-- [ ] A reply is posted to AEF on `agent-chat-arc` with producer attribution carrying (a) the answer to their OBS-359 back-report — measured: this consumer vendors no `tests/` directory at all, so that assertion cannot be red here and no consumer can run the framework's unit suite; (b) the cohort-identity finding, since it invalidates sender-keyed provenance for every project on the mesh, not just ours.
-- [ ] `arc-0-exit-clauses.yaml` is corrected only where it is factually stale. `definition_ratified:` and `attestation:` are NOT touched — neither is the agent's to set, and AEF declined clause 1 deliberately.
-- [ ] No learning is recorded claiming the seam was repaired. Nothing was repaired; a false belief was removed.
+- [x] A probe `tools/_t680-aef-reachability.py` classifies each candidate transport to 999-AEF as `live`, `no-reader`, or `unreachable`, and derives the verdict from **payload-declared producer labels**, never from `sender_id` — because `sender_id` is a shared cohort identity on this mesh and cannot separate counterparties.
+- [x] The probe carries a **negative control that fails on the old logic**: run with `--by-fingerprint` it must classify the live `agent-chat-arc` seam as `no-reader`, proving the discarded rule was not merely unhelpful but wrong. If the control passes under both rules, the probe is not discriminating and the AC is unmet.
+- [x] The probe reports, per reachable hub in `fleet status`, the `agent-chat-arc` content count and distinct producer labels, so the federation claim is measured here rather than quoted from ring20's `.122=3715 / .107=1022`.
+- [x] `docs/research/executable-workflow/aef-transport-verdict.md` records: the cohort-identity finding with the offset that proves it (650, authored by our own fingerprint, unambiguously AEF's text), the per-transport verdict, reproduction commands, and the corrected statement of what blocks Arc-0.
+- [x] A reply is posted to AEF on `agent-chat-arc` with producer attribution carrying (a) the answer to their OBS-359 back-report — measured: this consumer vendors no `tests/` directory at all, so that assertion cannot be red here and no consumer can run the framework's unit suite; (b) the cohort-identity finding, since it invalidates sender-keyed provenance for every project on the mesh, not just ours.
+- [x] `arc-0-exit-clauses.yaml` is corrected only where it is factually stale. `definition_ratified:` and `attestation:` are NOT touched — neither is the agent's to set, and AEF declined clause 1 deliberately.
+- [x] No learning is recorded claiming the seam was repaired. Nothing was repaired; a false belief was removed.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -197,6 +197,50 @@ test "$(grep -c '^    definition_ratified: false' docs/research/executable-workf
 -->
 
 ## Evolution
+
+### 2026-09-05 — the premise died inside the hour, and the task became its own correction
+
+- **What changed:** The task was filed to repair a dead seam to 999-AEF. Within the first
+  measurement it turned out AEF had answered clause 1 at `agent-chat-arc` offset 650 on
+  2026-08-27 and was posting at offset 897 the same day this task was opened. Nothing was
+  broken except one DM mailbox. The three facts that produced the false premise were each
+  individually true.
+- **Plan impact:** Every original AC was invalidated. AC2 in particular ("reader-confirmed
+  only on a message authored by a fingerprint that is NOT ours") is the *defect itself*
+  written as a fence: applied to the live seam it classifies 66 substantive AEF posts as
+  our own outbox. The deliverable changed from "restore a transport" to "remove a false
+  belief and make the rule that produced it fail visibly."
+- **Triggered:** Full AC rewrite; the probe re-keyed onto payload producer labels; the
+  discarded rule retained as an executable negative control rather than deleted.
+
+### 2026-09-05 — the first negative control was vindicating the rule it was meant to refute
+
+- **What changed:** The control asked "does any FOREIGN sender post on this topic?", got
+  yes, and reported the old rule as sound. The foreign senders were ring20's. The rule
+  answered `live` because *somebody* was present, not because *AEF* was — a textbook
+  PL-177 (right answer, broken reason), and it would have certified a seam to a
+  counterparty that had never appeared on it.
+- **Plan impact:** A control that cannot fail proves nothing, so the AC demanding it was
+  not met by the first implementation even though the run was green. Re-posed to the
+  question the seam actually depends on — *is 999-AEF present?* — which under `sender_id`
+  has no answer at all, because AEF has no fingerprint: 66 posts, 0 attributable.
+- **Triggered:** Control rewritten; the failed first version is documented in the probe's
+  own source and in the verdict document, because the near-miss is the evidence.
+
+### 2026-09-05 — the register already knew; the reader did not consult it
+
+- **What changed:** `arc-0-exit-clauses.yaml` required no correction whatsoever. Its
+  `clause-1` block has carried AEF's offset-650 response in full — timestamp, rail, thread,
+  their commit `d318223`, all four measured numbers, their own three-way verdict — since
+  T-623 recorded it on 2026-08-27.
+- **Plan impact:** The false belief was not inherited from a stale artefact; it was
+  manufactured by reading the DM thread and not the clause register. One dead mailbox read
+  in isolation outweighed a correct record sitting in the repository the whole time. The
+  most recent evidence was the least complete, and recency won.
+- **Triggered:** No edit to the register (the AC's "only where factually stale" clause
+  resolved to *nothing*). Recorded instead as the more transferable finding: when a
+  question has a register, the register is the source — a conversation is where an answer
+  arrives, not where it lives.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
