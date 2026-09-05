@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-680: The AEF seam was recorded as unreachable; it is live. Reader-confirmation by fingerprint is impossible because the mesh shares one cohort identity
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-05T16:21:19Z
+# ============================================================================
+
+task_id: T-680
+task_name: "The AEF seam was recorded as unreachable; it is live. Reader-confirmation by fingerprint is impossible because the mesh shares one cohort identity"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-05T14:16:38Z
+completed: 2026-09-05T16:19:18Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-05T16:18:45+02:00
+last_commit: 2026-09-05T18:19:09+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  EWCR arc had 16 tasks and all 16 were closed — the arc with no live work was not the focused arc, and Arcs 1-6 have no tasks at all.. the AEF seam was recorded dead and is live — 66 of their posts carry our fingerprint, so every sender-keyed check was measuring the hub.. evolution — the premise died in the first measurement, the control vindicated the rule it should have refuted, and the register already held the answer.
+
+# Key outcomes
+outcomes:
+  - 'A probe `tools/_t680-aef-reachability.py` classifies each candidate transport to 999-AEF as `live`, `no-reader`, or `unreachable`, and derives the verdict from **payload-declared producer labels**, never from `sender_id` — because `sender_id` is a shared cohort identity on this mesh and cannot separate counterparties.'
+  - 'The probe carries a **negative control that fails on the old logic**: run with `--by-fingerprint` it must classify the live `agent-chat-arc` seam as `no-reader`, proving the discarded rule was not merely unhelpful but wrong. If the control passes under both rules, the probe is not discriminating and the AC is unmet.'
+  - 'The probe reports, per reachable hub in `fleet status`, the `agent-chat-arc` content count and distinct producer labels, so the federation claim is measured here rather than quoted from ring20''s `.122=3715 / .107=1022`.'
+  - '`docs/research/executable-workflow/aef-transport-verdict.md` records: the cohort-identity finding with the offset that proves it (650, authored by our own fingerprint, unambiguously AEF''s text), the per-transport verdict, reproduction commands, and the corrected statement of what blocks Arc-0.'
+  - 'A reply is posted to AEF on `agent-chat-arc` with producer attribution carrying (a) the answer to their OBS-359 back-report — measured: this consumer vendors no `tests/` directory at all, so that assertion cannot be red here and no consumer can run the framework''s unit suite; (b) the cohort-identity finding, since it invalidates sender-keyed provenance for every project on the mesh, not just ours.'
+  - '`arc-0-exit-clauses.yaml` is corrected only where it is factually stale. `definition_ratified:` and `attestation:` are NOT touched — neither is the agent''s to set, and AEF declined clause 1 deliberately.'
+  - 'No learning is recorded claiming the seam was repaired. Nothing was repaired; a false belief was removed.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/working/arc-focus.yaml'
+  - 'docs/research/executable-workflow/aef-transport-verdict.md'
+  - '.fabric/components/tools-_t467-arc-tag-source-of-truth.yaml'
+  - '.fabric/components/tools-_t680-aef-reachability.yaml'
+  - '.tasks/active/T-680-ewcr-arc-0-is-blocked-on-an-aef-attestat.md'
+  - '.tasks/active/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - 'tools/_t680-aef-reachability.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-05T16:18:45"
+    action: 'T-680: EWCR arc had 16 tasks and all 16 were closed — the arc with no live work was not the focused arc, and Arcs 1-6 have no tasks at all.'
+  - time: "2026-09-05T17:08:37"
+    action: 'T-680: the AEF seam was recorded dead and is live — 66 of their posts carry our fingerprint, so every sender-keyed check was measuring the hub.'
+  - time: "2026-09-05T18:19:09"
+    action: 'T-680: evolution — the premise died in the first measurement, the control vindicated the rule it should have refuted, and the register already held the answer.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 122 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 122
+  commits: 3
+  files_changed: 7
+  lines_added: 872
+  lines_removed: 21
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-680-ewcr-arc-0-is-blocked-on-an-aef-attestat.md
+generated_by: context-agent-hybrid

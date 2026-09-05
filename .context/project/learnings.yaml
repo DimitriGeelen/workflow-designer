@@ -2234,3 +2234,17 @@ learnings:
   date: 2026-09-05
   context: Added via context agent
   application: TBD
+- id: PL-315
+  learning: "A SHARED IDENTITY hides the producer from every check keyed on sender. On this mesh 3 distinct sender_id carry 18 distinct producer labels: 999-AEF, 001-CashWeb and 010-termlink all post as OUR fingerprint, distinguished only by an UNSIGNED label inside the payload. 0 of AEF's 66 posts are attributable by sender_id. Any reachability, attribution or provenance test keyed on sender is measuring the HUB and reporting it as the COUNTERPARTY. PL-314 one level up: there a reader's compatibility union hid its producer's defect; here a shared identity hides the producer itself. Consequence for EWCR: the contract promises every step traceable to the evidence that justified it, so transport attribution that is an unsigned payload label is not evidence."
+  source: P-001
+  task: T-680
+  date: 2026-09-05
+  context: Added via context agent
+  application: TBD
+- id: PL-316
+  learning: "WHEN A QUESTION HAS A REGISTER, THE REGISTER IS THE SOURCE — a conversation is where an answer ARRIVES, not where it LIVES. T-680 was opened on the belief that 999-AEF was unreachable, built from a dead DM mailbox read in isolation. arc-0-exit-clauses.yaml had held AEF's full clause-1 answer since 2026-08-27: timestamp, rail, offset 650, their commit, all four measured numbers, their own three-way verdict. The register needed NO correction; the stale belief was manufactured entirely by consulting the thread instead of the file. The most recent evidence was the least complete and recency won. Before opening a task on a counterparty's state, read the register that tracks it."
+  source: P-001
+  task: T-680
+  date: 2026-09-05
+  context: Added via context agent
+  application: TBD

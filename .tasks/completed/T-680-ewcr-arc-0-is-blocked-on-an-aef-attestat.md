@@ -4,12 +4,12 @@ name: "The AEF seam was recorded as unreachable; it is live. Reader-confirmation
 description: >
   Opened on the premise that the 999-AEF seam was dead, and the premise was false. Three true measurements produced it: the DM to 3bba15e681b3a078 holds 7 rows all our own (that fingerprint is framework-agent-systemd, an idle root shell with no consumer), ring20 measured agent-chat-arc as non-federating across hubs, and no AEF session is discoverable here. AEF had in fact answered clause 1 at agent-chat-arc offset 650 and was posting at 897 the same day. The chain held because every envelope on this mesh carries sender d1993c2c3ec44c94 — ours — as do AEF's, 001-CashWeb's and 010-termlink's: 3 distinct sender_id against 18 distinct producer labels, so sender_id cannot separate producers and 0 of AEF's 66 posts are attributable by it. This task's own original AC would have classified the live seam as no-reader. Delivered: tools/_t680-aef-reachability.py keyed on payload producer labels with a negative control proving the discarded rule wrong; docs/research/executable-workflow/aef-transport-verdict.md; a reply to AEF at offset 1096. arc-0-exit-clauses.yaml needed no correction — it already recorded AEF's answer; the stale belief came from reading the DM thread instead of the register. Arc-0 is blocked on rulings, not plumbing.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t680-aef-reachability.py]
 related_tasks: []
 arc_id: ewcr-governed-delivery
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -17,8 +17,8 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T14:16:38Z
-last_update: 2026-09-05T16:15:46Z
-date_finished: null
+last_update: 2026-09-05T16:19:18Z
+date_finished: 2026-09-05T16:19:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -294,3 +294,24 @@ test "$(grep -c '^    definition_ratified: false' docs/research/executable-workf
 
 ### 2026-09-05T14:17:41Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8f9245ae
+- **Timestamp:** 2026-09-05T16:21:00Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 4
+     - evidence: `python3 tools/_t680-aef-reachability.py --by-fingerprint 2>&1 | grep -q "NEGATIVE CONTROL: PASS"`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 6
+     - evidence: `python3 tools/_t680-aef-reachability.py 2>&1 | grep -qE "^agent-chat-arc +live"`
+  3. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 9
+     - evidence: `python3 tools/_t680-aef-reachability.py 2>&1 | grep -q "sender_id CANNOT separate producers"`
+
+### 2026-09-05T16:19:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
