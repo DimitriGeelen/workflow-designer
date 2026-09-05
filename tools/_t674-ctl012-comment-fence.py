@@ -191,6 +191,43 @@ def main():
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
+    # --- T-678: the Decision pre-scan shares the same comment stripper ------------
+    # Kept in THIS fence rather than a new one because both scans now share
+    # comment_stripper(): a change to one can silently alter the other, and two
+    # fences that each cover half of a shared helper is how the drift starts.
+    for label, decision, want in [
+        ("Decision holding only a multi-line comment is EMPTY",
+         "## Decision\n<!--\ninterior line, neither opens nor closes\n-->\n",
+         "missing-decide"),
+        ("a genuinely FILLED Decision is still filled",
+         "## Decision\n\nGO — rationale recorded here.\n",
+         "drift"),
+    ]:
+        tmp = tempfile.mkdtemp(prefix="t678-")
+        try:
+            build(tmp, "T-952", """
+## Acceptance Criteria
+
+### Agent
+- [x] Explored.
+@auto-tick-on-decide
+- [ ] Decision recorded.
+
+""" + decision, wtype="inception")
+            data, _ = scan(tmp)
+            cls = ""
+            if data:
+                for u in data.get("unchecked_ac", []):
+                    if u["id"] == "T-952":
+                        cls = u.get("class", "")
+            ok = cls == want
+            print("%-6s %-56s want=%s got=%s" %
+                  ("PASS" if ok else "FAIL", label, want, cls or "not reported"))
+            if not ok:
+                failures.append(label)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     if failures:
         print("\nFENCE FAILED — %d arm(s): %s" % (len(failures), "; ".join(failures)))
         return 1

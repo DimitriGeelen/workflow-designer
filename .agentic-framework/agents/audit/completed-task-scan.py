@@ -42,6 +42,49 @@ import re
 import sys
 
 
+def comment_stripper():
+    """Return a stateful line filter that removes `<!-- ... -->` regions (T-674/T-678).
+
+    ONE definition of "what is a comment", shared by every scan in this file. Two
+    scans that each carried their own is exactly how T-678 happened: the AC loop
+    handled multi-line blocks and the Decision pre-scan skipped only lines that
+    START with `<!--` or END with `-->`, so the interior of a block read as content
+    and an empty Decision section looked filled.
+
+    State is per-instance because each scan walks the file independently — call it
+    once per pass, never share one across two loops.
+
+    Whitespace left behind by a removed comment is SEPARATOR, not authored
+    indentation, so the residue is lstripped — but only when something was actually
+    removed. `- [ ]` is anchored at ^, so without this a line like
+    `<!-- note --> - [ ] live AC` strips to ` - [ ] live AC` and stops matching: the
+    comment fix would have introduced a false NEGATIVE, worse than the false positive
+    it set out to remove. Lines containing no comment are returned untouched, so real
+    indentation still means what it meant before.
+    """
+    state = {"open": False}
+
+    def strip(raw):
+        out, touched = raw, False
+        if state["open"]:
+            if "-->" not in out:
+                return ""
+            out = out.split("-->", 1)[1]
+            state["open"], touched = False, True
+        while "<!--" in out:
+            before, _, rest = out.partition("<!--")
+            touched = True
+            if "-->" in rest:
+                out = before + rest.split("-->", 1)[1]
+            else:
+                state["open"] = True
+                out = before
+                break
+        return out.lstrip() if touched else out
+
+    return strip
+
+
 def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
     completed_dir = os.path.join(tasks_dir, "completed")
     if not os.path.isdir(completed_dir):
@@ -165,17 +208,24 @@ def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
         # decide ceremony never ran.
         decision_empty = True
         in_decision = False
+        # T-678: use the SHARED stripper. This loop used to carry its own idea of a
+        # comment — skip lines that START with `<!--` or END with `-->` — which misses
+        # the INTERIOR lines of a multi-line block. A `## Decision` section holding
+        # nothing but a comment therefore read as FILLED, and the task was classified
+        # `drift` instead of `missing-decide`: the operator got "AC gate may have been
+        # bypassed" when the actionable message was "run fw inception decide".
+        # Two scans in one function disagreeing about what a comment is was the bug;
+        # a second copy that agrees today would only postpone it.
+        strip_decision = comment_stripper()
         for line in content.split("\n"):
+            line = strip_decision(line)
             if line.startswith("## Decision") and not line.startswith("## Decisions"):
                 in_decision = True
                 continue
             if in_decision and line.startswith("## "):
                 break
             if in_decision:
-                stripped = line.strip()
-                if not stripped:
-                    continue
-                if stripped.startswith("<!--") or stripped.startswith("-->") or stripped.endswith("-->"):
+                if not line.strip():
                     continue
                 # Any non-blank, non-comment content means the section has been filled.
                 decision_empty = False
@@ -193,37 +243,7 @@ def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
         # Stripping happens before the section checks, not just before the `- [ ]`
         # match, so a commented-out `### Human` or `## Heading` cannot steer section
         # state either — the previous code would have honoured one.
-        in_comment = False
-
-        def strip_comments(raw):
-            """Remove <!-- ... --> regions, carrying open state across lines.
-
-            Whitespace left behind by a removed comment is SEPARATOR, not authored
-            indentation, so the residue is lstripped — but only when something was
-            actually removed. `- [ ]` is anchored at ^, so without this a line like
-            `<!-- note --> - [ ] live AC` would strip to ` - [ ] live AC` and stop
-            matching: the comment fix would have introduced a false NEGATIVE, which
-            is worse than the false positive it set out to remove. Lines containing
-            no comment are returned untouched, so real indentation still means what
-            it meant before.
-            """
-            nonlocal in_comment
-            out, touched = raw, False
-            if in_comment:
-                if "-->" not in out:
-                    return ""
-                out = out.split("-->", 1)[1]
-                in_comment, touched = False, True
-            while "<!--" in out:
-                before, _, rest = out.partition("<!--")
-                touched = True
-                if "-->" in rest:
-                    out = before + rest.split("-->", 1)[1]
-                else:
-                    in_comment = True
-                    out = before
-                    break
-            return out.lstrip() if touched else out
+        strip_comments = comment_stripper()
 
         for line in content.split("\n"):
             line = strip_comments(line)
