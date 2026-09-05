@@ -13,7 +13,7 @@ components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-05T14:17:12Z
-last_update: 2026-09-05T16:22:02Z
+last_update: 2026-09-05T16:24:32Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -41,11 +41,24 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+`arc-002 ewcr-governed-delivery` held 16 tasks on 2026-09-05 and **all 16 were
+`work-completed`** — zero live work, `status: draft`, and the focus star on `arc-001`. Meanwhile
+`roadmap-5be23719.md` §2.1 defines **seven arcs (0–6)**, each with a named Workflow-Designer-owned
+column, and **only Arc 0 has ever been decomposed into tasks**. The headline mechanic (author →
+export as executable contract → runtime executes with traceable evidence) has no task anywhere
+building toward it.
+
+For the operator, who asked directly whether we are still focused on EWCR and whether new scope
+is being added as tasks. The answer to both was no. Now, because Arc-0's exit is not ours to
+cause — two of its three clauses sit with AEF's operator (T-680) — so waiting for it is waiting
+indefinitely.
+
+Full analysis: `docs/reports/T-681-ewcr-next-arc-inception.md`.
 
 ## Assumptions
 
-<!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-681 -->
+Registered as IW-1..IW-4 under Open Questions rather than duplicated here; IW-2 is the one that
+can flip the recommendation to NO-GO.
 
 ## Open Questions
 
@@ -93,7 +106,18 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Two spikes, both cheap, both run only **after** a GO. Neither writes production code.
+
+- **S1 (IW-1, ~1h)** — enumerate what "execution / secret / ledger authority" means in this tree
+  today: what exists, what is stubbed, what is purely AEF's. Output: a list of named authorities
+  and every path the editor has to each. If the list is empty, IW-3 is answered *against* the
+  recommendation and the fence has nothing to guard.
+- **S2 (IW-2, ~1h)** — prototype the mutation control in a throwaway root: introduce a path,
+  show the fence red, revert, show it green. Time-boxed; if it cannot be done without a real
+  breach path in the shipped tree, the disposition is NO-GO and S1's output is kept as evidence.
+
+IW-3 is argued in §5 of the research artifact and *tested* by S2 — it is not settled by
+assertion. IW-4 is answered by reading roadmap §2.1's AEF column, not by a spike.
 
 ## Technical Constraints
 
@@ -105,7 +129,18 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+**IN:** deciding which single EWCR arc to open next, and on what condition. Producing the
+decomposition *only* after a GO, as separate build tasks under `arc-002`.
+
+**OUT:**
+- Opening Arcs 1, 3, 5 or 6 — all four are counterparty-blocked and would be born unstartable.
+- Re-opening Arc 4 — its one independent slice shipped as T-611.
+- Any Arc-0 clause work. `definition_ratified:` and `attestation:` are the operator's, and AEF
+  declined clause 1 deliberately.
+- Building the fence itself under this task ID. On GO it becomes separate build tasks.
+- Touching `voi_score:` / `target_blast_radius:` in this file. Both are planted template defaults
+  (0.5 / 3) that flatten this task's BVP position, and both are operator-owned with no
+  `_proposed:` lane — flagged for the operator rather than filled in.
 
 ## Acceptance Criteria
 
@@ -131,12 +166,20 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- Exactly one roadmap arc has a Designer-owned column with no counterparty dependency — measured
+  in §4 of the research artifact: Arc 2 is the only one of six.
+- The mutation control in §5 is buildable without introducing a real breach path into the shipped
+  tree (IW-2), so the fence has a demonstrated red state and is evidence rather than decoration.
+- The work survives an Arc-0 that never exits — an isolation proof is actionable regardless of
+  whether AEF ever attests.
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- IW-2 resolves negative: the control cannot be built without a real breach path. Then the
+  deliverable is a green check certifying nothing, which is worse than no check because it would
+  be reported to AEF as an isolation proof.
+- S1 finds no execution/secret/ledger authority in this tree at all, stubbed or otherwise — a
+  fence guarding nothing is not a ratchet, it is a placeholder that will be read as coverage.
+- The scope cannot be held to Arc 2's Designer column alone without stubbing AEF's half (IW-4).
 
 ## Verification
 
