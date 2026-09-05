@@ -11,6 +11,7 @@ horizon: now
 tags: [ewcr, fabric, arc-0-fence, arc:ewcr-governed-delivery]
 components: [tools/_t671-arc0-card-gen.py, tools/_t671-arc0-edge-derive.py, tools/_t671-arc0-fabric-fence.py]
 related_tasks: []
+arc_id: ewcr-governed-delivery
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.

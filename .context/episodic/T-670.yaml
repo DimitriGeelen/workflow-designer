@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-670: EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold them
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-05T10:56:54Z
+# ============================================================================
+
+task_id: T-670
+task_name: "EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold them"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-03T05:17:04Z
+completed: 2026-09-05T10:56:45Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-09-03T07:19:23+02:00
+last_commit: 2026-09-03T20:44:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  EWCR had fourteen tasks, three blocking exit clauses, and no arc to hold any of it.. five of the six Arc-0 candidate tasks are AEF-owned, and our half of the sixth is already done — EWCR is stalled on counterparty attestation, not on our capacity.. carry T-671's completion transition — P-002 blocks a task from committing its own work-completed flip, so the arc task carries it.. the AEF seam was never silent — five DMs went to termlink's systemd unit, and our own diagnosis quoted the field that proved it.
+
+# Key outcomes
+outcomes:
+  - 'An arc exists for EWCR with a headline mechanic stating a **user-observable**'
+  - 'Every existing EWCR task carries `arc_id:` pointing at that arc, verified by'
+  - 'The arc''s scope is checked against `docs/research/executable-workflow/roadmap-5be23719.md`'
+  - 'Scope with no task is **filed as tasks**, one deliverable each per the sizing rules.'
+  - 'The arc is left in `draft` unless the roadmap''s own entry condition for Arc-0 is met.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/arcs/ewcr-governed-delivery.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md'
+  - '.tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md'
+  - '.tasks/active/T-596-arc-0-exit-gate-is-uncheckable-the-opera.md'
+  - '.tasks/active/T-597-both-remaining-arc-0-exit-clauses-are-co.md'
+  - '.tasks/active/T-619-retry-safety-declaration-on-task-like-no.md'
+  - '.tasks/active/T-669-uncontrolled-absence-assertions-rose-78-.md'
+  - '.tasks/active/T-670-ewcr-has-no-arc-fourteen-tasks-and-three.md'
+  - '.tasks/active/T-671-component-fabric-does-not-meet-the-arc-0.md'
+  - '.tasks/completed/T-591-ewcr-arc-0-prove-the-pilot-fixture-is-a-.md'
+  - '.tasks/completed/T-594-residual-prose-still-claims-the-operator.md'
+  - '.tasks/completed/T-595-record-the-operators-h2-answer--aef-name.md'
+  - '.tasks/completed/T-610-send-the-arc-0-attestation-request-to-ae.md'
+  - '.tasks/completed/T-611-ewcr-arc-4-diagram-fabric-navigation-pro.md'
+  - '.tasks/completed/T-620-ewcr-arc-0-landing-route-r6r7-request-th.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-03T07:19:23"
+    action: 'T-670: EWCR had fourteen tasks, three blocking exit clauses, and no arc to hold any of it.'
+  - time: "2026-09-03T07:34:10"
+    action: 'T-670: five of the six Arc-0 candidate tasks are AEF-owned, and our half of the sixth is already done — EWCR is stalled on counterparty attestation, not on our capacity.'
+  - time: "2026-09-03T12:05:59"
+    action: 'T-670: carry T-671''s completion transition — P-002 blocks a task from committing its own work-completed flip, so the arc task carries it.'
+  - time: "2026-09-03T20:44:46"
+    action: 'T-670: the AEF seam was never silent — five DMs went to termlink''s systemd unit, and our own diagnosis quoted the field that proved it.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 3219 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3219
+  commits: 4
+  files_changed: 16
+  lines_added: 646
+  lines_removed: 34
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-670-ewcr-has-no-arc-fourteen-tasks-and-three.md
+generated_by: context-agent-hybrid

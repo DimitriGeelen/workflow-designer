@@ -4,20 +4,21 @@ name: "EWCR has no arc: fourteen tasks and three exit clauses with no arc to hol
 description: >
   The EWCR work (T-590..T-620, fourteen tasks) is not tagged to any arc. arc-001 covers the designer authoring surface only. Establish the EWCR arc, bring existing EWCR tasks under it, evaluate whether the roadmap's Arc-0 scope is fully covered by tasks, and file whatever scope has no task.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
+arc_id: ewcr-governed-delivery
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T05:17:04Z
-last_update: 2026-09-03T10:06:00Z
-date_finished: null
+last_update: 2026-09-05T10:56:45Z
+date_finished: 2026-09-05T10:56:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -101,10 +102,12 @@ moved to inflate arc-002's membership.
 - [x] An arc exists for EWCR with a headline mechanic stating a **user-observable**
       deliverable — an operator doing a thing and getting a governed result — not a
       substrate description. `fw arc show` resolves it and `fw arc list` prints it.
-- [ ] Every existing EWCR task carries `arc_id:` pointing at that arc, verified by
+- [x] Every existing EWCR task carries `arc_id:` pointing at that arc, verified by
       counting tasks whose body mentions EWCR against tasks tagged to the arc. The two
       numbers are reported even when they differ; a silent subset would recreate the
       problem this task exists to fix one level down.
+      **Done 2026-09-05. The numbers differ in BOTH directions, and neither is the
+      membership count — see `## AC2 measurement` below.**
 - [x] The arc's scope is checked against `docs/research/executable-workflow/roadmap-5be23719.md`
       **Arc-0** and the three clauses in `arc-0-exit-clauses.yaml`, and each clause is
       mapped to the task(s) that carry it — or recorded as carried by no task, which is
@@ -148,7 +151,72 @@ moved to inflate arc-002's membership.
        `bin/fw reviewer T-670 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## AC2 measurement — 2026-09-05
+
+**The two counts, as the AC demands, reported before they were reconciled:**
+
+| | count |
+|---|---|
+| tasks whose body mentions `EWCR` | **15** |
+| tasks in arc `ewcr-governed-delivery` | **12** |
+| union of `EWCR` + `Arc-0` + `executable-workflow` mentions | **20** |
+| arc membership after reconciliation | **16** |
+
+**The keyword scan is wrong in both directions, which is the finding.** The AC anticipated
+a difference; it turned out not to be a subset relation at all.
+
+*Mentions that are not membership* (4). `T-609` (review cards drop Steps/Expected —
+one prose line: "EWCR question is settled when it may not be"), `T-660` (gate-green vs
+operator-actionable — cites EWCR as evidence of queue drainage), `T-669` (absence-assertion
+ratchet — "EWCR was made the priority mid-session"), `T-673` (audit remediation — cites
+Arc-0 cards as an instance of a tree-wide condition). Each is *about* something else and
+mentions EWCR while making its point. This is the mention-is-not-invocation class T-669 is
+itself named for, which is a pleasing place to find it.
+
+*Membership that is not a mention* (1). `T-596` — "Arc-0 exit gate is uncheckable" — is
+squarely EWCR work and never spells the acronym. A grep for `EWCR` under-counts as readily
+as it over-counts; widening to `Arc-0` / `executable-workflow` raised the mention set from
+15 to 20 and still needed judgement on all five newcomers.
+
+*Added after judgement* (4): `T-587` (ingest the AEF executable workflow-contract source
+packet), `T-608` (draft the Arc-0 clause 1+2 attestation request — the other half of
+`T-610`, which was already a member), `T-623` (AEF answered clause 1 red), `T-670` (this
+task; establishing the arc is arc scope).
+
+**Then the AC's literal wording bit, and correctly.** It says every EWCR task *carries
+`arc_id:`* — not "is in the arc". Twelve of the sixteen recorded membership only in the
+legacy `tags: [arc:...]` form, so they were arc members by the union reader and carried no
+canonical field at all. `fw arc tag` could not have upgraded them this morning; T-467 taught
+it to, and T-679 taught it to do so without destroying anything on the way.
+
+**Final: 14 of 16 carry a live `arc_id:`.** The two that do not are the honest residue.
+
+### Operator decision: T-611 and T-620 belong to two arcs
+
+Both carry `tags: [arc:designer-authoring-surface, arc:ewcr-governed-delivery]`. The legacy
+tag form is a list and permitted dual membership; `arc_id:` is single-valued and cannot
+represent it. Writing the field would silently drop one of the two, so `fw arc tag` refuses
+(T-679) and names both arcs.
+
+This is a scope decision, not a defect. Both readings are defensible — Arc 4
+diagram-Fabric navigation (T-611) and the Arc-0 landing (T-620) are EWCR deliverables that
+land *on the designer surface*. **Left for the operator.** Recording it here rather than
+resolving it is the point of the AC's "a silent subset would recreate the problem this task
+exists to fix one level down": collapsing them quietly is exactly that problem.
+
+Nothing is broken meanwhile — every reader unions both forms, so both tasks remain visible
+in both arcs today.
+
 ## Verification
+
+# The arc resolves and holds the four tasks added by judgement in AC2.
+.agentic-framework/bin/fw arc show ewcr-governed-delivery > /tmp/.t670-arc.out 2>&1 && grep -qE '^  T-587' /tmp/.t670-arc.out && grep -qE '^  T-608' /tmp/.t670-arc.out && grep -qE '^  T-623' /tmp/.t670-arc.out && grep -qE '^  T-670' /tmp/.t670-arc.out
+# At least 14 tasks carry a live arc_id: for this arc, counted from FRONTMATTER only —
+# a document-wide grep would count the prose in this very file, which is the defect class
+# the whole task pair is about.
+python3 -c "import glob,re,sys;ps=glob.glob('.tasks/active/T-*.md')+glob.glob('.tasks/completed/T-*.md');ms=[re.match(r'^---\n(.*?\n)---\n',open(p,errors='replace').read(),re.S) for p in ps];n=sum(1 for m in ms if m and re.search(r'^arc_id:[ \t]*ewcr-governed-delivery',m.group(1),re.M));print(n);sys.exit(0 if n>=14 else 1)"
+# The verb that wrote them still refuses to destroy membership (T-467 + T-679).
+python3 tools/_t467-arc-tag-source-of-truth.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -214,6 +282,37 @@ moved to inflate arc-002's membership.
 -->
 
 ## Evolution
+
+### 2026-09-05 — AC2 could not be executed by the command that exists to execute it
+
+- **What changed:** AC2 says every EWCR task must *carry `arc_id:`*. At filing this read as
+  a bookkeeping step. It was not executable at all: `fw arc tag` — the documented way to
+  record membership — wrote the T-1851-deprecated `tags: [arc:<slug>]` and never `arc_id:`,
+  and *nothing in the framework wrote that field anywhere*. The only route to the canonical
+  field was hand-editing frontmatter. AC2 was blocked on a defect nobody had connected to
+  it, filed separately as T-467 three weeks earlier.
+- **Plan impact:** AC2 stopped being bookkeeping and became "fix the writer first". T-467
+  landed (`78cf7d75`), and running it end-to-end on the real corpus immediately produced a
+  second defect (T-679, `97d399b2`): the new reassignment guard read only `arc_id:` while
+  every reader unions `arc_id:` with the legacy tag, so 26 legacy-tag-only tasks could be
+  silently reassigned. T-590 was reassigned by my own probe and reverted.
+- **Triggered:** T-467 (fixed, landed), T-679 (filed and fixed in the same session), plus
+  an operator decision recorded under `## AC2 measurement` — T-611 and T-620 carry two arc
+  tags each and single-valued `arc_id:` cannot represent dual membership.
+
+### 2026-09-05 — a keyword scan is not a membership test, in both directions
+
+- **What changed:** AC2 prescribed comparing "tasks whose body mentions EWCR" against arc
+  members, expecting a subset. It is not a subset relation. Four tasks mention EWCR while
+  being about something else (`T-609`, `T-660`, `T-669`, `T-673`), and one member never
+  spells the acronym at all (`T-596`, which says "Arc-0"). Widening the scan to
+  `Arc-0`/`executable-workflow` raised mentions from 15 to 20 and still required judgement
+  on every newcomer.
+- **Plan impact:** the AC's own instrument needed the finding the AC was written to prevent.
+  Reporting both numbers — which the AC did demand — was the part that held up; treating
+  either as the membership count would not have.
+- **Triggered:** no new task. The discrimination is recorded in `## AC2 measurement` and the
+  class already has a name in this tree (T-669, mention-is-not-invocation).
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -297,3 +396,15 @@ first — the path where the peer's posts demonstrably land on our own log. Capt
 refused and never as satisfied; `definition_ratified:` stays false on all three clauses; and
 per roadmap §2.3 a delivered post is transport evidence, not collaboration completion. The
 correction fixes who hears us, not what has been agreed.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-dc06afbb
+- **Timestamp:** 2026-09-05T10:56:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-05T10:56:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
