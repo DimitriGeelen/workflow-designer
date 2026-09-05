@@ -4,7 +4,7 @@ name: "EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs 1-
 description: >
   Inception: EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs 1-6 have no tasks at all
 
-status: captured
+status: started-work
 workflow_type: inception
 owner: human
 horizon: now
@@ -13,7 +13,7 @@ components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-05T14:17:12Z
-last_update: 2026-09-05T14:17:12Z
+last_update: 2026-09-05T16:22:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -48,6 +48,32 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-681 -->
 
 ## Open Questions
+
+- **IW-1: Does "execution / secret / ledger authority" have a stateable definition on the
+  Designer side today, sufficient to enumerate every path the editor has to it?**
+  confidence: 1
+  disposition:
+  rationale:
+
+- **IW-2: Can the Arc-2 mutation control be built without introducing a real breach path into
+  the shipped tree?** If it cannot, the recommendation flips to NO-GO: a fence with no
+  demonstrated red state is not evidence, and shipping a breach to prove one is worse.
+  confidence: 1
+  disposition:
+  rationale:
+
+- **IW-3: Is a fence installed before the authority it guards exists actually a ratchet, or is
+  it a green check that certifies nothing?** The value claim rests on installing the boundary
+  while it is cheap; the objection is PL-178 — a leg that has never been red asserts nothing.
+  confidence: 2
+  disposition:
+  rationale:
+
+- **IW-4: Is AEF's Arc-2 column (service identity, authenticated API, runner-owned state)
+  genuinely theirs, or would we need to stub it beyond a test double to prove anything?**
+  confidence: 1
+  disposition:
+  rationale:
 
 <!-- T-2190 (T-2186 Slice 4): every IW-N question must be disposed before
      --status work-completed. Disposition gate (agents/task-create/update-task.sh
@@ -156,3 +182,6 @@ GO, scoped to Arc 2's Designer-owned half ONLY: prove the browser/editor cannot 
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-09-05T16:22:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
