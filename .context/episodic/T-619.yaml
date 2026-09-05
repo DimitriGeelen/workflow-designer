@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-619: Retry-safety declaration on task-like nodes: is sideEffect already the answer?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-05T10:30:51Z
+# ============================================================================
+
+task_id: T-619
+task_name: "Retry-safety declaration on task-like nodes: is sideEffect already the answer?"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-27T17:17:44Z
+completed: 2026-09-05T10:30:44Z
+duration_days: 9
+updates_count: 2
+first_commit: 2026-08-27T19:21:55+02:00
+last_commit: 2026-08-27T21:41:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  determinism does not predict retry safety — 37/39 side-effecting nodes are deterministic and span all three retry classes. land T-537 and T-540 to partial-complete — both now carry a recommendation and reach /approvals
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-619-retry-safety-declaration.md'
+  - '.tasks/active/T-537-termlinkagentchatarcrecent-returns-oktru.md'
+  - '.tasks/active/T-540-bootstrap-bvp-scoring-and-produce-the-fi.md'
+  - '.tasks/active/T-586-kill-worktree-isolation-and-pin-no-backg.md'
+  - '.tasks/active/T-609-review-cards-drop-stepsexpectedif-not-so.md'
+  - '.tasks/active/T-619-retry-safety-declaration-on-task-like-no.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-27T19:21:55"
+    action: 'T-619: determinism does not predict retry safety — 37/39 side-effecting nodes are deterministic and span all three retry classes'
+  - time: "2026-08-27T21:41:29"
+    action: 'T-619: land T-537 and T-540 to partial-complete — both now carry a recommendation and reach /approvals'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 12553 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:ewcr-governed-delivery]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 12553
+  commits: 2
+  files_changed: 6
+  lines_added: 353
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-619-retry-safety-declaration-on-task-like-no.md
+generated_by: context-agent-hybrid

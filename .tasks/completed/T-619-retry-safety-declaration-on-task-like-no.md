@@ -4,16 +4,16 @@ name: "Retry-safety declaration on task-like nodes: is sideEffect already the an
 description: >
   T-618 surfaced determinism and sideEffect. The remaining half of the operator request is a retry-safety field. Unlike determinism (215 authored uses, settled 3-value vocabulary) a retry-safety key has ZERO precedent: zero in the corpus, zero in the frozen standard. T-617 IW-4 puts idempotency semantics in AEF Arc 1, so a node may DECLARE it but the designer cannot DEFINE it. Question: does sideEffect (40 authored occurrences, hinted 'what this step already did to the world (retry hazard)') already carry the declaration, making a new key redundant invention?
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: claude-code
-horizon: now
+horizon: null
 tags: [arc:ewcr-governed-delivery]
 components: []
 related_tasks: []
 created: 2026-08-27T17:17:44Z
-last_update: 2026-09-03T05:18:35Z
-date_finished: null
+last_update: 2026-09-05T10:30:44Z
+date_finished: 2026-09-05T10:30:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -152,15 +152,15 @@ node key is warranted; posing the vocabulary question to AEF.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-619` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -250,7 +250,45 @@ must not re-use the "zero consumers" argument; it has been measured false.**
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: NO-GO
+
+**Rationale**: Recommendation: NO-GO (on unilateral authorship — see REVISED below; the exploration
+sharpened this from "probably redundant" to "real gap, wrong owner")
+
+REVISED after measurement (2026-08-27): NO-GO stands, but for the opposite half of the
+reason it was filed. The filing assumed `sideEffect` already answered the question (A-2) and a
+new key would be redundant. A-2 is half wrong. The measurement found a genuine residue:
+`determinism` does not predict retry safety — 37 of 39 side-effecting nodes are `deterministic`
+and that one value spans accumulates=20 / overwrite=12 / no-op=5, so a runtime that infers
+retry safety from `determinism` issues a double refund on the billing node. The operator's
+request is therefore well-founded, and NO-GO is emphatically not "this feature is
+unnecessary". It is: the designer must not author AEF's vocabulary. Build cost is trivial
+(scalar, carried free by T-570, ~2 lines) — which is exactly why cost cannot be the argument.
+Question posted to 999-AEF at rail offset 636. OVERTURNED TO GO the moment Arc 1 returns a
+key name + value set, at which point we surface it verbatim as a constrained dropdown, exactly
+as T-618 did for `determinism`.
+
+NARROWED 2026-08-29 — NO-GO NOW RESTS ON ONE LEG, NOT THREE. It was filed on three
+supports: no author, no consumer, no vocabulary owner. Two have since been removed by
+measurement rather than by argument. The AUTHOR half fell in our own §F3 (40 authored
+`sideEffect` values, 5 of them literally "none"). The CONSUMER half fell at rail 637, where
+001-CashWeb reported 31 prose occurrences across three live diagrams, mapped our proposed
+three-way split onto their own nodes by name — `idempotent` (an absolute-quantity write chosen
+deliberately so repetition is harmless), `accumulates` (an idempotency ledger carried as a
+separate node precisely because a repeated POST creates a second sales order — "your
+double-refund class in our language"), `no-op` (read-only) — and confirmed all three would
+carry `determinism: deterministic` today, reproducing our measurement 2 on a corpus we do not
+own. So the gap is now demonstrated in two independent corpora and has a named adopter.
+
+What remains is ONLY ownership: no one with authority over the vocabulary has ruled, and the
+designer authoring AEF's dialect is the thing this NO-GO exists to prevent. That is a stronger
+recommendation than the original, not a weaker one — it is down to a single reason, and that
+reason is a sovereignty boundary rather than a cost or an evidence gap. Anyone re-reading this
+must not re-use the "zero consumers" argument; it has been measured false.
+
+Original filing rationale: NO-GO on minting a new retry-safety key under designer authority. Two independent silences: grep for idempot|retry|rerun|replay|compensat|at-least-once|exactly-once over docs/standards/aef-bpmn-mapping-v1.md returns zero matches, and the same class of grep over examples/ returns zero authored occurrences. Contrast determinism, which T-618 shipped precisely because the corpus had already settled it on 215 nodes with three values. Inventing a key with no author and no consumer is the failure mode T-617 argued against for the execution workflow_type. The authoring slot for retry hazard already exists and already shipped: sideEffect, 40 authored occurrences, added to the panel in T-618. What is genuinely missing is a VALUE vocabulary, and roadmap section 2.1 assigns idempotency semantics to AEF Arc 1 — a joint handoff, not a unilateral build. OVERTURNED IF: AEF returns a defined Arc 1 vocabulary, or the sideEffect census shows the 40 occurrences do not in fact express retry hazard.
+
+**Date**: 2026-09-05T10:30:43Z
 
 ## Updates
 
@@ -259,3 +297,75 @@ must not re-use the "zero consumers" argument; it has been measured false.**
 
 ### 2026-09-03T05:18:35Z — status-update [task-update-agent]
 - **Change:** tags: +arc:ewcr-governed-delivery
+
+### 2026-09-05T10:30:43Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** NO-GO
+- **Rationale:** Recommendation: NO-GO (on unilateral authorship — see REVISED below; the exploration
+sharpened this from "probably redundant" to "real gap, wrong owner")
+
+REVISED after measurement (2026-08-27): NO-GO stands, but for the opposite half of the
+reason it was filed. The filing assumed `sideEffect` already answered the question (A-2) and a
+new key would be redundant. A-2 is half wrong. The measurement found a genuine residue:
+`determinism` does not predict retry safety — 37 of 39 side-effecting nodes are `deterministic`
+and that one value spans accumulates=20 / overwrite=12 / no-op=5, so a runtime that infers
+retry safety from `determinism` issues a double refund on the billing node. The operator's
+request is therefore well-founded, and NO-GO is emphatically not "this feature is
+unnecessary". It is: the designer must not author AEF's vocabulary. Build cost is trivial
+(scalar, carried free by T-570, ~2 lines) — which is exactly why cost cannot be the argument.
+Question posted to 999-AEF at rail offset 636. OVERTURNED TO GO the moment Arc 1 returns a
+key name + value set, at which point we surface it verbatim as a constrained dropdown, exactly
+as T-618 did for `determinism`.
+
+NARROWED 2026-08-29 — NO-GO NOW RESTS ON ONE LEG, NOT THREE. It was filed on three
+supports: no author, no consumer, no vocabulary owner. Two have since been removed by
+measurement rather than by argument. The AUTHOR half fell in our own §F3 (40 authored
+`sideEffect` values, 5 of them literally "none"). The CONSUMER half fell at rail 637, where
+001-CashWeb reported 31 prose occurrences across three live diagrams, mapped our proposed
+three-way split onto their own nodes by name — `idempotent` (an absolute-quantity write chosen
+deliberately so repetition is harmless), `accumulates` (an idempotency ledger carried as a
+separate node precisely because a repeated POST creates a second sales order — "your
+double-refund class in our language"), `no-op` (read-only) — and confirmed all three would
+carry `determinism: deterministic` today, reproducing our measurement 2 on a corpus we do not
+own. So the gap is now demonstrated in two independent corpora and has a named adopter.
+
+What remains is ONLY ownership: no one with authority over the vocabulary has ruled, and the
+designer authoring AEF's dialect is the thing this NO-GO exists to prevent. That is a stronger
+recommendation than the original, not a weaker one — it is down to a single reason, and that
+reason is a sovereignty boundary rather than a cost or an evidence gap. Anyone re-reading this
+must not re-use the "zero consumers" argument; it has been measured false.
+
+Original filing rationale: NO-GO on minting a new retry-safety key under designer authority. Two independent silences: grep for idempot|retry|rerun|replay|compensat|at-least-once|exactly-once over docs/standards/aef-bpmn-mapping-v1.md returns zero matches, and the same class of grep over examples/ returns zero authored occurrences. Contrast determinism, which T-618 shipped precisely because the corpus had already settled it on 215 nodes with three values. Inventing a key with no author and no consumer is the failure mode T-617 argued against for the execution workflow_type. The authoring slot for retry hazard already exists and already shipped: sideEffect, 40 authored occurrences, added to the panel in T-618. What is genuinely missing is a VALUE vocabulary, and roadmap section 2.1 assigns idempotency semantics to AEF Arc 1 — a joint handoff, not a unilateral build. OVERTURNED IF: AEF returns a defined Arc 1 vocabulary, or the sideEffect census shows the 40 occurrences do not in fact express retry hazard.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fb2a8370
+- **Timestamp:** 2026-09-05T10:30:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-de73acf6
+- **Timestamp:** 2026-09-05T10:30:45Z
+- **Overall:** CONFIRMED
+- **Claims:** 3
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-570` | task | ✓ pass |
+| `T-618` | task | ✓ pass |
+| `T-617` | task | ✓ pass |
+
+### 2026-09-05T10:30:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: NO-GO
