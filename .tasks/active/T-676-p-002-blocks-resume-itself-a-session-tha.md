@@ -43,6 +43,22 @@ one and were not anticipated when this was written:
 | 1 | session ended by filing T-674, focus left `captured` | `Task T-674 has status 'captured'` |
 | 2 | completing T-674 cleared focus | `No active task` |
 | 3 | completing T-677 cleared focus | `No active task` |
+| 4 | completing T-467 cleared focus | `No active task` (blocked `fw arc list`) |
+| 5 | completing T-670 cleared focus | `No active task` (blocked `checkpoint.sh status`) |
+
+**FIVE instances across two sessions, four of them on the normal end of a task.** Instances
+4 and 5 were measured 2026-09-05 while landing T-467/T-679/T-670 — the same session that
+landed three tasks hit the gate twice, both times on a read-only command immediately after
+a successful completion. Instance 4 blocked `fw arc list`; instance 5 blocked
+`checkpoint.sh status`, which is the command CLAUDE.md's own budget rule names as the safe
+way to measure context.
+
+That last one is worth stating plainly: **the gate blocks the framework's own prescribed
+budget read at the exact moment the ladder says to take it** — right after finishing a unit
+of work, when the agent is deciding whether there is room for another. The workaround
+(`fw context focus T-575`) is governance theatre either way, but a rule that must be routed
+around to obey a different rule is the shape that trains an operator to route around gates
+generally.
 
 So the gate fires on the NORMAL end of every task, not just on an unusual leftover
 state: finishing work is what clears focus, and the next read-only command is refused.
