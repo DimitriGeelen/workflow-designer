@@ -15,10 +15,10 @@ description: >
   Vendored framework code, so upstream candidate under G-008. Register-first per CLAUDE.md;
   fix not attempted in T-466 (one bug, one task).
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: next
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -27,8 +27,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T19:44:27Z
-last_update: '2026-08-16T14:33:04Z'
-date_finished:
+last_update: 2026-09-05T10:47:35Z
+date_finished: 2026-09-05T10:47:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -105,8 +105,30 @@ cost_estimate_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `fw arc tag <arc> T-XXX` writes a live `arc_id: <slug>` line into the task's
+      **frontmatter** — the T-1849 source-of-truth field. Verified by tagging a task in a
+      throwaway tree and reading the frontmatter back, not by reading `fw arc show`, whose
+      union-of-both-forms render is exactly what hid this for the life of the defect.
+- [x] The deprecated `tags: [arc:<slug>]` form is **no longer written** by this path. T-1850
+      migrated 162 tasks off it; a command that re-creates it re-opens the migration one
+      task at a time. Legacy tags already present on a task are left untouched — readers
+      union both forms, so removing them is a separate act and not this fix.
+- [x] Idempotent, and refuses reassignment: re-tagging a task to the arc it already carries
+      is a no-op that reports so; tagging a task that already carries a **different**
+      `arc_id:` exits non-zero and changes nothing. Moving a task between arcs is a scope
+      decision — silently overwriting the field would be the same silent-reassignment class
+      as T-341's flowNodeRef defect, one level up.
+- [x] The write is **bounded to the frontmatter region**. The tag-writer being replaced ran
+      `^tags:` over the whole document; task bodies quote these field names when they
+      discuss arc membership (this task's own file does), so a document-wide regex can
+      rewrite the prose describing a field instead of the field. Proven by a fixture whose
+      body contains a line that would match.
+- [x] `fw arc --help` no longer tells the reader this verb writes a tag. The help was half
+      the defect: it named `arc_id:` as source-of-truth and named this verb as the way to
+      set it, while the verb set the other thing.
+- [x] A fence (`tools/_t467-arc-tag-source-of-truth.py`) drives **both arms** — it fails
+      against HEAD's pre-fix copy of `arc.sh` and passes against the fixed one, so it
+      cannot be satisfied by a verb that simply stops writing anything.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -175,6 +197,9 @@ cost_estimate_proposed:
 #     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"        # SIGPIPE-safe, errexit-blind
 # Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
 #
+python3 tools/_t467-arc-tag-source-of-truth.py
+python3 tools/_t517-vendor-divergence.py
+
 # Single pipe only — no intermediate tail/awk/sed stages between capture and grep
 # (T-2090): `echo "$out" | tail -3 | grep -q PAT` re-introduces the SIGPIPE risk
 # the capture step closed off — the middle stage is what `grep -q` slams its
@@ -189,6 +214,49 @@ cost_estimate_proposed:
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 ## RCA
+
+**Symptom.** `fw arc tag <arc> T-XXX` reported success and left `arc_id:` unset, writing
+`tags: [arc:<slug>]` instead. Since T-1850 had migrated 162 tasks off that tag form, the
+documented command was re-creating the migration's own cleanup one task at a time.
+
+**Root cause.** `arc_tag()` was written before T-1849 introduced `arc_id:` and was never
+updated when the source of truth moved. The rest of the system moved: readers gained a
+union scan (`lib/arc_membership.py`), the help text was rewritten to name `arc_id:` as
+canonical, and the migration ran. The *writer* stayed where it was. Nothing in the entire
+framework wrote `arc_id:` — `arc_show` told the user to set it by hand, which is what a
+system does when its writer has quietly become a reader-only.
+
+**Why structurally allowed.** *The union reader made the defect invisible by design.*
+Every consumer merges `arc_id:` with the legacy tag, so an arc whose membership is split
+across two representations — one of them deprecated — renders **identically** to one
+recorded canonically. Every view was correct. `fw arc show` was correct. The audit's
+arc checks were correct. A defect that cannot change any output cannot be found by
+checking outputs, and checking outputs is what verification normally does.
+
+This is the same shape as the four defects landed on 2026-09-04/05 (T-674/675/677/678):
+a value that is *tolerated* by its consumer is indistinguishable from a value that is
+*right*. Compatibility shims are load-bearing and correct; the cost is that they also
+suppress the signal that the producer needs fixing. Nothing here argues for removing the
+union — it argues that a compatibility path needs its own assertion on the producer,
+because the consumer will never complain.
+
+T-466 caught it only because one verification leg asserted the **field by name** rather
+than asserting that the rendered output looked right. An instrument checking the render
+passes this every time — which is the transferable lesson, and it is already recorded as
+this task's own origin note.
+
+**Prevention.** `tools/_t467-arc-tag-source-of-truth.py` — six arms, run against a
+throwaway project root, **all six failing against HEAD's pre-fix `arc.sh`**. The arms are
+deliberately two-sided: "writes `arc_id:`" sits next to "does not write the tag", because
+the cheapest way to stop a writer emitting the wrong field is to stop it emitting anything,
+and a gutted verb passes the negative arm perfectly.
+
+Two defects the fence found that the bug report never named, both consequences of the same
+staleness: the old verb re-added the tag to a task that **already** carried the right
+`arc_id:` (so a no-op was not a no-op), and it accepted a **cross-arc reassignment**
+silently, producing dual membership. The new verb refuses that — moving a task between arcs
+is a scope decision, and silently overwriting the field would be T-341's silent-reassignment
+class one level up.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -255,3 +323,19 @@ cost_estimate_proposed:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-467-fw-arc-tag-writes-the-deprecated-tags-fo.md
 - **Context:** Initial task creation
+
+### 2026-09-05T10:41:45Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8f99b194
+- **Timestamp:** 2026-09-05T10:47:37Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-05T10:47:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

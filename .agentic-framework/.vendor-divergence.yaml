@@ -176,6 +176,37 @@ entries:
       choosing the detection rule is theirs. Adjacent to the audit's existing T-2648/OBS-097
       check, which covers web/ and lib/ Python but not agents/.
 
+  - path: .agentic-framework/lib/arc.sh
+    kind: content
+    task: T-467
+    upstream: fix
+    reason: >-
+      `fw arc tag` wrote the T-1851-DEPRECATED `tags: [arc:<slug>]` form and never the
+      T-1849 source-of-truth field `arc_id:`. Upstream's own T-1850 migrated 162 tasks off
+      the tag form, and upstream's own `arc_help` says "Source-of-truth is task-side arc_id:"
+      while naming this verb as the way to record membership — so the documented command was
+      re-creating, one task at a time, what the migration had just cleaned up. Nothing in the
+      framework wrote `arc_id:` anywhere; `arc_show` told the user to edit frontmatter by hand.
+
+      IT NEVER LOOKED BROKEN, and that is the finding rather than an aside. Every reader
+      (lib/arc_membership.py) takes the UNION of `arc_id:` and the legacy tag, so an arc whose
+      membership is split across two representations renders identically to one recorded
+      canonically. 832's T-466 caught it only because a verification leg asserted the field BY
+      NAME instead of asserting that `fw arc show` looked right — an instrument checking the
+      render passes this every time.
+
+      FIXED HERE: `arc_tag()` now writes `arc_id: <slug>` into the frontmatter, is idempotent,
+      and REFUSES to reassign a task that already carries a different arc_id (the old code
+      accepted it silently, producing dual membership — found by the fence, not by the report).
+      The deprecated tag is no longer written; legacy tags already on tasks are left in place
+      and readers keep unioning them. The write is bounded to the frontmatter region: the
+      replaced writer ran `^tags:` over the WHOLE document and could rewrite body prose that
+      quotes the field name. `arc_migrate` step 3 feeds legacy-tagged task ids back into this
+      function, so it now UPGRADES them instead of re-confirming their tags.
+
+      Fenced by 832's tools/_t467-arc-tag-source-of-truth.py — six arms, all six failing
+      against the pre-fix copy, run against a throwaway project root.
+
   - path: .agentic-framework/lib/bvp.sh
     kind: content
     task: T-542

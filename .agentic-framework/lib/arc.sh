@@ -537,7 +537,9 @@ arc_show() {
 
     cat "$f"
     echo ""
-    echo "─── Tasks tagged arc:${id} ───"
+    # T-467: membership is arc_id: (canonical) unioned with the legacy arc:<id> tag,
+    # so "tagged" named only half of what is listed below.
+    echo "─── Tasks in arc ${id} ───"
     local found=0
     while IFS= read -r tid; do
         if [ -z "$tid" ]; then continue; fi
@@ -555,7 +557,9 @@ arc_show() {
             printf "  %s (file not found)\n" "$tid"
         fi
     done < <(_arc_tasks_for "${id}")
-    [ "$found" -eq 0 ] && echo "  (no tasks yet — set 'arc_id: $id' on a task's frontmatter)"
+    # T-467: this used to tell the reader to edit frontmatter by hand, because the
+    # tag verb could not write arc_id:. It can now, so point at the command.
+    [ "$found" -eq 0 ] && echo "  (no tasks yet — add one with: fw arc tag $id T-XXXX)"
 
     [ "$id" = "$current" ] && echo "" && echo "[FOCUSED]"
     return 0
@@ -580,37 +584,75 @@ arc_tag() {
     tf=$({ ls "$PROJECT_ROOT"/.tasks/{active,completed}/"$tid"-*.md 2>/dev/null || true; } | head -1)
     [ -n "$tf" ] || { echo "Error: task $tid not found in .tasks/{active,completed}/" >&2; return 1; }
 
-    local arc_tag="arc:${id}"
-
-    # 1. Add tag to task file (idempotent).
-    if grep -qE "^tags:.*${arc_tag}" "$tf"; then
-        echo "Task $tid already has tag $arc_tag — skipping task edit"
-    else
-        # update-task.sh handles the tag append safely
-        if [ -x "${FRAMEWORK_ROOT:-$PROJECT_ROOT}/agents/task-create/update-task.sh" ]; then
-            (cd "$PROJECT_ROOT" && "${FRAMEWORK_ROOT:-$PROJECT_ROOT}/agents/task-create/update-task.sh" "$tid" --add-tag "$arc_tag" >/dev/null) \
-                || { echo "Error: update-task.sh failed adding tag" >&2; return 1; }
-        else
-            python3 - "$tf" "$arc_tag" <<'PY'
+    # ── 1. Record membership in the SOURCE-OF-TRUTH field (T-467). ───────────
+    #
+    # This verb used to write `tags: [arc:<slug>]` and nothing else. T-1849 made
+    # task-side `arc_id:` canonical and T-1850 MIGRATED 162 tasks off the tag form
+    # — so every call to the command this file's own --help recommends ("prefer
+    # task-side arc_id: + 'fw arc tag'") was re-creating, one task at a time,
+    # exactly what that migration had just cleaned up. The command named as the way
+    # to set arc_id: was the one command that could not set it, and arc_show told
+    # the user to write the field by hand.
+    #
+    # Nothing broke visibly, and that is the whole reason it survived: every reader
+    # (lib/arc_membership.py) takes the UNION of both forms, so an arc whose members
+    # are recorded in two representations renders identically to one recorded in
+    # one. Found by T-466 only because a verification leg asserted the field BY NAME
+    # instead of asserting that the rendered output looked right — an instrument
+    # checking the render would have passed it.
+    #
+    # The deprecated tag is no longer written. Checked, not assumed: the audit's own
+    # "No inline arc:<slug> tag-only scans outside canonical lib (T-1881)" check
+    # passes, and the single tag-only scan inside this file (arc_migrate step 3)
+    # feeds task ids straight back into this function — so it now UPGRADES
+    # legacy-tagged tasks rather than re-confirming their tags. Legacy `tags:`
+    # already on a task are left untouched (D-Immutability); readers keep unioning.
+    local _rc=0
+    python3 - "$tf" "$id" "$tid" <<'PY' || _rc=$?
 import re, sys
-fn, tag = sys.argv[1], sys.argv[2]
+
+fn, arc_id, tid = sys.argv[1], sys.argv[2], sys.argv[3]
 text = open(fn).read()
-m = re.search(r'^(tags:\s*)(\[.*?\]|\S.*?)$', text, re.MULTILINE)
-if m:
-    cur = m.group(2).strip()
-    if cur.startswith("["):
-        new = cur.rstrip("]").rstrip() + (f', "{tag}"]' if cur != "[]" else f'"{tag}"]')
-    else:
-        new = f"[{cur}, \"{tag}\"]"
-    text = text[:m.start(2)] + new + text[m.end(2):]
+
+# Bound every edit to the frontmatter region. This matters concretely: task
+# BODIES quote `arc_id:` when they discuss arc membership — T-467's own file
+# does — and the tag-writer replaced here searched the WHOLE document for
+# `^tags:`, so it could rewrite prose describing a field instead of the field.
+m = re.match(r'^---\n(.*?\n)---\n', text, re.DOTALL)
+if not m:
+    sys.stderr.write("no YAML frontmatter in %s\n" % fn)
+    sys.exit(1)
+fm = m.group(1)
+
+live = re.search(r'^arc_id:[ \t]*(\S.*?)[ \t]*$', fm, re.MULTILINE)
+if live:
+    cur = live.group(1).strip().strip('"').strip("'")
+    if cur == arc_id:
+        sys.exit(10)            # already a member — idempotent no-op
+    sys.stderr.write("%s already carries arc_id: %s\n" % (tid, cur))
+    sys.exit(11)                # reassignment is a scope change, not a tagging
+
+line = "arc_id: %s\n" % arc_id
+# Prefer the slot the task template documents, so the explanatory comment block
+# stays attached to the field it explains.
+anchor = re.search(r'^#[ \t]*arc_id:', fm, re.MULTILINE)
+if anchor:
+    fm = fm[:anchor.start()] + line + fm[anchor.start():]
 else:
-    # insert after frontmatter line `---` open
-    text = text.replace("---\n", f"---\ntags: [\"{tag}\"]\n", 1)
-open(fn, "w").write(text)
+    tail = re.search(r'^related_tasks:.*$', fm, re.MULTILINE)
+    fm = (fm[:tail.end()] + "\n" + line.rstrip("\n") + fm[tail.end():]) if tail else fm + line
+
+open(fn, "w").write(text[:m.start(1)] + fm + text[m.end(1):])
+sys.exit(0)
 PY
-        fi
-        echo "Tagged task $tid with $arc_tag"
-    fi
+    case "$_rc" in
+        0)  echo "Set arc_id: $id on task $tid" ;;
+        10) echo "Task $tid already has arc_id: $id — no change" ;;
+        11) echo "Error: $tid belongs to a different arc; refusing to reassign." >&2
+            echo "  Moving a task between arcs is a scope decision — edit arc_id: deliberately." >&2
+            return 1 ;;
+        *)  echo "Error: failed writing arc_id: to $tf" >&2; return 1 ;;
+    esac
 
     # 2. Append to arc's constituent_tasks (idempotent).
     # T-1851: field deprecated for new arcs (post-2026-05-16). When the field
@@ -947,9 +989,17 @@ Verbs:
   focus <id> | --clear      Set/clear the focused arc (one at a time)
   list                      Show all arcs (* marks focused)
   show <id>                 Detail: metadata + constituent tasks
-  tag <id> T-XXXX           Add arc:<id> tag to a task. Legacy: also appends to
-                            arc's constituent_tasks: if present (T-1851 deprecation).
-                            Source-of-truth is task-side arc_id: (T-1849).
+  tag <id> T-XXXX           Set task-side arc_id: <id> — the source-of-truth field
+                            (T-1849). Idempotent; refuses to reassign a task that
+                            already belongs to a different arc.
+                            T-467: this verb used to write the T-1851-deprecated
+                            arc:<id> tag INSTEAD of arc_id:, so the command named
+                            here as the way to set the canonical field was the one
+                            command that could not set it. It no longer writes the
+                            tag; legacy tags already on a task are left in place and
+                            readers still union both forms.
+                            Legacy: also appends to arc's constituent_tasks: if
+                            present (T-1851 deprecation).
   close <id> --demo <path|url|none> [--justification "..."] [--decision "..."]
                             Mark arc closed. --demo is REQUIRED (§ACD/G-062):
                             wire-level evidence of the headline_mechanic firing.
@@ -999,7 +1049,8 @@ Examples:
 Storage:
   .context/arcs/<id>.yaml          — registry
   .context/working/arc-focus.yaml  — focused arc (single)
-  Task tags: arc:<id> (canonical); from-T-XXXX as legacy alias
+  Task frontmatter: arc_id: <id> (canonical, T-1849 — written by 'fw arc tag')
+  Task tags: arc:<id> (legacy, T-1851 — still read, no longer written); from-T-XXXX alias
 
 Surfaces:
   - Handover: ## Current Arc section (if focus set)
