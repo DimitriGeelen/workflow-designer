@@ -3013,3 +3013,51 @@ concerns:
   - T-643
   - T-644
   - T-649
+- id: G-048
+  type: gap
+  status: watching
+  severity: medium
+  title: gallery-serve _within_repo documents itself as belt-and-braces over ID_RE but guards only the
+    delete path, leaving /api/save containment resting on one regex
+  detected: 2026-09-05
+  origin_task: T-681
+  decision_trigger: 'tools/gallery-serve.py applies _within_repo (or an equivalent realpath containment
+    check) on the /api/save write path, and a control demonstrates a RED state when ID_RE alone is
+    widened. Shipped as T-683 + T-684. Then close G-048.
+
+    '
+  description: '_within_repo (tools/gallery-serve.py:109) carries the docstring "belt-and-braces on top
+
+    of the ID_RE format check - a valid id still shouldn''t escape the tree". It is referenced in
+
+    exactly one place, archive_move (:120), on the DELETE path. The /api/save write path has no
+
+    containment check at all, so one anchored regex is the entire distance between the browser and
+
+    the git tree - and /api/save writes into examples/aef-processes/rendered/ (the committed corpus)
+
+    as well as the .editor-versions ledger.
+
+
+    Not exploitable today: ID_RE excludes . and /, so traversal is refused. This is registered as a
+
+    gap rather than a bug because the defence-in-depth the code CLAIMS to have is not the defence it
+
+    HAS, and a single-character regression in one regex removes the whole boundary. T-681 S2
+
+    demonstrated exactly that behaviourally against a throwaway copy: widening ID_RE alone produced
+
+    HTTP 200 and a write outside the version store.
+
+
+    Registered here rather than left to the fix task because a completed task archives and becomes
+
+    invisible, while the standing property - "containment must not rest on a single check" - is the
+
+    thing Arc 2 of the EWCR roadmap exists to ratchet.
+
+    '
+  related_tasks:
+  - T-681
+  - T-683
+  - T-684

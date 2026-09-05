@@ -2248,3 +2248,17 @@ learnings:
   date: 2026-09-05
   context: Added via context agent
   application: TBD
+- id: PL-317
+  learning: "A negative control that cannot go red for its own reasons will report the ALARMING verdict with full confidence: T-681 S2 printed NO-GO because the widened guard refused the escape id on grounds unrelated to containment, so phase 2 was never a test. Assert that the mutated guard ADMITS the probe input, or 'no breach' is indistinguishable from 'never tried'."
+  source: PL-177
+  task: T-681
+  date: 2026-09-05
+  context: Added via context agent
+  application: TBD
+- id: PL-318
+  learning: "A guard whose docstring claims defence-in-depth is not defence-in-depth until you grep its call sites: gallery-serve.py _within_repo says 'belt-and-braces on top of the ID_RE format check' and is applied only on the delete path, leaving /api/save with one anchored regex as its entire containment. The claim lived in prose; the coverage did not."
+  source: PL-035
+  task: T-681
+  date: 2026-09-05
+  context: Added via context agent
+  application: TBD
