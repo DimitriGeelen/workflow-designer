@@ -632,6 +632,29 @@ if live:
     sys.stderr.write("%s already carries arc_id: %s\n" % (tid, cur))
     sys.exit(11)                # reassignment is a scope change, not a tagging
 
+# T-679: consult the SAME UNION the readers do. The guard above reads only
+# arc_id:, but lib/arc_membership.py unions arc_id: with the legacy `arc:<slug>`
+# tag — so a task whose membership is recorded ONLY in the tag was invisible to
+# the reassignment check, which is the population that most needs it: 26 tasks
+# in this tree are legacy-tag-only. Measured, not theorised — `fw arc tag
+# designer-authoring-surface T-590` set the field and exited 0 on a task already
+# in ewcr-governed-delivery. Scanning only the `tags:` line inside frontmatter,
+# because `arc:` appears in body prose and a document-wide scan would refuse
+# legitimate taggings on tasks that merely discuss arcs.
+tags_line = re.search(r'^tags:.*$', fm, re.MULTILINE)
+tagged = re.findall(r'arc:([A-Za-z0-9._-]+)', tags_line.group(0)) if tags_line else []
+if len(set(tagged)) > 1:
+    # arc_id: is single-valued; the legacy list form was not. Writing it would
+    # silently drop a membership, so the collapse is the human's to make.
+    sys.stderr.write("%s carries %d arc tags (%s); arc_id: holds one\n"
+                     % (tid, len(set(tagged)), ", ".join(sorted(set(tagged)))))
+    sys.exit(12)
+if tagged and tagged[0] != arc_id:
+    sys.stderr.write("%s already belongs to %s via its legacy arc: tag\n" % (tid, tagged[0]))
+    sys.exit(11)
+# A legacy tag naming THIS arc falls through on purpose: writing arc_id: is the
+# upgrade path, and it is what arc_migrate step 3 walks legacy tasks through.
+
 line = "arc_id: %s\n" % arc_id
 # Prefer the slot the task template documents, so the explanatory comment block
 # stays attached to the field it explains.
@@ -650,6 +673,10 @@ PY
         10) echo "Task $tid already has arc_id: $id — no change" ;;
         11) echo "Error: $tid belongs to a different arc; refusing to reassign." >&2
             echo "  Moving a task between arcs is a scope decision — edit arc_id: deliberately." >&2
+            return 1 ;;
+        12) echo "Error: $tid carries multiple legacy arc: tags (see above)." >&2
+            echo "  arc_id: is single-valued — collapsing them would drop a membership." >&2
+            echo "  Decide which arc owns it, then edit tags:/arc_id: deliberately." >&2
             return 1 ;;
         *)  echo "Error: failed writing arc_id: to $tf" >&2; return 1 ;;
     esac

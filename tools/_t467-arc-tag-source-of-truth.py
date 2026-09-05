@@ -225,6 +225,95 @@ def arm_help_does_not_promise_tag(lib):
     return True, "help names arc_id: as what the verb writes"
 
 
+# ── T-679 arms ──────────────────────────────────────────────────────────────
+# The T-467 guard read only `arc_id:`, but every READER unions arc_id: with the
+# legacy `arc:<slug>` tag — so a task recorded only in the tag was invisible to
+# the reassignment check. Measured on the live corpus, not theorised: `fw arc tag
+# designer-authoring-surface T-590` set the field and exited 0 on a task already
+# in ewcr-governed-delivery, and 26 tasks here are legacy-tag-only.
+#
+# These arms are kept in THIS fence rather than a new one because they constrain
+# the same function, and two fences each covering half of one guard is how the
+# next drift starts.
+
+def arm_refuses_legacy_tag_reassign(lib):
+    """T-590's exact shape: membership in the tag, no arc_id: at all."""
+    root, tf = make_root(tags="ewcr-v1, arc:other-arc", arcs=("fence-arc", "other-arc"))
+    try:
+        before = open(tf).read()
+        rc, _ = run_tag(root, lib, "fence-arc", "T-900")
+        after = open(tf).read()
+        if rc == 0:
+            return False, "reassigned a legacy-tag-only task silently"
+        if before != after:
+            return False, "refused but still mutated the file"
+        return True, "refused, file untouched"
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def arm_legacy_tag_same_arc_upgrades(lib):
+    """The upgrade path must stay open, or the 26 legacy-tag-only tasks are stranded.
+
+    Load-bearing against the cheap fix: a guard that refuses ANY task carrying an
+    arc: tag would pass the arm above and strand every legacy task, including the
+    ones arc_migrate step 3 walks back through this verb.
+    """
+    root, tf = make_root(tags="arc:fence-arc")
+    try:
+        rc, out = run_tag(root, lib, "fence-arc", "T-900")
+        fm, _ = frontmatter(tf)
+        live = re.search(r"^arc_id:[ \t]*(\S+)", fm, re.MULTILINE)
+        if rc != 0:
+            return False, "refused the upgrade (exit %d): %s" % (rc, out.strip()[:90])
+        if not live or live.group(1) != "fence-arc":
+            return False, "no arc_id: written on the upgrade path"
+        return True, "legacy tag upgraded to arc_id:"
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def arm_refuses_multi_arc_tags(lib):
+    """arc_id: is single-valued; the legacy list form was not."""
+    root, tf = make_root(tags="arc:fence-arc, arc:other-arc",
+                         arcs=("fence-arc", "other-arc"))
+    try:
+        before = open(tf).read()
+        rc, out = run_tag(root, lib, "fence-arc", "T-900")
+        after = open(tf).read()
+        if rc == 0:
+            return False, "collapsed dual membership into one arc_id: silently"
+        if before != after:
+            return False, "refused but still mutated the file"
+        if "other-arc" not in out:
+            return False, "refused without naming the arc that would be dropped"
+        return True, "refused, both arcs named"
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def arm_body_arc_tag_not_consulted(lib):
+    """`arc:` in body prose must not be read as membership.
+
+    Mention-is-not-membership (T-669). Without bounding the scan to the `tags:`
+    line, the reassignment guard fires on any task that merely DISCUSSES an arc —
+    refusing legitimate work and, worse, teaching the reader to route around it.
+    """
+    body = "This task discusses arc:other-arc and tags: [arc:other-arc] in prose only.\n"
+    root, tf = make_root(body=body, arcs=("fence-arc", "other-arc"))
+    try:
+        rc, out = run_tag(root, lib, "fence-arc", "T-900")
+        fm, _ = frontmatter(tf)
+        live = re.search(r"^arc_id:[ \t]*(\S+)", fm, re.MULTILINE)
+        if rc != 0:
+            return False, "refused on a body mention (exit %d): %s" % (rc, out.strip()[:80])
+        if not live or live.group(1) != "fence-arc":
+            return False, "no arc_id: written"
+        return True, "body mention ignored, field set"
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
 ARMS = [
     ("writes arc_id: into frontmatter", arm_writes_arc_id),
     ("does NOT write the deprecated arc: tag", arm_no_deprecated_tag),
@@ -232,6 +321,11 @@ ARMS = [
     ("refuses cross-arc reassignment, changes nothing", arm_refuses_reassign),
     ("a body quoting tags:/arc_id: is not rewritten", arm_body_not_rewritten),
     ("--help does not promise the deprecated tag", arm_help_does_not_promise_tag),
+    # T-679
+    ("refuses reassign when membership is legacy-tag-only", arm_refuses_legacy_tag_reassign),
+    ("legacy tag for the SAME arc still upgrades to arc_id:", arm_legacy_tag_same_arc_upgrades),
+    ("refuses a task carrying two arc: tags", arm_refuses_multi_arc_tags),
+    ("an arc: tag in BODY prose is not membership", arm_body_arc_tag_not_consulted),
 ]
 
 
