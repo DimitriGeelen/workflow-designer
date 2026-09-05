@@ -139,3 +139,62 @@ without §5. Writing out the dependency table surfaced that Arc 2's proof is tri
 while the authorities it fences are unbuilt, which would have delivered a green check certifying
 nothing. The recommendation now carries a condition that can flip it to NO-GO, and the objection
 is filed as IW-3 rather than settled by assertion.
+
+**2026-09-05 — operator recorded GO via Watchtower (commit `c236d997`), before S1 and S2 ran.**
+Two of the three NO-GO arms are conditioned on spike outcomes ("S1 finds no authority at all",
+"IW-2 resolves negative"), so the decision was taken on §4's dependency table alone and its own
+conditions were still untested at the moment it was recorded. The spikes were run afterwards
+rather than skipped — §10 and §11 are their output. Had either resolved negative, the correct
+move was to return it to the operator as a failed condition, not to absorb it silently.
+
+---
+
+## 10. S1 output (IW-1) — what "execution / secret / ledger authority" actually means here
+
+Measured 2026-09-05 against `src/aef-workflow-designer.html` (11,240 lines) and
+`tools/gallery-serve.py` (788 lines). The editor is a single HTML file; the only thing it can
+reach is the seven-route API on the gallery server. That pair IS the whole surface.
+
+| named authority | exists in this tree? | reachable from the editor? |
+|---|---|---|
+| **Execution** | **No runtime exists.** The server holds exactly one `subprocess` call — `hostname -I`, fixed argv, no shell — inside the startup banner at `tools/gallery-serve.py:773`, structurally outside every request handler. | **No path.** |
+| **Secret** | **None.** 0 `document.cookie`, 0 `crypto.subtle`, 0 token/key/password handling. All 26 storage hits are `localStorage` editor *preferences* (routing, snap, label, view) plus autosave. | **Nothing to reach.** |
+| **Ledger** | **Yes** — `.editor-versions/<id>/index.json`, an append-per-save version ledger. | **Yes, by design** — `/api/save` appends. |
+| **Filesystem write into the git tree** *(unnamed by the arc — and the real one)* | **Yes** — `/api/save` writes `examples/aef-processes/rendered/<id>.bpmn` into the committed corpus. | **Yes**, gated existence-or-promotion (T-138). |
+
+### The NO-GO arm did not fire, and it was closer than expected
+
+The arm reads: *"S1 finds no execution/secret/ledger authority in this tree at all, stubbed or
+otherwise."* Ledger authority exists and is reachable, so the arm does not fire. But **two of the
+three named authorities do not exist here at all** — and that is the finding, not a footnote.
+
+Fencing "the editor cannot reach execution or secrets" today would be fencing two absences. That
+is precisely the trivially-green proof §5 warned about. What the fence must actually guard is the
+pair that *does* exist and *is* reachable: **the version ledger, and the write path into the git
+tree.**
+
+### What guards them today — the whole list, and it is two items
+
+1. `ID_RE = re.compile(r'^[a-z0-9][a-z0-9_-]*$')` (`tools/gallery-serve.py:51`) — anchored, no dot,
+   no slash, so no traversal. Every id-bearing route validates through `_valid_id` (`:552`), plus a
+   containment check on top (`:111`).
+2. The existence-or-promotion gate (T-138) — a new id is scratch and is **not** published into the
+   committed corpus unless explicitly promoted.
+
+Static reads are separately confined: `DOCROOT = build/gallery` (`:55`), not the repo root, so
+`super().do_GET()` cannot serve `.git/` or `.context/`. **Reads are confined to `build/gallery`;
+writes reach outside it.** That asymmetry is the fence's subject.
+
+### Why this makes the arc stronger, not weaker
+
+§5's worry was a fence with no possible red state. That worry is now retired on evidence: both
+guards are single regex/boolean conditions in one file, and a one-character mutation to either
+(a dot in `ID_RE`; forcing `promote` true) produces a real, demonstrable breach in a throwaway
+root. The fence is not guarding a hypothetical future runtime — it is **ratcheting two real
+guards that exist today and could regress silently in a single edit.**
+
+Corollary worth carrying into the build tasks: the boundary enumeration should be written against
+*ledger + tree-write*, and should state plainly that execution and secret authority are absent
+rather than asserting they are unreachable. An absence reported as a successful defence is the
+T-674/675/677/678 failure class, and reporting it to AEF as an isolation proof would be exactly
+the harm §5 named.
