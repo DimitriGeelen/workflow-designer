@@ -13,7 +13,7 @@ components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-06T16:39:41Z
-last_update: 2026-09-06T16:41:43Z
+last_update: 2026-09-06T16:43:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,20 +66,52 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 -->
 
 - **IW-1: What is a "domain", precisely — is `customer` the same KIND of thing as `system`?**
-  confidence: 0
-  disposition: deferred
-  rationale: Raised by the operator 2026-09-06 and not yet answered. The corpus has only
-    system-ish domains (memory tiers, remote host, source project); no customer-facing map
-    exists to test the category against. Until a domain is definable, "the lane means domain"
-    is not yet a specification.
+  confidence: 2
+  disposition: answered
+  rationale: NO — researched 2026-09-06 (artifact §5b). TOGAF's BDAT set makes Business
+    (customer) and Application/Technology (system) different LAYERS of one stack, not peers on
+    one list, so one lane axis cannot hold both without reproducing this inception's own defect.
+    All three bodies of knowledge (BABOK scope/IGOE, TOGAF BDAT, DDD bounded context) treat
+    domain as a BOUNDARY and none uses it to mean who-performs. Residual: "the lane means
+    domain" stays under-specified until we name WHICH layer — that part rolls into IW-7.
 
 - **IW-2: Who sets the `tier`, and can an agent change it?**
+  confidence: 2
+  disposition: answered
+  rationale: Operator ruled 2026-09-06 (artifact §5c) — lifecycle-gated mutability: agent
+    proposes/detects, anyone may set while draft, once locked a tier change is itself a tier-0
+    action. Carrier already exists (.editor-versions scratch vs the T-138 existence-or-promotion
+    corpus gate). Answered as a POSITION, not yet as a design: three objections remain open and
+    are split out as IW-8/IW-9/IW-10 rather than left inside this question.
+
+- **IW-7: WHICH BDAT layer does the lane's domain denote — business, or application/technology?**
+  confidence: 0
+  disposition: deferred
+  rationale: Falls directly out of IW-1's answer. If both layers must be visible, one lane axis
+    is insufficient and shape C (nested lanes) or D (Group) is forced. Untested.
+
+- **IW-8: What VALIDATES a tier at lock time?**
+  confidence: 0
+  disposition: deferred
+  rationale: A lock protects a value; it does not validate it. A tier mis-set in draft and then
+    locked is defended exactly as strongly as a correct one, and now costs a tier-0 approval to
+    correct. Same class as T-674/675/677/678 and PL-178: stable rather than correct.
+
+- **IW-9: Who may LOCK?**
+  confidence: 0
+  disposition: deferred
+  rationale: If an agent can both propose a tier and lock the document, it can make its own
+    guess expensive to reverse with no human having ruled. Lock authority may need to be
+    sovereignty-only; unresolved.
+
+- **IW-10: Is tier derivation deterministic outside framework-operation maps?**
   confidence: 1
   disposition: deferred
-  rationale: The operator's claim is that tiers are deterministic properties of the action, so
-    an agent cannot move them — which is the load-bearing argument for box-authority over
-    lane-authority. Not yet verified: `aef:meta tier=` is currently author-set in the editor
-    like any other attribute, so determinism is an intent, not an enforced property.
+  rationale: CLAUDE.md §Enforcement Tiers names concrete tier-0 operations (force push, hard
+    reset, rm -rf), so derivation is plausible for framework maps. For a general business step
+    ("send invoice to customer") the tier is a judgement, not a derivation — and business
+    process maps are most of what a workflow designer exists for. Determinism is therefore
+    proven for a subset and unproven for the majority case.
 
 - **IW-3: Do `tier` (0–3) and `authority` (sovereignty/initiative/authority/external) both
   need to survive, or does one subsume the other?**

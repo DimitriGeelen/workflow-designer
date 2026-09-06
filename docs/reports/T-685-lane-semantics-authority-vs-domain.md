@@ -125,6 +125,113 @@ Sources: [Signavio — Pools and Lanes](https://www.signavio.com/post/bpmn-pools
 [Visual Paradigm — Pools and Lanes](https://www.visual-paradigm.com/guide/mastering-bpmn-pools-and-lanes-for-precision-process-modeling/) ·
 [arXiv 2412.05958](https://arxiv.org/pdf/2412.05958)
 
+## 5b. What "domain" means in three bodies of knowledge (IW-1)
+
+Researched 2026-09-06 at operator request, across the three traditions this system actually sits in.
+
+### BABOK / IIBA — domain is a *boundary of change*, and IGOE already splits our axes
+
+BABOK's relevant technique is **Scope Modelling** (10.41): *"Scope models are commonly used to
+describe the boundaries of control, change, a solution, or a need."* Domain, in BA practice, is a
+**boundary** — not a performer.
+
+More directly useful: BABOK's **Process Modelling** (10.35) names **IGOE** as a scoping notation —
+**I**nput, **G**uide, **O**utput, **E**nabler. IGOE separates, for every activity:
+
+- the **Guide** — the policy/rule/constraint that governs how the activity may be performed;
+- the **Enabler** — the resource or actor that performs it.
+
+**That is our exact decomposition, arrived at independently.** A guide is not an enabler. What
+constrains an action and who performs it are different things, and neither is *where it happens*.
+
+### TOGAF — BDAT, and the direct answer to "is customer the same kind of thing as system?"
+
+TOGAF defines four architecture domains, the **BDAT** set — Business, Data, Application,
+Technology — described as *"sub-architectures of a single enterprise architecture"*, i.e. **layers
+of one stack, not peers on one list.**
+
+- **Business Architecture** — strategy, governance, organisation, key business processes. A
+  *customer* domain lives here.
+- **Application / Technology Architecture** — application systems and their interactions; the
+  logical software and hardware capabilities beneath them. A *system* domain lives here.
+
+**So: no.** `customer` and `system` are **not the same kind of thing** — they sit at different
+BDAT layers. Putting both on one lane axis reproduces precisely the collision this inception
+exists to escape, one level up.
+
+### DDD — bounded context, and our problem stated in someone else's vocabulary
+
+A **bounded context** is *"an explicit boundary within which a particular model applies and the
+language is consistent. Inside a bounded context, every term has exactly one meaning."* And it is
+*"a deliberate decision"*, not something that emerges.
+
+Our lane is a bounded context whose ubiquitous language has broken: **the term "lane" has two
+meanings inside one boundary** (authority for 58 lanes, domain for 6). DDD's central claim is that
+this is the one thing you must not permit.
+
+DDD's subdomain classification (**core / supporting / generic**) is worth noting for what it is
+*not*: it classifies **strategic importance**, to decide where to invest modelling effort. It is a
+third axis again — not location, not performer.
+
+### The convergent finding
+
+All three traditions separate the same three things, and **none of them uses "domain" to mean
+"who performs":**
+
+| axis | BABOK | TOGAF | DDD | our carrier today |
+|---|---|---|---|---|
+| **WHERE / what area** | scope boundary | BDAT layer | bounded context / subdomain | *(nothing — squatting in the lane)* |
+| **WHO performs** | **Enabler** | actor / role | — | **lane `authority=`** |
+| **WHAT constrains** | **Guide** | governance | — | **box `tier=`** (undocumented) |
+
+**Three axes, not two.** The lane is currently trying to be axes 1 and 2 simultaneously, which is
+the measured defect in §4. The operator's proposal B maps onto the IGOE decomposition almost
+exactly — lane = boundary, box owner = enabler, box tier = guide — which is meaningful independent
+support, since IGOE was derived from process-analysis practice and not from our problem.
+
+**The caution it also produces:** because customer and system are different BDAT layers, "the lane
+means domain" is under-specified until we say **which layer's domain**. One lane axis still cannot
+hold two BDAT layers. That is either a constraint (pick one layer) or an argument for nesting
+(shape C).
+
+Sources: [BABOK 10.35 Process Modelling](https://www.iiba.org/knowledgehub/business-analysis-body-of-knowledge-babok-guide/10-techniques/10-35-process-modelling/) ·
+[BABOK 10.41 Scope Modelling](https://www.iiba.org/knowledgehub/business-analysis-body-of-knowledge-babok-guide/10-techniques/10-41-scope-modelling/) ·
+[TOGAF architecture domains](https://togaf.visual-paradigm.com/2025/02/18/comprehensive-guide-to-architecture-domains-in-togaf/) ·
+[TOGAF (Wikipedia)](https://en.wikipedia.org/wiki/TOGAF) ·
+[Subdomains and Bounded Contexts](https://www.arhohuttunen.com/domain-driven-design-bounded-contexts/) ·
+[Nick Tune — Domains, Subdomains, Bounded Contexts](https://medium.com/nick-tune-tech-strategy-blog/domains-subdomain-problem-solution-space-in-ddd-clearly-defined-e0b49c7b586c)
+
+## 5c. The operator's answer on who sets the tier (IW-2)
+
+**Operator, 2026-09-06:** *"it's very good that the agent does that when it's scanning and proposes
+or detects. But we have a draft version and we have a final version. So I think as long as it's in
+draft, it can be set by anyone. When it is locked, any changes becomes a managed change or becomes
+a tier zero decision."*
+
+This is **lifecycle-gated mutability**: agent proposes/detects; free to edit while draft; once
+locked, changing a tier is itself a tier-0 action requiring human approval.
+
+**It already has a carrier.** The draft/final split exists in the product today:
+`.editor-versions/<id>/vN.bpmn` is the scratch version store, and
+`examples/aef-processes/rendered/<id>.bpmn` is the committed corpus, reachable only through the
+**existence-or-promotion gate** (T-138) — a new id is scratch and is *not* published unless
+explicitly promoted. Draft vs locked is not a new concept to build; it is a concept to *name*.
+
+**Objections that must be resolved before this is a design (open):**
+
+1. **A lock protects a value; it does not validate it.** If a tier is mis-set in draft and then
+   locked, the lock defends the wrong value exactly as strongly as the right one — and now costs a
+   tier-0 approval to correct. This is the same shape as every other finding this week: a control
+   that is *stable* rather than *correct*. **What validates a tier at lock time?**
+2. **Who may lock?** If an agent can both propose a tier and lock the document, it can make its own
+   guess expensive to reverse without any human ever having ruled on it. Lock authority may need to
+   be sovereignty-only.
+3. **Determinism holds for a subset, not the corpus.** An agent can derive a tier where the step
+   maps to a known consequential operation (CLAUDE.md §Enforcement Tiers names force push, hard
+   reset, `rm -rf`). For a general business step — "send invoice to customer" — the tier is a
+   judgement, not a derivation. So "deterministic" is true of framework-operation maps and unproven
+   for business-process maps, which is most of what a workflow designer is *for*.
+
 ## 6. Tier and authority are not the same axis (IW-3, answered)
 
 | | question | values | scope |
