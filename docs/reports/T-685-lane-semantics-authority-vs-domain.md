@@ -439,6 +439,169 @@ Offered for operator review, not adopted:
 7. **Every stochastic proposal has a fail-safe direction** — unknown proposes the *higher* tier,
    never the lower. (§5d)
 
+## 5g. Operator response on the fourth axis, 2026-09-06 — corrections and new requirements
+
+Taken point by point, as the operator gave it.
+
+### "Presentational" — what the standard actually means by it
+
+Operator: *"Standard calls it presentational. I don't really understand what that means."*
+
+It means: **when the task type and the lane disagree, the lane wins and the task type becomes
+decoration.** If a `scriptTask` (machine-executed) is drawn in a `Human · Sovereignty` lane, the
+compiler emits `owner: human` from the lane and raises a WARNING — it does **not** treat the
+`scriptTask` shape as evidence about who executes. The shape survives visually and carries no
+authority. That is O-1, *"lane wins, warn-not-refuse"* (§3).
+
+So the 111 `scriptTask` / 40 `serviceTask` / 12 `userTask` in the corpus are, per the standard,
+**pictures rather than claims**. That is precisely why the deterministic/stochastic distinction has
+no authoritative carrier today.
+
+### Symbols — the distinction should be visible in the palette
+
+Operator: *"script, service and user task still make sense. I guess we need to have symbols for
+it… you have suggested a number of new symbols which I guess will be sensible to add to our left
+column, our library of symbols."*
+
+Accepted as a requirement. If executor kind becomes authoritative it must be **drawable** — the
+palette should offer distinct symbols for deterministic-machine, stochastic-agent and human steps,
+so the distinction is made at authoring time rather than inferred later. BPMN already supplies the
+glyph vocabulary (`scriptTask` gear/script, `userTask` person); what is missing is a distinct
+**agentic** symbol, which is exactly the gap arXiv 2412.05958 fills with `AgenticTask`.
+
+### `agentType` must be expandable, and it carries ROUTING (new requirement)
+
+Operator: *"framework, primary, coder or any. This needs to be expandable right? So we're going to
+have a number of agents — could be a coder, could be TDD, could be an architect. And this will
+also tie in to orchestration… we want it in the box, right? Because based on that we can make a
+routing decision to the type of agents. Also the type of model. Our routing decisions we want to
+capture in a workflow element."*
+
+**This is a new requirement and it strengthens proposal B considerably.** The box is not merely
+recording who acted; it is **carrying the routing decision** — which agent specialisation, and
+which *model*, should pick the step up. That is orchestration input, and it cannot live on a lane
+without forcing every step in a band to share one routing policy.
+
+Current `agentType` values (`framework` 4, `primary` 9, `coder` 1, `any` 3) are therefore a seed
+vocabulary, not a closed enum. Open design question: whether agent-type and model-type are one
+field or two (an architect agent on a small model and a coder agent on a large one are different
+routing outcomes).
+
+### Governance is RISK-BASED, and that is the existing model to reuse
+
+Operator, restating the AEF construct: tiers 0–3; pre-approved activities; agent initiative is
+*"primarily risk based"*; riskier work puts the human in the loop; **an agent may perform a risky
+action if it is pre-approved — either from a library of pre-approved activities, or because a
+human has given an explicit go.**
+
+Recorded so it is not re-derived: the authority model already exists and is risk-graded. This
+inception should *reuse* it, not invent a parallel scheme.
+
+### Deterministic-first with stochastic fallback (the operator's core execution principle)
+
+Operator: *"we want to go very much to deterministic execution. That's most effective. Repeatable,
+reliable, quick. However we do want to fall back on stochastic if it goes wrong, or is an error, or
+an edge case, or on unclarity. We want AI to come in and react on that."*
+
+The fallback repertoire the operator named, in order:
+
+1. **redirect**
+2. **analyse and fix** in place
+3. **fix, and capture it for learning**
+4. **forward to another agent** for structural remediation
+5. **forward to a human** for intervention
+
+**This inverts the usual framing and should be stated as a principle:** the machine is the default
+executor; **the stochastic agent is the exception handler.** Agents are not the primary workforce
+with machines as helpers — machines run the happy path, agents handle error, edge and ambiguity.
+
+This also gives the escalation ladder an execution-layer meaning it did not previously have: the
+five fallbacks above map onto the A/B/C/D error-escalation ladder already in CLAUDE.md.
+
+### The maturation ladder: stochastic → deterministic as confidence accrues
+
+Operator: *"we start with a lot of stochastic judgment… but we want to minimize that within
+acceptable risks. And the more we get confident, the more we go to deterministic execution of our
+processes and workflows."*
+
+**Executor kind is therefore not a fixed property of a step — it is a position on a maturity
+ladder.** A step begins stochastic (an agent works out how), and is *promoted* to deterministic
+once the procedure is understood well enough to encode. That has a direct modelling consequence:
+the box must be able to record **which kind it is now**, and ideally *why it moved*.
+
+This is the single most design-relevant thing in this exchange. It means the designer is not
+drawing a static allocation of work; it is drawing a **system that is supposed to migrate work
+from stochastic to deterministic over time**, and the diagram should make that migration visible.
+
+### Operator DISAGREES: stochastic evidence is not perishable here — and the reconciliation
+
+Operator: *"I disagree there. I can refer back to what we have in our framework. We want a body of
+knowledge… that's why we have the principle of nothing gets done without a task. We capture what we
+do in our sessions, we capture conversations, we capture our research, we also capture our
+considerations why we decided for something and against."*
+
+**The disagreement is about framing, and the operator is right on the substance.** The agent's
+claim was that a stochastic output cannot be *regenerated*, therefore capture is mandatory. The
+operator's point is that capture is *already structural here* — so within this system the evidence
+is not perishable, because the framework refuses to let it perish.
+
+**The synthesis, and it reframes the framework's core principle:** *"nothing gets done without a
+task"* is usually read as process discipline. It is better read as **the necessary consequence of
+stochastic execution.** A deterministic system could afford to skip capture, because its evidence
+can always be re-derived from code plus input. A stochastic system cannot — so the capture
+discipline is not bureaucracy, it is the *only* mechanism by which a stochastic step can produce
+evidence at all.
+
+What survives of the agent's original point, narrowed: **capture must be complete and at the
+time**, because there is no second chance to re-derive. That is a statement about why the
+discipline is load-bearing, not a claim that this system lacks it.
+
+### Analysis vs algorithm
+
+Operator: *"analysis is never deterministic in that sense. Except if it's discriminatory, but then
+it's not actually analysis, it's an algorithm. So it's not creative thinking."*
+
+A useful sharpening, recorded as a classification test: **if a step's output is fully determined by
+its inputs under a stated rule, it is an algorithm and belongs on the deterministic side, whatever
+it is called.** "Analysis" that merely discriminates against fixed criteria is deterministic
+classification. Only judgement that could reasonably produce a different defensible answer on a
+second pass is stochastic.
+
+### THE KEY OPEN QUESTION the operator posed (IW-11)
+
+Operator: *"The big question is how do we build in signals that we can have a feedback loop for
+learning and adjusting that risk assessment. That's key. Otherwise we just keep doing stupid
+things."*
+
+**This is the hardest and most important question raised in this inception**, and it is not
+answered anywhere in this document. A tier is a *risk assessment*. Risk assessments made once and
+never revised ossify: the system keeps demanding approval for things that have proven safe, and
+keeps auto-running things that have proven dangerous, and nothing corrects either drift.
+
+What a feedback loop would need, sketched only:
+
+- an **outcome signal** per executed step (did it succeed, need rework, cause harm, get rejected at
+  the human gate?);
+- **attribution** from outcome back to the tier that governed it;
+- a **revision proposal** path that is itself subject to principle 3 — the agent may propose a tier
+  change on evidence, but may not ratify it (IW-9);
+- protection against the obvious failure: a tier that is lowered because nothing bad happened *yet*
+  is confusing absence of incident with evidence of safety — the same absence-vs-not-looked defect
+  this project keeps hitting.
+
+Filed as **IW-11** and explicitly not answered here.
+
+### On keeping humans out of the low-value spots
+
+Operator: *"we definitely don't want that. We want them in the spots where it really matters, which
+is destructive actions, risky actions, or just where the agent is just not sure what to do, or
+unclear about direction."*
+
+Agreed, and it is consistent with §5e's caution: precisely because human attention is the scarce
+resource, "human" must not be overloaded to mean both *executor* and *approver*. The three
+human-in-the-loop triggers the operator names — destructive, risky, agent-uncertain — are all
+**authority** triggers, not executor-kind assignments.
+
 ## 6. Tier and authority are not the same axis (IW-3, answered)
 
 | | question | values | scope |

@@ -13,7 +13,7 @@ components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-06T16:39:41Z
-last_update: 2026-09-06T18:30:45Z
+last_update: 2026-09-06T19:09:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -112,6 +112,37 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
     ("send invoice to customer") the tier is a judgement, not a derivation — and business
     process maps are most of what a workflow designer exists for. Determinism is therefore
     proven for a subset and unproven for the majority case.
+
+- **IW-11: How do we build signals into a feedback loop that LEARNS and adjusts the risk
+  assessment a tier represents?**
+  confidence: 0
+  disposition: deferred
+  rationale: OPERATOR-POSED 2026-09-06 and the hardest question in this inception — *"otherwise we
+    just keep doing stupid things."* A tier is a risk assessment; assessments made once and never
+    revised ossify in both directions (approval demanded for what has proven safe, auto-run for
+    what has proven dangerous). Needs an outcome signal per step, attribution back to the governing
+    tier, and a revision path that respects IW-9 (agent proposes, human ratifies). Known trap:
+    lowering a tier because nothing bad happened YET confuses absence of incident with evidence of
+    safety — the same absence-vs-not-looked defect as T-674/675/677/678. Artifact §5g.
+
+- **IW-12: Is executor kind a fixed property of a step, or a position on a maturity ladder?**
+  confidence: 2
+  disposition: answered
+  rationale: A LADDER — operator ruled 2026-09-06 (artifact §5g): work starts stochastic and is
+    promoted to deterministic as confidence accrues, because deterministic is *"repeatable,
+    reliable, quick"*. Design consequence: the box must record which kind it is NOW and ideally why
+    it moved, and the designer is drawing a system that MIGRATES work from stochastic to
+    deterministic over time rather than a static allocation. Residual: the promotion event itself
+    is a governance act and is unspecified — rolls into IW-11.
+
+- **IW-13: Are agent-type and model-type one routing field or two?**
+  confidence: 0
+  disposition: deferred
+  rationale: New requirement 2026-09-06 — the box carries the ROUTING decision (which agent
+    specialisation, which model) for orchestration, so `agentType` is a seed vocabulary
+    (framework/primary/coder/any) rather than a closed enum and must be expandable (TDD, architect,
+    …). An architect agent on a small model and a coder agent on a large one are different routing
+    outcomes, so one field may be insufficient. Untested.
 
 - **IW-3: Do `tier` (0–3) and `authority` (sovereignty/initiative/authority/external) both
   need to survive, or does one subsume the other?**
