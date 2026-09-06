@@ -754,6 +754,90 @@ No inception decision on T-685. Six IWs answered, seven open. `voi_score` / `tar
 remain planted template defaults and are operator-owned. **Nothing has been sent to AEF, and
 nothing in this document authorises editing the frozen standard** (IW-6).
 
+## 5k. IW-11 — the feedback loop, opened by measurement first
+
+Resumed 2026-09-07 after compaction, per §5j. Before asking the operator how the loop should work,
+one thing was worth checking: **we already built this loop once.** At task granularity the framework
+runs exactly the cycle IW-11 describes — observe an outcome, name a pattern, generalise it, and
+ratify the generalisation into a rule:
+
+```
+learning  →  pattern  →  practice  →  directive
+   (observed)   (recurring)   (codified)   (constitutional)
+                              ^ fw promote — agent proposes, human ratifies (IW-9's shape exactly)
+```
+
+The recurrence detector exists too: the audit's TREND ANALYSIS block counts repeats over 14 days
+("Fabric: 72/367 cards have no edges — **15 times**") and closes with *"Consider creating a practice
+to address these recurring issues."* That is a feedback loop, fully specified, wired into a gate,
+running daily.
+
+### What it has actually produced
+
+Measured `fw promote status`, 2026-09-07:
+
+| | count |
+|---|---|
+| Learnings recorded | **319** |
+| Practices | 10 |
+| **Promoted** | **0** |
+| Candidates marked `ready` | 41 |
+| Candidates marked `almost` | 32 |
+
+**Zero.** Three hundred and nineteen observations, forty-one of them past the evidence threshold and
+queued for a decision, and the ladder's top rung has never once been climbed.
+
+> **PL-319 (candidate): a loop whose closing step is a human act that has never occurred is not a
+> loop — it is a queue with good manners.** It detects, it ranks, it recommends, it waits. Every
+> stage reports success. Nothing is ever revised. From the inside this is indistinguishable from a
+> working system, because the only evidence of failure is an *absence* — the same absence-vs-not-
+> looked defect as T-674/675/677/678, and the same shape as PL-317: a mechanism that cannot report
+> its own inertness.
+
+This is the single most important finding for IW-11, and it is a warning about the answer, not the
+question. **Whatever we design for tier revision must not be another ladder of the same shape**, or
+in twelve months the tiers will be exactly what they are today with 300 unactioned signals behind
+them, and the audit will still be green.
+
+### What the measurement does settle
+
+Two design constraints fall straight out, and neither needs the operator to invent anything.
+
+**1. Only a positive observation may lower a tier.** The trap named in IW-11's filing — lowering a
+tier because nothing bad has happened *yet* — has a mechanical answer derived from our own
+PL-317/PL-318: a tier may be lowered only on evidence that the step's **guard fired and passed**,
+never on evidence that *nothing happened*. "Ran 200 times without incident" is a null observation
+and is worth nothing if no check was watching; "the guard evaluated 200 times and went green 200
+times" is a positive one. A step whose tier cannot be justified by a firing control is a step whose
+tier should not move.
+
+**2. The loop must be asymmetric.** Fail-safe direction (IW-10's surviving principle) says the two
+directions are not the same act:
+
+| direction | trigger | who | ratification |
+|---|---|---|---|
+| **raise** a tier | one incident | agent, automatic | none — safety direction, act first |
+| **lower** a tier | N positive guard-passes | agent proposes | **human ratifies** (IW-9) |
+
+Symmetric treatment is what jams the queue: if both directions need a human, the human becomes the
+bottleneck for the *safe* direction too, and 319/0 is what that looks like. Making the raise
+automatic is also what stops the register filling with recommendations nobody will ever act on.
+
+### What the measurement does NOT settle — the questions for the operator
+
+- **Q1. What is the outcome signal, concretely?** Candidates: step succeeded/failed; the guard
+  fired and its verdict; a human overrode the step; the step was escalated to a fallback (the five
+  from §5g). These are not the same signal and they do not all exist yet.
+- **Q2. Where does it live?** In the model (`.bpmn` accumulates run history — self-describing but
+  mutates a locked artefact); beside it (a run ledger keyed by node id — clean, but a second source
+  of truth); or in the framework's existing memory (patterns/learnings — reuses the machinery, but
+  that machinery is the one that just measured 0/319).
+- **Q3. The ratification volume problem.** If every lowering needs a human ruling, how does this not
+  become the promote queue? Options: batch review at a cadence; auto-lower with a human veto window;
+  restrict ratification to tier-0↔1 boundaries and let 2↔3 move on evidence alone.
+- **Q4. Does a tier assessment expire?** A tier justified by evidence from a system that has since
+  changed is a stale claim. Nothing currently ages it out.
+
 ## 6. Tier and authority are not the same axis (IW-3, answered)
 
 | | question | values | scope |

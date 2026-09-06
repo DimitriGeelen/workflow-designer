@@ -13,7 +13,7 @@ components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-06T16:39:41Z
-last_update: 2026-09-06T19:47:33Z
+last_update: 2026-09-06T20:10:35Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -123,7 +123,7 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 - **IW-11: How do we build signals into a feedback loop that LEARNS and adjusts the risk
   assessment a tier represents?**
-  confidence: 0
+  confidence: 1
   disposition: deferred
   rationale: OPERATOR-POSED 2026-09-06 and the hardest question in this inception — *"otherwise we
     just keep doing stupid things."* A tier is a risk assessment; assessments made once and never
@@ -132,6 +132,17 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
     tier, and a revision path that respects IW-9 (agent proposes, human ratifies). Known trap:
     lowering a tier because nothing bad happened YET confuses absence of incident with evidence of
     safety — the same absence-vs-not-looked defect as T-674/675/677/678. Artifact §5g.
+    MEASURED 2026-09-07 (artifact §5k) — the framework ALREADY runs this loop at task granularity
+    (learning→pattern→practice→directive, `fw promote` = agent proposes / human ratifies, audit
+    trend analysis = recurrence detector) and it has produced 319 learnings, 41 ready candidates,
+    and ZERO promotions. A loop whose closing step is a human act that has never occurred is a
+    queue, not a loop, and it reports success at every stage (PL-319 candidate; same inertness
+    class as PL-317). Two constraints now fall out and need no ruling: (a) only a POSITIVE
+    observation may lower a tier — the guard fired and passed, never "nothing happened"; (b) the
+    loop must be ASYMMETRIC — raise on one incident automatically, lower only on evidence plus
+    human ratification. STILL OPEN and operator-owned: Q1 what the outcome signal is, Q2 where it
+    lives (model / run ledger / existing memory), Q3 how ratification avoids becoming the promote
+    queue, Q4 whether a tier assessment expires.
 
 - **IW-12: Is executor kind a fixed property of a step, or a position on a maturity ladder?**
   confidence: 2
