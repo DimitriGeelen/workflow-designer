@@ -232,6 +232,82 @@ explicitly promoted. Draft vs locked is not a new concept to build; it is a conc
    judgement, not a derivation. So "deterministic" is true of framework-operation maps and unproven
    for business-process maps, which is most of what a workflow designer is *for*.
 
+## 5d. Operator rulings, 2026-09-06 — and the marriage of the two lenses
+
+**Lenses kept:** BABOK (business lens) and TOGAF (architecture lens). **DDD demoted** by operator
+ruling — *"doesn't seem to bring really much here"*. It is retained in §5b only as diagnosis (it
+names the disease: one term, two meanings, inside one boundary), not as a source of design.
+
+### The two lenses do not compete — they operate at different granularities
+
+This is the answer to *"can you marry those two concepts in the workflow designer?"*: **yes, and
+they don't collide, because TOGAF classifies an AREA and IGOE decomposes an ACTIVITY.**
+
+- **TOGAF BDAT** → a property of the **lane** (which architecture layer this band belongs to)
+- **BABOK IGOE** → a decomposition of the **box** (Input, Guide, Output, Enabler)
+
+### And the box is already three-quarters IGOE
+
+Measured in the corpus:
+
+| IGOE | carrier | count | status |
+|---|---|---|---|
+| **I**nput | `<aef:decisionInput>`, `<aef:io>` | 51, 28 | **on the box already** |
+| **G**uide | `<aef:meta tier=>` | 37 tiered | **on the box already** (undocumented) |
+| **O**utput | `<aef:output>`, `<aef:io>` | 31, 28 | **on the box already** |
+| **E**nabler | `<aef:laneMeta authority=>` | 67 lanes | **on the LANE — the odd one out** |
+
+**Proposal B is not a new pattern. It completes one that is 3/4 built.** Three of IGOE's four
+elements already live on the box; only the Enabler was placed elsewhere, and that placement is the
+defect §4 measures. This is the strongest structural argument in this document and it was found by
+counting, not by reasoning.
+
+### Operator ruling on IW-9 — WHO MAY LOCK
+
+**Answered, confidence 3. Always the human.** Operator, verbatim: *"That's very clear. That's
+always human. So the agent can propose. But it cannot lock the document… It cannot publish it as a
+ratified document."*
+
+This closes the agent-lock-in objection outright and is consistent with every comparable boundary
+in this project (G-007 release immutability; `fw inception decide` agent-blocked; the §ACD gates).
+
+**But it is not enforced today, and that is a finding.** `tools/gallery-serve.py:653` reads
+`promote = bool(payload.get('promote')) or ALLOW_NEW_CORPUS` — **`promote` is a
+client-supplied payload flag**, and the server has no authentication of any kind. Any caller that
+can POST `/api/save`, an agent included, can publish straight into the committed corpus at
+`examples/aef-processes/rendered/`. The operator's rule is right; the code does not implement it.
+Registered as a gap (G-049) rather than left inside this inception.
+
+### Operator ruling on IW-8 — WHAT VALIDATES A TIER AT LOCK
+
+**Answered, confidence 2.** Validation is **human assessment and experience**, not a mechanical
+check, and the control mechanism is **change control**: *"that validation is either problematic or
+it's from human or comes from experience… it's an assessment or an experience. So we will and have
+to apply change control and we can always apply change control."* Plus: *"human has to approve.
+And also change if needed. No, it's not a decoration."*
+
+Accepted. The agent's objection was that a lock over an unvalidated value is decoration; the
+operator's answer is that the validating step is the human approval itself, which is a real step
+performed by a real assessor, and change control provides the reversal path. The lock is therefore
+a **ratchet with a human gate**, not a green check.
+
+### Operator ruling on IW-10 — DETERMINISM, and the agent's objection partly withdrawn
+
+Operator's position: the target use case includes **systems development and software development
+workflows**, and human-operator/agent collaboration modelling — *"That's a workflow we definitely
+want to support with this."*
+
+**This weakens the agent's own objection and it should be recorded as weakened.** The objection
+was that tier derivation works for framework operations (`rm -rf`, force push) but not for
+arbitrary business steps ("send invoice"). If the target corpus is systems/software delivery —
+deploy, migrate, release, revoke, grant, delete — those steps *do* map onto known consequential
+operations, and derivation is far more tractable there than for general business process.
+
+**Residual, narrowed to a design principle rather than a blocker:** derivation must be
+**fail-safe**. An agent that cannot classify a step must propose the *higher* tier, never the
+lower — over-tiering costs an unnecessary approval, under-tiering silently removes one. Combined
+with IW-9 (human always approves) the risk is bounded, but only in the safe direction.
+
 ## 6. Tier and authority are not the same axis (IW-3, answered)
 
 | | question | values | scope |

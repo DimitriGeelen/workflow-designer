@@ -3061,3 +3061,46 @@ concerns:
   - T-681
   - T-683
   - T-684
+- id: G-049
+  type: gap
+  status: watching
+  severity: high
+  title: /api/save publishes to the committed corpus on a client-supplied `promote` flag with no
+    authentication, so an agent can ratify a document the operator alone may ratify
+  detected: 2026-09-06
+  origin_task: T-685
+  decision_trigger: 'Publication to examples/aef-processes/rendered/ requires an authorisation the
+    browser cannot self-assert (operator-side promotion step, signed token, or an out-of-band
+    promote path), so `promote:true` in a POST body can no longer ratify a document. Then close
+    G-049.
+
+    '
+  description: 'Operator ruling 2026-09-06 (T-685 IW-9): locking/ratifying a document is ALWAYS the
+
+    human''s act - "the agent can propose. But it cannot lock the document... It cannot publish it
+
+    as a ratified document."
+
+
+    The code does not implement that rule. tools/gallery-serve.py:653 reads
+
+    `promote = bool(payload.get(''promote'')) or ALLOW_NEW_CORPUS`, so promotion into the committed
+
+    corpus is driven by a flag in the request body, and the server performs no authentication of
+
+    any kind. Any caller able to POST /api/save - an agent included - can publish directly into
+
+    examples/aef-processes/rendered/.
+
+
+    This is the draft-vs-ratified boundary that T-685''s tier proposal depends on: if a tier
+
+    becomes hard to change once locked, then who may lock is load-bearing. Today the lock is
+
+    self-service. Same family as G-007 (release immutability) - a promise about who may make bytes
+
+    official, with nothing enforcing it.
+
+    '
+  related_tasks:
+  - T-685
