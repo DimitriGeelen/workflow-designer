@@ -180,7 +180,11 @@ if [ -n "$TASK_REF" ]; then
                 echo ""
                 echo "Bypass: git commit --no-verify"
                 echo "  (In agent context, Tier 0 will prompt for approval on --no-verify.)"
-                echo "  Configure: $(_emit_user_command "config set inception_commit_limit N")"
+                # Key is case-sensitive and is READ as INCEPTION_COMMIT_LIMIT (see the
+                # fw_config call above). Emitting the lowercase form made this remediation a
+                # no-op: following it exactly left the gate reading the default and blocking
+                # with this same message (T-686).
+                echo "  Configure: $(_emit_user_command "config set INCEPTION_COMMIT_LIMIT N")"
                 exit 1
             else
                 echo ""
