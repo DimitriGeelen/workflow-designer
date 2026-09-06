@@ -4,10 +4,10 @@ name: "Inception commit gate tells you to set a config key it does not read"
 description: >
   The commit-msg hook reads fw_config INCEPTION_COMMIT_LIMIT (uppercase, default 2) at line 65, but its own BLOCKED message at line 130 instructs the operator to run: fw config set inception_commit_limit N (lowercase). Keys are case-sensitive, so following the remediation exactly has zero effect and the gate keeps blocking with the same message. Measured 2026-09-06: operator set lowercase to 15, uppercase read back empty, gate still blocked at 2.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [framework, vendored, gate]
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-06T18:30:54Z
-last_update: 2026-09-06T18:31:02Z
-date_finished: null
+last_update: 2026-09-06T18:43:42Z
+date_finished: 2026-09-06T18:43:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -212,3 +212,15 @@ bash -n .agentic-framework/agents/git/lib/hooks.sh
 
 ### 2026-09-06T18:31:02Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-20f20b15
+- **Timestamp:** 2026-09-06T18:43:43Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-06T18:43:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
