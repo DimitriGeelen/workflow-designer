@@ -13,7 +13,7 @@ components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-06T16:39:41Z
-last_update: 2026-09-06T19:09:49Z
+last_update: 2026-09-06T19:47:33Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -91,27 +91,35 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
     is insufficient and shape C (nested lanes) or D (Group) is forced. Untested.
 
 - **IW-8: What VALIDATES a tier at lock time?**
-  confidence: 0
-  disposition: deferred
-  rationale: A lock protects a value; it does not validate it. A tier mis-set in draft and then
-    locked is defended exactly as strongly as a correct one, and now costs a tier-0 approval to
-    correct. Same class as T-674/675/677/678 and PL-178: stable rather than correct.
+  confidence: 2
+  disposition: answered
+  rationale: OPERATOR RULED 2026-09-06 (artifact §5d) — validation is human assessment and
+    experience, not a mechanical check, and the control mechanism is CHANGE CONTROL. The agent's
+    "a lock protects a value, it does not validate it" objection is WITHDRAWN: the validating step
+    is the human approval itself, performed by a real assessor, with change control as the reversal
+    path. The lock is a ratchet with a human gate, not a green check. Residual — the mechanical
+    PRE-filter (match against the human-curated tier-0/pre-approved library before the human is
+    asked) is a design consequence, captured in artifact §5i principle 4.
 
 - **IW-9: Who may LOCK?**
-  confidence: 0
-  disposition: deferred
-  rationale: If an agent can both propose a tier and lock the document, it can make its own
-    guess expensive to reverse with no human having ruled. Lock authority may need to be
-    sovereignty-only; unresolved.
+  confidence: 3
+  disposition: answered
+  rationale: OPERATOR RULED 2026-09-06, verbatim — *"That's very clear. That's always human. So the
+    agent can propose. But it cannot lock the document… It cannot publish it as a ratified
+    document."* Closes the agent-lock-in objection outright and is consistent with every comparable
+    boundary here (G-007, agent-blocked `fw inception decide`, §ACD gates). NOT ENFORCED IN CODE —
+    gallery-serve.py:653 promotes on a client-supplied `promote` flag with no authentication;
+    registered as G-049.
 
 - **IW-10: Is tier derivation deterministic outside framework-operation maps?**
-  confidence: 1
-  disposition: deferred
-  rationale: CLAUDE.md §Enforcement Tiers names concrete tier-0 operations (force push, hard
-    reset, rm -rf), so derivation is plausible for framework maps. For a general business step
-    ("send invoice to customer") the tier is a judgement, not a derivation — and business
-    process maps are most of what a workflow designer exists for. Determinism is therefore
-    proven for a subset and unproven for the majority case.
+  confidence: 2
+  disposition: answered
+  rationale: Agent objection PARTLY WITHDRAWN 2026-09-06 (artifact §5d). Operator's target corpus
+    is systems/software delivery (deploy, migrate, release, revoke, grant, delete), which DOES map
+    onto known consequential operations, so derivation is far more tractable than for arbitrary
+    business steps. What survives is a design principle, not a blocker: derivation must be
+    FAIL-SAFE — an agent that cannot classify proposes the HIGHER tier, never the lower.
+    Over-tiering costs a wasted approval; under-tiering silently removes one.
 
 - **IW-11: How do we build signals into a feedback loop that LEARNS and adjusts the risk
   assessment a tier represents?**

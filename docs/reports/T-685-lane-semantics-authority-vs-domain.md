@@ -699,6 +699,61 @@ Recorded: the word is **knowledge fabric**, and the retained content is not just
 — capture is the mechanism by which stochastic work produces evidence at all — and the operator's
 framing extends what must be captured beyond step outputs to the reasoning around them.
 
+## 5j. RESUME HERE — the agenda for the next session
+
+Written 2026-09-06 immediately before a `/compact`, at operator instruction: *"when we come back
+after compaction we continue with open questions and the grilling and we capture everything we
+discuss properly. So when we've completed with our analysis and thinking we can really start
+working from that."*
+
+**This section is the continuation contract. The conversation will not survive; this file will.**
+
+### Standing discipline for the resumed session
+
+1. **Capture as we go, not at the end.** Every dialogue segment gets written into this artifact and
+   committed before the next segment starts. That rule was itself an operator correction earlier in
+   this task, and it is the reason anything here still exists.
+2. **The register is the source, not the conversation.** If an IW disposition on the task and a
+   claim in this artifact disagree, fix the task — a stale `deferred` is how a settled question gets
+   re-asked. (Both were reconciled at 2026-09-06; IW-8/9/10 are now `answered`.)
+3. **No build work yet.** This is still an inception with no decision. The operator's stated
+   sequence is: finish the analysis, *then* start working from it.
+
+### The grilling still owed — in priority order
+
+- **IW-11 — the feedback loop.** *The* question. How do outcome signals flow back to revise the
+  risk assessment a tier encodes? Needs: an outcome signal per executed step; attribution from
+  outcome back to the governing tier; a revision path where the agent proposes and the human
+  ratifies (principle 3); and protection against lowering a tier because nothing bad has happened
+  *yet*. **Nothing here answers it.** Everything else in this document is structure; this is the
+  loop that decides whether the system learns or ossifies.
+- **IW-13 — routing.** One field or two for agent-type and model-type? An architect agent on a
+  small model and a coder agent on a large one are different routing outcomes.
+- **IW-7 — BDAT layer.** Agent proposed *dissolving* this: don't make the lane BE the layer; make
+  it a named domain that CARRIES a `bdat=` attribute, so mixed-layer diagrams are legal and
+  self-describing. **Operator has not ruled on that proposal.**
+- **The symbol palette.** Operator requirement from §5g: if executor kind becomes authoritative it
+  must be drawable. Which symbols enter the left-column library, and does an agentic task get a
+  distinct glyph (as arXiv 2412.05958 does)?
+- **The `authority="none"` defect (IW-4).** Answered as a defect, unfixed. 12 nodes still have no
+  derivable owner. Whatever the lane decision turns out to be, this needs closing.
+
+### Questions the agent has NOT yet put, and should
+
+- If executor kind is a **maturity ladder** (IW-12), what is the *promotion event*? Who authorises
+  a step moving from stochastic to deterministic, and what evidence justifies it? This is
+  IW-11-adjacent and currently unowned.
+- Does the **pre-approved library** live in the model, the framework, or both? Principle 3's subtle
+  case says it must be human-curated; nothing says where it lives.
+- What happens to a **published** model when the code it authorises drifts? Verification says
+  "satisfies or does not" — but the response to "does not" is unspecified.
+
+### Decision state
+
+No inception decision on T-685. Six IWs answered, seven open. `voi_score` / `target_blast_radius`
+remain planted template defaults and are operator-owned. **Nothing has been sent to AEF, and
+nothing in this document authorises editing the frozen standard** (IW-6).
+
 ## 6. Tier and authority are not the same axis (IW-3, answered)
 
 | | question | values | scope |
