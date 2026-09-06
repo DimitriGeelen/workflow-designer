@@ -602,6 +602,103 @@ resource, "human" must not be overloaded to mean both *executor* and *approver*.
 human-in-the-loop triggers the operator names — destructive, risky, agent-uncertain — are all
 **authority** triggers, not executor-kind assignments.
 
+## 5h. The lock boundary flips the direction of derivation (operator refinement)
+
+Operator, 2026-09-06, on "round-trip the contract, not the algorithm": *"In principle that's
+correct. But with one caveat… that is when the model is locked under change control… once it's out
+of the drafting stage, it's published, then that's definitely true… There are some exceptions
+because when we're drafting, we might take an existing body of knowledge, which could be code,
+which could be process descriptions or regulations, and we want to ingest it and infer an existing
+workflow from that."*
+
+**This is a material correction, not a footnote.** §5f stated flatly that we never re-derive the
+model from the code. That is wrong before publication and right after it. The rule is not a
+constant — **it flips at the lock boundary:**
+
+| phase | authoritative direction | reverse derivation |
+|---|---|---|
+| **draft / ingestion** | code, regulations, process descriptions, existing docs **→ model** | **legitimate and desirable** — this is how a workflow gets discovered from an existing body of knowledge |
+| **published / locked** | **model → code**, pseudocode, scripts | **forbidden as regeneration**; permitted only as *verification* (does this code still satisfy the contract?) |
+
+Changing a published model is therefore not an edit — it is a **change-control event, tier 0,
+human-approved**, and only that event may alter the flow or anything in it.
+
+**Why this matters beyond tidiness:** ingestion is stochastic inference over someone else's
+artefacts, and it is exactly where a wrong inference is cheapest to make and most expensive to
+discover later. Putting the lock boundary at the point where inference stops being authoritative
+is what makes the whole scheme safe. Before the lock, the model is a *hypothesis about* the
+existing world; after it, the model is a *commitment the world must satisfy*.
+
+## 5i. Worked examples requested by the operator
+
+### Principle 4 — "put a deterministic check between the stochastic steps"
+
+**The failure it prevents:** stochastic steps chained back-to-back compound error, and each one
+reports confidence regardless. *Agent writes code → agent reviews the code → agent declares it
+done* is three stochastic steps in a row with nothing mechanical in between; nothing in that chain
+can discover that step one was wrong.
+
+**The shape:** `stochastic → mechanical filter → stochastic or human`. The filter cannot be
+persuaded by a confident wrong answer, because it does not read the answer's confidence.
+
+Four instances, all real in this project:
+
+1. **P-011 Verification.** The agent (stochastic) claims a task is complete. The framework
+   *executes* the shell commands in `## Verification` and blocks completion on a non-zero exit.
+   Agent self-assessment never reaches the gate. This is the canonical instance and it already
+   exists.
+2. **T-681's mutation control.** The agent proposes an isolation fence. The mechanical check is
+   *does the fence go RED when a breach path is introduced, and GREEN when it is reverted?* Without
+   it, the only evidence that the fence works is the agent saying so.
+3. **The importer's repair path.** The agent infers what a malformed third-party file *meant*
+   (stochastic). The mechanical check is: does the repaired document validate against the schema,
+   and does the round-trip hash match? Only then does it reach a human.
+4. **Tier proposal — the one this design needs.** The agent scans a step and proposes `tier=1`.
+   The mechanical check matches the step's declared action against the **human-curated library of
+   known tier-0 operations and pre-approved activities**. If the step invokes `rm -rf` and the
+   agent proposed tier 1, the filter catches it *before* a human is asked to approve — so the human
+   reviews a claim that has already survived a check that cannot be talked round.
+
+### Principle 3 — "a stochastic step may never be the sole author of its own authorisation"
+
+**Plain statement:** the thing that decides an action is *allowed* must not be the same stochastic
+process that *wants to perform* it. Otherwise the constraint is chosen by the party it constrains,
+and governance is circular.
+
+**Crucial distinction:** *matching against an authorisation someone else granted* is fine — that is
+what a pre-approved library is for. *Authoring the authorisation* is not. An agent may say "this
+matches pre-approved activity #12"; it may not say "I judge this pre-approved."
+
+Instances, three of which are already enforced here:
+
+1. **Self-tiering.** An agent decides a step is tier 3 (pre-approved) and then executes it under
+   that tier. The tier existed to constrain the agent; the agent picked its own constraint.
+2. **`--force` / `--skip-*` bypasses.** An agent blocked by a gate deciding to bypass that gate is
+   authorising itself past its own constraint. **Already operator-only in this framework** — this
+   principle is why.
+3. **The lock (your IW-9 ruling).** An agent that could publish would convert its own draft into an
+   authoritative document. **Already ruled human-only** — same principle.
+4. **Today's live instance.** The agent recommended GO on T-681. If it could also *record* the GO,
+   its recommendation would silently become the decision. `fw inception decide` is agent-blocked
+   for exactly this reason.
+5. **The subtle one, and the one to watch.** An agent proposes a tier *and* writes the check that
+   validates tiers. Even with a human ratifying, the human is approving a **self-consistent pair**
+   from one stochastic source — the check will agree with the proposal because both came from the
+   same place. **Consequence for this design: the pre-approved library and the tier-validation
+   rules must be human-curated, not agent-generated.** Otherwise principle 4's mechanical filter
+   quietly becomes stochastic again.
+
+### Principle 2, restated after the operator's correction
+
+Operator: *"stochastic output… becomes part of our knowledge fabric… we want to know what decisions
+we made, why we did something, why we made an architectural choice, what rationale, what risks we
+assessed — same as the conversation we're having now."*
+
+Recorded: the word is **knowledge fabric**, and the retained content is not just outputs but
+**decisions, rationale, rejected alternatives, and risk assessments**. §5g's reconciliation stands
+— capture is the mechanism by which stochastic work produces evidence at all — and the operator's
+framing extends what must be captured beyond step outputs to the reasoning around them.
+
 ## 6. Tier and authority are not the same axis (IW-3, answered)
 
 | | question | values | scope |
