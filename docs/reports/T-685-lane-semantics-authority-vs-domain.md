@@ -308,6 +308,137 @@ operations, and derivation is far more tractable there than for general business
 lower — over-tiering costs an unnecessary approval, under-tiering silently removes one. Combined
 with IW-9 (human always approves) the risk is bounded, but only in the safe direction.
 
+## 5e. The fourth axis — executor kind (deterministic / stochastic / authority)
+
+Raised by the operator 2026-09-06: *"there is a distinction between the stochastic response and
+the deterministic execution… we want something to be picked up by the agent or we want something
+to be executed by machine. Where the machine is deterministic and the agent is stochastic and the
+human is tier zero authority."*
+
+### It exists in three places today and is authoritative in none
+
+| carrier | coverage | status |
+|---|---|---|
+| BPMN task type — `scriptTask` 111, `serviceTask` 40, `userTask` 12 | 163 tasks | **explicitly demoted** — the standard calls task-type *"presentational"* where it disagrees with the lane (§3) |
+| `aef:meta agentType=` — `framework` 4, `primary` 9, `coder` 1, `any` 3 | **17 tasks (10%)** | not in the standard's collapse map at all |
+| lane `authority=` — `authority` (framework/deterministic) vs `initiative` (agent/stochastic) | 67 lanes | **the collapse DESTROYS it** |
+
+**The last row is the finding.** The collapse map is `sovereignty→human`, `initiative→agent`,
+`authority→agent`, `external→no task`. Both `authority` and `initiative` resolve to **`owner:
+agent`**. So the one carrier where the distinction is authoritative erases it at compile time: a
+deterministic framework-enforced step and a stochastic LLM-judgement step compile to the same
+owner, and nothing downstream can tell them apart.
+
+The operator's instinct is not an enhancement request. **The model actively erases a distinction
+it already encodes.**
+
+### Why this is evidence semantics, not a label
+
+The EWCR contract promises *"every step traceable to the evidence that justified it."* What counts
+as evidence is **different for each executor kind**, and this is the load-bearing consequence:
+
+| executor | reproducibility | what evidence IS |
+|---|---|---|
+| **deterministic machine** | same input → same output | the code + the input. Verifiable by **re-running**. |
+| **stochastic agent** | same input → a *distribution* | the actual output + its trace. **Not regenerable** — re-running produces a different answer. |
+| **human** | not an executor at all | a **ruling**. There is no output to verify, only a decision to record. |
+
+**A stochastic step's evidence is perishable.** If it is not captured at execution time it is gone
+permanently, because it cannot be recomputed. A deterministic step's evidence can always be
+re-derived. That is a hard architectural requirement and it falls directly out of the distinction
+the current collapse map throws away.
+
+It is also the same disease this project has been treating all week (T-674/675/677/678, PL-178):
+a system that cannot tell *"this was measured and the answer was nothing"* from *"nobody looked."*
+For stochastic executors that distinction is not recoverable after the fact.
+
+### Where it belongs in the two lenses (and the honest answer: neither)
+
+- **TOGAF** — not a BDAT layer. It is a property of a technology/application component, not a
+  layer of the stack.
+- **BABOK IGOE** — a **qualifier on the Enabler**, not a fifth IGOE element. *Who* performs and
+  *what kind of thing* they are, are different questions.
+- **Neither names it**, because both predate stochastic executors.
+
+**Closest literature that does:** arXiv 2412.05958's `AgenticTask` vs ordinary `Task` — the same
+distinction, made as an **element-type** distinction on the box. Which is consistent with proposal
+B and inconsistent with lane-carried authority.
+
+**This is the one axis where we must invent rather than adopt.** Worth stating plainly so nobody
+later mistakes the absence of a citation for an oversight.
+
+### A caution: "human" is about to become the overload we just diagnosed
+
+The operator's framing — *"the machine is deterministic and the agent is stochastic and the human
+is tier zero authority"* — puts two different things on the human:
+
+1. human as **executor kind** (a `userTask`: someone does the work), and
+2. human as **authority** (the tier-0 approver: someone rules on it).
+
+Those are separate. A human can perform a tier-3 action (read a status page). An agent can be
+*assigned* a tier-0 action — which then requires human approval, and that is precisely the
+interesting case identified in §6. Collapsing executor-kind and authority into the single word
+"human" reproduces, on a new axis, the exact defect §4 measures on the lane.
+
+**Recommendation: keep them separate.** Executor kind ∈ {deterministic, stochastic, human};
+authority/tier is a different field on the same box.
+
+## 5f. The concepts → workflow → pseudocode → code ladder, and stepping back
+
+The operator asked for this to be a supported workflow: iterate from concepts to workflow to
+pseudocode to working code, and step back again.
+
+**This is MDA (CIM → PIM → PSM → code) and its failure mode is well documented:** round-tripping
+breaks because generated code gets edited by hand, the model goes stale, and the model becomes *a
+lie that was true once*. Teams then either abandon the model or freeze the code.
+
+**Our version is harder, and it is worth being explicit about why.** With an agent in the loop
+**both directions are stochastic**: model→code is a *proposal*, not a compilation; code→model is
+*inference*, not extraction. Errors accumulate in both directions, and the classical remedy
+("model is authoritative, generate one-way, never hand-edit the output") is unavailable because
+human-agent collaboration on the code is the entire point.
+
+### The proposed resolution: round-trip the contract, not the algorithm
+
+> **The model is authoritative for the contract. The code is authoritative for the how.**
+
+- The model owns: who may act, at what tier, in what domain, what evidence is required, which
+  gates authorise.
+- The code owns: the implementation.
+- **"Stepping back" is then VERIFICATION — does this code still satisfy the contract? — not
+  REGENERATION.** No attempt is made to re-derive the model from the code.
+
+This degrades gracefully (an edited implementation does not invalidate the model), it is
+mechanically checkable, and it is the only reading under which "Executable Workflow **Contract**
+Runtime" means something stronger than "code generator."
+
+### The structural principle underneath it
+
+> **Put a deterministic check between the stochastic steps.**
+
+Agent proposes (stochastic) → contract check (deterministic) → human ratifies (authority). Each
+stochastic step is bracketed by something that is not stochastic. This is the same shape as every
+control that has survived scrutiny in this project: the tier proposal validated by a human gate
+(§5c), the human-only lock (IW-9), the mutation control's demonstrated red state (T-681 S2).
+
+### Candidate design principles for the workflow designer
+
+Offered for operator review, not adopted:
+
+1. **The model owns the contract; the code owns the how.** Round-trip governance, never
+   algorithms.
+2. **Evidence semantics follow executor kind.** Stochastic output is perishable and must be
+   captured at execution; deterministic output may be re-derived.
+3. **A stochastic step may never be the sole author of its own authorisation.** Otherwise the
+   governance is circular — this is why IW-9's human-only lock matters structurally, not just
+   procedurally.
+4. **Put a deterministic check between stochastic steps.**
+5. **Authority is a property of the step, not of its position.** (§7)
+6. **The unknown must be representable** — "no value applies" must be distinguishable from
+   "nobody looked." (§4, the `authority="none"` defect)
+7. **Every stochastic proposal has a fail-safe direction** — unknown proposes the *higher* tier,
+   never the lower. (§5d)
+
 ## 6. Tier and authority are not the same axis (IW-3, answered)
 
 | | question | values | scope |
