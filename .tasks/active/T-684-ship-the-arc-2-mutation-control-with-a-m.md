@@ -4,7 +4,7 @@ name: "Ship the Arc-2 mutation control with a meta-assertion, so a red that neve
 description: >
   T-681 S2 proved the control buildable (prototype at docs/research/executable-workflow/_t681-s2-mutation-control-prototype.py) but its first run reported NO-GO for a broken reason: the mutated guard refused the escape id on grounds unrelated to containment, so phase 2 could not have gone red however broken the fence was (PL-177). The shipped control must assert that the mutated guard ADMITS the escape id, distinguishing 'no breach' from 'never tested'.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T17:26:20Z
-last_update: 2026-09-05T17:26:20Z
+last_update: 2026-09-07T21:12:38Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -35,14 +35,50 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-683 shipped the containment fence on `/api/save`. This ships the control that keeps it
+honest: a mutation control that breaks the fence on purpose, confirms the breach is
+*observable*, then confirms the fence refuses it.
+
+The prototype (`docs/research/executable-workflow/_t681-s2-mutation-control-prototype.py`)
+reported a verdict for a broken reason. Its baseline phase expected the pristine server to
+refuse the escape id — but `ID_RE` rejects `../escaped` on format grounds long before
+containment is consulted, so that phase refused whether or not a fence existed. It was
+measuring the regex and reporting on the fence (PL-177).
+
+The fix is a third verdict. GREEN requires the manufactured breach in phase A to have
+actually escaped; if it did not, the run reports INCONCLUSIVE rather than passing. A
+two-valued control that loses the ability to see breaches reports GREEN forever.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The control runs three phases against temp copies of `gallery-serve.py`, never
+      mutating the tracked file: **A** guard removed *and* `ID_RE` widened → the save MUST
+      escape; **B** `ID_RE` widened, containment guard intact → the save MUST be refused;
+      **C** pristine → refused. *(Measured: A HTTP 200 escaped=True; B HTTP 400
+      escaped=False; C HTTP 400 escaped=False.)*
+- [x] **The meta-assertion:** a GREEN verdict is conditional on phase A having actually
+      escaped. If phase A does not escape, the run reports **INCONCLUSIVE**, never GREEN —
+      the harness manufactured a breach and could not observe it, so phase B's refusal is
+      unevidenced. This is the T-681 S2 failure (PL-177) made structurally impossible.
+      *(`if not a_escaped:` precedes the breach check, so INCONCLUSIVE wins over any
+      reading of phase B.)*
+- [x] Phase C's refusal is reported as **format-grounds, not containment evidence**, and is
+      explicitly excluded from the GREEN decision. `ID_RE` rejects `../escaped` before the
+      fence is reached, so counting that refusal as a passing fence is the original error.
+      *(Phase C's status feeds only the printed line, never the verdict branch.)*
+- [x] Distinct exit codes: `0` GREEN (fence proven), `1` BREACH (phase B escaped), `2`
+      INCONCLUSIVE (phase A did not escape / harness could not observe).
+- [x] `--self-test` proves INCONCLUSIVE is reachable by sabotaging phase A, so the control's
+      own refusal-to-conclude is demonstrated rather than asserted. *(Measured: sabotaged
+      run returns exit 2. Notably all three phases then read `400/False` — which reads as
+      "the fence holds everywhere" and is precisely T-681 S2's false verdict.)*
+- [x] The control leaves nothing behind: no mutated server copies, no escape witness inside
+      the repo, and `git status` on `tools/gallery-serve.py` is clean after a run.
+      *(Verified: empty `git status --short` on the server, no `escaped/` in the tree;
+      temp servers removed in a `finally`, temp repos removed per phase.)*
+- [x] Runs GREEN against the current tree (T-683's fence in place). *(exit 0.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -76,6 +112,14 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tools/_t684-mutation-control.py
+python3 tools/_t684-mutation-control.py --self-test
+python3 tools/_t683-save-containment-verify.py
+# the control must not mutate the tracked server it inspects
+test -z "$(git status --short tools/gallery-serve.py)"
+# negative leg: the escape witness must never be left inside the repo tree
+test ! -e escaped
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -164,6 +208,22 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-09-07 — the prototype's baseline was measuring the regex, not the fence
+
+- **What changed:** T-681 S2's phases were baseline / mutated / reverted, with baseline
+  expected to refuse. But `ID_RE` rejects `../escaped` on FORMAT grounds before containment
+  is ever consulted, so that refusal happens whether or not a fence exists. The prototype's
+  "fence held" phase was reporting on the regex. That is why its first run produced a
+  verdict for a broken reason.
+- **Plan impact:** the phase set changed. A pristine run cannot be the control's evidence,
+  so phase C is now *reported and explicitly excluded from the verdict*. The evidence-bearing
+  pair became A (guard removed AND regex widened, must escape) and B (regex widened only,
+  must refuse) — B is the assertion, A is what makes B mean anything.
+- **Triggered:** no new task. A third verdict, INCONCLUSIVE, had to exist: with only
+  pass/fail, a harness that lost the ability to see breaches reports GREEN forever. The
+  self-test demonstrates it, and the sabotaged run is worth keeping in mind — all three
+  phases read 400/False, which looks like the strongest possible pass.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -174,6 +234,31 @@ date_finished: null
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-09-07 — INCONCLUSIVE is a verdict, not an error state
+
+- **Chose:** three exit codes — 0 GREEN, 1 BREACH, 2 INCONCLUSIVE — with INCONCLUSIVE
+  checked BEFORE the breach branch.
+- **Why:** the failure being defended against is not "the fence broke", it is "the harness
+  stopped being able to tell". Those need different exits because they need different human
+  responses: a breach is a bug in the product, an inconclusive is a bug in the evidence. A
+  two-valued control has to map the second onto one of the first two, and whichever it picks
+  is a lie — GREEN hides it, RED cries wolf until someone disables the check.
+- **Rejected:** *(a)* treating a failed phase A as a hard error/crash — an error reads as
+  infrastructure noise and gets retried past; a verdict gets read. *(b)* Asserting phase A
+  inside the self-test only, leaving the live run two-valued — the live run is exactly where
+  the harness would silently degrade, so the assertion has to be in the live path.
+
+### 2026-09-07 — mutate copies, never the tracked file
+
+- **Chose:** every phase runs a temp copy of `gallery-serve.py`; the tracked file is read
+  and never written, with a P-011 leg asserting `git status` on it stays clean.
+- **Why:** a control that edits the file it is testing can leave the repo mutated when it
+  crashes mid-run — and the mutation it applies is *removing a security guard*. An
+  interrupted run must not be able to leave the fence out of the tree.
+- **Rejected:** patch-and-revert in place with a `finally` restore — a `finally` does not
+  survive SIGKILL or a machine losing power, and the failure mode is a silently
+  guard-less server in a tracked file.
 
 ## Decision
 
@@ -191,3 +276,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-684-ship-the-arc-2-mutation-control-with-a-m.md
 - **Context:** Initial task creation
+
+### 2026-09-07T21:12:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
