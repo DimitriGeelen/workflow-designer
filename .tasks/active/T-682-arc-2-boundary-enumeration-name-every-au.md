@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T17:25:37Z
-last_update: 2026-09-07T21:16:52Z
+last_update: 2026-09-07T21:18:35Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -35,29 +35,39 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Arc 2 names three authorities the editor could hold: mutation, execution, secret. S1
+(T-681) measured the reachable surface as seven routes on `gallery-serve.py`. This produces
+the inventory that says which authorities are actually there — and, for the ones that are
+not, says so with the evidence of what was searched.
+
+The failure mode being defended against is a security document with an empty row. An empty
+row reads like a control that passed; it is indistinguishable from a place nobody looked.
+Naming the patterns searched is what separates an absence from a blind spot.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/reports/T-682-arc-2-boundary-inventory.md` exists and enumerates **every** route
+- [x] `docs/reports/T-682-arc-2-boundary-inventory.md` exists and enumerates **every** route
       the editor can reach on `gallery-serve.py` — the seven S1 (T-681) measured — each with:
       method, path, what it mutates, and which containment control (if any) fences it.
-- [ ] The inventory is **generated from the source, not hand-listed**: a script re-derives
+- [x] The inventory is **generated from the source, not hand-listed**: a script re-derives
       the route set from `gallery-serve.py` and the report is checked against it, so a route
       added later cannot quietly stay out of the boundary document.
-- [ ] The two Arc-2 authorities that do **not** exist in this tree — execution and secret —
+- [x] The two Arc-2 authorities that do **not** exist in this tree — execution and secret —
       are stated as **ABSENT, not as defended**. Each carries the evidence of absence (what
       was searched, what would have matched) so a later reader cannot read the empty row as
       a control. This is the whole point of the task: an absence is not a fence.
-- [ ] A drift check fails when the route set derived from source no longer matches the
+      *(SECRET: 0 matches across 8 patterns — a true absence. EXECUTION: 2 matches, so
+      the report makes the NARROWER claim — see Evolution; the filing's "does not exist
+      at all" was an overclaim and is corrected in the document.)*
+- [x] A drift check fails when the route set derived from source no longer matches the
       inventory — added route, removed route, or changed method/path. Absence rows are
       included in the comparison, so execution/secret appearing in the tree goes red.
-- [ ] The drift check's red path is demonstrated, not assumed: a temp copy of
+- [x] The drift check's red path is demonstrated, not assumed: a temp copy of
       `gallery-serve.py` with one extra route makes it fail (the T-684 lesson — a control
       that has only ever been green is a claim).
-- [ ] The inventory names, per route, whether its containment is covered by the T-683 fence,
+- [x] The inventory names, per route, whether its containment is covered by the T-683 fence,
       by `_within_repo` (delete path), or by nothing — no route is left unclassified.
 
 ### Human
@@ -92,6 +102,16 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tools/_t682-boundary-inventory.py
+python3 tools/_t682-boundary-inventory.py --self-test
+test -f docs/reports/T-682-arc-2-boundary-inventory.md
+# the absence rows must carry the patterns searched, not just say "none"
+grep -q "Patterns searched" docs/reports/T-682-arc-2-boundary-inventory.md
+# the execution row must state the NARROW claim, not a bare absence
+grep -q "ABSENT FROM THE REQUEST SURFACE" docs/reports/T-682-arc-2-boundary-inventory.md
+# negative leg: execution must not be rendered as a zero-match absence while matches exist
+test 0 -eq "$(grep -c 'No execution primitive exists in this file' docs/reports/T-682-arc-2-boundary-inventory.md)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -180,6 +200,21 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-09-07 — the filing overclaimed the absence it asked us to state
+
+- **What changed:** the task says execution and secret authority "do not exist in this tree
+  at all". Secret holds — 0 matches across 8 patterns. Execution does not: `gallery-serve.py`
+  :824-825 calls `subprocess.check_output(['hostname', '-I'])` for the startup banner.
+- **Plan impact:** the execution row could not be written as filed. It states the narrower,
+  checkable claim instead — *no route reaches an execution primitive, and no execution
+  primitive takes request-derived input* — and names the two matching lines. A wrong
+  absence claim in a security document is worse than a missing one: it is load-bearing and
+  it looks verified.
+- **Triggered:** no new task. The symmetry is worth carrying: this task exists because an
+  absence can be mistaken for a defence, and it nearly shipped the mirror-image error of
+  asserting an absence that measurement contradicted. Both are a confident sentence standing
+  where a measurement belongs.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -190,6 +225,19 @@ date_finished: null
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-09-07 — derive the route set, hand-author only the semantics
+
+- **Chose:** AST-derive the seven routes from the dispatch; keep "what it mutates" and
+  "which fence covers it" in a hand-authored table keyed by route. A derived route with no
+  semantics row fails the check as UNCLASSIFIED.
+- **Why:** the two halves have different failure modes. The route set goes stale silently
+  (someone adds a route, nobody updates the doc) so it must be derived. The semantics
+  require judgement no parser has, so they must be written — but an unclassified route then
+  has to be an ERROR rather than a blank, or deriving the set just moves the silence.
+- **Rejected:** deriving semantics too, e.g. by detecting `open(..., 'w')` in each handler —
+  it would have produced plausible rows that nobody checked, which is the exact failure the
+  inventory exists to prevent. *(b)* Hand-listing all seven — accurate exactly once.
 
 ## Decision
 
