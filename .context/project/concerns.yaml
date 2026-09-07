@@ -3196,16 +3196,58 @@ concerns:
 
 
     The working instance is not the newest — 0501''s last activity (2026-08-20) predates five of the
-    broken instances, so this is not a date cutoff. Consistent with per-instance vendored framework
-    versions: each project carries its own .agentic-framework/ pinned wherever it was last
-    vendored, and the T-1628 exec→run-and-capture change would only affect instances vendored after
-    it landed. That makes G-050 a REGRESSION with a surviving control instance, which is the
-    strongest possible form for an upstream report — 0501 is the bisect''s good side.
+    broken instances, so this is not a date cutoff.
 
 
-    NOT YET CONFIRMED: the framework version of each instance. Confirming the regression hypothesis
-    requires reading peer VERSION files, which is OUTSIDE the operator''s scope grant for this sweep
-    and was not done.
+    VERSION SWEEP 2026-09-07 (second operator-authorised read, VERSION file only). The hypothesis
+    under test was that G-050 is a regression introduced by the T-1628 exec→run-and-capture change,
+    which would predict: every instance below some version N works, every instance at or above N is
+    broken. THE DATA DISPROVES IT.
+
+
+    | instance                     | version   | entries | unknown | verdict |
+
+    | 1023-…-chromium-vault        | 1.6.15    |       1 |       1 | broken  |
+
+    | 0506-Voxtype-extention       | 1.6.29    |       2 |       2 | broken  |
+
+    | 005-Yellowtwig/…/CashWeb     | 1.6.29    |       1 |       1 | broken  |
+
+    | **0501-opencode-playground** | **1.6.80**|  **30** |   **0** | **WORKS** |
+
+    | 0502-gemnicli-playgorund     | 1.6.145   |       5 |       5 | broken  |
+
+    | 0503-codex-cli-playground    | 1.6.212   |       1 |       1 | broken  |
+
+    | 160-new-project              | 1.6.216   |      10 |      10 | broken  |
+
+    | 117-android-game-player      | 1.6.273   |       1 |       1 | broken  |
+
+    | 832-Workflow-designer (ours) | 1.6.354   |       1 |       1 | broken  |
+
+    | /home/dimitri-mint-dev       | 1.6.768   |       1 |       1 | broken  |
+
+    | /mame/project                | dev       |       1 |       1 | broken  |
+
+
+    The single working instance sits in the MIDDLE of the range, with two OLDER instances (1.6.15,
+    1.6.29) broken beneath it. No version cutoff produces this pattern, so the regression story is
+    withdrawn — it was stated as "consistent with" and it is not.
+
+
+    Two findings survive, and one is new and more serious:
+
+
+    1. THE DEFECT IS LIVE AT 1.6.768 — the newest framework on this host, four hundred versions
+    ahead of ours. It is NOT fixed upstream, and an `fw update` would not repair it.
+
+
+    2. THE DISCRIMINATOR IS NOT THE FRAMEWORK VERSION. Something else separates 0501 from the other
+    ten. Leading hypothesis (UNTESTED): 0501''s .claude/settings.json registers the hook by a
+    different command form — e.g. invoking node or the hook script directly rather than through
+    `fw hook loop-detect` — which would match the local bisect exactly, since both of those paths
+    record and only the `fw hook` path does not. Testing it needs ONE more file per instance
+    (.claude/settings.json), which is outside the operator''s current scope grant and was not read.
 
     '
   related_tasks:
