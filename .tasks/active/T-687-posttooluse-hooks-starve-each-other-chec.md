@@ -66,7 +66,7 @@ date_finished: null
       evidence (11 instances), and the dispatcher proposal.
 - [x] G-050 lists T-687 in `related_tasks` and its correction block is reconciled with this task's
       findings (the register is the source — T-680 / PL-316).
-- [ ] No change is made to `.claude/settings.json` (B-005, operator-only), and no hook reorder is
+- [x] No change is made to `.claude/settings.json` (B-005, operator-only), and no hook reorder is
       applied — reordering only moves the starvation to whichever stdin reader loses. Recorded as
       a rejected alternative in `## Decisions`.
 
