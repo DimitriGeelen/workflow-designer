@@ -4,7 +4,7 @@ name: "Wear the belt on the write path: _within_repo guards delete but not save,
 description: >
   tools/gallery-serve.py:109 _within_repo documents itself as belt-and-braces over ID_RE, but is referenced only at :120 on the delete path. The /api/save write path has no containment check at all. T-681 S2 demonstrated behaviorally that widening ID_RE alone puts a write outside the version store (HTTP 200, escaped=True). Apply the guard on the save path so containment does not rest on a single regex.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T17:25:56Z
-last_update: 2026-09-05T17:25:56Z
+last_update: 2026-09-07T21:02:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -35,14 +35,52 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`/api/save` writes five targets — version snapshot, thumbnail, version index, canonical
+corpus copy, served copy — every one of them derived from the request's `id`, and none of
+them containment-checked. The only fence is `ID_RE`. T-681 S2 demonstrated behaviourally
+that widening `ID_RE` alone puts a write outside the version store (HTTP 200, `escaped=True`).
+
+**The task description proposed applying `_within_repo` to the save path. That is the wrong
+guard, and building it would have reproduced PL-318 one level up.** `_within_repo` asserts
+containment in REPO. The save path's targets live in *specific roots inside* REPO, so an id
+of the shape `../.claude/settings` resolves **inside** REPO — passing `_within_repo` — while
+escaping the version store entirely and landing on enforcement config that B-005 protects.
+A guard that admits the write it exists to refuse is decoration.
+
+The fence therefore has to be per-target containment against each target's **own** intended
+root, not against the repo. `DOCROOT` is operator-overridable (`--docroot`, :69), so the
+served copy's root is `DOCROOT/rendered` and not a repo path at all — a blanket repo check
+would also produce a *false refusal* on a legitimate configuration.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A single containment primitive `_within(path, root)` exists, and `_within_repo` is
+      expressed in terms of it — one implementation of containment, not two.
+      *(gallery-serve.py:109 `_within`, :119 `_within_repo` returns `_within(path, REPO)`.)*
+- [x] Every `/api/save` write target is containment-checked against its own intended root:
+      version snapshot, thumbnail and `index.json` against `.editor-versions/<id>`; corpus
+      copy against `examples/aef-processes/rendered`; served copy against `<DOCROOT>/rendered`.
+      *(`_save_targets()` pairs each path with its root; the version dir covers snapshot,
+      thumbnail and index since all three are written inside it under fixed `vN.*` names.)*
+- [x] Containment is checked **before any bytes are written**, and a failure refuses the
+      whole save (HTTP 400) leaving no partial write — the arc's "refused rather than run".
+      *(Guard sits after the bpmn check and before `ts = …`; the first write is the
+      `os.makedirs(vdir)` that follows it. Live case `no-write-escaped-the-version-store`
+      asserts nothing landed.)*
+- [x] Regression test proves the discriminating case: an id that resolves **inside REPO but
+      outside the version store** is REFUSED. This is precisely the write `_within_repo`
+      would have allowed, so the test distinguishes the real fix from the proposed one.
+      *(`escaping-id-refused-by-per-target-guard` + `within-repo-would-have-allowed-it`:
+      the second asserts every target for `../.claude/settings` passes `_within_repo`.)*
+- [x] Regression test proves the control is not always-red: an ordinary save still returns
+      200 and writes every target. *(`ordinary-id-not-refused-by-guard`,
+      `ordinary-save-still-succeeds` — the latter on the widened server, so the green is
+      not an artefact of ID_RE rejecting everything.)*
+- [x] Regression test proves no false refusal when `DOCROOT` is set outside REPO.
+      *(`docroot-outside-repo-no-false-refusal`: docroot in a separate tmpdir, 200 + file.)*
+- [x] `ID_RE` is unchanged — the containment fix must not rest on tightening the regex it is
+      supposed to be redundant with. *(`id-re-unchanged` greps the original literal.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -76,6 +114,15 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tools/_t683-save-containment-verify.py
+python3 tools/_gallery-save-allowlist-verify.py
+python3 tools/_serve-gallery-verify.py
+python3 tools/_gallery-list-verify.py
+# the guard is WIRED on the save path, not merely defined — that WAS the defect
+grep -q "escape = _escaping_save_target" tools/gallery-serve.py
+# negative leg: containment must not be re-implemented a second time
+test 1 -eq "$(grep -c 'rp.startswith' tools/gallery-serve.py)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -126,6 +173,27 @@ date_finished: null
 
 ## RCA
 
+**Symptom:** `/api/save` accepted a write whose targets escaped the version store. With
+`ID_RE` widened (T-681 S2), a POST with `id: "../.claude/settings"` returned HTTP 200 and
+wrote `v1.bpmn` into the repo's `.claude/settings/` — the enforcement-config directory
+B-005 exists to protect. Reproduced this session against the pre-fix code.
+
+**Root cause:** containment was implemented once and referenced once. `_within_repo` was
+defined at :109 and called only at :120, on the delete path. The write path — five targets,
+all id-derived — had no containment check at all, so the entire fence was one regex.
+
+**Why structurally allowed:** the guard's own docstring claimed belt-and-braces, which made
+the file *read* as defended on both paths. Nothing asserted that the guard was called, and
+a guard that is never called is indistinguishable from a guard that is called and passes.
+The delete path's green test covered the only call site that existed, so coverage looked
+complete. This is PL-318 exactly: a docstring is not defence-in-depth.
+
+**Prevention:** distinct from the fix — a P-011 leg greps that the guard is *wired* on the
+save path (`escape = _escaping_save_target`), and a second leg asserts containment is
+implemented once (`rp.startswith` appears exactly once), so a future path cannot quietly
+grow a parallel weaker check. The regression suite cuts ID_RE deliberately, so the second
+belt is exercised rather than shadowed by the first.
+
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
@@ -175,6 +243,36 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-09-07 — the guard is per-target, not per-repo
+
+- **Chose:** `_within(path, root)` applied to each save target against its own intended
+  root (`.editor-versions`, the corpus dir, `DOCROOT/rendered`).
+- **Why:** the task description's own proposal — "apply `_within_repo` on the save path" —
+  does not hold. Every target for `../.claude/settings` resolves *inside* REPO, so
+  `_within_repo` passes all three while the write escapes the version store and lands on
+  enforcement config. Building what was asked would have produced a guard that admits the
+  exact write it exists to refuse, and it would have tested green. That is PL-318 repeated
+  one level up, by the task written to fix PL-318. The suite now asserts this explicitly
+  (`within-repo-would-have-allowed-it`) so the distinction cannot silently regress.
+- **Rejected:** *(a)* `_within_repo` on the save path — decorative, above. *(b)* Tightening
+  `ID_RE` to forbid dots and slashes — that is bracing the braces; the entire point is that
+  containment must survive the regex being wrong, and a P-011 leg now pins ID_RE unchanged.
+  *(c)* Checking each of the five write targets individually — snapshot, thumbnail and index
+  all live inside the version dir under fixed `vN.*` names, so the directory check covers
+  them; enumerating them would imply the filenames were attacker-controlled when they are not.
+
+### 2026-09-07 — the regression test cuts ID_RE deliberately
+
+- **Chose:** run the live cases against a temp copy of the server with `ID_RE` widened.
+- **Why:** `ID_RE` rejects the hostile id before the containment guard is reached, so
+  through the front door the second belt is unreachable and untestable — it would have
+  passed whether or not it was wired. A defence-in-depth layer must be tested with the
+  outer layer broken, or it is being asserted rather than verified. Confirmed separately
+  that the suite goes red against pre-fix code (status 200, `escaped=True`), so it is a
+  control that has actually fired, not one that has only ever been green.
+- **Rejected:** monkeypatching `ID_RE` in-process — the save path runs in a subprocess
+  server, so an in-process patch would not reach it and would have produced a false green.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -191,3 +289,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-683-wear-the-belt-on-the-write-path-withinre.md
 - **Context:** Initial task creation
+
+### 2026-09-07T21:02:37Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -106,11 +106,52 @@ def trash_dir(id_, ts):
     return os.path.join(REPO, '.editor-versions', '_trash', '%s-%d' % (id_, ts))
 
 
-def _within_repo(path):
-    """True iff path resolves inside REPO (traversal guard, PL-020). Belt-and-braces
-    on top of the ID_RE format check — a valid id still shouldn't escape the tree."""
+def _within(path, root):
+    """True iff path resolves inside root (traversal guard, PL-020).
+
+    T-683: the single containment primitive. Both the delete path and the save
+    path go through this — one implementation of containment, not two.
+    """
     rp = os.path.realpath(path)
-    return rp == REPO or rp.startswith(REPO + os.sep)
+    rr = os.path.realpath(root)
+    return rp == rr or rp.startswith(rr + os.sep)
+
+
+def _within_repo(path):
+    """True iff path resolves inside REPO. Belt-and-braces on top of the ID_RE
+    format check — a valid id still shouldn't escape the tree."""
+    return _within(path, REPO)
+
+
+def _save_targets(id_):
+    """Every path /api/save writes, paired with the root it must stay inside (T-683).
+
+    REPO is deliberately NOT the root here. The save path's targets live in
+    specific roots *inside* REPO, so an id like '../.claude/settings' resolves
+    inside REPO — it would pass _within_repo — while escaping the version store
+    entirely and landing on enforcement config. Checking against the repo would
+    admit exactly the write this guard exists to refuse (PL-318).
+
+    DOCROOT is operator-overridable (--docroot) and may legitimately sit outside
+    REPO, so the served copy is checked against DOCROOT/rendered, not the repo.
+    """
+    vdir = versions_dir(id_)
+    versions_root = os.path.join(REPO, '.editor-versions')
+    corpus_root = os.path.join(REPO, 'examples', 'aef-processes', 'rendered')
+    served_root = os.path.join(DOCROOT, 'rendered')
+    return [
+        (vdir, versions_root),
+        (os.path.join(REPO, 'examples', 'aef-processes', 'rendered', '%s.bpmn' % id_), corpus_root),
+        (os.path.join(DOCROOT, 'rendered', '%s.bpmn' % id_), served_root),
+    ]
+
+
+def _escaping_save_target(id_):
+    """First (path, root) pair that escapes its root, or None if all are contained."""
+    for path, root in _save_targets(id_):
+        if not _within(path, root):
+            return path, root
+    return None
 
 
 def archive_move(src, dst):
@@ -619,6 +660,16 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {'ok': False, 'error': 'invalid id (need ^[a-z0-9][a-z0-9_-]*$)'})
         if not bpmn or '<' not in bpmn:
             return self._json(400, {'ok': False, 'error': 'missing/empty bpmn'})
+        # T-683: containment is checked BEFORE any bytes are written, so a save that
+        # would escape is refused whole rather than left half-applied. Belt-and-braces
+        # over ID_RE: if that regex is ever widened, the write is still fenced.
+        escape = _escaping_save_target(id_)
+        if escape is not None:
+            path, root = escape
+            sys.stderr.write("[gallery-serve] REFUSED save for %r: %s escapes %s\n"
+                             % (id_, path, root))
+            return self._json(400, {'ok': False,
+                                    'error': 'save target escapes its store; refused'})
         ts = int(time.time() * 1000)
         note = (payload.get('note') or '').strip()[:200]
 
