@@ -3129,31 +3129,73 @@ concerns:
     implements three detectors (no-progress, ping-pong, generic-repeat) that BLOCK at critical.
 
 
-    It has never run. Bisect, same payload each time:
-
-    - `node lib/ts/dist/loop-detect.js`            -> records (works)
-
-    - `bash agents/context/loop-detect.sh`         -> records (works)
-
-    - `fw hook loop-detect`                        -> records NOTHING
-
-    Counter says loop-detect fired 341 times. .context/working/.loop-detect.json has ONE entry, 16
-    hours old, written at 00:34 immediately after post-compact-resume.sh deleted the file — and
-    that entry reads toolName `unknown`, argsHash `unknown:44136fa355b3678a`, which is SHA-256 of
-    the literal string `{}`. Both fields absent. The detector reads /dev/stdin and exits 0 on empty
-    input (fail open), so 340 fires recorded nothing at all.
+    It does not run in production. Counter says loop-detect fired 341 times (400 by end of
+    session). .context/working/.loop-detect.json held ONE entry, 16 hours old, reading toolName
+    `unknown`, argsHash `unknown:44136fa355b3678a` — SHA-256 of the literal string `{}`, i.e. both
+    payload fields absent. The detector reads /dev/stdin and exits 0 on empty input (fail open), so
+    the remaining fires recorded nothing at all. Across the session the counter advanced 341 -> 400
+    (59 fires) and gained ZERO organic entries; the only new entries were three deliberate probes.
 
 
-    The dispatcher at bin/fw:7039 was changed from `exec bash "$_hook_script"` to run-and-capture
-    (`bash "$_hook_script"; _hook_rc=$?`) by T-1628 so that hook exit codes could be recorded as
-    telemetry. The telemetry works — that is where the 341 comes from. The payload does not
-    survive.
+    CORRECTION 2026-09-07, same session — TWO CLAIMS ORIGINALLY FILED HERE WERE WRONG.
 
 
-    This is PL-306 exactly ("BEING WIRED IS NOT BEING WATCHED") and PL-317 ("a control that cannot
-    go red for its own reasons"): every health surface reports this hook as firing and healthy. The
-    fire counter is the ONLY signal, and it measures invocation, not function. Note the shape —
-    the instrumentation added to make hooks observable is what broke the hook it observes.
+    (1) WITHDRAWN: "`fw hook loop-detect` records NOTHING". The bisect that produced it was
+    INVALID. `fw hook` re-resolves PROJECT_ROOT from cwd and exports it (bin/fw:7039, "Resolves
+    FRAMEWORK_ROOT from symlink, PROJECT_ROOT from cwd"), overriding the PROJECT_ROOT=<scratch>
+    the test set. The write therefore landed in the REAL project state file while the test watched
+    the scratch file and saw no change. Re-tested with both files instrumented: `fw hook
+    loop-detect` DOES deliver stdin and DOES record (real file 3 -> 4 entries, containing the probe).
+
+
+    (2) WITHDRAWN: the T-1628 exec->run-and-capture attribution, and with it the line "the
+    instrumentation added to make hooks observable is what broke the hook it observes". It was a
+    narrative built on (1). `fw` does not consume stdin at all — verified directly: a payload piped
+    through `fw version` survives intact to a following `cat`.
+
+
+    ACTUAL ROOT CAUSE, proven 2026-09-07:
+
+
+    .claude/settings.json registers SEVEN PostToolUse hooks. Three carry an empty matcher (fire on
+    every tool) and they run in order: index 0 `checkpoint post-tool`, index 3 `loop-detect`,
+    index 6 `audit-task-tools`.
+
+
+    agents/context/checkpoint.sh:278 reads `HOOK_INPUT=$(cat 2>/dev/null || true)` — a bare `cat`
+    that drains ALL of stdin. Running first, it consumes the payload; every stdin-reading hook
+    registered after it receives an empty stream and fails open.
+
+
+    Proof, same payload both runs, real state file instrumented:
+
+    - `echo <payload> | { HOOK_INPUT=$(cat); fw hook loop-detect; }`  -> 4 entries, NO CHANGE
+
+    - `echo <payload> | fw hook loop-detect`                          -> 5 entries, RECORDED
+
+    The only difference is a preceding `cat`, which is exactly checkpoint.sh:278.
+
+
+    SCOPE: this starves loop-detect (index 3) and audit-task-tools (index 6), and any future
+    stdin-reading PostToolUse hook. It is a framework DESIGN defect, not a one-line bug: stacking
+    multiple stdin-consuming hooks on one event assumes a stream each of them can read, and the
+    first reader wins. The durable fix is a single PostToolUse dispatcher that reads stdin once and
+    passes the payload to each sub-hook by argument or environment — not a patch to `cat`.
+
+
+    CAVEAT, stated because it is load-bearing: the proof simulates a SHARED stdin stream across
+    sequential hooks. If Claude Code instead gives each hook its own stdin, checkpoint cannot be
+    starving loop-detect and the production cause is still open. The evidence for sharing is the
+    400-fires-to-0-organic-records arithmetic, which no other hypothesis currently explains. The
+    discriminating test — does any hook after index 0 ever receive a payload in production — has
+    NOT been run.
+
+
+    What survives all three corrections, unchanged and independently measured: PL-306 ("BEING WIRED
+    IS NOT BEING WATCHED") and PL-317 ("a control that cannot go red for its own reasons"). Every
+    health surface reports this hook as firing and healthy. The fire counter is the only signal and
+    it measures invocation, not function — which is precisely why a wrong cause could be filed
+    against it twice without anything contradicting it.
 
 
     Vendored-framework defect (G-008 applies: fixable in-tree, must be upstreamed). Every project
