@@ -838,6 +838,124 @@ automatic is also what stops the register filling with recommendations nobody wi
 - **Q4. Does a tier assessment expire?** A tier justified by evidence from a system that has since
   changed is a stale claim. Nothing currently ages it out.
 
+## 5l. Operator response on IW-11 — telemetry, and a concession
+
+Operator, 2026-09-07, responding to §5k. Six points, and the second one corrects me.
+
+### 1. The mechanism is not wrong, its follow-up is
+
+> *"the mechanism might be good, but it needs strengthening, enhancing, and better implementation
+> of follow-up activities."*
+
+Accepted, and it is a better reading of the 319/0 measurement than mine. I wrote *"the answer must
+not be another ladder of the same shape"*, which points at the ladder. The operator points at the
+**rung that was never built**: detection, ranking and recommendation all work; nothing acts. The
+defect is not the shape, it is that the loop terminates in a queue nobody drains. Redesigning the
+detector would have fixed the part that already works.
+
+### 2. CONCEDED — null results are data
+
+> *"you say we don't record anything about anything that doesn't do anything. I actually disagree.
+> If we fire something off and it has no output, I want to know that. I also want to know if I have
+> a success. I want to know if it succeeds in an hour, or if it just fades into darkness."*
+
+The operator is right and my option D was wrong as stated. I collapsed two different rules into one:
+
+| | rule | verdict |
+|---|---|---|
+| **recording** | do not record absences | **WRONG — withdrawn** |
+| **inference** | do not treat an absence as evidence of safety | stands |
+
+Recording is not inference. An absence is a first-class observation — *"fired, produced nothing"* is
+a fact worth storing, and so is *"succeeded, took an hour"*. Withholding it does not protect the
+tier logic; it just blinds everything else. Constraint (1) from §5k narrows to its inference half:
+**record everything; lower a tier only on a positive guard-pass.** Latency belongs in the record
+too — the operator's *"succeeds in an hour, or just fades into darkness"* is the distinction between
+slow, dead, and never-started, and no boolean carries it.
+
+### 3. Expected-but-not-executed is an alarm, not a silence
+
+> *"if there are features or steps that should be executed, I expect them to be executed. If I am
+> not getting data or telemetry showing that they are executed, that warrants an investigation."*
+
+This is the strongest structural idea in the message, and it is free: **the model already declares
+what should execute.** A workflow contract states the steps; the ledger states what actually ran;
+the gap between them is a signal that requires no new declaration. Two useful outcomes, both named
+by the operator: strengthen a process that was designed but is not working, or discover it has no
+value and **recommend decommissioning**. Dead-feature detection falls out of the same subtraction.
+
+### 4. The repetition cycle — and a measurement that proves the point within the hour
+
+> *"I regularly see that you repeat something ten times and then repeat it again ten times. I want
+> us to have a quick recurring cycle that we learn from directly so we can act on it."*
+
+I went looking for whether anything watches for this. Something does, and it is dead. Full detail in
+**G-050**; the short form:
+
+- `.claude/settings.json` registers `fw hook loop-detect` on **PostToolUse, empty matcher** (every
+  tool). `lib/ts/src/loop-detect.ts` implements three detectors — no-progress, ping-pong,
+  generic-repeat — and **BLOCKS at critical**. Exactly the mechanism the operator just asked for.
+- Bisected with one identical payload: `node dist/loop-detect.js` records. `bash
+  agents/context/loop-detect.sh` records. **`fw hook loop-detect` records nothing.**
+- The counter says loop-detect has fired **341 times**. The state file holds **one** entry, sixteen
+  hours old, and it reads `toolName: "unknown"`, `argsHash: "unknown:44136fa355b3678a"` — SHA-256
+  of the literal string `{}`. Both payload fields absent. The detector fails open on empty stdin.
+- Cause: `bin/fw:7039` was changed from `exec bash "$_hook_script"` to run-and-capture so that hook
+  exit codes could be recorded as telemetry (T-1628). **The telemetry is where the 341 comes from.
+  The payload does not survive.** The instrumentation added to make hooks observable is what broke
+  the hook it observes.
+
+**This is the operator's point 3 executing on itself.** A step that should run, no telemetry showing
+it ran, investigated → live defect. The principle earned its keep before it was written down. And
+the failure class is one we have already named twice: PL-306 *"being wired is not being watched"*,
+PL-317 *"a control that cannot go red for its own reasons"*. Every health surface reports this hook
+as firing and healthy, because the only signal is a fire counter, and a fire counter measures
+invocation, not function.
+
+> **PL-320 (candidate): a fire counter is not a function check.** Counting invocations of a control
+> proves it was called, and proves nothing about whether it did anything. Where a control has state,
+> the health check must assert the state moved — not that the control was entered.
+
+### 5. Recall on failure, not only on focus
+
+> *"I would invoke a query of a vector database after two, three, or four failures to find out how
+> other times we resolved that."*
+
+Partly built, wired to the wrong trigger. `agents/context/lib/memory-recall.py` does hybrid search
+(T-245) over learnings, patterns and decisions — but it is called by **`fw context focus`** and
+`fw recall`, i.e. when you *start*, not when you *fail*. The operator's trigger is the valuable one:
+N consecutive failures on the same thing is the moment the prior resolution is worth most, and it is
+precisely when nobody thinks to run `fw recall`. AEF has already grilled the embeddings question
+(`docs/reports/T-1717-embeddings-strategy-grill.md`), so the substrate question may be settled
+upstream — worth asking them rather than re-deciding.
+
+### 6. Cross-instance telemetry, scored and actioned
+
+> *"this data doesn't come from a single project or a single AF instance… If we then do something
+> with that data, we could use a value estimator or a points estimator to assess, value, and score
+> them, and then action them as a follow-up. We must do something with that data."*
+
+The shape already exists in one place: **`agents/termlink/bvp-estimator/estimator.py`** — a value
+estimator that lives under the *transport* agent, which is what a cross-instance scorer would need
+to be. Note the sovereignty boundary this must respect (T-1924): the estimator may *propose*
+(`bvp_scores` proposed, advisory), and only the operator confirms. That is the same
+agent-proposes/human-ratifies gate as `fw promote` — **and `fw promote` is the one measured at
+0/319.** So point 6 inherits point 1's problem exactly, and must not be designed without answering
+it: what drains the queue?
+
+### Scope note — IW-11 has outgrown T-685
+
+T-685 asks one question: *does authority live in the box or the lane?* IW-11 now carries an outcome
+signal schema, a run ledger, non-execution detection, a repetition cycle, failure-triggered recall,
+and cross-instance telemetry scoring. That is a subsystem, not a sub-question, and framework rule
+**"one inception = one question"** says bundling them creates an all-or-nothing decision on
+independent explorations.
+
+**Recommendation:** IW-11 splits out as its own inception — *"how does executed-workflow telemetry
+feed back into governance?"* — and T-685 keeps only the part it actually needs to answer: **if a tier
+lives in the box, what revises it, and who ratifies the revision?** That question is answerable
+inside T-685. The rest is a second arc, and G-050 is a build task that should not wait for either.
+
 ## 6. Tier and authority are not the same axis (IW-3, answered)
 
 | | question | values | scope |
@@ -971,3 +1089,30 @@ only in conversation. Open questions IW-1..IW-6 filed on the task.
 unpinned parts of proposal B — starting with IW-1 (*what is a domain, and is `customer` the same
 kind of thing as `system`?*) and IW-2 (*who sets the tier, if not the person drawing the
 diagram?*).
+
+*(Segments from 2026-09-06 onward are captured in-section: operator's tier/lock ruling §5c–§5d, the
+fourth axis §5e, the philosophical pass §5f, the point-by-point response §5g, the lock boundary §5h,
+worked examples §5i.)*
+
+**2026-09-07 — agent, resuming after compaction:** opened IW-11 by measuring rather than asking
+(§5k). Found `fw promote status` = 319 learnings, 41 ready, **0 promoted** — the framework already
+runs the loop IW-11 asks for, and its closing rung has never been used.
+
+**2026-09-07 — operator, six points (§5l verbatim):** the mechanism needs *strengthening*, not
+replacing; **null results are data** — *"if we fire something off and it has no output, I want to
+know that… whether it succeeds in an hour, or just fades into darkness"*; expected-but-not-executed
+warrants investigation and may end in decommissioning; a fast repetition-learning cycle, because
+*"I regularly see that you repeat something ten times and then repeat it again ten times"*; query a
+vector database after 2–4 failures for how it was resolved before; and aggregate telemetry across AF
+instances, score it with a value estimator, and **act on it** — *"we must do something with that
+data."*
+
+**Agent concession:** option D from §5k was wrong as stated. I had conflated *do not record
+absences* with *do not infer safety from absences*. The first is withdrawn; the second stands.
+
+**Finding produced by the dialogue, not brought to it (second time this has happened):** chasing
+the operator's repetition point uncovered **G-050** — the loop detector is registered on every
+PostToolUse call, has fired **341 times**, and has recorded exactly one entry, whose payload fields
+are both absent. `fw hook` eats the stdin payload. The operator's own principle #3 — *no telemetry
+showing it executed warrants an investigation* — found a live defect within the hour of being
+stated, in the control that was supposed to catch the behaviour they were complaining about.

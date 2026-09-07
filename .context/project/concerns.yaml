@@ -3104,3 +3104,61 @@ concerns:
     '
   related_tasks:
   - T-685
+
+- id: G-050
+  type: gap
+  status: watching
+  severity: high
+  title: The loop detector has fired 341 times and recorded nothing — `fw hook` consumes the
+    PostToolUse payload before the hook script reads stdin, so every repetition detector is inert
+  detected: 2026-09-07
+  origin_task: T-685
+  decision_trigger: 'A PostToolUse fire through `fw hook loop-detect` appends an entry to
+    .context/working/.loop-detect.json with the real tool_name (not `unknown`), and a regression
+    test asserts that a payload piped through `fw hook <name>` reaches the hook script''s stdin
+    byte-identical. Then close G-050.
+
+    '
+  detail: 'Measured 2026-09-07 while grilling T-685 IW-11 (the operator asked for a fast
+    repetition-learning cycle, having observed "you repeat something ten times and then repeat it
+    again ten times").
+
+
+    The mechanism already exists and is wired: .claude/settings.json registers `fw hook
+    loop-detect` on PostToolUse with an empty matcher (all tools), and lib/ts/src/loop-detect.ts
+    implements three detectors (no-progress, ping-pong, generic-repeat) that BLOCK at critical.
+
+
+    It has never run. Bisect, same payload each time:
+
+    - `node lib/ts/dist/loop-detect.js`            -> records (works)
+
+    - `bash agents/context/loop-detect.sh`         -> records (works)
+
+    - `fw hook loop-detect`                        -> records NOTHING
+
+    Counter says loop-detect fired 341 times. .context/working/.loop-detect.json has ONE entry, 16
+    hours old, written at 00:34 immediately after post-compact-resume.sh deleted the file — and
+    that entry reads toolName `unknown`, argsHash `unknown:44136fa355b3678a`, which is SHA-256 of
+    the literal string `{}`. Both fields absent. The detector reads /dev/stdin and exits 0 on empty
+    input (fail open), so 340 fires recorded nothing at all.
+
+
+    The dispatcher at bin/fw:7039 was changed from `exec bash "$_hook_script"` to run-and-capture
+    (`bash "$_hook_script"; _hook_rc=$?`) by T-1628 so that hook exit codes could be recorded as
+    telemetry. The telemetry works — that is where the 341 comes from. The payload does not
+    survive.
+
+
+    This is PL-306 exactly ("BEING WIRED IS NOT BEING WATCHED") and PL-317 ("a control that cannot
+    go red for its own reasons"): every health surface reports this hook as firing and healthy. The
+    fire counter is the ONLY signal, and it measures invocation, not function. Note the shape —
+    the instrumentation added to make hooks observable is what broke the hook it observes.
+
+
+    Vendored-framework defect (G-008 applies: fixable in-tree, must be upstreamed). Every project
+    on this framework has an inert loop detector and no way to know.
+
+    '
+  related_tasks:
+  - T-685
