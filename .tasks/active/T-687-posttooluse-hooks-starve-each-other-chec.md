@@ -44,9 +44,16 @@ date_finished: null
       asserts loop-detect's state file has GROWN in step with its fire counter, and goes red when
       the counter advances while the state file does not. Counting fires is what let this hide
       (PL-320: a fire counter is not a function check).
-- [ ] The check is proven on the live defect: run against the current tree it reports the
-      starvation (fires advanced, entries did not) — i.e. it can go RED for the real reason,
-      not merely exit 0 (PL-317).
+- [ ] The check is proven on the real defect by REPLAYING the two states measured today
+      (baseline fires=341 / newest_ts=1788734058365; later fires=400 / newest_ts unchanged) —
+      it must exit 2 with the starvation message. Replay rather than a live run because this
+      session's own probes wrote into the real state file and un-froze it; saying "run it live"
+      would have been an AC I could only pass by pretending. Recorded here rather than quietly
+      softened.
+- [ ] A genuine LIVE confirmation: baseline recorded at fires=420, then re-run after >= 20
+      further organic fires in this same session. If starvation is real it exits 2 on live data
+      with no replay; if it exits 0 the shared-stdin theory is wrong and G-050's cause reopens.
+      Either outcome is recorded — this is the discriminating test we can run ourselves.
 - [ ] The check is proven against a healthy state too: given a state file that grew in step with
       the counter, it reports green. A control with only one reachable verdict is not a control.
 - [ ] The upstream report is written to `docs/reports/T-687-posttooluse-stdin-starvation.md` and
@@ -195,6 +202,31 @@ python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
 -->
 
 ## Decisions
+
+### 2026-09-07 — Reject the hook reorder; build detection here, send the fix upstream
+
+**Alternatives considered:**
+
+1. **Reorder the PostToolUse hooks** so `loop-detect` runs before `checkpoint`. REJECTED on the
+   merits, not on the gate: whichever stdin reader runs first wins, so this trades a repetition
+   detector for the context-budget guard. It relocates the starvation rather than removing it.
+   (It is also a `.claude/settings.json` change, which B-005 reserves for the operator — but the
+   reason for rejecting it is that it does not work.)
+2. **Patch `checkpoint.sh:278` to stop consuming stdin.** REJECTED: checkpoint genuinely needs the
+   payload — it reads `transcript_path` from it (T-2377) to find the session transcript in
+   worktrees and background jobs. Removing the read breaks budget measurement. And nothing can put
+   a consumed stream back for the next reader.
+3. **Single PostToolUse dispatcher** that reads stdin once and passes the payload to each sub-hook
+   by argument or environment. CORRECT, and NOT TAKEN HERE: it is a framework architecture change,
+   it belongs upstream, and building it locally would add a 47th entry to a divergence register
+   whose delivery state is unmeasurable (see T-685 §5m).
+4. **Build a function check locally.** CHOSEN. It is the part that is ours: it closes the
+   detection blindness (PL-320) rather than the defect, it is small, and it is the thing that
+   would have caught this on day one in any of the eleven instances.
+
+**Rationale:** mitigation is not prevention (G-019). G-050 stays `watching` until a fix lands
+upstream. What we can own is that the next such hook cannot rot silently for its whole deployed
+life while its counter reports it healthy.
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.

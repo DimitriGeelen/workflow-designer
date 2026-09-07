@@ -3198,6 +3198,12 @@ concerns:
     against it twice without anything contradicting it.
 
 
+    T-687 carries the diagnosis, the function check (tools/_t687-hook-function-check.py) and the
+    upstream report (docs/reports/T-687-posttooluse-stdin-starvation.md). Reported to AEF on
+    agent-chat-arc offset 1169, 2026-09-07. G-050 stays WATCHING until a fix lands upstream — the
+    local function check is DETECTION, not prevention, and mitigation is not closure (G-019).
+
+
     Vendored-framework defect (G-008 applies: fixable in-tree, must be upstreamed). Every project
     on this framework has an inert loop detector and no way to know.
 
@@ -3329,3 +3335,4 @@ concerns:
     '
   related_tasks:
   - T-685
+  - T-687
