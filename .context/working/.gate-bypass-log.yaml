@@ -986,3 +986,21 @@ cat >> .context/handovers/LATEST.md <<EOF
     limited to the three data points described to the operator (entry count, unknown count, last
     entry timestamp). NOTHING was written to any peer project; no other peer file was read; no
     termlink dispatch into a peer session was used. Result recorded in G-050.'
+- timestamp: '2026-09-07T15:34:00Z'
+  task: 'T-685'
+  flag: 'T-559-project-boundary (read-side) — scope extension 1'
+  caller: 'operator, in-session'
+  reason: 'Operator answered "1" to an explicit two-option choice authorising a read of peer
+    .agentic-framework/VERSION files, to test whether G-050 is a version regression. Read tool
+    only, VERSION file only, 10 instances. Result: hypothesis DISPROVED (the one working instance
+    sits mid-range). Recorded in G-050.'
+- timestamp: '2026-09-07T15:48:00Z'
+  task: 'T-685'
+  flag: 'T-559-project-boundary (read-side) — scope extension 2'
+  caller: 'operator, in-session'
+  reason: 'Operator answered "1" to an explicit two-option choice authorising a read of peer
+    .claude/settings.json, to test whether the working instance registers the hook differently.
+    Read tool only. Only ONE file was read (0501-opencode-playground, the single working instance)
+    rather than the full ten the grant allowed — it was decisive on its own and the rest would have
+    spent context for no additional evidence. Result: hypothesis DISPROVED (registration is
+    identical). Recorded in G-050.'

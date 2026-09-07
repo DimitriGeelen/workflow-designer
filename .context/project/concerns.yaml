@@ -3243,11 +3243,46 @@ concerns:
 
 
     2. THE DISCRIMINATOR IS NOT THE FRAMEWORK VERSION. Something else separates 0501 from the other
-    ten. Leading hypothesis (UNTESTED): 0501''s .claude/settings.json registers the hook by a
-    different command form — e.g. invoking node or the hook script directly rather than through
-    `fw hook loop-detect` — which would match the local bisect exactly, since both of those paths
-    record and only the `fw hook` path does not. Testing it needs ONE more file per instance
-    (.claude/settings.json), which is outside the operator''s current scope grant and was not read.
+    ten.
+
+
+    CONFIG SWEEP 2026-09-07 (third operator-authorised read, .claude/settings.json). Hypothesis:
+    0501 registers the hook by a different command form (direct node/script invocation rather than
+    `fw hook`), which would explain it via the local bisect. DISPROVED. 0501 registers it
+    IDENTICALLY — PostToolUse, matcher "", command `…/.agentic-framework/bin/fw hook loop-detect`
+    (settings.json:183-189). Same event, same empty matcher, same dispatcher. The only textual
+    difference is ${CLAUDE_PROJECT_DIR} vs our absolute path, which resolves to the same binary.
+
+
+    Two hypotheses now dead: version cutoff, and config divergence. What remains is the one the
+    local bisect already isolated, and the fleet data now CORROBORATES rather than contradicts it:
+
+
+    - `fw hook loop-detect` at 1.6.354 (ours) does NOT deliver stdin to the hook script. Proven
+    locally by three-step bisect: direct node records, direct bash script records, `fw hook`
+    records nothing.
+
+    - The IDENTICAL registration at 1.6.80 (0501) produced 30 well-formed entries with real tool
+    names and 30 distinct argument hashes. The full path worked end-to-end.
+
+    - Therefore the break is in framework code between 1.6.80 and 1.6.354, in `fw hook` dispatch or
+    a callee. That is a bisect with both endpoints named — and AEF holds the version history to
+    bisect it; we do not.
+
+
+    NOTE — the fleet shows TWO DISTINCT SIGNATURES, and conflating them was the error behind both
+    dead hypotheses:
+
+    - SIGNATURE A, payload LOST (nothing recorded at all): ours. 341 fires, 1 entry.
+
+    - SIGNATURE B, payload ARRIVED BUT FIELDLESS (recorded as `unknown`): the entries visible in
+    1.6.15 / 1.6.29 / 1.6.145 / 1.6.216. stdin reached the detector; `tool_name` and `tool_input`
+    were absent from the JSON it carried — a payload-SHAPE problem, plausibly a Claude Code client
+    contract change, and a DIFFERENT defect from ours.
+
+    An instance can exhibit B without exhibiting A. Reading "10 of 11 broken" as one fault is what
+    produced the version-cutoff hypothesis. G-050 is signature A. Signature B needs its own entry
+    if it is still live.
 
     '
   related_tasks:
