@@ -956,6 +956,89 @@ feed back into governance?"* — and T-685 keeps only the part it actually needs
 lives in the box, what revises it, and who ratifies the revision?** That question is answerable
 inside T-685. The rest is a second arc, and G-050 is a build task that should not wait for either.
 
+## 5m. Where does a framework capability get built? — the balance, measured
+
+Operator, 2026-09-07, on splitting IW-11 out:
+
+> *"it is a built-in engineering framework capability… It needs to be incorporated in the overall
+> framework so it gets vendored in other project instances too. Consider how we can get a good
+> balance there that we don't just kick it over there and wait and see if anything turns out. But
+> also… we start with a complete isolation and nothing happens in AEF."*
+
+Two failure modes, correctly named. **Throw it over the wall:** we lose the timing, and the evidence
+that motivates the design does not live where the code would be written. **Build it locally:** it
+works here, propagates nowhere, and diverges until someone upstream builds a second one.
+
+### The measurement: one of those two failure modes is already the status quo
+
+We have a sanctioned local-first lane. G-008 permits fixing the vendored `.agentic-framework/`
+in-tree and upstreaming; `.vendor-divergence.yaml` declares every diverged path against baseline
+`ebf0c721` (T-276, framework v1.6.763); and the audit asserts every divergence is declared —
+`[PASS] Vendor divergence: all 50 diverged path(s) declared`.
+
+Contents, measured 2026-09-07 — 62 entries:
+
+| `upstream:` | count | meaning |
+|---|---|---|
+| **`fix`** | **46** | a repair that should go upstream |
+| `vendoring-repair` | 10 | local re-vendor damage |
+| `local-config` | 4 | deliberately never upstream |
+| `superseded` | 2 | upstream changed underneath us |
+
+Schema fields, complete: `kind`, `path`, `reason`, `task`, `upstream`, `superseded_by`,
+`superseded_changes`.
+
+**There is no delivery state.** No `delivered`, no `upstream_ref`, no date, nothing. Forty-six fixes
+are marked as belonging upstream and the register cannot express whether a single one ever got
+there. The two `superseded` entries are not deliveries — they record upstream moving on *without*
+our fix.
+
+### Three registers, one defect, escalating
+
+| register | measured today | can it report its own emptiness? |
+|---|---|---|
+| `fw promote` | 319 learnings, 41 ready, **0 promoted** | yes — it prints the 0 |
+| loop-detect (G-050) | **341 fires, 0 records** | no — the fire counter reads healthy |
+| vendor divergence | **46 fixes queued, delivery unmeasurable** | **no — the schema has no terminal state** |
+
+The third is the worst of the three. `fw promote` at least *says* zero. The divergence register
+cannot say anything, because "delivered" was never a value it could hold. It is not an empty queue;
+it is an unmeasurable one, and it passes its audit line every single day.
+
+> **PL-321 (candidate): a queue with no terminal state is a landfill with an audit line.** Any
+> register that accepts proposals must carry the state that ends a proposal's life and a measure of
+> throughput to it. Without both, "we'll upstream it later" is not a plan with a schedule — it is a
+> plan with no observable difference from never.
+
+### What this settles about the operator's question
+
+The balance is not a choice between the two failure modes. **Local-first is already what we do**
+(46 fixes deep), so "build it in the vendored copy and upstream later" is not a proposal — it is a
+description of the status quo, and the status quo has an unmeasured exit. Any plan of that shape is,
+on today's evidence, a plan to build it here and leave it here.
+
+So the balance needs the exit instrumented before it carries anything as large as a telemetry
+subsystem. Recommended shape, split by **coupling to AEF** rather than by size:
+
+1. **G-050 — fix in the vendored copy now, and use it as a probe of the upstream channel.** A
+   one-line stdin defect with a three-step bisect and a 341-vs-1 counter is the most
+   uncontroversial patch we will ever have. If *this* cannot reach upstream, we learn the channel
+   is dead **before** betting a subsystem on it. Cheap, and informative whichever way it goes.
+2. **Single-instance mechanism — build in `.agentic-framework/`, written as if upstream.** Recording
+   outcomes (including nulls and latency), expected-vs-actual execution detection, the repetition
+   cycle, recall-on-failure: none of these need AEF's agreement, and all of them are framework
+   capability, not product code. Discipline: no 832-specific assumptions, so upstreaming is a copy
+   rather than a rewrite. Declared as divergence like everything else.
+3. **Cross-instance aggregation (operator point 6) — contract first, code second.** This one
+   genuinely cannot be built unilaterally: it needs an agreed envelope before either side writes a
+   line. This is the part that goes to AEF as a proposal, and the only part that should wait.
+4. **Prerequisite for 1–3: give the divergence register a terminal state.** `delivered` +
+   `upstream_ref` + date, and an audit line that goes red on age rather than green on declaration.
+   Without this, lane 2 is complete isolation with paperwork — exactly the outcome the operator
+   named.
+
+Item 4 is small, and it is the one that decides whether the other three are real.
+
 ## 6. Tier and authority are not the same axis (IW-3, answered)
 
 | | question | values | scope |
