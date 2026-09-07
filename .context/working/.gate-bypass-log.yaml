@@ -968,3 +968,21 @@ cat >> .context/handovers/LATEST.md <<EOF
   flag: '--skip-sovereignty'
   caller: 'check_human_sovereignty'
   reason: ''
+- timestamp: '2026-09-05T16:30:47Z'
+  task: 'T-681'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Inception decision: GO'
+- timestamp: '2026-09-07T15:12:00Z'
+  task: 'T-685'
+  flag: 'T-559-project-boundary (read-side)'
+  caller: 'check-project-boundary (PreToolUse:Bash) — blocked, then authorised'
+  reason: 'Tier 2 situational authorisation, operator-granted in-session and scope-limited by them
+    to a READ-ONLY sweep ("I meant read only sweep"). Purpose: establish whether G-050 (inert
+    loop detector) is local to 832 or present across vendored instances. Bash was blocked by T-559
+    with "Outside-path argument … not in read-side allowlist"; the block was substantive, not a
+    text false-positive, so it was surfaced to the operator rather than routed around. Executed
+    with the Read tool ONLY, against .context/working/.loop-detect.json in 10 peer instances, and
+    limited to the three data points described to the operator (entry count, unknown count, last
+    entry timestamp). NOTHING was written to any peer project; no other peer file was read; no
+    termlink dispatch into a peer session was used. Result recorded in G-050.'
