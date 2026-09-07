@@ -4,7 +4,7 @@ name: "Arc-2 boundary enumeration: name every authority the editor can reach, an
 description: >
   S1 (T-681) measured the editor's total reachable surface as seven routes on gallery-serve.py. Two of Arc 2's three named authorities - execution and secret - do not exist in this tree at all. Produce the boundary inventory that says so explicitly, so no later reader mistakes an absence for a defence.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T17:25:37Z
-last_update: 2026-09-05T17:25:37Z
+last_update: 2026-09-07T21:16:52Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -41,8 +41,24 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] `docs/reports/T-682-arc-2-boundary-inventory.md` exists and enumerates **every** route
+      the editor can reach on `gallery-serve.py` — the seven S1 (T-681) measured — each with:
+      method, path, what it mutates, and which containment control (if any) fences it.
+- [ ] The inventory is **generated from the source, not hand-listed**: a script re-derives
+      the route set from `gallery-serve.py` and the report is checked against it, so a route
+      added later cannot quietly stay out of the boundary document.
+- [ ] The two Arc-2 authorities that do **not** exist in this tree — execution and secret —
+      are stated as **ABSENT, not as defended**. Each carries the evidence of absence (what
+      was searched, what would have matched) so a later reader cannot read the empty row as
+      a control. This is the whole point of the task: an absence is not a fence.
+- [ ] A drift check fails when the route set derived from source no longer matches the
+      inventory — added route, removed route, or changed method/path. Absence rows are
+      included in the comparison, so execution/secret appearing in the tree goes red.
+- [ ] The drift check's red path is demonstrated, not assumed: a temp copy of
+      `gallery-serve.py` with one extra route makes it fail (the T-684 lesson — a control
+      that has only ever been green is a claim).
+- [ ] The inventory names, per route, whether its containment is covered by the T-683 fence,
+      by `_within_repo` (delete path), or by nothing — no route is left unclassified.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -191,3 +207,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-682-arc-2-boundary-enumeration-name-every-au.md
 - **Context:** Initial task creation
+
+### 2026-09-07T21:16:52Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
