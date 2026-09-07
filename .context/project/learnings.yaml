@@ -2262,3 +2262,17 @@ learnings:
   date: 2026-09-05
   context: Added via context agent
   application: TBD
+- id: PL-319
+  learning: "A fire counter is not a function check. Counting invocations of a control proves it was entered and nothing about whether it did anything. Where a control has state, the health check must assert the state MOVED. Measured: loop-detect fired 434 times while its state file gained zero organic entries, and every health surface read healthy — which is why a wrong root cause was filed against it TWICE with nothing contradicting it."
+  source: P-001
+  task: T-687
+  date: 2026-09-07
+  context: Added via context agent
+  application: TBD
+- id: PL-320
+  learning: "A queue with no terminal state is a landfill with an audit line. Any register that accepts proposals must carry the state that ends a proposal's life AND a measure of throughput to it. Measured same day: fw promote 319 learnings / 41 ready / 0 promoted (can report its own 0); vendor-divergence 46 fixes marked upstream with NO delivered field in the schema at all (cannot report anything, and passes its audit line daily)."
+  source: P-001
+  task: T-685
+  date: 2026-09-07
+  context: Added via context agent
+  application: TBD
