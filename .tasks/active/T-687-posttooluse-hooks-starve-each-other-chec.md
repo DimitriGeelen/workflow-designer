@@ -40,11 +40,11 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A function check exists for stdin-consuming hooks: `tools/_t687-hook-function-check.py`
+- [x] A function check exists for stdin-consuming hooks: `tools/_t687-hook-function-check.py`
       asserts loop-detect's state file has GROWN in step with its fire counter, and goes red when
       the counter advances while the state file does not. Counting fires is what let this hide
       (PL-320: a fire counter is not a function check).
-- [ ] The check is proven on the real defect by REPLAYING the two states measured today
+- [x] The check is proven on the real defect by REPLAYING the two states measured today
       (baseline fires=341 / newest_ts=1788734058365; later fires=400 / newest_ts unchanged) —
       it must exit 2 with the starvation message. Replay rather than a live run because this
       session's own probes wrote into the real state file and un-froze it; saying "run it live"
@@ -54,12 +54,12 @@ date_finished: null
       further organic fires in this same session. If starvation is real it exits 2 on live data
       with no replay; if it exits 0 the shared-stdin theory is wrong and G-050's cause reopens.
       Either outcome is recorded — this is the discriminating test we can run ourselves.
-- [ ] The check is proven against a healthy state too: given a state file that grew in step with
+- [x] The check is proven against a healthy state too: given a state file that grew in step with
       the counter, it reports green. A control with only one reachable verdict is not a control.
-- [ ] The upstream report is written to `docs/reports/T-687-posttooluse-stdin-starvation.md` and
+- [x] The upstream report is written to `docs/reports/T-687-posttooluse-stdin-starvation.md` and
       carries the proven mechanism, both withdrawn hypotheses and why each was wrong, the fleet
       evidence (11 instances), and the dispatcher proposal.
-- [ ] G-050 lists T-687 in `related_tasks` and its correction block is reconciled with this task's
+- [x] G-050 lists T-687 in `related_tasks` and its correction block is reconciled with this task's
       findings (the register is the source — T-680 / PL-316).
 - [ ] No change is made to `.claude/settings.json` (B-005, operator-only), and no hook reorder is
       applied — reordering only moves the starvation to whichever stdin reader loses. Recorded as
