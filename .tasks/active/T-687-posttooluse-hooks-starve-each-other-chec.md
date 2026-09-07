@@ -50,10 +50,15 @@ date_finished: null
       session's own probes wrote into the real state file and un-froze it; saying "run it live"
       would have been an AC I could only pass by pretending. Recorded here rather than quietly
       softened.
-- [ ] A genuine LIVE confirmation: baseline recorded at fires=420, then re-run after >= 20
+- [x] A genuine LIVE confirmation: baseline recorded at fires=420, then re-run after >= 20
       further organic fires in this same session. If starvation is real it exits 2 on live data
       with no replay; if it exits 0 the shared-stdin theory is wrong and G-050's cause reopens.
       Either outcome is recorded — this is the discriminating test we can run ourselves.
+      **RESULT 2026-09-07, exit 2, no replay:** *"STARVED: loop-detect fired 21 times since
+      baseline and its state file did NOT advance (newest entry still 1788809296688)."* The check
+      held `inconclusive` at 7/14/16/17 fires and only went red once the threshold was genuinely
+      crossed — it did not reach for the alarming verdict early (PL-317's failure mode inverted).
+      Starvation confirmed on live production data; the shared-stdin cause survives.
 - [x] The check is proven against a healthy state too: given a state file that grew in step with
       the counter, it reports green. A control with only one reachable verdict is not a control.
 - [x] The upstream report is written to `docs/reports/T-687-posttooluse-stdin-starvation.md` and
