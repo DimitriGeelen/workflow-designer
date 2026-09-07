@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T17:25:56Z
-last_update: 2026-09-07T21:02:37Z
+last_update: 2026-09-07T21:08:31Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -231,6 +231,25 @@ belt is exercised rather than shadowed by the first.
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+## Evolution
+
+### 2026-09-07 — the filed fix was the wrong fix
+
+- **What changed:** the task was filed as "apply `_within_repo` on the save path". Reading
+  the code showed that guard does not hold: the save targets live in roots *inside* REPO, so
+  an id of `../.claude/settings` passes `_within_repo` while escaping the version store and
+  landing on the enforcement-config directory. The filed plan would have shipped a guard
+  that admits the write it exists to refuse — and would have tested green doing it.
+- **Plan impact:** the deliverable changed from "call an existing function in a second place"
+  to "introduce a per-target containment primitive and re-express the existing guard on it".
+  Bigger than filed, and the suite grew an assertion whose only job is to prove the filed
+  version would have failed (`within-repo-would-have-allowed-it`).
+- **Triggered:** no new task. Two facts worth carrying: `DOCROOT` is operator-overridable, so
+  repo-relative containment produces false refusals on a legitimate config; and a
+  defence-in-depth layer sitting behind a working outer layer cannot be tested through the
+  front door — the suite has to break the outer layer on purpose or it verifies nothing.
+  The second generalises past this file and is a candidate learning for T-684.
 
 ## Decisions
 
