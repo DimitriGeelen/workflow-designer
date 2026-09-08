@@ -4,5 +4,7 @@ project_name: 832-Workflow-designer
 version: 1.6.354
 provider: claude
 initialized_at: 2026-06-04T07:53:19Z
-inception_commit_limit: 4
-upstream_repo: https://github.com/DimitriGeelen/agentic-engineering-framework.git
+inception_commit_limit: 15
+upstream_repo: 
+  https://github.com/DimitriGeelen/agentic-engineering-framework.git
+INCEPTION_COMMIT_LIMIT: 15
