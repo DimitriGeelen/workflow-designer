@@ -38,7 +38,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-30T10:50:31Z
+last_update: 2026-09-08T21:39:42Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -352,6 +352,27 @@ caught one commit later instead of twelve days.
       shape, `di:waypoint` for every edge, and label bounds where a label position is
       persisted. Verified by validating one exported map against the BPMN 2.0 DI schema —
       not by grepping for the element names.
+      **INSTRUMENT BUILT 2026-09-08, AC STILL OPEN — BLOCKED ON T-690.**
+      `tools/_t423-di-schema-validate.py` + the five OMG XSDs vendored under
+      `tools/schemas/bpmn20/` with pinned digests (`PROVENANCE.md`). Self-test **7/7**: every
+      leg watched going red on a purpose-built document, including the real defect's exact
+      shape. Two measurements the AC's own wording forced, and both came back negative:
+      1. **24 of 24 corpus maps are schema-INVALID** — 113 occurrences of
+         `bpmn:extensionElements` emitted after `bpmn:conditionExpression` on
+         `bpmn:sequenceFlow`, which `tBaseElement` forbids. Reproduced in the live exporter at
+         `src/aef-workflow-designer.html:10276-10283`, so it is current, not stale bytes.
+         Filed as **T-690**; not folded in here, because it is not a DI defect.
+      2. **24 of 24 corpus maps carry NO DI AT ALL** — one `bpmndi` occurrence per file, the
+         namespace declaration, and zero `BPMNDiagram` elements. Confirmed independently of the
+         validator by direct grep. The emitter exists and the CDP harnesses above export DI
+         from it; the committed corpus was simply never regenerated. So this AC's artefact must
+         be a freshly exported map, and the corpus regeneration is separate work.
+      **What the schema taught that the AC's phrasing assumed away:** the XSD is stronger than
+      "names present". It already requires `dc:Bounds` on a shape and `minOccurs="2"` on
+      waypoints, so two of the three clauses are enforced by the schema itself. Only the third
+      — label bounds where persisted — plus dangling `bpmnElement` references and empty planes
+      need the structural layer. That split is measured and recorded in the tool's docstring
+      rather than guessed.
 - [x] `aef:position` is **still written**, unchanged, on every node. This is the property
       that keeps step 2 out of T-225's scope: it adds a representation and rewrites nothing.
       A diff of one round-tripped map shows DI added and no existing element removed or

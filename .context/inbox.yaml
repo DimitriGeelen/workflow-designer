@@ -1509,3 +1509,10 @@ observations:
   status: dismissed
   promoted_to: null
   urgent: true
+- id: OBS-337
+  text: "T-690/G-019: no schema-conformance gate exists for exported BPMN. 24 of 24 corpus maps are schema-invalid (113 misplaced extensionElements on sequenceFlow) while every existing check stayed green — all of them are name-based or byte-based, and element ORDER is precisely what a name scan discards. Worse, the _t308 byte-identity baseline pins the invalid bytes, so it would go RED on the fix: a control defending the defect. Detection blindness measurably exceeds 7 days (the corpus predates 2026-08). Mitigation is not the fix; it is wiring tools/_t423-di-schema-validate.py into tests/run-bridge-tests.sh so the class cannot recur undetected."
+  captured: 2026-09-08T21:41:34Z
+  context_task: T-690
+  tags: []
+  status: pending
+  promoted_to: null
