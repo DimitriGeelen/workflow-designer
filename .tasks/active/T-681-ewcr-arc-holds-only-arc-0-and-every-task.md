@@ -64,29 +64,29 @@ can flip the recommendation to NO-GO.
 
 - **IW-1: Does "execution / secret / ledger authority" have a stateable definition on the
   Designer side today, sufficient to enumerate every path the editor has to it?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: answered
+  rationale: Yes — and enumerated, not asserted. T-682 shipped `docs/reports/T-682-arc-2-boundary-inventory.md`, whose route set is AST-derived from `tools/gallery-serve.py`'s own dispatch (`derive_routes`, _t682-boundary-inventory.py:66): 7 routes, 2 of which mutate. Mutation authority is real (`/api/save` writes 5 request-derived targets). Execution authority is present in the file but absent from the request surface (`gallery-serve.py:824`, fixed-arg `subprocess.check_output(['hostname','-I'])`, no route reaches it). Secret authority: 0 matches across 8 named patterns. S1's stated failure branch — "if the list is empty" — did not fire; the list is non-empty and its emptiest rows name what was searched for.
 
 - **IW-2: Can the Arc-2 mutation control be built without introducing a real breach path into
   the shipped tree?** If it cannot, the recommendation flips to NO-GO: a fence with no
   demonstrated red state is not evidence, and shipping a breach to prove one is worse.
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: answered
+  rationale: Yes — the control never touches the shipped tree. `tools/_t684-mutation-control.py` `variant()` (:72-94) writes each mutated server to a fresh tempdir and runs it against a throwaway repo (`fresh_repo()`, :97); the shipped `gallery-serve.py` is read, never written. Its ID_RE is additionally pinned by T-683's `id-re-unchanged` leg, so a fix resting on widening the regex would fail. Measured 2026-09-08: VERDICT GREEN, exit 0 — phase A manufactured breach escaped=True, phase B fence escaped=False. The NO-GO branch did not fire.
 
 - **IW-3: Is a fence installed before the authority it guards exists actually a ratchet, or is
   it a green check that certifies nothing?** The value claim rests on installing the boundary
   while it is cheap; the objection is PL-178 — a leg that has never been red asserts nothing.
-  confidence: 2
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: dissolved
+  rationale: The question's premise did not survive contact. It assumes a fence installed BEFORE the authority exists; T-683 measured the opposite — the authority already existed and was already unguarded. `_within_repo` was referenced only on the delete path while `/api/save` wrote 5 request-derived targets behind ID_RE alone, and T-681 S2 had already put a write outside the version store (HTTP 200, escaped=True). So this was never a fence ahead of its authority; it was a fence arriving late. PL-178's underlying demand — never ship a leg that has not been seen red — was met on its own terms rather than argued: T-683's suite proven red against reconstructed pre-fix code, T-684's phase A manufacturing a visible breach, T-682's drift check proven red by an injected `/api/exfiltrate` route.
 
 - **IW-4: Is AEF's Arc-2 column (service identity, authenticated API, runner-owned state)
   genuinely theirs, or would we need to stub it beyond a test double to prove anything?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Genuinely theirs, and nothing was stubbed. Roadmap §2.1's Arc-2 AEF column is service identity, authenticated API, and runner-owned state; none of the three shipped deliverables touches any of it. All three are falsifiable claims about our own tree — `tools/gallery-serve.py` and its two harnesses — and each runs against a throwaway repo with no counterparty artefact, real or doubled. Confidence 2 rather than 3: this rests on reading the roadmap column and observing what the deliverables import, not on a measurement of AEF's side, which is not ours to measure.
 
 <!-- T-2190 (T-2186 Slice 4): every IW-N question must be disposed before
      --status work-completed. Disposition gate (agents/task-create/update-task.sh
@@ -191,6 +191,18 @@ decomposition *only* after a GO, as separate build tasks under `arc-002`.
 # *.go, Cargo.toml, tsconfig.json, or pom.xml in the build task, plan to add the
 # matching build command (dotnet build / go build / cargo check / tsc --noEmit /
 # mvn compile) to that build task's ## Verification — P-011 only runs what you write.
+#
+# This inception is an exception to "verification is often not needed": the GO produced three
+# shipped controls, so closing it without re-running them would close on the recommendation
+# being believed rather than on it having held. Each command below is one Arc-2 deliverable.
+python3 tools/_t682-boundary-inventory.py
+python3 tools/_t683-save-containment-verify.py
+python3 tools/_t684-mutation-control.py
+# Negative leg: these controls must be CAPABLE of red, not merely green today. Each --self-test
+# sabotages its own control on purpose and exits 0 only if the sabotage was detected — so a 0
+# here means "the red state was reached", which is the opposite of what a green usually means.
+python3 tools/_t682-boundary-inventory.py --self-test
+python3 tools/_t684-mutation-control.py --self-test
 
 ## Recommendation
 
@@ -202,9 +214,34 @@ GO, scoped to Arc 2's Designer-owned half ONLY: prove the browser/editor cannot 
 
 **Evidence:**
 
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+Recorded 2026-09-08, **after** the operator's GO of 2026-09-05. This does not revise the
+recommendation — the GO text above is unchanged. It records what the GO produced, so the
+closure rests on measurements rather than on the recommendation being believed.
+
+The GO authorised Arc-2's Designer-owned half only. It decomposed into three build tasks,
+all now `work-completed`, and each shipped a control that has been **seen red**:
+
+- **T-682** — `tools/_t682-boundary-inventory.py` + `docs/reports/T-682-arc-2-boundary-inventory.md`.
+  Route set AST-derived from the server's own dispatch, so it cannot go stale silently.
+  Measured 2026-09-08: `OK — 7 routes, server and inventory agree, all classified` (exit 0).
+  Red state demonstrated: `--self-test` injects `/api/exfiltrate` and the drift check fails.
+- **T-683** — per-target containment on `/api/save` (`_escaping_save_target`, `gallery-serve.py`).
+  Measured 2026-09-08: **8/8 passed** (exit 0), including the load-bearing leg
+  `within-repo-would-have-allowed-it` — which proves the fix the task originally *specified*
+  (`_within_repo` on the save path) would have admitted the exact write it exists to refuse.
+- **T-684** — `tools/_t684-mutation-control.py`. Measured 2026-09-08: **VERDICT GREEN** (exit 0),
+  phase A manufactured breach `escaped=True`, phase B fence `escaped=False`. Its third verdict
+  INCONCLUSIVE is reachable and proven so by `--self-test`.
+
+Two of the four IW questions were answered against their filed premise rather than in
+agreement with it, which is recorded in the dispositions above: IW-3 dissolved (the authority
+already existed and was unguarded — this was not a fence installed early), and the T-682 filing's
+claim that execution authority "does not exist in this tree at all" was an overclaim, corrected
+to the narrower checkable claim that no route reaches it.
+
+**What this evidence does not cover:** Arcs 1, 3, 5 and 6 remain undecomposed by design, per the
+Scope Fence. Arc-0's exit stays blocked on two counterparty-owned clauses (T-680). Closing this
+task closes the *decision*, not the arc.
 
 ## Decisions
 
