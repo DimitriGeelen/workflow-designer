@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-08T20:41:34Z
-last_update: 2026-09-08T20:41:34Z
+last_update: 2026-09-08T20:48:52Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -225,6 +225,31 @@ python3 tools/_t684-mutation-control.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-09-08 — the task was filed for one omission and found two more
+
+- **What changed:** Filing assumed a single gap: ledger unmeasured. Measuring it surfaced a
+  second, independent defect the ledger question had no obvious connection to — the inventory's
+  `/api/save` row claimed 5 write targets and there are 6. The sixth,
+  `.context/designer/registry.yaml`, is written on both mutating routes. Root cause was not
+  carelessness but a frame mismatch: T-683 enumerated the *id-derived* targets, correct for a
+  containment fence, wrong for an authority inventory that reused the same list.
+- **Plan impact:** The ACs as written covered the ledger section only. Correcting the mutation
+  row was added mid-build because leaving it would have shipped a report whose §1 contradicted
+  its own §4.
+- **Triggered:** No new task — both defects were in scope for one deliverable. PL-323 and FP-019
+  recorded; FP-019 names this as the third instance in this arc.
+
+### 2026-09-08 — my own classifier failed in the direction that matters
+
+- **What changed:** The WRITE/READ/DECL tagger I added to make the ledger list legible tagged
+  `open(os.path.join(d, 'index.json'), 'w', ...)` as READ. The mode lookahead `[^)]*` halted at
+  the paren closing the nested `join(...)` and never reached `'w'`. So a fresh instrument, built
+  in a task about under-reporting, under-reported — 4 writes shown where there were 5.
+- **Plan impact:** "Add a classifier" turned out to need its own test. An unpinned heuristic
+  inside an authority document is the same hazard as the paraphrase that caused the parent bug.
+- **Triggered:** Self-test phase 3 added — 7 cases pinning the classifier, including the exact
+  nested-paren line that failed.
 
 ## Decisions
 
