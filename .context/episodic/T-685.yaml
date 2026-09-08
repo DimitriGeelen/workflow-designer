@@ -1,0 +1,107 @@
+# ============================================================================
+# EPISODIC MEMORY - T-685: Should authority live in the box (tier + owner) with the lane meaning domain, instead of the lane being the sole authority-of-record?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-08T09:23:49Z
+# ============================================================================
+
+task_id: T-685
+task_name: "Should authority live in the box (tier + owner) with the lane meaning domain, instead of the lane being the sole authority-of-record?"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-06T16:39:41Z
+completed: 2026-09-08T09:23:43Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-09-06T18:43:10+02:00
+last_commit: 2026-09-07T21:37:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception — the lane axis carries two things and 12 nodes already have no owner because of it; dialogue captured before it evaporates.. three bodies of knowledge separate the same three axes and none calls the performer a domain; customer and system are different BDAT layers, so IW-1 answers NO.. the box is already 3/4 of IGOE and only the Enabler sits on the lane; operator rules lock is always human, which G-049 records as unenforced.. the collapse map sends both framework and agent to owner:agent, erasing the deterministic/stochastic split the lane already encodes; plus the contract-not-algorithm answer to round-tripping.. deterministic-first with the agent as exception handler, executor kind as a maturity ladder, and the feedback-loop question filed as IW-11.. derivation direction flips at the lock boundary — inference INTO the model is legitimate while drafting and forbidden once published; plus worked examples for principles 3 and 4.. reconcile IW-8/9/10 to answered — the register disagreed with the artifact on questions you had already ruled; plus the resume-here agenda for after compaction.. IW-11 opened by measurement — the framework already runs this loop and it has promoted 0 of 319 learnings, so the answer must not be another ladder of the same shape.. operator rules null results ARE data (concession recorded), and chasing their repetition point found G-050 — loop-detect has fired 341 times and recorded nothing.. the local-first lane is already the status quo (46 fixes queued for upstream) and its exit is unmeasurable — the divergence register has no delivered state.. G-050 fleet sweep — 10 of 11 vendored instances record an empty payload, 1 records correctly, so this is a regression with a surviving control instance.. G-050 version sweep DISPROVES the regression hypothesis — the one working instance sits mid-range, and the defect is live at 1.6.768, the newest framework on the host.. G-050 config sweep disproves hypothesis 2 — the working instance registers the hook identically, and the fleet holds two distinct signatures I had conflated.. G-050 root cause found and two of my own claims withdrawn — checkpoint.sh:278 drains the shared PostToolUse stdin, starving every hook registered after it.. two learnings from this session — a fire counter is not a function check, and a queue with no terminal state is a landfill with an audit line.
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the local-first lane is already the status quo (46 fixes queued for upstream) and its exit is unmeasurable — the divergence register has no delivered state.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/working/.gate-bypass-log.yaml'
+  - 'docs/reports/T-685-lane-semantics-authority-vs-domain.md'
+  - '.tasks/active/T-685-should-authority-live-in-the-box-tier--o.md'
+  - '.tasks/completed/T-687-posttooluse-hooks-starve-each-other-chec.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-06T18:43:10"
+    action: 'T-685: inception — the lane axis carries two things and 12 nodes already have no owner because of it; dialogue captured before it evaporates.'
+  - time: "2026-09-06T19:07:41"
+    action: 'T-685: three bodies of knowledge separate the same three axes and none calls the performer a domain; customer and system are different BDAT layers, so IW-1 answers NO.'
+  - time: "2026-09-06T20:30:45"
+    action: 'T-685: the box is already 3/4 of IGOE and only the Enabler sits on the lane; operator rules lock is always human, which G-049 records as unenforced.'
+  - time: "2026-09-06T21:09:48"
+    action: 'T-685: the collapse map sends both framework and agent to owner:agent, erasing the deterministic/stochastic split the lane already encodes; plus the contract-not-algorithm answer to round-tripping.'
+  - time: "2026-09-06T21:36:04"
+    action: 'T-685: deterministic-first with the agent as exception handler, executor kind as a maturity ladder, and the feedback-loop question filed as IW-11.'
+  - time: "2026-09-06T21:47:32"
+    action: 'T-685: derivation direction flips at the lock boundary — inference INTO the model is legitimate while drafting and forbidden once published; plus worked examples for principles 3 and 4.'
+  - time: "2026-09-06T22:10:34"
+    action: 'T-685: reconcile IW-8/9/10 to answered — the register disagreed with the artifact on questions you had already ruled; plus the resume-here agenda for after compaction.'
+  - time: "2026-09-07T01:27:29"
+    action: 'T-685: IW-11 opened by measurement — the framework already runs this loop and it has promoted 0 of 319 learnings, so the answer must not be another ladder of the same shape.'
+  - time: "2026-09-07T17:01:09"
+    action: 'T-685: operator rules null results ARE data (concession recorded), and chasing their repetition point found G-050 — loop-detect has fired 341 times and recorded nothing.'
+  - time: "2026-09-07T18:49:25"
+    action: 'T-685: the local-first lane is already the status quo (46 fixes queued for upstream) and its exit is unmeasurable — the divergence register has no delivered state.'
+  - time: "2026-09-07T19:39:48"
+    action: 'T-685: G-050 fleet sweep — 10 of 11 vendored instances record an empty payload, 1 records correctly, so this is a regression with a surviving control instance.'
+  - time: "2026-09-07T21:19:28"
+    action: 'T-685: G-050 version sweep DISPROVES the regression hypothesis — the one working instance sits mid-range, and the defect is live at 1.6.768, the newest framework on the host.'
+  - time: "2026-09-07T21:24:07"
+    action: 'T-685: G-050 config sweep disproves hypothesis 2 — the working instance registers the hook identically, and the fleet holds two distinct signatures I had conflated.'
+  - time: "2026-09-07T21:29:17"
+    action: 'T-685: G-050 root cause found and two of my own claims withdrawn — checkpoint.sh:278 drains the shared PostToolUse stdin, starving every hook registered after it.'
+  - time: "2026-09-07T21:37:29"
+    action: 'T-685: two learnings from this session — a fire counter is not a function check, and a queue with no terminal state is a landfill with an audit line.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 15 commit(s), 2444 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2444
+  commits: 15
+  files_changed: 6
+  lines_added: 1872
+  lines_removed: 61
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-685-should-authority-live-in-the-box-tier--o.md
+generated_by: context-agent-hybrid

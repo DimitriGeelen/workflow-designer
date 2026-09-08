@@ -4,17 +4,17 @@ name: "Should authority live in the box (tier + owner) with the lane meaning dom
 description: >
   Inception: Should authority live in the box (tier + owner) with the lane meaning domain, instead of the lane being the sole authority-of-record?
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-06T16:39:41Z
-last_update: 2026-09-06T20:10:35Z
-date_finished: null
+last_update: 2026-09-08T09:23:43Z
+date_finished: 2026-09-08T09:23:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -216,15 +216,15 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-685` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -281,7 +281,17 @@ GO on opening the question; the mechanism is genuinely unresolved and is the ope
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-685 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO
+
+Rationale:
+
+GO on opening the question; the mechanism is genuinely unresolved and is the operator variable. The status quo is not a neutral baseline: examples/aef-processes/rendered/context-memory.bpmn carries three domain lanes at authority="none", a value absent from the standard collapse map (sovereignty/initiative/authority/external) and handled nowhere in the standard or tools/bpmn-cli.py, so 12 flowNodeRefs currently have no derivable owner and nothing detects it. Meanwhile aef:meta tier="0|1" already sits ON elements in 10+ corpus maps (27 tier-1, 10 tier-0) while the standard mentions tier only 4 times and never as an authority carrier, so half the operator proposed design is built and undocumented. T-341 half B is blocked on this: lanes[0] is positional, so authority today is decided by third-party laneSet serialisation order, which is exactly the defect that disappears if authority moves into the box. Costs are real and bound the exploration: frozen standard v1.1 deliberately REMOVED the node-level owner override making the lane the sole authority-of-record, and O-3 compile-time enforcement of the sovereignty go/no-go lane would need rewriting against the element.
+
+Evidence:
+
+**Date**: 2026-09-08T09:23:42Z
 
 ## Updates
 
@@ -290,3 +300,51 @@ GO on opening the question; the mechanism is genuinely unresolved and is the ope
 
 ### 2026-09-06T16:41:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-09-08T09:23:42Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO
+
+Rationale:
+
+GO on opening the question; the mechanism is genuinely unresolved and is the operator variable. The status quo is not a neutral baseline: examples/aef-processes/rendered/context-memory.bpmn carries three domain lanes at authority="none", a value absent from the standard collapse map (sovereignty/initiative/authority/external) and handled nowhere in the standard or tools/bpmn-cli.py, so 12 flowNodeRefs currently have no derivable owner and nothing detects it. Meanwhile aef:meta tier="0|1" already sits ON elements in 10+ corpus maps (27 tier-1, 10 tier-0) while the standard mentions tier only 4 times and never as an authority carrier, so half the operator proposed design is built and undocumented. T-341 half B is blocked on this: lanes[0] is positional, so authority today is decided by third-party laneSet serialisation order, which is exactly the defect that disappears if authority moves into the box. Costs are real and bound the exploration: frozen standard v1.1 deliberately REMOVED the node-level owner override making the lane the sole authority-of-record, and O-3 compile-time enforcement of the sovereignty go/no-go lane would need rewriting against the element.
+
+Evidence:
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cddc3616
+- **Timestamp:** 2026-09-08T09:23:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 5
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-8
+     - evidence: `IW-8 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-10
+     - evidence: `IW-10 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  4. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-12
+     - evidence: `IW-12 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  5. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-65e583f8
+- **Timestamp:** 2026-09-08T09:23:44Z
+- **Overall:** CONFIRMED
+- **Claims:** 1
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-341` | task | ✓ pass |
+
+### 2026-09-08T09:23:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
