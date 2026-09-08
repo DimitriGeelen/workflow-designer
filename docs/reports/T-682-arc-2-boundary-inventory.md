@@ -13,8 +13,8 @@ A route added to the server without a row here fails the drift check.
 | GET | `/api/thumb` | none — reads vN.png | ID_RE only (read path) |
 | GET | `/api/version` | none — reads vN.bpmn | ID_RE only (read path) |
 | GET | `/api/versions` | none — reads index.json | ID_RE only (read path) |
-| POST | `/api/delete` | MOVES sources to .editor-versions/_trash/ | _within_repo via archive_move (delete path) |
-| POST | `/api/save` | WRITES 5 targets: vN.bpmn, vN.png, index.json, corpus copy, served copy | T-683 per-target containment (_escaping_save_target) |
+| POST | `/api/delete` | MOVES sources to .editor-versions/_trash/ AND writes .context/designer/registry.yaml | _within_repo via archive_move (delete path); registry fixed-path |
+| POST | `/api/save` | WRITES 6 targets: vN.bpmn, vN.png, index.json, corpus copy, served copy, .context/designer/registry.yaml | T-683 per-target containment on the 5 id-derived targets; the registry is fixed-path (see § Ledger authority) |
 
 Seven routes, matching the S1 (T-681) measurement. Two of them mutate; the other
 five are read paths fenced by `ID_RE` alone, which is adequate because they resolve
@@ -48,7 +48,71 @@ The patterns above are what was looked for; that is the difference between an
 absence and a blind spot, and it is the reason this row exists at all rather
 than being omitted for having nothing to say.
 
-## 4. What this inventory does NOT claim
+## 4. Ledger authority — PRESENT, and scoped to the editor's own store
+
+Arc 2's clause (roadmap line 66) names **three** authorities: execution, secret and
+ledger. The first version of this inventory measured two. This section is the third,
+added by T-689, and it is the only one of the three whose answer is PRESENT.
+
+Patterns searched: `write_registry`, `registry_path`, `registry\.yaml`, `index\.json`, `setdefault\([^)]*\)\.append`, `_trash`
+
+**17 match(es)** — 5 write, 1 read, 11 declaration/comment.
+
+The kind matters more than the count. This section is about *authority*, which is
+a claim about writes; an unclassified list renders `open(registry_path())` and
+`write_registry(reg)` identically, and a reader cannot tell the capability from
+the mention. The tag is a line-level heuristic (`classify_ledger_site`) — it reads
+the matched line, not the call graph, so treat DECL as "not evidence either way"
+rather than as "safe".
+
+- **DECL** `gallery-serve.py:16` — `.editor-versions/<id>/index.json            (version list — always)`
+- **DECL** `gallery-serve.py:29` — `GET  /api/versions?id=<id>       -> index.json  ([] if none)`
+- **DECL** `gallery-serve.py:85` — `p = os.path.join(versions_dir(id_), 'index.json')`
+- **WRITE** `gallery-serve.py:98` — `with open(os.path.join(d, 'index.json'), 'w', encoding='utf-8') as f:`
+- **DECL** `gallery-serve.py:102` — `# ---- delete/archive (T-166) — deletion is recoverable: sources move to _trash ----`
+- **DECL** `gallery-serve.py:104` — `"""Per-delete archive folder: .editor-versions/_trash/<id>-<ts>/. The '_trash'`
+- **DECL** `gallery-serve.py:106` — `return os.path.join(REPO, '.editor-versions', '_trash', '%s-%d' % (id_, ts))`
+- **DECL** `gallery-serve.py:279` — `# ---- S3b (T-227) — persistent registry twin (.context/designer/registry.yaml) ----`
+- **DECL** `gallery-serve.py:294` — `def registry_path():`
+- **DECL** `gallery-serve.py:297` — `return os.path.join(REPO, '.context', 'designer', 'registry.yaml')`
+- **READ** `gallery-serve.py:304` — `with open(registry_path(), encoding='utf-8') as f:`
+- **DECL** `gallery-serve.py:311` — `def write_registry(reg):`
+- **DECL** `gallery-serve.py:313` — `path = registry_path()`
+- **WRITE** `gallery-serve.py:416` — `write_registry(reg)`
+- **WRITE** `gallery-serve.py:426` — `write_registry(reg)`
+- **WRITE** `gallery-serve.py:448` — `reg.setdefault('claims', []).append(`
+- **WRITE** `gallery-serve.py:450` — `write_registry(reg)`
+
+The 5 WRITE site(s) are the whole of the editor's ledger authority.
+
+### Two different claims that must not be conflated
+
+The editor holds ledger authority over **its own version store**: `/api/save` appends
+to `.editor-versions/<id>/index.json`, and both `/api/save` and `/api/delete` rewrite
+the ghosts/claims registry at `.context/designer/registry.yaml` via `write_registry`
+(3 call sites). `claim_ghost_after_save` reaches it through
+`reg.setdefault('claims', []).append(...)` — an append-structured persisted record,
+which is what "ledger" means in the roadmap's sense.
+
+The editor does **not** hold ledger authority over **governed records**. The registry
+sits under `.context/` but is the Designer's own artefact; the framework's append-only
+registers — `.context/project/*.yaml`, `.context/audits/**`, the gate-bypass log — are
+not written by any route in this file, and no route resolves a path into them.
+
+These are separate claims and this document makes both separately, because "the editor
+writes into `.context/`" is true and "the editor can edit governed records" is false,
+and the first sentence will be read as the second by anyone not told otherwise.
+
+### Why containment is not the control here
+
+`registry_path()` takes no request input — it is `REPO/.context/designer/registry.yaml`
+whatever the id. So a hostile id cannot steer this write, and T-683's per-target
+containment correctly does not cover it: containment answers "can an id move this
+write", and the answer is no. The open question a containment check cannot answer is
+whether the editor should hold this authority at all — that is Arc 2's joint review,
+not a fence.
+
+## 5. What this inventory does NOT claim
 
 - It does not claim the five read routes are unexploitable — only that they read.
 - It does not cover the static file handler inherited from `SimpleHTTPRequestHandler`
@@ -56,5 +120,13 @@ than being omitted for having nothing to say.
   Arc-2 authority frame.
 - Absence rows are evidence of what was searched, not proof that no other shape of
   the same authority exists under a name the patterns do not match.
+- **It does not cover "action authority."** The roadmap names the Designer-side
+  isolation claim twice and not identically: line 66 (the Arc-2 row) says
+  *execution / secret / ledger*, while line 254 says *shell / credential / ledger /
+  action* — but line 254 is an **Arc 4** candidate task, not Arc 2. This inventory is
+  scoped to Arc 2's clause, so shell≡execution and credential≡secret are covered,
+  ledger is covered as of T-689, and **action authority is out of scope here** — noted
+  rather than measured, so that a later reader does not mistake four-minus-one for an
+  oversight. Whoever opens Arc 4 inherits it.
 
 *Regenerate: `python3 tools/_t682-boundary-inventory.py --write`*

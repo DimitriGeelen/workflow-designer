@@ -13,7 +13,7 @@ components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-05T14:17:12Z
-last_update: 2026-09-05T17:29:11Z
+last_update: 2026-09-08T20:40:54Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,7 +66,7 @@ can flip the recommendation to NO-GO.
   Designer side today, sufficient to enumerate every path the editor has to it?**
   confidence: 3
   disposition: answered
-  rationale: Yes — and enumerated, not asserted. T-682 shipped `docs/reports/T-682-arc-2-boundary-inventory.md`, whose route set is AST-derived from `tools/gallery-serve.py`'s own dispatch (`derive_routes`, _t682-boundary-inventory.py:66): 7 routes, 2 of which mutate. Mutation authority is real (`/api/save` writes 5 request-derived targets). Execution authority is present in the file but absent from the request surface (`gallery-serve.py:824`, fixed-arg `subprocess.check_output(['hostname','-I'])`, no route reaches it). Secret authority: 0 matches across 8 named patterns. S1's stated failure branch — "if the list is empty" — did not fire; the list is non-empty and its emptiest rows name what was searched for.
+  rationale: Yes — and enumerated, not asserted, but only after T-689 corrected an omission in the first answer. Arc 2's clause (roadmap-5be23719.md:66) names THREE authorities — execution, secret, ledger. T-682 measured two: it substituted "mutation" for "ledger" in its own docstring and the third was never searched for. This disposition was first written at confidence 3 on that two-of-three basis (commit 8a5950cf), which was the same overclaim T-682 exists to prevent, one level up. T-689 added `LEDGER_PATTERNS` to the same instrument. Now measured, all three: execution present in-file but unreachable from any route (`gallery-serve.py:824`, fixed-arg `subprocess.check_output(['hostname','-I'])`); secret 0 matches over 8 patterns; ledger PRESENT — 5 WRITE sites, `.editor-versions/<id>/index.json` plus `.context/designer/registry.yaml` via `write_registry` (gallery-serve.py:416,426,448,450), reached from `/api/save` and `/api/delete`. That correction also fixed the mutation row, which said `/api/save` writes 5 targets when it writes 6. S1's stated failure branch — "if the list is empty" — did not fire.
 
 - **IW-2: Can the Arc-2 mutation control be built without introducing a real breach path into
   the shipped tree?** If it cannot, the recommendation flips to NO-GO: a fence with no
@@ -238,6 +238,15 @@ agreement with it, which is recorded in the dispositions above: IW-3 dissolved (
 already existed and was unguarded — this was not a fence installed early), and the T-682 filing's
 claim that execution authority "does not exist in this tree at all" was an overclaim, corrected
 to the narrower checkable claim that no route reaches it.
+
+**One correction found while disposing these questions (T-689).** The Arc-2 clause names three
+authorities; the shipped inventory measured two. `tools/_t682-boundary-inventory.py`'s own
+docstring read "mutation, execution, secret" — swapping the roadmap's third authority for a
+fourth of its own — and ledger went unsearched behind that substitution. Filed as T-689 rather
+than patched under this inception ID, and now closed: the ledger section reports 5 WRITE sites,
+and the `/api/save` row is corrected from 5 targets to 6 (the sixth being
+`.context/designer/registry.yaml`). The GO's conclusion is unchanged; its evidence is now
+complete rather than two-thirds complete.
 
 **What this evidence does not cover:** Arcs 1, 3, 5 and 6 remain undecomposed by design, per the
 Scope Fence. Arc-0's exit stays blocked on two counterparty-owned clauses (T-680). Closing this
