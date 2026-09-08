@@ -1501,3 +1501,11 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-336
+  text: ".framework.yaml carries an uncommitted enforcement-threshold change nobody in-session can account for: inception_commit_limit raised 4 to 15, PLUS a duplicate uppercase INCEPTION_COMMIT_LIMIT: 15 key written alongside the legacy lowercase one. mtime 2026-09-06 20:30, so it predates this session; no entry in .gate-bypass-log.yaml. 15 is exactly where T-685's inception gate was blocking. Two separate questions for the operator: (1) is the raise theirs? (2) the duplicate-key shape means one setting now has two spellings in one file — a later config set can update one and leave the other diverged, and nothing reports the divergence. Left UNCOMMITTED deliberately; the agent must not commit a loosened gate it cannot attribute."
+  captured: 2026-09-07T21:13:31Z
+  context_task: T-684
+  tags: [governance]
+  status: dismissed
+  promoted_to: null
+  urgent: true
