@@ -2276,3 +2276,24 @@ learnings:
   date: 2026-09-07
   context: Added via context agent
   application: TBD
+- id: PL-321
+  learning: "A defence-in-depth layer sitting BEHIND a working outer layer cannot be tested through the front door: the outer layer refuses the hostile input first, so the inner guard returns the same result whether it is wired or absent. Its test must break the outer layer on purpose. T-683: ID_RE rejected the traversal id before containment was ever consulted, so every naive test of the fence passed identically with the fence removed."
+  source: P-011
+  task: T-683
+  date: 2026-09-07
+  context: Added via context agent
+  application: TBD
+- id: PL-322
+  learning: "Origin T-684 (tagged here because focus-drift blocks tagging a closed task and the bypass is the operator's). A two-valued control must map 'the harness cannot see' onto pass or fail, and either choice lies: GREEN hides the blindness, RED cries wolf until someone disables the check. Controls that manufacture their own evidence need a third verdict — INCONCLUSIVE — checked BEFORE the failure branch, because a refusal that nothing can contradict is not evidence. The sabotaged self-test reads 400/False on all three phases, which looks like the strongest possible pass."
+  source: P-011
+  task: T-682
+  date: 2026-09-07
+  context: Added via context agent
+  application: TBD
+- id: PL-323
+  learning: "An instrument that RESTATES its own scope in its own words will silently drop a member of that scope. _t682-boundary-inventory.py's docstring paraphrased the roadmap's 'execution/secret/ledger' as 'mutation, execution, secret' — swapping the third authority for a fourth of its own invention. The swap read as a reasonable summary, so nobody re-checked it against the source, and ledger went unmeasured through a build task, a completion, and an inception disposition written at confidence 3. The rule: when a checker's scope is defined by an external document, the checker must QUOTE the clause and cite its line, never restate it. A paraphrase of a requirement is a second, unversioned copy of that requirement, and it drifts silently because it never looks wrong."
+  source: P-011
+  task: T-689
+  date: 2026-09-08
+  context: Added via context agent
+  application: TBD

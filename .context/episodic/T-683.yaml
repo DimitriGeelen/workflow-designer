@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-683: Wear the belt on the write path: _within_repo guards delete but not save, so one regex is the whole fence
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-07T21:12:15Z
+# ============================================================================
+
+task_id: T-683
+task_name: "Wear the belt on the write path: _within_repo guards delete but not save, so one regex is the whole fence"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-05T17:25:56Z
+completed: 2026-09-07T21:11:31Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-09-07T23:08:29+02:00
+last_commit: 2026-09-07T23:11:31+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  per-target containment on the save path — _within_repo would have allowed the write it exists to refuse.. Evolution — the filed fix was the wrong fix, and the suite now proves it.. fold the Evolution entry into the template's own section — a second heading left the gate reading the empty first one.
+
+# Key outcomes
+outcomes:
+  - 'A single containment primitive `_within(path, root)` exists, and `_within_repo` is'
+  - 'Every `/api/save` write target is containment-checked against its own intended root:'
+  - 'Containment is checked **before any bytes are written**, and a failure refuses the'
+  - 'Regression test proves the discriminating case: an id that resolves **inside REPO but'
+  - 'Regression test proves the control is not always-red: an ordinary save still returns'
+  - 'Regression test proves no false refusal when `DOCROOT` is set outside REPO.'
+  - '`ID_RE` is unchanged — the containment fix must not rest on tightening the regex it is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Evolution — the filed fix was the wrong fix, and the suite now proves it.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-07 — the guard is per-target, not per-repo'
+    chose: '`_within(path, root)` applied to each save target against its own intended root (`.editor-versions`, the corpus dir, `DOCROOT/rendered`).'
+    rationale: 'the task description''s own proposal — "apply `_within_repo` on the save path" — does not hold. Every target for `../.claude/settings` resolves *inside* REPO, so `_within_repo` passes all three while the write escapes the version store and lands on enforcement config. Building what was asked would have produced a guard that admits the exact write it exists to refuse, and it would have tested green. That is PL-318 repeated one level up, by the task written to fix PL-318. The suite now asserts this explicitly (`within-repo-would-have-allowed-it`) so the distinction cannot silently regress.'
+    alternatives_rejected: ['*(a)* `_within_repo` on the save path — decorative, above. *(b)* Tightening `ID_RE` to forbid dots and slashes — that is bracing the braces; the entire point is that containment must survive the regex being wrong, and a P-011 leg now pins ID_RE unchanged. *(c)* Checking each of the five write targets individually — snapshot, thumbnail and index all live inside the version dir under fixed `vN.*` names, so the directory check covers them; enumerating them would imply the filenames were attacker-controlled when they are not.']
+  - decision: '2026-09-07 — the regression test cuts ID_RE deliberately'
+    chose: 'run the live cases against a temp copy of the server with `ID_RE` widened.'
+    rationale: '`ID_RE` rejects the hostile id before the containment guard is reached, so through the front door the second belt is unreachable and untestable — it would have passed whether or not it was wired. A defence-in-depth layer must be tested with the outer layer broken, or it is being asserted rather than verified. Confirmed separately that the suite goes red against pre-fix code (status 200, `escaped=True`), so it is a control that has actually fired, not one that has only ever been green.'
+    alternatives_rejected: ['monkeypatching `ID_RE` in-process — the save path runs in a subprocess server, so an in-process patch would not reach it and would have produced a false green.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t683-save-containment-verify.yaml'
+  - '.tasks/active/T-683-wear-the-belt-on-the-write-path-withinre.md'
+  - 'tools/gallery-serve.py'
+  - 'tools/_t683-save-containment-verify.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-07T23:08:29"
+    action: 'T-683: per-target containment on the save path — _within_repo would have allowed the write it exists to refuse.'
+  - time: "2026-09-07T23:10:29"
+    action: 'T-683: Evolution — the filed fix was the wrong fix, and the suite now proves it.'
+  - time: "2026-09-07T23:11:31"
+    action: 'T-683: fold the Evolution entry into the template''s own section — a second heading left the gate reading the empty first one.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 3105 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ewcr, arc-2, isolation]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3105
+  commits: 3
+  files_changed: 4
+  lines_added: 409
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-683-wear-the-belt-on-the-write-path-withinre.md
+generated_by: context-agent-hybrid

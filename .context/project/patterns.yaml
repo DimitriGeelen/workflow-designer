@@ -141,6 +141,14 @@ failure_patterns:
     date_learned: 2026-08-29
     mitigation: "Ask what the instrument's output would look like if it had NO information, and check that state is distinguishable from a real answer. For a ranker: does it ever emit a tie across the whole population? For a gate: can the condition it tests actually be false, given what the template ships?"
 
+  - id: FP-019
+    pattern: "Authority/scope inventories under-report in the safe-looking direction: T-683's proposed guard admitted the write it existed to refuse, T-682 overclaimed an absence, T-689 dropped a third of its clause and undercounted save targets 5-for-6. All three read as complete and tested green."
+    description: "Authority/scope inventories under-report in the safe-looking direction: T-683's proposed guard admitted the write it existed to refuse, T-682 overclaimed an absence, T-689 dropped a third of its clause and undercounted save targets 5-for-6. All three read as complete and tested green."
+    scope: project
+    learned_from: T-689
+    date_learned: 2026-09-08
+    mitigation: "Derive the scope from the source document (quote + line cite), derive the enumerated set mechanically (AST/scan), and require every derived member to be classified or ERROR. Never let a hand-written summary define what gets checked."
+
 success_patterns:
   - id: SP-001
     pattern: "Phased implementation"

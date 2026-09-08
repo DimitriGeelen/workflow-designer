@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-689: Arc-2 isolation proof measures execution and secret but never ledger — one of the three authorities the roadmap column names
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-08T20:49:57Z
+# ============================================================================
+
+task_id: T-689
+task_name: "Arc-2 isolation proof measures execution and secret but never ledger — one of the three authorities the roadmap column names"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-08T20:41:34Z
+completed: 2026-09-08T20:49:48Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-08T22:48:44+02:00
+last_commit: 2026-09-08T22:49:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Arc-2 measured two of the three authorities its own clause names — ledger added, and the save row corrected from 5 write targets to 6. commit the T-682/683/684 completion frontmatter that last session wrote but never staged. Evolution — the ledger gap hid a save-row undercount, and my own classifier under-reported a write
+
+# Key outcomes
+outcomes:
+  - '`LEDGER_PATTERNS` added to `tools/_t682-boundary-inventory.py` alongside the existing'
+  - 'The ledger section states what was **searched for** (the pattern list, printed) and what'
+  - 'Every ledger-shaped artifact the server can write is named with its route and its'
+  - 'The report distinguishes **ledger authority the editor holds over its own store** from'
+  - '`python3 tools/_t682-boundary-inventory.py` exits 0 after regeneration (no drift), and'
+  - 'The ledger scan is proven capable of red: a `--self-test` leg demonstrates the ledger'
+  - 'T-681''s IW-1 disposition updated to state what is now measured, replacing the version'
+  - 'Scope recorded: Arc-2''s binding clause is roadmap line 66 (execution / secret / ledger).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - '.tasks/active/T-689-arc-2-isolation-proof-measures-execution.md'
+  - '.tasks/completed/T-682-arc-2-boundary-enumeration-name-every-au.md'
+  - '.tasks/completed/T-683-wear-the-belt-on-the-write-path-withinre.md'
+  - '.tasks/completed/T-684-ship-the-arc-2-mutation-control-with-a-m.md'
+  - 'docs/reports/T-682-arc-2-boundary-inventory.md'
+  - 'tools/_t682-boundary-inventory.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-08T22:48:44"
+    action: 'T-689: Arc-2 measured two of the three authorities its own clause names — ledger added, and the save row corrected from 5 write targets to 6'
+  - time: "2026-09-08T22:48:51"
+    action: 'T-689: commit the T-682/683/684 completion frontmatter that last session wrote but never staged'
+  - time: "2026-09-08T22:49:44"
+    action: 'T-689: Evolution — the ledger gap hid a save-row undercount, and my own classifier under-reported a write'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 3
+  files_changed: 7
+  lines_added: 606
+  lines_removed: 32
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-689-arc-2-isolation-proof-measures-execution.md
+generated_by: context-agent-hybrid

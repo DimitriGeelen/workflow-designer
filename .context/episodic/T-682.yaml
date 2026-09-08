@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-682: Arc-2 boundary enumeration: name every authority the editor can reach, and state the absent ones as absent
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-07T21:21:31Z
+# ============================================================================
+
+task_id: T-682
+task_name: "Arc-2 boundary enumeration: name every authority the editor can reach, and state the absent ones as absent"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-05T17:25:37Z
+completed: 2026-09-07T21:21:24Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-09-07T23:18:35+02:00
+last_commit: 2026-09-07T23:21:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  real ACs — the inventory must be derived from source, and absence must be stated as absence rather than left as an empty row that reads like a control.. Arc-2 boundary inventory, derived from the dispatch — and one absence the filing overclaimed.
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/T-682-arc-2-boundary-inventory.md` exists and enumerates **every** route'
+  - 'The inventory is **generated from the source, not hand-listed**: a script re-derives'
+  - 'The two Arc-2 authorities that do **not** exist in this tree — execution and secret —'
+  - 'A drift check fails when the route set derived from source no longer matches the'
+  - 'The drift check''s red path is demonstrated, not assumed: a temp copy of'
+  - 'The inventory names, per route, whether its containment is covered by the T-683 fence,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-07 — derive the route set, hand-author only the semantics'
+    chose: 'AST-derive the seven routes from the dispatch; keep "what it mutates" and "which fence covers it" in a hand-authored table keyed by route. A derived route with no semantics row fails the check as UNCLASSIFIED.'
+    rationale: 'the two halves have different failure modes. The route set goes stale silently (someone adds a route, nobody updates the doc) so it must be derived. The semantics require judgement no parser has, so they must be written — but an unclassified route then has to be an ERROR rather than a blank, or deriving the set just moves the silence.'
+    alternatives_rejected: ['deriving semantics too, e.g. by detecting `open(..., ''w'')` in each handler — it would have produced plausible rows that nobody checked, which is the exact failure the inventory exists to prevent. *(b)* Hand-listing all seven — accurate exactly once.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-682-arc-2-boundary-inventory.md'
+  - '.fabric/components/tools-_t682-boundary-inventory.yaml'
+  - '.tasks/active/T-682-arc-2-boundary-enumeration-name-every-au.md'
+  - '.tasks/completed/T-684-ship-the-arc-2-mutation-control-with-a-m.md'
+  - 'tools/_t682-boundary-inventory.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-07T23:18:35"
+    action: 'T-682: real ACs — the inventory must be derived from source, and absence must be stated as absence rather than left as an empty row that reads like a control.'
+  - time: "2026-09-07T23:21:17"
+    action: 'T-682: Arc-2 boundary inventory, derived from the dispatch — and one absence the filing overclaimed.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3115 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ewcr, arc-2, isolation]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3115
+  commits: 2
+  files_changed: 5
+  lines_added: 427
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-682-arc-2-boundary-enumeration-name-every-au.md
+generated_by: context-agent-hybrid

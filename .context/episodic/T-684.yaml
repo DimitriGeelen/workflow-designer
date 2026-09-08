@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-684: Ship the Arc-2 mutation control with a meta-assertion, so a red that never fired cannot read as green
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-07T21:16:40Z
+# ============================================================================
+
+task_id: T-684
+task_name: "Ship the Arc-2 mutation control with a meta-assertion, so a red that never fired cannot read as green"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-05T17:26:20Z
+completed: 2026-09-07T21:16:32Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-09-07T23:16:26+02:00
+last_commit: 2026-09-07T23:16:26+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  mutation control for the save-path fence — GREEN requires the manufactured breach to have been SEEN.
+
+# Key outcomes
+outcomes:
+  - 'The control runs three phases against temp copies of `gallery-serve.py`, never'
+  - '**The meta-assertion:** a GREEN verdict is conditional on phase A having actually'
+  - 'Phase C''s refusal is reported as **format-grounds, not containment evidence**, and is'
+  - 'Distinct exit codes: `0` GREEN (fence proven), `1` BREACH (phase B escaped), `2`'
+  - '`--self-test` proves INCONCLUSIVE is reachable by sabotaging phase A, so the control''s'
+  - 'The control leaves nothing behind: no mutated server copies, no escape witness inside'
+  - 'Runs GREEN against the current tree (T-683''s fence in place). *(exit 0.)*'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-07 — INCONCLUSIVE is a verdict, not an error state'
+    chose: 'three exit codes — 0 GREEN, 1 BREACH, 2 INCONCLUSIVE — with INCONCLUSIVE checked BEFORE the breach branch.'
+    rationale: 'the failure being defended against is not "the fence broke", it is "the harness stopped being able to tell". Those need different exits because they need different human responses: a breach is a bug in the product, an inconclusive is a bug in the evidence. A two-valued control has to map the second onto one of the first two, and whichever it picks is a lie — GREEN hides it, RED cries wolf until someone disables the check.'
+    alternatives_rejected: ['*(a)* treating a failed phase A as a hard error/crash — an error reads as infrastructure noise and gets retried past; a verdict gets read. *(b)* Asserting phase A inside the self-test only, leaving the live run two-valued — the live run is exactly where the harness would silently degrade, so the assertion has to be in the live path.']
+  - decision: '2026-09-07 — mutate copies, never the tracked file'
+    chose: 'every phase runs a temp copy of `gallery-serve.py`; the tracked file is read and never written, with a P-011 leg asserting `git status` on it stays clean.'
+    rationale: 'a control that edits the file it is testing can leave the repo mutated when it crashes mid-run — and the mutation it applies is *removing a security guard*. An interrupted run must not be able to leave the fence out of the tree.'
+    alternatives_rejected: ['patch-and-revert in place with a `finally` restore — a `finally` does not survive SIGKILL or a machine losing power, and the failure mode is a silently guard-less server in a tracked file.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t684-mutation-control.yaml'
+  - '.tasks/active/T-684-ship-the-arc-2-mutation-control-with-a-m.md'
+  - '.tasks/completed/T-683-wear-the-belt-on-the-write-path-withinre.md'
+  - 'tools/_t684-mutation-control.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-07T23:16:26"
+    action: 'T-684: mutation control for the save-path fence — GREEN requires the manufactured breach to have been SEEN.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3110 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ewcr, arc-2, isolation]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3110
+  commits: 1
+  files_changed: 4
+  lines_added: 325
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-684-ship-the-arc-2-mutation-control-with-a-m.md
+generated_by: context-agent-hybrid
