@@ -4,12 +4,12 @@ name: "Wear the belt on the write path: _within_repo guards delete but not save,
 description: >
   tools/gallery-serve.py:109 _within_repo documents itself as belt-and-braces over ID_RE, but is referenced only at :120 on the delete path. The /api/save write path has no containment check at all. T-681 S2 demonstrated behaviorally that widening ID_RE alone puts a write outside the version store (HTTP 200, escaped=True). Apply the guard on the save path so containment does not rest on a single regex.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [ewcr, arc-2, isolation]
-components: []
+components: [tools/gallery-serve.py, tools/_t683-save-containment-verify.py]
 related_tasks: []
 arc_id: ewcr-governed-delivery
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -17,8 +17,8 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T17:25:56Z
-last_update: 2026-09-07T21:10:29Z
-date_finished: null
+last_update: 2026-09-07T21:11:31Z
+date_finished: 2026-09-07T21:11:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -309,3 +309,15 @@ belt is exercised rather than shadowed by the first.
 
 ### 2026-09-07T21:02:37Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-81b052c3
+- **Timestamp:** 2026-09-07T21:12:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-07T21:11:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

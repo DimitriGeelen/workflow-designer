@@ -4,12 +4,12 @@ name: "Ship the Arc-2 mutation control with a meta-assertion, so a red that neve
 description: >
   T-681 S2 proved the control buildable (prototype at docs/research/executable-workflow/_t681-s2-mutation-control-prototype.py) but its first run reported NO-GO for a broken reason: the mutated guard refused the escape id on grounds unrelated to containment, so phase 2 could not have gone red however broken the fence was (PL-177). The shipped control must assert that the mutated guard ADMITS the escape id, distinguishing 'no breach' from 'never tested'.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [ewcr, arc-2, isolation]
-components: []
+components: [tools/_t684-mutation-control.py]
 related_tasks: []
 arc_id: ewcr-governed-delivery
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -17,8 +17,8 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T17:26:20Z
-last_update: 2026-09-07T21:12:38Z
-date_finished: null
+last_update: 2026-09-07T21:16:32Z
+date_finished: 2026-09-07T21:16:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -279,3 +279,15 @@ test ! -e escaped
 
 ### 2026-09-07T21:12:38Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ab9ca1c4
+- **Timestamp:** 2026-09-07T21:16:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-07T21:16:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

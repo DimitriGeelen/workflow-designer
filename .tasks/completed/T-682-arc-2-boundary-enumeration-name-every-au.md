@@ -4,12 +4,12 @@ name: "Arc-2 boundary enumeration: name every authority the editor can reach, an
 description: >
   S1 (T-681) measured the editor's total reachable surface as seven routes on gallery-serve.py. Two of Arc 2's three named authorities - execution and secret - do not exist in this tree at all. Produce the boundary inventory that says so explicitly, so no later reader mistakes an absence for a defence.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [ewcr, arc-2, isolation]
-components: []
+components: [tools/_t682-boundary-inventory.py]
 related_tasks: []
 arc_id: ewcr-governed-delivery
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -17,8 +17,8 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T17:25:37Z
-last_update: 2026-09-07T21:18:35Z
-date_finished: null
+last_update: 2026-09-07T21:21:24Z
+date_finished: 2026-09-07T21:21:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -258,3 +258,15 @@ test 0 -eq "$(grep -c 'No execution primitive exists in this file' docs/reports/
 
 ### 2026-09-07T21:16:52Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-527d57c2
+- **Timestamp:** 2026-09-07T21:21:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-07T21:21:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
