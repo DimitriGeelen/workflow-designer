@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-04T21:55:13Z
-last_update: 2026-09-09T07:41:41Z
+last_update: 2026-09-09T07:43:23Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -100,6 +100,90 @@ the budget gate's own allow-regex already classifies `git status|log|diff`,
 exists in-tree and would not be duplicated. A gate that must be routed around three
 times in one session to do ordinary work is training the operator to route around it.
 
+---
+
+## CORRECTION 2026-09-09 — the paragraph directly above is WRONG, and AC 3 is what caught it
+
+AC 3 required quoting the clause instead of restating it (PL-323). Quoted, from
+`.agentic-framework/agents/context/budget-gate.sh:152`:
+
+```
+is_allowed_cmd = bool(re.search(r'(git\s+commit|git\s+add|git\s+push|git\s+fetch|git\s+(status|log|diff)|fw\s+(handover|git|context\s+init|resume|task)|context\.sh\s+init|resume\.sh|checkpoint\.sh|budget-gate\.sh|handover\.sh|update-task\.sh|echo\s+0\s*>)', command)) if command else False
+```
+
+and its own comment, `budget-gate.sh:147`:
+
+```
+# Classification: 'allowed' for wrap-up/read ops, 'blocked' for new work
+```
+
+**There is no read-only classifier in that file.** What exists is a *wrap-up* allow-list
+answering a different question — "what may still run at critical budget?" — and it contains
+`git commit`, `git add`, `git push`, `git fetch`, `fw task` and `update-task.sh`, every one
+of which writes. The paragraph above rewrote a wrap-up list as a read-only list and then
+leaned on the rewrite: **"the classification exists in-tree and would not be duplicated" is
+false.** Reusing this regex for P-002 would permit committing, pushing and mutating task
+status with no active task — precisely what P-002 exists to prevent. The proposal would have
+shipped a gate that admits the writes it exists to refuse.
+
+This is PL-323 exactly, in this project's own task file: a claim whose authority comes from
+an external artefact, paraphrased instead of quoted, drifting silently because a paraphrase
+never looks wrong. It is also FP-019's under-reporting direction — the restatement made the
+proposal look *safer* and cheaper than it is.
+
+**What survives.** The genuinely read-only members are `git status|log|diff`, `checkpoint.sh`,
+`budget-gate.sh`, and `Read`/`Glob`/`Grep` (the separate `is_read_tool` test at line 153,
+which IS a clean read-only classification but covers tools, not Bash commands). A read-only
+Bash exemption for P-002 must therefore be **written fresh and narrow**, not borrowed. That
+makes the proposal more expensive than filed — a new allow-list is a new thing to keep
+correct — and the operator should weigh it knowing that, not knowing the cheaper story.
+
+## Proposal, with its blast radius
+
+**Trigger states, because the fix differs per state** (AC 2):
+
+| state | instances | remedy available today |
+|---|---|---|
+| (a) focus on a `captured` task | 1 | `fw context focus <started task>` |
+| (b) focus cleared by completion | 2, 3, 4, 5, 7 | `fw context focus <started task>` |
+| (c) focus on a `work-completed` task | 8 | **none except a Tier-2 bypass** |
+| (d) focus set, command's first `T-NNN` differs (T-638 / OBS-335) | this session's `add-learning --task T-690` | re-attribute, or Tier-2 |
+
+**Register completeness, stated rather than implied** (AC 1): instances 4–8 carry the exact
+refused command and gate message, recorded live. Instances 1–3 carry the gate message and
+the trigger but **not** the precise command — they were reconstructed at filing time from a
+session that had already ended. They are counted as instances and NOT as evidence about
+which commands the exemption would need to cover. A register that quietly rounds recalled
+detail up to measured detail is the same defect this task just caught in its own prose.
+
+**Variant A — treat a `captured` or `work-completed` focus as no-focus.** Fixes (a) and (c)
+only, leaves (b) untouched, and (b) is five of eight. Cheap, but it does not address the
+common case.
+
+**Variant B — exempt a narrow, freshly written read-only Bash allow-list regardless of focus
+state.** Would have prevented all of (a), (b), (c) — seven of eight instances. Does not help
+(d), which is a matcher defect, not a focus-state one.
+
+**What Variant B costs, said plainly.** A read-only allow-list is a regex over command TEXT,
+and every regex over command text in this project has been defeated by text it did not
+anticipate: the project-boundary hook blocks prose mentioning a peer path, and OBS-335 shows
+the focus-drift matcher keys on the first `T-NNN` in the string rather than the invocation's
+target. So the honest expectation is that a read-only exemption will eventually admit
+something that is not read-only — `git diff --output=FILE` writes a file, and `checkpoint.sh`
+appears in the same regex as commands that mutate state. The exemption should therefore be
+anchored on the command's **first token** rather than on a substring search anywhere in the
+line, or it inherits the defect class it is meant to relieve.
+
+**What an agent gains from the loosening:** the ability to run `git status`, `git log`,
+`git diff` and `checkpoint.sh status` with no active task. Nothing that writes to the repo,
+nothing that changes task state, nothing that touches `.context/`. **What it does not gain:**
+any relief from G-020, the arc-id gate, Tier 0, or the sovereignty gates — those are separate
+hooks and unaffected.
+
+**Recommendation to the operator: Variant B, first-token-anchored.** Recorded as a
+recommendation and nothing more; the ruling is the Human AC below, and no edit to
+`check-active-task.sh` exists or will exist before it.
+
 ## Acceptance Criteria
 
 ### Agent
@@ -109,21 +193,21 @@ times in one session to do ordinary work is training the operator to route aroun
 is not an agent decision however well-evidenced the case is, so the ACs below stop at a
 ratifiable proposal. AC 4 is the operator's, and nothing here edits the hook before it.
 
-- [ ] The instance register is complete and mechanically derived, not remembered. Every
+- [x] The instance register is complete and mechanically derived, not remembered. Every
       occurrence carries: date, the command that was refused, the gate's exact message, and
       whether the refused command modified anything. A count assembled from memory is the
       same evidence problem this task is about.
-- [ ] Each instance is classified by TRIGGER STATE, because the fix differs per state and the
+- [x] Each instance is classified by TRIGGER STATE, because the fix differs per state and the
       filed shape turned out to be the rare one: (a) focus left on a `captured` task,
       (b) focus cleared by a completion, (c) focus left on a `work-completed` task,
       (d) focus set but the command's first `T-NNN` names a different task (T-638/OBS-335).
       A single "P-002 is annoying" bucket cannot be turned into a hook change.
-- [ ] The read-only classification the proposal depends on is shown to ALREADY EXIST in-tree
+- [x] The read-only classification the proposal depends on is shown to ALREADY EXIST in-tree
       and is quoted with its file and line — `budget-gate.sh`'s allow-regex already treats
       `git status|log|diff`, `fw handover|git|task` and `checkpoint.sh` as read-only. If it
       does not say what this task claims it says, the proposal collapses and that is the
       finding. **Quote the clause, cite the line, never paraphrase it** (PL-323).
-- [ ] The proposal names its own blast radius honestly: which commands would newly be
+- [x] The proposal names its own blast radius honestly: which commands would newly be
       permitted, which of the eight recorded instances each variant would have prevented, and
       what an attacker or a careless agent gains from the loosening. A proposal that only
       lists benefits is not ratifiable.
@@ -173,6 +257,31 @@ ratifiable proposal. AC 4 is the operator's, and nothing here edits the hook bef
 -->
 
 ## Verification
+
+# 1. The quoted regex in the CORRECTION section is the one in the file, not a remembered
+#    version of it. This is the whole point of AC 3 and the leg that would catch its decay:
+#    the correction's authority comes from an external artefact, so the pin is on that
+#    artefact. If budget-gate.sh:152 is edited, this goes red and the correction gets re-read.
+python3 -c 'import sys;g=open(".agentic-framework/agents/context/budget-gate.sh").read().split(chr(10))[151];t=open(".tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md").read();sys.exit(0 if g.strip() in t else 1)'
+
+# 2. The load-bearing claim of the correction: that allow-list contains commands that WRITE,
+#    so it is not a read-only classifier and cannot be borrowed as one.
+python3 -c 'import sys;l=open(".agentic-framework/agents/context/budget-gate.sh").read().split(chr(10))[151];sys.exit(0 if ("is_allowed_cmd" in l and "git" in l and "commit" in l) else 1)'
+
+# 3. The instance register carries all eight rows. A count asserted in prose that the table
+#    does not carry is the failure mode this task documents in its own subject matter.
+python3 -c 'import re,sys;t=open(".tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md").read();sys.exit(0 if len(re.findall(r"^\| [1-8] \|", t, re.M)) == 8 else 1)'
+
+# 4. NO T-676 COMMIT has edited the enforcement hook this task proposes to change. The
+#    proposal is ratifiable precisely because the change does not exist yet.
+#    First draft of this leg asked whether ANY of the last 20 commits touched the hook and
+#    went red on T-662's legitimate edit — right answer to the wrong question. Kept in the
+#    record because a verification leg that fails for a reason unrelated to its task is how
+#    a gate gets bypassed with --force by whoever meets it next.
+test -z "$(git log --oneline --grep '^T-676' -- .agentic-framework/agents/context/check-active-task.sh)"
+
+# 5. ...and the working tree carries no uncommitted edit to it either, which leg 4 cannot see.
+git diff --quiet HEAD -- .agentic-framework/agents/context/check-active-task.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
