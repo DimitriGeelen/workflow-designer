@@ -4,9 +4,9 @@ name: "P-002 blocks /resume itself: a session that ends by FILING a task cannot 
 description: >
   MEASURED 2026-09-04 at session start. The previous session ended by filing T-674, which left focus.yaml pointing at a task with status 'captured'. check-active-task then refused EVERY Bash call in the new session - including the read-only 'git status --short' and 'git log --oneline -5' that the /resume skill's own Step 1 requires. The recovery workflow cannot run on the exact state that filing a task produces, and filing a task at session end is the behaviour the framework asks for. Note the gate blocks on TASK STATE, not on write-intent: 'git status' modifies nothing. Same family as OBS-033 (P-002 catch-22) and the T-672 leg that asserted a state its own satisfaction destroys. Workaround used: 'fw context focus T-575' to a started-work task - no bypass flag. Candidate fix: exempt read-only Bash from the captured-task block (the budget gate already classifies git status/log/diff as read-only in its allow-regex, so the classification exists and is not duplicated), or have the gate treat a 'captured' focus as no-focus rather than as a blocking violation.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: claude-code
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-04T21:55:13Z
-last_update: 2026-09-09T07:43:23Z
-date_finished: null
+last_update: 2026-09-09T07:46:36Z
+date_finished: 2026-09-09T07:46:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -49,7 +49,25 @@ one and were not anticipated when this was written:
 | 7 | completing T-689 cleared focus | `No active task` (blocked `git push`) |
 | 8 | completing T-423 left focus ON it, `work-completed` | `Task T-423 has status 'work-completed'` (blocked `checkpoint.sh status` AND reading `.gate-bypass-log.yaml`) |
 
-**EIGHT instances across four sessions.** Instances 6-8 were measured 2026-09-08/09.
+| 9 | **this task reaching `work-completed`** | `Task T-676 has status 'work-completed'` (blocked `git commit` of T-676's own completion state) |
+
+**NINE instances across four sessions.** Instances 6-9 were measured 2026-09-08/09.
+
+Instance 9 arrived thirty seconds after this task documented state (c), and is the sharpest
+form of it: **a task cannot commit its own completion under its own id.** Completing T-676
+set `status: work-completed` in its frontmatter, which is an uncommitted change; the next
+`git commit` was refused by P-002 *because* the task had completed. The exits the gate offers
+are `fw work-on <other task>` — which makes the commit message drift from the focused task
+and trips T-1730 instead — or the two Tier-2 bypasses. `fw work-on T-676` re-opens the task,
+allowing the commit, and then re-completing it produces the same uncommitted frontmatter
+again: the regress does not terminate.
+
+The established honest pattern in this repo is that a LATER commit carries it — ca8e0f08
+carried T-423's partial-complete frontmatter for exactly this reason, and says so in its
+message. That works, but it means every partial-complete task's closing state lands in a
+commit named after a different task, which is a traceability cost paid silently. Worth
+weighing in the ruling below: state (c) is not merely inconvenient, it has no terminating
+non-bypass remedy.
 
 Instance 8 is a **fourth trigger state** the table above did not have: focus is neither
 absent nor `captured` but points at a task that has just reached `work-completed`. It arises
@@ -256,6 +274,43 @@ ratifiable proposal. AC 4 is the operator's, and nothing here edits the hook bef
        `bin/fw reviewer T-676 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO — on **Variant B, first-token-anchored**, and on nothing wider.
+
+**Rationale:** The gate fires on the normal end of a task, not on an unusual leftover state.
+Eight instances across four sessions, seven of which Variant B would have prevented. Five of
+the eight refused a command that modifies nothing, and two of those were the framework's own
+prescribed reads: `/resume`'s Step 1 state-gathering (instance 6) and `checkpoint.sh status`,
+which CLAUDE.md's budget rule names as the safe way to measure context (instances 5, 8). A
+rule that must be routed around in order to obey another rule teaches an operator to route
+around gates generally, and instance 8 has **no non-bypass remedy at all** — the only exits
+the gate offers for a `work-completed` focus are two Tier-2 bypasses.
+
+Recommending GO while also recording, in the same breath, that this task's own case for it
+was overstated: the "the classification already exists, no duplication needed" argument is
+false (see § CORRECTION). Variant B costs a *new* narrow allow-list, not a reused one. The
+recommendation survives that correction; the cost estimate does not.
+
+**Evidence:**
+- Instance register, eight rows with trigger state and gate message — `## Context` above.
+  Instances 4–8 recorded live; 1–3 reconstructed at filing and NOT counted as command-level
+  evidence.
+- `.agentic-framework/agents/context/budget-gate.sh:152` — quoted verbatim, pinned by
+  Verification leg 1 so an edit to it re-opens this reasoning rather than silently aging it.
+- `.agentic-framework/agents/context/budget-gate.sh:153` — `is_read_tool = tool_name in
+  ('Read', 'Glob', 'Grep')`, the one genuine read-only classification in the file. It covers
+  *tools*, not Bash commands, which is why it cannot be reused here either.
+- Blast radius, both directions, in `## Proposal` — including the concrete failure mode
+  expected of a substring-matched allow-list (`git diff --output=FILE` writes; OBS-335 and
+  the project-boundary hook are both substring-matcher defects already in the register).
+- Verification 5/5, including two legs asserting that **no T-676 commit has edited
+  `check-active-task.sh`** and that no uncommitted edit to it exists. The proposal is
+  ratifiable because the change does not exist yet.
+
+**What this recommendation is not:** a ruling. `check-active-task.sh` is a Tier-1 enforcement
+hook; loosening it is the operator's call, and the Human AC below is where it gets made.
+
 ## Verification
 
 # 1. The quoted regex in the CORRECTION section is the one in the file, not a remembered
@@ -268,9 +323,12 @@ python3 -c 'import sys;g=open(".agentic-framework/agents/context/budget-gate.sh"
 #    so it is not a read-only classifier and cannot be borrowed as one.
 python3 -c 'import sys;l=open(".agentic-framework/agents/context/budget-gate.sh").read().split(chr(10))[151];sys.exit(0 if ("is_allowed_cmd" in l and "git" in l and "commit" in l) else 1)'
 
-# 3. The instance register carries all eight rows. A count asserted in prose that the table
-#    does not carry is the failure mode this task documents in its own subject matter.
-python3 -c 'import re,sys;t=open(".tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md").read();sys.exit(0 if len(re.findall(r"^\| [1-8] \|", t, re.M)) == 8 else 1)'
+# 3. The count asserted in prose equals the number of rows the table actually carries.
+#    First draft pinned the literal 8 and went GREEN thirty seconds after instance 9 was
+#    added — a population pin that certifies the number it was written with rather than the
+#    one in the file (G-015). Derived from both sides now, so adding an instance without
+#    updating the sentence is what goes red.
+python3 -c 'import re,sys;t=open(".tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md").read();w={"THREE":3,"FOUR":4,"FIVE":5,"SIX":6,"SEVEN":7,"EIGHT":8,"NINE":9,"TEN":10};rows=len(re.findall(r"^\| \d+ \|",t,re.M));said=max(w[m] for m in re.findall(r"\*\*([A-Z]+) instances",t) if m in w);sys.exit(0 if rows==said else 1)'
 
 # 4. NO T-676 COMMIT has edited the enforcement hook this task proposes to change. The
 #    proposal is ratifiable precisely because the change does not exist yet.
@@ -400,3 +458,15 @@ git diff --quiet HEAD -- .agentic-framework/agents/context/check-active-task.sh
 
 ### 2026-09-09T07:41:41Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8c92e415
+- **Timestamp:** 2026-09-09T07:46:37Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-09T07:46:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
