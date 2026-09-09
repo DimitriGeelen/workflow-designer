@@ -2297,3 +2297,10 @@ learnings:
   date: 2026-09-08
   context: Added via context agent
   application: TBD
+- id: PL-324
+  learning: "A source-vs-export comparison is structurally blind to any fault both sides share. T-423's additive-export guard read green across 113 BPMN schema violations because every corpus map carried the same bad element order the exporter emitted (fixed in T-690). Conformance to an EXTERNAL standard must be checked against that standard's own validator - vendored XSD with pinned digests - never by diffing output against your own corpus."
+  source: P-001
+  task: T-423
+  date: 2026-09-09
+  context: Added via context agent
+  application: TBD

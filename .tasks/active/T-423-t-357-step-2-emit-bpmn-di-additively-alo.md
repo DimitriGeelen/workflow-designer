@@ -348,11 +348,33 @@ caught one commit later instead of twelve days.
       building step 2 first means writing DI that the importer cannot yet read, which is
       the two-contradictory-geometries state PL-114 exists to prevent, self-inflicted.
       **Satisfied 2026-08-14: PD-200 ruled, step 1 landed at `fc7f7263`.**
-- [ ] `bpmndi:BPMNDiagram` / `bpmndi:BPMNPlane` emitted on export with `dc:Bounds` for every
+- [x] `bpmndi:BPMNDiagram` / `bpmndi:BPMNPlane` emitted on export with `dc:Bounds` for every
       shape, `di:waypoint` for every edge, and label bounds where a label position is
       persisted. Verified by validating one exported map against the BPMN 2.0 DI schema —
       not by grepping for the element names.
-      **INSTRUMENT BUILT 2026-09-08, AC STILL OPEN — BLOCKED ON T-690.**
+
+      **CLOSED 2026-09-09, after T-690 unblocked it.** All 24 corpus maps re-exported through
+      a real browser (`_t423-additive-export-cdp.mjs`) and validated:
+
+          python3 tools/_t423-di-schema-validate.py <24 fresh exports>
+          -> 24 document(s): 0 schema-invalid, 0 missing DI geometry
+
+      Both verdicts clean, not just the schema one. Population behind that sentence, because
+      "validates clean" over an empty set is the failure mode this task keeps cataloguing:
+      **306 `bpmndi:BPMNShape` / 306 `dc:Bounds`** (every shape bounded), **319
+      `bpmndi:BPMNEdge` / 1033 `di:waypoint`** (the validator holds each edge to ≥2), 2012 DI
+      elements added across the set.
+
+      **The third clause is UNEXERCISED and is not being counted as covered.** `BPMNLabel`
+      occurs **0** times in the 24 exports. The clause is conditional — "where a label
+      position is persisted" — and no corpus map persists one, so emitting no label bounds is
+      correct rather than missing. But nothing here demonstrates the emitter would get it
+      right if one did. The validator's `label-present-without-bounds` self-test case covers
+      the *detection* side (watched red); the *emission* side has no live instance. Same
+      honesty the additive guard applies to `aef:forceStraight` and `aef:waypoint`.
+
+      **INSTRUMENT BUILT 2026-09-08 — history, kept because the two findings below are why
+      this AC took a second session.**
       `tools/_t423-di-schema-validate.py` + the five OMG XSDs vendored under
       `tools/schemas/bpmn20/` with pinned digests (`PROVENANCE.md`). Self-test **7/7**: every
       leg watched going red on a purpose-built document, including the real defect's exact

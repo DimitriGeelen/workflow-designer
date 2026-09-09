@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-690: sequenceFlow emits extensionElements after conditionExpression: 113 occurrences make 24 of 24 corpus maps schema-invalid
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-09T07:37:29Z
+# ============================================================================
+
+task_id: T-690
+task_name: "sequenceFlow emits extensionElements after conditionExpression: 113 occurrences make 24 of 24 corpus maps schema-invalid"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-08T21:39:56Z
+completed: 2026-09-09T07:37:22Z
+duration_days: 1
+updates_count: 1
+first_commit: 2026-09-08T23:41:58+02:00
+last_commit: 2026-09-09T09:37:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file the sequenceFlow ordering bug the schema validator found, and park T-423's last AC on it. extensionElements before conditionExpression — and the additive guard's own AC was the thing defending the defect
+
+# Key outcomes
+outcomes:
+  - '`src/aef-workflow-designer.html` emits `bpmn:extensionElements` BEFORE'
+  - 'A map exported through the REAL exporter (CDP, not the committed corpus) validates'
+  - 'The reorder does not disturb the additive-export guarantee — T-423''s'
+  - 'The regression is caught by the suite, not by whoever next runs a validator by hand:'
+  - 'The 24 committed corpus maps are addressed explicitly — regenerated so they validate,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'file the sequenceFlow ordering bug the schema validator found, and park T-423''s last AC on it'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-690-sequenceflow-emits-extensionelements-aft.md'
+  - '.tasks/active/T-691-regenerate-the-24-rendered-corpus-maps-s.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t423-additive-export-guard.py'
+  - 'tools/_t423-additive-export-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-08T23:41:58"
+    action: 'T-690: file the sequenceFlow ordering bug the schema validator found, and park T-423''s last AC on it'
+  - time: "2026-09-09T09:37:15"
+    action: 'T-690: extensionElements before conditionExpression — and the additive guard''s own AC was the thing defending the defect'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 597 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 597
+  commits: 2
+  files_changed: 8
+  lines_added: 799
+  lines_removed: 21
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-690-sequenceflow-emits-extensionelements-aft.md
+generated_by: context-agent-hybrid

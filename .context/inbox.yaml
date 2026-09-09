@@ -1516,3 +1516,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-338
+  text: "Every CDP test leg silently depends on node >= 21 with nothing pinning it. /usr/bin/node is v18.19.1 and has no global WebSocket, so tools/_cdp-attach.mjs dies with 'ERROR: WebSocket is not defined'. Measured 2026-09-09: T-423 P-011 verification reported 14/17 with legs 9, 13, 14 red; the same three pass 17/17 when ~/.nvm/versions/node/v22.22.1/bin is first on PATH. No .nvmrc, no package.json engines field, no check in tests/run-bridge-tests.sh. Consequence: whether the whole CDP surface (10+ suite legs plus several P-011 blocks) reports pass or fail depends on which node the invoking shell resolves - and the failure message names WebSocket, not the node version, so it reads as a broken probe rather than a broken toolchain. Suggested fix: have _cdp-attach.mjs refuse with exit 2 and a version-naming message when globalThis.WebSocket is undefined, so an environment fault reports as REFUSED rather than as a red subject."
+  captured: 2026-09-09T07:39:43Z
+  context_task: T-423
+  tags: []
+  status: pending
+  promoted_to: null
