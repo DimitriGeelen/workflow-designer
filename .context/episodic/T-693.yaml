@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-693: Correct the AEF pickup document: T-2054 already exempts the full-completion path, so item 1 is narrower than written
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-09T08:33:15Z
+# ============================================================================
+
+task_id: T-693
+task_name: "Correct the AEF pickup document: T-2054 already exempts the full-completion path, so item 1 is narrower than written"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-09T08:31:32Z
+completed: 2026-09-09T08:33:09Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-09T10:33:05+02:00
+last_commit: 2026-09-09T10:33:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  narrow item 1 — T-2054 already exempts the full-completion path; the defect is that its precondition never holds for partial-complete
+
+# Key outcomes
+outcomes:
+  - 'Item 1 of `docs/reports/framework-agent-pickup-2026-09-09.md` is narrowed to the'
+  - 'The correction cites `check-active-task.sh:229-241` — the exemption''s comment block —'
+  - 'The document records that this narrowing was found by our own tooling contradicting our'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-693-correct-the-aef-pickup-document-t-2054-a.md'
+  - 'docs/reports/framework-agent-pickup-2026-09-09.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-09T10:33:05"
+    action: 'T-693: narrow item 1 — T-2054 already exempts the full-completion path; the defect is that its precondition never holds for partial-complete'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 2
+  lines_added: 258
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-693-correct-the-aef-pickup-document-t-2054-a.md
+generated_by: context-agent-hybrid
