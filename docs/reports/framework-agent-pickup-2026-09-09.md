@@ -25,10 +25,41 @@ than silent.
 
 ---
 
-## 1. A task cannot commit its own completion under its own id, and the escape does not terminate
+## 1. The *partial-complete* path cannot commit its own completion, and the escape does not terminate
 
 **This is the one to look at first.** It has no non-bypass remedy, and it sits on the normal
 partial-complete path rather than in an unusual leftover state.
+
+> **NARROWED 2026-09-09, after this document's first draft.** The first draft claimed this of
+> completions generally. That is **false**, and our own tooling contradicted us within the
+> hour: commit `8eccaa00` landed a completed task's own state with no bypass, printing
+> `NOTE: no active task — allowing 'git commit' to checkpoint completed work (T-2054)`.
+> T-2054 **already solves the full-completion case.** The correction is left visible rather
+> than edited away, because a peer reading this should be able to see which claims have moved.
+> What follows is the narrowed finding, and it is sharper than the original: the defect is
+> not that the deadlock exists, it is that **T-2054's fix has a precondition the
+> partial-complete path never satisfies.**
+
+**Why the existing exemption does not reach this case.** From `check-active-task.sh:229-241`,
+quoted:
+
+```
+# T-2054: post-completion commit deadlock. `--status work-completed` nulls
+# focus.yaml current_task AND moves the task active/→completed/, so it can no
+# longer be re-focused (G-013 requires the focused task in active/), yet its own
+# completion file-move + episodic must still be committed (P-009 commit cadence).
+# When focus is null, allow `git commit` so that checkpoint can land.
+```
+
+Every word of that is true of a **full** completion. None of it is true of a **partial**
+one. Partial-complete does not null focus and does not move the file: the task stays in
+`.tasks/active/` with `owner: human`, and focus stays pointed at it, now reading
+`work-completed`. So the exemption's precondition — *"when focus is null"* — never holds,
+control falls through, and the request is refused by the completed-task branch instead.
+
+The fix and the gap were written at the same time, in the same file, by the same reasoning.
+The partial-complete path simply produces a different post-state than the one the comment
+enumerates, and nothing re-checked the enumeration against it.
 
 **Reproduction, in a stock checkout:**
 
@@ -45,9 +76,17 @@ trips the *focus-drift* gate instead (T-1730), which matches the first `T-NNN` i
 text against the focused task. The remaining two exits are `--switch-focus` and
 `FW_SWITCH_FOCUS=1`, both Tier-2 bypasses.
 
-`fw work-on T-XXX` on the *same* task does work — it re-opens the task, the commit succeeds,
-and then re-completing it writes the same uncommitted frontmatter again. **The regress does
-not terminate.**
+`fw work-on T-XXX` on the *same* task does **not** work either: the task is in `active/` but
+its status is `work-completed`, and `fw work-on` refuses a closed task, printing a manual
+`mv` + frontmatter edit as the remedy. So the partial-complete path has no `fw`-level way to
+re-open the task whose state it needs to commit.
+
+**Smallest candidate we can see, offered as evidence not design:** extend T-2054's condition
+from *"focus is null"* to *"focus is null **or** the focused task's status is
+`work-completed`"*. That covers the partial-complete post-state without touching any other
+branch, and the commit-msg hook still enforces the `T-XXX` reference either way — so P-002's
+actual guarantee is unchanged. We have not made this change; see the note at the top of this
+document.
 
 **What we did instead:** carried the state in a later commit named after a different task,
 saying so in the message. That works, and our history now shows it twice (`ca8e0f08`,
