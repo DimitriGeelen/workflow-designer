@@ -10274,9 +10274,13 @@ function buildBpmnXml(s) {
     const srcRef = srcNode ? displayIdOf(srcNode) : e.source;
     const tgtRef = tgtNode ? displayIdOf(tgtNode) : e.target;
     lines.push(`    <bpmn:sequenceFlow id="${escAttr(edgeDisplayId)}"${nameAttr} sourceRef="${escAttr(srcRef)}" targetRef="${escAttr(tgtRef)}">`);
-    if (e.condition) {
-      lines.push(`      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${escText(e.condition)}</bpmn:conditionExpression>`);
-    }
+    // T-690: extensionElements MUST precede conditionExpression. BPMN's tBaseElement declares
+    // extensionElements as the first element of the sequence, and tSequenceFlow extends it, so
+    // conditionExpression can only follow. This emitted them the other way round for the life of
+    // the exporter — 113 occurrences across 24 of 24 corpus maps, every one schema-invalid.
+    // Nothing caught it because every check the corpus had was name-based, and a name scan is
+    // precisely the check that discards order. The condition block now lives below, after the
+    // extensionElements close tag.
     const wps = e.waypoints || [];
     const hasPort = (e.sourcePort && e.sourcePort !== 'auto') || (e.targetPort && e.targetPort !== 'auto');
     // Always emit extensionElements to preserve the edge uid
@@ -10309,6 +10313,10 @@ function buildBpmnXml(s) {
       lines.push(`        </aef:routing>`);
     }
     lines.push(`      </bpmn:extensionElements>`);
+    // T-690: emitted here, AFTER extensionElements, per tBaseElement's element order.
+    if (e.condition) {
+      lines.push(`      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${escText(e.condition)}</bpmn:conditionExpression>`);
+    }
     lines.push(`    </bpmn:sequenceFlow>`);
   }
 

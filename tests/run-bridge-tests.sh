@@ -1456,6 +1456,44 @@ else
 fi
 
 echo
+echo "== exported BPMN validates against the OMG schema and carries complete DI (T-690, T-423) =="
+# The subject is what the designer EXPORTS, so this reuses the artefacts the additive leg
+# just produced in a real browser rather than validating the committed corpus. That choice is
+# the leg's whole meaning: the 24 committed maps are known schema-invalid and pre-DI (T-691),
+# so pointing this at them would report a defect nobody is fixing today, go red every run,
+# and be muted within a week. Pointed at fresh exports it reports whether the EXPORTER is
+# conformant, which is the property that regresses.
+#
+# WHY THIS EXISTS AT ALL, given the additive guard runs directly above it. That guard proves
+# export ADDS DI and changes nothing else — it is a source↔export comparison and is therefore
+# blind to any fault both sides share. Every corpus map emitted extensionElements after
+# conditionExpression, so every export did too, so the guard was green across 113 schema
+# violations. Nothing in this suite validated against the actual XSD; every check was
+# name-based or byte-based, and order is exactly what a name scan discards. This leg closes
+# that: the OMG schemas are vendored under tools/schemas/bpmn20 with pinned digests, and
+# --verify-schemas refuses if one was edited locally.
+#
+# Its --self-test carries the fault that prompted it and six more, each watched red before
+# the leg was wired. Run it before believing a green here.
+#
+# COST: ~2s. No browser — it validates files the previous leg already wrote.
+if [ -d "$T423_ADD_EXP" ] && [ -n "$(ls -A "$T423_ADD_EXP"/*.bpmn 2>/dev/null)" ]; then
+  if timeout 120 python3 "$ROOT/tools/_t423-di-schema-validate.py" --self-test > "$TMP/leg-_t423-schema.out" 2>&1 \
+     && timeout 300 python3 "$ROOT/tools/_t423-di-schema-validate.py" "$T423_ADD_EXP"/*.bpmn >> "$TMP/leg-_t423-schema.out" 2>&1; then
+    pass=$((pass + 1))
+  else
+    report FAIL "a freshly exported map is not schema-valid BPMN 2.0, or has lost its DI geometry (run 'python3 tools/_t423-di-schema-validate.py <file.bpmn>'; it prints the schema line and the geometry finding separately, because a document can satisfy the XSD and still carry no diagram. If the SELF-TEST leg is what failed, the validator itself is broken and its verdict on the corpus means nothing)"
+    show_output "$TMP/leg-_t423-schema.out" "_t423-di-schema-validate.py"
+    fail=$((fail + 1))
+  fi
+else
+  # Not a pass. The exports are this leg's entire population; without them it has ranged
+  # over nothing, and a silent skip is how a leg's coverage evaporates with its count intact.
+  report FAIL "REFUSED — no exported maps to validate at \$T423_ADD_EXP, so nothing was checked against the schema (the additive-export leg above produces them; fix that leg first)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Unwired flow nodes survive a save round-trip (T-511, AEF rail 11833 Q2) =="
 # Wired because I ASSERTED this to AEF on the rail at 11879 — "unwired flow nodes survive,
 # element id does not, identity travels on aef:uid" — and an assertion made to a peer that

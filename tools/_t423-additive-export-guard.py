@@ -42,6 +42,15 @@ satisfy the sentence while ignoring half of it. Comparing the ordered sequence o
 (tag, sorted attributes) costs nothing extra and covers removal, addition, reordering and
 attribute mutation in one equality.
 
+THE ONE EXCEPTION TO THAT SEQUENCE, ADDED BY T-690, AND WHY IT IS NOT A HOLE. Inside
+`bpmn:sequenceFlow`, `extensionElements` is hoisted to the front before comparison — because
+the schema requires it there and the corpus on disk does not have it there. The hoist is
+applied to BOTH sides, but only the SOURCE side is forgiven for needing it: an EXPORT that
+needs the hoist is reported as a violation in its own right. So the guard tolerates the
+corpus's historical order and still refuses to emit it. See `_sequence` for the full
+reasoning, and `tools/_t423-di-schema-validate.py` for the independent check that holds the
+whole document — not just this one element pair — to the OMG schema.
+
 WHY THE ALLOWED ADDITIONS ARE ENUMERATED RATHER THAN THE COMPARISON LOOSENED. The exporter
 stamps `exporter` (and, if present, `exporterVersion`) on the root. The cheap fix is "ignore
 attributes on the root element", which would also hide a REMOVED `targetNamespace` — the
@@ -75,6 +84,7 @@ DI_NS = {
     "http://www.omg.org/spec/DD/20100524/DI",
 }
 AEF_NS = "http://anchorpoint.framework/aef/extensions"
+BPMN_NS = "http://www.omg.org/spec/BPMN/20100524/MODEL"
 
 # Provenance the exporter stamps on the root. Enumerated on purpose — see the docstring.
 ALLOWED_ROOT_ADDITIONS = {"exporter", "exporterVersion"}
@@ -91,24 +101,69 @@ def _local(tag):
     return tag[tag.index("}") + 1:] if tag.startswith("{") else tag
 
 
-def _sequence(path, drop_di):
+def _is_sequence_flow(el):
+    return _ns(el.tag) == BPMN_NS and _local(el.tag) == "sequenceFlow"
+
+
+def _hoisted(children):
+    """`children` with bpmn:extensionElements moved to the front, order otherwise kept.
+
+    `sorted` is stable, so this is a hoist and not a sort: every other child keeps its
+    relative position, and a document already in the right order is returned unchanged.
+    """
+    return sorted(children, key=lambda k: 0 if _local(k.tag) == "extensionElements" else 1)
+
+
+def _sequence(path, drop_di, misordered=None):
     """Ordered [(tag, sorted attrs)] for every element, DI optionally dropped.
 
     Raises on unparseable input; the caller turns that into a refusal rather than into
     "no differences found", which is the same distinction the round-trip probe had to be
     taught (an unreadable document is not an unchanged one).
+
+    T-690 — THE ONE PLACE THIS WALK IS NOT DOCUMENT ORDER, AND WHY IT IS NOT A LOOSENING.
+    BPMN's `tBaseElement` declares `extensionElements` as the FIRST element of its sequence,
+    and `tSequenceFlow` extends it, so `conditionExpression` can only follow. The designer
+    emitted them the other way round for its whole life — 113 occurrences across 24 of 24
+    rendered corpus maps, every one schema-invalid, and the corpus on disk still carries that
+    order because regenerating it is a seam decision with an external consumer (see T-691).
+
+    So the guard now compares each `bpmn:sequenceFlow`'s children with `extensionElements`
+    hoisted to the front. Read carefully what that does and does not permit:
+
+      - The SOURCE side is normalised. A corpus map written in the invalid order compares
+        equal to a correctly-ordered export. That is the whole point: the fix is a move
+        within a document, and this guard exists to detect rewrites of one.
+      - The EXPORT side is NOT normalised into silence. When `misordered` is passed, any
+        exported sequenceFlow that needed the hoist is RECORDED and becomes a violation.
+        An exporter that regresses to the old order still fails here.
+
+    The asymmetry is the load-bearing part. Normalising both sides would have been one line
+    shorter and would have made this guard blind to the very defect that prompted the change
+    — a control quietly rewritten to accept its own subject's failure. `misordered` is what
+    keeps the teeth; `tools/_t423-additive-export-teeth.py` case 12 watches it bite.
     """
     root = ET.parse(path).getroot()
     out = []
-    for el in root.iter():
-        if drop_di and _ns(el.tag) in DI_NS:
-            continue
-        attrs = dict(el.attrib)
-        if el is root:
-            for k in list(attrs):
-                if k in ALLOWED_ROOT_ADDITIONS:
-                    attrs.pop(k)
-        out.append((el.tag, tuple(sorted(attrs.items()))))
+
+    def walk(el):
+        if not (drop_di and _ns(el.tag) in DI_NS):
+            attrs = dict(el.attrib)
+            if el is root:
+                for k in list(attrs):
+                    if k in ALLOWED_ROOT_ADDITIONS:
+                        attrs.pop(k)
+            out.append((el.tag, tuple(sorted(attrs.items()))))
+        kids = list(el)
+        if _is_sequence_flow(el):
+            hoisted = _hoisted(kids)
+            if misordered is not None and hoisted != kids:
+                misordered.append(el.get("id") or "<no id>")
+            kids = hoisted
+        for k in kids:
+            walk(k)
+
+    walk(root)
     return out
 
 
@@ -151,13 +206,25 @@ def compare(src_dir, exp_dir):
 
     for f in pairs:
         sp, ep = os.path.join(src_dir, f), os.path.join(exp_dir, f)
+        bad_order = []
         try:
             s = _sequence(sp, drop_di=False)
-            e_nodi = _sequence(ep, drop_di=True)
+            e_nodi = _sequence(ep, drop_di=True, misordered=bad_order)
             e_all = _sequence(ep, drop_di=False)
         except ET.ParseError as ex:
             unparseable.append(f"{f}: {ex}")
             continue
+
+        # T-690: the export side is held to the schema's element order even though the
+        # source side is normalised to it. Reported before the sequence comparison because
+        # the hoist makes those two documents compare EQUAL — without this the regression
+        # would pass silently, which is precisely the failure the normalisation risks.
+        if bad_order:
+            violations.append(
+                f"{f}: {len(bad_order)} exported bpmn:sequenceFlow element(s) emit "
+                f"bpmn:extensionElements AFTER another child — tBaseElement puts it first, "
+                f"so these are schema-invalid: {', '.join(bad_order[:5])}"
+                + (f" (+{len(bad_order) - 5} more)" if len(bad_order) > 5 else ""))
 
         di_added += len(e_all) - len(e_nodi)
         for k, v in _intent_census(sp).items():

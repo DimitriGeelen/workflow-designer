@@ -175,6 +175,44 @@ def reorder_two_siblings(d):
     _edit_first_containing(d, "<bpmn:sequenceFlow", fn)
 
 
+def regress_extensionelements_order(d):
+    """Put an export's <bpmn:extensionElements> back AFTER <bpmn:conditionExpression>.
+
+    T-690 case. This is the mutation the guard's own T-690 normalisation could have hidden:
+    the source corpus carries this exact order, so hoisting extensionElements on BOTH sides
+    makes the damaged export compare EQUAL to its source and the sequence check goes green on
+    a schema-invalid document. The guard's answer is to forgive the hoist on the source side
+    and report it on the export side; this case is what proves that answer is wired up rather
+    than merely written down in a docstring.
+
+    It damages ONE flow, not all of them — a mutant that breaks everything can be caught by a
+    guard that only looks at the first document.
+
+    The swap is confined to ONE <bpmn:sequenceFlow> block. The first draft searched the whole
+    document for an extensionElements/conditionExpression pair and, with re.DOTALL, matched a
+    PROCESS-level extensionElements against a conditionExpression hundreds of lines below it.
+    That mutant was caught — but by the ordinary sequence check, on the generic "diverges"
+    path, so it certified nothing about the T-690 leg while looking like it did. A teeth case
+    that fails for a different reason than the one it is named for is worse than no case.
+    """
+    BLOCK = r'[ \t]*<bpmn:sequenceFlow\b[^>]*>\n.*?[ \t]*</bpmn:sequenceFlow>\n'
+    COND = r'([ \t]*<bpmn:conditionExpression\b.*?</bpmn:conditionExpression>\n)'
+    EXT = (r'((?:[ \t]*<bpmn:extensionElements>\n.*?[ \t]*</bpmn:extensionElements>\n)'
+           r'|(?:[ \t]*<bpmn:extensionElements\b[^>]*/>\n))')
+
+    def fn(t):
+        for blk in re.finditer(BLOCK, t, flags=re.S):
+            body = blk.group(0)
+            m = re.search(EXT + COND, body, flags=re.S)
+            if not m:
+                continue
+            swapped = body[:m.start()] + m.group(2) + m.group(1) + body[m.end():]
+            return t[:blk.start()] + swapped + t[blk.end():]
+        return t
+
+    _edit_first_containing(d, "<bpmn:conditionExpression", fn)
+
+
 def drop_target_namespace(d):
     _edit_first_containing(d, "targetNamespace=",
                            lambda t: re.sub(r'\s*targetNamespace="[^"]*"', "", t, count=1))
@@ -246,6 +284,9 @@ def main():
     case("one export document becomes unparseable — must REFUSE, not pass", corrupt_one_export, 2, "not an unchanged one")
     case("the export directory is emptied — must REFUSE", empty_the_export, 2, "Nothing was compared")
     case("exporterVersion is added — allow-list control, MUST STAY GREEN", add_exporter_version, 0)
+    case("an export regresses to extensionElements-after-conditionExpression (T-690) — the "
+         "normalisation must NOT absorb it", regress_extensionelements_order, 1,
+         "tBaseElement puts it first")
 
     bad = [r for r in results if r[1] != "ok"]
     for name, verdict, detail in results:

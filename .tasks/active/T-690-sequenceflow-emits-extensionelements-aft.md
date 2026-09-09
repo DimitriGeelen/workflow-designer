@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-08T21:39:56Z
-last_update: 2026-09-08T21:39:56Z
+last_update: 2026-09-08T21:41:59Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -65,27 +65,48 @@ residual rather than forcing the regeneration into this task.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `src/aef-workflow-designer.html` emits `bpmn:extensionElements` BEFORE
+- [x] `src/aef-workflow-designer.html` emits `bpmn:extensionElements` BEFORE
       `bpmn:conditionExpression` inside `bpmn:sequenceFlow`. BPMN's `tBaseElement` puts
       `extensionElements` first in the sequence, so the current order is invalid rather than
       merely unconventional. The fix is a reorder of two emission blocks — no element added,
       removed, or altered in content.
-- [ ] A map exported through the REAL exporter (CDP, not the committed corpus) validates
+- [x] A map exported through the REAL exporter (CDP, not the committed corpus) validates
       clean on the schema leg of `python3 tools/_t423-di-schema-validate.py <exported.bpmn>`.
       The committed corpus is deliberately NOT the artefact under test: it predates DI
       emission entirely and is a separate regeneration problem.
-- [ ] The reorder does not disturb the additive-export guarantee — T-423's
+      **Measured:** all 24 maps re-exported through a real browser
+      (`_t423-additive-export-cdp.mjs`) → `24 document(s): 0 schema-invalid, 0 missing DI
+      geometry`. Both legs clean, not just the schema one, which also closes T-423's last AC.
+- [x] The reorder does not disturb the additive-export guarantee — T-423's
       `_t423-additive-export-guard.py` still reports every non-DI element equal in tag,
       attributes and document order. This must read as a move within a document, not a
       rewrite of one.
-- [ ] The regression is caught by the suite, not by whoever next runs a validator by hand:
+      **This AC was WRONG AS WRITTEN and is recorded rather than quietly reinterpreted.**
+      The fix *is* a reorder, and the guard compares document order against a corpus that
+      still holds the invalid order, so it went red on all 24 — the outcome this task's own
+      Context predicted for the byte-identity baseline ("a control that defends a defect").
+      The guarantee the AC was reaching for is *additivity*, not order-identity. Resolved by
+      teaching the guard an asymmetric normalisation: `extensionElements` is hoisted on the
+      SOURCE side (forgiving the corpus's historical order) and any EXPORT that needs the
+      hoist is reported as a violation. **Green on the real exports: `PASS — 24 document(s)
+      identical outside DI`, 2012 DI elements added.**
+- [x] The regression is caught by the suite, not by whoever next runs a validator by hand:
       `_t423-di-schema-validate.py` wired into `tests/run-bridge-tests.sh`. Its `--self-test`
       already carries this exact case (`extensionElements-after-conditionExpression`) and has
       been watched red, so the leg is known capable of failing before it is relied on.
-- [ ] The 24 committed corpus maps are addressed explicitly — regenerated so they validate,
+      **Wired** immediately after the additive-export leg, validating the fresh exports that
+      leg produces — not the committed corpus, which would go red every run on T-691's
+      residual and be muted within a week. The leg runs `--self-test` first (7/7) so a broken
+      validator fails loudly instead of certifying silently, and REFUSES rather than passing
+      when there are no exports to range over.
+- [x] The 24 committed corpus maps are addressed explicitly — regenerated so they validate,
       or the residual recorded with its reason and follow-up task id. Leaving 24 known-invalid
       documents in the tree with no statement is not acceptable, because the next reader
       cannot distinguish known-and-scheduled from undetected.
+      **Residual recorded as T-691** (`owner: human`, horizon `later`). Not regenerated under
+      agent initiative: regeneration lands DI bytes for the first time in an artefact AEF
+      pins against, which supersedes T-340 ruling (b) in a way a consumer can see. That is a
+      seam decision, and the mandate does not delegate it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -166,6 +187,46 @@ residual rather than forcing the regeneration into this task.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# NOTE ON WHAT IS *NOT* HERE. The browser legs (real export -> schema-valid, real export ->
+# additive, teeth) take ~400s and need Chromium plus the gallery sidecar. They are wired into
+# tests/run-bridge-tests.sh, which is where they belong; duplicating them here would make the
+# completion gate a second, slower copy of the suite. Everything below runs in seconds and
+# fails if the fix, the controls, or the wiring is undone.
+
+# 1. The exporter emits extensionElements BEFORE conditionExpression. Pinned as the exact
+#    adjacency rather than by line number, which moves whenever anything above it is edited.
+python3 -c 'import sys;s=open("src/aef-workflow-designer.html").read();sys.exit(0 if "</bpmn:extensionElements>`);\n    // T-690: emitted here, AFTER extensionElements" in s else 1)'
+
+# 2. The schema validator is capable of failing — 7 cases, each watched red on a purpose-built
+#    document, including this task's exact fault. A green verdict from an unexercised
+#    validator is the thing this leg exists to prevent.
+python3 tools/_t423-di-schema-validate.py --self-test
+
+# 3. The vendored OMG XSDs are the bytes the OMG served. A silent local edit to a schema
+#    weakens every validation downstream while every run stays green.
+python3 tools/_t423-di-schema-validate.py --verify-schemas
+
+# 4. The guard's EXPORT-side order check is live, proved without a browser: feed it the
+#    corpus as BOTH sides. Source and export are then byte-identical, so the sequence
+#    comparison cannot fail — the only thing that can speak is the T-690 leg, and it must,
+#    because the corpus carries the invalid order (T-691). Non-zero exit is EXPECTED here;
+#    the grep is the verdict.
+out=$(python3 tools/_t423-additive-export-guard.py examples/aef-processes/rendered examples/aef-processes/rendered 2>&1); echo "$out" | grep -q "tBaseElement puts it first"
+
+# 5. Both changed Python controls still compile.
+python3 -c 'import py_compile;py_compile.compile("tools/_t423-additive-export-guard.py",doraise=True);py_compile.compile("tools/_t423-additive-export-teeth.py",doraise=True)'
+
+# 6. The suite is syntactically whole after the new leg was inserted.
+bash -n tests/run-bridge-tests.sh
+
+# 7. The validator is actually WIRED, not merely present. _t451's census exists because
+#    standing guards with no live caller are how a control becomes decoration.
+grep -q '_t423-di-schema-validate.py" --self-test' tests/run-bridge-tests.sh
+
+# 8. The AC-5 residual is recorded, not asserted. A follow-up task id in prose that resolves
+#    to no file is the same as no residual at all.
+test -f .tasks/active/T-691-regenerate-the-24-rendered-corpus-maps-s.md
 
 ## RCA
 
@@ -182,6 +243,44 @@ residual rather than forcing the regeneration into this task.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** Every conditional sequence flow the designer has ever exported is schema-invalid
+BPMN. 113 occurrences across 24 of 24 rendered corpus maps; reproduced in the live exporter,
+so it was current behaviour and not stale bytes.
+
+**Root cause:** `src/aef-workflow-designer.html` opened `bpmn:sequenceFlow`, emitted the
+conditional `conditionExpression`, then emitted the unconditional `extensionElements` block.
+BPMN's `tBaseElement` declares `extensionElements` as the first element of its sequence and
+`tSequenceFlow` extends it, so `conditionExpression` can only follow. The two emission blocks
+were simply in the wrong order — no element was ever missing, misnamed or misattributed.
+
+**Why structurally allowed:** every control the export path had was name-based or byte-based,
+and **order is exactly what a name scan discards.** Three separate controls were green across
+all 113 violations, each for its own reason:
+
+- `_t423-additive-export-guard.py` compares SOURCE against EXPORT. Every corpus map carried
+  the invalid order, so every export matched it. A source↔export comparison is blind by
+  construction to any fault both sides share — the guard was structurally incapable of seeing
+  this, not merely unlucky.
+- The byte-identity baseline (`_t308-export-byte-identity-cdp.mjs`) pins the current bytes,
+  so it does not merely miss the defect: **it goes red on the fix.** A control that defends
+  a defect is worse than an absent one, because it produces resistance in the correct
+  direction.
+- `tools/validate-workflow.py` validates the project's own dialect, never the OMG XSD.
+  Nothing in the tree had ever validated an exported document against the real schema.
+
+The deeper omission: the exporter emits a *standard*, and no control held it to the standard's
+own document. Conformance was asserted in prose and checked by proxies.
+
+**Prevention** (distinct from the fix):
+1. `tools/_t423-di-schema-validate.py` validates against five vendored OMG XSDs with pinned
+   digests, wired into `tests/run-bridge-tests.sh` against FRESH exports. Its `--self-test`
+   carries this exact fault plus six more, each watched red first.
+2. The additive guard now reports an export whose `sequenceFlow` needs the hoist, so the
+   ordering regression fails there too — teeth case 12 in `_t423-additive-export-teeth.py`
+   proves the normalisation did not absorb its own subject.
+3. Recorded as a learning: a source↔export comparison cannot detect a fault present on both
+   sides; conformance to an external standard needs that standard's own validator.
 
 ## Evolution
 
@@ -206,6 +305,45 @@ residual rather than forcing the regeneration into this task.
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-09-09 — AC 3 was self-contradictory with AC 1, and saying so was the work
+
+- **What changed:** At filing I wrote "the reorder does not disturb the additive-export
+  guarantee — the guard still reports every non-DI element equal in tag, attributes and
+  **document order**." The fix is a reorder. Those two ACs cannot both hold, and I did not
+  see it until the guard went red on all 24 documents. The Context of this very task had
+  already predicted the mechanism one paragraph earlier, about a different control.
+- **Plan impact:** The guarantee worth having is *additivity*, not order-identity. The guard
+  now normalises asymmetrically — forgiving the hoist on the source side, reporting it on the
+  export side. Symmetric normalisation was one line shorter and would have made the guard
+  blind to the exact defect that prompted the change.
+- **Triggered:** teeth case 12. Its first draft matched a process-level `extensionElements`
+  against a `conditionExpression` hundreds of lines away and was caught on the generic
+  "diverges" path — rc=1 for the wrong reason, which looks identical to success. Re-scoped to
+  a single `sequenceFlow` block, then 13/13.
+
+### 2026-09-09 — the corpus regeneration is a seam decision, not a chore
+
+- **What changed:** I expected regeneration to be the tidy ending — make source and export
+  agree again and the additive guard recovers full strength with no exception carved into it.
+  Measuring stopped that: the 24 maps carry **no DI at all**, so regenerating is not a re-emit
+  but the first landing of DI bytes in an artefact AEF pins against, superseding T-340 ruling
+  (b) visibly to a consumer.
+- **Plan impact:** AC 5's residual branch taken deliberately, not for convenience. The suite
+  leg was pointed at fresh exports rather than the corpus for the same reason — a leg that
+  goes red every run on a defect nobody is fixing today gets muted, and then it is not a
+  control.
+- **Triggered:** T-691 (`owner: human`, horizon `later`), carrying the measurement and the
+  reason the decision is the operator's.
+
+### 2026-09-09 — the bridge was already right, which relocates the defect
+
+- **What changed:** I assumed both emitters shared the fault. `tools/yaml-to-bpmn.py:340-344`
+  emits the correct order and always has. The corpus is invalid because it was last written
+  by the *designer*, not the bridge — visible in the inline `xmlns:xsi` on every condition.
+- **Plan impact:** No second fix site; scope stayed one file. Recorded in T-691 so nobody
+  re-derives it and "fixes" a correct emitter.
+- **Triggered:** nothing — this is the case where measuring cheaply prevented work.
 
 ## Decisions
 
