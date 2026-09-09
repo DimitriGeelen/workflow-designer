@@ -25,12 +25,12 @@ description: >
   goes 24/24 drifted] the benefit is portability to standard viewers (bpmn.io, Camunda),
   not AEF interop.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: claude-code
+owner: human
 horizon: now
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_emitted_comment_claims.py, tools/_t338-input-fidelity-cdp.mjs, tools/_t361-guard-teeth.py, tools/_t423-additive-export-cdp.mjs, tools/_t423-additive-export-guard.py, tools/_t423-additive-export-teeth.py, tools/_t423-carrier-agreement-cdp.mjs, tools/_t423-carrier-agreement-guard.py, tools/_t423-carrier-agreement-teeth.py, tools/_t423-di-roundtrip-idempotence-cdp.mjs, tools/_t423-di-roundtrip-teeth.py, tools/_t423-position-carrier-guard.py, tools/_t423-position-carrier-teeth.py, tools/_t509-instrument-sweep.sh, tools/_t563-fallback-id-derivation-cdp.mjs, tools/_t565-workflowmeta-emission-census.mjs]
 related_tasks: [T-357, T-340, T-424, T-425]
 arc_id: designer-authoring-surface
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -38,8 +38,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-09-08T21:39:42Z
-date_finished:
+last_update: 2026-09-09T07:40:00Z
+date_finished: 2026-09-09T07:40:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -1113,3 +1113,30 @@ python3 -c "import ast,sys; t=ast.parse(open('tools/_t423-additive-export-guard.
 # The two unexercised extensions must stay NAMED as unexercised: if someone deletes that
 # reporting, the guard starts claiming coverage it does not have.
 grep -q 'UNEXERCISED' tools/_t423-additive-export-guard.py
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7f5b28f8
+- **Timestamp:** 2026-09-09T07:40:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 6
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 69
+     - evidence: `python3 tools/_t423-position-carrier-teeth.py > /dev/null`
+  2. **empty-output-success** (partial, heuristic) @ Verification:line 70
+     - evidence: `python3 tools/_t423-position-carrier-guard.py > /dev/null`
+  3. **empty-output-success** (partial, heuristic) @ Verification:line 88
+     - evidence: `python3 tools/_t423-carrier-agreement-teeth.py > /dev/null`
+  4. **empty-output-success** (partial, heuristic) @ Verification:line 92
+     - evidence: `timeout 300 node tools/_t423-carrier-agreement-cdp.mjs > /dev/null`
+  5. **empty-output-success** (partial, heuristic) @ Verification:line 104
+     - evidence: `timeout 3000 python3 tools/_t423-di-roundtrip-teeth.py > /dev/null`
+  6. **empty-output-success** (partial, heuristic) @ Verification:line 105
+     - evidence: `timeout 400 node tools/_t423-di-roundtrip-idempotence-cdp.mjs > /dev/null`
+
+### 2026-09-09T07:40:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

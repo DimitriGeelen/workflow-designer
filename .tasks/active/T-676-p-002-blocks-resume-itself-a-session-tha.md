@@ -4,7 +4,7 @@ name: "P-002 blocks /resume itself: a session that ends by FILING a task cannot 
 description: >
   MEASURED 2026-09-04 at session start. The previous session ended by filing T-674, which left focus.yaml pointing at a task with status 'captured'. check-active-task then refused EVERY Bash call in the new session - including the read-only 'git status --short' and 'git log --oneline -5' that the /resume skill's own Step 1 requires. The recovery workflow cannot run on the exact state that filing a task produces, and filing a task at session end is the behaviour the framework asks for. Note the gate blocks on TASK STATE, not on write-intent: 'git status' modifies nothing. Same family as OBS-033 (P-002 catch-22) and the T-672 leg that asserted a state its own satisfaction destroys. Workaround used: 'fw context focus T-575' to a started-work task - no bypass flag. Candidate fix: exempt read-only Bash from the captured-task block (the budget gate already classifies git status/log/diff as read-only in its allow-regex, so the classification exists and is not duplicated), or have the gate treat a 'captured' focus as no-focus rather than as a blocking violation.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: claude-code
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-04T21:55:13Z
-last_update: 2026-09-04T22:33:43Z
+last_update: 2026-09-09T07:41:41Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -45,6 +45,34 @@ one and were not anticipated when this was written:
 | 3 | completing T-677 cleared focus | `No active task` |
 | 4 | completing T-467 cleared focus | `No active task` (blocked `fw arc list`) |
 | 5 | completing T-670 cleared focus | `No active task` (blocked `checkpoint.sh status`) |
+| 6 | post-compaction, focus null | `No active task` (blocked `/resume`'s OWN state-gathering — the tool counter and budget read the skill prescribes) |
+| 7 | completing T-689 cleared focus | `No active task` (blocked `git push`) |
+| 8 | completing T-423 left focus ON it, `work-completed` | `Task T-423 has status 'work-completed'` (blocked `checkpoint.sh status` AND reading `.gate-bypass-log.yaml`) |
+
+**EIGHT instances across four sessions.** Instances 6-8 were measured 2026-09-08/09.
+
+Instance 8 is a **fourth trigger state** the table above did not have: focus is neither
+absent nor `captured` but points at a task that has just reached `work-completed`. It arises
+from the *partial-complete* path specifically — T-423 has an unticked `[REVIEW]` Human AC, so
+it stayed in `.tasks/active/` with `owner: human`, and focus stayed pointed at it. The gate's
+own message names the remedy as NOT AVAILABLE for this state ("`fw context focus` accepts
+active tasks only") and offers only the two Tier-2 bypasses, which an autonomous run is not
+delegated. So instance 8 is the first one with **no non-bypass remedy on the task itself** —
+the escape was to focus an unrelated task, which is the governance theatre this task already
+names, now forced rather than merely tempting.
+
+It also blocked the read of `.gate-bypass-log.yaml` — a file whose whole purpose is to make
+bypasses auditable. Worth stating: the gate that exists to keep bypasses honest blocked the
+read of the bypass ledger.
+
+**A second, separate defect found while recording instance 8 (2026-09-09).** `fw work-on
+T-676 | head -6` printed `=== Resuming T-676 ===` and exited cleanly, but the status stayed
+`captured` — `head` closes the pipe, the script takes SIGPIPE partway through, and the status
+write never lands. The visible output is indistinguishable from success, and the next command
+is refused by a gate citing the state the command was supposed to have changed. This is
+L-387's SIGPIPE class arriving on a *state-changing* command rather than a verification one,
+where the cost is not a false red but a silent no-op. Do not pipe `fw` state-changing
+commands into `head`/`grep -q`.
 
 **FIVE instances across two sessions, four of them on the normal end of a task.** Instances
 4 and 5 were measured 2026-09-05 while landing T-467/T-679/T-670 — the same session that
@@ -76,8 +104,42 @@ times in one session to do ordinary work is training the operator to route aroun
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+**Note on what this task may and may not deliver.** The candidate fix is a change to
+`check-active-task.sh`, a Tier-1 PreToolUse enforcement hook. Loosening an enforcement gate
+is not an agent decision however well-evidenced the case is, so the ACs below stop at a
+ratifiable proposal. AC 4 is the operator's, and nothing here edits the hook before it.
+
+- [ ] The instance register is complete and mechanically derived, not remembered. Every
+      occurrence carries: date, the command that was refused, the gate's exact message, and
+      whether the refused command modified anything. A count assembled from memory is the
+      same evidence problem this task is about.
+- [ ] Each instance is classified by TRIGGER STATE, because the fix differs per state and the
+      filed shape turned out to be the rare one: (a) focus left on a `captured` task,
+      (b) focus cleared by a completion, (c) focus left on a `work-completed` task,
+      (d) focus set but the command's first `T-NNN` names a different task (T-638/OBS-335).
+      A single "P-002 is annoying" bucket cannot be turned into a hook change.
+- [ ] The read-only classification the proposal depends on is shown to ALREADY EXIST in-tree
+      and is quoted with its file and line — `budget-gate.sh`'s allow-regex already treats
+      `git status|log|diff`, `fw handover|git|task` and `checkpoint.sh` as read-only. If it
+      does not say what this task claims it says, the proposal collapses and that is the
+      finding. **Quote the clause, cite the line, never paraphrase it** (PL-323).
+- [ ] The proposal names its own blast radius honestly: which commands would newly be
+      permitted, which of the eight recorded instances each variant would have prevented, and
+      what an attacker or a careless agent gains from the loosening. A proposal that only
+      lists benefits is not ratifiable.
+
+### Human
+- [ ] [REVIEW] **Should P-002 exempt read-only Bash when focus is absent, captured, or
+      completed?**
+      **Steps:**
+      1. Read the instance register in `## Context` — eight occurrences, with what each
+         refused command would have done.
+      2. Read the blast-radius section of the proposal.
+      3. Rule: GO (apply the exemption), NO-GO (keep the gate as-is and close this task), or
+         DEFER with what evidence would decide it.
+      **Expected:** a recorded ruling. Nothing edits `check-active-task.sh` before it.
+      **If not:** leave this unticked; the task stays parked and the workaround
+      (`fw context focus <active task>`) remains the standing answer.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -226,3 +288,6 @@ times in one session to do ordinary work is training the operator to route aroun
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md
 - **Context:** Initial task creation
+
+### 2026-09-09T07:41:41Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
