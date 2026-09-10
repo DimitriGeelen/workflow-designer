@@ -1552,3 +1552,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-343
+  text: "CORRECTION to OBS-340, same session, before anyone acts on it. OBS-340 presented the inception voi_score tie as a new finding. It is not. T-624 and T-625 found all of it on 2026-08-29 — the tie, the abstention framing, the _score_inception_voi site, the missing _proposed lane — and the evidence is written into this repo's own inception template at .tasks/templates/inception.md:26-35, four lines above the field I was measuring, together with a working tool at tools/_t624-voi-provenance.py. I did not check the registers or the template before filing, which is the one-command check I DID run for the sibling finding OBS-339 (confirmed new). Treat OBS-340 as confirmation, not discovery. The part that is genuinely new is a recurrence measurement T-624 could not have made because it needed elapsed time: T-624 measured 38 of 41 inceptions at the template default and chose an in-template warning as its prevention; twelve days later it is 12 of 13 active on the value axis and 40 of 43 on the cost axis by T-624's own tool. The proportion has not moved. That is a finding about prevention selection - a comment is not a gate - and it has been retargeted onto T-696, which was itself filed as a duplicate and is now scoped to the recurrence alone."
+  captured: 2026-09-10T05:54:13Z
+  context_task: T-575
+  tags: [bug]
+  status: pending
+  promoted_to: null

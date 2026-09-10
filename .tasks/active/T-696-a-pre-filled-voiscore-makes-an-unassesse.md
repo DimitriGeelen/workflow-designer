@@ -1,7 +1,17 @@
 ---
 id: T-696
-name: "A pre-filled voi_score makes an unassessed inception rank as an assessed one, and the estimator has no lane to fix it"
+name: "T-624 chose a template warning as its prevention and twelve days later the number has not moved: a comment is not a gate"
 description: >
+  RETARGETED 2026-09-10. Filed as a voi_score repair, which was a DUPLICATE of
+  T-624/T-625 — they found the tie, the abstention framing, the estimator site and
+  the missing _proposed: lane, and shipped tools/_t624-voi-provenance.py. What is
+  new is the RECURRENCE: T-624 measured 38 of 41 inceptions at the template default
+  on 2026-08-29 and chose an in-template warning as prevention; on 2026-09-10 the
+  figure is 12 of 13 active (92%), and T-624's own tool reports 40 of 43 on the cost
+  axis. The warning is emphatic, correct, and sits directly above the field. It has
+  changed nothing measurable. This task is about that: prevention that cannot fail
+  is not prevention. Original (duplicate) description follows.
+
   Measured under T-694. The task template ships voi_score 0.5 pre-filled; 12 of 13 active inceptions still carry it with the comment attached. int(round(0.5*5))=2, and an absent voi_score also returns 2 via the grandfathered path, so 'nobody assessed this' and 'judged exactly mid' are indistinguishable. All 12 land in hv-lc, the quadrant a work-Q1-first rule drains before any measured high-value build task. Neither voi_score nor target_blast_radius has a _proposed lane, so the estimator cannot assess the one task type whose purpose is deciding what to build.
 
 status: captured
@@ -30,41 +40,69 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-696: A pre-filled voi_score makes an unassessed inception rank as an assessed one, and the estimator has no lane to fix it
+# T-696: T-624 chose a template warning as its prevention and twelve days later the number has not moved: a comment is not a gate
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Filed as a duplicate and retargeted in the same session.** As originally written this
+task repeated T-624 and T-625, which had already found the inception tie, named
+`_score_inception_voi`, framed 0.5 as an *abstention printed as a confident 126*, stated
+the missing `_proposed:` lane, and shipped `tools/_t624-voi-provenance.py`. All of that
+is documented in `.tasks/templates/inception.md:26-35`, four lines above the field. I did
+not check before filing. The duplicate ACs are struck through below rather than deleted.
+
+What survives is one measurement T-624 could not have made, because it needed time to
+pass:
+
+| | T-624, 2026-08-29 | here, 2026-09-10 |
+|---|---|---|
+| inceptions at template-default `voi_score` | 38 of 41 (93%) | 12 of 13 active (92%) |
+| at template-default `target_blast_radius` | 38 of 41 | 40 of 43 (93%), T-624's own tool |
+
+T-624 diagnosed correctly and chose **an in-template warning** as its prevention. Twelve
+days on, the proportion is unchanged. The warning is emphatic (`⚠ CHANGE THIS`), correct,
+specific, and physically adjacent to the field it governs — and it has moved nothing.
+
+**This task is about that, and only that: a comment is not a gate.** It is FP-011
+(capture-without-application) arriving on a *mitigation* rather than on a learning, and
+it is a Level C/D question about how this project selects preventions — not a question
+about `voi_score`.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] **The collision is measured, and the two colliding states are named.** Done under
+- [x] ~~**The collision is measured, and the two colliding states are named.** Done under
       T-694: `estimator.py:2441-2450` returns 2 for an absent `voi_score` (grandfathered)
       and `int(round(0.5*5)) = 2` for the template's pre-filled 0.5, so the output cannot
       separate *unassessed* from *judged mid*. Measured population: 12 of 13 active
       inceptions still carry the value **and** its explanatory comment; T-155 carries no
-      `voi_score` at all and scores identically. `docs/reports/T-694-bvp-distinguishability.md` §2.
+      `voi_score` at all and scores identically. `docs/reports/T-694-bvp-distinguishability.md` §2.~~ **DUPLICATE of T-624.**
 
-- [x] **The absence of an agent lane is checked, not assumed.** `bvp_scores_proposed` and
+- [x] ~~**The absence of an agent lane is checked, not assumed.** `bvp_scores_proposed` and
       `cost_estimate_proposed` exist; there is no `voi_score_proposed` or
       `target_blast_radius_proposed` anywhere in the task template or `lib/bvp.sh`. So the
       estimator has no permitted way to assess an inception, and the field is operator-only
-      by CLAUDE.md's own sovereignty split.
+      by CLAUDE.md's own sovereignty split.~~ **DUPLICATE of T-625**, which states it verbatim.
 
-- [ ] **BLOCKED on the Human AC** — after the chosen repair, an inception with no assessed
-      `voi_score` is **distinguishable in the output** from one an operator scored 0.5. The
-      check is a standing one, not a one-shot: added to
-      `tools/_t694-bvp-distinguishability.py --self-test`.
+- [ ] **The recurrence is measured by a re-runnable command, not by comparing two prose
+      reports.** `tools/_t624-voi-provenance.py` already reports the population; a thin
+      wrapper or flag records the figure with its date so the NEXT check is a diff against
+      a recorded number rather than someone re-reading T-624. Without this the twelve-day
+      observation decays into another prose claim.
 
-- [ ] **BLOCKED on the Human AC** — the 12 affected inceptions are re-reported with their
-      post-repair quadrants, and the before/after table records how many leave hv-lc. If
-      none leave, the repair did not reach the ranking and this AC says so.
+- [ ] **BLOCKED on the Human AC** — whatever prevention is chosen, it is watched FAILING
+      before it is relied on. A prevention that has never been observed to refuse anything
+      is the same class of artefact as the warning it replaces.
 
 ### Human
 
-- [ ] [REVIEW] **Rule on how an unassessed inception should rank: A · B · C · D · no repair**
+- [ ] [REVIEW] **Rule on the prevention, not the field: A · B · C · D · no repair**
+
+      T-624 already picked one prevention (a template warning) and it did not work. The
+      menu below is inherited from that unfinished repair; what is being asked now is
+      which of them is a **gate** rather than another notice.
+
 
       **Why this is not the agent's call:** `voi_score` is your field, with no `_proposed:`
       lane by design. Any repair I chose would be me deciding, structurally, how much the

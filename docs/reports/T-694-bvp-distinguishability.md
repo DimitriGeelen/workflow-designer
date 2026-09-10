@@ -86,7 +86,57 @@ redirection, byte-identity goldens, and an unattributed Human-AC write.
 
 ---
 
-## 2. Finding B — 12 of 13 inceptions tie, on a field the estimator cannot write
+## 2. Finding B — NOT A FINDING. This was already known, and I did not check first.
+
+> ### CORRECTION, added the same session, after the section below was written
+>
+> **Everything in §2 was already established by T-624 and T-625 and is documented in
+> this repository's own inception template.** I did not look before filing it. The
+> template I was measuring says, four lines above the field I was measuring:
+>
+> ```
+> voi_score: 0.5    # ⚠ CHANGE THIS (T-624). For an inception voi_score IS the entire
+>                   # BVP composite: the estimator skips per-driver scoring and derives
+>                   # all nine drivers from this one number (estimator.py
+>                   # _score_inception_voi). Leaving 0.5 does not score the task, it
+>                   # abstains — and an abstention is printed as a confident BVP 126
+>                   # that no reader can tell from a real score. Measured 2026-08-29:
+>                   # 38 of 41 inceptions still carried this exact default, so the
+>                   # entire hv-lc quadrant ranked as one flat tie.
+> ```
+>
+> That is my §2 and §3, in full, twelve days earlier — including the abstention framing,
+> the flat-tie consequence, and the `_score_inception_voi` site. `tools/_t624-voi-provenance.py`
+> already exists and already reports it. T-625 covers `target_blast_radius` identically,
+> and states the missing-lane point I presented as mine: *"each field IS a composite input
+> with no `_proposed:` lane an agent may write into."*
+>
+> **§2 below stands as written but is not new. Read it as confirmation, not discovery.**
+>
+> **What IS new, and is worse than a re-discovery:**
+>
+> | | measured 2026-08-29 (T-624) | measured 2026-09-10 (here) |
+> |---|---|---|
+> | inceptions at template-default `voi_score` | 38 of 41 — **93%** | 12 of 13 active — **92%** |
+> | at template-default `target_blast_radius` | 38 of 41 | 40 of 43 — **93%** (T-624's own tool, run today) |
+>
+> **T-624 found the defect, chose "write a warning into the template" as its prevention,
+> and twelve days later the number has not moved.** The warning is emphatic, correct,
+> specific, and sits directly above the field. It is read by every author who creates an
+> inception, and it has changed nothing measurable.
+>
+> That is a finding about *prevention selection*, not about `voi_score`: **a comment is
+> not a gate.** It is the FP-011 class — capture-without-application — arriving on a
+> mitigation rather than on a learning. Retargeted as T-696; it is the only part of this
+> section worth anyone's time.
+>
+> **Cost of my error:** roughly a third of this unit of work went into re-deriving a
+> documented result. The check that would have prevented it — grep the registers and the
+> template before filing — costs one command. I did run exactly that check for Finding A,
+> which is how I know Finding A is new; I did not run it for Finding B because Finding B
+> felt like something I had discovered.
+
+### The re-discovered material, retained for the record
 
 The second 12-task cluster is disjoint from the first and consists **entirely** of
 inceptions:
@@ -142,6 +192,12 @@ assess**, and it is also the task type whose whole purpose is deciding what to b
 ---
 
 ## 3. Why this was worth stopping a run over
+
+> **Also not new** — T-624 states the same consequence ("the entire hv-lc quadrant ranked
+> as one flat tie"). What is specific to this run is that the flat tie was handed to an
+> autonomous mandate whose rule is *work Q1 to exhaustion*, so the abstention became a
+> work order. That is worth recording as a live demonstration of the documented risk, and
+> nothing more than that.
 
 `voi 0.5 → 2 on every driver` produces composite **126 / 0.40**, which lands in **hv-lc**.
 
