@@ -23,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-10T05:38:23Z
-last_update: '2026-09-10T05:39:48Z'
+last_update: 2026-09-10T05:43:59Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -59,13 +59,41 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Full measurement: `docs/reports/T-694-bvp-distinguishability.md`.
+Instrument: `tools/_t694-bvp-distinguishability.py` (has `--self-test`).
+Registered: OBS-339 (template floor), OBS-340 (inception tie, urgent).
+Repairs filed, not performed: T-695, T-696 — each carries its own Sovereign question.
+
+Filed mid-run, under a mandate that selects work by BVP quadrant, because the quadrant
+turned out to rest on a field nobody had set. Validating the instrument that produces a
+stop condition is not adjacent to that mandate — it is the evidence for it.
+
+> ### CORRECTION — the name of this task overstates its own finding
+>
+> The frontmatter `name` says the quadrant *"is not a measurement for **most** of the
+> backlog"* and *"one constant driver vector covers **10** tasks."* Both came from
+> watching the same numbers scroll past while scoring fifteen tasks by hand. **Measured,
+> both are wrong**, and one is wrong in the direction that made the finding look bigger:
+>
+> - **48 distinct vectors across 73 scored tasks.** That is real discriminating power.
+>   "Most of the backlog" is false — the two tied clusters are 24 of 73, 32.9%.
+> - The cluster is **12**, not 10. I had only scored 15 tasks; the other two were already
+>   in that state.
+>
+> The name is left as filed rather than rewritten, so the distance between the eye-count
+> and the measurement stays visible. It is the same distance this task exists to close,
+> and FP-019 says claims drift in the *safe-looking* direction — this one drifted the
+> other way, which is worth having on record as a counter-example.
+>
+> **What survives is narrower and worse than what I claimed:** an empty task file scores
+> 4 of 5 on the first constitutional directive, and 12 of 13 inceptions rank at the top
+> quadrant on a template default.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Distinguishability is MEASURED across the whole active backlog, by a tool, not by
+- [x] **Distinguishability is MEASURED across the whole active backlog, by a tool, not by
       hand.** `tools/_t694-bvp-distinguishability.py` reads every task in `.tasks/active/`,
       extracts the latest `bvp_scores_proposed` driver vector from each, and reports: how
       many tasks carry a proposed vector, how many DISTINCT vectors exist among them, and
@@ -73,26 +101,26 @@ bvp_scores_proposed:
       I noticed the collision by eye while scoring, and eye-count is exactly the evidence
       standard this task exists to replace.
 
-- [ ] **The mechanism is named at a site in the estimator, quoted, not inferred from the
+- [x] **The mechanism is named at a site in the estimator, quoted, not inferred from the
       output.** It is not enough to show that N tasks share a vector; the code path that
       produces the shared vector must be quoted with its file and line. If the modal
       vector turns out to be a legitimate convergence of independent per-driver decisions
       rather than a fall-through default, **this AC fails and says so** — that is the
       result it is written to force.
 
-- [ ] **The inception tie is separated from the free-driver collision — two claims, two
+- [x] **The inception tie is separated from the free-driver collision — two claims, two
       verdicts.** The 12 inceptions at exactly `126 / 0.40 / hv-lc` and the 10 tasks at
       `61 / 0.19` are asserted here as one symptom. Show whether they share a cause. State
       explicitly whether `voi_score` / `target_blast_radius` have any estimator write path
       at all, and if they do not, say so as an absence that was checked rather than an
       absence that was assumed.
 
-- [ ] **A negative control proves the tool can report DISTINGUISHABLE.** Plant a task
+- [x] **A negative control proves the tool can report DISTINGUISHABLE.** Plant a task
       carrying a deliberately different driver vector in a throwaway root, re-run, and
       watch the distinct-vector count rise by exactly one. A measuring instrument that has
       only ever printed one verdict has not been shown to have two.
 
-- [ ] **The finding is registered somewhere that outlives this task, and the repair is
+- [x] **The finding is registered somewhere that outlives this task, and the repair is
       NOT performed here.** Register in the observation/concern register (a completed task
       archives and goes invisible; a register entry does not). File the repair as its own
       task(s) carrying the Sovereign question, because changing how value is scored changes
@@ -180,21 +208,64 @@ bvp_scores_proposed:
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# 1. The instrument can report BOTH verdicts. Watched red on 2026-09-10 against a
+#    blinded copy whose vector extractor returned a constant: "expected 2 distinct,
+#    got 1 — the instrument cannot see a difference it was handed", rc=1.
+python3 tools/_t694-bvp-distinguishability.py --self-test
+
+# 2. It still measures the live backlog, and reports MORE than one vector — i.e. the
+#    finding is "two clusters tie", not "the estimator returns a constant". If this
+#    ever collapsed to 1 the report's own §0 correction would be wrong.
+python3 tools/_t694-bvp-distinguishability.py --json > /tmp/.t694-live.json 2>&1 && python3 -c "import json;d=json.load(open('/tmp/.t694-live.json'));assert d['tasks_scored']>0 and d['distinct_vectors']>1, d"
+
+# 3. The report quotes the estimator rather than paraphrasing it (PL-323). The quoted
+#    evidence string must still exist in the source it claims to quote — a paraphrase
+#    is a second, unversioned copy that drifts silently because it never looks wrong.
+grep -q 'voi-absent-grandfathered' docs/reports/T-694-bvp-distinguishability.md && grep -q 'voi-absent-grandfathered' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
+
+# 4. The bare-template evidence is in the report, named by the estimator's own token.
+grep -q 'body:structural-gate' docs/reports/T-694-bvp-distinguishability.md
+
+# 5. DERIVED, not pinned: the inception count the tool measures must equal the count
+#    the report asserts. A literal 12 here would stay green while either drifted.
+python3 tools/_t694-bvp-distinguishability.py --json > /tmp/.t694-c.json 2>&1 && python3 -c "import json;d=json.load(open('/tmp/.t694-c.json'));n=d['inceptions_voi_still_template_default'];t=open('docs/reports/T-694-bvp-distinguishability.md').read();assert f'{n} of 13' in t, f'tool measures {n}, report does not say so'"
+
+# 6. The repair is filed, not performed: both follow-ups exist and each carries an
+#    unticked Sovereign question rather than an agent decision.
+grep -q '\[REVIEW\]' .tasks/active/T-695-*.md && grep -q '\[REVIEW\]' .tasks/active/T-696-*.md
+
+# 7. The finding is registered where it outlives this task file.
+grep -q 'OBS-339' .context/inbox.yaml && grep -q 'OBS-340' .context/inbox.yaml
+
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** Twelve active tasks share one BVP driver vector and twelve inceptions share
+another, so a selection rule that works by quadrant cannot order them. Noticed only
+because an autonomous run was told to select by quadrant and the top quadrant filled up
+with tasks nobody had assessed.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** Two independent ones, filed separately as T-695 and T-696.
+(a) The estimator matches driver rubrics against the whole task-file body, and the
+shipped template's instructional comments talk about gates, defaults and environment
+classes — so the template scores itself. Measured floor: `D1=4 D2=0 D3=2 D4=2`.
+(b) The template ships `voi_score: 0.5` pre-filled; `int(round(0.5*5))` is 2, and the
+grandfathered path for an absent `voi_score` also returns 2, so *unassessed* and
+*judged-mid* are indistinguishable in the output.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** Both are presence-gates passing on template content.
+PL-266 already names the class — *a pre-filled required field converts a gate for
+presence into a gate that cannot fail* — and it was captured under T-624 before this.
+The reason it recurred is that nothing checks a scoring instrument against a **null
+input**. Every check on the estimator to date asks whether it produces a plausible score
+for a real task. None asked what it produces for no task. A meter is calibrated by
+reading zero, and this one had never been shown zero.
+
+**Prevention:** `tools/_t694-bvp-distinguishability.py --self-test` asserts the
+instrument can report DISTINGUISHABLE, and was watched red against a blinded copy
+(rc=1, "the instrument cannot see a difference it was handed"). That prevents the
+*measurement* from silently going blind. It does **not** prevent recurrence of the
+underlying defects — that needs the repairs in T-695/T-696, which are operator-gated.
+Recording the distinction rather than claiming prevention: mitigation is not prevention.
 
 ## Evolution
 

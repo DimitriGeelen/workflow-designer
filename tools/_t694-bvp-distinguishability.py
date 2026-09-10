@@ -141,11 +141,83 @@ def measure(root: Path):
     return rows
 
 
+def self_test():
+    """Watch the instrument report BOTH verdicts before trusting either.
+
+    A distinguishability meter that has only ever printed 'they are the same' has
+    not been shown to be able to print anything else. This plants one deliberately
+    distinct vector into a throwaway tree and requires the distinct count to rise by
+    exactly one — not merely to change, and not merely to be greater.
+
+    Runs entirely under a TemporaryDirectory: no ledger, fixture or baseline in the
+    repository is written to (T-694 §4).
+    """
+    import tempfile
+
+    body = (
+        "---\n"
+        "id: {tid}\n"
+        "workflow_type: build\n"
+        "bvp_scores_proposed:\n"
+        "  - ts: '2026-01-01T00:00:00Z'\n"
+        "    estimator: self-test\n"
+        "    scores:\n"
+        "{scores}"
+        "    rubric_sha: deadbeef\n"
+        "---\n\n# body\n"
+    )
+
+    def write(d, tid, vec):
+        sc = "".join(f"      {k}: {v}\n" for k, v in vec)
+        (d / f"{tid}-selftest.md").write_text(body.format(tid=tid, scores=sc))
+
+    same = (("D1", 4), ("D2", 0), ("D3", 2))
+    diff = (("D1", 5), ("D2", 0), ("D3", 5))
+
+    failures = []
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        for tid in ("T-901", "T-902", "T-903"):
+            write(d, tid, same)
+        before = measure(d)
+        n_before = len({r["vector"] for r in before if r["vector"]})
+        if n_before != 1:
+            failures.append(f"baseline: expected 1 distinct vector, got {n_before}")
+
+        write(d, "T-904", diff)
+        after = measure(d)
+        n_after = len({r["vector"] for r in after if r["vector"]})
+        if n_after != n_before + 1:
+            failures.append(
+                f"planted control: expected {n_before + 1} distinct, got {n_after} "
+                "— the instrument cannot see a difference it was handed")
+
+        # And the converse: a task with NO proposed vector must not be counted as
+        # scored. Otherwise the denominator silently inflates and every ratio moves.
+        (d / "T-905-unscored.md").write_text("---\nid: T-905\nworkflow_type: build\n---\n")
+        rows = measure(d)
+        if len([r for r in rows if r["vector"]]) != 4:
+            failures.append("an unscored task was counted in the scored denominator")
+
+    for f in failures:
+        print(f"SELF-TEST FAIL: {f}", file=sys.stderr)
+    if failures:
+        return 1
+    print("SELF-TEST PASS: 3 checks — baseline tie, planted distinct (+1), "
+          "unscored excluded from denominator")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=".tasks/active")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--self-test", action="store_true",
+                    help="prove the instrument can report DISTINGUISHABLE, not just tied")
     args = ap.parse_args()
+
+    if args.self_test:
+        return self_test()
 
     root = Path(args.root)
     if not root.is_dir():

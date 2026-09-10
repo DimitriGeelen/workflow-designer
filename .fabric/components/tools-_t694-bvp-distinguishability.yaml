@@ -1,0 +1,20 @@
+id: tools/_t694-bvp-distinguishability.py
+name: _t694-bvp-distinguishability
+type: script
+subsystem: unknown
+location: tools/_t694-bvp-distinguishability.py
+tags: []
+
+purpose: "TODO: describe what this component does"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-10
+created_by: unknown

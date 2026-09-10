@@ -1523,3 +1523,18 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-339
+  text: "T-694 measured: a task file with NO content at all scores D1=4 D2=0 D3=2 D4=2 through the BVP estimator, on evidence body:structural-gate, body:default-change, body:env-class-handled. Those signals come from the task TEMPLATE's own boilerplate comments (the P-011 errexit warning, the SIGPIPE hint, the REVIEWER routing block), not from the task. So D1=4 of 5 on Antifragility is the floor every task in this repo inherits on creation, and 12 active tasks score exactly that floor plus one point of F1 - meaning they were not scored low, they were not scored at all. Instrument: tools/_t694-bvp-distinguishability.py. Report: docs/reports/T-694-bvp-distinguishability.md"
+  captured: 2026-09-10T05:44:15Z
+  context_task: T-694
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-340
+  text: "T-694 measured: 12 of 13 active inception tasks carry the task template's pre-filled voi_score 0.5 with its explanatory comment still attached. The estimator maps that to int(round(0.5*5)) = 2 under banker's rounding, and maps an ABSENT voi_score to 2 as well via the grandfathered path (estimator.py:2441-2450). So the state 'nobody assessed this' and the state 'an operator judged it exactly mid' are indistinguishable in the output, and all 12 score 2 on every driver, composite 126/0.40, quadrant hv-lc. Under a work-Q1-first selection rule those 12 unexamined inceptions outrank every measured high-value build task in the project. Neither voi_score nor target_blast_radius has a _proposed: lane, so the estimator is structurally unable to assess the one task type whose purpose is deciding what to build. Report: docs/reports/T-694-bvp-distinguishability.md"
+  captured: 2026-09-10T05:44:22Z
+  context_task: T-694
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
