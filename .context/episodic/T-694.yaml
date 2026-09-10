@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-694: BVP quadrant is not a measurement for most of the backlog: one constant driver
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-10T05:48:35Z
+# ============================================================================
+
+task_id: T-694
+task_name: "BVP quadrant is not a measurement for most of the backlog: one constant driver"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-10T05:38:23Z
+completed: 2026-09-10T05:48:28Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-10T07:43:57+02:00
+last_commit: 2026-09-10T07:48:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  an empty task file scores 4 of 5 on Antifragility — the modal build vector is the template's own boilerplate, and 12 of 13 inceptions tie on a voi_score nobody set. 7/7 — self-test watched red on a blinded copy; the eye-count that filed this task overstated it and the correction is left visible; repairs filed as T-695/T-696, not performed
+
+# Key outcomes
+outcomes:
+  - '**Distinguishability is MEASURED across the whole active backlog, by a tool, not by'
+  - '**The mechanism is named at a site in the estimator, quoted, not inferred from the'
+  - '**The inception tie is separated from the free-driver collision — two claims, two'
+  - '**A negative control proves the tool can report DISTINGUISHABLE.** Plant a task'
+  - '**The finding is registered somewhere that outlives this task, and the repair is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.fabric/components/tools-_t694-bvp-distinguishability.yaml'
+  - '.tasks/active/T-553-sweep-report-must-survive-a-callers-stdo.md'
+  - '.tasks/active/T-554-record-browser-version-viewport-and-dpr-.md'
+  - '.tasks/active/T-555-population-wide-check-for-guards-that-ar.md'
+  - '.tasks/active/T-564-t-501-build-3-load-time-id-normalisation.md'
+  - '.tasks/active/T-573-emits-panel-field-writes-a-scalar-where-.md'
+  - '.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md'
+  - '.tasks/active/T-577-prose-dispositions-are-never-reconciled-.md'
+  - '.tasks/active/T-582-byte-identity-goldens-are-recorded-from-.md'
+  - '.tasks/active/T-583-nothing-enumerates-the-instruments-that-.md'
+  - '.tasks/active/T-584-episodic-git-mining-runs-one-commit-too-.md'
+  - '.tasks/active/T-622-an-unattributed-write-ticked-three-human.md'
+  - '.tasks/active/T-669-uncontrolled-absence-assertions-rose-78-.md'
+  - '.tasks/active/T-694-bvp-quadrant-is-not-a-measurement-for-mo.md'
+  - '.tasks/active/T-695-task-template-boilerplate-is-scored-as-i.md'
+  - '.tasks/active/T-696-a-pre-filled-voiscore-makes-an-unassesse.md'
+  - 'docs/reports/T-694-bvp-distinguishability.md'
+  - 'tools/_t694-bvp-distinguishability.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-10T07:43:57"
+    action: 'T-694: an empty task file scores 4 of 5 on Antifragility — the modal build vector is the template''s own boilerplate, and 12 of 13 inceptions tie on a voi_score nobody set'
+  - time: "2026-09-10T07:48:24"
+    action: 'T-694: 7/7 — self-test watched red on a blinded copy; the eye-count that filed this task overstated it and the correction is left visible; repairs filed as T-695/T-696, not performed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 2
+  files_changed: 19
+  lines_added: 1698
+  lines_removed: 61
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-694-bvp-quadrant-is-not-a-measurement-for-mo.md
+generated_by: context-agent-hybrid
