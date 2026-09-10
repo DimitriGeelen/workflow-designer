@@ -2,7 +2,10 @@
 id: T-564
 name: "T-501 build 3: load-time id normalisation with a one-time notice (D3)"
 description: >
-  T-501 GO decomposition item 3. Normalise a non-conforming workflow id at LOAD time rather than at save time, with a one-time notice to the operator, so the failure surfaces where it is actionable instead of as an alert several edits later. Depends on T-562 (shared helper).
+  T-501 GO decomposition item 3. Normalise a non-conforming workflow id at LOAD time
+  rather than at save time, with a one-time notice to the operator, so the failure
+  surfaces where it is actionable instead of as an alert several edits later. Depends
+  on T-562 (shared helper).
 
 status: captured
 workflow_type: build
@@ -17,8 +20,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T09:48:11Z
-last_update: 2026-08-20T09:48:26Z
-date_finished: null
+last_update: '2026-09-10T05:35:06Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -29,6 +32,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-10T05:35:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-564: T-501 build 3: load-time id normalisation with a one-time notice (D3)

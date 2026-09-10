@@ -2,7 +2,18 @@
 id: T-622
 name: "An unattributed write ticked three Human ACs, and five candidates are now excluded"
 description: >
-  Split out of T-609, which had parked on it. On 2026-08-26 three Human ACs across T-597 and T-608 were ticked in the working tree with no operator action behind them (exactly one POST exists in the whole Watchtower log, an inception decide at 26 Aug 10:55, none at the 00:29 mtime). T-609 restored true state and preserved the ticked copies. Five candidates are now excluded by reproduction: the 30-minute structural audit, the hourly oe-hourly audit, fw bvp --include-proposed, a background session (only two transcripts exist on this machine and the second is from 08-14), and this session's own Agent-AC tick script (full command recovered from the transcript; its partition boundary is correct and it writes only before the ### Human header, verified against T-597 whose Human ACs sit at lines 93 and 111, after the needle at 91). Why this matters beyond tidiness: a tick is a sovereignty signal. Something that can forge one can forge an approval.
+  Split out of T-609, which had parked on it. On 2026-08-26 three Human ACs across
+  T-597 and T-608 were ticked in the working tree with no operator action behind them
+  (exactly one POST exists in the whole Watchtower log, an inception decide at 26
+  Aug 10:55, none at the 00:29 mtime). T-609 restored true state and preserved the
+  ticked copies. Five candidates are now excluded by reproduction: the 30-minute structural
+  audit, the hourly oe-hourly audit, fw bvp --include-proposed, a background session
+  (only two transcripts exist on this machine and the second is from 08-14), and this
+  session's own Agent-AC tick script (full command recovered from the transcript;
+  its partition boundary is correct and it writes only before the ### Human header,
+  verified against T-597 whose Human ACs sit at lines 93 and 111, after the needle
+  at 91). Why this matters beyond tidiness: a tick is a sovereignty signal. Something
+  that can forge one can forge an approval.
 
 status: captured
 workflow_type: build
@@ -16,8 +27,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T19:39:06Z
-last_update: 2026-08-27T19:39:06Z
-date_finished: null
+last_update: '2026-09-10T05:36:31Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +39,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-10T05:36:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-622: An unattributed write ticked three Human ACs, and five candidates are now excluded

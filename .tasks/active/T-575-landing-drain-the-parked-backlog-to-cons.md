@@ -2,7 +2,12 @@
 id: T-575
 name: "landing: drain the parked backlog to consumer-visible done"
 description: >
-  LANDING MODE umbrella (operator directive, Tier 2 override of one-bug-one-task and G-019 register-before-fix, logged once here). All landing work runs under this id instead of spawning a task per finding; discoveries go one line each into .context/working/landing-notes.md. DONE means a consumer can install and use it, not that the repo is green. Session one: evidence pack for the 12 tasks sitting in active/ at status work-completed, blocked only on Human ACs.
+  LANDING MODE umbrella (operator directive, Tier 2 override of one-bug-one-task and
+  G-019 register-before-fix, logged once here). All landing work runs under this id
+  instead of spawning a task per finding; discoveries go one line each into .context/working/landing-notes.md.
+  DONE means a consumer can install and use it, not that the repo is green. Session
+  one: evidence pack for the 12 tasks sitting in active/ at status work-completed,
+  blocked only on Human ACs.
 
 status: started-work
 workflow_type: build
@@ -16,8 +21,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T21:46:57Z
-last_update: 2026-09-05T10:59:54Z
-date_finished: null
+last_update: '2026-09-10T05:36:29Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +33,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-10T05:36:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 4
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 1
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=4 
+      (body:framework-level-ux); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=1 (prose:AEF 
+      seam-incidental); F1=1 (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-575: landing: drain the parked backlog to consumer-visible done

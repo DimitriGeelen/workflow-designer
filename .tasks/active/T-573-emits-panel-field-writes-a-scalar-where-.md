@@ -1,8 +1,28 @@
 ---
 id: T-573
-name: "Emits panel field writes a scalar where the structured exporter requires an array"
+name: "Emits panel field writes a scalar where the structured exporter requires an
+  array"
 description: >
-  FIELD_META.emits (src:1922) is a plain text field with no special handler, so the inspector's Emits box writes a STRING into n.aef.emits. The structured exporter fires on Array.isArray(aef.emits) (src:9620) and silently skips a string. The editor's own seed template uses the scalar shape too (src:2083-2086, aef: { emits: 'event:investigate.ready' }), so a brand-new document is born with the mismatch. Before T-570 the consequence was total: an author typed an event name, saved, and it was gone. T-570's carriage now preserves the value -- but as <aef:meta emits="..."/>, NOT as the ratified <aef:emits><aef:emit value="..."/></aef:emits> structured form the bridge and tests/test_editor_bridge_structured_parity.py agree on. So the data is safe and the SHAPE is still wrong, which is a smaller and different defect than the one T-570 fixed and gets its own task rather than being folded in. Decide deliberately rather than by reflex: either the panel field parses its input into a list (comma-separated, matching how the dict emitter joins lists at src:9633) or FIELD_META.emits gains a structured editor. Whichever is chosen, a document that ARRIVED with a scalar emits must keep round-tripping as a scalar -- promoting it to the structured form on load would rewrite bytes the author did not touch, which is the silent-migration failure T-242 already ruled against for targetWorkflow. Evidence: tests/fixtures/valid/investigate.bpmn carries the scalar form (1 of 823 corpus aef:meta values); tools/_t570-meta-carriage-cdp.mjs leg 'scalar-emits-survives' pins the preservation and leg 'structured-untouched' pins that an ARRAY still takes its own channel.
+  FIELD_META.emits (src:1922) is a plain text field with no special handler, so the
+  inspector's Emits box writes a STRING into n.aef.emits. The structured exporter
+  fires on Array.isArray(aef.emits) (src:9620) and silently skips a string. The editor's
+  own seed template uses the scalar shape too (src:2083-2086, aef: { emits: 'event:investigate.ready'
+  }), so a brand-new document is born with the mismatch. Before T-570 the consequence
+  was total: an author typed an event name, saved, and it was gone. T-570's carriage
+  now preserves the value -- but as <aef:meta emits="..."/>, NOT as the ratified <aef:emits><aef:emit
+  value="..."/></aef:emits> structured form the bridge and tests/test_editor_bridge_structured_parity.py
+  agree on. So the data is safe and the SHAPE is still wrong, which is a smaller and
+  different defect than the one T-570 fixed and gets its own task rather than being
+  folded in. Decide deliberately rather than by reflex: either the panel field parses
+  its input into a list (comma-separated, matching how the dict emitter joins lists
+  at src:9633) or FIELD_META.emits gains a structured editor. Whichever is chosen,
+  a document that ARRIVED with a scalar emits must keep round-tripping as a scalar
+  -- promoting it to the structured form on load would rewrite bytes the author did
+  not touch, which is the silent-migration failure T-242 already ruled against for
+  targetWorkflow. Evidence: tests/fixtures/valid/investigate.bpmn carries the scalar
+  form (1 of 823 corpus aef:meta values); tools/_t570-meta-carriage-cdp.mjs leg 'scalar-emits-survives'
+  pins the preservation and leg 'structured-untouched' pins that an ARRAY still takes
+  its own channel.
 
 status: captured
 workflow_type: build
@@ -16,8 +36,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T17:06:34Z
-last_update: 2026-08-20T17:06:34Z
-date_finished: null
+last_update: '2026-09-10T05:36:30Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +48,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-10T05:36:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-573: Emits panel field writes a scalar where the structured exporter requires an array

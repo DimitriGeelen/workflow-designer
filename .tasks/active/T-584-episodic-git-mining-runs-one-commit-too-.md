@@ -1,8 +1,15 @@
 ---
 id: T-584
-name: "episodic git mining runs one commit too early — 75 episodics record commits: 0 for work that is in git"
+name: "episodic git mining runs one commit too early — 75 episodics record commits:
+  0 for work that is in git"
 description: >
-  The episodic generator mines git at work-completed time, but the commit carrying the task's work is made AFTER that. Measured: 92 of 501 episodics record commits: 0; 75 of those are FALSE zeros (git log finds commits for them), and 67 of the 75 have exactly ONE commit whose timestamp is IDENTICAL to the episodic file's first commit. Distinct root cause from CashWeb's G-041 (.git-is-a-file in worktrees) — this tree is a normal checkout and the guard at episodic.sh:158 passes. A recorded zero is indistinguishable from a measured none.
+  The episodic generator mines git at work-completed time, but the commit carrying
+  the task's work is made AFTER that. Measured: 92 of 501 episodics record commits:
+  0; 75 of those are FALSE zeros (git log finds commits for them), and 67 of the 75
+  have exactly ONE commit whose timestamp is IDENTICAL to the episodic file's first
+  commit. Distinct root cause from CashWeb's G-041 (.git-is-a-file in worktrees) —
+  this tree is a normal checkout and the guard at episodic.sh:158 passes. A recorded
+  zero is indistinguishable from a measured none.
 
 status: captured
 workflow_type: build
@@ -16,8 +23,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-25T05:49:26Z
-last_update: 2026-08-25T05:49:26Z
-date_finished: null
+last_update: '2026-09-10T05:36:31Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +35,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-10T05:36:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-584: episodic git mining runs one commit too early — 75 episodics record commits: 0 for work that is in git

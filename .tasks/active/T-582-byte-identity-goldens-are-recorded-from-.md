@@ -1,8 +1,22 @@
 ---
 id: T-582
-name: "Byte-identity goldens are recorded from a host-state Chromium the repo never names"
+name: "Byte-identity goldens are recorded from a host-state Chromium the repo never
+  names"
 description: >
-  tools/_t358-byteid-thirdparty.mjs recorded 11 goldens under tests/goldens/third-party/ and is now a suite leg (T-581). Every path in the file is repo-relative, so a path audit reports it as fully in-tree. It is not: findChrome() scans ~/.cache/ms-playwright, sorts chromium-* and takes the highest, so the recorded baseline is the emission of a host-state binary that is version-selected at runtime, lives in no git ref, and is recorded in no artifact. A playwright install on this machine re-points the comparand with no commit and nothing to review. Named by 999-AEF at rail offset 369 as a THIRD scope bucket neither project had partitioned (their /etc/cron.d case) - a push can neither cause nor cure it. UNMEASURED: whether emitted bytes actually move across Chromium versions is not known; most of the emission is JS string assembly. The task is to measure that first and only then decide whether the browser build belongs in the golden provenance. Do NOT pin the current version as a fix before measuring - that would record a defect as a baseline, the same error T-581 just removed.
+  tools/_t358-byteid-thirdparty.mjs recorded 11 goldens under tests/goldens/third-party/
+  and is now a suite leg (T-581). Every path in the file is repo-relative, so a path
+  audit reports it as fully in-tree. It is not: findChrome() scans ~/.cache/ms-playwright,
+  sorts chromium-* and takes the highest, so the recorded baseline is the emission
+  of a host-state binary that is version-selected at runtime, lives in no git ref,
+  and is recorded in no artifact. A playwright install on this machine re-points the
+  comparand with no commit and nothing to review. Named by 999-AEF at rail offset
+  369 as a THIRD scope bucket neither project had partitioned (their /etc/cron.d case)
+  - a push can neither cause nor cure it. UNMEASURED: whether emitted bytes actually
+  move across Chromium versions is not known; most of the emission is JS string assembly.
+  The task is to measure that first and only then decide whether the browser build
+  belongs in the golden provenance. Do NOT pin the current version as a fix before
+  measuring - that would record a defect as a baseline, the same error T-581 just
+  removed.
 
 status: captured
 workflow_type: build
@@ -16,8 +30,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-24T22:29:43Z
-last_update: 2026-08-24T22:29:43Z
-date_finished: null
+last_update: '2026-09-10T05:36:30Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +42,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-10T05:36:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-582: Byte-identity goldens are recorded from a host-state Chromium the repo never names

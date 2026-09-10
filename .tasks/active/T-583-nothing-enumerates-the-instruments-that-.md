@@ -1,8 +1,26 @@
 ---
 id: T-583
-name: "Nothing enumerates the instruments that assert the PRESENCE of a thing a change removes"
+name: "Nothing enumerates the instruments that assert the PRESENCE of a thing a change
+  removes"
 description: >
-  Two instruments were retired 24 hours apart for the identical reason and neither was found by a gate. T-579 retired tools/_t364-byteid-precondition-teeth.py: it parsed for PRECONDITION HOLDS/VIOLATED after T-581 deliberately deleted both strings. T-576 retired tools/_t361-export-trailer-cdp.mjs: all four of its checks asserted the DI trailer that T-423 (389133c8) stopped emitting - including two that do not look trailer-shaped, since PREFIX IS the trailer text and FALSE_TAIL only ever appeared inside it. In both cases the removal was correct and deliberate, the assertion became false BY DESIGN, and nothing in the tree connected the two. Both were found by hand while working on something adjacent. The asymmetry is the point: when a change ADDS something, the thing that breaks is a guard asserting its absence and that guard runs and goes red. When a change REMOVES something, the guards asserting its presence may be unwired, excluded by naming convention, or one-shot - so they go quiet instead. Being unwired is what kept _t361 from firing, and being sweep-excluded by name is what kept _t364 from firing. Deliverable: an instrument that, given a removed string/attribute/emission, enumerates what still asserts it - and a decision about where it runs, since the population it must search is exactly the population that does not run. Do NOT assume the answer is a grep: PREFIX is the counter-example, a constant whose name does not contain the thing it matches.
+  Two instruments were retired 24 hours apart for the identical reason and neither
+  was found by a gate. T-579 retired tools/_t364-byteid-precondition-teeth.py: it
+  parsed for PRECONDITION HOLDS/VIOLATED after T-581 deliberately deleted both strings.
+  T-576 retired tools/_t361-export-trailer-cdp.mjs: all four of its checks asserted
+  the DI trailer that T-423 (389133c8) stopped emitting - including two that do not
+  look trailer-shaped, since PREFIX IS the trailer text and FALSE_TAIL only ever appeared
+  inside it. In both cases the removal was correct and deliberate, the assertion became
+  false BY DESIGN, and nothing in the tree connected the two. Both were found by hand
+  while working on something adjacent. The asymmetry is the point: when a change ADDS
+  something, the thing that breaks is a guard asserting its absence and that guard
+  runs and goes red. When a change REMOVES something, the guards asserting its presence
+  may be unwired, excluded by naming convention, or one-shot - so they go quiet instead.
+  Being unwired is what kept _t361 from firing, and being sweep-excluded by name is
+  what kept _t364 from firing. Deliverable: an instrument that, given a removed string/attribute/emission,
+  enumerates what still asserts it - and a decision about where it runs, since the
+  population it must search is exactly the population that does not run. Do NOT assume
+  the answer is a grep: PREFIX is the counter-example, a constant whose name does
+  not contain the thing it matches.
 
 status: captured
 workflow_type: build
@@ -16,8 +34,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-24T22:37:47Z
-last_update: 2026-08-24T22:37:47Z
-date_finished: null
+last_update: '2026-09-10T05:36:31Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +46,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-10T05:36:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-583: Nothing enumerates the instruments that assert the PRESENCE of a thing a change removes

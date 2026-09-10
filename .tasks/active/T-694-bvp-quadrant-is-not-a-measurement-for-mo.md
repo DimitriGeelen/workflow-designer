@@ -1,22 +1,20 @@
 ---
-id: T-554
-name: "Record browser version, viewport and DPR alongside headless driver results
-  (OBS-272)"
+id: T-694
+name: "BVP quadrant is not a measurement for most of the backlog: one constant driver
+  vector covers 10 tasks and no estimator lane exists for an inception's value inputs"
 description: >
-  T-448 re-measurement found that the 2026-08-13 reading of 'all 24 maps at moved=0'
-  does not reproduce: seven deterministic runs say two maps move, and a git worktree
-  at c6b02d7c — the commit whose own message records 24/24 — reproduces today's answer
-  rather than its own, which rules out every src commit since. Either that reading
-  was wrong or the metric depends on inputs no commit records. tools/_clean-layout-cdp.mjs
-  runs the real editor in headless Chrome, so viewport, fonts, DPR and browser version
-  are all live inputs. The driver should record them beside its results so the next
-  contradiction is decidable instead of unfalsifiable. Load-bearing because the same
-  driver produces the bytes a re-bake would commit.
+  This run's mandate selects work by BVP quadrant. Scoring 15 previously-unscored
+  agent-owned tasks produced one identical driver vector for 10 of them, and 12 inception
+  tasks all sit at exactly 126/0.40/hv-lc -- the top quadrant -- while carrying unedited
+  template defaults for voi_score and target_blast_radius. Deliverable: measure how
+  much of the active backlog carries a non-distinguishing score, name the mechanism
+  in the estimator, and register the finding. The repair is NOT in scope -- it changes
+  ranking semantics and is the operator's call.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -24,8 +22,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-16T23:31:23Z
-last_update: '2026-09-10T05:36:32Z'
+created: 2026-09-10T05:38:23Z
+last_update: '2026-09-10T05:39:48Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -38,7 +36,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-09-10T05:36:32Z'
+  - ts: '2026-09-10T05:39:48Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
@@ -47,17 +45,17 @@ bvp_scores_proposed:
       D4: 2
       F-RECALL: 0
       F2: 0
-      F4: 0
-      F3: 0
+      F4: 3
+      F3: 1
       F1: 1
     rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
       (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
-      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
-      (prose:process-enablement-incidental)
+      (no-signal); F2=0 (no-signal); F4=3 (prose:routing-defect-class); F3=1 
+      (prose:AEF seam-incidental); F1=1 (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
 ---
 
-# T-554: Record browser version, viewport and DPR alongside headless driver results (OBS-272)
+# T-694: BVP quadrant is not a measurement for most of the backlog: one constant driver vector covers 10 tasks and no estimator lane exists for an inception's value inputs
 
 ## Context
 
@@ -67,8 +65,40 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **Distinguishability is MEASURED across the whole active backlog, by a tool, not by
+      hand.** `tools/_t694-bvp-distinguishability.py` reads every task in `.tasks/active/`,
+      extracts the latest `bvp_scores_proposed` driver vector from each, and reports: how
+      many tasks carry a proposed vector, how many DISTINCT vectors exist among them, and
+      the task count behind the modal vector. A hand-tallied claim does not close this —
+      I noticed the collision by eye while scoring, and eye-count is exactly the evidence
+      standard this task exists to replace.
+
+- [ ] **The mechanism is named at a site in the estimator, quoted, not inferred from the
+      output.** It is not enough to show that N tasks share a vector; the code path that
+      produces the shared vector must be quoted with its file and line. If the modal
+      vector turns out to be a legitimate convergence of independent per-driver decisions
+      rather than a fall-through default, **this AC fails and says so** — that is the
+      result it is written to force.
+
+- [ ] **The inception tie is separated from the free-driver collision — two claims, two
+      verdicts.** The 12 inceptions at exactly `126 / 0.40 / hv-lc` and the 10 tasks at
+      `61 / 0.19` are asserted here as one symptom. Show whether they share a cause. State
+      explicitly whether `voi_score` / `target_blast_radius` have any estimator write path
+      at all, and if they do not, say so as an absence that was checked rather than an
+      absence that was assumed.
+
+- [ ] **A negative control proves the tool can report DISTINGUISHABLE.** Plant a task
+      carrying a deliberately different driver vector in a throwaway root, re-run, and
+      watch the distinct-vector count rise by exactly one. A measuring instrument that has
+      only ever printed one verdict has not been shown to have two.
+
+- [ ] **The finding is registered somewhere that outlives this task, and the repair is
+      NOT performed here.** Register in the observation/concern register (a completed task
+      archives and goes invisible; a register entry does not). File the repair as its own
+      task(s) carrying the Sovereign question, because changing how value is scored changes
+      the ranking of every task in the project and that is the operator's call, not mine.
+      **Making the ranking sharper under my own initiative would also be me re-ranking work
+      I selected — the producer-not-judge line.**
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -94,11 +124,11 @@ bvp_scores_proposed:
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-554`
+         1. Run `bin/fw reviewer T-694`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-554 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-694 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -204,7 +234,7 @@ bvp_scores_proposed:
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-XXX go|no-go|defer --rationale "..."
+     fw inception decide T-694 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -213,7 +243,7 @@ bvp_scores_proposed:
 
 ## Updates
 
-### 2026-08-16T23:31:23Z — task-created [task-create-agent]
+### 2026-09-10T05:38:23Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-554-record-browser-version-viewport-and-dpr-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-694-bvp-quadrant-is-not-a-measurement-for-mo.md
 - **Context:** Initial task creation
