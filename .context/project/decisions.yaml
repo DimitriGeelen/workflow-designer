@@ -2173,3 +2173,38 @@ decisions:
     date: 2026-09-03
     task: T-671
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-290
+    decision: "`_within(path, root)` applied to each save target against its own intended"
+    scope: project
+    date: 2026-09-07
+    task: T-683
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-291
+    decision: "run the live cases against a temp copy of the server with `ID_RE` widened."
+    scope: project
+    date: 2026-09-07
+    task: T-683
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-292
+    decision: "three exit codes — 0 GREEN, 1 BREACH, 2 INCONCLUSIVE — with INCONCLUSIVE"
+    scope: project
+    date: 2026-09-07
+    task: T-684
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-293
+    decision: "every phase runs a temp copy of `gallery-serve.py`; the tracked file is read"
+    scope: project
+    date: 2026-09-07
+    task: T-684
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-294
+    decision: "AST-derive the seven routes from the dispatch; keep \"what it mutates\" and"
+    scope: project
+    date: 2026-09-07
+    task: T-682
+    rationale: "Auto-captured from task file on completion"

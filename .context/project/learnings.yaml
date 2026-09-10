@@ -2304,3 +2304,10 @@ learnings:
   date: 2026-09-09
   context: Added via context agent
   application: TBD
+- id: PL-325
+  learning: "A SCORING INSTRUMENT IS CALIBRATED BY READING ZERO (measured under T-694; filed under T-575 because the focus-drift gate will not point at a closed task and its two exits are Tier-2 bypasses). Every check the BVP estimator had asked whether it produced a plausible score for a real task; none asked what it produces for NO task. Scoring the bare shipped template — id filled, no content — returned D1=4 of 5 on Antifragility, on evidence matched from the template's own instructional comments. That number is the floor every task in the repo inherits on creation, and 12 active tasks score exactly the floor plus one point, so they read as scored-low when they were never scored at all. The general rule: when you build or inherit any instrument that maps content to a number, run it on the EMPTY input before you trust any non-empty reading. A meter that has never been shown zero has no established origin, and every reading it gives you is an offset from an unknown."
+  source: P-001
+  task: T-575
+  date: 2026-09-10
+  context: Added via context agent
+  application: TBD

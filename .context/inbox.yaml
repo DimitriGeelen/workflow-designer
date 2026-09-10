@@ -1538,3 +1538,17 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-341
+  text: "P-002 instance 10, observed live 2026-09-10 under T-694. Completing a task nulled focus; the very next command, git restore --staged on a single path, was refused with 'BLOCKED: No active task' and an empty 'Attempting to modify:' field. Two things this adds to the register in T-676: (1) the refused command writes only the git index and touches no file in the working tree, so the hook is not gating a file modification here at all; (2) T-2054's post-completion exemption is scoped to git commit alone, so every OTHER index operation needed to assemble a correct commit after a completion is refused. Consequence measured: to unstage one unrelated file I had to re-point focus at a different task through fw context focus, and the resulting commit is named after that carrier rather than the work it contains. Not bypassed. Recorded here rather than appended to T-676 because T-676 is partial-complete and awaiting an operator ruling; adding to the artifact under review would change what is being ruled on."
+  captured: 2026-09-10T05:50:10Z
+  context_task: T-575
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-342
+  text: "CORRECTION to OBS-341, same session, before anyone acts on it. I wrote there that after a completion 'every OTHER index operation needed to assemble a correct commit is refused'. That is an overclaim and my own session transcript disproves it: with focus null I ran git add successfully and only git restore --staged was blocked. check-active-task.sh:240 says why — git add is safe-listed in its own right ('task-agnostic, no drift'), separately from T-2054's null-focus git commit exemption. The accurate finding is narrower and sharper than what I wrote: the safe-list admits the STAGING operation but not its INVERSE. With no active task you may add a path to the index but you may not remove one. So after a completion you can assemble a wrong commit and cannot correct it without re-pointing focus at an unrelated task, which is exactly the traceability loss the earlier instances describe. Whoever scopes a fix should treat this as 'the enumeration is missing git restore/git reset', not as 'index operations are blocked'."
+  captured: 2026-09-10T05:51:04Z
+  context_task: T-575
+  tags: [bug]
+  status: pending
+  promoted_to: null
