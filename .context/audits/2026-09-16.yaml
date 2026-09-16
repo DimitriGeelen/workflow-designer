@@ -1,9 +1,9 @@
-# Audit Results - 2026-09-16-1518
-timestamp: 2026-09-16T13:18:19Z
+# Audit Results - 2026-09-16-1541
+timestamp: 2026-09-16T13:41:43Z
 sections: "all"
 summary:
-  pass: 166
-  warn: 31
+  pass: 171
+  warn: 27
   fail: 1
 findings:
   - level: PASS
@@ -19,11 +19,11 @@ findings:
   - level: PASS
     check: "No duplicate task IDs across active/ and completed/"
   - level: PASS
-    check: "All 11 project YAML files parse correctly"
+    check: "All 12 project YAML files parse correctly"
   - level: PASS
     check: "All 2 arc anchor_task references resolve to existing tasks"
   - level: PASS
-    check: "All 1 in-progress arc(s) had task commits within 30 days"
+    check: "All 2 in-progress arc(s) had task commits within 30 days"
   - level: INFO
     check: "free driver F2: retire_when text present, no recognition heuristic — manual review"
   - level: PASS
@@ -34,15 +34,13 @@ findings:
     check: "No stale-slice-references (L-417)"
   - level: PASS
     check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
+  - level: PASS
+    check: "Fabric: 374 registered, 0 unregistered (of 371 watched)"
   - level: WARN
-    check: "Fabric: 373 registered, 1 unregistered (of 371 watched — 100% covered, cards flat since earlier today (373))"
-    mitigation: "Run: fw fabric scan"
-  - level: WARN
-    check: "Fabric: 78/373 cards have no edges"
+    check: "Fabric: 73/374 cards have no edges"
     mitigation: "Run: fw fabric enrich"
-  - level: WARN
-    check: "Fabric drift: 1 source file(s) have no fabric card"
-    mitigation: "Run: fw fabric scan"
+  - level: PASS
+    check: "Fabric drift: all 371 watched source file(s) registered (374 cards)"
   - level: PASS
     check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
   - level: PASS
@@ -63,11 +61,11 @@ findings:
   - level: PASS
     check: "Gap register: every watching gap has a renderable closure condition"
   - level: PASS
-    check: "All 97 active tasks are valid"
+    check: "All 129 active tasks are valid"
   - level: PASS
     check: "All active tasks meet quality thresholds"
   - level: PASS
-    check: "Git traceability: 100% (2195/2195 commits reference tasks)"
+    check: "Git traceability: 100% (2198/2198 commits reference tasks)"
   - level: WARN
     check: "Uncommitted changes present"
     mitigation: "Commit changes with task reference or stash"
@@ -90,7 +88,7 @@ findings:
   - level: PASS
     check: "Completion watchdog: 2 detected abort(s), all recovered"
   - level: PASS
-    check: "All 598 episodic summaries have quality content"
+    check: "All 601 episodic summaries have quality content"
   - level: PASS
     check: "No orphaned episodic files"
   - level: WARN
@@ -132,7 +130,7 @@ findings:
   - level: PASS
     check: "CTL-003: Budget status file fresh (< 5min old)"
   - level: PASS
-    check: "CTL-004: Tool counter at 16 (last commit: 17 minutes ago)"
+    check: "CTL-004: Tool counter at 2 (last commit: 2 minutes ago)"
   - level: PASS
     check: "CTL-018: Budget status valid JSON (level: ok)"
   - level: PASS
@@ -252,11 +250,11 @@ findings:
   - level: PASS
     check: "CTL-011: pre-push hook installed and executable"
   - level: PASS
-    check: "CTL-013: T-694 verification re-run: 7/7 pass"
+    check: "CTL-013: T-698 verification re-run: 2/2 pass"
   - level: PASS
-    check: "CTL-013: T-693 verification re-run: 5/5 pass"
+    check: "CTL-013: T-699 verification re-run: 1/1 pass"
   - level: PASS
-    check: "CTL-013: T-692 verification re-run: 5/5 pass"
+    check: "CTL-013: T-697 verification re-run: 1/1 pass"
   - level: PASS
     check: "CTL-019: claude-fw wrapper installed and executable"
   - level: PASS
@@ -385,9 +383,9 @@ findings:
     check: "CTL-029: T-681 has all Agent ACs ticked but status='started-work' — completable, not closed"
     mitigation: "Run: bin/fw task update T-681 --status work-completed"
   - level: PASS
-    check: "CTL-012: All 598 completed tasks have checked ACs"
+    check: "CTL-012: All 601 completed tasks have checked ACs"
   - level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/598)"
+    check: "D1: Episodic quality — 0% [TODO] (0/601)"
   - level: FAIL
     check: "D2: Human review queue — 12 task(s) waiting >30d: 10 awaiting judgement: T-233(32d) T-308(48d) T-310(48d) T-325(45d) T-340(32d) T-351(44d) T-353(44d) T-368(39d) T-410(38d) T-449(35d); 2 signed off, awaiting only the status flip: T-093(73d) T-178(67d); 22 waiting >14d: T-392(20d) T-432(25d) T-433(25d) T-537(19d) T-540(19d) T-565(20d) T-579(22d) T-586(19d) T-588(20d) T-589(21d) T-590(21d) T-592(21d) T-593(20d) T-596(20d) T-597(20d) T-600(20d) T-601(20d) T-606(20d) T-608(20d) T-609(19d) T-643(16d) T-647(16d)"
     mitigation: "Review with: fw task verify (lists unchecked Human ACs). The signed-off ones need no review at all — close them: fw task update T-XXX --status work-completed (or fw task archive-eligible for all of them)"
@@ -407,14 +405,12 @@ findings:
   - level: WARN
     check: "D13: Inception limbo — 3 task(s): A=0/B=3 T-309(B) T-357(B) T-681(B)"
     mitigation: "Recover both classes with: bin/fw inception sweep (T-1514)"
-  - level: WARN
-    check: "D3: Commit velocity — WARN drop today=1 expected_by_now=12 avg=19 ratio=0.1x"
-    mitigation: "Check if velocity reflects budget pressure or unusual activity"
   - level: PASS
-    check: "D7: Commit bunching — none (PASS 1_commits_24h)"
-  - level: WARN
-    check: "D6: Completion velocity — sustained drop (drop recent_avg=0.0 vs earlier_avg=1.6)"
-    mitigation: "Check for blockers or process issues slowing work"
+    check: "D3: Commit velocity — normal (PASS today=4 avg=19 ratio=0.2x)"
+  - level: PASS
+    check: "D7: Commit bunching — none (PASS 4_commits_24h)"
+  - level: PASS
+    check: "D6: Completion velocity — normal (PASS recent=1.0 earlier=1.6)"
   - level: PASS
     check: "D12: Bypass log — no log file"
   - level: PASS
@@ -431,6 +427,8 @@ findings:
     check: "framework-mcp scan: status=missing (unexpected)"
   - level: PASS
     check: "Workflow dispatcher coverage: all 0 workflows route to a registered dispatcher and pi workflows declare a provider; declarable-but-unroutable: ['Task']"
+  - level: PASS
+    check: "Arc 'arc-003': 3/35 (0.0857) — below threshold 0.80, no closure pressure"
   - level: WARN
     check: "Arc 'arc-001': 26/32 tasks completed (0.8125) but arc still in-progress"
     mitigation: "Capture wire-evidence of the arc's headline_mechanic firing, then: fw arc close arc-001 --demo <path"

@@ -1,16 +1,16 @@
 ---
-id: T-726
-name: "RA-030: D3 commit velocity dropped to 0.1x of average"
+id: T-727
+name: "RA-031: D6 completion velocity sustained drop, recent average 0.0"
 description: >
-  Audit WARN cycle 1 2026-09-16: today=1 expected_by_now=12 avg=19. The invariant
-  is that work in progress leaves a commit trail; a session that reads and decides
-  without committing is indistinguishable from a stalled one.
+  Audit WARN cycle 1 2026-09-16: completion rate dropped over 70 percent versus the
+  prior week. Root-cause sibling of RA-027 and RA-028 - nothing completes because
+  completion is gated on rulings that have not been made.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: claude
-horizon: now
-tags: [arc-003, audit-remediation, RA-030]
+horizon: null
+tags: [arc-003, audit-remediation, RA-031]
 components: []
 related_tasks: []
 arc_id: arc-003
@@ -18,9 +18,9 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-16T13:26:13Z
-last_update: '2026-09-16T13:30:55Z'
-date_finished:
+created: 2026-09-16T13:26:16Z
+last_update: 2026-09-16T13:47:18Z
+date_finished: 2026-09-16T13:47:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -54,33 +54,33 @@ cost_estimate_proposed:
     estimator: bvp-estimator-v1-heuristic
     cost_estimate:
       tier: 2
-      effort: 8
-    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
+      effort: 7
+    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=7 
       (no-signal)
     rubric_sha: e4a00f38e801
 ---
 
-# T-726: RA-030: D3 commit velocity dropped to 0.1x of average
+# T-727: RA-031: D6 completion velocity sustained drop, recent average 0.0
 
 ## Context
 
-**Finding RA-030** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
+**Finding RA-031** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
 
 Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; doctor 3 warn / 0 fail.
 
 **Verbatim tool output:**
 
 ```
-[WARN] D3: Commit velocity - WARN drop today=1 expected_by_now=12 avg=19 ratio=0.1x
-       Evidence: Unusual commit rate detected
-       Mitigation: Check if velocity reflects budget pressure or unusual activity
+[WARN] D6: Completion velocity - sustained drop (drop recent_avg=0.0 vs earlier_avg=1.6)
+       Evidence: Task completion rate dropped >70% vs prior week
+       Mitigation: Check for blockers or process issues slowing work
 ```
 
 **The invariant that is not held:**
 
-P-009 holds that work is checkpointed by commits, so that context exhaustion costs at most the last unit. One commit against an expected twelve means the session has been reading and deciding without checkpointing. The invariant not held is that progress leaves a recoverable trail.
+Zero completions in the recent window against 1.6 prior. The invariant not held is that started work finishes. The cause is visible in the sibling findings and is not agent throughput: 16 tasks have every Agent AC ticked and are held at started-work awaiting an operator status flip (RA-012 through RA-026), and 34 more await Human AC verification (RA-027). Completion velocity is measuring the length of the operator's queue.
 
-**Root-cause siblings:** T-727 (RA-031)
+**Root-cause siblings:** T-708 (RA-012), T-723 (RA-027), T-724 (RA-028)
 
 **Verification is the next cycle's re-run of the originating check, not this task's own assertion that it is fixed.**
 
@@ -88,9 +88,8 @@ P-009 holds that work is checkpointed by commits, so that context exhaustion cos
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Commit velocity for the day is recorded against expectation in this task
-- [ ] This run commits after each completed remediation task rather than batching, and that cadence is visible in the git log
-- [ ] The measurement is taken from `fw audit --section discovery-trends` in a later cycle, not asserted here
+- [x] Completion velocity is recovered, or this task records the arithmetic showing the drop is attributable to the RA-012..RA-027 backlog rather than to work not being done — **recovered**. Cycle 1: `drop recent_avg=0.0 vs earlier_avg=1.6` (WARN). Cycle 2: `[PASS] D6: Completion velocity — normal (PASS recent=1.0 earlier=1.6)`
+- [x] The attribution is evidenced by counting tasks with all Agent ACs ticked and status started-work, not asserted — the audit's own CTL-029 check names **14** such tasks (T-041 T-101 T-102 T-105 T-189 T-209 T-286 T-293 T-309 T-344 T-345 T-357 T-402 T-681), plus **2** stuck partial-complete (T-093 T-178). 16 tasks are one operator status-flip away from counting as completions; 34 more await Human AC verification (RA-027)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -116,11 +115,11 @@ P-009 holds that work is checkpointed by commits, so that context exhaustion cos
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-726`
+         1. Run `bin/fw reviewer T-727`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-726 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-727 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -172,7 +171,10 @@ P-009 holds that work is checkpointed by commits, so that context exhaustion cos
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-out=$(git log --oneline --since=midnight 2>&1); echo "$out" | grep -q "T-"
+# Reads the cycle-2 audit RECORD on disk rather than re-running fw audit (OBS-332 forbids
+# calling fw audit from a P-011 block, including a single --section run). The record is the
+# audit's own verdict, not this task's assertion about itself.
+grep -q "D6: Completion velocity — normal" .context/audits/2026-09-16.yaml
 
 ## RCA
 
@@ -191,6 +193,20 @@ out=$(git log --oneline --since=midnight 2>&1); echo "$out" | grep -q "T-"
 -->
 
 ## Evolution
+
+### 2026-09-16 — the check recovered on remediation closures, which is the weakest possible evidence
+- **What changed:** D6 went from `recent_avg=0.0` to `recent=1.0` because this run closed
+  T-697, T-698, T-699 and T-726 — all tasks this same run created a few hours earlier. The
+  completion-velocity check cannot distinguish "the project is finishing its work" from "a
+  session manufactured four short tasks and closed them."
+- **Plan impact:** The original attribution in this task's Context still stands and is the
+  thing that matters: 16 tasks sit one status-flip from completion and 34 await Human AC
+  verification. None of those moved. A green D6 in cycle 2 is therefore not evidence that the
+  underlying condition changed — it is evidence that the metric is sensitive to short-lived
+  tasks. This is stated here because the arc will keep generating exactly that kind of task.
+- **Triggered:** Nothing filed. Whether D6 should weight completions by age-at-close is a
+  calibration question, and adjusting calibration to make a number read better is precisely
+  what producer-not-judge forbids the producer from doing.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -228,7 +244,7 @@ out=$(git log --oneline --since=midnight 2>&1); echo "$out" | grep -q "T-"
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-726 go|no-go|defer --rationale "..."
+     fw inception decide T-727 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -237,7 +253,22 @@ out=$(git log --oneline --since=midnight 2>&1); echo "$out" | grep -q "T-"
 
 ## Updates
 
-### 2026-09-16T13:26:13Z — task-created [task-create-agent]
+### 2026-09-16T13:26:16Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-726-ra-030-d3-commit-velocity-dropped-to-01x.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-727-ra-031-d6-completion-velocity-sustained-.md
 - **Context:** Initial task creation
+
+### 2026-09-16T13:46:11Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6a069be7
+- **Timestamp:** 2026-09-16T13:47:19Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-16T13:47:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
