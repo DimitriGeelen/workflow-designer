@@ -1601,3 +1601,17 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-350
+  text: "RA-010 (T-706 / T-250) CHECKED 2026-09-16 under the OBS-349 protocol: GENUINE, not a false positive, and a third distinct shape. T-250's task file names no research document of its own (grep for docs/reports|research|plans in the task: zero hits). The three docs that mention T-250 - docs/aef-designer-integration-protocol.md:127, docs/research/executable-workflow/questions-and-dispositions.md:92, reflection-designer.md:65 - all cite it as a DECIDED OUTCOME ('Ratified T-250 GO, shape A, operator decision 2026-07-27, rail 216'), not as its research trail. Contrast T-587, whose artifact was named INSIDE its own Human AC steps, which is what made RA-011 a false positive. Downstream documents citing a decision are not that decision's research. TWO COUNTERPOINTS that must not be lost: (1) T-250's evidence WAS recorded - Recommendation Evidence block 1012 chars filled, Problem Statement 738, Open Questions 1198 - unlike T-015 (no referent) and T-103 (empty Evidence). The reasoning exists, in the task file rather than docs/, which is where the check looks. (2) 'operator decision 2026-07-27' is recorded explicitly in the integration protocol, so T-250's Human [REVIEW] tick likely reflects a REAL operator decision despite the task carrying the same four @auto-tick-on-decide markers. That is a counterpoint to OBS-348 for T-250 specifically and a reason NOT to treat the auto-tick finding as uniform across T-015, T-103 and T-250. Disposition NOT decided: reconstruct, or rule that evidence-in-the-task-file satisfies C-001. Sovereign question."
+  captured: 2026-09-16T15:59:34Z
+  context_task: T-575
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-351
+  text: "OBS-351 subject (T-706 / RA-010, 2026-09-16): operator ruling - 'the task file counts'. C-001 says conversations are ephemeral, files are permanent; a task file IS a file. T-250 recorded 1012 chars of Evidence, 738 chars Problem Statement and 1198 chars Open Questions in its own task file, all durable and committed, and the audit reports it as having no research artifact because the check looks only in docs/reports/. CONSEQUENCE BROADER THAN T-250: RA-011 was a false positive on a DIRECTORY mismatch (artifact in docs/research/ not docs/reports/). RA-010 is a false positive for a larger reason - the check tests LOCATION, not whether the thinking was preserved at all. Under this ruling any inception whose reasoning is recorded in its own task file satisfies C-001 and must not be warned about, and the check as written cannot express that. Two of the four findings this check produced (RA-010, RA-011) were false positives; the other two (RA-008 T-015, RA-009 T-103) were genuine. A check with a 50 percent false-positive rate on its own output set. NOT FIXED - whether the check should be scoped to read task files, retired, or replaced by a content check is a scope decision and is surfaced, not taken."
+  captured: 2026-09-16T17:17:11Z
+  context_task: null
+  tags: []
+  status: pending
+  promoted_to: null

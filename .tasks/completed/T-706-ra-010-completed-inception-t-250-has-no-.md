@@ -5,10 +5,10 @@ description: >
   Audit WARN cycle 1 2026-09-16: completed inception with no persisted research output
   under docs/reports/. Sibling of RA-008.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: claude
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-010]
 components: []
 related_tasks: []
@@ -18,8 +18,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:19Z
-last_update: '2026-09-16T13:30:50Z'
-date_finished:
+last_update: 2026-09-16T17:16:54Z
+date_finished: 2026-09-16T17:16:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -83,13 +83,51 @@ C-001 holds that for an inception the thinking trail IS the artifact: conversati
 
 **Verification is the next cycle's re-run of the originating check, not this task's own assertion that it is fixed.**
 
+---
+
+## DISPOSITION: FALSE POSITIVE — closed on Sovereign ruling, 2026-09-16
+
+**The operator's ruling, verbatim:**
+
+> the task file counts — close RA-010 as false positive
+
+**What the ruling settles.** C-001 holds that *"conversations are ephemeral, files are
+permanent"* — the thinking trail IS the artifact. The open question was whether that trail
+must live in `docs/`. It does not. **A task file is a file.** T-250 recorded 1012 characters
+of evidence, a 738-character Problem Statement and 1198 characters of Open Questions, all
+durable, all committed, all retrievable. The audit reports it as having no research artifact
+because it looks in one directory.
+
+**This is broader than T-250.** RA-011 was a false positive because the artifact was in
+`docs/research/` rather than `docs/reports/` — a *directory* mismatch. RA-010 is a false
+positive for a different and larger reason: the check tests **location**, not whether the
+thinking was preserved at all. Under this ruling, any inception whose reasoning is recorded
+in its own task file satisfies C-001 and should not be warned about. The check as written
+cannot express that. Recorded as OBS-351; **the check is not fixed here.**
+
+**A producer did not close its own finding.** The evidence and the framing are the agent's;
+the disposition is the operator's. Recorded because producer-not-judge turns on exactly this
+distinction.
+
+**Not settled by this ruling:** whether the audit check should be scoped to look at task
+files, be retired, or be replaced by a content check. That is a scope decision.
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] docs/reports/T-250-*.md exists and states the question the inception explored, the evidence gathered, and the decision reached
-- [ ] The artifact is reconstructed from the task file, episodic summary and commit trail, and states explicitly which parts are reconstruction rather than contemporaneous record
-- [ ] No claim in the artifact is asserted beyond what those sources support
+~~- [ ] docs/reports/T-250-*.md exists and states the question the inception explored, the evidence gathered, and the decision reached~~
+~~- [ ] The artifact is reconstructed from the task file, episodic summary and commit trail, and states explicitly which parts are reconstruction rather than contemporaneous record~~
+~~- [ ] No claim in the artifact is asserted beyond what those sources support~~
+
+**VOID on Sovereign ruling.** Satisfying these would mean copying content out of a durable
+file into a second durable file to satisfy a path check. Struck through, not deleted, so the
+record shows what was asked and why it was not done.
+
+- [x] T-250's exploration record is located and measured — **in the task file**: Recommendation `**Evidence:**` block **1012 characters**, Problem Statement 738, Open Questions 1198. Measured, not estimated
+- [x] No downstream document is mistaken for T-250's research trail — the three docs mentioning T-250 (`docs/aef-designer-integration-protocol.md:127`, `questions-and-dispositions.md:92`, `reflection-designer.md:65`) all cite it as a **decided outcome**, not as its exploration. T-250's task file names no research document of its own. This is the check that distinguished RA-010 from RA-011, where the artifact *was* named inside T-587's own Human AC steps
+- [x] No document is written to `docs/reports/` for T-250 — enforced by the Verification block, which goes red if one appears
+- [x] The Sovereign ruling is recorded verbatim with attribution — see below
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -171,7 +209,12 @@ C-001 holds that for an inception the thinking trail IS the artifact: conversati
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-ls docs/reports/T-250-*.md > /dev/null 2>&1
+# FALSE POSITIVE disposition. Two legs, both load-bearing:
+#   left  — T-250's Evidence block must still carry real content in the task file (>200 chars)
+#   right — no duplicate must have been written to docs/reports/ for T-250
+# If the evidence is ever stripped from the task file, or someone "fixes" this warning by
+# generating a docs/reports/ stub, this goes red and the task stops being closeable.
+python3 -c 'import re;t=open(".tasks/completed/T-250-live-state-annotation-seam-designer-side.md").read();m=re.search(r"\*\*Evidence:\*\*\s*\n(.*?)(?=^## |\Z)",t,re.S|re.M);b=re.sub(r"<!--.*?-->","",m.group(1),flags=re.S).strip() if m else "";print("evidence chars:",len(b));exit(0 if len(b)>200 else 1)' && ! ls docs/reports/T-250-*.md > /dev/null 2>&1
 
 ## RCA
 
@@ -190,6 +233,33 @@ ls docs/reports/T-250-*.md > /dev/null 2>&1
 -->
 
 ## Evolution
+
+### 2026-09-16 — four "identical siblings" scored 101 apiece resolved into four different things
+- **What changed:** RA-008/009/010/011 were filed as siblings from one audit check and scored
+  identically at BVP 101 — four tasks, one number, four filing texts nobody had read. Reading
+  them split the set four ways: **T-015** empty inception, evidence with no referent
+  (reconstructed); **T-103** empty inception, evidence identifiable via T-101, GO verified as
+  carried out (reconstructed); **T-250** evidence recorded but in the task file (this task,
+  false positive); **T-587** artifact exists in `docs/research/` (false positive, different
+  reason). Two reconstructions, two false positives, three distinct root causes.
+- **Plan impact:** The estimator gave all four the same value and the same cost from filing
+  text alone. Half of them turned out to require no work at all. This is the sharpest
+  available instance of the T-694 finding: identical scores for work whose shape was unknown
+  to the scorer *and to the person who filed it*.
+- **Triggered:** OBS-351 — under this ruling the audit's inception-research check tests file
+  *location*, not whether thinking was preserved. Not fixed here; surfaced.
+
+### 2026-09-16 — a correction to my own OBS-348
+- **What changed:** I filed OBS-348 saying `@auto-tick-on-decide` ticked the Human `[REVIEW]`
+  on T-015, T-103 and T-250 alike. T-250 carries the same four markers — but
+  `docs/aef-designer-integration-protocol.md:127` records *"Ratified T-250 GO (shape A,
+  **operator decision** 2026-07-27, rail 216)"*. So T-250's Human tick plausibly reflects a
+  real operator decision.
+- **Plan impact:** The accurate claim is narrower than the one I filed: **the marker's
+  presence does not prove the tick was unearned — it means the record cannot distinguish an
+  earned tick from an automatic one.** That is still a finding, and it is a different one.
+  OBS-350 carries the correction.
+- **Triggered:** Nothing. The Sovereign question in OBS-348 stands, restated.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -240,3 +310,23 @@ ls docs/reports/T-250-*.md > /dev/null 2>&1
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-706-ra-010-completed-inception-t-250-has-no-.md
 - **Context:** Initial task creation
+
+### 2026-09-16T17:15:49Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4927c562
+- **Timestamp:** 2026-09-16T17:16:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 53
+     - evidence: `python3 -c 'import re;t=open(".tasks/completed/T-250-live-state-annotation-seam-designer-side.md").read();m=re.search(r"\*\*Evidence:\*\*\s*\n(.*?)(?=^## |\Z)",t,re.S|re.M);b=re.sub(r"<!--.*?-->","",m`
+
+### 2026-09-16T17:16:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
