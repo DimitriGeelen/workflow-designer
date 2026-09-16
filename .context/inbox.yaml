@@ -1566,3 +1566,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-345
+  text: "F-ORIENT-01: the mandate names a 'housekeeping verb'; fw v1.6.354 has none. 'fw housekeeping' returns 'Unknown command'. The token appears once in the whole dispatcher, bin/fw:841, inside a fw doctor comment that distinguishes host-scope findings so an agent does not bundle them into 'project housekeeping'. Substituted fw doctor for that slot and declared the substitution rather than inventing the verb."
+  captured: 2026-09-16T13:23:20Z
+  context_task: T-575
+  tags: []
+  status: pending
+  promoted_to: null

@@ -1,0 +1,23 @@
+id: arc-003
+slug: arc-003
+name: "Audit remediation: every audit and doctor finding is an owned, scored task"
+description: "Cycle-driven remediation arc. Each individual FAIL and WARN emitted by fw audit or\
+  \ fw doctor becomes exactly one task here (one finding, one task). Verification\
+  \ of a task is the re-run of the originating check in the next cycle, not the author's\
+  \ assertion. Baseline at open (2026-09-16 cycle 1): audit Pass 166 / Warn 31 / Fail\
+  \ 1; doctor 3 warn / 0 fail."
+status: in-progress
+anchor_task: 
+headline_mechanic: "A maintainer runs fw audit and fw doctor on this project and the board comes back\
+  \ Fail 0, with every remaining warning traceable to a named task and a named owner\
+  \ \u2014 no finding sits un-owned, and a finding that reappears does so against\
+  \ a recorded baseline instead of unnoticed."
+demo_evidence: null
+created: 2026-09-16T13:23:30Z
+closed_at: null
+decision: null
+# T-1918 (arc-006, value-prioritisation): BVP scoring fields. Semantics in
+# docs/reports/T-1915-bvp-inception.md §4 (D7-reframe) and §7 (M2).
+bvp_scores: {}
+scoped_drivers: []           # max 3, weight ≤6 each (M2). Approved by fw arc approve-driver (T-1926).
+proposed_scoped_drivers: []  # uncapped persistence (D7-reframe). Estimator may write here freely.
