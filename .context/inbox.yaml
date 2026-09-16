@@ -1594,3 +1594,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-349
+  text: "F-AUDIT-SCOPE-01 (T-707 / RA-011, 2026-09-16): the audit's inception-research check searches docs/reports/ ONLY, so any inception that filed its research anywhere else is reported as having none. Confirmed false positive: T-587 warns 'no research artifact in docs/reports/' while docs/research/executable-workflow/reflection-designer.md exists at 19876 bytes dated 2026-08-25, alongside operating-digest.md, designer-contract-inventory.md and questions-and-dispositions.md. T-587's own Human AC names that exact file in its Steps - 'Read docs/research/executable-workflow/reflection-designer.md' - so the check reports missing the very document the acceptance criterion instructs the reviewer to open. T-250 is likely affected identically; its research also lives under docs/research/executable-workflow/. Consequence: the check cannot distinguish 'no research was done' from 'research was filed in a different directory', and its mitigation text ('Save research findings: docs/reports/T-XXX-*.md') instructs the reader to create a duplicate of a document that already exists. RA-011 was closed as a FALSE POSITIVE on the operator's explicit ruling, not on agent judgement. The check defect itself is NOT fixed and is NOT filed as an arc-003 task - doing so would break the arc's 35-in/35-out reconciliation without a ruling. Surfaced for a scope decision."
+  captured: 2026-09-16T14:55:47Z
+  context_task: T-707
+  tags: []
+  status: pending
+  promoted_to: null

@@ -5,10 +5,10 @@ description: >
   Audit WARN cycle 1 2026-09-16: completed inception with no persisted research output
   under docs/reports/. Sibling of RA-008.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: claude
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-011]
 components: []
 related_tasks: []
@@ -18,8 +18,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:21Z
-last_update: '2026-09-16T13:30:51Z'
-date_finished:
+last_update: 2026-09-16T14:55:54Z
+date_finished: 2026-09-16T14:55:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -83,13 +83,57 @@ C-001 holds that for an inception the thinking trail IS the artifact: conversati
 
 **Verification is the next cycle's re-run of the originating check, not this task's own assertion that it is fixed.**
 
+---
+
+## DISPOSITION: FALSE POSITIVE — closed on Sovereign ruling, 2026-09-16
+
+**The operator's ruling, verbatim:**
+
+> close RA-011 as a false positive
+
+**Why the finding is wrong.** The audit check searches `docs/reports/` only. T-587's research
+was written to `docs/research/executable-workflow/` and is substantial:
+
+```
+-rw-rw-r-- 19876 Aug 25 23:50  docs/research/executable-workflow/reflection-designer.md
+```
+
+T-587's own Human AC names that file in its Steps — *"1. Read
+`docs/research/executable-workflow/reflection-designer.md`"* — so the artifact is not merely
+present, it is the document the acceptance criterion instructs the reviewer to read. The
+inception check reports it missing regardless.
+
+**This task did not produce the ruling.** The false-positive call was raised to the operator
+with evidence and the operator made it. Recording that distinction because a producer
+closing its own finding as invalid is exactly the move producer-not-judge exists to prevent.
+
+**The audit check's defect is NOT closed here.** RA-011 is void; the check that emitted it
+still scans one directory. That is a separate finding, recorded as an observation and
+surfaced for a scope decision rather than folded into this task — see Evolution.
+
+**RA-009 (T-705) and RA-010 (T-706) are NOT covered by this ruling.** Measured separately:
+T-103 is a genuine exact match for T-015's empty-inception shape; T-250 is partial — real
+Problem Statement, Open Questions and Evidence, but empty Assumptions/Exploration Plan/Scope
+Fence, and its research also lives in `docs/research/`. Neither disposition is decided.
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] docs/reports/T-587-*.md exists and states the question the inception explored, the evidence gathered, and the decision reached
-- [ ] The artifact is reconstructed from the task file, episodic summary and commit trail, and states explicitly which parts are reconstruction rather than contemporaneous record
-- [ ] No claim in the artifact is asserted beyond what those sources support
+~~- [ ] docs/reports/T-587-*.md exists and states the question the inception explored, the evidence gathered, and the decision reached~~
+~~- [ ] The artifact is reconstructed from the task file, episodic summary and commit trail, and states explicitly which parts are reconstruction rather than contemporaneous record~~
+~~- [ ] No claim in the artifact is asserted beyond what those sources support~~
+
+**The three criteria above are VOID.** They were written on the assumption the finding was
+true. It is not. Satisfying AC1 would mean writing a `docs/reports/T-587-*.md` that
+duplicates a real 19,876-byte research document — the opposite of what this arc is for.
+They are struck through rather than deleted so the record shows what was asked and why it
+was not done. Replaced by the disposition criteria below.
+
+- [x] The artifact the finding says is missing is located, and its path and size are recorded — **`docs/research/executable-workflow/reflection-designer.md`, 19,876 bytes, dated 2026-08-25**. Three further T-587 research documents sit beside it: `operating-digest.md`, `designer-contract-inventory.md`, `questions-and-dispositions.md`
+- [x] T-587 is confirmed NOT to share the empty-inception shape of T-015/T-103 — measured, every section filled: Problem Statement 680ch, Assumptions 123ch, Open Questions 141ch, Exploration Plan 569ch, Scope Fence 413ch, Recommendation Evidence 1072ch. **Zero `@auto-tick-on-decide` markers** (T-015, T-103 and T-250 each carry 4). Episodic is `auto-complete` with no template-placeholder `decisions:` block
+- [x] No document is written to `docs/reports/` for T-587 — verified by the Verification block below, which fails if one appears
+- [x] The Sovereign ruling that closed this task is recorded verbatim with attribution — see Context
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -171,7 +215,12 @@ C-001 holds that for an inception the thinking trail IS the artifact: conversati
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-ls docs/reports/T-587-*.md > /dev/null 2>&1
+# FALSE POSITIVE disposition. Two legs, both load-bearing:
+#   left  — the artifact the audit says is missing must actually exist
+#   right — no duplicate must have been written to docs/reports/ for T-587
+# If someone later "fixes" this warning by generating a docs/reports/ stub, the right leg
+# goes red and this task stops being closeable. That is deliberate.
+test -s docs/research/executable-workflow/reflection-designer.md && ! ls docs/reports/T-587-*.md > /dev/null 2>&1
 
 ## RCA
 
@@ -190,6 +239,34 @@ ls docs/reports/T-587-*.md > /dev/null 2>&1
 -->
 
 ## Evolution
+
+### 2026-09-16 — the finding was false, and the sibling assumption behind it was false too
+- **What changed:** RA-009/010/011 were filed as identical siblings of RA-008 and scored
+  identically at BVP 101 — four tasks, one number, from four filing texts nobody had read.
+  Reading them split the set three ways. **T-103 is a genuine exact match** for T-015's
+  empty-inception shape (all five sections empty, Evidence empty, 4 auto-tick markers, 0
+  commits). **T-250 is partial** — real Problem Statement, Open Questions and Evidence, but
+  empty Assumptions/Exploration Plan/Scope Fence. **T-587 matches nothing** — every section
+  filled, zero auto-tick markers, and the artifact the audit reports missing exists at
+  19,876 bytes in `docs/research/`.
+- **Plan impact:** The reconstruction this task was filed to perform must not happen; writing
+  it would have manufactured a duplicate of a real document to satisfy a check. The three
+  original ACs are struck through and replaced with disposition criteria, and the
+  Verification block now goes red if anyone later generates the stub.
+- **Triggered:** The audit's inception-research check scans `docs/reports/` only, so any
+  inception that filed its research elsewhere is reported as having none. T-250's research
+  is also in `docs/research/`, so RA-010 is likely affected by the same defect. **The check
+  defect is not fixed here and is not this task's to fix** — recorded as an observation and
+  surfaced. Whether it becomes its own arc-003 task is a scope decision; taking it would
+  break the arc's 35-findings-in / 35-tasks-out reconciliation without a ruling.
+
+### 2026-09-16 — who made the call
+- **What changed:** The false-positive determination was raised to the operator with the
+  measurements above and the operator ruled *"close RA-011 as a false positive."*
+- **Plan impact:** None to the work; recorded because it is the governance-relevant fact.
+  A producer closing its own finding as invalid on its own authority is the failure mode
+  producer-not-judge exists to prevent. The evidence is the agent's; the disposition is not.
+- **Triggered:** Nothing.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -240,3 +317,18 @@ ls docs/reports/T-587-*.md > /dev/null 2>&1
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-707-ra-011-completed-inception-t-587-has-no-.md
 - **Context:** Initial task creation
+
+### 2026-09-16T14:54:29Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7c2099f6
+- **Timestamp:** 2026-09-16T14:55:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-16T14:55:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
