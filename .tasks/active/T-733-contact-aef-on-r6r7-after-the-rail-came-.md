@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T19:13:53Z
-last_update: 2026-09-16T19:16:18Z
+last_update: 2026-09-16T19:17:10Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -147,6 +147,26 @@ python3 -c 'import yaml,sys;d=yaml.safe_load(open("docs/research/executable-work
 -->
 
 ## Evolution
+
+### 2026-09-16 — The task was filed as a transport act and turned into an evidence-integrity finding
+
+- **What changed:** At filing this was "post the R6/R7 ask to AEF." Checking the rail *before*
+  posting — rather than posting and then citing it — showed the hub's topic store was empty and
+  `agent-chat-arc` did not exist. The ask was never the hard part. The finding is that seven
+  offsets our Arc-0 register treats as evidence no longer resolve, including the one carrying
+  AEF's clause-1 refusal.
+- **Plan impact:** "Contact AEF" alone would have produced a post at offset 0 of a fresh topic
+  that read as a continuation of `EWCR-ARC0-ATTEST-832`. Later citing that as "the thread" would
+  have manufactured continuity that does not exist — the exact mechanism H3 already documents
+  ("carried forward by repetition, which is how an unratified value acquires the appearance of a
+  decision"). The post was rewritten to open by disclaiming continuity instead.
+- **Triggered:** `rail_citation_integrity` block added to `arc-0-exit-clauses.yaml` (additive
+  only — the verification leg asserts all three clause verdicts are unmoved, so a later edit that
+  changed one goes red). Sovereign question surfaced as this task's Human AC: is an offset into a
+  `/tmp`-backed log an acceptable identifier for a governance citation? Not answered here.
+- **What I nearly got wrong:** the reflex fix is "move the hub off /tmp." That prevents the next
+  loss and repairs none of the existing dangling citations, while feeling like a resolution.
+  Recorded in the Recommendation as the reason for DEFER rather than a GO on the ops change.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
