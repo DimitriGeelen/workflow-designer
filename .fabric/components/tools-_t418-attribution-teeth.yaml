@@ -3,21 +3,18 @@ name: _t418-attribution-teeth
 type: script
 subsystem: instruments
 location: tools/_t418-attribution-teeth.sh
-tags: [derived]
-
-purpose: "_t418-attribution-teeth.sh — the producer-attribution detector must be able to return BOTH verdicts, and must not have learned the one fingerprint in hand."
-
+tags:
+- derived
+purpose: _t418-attribution-teeth.sh — the producer-attribution detector must be able to return BOTH verdicts, and must not
+  have learned the one fingerprint in hand.
 depends_on:
-  - target: tools/_t418-producer-attribution.py
-    type: calls
-
+- target: tools/_t418-producer-attribution.py
+  type: calls
 depended_by:
-  - target: tools/_t418-mutation-check.sh
-    type: calls
-
+- target: tools/_t418-mutation-check.sh
+  type: calls
+- target: tools/_t418-mutation-check.sh
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-
-# Purpose is SOURCED from this file's own header; edges are DERIVED from
-# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
-#   python3 tools/_t673-fabric-cards.py
+last_enriched: '2026-09-16'

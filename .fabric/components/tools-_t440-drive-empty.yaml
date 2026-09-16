@@ -3,21 +3,18 @@ name: _t440-drive-empty
 type: script
 subsystem: instruments
 location: tools/_t440-drive-empty.sh
-tags: [derived]
-
-purpose: "_t440-drive-empty.sh — drive each in-population instrument to an EMPTY population and read what it says. T-440, the execution half."
-
+tags:
+- derived
+purpose: _t440-drive-empty.sh — drive each in-population instrument to an EMPTY population and read what it says. T-440, the
+  execution half.
 depends_on:
-  - target: tools/_t440-zero-population-census.py
-    type: calls
-
+- target: tools/_t440-zero-population-census.py
+  type: calls
 depended_by:
-  - target: tools/_t440-zero-population-census.py
-    type: calls
-
+- target: tools/_t440-zero-population-census.py
+  type: calls
+- target: tools/_t440-zero-population-census.py
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-
-# Purpose is SOURCED from this file's own header; edges are DERIVED from
-# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
-#   python3 tools/_t673-fabric-cards.py
+last_enriched: '2026-09-16'

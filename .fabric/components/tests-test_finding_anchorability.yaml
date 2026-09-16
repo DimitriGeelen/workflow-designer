@@ -3,24 +3,24 @@ name: test_finding_anchorability
 type: script
 subsystem: ewcr-arc-0
 location: tests/test_finding_anchorability.py
-tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
-
-purpose: "T-335 — can a validator finding be POINTED AT? (T-309 IW-1a, made answerable) T-309 asks where findings should surface in the designer: gutter markers on the canvas, an on-demand panel, or a save-time gate. Two of those three require every finding to name a thing that EXISTS ON THE CANVAS AT A POSITION, which is a property of the emitter and the renderer rather than anyone's preference. The spi..."
-
+tags:
+- ewcr
+- arc-0
+- arc:ewcr-governed-delivery
+purpose: 'T-335 — can a validator finding be POINTED AT? (T-309 IW-1a, made answerable) T-309 asks where findings should surface
+  in the designer: gutter markers on the canvas, an on-demand panel, or a save-time gate. Two of those three require every
+  finding to name a thing that EXISTS ON THE CANVAS AT A POSITION, which is a property of the emitter and the renderer rather
+  than anyone''s preference. The spi...'
 depends_on:
-  - target: tools/validate-workflow.py
-    type: calls
-  - target: tools/yaml-to-bpmn.py
-    type: calls
-
+- target: tools/validate-workflow.py
+  type: calls
+- target: tools/yaml-to-bpmn.py
+  type: calls
 depended_by:
-  - target: tests/run-bridge-tests.sh
-    type: calls
-
+- target: tests/run-bridge-tests.sh
+  type: calls
+- target: tests/run-bridge-tests.sh
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-671
-
-# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
-# extracts them from the referring file's own non-comment bytes. Regenerate with
-#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
-#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv
+last_enriched: '2026-09-16'

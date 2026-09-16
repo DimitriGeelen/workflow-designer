@@ -3,22 +3,30 @@ name: _t418-producer-attribution
 type: script
 subsystem: instruments
 location: tools/_t418-producer-attribution.py
-tags: [derived]
-
-purpose: "_t418-producer-attribution.py — is a sender fingerprint on this hub attributable to ONE producer, or to several? T-418. Triggered by AEF rail 509, generalised past it. WHAT THIS ANSWERS ----------------- When a peer's post arrives, \"who sent this\" has two candidate answers and they are not the same answer: sender_id cryptographic, hub-derived from sender_pubkey_hex (T-1427), cannot be forged --..."
-
-depends_on:
-  []
-
+tags:
+- derived
+purpose: '_t418-producer-attribution.py — is a sender fingerprint on this hub attributable to ONE producer, or to several?
+  T-418. Triggered by AEF rail 509, generalised past it. WHAT THIS ANSWERS ----------------- When a peer''s post arrives,
+  "who sent this" has two candidate answers and they are not the same answer: sender_id cryptographic, hub-derived from sender_pubkey_hex
+  (T-1427), cannot be forged --...'
+depends_on: []
 depended_by:
-  - target: tools/_t418-attribution-teeth.sh
-    type: calls
-  - target: tools/_t418-mutation-check.sh
-    type: calls
-
+- target: tools/_t418-attribution-teeth.sh
+  type: calls
+- target: tools/_t418-mutation-check.sh
+  type: calls
+- target: tools/_t420-rail-attribution-gate.py
+  type: called_by
+- target: tools/_t451-unwired-guard-census.py
+  type: called_by
+- target: tools/_t495-prose-edge-probe.py
+  type: called_by
+- target: tools/rail-sweep.py
+  type: called_by
+- target: tools/_t418-attribution-teeth.sh
+  type: called_by
+- target: tools/_t418-mutation-check.sh
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-
-# Purpose is SOURCED from this file's own header; edges are DERIVED from
-# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
-#   python3 tools/_t673-fabric-cards.py
+last_enriched: '2026-09-16'

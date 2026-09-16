@@ -3,22 +3,24 @@ name: test_forward_fixtures
 type: script
 subsystem: ewcr-arc-0
 location: tests/test_forward_fixtures.py
-tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
-
-purpose: "test_forward_fixtures — guard the reference BPMN(+aef:) fixture set (T-183, arc: designer-authoring-surface child-2, forward-bridge 832 support). `tests/fixtures/aef-bpmn/*.bpmn` are authentic editor-emitted BPMN diagrams that serve as the reference input corpus for the AEF-led forward bridge (child-2). The forward-compile spec (`docs/standards/aef-bpmn-forward-compile-v1.md`) documents the exp..."
-
+tags:
+- ewcr
+- arc-0
+- arc:ewcr-governed-delivery
+purpose: 'test_forward_fixtures — guard the reference BPMN(+aef:) fixture set (T-183, arc: designer-authoring-surface child-2,
+  forward-bridge 832 support). `tests/fixtures/aef-bpmn/*.bpmn` are authentic editor-emitted BPMN diagrams that serve as the
+  reference input corpus for the AEF-led forward bridge (child-2). The forward-compile spec (`docs/standards/aef-bpmn-forward-compile-v1.md`)
+  documents the exp...'
 depends_on:
-  - target: tests/test_editor_bridge_meta_parity.py
-    type: calls
-
+- target: tests/test_editor_bridge_meta_parity.py
+  type: calls
+- target: tests/test_editor_bridge_meta_parity.py
+  type: uses
 depended_by:
-  - target: tests/run-bridge-tests.sh
-    type: calls
-
+- target: tests/run-bridge-tests.sh
+  type: calls
+- target: tests/run-bridge-tests.sh
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-671
-
-# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
-# extracts them from the referring file's own non-comment bytes. Regenerate with
-#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
-#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv
+last_enriched: '2026-09-16'

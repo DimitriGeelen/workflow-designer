@@ -3,20 +3,18 @@ name: _t421-enforcement-claim-drift
 type: script
 subsystem: instruments
 location: tools/_t421-enforcement-claim-drift.py
-tags: [derived]
-
-purpose: "_t421-enforcement-claim-drift.py — find gates the tree SAYS are live and the settings file does not install. T-421. Structural half of T-420. WHY THIS EXISTS --------------- T-420 built a PreToolUse gate, registered it, and found it did not fire. Pulling that thread produced a worse number than the one it started with: the framework ships 38 hook scripts and this project registers 17. Most of t..."
-
-depends_on:
-  []
-
+tags:
+- derived
+purpose: '_t421-enforcement-claim-drift.py — find gates the tree SAYS are live and the settings file does not install. T-421.
+  Structural half of T-420. WHY THIS EXISTS --------------- T-420 built a PreToolUse gate, registered it, and found it did
+  not fire. Pulling that thread produced a worse number than the one it started with: the framework ships 38 hook scripts
+  and this project registers 17. Most of t...'
+depends_on: []
 depended_by:
-  - target: tools/_t421-drift-mutation-check.sh
-    type: calls
-
+- target: tools/_t421-drift-mutation-check.sh
+  type: calls
+- target: tools/_t421-drift-mutation-check.sh
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-
-# Purpose is SOURCED from this file's own header; edges are DERIVED from
-# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
-#   python3 tools/_t673-fabric-cards.py
+last_enriched: '2026-09-16'

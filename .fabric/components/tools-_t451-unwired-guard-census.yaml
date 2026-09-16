@@ -3,23 +3,34 @@ name: _t451-unwired-guard-census
 type: script
 subsystem: instruments
 location: tools/_t451-unwired-guard-census.py
-tags: [derived]
-
-purpose: "_t451-unwired-guard-census.py — how many tools/ instruments have no live caller. A `## Verification` block is a ONE-SHOT COMPLETION GATE, not a standing guard. P-011 executes a task's Verification block on the `--status work-completed` transition and at no other time. So an instrument whose only call site is a task's Verification block runs exactly once — at that task's completion — and never a..."
-
+tags:
+- derived
+purpose: _t451-unwired-guard-census.py — how many tools/ instruments have no live caller. A `## Verification` block is a ONE-SHOT
+  COMPLETION GATE, not a standing guard. P-011 executes a task's Verification block on the `--status work-completed` transition
+  and at no other time. So an instrument whose only call site is a task's Verification block runs exactly once — at that task's
+  completion — and never a...
 depends_on:
-  - target: tools/unwired-guard-baseline.txt
-    type: reads
-
+- target: tools/unwired-guard-baseline.txt
+  type: reads
+- target: tools/_t400-schema-teeth.sh
+  type: calls
+- target: tools/_t418-producer-attribution.py
+  type: calls
+- target: tools/_t125-lane-compaction-cdp.mjs
+  type: calls
 depended_by:
-  - target: tests/run-bridge-tests.sh
-    type: calls
-  - target: tools/_t495-prose-edge-probe.py
-    type: calls
-
+- target: tests/run-bridge-tests.sh
+  type: calls
+- target: tools/_t495-prose-edge-probe.py
+  type: calls
+- target: tools/_t532-hermeticity-scope-census.py
+  type: called_by
+- target: tools/_t578-js-comment-edge-census.py
+  type: called_by
+- target: tests/run-bridge-tests.sh
+  type: called_by
+- target: tools/_t495-prose-edge-probe.py
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-
-# Purpose is SOURCED from this file's own header; edges are DERIVED from
-# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
-#   python3 tools/_t673-fabric-cards.py
+last_enriched: '2026-09-16'

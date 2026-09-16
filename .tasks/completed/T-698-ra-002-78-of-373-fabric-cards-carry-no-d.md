@@ -6,10 +6,10 @@ description: >
   edges registers a file without stating what it depends on, so blast-radius returns
   an understated answer for it.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: claude
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-002]
 components: []
 related_tasks: []
@@ -19,8 +19,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:24:57Z
-last_update: '2026-09-16T13:30:49Z'
-date_finished:
+last_update: 2026-09-16T13:40:42Z
+date_finished: 2026-09-16T13:40:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -87,9 +87,9 @@ A component card with no depends_on and no depended_by asserts that a file exist
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The count of edgeless cards is strictly below the cycle-1 baseline of 78, and the new count is recorded in this task
-- [ ] `fw fabric enrich` has been run and its output recorded here
-- [ ] Any card still edgeless after enrich is either a genuine leaf or is listed by name, so the residue is enumerated rather than aggregated
+- [x] The count of edgeless cards is strictly below the cycle-1 baseline of 78, and the new count is recorded in this task — **78 → 73**, measured by `fw audit --section structure`
+- [x] `fw fabric enrich` has been run and its output recorded here — 374 processed, 213 enriched, 601 edges added (61 forward, 540 reverse), 161 discarded against 77 unregistered targets
+- [x] Any card still edgeless after enrich is either a genuine leaf or is listed by name, so the residue is enumerated rather than aggregated — all 73 named in `docs/reports/T-698-edgeless-cards-2026-09-16.txt`, and classified below
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -171,7 +171,11 @@ A component card with no depends_on and no depended_by asserts that a file exist
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-out=$(.agentic-framework/bin/fw fabric overview 2>&1); echo "$out" | grep -q "components"
+# Asserts the actual AC condition: edgeless-card count strictly below the cycle-1 baseline of 78.
+# Single command, its own exit code is the verdict (T-352 errexit note). Agrees with the audit's
+# independent count; the earlier regex-based counter disagreed and was wrong — see ## Evolution.
+python3 -c 'import yaml,glob;n=sum(1 for p in glob.glob(".fabric/components/*.yaml") for d in [yaml.safe_load(open(p)) or {}] if not (d.get("depends_on") or d.get("depended_by")));print("edgeless:",n);exit(0 if n<78 else 1)'
+test -s docs/reports/T-698-edgeless-cards-2026-09-16.txt
 
 ## RCA
 
@@ -190,6 +194,42 @@ out=$(.agentic-framework/bin/fw fabric overview 2>&1); echo "$out" | grep -q "co
 -->
 
 ## Evolution
+
+### 2026-09-16 — the residue is not a carding failure, it is a missing node type
+- **What changed:** The filing assumed 78 edgeless cards meant 78 under-described
+  components. After enrich the residue is 73, and it has a shape the aggregate number
+  hid: **72 of 73 live in `tools/`** and one in `scripts/`. Spot-checking three of them
+  through `fw fabric deps` confirms they are genuinely disconnected in the graph, not
+  merely under-declared on the card. Then grepping for their filenames showed why:
+  `_t342-fabric-edge-drop-probe.py`, `_t345-fabric-check-agreement.sh` and
+  `_autoload-verify-cdp.mjs` are each referenced from 2-3 task files. Their only caller
+  is a task's `## Verification` block — **and a task is not a fabric component, so there
+  is no node for that edge to attach to.** The fabric has no node type for the
+  verification surface, so every one-shot instrument invoked only from P-011 is edgeless
+  by construction and always will be.
+- **Plan impact:** "Run enrich until the number reaches zero" was the wrong target. Enrich
+  can only find edges between things that are both components. The reachable floor for this
+  check is roughly the count of P-011-only instruments, which is most of the 73. Driving it
+  lower would require either registering task Verification blocks as components or excluding
+  P-011-only instruments from the check — both are design decisions, not remediation.
+- **Triggered:** No new task filed; the choice above is a Sovereign question and is recorded
+  as such rather than decided here. Two sub-findings from T-697's RCA also land on this task
+  and remain open: `fw fabric register` mints cards with zero edges (so the registration verb
+  is a *source* of this population), and a `depended_by:` written on a card is inert because
+  the reverse index is built from other cards' `depends_on:`.
+
+### 2026-09-16 — I built a broken counter and the cross-check caught it
+- **What changed:** My first enumeration used a line-scanning regex and reported 287 edgeless
+  cards against the audit's 78. It listed `tests-run-bridge-tests` as edgeless — a card with
+  over 130 `depends_on` entries. `fw fabric enrich` had rewritten the cards with list items at
+  column 0, and the regex's `(?!^\S)` continuation test terminated on the first `-`. Replacing
+  it with `yaml.safe_load` produced **73, exactly matching the audit's independent count.**
+- **Plan impact:** The enumeration in `docs/reports/T-698-edgeless-cards-2026-09-16.txt` is the
+  YAML-parse output, not the regex output. Two independently-implemented counts agreeing on 73
+  is the only reason the number in this task is stated without hedging.
+- **Triggered:** Nothing filed. Recorded because the failure mode is the one T-694 exists to
+  catch — an instrument that has only ever printed one answer has not been shown to have two —
+  and it recurred here within the same run, on a counter I wrote myself.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -240,3 +280,18 @@ out=$(.agentic-framework/bin/fw fabric overview 2>&1); echo "$out" | grep -q "co
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-698-ra-002-78-of-373-fabric-cards-carry-no-d.md
 - **Context:** Initial task creation
+
+### 2026-09-16T13:37:16Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-193fe639
+- **Timestamp:** 2026-09-16T13:40:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-16T13:40:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

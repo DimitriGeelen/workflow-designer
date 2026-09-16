@@ -3,20 +3,18 @@ name: memory-application-census
 type: script
 subsystem: instruments
 location: tools/memory-application-census.py
-tags: [derived]
-
-purpose: "memory-application-census.py — what proportion of project memory says how to APPLY it (T-411). THE QUESTION. AEF asked at rail 491, and re-asked at 501, what proportion of our learnings carry an `application` field. Answering with field presence would have been the misleading answer: presence is 100%, because NO HUMAN OR AGENT EVER WRITES IT. agents/context/lib/learning.sh:100,112 -> applicatio..."
-
-depends_on:
-  []
-
+tags:
+- derived
+purpose: 'memory-application-census.py — what proportion of project memory says how to APPLY it (T-411). THE QUESTION. AEF
+  asked at rail 491, and re-asked at 501, what proportion of our learnings carry an `application` field. Answering with field
+  presence would have been the misleading answer: presence is 100%, because NO HUMAN OR AGENT EVER WRITES IT. agents/context/lib/learning.sh:100,112
+  -> applicatio...'
+depends_on: []
 depended_by:
-  - target: tools/_t411-census-teeth.sh
-    type: calls
-
+- target: tools/_t411-census-teeth.sh
+  type: calls
+- target: tools/_t411-census-teeth.sh
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-
-# Purpose is SOURCED from this file's own header; edges are DERIVED from
-# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
-#   python3 tools/_t673-fabric-cards.py
+last_enriched: '2026-09-16'

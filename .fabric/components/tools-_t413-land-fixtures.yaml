@@ -3,23 +3,22 @@ name: _t413-land-fixtures
 type: script
 subsystem: instruments
 location: tools/_t413-land-fixtures.py
-tags: [derived]
-
-purpose: "_t413-land-fixtures.py — materialise AEF's two T-406 fixtures from the rail. OBS-108 shuts the file channel between the two projects, so AEF posted the bytes inline as base64 at rail offsets 504/505. This lands them. THE HASH IS TAKEN ON THE DECODED BUFFER, BEFORE ANY WRITE. Hashing the file afterwards would prove the write succeeded, which nobody doubted; the thing under test is the transfer...."
-
+tags:
+- derived
+purpose: _t413-land-fixtures.py — materialise AEF's two T-406 fixtures from the rail. OBS-108 shuts the file channel between
+  the two projects, so AEF posted the bytes inline as base64 at rail offsets 504/505. This lands them. THE HASH IS TAKEN ON
+  THE DECODED BUFFER, BEFORE ANY WRITE. Hashing the file afterwards would prove the write succeeded, which nobody doubted;
+  the thing under test is the transfer....
 depends_on:
-  - target: tests/fixtures/aef-inbound/t406-clean-leading-boilerplate.bpmn
-    type: reads
-  - target: tests/fixtures/aef-inbound/t406-incidental-leading-boilerplate.bpmn
-    type: reads
-
+- target: tests/fixtures/aef-inbound/t406-clean-leading-boilerplate.bpmn
+  type: reads
+- target: tests/fixtures/aef-inbound/t406-incidental-leading-boilerplate.bpmn
+  type: reads
 depended_by:
-  - target: tools/_t406-doc-comment-provenance-cdp.mjs
-    type: calls
-
+- target: tools/_t406-doc-comment-provenance-cdp.mjs
+  type: calls
+- target: tools/_t406-doc-comment-provenance-cdp.mjs
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-
-# Purpose is SOURCED from this file's own header; edges are DERIVED from
-# non-comment bytes. Neither is asserted. Regenerate (idempotent) with:
-#   python3 tools/_t673-fabric-cards.py
+last_enriched: '2026-09-16'
