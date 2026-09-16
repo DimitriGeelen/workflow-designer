@@ -1580,3 +1580,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-347
+  text: "P-002 instances 11 and 12 (arc-003 cycle 2, 2026-09-16): the check-active-task gate blocks READ-ONLY Tier-3 operations when focus is null. Instance 11: 'fw audit' refused - a compliance health check, which CLAUDE.md's own Enforcement Tiers table lists under Tier 3 'Pre-approved categories (health checks, status queries)'. Instance 12: '.agentic-framework/agents/context/checkpoint.sh status' refused - this is the exact command CLAUDE.md's Context Budget Management section instructs the agent to run to measure the budget, and T-675 makes it the ONLY trustworthy read. Both were triggered by the documented state (b): focus cleared by a task completion. Neither command modifies anything; the block message's 'Attempting to modify:' field was empty in both cases. Consequence: after completing any task the agent cannot measure its own budget or run the audit without first re-focusing an unrelated task, which is drift the gate exists to prevent. Resolved both times via the prescribed remedy (fw context focus), not bypassed. Now twelve instances of the P-002 family; see T-676."
+  captured: 2026-09-16T13:48:15Z
+  context_task: T-575
+  tags: []
+  status: pending
+  promoted_to: null
