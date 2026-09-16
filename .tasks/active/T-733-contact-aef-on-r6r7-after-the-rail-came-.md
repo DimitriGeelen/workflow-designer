@@ -4,7 +4,7 @@ name: "Contact AEF on R6/R7 after the rail came back empty: re-establish the ask
 description: >
   Operator instructed hub start + AEF contact on R6/R7 (H6). Hub started clean: topic store holds only broadcast:global, agent-chat-arc absent. Every rail offset cited in arc-0-exit-clauses.yaml and operator-decisions.yaml (602/643/650/734/737/741/742) is now dangling. Re-post the R6/R7 ask stating the discontinuity explicitly, with producer attribution, and annotate the registers so the lost citations are visible rather than silently broken.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: claude
 horizon: now
@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T19:13:53Z
-last_update: 2026-09-16T19:13:53Z
+last_update: 2026-09-16T19:16:18Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -170,6 +170,54 @@ python3 -c 'import yaml,sys;d=yaml.safe_load(open("docs/research/executable-work
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** DEFER the substrate ruling; no action needed on the post itself.
+
+**Rationale:**
+
+Two separable things happened. The ask was re-sent and needs nothing from you — it is transport,
+it carries producer attribution, and per roadmap §2.3 it ratifies nothing and closes nothing.
+The substrate question is the one that needs a ruling, and it should NOT be answered today
+because the cheap answer is wrong in a specific way.
+
+The tempting fix is "move the hub runtime off /tmp so this cannot recur." That prevents the next
+loss and does nothing about the citations already dangling — and those are the ones doing
+evidentiary work right now. Arc-0 clause 1 rests on AEF's refusal at offset 650. We quote it
+verbatim, so the content is safe; what we cannot do any more is let a third party check that our
+quotation is faithful. Relocating the runtime would leave that exactly as broken while producing
+the feeling that it was handled.
+
+The narrower and more useful question is whether an offset into a volatile log was ever an
+appropriate identifier for a governance citation. If the answer is no, the repair is to re-pin
+these clauses to quoted content plus a counterparty-held reference, which survives a hub restart
+by construction — and that is a register-schema decision, not an ops change.
+
+Recommending DEFER rather than GO because choosing between those two is a sovereignty act about
+what this project accepts as evidence, and an agent picking the ops fix because it is closer to
+hand would be answering the easier question and reporting it as the harder one.
+
+**Evidence:**
+
+- Hub restarted at operator instruction 2026-09-16; came back with `broadcast:global` count 0 and
+  no `agent-chat-arc`. Measured via `termlink_channel_list` on the live hub, not inferred.
+- `termlink_doctor --strict`: 7 pass, 1 warn, 0 fail. Sessions survived (54 registered, all
+  responding, from `/var/lib/termlink`); the message log did not (runtime `/tmp/termlink-0`).
+- Seven offsets cited across `arc-0-exit-clauses.yaml` and `operator-decisions.yaml` no longer
+  resolve: 602, 643, 650, 734, 737, 741, 742.
+- Re-ask posted to the recreated topic at **offset 0**, `retention=forever`, with
+  `from_project: 832-Workflow-designer`. The post states the discontinuity in its opening lines
+  rather than reading as a continuation.
+- `rail_citation_integrity` added to the register; re-parse confirms all three clauses still
+  `attestation: None` / `definition_ratified: False` — the edit was additive, and the
+  verification leg asserts exactly that so a later edit that moved a verdict would go red.
+- Live AEF session `ewcr-r6-policy-cards` (task T-3350) observed on this host, so R6 may already
+  be in flight on their side. The post asks rather than assumes.
+
+**What this does not establish:** whether AEF received or can read the post. There is no reader
+confirmation on this mesh — the cohort shares one identity fingerprint — and §2.3 holds that
+transport is not collaboration completion regardless.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -197,3 +245,6 @@ python3 -c 'import yaml,sys;d=yaml.safe_load(open("docs/research/executable-work
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-733-contact-aef-on-r6r7-after-the-rail-came-.md
 - **Context:** Initial task creation
+
+### 2026-09-16T19:16:18Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
