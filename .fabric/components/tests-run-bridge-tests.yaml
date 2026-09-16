@@ -10,6 +10,8 @@ purpose: "Test suite for tools/yaml-to-bpmn.py (the YAML→BPMN render bridge, T
 depends_on:
   - target: tests/check-corpus-geometry.sh
     type: calls
+  - target: tools/_t423-di-schema-validate.py
+    type: calls
   - target: tests/test_bridge_aef_passthrough.py
     type: calls
   - target: tests/test_bridge_seam_roundtrip.py

@@ -1,8 +1,11 @@
 ---
 id: T-725
-name: "RA-029: D13 inception limbo - 3 tasks have a decision recorded but are stuck in active"
+name: "RA-029: D13 inception limbo - 3 tasks have a decision recorded but are stuck
+  in active"
 description: >
-  Audit WARN cycle 1 2026-09-16: T-309 T-357 T-681. The audit mitigation recommends fw inception sweep; that verb ticks Human ACs and is the operator's act alone, so the recommendation is surfaced here and deliberately not followed.
+  Audit WARN cycle 1 2026-09-16: T-309 T-357 T-681. The audit mitigation recommends
+  fw inception sweep; that verb ticks Human ACs and is the operator's act alone, so
+  the recommendation is surfaced here and deliberately not followed.
 
 status: captured
 workflow_type: build
@@ -17,8 +20,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:26:11Z
-last_update: 2026-09-16T13:26:11Z
-date_finished: null
+last_update: '2026-09-16T13:30:55Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -29,6 +32,33 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-16T13:30:40Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=2
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-09-16T13:30:55Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-725: RA-029: D13 inception limbo - 3 tasks have a decision recorded but are stuck in active

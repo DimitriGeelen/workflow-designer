@@ -1573,3 +1573,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-346
+  text: "F-BVP-02 (arc-003 cycle 1, URGENT): the F8 cost axis is structurally blind to governance work. Cost = 0.6*blast_radius + 0.3*tier + 0.1*effort, and blast_radius is derived from file paths named in the task body. 31 of the 35 arc-003 remediation tasks got tier and effort but NO blast_radius, so cost renders as a dash and fw bvp assigns NO quadrant at all. The 4 that did place all name a file path. Consequence: every task whose subject is a task record rather than a source file - all 14 CTL-029 findings, both velocity findings, and the single FAIL on the board (T-723 RA-027, D2 human review queue) - is unrankable and therefore invisible to a Q1/Q2 selection rule. Unplaced is not the same state as low-value, and the quadrant table has no cell for it. Distinct from T-694: that finding was about value-axis ties, this is absence on the cost axis. Sovereign question - not decided by the agent."
+  captured: 2026-09-16T13:32:18Z
+  context_task: T-575
+  tags: []
+  status: pending
+  promoted_to: null

@@ -1,0 +1,26 @@
+id: tools/_t423-di-schema-validate.py
+name: _t423-di-schema-validate
+type: script
+subsystem: bpmn-export
+location: tools/_t423-di-schema-validate.py
+tags: [bpmn, validation, di, schema, t-423, verification-leg]
+
+purpose: "Validates exported BPMN against the real OMG BPMN 2.0 XSD set rather than
+  grepping for element names, and reports the schema verdict and the DI-geometry
+  verdict separately because a document can satisfy the XSD and still carry no
+  diagram. Carries a --self-test that must be watched going red before its verdict on
+  the corpus means anything (T-423). Its first run found 113 occurrences of
+  bpmn:extensionElements emitted after bpmn:conditionExpression on bpmn:sequenceFlow,
+  invalidating every conditional flow ever exported — a fault no name-based check
+  could see (T-690)."
+
+depends_on:
+  - target: tools/schemas/bpmn20/BPMN20.xsd
+    type: reads
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-09-16
+created_by: T-697

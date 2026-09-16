@@ -1,14 +1,15 @@
 ---
-id: T-699
-name: "RA-003: fabric drift reports 1 unregistered source file"
+id: T-697
+name: "RA-001: one watched source file has no fabric component card"
 description: >
-  Audit WARN cycle 1 2026-09-16: 1 of 371 watched files matching watch-patterns.yaml is unregistered. Same root cause as RA-001 (T-697) - the audit emits it twice from two checks.
+  Audit WARN (cycle 1, 2026-09-16): Fabric registration invariant not held — 1 of
+  371 files matching watch-patterns.yaml has no component card.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: claude
-horizon: now
-tags: [arc-003, audit-remediation, RA-003]
+horizon: null
+tags: [arc-003, audit-remediation, RA-001]
 components: []
 related_tasks: []
 arc_id: arc-003
@@ -16,9 +17,9 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-16T13:25:00Z
-last_update: 2026-09-16T13:25:00Z
-date_finished: null
+created: 2026-09-16T13:24:00Z
+last_update: 2026-09-16T13:35:17Z
+date_finished: 2026-09-16T13:35:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -29,29 +30,58 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-16T13:30:32Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 1
+      F4: 1
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=2
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=1 (body/components:component-fabric-incidental); F4=1 
+      (prose:routing/geometry-incidental); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-09-16T13:30:48Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (paths:tools/_t423-di-schema-validate.py); tier=2 
+      (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
-# T-699: RA-003: fabric drift reports 1 unregistered source file
+# T-697: RA-001: one watched source file has no fabric component card
 
 ## Context
 
-**Finding RA-003** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
+**Finding RA-001** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
 
 Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; doctor 3 warn / 0 fail.
 
 **Verbatim tool output:**
 
 ```
-[WARN] Fabric drift: 1 source file(s) have no fabric card
-       Evidence: 1 of 371 watched files matching watch-patterns.yaml are unregistered
+[WARN] Fabric: 373 registered, 1 unregistered (of 371 watched - 100% covered, cards flat since earlier today (373))
+       Evidence: 1 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
        Mitigation: Run: fw fabric scan
 ```
 
 **The invariant that is not held:**
 
-Same underlying defect as RA-001, reported by a second check. The structural point is not the missing card - it is that the audit surfaces one unregistered file as two findings from two checks with no cross-reference, so a reader counting warnings over-counts the defect. Kept as its own task per the one-finding-one-task rule, with the duplication named here rather than folded away.
+The fabric is meant to be a complete structural map of every significant file. The invariant is: every file matching watch-patterns.yaml has a component card. It does not hold. `fw fabric drift` names the file: tools/_t423-di-schema-validate.py - a tool a previous session created and never registered. Because blast-radius is computed from cards, an unregistered file is invisible to impact analysis: changing it reports no downstream consumers, which is indistinguishable from having none.
 
-**Root-cause siblings:** T-697 (RA-001)
+**Root-cause siblings:** T-699 (RA-003)
 
 **Verification is the next cycle's re-run of the originating check, not this task's own assertion that it is fixed.**
 
@@ -59,8 +89,9 @@ Same underlying defect as RA-001, reported by a second check. The structural poi
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `fw fabric drift` reports `unregistered: 0` (shared condition with RA-001)
-- [ ] This task records that RA-001 and RA-003 are one defect seen twice, so a future cycle comparing warn counts does not read a single fix as two
+- [x] `fw fabric drift` reports `unregistered: 0`
+- [x] tools/_t423-di-schema-validate.py has a component card under .fabric/components/
+- [x] The card states at least one depends_on or depended_by edge, so registration does not merely satisfy the count while leaving the file invisible to impact analysis
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -86,11 +117,11 @@ Same underlying defect as RA-001, reported by a second check. The structural poi
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-699`
+         1. Run `bin/fw reviewer T-697`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-699 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-697 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -146,6 +177,32 @@ out=$(.agentic-framework/bin/fw fabric drift 2>&1); echo "$out" | grep -q "unreg
 
 ## RCA
 
+**Root cause of RA-001:** `tools/_t423-di-schema-validate.py` was created by an earlier
+session for T-423 and never registered. Nothing in the create-a-tool path calls
+`fw fabric register`, so registration depends on the author remembering — which is the
+same capture-without-application shape as FP-011.
+
+**What the fix exposed — two sub-findings, recorded because they are not RA-001:**
+
+1. **`fw fabric register` mints a card that passes the registration check while staying
+   invisible to impact analysis.** The card it created had `purpose: "TODO: describe what
+   this component does"` and `depends_on: []` / `depended_by: []`. `fw fabric drift`
+   immediately reported `unregistered: 0` — the count was satisfied by a card that says
+   nothing. This is RA-002's defect (78 edgeless cards) reproducing at the moment of
+   creation, which explains why the edgeless count is flat across audits: the registration
+   verb is a source of edgeless cards, not only a cure for unregistered ones.
+
+2. **Writing `depended_by:` on a card is inert.** After filling both edge lists by hand,
+   `fw fabric deps` reported `Depended by: (none found — may need card enrichment)`. The
+   reverse index is built from *other* cards' `depends_on:`, so a `depended_by:` entry on
+   the card itself is read by nobody. The real edge had to be declared from the caller's
+   side — `tests/run-bridge-tests.sh`'s card. A field that is written, saved, and never
+   read is worse than an absent one: it reads as a declared edge to every human who opens
+   the file.
+
+Neither sub-finding is fixed here. Both are structural and belong to whoever rules on
+RA-002 (T-698).
+
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
@@ -161,6 +218,22 @@ out=$(.agentic-framework/bin/fw fabric drift 2>&1); echo "$out" | grep -q "unreg
 -->
 
 ## Evolution
+
+### 2026-09-16 — the registration verb is itself a source of the defect RA-002 reports
+- **What changed:** At filing this looked like one forgotten file. Running the fix showed
+  that `fw fabric register` produces a card with a TODO purpose and zero edges, and that
+  `fw fabric drift` reports `unregistered: 0` the moment that card exists. Registration and
+  usefulness are separate properties and only the first is checked. Separately, the
+  `depended_by:` field on a card turned out to be inert — `fw fabric deps` builds the
+  reverse index from other cards' `depends_on:`, so the edge had to be added to
+  `tests/run-bridge-tests.sh`'s card before it resolved.
+- **Plan impact:** AC3 ("states at least one edge") was written expecting it to follow
+  automatically from registering. It did not, and satisfying it honestly required editing a
+  second card. The AC was the right one to have written — the two-AC version of this task
+  would have closed green with an empty card.
+- **Triggered:** Two sub-findings recorded in this task's RCA and routed to T-698 (RA-002),
+  which is the task that owns the edgeless-card population. Not fixed here — the repair is
+  a change to a framework verb's behaviour and is a scope question, not a remediation step.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -198,7 +271,7 @@ out=$(.agentic-framework/bin/fw fabric drift 2>&1); echo "$out" | grep -q "unreg
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-699 go|no-go|defer --rationale "..."
+     fw inception decide T-697 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -207,7 +280,27 @@ out=$(.agentic-framework/bin/fw fabric drift 2>&1); echo "$out" | grep -q "unreg
 
 ## Updates
 
-### 2026-09-16T13:25:00Z — task-created [task-create-agent]
+### 2026-09-16T13:24:00Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-699-ra-003-fabric-drift-reports-1-unregister.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-697-ra-001-one-watched-source-file-has-no-fa.md
 - **Context:** Initial task creation
+
+### 2026-09-16T13:32:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5d1f35a6
+- **Timestamp:** 2026-09-16T13:35:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — tools/_t423-di-schema-validate.py has a component card under .fabric/components/
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t423-di-schema-validate.py in: tools/_t423-di-schema-validate.py has a component card under .fabric/components/`
+
+### 2026-09-16T13:35:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
