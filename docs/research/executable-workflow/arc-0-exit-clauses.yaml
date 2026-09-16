@@ -41,6 +41,41 @@
 
 schema_version: 1
 task: T-597
+
+# ── T-733, 2026-09-16: EVERY RAIL OFFSET CITED IN THIS FILE IS NOW DANGLING. ────────────
+# The operator started the shared TermLink hub (it had been `not_running`). It came back with
+# an EMPTY topic store — `broadcast:global` at count 0, and `agent-chat-arc` absent entirely.
+# 54 sessions re-registered from /var/lib/termlink; the message log did not, because the hub
+# runtime lives under /tmp/termlink-0.
+#
+# So these citations no longer resolve on the live hub:
+#   offset 650 / thread T-3127  — AEF's clause-1 refusal (counterparty_response, below)
+#   offset 643                  — the original R6/R7 routing (H6 in operator-decisions.yaml)
+#   offsets 602, 734, 737, 741, 742 — EWCR-ARC0-ATTEST-832 traffic (H3's supersession)
+#
+# WHAT IS AND IS NOT AFFECTED. The *content* of AEF's refusal is preserved verbatim in this
+# file and is not weakened by the loss — their numbers and their words are recorded below and
+# were quoted, not linked. What is lost is INDEPENDENT RE-READABILITY: nobody can now go to
+# the rail and check that this file reports the post faithfully. A quotation whose source is
+# unreachable is the same shape as an inception rationale that says "Confirmed:" with no
+# referent — the very defect this project reconstructed two artifacts to repair (T-704/T-705).
+#
+# NOT DECIDED HERE, AND NOT THE AGENT'S TO DECIDE:
+#   - whether to attempt recovery of the old log from any surviving copy
+#   - whether a rail whose runtime sits in /tmp is an acceptable substrate for citations this
+#     register treats as evidence
+#   - whether to re-pin these clauses to quoted content only, dropping offsets as identifiers
+# Surfaced to the operator, not actioned.
+#
+# NO CLAUSE STATE WAS CHANGED BY THIS ENTRY. attestation: fields, definition_ratified: and
+# every verdict below are exactly as they were before the hub restart.
+rail_citation_integrity:
+  measured: 2026-09-16
+  hub_topic_store: empty-on-restart
+  agent_chat_arc: recreated-by-agent-at-operator-instruction  # retention=forever
+  new_thread_root_offset: 0            # T-733 re-ask; NOT continuous with the original thread
+  dangling_offsets: [602, 643, 650, 734, 737, 741, 742]
+  clause_state_changed: false
 exit_gate: docs/research/executable-workflow/roadmap-5be23719.md:147
 fence_table: docs/research/executable-workflow/roadmap-5be23719.md:353-362
 ownership_table: docs/research/executable-workflow/roadmap-5be23719.md:64
