@@ -5,10 +5,10 @@ description: >
   Audit WARN cycle 1 2026-09-16: completed inception with no persisted research output
   under docs/reports/. Sibling of RA-008.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: claude
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-009]
 components: []
 related_tasks: []
@@ -18,8 +18,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:16Z
-last_update: '2026-09-16T13:30:50Z'
-date_finished:
+last_update: 2026-09-16T15:55:05Z
+date_finished: 2026-09-16T15:55:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -87,9 +87,10 @@ C-001 holds that for an inception the thinking trail IS the artifact: conversati
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] docs/reports/T-103-*.md exists and states the question the inception explored, the evidence gathered, and the decision reached
-- [ ] The artifact is reconstructed from the task file, episodic summary and commit trail, and states explicitly which parts are reconstruction rather than contemporaneous record
-- [ ] No claim in the artifact is asserted beyond what those sources support
+- [x] docs/reports/T-103-*.md exists and states the question the inception explored, the evidence gathered, and the decision reached — `docs/reports/T-103-cdp-harness-as-editor-test-substrate.md`. §1 the question, §2 the finding quoted verbatim, §3 **the evidence gathered was none** (unfilled template comment), §4 the GO and the timeline
+- [x] The artifact is reconstructed from the task file, episodic summary and commit trail, and states explicitly which parts are reconstruction rather than contemporaneous record — every section carries a `*Source:*` line; the header states the document did not exist when T-103 was decided
+- [x] No claim in the artifact is asserted beyond what those sources support — the rationale is **quoted verbatim, not paraphrased** (PL-323); §5 is the one section that goes beyond the sources and every row of it names the command that produced it; §7 lists three things left undecided
+- [x] Before writing, the OBS-349 check was run: no T-103 research artifact exists anywhere under `docs/` (the single grep hit is an unrelated T-221 plan), so unlike RA-011 this finding is genuine and not a directory-scope false positive
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -191,6 +192,41 @@ ls docs/reports/T-103-*.md > /dev/null 2>&1
 
 ## Evolution
 
+### 2026-09-16 — same shape as T-015, but the decision was checkable and it checked out
+- **What changed:** T-103 matches T-015 structurally — all five inception sections empty,
+  Evidence block empty, 4 `@auto-tick-on-decide` markers with all four ACs ticked including
+  the Human `[REVIEW]`, episodic `decisions:` block of literal template placeholders marked
+  `enrichment_status: complete`, `commits: 0, files_changed: 0`. Two differences matter and
+  are recorded rather than flattened into "same shape":
+  1. T-103 sat in `started-work` for **just under four hours** before the decision (T-015's
+     three transitions share a single second), so there was a window in which exploration
+     could have happened. It produced no commit and no file.
+  2. **T-103's rationale names its evidence base — T-101 — where T-015's says only
+     "Confirmed:" with no referent.** Unwritten evidence that is identifiable is a weaker
+     failure than an unfalsifiable claim, and the artifact says so.
+- **Plan impact:** The artifact could do something the T-015 one could not: **test whether
+  the GO was carried out.** It was. `tools/_cdp-attach.mjs` exists, the bridge runner carries
+  29 CDP references, and the opt-in guard the recommendation insisted on ("skipped when
+  node/chromium absent, never a hard audit gate") is implemented at
+  `tests/run-bridge-tests.sh:228` and `:411`, refined to a LOUD SKIP so an absent toolchain
+  cannot read as a passing suite. Each row of that table names the command that produced it.
+- **Triggered:** Two qualifications surfaced while checking, both recorded in the artifact and
+  neither resolved: **T-101 — the task this GO rests on as "proven" — is still open in
+  `.tasks/active/`**; and OBS-338 records that these CDP legs need Node ≥ 21 while
+  `/usr/bin/node` here is v18.19.1, so "zero-dependency" holds for npm packages but not for
+  the node binary on the default path.
+
+### 2026-09-16 — the RA-011 lesson was applied before writing, not after
+- **What changed:** RA-011 turned out to be a false positive because the audit's
+  inception-research check scans `docs/reports/` only (OBS-349). Before writing anything here
+  I grepped all of `docs/` for T-103: the single hit is an unrelated T-221 plan. The finding
+  is genuine.
+- **Plan impact:** None — but the check cost one command and would have prevented a duplicate
+  document had it gone the other way. It is now the first step of this task class.
+- **Triggered:** Nothing filed. **RA-010 (T-706, T-250) has NOT had this check applied and
+  remains undecided** — T-250's research is under `docs/research/executable-workflow/`, which
+  is exactly the directory OBS-349 is about, so it may be a second false positive.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -240,3 +276,23 @@ ls docs/reports/T-103-*.md > /dev/null 2>&1
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-705-ra-009-completed-inception-t-103-has-no-.md
 - **Context:** Initial task creation
+
+### 2026-09-16T15:53:19Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d0a413de
+- **Timestamp:** 2026-09-16T15:55:06Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 48
+     - evidence: `ls docs/reports/T-103-*.md > /dev/null 2>&1`
+
+### 2026-09-16T15:55:05Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
