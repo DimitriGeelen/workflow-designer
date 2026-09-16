@@ -5,10 +5,10 @@ description: >
   Audit WARN cycle 1 2026-09-16: completed inception with no persisted research output
   under docs/reports/. C-001 requires the thinking trail to be the artifact.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: claude
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-008]
 components: []
 related_tasks: []
@@ -18,8 +18,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:13Z
-last_update: '2026-09-16T13:30:50Z'
-date_finished:
+last_update: 2026-09-16T13:57:20Z
+date_finished: 2026-09-16T13:57:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -87,9 +87,9 @@ C-001 holds that for an inception the thinking trail IS the artifact: conversati
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] docs/reports/T-015-*.md exists and states the question the inception explored, the evidence gathered, and the decision reached
-- [ ] The artifact is reconstructed from the task file, episodic summary and commit trail, and states explicitly which parts are reconstruction rather than contemporaneous record
-- [ ] No claim in the artifact is asserted beyond what those sources support
+- [x] docs/reports/T-015-*.md exists and states the question the inception explored, the evidence gathered, and the decision reached — `docs/reports/T-015-tasksdir-contextdir-contamination.md`. §1 the question, §2 the finding quoted verbatim, §3 **the evidence gathered was none** (the Evidence block is an unfilled template comment), §4 the GO decision
+- [x] The artifact is reconstructed from the task file, episodic summary and commit trail, and states explicitly which parts are reconstruction rather than contemporaneous record — every section carries a `*Source:*` line, and the header states outright that the document did not exist when T-015 was decided and is a repair, not a record
+- [x] No claim in the artifact is asserted beyond what those sources support — the one substantive technical claim is **quoted verbatim rather than paraphrased** (PL-323), and §3 states explicitly that its word "Confirmed" is unsupported by any file path, commit or test output in the record. §7 lists three things the artifact deliberately does not decide
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -191,6 +191,40 @@ ls docs/reports/T-015-*.md > /dev/null 2>&1
 
 ## Evolution
 
+### 2026-09-16 — the missing artifact is a symptom; the inception was closed empty
+- **What changed:** The filing assumed a research artifact had been done and simply not
+  saved. Reading the sources showed otherwise. T-015's Problem Statement, Assumptions, Open
+  Questions, Exploration Plan and Scope Fence are all unfilled template comments; its
+  Recommendation carries a real, specific technical finding but its **Evidence block is also
+  an unfilled template comment**; and `captured → started-work → work-completed` are all
+  stamped at the same second (2026-07-04T22:49:09Z) with `commits: 0, files_changed: 0`.
+  There was no research output to save because no exploration is evidenced between filing
+  and decision. The audit warning "no research artifact in docs/reports/" is therefore a
+  symptom of something the audit does not check for.
+- **Plan impact:** The AC as written ("no claim asserted beyond what the sources support")
+  turned out to be the load-bearing one. Writing a plausible-sounding research narrative
+  would have satisfied a reader and been fabrication. What the artifact could honestly do
+  was persist the decision, quote the finding verbatim, and state that its evidentiary basis
+  was never recorded — which it does.
+- **Triggered:** OBS-348 (F-AUTOTICK-01). All four of T-015's ACs, **including the Human
+  `[REVIEW]`**, were ticked by `<!-- @auto-tick-on-decide -->`; two of the Agent ones are
+  false on their face ("Problem statement validated" against an empty Problem Statement).
+  Whether that marker may tick a Human AC is a Sovereign question, raised and not decided.
+  Also recorded: `.context/episodic/T-015.yaml` carries `enrichment_status: complete` over a
+  `decisions:` block of literal template placeholders, and passes both the episodic-quality
+  check and D1's `0% [TODO]` because the placeholders read `[date]`/`[topic]`, not `[TODO]`.
+
+### 2026-09-16 — siblings not assumed
+- **What changed:** T-705/T-706/T-707 (T-103, T-250, T-587) were filed as identical
+  siblings of this finding and scored identically at 101. **They have not been read.**
+  Whether they share T-015's empty-inception shape is unknown and is recorded as unknown
+  rather than inferred from one sample.
+- **Plan impact:** Each needs the same read before any artifact is written for it. If the
+  shape repeats, the four tasks stop being four documentation gaps and become one finding
+  about how inceptions are closed — which would be grounds to route them to a single
+  Sovereign ruling rather than four reconstructions.
+- **Triggered:** Nothing filed. Deciding to merge them would be a scope decision.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -240,3 +274,23 @@ ls docs/reports/T-015-*.md > /dev/null 2>&1
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-704-ra-008-completed-inception-t-015-has-no-.md
 - **Context:** Initial task creation
+
+### 2026-09-16T13:55:05Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7b02f0a5
+- **Timestamp:** 2026-09-16T13:57:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 48
+     - evidence: `ls docs/reports/T-015-*.md > /dev/null 2>&1`
+
+### 2026-09-16T13:57:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

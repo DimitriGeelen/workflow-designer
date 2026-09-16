@@ -1587,3 +1587,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-348
+  text: "F-AUTOTICK-01 (T-704 / RA-008, 2026-09-16): inception T-015 was closed with ALL FOUR acceptance criteria ticked by the marker @auto-tick-on-decide, including the Human [REVIEW] AC that CLAUDE.md protects with 'NEVER check a ### Human AC. Only the human may verify and check these boxes.' Two of the auto-ticked Agent ACs are false on their face: 'Problem statement validated' is ticked against an EMPTY Problem Statement section, and 'Assumptions tested' against an EMPTY Assumptions section. The task's Problem Statement, Assumptions, Open Questions, Exploration Plan and Scope Fence are all unfilled template comments, and the Recommendation's Evidence block is the unfilled template comment too - the word Confirmed in the rationale is supported by no file path, commit hash or test output anywhere in the record. Status went captured to started-work to work-completed in ONE second (2026-07-04T22:49:09Z) with commits=0 files_changed=0. Separately the episodic record .context/episodic/T-015.yaml carries enrichment_status: complete while its decisions: block holds the literal template strings [date] - [topic] / [what was decided] / [rationale]; the audit's episodic-quality check passes it, and D1 reports 0 percent TODO because the placeholders use [date] rather than the literal [TODO]. Whether @auto-tick-on-decide on a Human AC is intended design (running fw inception decide IS the human review) or a sovereignty leak is a Sovereign question and is NOT decided by the agent. Three more inceptions carry the same RA-008 shape: T-103, T-250, T-587 (tasks T-705, T-706, T-707) - unchecked."
+  captured: 2026-09-16T13:56:49Z
+  context_task: T-704
+  tags: []
+  status: pending
+  promoted_to: null
