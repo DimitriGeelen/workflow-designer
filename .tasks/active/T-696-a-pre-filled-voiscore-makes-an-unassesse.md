@@ -1,6 +1,7 @@
 ---
 id: T-696
-name: "T-624 chose a template warning as its prevention and twelve days later the number has not moved: a comment is not a gate"
+name: "T-624 chose a template warning as its prevention and twelve days later the
+  number has not moved: a comment is not a gate"
 description: >
   RETARGETED 2026-09-10. Filed as a voi_score repair, which was a DUPLICATE of
   T-624/T-625 — they found the tie, the abstention framing, the estimator site and
@@ -12,7 +13,13 @@ description: >
   changed nothing measurable. This task is about that: prevention that cannot fail
   is not prevention. Original (duplicate) description follows.
 
-  Measured under T-694. The task template ships voi_score 0.5 pre-filled; 12 of 13 active inceptions still carry it with the comment attached. int(round(0.5*5))=2, and an absent voi_score also returns 2 via the grandfathered path, so 'nobody assessed this' and 'judged exactly mid' are indistinguishable. All 12 land in hv-lc, the quadrant a work-Q1-first rule drains before any measured high-value build task. Neither voi_score nor target_blast_radius has a _proposed lane, so the estimator cannot assess the one task type whose purpose is deciding what to build.
+  Measured under T-694. The task template ships voi_score 0.5 pre-filled; 12 of 13
+  active inceptions still carry it with the comment attached. int(round(0.5*5))=2,
+  and an absent voi_score also returns 2 via the grandfathered path, so 'nobody assessed
+  this' and 'judged exactly mid' are indistinguishable. All 12 land in hv-lc, the
+  quadrant a work-Q1-first rule drains before any measured high-value build task.
+  Neither voi_score nor target_blast_radius has a _proposed lane, so the estimator
+  cannot assess the one task type whose purpose is deciding what to build.
 
 status: captured
 workflow_type: build
@@ -26,8 +33,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-10T05:45:00Z
-last_update: 2026-09-10T05:45:00Z
-date_finished: null
+last_update: '2026-09-10T20:09:22Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -38,6 +45,25 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-10T20:09:22Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 3
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F2=0 (no-signal); F4=3 
+      (prose:routing-defect-class); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-696: T-624 chose a template warning as its prevention and twelve days later the number has not moved: a comment is not a gate

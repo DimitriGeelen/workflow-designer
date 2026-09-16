@@ -4,9 +4,9 @@ name: "Contact AEF on R6/R7 after the rail came back empty: re-establish the ask
 description: >
   Operator instructed hub start + AEF contact on R6/R7 (H6). Hub started clean: topic store holds only broadcast:global, agent-chat-arc absent. Every rail offset cited in arc-0-exit-clauses.yaml and operator-decisions.yaml (602/643/650/734/737/741/742) is now dangling. Re-post the R6/R7 ask stating the discontinuity explicitly, with producer attribution, and annotate the registers so the lost citations are visible rather than silently broken.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: claude
+owner: human
 horizon: now
 tags: [arc-002, ewcr, termlink, h6, counterparty]
 components: []
@@ -17,8 +17,8 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T19:13:53Z
-last_update: 2026-09-16T19:17:10Z
-date_finished: null
+last_update: 2026-09-16T19:17:35Z
+date_finished: 2026-09-16T19:17:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -268,3 +268,15 @@ transport is not collaboration completion regardless.
 
 ### 2026-09-16T19:16:18Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b6844ae5
+- **Timestamp:** 2026-09-16T19:17:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-16T19:17:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,8 +1,14 @@
 ---
 id: T-695
-name: "Task-template boilerplate is scored as if it were the task: an empty file rates 4 of 5 on Antifragility"
+name: "Task-template boilerplate is scored as if it were the task: an empty file rates
+  4 of 5 on Antifragility"
 description: >
-  Measured under T-694. The BVP estimator matches its driver rubrics against the whole task-file body, and the shipped template's own instructional comments mention gates, defaults and environment classes. A file with no task content scores D1=4 D2=0 D3=2 D4=2. Every task inherits that floor; 12 active tasks score exactly the floor plus one point. Repair changes the rank order of the backlog, so the approach is the operator's call.
+  Measured under T-694. The BVP estimator matches its driver rubrics against the whole
+  task-file body, and the shipped template's own instructional comments mention gates,
+  defaults and environment classes. A file with no task content scores D1=4 D2=0 D3=2
+  D4=2. Every task inherits that floor; 12 active tasks score exactly the floor plus
+  one point. Repair changes the rank order of the backlog, so the approach is the
+  operator's call.
 
 status: captured
 workflow_type: build
@@ -16,8 +22,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-10T05:44:50Z
-last_update: 2026-09-10T05:44:50Z
-date_finished: null
+last_update: '2026-09-10T20:09:22Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +34,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-10T20:09:22Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 1
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (no-signal); F3=1 
+      (prose:AEF seam-incidental); F1=1 (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-695: Task-template boilerplate is scored as if it were the task: an empty file rates 4 of 5 on Antifragility
