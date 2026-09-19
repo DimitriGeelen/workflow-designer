@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-734: NEW SCOPE: absence claimed from a truncated search — guard the Arc-0 evidence base against the defect that produced OBS-352 and OBS-353
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-19T21:27:43Z
+# ============================================================================
+
+task_id: T-734
+task_name: "NEW SCOPE: absence claimed from a truncated search — guard the Arc-0 evidence base against the defect that produced OBS-352 and OBS-353"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-19T21:23:00Z
+completed: 2026-09-19T21:27:35Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-19T23:27:26+02:00
+last_commit: 2026-09-19T23:27:26+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  refuse to conclude absence from a window — the defect that produced two false Arc-0 findings, fixed at the definition site
+
+# Key outcomes
+outcomes:
+  - '`tools/_t734_absence_guard.py` exists and exports `assert_exhaustive(result, *, limit)`'
+  - 'The guard treats **three** distinct signals as "not safe to conclude absence":'
+  - 'A zero-hit result is refused too when the response carries a truncation signal —'
+  - '`tools/_t734_absence_guard.py --self-test` runs the full case table and exits 0;'
+  - 'The self-test includes a **poison arm** faithful to the pre-fix behaviour: with the'
+  - 'The real OBS-353 response shape is a fixture in the case table, not a paraphrase —'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'refuse to conclude absence from a window — the defect that produced two false Arc-0 findings, fixed at the definition site'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-734-new-scope-absence-claimed-from-a-truncat.md'
+  - 'tools/_t734_absence_guard.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-19T23:27:26"
+    action: 'T-734: refuse to conclude absence from a window — the defect that produced two false Arc-0 findings, fixed at the definition site'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 2
+  lines_added: 574
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-734-new-scope-absence-claimed-from-a-truncat.md
+generated_by: context-agent-hybrid
