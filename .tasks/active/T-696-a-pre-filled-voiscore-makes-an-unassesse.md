@@ -21,7 +21,7 @@ description: >
   Neither voi_score nor target_blast_radius has a _proposed lane, so the estimator
   cannot assess the one task type whose purpose is deciding what to build.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -33,7 +33,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-10T05:45:00Z
-last_update: '2026-09-10T20:09:22Z'
+last_update: 2026-09-19T21:36:50Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -63,6 +63,17 @@ bvp_scores_proposed:
       (body:lightly-promoted); F2=0 (no-signal); F4=3 
       (prose:routing-defect-class); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-09-19T21:33:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.tasks/templates/inception.md,docs/reports/T-694-bvp-distinguishability.md);
+      tier=2 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 
@@ -111,11 +122,36 @@ about `voi_score`.
       estimator has no permitted way to assess an inception, and the field is operator-only
       by CLAUDE.md's own sovereignty split.~~ **DUPLICATE of T-625**, which states it verbatim.
 
-- [ ] **The recurrence is measured by a re-runnable command, not by comparing two prose
+- [x] **The recurrence is measured by a re-runnable command, not by comparing two prose
       reports.** `tools/_t624-voi-provenance.py` already reports the population; a thin
       wrapper or flag records the figure with its date so the NEXT check is a diff against
       a recorded number rather than someone re-reading T-624. Without this the twelve-day
       observation decays into another prose claim.
+
+      **Landed 2026-09-19.** Two parts, both minimal:
+
+      1. `tools/_t624-voi-provenance.py --json` — a machine-readable lane on the existing
+         tool. Prose path byte-unchanged (17 lines, rc=0) and its self-test still 5/5, so
+         T-624's `--assert-scored` contract is untouched.
+      2. `tools/_t696-voi-recurrence.py` — `--record` appends a dated datapoint to the
+         append-only ledger `.context/audits/t696-voi-recurrence.jsonl`; the default path
+         diffs today's figures against the last recorded one. It **calls** T-624's tool
+         rather than re-implementing the classification, so the two cannot silently diverge.
+
+      **Baseline recorded 2026-09-19: `voi_score` 40/43 (93%), `target_blast_radius` 40/43
+      (93%).** Only today's figure is in the ledger. T-624's 38/41 of 2026-08-29 is **cited,
+      not recorded** — writing a number I did not measure into an append-only evidence
+      ledger would be the same act this whole task is about.
+
+      Self-test 6/6 green on a **throwaway root**; the real ledger is never touched by the
+      test, and `diff` is proven not to write.
+
+      **This is an instrument, not a gate, and that is deliberate.** `--require-improvement`
+      exists and is proven to fail on a stalled *and* on a worsening figure (self-test cases
+      4 and 6) — but it is **not** wired into this task's `## Verification`. Installing a
+      failing check now would choose the prevention by installing it, which is T-624's error
+      run in reverse: asserting a prevention before anyone picked one. Wire it after the
+      `[REVIEW]` ruling below, not before.
 
 - [ ] **BLOCKED on the Human AC** — whatever prevention is chosen, it is watched FAILING
       before it is relied on. A prevention that has never been observed to refuse anything
@@ -240,6 +276,25 @@ about `voi_score`.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# Leg 1 — the recurrence instrument holds, and its own gate is proven failable
+# (cases 4 and 6 require --require-improvement to go red on a stalled and on a
+# worsening figure). Runs on a throwaway root; never touches the real ledger.
+python3 tools/_t696-voi-recurrence.py --self-test
+
+# Leg 2 — the machine lane added to T-624's tool did not disturb its prose contract.
+python3 tools/_t624-voi-provenance.py --self-test
+
+# Leg 3 — the JSON lane is real and carries the two counts the recurrence diff needs.
+python3 -c 'import json,subprocess,sys; d=json.loads(subprocess.run([sys.executable,"tools/_t624-voi-provenance.py","--json"],capture_output=True,text=True).stdout); ok=all(k in d and {"total","template_default_count"} <= set(d[k]) for k in ("voi_score","target_blast_radius")); print("json lane:",{k:(d[k]["template_default_count"],d[k]["total"]) for k in d}); sys.exit(0 if ok else 1)'
+
+# Leg 4 — a baseline datapoint exists and is parseable JSONL, so the NEXT check is a
+# diff against a recorded number rather than a re-reading of T-624's prose.
+python3 -c 'import json,sys,os; p=".context/audits/t696-voi-recurrence.jsonl"; rows=[json.loads(l) for l in open(p) if l.strip()]; assert rows, "ledger empty"; last=rows[-1]; print("datapoints:",len(rows),"| last:",last["date"],"| voi:",last["fields"]["voi_score"]["template_default_count"],"/",last["fields"]["voi_score"]["total"]); sys.exit(0)'
+
+# NOT wired, deliberately: `--require-improvement`. The prevention is the open [REVIEW]
+# ruling (A/B/C/D/no-repair). A failing check installed before that ruling would BE the
+# ruling — T-624's mistake inverted. See the Agent AC above.
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -307,3 +362,6 @@ about `voi_score`.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-696-a-pre-filled-voiscore-makes-an-unassesse.md
 - **Context:** Initial task creation
+
+### 2026-09-19T21:36:50Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

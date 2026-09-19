@@ -145,10 +145,29 @@ def main():
                     help="fail unless exactly N inceptions are deliberately scored; "
                          "pins the count so an agent silently writing voi_score is caught")
     ap.add_argument("--self-test", action="store_true")
+    ap.add_argument("--json", action="store_true",
+                    help="emit the counts as JSON instead of prose (T-696). Added so "
+                         "recurrence can be measured as a diff against a recorded number "
+                         "rather than by re-reading two prose reports.")
     args = ap.parse_args()
 
     if args.self_test:
         return self_test()
+
+    if args.json:
+        import json as _json
+        out = {}
+        for field in FIELDS:
+            default, rows = collect(field)
+            out[field] = {
+                "template_default": default,
+                "total": len(rows),
+                "scored": sum(1 for r in rows if r[1] == "scored"),
+                "template_default_count": sum(1 for r in rows if r[1] == "template-default"),
+                "absent": sum(1 for r in rows if r[1] == "absent"),
+            }
+        print(_json.dumps(out, indent=2, sort_keys=True))
+        return 0
 
     rc = 0
     for field in FIELDS:
