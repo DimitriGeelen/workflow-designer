@@ -4,7 +4,7 @@ name: "EWCR \u2014 Executable Workflow Contract Runtime: From Evidence to Govern
 description: "Arc-0 establishes the evidence base and the contract seam with 999-AEF before any\
   \ runtime is built. Exit is gated on three clauses in docs/research/executable-workflow/arc-0-exit-clauses.yaml,\
   \ all currently unratified and blocking."
-status: draft
+status: in-progress
 anchor_task: T-590
 headline_mechanic: "An operator opens a workflow authored in the Designer, exports it as an executable\
   \ contract, and a runtime executes it \u2014 where every step is traceable to the\

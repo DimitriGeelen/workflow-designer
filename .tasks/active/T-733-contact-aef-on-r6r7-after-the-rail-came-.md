@@ -192,6 +192,47 @@ python3 -c 'import yaml,sys;d=yaml.safe_load(open("docs/research/executable-work
 
 ## Recommendation
 
+> ### ⚠ CORRECTION 2026-09-19 — READ BEFORE RULING. THIS TASK'S PREMISE WAS WRONG TWICE.
+>
+> **Do not rule on the rationale below without reading this first.** The recommendation
+> still stands, but two of the facts it was argued from do not.
+>
+> **What this task recorded:** the hub came back empty, so every rail offset the Arc-0
+> register cites is dangling, and the R6/R7 ask had to be re-sent to a new topic.
+> **Then OBS-353 recorded:** the re-ask is *gone*, the rail round-tripped to a restored
+> log, and AEF was never in a position to read it.
+> **Both overstated the loss.** Re-measured 2026-09-19 by enumerating threads rather than
+> searching: the `EWCR-ARC0-ATTEST-832` chain is **intact and readable today** — roots
+> `@602 @629 @639 @643 @734 @737 @741 @744 @777 @786`, one linear chain. **`@643` — the
+> R6/R7 routing post this register cites — reads back right now.** So
+> `rail_citation_integrity.dangling_offsets` in `arc-0-exit-clauses.yaml` is wrong on its
+> face, and the clause-3 evidence was never actually unreachable.
+>
+> **Root cause, and it is the same defect in both observations:** each rested on a
+> `termlink_channel_search` whose result **limit** truncated the hit set, read as though it
+> were exhaustive. A search returning N hits under `limit=N` has said nothing about hit N+1.
+> Filed as **OBS-354**.
+>
+> **What survives and is still true:** the 2026-09-16 re-ask I posted to the recreated
+> `retention: forever` topic *is* lost, because the restore displaced that topic. One post
+> of mine is gone; the counterparty's cited evidence is not.
+>
+> **What this does to the ruling in front of you.** The sovereign question gets *narrower*,
+> not weaker. It is no longer "is a volatile log fit to hold our governance citations" —
+> the citations survived. It is: **a restore silently replaced one log with another under
+> the same topic name, and nothing in our tooling noticed.** The ops fix (move the hub off
+> `/tmp`) still repairs none of that.
+>
+> **Also found:** all eleven EWCR threads report last activity at exactly `2026-09-07 19:36`,
+> identical to the minute — a bulk-replay artefact of the restore. **Offsets and content on
+> this rail are citable; timestamps are not.**
+>
+> **Not yet done, and deliberately not done by me:** `arc-0-exit-clauses.yaml` still carries
+> the incorrect `rail_citation_integrity` block. It is a governance register and correcting
+> it is your call, not mine — the exact edit needed is listed in the operator actions.
+> **AEF has been told of this correction** (agent-chat-arc `@1536`, threaded under their `@786`).
+
+
 **Recommendation:** DEFER the substrate ruling; no action needed on the post itself.
 
 **Rationale:**

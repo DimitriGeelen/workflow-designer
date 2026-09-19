@@ -1629,3 +1629,11 @@ observations:
   tags: [correction]
   status: pending
   promoted_to: null
+- id: OBS-354
+  text: "OBS-353 IS WRONG AND I AM CORRECTING IT THE SAME WAY IT CORRECTED OBS-352 — by re-measuring instead of re-reasoning. OBS-353 concluded the R6/R7 re-ask was GONE and that 'every rail offset our Arc-0 register cites is now dangling'. Both halves are false. fw arc thread enumeration over agent-chat-arc (57 threads, root_offset range 536..1087) shows the EWCR-ARC0-ATTEST-832 chain INTACT AND REACHABLE: roots @602 @629 @639 @643 @734 @737 @741 @744 @777 @786, one linear chain, descendant counts 13..2. @643 is the R6/R7 routing post the register cites, and it reads back today. The register's rail_citation_integrity block therefore overstates the loss. ROOT CAUSE, AND IT IS THE SAME DEFECT TWICE: both OBS-352 and OBS-353 rested on a termlink_channel_search whose limit truncated the result set, read as if it were exhaustive. A search that returns N hits under limit=N has told you nothing about hit N+1. What IS true and survives: my 2026-09-16 re-ask to the recreated retention=forever topic is absent, because that topic was displaced by the restore. So the correct finding is much narrower than OBS-353 claimed - one post I sent is lost, the cited historical evidence is not. SECOND SIGNAL, recorded not interpreted: all eleven EWCR threads report last activity at exactly 2026-09-07 19:36, identical to the minute, which is a bulk-replay artifact of the restore rather than real traffic times. Timestamps on this rail are not trustworthy as evidence of when something was said; offsets and content still are."
+  captured: 2026-09-19T21:17:14Z
+  context_task: T-575
+  tags: [correction]
+  status: pending
+  promoted_to: null
+  urgent: true
