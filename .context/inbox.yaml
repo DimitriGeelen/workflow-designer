@@ -1637,3 +1637,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-355
+  text: "THE BVP QUADRANT IS RELATIVE, SO SCORING COST ON LOW-VALUE TASKS CAN PROMOTE THEM INTO Q1 WITHOUT THEIR VALUE CHANGING. Found while obeying the mandate's 'Scored before started' rule. Quadrants split on the MEDIAN BVP and MEDIAN COST of the RANKED population, and a task is only ranked once it has a cost estimate. Measured 2026-09-19: 82 ranked tasks, median BVP 99. Sixteen agent-owned tasks were unranked purely for want of a cost estimate, with BVPs 52-100. I ran 'fw bvp estimate-cost' on the single one that cleared the median (T-696, BVP 100) and it duly appeared in hv-lc. THE HAZARD IS THE GENERAL CASE: had I scored cost on all sixteen, the ranked population would have grown by sixteen mostly-low-BVP rows, the median would have FALLEN, and tasks at BVP 80-82 would have crossed into 'high value' having done nothing but wait. An agent that wants a particular task to be Q1 can make it so by scoring its NEIGHBOURS. That is selection laundering: no calibration parameter is touched, no score is raised, and the quadrant still moves. I did not do it, and I am recording it rather than using it. RELATED BUT DISTINCT from OBS-346 (F-BVP-02, cost axis blind to governance work): that one says tasks cannot be ranked; this one says the act of ranking them changes where OTHER tasks sit. Suggests the hv/lv boundary should be an absolute threshold, or pinned to a fixed reference population, rather than a running median over whatever happens to be scored today. That is a calibration decision and therefore the operator's, not mine."
+  captured: 2026-09-19T21:38:47Z
+  context_task: T-696
+  tags: [calibration]
+  status: pending
+  promoted_to: null
+  urgent: true
