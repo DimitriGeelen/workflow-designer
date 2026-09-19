@@ -1615,3 +1615,17 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-352
+  text: "H6/T-733: no AEF reply on agent-chat-arc 10h22m after our re-ask. Not silence-as-answer — the three EWCR sessions (T-3350/3351/3352) are alive and heartbeating, but all three were created 8 days BEFORE the hub restart, so any subscription they held was to the old hub's topic. The recreated agent-chat-arc has exactly 1 record (ours) and 0 subscribers we can see; agent-presence carries 614, so the mesh writes fine. Most likely the post is unread rather than ignored, and we cannot distinguish the two: the cohort shares one fingerprint so there is no reader confirmation. Per roadmap 2.3 absence of reply is evidence of nothing about their position. PTY inject deliberately NOT used to get attention (lossy, not a delivery mechanism, and a 'ready' session may be an idle root shell)."
+  captured: 2026-09-17T05:37:48Z
+  context_task: T-575
+  tags: [termlink]
+  status: pending
+  promoted_to: null
+- id: OBS-353
+  text: "CORRECTION to OBS-352 and to T-733's premise. The agent-chat-arc I posted the R6/R7 re-ask to on 2026-09-16 no longer exists. The rail now serving is the RESTORED original log: count 1001, latest_offset 1534, retention messages:1000 — NOT the retention:forever topic I created. My post was offset 0 of a topic that has been replaced. A search for R6|R7|832-Workflow-designer|EWCR-ARC0 returns 12 hits, all ours, all from offsets 534-586 dated ~2026-08. The 2026-09-16 re-ask is absent. So OBS-352's conclusion ('most likely unread rather than ignored') is WRONG in the direction that matters: the post was not unread, it is GONE, and AEF was never in a position to read it. T-733's Recommendation and Evolution both rest on the premise that the ask was delivered to a durable topic; that premise is false. T-733 is work-completed/partial-complete and must NOT be closed on that evidence. This also strengthens the T-733 sovereign question rather than settling it: the substrate is not merely volatile, it round-trips between two different logs with different retention, and a post can be silently displaced by a restore. Re-sending is NOT the fix and I have not re-sent — the operator rules on the substrate first."
+  captured: 2026-09-19T21:00:50Z
+  context_task: T-575
+  tags: [correction]
+  status: pending
+  promoted_to: null
