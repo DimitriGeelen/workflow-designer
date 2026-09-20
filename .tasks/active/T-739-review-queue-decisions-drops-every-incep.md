@@ -23,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T19:50:36Z
-last_update: '2026-09-20T19:52:04Z'
+last_update: 2026-09-20T19:52:34Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -107,6 +107,26 @@ to stop dropping them, not to keep compensating.
 Discovered as a routing finding while working T-155; deliberately not filed to
 `.context/inbox.yaml` (T-703 measured that register at 118 pending with no auditable drain, so a
 capture there is a write into an archive). One bug = one task.
+
+**SCOPE CORRECTION, 2026-09-20 (same day this task was filed).** The filing above says the surface
+that tells the operator what needs deciding "has never shown it". That is true of `fw review-queue`
+and **false of Watchtower**. Measured during the T-740 value review:
+
+| Probe | Result |
+|---|---|
+| `curl $WURL/inception` → `grep -c T-155` | **3** — T-155 IS listed |
+| `curl -o /dev/null -w '%{http_code}' $WURL/inception/T-155` | **200** |
+| decision vocabulary on that page | `DEFER` ×13, `NO-GO` ×11, `decide` ×4, `pending` ×8 |
+
+So the operator has had a reachable decision page for T-155 the whole time, and `/inception/<id>/decide`
+is a live route (`.agentic-framework/web/blueprints/inception.py`). The defect is real and the fix is
+unchanged — `DECISION_RE` still encodes "a DEFER was recorded" as "the decision was made" — but its
+blast radius is **one CLI surface, not the operator's whole view**. AC4 already demands the fix be
+verified against live `fw review-queue` output, so no AC changes.
+
+The 53-day stall is therefore NOT "no surface showed it". It is: the CLI queue dropped it, and the
+web page that did show it was not where the decision got made. Recorded here rather than silently
+narrowed. Evidence: `docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/06-operator-surface.md` §3.
 
 **Vendored-path note:** the defect is in `.agentic-framework/bin/fw`, which G-008 permits fixing
 in-tree and upstreaming. The audit's `Vendor divergence: all N diverged path(s) declared` check
