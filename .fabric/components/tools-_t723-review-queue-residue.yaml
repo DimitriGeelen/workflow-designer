@@ -1,0 +1,20 @@
+id: tools/_t723-review-queue-residue.py
+name: _t723-review-queue-residue
+type: script
+subsystem: tools
+location: tools/_t723-review-queue-residue.py
+tags: [audit-remediation, arc-003, review-queue, d2]
+
+purpose: "T-723/RA-027: enumerates the D2 human-review queue with a per-row reason, mirroring the control's own definition (work-completed + owner:human + still in active/, age from date_finished falling back to last_update, 720h/336h tiers) so its counts are independently reproducible; adds the Agent/Human split of unticked boxes that audit.sh cannot make, surfacing awaiting-agent-work as a third kind that a --force completion would land in"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-20
+created_by: unknown

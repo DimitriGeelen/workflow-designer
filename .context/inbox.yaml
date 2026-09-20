@@ -1645,3 +1645,17 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-356
+  text: "T-730: fw build's TypeScript step silently fails on a fresh checkout because lib/ts/node_modules is never provisioned — package.json/package-lock.json are vendored but nothing runs npm install, and doctor's WARN text ('TypeScript build stale, run fw build') gives no hint that the real failure is an unresolved js-yaml import, not staleness. Same shape as G-001 (vendor payload incomplete). Fixed locally by running npm install in .agentic-framework/lib/ts; the resulting real rebuild only changed dist/fw-util.js cosmetically (esbuild-version variable renaming + cwd-dependent source-comment path) so per T-730 AC3 that rebuild was NOT committed — reverted, and mtime corrected instead since the committed bytes are already functionally valid for current src. Candidate: fold into G-001 as another instance, or file a narrower gap: 'fw build has no dependency-bootstrap step and no diagnostic surfacing of the real npm-resolve failure.'"
+  captured: 2026-09-20T13:29:48Z
+  context_task: T-730
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-357
+  text: "T-368 has sat in the D2 review queue 43 days asking whether to cut 0.9.0 and whether AEF should be told to re-pin. Release 0.12.0 shipped 2026-09-20 (tag designer-v0.12.0, announced on the rail), so the question is superseded as written - the operator cannot answer it as posed. Same class as T-732 H3/H6: a queued decision that events overtook. The ruling it needs is not 'cut 0.9.0 yes/no' but 'moot, close it'. Found by T-723 while justifying the ten over-30d rows."
+  captured: 2026-09-20T18:21:23Z
+  context_task: T-723
+  tags: [review-queue]
+  status: pending
+  promoted_to: null

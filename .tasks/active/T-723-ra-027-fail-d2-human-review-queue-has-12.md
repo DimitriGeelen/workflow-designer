@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:26:05Z
-last_update: 2026-09-20T18:07:09Z
+last_update: 2026-09-20T18:20:20Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -109,6 +109,11 @@ Copy-pasteable triage view: cd /opt/832-Workflow-designer && .agentic-framework/
       `.tasks/active/`, present in `.tasks/completed/` — so a deletion cannot pass as an archive.
       No skip or force flag was used; `archive-eligible` re-runs the partial-complete recheck and
       takes neither.
+      **Confirmed by the control, not by this task's probe:** `fw audit --section discovery` now
+      reads `D2: Human review queue — 10 task(s) waiting >30d: 10 awaiting judgement: ...` — down
+      from 12, and the `; N signed off, awaiting only the status flip:` clause is gone from the
+      message entirely, because `d2_fail_flip` is now 0. The FAIL that remains is the ten real
+      decisions, which are the operator's.
 - [x] The count of tasks awaiting genuine judgement is stated separately from the count awaiting only a status flip, so the two are never again reported as one number
       — **already held when this task was opened; the credit is T-656's, not this task's.**
       `audit.sh` builds `d2_fail`/`d2_fail_flip` as separate counters with separate detail lists
