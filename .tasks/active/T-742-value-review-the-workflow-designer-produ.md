@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T21:47:33Z
-last_update: 2026-09-20T22:49:12Z
+last_update: 2026-09-20T22:51:30Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -154,6 +154,62 @@ python3 -c "import re,sys; t=open('docs/reports/VALUE-REVIEW-designer-product-20
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Scope of that word, stated because the vocabulary is narrower than the position I
+hold (PL-287).** GO here means **accept the review as delivered evidence** — the
+gathering was honest, the role separation held, the report is complete. It does **not**
+mean approve its findings. Accepting this review authorises nothing: research is not
+authorization, and every one of the 22 findings still needs its own ruling before any of
+it becomes work. If the decision surface could carry it, the accurate verdict would be
+*"accept the artefact, rule the contents separately."*
+
+**Rationale**
+
+The review answered the question it was given and closed a gap that was open before it.
+DG-8 — the test suite's pass state, recorded UNKNOWN by T-740 — is now measured, and the
+measurement was not the reassuring one: `tests/` run alone is green, while the gating
+aggregator is red at 131/7, and the seven failures live in `tools/`, outside the directory
+that looks like the test suite.
+
+The three highest-consequence findings are the same shape seen through three independent
+instruments: the released bytes a consumer pins are four releases behind `src/`; the audit
+check over that gap prints PASS because it escalates on the age of our own tag rather than
+on the distance the peer is behind; and the gating suite that would have caught drift is
+red and unscheduled. Each instrument is green or silent over precisely the condition it
+was believed to cover. That is worth a ruling on its own, independent of anything else in
+the report.
+
+I am recommending GO on the artefact rather than DEFER because the evidence is durable and
+committed, and deferring the artefact would not make the twelve Sovereign questions any
+more answerable — they are waiting on the operator, not on more gathering.
+
+**Evidence**
+
+- `docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md` — 1,264 lines, 12 sections,
+  22 findings (1 DELETE / 4 REFACTOR / 14 ADD / 3 INVESTIGATE-only), 12 Sovereign questions.
+- Six evidence files under `docs/reports/VALUE-REVIEW-designer-product-2026-09-20/`,
+  written by five GATHERER sessions separate from the JUDGE, all committed
+  (`4ebf9168`, `0e6e06de`).
+- Five verification legs pass; L3 proven able to fail under a planted stub.
+- **The DELETE axis is capped and the report says so.** No product usage telemetry exists,
+  so an unobserved item reads D (UNMEASURED) → INVESTIGATE. Exactly one finding reached
+  DELETE, on positive evidence; fifteen went to INVESTIGATE with a named instrument.
+- **Two places the JUDGE declined the easy call**, which is the main reason I trust the
+  rest of it: Q9 — re-pinning the drifted third-party goldens would turn a red leg green,
+  and it refused to recommend that as a review outcome, asking instead what caused the
+  drift; Q2 — it corrected four `schema.md` defects and deliberately left the fifth, the
+  `aef:endpoint` contradiction, because the frozen standard is not agent-editable.
+
+**What this recommendation is not**
+
+Not a recommendation to execute any finding. Not a re-scoring of anything. Not a claim
+that the product is healthy or unhealthy — that is §5's reading and it is the operator's
+to accept or reject. **T-740's nine Sovereign questions remain open ahead of these twelve**,
+and this is now the second unruled review in the queue.
 
 ## Decisions
 
