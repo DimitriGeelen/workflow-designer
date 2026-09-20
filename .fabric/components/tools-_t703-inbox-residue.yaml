@@ -1,0 +1,20 @@
+id: tools/_t703-inbox-residue.py
+name: _t703-inbox-residue
+type: script
+subsystem: tools
+location: tools/_t703-inbox-residue.py
+tags: []
+
+purpose: "T-703: enumerates the observation-inbox residue (>7d pending) with per-item reason classes, prints the three disagreeing urgent counters, and probes the vendored dismiss verb in a throwaway root to show it persists no reason"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-20
+created_by: unknown
