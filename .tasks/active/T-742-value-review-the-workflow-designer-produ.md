@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T21:47:33Z
-last_update: 2026-09-20T21:47:40Z
+last_update: 2026-09-20T22:49:12Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,88 +40,80 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Phase 0–1: the purpose yardstick, the shape of the subject and the data availability
+      map are written and were confirmed by the operator before any gathering began —
+      `docs/reports/VALUE-REVIEW-designer-product-2026-09-20/00-yardstick.md`.
+- [x] Phases 2–3: evidence collected by GATHERERs that were separate sessions from the
+      JUDGE, read-only apart from their own evidence file, five legs on disjoint paths.
+- [x] **DG-8 closed.** The test suite's pass state, recorded UNKNOWN by T-740 and carried
+      open, is now measured — including the discrepancy between `tests/` run alone
+      (48 pass) and the gating aggregator (131 passed / 7 failed, exit 1).
+- [x] Phase 4–5: one report at exactly `docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md`
+      carrying all twelve required sections, each appearing exactly once.
+- [x] **Role separation held mechanically, not by promise.** The JUDGE's tool grant was
+      `Read,Grep,Glob,Write,Edit` with no Bash; its instructions closed its inputs to the
+      six evidence files. It could not open `src/`, could not run a command, could not
+      gather. A classification it could not support from the evidence had to be recorded
+      as insufficient rather than researched away.
+- [x] **The DELETE axis is capped by the missing instrument, and the report says so.**
+      With no product usage telemetry, an unobserved item reads D (UNMEASURED) and routes
+      to INVESTIGATE. One of 22 findings reached DELETE, on positive evidence (an inert
+      body plus a recorded reason the caller is gone), and fifteen went to INVESTIGATE
+      with a named instrument. "No data" was not permitted to render as "no value".
+- [x] Nothing was executed, weakened or re-scored. No test, gate, audit check or
+      verification leg was altered to improve any number in this review.
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+<!-- NEVER ticked by the agent. Phase 5 and Phase 6 are the operator's by construction. -->
 
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+- [ ] **[REVIEW] Phase 5 — rule the 22 findings item by item.**
+      **Steps:** 1. `cd /opt/832-Workflow-designer && sed -n '/^## 6\./,/^## 7\./p' docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md | less`
+      2. For each finding F-01…F-22 record approve / reject / defer.
+      3. Approved items become their own tasks — one deliverable each, per the sizing rules.
+      **Expected:** every finding carries a disposition; no finding is executed without one.
+      **If not:** the report stays unruled and nothing is built from it. That is a valid
+      resting state, not a failure — but it is the second such report in the queue.
 
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-742`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-742 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [ ] **[REVIEW] The 12 Sovereign questions in §12.**
+      **Steps:** `cd /opt/832-Workflow-designer && sed -n '/^## 12\./,$p' docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md`
+      **Expected:** Q1–Q12 answered, or explicitly parked with a reason. Q1 (the 0.8.0 pin
+      against 0.12.0 src) and Q6 (whether `rendered/` is regenerated or the editor-saved
+      bytes are ratified) gate other work; the rest do not.
+      **If not:** F-06's conformance check cannot be specified (needs Q3), the
+      `aef:endpoint` contradiction stays live (Q2), and `laneProvenance` keeps recording
+      without deciding (Q12).
 
 ## Verification
 
-# Shell commands that MUST pass before work-completed. One per line.
-# Lines starting with # are comments (skipped). Empty lines ignored.
-# The completion gate runs each command — if any exits non-zero, completion is blocked.
-#
-# Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
-# *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
-# pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
-# past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
-#
-# ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
-# P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.
-# Measured, not assumed (tools/_t352-p011-errexit-probe.sh): the gate runs each line as
-# `if ( … eval "$cmd" ); then` (update-task.sh:1018) and that subshell is the CONDITION
-# of an `if`, which neutralises errexit inside it. pipefail survives; errexit does not.
-# CONSEQUENCE: a line of the form `a; b` IS JUDGED ON `b` ALONE. `a`'s exit code is
-# discarded, so a command that fails outright can still leave the line green.
-#   Proven false green:
-#     out=$(python3 tools/validate-workflow.py BROKEN.bpmn 2>&1); echo "$out" | grep -q "VALID"
-#   -> PASSES on a document the validator exits 2 on and labels INVALID, because
-#      `grep -q "VALID"` matches INVALID as a SUBSTRING. Two defects stacked.
-# PREFER a single command whose own exit code is the verdict — then no context question
-# arises. When you must chain, the LAST command has to be the one that can fail, and its
-# pattern must not be matchable by the earlier command's FAILURE output.
-# Note `set -e` re-issued inside the subshell does NOT fix this: the suppressed context is
-# inherited and re-setting the option does not clear it. See T-352 for the remedy.
-#
-# Pipefail/SIGPIPE hint (L-387): `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep
-# matches and closes stdin while the upstream is still writing — verification then
-# "fails" even though the pattern was present. The capture pattern below fixes THAT,
-# and creates the errexit exposure described above; the file form fixes both:
-#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out     # PREFERRED: && not ;
-#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"        # SIGPIPE-safe, errexit-blind
-# Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
-#
-# Single pipe only — no intermediate tail/awk/sed stages between capture and grep
-# (T-2090): `echo "$out" | tail -3 | grep -q PAT` re-introduces the SIGPIPE risk
-# the capture step closed off — the middle stage is what `grep -q` slams its
-# stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
-# string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
-#
-# Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
-# (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
-# Verification block. Otherwise the canonical hash diverges and `fw doctor`
-# reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
-# Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
-# the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+# Each leg is a single command whose OWN exit code is the verdict — no chaining, so the
+# T-352 errexit exposure cannot produce a false green here. Each leg is written to go RED
+# if the thing it names degrades, which is the PL-178 bar: a leg that would stay green
+# with the deliverable deleted is asserting nothing.
+
+# L1 — the report exists at the exact required path and carries all twelve sections,
+# each EXACTLY once. Goes red on a missing section and on the duplicate "_pending_"
+# stub that the incremental-write skeleton actually left behind once.
+python3 -c "import re,sys,collections; t=open('docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md').read(); n=[int(m) for m in re.findall(r'^## (\d+)\.', t, re.M)]; c=collections.Counter(n); sys.exit(0 if sorted(c)==list(range(1,13)) and set(c.values())=={1} else 1)"
+
+# L2 — all six inputs the JUDGE was restricted to still exist, each above a floor that a
+# truncated or skeleton-only file cannot clear. The 02 floor is deliberately high: that
+# leg was lost once to a SIGTERM and came back as a 1KB skeleton.
+python3 -c "import os,sys; d='docs/reports/VALUE-REVIEW-designer-product-2026-09-20/'; f={'00-yardstick.md':4000,'01-feature-inventory.md':30000,'02-test-baseline.md':30000,'03-release-path.md':15000,'04-ledger-history.md':15000,'05-schema-fidelity.md':20000}; sys.exit(0 if all(os.path.exists(d+k) and os.path.getsize(d+k)>=v for k,v in f.items()) else 1)"
+
+# L3 — no residual skeleton markers anywhere in the review. The workers were told to
+# write incrementally precisely so a kill would leave partial evidence; this leg is what
+# stops a partially-filled section from being mistaken for a finished one.
+python3 -c "import glob,os,sys; ps=[p for p in glob.glob('docs/reports/VALUE-REVIEW-designer-product-2026-09-20*')+glob.glob('docs/reports/VALUE-REVIEW-designer-product-2026-09-20/*') if os.path.isfile(p)]; sys.exit(1 if [p for p in ps if '_pending_' in open(p).read() or 'IN PROGRESS' in open(p).read()] else 0)"
+
+# L4 — the evidence is durable, not merely on disk. All six inputs plus the report are
+# tracked by git. Evidence that lives only in a worker's scratch directory is evidence
+# that a cleanup deletes.
+python3 -c "import subprocess,sys; o=subprocess.run(['git','ls-files','docs/reports/VALUE-REVIEW-designer-product-2026-09-20','docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md'],capture_output=True,text=True).stdout.split(); sys.exit(0 if len(o)==7 else 1)"
+
+# L5 — section 12 is intact: twelve Sovereign questions, Q1 through Q12, none dropped.
+# These are the items that are NOT the agent's to answer, so a silently truncated §12
+# would be the review quietly shedding the operator's own decisions.
+python3 -c "import re,sys; t=open('docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md').read(); s=t[t.index('## 12.'):]; q=set(re.findall(r'\*\*Q(\d+)', s)); sys.exit(0 if q=={str(i) for i in range(1,13)} else 1)"
 
 ## RCA
 
