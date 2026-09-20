@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-178: Cut designer release 0.2.0 with T-177 governance fields and deliver to AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-20T18:10:57Z
+# ============================================================================
+
+task_id: T-178
+task_name: "Cut designer release 0.2.0 with T-177 governance fields and deliver to AEF"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-10T20:58:44Z
+completed: '2026-08-16T14:32:59Z'
+duration_days: -20643
+updates_count: 2
+first_commit: 2026-07-10T23:00:36+02:00
+last_commit: 2026-07-10T23:33:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Cut designer release 0.2.0 (T-177 governance fields) + deliver to AEF. work-completed (partial) — 0.2.0 released + delivered; live-verify AC pending AEF re-pin. Live-verify T-177 governance fields on :3001 after AEF re-pin (Playwright + sha256 byte-match)
+
+# Key outcomes
+outcomes:
+  - '`VERSION` bumped to `0.2.0`.'
+  - '`scripts/release-designer.sh` run: `dist/aef-workflow-designer-0.2.0.html` produced, byte-identical to `src/`.'
+  - '`dist/MANIFEST.yaml` updated: `latest: "0.2.0"`, `sha256` matches the artifact, matches current `src` sha (`e301986b…`).'
+  - 'Deterministic: re-running the release script yields an identical artifact sha256 (`e301986b…`).'
+  - '`0.2.0` artifact delivered to the AEF session via `termlink file_send`; returned sha256 == manifest sha256 (`e301986b…`, 395178 bytes, xfer-mcp-3173253).'
+  - '[REVIEW] T-177 governance fields live on `:3001/designer` after AEF re-pins'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/working/.reviewed-T-178'
+  - 'dist/aef-workflow-designer-0.2.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/reports/assets/T-178-live-inspector-governance-fields.png'
+  - '.tasks/active/T-178-cut-designer-release-020-with-t-177-gove.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T23:00:36"
+    action: 'T-178: Cut designer release 0.2.0 (T-177 governance fields) + deliver to AEF'
+  - time: "2026-07-10T23:02:05"
+    action: 'T-178: work-completed (partial) — 0.2.0 released + delivered; live-verify AC pending AEF re-pin'
+  - time: "2026-07-10T23:33:21"
+    action: 'T-178: Live-verify T-177 governance fields on :3001 after AEF re-pin (Playwright + sha256 byte-match)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 0 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 0
+  commits: 3
+  files_changed: 6
+  lines_added: 8538
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-178-cut-designer-release-020-with-t-177-gove.md
+generated_by: context-agent-hybrid

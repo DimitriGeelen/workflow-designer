@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-093: Branch pitch setting: parallel-block stack spacing (auto/compact/roomy) applied
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-20T18:10:56Z
+# ============================================================================
+
+task_id: T-093
+task_name: "Branch pitch setting: parallel-block stack spacing (auto/compact/roomy) applied"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T23:21:25Z
+completed: '2026-08-16T14:32:58Z'
+duration_days: -20637
+updates_count: 3
+first_commit: 2026-07-05T01:36:08+02:00
+last_commit: 2026-07-05T01:36:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Branch pitch setting — cramped fan-out stacks respaced by Tidy (auto/compact/roomy), corpus post-Tidy overlaps 5->1, PD-044 stable; file T-094/T-095 (Phase A remainder)
+
+# Key outcomes
+outcomes:
+  - '`viewPrefs` gains `branchPitch: ''auto'' | ''compact'' | ''roomy''` (default `auto`), persisted in localStorage `aefViewPrefs` (T-085 discipline: editor-local render/tidy pref, never serialized into the BPMN document)'
+  - 'Settings modal View section gains a "Branch pitch" select wired via `setViewPref(''branchPitch'', ...)`, restored on modal open like `set-density` (also included in Reset-to-defaults)'
+  - '`tidyLane` gains a branch-stack pass: groups of >=2 same-lane nodes in one column fed by a common multi-out predecessor are respaced vertically at pitch = tallest member height + gap (auto 12px / compact 6px / roomy 28px), order preserved, centred on the stack''s previous centroid; lane height grows when the respaced stack no longer fits; `undoTidy` restores node ys AND any grown lane heights in one step (Playwright-verified per lane on audit-process: restored=true for both changed lanes)'
+  - 'Measured on the corpus (24-map Playwright sweep): the survey''s "overlap" was touching/cramped stacks — strict rect-intersections were already 0 pre-Tidy, min stack GAP was the defect. After Tidy with `auto`: audit-process gap 0px→12px, arc-lifecycle 6→12, inception-lifecycle 8→12; already-roomy stacks untouched (guard: only stacks below target pitch are respaced). Post-Tidy rect-overlaps corpus-wide: old Tidy 5, new Tidy 1 — no map worse, 4 maps strictly better; the residual 1 (inception-lifecycle n_end_go|n_end_ng) is the pre-existing row-snap class, improved from 2 by this change'
+  - 'Suites green + XML stable: bridge "31 passed, 0 failed", validator "34 passed, 0 failed", parity "OK:", geometry "24 clean"; per-map check in sweep: buildBpmnXml(state) byte-identical before/after toggling branchPitch pref without Tidy (xmlStable=true across all 24 — PD-044)'
+  - 'Gallery synced: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`'
+  - '[REVIEW] Branch stacks read cleanly after Tidy at the default pitch'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-05 — Respace cramped stacks only, with measure-after-move revert'
+    chose: 'The branch pass acts only on stacks whose current min centre-pitch is below the target, and reverts any stack whose respace increases member/non-member collisions (PD-030 discipline).'
+    rationale: 'First implementation respaced ALL stacks unconditionally — the corpus sweep caught it planting tier0-escalation''s n_consume/n_block onto n_check_approval, which deliberately sits between them (spread stacks often straddle chain nodes). Cramped-only + revert guard: 0 maps worse than old Tidy, 4 better (post-Tidy overlaps 5→1 corpus-wide), cramped gaps 0-8px→12px.'
+    alternatives_rejected: ['Unconditional respace (measured regression above); collision-aware re-search of alternative stack positions (Phase B/C territory — the corridor options 2/10 address the same geometry with more machinery).']
+  - decision: '2026-07-05 — Stack members excluded from row snap'
+    chose: 'Nodes claimed by a branch stack skip the T-079 row-snap pass entirely; the stack''s own pitch logic owns their y.'
+    rationale: 'Row-snapping 5-6 stack members onto ~2 lane row lines is exactly what piles them onto each other (old Tidy created overlaps on audit-process, harvest-pipeline, error-escalation-ladder, inception-lifecycle; all gone under the new pass).'
+    alternatives_rejected: ['Row-snap then respace (double movement, jitter, and the row snap contributes nothing the pitch pass keeps).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.playwright-mcp/t093-audit-tidy-auto.png'
+  - '.playwright-mcp/t093-harvest-tidy-auto.png'
+  - '.playwright-mcp/t093-settings-branch-pitch.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-093-branch-pitch-setting-parallel-block-stac.md'
+  - '.tasks/active/T-094-align-rows-one-shot-action-snap-lane-row.md'
+  - '.tasks/active/T-095-clean-layout-composite-action-tidy--bran.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T01:36:08"
+    action: 'T-093: Branch pitch setting — cramped fan-out stacks respaced by Tidy (auto/compact/roomy), corpus post-Tidy overlaps 5->1, PD-044 stable; file T-094/T-095 (Phase A remainder)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 0 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 0
+  commits: 1
+  files_changed: 8
+  lines_added: 727
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-093-branch-pitch-setting-parallel-block-stac.md
+generated_by: context-agent-hybrid

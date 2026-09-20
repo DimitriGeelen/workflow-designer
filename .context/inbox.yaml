@@ -1666,3 +1666,10 @@ observations:
   tags: [audit-cost]
   status: pending
   promoted_to: null
+- id: OBS-359
+  text: "Pre-push audit gate is fail-open under concurrency. Reproduced 2026-09-20: a background 'fw audit --section oe-daily' held the audit lock, and 'git push origin master' printed '=== Pre-Push Audit Check ===' then 'Another audit is already running - exiting' and pushed anyway (18bf6250..aba7d30f). The gate did not fail; it did not run, and the push could not tell the difference. Same shape as PL-221 - the skip message reads like normal operation. Candidate shapes for the operator: wait on the lock with a timeout, or treat lock-contention as a refusal rather than a pass. Note the gate is also the ONLY audit most pushes ever get, so a silent skip means a push with no audit at all."
+  captured: 2026-09-20T18:33:15Z
+  context_task: T-708
+  tags: [enforcement]
+  status: pending
+  promoted_to: null
