@@ -5,10 +5,10 @@ description: >
   Operator floated (tentative) reorganizing the flat Open-project grid into a hierarchical
   tree-style grouping. Larger redesign of openProjectModal. Backlog until prioritized.
 
-status: captured
+status: started-work
 workflow_type: inception
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:59Z
-last_update: '2026-08-16T14:32:59Z'
+last_update: 2026-09-20T10:26:43Z
 date_finished:
 revisit_at: 2026-08-21
 revisit_evidence_needed: "operator answers IW-1/IW-2; the recommendation (A1+B1+C1)
@@ -104,46 +104,81 @@ Handoff nodes (`linkEventThrow`/`linkEventCatch`) carry `aef.targetWorkflow`, gi
 - **IW-1: What is the grouping key?** Options: (a) source — corpus vs saved; (b) id naming
   convention / prefix (e.g. `arc-*`, `frw_*`); (c) handoff-graph clusters (workflows that link to
   each other); (d) explicit user-assigned folders/tags (needs a new metadata field + save path).
-  confidence: 1
-  disposition: deferred   # resolve during research + operator dialogue
-  rationale: TBD
+  confidence: 3
+  disposition: answered
+  rationale: measured 2026-09-20 (artifact §Measured against the corpus). (c) handoff-graph is
+    DEAD — `targetWorkflow` in 0 of 24 rendered files, `linkEvent` in 0 of 24; there is no
+    cross-workflow graph to cluster. (b) id-prefix is DEAD — splitting 48 ids yields one prefix
+    with 5 members (the `claim-smoke-*` probes) and the rest at 1-2, i.e. ~20 groups over 48
+    items. Only (a) source class survives, and it has exactly two values.
 - **IW-2: Tree vs. grouped-sections vs. collapsible folders?** Full tree (arbitrary depth) is a
   big build; grouped sections (one level of headers over the existing grid) may deliver 80% of the
   value at a fraction of the cost. Which does the operator actually want?
-  confidence: 1
-  disposition: deferred
-  rationale: TBD
+  confidence: 3
+  disposition: answered
+  rationale: dissolved by IW-1. With (b) and (c) gone the only data-backed key is two-valued, and
+    a tree control over a two-valued key is a section header with extra machinery. Grouped
+    sections win by default — but see the Recommendation: the measurement says the browser's
+    problem is duplication (48 cards, 33 distinct workflows, 15 shown twice), not depth.
 - **IW-3: Does grouping require persisted metadata** (folder/tag per workflow, round-tripped
   through save/serialization + the server), or can it be derived purely from existing data (source,
   id, handoff graph) with zero storage changes?
-  confidence: 2
-  disposition: deferred
-  rationale: TBD — deriving from existing data is strongly preferred (no schema change).
+  confidence: 3
+  disposition: answered
+  rationale: NO. Both the surviving grouping key (source class) and the recommended successor
+    (dedupe by id with a source badge) are derivable from what the browser already holds —
+    presence in `examples/aef-processes/rendered/` vs `.editor-versions/`. No schema change, no
+    new save path, no round-trip risk.
 
 ## Recommendation
 
-**Recommendation:** DEFER — pending operator input on IW-1/IW-2 (full survey in `docs/reports/T-155-tree-grouping-inception.md`).
+**Recommendation:** NO-GO
+**Rationale:** The corpus cannot support the feature as scoped. Of the three data-derived grouping
+keys, two have no data — the handoff graph is empty (`targetWorkflow` in 0 of 24 rendered files,
+`linkEvent` in 0 of 24) and id prefixes carry no hierarchy (one prefix with 5 members, all test
+probes; the rest at 1-2, i.e. ~20 groups over 48 items). The only surviving key, source class, has
+exactly two values, and a tree control over a two-valued key is a section header with extra
+machinery. Building a tree here means building a control for a hierarchy the corpus does not
+contain. What the measurement surfaced instead is that the browser shows **48 cards over 33
+distinct workflows** — 15 workflows appear twice, once as corpus baseline and once as the user's
+saved edit of the same workflow. Nearly a third of the grid is duplication, which a tree nests
+rather than fixes.
+**Evidence:** `docs/reports/T-155-tree-grouping-inception.md` §"Measured against the corpus —
+2026-09-20"; counts reproduced by this task's `## Verification` legs (24 corpus / 24 saved / 15
+overlap / 0 handoff files). Prior recommendation (DEFER pending operator input on IW-1/IW-2) is
+superseded: the survey it deferred on has now been run, and it was run against the files rather
+than against recollection.
 
-Recommended shape once confirmed: **A1 (source class: corpus vs saved) + optionally A2 (id prefix)
-as a second level, rendered as B1 (grouped collapsible sections over the existing card grid), C1
-(derive-only — zero storage/schema change).**
+**Named successor for the operator to rule on** — one bounded build task, *not* filed under this
+inception id: **"deduplicate `openProjectModal`: one card per distinct workflow id, with a source
+badge (corpus / saved / both) and the saved-version history under it."** Removes 15 cards outright,
+needs no new metadata (IW-3 = no), no storage decision, no tree control — a rendering change in
+`src/aef-workflow-designer.html` over data the browser already holds. Cost estimate **S**: single
+file, one render path, no schema change. The majority of its cost is the mandatory visual
+verification (element screenshots of `openProjectModal` across theme and density modes), not the
+logic.
 
-- Delivers the scannability win at a fraction of the cost of a full tree; purely additive to
-  `openProjectModal`, reuses the existing card renderer/hover-zoom/delete.
-- No serialization/server changes → no round-trip risk, no new failure surface (Reliability).
-- **Explicitly NOT recommended now:** A4+B2+C2 (user-defined nested folders with persisted
-  metadata) — subsystem-scale change for a tentatively-floated feature; let real use of B1 tell us
-  whether explicit folders are worth the storage complexity.
-- On operator confirmation (expected A1+B1+C1): file ONE bounded build task ("grouped sections in
-  openProjectModal, derived from source class") — not a subsystem redesign.
+**Explicitly still NOT recommended:** user-assigned nested folders with persisted metadata
+(IW-1(d) / A4+B2+C2) — subsystem-scale change for a tentatively-floated feature. Unchanged from
+the original survey, and the measurement gives no new reason to revisit it.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Inception ACs: exploration deliverables, not build criteria. Real build ACs come after GO. -->
-- [ ] Research artifact `docs/reports/T-155-tree-grouping-inception.md` created (C-001) surveying the grouping design space and answering IW-1..IW-3.
+- [x] Research artifact `docs/reports/T-155-tree-grouping-inception.md` created (C-001) surveying the grouping design space and answering IW-1..IW-3.
 - [ ] A recommended approach + GO/NO-GO/DEFER presented to the operator with rationale and a cost/scope estimate; decision recorded via `fw inception decide T-155 …`.
+      **HALF DONE — the agent half is complete, the other half is not the agent's to do.**
+      Presented: `## Recommendation` carries a structured **NO-GO** with rationale, evidence and
+      an **S** cost/scope estimate for the named successor, and the full survey is in
+      `docs/reports/T-155-tree-grouping-inception.md`. NOT done: "decision recorded via
+      `fw inception decide`" — agents are structurally forbidden to invoke that verb (two
+      independent gates: Tier 0 hook and the `$CLAUDECODE=1` refusal). Left unchecked
+      deliberately so P-010 keeps blocking; this task is waiting on the operator, not on work.
 - [ ] On GO: follow-up build tasks filed (decomposed); no production UI built under this inception id.
+      Conditional on a GO that has not been given, and the recommendation is NO-GO. If the
+      operator instead rules GO on the *named successor* (dedupe `openProjectModal`), that is one
+      new build task — filed under its own id, never under this inception id.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -208,6 +243,17 @@ as a second level, rendered as B1 (grouped collapsible sections over the existin
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# T-155 legs — the four figures the NO-GO rests on, re-measured from the tree.
+# Each is a direct count, not a self-report. Command substitution keeps pipefail off `test`.
+test "$(ls examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 24
+test "$(ls -d .editor-versions/*/ 2>/dev/null | xargs -n1 basename | grep -vc '^_')" -eq 24
+test "$(comm -12 <(ls examples/aef-processes/rendered/*.bpmn | xargs -n1 basename | sed 's/\.bpmn$//' | sort) <(ls -d .editor-versions/*/ | xargs -n1 basename | grep -v '^_' | sort) | wc -l)" -eq 15
+# the handoff graph IW-1(c) assumed: absent. Both attributes, zero files.
+test "$(grep -l 'targetWorkflow' examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 0
+test "$(grep -l 'linkEvent' examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 0
+grep -q 'Measured against the corpus' docs/reports/T-155-tree-grouping-inception.md
+
 
 ## RCA
 
@@ -317,3 +363,7 @@ as a second level, rendered as B1 (grouped collapsible sections over the existin
 - **Change:** horizon: now → later
 - **Change:** status: started-work → captured (auto-sync)
 - **Reason:** Inception decision: DEFER — parking task
+
+### 2026-09-20T10:26:43Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

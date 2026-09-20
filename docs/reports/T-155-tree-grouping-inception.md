@@ -84,3 +84,81 @@ folders), treat that as a separate larger initiative with its own inception on t
   standing "proceed as seen fit … focus on browsing/storage/retrieval of versions." Artifact seeded
   from prior-session knowledge of the browser's data model; no operator dialogue yet. Next step:
   present this survey + recommendation for a GO/NO-GO/scope decision.
+
+---
+
+## Measured against the corpus — 2026-09-20
+
+Everything above this line was written from prior-session recollection of the data model. This
+section is the first time the design space has been checked against the files the browser
+actually lists. Three of the four candidate grouping keys do not survive it.
+
+### The population
+
+| | count | note |
+|---|---|---|
+| corpus baselines (`examples/aef-processes/rendered/*.bpmn`) | 24 | |
+| user-saved (`.editor-versions/*/`, excluding `_rendered`/`_trash`) | 24 | |
+| **cards the browser shows** | **48** | |
+| ids present in BOTH classes | **15** | shown twice, once per source class |
+| **distinct logical workflows** | **33** | |
+| corpus-only | 9 | |
+| saved-only | 9 | of which **7 are test scaffolding** — `claim-smoke-{legacy,ref,ref2,target,target2}`, `s4-e2e-probe`, `t229-birth-probe` |
+| deepest version history | 24 versions on one map | |
+
+### What the measurement kills
+
+**IW-1(c) — handoff-graph clusters: DEAD, no data.** The seed text above asserts that handoff
+nodes carry `aef.targetWorkflow`, "giving an implicit cross-workflow graph". That graph does not
+exist in this corpus. `targetWorkflow` appears in **0 of 24** rendered files; `linkEvent` appears
+in **0 of 24**. There is nothing to cluster. (The attribute is real — `aef:` extension attributes
+in the corpus are `anchors, artifactsWrites, decisionInput, decisionOutputs, endpoint, io,
+laneMeta, meta, output, position, routingHint, uid` — `targetWorkflow` is simply not among them,
+because no corpus map uses an off-page handoff.)
+
+**IW-1(b) — id naming convention: DEAD, no hierarchy.** Splitting all 48 ids on the first `-`/`_`
+yields one prefix with 5 members (`claim`, i.e. the smoke probes), and everything else at 1 or 2.
+Grouping on it produces ~20 groups over 48 items — strictly worse to browse than the flat grid.
+
+**IW-2 — tree vs. grouped sections: the tree has nothing to be deep about.** With key (c) and (b)
+gone, the only grouping key backed by data is source class, which has exactly **two** values. A
+tree control over a two-valued key is a section header with extra machinery.
+
+### What the measurement surfaces instead
+
+**The browser's problem is not depth. It is duplication.** 48 cards over 33 distinct workflows:
+15 workflows are listed twice, once as corpus baseline and once as the user's saved edit of that
+same workflow. Nearly a third of the grid is the same thing shown twice under two labels. A
+hierarchical tree over 48 items does not fix that — it nests it. Merging each duplicate pair into
+one card that carries both a source badge and the saved-version history removes 15 cards outright
+and answers the question the operator was actually reaching for ("I cannot find my workflow")
+more directly than any grouping key does.
+
+That change needs no new metadata (IW-3 answers itself: **no**), no storage-model decision, and no
+tree control. It is a rendering change in `openProjectModal` over data the browser already holds.
+
+### Revised recommendation
+
+**NO-GO on hierarchical tree grouping as scoped.** The corpus cannot support the feature: two of
+three data-derived grouping keys have no data, and the third is two-valued. Building a tree here
+would be building a control for a hierarchy the corpus does not contain.
+
+**Named successor, for the operator to rule on:** one bounded build task — *"deduplicate
+`openProjectModal`: one card per distinct workflow id, with a source badge (corpus / saved /
+both) and the saved-version history under it"*. Everything it needs is already in the browser's
+data model. Cost estimate: **S** — single file (`src/aef-workflow-designer.html`), one render
+path, no schema change, no persisted metadata, no new save path. Mandatory visual verification per
+CLAUDE.md (element screenshots of `openProjectModal` across theme and density modes), which is the
+majority of its cost, not the logic.
+
+If the operator wants explicit user-assigned folders (IW-1(d)) that remains a separate, larger
+initiative with its own inception on the storage model — unchanged from the assessment above.
+
+## Dialogue Log (continued)
+
+- 2026-09-20 — Revisit fired 2026-08-21 and was 30 days overdue. Measured the corpus for the first
+  time rather than re-reading the survey. Outcome: the preliminary recommendation above (A1+B1+C1)
+  survives in spirit — source class, sections, no new storage — but the *premise* of the task, that
+  a hierarchy exists to expose, does not. Recommendation moved from DEFER-pending-operator-input to
+  a NO-GO with a named cheaper successor, so the operator rules on a concrete alternative rather
+  than being asked to supply the exploration. No operator dialogue yet; no UI built.
