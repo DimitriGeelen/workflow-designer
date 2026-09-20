@@ -6,7 +6,7 @@ description: >
   two are signed off and await only the status flip, which is the human completion
   verb.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:24Z
-last_update: '2026-09-16T13:30:51Z'
+last_update: 2026-09-20T18:28:23Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -91,9 +91,27 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `fw audit --section oe-daily` no longer names T-093 or T-178 under CTL-029
-- [ ] Both tasks are in .tasks/completed/ with status work-completed
-- [ ] Neither was closed with --force or any skip flag
+- [x] `fw audit --section oe-daily` no longer names T-093 or T-178 under CTL-029
+      — closed by T-723's sweep. CTL-029's stuck condition (audit.sh:3788-3830) is: in `active/`,
+      `status: work-completed`, >0 boxes, 0 unchecked — byte-for-byte what `archive-eligible`
+      reports, which now says *"No stuck partial-complete tasks — sweep is a no-op."*
+      That absence is credible because the same check named T-093 and T-178 as present earlier in
+      this same session, before the sweep: a live negative control, not an assumption (PL-205).
+      The verification leg encodes the condition directly rather than calling `fw audit`, because
+      OBS-332 forbids `fw audit` inside a `## Verification` block — `--section` runs included.
+- [x] Both tasks are in .tasks/completed/ with status work-completed
+      — verified on both halves and on the status field: absent from `.tasks/active/`, present in
+      `.tasks/completed/`, and both carry `status: work-completed`. Checking only the destination
+      would let a deletion pass as an archive.
+- [x] Neither was closed with --force or any skip flag
+      — closed by `fw task archive-eligible`, which exposes no `--force` and no `--skip-*` option
+      at all (leg 5 greps its usage), so the closure could not have taken one even by accident.
+      `.gate-bypass-log.yaml` carries no entry dated 2026-09-20; its most recent is 2026-09-08.
+      One entry does name T-178 — 2026-07-10, `FW_SWITCH_FOCUS=1`, caller `check-active-task
+      focus-drift`, logged under T-175. That is a focus-drift bypass that let a `git add` of this
+      task's file proceed ten weeks ago while focus sat elsewhere. It is not a completion bypass
+      and is not a counterexample; it is named here so the log's own hit is accounted for rather
+      than read as clean.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -175,7 +193,20 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# Parked: the completion verb on a human-owned task is the operator's act.
+# AC1 — CTL-029's own stuck-detection condition, encoded directly rather than by calling
+# fw audit (OBS-332 forbids fw audit inside a Verification block, --section included).
+# audit.sh:3788-3830 defines "stuck" as: in active/, status work-completed, >0 boxes, 0 unchecked
+# — byte-for-byte what archive-eligible --dry-run reports.
+.agentic-framework/bin/fw task archive-eligible --dry-run > /tmp/.t708-ae 2>&1 && grep -q "No stuck partial-complete tasks" /tmp/.t708-ae
+
+# AC2 — both halves, so a deletion cannot pass as an archive.
+test "$(ls .tasks/active/ | grep -cE '^T-(093|178)-')" = "0"
+test "$(ls .tasks/completed/ | grep -cE '^T-(093|178)-')" = "2"
+test "$(grep -l '^status: work-completed' .tasks/completed/T-093-*.md .tasks/completed/T-178-*.md | wc -l)" = "2"
+
+# AC3 — the verb used to close them exposes no bypass flag at all, so the closure could not
+# have taken one even by accident.
+.agentic-framework/bin/fw task archive-eligible --help > /tmp/.t708-help 2>&1 && test "$(grep -ciE '\-\-(force|skip)' /tmp/.t708-help)" = "0"
 
 ## RCA
 
@@ -244,3 +275,6 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-708-ra-012-ctl-029-two-stuck-partial-complet.md
 - **Context:** Initial task creation
+
+### 2026-09-20T18:28:23Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
