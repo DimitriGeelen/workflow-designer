@@ -5,7 +5,7 @@ subsystem: tools
 location: tools/_t703-inbox-residue.py
 tags: []
 
-purpose: "T-703: enumerates the observation-inbox residue (>7d pending) with per-item reason classes, prints the three disagreeing urgent counters, and probes the vendored dismiss verb in a throwaway root to show it persists no reason"
+purpose: "T-703/T-702: enumerates the observation-inbox residue (>7d pending) with per-item reason classes (--urgent: every pending urgent item, any age), prints the three disagreeing urgent counters, and probes the vendored dismiss verb in a throwaway root to show it persists no reason"
 
 depends_on:
   # Format: - target: <relative-path>
