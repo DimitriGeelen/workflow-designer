@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:59Z
-last_update: 2026-09-20T10:26:43Z
+last_update: 2026-09-20T10:30:07Z
 date_finished:
 revisit_at: 2026-08-21
 revisit_evidence_needed: "operator answers IW-1/IW-2; the recommendation (A1+B1+C1)
@@ -294,6 +294,29 @@ grep -q 'Measured against the corpus' docs/reports/T-155-tree-grouping-inception
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+
+### 2026-09-20 — the measurement inverted the task, and the survey it replaced was written from memory
+
+Filed as "design a tree". Landed as "there is no hierarchy here, and the thing you are actually
+hitting is duplication". The July artifact was explicit that it was "seeded from prior-session
+knowledge of the browser's data model" — and one of the three grouping keys it proposed rested on
+a claim about the corpus (`aef.targetWorkflow` handoffs forming a cross-workflow graph) that is
+false of every file in it: 0 of 24. Two of three keys died on first contact with `ls` and `grep`.
+The general shape, worth carrying: **an inception that surveys a design space without counting the
+population can propose keys the data cannot supply.** The counting cost six commands.
+
+### ROUTING FINDING — not fixed here, one lock at a time
+
+`fw review-queue` lists 9 tasks under "DECISIONS — pending inception GO/NO-GO". **T-155 is not one
+of them**, before or after this session's work — it carried a `DEFER` recommendation since
+2026-07-10 and a `NO-GO` now, and the surface that tells the operator what needs deciding has
+never shown it. So an inception can hold a written recommendation and still be invisible to the
+queue that exists to surface exactly that. Not investigated further: the budget was in the warn
+band and opening a second structural change while this task is ungated is the failure mode the
+run is meant to avoid. Deliberately NOT filed to `.context/inbox.yaml` either — T-703 measured
+that register at 118 pending with no auditable drain, so a capture there is a write into an
+archive. Recorded here, where it is attached to the artifact it concerns, and in the run handback.
 
 ## Decisions
 
