@@ -1659,3 +1659,10 @@ observations:
   tags: [review-queue]
   status: pending
   promoted_to: null
+- id: OBS-358
+  text: "Archiving a task moves its whole Verification block into CTL-013's re-run set, and the audit pays that cost on every subsequent run. Measured today: fw audit completed normally before T-723 swept T-093/T-178 into completed/; every oe-daily run after it stalls at CTL-013 past 300s. T-093's block runs four suites - run-bridge-tests, run-validator-tests, check-corpus-geometry over 24 maps, and editor_bridge_structured_parity. The sweep was correct and should not be reverted; the cost is structural. Two candidate shapes for the operator: bound CTL-013 to a sample or a time budget, or re-run verification only for tasks archived since the last audit record. Filed from T-708 after the hang was diagnosed rather than waited out."
+  captured: 2026-09-20T18:31:55Z
+  context_task: T-708
+  tags: [audit-cost]
+  status: pending
+  promoted_to: null
