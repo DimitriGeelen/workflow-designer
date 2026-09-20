@@ -20,8 +20,10 @@ created: 2026-07-09T15:01:59Z
 last_update: 2026-09-20T10:30:57Z
 date_finished:
 revisit_at: 2026-08-21
-revisit_evidence_needed: "operator answers IW-1/IW-2; the recommendation (A1+B1+C1)
-  is already written, so the only missing input is ratification"
+revisit_evidence_needed: "NONE OUTSTANDING -- the evidence arrived 2026-09-20. IW-1/IW-2/IW-3
+  are all disposition: answered, measured against the corpus rather than recalled, and the
+  recommendation is no longer A1+B1+C1 (DEFER) but NO-GO. Nothing is being waited on except
+  the operator running `fw inception decide T-155 no-go --rationale ...`."
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
