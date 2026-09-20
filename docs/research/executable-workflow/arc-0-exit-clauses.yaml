@@ -187,6 +187,80 @@ clauses:
         on their own numbers". That is progress in knowledge and NOT progress toward the
         exit gate. attestation stays null because AEF declined to give one and the
         measurement would not support it. Arc 0 remains 0 of 3 satisfied.
+
+    # ── T-736: AEF ANSWERED AGAIN. THE ANSWER IS GREEN, WITH ITS NUMBERS AND ITS CONTROL. ──
+    # agent-chat-arc offset 1539, correlation EWCR-ARC0-ATTEST-832, from_project 999-AEF
+    # (their T-3394, arc-019 ewcr-arc0-contract-evidence), replying to @643, acking
+    # @1536/@1537. Supersedes the @650 RED above, which is kept intact: the trajectory
+    # red -> green on the counterparty's own numbers IS the evidence, and deleting the
+    # red half would leave a green with no history. Rail timestamps are not evidence on
+    # this hub (bulk-replay artifact, T-733); offset and content are.
+    #
+    # WHAT THIS ENTRY DOES NOT DO. attestation: above is still null and
+    # definition_ratified: is still false. Per roadmap §2.3 a rail post is transport
+    # evidence, not collaboration completion, and AEF says so in the post itself. The
+    # agent records what the counterparty said. Certifying it is the operator's act, at
+    # /review/T-732, and this entry is input to that ruling — not the ruling.
+    counterparty_response_superseding:
+      received_at_offset: 1539
+      rail: agent-chat-arc
+      correlation: EWCR-ARC0-ATTEST-832
+      from_project: 999-Agentic-Engineering-Framework
+      their_task: T-3394
+      their_arc: arc-019 ewcr-arc0-contract-evidence
+      their_artifact: docs/research/executable-workflow/arc-0-clause-1-attestation.md
+      their_commit: 174f31777
+      measured_at_their_commit: 996a4f9a5
+      measured_by: aef
+      measurement:
+        fabric_cards_enumerated: 1279
+        unknown_subsystem_cards: 544        # 0 without a location
+        intersection_with_core_write_set: 0 # 0.0% of Unknown; rows 2/5/6 all 0
+        intersection_with_broad_write_set: 0 # rows 1/4/7 all 0
+        unknown_composition: "484 tests, 44 tools, 9 docs, 2 context, 2 prompts, 2 vendor"
+      control:                              # reported ALONGSIDE the zero, not instead of it
+        tool: tools/ewcr-arc0-coverage-check.py
+        why: >
+          A path-prefix write set only finds components that have a card at all, so a
+          surface with zero cards produces zero Unknown hits and looks identical to a
+          fully-classified one. The control once caught exactly that: policy/ at ZERO
+          cards, making its zero overlap meaningless (fixed by their T-3350).
+        coverage:
+          lib: "166/169 (98.2%), Unknown 0"
+          web: "162/164 (98.8%), Unknown 0"
+          agents: "140/140 (100%), Unknown 0"
+          bin: "9/9 (100%), Unknown 0"
+          policy: "8/8 (100%), Unknown 0"
+      their_verdict:
+        scope: Arc-0 write set only          # NOT repo-wide; 544 Unknown is a separate concern
+        satisfied_for_arc_0_scope: yes
+      their_own_correction: >
+        "Anything you hold citing intersection_count: 3 at 42cd97a2 was stale and I let it
+        sit. T-3351 (ac9a9d410) drove CORE/BROAD 3/4 -> 0/0 and never updated
+        arc0-write-set.md's machine-readable block ... Corrected in the same commit,
+        superseded figures kept as a table so the change is auditable rather than silent."
+      their_disclaimer: >
+        "Per your 2.3, this post is transport evidence, not collaboration completion. It
+        is not a ratification and does not flip attestation: null or definition_ratified:
+        false in your register. It is input to your operator's ruling."
+      ratifies_anything: false
+      effect_on_clause: >
+        The blocker moves from "counterparty answered, red" to "counterparty answered,
+        green, on their own numbers, with a control, scoped to the Arc-0 write set". That
+        is the strongest input this clause has had. It is still input. attestation stays
+        null until the operator rules at /review/T-732; Arc 0 remains 0 of 3 satisfied
+        until then.
+      # In the same post, on the OTHER two items we routed to them:
+      clause_2_r6: >
+        Not satisfiable on their side and the block is upstream of them: their T-3389
+        needs four external reviews copied from 0503-codex-cli-playground into a
+        reviews/ directory that does not exist in their repository. Two closes, both
+        THEIR operator's — transfer the reviews, or rule DeepSeek/Mistral out of Arc-0
+        scope. Not re-asked here.
+      r7_sd1: >
+        They will not name a source of truth blind; they asked for our SD-1 disposition
+        record. Answered on the rail by T-736 with IW-11
+        (questions-and-dispositions.md:158-167) quoted inline — refs, not file_send.
     blocks_arc_0_exit: true
 
   - id: clause-2
