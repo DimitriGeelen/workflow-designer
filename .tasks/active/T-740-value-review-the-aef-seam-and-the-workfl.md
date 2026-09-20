@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T20:03:20Z
-last_update: 2026-09-20T20:03:26Z
+last_update: 2026-09-20T20:18:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -64,15 +64,15 @@ sanctioned path named by the gate itself — `fw termlink dispatch` — was used
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Yardstick written and traceable to sources: purpose, users/consumers, core capabilities, non-goals, value drivers and weights, plus the contradictions found between stated purpose and the live tree.
-- [ ] Data availability map records every source as EXISTS / PARTIAL / DESIGNED-ONLY / ABSENT, verified against the live tree — with ABSENT rows named explicitly rather than omitted.
-- [ ] Evidence files exist for all six gatherer domains (seam contract, workflow→program, program→execution, handoff/collaboration, ledger/cost, operator surface), each fact carrying a path:line, command output, commit hash or record ID.
-- [ ] Every chain step in the Phase 2 reverse map is either mapped to an item that serves it, or recorded as served by nothing.
-- [ ] NON-USE DIAGNOSIS evidence (readings A–E) collected for every low/no-use item, with the reading left unresolved by the GATHERER.
-- [ ] JUDGE ran with the evidence files and yardstick as its only inputs, and its classification is separable from the gathering — if that separation did not hold, every confidence is dropped one level and the report says so.
-- [ ] Final report written to `docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md` with all 12 required sections, including data gaps that capped confidence, contradictions, what was not reviewed, and Sovereign questions each carrying a recommendation.
-- [ ] Counter-evidence against this session's own prior findings is recorded rather than suppressed — specifically the T-739 narrowing established at `06-operator-surface.md` §3.
-- [ ] No item is deleted, restructured or built under this task id, and no gate is bypassed: `.context/working/.gate-bypass-log.yaml` gains no entry attributable to T-740.
+- [x] Yardstick written and traceable to sources: purpose, users/consumers, core capabilities, non-goals, value drivers and weights, plus the contradictions found between stated purpose and the live tree.
+- [x] Data availability map records every source as EXISTS / PARTIAL / DESIGNED-ONLY / ABSENT, verified against the live tree — with ABSENT rows named explicitly rather than omitted.
+- [x] Evidence files exist for all six gatherer domains (seam contract, workflow→program, program→execution, handoff/collaboration, ledger/cost, operator surface), each fact carrying a path:line, command output, commit hash or record ID.
+- [x] Every chain step in the Phase 2 reverse map is either mapped to an item that serves it, or recorded as served by nothing.
+- [x] NON-USE DIAGNOSIS evidence (readings A–E) collected for every low/no-use item, with the reading left unresolved by the GATHERER.
+- [x] JUDGE ran with the evidence files and yardstick as its only inputs, and its classification is separable from the gathering — if that separation did not hold, every confidence is dropped one level and the report says so.
+- [x] Final report written to `docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md` with all 12 required sections, including data gaps that capped confidence, contradictions, what was not reviewed, and Sovereign questions each carrying a recommendation.
+- [x] Counter-evidence against this session's own prior findings is recorded rather than suppressed — specifically the T-739 narrowing established at `06-operator-surface.md` §3.
+- [x] No item is deleted, restructured or built under this task id, and no gate is bypassed: `.context/working/.gate-bypass-log.yaml` gains no entry attributable to T-740.
 
 <!-- No ### Human section on the agent side of this task: the operator's act is the Phase 5
      decision itself, which is recorded below as the review's own gate. -->
@@ -165,6 +165,14 @@ sanctioned path named by the gate itself — `fw termlink dispatch` — was used
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# T-740 legs. Each re-checks a file-state fact, not a self-report.
+test "$(ls docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/*.md | wc -l)" -eq 7
+test -f docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md
+test "$(grep -cE '^## (1|2|3|4|5|6|7|8|9|10|11|12)\. ' docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md)" -eq 12
+grep -q "COUNTER-EVIDENCE against this session's own T-739 filing" docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/06-operator-surface.md
+grep -q "Sovereign questions" docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md
+test "$(grep -c 'T-740' .context/working/.gate-bypass-log.yaml)" -eq 0
 
 ## RCA
 
