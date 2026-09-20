@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:03Z
-last_update: 2026-09-20T17:00:01Z
+last_update: 2026-09-20T17:00:33Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -91,8 +91,14 @@ A release is a sovereignty promise over immutable bytes (G-007). The agent must 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `python3 tools/_t382-release-lag.py` reports lag below the 14-day threshold
+- [x] `python3 tools/_t382-release-lag.py` reports lag below the 14-day threshold
+      — 0.12.0 cut 2026-09-20 from `d31278fb`, committed `cd42385f`, tagged
+      `designer-v0.12.0`. Leg 1 now reads "unshipped product commits since
+      designer-v0.12.0: 0". Was 27 days over a 14-day threshold, 10 commits.
 - [ ] The release decision is recorded by the operator, with the shipped version named
+      — NOT ticked: this is the operator's act (G-007). The operator ran the cut;
+      recording the decision with the version named remains theirs. Leaving this
+      unchecked deliberately so P-010 keeps blocking completion.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -174,7 +180,16 @@ A release is a sovereignty promise over immutable bytes (G-007). The agent must 
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-python3 tools/_t382-release-lag.py
+# Leg 1 — build lag is actually zero, not merely "the tool ran". File form, && not ;
+# (L-387): the tool exits 0 on a healthy read, so the grep is what carries the claim.
+python3 tools/_t382-release-lag.py > /tmp/.t700-lag 2>&1 && grep -q "unshipped product commits since designer-v0.12.0: 0" /tmp/.t700-lag
+# Leg 2 — the tag actually CONTAINS the artifact. Caught a real defect on 2026-09-20:
+# the tag was first created before the release commit, so `git checkout designer-v0.12.0`
+# yielded no dist artifact at all. Retagged at cd42385f while still unpushed.
+git cat-file -e designer-v0.12.0:dist/aef-workflow-designer-0.12.0.html
+# Leg 3 — manifest sha is the artifact's real sha. AEF pins by this value; a manifest
+# that drifts from its own artifact breaks a consumer's verification with no local signal.
+test "$(sha256sum dist/aef-workflow-designer-0.12.0.html | awk '{print $1}')" = "$(python3 -c "import yaml;print(yaml.safe_load(open('dist/MANIFEST.yaml'))['sha256'])")"
 
 ## RCA
 
