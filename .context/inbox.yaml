@@ -1673,3 +1673,10 @@ observations:
   tags: [enforcement]
   status: pending
   promoted_to: null
+- id: OBS-360
+  text: "CTL-029's second detector has no sweep verb behind it. audit.sh:3921 flags tasks with all Agent ACs ticked but status started-work as 'completable, not closed'; fw task archive-eligible only sweeps status work-completed (audit.sh:3788-3830), so it cleared T-093/T-178 and cannot reach this class at all. Measured 2026-09-20: EIGHT tasks have every Agent AND Human AC ticked and sit in started-work waiting only on the status verb - T-041, T-101, T-102, T-105, T-293, T-309, T-357, T-681. The operator already did the review on all eight. Six others in the same CTL-029 set genuinely await judgement: T-189, T-209, T-286, T-344, T-345, T-402. The eight block eight RA tasks (T-709 to T-722) that cannot close while they are open. Two gates stand between an agent and the flip: focus-drift (T-1730) and sovereignty on owner human. Candidate shapes for the operator: extend archive-eligible to the started-work+all-ticked case, or run the eight completion verbs. Not a recommendation to bypass either gate."
+  captured: 2026-09-20T18:40:13Z
+  context_task: T-709
+  tags: [ctl-029]
+  status: pending
+  promoted_to: null

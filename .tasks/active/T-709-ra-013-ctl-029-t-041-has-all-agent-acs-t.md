@@ -6,7 +6,7 @@ description: >
   or lands partial-complete depends on its Human ACs, which only the operator may
   tick.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:27Z
-last_update: '2026-09-16T13:30:51Z'
+last_update: 2026-09-20T18:39:12Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -92,6 +92,36 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 - [ ] `fw audit --section oe-daily` no longer names T-041 under CTL-029
 - [ ] T-041 is either in .tasks/completed/ with status work-completed, or is explicitly partial-complete with owner: human and its remaining Human ACs enumerated
 - [ ] No skip or force flag was used to achieve either state
+
+**Why all three stay unticked — measured 2026-09-20, not assumed (T-723 run):**
+
+T-041 has **every acceptance criterion ticked, Agent and Human** (`agentOpen=0`,
+`humanTicked=1/1`). The operator already performed the review this task is waiting on.
+What is missing is only `status: started-work` → `work-completed`.
+
+Neither limb of AC2 is reachable by an agent:
+
+- **Limb 1** ("in `.tasks/completed/` with status work-completed") needs the completion verb.
+  Attempted; refused twice over. The **focus-drift gate** (T-1730) blocked it outright — its
+  only exits are `fw context focus T-041`, `--switch-focus`, or `FW_SWITCH_FOCUS=1`, and the
+  latter two are Tier-2 bypasses this run is not authorised to take. Past that gate the
+  **sovereignty gate** refuses `work-completed` on `owner: human` — demonstrated live today on
+  T-723 and T-708, both of which routed to `/review/` and stayed `started-work`.
+- **Limb 2** ("explicitly partial-complete with owner: human and its remaining Human ACs
+  enumerated") has nothing to enumerate: T-041's remaining Human ACs number **zero**. And it is
+  not in partial-complete state — it is `started-work`. Both halves of the limb fail.
+
+AC3 would pass **vacuously** — no flag was used because no state was achieved. Ticking it would
+record a bypass-free transition that never happened (PL-205).
+
+**`fw task archive-eligible` cannot reach this class.** That sweep requires
+`status: work-completed` (audit.sh:3788-3830), which is why it cleared T-093/T-178 but leaves
+T-041 untouched. CTL-029's *second* detector (audit.sh:3921, "all Agent ACs ticked but
+status='started-work'") has no sweep verb behind it at all.
+
+**Eight tasks are in exactly this state** — every Agent and Human AC ticked, waiting only on the
+verb: **T-041, T-101, T-102, T-105, T-293, T-309, T-357, T-681**. Six others in the CTL-029 set
+genuinely await judgement (Human AC unticked): T-189, T-209, T-286, T-344, T-345, T-402.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -242,3 +272,6 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-709-ra-013-ctl-029-t-041-has-all-agent-acs-t.md
 - **Context:** Initial task creation
+
+### 2026-09-20T18:39:12Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
