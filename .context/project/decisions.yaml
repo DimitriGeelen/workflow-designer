@@ -2208,3 +2208,10 @@ decisions:
     date: 2026-09-07
     task: T-682
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-295
+    decision: "Root-caused the staleness as a missing `lib/ts/node_modules` (js-yaml unresolved,"
+    scope: project
+    date: 2026-09-20
+    task: T-730
+    rationale: "Auto-captured from task file on completion"
