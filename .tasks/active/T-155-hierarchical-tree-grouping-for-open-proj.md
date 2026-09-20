@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:59Z
-last_update: 2026-09-20T10:30:07Z
+last_update: 2026-09-20T10:30:57Z
 date_finished:
 revisit_at: 2026-08-21
 revisit_evidence_needed: "operator answers IW-1/IW-2; the recommendation (A1+B1+C1)
