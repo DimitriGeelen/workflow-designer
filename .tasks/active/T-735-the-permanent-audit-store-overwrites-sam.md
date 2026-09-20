@@ -4,9 +4,9 @@ name: "The permanent audit store overwrites same-date records while the 7-day cr
 description: >
   The permanent audit store overwrites same-date records while the 7-day cron store keeps every run
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-19T22:03:34Z
-last_update: 2026-09-19T22:03:34Z
-date_finished: null
+last_update: 2026-09-19T22:09:10Z
+date_finished: 2026-09-19T22:09:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -364,3 +364,20 @@ I left them uncommitted rather than decide that on your behalf.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-735-the-permanent-audit-store-overwrites-sam.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6be9a292
+- **Timestamp:** 2026-09-19T22:09:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Human)** — [REVIEW] Rule on the wording, which is the only thing here that is actually wrong.
+  - **audience-mismatch** (partial, heuristic) — `agent-subject='agent read' in: One letter. A only needs a one-line edit to CLAUDE.md, which is yours —   the agent is structurally blocked from governance files and did no`
+
+### 2026-09-19T22:09:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
