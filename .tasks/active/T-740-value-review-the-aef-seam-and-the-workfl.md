@@ -4,9 +4,9 @@ name: "Value review: the AEF seam and the workflow -> program -> execution chain
 description: >
   Operator-scoped value review (DELETE/REFACTOR/ADD) of the AEF integration seam: operator<->AEF and agent collaboration along the chain workflow -> program -> execution, the handoffs between those stages, and what is missing to make the chain work. Producer-not-judge: GATHERER collects evidence read-only, a separate JUDGE classifies from the evidence file alone, the operator decides item by item. Research is not authorization - nothing is deleted, restructured or built under this task.
 
-status: started-work
+status: work-completed
 workflow_type: specification
-owner: agent
+owner: human
 horizon: now
 tags: [value-review, aef-seam, workflow-execution, arc-0]
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T20:03:20Z
-last_update: 2026-09-20T20:18:51Z
-date_finished: null
+last_update: 2026-09-20T20:30:55Z
+date_finished: 2026-09-20T20:30:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -59,6 +59,52 @@ authorization** — nothing is deleted, restructured or built under this task id
 dispatch enforcement) capped Agent-tool dispatch at 2 and blocked gatherers 3–5. Its offered exits
 `fw dispatch approve` and `fw dispatch reset` are self-authorisation and were **not** taken; the
 sanctioned path named by the gate itself — `fw termlink dispatch` — was used instead.
+
+## Recommendation
+
+**Recommendation:** GO — on the review's *findings being acted on*, not on any single build. This
+task's deliverable is the report; what needs your ruling is §6 (findings, item by item) and §12
+(nine Sovereign questions). Nothing has been executed under this id.
+
+**Rationale:** The review answered the question as asked and the answer is unusually clean: the
+chain's first stage works, its second stage is broken by a directory that was never vendored, and
+its third stage **is not buildable as designed**. `aef:endpoint` — the only attribute in the corpus
+that looks like a node→command binding, present 108 times — is classified *"Presentational (diagram
+cosmetics)"* by Part I of this project's own frozen, normative standard, which further requires the
+forward compile to read **only** the semantic class. A compiler is therefore forbidden to read it,
+while `docs/designer/schema.md:239` calls it *"what executes this step"*. The frozen standard wins.
+No amount of runtime engineering fixes that; **one counterparty ruling does.**
+
+The cheapest high-value act is not a build either: **S-1**, assigning the two correlations. A peer
+handoff has been open 24 days on an unassigned value, `source-manifest.yaml:19-26` says none may be
+opened until they are assigned, and the counterparty said so themselves. That is the best
+chain-unblocked-per-minute in the whole review.
+
+DELETE came back **zero**, deliberately. Every non-use candidate fails DELETE CHECK 4 or 5: this
+repo exists to be pinned against by a consumer whose side is unobservable across the T-559 boundary,
+and that consumer is pinned to an artifact three versions old. In a repo like this, "nothing
+references it here" is close to worthless as a deletion argument.
+
+**Evidence:**
+- `docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md` — 12 sections; KEEP 28 / DELETE 0 / REFACTOR 2 / ADD 20 / INVESTIGATE 9
+- `docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/00-yardstick.md` … `06-operator-surface.md` — six gatherer legs, ~211 KB, every fact carrying a path:line, command output or record ID
+- Stage B blocker: `docs/standards/aef-bpmn-mapping-v1.md:42` vs `docs/designer/schema.md:239` (evidence file `03` §5a)
+- Stage A gap: the seam's manifest projection exists once, as `extract_manifest` in `tests/test_promote_contract.py:137` (evidence file `02` §3)
+- Broken-not-missing: `fw bpmn compile` → exit 1, *"compiler not found at `.agentic-framework/tools/bpmn_to_tasks.py`"*; `ls .agentic-framework/tools/` → no such directory
+- Arc-0: `tools/_t596-arc0-exit-gate.sh` → exit 1, three clauses BLOCKED; `--self-test` 13/13, so the gate can go green and is red for the stated reason
+- H-register: 6 questions, 2 resolved, 4 open, all six `blocks_arc_0_exit: true`
+- Release seam by sha256: release 0.12.0 / gallery 0.10.0 / pin 0.8.0 — and `/designer/app` serves the 0.8.0 bytes, under a printed `[PASS] Release lag`
+- This task's own Verification block: **6/6 PASS**; Agent ACs 9/9; `grep -c 'T-740' .context/working/.gate-bypass-log.yaml` → **0**
+
+**Two corrections to this session's own earlier work, recorded rather than buried:** T-739's filing
+was narrowed (commit `b6a0386e`) after `/inception/T-155` was measured returning 200 with a decide
+UI; and this review's own yardstick repeated T-733's "the rail is lost" claim before G1 re-read all
+seven offsets live and found they resolve.
+
+**Read §12 S-5 first.** Three `[REVIEW]` Human ACs were found ticked on disk with no operator POST.
+If the tick channel can be written without you, the authority of the gate that 38 parked tasks are
+waiting on is in question. The recommendation there is to treat those three as unticked and to
+instrument the channel — not to weaken the gate.
 
 ## Acceptance Criteria
 
@@ -244,3 +290,15 @@ test "$(grep -c 'T-740' .context/working/.gate-bypass-log.yaml)" -eq 0
 
 ### 2026-09-20T20:03:26Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bee3621f
+- **Timestamp:** 2026-09-20T20:30:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-20T20:30:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
