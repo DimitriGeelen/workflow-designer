@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-730: RA-034: TypeScript build is stale
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-20T13:31:22Z
+# ============================================================================
+
+task_id: T-730
+task_name: "RA-034: TypeScript build is stale"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-16T13:26:25Z
+completed: 2026-09-20T13:30:54Z
+duration_days: 4
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '`fw doctor` no longer reports TypeScript build stale'
+  - 'The rebuild does not introduce undeclared vendor divergence - `fw audit --section structure` still reports all diverged paths declared'
+  - 'If rebuilding would change tracked vendored bytes, that is recorded as a scope question rather than performed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-20 — real rebuild changed tracked bytes cosmetically; reverted rather than committed'
+    chose: 'Root-caused the staleness as a missing `lib/ts/node_modules` (js-yaml unresolved, `fw build` was exiting 1 silently — not actually stale, just broken). Ran `npm install` in `.agentic-framework/lib/ts`, then ran the real esbuild rebuild to verify what would change. `dist/loop-detect.js` came back byte-identical. `dist/fw-util.js` differed only cosmetically — one esbuild-version variable-rename (`i`→`i2` to avoid a scope collision) and a cwd-dependent source-comment path (`lib/ts/src/...` vs `.agentic-framework/lib/ts/src/...`, an artifact of invoking the build from the project root instead of the framework root). Reverted `dist/fw-util.js` to the committed bytes (`git checkout --`) and `touch`ed both dist files so mtime-ordering reflects the truth the diff established: the committed dist already matches current src. Filed OBS-356 for the underlying gap (no dependency-bootstrap step, no diagnostic surfacing of the real npm-resolve failure) rather than fixing it here — out of this task''s scope.'
+    rationale: 'AC3 requires treating a byte-changing rebuild as a scope question, not performing it. The diff was reviewed and confirmed non-semantic before deciding not to commit it — an unreviewed revert would have been just as much a guess as an unreviewed commit.'
+    alternatives_rejected: ['Committing the rebuilt `dist/fw-util.js` (would be an undeclared, toolchain-version- driven vendor divergence with no content justification). Leaving `fw build` broken and only silencing the doctor WARN by touching mtimes without first confirming the committed bytes were actually still valid (would have been gaming the check rather than verifying the invariant it exists to protect).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 5764 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc-003, audit-remediation, RA-034]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5764
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-730-ra-034-typescript-build-is-stale.md
+generated_by: context-agent-hybrid

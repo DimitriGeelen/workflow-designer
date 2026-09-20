@@ -5,10 +5,10 @@ description: >
   Doctor WARN cycle 1 2026-09-16: lib/ts/dist is behind lib/ts/src. A stale dist means
   the artifact under test is not the source under review.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: claude
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-034]
 components: []
 related_tasks: []
@@ -18,8 +18,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:26:25Z
-last_update: '2026-09-16T13:30:56Z'
-date_finished:
+last_update: 2026-09-20T13:30:54Z
+date_finished: 2026-09-20T13:30:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -83,9 +83,9 @@ lib/ts/dist is behind lib/ts/src. The invariant not held is that the compiled ar
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `fw doctor` no longer reports TypeScript build stale
-- [ ] The rebuild does not introduce undeclared vendor divergence - `fw audit --section structure` still reports all diverged paths declared
-- [ ] If rebuilding would change tracked vendored bytes, that is recorded as a scope question rather than performed
+- [x] `fw doctor` no longer reports TypeScript build stale
+- [x] The rebuild does not introduce undeclared vendor divergence - `fw audit --section structure` still reports all diverged paths declared
+- [x] If rebuilding would change tracked vendored bytes, that is recorded as a scope question rather than performed
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -209,6 +209,20 @@ lib/ts/dist is behind lib/ts/src. The invariant not held is that the compiled ar
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-09-20 — "stale" was a symptom, not the defect
+- **What changed:** The filing assumed a plain rebuild-and-diff would clear the WARN. Running
+  `fw build` for real showed it was exiting 1 on `fw-util.ts` (unresolved `js-yaml`) — the
+  mtime-staleness check was reporting a true mtime fact but the wrong reason; `fw build` itself
+  has been silently broken on any checkout that never ran `npm install` in `lib/ts/`, and nothing
+  in the doctor WARN text or `fw build`'s own output surfaces that. arc-003's premise — "every
+  audit/doctor finding is an owned, scored task, verification is the next cycle's re-run of the
+  originating check" — held: the re-run (real build, not assumed) is what exposed this.
+- **Plan impact:** Scope stayed within AC1-3 (clear the WARN, no undeclared vendor divergence,
+  treat a byte-changing rebuild as a scope question) — the deeper defect (no dependency bootstrap,
+  no diagnostic surfacing) was filed as OBS-356 rather than folded into this task's scope.
+- **Triggered:** OBS-356 (observation inbox) — candidate for folding into G-001 (vendor payload
+  incomplete) or a new narrower gap. Not filed as its own task here; left for triage.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -219,6 +233,27 @@ lib/ts/dist is behind lib/ts/src. The invariant not held is that the compiled ar
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-09-20 — real rebuild changed tracked bytes cosmetically; reverted rather than committed
+- **Chose:** Root-caused the staleness as a missing `lib/ts/node_modules` (js-yaml unresolved,
+  `fw build` was exiting 1 silently — not actually stale, just broken). Ran `npm install` in
+  `.agentic-framework/lib/ts`, then ran the real esbuild rebuild to verify what would change.
+  `dist/loop-detect.js` came back byte-identical. `dist/fw-util.js` differed only cosmetically —
+  one esbuild-version variable-rename (`i`→`i2` to avoid a scope collision) and a cwd-dependent
+  source-comment path (`lib/ts/src/...` vs `.agentic-framework/lib/ts/src/...`, an artifact of
+  invoking the build from the project root instead of the framework root). Reverted
+  `dist/fw-util.js` to the committed bytes (`git checkout --`) and `touch`ed both dist files so
+  mtime-ordering reflects the truth the diff established: the committed dist already matches
+  current src. Filed OBS-356 for the underlying gap (no dependency-bootstrap step, no diagnostic
+  surfacing of the real npm-resolve failure) rather than fixing it here — out of this task's scope.
+- **Why:** AC3 requires treating a byte-changing rebuild as a scope question, not performing it.
+  The diff was reviewed and confirmed non-semantic before deciding not to commit it — an
+  unreviewed revert would have been just as much a guess as an unreviewed commit.
+- **Rejected:** Committing the rebuilt `dist/fw-util.js` (would be an undeclared, toolchain-version-
+  driven vendor divergence with no content justification). Leaving `fw build` broken and only
+  silencing the doctor WARN by touching mtimes without first confirming the committed bytes were
+  actually still valid (would have been gaming the check rather than verifying the invariant it
+  exists to protect).
 
 ## Decision
 
@@ -236,3 +271,18 @@ lib/ts/dist is behind lib/ts/src. The invariant not held is that the compiled ar
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-730-ra-034-typescript-build-is-stale.md
 - **Context:** Initial task creation
+
+### 2026-09-20T13:22:44Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cf26edc7
+- **Timestamp:** 2026-09-20T13:31:16Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-20T13:30:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
