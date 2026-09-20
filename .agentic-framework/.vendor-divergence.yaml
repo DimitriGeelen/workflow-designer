@@ -1040,10 +1040,23 @@ entries:
 
   - path: .agentic-framework/bin/fw
     kind: content
-    task: T-643, T-645
+    task: T-643, T-645, T-739
     upstream: fix
     reason: >-
-      Two vendored-path defects on one file. (1) `sys.path.insert(0, PROJECT_ROOT)` assumes
+      Three defects on one file. (3, T-739) DECISION_RE at the DECISIONS predicate listed
+      DEFER alongside GO and NO-GO, and a MATCH is used as an EXCLUSION — so recording a
+      deferral permanently removed the inception from the queue whose only job is to show
+      pending decisions. A DEFER is the explicit record that the decision has NOT been made.
+      Measured before the fix: T-155 deferred 2026-07-29, absent from DECISIONS ever since,
+      and stayed absent through a full rewrite of its recommendation from DEFER to NO-GO;
+      9 rows rendered, none of them it. After: 10 rows, T-155 carrying NO-GO, and the three
+      genuinely decided inceptions (T-309/T-357/T-681) still excluded. UPSTREAM because the
+      framework conceded this class and built a compensating control instead of fixing it —
+      T-1451's revisit_at/revisit_evidence_needed fields plus the G-053 daily revisit scan
+      exist solely to drag deferred inceptions back into view. Witness:
+      tools/_t739-defer-is-not-a-decision.py, which reads the SHIPPED regex out of bin/fw
+      rather than carrying its own copy (PL-159), so it cannot pass after upstream drift.
+      (1) `sys.path.insert(0, PROJECT_ROOT)` assumes
       the framework-repo layout; in a vendored install web/ is not under PROJECT_ROOT, so the
       import raised and `except ImportError` substituted the inline fallback SILENTLY on every
       invocation — the shared predicate had never once executed in this CLI while /approvals

@@ -3336,3 +3336,78 @@ concerns:
   related_tasks:
   - T-685
   - T-687
+- id: G-051
+  type: gap
+  status: watching
+  severity: high
+  title: A recorded DEFER is treated as a made decision, so deferring an inception deletes it
+    from the surface that exists to surface pending decisions
+  detected: 2026-09-20
+  origin_task: T-739
+  decision_trigger: '`tools/_t739-defer-is-not-a-decision.py` exits 0 against the live tree (no
+    active inception is hidden from the DECISIONS queue by a recorded DEFER), AND `fw review-queue`
+    lists T-155 under DECISIONS. Then close G-051.
+
+    '
+  description: 'fw:5748 defines DECISION_RE as ^\*\*Decision\*\*:\s*(GO|NO-GO|DEFER) and fw:5768
+
+    uses a MATCH as an EXCLUSION: `if workflow_type == "inception" and not
+
+    DECISION_RE.search(text)`. DEFER sits in the alternation, so recording a deferral
+
+    removes the task from the DECISIONS queue permanently.
+
+
+    A DEFER is not a made decision. It is the explicit statement that the decision has NOT
+
+    been made yet. The one state that most needs to stay on a pending-decisions surface is
+
+    the only state that is silently removed from it.
+
+
+    MEASURED, 2026-09-20, before any fix: `fw review-queue` DECISIONS renders 9 rows. Every
+
+    one carries verdict DEFER — but that is extract_recommendation_state() reading
+
+    **Recommendation:**, a DIFFERENT field. T-155, the only task in .tasks/active/ carrying
+
+    a literal `**Decision**: DEFER` block, is absent. It has been absent since 2026-07-29 and
+
+    stayed absent through a full rewrite of its recommendation from DEFER to NO-GO.
+
+
+    The surface contradicts itself in its own strings: fw:5859 renders the header as
+
+    "DECISIONS — pending inception GO/NO-GO", while the help text at fw:5590 advertises the
+
+    section as "pending inception GO/NO-GO/DEFER decisions". A recorded DEFER is neither a GO
+
+    nor a NO-GO, which is precisely what makes it pending.
+
+
+    WHY THE FRAMEWORK WAS BLIND (G-019 escalation, not the symptom): the framework already
+
+    conceded this class exists and built a SECOND, PARALLEL recovery channel for it rather
+
+    than fixing the first. T-1451 added revisit_at/revisit_evidence_needed fields and a G-053
+
+    daily revisit scan whose entire purpose is to drag deferred inceptions back into view.
+
+    That compensating control is evidence the primary channel was known to drop them. A
+
+    second channel built to recover what the first silently loses is a workaround that
+
+    ratifies the defect instead of closing it.
+
+
+    Related class, already learned and not applied here: PL-287 (T-642) — "a decision surface
+
+    with a narrower vocabulary than the positions people hold". Same family: the vocabulary
+
+    of DECISION_RE does not distinguish "decided to defer" from "decided".
+
+    '
+  related_tasks:
+  - T-739
+  - T-155
+  - T-642

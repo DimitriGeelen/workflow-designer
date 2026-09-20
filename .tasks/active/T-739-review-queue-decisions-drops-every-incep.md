@@ -11,7 +11,7 @@ description: >
   concedes DEFER needs revisiting: T-1451 added revisit_at/revisit_evidence_needed
   and a G-053 daily scan solely to recover this class.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -23,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T19:50:36Z
-last_update: 2026-09-20T19:52:34Z
+last_update: 2026-09-20T20:53:57Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -137,14 +137,14 @@ a separate act and out of scope here.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Gap registered in `concerns.yaml`/`gaps.yaml` BEFORE the fix lands (CLAUDE.md "register first, fix second"), with a closure condition that renders.
-- [ ] `tools/_t739-defer-is-not-a-decision.py` reproduces the defect from the live tree: it applies the shipped `DECISION_RE` to every active inception and names each one a recorded DEFER makes invisible. Exits non-zero while any such task is hidden, zero when none is.
-- [ ] `DECISION_RE` no longer treats DEFER as terminal, and the change is scoped to the DECISIONS predicate — `extract_recommendation_state()` and the VERDICT pass are untouched.
-- [ ] `fw review-queue` lists **T-155** under DECISIONS carrying its current verdict (NO-GO, not the stale DEFER), verified against live command output rather than asserted.
-- [ ] The three decided inceptions **T-309, T-357, T-681** (`**Decision**: GO`) remain excluded — the fix must not turn the section into "every inception".
-- [ ] The nine recommendation-only rows (T-184/185/186/277/279/280/281/282/498) are still listed: count goes 9 → 10, not 9 → something unrelated.
-- [ ] Vendor divergence declared for `.agentic-framework/bin/fw` so `fw audit --section structure` still reports `Vendor divergence: all N diverged path(s) declared` as PASS.
-- [ ] `tools/_t739-defer-is-not-a-decision.py` registered in the Component Fabric.
+- [x] Gap registered in `concerns.yaml`/`gaps.yaml` BEFORE the fix lands (CLAUDE.md "register first, fix second"), with a closure condition that renders.
+- [x] `tools/_t739-defer-is-not-a-decision.py` reproduces the defect from the live tree: it applies the shipped `DECISION_RE` to every active inception and names each one a recorded DEFER makes invisible. Exits non-zero while any such task is hidden, zero when none is.
+- [x] `DECISION_RE` no longer treats DEFER as terminal, and the change is scoped to the DECISIONS predicate — `extract_recommendation_state()` and the VERDICT pass are untouched.
+- [x] `fw review-queue` lists **T-155** under DECISIONS carrying its current verdict (NO-GO, not the stale DEFER), verified against live command output rather than asserted.
+- [x] The three decided inceptions **T-309, T-357, T-681** (`**Decision**: GO`) remain excluded — the fix must not turn the section into "every inception".
+- [x] The nine recommendation-only rows (T-184/185/186/277/279/280/281/282/498) are still listed: count goes 9 → 10, not 9 → something unrelated.
+- [x] Vendor divergence declared for `.agentic-framework/bin/fw` so `fw audit --section structure` still reports `Vendor divergence: all N diverged path(s) declared` as PASS.
+- [x] `tools/_t739-defer-is-not-a-decision.py` registered in the Component Fabric.
 
 <!-- No ### Human section: every criterion above is a deterministic shell check
      (T-1811/T-1878 routing — Expected is grep-able, so these are Agent ACs with the
@@ -199,6 +199,43 @@ a separate act and out of scope here.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# AC2/AC3 — the probe reads the SHIPPED regex out of bin/fw and exits non-zero while any
+# active inception is hidden by a recorded non-terminal decision. Its own exit code is the
+# verdict, so no chaining and no errexit exposure (T-352).
+python3 tools/_t739-defer-is-not-a-decision.py
+
+# AC1 — G-051 registered in the gap register with a closure condition that renders.
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.yaml')); g=[c for c in d['concerns'] if c['id']=='G-051']; sys.exit(0 if g and g[0].get('decision_trigger','').strip() else 1)"
+
+# AC3 — DEFER is gone from the DECISIONS predicate specifically. Asserted against the
+# shipped source, not against a copy.
+python3 -c "import re,sys; s=open('.agentic-framework/bin/fw').read(); m=re.search(r'DECISION_RE\s*=\s*re\.compile\(\s*r\"([^\"]*)\"', s); sys.exit(0 if m and 'DEFER' not in m.group(1) and 'NO-GO' in m.group(1) else 1)"
+
+# AC3 (scope) — extract_recommendation_state's vocabulary is UNTOUCHED: it must still carry
+# DEFER, which is why the rendered VERDICT column can read DEFER while the predicate cannot.
+python3 -c "import re,sys; s=open('.agentic-framework/bin/fw').read(); sys.exit(0 if re.search(r'KEEP-OPEN\|NO\[-_\]GO\|CLOSE\|GO\|DEFER', s) else 1)"
+
+# AC4 — T-155 is listed under DECISIONS carrying its CURRENT verdict (NO-GO), not the stale
+# DEFER. Verified against live command output.
+.agentic-framework/bin/fw review-queue > /tmp/.t739-rq.txt 2>&1 && python3 -c "import re,sys; t=re.sub(r'\x1b\[[0-9;]*m','',open('/tmp/.t739-rq.txt').read()); b=re.search(r'DECISIONS.*?\n\n',t,re.S); sys.exit(0 if b and re.search(r'NO-GO\s+\S+\s+T-155\b',b.group(0)) else 1)"
+
+# AC5 — the three genuinely DECIDED inceptions stay excluded. The fix must not turn the
+# section into "every inception".
+.agentic-framework/bin/fw review-queue > /tmp/.t739-rq.txt 2>&1 && python3 -c "import re,sys; t=re.sub(r'\x1b\[[0-9;]*m','',open('/tmp/.t739-rq.txt').read()); b=re.search(r'DECISIONS.*?\n\n',t,re.S).group(0); sys.exit(1 if any(x in b for x in ('T-309','T-357','T-681')) else 0)"
+
+# AC6 — the nine recommendation-only rows survive and the count goes 9 -> 10, not 9 -> something
+# unrelated. All nine named explicitly so a coincidental count of 10 cannot pass this leg.
+.agentic-framework/bin/fw review-queue > /tmp/.t739-rq.txt 2>&1 && python3 -c "import re,sys; t=re.sub(r'\x1b\[[0-9;]*m','',open('/tmp/.t739-rq.txt').read()); b=re.search(r'DECISIONS.*?\n\n',t,re.S).group(0); nine=['T-184','T-185','T-186','T-277','T-279','T-280','T-281','T-282','T-498']; sys.exit(0 if '(10)' in b and all(x in b for x in nine) else 1)"
+
+# AC7 — vendor divergence for .agentic-framework/bin/fw is declared and names T-739.
+python3 tools/_t517-vendor-divergence.py
+
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.agentic-framework/.vendor-divergence.yaml')); e=[x for x in d['entries'] if x['path'].endswith('bin/fw')]; sys.exit(0 if e and 'T-739' in e[0]['task'] else 1)"
+
+# AC8 — the probe is registered in the Component Fabric.
+test -f .fabric/components/tools-_t739-defer-is-not-a-decision.yaml
+
 
 ## RCA
 
@@ -296,3 +333,6 @@ the one above: when a compensating scan exists for a class, check what dropped i
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-739-review-queue-decisions-drops-every-incep.md
 - **Context:** Initial task creation
+
+### 2026-09-20T20:53:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

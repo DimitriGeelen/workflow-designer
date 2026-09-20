@@ -5745,7 +5745,17 @@ rows = []
 decision_rows = []
 # T-1571 / F5: precompute pending-inception scan once, reuse below for both passes
 # Pattern matches the canonical block emitted by lib/inception.sh do_inception_decide.
-DECISION_RE = re.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO|DEFER)\b", re.M)
+# T-739: DEFER deliberately NOT in this alternation. A MATCH here is used as an
+# EXCLUSION at the `not DECISION_RE.search(text)` test below, so every verb listed
+# means "this decision is settled, stop showing it". A DEFER is the explicit record
+# that the decision has NOT been made — it is the one state that most needs to stay
+# on a pending-decisions surface. With DEFER included, recording a deferral deleted
+# the task from this queue permanently: T-155 deferred 2026-07-29 and stayed invisible
+# through a full rewrite of its recommendation from DEFER to NO-GO.
+# Scope note: this regex has exactly one consumer (the DECISIONS predicate below).
+# extract_recommendation_state() reads **Recommendation:**, a different field, and is
+# untouched — that is why the rendered VERDICT column can still read DEFER.
+DECISION_RE = re.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO)\b", re.M)
 for f in sorted(ACTIVE.glob("*.md")):
     text = f.read_text(errors="replace")
     # Frontmatter (used by both passes)
