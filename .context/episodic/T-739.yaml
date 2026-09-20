@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-739: review-queue DECISIONS drops every inception with a recorded DEFER — T-155
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-20T21:02:10Z
+# ============================================================================
+
+task_id: T-739
+task_name: "review-queue DECISIONS drops every inception with a recorded DEFER — T-155"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-20T19:50:36Z
+completed: 2026-09-20T21:02:01Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-20T21:52:34+02:00
+last_commit: 2026-09-20T23:00:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  DEFER is in the exclusion regex, so deferring an inception deletes it from the decisions queue. narrowing my own filing — Watchtower showed T-155 the whole time, the CLI queue did not. a DEFER is not a made decision — deferring an inception no longer deletes it from the pending-decisions queue
+
+# Key outcomes
+outcomes:
+  - 'Gap registered in `concerns.yaml`/`gaps.yaml` BEFORE the fix lands (CLAUDE.md "register first, fix second"), with a closure condition that renders.'
+  - '`tools/_t739-defer-is-not-a-decision.py` reproduces the defect from the live tree: it applies the shipped `DECISION_RE` to every active inception and names each one a recorded DEFER makes invisible. Exits non-zero while any such task is hidden, zero when none is.'
+  - '`DECISION_RE` no longer treats DEFER as terminal, and the change is scoped to the DECISIONS predicate — `extract_recommendation_state()` and the VERDICT pass are untouched.'
+  - '`fw review-queue` lists **T-155** under DECISIONS carrying its current verdict (NO-GO, not the stale DEFER), verified against live command output rather than asserted.'
+  - 'The three decided inceptions **T-309, T-357, T-681** (`**Decision**: GO`) remain excluded — the fix must not turn the section into "every inception".'
+  - 'The nine recommendation-only rows (T-184/185/186/277/279/280/281/282/498) are still listed: count goes 9 → 10, not 9 → something unrelated.'
+  - 'Vendor divergence declared for `.agentic-framework/bin/fw` so `fw audit --section structure` still reports `Vendor divergence: all N diverged path(s) declared` as PASS.'
+  - '`tools/_t739-defer-is-not-a-decision.py` registered in the Component Fabric.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/project/concerns.yaml'
+  - '.fabric/components/tools-_t739-defer-is-not-a-decision.yaml'
+  - '.tasks/active/T-739-review-queue-decisions-drops-every-incep.md'
+  - 'tools/_t739-defer-is-not-a-decision.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-20T21:52:34"
+    action: 'T-739: DEFER is in the exclusion regex, so deferring an inception deletes it from the decisions queue'
+  - time: "2026-09-20T22:25:18"
+    action: 'T-739: narrowing my own filing — Watchtower showed T-155 the whole time, the CLI queue did not'
+  - time: "2026-09-20T23:00:54"
+    action: 'T-739: a DEFER is not a made decision — deferring an inception no longer deletes it from the pending-decisions queue'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 71 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, review-queue, inception, vendored]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 71
+  commits: 3
+  files_changed: 6
+  lines_added: 589
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-739-review-queue-decisions-drops-every-incep.md
+generated_by: context-agent-hybrid
