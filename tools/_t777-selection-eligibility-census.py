@@ -54,6 +54,24 @@ OWNER_RE = re.compile(r"^owner:\s*(\S+)", re.M)
 STATUS_RE = re.compile(r"^status:\s*(\S+)", re.M)
 PLACEHOLDER_RE = re.compile(r"\[(First|Second|Third|Fourth|Fifth) criterion\]")
 
+# Exhaustion (T-779). The autonomous mandate drops a task after TWO failed attempts:
+# "If a task fails its acceptance criteria twice, stop working it, record the failure
+# mode, and move on." A criterion that records its own repeated failure is therefore a
+# refusal to select, not an invitation to try again — and before this class existed the
+# census recommended exactly one high-value task, T-745, whose open criterion reads
+# "FAILED — twice, and deliberately not forced to green a third time".
+#
+# Read from the task's own text, by the same convention as **BLOCKED. NOT from a list of
+# task ids: an id list encodes today's backlog into the instrument and goes stale the
+# moment a second task exhausts, which is the failure mode PL-181 names — a denominator
+# that is a hand-typed list is self-referential.
+#
+# BOTH markers are required. "FAILED" alone is a first attempt, which the mandate
+# explicitly permits a second run at; it is the repeat that closes the door.
+FAILED_RE = re.compile(r"\*\*\s*FAILED", re.I)
+REPEAT_RE = re.compile(r"\b(twice|two\s+attempts|2\s+attempts|second\s+attempt|"
+                       r"third\s+time|3rd\s+time|two\s+failed)\b", re.I)
+
 
 def agent_block(text):
     """The text between '### Agent' and the next '###' heading, or ''."""
@@ -112,6 +130,22 @@ def classify(text):
         reasons.append("verb-gated")
     elif gated:
         reasons.append("verb-gated-partial")
+
+    # exhausted (T-779): scan the open bullet PLUS its indented continuation lines, the
+    # same span the verb-gate uses — a failure recorded in the Context or an RCA is
+    # history, whereas one recorded inside the criterion is the criterion's own verdict.
+    for idx, line in enumerate(lines):
+        if not line.startswith("- [ ]"):
+            continue
+        body = [line]
+        for nxt in lines[idx + 1:]:
+            if nxt.startswith("- [") or nxt.startswith("#"):
+                break
+            body.append(nxt)
+        joined = "\n".join(body)
+        if FAILED_RE.search(joined) and REPEAT_RE.search(joined):
+            reasons.append("exhausted")
+            break
 
     return owner, status, len(open_lines), len(blocked), reasons
 
@@ -183,6 +217,23 @@ def run_self_test():
          "owner: agent\nstatus: started-work\n### Agent\n"
          "- [ ] **BLOCKED** waiting\n- [ ] do the other thing\n### Human\n",
          []),
+        # T-779: the exhausted class, with its two negative controls. The first fixture
+        # is the T-745 shape. The next two are what stop the class from swallowing the
+        # backlog — without them, a predicate that returned 'exhausted' for anything
+        # containing the word FAILED would pass.
+        ("open AC records a SECOND failure -> exhausted",
+         "owner: agent\nstatus: issues\n### Agent\n"
+         "- [ ] **FAILED — twice, and deliberately not forced to green a third time.**\n"
+         "### Human\n",
+         ["exhausted"]),
+        ("open AC records a FIRST failure -> still EXECUTABLE",
+         "owner: agent\nstatus: issues\n### Agent\n"
+         "- [ ] **FAILED** on the first attempt; retry is in scope\n### Human\n",
+         []),
+        ("repeated failure in prose, not in an AC -> EXECUTABLE",
+         "owner: agent\nstatus: started-work\n### Agent\n- [ ] do a thing\n### Human\n"
+         "\n## RCA\nthis approach FAILED twice in an earlier arc\n",
+         []),
     ]
     npass = nfail = 0
     for label, body, want in FIX:
@@ -210,6 +261,12 @@ def main():
     executable = {t for t, v in tasks.items() if v["executable"]}
     hv_exec = sorted(active_hv & executable)
     exec_not_hv = sorted(executable - hv)
+    # T-779: exhausted is a DIFFERENT state from blocked. A blocked task is waiting on
+    # someone else; an exhausted one has been tried and recorded its wall. Collapsing
+    # them into "not executable" told a reader the backlog was gated upstream when in
+    # fact the run had already spent its two attempts.
+    exhausted = {t for t, v in tasks.items() if "exhausted" in v["reasons"]}
+    hv_exhausted = sorted(active_hv & exhausted)
 
     if not brief:
         print("=== high-value tasks (scorer: hv-lc or hv-hc), and why each is not executable ===\n")
@@ -223,6 +280,7 @@ def main():
     print("  active tasks                      : %d" % len(tasks))
     print("  placed in a high-value quadrant   : %d" % len(active_hv))
     print("  of those, agent-executable        : %d  %s" % (len(hv_exec), hv_exec))
+    print("  ...barred by the twice-failed rule: %d  %s" % (len(hv_exhausted), hv_exhausted))
     print("  agent-executable overall          : %d" % len(executable))
     print("  ...but outside every hv quadrant  : %d" % len(exec_not_hv))
     print("  unquadranted (cost unmeasured)    : %d of %d"
@@ -240,7 +298,15 @@ def main():
         print("  -> the blocking claim is FALSE as of this run. Select from that list.")
     else:
         print("  Every executable task falls outside hv-lc and hv-hc.")
-        print("  -> quadrant-ordered autonomous selection has no legal move.")
+        if hv_exhausted:
+            print("  AND %d high-value task(s) would be executable but record their own"
+                  % len(hv_exhausted))
+            print("  repeated failure, so the mandate's twice-failed rule bars them: %s"
+                  % hv_exhausted)
+            print("  -> no legal move, and NOT because the backlog is gated upstream:")
+            print("     the run has already spent its two attempts on that task.")
+        else:
+            print("  -> quadrant-ordered autonomous selection has no legal move.")
     return 0
 
 
