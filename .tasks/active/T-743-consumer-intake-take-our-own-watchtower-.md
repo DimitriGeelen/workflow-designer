@@ -19,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:23:02Z
-last_update: '2026-09-21T07:24:54Z'
+last_update: 2026-09-21T07:30:27Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -275,6 +275,65 @@ python3 tools/_t517-vendor-divergence.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale**
+
+The intake is mechanically complete and independently checked. The pull-at-tag path
+verified the fetched bytes against BOTH the MANIFEST at `designer-v0.12.0` AND the pin —
+that double anchor is the whole point of the verb, and skipping it would have satisfied the
+task's letter and none of its purpose. The served bytes were then confirmed over HTTP at
+997254 / `2b448b61`, and the same check run against the old 0.8.0 sha correctly fails, so
+the assertion is discriminating rather than vacuous.
+
+GO is on the intake only. It does **not** assert that the 0.12.0 editor is better for the
+operator's workflow than 0.8.0 — four releases of accumulated change have never been in
+front of them, and that judgement is the open Human AC. If it regresses, the revert is one
+line and the 0.8.0 bytes were retained for exactly that.
+
+**What this does NOT close.** Our own serve is one of two consumers. **999-AEF is still on
+0.8.0** and their adoption is their act, not ours. The announce they would read has been on
+the rail since 2026-09-20 carrying 0.12.0 — but see the Sovereign question below, because
+the read path they are documented to use returns empty.
+
+**Evidence**
+
+- `fw designer status` → 0.12.0, PRESENT ✓, sha256 matches pin.
+- Intake log: `✓ MANIFEST anchor ... self-consistent at designer-v0.12.0 (997254 B)`;
+  `✓ pin anchor: sha matches pin (0.12.0)`; installed read-only.
+- Live HTTP fetch of `/designer/app`: 997254 bytes, sha `2b448b61b7fa6c33`.
+- Negative control: same fetch asserted against `cab3c751…` (0.8.0) fails as it must.
+- 6/6 verification legs pass; `_t517-vendor-divergence.py` exit 0, 50 declared / 50 diverged.
+- Watchtower had died mid-task (pid 634131 gone, HTTP 000) and was restarted on 3013.
+
+## Sovereign question
+
+**The announce's documented read path returns empty, so AEF may be seeing nothing rather
+than seeing something stale.** `scripts/announce-release.sh` exists (T-389) so a consumer
+can answer "am I current?" in O(1) via `channel subscribe --include-current-value` instead
+of replaying the rail. Measured on the live topic today:
+
+| call | result |
+|---|---|
+| `channel cv-keys` | `designer-release` at offset 0 — indexed ✅ |
+| `subscribe --include-current-value --cursor 1` | `current_values: []` ❌ |
+
+The envelope IS on the rail and decodes to 0.12.0 under full replay. Only the cheap indexed
+read is empty. Two consequences: AEF following the documented procedure gets no answer, and
+the announce script's own idempotence check (`announce-release.sh:73-88`) reads the same
+empty array, so it cannot tell whether a version was already announced.
+
+This is the producer/consumer split again — the script verifies its post got *indexed*,
+which passes, and *delivery* is what the consumer needs. It is also "a channel cannot report
+its own failures": the rail is the only instrument for release currency and the rail is the
+broken part.
+
+**Not actioned, because the hub is shared infrastructure at `/opt/termlink` serving other
+projects on the mesh, and restarting or changing it is the operator's call.** The question:
+is this ours to file upstream against TermLink, or AEF's to raise from the consumer side?
 
 ## Decisions
 
