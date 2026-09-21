@@ -4,10 +4,10 @@ name: "Act on Sovereign rulings SQ-1, SQ-2, SQ-4 and disposition the tasks they 
 description: >
   Act on Sovereign rulings SQ-1, SQ-2, SQ-4 and disposition the tasks they resolve
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -17,8 +17,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T10:34:15Z
-last_update: 2026-09-21T10:34:15Z
-date_finished: null
+last_update: 2026-09-21T10:47:18Z
+date_finished: 2026-09-21T10:47:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -91,26 +91,26 @@ exemption that can never fail is suppression wearing a costume.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Each of the three rulings is recorded as a project decision through
+- [x] Each of the three rulings is recorded as a project decision through
       `fw context add-decision`, attributed to the operator, citing the tasks it
       disposes. A Sovereign ruling that lives only in a chat transcript is not
       recorded.
-- [ ] **SQ-1.** T-752, T-753 and T-754 are dispositioned by the ruling — not by
+- [x] **SQ-1.** T-752, T-753 and T-754 are dispositioned by the ruling — not by
       scaffolding the files, and not by weakening the check. The ruling is written
       into each body, and the remaining defect is re-scoped onto T-758 where it
       belongs: the deployment section must become *explicitly not-applicable*, never
       silently skipped.
-- [ ] **SQ-2.** The structural fault is written up as its own task with the defect
+- [x] **SQ-2.** The structural fault is written up as its own task with the defect
       stated in its own terms — an agent-produced task born `owner: human` with zero
       Human ACs is unclearable by the agent that created it — and T-747…T-750 are
       linked to it as the four instances that proved it.
-- [ ] **SQ-2, upstream.** The fault is reported to the AEF side. The operator
+- [x] **SQ-2, upstream.** The fault is reported to the AEF side. The operator
       instructed this explicitly; contacting 999-AEF is mandated rather than
       discretionary, and transport alone is not completion.
-- [ ] **SQ-4.** The exemption design is captured as its own task recording the
+- [x] **SQ-4.** The exemption design is captured as its own task recording the
       substitution semantics, the three worked cases, and the must-be-able-to-go-red
       acceptance test. It is NOT implemented here.
-- [ ] No `### Human` AC is ticked by the agent, no ownership is changed away from
+- [x] No `### Human` AC is ticked by the agent, no ownership is changed away from
       human, and no gate is bypassed. The rulings authorise disposition of these
       findings; they do not widen what the agent may do.
 
@@ -224,6 +224,38 @@ test ! -e deploy/docker-compose.swarm.yml
 
 ## Evolution
 
+### 2026-09-21 — the operator's answer to SQ-4 was better than the question
+
+- **What changed:** SQ-4 was filed as a yes/no: *can a check carry a recorded
+  exemption?* The operator answered yes and then supplied the semantics unprompted —
+  *"check if all doors are closed, unlocked with the exemption of the emergency exit
+  door that needs always to be opened from the inside."* That example converts a
+  policy question into a design: an exemption is a **substituted assertion**, not a
+  suppression. The exempted item is still checked; it is checked against a different
+  correct state.
+- **Plan impact:** What would have been "decide whether exemptions are allowed"
+  became "specify substitution semantics", which is a materially different and much
+  more useful deliverable. It also produced the sharpest argument in the whole arc,
+  which the original question could not have surfaced: **today's CTL-013 check goes
+  GREEN if someone rebuilds `build/gallery/`** — the one action this project forbids.
+  The current check actively rewards the prohibited remedy.
+- **Triggered:** T-769, scoped to design only. The three-semantics table and the
+  must-be-able-to-go-red acceptance test were written into the decision record so a
+  later implementer cannot re-introduce suppression under the same word.
+
+### 2026-09-21 — recording a ruling exposed a fault in the recording mechanism
+
+- **What changed:** Creating T-768 to carry SQ-2 upstream broke T-768. Its name
+  contained the literal text of the `owner` field, and `create-task.sh` sets that
+  field by first-match substitution — so the name was rewritten and the real `owner:`
+  left empty. A task about ownership handling was corrupted by ownership handling.
+- **Plan impact:** This task's scope did not change — the corruption was repaired by
+  hand and the generator deliberately left alone, because fixing it here would have
+  folded a second bug into a disposition task. But the upstream report grew from one
+  fault to two, and the second is the better evidence: it was reproduced by accident.
+- **Triggered:** OBS-363 (urgent). The generator remains unfixed and needs its own
+  record; T-767 stays scoped to the ownership default and was not silently widened.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -273,3 +305,15 @@ test ! -e deploy/docker-compose.swarm.yml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-766-act-on-sovereign-rulings-sq-1-sq-2-sq-4-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3b38dfac
+- **Timestamp:** 2026-09-21T10:47:19Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-21T10:47:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

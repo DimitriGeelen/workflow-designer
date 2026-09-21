@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-766: Act on Sovereign rulings SQ-1, SQ-2, SQ-4 and disposition the tasks they resolve
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T10:47:24Z
+# ============================================================================
+
+task_id: T-766
+task_name: "Act on Sovereign rulings SQ-1, SQ-2, SQ-4 and disposition the tasks they resolve"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T10:34:15Z
+completed: 2026-09-21T10:47:18Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-21T12:39:43+02:00
+last_commit: 2026-09-21T12:39:43+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  three Sovereign rulings recorded, and the creation path broke while recording them
+
+# Key outcomes
+outcomes:
+  - 'Each of the three rulings is recorded as a project decision through'
+  - '**SQ-1.** T-752, T-753 and T-754 are dispositioned by the ruling — not by'
+  - '**SQ-2.** The structural fault is written up as its own task with the defect'
+  - '**SQ-2, upstream.** The fault is reported to the AEF side. The operator'
+  - '**SQ-4.** The exemption design is captured as its own task recording the'
+  - 'No `### Human` AC is ticked by the agent, no ownership is changed away from'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/project/decisions.yaml'
+  - '.tasks/active/T-752-ra-043-deploy-gate-finds-no-dockerfile-i.md'
+  - '.tasks/active/T-753-ra-044-deploy-gate-finds-no-deploydocker.md'
+  - '.tasks/active/T-754-ra-045-deploy-gate-finds-no-deploytraefi.md'
+  - '.tasks/active/T-766-act-on-sovereign-rulings-sq-1-sq-2-sq-4-.md'
+  - '.tasks/active/T-767-sq-2-fix-an-agent-produced-task-must-nev.md'
+  - '.tasks/active/T-768-sq-2-upstream-report-the-ownerhuman-with.md'
+  - '.tasks/active/T-769-sq-4-design-recorded-check-exemptions-as.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T12:39:43"
+    action: 'T-766: three Sovereign rulings recorded, and the creation path broke while recording them'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 13 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 13
+  commits: 1
+  files_changed: 9
+  lines_added: 1193
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-766-act-on-sovereign-rulings-sq-1-sq-2-sq-4-.md
+generated_by: context-agent-hybrid

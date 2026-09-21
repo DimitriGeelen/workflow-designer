@@ -1,0 +1,70 @@
+# ============================================================================
+# EPISODIC MEMORY - T-768: SQ-2 upstream: report the zero-Human-AC ownership fault to AEF for remediation
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T10:46:32Z
+# ============================================================================
+
+task_id: T-768
+task_name: "SQ-2 upstream: report the zero-Human-AC ownership fault to AEF for remediation"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T10:36:57Z
+completed: 2026-09-21T10:46:26Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The fault is reported to the AEF side with the four instances cited as evidence, through the MCP surface, carrying `from_project` attribution.'
+  - 'The report is framed as a fault for the counterparty to triage, not as an instruction to build a specific fix. What AEF does about it is AEF''s call.'
+  - 'Transport evidence and acceptance are recorded separately. The offset or id of what was sent is captured, and the task does NOT claim completion of the collaboration on the strength of having sent something.'
+  - 'If no response has arrived, that is recorded as an open state with the date, not smoothed into ''reported and resolved''.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-768-sq-2-upstream-report-the-ownerhuman-with.md
+generated_by: context-agent-hybrid

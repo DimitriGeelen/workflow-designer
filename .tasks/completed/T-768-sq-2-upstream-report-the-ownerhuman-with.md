@@ -5,10 +5,10 @@ description: >
   Operator instructed that the structural fault be reported upstream to the agentic
   framework side, not only fixed locally. Transport alone is not completion.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -18,8 +18,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T10:36:57Z
-last_update: '2026-09-21T10:38:08Z'
-date_finished:
+last_update: 2026-09-21T10:46:26Z
+date_finished: 2026-09-21T10:46:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -98,14 +98,63 @@ generated, detected, and could not clear the same condition.
 
 Local fix: T-767. Instances: T-747…T-750. Ruling: SQ-2, recorded by T-766. Governance: contacting 999-AEF is mandated; transport alone is not collaboration completion.
 
+### Transport record — what was sent, and where
+
+| | |
+|---|---|
+| Topic | `aef-operator-notices` |
+| Offset | **3** |
+| msg_type | `note` |
+| Attribution | `from_project: 832-Workflow-designer`, `event_type: framework-fault-report`, `conversation_id: 832-T-768` |
+| Surface | MCP `termlink_channel_post` — not Bash `termlink channel post` |
+
+Rail timestamps are not evidence; the offset and the content are what is citable.
+
+**Why this topic.** `aef-install-findings` holds 38 envelopes but **none are content
+msg_types** — it is meta traffic, not a prose rail, and a prose fault report there
+would be unreadable. `aef-operator-notices` is where the AEF framework session posts
+prose, and its offset 1 carries a standing invitation: *"If you are the workflow
+agent, reply here with your ownership split and the Designer→runtime interface
+owner."* The report answers that invitation in passing.
+
+### What was reported
+
+Two faults, sent as one report because the second was found while filing the first:
+
+1. **A task can be born `owner: human` with zero Human ACs** — unclearable by the
+   agent that created it. Four instances cited as evidence (T-702, T-703, T-708,
+   T-723 → T-747…T-750), with the point that these are arc-003's *own* tasks: the
+   framework generated the condition, detected it with its own check, and could not
+   clear it.
+2. **`create-task.sh` sets the owner field by first-match substitution** — a task
+   whose *name* contains that field's text has its name rewritten and its real owner
+   left empty. Measured on this very task; held locally as OBS-363.
+
+Framed throughout as a fault for AEF to triage, explicitly not as a build instruction
+and not as a proposed patch to their tree (G-020 applies outbound as well as inbound).
+
+### Acceptance — OPEN as of 2026-09-21
+
+**No response has arrived.** This is recorded as an open state, not smoothed into
+"reported and resolved".
+
+The distinction this task exists to hold: **the post is evidence that something was
+sent. It is not evidence that AEF accepted either item as a fault to remediate.** What
+would close the collaboration is a triage verdict on either fault — *including*
+"not a fault, here is why".
+
+This task is completable because its deliverable was *the report*. The collaboration
+it opens stays open, and nothing downstream waits on it: T-767 fixes our side under
+the vendored-tree allowance regardless of what AEF decides.
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The fault is reported to the AEF side with the four instances cited as evidence, through the MCP surface, carrying `from_project` attribution.
-- [ ] The report is framed as a fault for the counterparty to triage, not as an instruction to build a specific fix. What AEF does about it is AEF's call.
-- [ ] Transport evidence and acceptance are recorded separately. The offset or id of what was sent is captured, and the task does NOT claim completion of the collaboration on the strength of having sent something.
-- [ ] If no response has arrived, that is recorded as an open state with the date, not smoothed into 'reported and resolved'.
+- [x] The fault is reported to the AEF side with the four instances cited as evidence, through the MCP surface, carrying `from_project` attribution.
+- [x] The report is framed as a fault for the counterparty to triage, not as an instruction to build a specific fix. What AEF does about it is AEF's call.
+- [x] Transport evidence and acceptance are recorded separately. The offset or id of what was sent is captured, and the task does NOT claim completion of the collaboration on the strength of having sent something.
+- [x] If no response has arrived, that is recorded as an open state with the date, not smoothed into 'reported and resolved'.
 
 <!-- No Human ACs: the operator has already ruled on the question behind this
      task, and what remains is agent-verifiable. Adding an empty Human section
@@ -194,6 +243,9 @@ Local fix: T-767. Instances: T-747…T-750. Ruling: SQ-2, recorded by T-766. Gov
 
 grep -q 'SQ-2' .context/project/decisions.yaml
 test -f .tasks/active/T-767-sq-2-fix-an-agent-produced-task-must-nev.md || test -n "$(ls .tasks/completed/ | grep '^T-767-')"
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-768-*.md' | xargs grep -l 'aef-operator-notices' | wc -l)" -eq 1
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-768-*.md' | xargs grep -l 'Acceptance — OPEN as of' | wc -l)" -eq 1
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-768-*.md' | xargs grep -l 'not evidence that AEF accepted' | wc -l)" -eq 1
 
 ## RCA
 
@@ -212,6 +264,40 @@ test -f .tasks/active/T-767-sq-2-fix-an-agent-produced-task-must-nev.md || test 
 -->
 
 ## Evolution
+
+### 2026-09-21 — the act of filing the report produced a second fault
+
+- **What changed:** At filing, this task carried one fault: a task can be born
+  `owner: human` with zero Human ACs. Creating the task to report it **produced a
+  second, independent fault in the same code path** — `create-task.sh` sets the owner
+  field by first-match substitution, so this task's own name (which contained that
+  field's text) was rewritten and its real `owner:` field left empty. The report had
+  to grow from one fault to two, and the second one carries stronger evidence than the
+  first because it was reproduced accidentally rather than argued for.
+- **Plan impact:** The single-fault framing in the original Context is now incomplete;
+  a "What was reported" section was added rather than editing the original framing,
+  so the growth is visible. The one-task-one-deliverable rule still holds — the
+  deliverable is *the report*, and both faults belong in one report because a reader
+  triaging the creation path needs both.
+- **Triggered:** OBS-363 (urgent) for the substitution bug, held separately because
+  one bug is one task and the generator is still unfixed. T-767 remains scoped to
+  Fault 1 only; the substitution bug needs its own record and does not silently
+  expand T-767.
+
+### 2026-09-21 — the obvious rail was the wrong rail
+
+- **What changed:** `aef-install-findings` looked like the correct destination by
+  name, with 38 envelopes. It holds **no content msg_types at all** — every envelope
+  is meta. A prose fault report there would have been technically delivered and
+  practically invisible, which is the exact failure mode PL-242 already names: a
+  control can be correct, firing, and stranded where no reader looks.
+- **Plan impact:** Destination selection became part of the work rather than an
+  assumption. `aef-operator-notices` was chosen because the AEF session demonstrably
+  posts prose there and its offset 1 carries a standing invitation to the
+  workflow/designer agent.
+- **Triggered:** Nothing filed. Recorded here so the next outbound report checks
+  whether a rail carries readable content before using it, instead of matching on the
+  topic name.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -262,3 +348,18 @@ test -f .tasks/active/T-767-sq-2-fix-an-agent-produced-task-must-nev.md || test 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-768-sq-2-upstream-report-the-ownerhuman-with.md
 - **Context:** Initial task creation
+
+### 2026-09-21T10:43:59Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-eca991b7
+- **Timestamp:** 2026-09-21T10:46:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-21T10:46:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
