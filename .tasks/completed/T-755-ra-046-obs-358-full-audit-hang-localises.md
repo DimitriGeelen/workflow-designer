@@ -6,10 +6,10 @@ description: >
   oe-fast, oe-hourly, oe-weekly, oe-research all complete in seconds. The long-standing
   'full fw audit hangs' observation is not diffuse - it is one section.
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-1]
 components: []
 related_tasks: []
@@ -19,8 +19,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:02:35Z
-last_update: 2026-09-21T08:35:37Z
-date_finished:
+last_update: 2026-09-21T08:50:56Z
+date_finished: 2026-09-21T08:50:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -207,6 +207,18 @@ never again — and which tasks get that scrutiny is decided by completion order
 risk. Whether that is the intended semantic is a design question, not a defect to fix
 here.
 
+### A verification leg of mine was wrong and the gate caught it
+
+The first attempt at AC 3's leg was `grep -q 'oe-daily' .context/audits/2026-09-21.yaml`.
+P-011 refused completion on it. The leg was wrong, not the state: the saved record is
+"the last run of each date, per scope" (T-677), and the full run overwrote the
+section-scoped one, so the record now reads `sections: "all"`. That leg was asserting
+*how the audit happened to be invoked*, which is not what this task found, and it would
+have gone red for reasons unrelated to the claim.
+
+Replaced with two legs that encode the finding itself — the 600s default and the
+`kill -TERM $$` mechanism. `--skip-verification` was offered by the gate and not used.
+
 ### AC 3 — answered: it completes in 687 seconds
 
 ```
@@ -283,7 +295,8 @@ has had. It immediately produced three findings that no section-scoped run had s
 
 grep -q 'CTL-013 OE: Verification Gate' .agentic-framework/agents/audit/audit.sh
 test "$(find .tasks/completed -maxdepth 1 -name '*.md' -type f -printf '%T@ %p\n' | sort -rn | head -3 | cut -d' ' -f2- | xargs -I{} awk '/^## Verification/{f=1;next} f&&/^## /{exit} f' {} | grep -cE 'run-bridge-tests|run-validator-tests|check-corpus-geometry')" -ge 1
-grep -q 'oe-daily' .context/audits/2026-09-21.yaml
+grep -q 'FW_AUDIT_TIMEOUT:-600' .agentic-framework/agents/audit/audit.sh
+grep -qE 'sleep "\$AUDIT_TIMEOUT" && kill -TERM' .agentic-framework/agents/audit/audit.sh
 
 ## RCA
 
@@ -356,3 +369,15 @@ grep -q 'oe-daily' .context/audits/2026-09-21.yaml
 ### 2026-09-21T08:12:51Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-aada87bb
+- **Timestamp:** 2026-09-21T08:50:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-21T08:50:56Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -4,10 +4,10 @@ name: "Audit remediation cycle 1: reconcile live audit+doctor findings against a
 description: >
   Audit remediation cycle 1: reconcile live audit+doctor findings against arc-003
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:55:23Z
-last_update: 2026-09-21T08:04:36Z
-date_finished: null
+last_update: 2026-09-21T08:51:53Z
+date_finished: 2026-09-21T08:51:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -117,9 +117,9 @@ a pass-set baseline that does not state its own coverage is a baseline that over
 
 test -f docs/reports/T-744-cycle1-findings.md
 grep -qE 'unreconciled \.+ 0' docs/reports/T-744-cycle1-findings.md
-test "$(grep -l '^arc_id: arc-003' .tasks/active/T-74[5-9]-*.md .tasks/active/T-75[0-7]-*.md | wc -l)" -eq 13
-test "$(grep -l '^bvp_scores_proposed:' .tasks/active/T-74[5-9]-*.md .tasks/active/T-75[0-7]-*.md | wc -l)" -eq 13
-test "$(grep -l 'Verbatim tool output' .tasks/active/T-74[5-9]-*.md .tasks/active/T-75[0-7]-*.md | wc -l)" -eq 13
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-74[5-9]-*.md' -o -maxdepth 1 -name 'T-75[0-7]-*.md' | xargs grep -l '^arc_id: arc-003' | wc -l)" -eq 13
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-74[5-9]-*.md' -o -maxdepth 1 -name 'T-75[0-7]-*.md' | xargs grep -l '^bvp_scores_proposed:' | wc -l)" -eq 13
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-74[5-9]-*.md' -o -maxdepth 1 -name 'T-75[0-7]-*.md' | xargs grep -l 'Verbatim tool output' | wc -l)" -eq 13
 grep -q 'Coverage is 19 of 19 sections' docs/reports/T-744-cycle1-findings.md
 
 ## RCA
@@ -189,3 +189,15 @@ grep -q 'Coverage is 19 of 19 sections' docs/reports/T-744-cycle1-findings.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-744-audit-remediation-cycle-1-reconcile-live.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-851f51e4
+- **Timestamp:** 2026-09-21T08:51:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-21T08:51:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

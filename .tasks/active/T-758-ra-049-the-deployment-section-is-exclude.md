@@ -8,7 +8,7 @@ description: >
   and RA-042..045 are four FAILs living in a section no routine audit, cron entry
   or pre-push check ever executes.
 
-status: captured
+status: started-work
 workflow_type: refactor
 owner: agent
 horizon: now
@@ -21,7 +21,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:47:42Z
-last_update: '2026-09-21T08:49:29Z'
+last_update: 2026-09-21T08:54:20Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -236,3 +236,6 @@ test "$(grep -cE '\[ -n "\$SECTIONS" \] && should_run_section' .agentic-framewor
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-758-ra-049-the-deployment-section-is-exclude.md
 - **Context:** Initial task creation
+
+### 2026-09-21T08:54:20Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
