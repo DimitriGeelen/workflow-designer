@@ -1680,3 +1680,10 @@ observations:
   tags: [ctl-029]
   status: pending
   promoted_to: null
+- id: OBS-361
+  text: "Full fw audit does not hang - it is killed at exactly 600s. Measured 2026-09-21 under T-755: a full run wrapped in 'timeout 2400' died with exit 143 (SIGTERM) at elapsed=600s; the 2400s timeout never fired, so a 600-second ceiling in the surface running the command got there first. Next to it: oe-daily ALONE measures 578s to completion. A full run is oe-daily plus eighteen sections, so it needs ~700s+ and hits the ceiling every time. A ceiling at the point of observation looks exactly like a hang - the process stops emitting and never returns. This completes the chain OBS-358 opened: sweep moves T-093 to completed -> its Verification block carries four test suites -> CTL-013 evals them every oe-daily run -> 578s -> full run ~700s+ -> SIGTERM at 600s -> 'hangs'. Steps up to CTL-013 are the real structural cost OBS-358 already owns. The last two steps are a measurement artefact of the harness, and they are why the cost keeps being filed as a defect of the audit rather than a budget that outgrew its container. Consequence for any autonomous run in this environment: a full audit cannot be observed from inside a 600s box at all, so it must be detached (nohup setsid) or run section-wise. Not a proposal to shorten any check."
+  captured: 2026-09-21T08:25:10Z
+  context_task: T-755
+  tags: []
+  status: pending
+  promoted_to: null
