@@ -5,7 +5,7 @@ description: >
   Audit reports [WARN] CTL-029: T-703 has all Agent ACs ticked but status='started-work'.
   T-703 is itself arc-003 remediation task RA-007.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -18,7 +18,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:58:51Z
-last_update: '2026-09-21T08:01:03Z'
+last_update: 2026-09-21T15:35:15Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -81,11 +81,53 @@ One class of four, same root cause. Siblings: T-747 (RA-006), T-749 (RA-012), T-
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] T-703 reaches a terminal state through the proper verb — closed by the operator, or re-opened with a named outstanding criterion. The agent does not close it and does not change its ownership away from human.
-- [ ] `fw audit --section quality` no longer reports T-703 under CTL-029.
-- [ ] The generic defect is stated separately from this instance: whether an agent-produced task should ever be born `owner: human` with zero Human ACs, which is the condition that produced all four of this cycle's CTL-029 findings. If that needs an architectural ruling, it is filed as a Sovereign question, not decided here.
+- [ ] **BLOCKED — operator-only by this criterion's own words.** T-703 is `owner: human`
+      with one open Human AC — *"[REVIEW] Rule on the drain path for the 82
+      carried-by-completed-task items"* — queued at `/review/T-703`. Completing an
+      `owner: human` task and changing ownership away from human are both outside agent
+      authority, and this AC says so itself.
+
+      **It is already in its correct terminal-pending state.** Its own landing commit says
+      so in those words: `d82b77a7` — *"T-703 lands partial-complete (owner human, drain
+      ruling queued at /review/T-703)"*. There is nothing to reach; it arrived.
+- [ ] **BLOCKED — downstream of AC1, and the section name is wrong.** CTL-029 runs under
+      `compliance` / `oe-daily`, not `quality`. Third instance in this cycle of an RA-*
+      criterion naming a section that does not own its check (T-745 AC1 said `structure`,
+      T-747 AC2 said `quality`). Recorded as a generation pattern, not corrected in place.
+- [x] **Stated separately, and it is the same defect as T-747's — filed once, at G-075.**
+
+      The question this AC names — should an agent-produced task be born `owner: human` with
+      zero Human ACs — **is already closed at the generator.** `create-task.sh:138` refuses
+      `--owner human` without `--human-ac` (T-767, operator ruling on SQ-2, 2026-09-21), and
+      T-703 itself now carries a real `[REVIEW]` criterion. The originating condition is
+      gone and the finding persists, so the defect is in the check.
+
+      **CTL-029 cannot see the partial-complete state.** Its predicate reads only the
+      `### Agent` sub-section and fires on `unticked == 0 and ticked > 0`; it never inspects
+      `### Human` and never reads `owner:`. CLAUDE.md prescribes exactly the state it
+      misreads, and CTL-029's own comment names that state as what it means to exclude.
+
+      **T-703 is the sharper instance of the two.** T-702 had to be shown to be
+      partial-complete by inspection; T-703's landing commit uses the term itself —
+      *"T-703 lands partial-complete (owner human, drain ruling queued at /review/T-703)"*.
+      A check reporting that task as "completable, not closed" is contradicting the commit
+      that produced the state.
+
+      **Filed as G-075, not decided, and deliberately not filed twice.** One root cause
+      across all four of this cycle's CTL-029 findings (T-747/RA-038, T-748/RA-039,
+      T-749/RA-012, T-750/RA-027) gets one register entry — filing it per-instance would
+      manufacture four gaps from one defect and make the register count the symptom rather
+      than the cause. T-748's contribution to G-075 is the second, stronger instance, which
+      is recorded in the entry's scope line.
+
+      Whether partial-complete should be silent or reported under its own label with an
+      ageing threshold is a design question about the operator's queue, and it stays theirs.
 
 ## Verification
+
+python3 -c "import yaml; c=yaml.safe_load(open('.context/project/concerns.yaml'))['concerns']; assert any(x.get('id')=='G-075' for x in c if isinstance(x,dict)), 'G-075 missing'"
+python3 -c "import glob,sys; f=glob.glob('.tasks/active/T-703-*.md')[0]; h=open(f,encoding='utf-8').read().split('### Human')[1]; sys.exit(0 if '- [ ]' in h else 1)"
+grep -q 'requires --human-ac' .agentic-framework/agents/task-create/create-task.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -203,3 +245,6 @@ One class of four, same root cause. Siblings: T-747 (RA-006), T-749 (RA-012), T-
 - **Context:** Initial task creation
 
 test -f /opt/832-Workflow-designer/.tasks/active/$(cd /opt/832-Workflow-designer/.tasks/active && ls | grep -m1 '^T-703-') || test -n "$(ls /opt/832-Workflow-designer/.tasks/completed/ | grep -m1 '^T-703-')"
+
+### 2026-09-21T15:35:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

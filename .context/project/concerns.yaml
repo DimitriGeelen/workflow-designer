@@ -3768,3 +3768,67 @@ concerns:
     The operator owns this one.
 
     '
+
+- id: G-075
+  type: gap
+  status: watching
+  severity: high
+  title: CTL-029 reports the framework's own documented partial-complete state as a defect,
+    because its predicate reads only the Agent AC section and never the Human section or the
+    owner field
+  detected: 2026-09-21
+  origin_task: T-747
+  id_note: 'G-062..G-071 are vendored AEF ids already cited here; G-075 chosen by the
+    zero-reference scan in G-061''s id_note. Fifth consecutive task needing it.
+
+    '
+  evidence: 'The predicate (audit.sh, the CTL-029 block) selects the `### Agent` sub-section,
+    counts ticked and unticked criteria in it, and emits when `unticked == 0 and ticked > 0`.
+    It never inspects the `### Human` section and never reads `owner:`.
+
+    CLAUDE.md prescribes precisely the state this misreads: "When agent ACs pass but human
+    ACs remain unchecked, the task enters partial-complete: stays in active/ with
+    owner: human." CTL-029''s OWN comment says it catches tasks that linger in active/
+    "instead of partial-completing to the human" — so excluding that state is the stated
+    intent, and the implementation does not do it.
+
+    Measured on T-702 (arc-003 RA-006): 0 open Agent ACs, `owner: human`, one open Human AC
+    reading "[REVIEW] Confirm that named-with-reason closes RA-006, or direct a drain",
+    placed deliberately at commit e854f069 — "T-702 handed to the operator (R-033 refused
+    agent completion; review queued at /review/T-702)". The task did partial-complete. It is
+    waiting on a person, which is the designed terminal state for agent work with a human
+    gate, and CTL-029 calls it "completable, not closed".
+
+    The remedy the warning prints makes the mismatch concrete: `bin/fw task update T-702
+    --status work-completed`. That is addressed to whoever reads the audit, on a task whose
+    completion is not delegated to the agent — completing an `owner: human` task and
+    changing ownership away from human are both outside agent authority. So the check
+    instructs the only reader who can act on it automatically to do the one thing it may not.
+
+    SCOPE: this is one of four CTL-029 findings in arc-003 cycle 1 (T-747 RA-038 for T-702,
+    T-748 RA-039, T-749 RA-012, T-750 RA-027). All four share this root cause, which is why
+    it is registered once here rather than four times.
+
+    NOT THE DEFECT THE TASKS ANTICIPATED. T-747 framed the generic question as "should an
+    agent-produced task ever be born owner: human with zero Human ACs". That question was
+    already answered and CLOSED AT THE GENERATOR by T-767: create-task.sh now refuses
+    `--owner human` without `--human-ac` ("BLOCKED: --owner human requires --human-ac",
+    Policy: T-767, operator ruling on SQ-2, 2026-09-21). The instances were remediated too —
+    T-702 and T-703 each now carry a real Human AC. What remains is not a task defect at
+    all; it is the check.
+
+    '
+  decision_trigger: 'CTL-029 excludes tasks that have partial-completed — all Agent ACs
+    ticked AND at least one open Human AC AND owner: human — either by skipping them or by
+    reporting them under a distinct, accurate label. Demonstrated by a task in that state
+    not appearing under CTL-029, and by a genuinely abandoned task (Agent ACs ticked, no
+    Human AC, owner: agent) still appearing. Both directions required: a check that stopped
+    reporting everything would satisfy the first alone. Then close G-075.
+
+    '
+  sovereignty_note: 'Whether the partial-complete state should be silent, or reported under
+    its own label with an ageing threshold, is a design choice about what the operator''s
+    queue shows. Recorded as the question rather than answered — an agent that narrows the
+    check currently flagging its own output is certifying its own work.
+
+    '

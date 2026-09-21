@@ -5,7 +5,7 @@ description: >
   Audit reports [WARN] CTL-029: T-702 has all Agent ACs ticked but status='started-work'.
   T-702 is itself arc-003 remediation task RA-006.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -18,7 +18,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:58:48Z
-last_update: '2026-09-21T08:01:03Z'
+last_update: 2026-09-21T15:32:37Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -81,11 +81,64 @@ One class of four, same root cause. Siblings: T-748 (RA-007), T-749 (RA-012), T-
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] T-702 reaches a terminal state through the proper verb — closed by the operator, or re-opened with a named outstanding criterion. The agent does not close it and does not change its ownership away from human.
-- [ ] `fw audit --section quality` no longer reports T-702 under CTL-029.
-- [ ] The generic defect is stated separately from this instance: whether an agent-produced task should ever be born `owner: human` with zero Human ACs, which is the condition that produced all four of this cycle's CTL-029 findings. If that needs an architectural ruling, it is filed as a Sovereign question, not decided here.
+- [ ] **BLOCKED — operator-only by this criterion's own words.** T-702 is `owner: human`
+      with one open `[REVIEW]` Human AC, queued at `/review/T-702`. Completing an
+      `owner: human` task and changing ownership away from human are both outside agent
+      authority, and this AC says so itself. Marked BLOCKED rather than left looking merely
+      undone, so the task reads as waiting rather than as unstarted (same convention as
+      T-340, T-358).
+
+      **Nothing for the operator to do here beyond the existing review.** T-702 is already
+      in its correct terminal-pending state; it is CTL-029 that is wrong about it. See AC3.
+- [ ] **BLOCKED — downstream of AC1, and the section name is wrong.** CTL-029 does not
+      live in `--section quality`; it runs under `compliance` / `oe-daily` (audit.sh, the
+      CTL-029 block). Same defect shape as T-745's AC1, which named `--section structure`
+      for a check that is not in it — these RA-* criteria were written from the warning text
+      and inherited a section attribution that was never checked.
+
+      Recorded rather than silently corrected, because two independent instances in one
+      cycle is a pattern in how this arc's tasks were generated, not a typo.
+- [x] **Stated separately — and the generic defect is not the one this AC names.**
+
+      **The anticipated defect is already closed, at the generator.** "Should an
+      agent-produced task be born `owner: human` with zero Human ACs" was answered by T-767
+      and enforced in code: `create-task.sh:138` refuses `--owner human` without
+      `--human-ac` — *"BLOCKED: --owner human requires --human-ac"*, Policy: T-767, operator
+      ruling on SQ-2, 2026-09-21. I hit that gate live today while probing an unrelated bug.
+      The instances were remediated too: T-702 and T-703 each now carry a real Human AC.
+
+      **So the condition that produced these four findings no longer exists, and the
+      findings persist. That is the actual generic defect, and it is in the check.**
+
+      CTL-029's predicate selects the `### Agent` sub-section, counts ticked/unticked in it,
+      and fires on `unticked == 0 and ticked > 0`. **It never reads the `### Human` section
+      and never reads `owner:`.** So it cannot distinguish an abandoned task from one that
+      has correctly partial-completed to the operator — which CLAUDE.md prescribes verbatim:
+      *"When agent ACs pass but human ACs remain unchecked, the task enters partial-complete:
+      stays in active/ with owner: human."*
+
+      T-702 is in exactly that state, deliberately, since commit `e854f069` — *"T-702 handed
+      to the operator (R-033 refused agent completion; review queued at /review/T-702)"*.
+
+      The remedy the warning prints seals it: `bin/fw task update T-702 --status
+      work-completed`, addressed to whoever reads the audit, on a task the agent may not
+      complete. The check instructs its most automatable reader to do the one thing that
+      reader is forbidden to do.
+
+      **Filed as G-075, not decided.** Whether partial-complete should be silent or reported
+      under its own label with an ageing threshold is a design choice about what the
+      operator's queue shows. Its closure condition requires BOTH directions — the
+      partial-complete task stops appearing AND a genuinely abandoned one still does —
+      because a check that stopped reporting everything would satisfy the first alone.
+
+      One gap for all four siblings (T-747/RA-038, T-748/RA-007, T-749/RA-012, T-750/RA-027):
+      same root cause, registered once.
 
 ## Verification
+
+python3 -c "import yaml; c=yaml.safe_load(open('.context/project/concerns.yaml'))['concerns']; assert any(x.get('id')=='G-075' for x in c if isinstance(x,dict)), 'G-075 missing'"
+grep -q 'requires --human-ac' .agentic-framework/agents/task-create/create-task.sh
+python3 -c "import glob,sys; f=glob.glob('.tasks/active/T-702-*.md')[0]; t=open(f,encoding='utf-8').read(); h=t.split('### Human')[1]; sys.exit(0 if '- [ ]' in h else 1)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -203,3 +256,6 @@ One class of four, same root cause. Siblings: T-748 (RA-007), T-749 (RA-012), T-
 - **Context:** Initial task creation
 
 test -f /opt/832-Workflow-designer/.tasks/active/$(cd /opt/832-Workflow-designer/.tasks/active && ls | grep -m1 '^T-702-') || test -n "$(ls /opt/832-Workflow-designer/.tasks/completed/ | grep -m1 '^T-702-')"
+
+### 2026-09-21T15:32:37Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
