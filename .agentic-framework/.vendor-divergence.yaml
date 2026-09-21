@@ -1341,3 +1341,45 @@ entries:
       still renders and still polls without it, so T-2103's height cap is untouched. Owed
       upstream because the defect is in the template every consumer vendors, and any
       consumer whose operator uses the opt-in will lose it the same way.
+
+  - path: .agentic-framework/agents/task-create/create-task.sh
+    kind: content
+    task: T-774
+    upstream: fix
+    reason: >-
+      GENERIC upstream debt — the task generator corrupts tasks whose NAME contains one of
+      its own frontmatter keys, and silently empties the field it failed to fill.
+
+      Every frontmatter substitution was an unanchored first-match replace over a document
+      into which the user-supplied name had ALREADY been injected two lines earlier, so the
+      match could land inside the name. Reported as OBS-363 against the ownership field
+      alone; measured under T-774 to reach at least seven keys, in two severities. For the
+      count=1 keys (owner, workflow_type, created, last_update, description) the name is
+      corrupted AND THE FIELD IS LEFT EMPTY, because the single substitution was spent
+      inside the name and never reached its own line — an empty ownership field breaks
+      ownership resolution and the audit's compliance checks. For the unbounded keys
+      (status, horizon, tags, related_tasks) the name is corrupted but the field survives,
+      because every occurrence is replaced including its own.
+
+      Reproduced against the shipped script, not a transcription of its logic:
+      --name 'SQ-9 upstream: report the owner:human-with-zero-ACs fault' --owner agent
+      produced name '...report the owner: agenthuman-with-zero-ACs fault' and owner: empty.
+
+      The fix replaces the first FRONTMATTER LINE THAT STARTS WITH the key, so a key
+      appearing mid-line inside a value can no longer capture the substitution. Applied to
+      BOTH template branches — the inception and default blocks are near-duplicates and
+      fixing one would have left every inception task exposed.
+
+      Owed upstream because the defect is in the generator every consumer vendors, and it
+      is self-concealing in a specific way: PL-164 — prose about a string-matching
+      mechanism contains the string it matches, so the tasks most likely to trip it are the
+      ones filed to describe it.
+
+      Known limits, filed rather than buried: a newline inside --name defeats the anchoring
+      entirely and yields unparseable frontmatter (OBS-364), and a name containing the id
+      placeholder is still rewritten by the body-wide pass T-660 added (OBS-365). Neither
+      is introduced by this change and neither is fixed by it.
+
+      Probe: tools/_t774-create-task-substitution-probe.sh — 13 legs across both branches,
+      with a negative control that rebuilds the pre-fix substitution in a throwaway copy
+      and REQUIRES the defect to reappear.

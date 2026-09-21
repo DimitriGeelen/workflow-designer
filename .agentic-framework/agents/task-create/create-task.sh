@@ -461,12 +461,27 @@ e = os.environ
 with open(e['TC_TEMPLATE']) as f:
     t = f.read()
 name, desc = sys.argv[1], sys.argv[2]
-t = t.replace('id: T-XXX', 'id: ' + e['TC_TASK_ID'])
-t = t.replace('name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"', 1)
-t = t.replace('description: >', 'description: >\n  ' + desc, 1)
-t = t.replace('status: captured', 'status: ' + e['TC_STATUS'])
-t = t.replace('horizon: now', 'horizon: ' + e['TC_HORIZON'])
-t = t.replace('owner:', 'owner: ' + e['TC_OWNER'], 1)
+# T-774 (OBS-363) — see the long note in the default-template branch below. This block
+# is a near-duplicate of it and carried the identical unanchored-substitution defect;
+# fixing only one branch would have left every inception task still exposed.
+def _fm(t, key, line):
+    L = t.split('\n')
+    end = len(L)
+    for i in range(1, len(L)):
+        if L[i].rstrip() == '---':
+            end = i
+            break
+    for i in range(1, end):
+        if L[i].startswith(key):
+            L[i] = line
+            return '\n'.join(L)
+    return t
+t = _fm(t, 'id:', 'id: ' + e['TC_TASK_ID'])
+t = _fm(t, 'name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"')
+t = _fm(t, 'description: >', 'description: >\n  ' + desc)
+t = _fm(t, 'status:', 'status: ' + e['TC_STATUS'])
+t = _fm(t, 'horizon:', 'horizon: ' + e['TC_HORIZON'])
+t = _fm(t, 'owner:', 'owner: ' + e['TC_OWNER'])
 # T-767: seed the Human AC the gate just required. Anchored on the heading AND its
 # comment opener so a name or description containing '### Human' cannot capture the
 # substitution — that first-match capture is OBS-363, filed separately.
@@ -477,10 +492,10 @@ if e.get('TC_HUMAN_AC'):
     else:
         sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
         sys.exit(3)
-t = t.replace('tags: []', 'tags: ' + e['TC_TAGS_YAML'])
-t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])
-t = t.replace('created:', 'created: ' + e['TC_TIMESTAMP'], 1)
-t = t.replace('last_update:', 'last_update: ' + e['TC_TIMESTAMP'], 1)
+t = _fm(t, 'tags:', 'tags: ' + e['TC_TAGS_YAML'])
+t = _fm(t, 'related_tasks:', 'related_tasks: ' + e['TC_RELATED_YAML'])
+t = _fm(t, 'created:', 'created: ' + e['TC_TIMESTAMP'])
+t = _fm(t, 'last_update:', 'last_update: ' + e['TC_TIMESTAMP'])
 t = t.replace('# T-XXX: [Inception Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
 # T-660: substitute the id EVERYWHERE, not only in the frontmatter and the H1.
 # The inception template's Human AC reads 'Run: fw task review T-XXX' and shipped that
@@ -506,12 +521,39 @@ e = os.environ
 with open(e['TC_TEMPLATE']) as f:
     t = f.read()
 name, desc = sys.argv[1], sys.argv[2]
-t = t.replace('id: T-XXX', 'id: ' + e['TC_TASK_ID'])
-t = t.replace('name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"', 1)
-t = t.replace('description: >', 'description: >\n  ' + desc, 1)
-t = t.replace('status: captured', 'status: ' + e['TC_STATUS'])
-t = t.replace('workflow_type:', 'workflow_type: ' + e['TC_WORKFLOW_TYPE'], 1)
-t = t.replace('owner:', 'owner: ' + e['TC_OWNER'], 1)
+# T-774 (OBS-363): every frontmatter substitution below used to be an UNANCHORED
+# t.replace('<key>:', ..., 1) over a document into which the user-supplied NAME had
+# ALREADY been injected two lines earlier. The first match could therefore land inside
+# the name. Measured on T-768 and reproduced under T-774 against this script: a name
+# containing the ownership token came out rewritten AND left the real field empty.
+# The reported field was one of at least seven. Two severities, both measured:
+#   count=1 keys  (owner, workflow_type, created, last_update, description) — the NAME is
+#                 corrupted and the FIELD IS SILENTLY EMPTIED, because the single
+#                 substitution was spent inside the name and never reached its own line.
+#   unbounded keys (status, horizon, tags, related_tasks) — the name is corrupted but the
+#                 field survives, because every occurrence is replaced including its own.
+# _fm replaces the first FRONTMATTER LINE THAT STARTS WITH the key, so a key appearing
+# mid-line inside a value can no longer capture the substitution. This removes the class,
+# not the instance. PL-164: prose about a string-matching mechanism contains the string
+# it matches, which is why task names describing this very bug are the ones that trip it.
+def _fm(t, key, line):
+    L = t.split('\n')
+    end = len(L)
+    for i in range(1, len(L)):
+        if L[i].rstrip() == '---':
+            end = i
+            break
+    for i in range(1, end):
+        if L[i].startswith(key):
+            L[i] = line
+            return '\n'.join(L)
+    return t
+t = _fm(t, 'id:', 'id: ' + e['TC_TASK_ID'])
+t = _fm(t, 'name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"')
+t = _fm(t, 'description: >', 'description: >\n  ' + desc)
+t = _fm(t, 'status:', 'status: ' + e['TC_STATUS'])
+t = _fm(t, 'workflow_type:', 'workflow_type: ' + e['TC_WORKFLOW_TYPE'])
+t = _fm(t, 'owner:', 'owner: ' + e['TC_OWNER'])
 # T-767: seed the Human AC the gate just required. Anchored on the heading AND its
 # comment opener so a name or description containing '### Human' cannot capture the
 # substitution — that first-match capture is OBS-363, filed separately.
@@ -522,11 +564,11 @@ if e.get('TC_HUMAN_AC'):
     else:
         sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
         sys.exit(3)
-t = t.replace('horizon: now', 'horizon: ' + e['TC_HORIZON'])
-t = t.replace('tags: []', 'tags: ' + e['TC_TAGS_YAML'])
-t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])
-t = t.replace('created:', 'created: ' + e['TC_TIMESTAMP'], 1)
-t = t.replace('last_update:', 'last_update: ' + e['TC_TIMESTAMP'], 1)
+t = _fm(t, 'horizon:', 'horizon: ' + e['TC_HORIZON'])
+t = _fm(t, 'tags:', 'tags: ' + e['TC_TAGS_YAML'])
+t = _fm(t, 'related_tasks:', 'related_tasks: ' + e['TC_RELATED_YAML'])
+t = _fm(t, 'created:', 'created: ' + e['TC_TIMESTAMP'])
+t = _fm(t, 'last_update:', 'last_update: ' + e['TC_TIMESTAMP'])
 t = t.replace('# T-XXX: [Task Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
 t = t.replace('T-XXX', e['TC_TASK_ID'])  # T-660: see the inception branch above
 t = t.replace('<!-- Auto-populated by git mining at task completion.\\n     Manual entries optional during execution. -->', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created task via task-create agent\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation')

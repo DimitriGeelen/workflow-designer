@@ -1702,3 +1702,19 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-364
+  text: "create-task.sh injects --name and --description into YAML frontmatter without escaping line breaks, so a value containing a newline both corrupts the frontmatter and defeats T-774's line anchoring. Measured under T-774 against the FIXED script: --name 'line one\\nowner: injected' produces 'name: \"line one' on one line and 'owner: agent' on the next — the injected line captured the ownership substitution and the real owner: field was left empty, exactly the OBS-363 symptom by a different route. yaml.safe_load on the resulting frontmatter raises ParserError, so the file is a broken task, not merely a mis-filled one, and nothing at creation time validates it. The same root cause hits --description: the block scalar gets 'description: >' + one indented line + an UNindented continuation. Pre-existing, not introduced by T-774, and NOT fixed there (one bug one task). T-774's anchoring removes the mid-line capture class; it cannot see a value that contains its own line break. The fix belongs at the input boundary: refuse or escape newlines in name/description before substitution, and parse the frontmatter back before declaring the task created."
+  captured: 2026-09-21T14:20:04Z
+  context_task: T-774
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-365
+  text: "create-task.sh rewrites the task NAME when the name contains the id placeholder. Both template branches end with an unbounded t.replace of the placeholder token by the allocated id (T-660 added it deliberately, to stop inception ACs shipping an unpastable 'Run: fw task review <placeholder>'), but it runs AFTER the user-supplied name has been injected into the document, so the name is rewritten too. Measured under T-774 against the fixed script, both branches: --name 'inception ACs ship the literal <placeholder> placeholder' came out as 'inception ACs ship the literal T-996 placeholder', and the same on a build task. Same root family as OBS-363 — a substitution applied to a document that already carries user text — but a DIFFERENT mechanism (body-wide, not frontmatter first-match), so T-774's frontmatter line anchoring does not touch it. PL-164 again: a task about the placeholder bug is precisely the task whose name contains the placeholder. Not fixed under T-774 (one bug one task). Likely fix: substitute the id in the template BEFORE injecting the name, or exclude the frontmatter name line from the body-wide pass."
+  captured: 2026-09-21T14:20:12Z
+  context_task: T-774
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
