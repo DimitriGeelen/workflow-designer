@@ -3888,6 +3888,34 @@ concerns:
 
     ESCALATION, ARC LEVEL (T-780, folded here from an invented `escalation_arc_level` field that no code read - G-027 shape). than at task level. `fw bvp arcs` — the ranking the mandate''s level-2 selection ("pick the arc whose completion moves a project objective furthest") is supposed to consult — lists TWO arcs: arc-001 designer-authoring-surface (BVP 112) and arc-003 (88). Three arcs exist on disk and all three are status in-progress. The missing one is arc-002 ewcr-governed-delivery — the arc the project has FOCUSED, holder of the three Arc-0 exit clauses that gate governed delivery. Cause, traced: arc BVP is `derived-proposed`, a rollup over constituent tasks. arc-002 has exactly two non-work-completed tasks, T-681 and T-732. Neither appears in `fw bvp --include-proposed` at all, because both carry blast_radius absent -> cost `-` -> excluded from the ranking. With no rankable constituents the rollup has nothing to derive from and the arc is omitted silently — not reported as unrankable, simply absent. So the decline-to-rank behaviour, which is correct at task level, propagates upward into an ARC-level omission that a reader of `fw bvp arcs` cannot detect: the output does not say "one arc could not be ranked", it shows two arcs and looks complete. An autonomous run obeying level-2 selection would pick arc-001 and never learn that the focused arc was never a candidate. This is recorded under G-076 rather than as its own gap because it is the SAME root cause (no cost signal -> declines to rank) observed at a second level, and filing it separately would make the register count the symptom twice — the G-075 lesson.
 
+    CROSS-CORPUS CONFIRMATION, 2026-09-21 (was recorded here as UNDETERMINED; it is now
+    determined). We asked 999-AEF to run our own measurement script over their corpus, naming
+    both outcomes in advance. They did, over 3,350 scored tasks (their T-3408), and reported:
+    D2 2766/3350 (83%), F2 3047/3350 (91%). Ours: D2 84%, F2 92%. Two corpora, different
+    authors, different domains, different prose — WITHIN ONE POINT.
+
+    In the terms pre-committed before the number existed, that supports cause (a): the
+    detectors are narrow, not our vocabulary. The defect is upstream in
+    agents/termlink/bvp-estimator/estimator.py, it is AEF-owned, and it reaches every consumer
+    that vendors the estimator. They filed it as T-3410 (captured; scope is widening the
+    detectors, and explicitly NOT touching score_blast_radius, which both sides agree is
+    correct as it stands).
+
+    THEIR WIDER TABLE SAYS MORE THAN OUR TWO-DRIVER ASK REACHED. It is not two dark drivers,
+    it is every free driver: F1 93%, F3 93%, F-AUTONOMY 99%, F-RECALL 68%. Their conclusion,
+    quoted: "The ranking is being carried almost entirely by D1, with D3/D4 contributing about
+    half the time. Anyone reading a BVP total as a five-plus-driver composite is reading
+    one-and-a-half drivers."
+
+    AND A METHOD POINT WORTH KEEPING, theirs not ours: D1 is where the two corpora DIVERGE
+    (ours 7% no-signal, theirs 35%) — "where a detector works, corpora diverge; where it does
+    not, they agree." The D2/F2 agreement is evidence precisely because D1 disagrees.
+
+    They independently hit the same root twice before our ask arrived: their OBS-443 (the
+    all-drivers=4 no-signal default makes parked DEFER stubs rank as top Q1) and OBS-446 (a
+    newly-filed task cannot be placed in a quadrant at all) — the latter is the same condition
+    this project recorded as class C under T-738.
+
     '
   decision_trigger: 'An operator rules on how the quadrant map is to be grounded, and the
     ruling is demonstrated rather than asserted. Either:

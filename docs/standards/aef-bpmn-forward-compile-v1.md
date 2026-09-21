@@ -1,6 +1,27 @@
 # AEF Forward-Compile Spec — BPMN(+aef:) → proposed task/inception graph — v1
 
-**Version:** 1.1 (2026-07-12) · **Status:** 832-side support deliverable for the AEF-led forward bridge
+**Version:** 1.2 (2026-09-21) · **Status:** 832-side support deliverable for the AEF-led forward bridge
+
+> **v1.2 (2026-09-21) — conformance correction, T-786.** `aef:endpoint` moved from the §2
+> **semantic** list to the §2 **presentational** list, and its §3.3 carry-over claim removed.
+> This document is derived from `aef-bpmn-mapping-v1.md` (frozen v1) and states that it "adds no
+> new contract"; Part I §1 places `aef:endpoint` in the **presentational** class, where "a change
+> to a presentational attribute alone MUST be a no-op for the task graph". §2 and §3.3 contradicted
+> that parent, so this document — not the frozen standard — was the one that had drifted.
+>
+> **Ruled by AEF at `agent-chat-arc` @1616** (correlation `AEF-ENDPOINT-CLASS-832`, their T-3409),
+> on evidence rather than opinion: their Child-2 translator `tools/bpmn_to_tasks.py` reads
+> `aef:boundaryPos, aef:constituent(s), aef:eventDef, aef:laneMeta, aef:link, aef:meta, aef:uid`
+> and *"There is no occurrence of the string 'endpoint' anywhere in the translator."* A compiler
+> that never reads the field is by construction treating a change to it as a no-op, which is what
+> Part I requires. AEF also reported that **this document does not exist in their tree** — they
+> hold only the frozen Part I — so the drift was ours and so is the correction.
+>
+> **Consequence for the corpus, recorded so it is not "fixed" later by mistake:** the 264
+> `aef:endpoint` values across 93 `.bpmn` files, of which only 11% name a file that exists
+> (`tools/_t784-endpoint-resolution-census.py`), are cosmetic annotation. AEF's verdict:
+> *"That is the presentational reading behaving exactly as documented, not a defect in it."*
+> **The frozen Part I is unchanged by this correction and is not ours to edit.**
 
 > **v1.1 (2026-07-12):** IW-9 authority-collapse graduated (mapping-v1 v1.1, T-189) — `owner` is derived from
 > the lane `authority`, no node-level override (§3B.1/§3B.2/§2); O-1 = lane-wins + WARN; O-3 = inception go/no-go
@@ -37,10 +58,11 @@ A conformant input is any BPMN diagram that passes the v1 conformance requiremen
 - **Lanes** with `aef:laneMeta authority="sovereignty|authority|initiative|external"` — the **sole** owner source (v1.1, IW-9).
 - **Process-level `aef:workflowMeta`** (`id`, `version`, `tier_default`, `title`).
 - **Structured semantic elements** (v1 §1, semantic class): `aef:io`/`aef:input`/`aef:output`,
-  `aef:endpoint`, `aef:artifactsWrites`, `aef:contextReads`, `aef:decisionInput`/`aef:decisionOutputs`,
+  `aef:artifactsWrites`, `aef:contextReads`, `aef:decisionInput`/`aef:decisionOutputs`,
   `aef:constituents`, `aef:link`.
 - **Presentational elements** (v1 §1, presentational class): `aef:position`, `aef:anchors`,
-  `aef:routingHint`, `aef:waypoint`, `aef:loopDetour`, … — the forward compile **MUST ignore these**; a
+  `aef:endpoint`, `aef:routingHint`, `aef:waypoint`, `aef:loopDetour`, … — the forward compile
+  **MUST ignore these**; a
   diagram that differs only in presentational data MUST compile to the identical proposal.
 
 ## 3. Forward-compile mapping (diagram → proposed governed work)
@@ -85,7 +107,7 @@ absence is not a conformance defect (the reference process fixtures legitimately
 ### 3.3 Structured-element carry-over
 
 The semantic-class elements travel onto the proposed task as context, not as new governance:
-`aef:endpoint` → the command/pointer; `aef:artifactsWrites` → declared outputs; `aef:contextReads` → declared
+`aef:artifactsWrites` → declared outputs; `aef:contextReads` → declared
 inputs; `aef:io`/`aef:input`/`aef:output` → typed I/O; `aef:decisionInput`/`aef:decisionOutputs` → the
 decision's tested value and branch set. These inform enrichment; they are not re-interpreted as task fields.
 
