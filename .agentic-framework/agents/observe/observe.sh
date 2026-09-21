@@ -268,7 +268,13 @@ do_promote() {
         --name "$text" \
         --description "Promoted from observation $obs_id" \
         --type "$task_type" \
-        --owner human
+        --owner human \
+        --human-ac "[REVIEW] Confirm this promoted observation is work worth doing, and that the task name states it.
+  **Steps:**
+  1. Read the observation text carried into this task name and description.
+  2. Decide: is this real work, or a note that should have stayed a note?
+  **Expected:** Either the task is re-scoped with real acceptance criteria, or it is closed as not-work.
+  **If not:** Run \`fw note triage\` and dismiss the source observation instead."
 
     # Mark as promoted
     _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: promoted/;s/promoted_to: null/promoted_to: task/}" "$INBOX_FILE"

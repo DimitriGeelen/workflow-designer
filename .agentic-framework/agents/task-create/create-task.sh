@@ -48,6 +48,7 @@ while [[ $# -gt 0 ]]; do
         --description) DESCRIPTION="$2"; shift 2 ;;
         --type) WORKFLOW_TYPE="$2"; shift 2 ;;
         --owner) OWNER="$2"; shift 2 ;;
+        --human-ac) HUMAN_AC="$2"; shift 2 ;;   # T-767: seeds a real Human AC; required by --owner human
         --tags) TAGS="$2"; shift 2 ;;
         --related) RELATED="$2"; shift 2 ;;
         --horizon) HORIZON="$2"; shift 2 ;;
@@ -109,6 +110,37 @@ case "${FW_TASK_ORIGIN:-}" in
         echo -e "${RED}BLOCKED: ${FW_TASK_ORIGIN}-origin create must be captured (no --start).${NC}" >&2
         echo "  Gated-writer creates land captured for human review before work-start (G-020)." >&2
         echo "  Policy: T-2543 gate-level enforcement (Dimitri sovereignty bar, rail offset 60); T-2577 designer-ghost leg." >&2
+        exit 1
+    fi
+    ;;
+esac
+
+# T-767 (SQ-2, operator ruling 2026-09-21): ownership must follow the presence of a real
+# Human acceptance criterion. A task born `owner: human` with no Human AC is one the
+# creating agent is structurally forbidden to finish AND the human has nothing to verify
+# on, so it parks forever. Measured on this project 2026-09-21: 34 of 107 active
+# owner:human tasks carry zero Human AC checkboxes; 2 of them (T-708, T-723) have every
+# criterion ticked and are simply waiting on a human with no stated act to perform.
+#
+# The gate REFUSES; it does not silently rewrite OWNER to agent. An auto-flip would decide
+# ownership on the caller's behalf, and ownership is the operator's call — a refusal makes
+# the caller state the human's job, which is the thing that was missing.
+#
+# Gated writers are exempt BY POLICY, not by oversight: T-2543 (bpmn-promote) and T-2577
+# (designer-ghost) make those creates human-owned regardless of ACs. That bar is the
+# operator's sovereignty bar and this gate does not get to lower it.
+case "${FW_TASK_ORIGIN:-}" in
+  bpmn-promote|designer-ghost) ;;
+  *)
+    # `inception` is exempt: .tasks/templates/inception.md ships a real go/no-go Human AC
+    # with Steps/Expected/If-not, so an inception task cannot be born without one.
+    if [ "$OWNER" = "human" ] && [ -z "$HUMAN_AC" ] && [ "$WORKFLOW_TYPE" != "inception" ]; then
+        echo -e "${RED}BLOCKED: --owner human requires --human-ac \"<criterion>\".${NC}" >&2
+        echo "  A human-owned task must name what the human verifies. Without it the task" >&2
+        echo "  cannot be finished by the agent and has nothing for the human to check." >&2
+        echo "  Either pass --human-ac \"<what the human must verify>\", or create the task" >&2
+        echo "  with --owner agent." >&2
+        echo "  Policy: T-767, operator ruling on SQ-2 (2026-09-21)." >&2
         exit 1
     fi
     ;;
@@ -421,7 +453,7 @@ RELATED_YAML=$(format_yaml_array "$RELATED")
 if [ "$WORKFLOW_TYPE" = "inception" ] && [ -f "$TASKS_DIR/templates/inception.md" ]; then
     TC_TEMPLATE="$TASKS_DIR/templates/inception.md" \
     TC_TASK_ID="$TASK_ID" TC_STATUS="$STATUS" TC_HORIZON="$HORIZON" \
-    TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" TC_RELATED_YAML="$RELATED_YAML" \
+    TC_HUMAN_AC="$HUMAN_AC" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" TC_RELATED_YAML="$RELATED_YAML" \
     TC_TIMESTAMP="$TIMESTAMP" TC_FILEPATH="$FILEPATH" \
     python3 -c "
 import sys, os
@@ -435,6 +467,16 @@ t = t.replace('description: >', 'description: >\n  ' + desc, 1)
 t = t.replace('status: captured', 'status: ' + e['TC_STATUS'])
 t = t.replace('horizon: now', 'horizon: ' + e['TC_HORIZON'])
 t = t.replace('owner:', 'owner: ' + e['TC_OWNER'], 1)
+# T-767: seed the Human AC the gate just required. Anchored on the heading AND its
+# comment opener so a name or description containing '### Human' cannot capture the
+# substitution — that first-match capture is OBS-363, filed separately.
+if e.get('TC_HUMAN_AC'):
+    _anchor = '### Human\n<!--'
+    if _anchor in t:
+        t = t.replace(_anchor, '### Human\n\n- [ ] ' + e['TC_HUMAN_AC'] + '\n\n<!--', 1)
+    else:
+        sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
+        sys.exit(3)
 t = t.replace('tags: []', 'tags: ' + e['TC_TAGS_YAML'])
 t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])
 t = t.replace('created:', 'created: ' + e['TC_TIMESTAMP'], 1)
@@ -456,7 +498,7 @@ with open(e['TC_FILEPATH'], 'w') as f:
 elif [ -f "$TASKS_DIR/templates/default.md" ]; then
     TC_TEMPLATE="$TASKS_DIR/templates/default.md" \
     TC_TASK_ID="$TASK_ID" TC_STATUS="$STATUS" TC_WORKFLOW_TYPE="$WORKFLOW_TYPE" \
-    TC_HORIZON="$HORIZON" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" \
+    TC_HUMAN_AC="$HUMAN_AC" TC_HORIZON="$HORIZON" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" \
     TC_RELATED_YAML="$RELATED_YAML" TC_TIMESTAMP="$TIMESTAMP" TC_FILEPATH="$FILEPATH" \
     python3 -c "
 import sys, os
@@ -470,6 +512,16 @@ t = t.replace('description: >', 'description: >\n  ' + desc, 1)
 t = t.replace('status: captured', 'status: ' + e['TC_STATUS'])
 t = t.replace('workflow_type:', 'workflow_type: ' + e['TC_WORKFLOW_TYPE'], 1)
 t = t.replace('owner:', 'owner: ' + e['TC_OWNER'], 1)
+# T-767: seed the Human AC the gate just required. Anchored on the heading AND its
+# comment opener so a name or description containing '### Human' cannot capture the
+# substitution — that first-match capture is OBS-363, filed separately.
+if e.get('TC_HUMAN_AC'):
+    _anchor = '### Human\n<!--'
+    if _anchor in t:
+        t = t.replace(_anchor, '### Human\n\n- [ ] ' + e['TC_HUMAN_AC'] + '\n\n<!--', 1)
+    else:
+        sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
+        sys.exit(3)
 t = t.replace('horizon: now', 'horizon: ' + e['TC_HORIZON'])
 t = t.replace('tags: []', 'tags: ' + e['TC_TAGS_YAML'])
 t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])

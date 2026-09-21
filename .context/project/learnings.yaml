@@ -2311,3 +2311,10 @@ learnings:
   date: 2026-09-10
   context: Added via context agent
   application: TBD
+- id: PL-326
+  learning: "A control that enforces one direction of a rule makes the whole axis read as governed. T-2543/T-2577 refuse a gated-writer create that is NOT owner:human, so ownership looked enforced at creation — and the opposite direction, a human-owned task with no Human AC to justify it, went unchecked into 34 of 107 active tasks. When auditing a control, ask which direction it runs, not whether it exists."
+  source: P-001
+  task: T-767
+  date: 2026-09-21
+  context: Added via context agent
+  application: TBD

@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-767: SQ-2 fix: ownership must follow the presence of a real Human acceptance
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T11:33:58Z
+# ============================================================================
+
+task_id: T-767
+task_name: "SQ-2 fix: ownership must follow the presence of a real Human acceptance"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-21T10:36:54Z
+completed: 2026-09-21T11:33:50Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The creation path is located and named, and the answer corrects this task''s own'
+  - '**Project usage vs vendored framework: established, and it is the framework.** The'
+  - '**Ownership now follows the presence of a real Human AC, as a gate rather than a'
+  - '**The negative control exists, and it was proven RED before it was trusted green.**'
+  - '**No existing instance is reassigned and no `### Human` AC is ticked — and the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-21 — refuse the create; do not rewrite the owner'
+    chose: '`--owner human` without `--human-ac` is **refused** with a message naming the missing flag and the alternative (`--owner agent`).'
+    rationale: 'ownership is the operator''s call. Silently flipping to `owner: agent` would have been shorter and would have made the agent decide who owns the work — the same class of act the SQ-2 ruling was about. A refusal costs the caller one flag and makes them state the human''s job, which is the thing that was missing.'
+    alternatives_rejected: ['(a) auto-flip to `owner: agent` — decides ownership on the caller''s behalf; (b) a warning printed at creation — T-696 measured exactly this remedy failing: T-624 chose an in-template warning, and twelve days later the number had not moved. A comment is not a gate; (c) a post-hoc audit check — it would report the generator''s output instead of fixing the generator (L-302/PL-302).']
+  - decision: '2026-09-21 — exempt inception and the gated writers, and say why in the code'
+    chose: '`bpmn-promote` / `designer-ghost` origins and `--type inception` do not require `--human-ac`.'
+    rationale: 'the first two are human-owned by the operator''s own sovereignty bar (T-2543/T-2577) and this gate does not get to lower it. Inception''s template already ships a real go/no-go Human AC with Steps/Expected/If-not, so requiring a second one would manufacture a redundant criterion — the opposite of the point.'
+    alternatives_rejected: ['exempting nothing. It would have forced a duplicate criterion onto every inception and broken a sovereignty bar to enforce a lesser rule.']
+  - decision: '2026-09-21 — SQ-8 raised, not acted on: the 34 already in flight'
+    chose: 'fix the generator, measure the population, reassign nothing.'
+    rationale: 'AC5 forbids reassignment here, and the three classes have genuinely different remedies. Class 1 (T-708, T-723) is completable and needs an operator close, not an ownership change. Class 2 is a scoping fault. Class 3 is human work filed under an Agent heading — T-700''s sole open criterion is *"the release decision is recorded by the operator"*, sitting under `### Agent`.'
+    alternatives_rejected: ['flipping the 34 to `owner: agent` — that is "changing ownership away from human", explicitly not delegated, and for class 1 it would let the agent close two tasks the operator has never seen.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 56 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 56
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-767-sq-2-fix-an-agent-produced-task-must-nev.md
+generated_by: context-agent-hybrid

@@ -71,6 +71,11 @@ entries:
       "add" and one "inbox". OBS-274 was the flagship finding of T-556 and sat pending+urgent
       for nine hours as one word while every artifact that counts urgents counted it.
 
+      T-767 (2026-09-21) adds a second divergence: do_promote passed `--owner human` with no
+      Human AC, which is the exact shape the new create-task.sh gate refuses. It now passes a
+      `--human-ac` criterion asking the operator to confirm the promoted observation is work
+      worth doing. Upstream for the same reason as the gate itself.
+
       THE GUARD IS SHAPE-BASED, NOT A WORD LIST. `_note_positional_count()` counts positional
       arguments, skipping flags and their values; `fw note` takes exactly one positional, so
       ">1 positional" is the general statement of "your payload is about to vanish". A word
@@ -1240,6 +1245,22 @@ entries:
 
       UPSTREAM because the templates and the substitution are both framework-owned, so every
       project on this framework has been handing its operator an unrunnable first step.
+
+      T-767 (2026-09-21) adds a SECOND divergence to this file. `--owner human` now requires
+      `--human-ac "<criterion>"` and is refused without it; the criterion is seeded into the
+      created file's `### Human` section. Operator ruling on SQ-2: an agent-produced task
+      must never be born on a human with zero Human ACs — the agent is structurally forbidden
+      to finish it and the human has nothing to verify, so it parks forever. Measured here
+      2026-09-21: 34 of 107 active owner:human tasks carry zero Human AC checkboxes, two of
+      them with every criterion already ticked. The gate REFUSES rather than rewriting the
+      owner, because ownership is the operator's call and a silent flip would take it.
+      Exempt by policy, not oversight: bpmn-promote and designer-ghost origins (T-2543/T-2577
+      make those human-owned regardless), and `--type inception` (its template already ships
+      a real go/no-go Human AC). Witness: tools/_t767-ownership-correspondence.sh, 4 legs,
+      proven RED against the unpatched generator before being trusted green.
+
+      UPSTREAM because the default is framework-owned: any project on this framework can mint
+      a human-owned task nobody can finish, and nothing tells it that it did.
 
   - path: .agentic-framework/agents/audit/audit.sh
     kind: content
