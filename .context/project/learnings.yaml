@@ -2318,3 +2318,10 @@ learnings:
   date: 2026-09-21
   context: Added via context agent
   application: TBD
+- id: PL-327
+  learning: "A RANKER'S INPUT POPULATION IS NOT THE BACKLOG, AND NOTHING CHECKS THAT IT IS. Measured on the BVP estimator: the F8 cost composite has three terms but two are near-constant on real data (tier=2 on 86%, effort=8 on 87.5% because effort saturates on body-line-count alone), so cost = 0.6*blast_radius + 1.4 and the ranking has ONE live term. That term resolves from components:, which git history populates AT COMPLETION, falling back to source paths named in the body prose - so blast_radius is present on 94% of work-completed tasks and 42% of captured ones. A task's cost is least knowable exactly while it is un-started, which is the only state selection cares about. Each layer was individually correct: declining to rank without a signal is right (T-542), taking medians over rows that have a cost is right, rolling arcs up from constituent tasks is right. The defect is that no layer owns the question 'is the set I am ranking the same as the set that exists?', so the exclusion is silent and composes upward until a whole in-progress arc vanishes from fw bvp arcs with no marker. GENERAL FORM: when an instrument declines to measure something, the declination must be REPORTED IN THE SAME OUTPUT as the measurements, or every downstream consumer reads absence as non-existence."
+  source: P-001
+  task: T-781
+  date: 2026-09-21
+  context: Added via context agent
+  application: TBD
