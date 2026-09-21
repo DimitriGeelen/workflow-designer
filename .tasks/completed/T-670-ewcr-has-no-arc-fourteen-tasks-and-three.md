@@ -1,13 +1,17 @@
 ---
 id: T-670
-name: "EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold them"
+name: "EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold
+  them"
 description: >
-  The EWCR work (T-590..T-620, fourteen tasks) is not tagged to any arc. arc-001 covers the designer authoring surface only. Establish the EWCR arc, bring existing EWCR tasks under it, evaluate whether the roadmap's Arc-0 scope is fully covered by tasks, and file whatever scope has no task.
+  The EWCR work (T-590..T-620, fourteen tasks) is not tagged to any arc. arc-001 covers
+  the designer authoring surface only. Establish the EWCR arc, bring existing EWCR
+  tasks under it, evaluate whether the roadmap's Arc-0 scope is fully covered by tasks,
+  and file whatever scope has no task.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -17,7 +21,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T05:17:04Z
-last_update: 2026-09-05T10:56:45Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-05T10:56:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +33,17 @@ date_finished: 2026-09-05T10:56:45Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:docs/research/executable-workflow/roadmap-5be23719.md,tools/_t467-arc-tag-source-of-truth.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-670: EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold them

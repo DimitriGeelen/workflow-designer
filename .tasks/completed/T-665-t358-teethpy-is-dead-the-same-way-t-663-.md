@@ -1,13 +1,15 @@
 ---
 id: T-665
-name: "_t358-teeth.py is dead the same way T-663 was: its UNMUTATED control fails, so the mutations below it prove nothing about the lane-fabrication guard"
+name: "_t358-teeth.py is dead the same way T-663 was: its UNMUTATED control fails,
+  so the mutations below it prove nothing about the lane-fabrication guard"
 description: >
-  _t358-teeth.py is dead the same way T-663 was: its UNMUTATED control fails, so the mutations below it prove nothing about the lane-fabrication guard
+  _t358-teeth.py is dead the same way T-663 was: its UNMUTATED control fails, so the
+  mutations below it prove nothing about the lane-fabrication guard
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-01T10:41:04Z
-last_update: 2026-09-01T10:45:53Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-01T10:45:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-09-01T10:45:53Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:tools/_t358-lane-provenance-cdp.mjs,tools/_t358-teeth.py,tools/_t509-instrument-sweep.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-665: _t358-teeth.py is dead the same way T-663 was: its UNMUTATED control fails, so the mutations below it prove nothing about the lane-fabrication guard

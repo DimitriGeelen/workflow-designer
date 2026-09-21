@@ -1,13 +1,16 @@
 ---
 id: T-770
-name: "Standing instruction: an external reviewer verdict may stand in for human verification, with named exceptions"
+name: "Standing instruction: an external reviewer verdict may stand in for human verification,
+  with named exceptions"
 description: >
-  The operator delegated Human-AC verification to the external reviewer agent, except for high-risk, Tier 0 and genuine UX/taste judgement. Record it as policy AND make it a gate, not a note.
+  The operator delegated Human-AC verification to the external reviewer agent, except
+  for high-risk, Tier 0 and genuine UX/taste judgement. Record it as policy AND make
+  it a gate, not a note.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t770-delegation-boundary.py]
 related_tasks: []
@@ -16,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T12:00:17Z
-last_update: 2026-09-21T12:23:46Z
+last_update: '2026-09-21T20:25:10Z'
 date_finished: 2026-09-21T12:23:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +31,16 @@ date_finished: 2026-09-21T12:23:46Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:10Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-770: Standing instruction: an external reviewer verdict may stand in for human verification, with named exceptions

@@ -1,8 +1,14 @@
 ---
 id: T-740
-name: "Value review: the AEF seam and the workflow -> program -> execution chain, and what the handoffs need"
+name: "Value review: the AEF seam and the workflow -> program -> execution chain,
+  and what the handoffs need"
 description: >
-  Operator-scoped value review (DELETE/REFACTOR/ADD) of the AEF integration seam: operator<->AEF and agent collaboration along the chain workflow -> program -> execution, the handoffs between those stages, and what is missing to make the chain work. Producer-not-judge: GATHERER collects evidence read-only, a separate JUDGE classifies from the evidence file alone, the operator decides item by item. Research is not authorization - nothing is deleted, restructured or built under this task.
+  Operator-scoped value review (DELETE/REFACTOR/ADD) of the AEF integration seam:
+  operator<->AEF and agent collaboration along the chain workflow -> program -> execution,
+  the handoffs between those stages, and what is missing to make the chain work. Producer-not-judge:
+  GATHERER collects evidence read-only, a separate JUDGE classifies from the evidence
+  file alone, the operator decides item by item. Research is not authorization - nothing
+  is deleted, restructured or built under this task.
 
 status: work-completed
 workflow_type: specification
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T20:03:20Z
-last_update: 2026-09-20T20:30:55Z
+last_update: '2026-09-21T20:24:53Z'
 date_finished: 2026-09-20T20:30:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,17 @@ date_finished: 2026-09-20T20:30:55Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 4
+      effort: 8
+      blast_radius: 7
+    rationale: blast_radius=7 
+      (paths:.context/working/.gate-bypass-log.yaml,docs/designer/schema.md,docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md,docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/00-yardstick.md);
+      tier=4 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-740: Value review: the AEF seam and the workflow -> program -> execution chain, and what the handoffs need

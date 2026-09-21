@@ -1,13 +1,22 @@
 ---
 id: T-544
-name: "Watchtower session cookie is named for the DEFAULT port, not the bound one, so two instances on one host destroy each other's sessions"
+name: "Watchtower session cookie is named for the DEFAULT port, not the bound one,
+  so two instances on one host destroy each other's sessions"
 description: >
-  app.py sets SESSION_COOKIE_NAME = f'fw_session_{Config.PORT}' to stop two Watchtowers on one host sharing a cookie (RFC 6265 does not scope cookies by port). Config.PORT reads FW_PORT or defaults to 3000; the --port CLI flag sets only the local variable passed to app.run() and never updates Config.PORT. So this project's instance on :3012 and AEF's on :3000 BOTH emit fw_session_3000 for the same host, each overwriting the other, and each signs with its own .fw-secret-key so the other cannot even decode it — session is silently empty, session.get('_csrf_token') is None, every state-changing POST 403s as 'Session expired'. Operator hit this clicking Approve on /approvals. The port suffix is the exact defence that fails.
+  app.py sets SESSION_COOKIE_NAME = f'fw_session_{Config.PORT}' to stop two Watchtowers
+  on one host sharing a cookie (RFC 6265 does not scope cookies by port). Config.PORT
+  reads FW_PORT or defaults to 3000; the --port CLI flag sets only the local variable
+  passed to app.run() and never updates Config.PORT. So this project's instance on
+  :3012 and AEF's on :3000 BOTH emit fw_session_3000 for the same host, each overwriting
+  the other, and each signs with its own .fw-secret-key so the other cannot even decode
+  it — session is silently empty, session.get('_csrf_token') is None, every state-changing
+  POST 403s as 'Session expired'. Operator hit this clicking Approve on /approvals.
+  The port suffix is the exact defence that fails.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T14:45:03Z
-last_update: 2026-08-16T15:17:03Z
+last_update: '2026-09-21T20:25:07Z'
 date_finished: 2026-08-16T15:17:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,17 @@ date_finished: 2026-08-16T15:17:03Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:07Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:.agentic-framework/.vendor-divergence.yaml,tests/run-bridge-tests.sh,tools/_t517-vendor-divergence.py,tools/_t544-session-cookie-port-teeth.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-544: Watchtower session cookie is named for the DEFAULT port, not the bound one, so two instances on one host destroy each other's sessions

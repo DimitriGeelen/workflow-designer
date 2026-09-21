@@ -1,13 +1,25 @@
 ---
 id: T-678
-name: "The decision_empty pre-scan reads a multi-line comment as content, so an inception with an EMPTY Decision section is misclassified drift instead of missing-decide"
+name: "The decision_empty pre-scan reads a multi-line comment as content, so an inception
+  with an EMPTY Decision section is misclassified drift instead of missing-decide"
 description: >
-  MEASURED 2026-09-05, scoped in T-674 finding 4 and deliberately left out of it (one bug, one task). completed-task-scan.py computes decision_empty with its own comment handling that skips only lines STARTING with '<!--' or ENDING with '-->'. The interior lines of a multi-line comment match neither, so they count as content and the section reads as filled. Consequence: an inception task whose Decision section contains nothing but a comment is classified 'drift' rather than 'missing-decide'. The operator is then told 'Completed task has unchecked AC / AC gate may have been bypassed' when the true, actionable message is 'run fw inception decide T-678'. A misclassification, not a false positive - the warn still fires, but with the wrong diagnosis and the wrong remedy. Fix: reuse the same comment-region stripper T-674 added to the AC loop, so both scans in this function share one definition of what a comment is instead of two that disagree.
+  MEASURED 2026-09-05, scoped in T-674 finding 4 and deliberately left out of it (one
+  bug, one task). completed-task-scan.py computes decision_empty with its own comment
+  handling that skips only lines STARTING with '<!--' or ENDING with '-->'. The interior
+  lines of a multi-line comment match neither, so they count as content and the section
+  reads as filled. Consequence: an inception task whose Decision section contains
+  nothing but a comment is classified 'drift' rather than 'missing-decide'. The operator
+  is then told 'Completed task has unchecked AC / AC gate may have been bypassed'
+  when the true, actionable message is 'run fw inception decide T-678'. A misclassification,
+  not a false positive - the warn still fires, but with the wrong diagnosis and the
+  wrong remedy. Fix: reuse the same comment-region stripper T-674 added to the AC
+  loop, so both scans in this function share one definition of what a comment is instead
+  of two that disagree.
 
 status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: null
+horizon:
 tags: []
 components: [tools/_t674-ctl012-comment-fence.py]
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T07:58:03Z
-last_update: 2026-09-05T08:00:29Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-05T08:00:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,16 @@ date_finished: 2026-09-05T08:00:29Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-678: The decision_empty pre-scan reads a multi-line comment as content, so an inception with an EMPTY Decision section is misclassified drift instead of missing-decide

@@ -1,13 +1,25 @@
 ---
 id: T-566
-name: "Make aef:note readable and writable in the inspector (CashWeb T-064, AEF T-2974 defect 1)"
+name: "Make aef:note readable and writable in the inspector (CashWeb T-064, AEF T-2974
+  defect 1)"
 description: >
-  The Extensions panel iterates AEF_FIELDS (src:1827) and silently drops every aef: key not on it. 'note' is in the export metaKeys set (src:9425) so it round-trips faithfully through save/load, but no node type lists it, so nothing can read or write it. Confirmed independently at v0.10.0; reported by 999-AEF (T-2974 defect 1) and independently by 001-CashWeb (their T-064, 27 nodes of API references, auth rules and pseudo code invisible). Standard §2 explicitly places 'note' outside the frozen v1 governance-scalar contract, so this needs no standard bump. Two things to decide rather than inherit from the request: which node types (T-197's principle is that a field appears where it is AUTHORABLE, not everywhere it can be stored), and whether the fix is one more whitelist entry or a general fallback branch for unlisted aef: keys — 'note' is the key that bit two consumers, but a panel that iterates a whitelist and drops the rest is the shape that bit them.
+  The Extensions panel iterates AEF_FIELDS (src:1827) and silently drops every aef:
+  key not on it. 'note' is in the export metaKeys set (src:9425) so it round-trips
+  faithfully through save/load, but no node type lists it, so nothing can read or
+  write it. Confirmed independently at v0.10.0; reported by 999-AEF (T-2974 defect
+  1) and independently by 001-CashWeb (their T-064, 27 nodes of API references, auth
+  rules and pseudo code invisible). Standard §2 explicitly places 'note' outside the
+  frozen v1 governance-scalar contract, so this needs no standard bump. Two things
+  to decide rather than inherit from the request: which node types (T-197's principle
+  is that a field appears where it is AUTHORABLE, not everywhere it can be stored),
+  and whether the fix is one more whitelist entry or a general fallback branch for
+  unlisted aef: keys — 'note' is the key that bit two consumers, but a panel that
+  iterates a whitelist and drops the rest is the shape that bit them.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T09:56:32Z
-last_update: 2026-08-20T15:03:40Z
+last_update: '2026-09-21T20:25:07Z'
 date_finished: 2026-08-20T15:03:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,17 @@ date_finished: 2026-08-20T15:03:40Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:07Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:src/aef-workflow-designer.html,tests/run-bridge-tests.sh,tests/test_editor_bridge_meta_parity.py,tools/_t566-note-field-cdp.mjs);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-566: Make aef:note readable and writable in the inspector (CashWeb T-064, AEF T-2974 defect 1)

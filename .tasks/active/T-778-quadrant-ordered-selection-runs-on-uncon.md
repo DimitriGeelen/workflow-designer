@@ -1,26 +1,35 @@
 ---
-id: T-691
-name: "Regenerate the 24 rendered corpus maps: schema-invalid and pre-DI, and T-690's
-  exporter fix cannot reach committed bytes"
+id: T-778
+name: "Quadrant-ordered selection runs on unconfirmed agent self-estimates, and 46
+  tasks are invisible to it for want of a cost proposal"
 description: >
-  The rendered corpus carries 113 tBaseElement order violations and zero DI. T-690
-  fixed the exporter, which fixes every FUTURE export but not one committed byte.
-  Regenerating lands DI in an artefact AEF consumes, so it is a seam decision for
-  the operator, not an agent edit.
+  The autonomous mandate selects work by BVP quadrant: Q1 to exhaustion, then Q2,
+  low-value parked. That ordering is only as sound as the scores under it. Measured
+  at run start: 0 of 149 active tasks carry a confirmed bvp_scores:; 148 carry an
+  agent-written bvp_scores_proposed:; 103 carry cost_estimate_proposed:. The quadrant
+  filter needs cost, so the 46 without one render as '-' and no quadrant filter matches
+  them - they are not low-value, they are unmeasured, and selection cannot see them.
+  This task closes the measurable half of that gap with the agent-permissible verb
+  (fw bvp estimate-cost, explicitly NOT sovereignty-bearing, writes cost_estimate_proposed:
+  only) and re-runs the T-777 census over the completed map, so that 'no high-value
+  task is agent-executable' is either confirmed across the whole backlog or refuted.
+  The half that CANNOT be closed by an agent is recorded as a Sovereign question rather
+  than decided: confirming a score is fw bvp confirm --i-am-human, so an agent that
+  selects by quadrant is ranking its own work by its own estimate of that work's value.
 
-status: captured
+status: started-work
 workflow_type: build
-owner: human
-horizon: later
-tags: []
+owner: agent
+horizon: now
+tags: [bvp, governance, selection]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-09T07:34:59Z
-last_update: '2026-09-21T20:24:52Z'
+created: 2026-09-21T20:23:00Z
+last_update: '2026-09-21T20:24:53Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -32,52 +41,38 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-21T20:23:44Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
-  - ts: '2026-09-21T20:24:52Z'
+  - ts: '2026-09-21T20:24:53Z'
     estimator: bvp-estimator-v1-heuristic
     cost_estimate:
       tier: 2
-      effort: 7
-      blast_radius: 5
-    rationale: blast_radius=5 
-      (paths:src/aef-workflow-designer.html,tests/run-bridge-tests.sh,tools/_t423-di-schema-validate.py,tools/yaml-to-bpmn.py);
-      tier=2 (no-signal); effort=7 (no-signal)
+      effort: 8
+    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
     rubric_sha: e4a00f38e801
 ---
 
-# T-691: Regenerate the 24 rendered corpus maps: schema-invalid and pre-DI, and T-690's exporter fix cannot reach committed bytes
+# T-778: Quadrant-ordered selection runs on unconfirmed agent self-estimates, and 46 tasks are invisible to it for want of a cost proposal
 
 ## Context
-
-Filed by T-690 as its AC-5 residual — recorded rather than done, so that the next reader can
-tell known-and-scheduled from undetected.
-
-**Measured state of `examples/aef-processes/rendered/` (24 maps), 2026-09-09:**
-
-    python3 tools/_t423-di-schema-validate.py examples/aef-processes/rendered/*.bpmn
-    -> 24 document(s): 24 schema-invalid, 24 missing DI geometry
-
-Two independent defects, one of which is already fixed at the source:
-
-1. **Element order.** 113 `bpmn:sequenceFlow` elements emit `extensionElements` after
-   `conditionExpression`. `tBaseElement` puts `extensionElements` first, so each is invalid.
-   T-690 fixed the exporter (`src/aef-workflow-designer.html`) and a freshly exported map now
-   validates clean — but a source fix cannot reach committed bytes. The bridge
-   (`tools/yaml-to-bpmn.py:340-344`) was already emitting the correct order; these files were
-   last written by the designer, which their inline `xmlns:xsi` on the condition betrays.
-2. **No DI at all.** Each map declares a `bpmndi` namespace and contains zero `BPMNDiagram`
-   elements. So this is not a re-emit — it is the first time DI bytes land in the corpus.
-
-**Why this is the operator's call and not an agent edit.** AEF consumes these bytes. Adding
-DI to all 24 is the byte churn T-423 §"Seam cost, corrected" describes, and it supersedes
-T-340 ruling (b) ("re-emit DI ONLY when the document we imported carried it") in a way a
-consumer can see. A release is a sovereignty promise over immutable bytes; so is a corpus a
-peer pins against.
-
-**What is NOT blocked by this.** The exporter is conformant now, and
-`tests/run-bridge-tests.sh` validates fresh exports rather than these files — deliberately,
-so the suite reports whether the exporter regressed instead of going red every run on a
-defect nobody is fixing today. The residual is 24 stale files, not a live regression.
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
@@ -85,8 +80,69 @@ defect nobody is fixing today. The residual is 24 stale files, not a live regres
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **46 -> 0, via the agent-permissible verb only.** `fw bvp estimate-cost all` wrote
+      **214** cost proposals. Active tasks lacking `cost_estimate_proposed:`: **46 before,
+      0 after**. The verb is documented "advisory, NOT sovereignty-bearing" and writes
+      `cost_estimate_proposed:` only. No `cost_estimate:`, no `bvp_scores:`, no
+      `--i-am-human` was passed — guarded by a standing leg in `## Verification`.
+
+      **The estimator IS the bvp-estimator worker.** `fw bvp estimate-cost` dispatches to
+      `agents/termlink/bvp-estimator/estimator.py`. The mandate's instruction to dispatch
+      rather than score inline is therefore satisfied by the verb; only the live TermLink
+      *session* is absent (`termlink_discover` returns 15 sessions, none an estimator, none
+      belonging to this project). Recorded rather than claimed as "TermLink unavailable".
+
+- [x] **Verdict recorded as a number, and it FLIPPED.** T-777 census, same tool, before and
+      after the sweep:
+
+      | | before | after |
+      |---|---|---|
+      | placed in a high-value quadrant | 31 | 35 |
+      | of those, agent-executable | **0** | **1 — T-745** |
+      | unquadranted | 105 of 149 | 92 of 150 |
+
+      The census's own control line changed from *"quadrant-ordered autonomous selection has
+      no legal move"* to *"the blocking claim is FALSE as of this run."* So the zero carried
+      into this run was **an artefact of incomplete measurement**, not a property of the
+      backlog — which is exactly what this task existed to find out.
+
+- [x] **Negative control passes, and the moved task is the decisive one.** Four tasks were
+      unquadranted before the sweep and carry an `hv-*` quadrant after it: **T-723, T-745,
+      T-747, T-748**. T-745 — the task that flips the verdict — is among them, so the re-run
+      demonstrably could have returned its previous answer and did not. A sweep that moved
+      nothing would have been indistinguishable from one that ran and found nothing to do.
+
+      **Related control, on the sweep's own preview:** `estimate-cost all --dry-run` reported
+      `777 tasks: 0 wrote, 777 skipped` while the real run wrote 214. The dry-run summary is
+      therefore identical whether or not there is work to do — it cannot preview its own
+      effect. Recorded as an observation, not filed as a gap: it misleads a reader, it does
+      not corrupt state.
+
+- [x] **Filed as G-076, surfaced and not resolved.** Two mechanisms, one root cause — the
+      quadrant map is not an operator-grounded artefact — so one register entry rather than
+      two, per the G-075 lesson that per-instance filing manufactures gaps from one defect.
+
+      **(1)** 0 of 149 tasks carry a confirmed `bvp_scores:`; 148 carry an agent-written
+      proposal. Selection consults `--include-proposed`, so every hv label governing "work
+      this first" is the agent's estimate of the value of the agent's own work. `fw bvp
+      confirm` is §ACD-gated, so no amount of agent effort closes this.
+
+      **(2)** 45 of 103 ranked live tasks render `QUAD -` and are invisible to every quadrant
+      filter. **This half is correct behaviour and was nearly filed as a defect.**
+      `score_blast_radius` (estimator.py:2744) returns None rather than a blind 0, because a
+      blind 0 on the dominant F8 term made unmeasured tasks look *cheapest* and an HV/LC
+      filter then promoted them — the defect T-2189/T-542 closed. Its docstring: *"Declining
+      to rank is honest; ranking it cheapest is not."*
+
+      The consequence is the finding: visibility to autonomous selection turns on whether a
+      task's prose happens to name paths that exist in the tree. Measured pair, both with
+      `components: []` — T-344 names four real paths -> blast_radius 5 -> hv-hc -> selectable;
+      T-241 names none -> absent -> `-` -> invisible. Neither number reflects a judgement
+      about the work.
+
+      G-076's closure condition requires movement in a demonstrated direction **and** that a
+      task with genuinely no cost signal still declines to rank — so that a "fix" reinstating
+      a default blast_radius cannot satisfy it by re-opening T-542.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,14 +168,20 @@ defect nobody is fixing today. The residual is 24 stale files, not a live regres
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-691`
+         1. Run `bin/fw reviewer T-778`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-691 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-778 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
+
+python3 -c "import yaml; d=yaml.safe_load(open('.context/project/concerns.yaml')); c=d['concerns'] if isinstance(d,dict) else d; assert any(x.get('id')=='G-076' for x in c if isinstance(x,dict)), 'G-076 missing'"
+python3 -c "import glob,sys; bad=[f for f in glob.glob('.tasks/active/T-*.md') if 'cost_estimate_proposed:' not in open(f,encoding='utf-8').read()]; sys.exit(1 if bad else 0)"
+! grep -rlE '^bvp_scores:' .tasks/active/
+! grep -rlE '^cost_estimate:' .tasks/active/
+python3 tools/_t777-selection-eligibility-census.py > /dev/null 2>&1; test $? -le 2
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -222,7 +284,7 @@ defect nobody is fixing today. The residual is 24 stale files, not a live regres
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-691 go|no-go|defer --rationale "..."
+     fw inception decide T-778 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -231,7 +293,7 @@ defect nobody is fixing today. The residual is 24 stale files, not a live regres
 
 ## Updates
 
-### 2026-09-09T07:34:59Z — task-created [task-create-agent]
+### 2026-09-21T20:23:00Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-691-regenerate-the-24-rendered-corpus-maps-s.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-778-quadrant-ordered-selection-runs-on-uncon.md
 - **Context:** Initial task creation

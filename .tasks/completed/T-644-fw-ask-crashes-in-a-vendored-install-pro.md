@@ -1,13 +1,21 @@
 ---
 id: T-644
-name: "fw ask crashes in a vendored install: PROJECT_ROOT overrides ask.py's correct __file__ default"
+name: "fw ask crashes in a vendored install: PROJECT_ROOT overrides ask.py's correct
+  __file__ default"
 description: >
-  lib/ask.py:22 does sys.path.insert(0, os.environ.get('PROJECT_ROOT', dirname(dirname(abspath(__file__))))). The __file__ default is CORRECT (it resolves to FRAMEWORK_ROOT); the PROJECT_ROOT env var that bin/fw exports overrides it with the project root, where web/ does not exist in a vendored install. Measured: PROJECT_ROOT=/opt/832-Workflow-designer python3 -c 'sys.path.insert(0,PROJECT_ROOT); import web.embeddings' -> ModuleNotFoundError: No module named 'web'. Unlike T-643's review-queue site there is no fallback, so this is a loud crash, not a silent substitution. Found by T-643's audit of every 'from web.' import site.
+  lib/ask.py:22 does sys.path.insert(0, os.environ.get('PROJECT_ROOT', dirname(dirname(abspath(__file__))))).
+  The __file__ default is CORRECT (it resolves to FRAMEWORK_ROOT); the PROJECT_ROOT
+  env var that bin/fw exports overrides it with the project root, where web/ does
+  not exist in a vendored install. Measured: PROJECT_ROOT=/opt/832-Workflow-designer
+  python3 -c 'sys.path.insert(0,PROJECT_ROOT); import web.embeddings' -> ModuleNotFoundError:
+  No module named 'web'. Unlike T-643's review-queue site there is no fallback, so
+  this is a loud crash, not a silent substitution. Found by T-643's audit of every
+  'from web.' import site.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:08:43Z
-last_update: 2026-08-30T18:21:10Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-30T18:21:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,17 @@ date_finished: 2026-08-30T18:21:10Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.agentic-framework/lib/ask.py,tools/_t644-ask-imports-survive-a-wrong-project-root.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-644: fw ask crashes in a vendored install: PROJECT_ROOT overrides ask.py's correct __file__ default

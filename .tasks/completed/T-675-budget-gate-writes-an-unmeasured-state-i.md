@@ -1,13 +1,26 @@
 ---
 id: T-675
-name: "budget-gate writes an UNMEASURED state into .budget-status as a measured 'ok' — the one file CLAUDE.md tells the agent to trust over its own arithmetic"
+name: "budget-gate writes an UNMEASURED state into .budget-status as a measured 'ok'
+  — the one file CLAUDE.md tells the agent to trust over its own arithmetic"
 description: >
-  A failed transcript scan in budget-gate.sh degrades to TOKENS=0 (deliberate fail-open, so a broken scan never blocks every tool call). But 0 then derives LEVEL=ok through the normal ladder and is written to .budget-status indistinguishably from a measured healthy session. CLAUDE.md 'Context Budget Management' says to read 'level' from that file and that 'level' wins over the agent's own arithmetic; the /resume skill reads it too. So the gate's failure mode writes MAXIMUM HEADROOM into the file that is authoritative by rule. Measured live this session: cache said {level: ok, tokens: 0} while checkpoint.sh status measured 82719. Benign at 27%, inverted at 95%. Second defect, same file: the gate rejects its own cache above BUDGET_STATUS_MAX_AGE (90s), but external readers (/resume, doctor, the agent) apply no freshness check, so a cache from a prior session reads as current. Third: the /resume skill mandates 'checkpoint.sh budget' as the safe read; that subcommand does not exist (Usage: post-tool|reset|status), so the hardening is inert here.
+  A failed transcript scan in budget-gate.sh degrades to TOKENS=0 (deliberate fail-open,
+  so a broken scan never blocks every tool call). But 0 then derives LEVEL=ok through
+  the normal ladder and is written to .budget-status indistinguishably from a measured
+  healthy session. CLAUDE.md 'Context Budget Management' says to read 'level' from
+  that file and that 'level' wins over the agent's own arithmetic; the /resume skill
+  reads it too. So the gate's failure mode writes MAXIMUM HEADROOM into the file that
+  is authoritative by rule. Measured live this session: cache said {level: ok, tokens:
+  0} while checkpoint.sh status measured 82719. Benign at 27%, inverted at 95%. Second
+  defect, same file: the gate rejects its own cache above BUDGET_STATUS_MAX_AGE (90s),
+  but external readers (/resume, doctor, the agent) apply no freshness check, so a
+  cache from a prior session reads as current. Third: the /resume skill mandates 'checkpoint.sh
+  budget' as the safe read; that subcommand does not exist (Usage: post-tool|reset|status),
+  so the hardening is inert here.
 
 status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: null
+horizon:
 tags: []
 components: [tools/_t675-budget-read-fence.py]
 related_tasks: []
@@ -16,7 +29,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T21:31:36Z
-last_update: 2026-09-03T21:41:00Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-03T21:41:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +41,16 @@ date_finished: 2026-09-03T21:41:00Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-675: budget-gate writes an UNMEASURED state into .budget-status as a measured 'ok' — the one file CLAUDE.md tells the agent to trust over its own arithmetic

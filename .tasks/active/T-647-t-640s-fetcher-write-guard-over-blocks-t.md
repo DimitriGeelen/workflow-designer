@@ -1,8 +1,21 @@
 ---
 id: T-647
-name: "T-640's fetcher write-guard over-blocks the stdout idioms: curl -o - and wget -O - are refused"
+name: "T-640's fetcher write-guard over-blocks the stdout idioms: curl -o - and wget
+  -O - are refused"
 description: >
-  Found by 999-AEF at rail @841, confirmed against our tree by measurement. Our T-640 guard treats any -o/-O argument as a file write. Two of them are not: 'curl -o -' and 'wget -O -' write to STDOUT, so they are readers and the pre-T-640 behaviour admitted them. Measured 2026-08-30 with a null-focus sandbox against the live hook: curl -o - -> BLOCKED (should be ADMITTED); wget -O - -> BLOCKED (should be ADMITTED); curl -s -o /dev/null -w '%{http_code}' -> ADMITTED (correct, already covered); curl -o out.txt -> BLOCKED (correct); wget URL -> BLOCKED (correct). So the guard is right about writers and wrong about the two stdout spellings. AEF carries a no-widening leg asserting their fix blocks nothing the pre-fix version allowed; ours has no such leg, which is why this got through - the prober asserted that writers are refused and that five readers are admitted, but never that the fix refuses NOTHING the unguarded version allowed. That missing leg is the more valuable half of this task. Their commit d6cfc31b1.
+  Found by 999-AEF at rail @841, confirmed against our tree by measurement. Our T-640
+  guard treats any -o/-O argument as a file write. Two of them are not: 'curl -o -'
+  and 'wget -O -' write to STDOUT, so they are readers and the pre-T-640 behaviour
+  admitted them. Measured 2026-08-30 with a null-focus sandbox against the live hook:
+  curl -o - -> BLOCKED (should be ADMITTED); wget -O - -> BLOCKED (should be ADMITTED);
+  curl -s -o /dev/null -w '%{http_code}' -> ADMITTED (correct, already covered); curl
+  -o out.txt -> BLOCKED (correct); wget URL -> BLOCKED (correct). So the guard is
+  right about writers and wrong about the two stdout spellings. AEF carries a no-widening
+  leg asserting their fix blocks nothing the pre-fix version allowed; ours has no
+  such leg, which is why this got through - the prober asserted that writers are refused
+  and that five readers are admitted, but never that the fix refuses NOTHING the unguarded
+  version allowed. That missing leg is the more valuable half of this task. Their
+  commit d6cfc31b1.
 
 status: work-completed
 workflow_type: build
@@ -16,7 +29,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:28:29Z
-last_update: 2026-08-31T11:20:11Z
+last_update: '2026-09-21T20:24:52Z'
 date_finished: 2026-08-31T11:20:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +41,17 @@ date_finished: 2026-08-31T11:20:11Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.agentic-framework/agents/context/lib/safe-commands.sh,.agentic-framework/web/test_safe_commands.py,tools/_t640-fetchers-that-write-are-writes.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-647: T-640's fetcher write-guard over-blocks the stdout idioms: curl -o - and wget -O - are refused

@@ -7,16 +7,21 @@ description: >
 status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: null
+horizon:
 tags: []
-components: [tools/lib/mutation-assert.sh, tools/_t657-vendor-divergence-must-reach-an-audit-line.sh, tools/_t658-p011-must-distinguish-killed-from-failed.sh, tools/_t659-retention-sweep-must-not-be-agent-staged.sh, tools/_t660-actionability-checker-must-have-teeth.sh, tools/_t661-mutation-count-is-a-floor.sh]
+components: [tools/lib/mutation-assert.sh, 
+      tools/_t657-vendor-divergence-must-reach-an-audit-line.sh, 
+      tools/_t658-p011-must-distinguish-killed-from-failed.sh, 
+      tools/_t659-retention-sweep-must-not-be-agent-staged.sh, 
+      tools/_t660-actionability-checker-must-have-teeth.sh, 
+      tools/_t661-mutation-count-is-a-floor.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-31T19:36:43Z
-last_update: 2026-08-31T19:47:21Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-08-31T19:47:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,16 @@ date_finished: 2026-08-31T19:47:21Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 3
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 (no-signal); tier=3 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-661: Probers pin an exact substitution count where the invariant is a floor

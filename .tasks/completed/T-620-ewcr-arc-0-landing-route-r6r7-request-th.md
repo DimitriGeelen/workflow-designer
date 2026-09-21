@@ -1,13 +1,22 @@
 ---
 id: T-620
-name: "EWCR Arc 0 landing: route R6/R7, request the two counterparty attestations, evidence the H-register"
+name: "EWCR Arc 0 landing: route R6/R7, request the two counterparty attestations,
+  evidence the H-register"
 description: >
-  Landing pass on EWCR Arc 0 rather than another finding pass. Arc 0's exit gate has three clauses: clauses 1 and 2 are AEF-owned and need a counterparty attestation; clause 3 is a local register (operator-decisions.yaml H1-H6) that requires every blocking question to carry status=resolved plus an independently-agreeing source_of_truth, and stands at 2/6. This task discharges what the agent CAN discharge: routes R6 and R7 to AEF, requests both attestations with the clause text verbatim, produces the inspection evidence H5's own recommendation asked for, and supersedes H6's stale send-authorisation premise. It does NOT resolve any H-question or set any attestation - those are operator acts.
+  Landing pass on EWCR Arc 0 rather than another finding pass. Arc 0's exit gate has
+  three clauses: clauses 1 and 2 are AEF-owned and need a counterparty attestation;
+  clause 3 is a local register (operator-decisions.yaml H1-H6) that requires every
+  blocking question to carry status=resolved plus an independently-agreeing source_of_truth,
+  and stands at 2/6. This task discharges what the agent CAN discharge: routes R6
+  and R7 to AEF, requests both attestations with the clause text verbatim, produces
+  the inspection evidence H5's own recommendation asked for, and supersedes H6's stale
+  send-authorisation premise. It does NOT resolve any H-question or set any attestation
+  - those are operator acts.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [arc:designer-authoring-surface, arc:ewcr-governed-delivery]
 components: []
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T18:51:51Z
-last_update: 2026-09-03T05:18:35Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-27T18:53:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,17 @@ date_finished: 2026-08-27T18:53:31Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:docs/research/executable-workflow/arc-0-exit-clauses.yaml,docs/research/executable-workflow/operator-decisions.yaml);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-620: EWCR Arc 0 landing: route R6/R7, request the two counterparty attestations, evidence the H-register

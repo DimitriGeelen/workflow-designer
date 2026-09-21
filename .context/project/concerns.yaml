@@ -3832,3 +3832,87 @@ concerns:
     check currently flagging its own output is certifying its own work.
 
     '
+
+- id: G-076
+  type: gap
+  status: watching
+  severity: high
+  title: Quadrant-ordered autonomous selection is not an operator-grounded artifact — no BVP
+    score in this project is confirmed, and 44% of the ranked backlog cannot be quadranted
+    at all
+  detected: 2026-09-21
+  origin_task: T-778
+  id_note: 'G-062..G-071 are vendored AEF ids cited here; G-076 chosen by the zero-reference
+    scan prescribed in G-061''s id_note — 0 references tree-wide at filing.
+
+    '
+  evidence: 'The autonomous mandate selects work by BVP quadrant: Q1 to exhaustion, then Q2,
+    low-value parked. Two independent measurements taken at the start of this run show that
+    ordering does not rest on anything the operator has ruled on.
+
+    ONE — NOTHING IS CONFIRMED. Measured 2026-09-21: 0 of 149 active tasks carry a confirmed
+    `bvp_scores:`; 148 carry an agent-written `bvp_scores_proposed:`. `fw bvp` says so itself
+    on a bare invocation: "No tasks have bvp_scores: set yet." The census that drives selection
+    calls `fw bvp --quadrant <q> --include-proposed`, so every hv-lc / hv-hc label governing
+    "work this first" is the agent''s own estimate of the value of the agent''s own work. The
+    only verb that promotes a proposal to a score is `fw bvp confirm --i-am-human`, which is
+    §ACD sovereignty-gated and which an agent must never pass on the operator''s behalf. So an
+    agent cannot close this by working harder; the gap is structural.
+
+    TWO — 44% CANNOT BE QUADRANTED AT ALL, AND THAT PART IS CORRECT BEHAVIOUR. `fw bvp
+    --include-proposed` ranks 103 live tasks. Of those, 45 render `COST -` and `QUAD -`, so no
+    quadrant filter matches them and quadrant-ordered selection cannot see them. This is NOT a
+    defect and was nearly filed as one. `score_blast_radius` (estimator.py:2744) returns None
+    when a task has empty `components:`, is not an inception with `target_blast_radius:`, and
+    names no existing source path in its body — and its docstring states the intent verbatim:
+    "Declining to rank is honest; ranking it cheapest is not." The alternative was measured and
+    rejected upstream: a blind 0 on blast_radius (weight 0.6, the dominant F8 term) made every
+    unmeasured task look CHEAPEST, which an HV/LC filter then promotes. T-2189 fixed that for
+    inceptions; T-542 generalised it.
+
+    THE CONSEQUENCE IS THE POINT. Visibility to autonomous selection is decided by whether a
+    task''s prose happens to name file paths that exist in the tree. Measured pair, both with
+    `components: []`: T-344 names four real paths in its body -> blast_radius 5 -> cost 4.4 ->
+    hv-hc -> selectable. T-241 names none -> blast_radius absent -> cost `-` -> quadrant `-` ->
+    invisible. Neither number reflects a judgement about the work; one task was written with
+    paths in it and the other was not.
+
+    WHAT THIS RUN ACTUALLY DID, so the boundary is legible: `fw bvp estimate-cost all` (agent-
+    permissible, explicitly NOT sovereignty-bearing, writes `cost_estimate_proposed:` only) was
+    run and closed the population lacking ANY cost proposal from 46 to 0, writing 214
+    proposals. That moved four tasks into high-value quadrants (T-723, T-745, T-747, T-748) and
+    flipped the T-777 census verdict from "0 high-value tasks are agent-executable" to 1. So
+    the earlier blocking claim was an artefact of incomplete measurement, not a property of the
+    backlog. The residual 45 are NOT reachable by that verb — their missing term is
+    blast_radius, which needs a declaration of what the task touches.
+
+    '
+  decision_trigger: 'An operator rules on how the quadrant map is to be grounded, and the
+    ruling is demonstrated rather than asserted. Either:
+
+    (a) confirmed scores exist for the tasks selection is allowed to draw from — `fw bvp`
+    without `--include-proposed` returns a non-empty ranking, and an autonomous run is bound to
+    that ranking rather than to `--include-proposed`; or
+
+    (b) the operator rules that proposed scores are an acceptable basis for agent selection,
+    recorded as a decision, in which case this gap closes as accepted risk and NOT as a fix; and
+
+    (c) for the 45 unquadrantable tasks, either `components:` / `target_blast_radius:` is
+    declared so cost computes, or they are explicitly ruled out of scope for autonomous
+    selection — so that "invisible to the ranker" stops being a silent property and becomes a
+    recorded one.
+
+    Closure requires the count to move in a demonstrated direction AND a task that genuinely
+    has no cost signal to still decline to rank — a change that made everything quadrantable by
+    reinstating a default blast_radius would satisfy the first alone and would re-open the
+    exact defect T-542 closed.
+
+    '
+  sovereignty_note: 'Surfaced, not resolved, and deliberately not worked around. An agent that
+    confirms its own BVP scores has certified its own work; an agent that declares
+    `components:` on 45 tasks to make them selectable has decided its own scope. Both are the
+    producer judging. The mandate binding "Producer-not-judge" and the binding "Scored before
+    started" are in genuine tension in this project, and only the operator can settle which
+    yields.
+
+    '

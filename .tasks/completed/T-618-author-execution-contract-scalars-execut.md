@@ -1,13 +1,14 @@
 ---
 id: T-618
-name: "author execution contract scalars: execution, verify, idempotent on task-like nodes"
+name: "author execution contract scalars: execution, verify, idempotent on task-like
+  nodes"
 description: >
   author execution contract scalars: execution, verify, idempotent on task-like nodes
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T12:35:29Z
-last_update: 2026-08-27T16:27:44Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-27T16:27:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +29,17 @@ date_finished: 2026-08-27T16:27:44Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 7
+    rationale: blast_radius=7 
+      (paths:docs/standards/aef-bpmn-mapping-v1.md,tests/test_designer_export_contract.py,tests/test_designer_render.py,tests/test_editor_behavior.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-618: author execution contract scalars: execution, verify, idempotent on task-like nodes

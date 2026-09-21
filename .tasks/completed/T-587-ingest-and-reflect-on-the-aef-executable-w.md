@@ -10,16 +10,26 @@ description: >
 status: work-completed
 workflow_type: inception
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-08-25T00:00:00Z
-last_update: 2026-08-26T08:55:40Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-26T08:55:40Z
 target_blast_radius: 5
 voi_score: 0.9
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 4
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 (no-signal); tier=4 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-587: ingest and reflect on the AEF executable workflow-contract source packet

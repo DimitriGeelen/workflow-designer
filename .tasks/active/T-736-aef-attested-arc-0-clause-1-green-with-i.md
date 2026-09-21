@@ -1,8 +1,10 @@
 ---
 id: T-736
-name: "AEF attested Arc-0 clause 1 green with its numbers at @1539 — record the response as T-623 did, route ratification to the operator, answer R7"
+name: "AEF attested Arc-0 clause 1 green with its numbers at @1539 — record the response
+  as T-623 did, route ratification to the operator, answer R7"
 description: >
-  AEF attested Arc-0 clause 1 green with its numbers at @1539 — record the response as T-623 did, route ratification to the operator, answer R7
+  AEF attested Arc-0 clause 1 green with its numbers at @1539 — record the response
+  as T-623 did, route ratification to the operator, answer R7
 
 status: work-completed
 workflow_type: build
@@ -17,7 +19,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T08:02:55Z
-last_update: 2026-09-20T08:06:47Z
+last_update: '2026-09-21T20:24:53Z'
 date_finished: 2026-09-20T08:06:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +31,17 @@ date_finished: 2026-09-20T08:06:47Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 
+      (paths:docs/research/executable-workflow/arc-0-exit-clauses.yaml); tier=2 
+      (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-736: AEF attested Arc-0 clause 1 green with its numbers at @1539 — record the response as T-623 did, route ratification to the operator, answer R7

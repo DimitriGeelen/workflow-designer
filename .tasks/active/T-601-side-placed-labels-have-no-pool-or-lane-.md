@@ -2,7 +2,14 @@
 id: T-601
 name: "Side-placed labels have no pool or lane boundary awareness"
 description: >
-  adjustLabelPlacements() scores candidate placements against edge segments, node boxes and other label texts only. The pool rect and the lane bands are not obstacles, so a label beside a node at the pool's left edge is scored CLEAN while sitting on top of the lane header and outside the pool (reproduced in .context/working/t600-wrap-off.png and still visible, narrowed, in t600-wrap-on.png). T-600 wrapped the text, which shortens the overrun; it does not clamp the placement. Fix: add the pool interior as a containment constraint to bboxScore, so a placement that leaves the pool scores worse than the default below placement.
+  adjustLabelPlacements() scores candidate placements against edge segments, node
+  boxes and other label texts only. The pool rect and the lane bands are not obstacles,
+  so a label beside a node at the pool's left edge is scored CLEAN while sitting on
+  top of the lane header and outside the pool (reproduced in .context/working/t600-wrap-off.png
+  and still visible, narrowed, in t600-wrap-on.png). T-600 wrapped the text, which
+  shortens the overrun; it does not clamp the placement. Fix: add the pool interior
+  as a containment constraint to bboxScore, so a placement that leaves the pool scores
+  worse than the default below placement.
 
 status: work-completed
 workflow_type: build
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T17:38:45Z
-last_update: 2026-08-26T19:37:19Z
+last_update: '2026-09-21T20:24:52Z'
 date_finished: 2026-08-26T19:37:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,16 @@ date_finished: 2026-08-26T19:37:19Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (paths:tools/_t601-lane-boundary.mjs); tier=2 
+      (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-601: Side-placed labels have no pool or lane boundary awareness

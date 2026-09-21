@@ -1,13 +1,15 @@
 ---
 id: T-640
-name: "Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule"
+name: "Safe-list admits curl and wget unconditionally though curl -o writes a file
+  with no redirect, violating the list's own stated admission rule"
 description: >
-  Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule
+  Safe-list admits curl and wget unconditionally though curl -o writes a file with
+  no redirect, violating the list's own stated admission rule
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T10:02:16Z
-last_update: 2026-08-30T10:42:04Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-30T10:42:04Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-08-30T10:42:04Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.agentic-framework/web/test_safe_commands.py,tools/_t640-fetchers-that-write-are-writes.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-640: Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule

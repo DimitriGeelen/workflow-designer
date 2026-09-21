@@ -1,13 +1,22 @@
 ---
 id: T-581
-name: "The byte-identity gate's baseline is a hand-picked git literal, so it goes stale on a clock nobody watches"
+name: "The byte-identity gate's baseline is a hand-picked git literal, so it goes
+  stale on a clock nobody watches"
 description: >
-  tools/_t358-byteid-thirdparty.mjs:48 pins BASELINE_REF to the string '3bf37909~1'. Nobody chose that ref as a ratification point; it is where the file sat on 2026-08-04. It has since gone stale past the exporter provenance stamp, T-423 DI, T-364 repair (a) and T-563 id derivation, which is why the gate reports PRECONDITION VIOLATED and 11 drifted (T-579 diagnosed this). Re-pinning by hand reproduces the defect on the same clock. Question this task owns: what should the baseline be instead - a recorded ratification file the gate reads, a merge-base, or a last-green marker - and what makes the choice not go stale. Split out of T-579, which was wrongly parked as a sovereignty decision when it is a design question.
+  tools/_t358-byteid-thirdparty.mjs:48 pins BASELINE_REF to the string '3bf37909~1'.
+  Nobody chose that ref as a ratification point; it is where the file sat on 2026-08-04.
+  It has since gone stale past the exporter provenance stamp, T-423 DI, T-364 repair
+  (a) and T-563 id derivation, which is why the gate reports PRECONDITION VIOLATED
+  and 11 drifted (T-579 diagnosed this). Re-pinning by hand reproduces the defect
+  on the same clock. Question this task owns: what should the baseline be instead
+  - a recorded ratification file the gate reads, a merge-base, or a last-green marker
+  - and what makes the choice not go stale. Split out of T-579, which was wrongly
+  parked as a sovereignty decision when it is a design question.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t581-byteid-baseline-teeth.py]
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-24T18:03:43Z
-last_update: 2026-08-24T21:12:55Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-24T21:12:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,16 @@ date_finished: 2026-08-24T21:12:55Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-581: The byte-identity gate's baseline is a hand-picked git literal, so it goes stale on a clock nobody watches

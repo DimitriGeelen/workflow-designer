@@ -1,13 +1,15 @@
 ---
 id: T-625
-name: "Inception cost axis may be planted too: target_blast_radius ships pre-filled beside voi_score"
+name: "Inception cost axis may be planted too: target_blast_radius ships pre-filled
+  beside voi_score"
 description: >
-  Inception cost axis may be planted too: target_blast_radius ships pre-filled beside voi_score
+  Inception cost axis may be planted too: target_blast_radius ships pre-filled beside
+  voi_score
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-29T14:07:31Z
-last_update: 2026-08-29T14:11:19Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-29T14:11:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-08-29T14:11:19Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.agentic-framework/agents/context/check-inception-schema.py,.context/project/concerns.yaml,.tasks/templates/inception.md);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-625: Inception cost axis may be planted too: target_blast_radius ships pre-filled beside voi_score

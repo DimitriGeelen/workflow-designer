@@ -1,13 +1,27 @@
 ---
 id: T-674
-name: "CTL-012 counts ACs inside HTML comment blocks, so preserving superseded ACs is punished as an unchecked-AC violation"
+name: "CTL-012 counts ACs inside HTML comment blocks, so preserving superseded ACs
+  is punished as an unchecked-AC violation"
 description: >
-  MEASURED 2026-09-03 during T-673 audit remediation. CTL-012 reports 'Completed task T-508 has unchecked AC' and quotes '- [ ] The two classes are separated mechanically'. That line and four others sit INSIDE an HTML comment block in .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md (lines ~189-212), opened with a rationale that is the opposite of a violation: 'ORIGINAL ACs, kept because a rewritten AC set that hides its own supersession is the laundering this project keeps catching.' T-508's live ACs are all ticked and it completed cleanly on 2026-08-15 with no bypass in the log. So the detector reads commented-out history as live criteria, and the warn fires precisely on the practice of preserving superseded ACs rather than silently deleting them - it punishes the honest form and rewards the laundering. Fix: strip <!-- ... --> regions before counting '- [ ]' in the CTL-012 scan. Guard: a task file with a ticked live AC set plus a commented block of unticked ones must NOT trigger CTL-012, and one with a genuinely unticked live AC still must - both arms driven, per PL-308. Framework code under .agentic-framework/ (vendored; G-008 allows in-tree fix plus upstream).
+  MEASURED 2026-09-03 during T-673 audit remediation. CTL-012 reports 'Completed task
+  T-508 has unchecked AC' and quotes '- [ ] The two classes are separated mechanically'.
+  That line and four others sit INSIDE an HTML comment block in .tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md
+  (lines ~189-212), opened with a rationale that is the opposite of a violation: 'ORIGINAL
+  ACs, kept because a rewritten AC set that hides its own supersession is the laundering
+  this project keeps catching.' T-508's live ACs are all ticked and it completed cleanly
+  on 2026-08-15 with no bypass in the log. So the detector reads commented-out history
+  as live criteria, and the warn fires precisely on the practice of preserving superseded
+  ACs rather than silently deleting them - it punishes the honest form and rewards
+  the laundering. Fix: strip <!-- ... --> regions before counting '- [ ]' in the CTL-012
+  scan. Guard: a task file with a ticked live AC set plus a commented block of unticked
+  ones must NOT trigger CTL-012, and one with a genuinely unticked live AC still must
+  - both arms driven, per PL-308. Framework code under .agentic-framework/ (vendored;
+  G-008 allows in-tree fix plus upstream).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t674-ctl012-comment-fence.py]
 related_tasks: []
@@ -16,7 +30,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T20:28:17Z
-last_update: 2026-09-04T22:01:54Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-04T22:01:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +42,16 @@ date_finished: 2026-09-04T22:01:54Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-674: CTL-012 counts ACs inside HTML comment blocks, so preserving superseded ACs is punished as an unchecked-AC violation

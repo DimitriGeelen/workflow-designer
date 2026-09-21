@@ -9,7 +9,7 @@ description: >
 status: work-completed
 workflow_type: test
 owner: agent
-horizon: null
+horizon:
 tags: [audit-remediation, cycle-1]
 components: []
 related_tasks: []
@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:02:35Z
-last_update: 2026-09-21T08:50:56Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-21T08:50:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -57,6 +57,16 @@ cost_estimate_proposed:
       effort: 8
     rationale: blast_radius=absent (no-signal); tier=1 (no-signal); effort=8 
       (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 1
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:.agentic-framework/agents/audit/audit.sh,.context/audits/2026-09-21.yaml,tests/check-corpus-geometry.sh,tests/run-bridge-tests.sh);
+      tier=1 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

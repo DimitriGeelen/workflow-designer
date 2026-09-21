@@ -1,13 +1,25 @@
 ---
 id: T-576
-name: "T-423 fallout: the trailer probe asserts a claim T-423 retired, and running it corrupts a fixture two wired teeth depend on"
+name: "T-423 fallout: the trailer probe asserts a claim T-423 retired, and running
+  it corrupts a fixture two wired teeth depend on"
 description: >
-  389133c8 stopped emitting the DI trailer. tools/_t361-export-trailer-cdp.mjs still asserts exported bytes CARRY it (PREFIX check, line 91) so it now fails on a correct designer, and its failure reads as 'the designer lost the trailer' rather than 'this probe was superseded'. Worse: it writes tests/fixtures/exported/t361-trailer-witness.bpmn unconditionally BEFORE returning, so running it replaces a trailer-carrying witness with a trailer-free export - and tools/_t361-guard-teeth.py cases 7 and 8 both mutate that witness, case 8 raising 'witness did not carry the current trailer - nothing mutated'. One unwired probe therefore breaks a wired teeth script. Measured: current export carries 0 trailer occurrences, the witness carries 1 and was last written under T-399 at 4c40414c. Root question for the RCA is not the probe but the omission: nothing enumerates the instruments that assert the presence of a thing a change removes.
+  389133c8 stopped emitting the DI trailer. tools/_t361-export-trailer-cdp.mjs still
+  asserts exported bytes CARRY it (PREFIX check, line 91) so it now fails on a correct
+  designer, and its failure reads as 'the designer lost the trailer' rather than 'this
+  probe was superseded'. Worse: it writes tests/fixtures/exported/t361-trailer-witness.bpmn
+  unconditionally BEFORE returning, so running it replaces a trailer-carrying witness
+  with a trailer-free export - and tools/_t361-guard-teeth.py cases 7 and 8 both mutate
+  that witness, case 8 raising 'witness did not carry the current trailer - nothing
+  mutated'. One unwired probe therefore breaks a wired teeth script. Measured: current
+  export carries 0 trailer occurrences, the witness carries 1 and was last written
+  under T-399 at 4c40414c. Root question for the RCA is not the probe but the omission:
+  nothing enumerates the instruments that assert the presence of a thing a change
+  removes.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [bug, instrument, t423-fallout]
 components: []
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-23T19:35:57Z
-last_update: 2026-08-24T22:38:41Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-24T22:38:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,17 @@ date_finished: 2026-08-24T22:38:41Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:tests/fixtures/exported/t361-trailer-witness.bpmn,tests/test_emitted_comment_claims.py,tools/_t361-guard-teeth.py,tools/_t451-unwired-guard-census.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-576: T-423 fallout: the trailer probe asserts a claim T-423 retired, and running it corrupts a fixture two wired teeth depend on

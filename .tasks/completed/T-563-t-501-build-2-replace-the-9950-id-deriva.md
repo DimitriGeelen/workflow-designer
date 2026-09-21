@@ -1,13 +1,20 @@
 ---
 id: T-563
-name: "T-501 build 2: replace the :9950 id derivation with the shared sanitizer, with a CDP probe over the 14 fallback documents"
+name: "T-501 build 2: replace the :9950 id derivation with the shared sanitizer, with
+  a CDP probe over the 14 fallback documents"
 description: >
-  T-501 GO decomposition item 2. Replace the fallback chain at src/aef-workflow-designer.html:9950 (aefMetaEl id || procName || 'imported' — a display NAME standing in for machine identity) with workflowMeta id -> sanitizeWorkflowId(procId) -> sanitizeWorkflowId(procName) -> 'imported'. Must NOT use deriveSlug: it is a summariser and collapses the 14 fallback documents onto 4 ids that all pass the validator. Owes a CDP probe over those 14 asserting distinct-id count and validator pass. Depends on T-562 (shared helper).
+  T-501 GO decomposition item 2. Replace the fallback chain at src/aef-workflow-designer.html:9950
+  (aefMetaEl id || procName || 'imported' — a display NAME standing in for machine
+  identity) with workflowMeta id -> sanitizeWorkflowId(procId) -> sanitizeWorkflowId(procName)
+  -> 'imported'. Must NOT use deriveSlug: it is a summariser and collapses the 14
+  fallback documents onto 4 ids that all pass the validator. Owes a CDP probe over
+  those 14 asserting distinct-id count and validator pass. Depends on T-562 (shared
+  helper).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t563-fallback-id-derivation-cdp.mjs]
 related_tasks: [T-501, T-562, T-564]
@@ -17,7 +24,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T09:48:08Z
-last_update: 2026-08-24T18:11:43Z
+last_update: '2026-09-21T20:25:07Z'
 date_finished: 2026-08-24T18:11:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +36,16 @@ date_finished: 2026-08-24T18:11:43Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:07Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-563: T-501 build 2: replace the :9950 id derivation with the shared sanitizer, with a CDP probe over the 14 fallback documents

@@ -1,15 +1,18 @@
 ---
 id: T-690
-name: "sequenceFlow emits extensionElements after conditionExpression: 113 occurrences make 24 of 24 corpus maps schema-invalid"
+name: "sequenceFlow emits extensionElements after conditionExpression: 113 occurrences
+  make 24 of 24 corpus maps schema-invalid"
 description: >
-  sequenceFlow emits extensionElements after conditionExpression: 113 occurrences make 24 of 24 corpus maps schema-invalid
+  sequenceFlow emits extensionElements after conditionExpression: 113 occurrences
+  make 24 of 24 corpus maps schema-invalid
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
-components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t423-additive-export-guard.py, tools/_t423-additive-export-teeth.py]
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, 
+      tools/_t423-additive-export-guard.py, tools/_t423-additive-export-teeth.py]
 related_tasks: []
 arc_id: designer-authoring-surface
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -17,7 +20,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-08T21:39:56Z
-last_update: 2026-09-09T07:37:22Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-09T07:37:22Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +32,16 @@ date_finished: 2026-09-09T07:37:22Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-690: sequenceFlow emits extensionElements after conditionExpression: 113 occurrences make 24 of 24 corpus maps schema-invalid

@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T21:19:54Z
-last_update: 2026-09-20T21:22:35Z
+last_update: '2026-09-21T20:24:53Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -63,6 +63,16 @@ cost_estimate_proposed:
       effort: 7
     rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=7 
       (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-21T20:24:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 7
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.agentic-framework/agents/bpmn/bpmn.sh,docs/standards/aef-bpmn-mapping-v1.md,examples/aef-processes/rendered/arc-lifecycle.bpmn);
+      tier=2 (no-signal); effort=7 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

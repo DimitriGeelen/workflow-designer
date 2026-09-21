@@ -1,13 +1,32 @@
 ---
 id: T-574
-name: "P-011 gate passes SILENTLY when its Verification section is present but unreachable: 0 legs run reads identical to all legs passed"
+name: "P-011 gate passes SILENTLY when its Verification section is present but unreachable:
+  0 legs run reads identical to all legs passed"
 description: >
-  update-task.sh:983 extracts the verification block with sed -n '/^## Verification/,/^## /p'. When that anchor does not match, the range yields ZERO lines and line 989 does '[ -z "$verify_cmds" ] && return 0' -- a silent pass that prints NOTHING. Completion output is then byte-identical to a task whose legs all passed: 'Acceptance criteria: N/N checked', 'RCA: substantive', then straight to the status change. Found on T-572, whose own block was spliced mid-AC-list by an author error (a s.index() matching a backticked MENTION of the heading), leaving the heading glued to the end of a line. The task completed, moved to completed/, generated its episodic and reported success with all TEN legs unrun. The author error is mine and is fixed in that file; the gate half is this task. CLAUDE.md documents 'tasks without a Verification section pass through (backward compatible)', so the pass-through itself is INTENDED -- the defect is that it is indistinguishable from success and that a section which EXISTS but is unreachable by the anchor is silently treated as absent. G-034's shape exactly: an instrument reporting success having examined nothing. Fix direction: print the leg count unconditionally (0 legs must SAY 0 legs), and distinguish 'no Verification heading in the file at all' from 'heading text present but not anchored at column 0' -- the second is a malformed block and should refuse, not pass. Vendored file, so G-008 applies: fix in-tree, declare in .vendor-divergence.yaml, report upstream to AEF.
+  update-task.sh:983 extracts the verification block with sed -n '/^## Verification/,/^##
+  /p'. When that anchor does not match, the range yields ZERO lines and line 989 does
+  '[ -z "$verify_cmds" ] && return 0' -- a silent pass that prints NOTHING. Completion
+  output is then byte-identical to a task whose legs all passed: 'Acceptance criteria:
+  N/N checked', 'RCA: substantive', then straight to the status change. Found on T-572,
+  whose own block was spliced mid-AC-list by an author error (a s.index() matching
+  a backticked MENTION of the heading), leaving the heading glued to the end of a
+  line. The task completed, moved to completed/, generated its episodic and reported
+  success with all TEN legs unrun. The author error is mine and is fixed in that file;
+  the gate half is this task. CLAUDE.md documents 'tasks without a Verification section
+  pass through (backward compatible)', so the pass-through itself is INTENDED -- the
+  defect is that it is indistinguishable from success and that a section which EXISTS
+  but is unreachable by the anchor is silently treated as absent. G-034's shape exactly:
+  an instrument reporting success having examined nothing. Fix direction: print the
+  leg count unconditionally (0 legs must SAY 0 legs), and distinguish 'no Verification
+  heading in the file at all' from 'heading text present but not anchored at column
+  0' -- the second is a malformed block and should refuse, not pass. Vendored file,
+  so G-008 applies: fix in-tree, declare in .vendor-divergence.yaml, report upstream
+  to AEF.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [bug, framework, vendored, gate]
 components: []
 related_tasks: []
@@ -16,7 +35,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T18:19:38Z
-last_update: 2026-08-22T10:15:05Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-22T10:15:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +47,17 @@ date_finished: 2026-08-22T10:15:05Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:.agentic-framework/.vendor-divergence.yaml,.agentic-framework/agents/task-create/update-task.sh,tests/run-bridge-tests.sh,tools/_t517-vendor-divergence.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-574: P-011 gate passes SILENTLY when its Verification section is present but unreachable: 0 legs run reads identical to all legs passed

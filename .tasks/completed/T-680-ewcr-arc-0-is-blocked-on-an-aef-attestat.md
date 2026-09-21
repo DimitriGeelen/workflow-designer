@@ -1,13 +1,28 @@
 ---
 id: T-680
-name: "The AEF seam was recorded as unreachable; it is live. Reader-confirmation by fingerprint is impossible because the mesh shares one cohort identity"
+name: "The AEF seam was recorded as unreachable; it is live. Reader-confirmation by
+  fingerprint is impossible because the mesh shares one cohort identity"
 description: >
-  Opened on the premise that the 999-AEF seam was dead, and the premise was false. Three true measurements produced it: the DM to 3bba15e681b3a078 holds 7 rows all our own (that fingerprint is framework-agent-systemd, an idle root shell with no consumer), ring20 measured agent-chat-arc as non-federating across hubs, and no AEF session is discoverable here. AEF had in fact answered clause 1 at agent-chat-arc offset 650 and was posting at 897 the same day. The chain held because every envelope on this mesh carries sender d1993c2c3ec44c94 — ours — as do AEF's, 001-CashWeb's and 010-termlink's: 3 distinct sender_id against 18 distinct producer labels, so sender_id cannot separate producers and 0 of AEF's 66 posts are attributable by it. This task's own original AC would have classified the live seam as no-reader. Delivered: tools/_t680-aef-reachability.py keyed on payload producer labels with a negative control proving the discarded rule wrong; docs/research/executable-workflow/aef-transport-verdict.md; a reply to AEF at offset 1096. arc-0-exit-clauses.yaml needed no correction — it already recorded AEF's answer; the stale belief came from reading the DM thread instead of the register. Arc-0 is blocked on rulings, not plumbing.
+  Opened on the premise that the 999-AEF seam was dead, and the premise was false.
+  Three true measurements produced it: the DM to 3bba15e681b3a078 holds 7 rows all
+  our own (that fingerprint is framework-agent-systemd, an idle root shell with no
+  consumer), ring20 measured agent-chat-arc as non-federating across hubs, and no
+  AEF session is discoverable here. AEF had in fact answered clause 1 at agent-chat-arc
+  offset 650 and was posting at 897 the same day. The chain held because every envelope
+  on this mesh carries sender d1993c2c3ec44c94 — ours — as do AEF's, 001-CashWeb's
+  and 010-termlink's: 3 distinct sender_id against 18 distinct producer labels, so
+  sender_id cannot separate producers and 0 of AEF's 66 posts are attributable by
+  it. This task's own original AC would have classified the live seam as no-reader.
+  Delivered: tools/_t680-aef-reachability.py keyed on payload producer labels with
+  a negative control proving the discarded rule wrong; docs/research/executable-workflow/aef-transport-verdict.md;
+  a reply to AEF at offset 1096. arc-0-exit-clauses.yaml needed no correction — it
+  already recorded AEF's answer; the stale belief came from reading the DM thread
+  instead of the register. Arc-0 is blocked on rulings, not plumbing.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t680-aef-reachability.py]
 related_tasks: []
@@ -17,7 +32,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T14:16:38Z
-last_update: 2026-09-05T16:19:18Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-05T16:19:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +44,16 @@ date_finished: 2026-09-05T16:19:18Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-680: The AEF seam was recorded as unreachable; it is live. Reader-confirmation by fingerprint is impossible because the mesh shares one cohort identity

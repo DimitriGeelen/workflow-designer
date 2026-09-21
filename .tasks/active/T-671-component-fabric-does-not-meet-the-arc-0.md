@@ -2,14 +2,21 @@
 id: T-671
 name: "Component Fabric does not meet the Arc-0 fence for the EWCR scope"
 description: >
-  Roadmap section 6 makes 'Component Fabric non-empty, enriched, validated' a fence required BEFORE implementation decomposition, with evidence owner 'Arc 0 task owner'. Our fabric is 79 registered / 278 unregistered of 354 watched (22 percent) with 49 of 79 cards edgeless, and has WARNed 12 times in 14 days. AEF refused exit clause 1 on their own numbers and separately criticised our coverage; that criticism was ACCEPTED as valid in arc-0-exit-clauses.yaml. This is the only part of clause 1 this side can move.
+  Roadmap section 6 makes 'Component Fabric non-empty, enriched, validated' a fence
+  required BEFORE implementation decomposition, with evidence owner 'Arc 0 task owner'.
+  Our fabric is 79 registered / 278 unregistered of 354 watched (22 percent) with
+  49 of 79 cards edgeless, and has WARNed 12 times in 14 days. AEF refused exit clause
+  1 on their own numbers and separately criticised our coverage; that criticism was
+  ACCEPTED as valid in arc-0-exit-clauses.yaml. This is the only part of clause 1
+  this side can move.
 
 status: work-completed
 workflow_type: build
 owner: human
 horizon: now
 tags: [ewcr, fabric, arc-0-fence, arc:ewcr-governed-delivery]
-components: [tools/_t671-arc0-card-gen.py, tools/_t671-arc0-edge-derive.py, tools/_t671-arc0-fabric-fence.py]
+components: [tools/_t671-arc0-card-gen.py, tools/_t671-arc0-edge-derive.py, 
+      tools/_t671-arc0-fabric-fence.py]
 related_tasks: []
 arc_id: ewcr-governed-delivery
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -17,7 +24,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-03T05:31:57Z
-last_update: 2026-09-03T10:04:25Z
+last_update: '2026-09-21T20:24:52Z'
 date_finished: 2026-09-03T10:04:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +36,16 @@ date_finished: 2026-09-03T10:04:25Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-671: Component Fabric does not meet the Arc-0 fence for the EWCR scope

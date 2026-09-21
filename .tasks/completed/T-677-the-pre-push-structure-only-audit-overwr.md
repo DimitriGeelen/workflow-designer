@@ -1,13 +1,32 @@
 ---
 id: T-677
-name: "The pre-push structure-only audit OVERWRITES the day's full audit record, so 13 of 14 days of 'audit history' contain none of the compliance checks the trend analysis claims to trend"
+name: "The pre-push structure-only audit OVERWRITES the day's full audit record, so
+  13 of 14 days of 'audit history' contain none of the compliance checks the trend
+  analysis claims to trend"
 description: >
-  MEASURED 2026-09-05. Audit records per day, by finding count: 2026-08-23..08-29 = 23 each; 09-01..09-03 = 26 each; 09-04 = 18; 09-05 = 192. Only today's is a full audit, and only because it was run by hand. Every other record is the STRUCTURE section alone, written by the pre-push hook to .context/audits/<date>.yaml - the same path a full audit writes. So a full audit run earlier in a day is DESTROYED by the next push. Two consequences. (1) 'Audit history: 13 audit(s) in last 14 days' asserts a coverage that does not exist: the compliance, observation, lifecycle and inception checks were never in 12 of those 13 records. (2) TREND ANALYSIS is computed over that corpus, so it can only ever surface structure-section items - which is exactly what it does surface (fabric, gaps, release lag) and exactly what it has never surfaced (CTL-012 fired for 13 consecutive days and never appeared as a repeated issue; CTL-029 has 13 instances and has never appeared either). The trend detector is structurally incapable of seeing the warns that dominate the full audit. Same family as T-671/T-673: a number that reads as coverage while measuring a subset. G-019: the framework was blind here for at least 14 days, so this is a gap, not just a bug. Candidate fix: partial runs write .context/audits/<date>-<section>.yaml or a sections: key, and never clobber a record whose section set is a superset; trend analysis must state which sections its corpus actually covers.
+  MEASURED 2026-09-05. Audit records per day, by finding count: 2026-08-23..08-29
+  = 23 each; 09-01..09-03 = 26 each; 09-04 = 18; 09-05 = 192. Only today's is a full
+  audit, and only because it was run by hand. Every other record is the STRUCTURE
+  section alone, written by the pre-push hook to .context/audits/<date>.yaml - the
+  same path a full audit writes. So a full audit run earlier in a day is DESTROYED
+  by the next push. Two consequences. (1) 'Audit history: 13 audit(s) in last 14 days'
+  asserts a coverage that does not exist: the compliance, observation, lifecycle and
+  inception checks were never in 12 of those 13 records. (2) TREND ANALYSIS is computed
+  over that corpus, so it can only ever surface structure-section items - which is
+  exactly what it does surface (fabric, gaps, release lag) and exactly what it has
+  never surfaced (CTL-012 fired for 13 consecutive days and never appeared as a repeated
+  issue; CTL-029 has 13 instances and has never appeared either). The trend detector
+  is structurally incapable of seeing the warns that dominate the full audit. Same
+  family as T-671/T-673: a number that reads as coverage while measuring a subset.
+  G-019: the framework was blind here for at least 14 days, so this is a gap, not
+  just a bug. Candidate fix: partial runs write .context/audits/<date>-<section>.yaml
+  or a sections: key, and never clobber a record whose section set is a superset;
+  trend analysis must state which sections its corpus actually covers.
 
 status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: null
+horizon:
 tags: []
 components: [tools/_t677-audit-record-fence.py]
 related_tasks: []
@@ -16,7 +35,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-04T22:13:09Z
-last_update: 2026-09-04T22:31:52Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-04T22:31:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +47,16 @@ date_finished: 2026-09-04T22:31:52Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-677: The pre-push structure-only audit OVERWRITES the day's full audit record, so 13 of 14 days of 'audit history' contain none of the compliance checks the trend analysis claims to trend

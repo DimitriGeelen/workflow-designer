@@ -1,19 +1,21 @@
 ---
 id: T-685
-name: "Should authority live in the box (tier + owner) with the lane meaning domain, instead of the lane being the sole authority-of-record?"
+name: "Should authority live in the box (tier + owner) with the lane meaning domain,
+  instead of the lane being the sole authority-of-record?"
 description: >
-  Inception: Should authority live in the box (tier + owner) with the lane meaning domain, instead of the lane being the sole authority-of-record?
+  Inception: Should authority live in the box (tier + owner) with the lane meaning
+  domain, instead of the lane being the sole authority-of-record?
 
 status: work-completed
 workflow_type: inception
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-06T16:39:41Z
-last_update: 2026-09-08T09:23:43Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-08T09:23:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -35,6 +37,16 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
                                   # entire hv-lc quadrant ranked as one flat tie. `python3 tools/_t624-voi-provenance.py`
                                   # reports which tasks were ever deliberately scored. The 0.5 below is a placeholder that
                                   # exists only to satisfy the schema gate (PL-167) — it is not a recommendation.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 4
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 (no-signal); tier=4 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-685: Should authority live in the box (tier + owner) with the lane meaning domain, instead of the lane being the sole authority-of-record?

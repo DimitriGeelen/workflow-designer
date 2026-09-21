@@ -2,21 +2,32 @@
 id: T-579
 name: "The third-party byte-identity gate is RED and no runner has ever seen it"
 description: >
-  tools/_t358-byteid-thirdparty.mjs exits 1 today: 0 identical / 11 drifted, and it prints PRECONDITION VIOLATED — boundary-events (2 same-lane x tie groups) and kitchen-sink (14) tie among uid-less nodes, so its uid-only normaliser is unsound and it says so. Nothing runs it: run-bridge-tests.sh has no leg, and its only code caller is tools/_t364-byteid-precondition-teeth.py, which _t509-instrument-sweep.sh EXCLUDES by design. T-364 predicted this in writing — 'boundary-events (2 groups) and kitchen-sink (11 groups) already hold uid-less collision groups in their DI, so adopting DI as geometry supplies the missing ingredient' — and T-423 adopted DI. The operator ruling on T-364 also directed narrowing the precondition to 'nondeterministically minted' after repair (a) landed; repair (a) landed, the narrowing did not. Found while measuring T-501 IW-0, whose deferral names this gate as its safety net.
+  tools/_t358-byteid-thirdparty.mjs exits 1 today: 0 identical / 11 drifted, and it
+  prints PRECONDITION VIOLATED — boundary-events (2 same-lane x tie groups) and kitchen-sink
+  (14) tie among uid-less nodes, so its uid-only normaliser is unsound and it says
+  so. Nothing runs it: run-bridge-tests.sh has no leg, and its only code caller is
+  tools/_t364-byteid-precondition-teeth.py, which _t509-instrument-sweep.sh EXCLUDES
+  by design. T-364 predicted this in writing — 'boundary-events (2 groups) and kitchen-sink
+  (11 groups) already hold uid-less collision groups in their DI, so adopting DI as
+  geometry supplies the missing ingredient' — and T-423 adopted DI. The operator ruling
+  on T-364 also directed narrowing the precondition to 'nondeterministically minted'
+  after repair (a) landed; repair (a) landed, the narrowing did not. Found while measuring
+  T-501 IW-0, whose deferral names this gate as its safety net.
 
 status: work-completed
 workflow_type: build
 owner: human
 horizon: now
 tags: []
-components: [tools/_t563-fallback-id-derivation-cdp.mjs, tools/_t581-byteid-baseline-teeth.py]
+components: [tools/_t563-fallback-id-derivation-cdp.mjs, 
+      tools/_t581-byteid-baseline-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-23T21:44:44Z
-last_update: 2026-08-24T21:26:29Z
+last_update: '2026-09-21T20:24:51Z'
 date_finished: 2026-08-24T21:26:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +39,16 @@ date_finished: 2026-08-24T21:26:29Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:51Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-579: The third-party byte-identity gate is RED and no runner has ever seen it

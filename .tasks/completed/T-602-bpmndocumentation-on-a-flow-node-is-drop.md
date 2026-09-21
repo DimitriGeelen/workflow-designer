@@ -2,12 +2,19 @@
 id: T-602
 name: "bpmn:documentation on a flow node is dropped on open to save"
 description: >
-  Field-reported by 001-CashWeb 2026-08-26 (termlink agent-chat-arc offset 531): a save dropped all 8 bpmn:documentation elements from their phase-1 map, each carrying a per-node vendor API binding, auth shape and policy. Re-measured against current src with tools/_t347-accepted-element-content-cdp.mjs: documentation 2/2 carriers LOSE it. Not a 0.11.0 regression - parseBpmnXml reads ~10 NAMED children per accepted element and export writes only from state, so documentation was never read and never could be written. Narrow slice of T-347 (five shapes); this task takes the documentation shape on flow nodes only, because that is the field-reported carrier.
+  Field-reported by 001-CashWeb 2026-08-26 (termlink agent-chat-arc offset 531): a
+  save dropped all 8 bpmn:documentation elements from their phase-1 map, each carrying
+  a per-node vendor API binding, auth shape and policy. Re-measured against current
+  src with tools/_t347-accepted-element-content-cdp.mjs: documentation 2/2 carriers
+  LOSE it. Not a 0.11.0 regression - parseBpmnXml reads ~10 NAMED children per accepted
+  element and export writes only from state, so documentation was never read and never
+  could be written. Narrow slice of T-347 (five shapes); this task takes the documentation
+  shape on flow nodes only, because that is the field-reported carrier.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T17:44:07Z
-last_update: 2026-08-26T19:19:52Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-26T19:19:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,17 @@ date_finished: 2026-08-26T19:19:52Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:tools/_t347-accepted-element-content-cdp.mjs,tools/_t602-documentation-roundtrip.mjs);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-602: bpmn:documentation on a flow node is dropped on open to save

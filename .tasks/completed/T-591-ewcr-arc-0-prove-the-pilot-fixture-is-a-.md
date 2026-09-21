@@ -1,13 +1,15 @@
 ---
 id: T-591
-name: "EWCR Arc-0: prove the pilot fixture is a semantic fixed point through the real editor runtime"
+name: "EWCR Arc-0: prove the pilot fixture is a semantic fixed point through the real
+  editor runtime"
 description: >
-  EWCR Arc-0: prove the pilot fixture is a semantic fixed point through the real editor runtime
+  EWCR Arc-0: prove the pilot fixture is a semantic fixed point through the real editor
+  runtime
 
 status: work-completed
 workflow_type: test
 owner: agent
-horizon: null
+horizon:
 tags: [arc:ewcr-governed-delivery]
 components: []
 related_tasks: []
@@ -17,7 +19,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T12:15:11Z
-last_update: 2026-09-03T05:18:33Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-26T12:23:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +31,17 @@ date_finished: 2026-08-26T12:23:39Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 1
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:docs/research/executable-workflow/fixtures/ewcr-pilot-human-gate-script-human-gate.bpmn,src/aef-workflow-designer.html,tests/test_editor_bridge_meta_parity.py,tests/test_mapping_standard_conformance.py);
+      tier=1 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-591: EWCR Arc-0: prove the pilot fixture is a semantic fixed point through the real editor runtime

@@ -1,13 +1,27 @@
 ---
 id: T-679
-name: "arc tag reassignment guard reads only arc_id:, so 26 legacy-tag-only tasks can be silently reassigned"
+name: "arc tag reassignment guard reads only arc_id:, so 26 legacy-tag-only tasks
+  can be silently reassigned"
 description: >
-  MEASURED on the real corpus immediately after T-467 landed, by running the fixed verb end-to-end instead of only against fixtures. 'fw arc tag designer-authoring-surface T-590' SET the field and exited 0, though T-590 already belonged to ewcr-governed-delivery. T-467's new reassignment guard looks for a live 'arc_id:' line and T-590 records its membership in the LEGACY tag form (tags: [..., arc:ewcr-governed-delivery]) with no arc_id: at all. So the guard is blind to exactly the population it most needs to see: 26 tasks in this tree carry legacy-tag-only membership, and every one of them can be silently reassigned. This is the union problem one level down - readers (lib/arc_membership.py) union arc_id: with the legacy tag, and T-467's WRITER consults only half of that union. Second finding from the same measurement: multi-arc legacy tags exist (at least 2 tasks carry two arc: tags), and single-valued arc_id: cannot represent dual membership, so writing it would silently drop one. Damage from the probe was reverted immediately (git checkout of the single file, tree clean).
+  MEASURED on the real corpus immediately after T-467 landed, by running the fixed
+  verb end-to-end instead of only against fixtures. 'fw arc tag designer-authoring-surface
+  T-590' SET the field and exited 0, though T-590 already belonged to ewcr-governed-delivery.
+  T-467's new reassignment guard looks for a live 'arc_id:' line and T-590 records
+  its membership in the LEGACY tag form (tags: [..., arc:ewcr-governed-delivery])
+  with no arc_id: at all. So the guard is blind to exactly the population it most
+  needs to see: 26 tasks in this tree carry legacy-tag-only membership, and every
+  one of them can be silently reassigned. This is the union problem one level down
+  - readers (lib/arc_membership.py) union arc_id: with the legacy tag, and T-467's
+  WRITER consults only half of that union. Second finding from the same measurement:
+  multi-arc legacy tags exist (at least 2 tasks carry two arc: tags), and single-valued
+  arc_id: cannot represent dual membership, so writing it would silently drop one.
+  Damage from the probe was reverted immediately (git checkout of the single file,
+  tree clean).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t341-orphan-lane-probe.mjs]
 related_tasks: []
@@ -16,7 +30,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T10:51:14Z
-last_update: 2026-09-05T10:53:28Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-05T10:53:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +42,16 @@ date_finished: 2026-09-05T10:53:28Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-679: arc tag reassignment guard reads only arc_id:, so 26 legacy-tag-only tasks can be silently reassigned

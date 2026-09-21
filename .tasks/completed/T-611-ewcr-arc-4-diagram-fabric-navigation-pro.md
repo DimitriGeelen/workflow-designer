@@ -1,13 +1,15 @@
 ---
 id: T-611
-name: "EWCR Arc 4 diagram-Fabric navigation: prove the built link path end to end, hand the operator a one-click review, answer CashWeb's parked question"
+name: "EWCR Arc 4 diagram-Fabric navigation: prove the built link path end to end,
+  hand the operator a one-click review, answer CashWeb's parked question"
 description: >
-  EWCR Arc 4 diagram-Fabric navigation: prove the built link path end to end, hand the operator a one-click review, answer CashWeb's parked question
+  EWCR Arc 4 diagram-Fabric navigation: prove the built link path end to end, hand
+  the operator a one-click review, answer CashWeb's parked question
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [arc:designer-authoring-surface, arc:ewcr-governed-delivery]
 components: []
 related_tasks: [T-589, T-570, T-609, T-200]
@@ -16,7 +18,7 @@ related_tasks: [T-589, T-570, T-609, T-200]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T07:45:08Z
-last_update: 2026-09-03T05:18:35Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-27T07:51:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-08-27T07:51:23Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:src/aef-workflow-designer.html,tools/_t589-panel-links-cdp.mjs,tools/_t611-review-card-steps.py,tools/gallery-serve.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-611: EWCR Arc 4 diagram-Fabric navigation: prove the built link path end to end, hand the operator a one-click review, answer CashWeb's parked question

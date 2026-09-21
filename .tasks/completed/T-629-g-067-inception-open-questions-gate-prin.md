@@ -1,13 +1,15 @@
 ---
 id: T-629
-name: "G-067 inception open-questions gate prints three remedies that have never been probed for reachability"
+name: "G-067 inception open-questions gate prints three remedies that have never been
+  probed for reachability"
 description: >
-  G-067 inception open-questions gate prints three remedies that have never been probed for reachability
+  G-067 inception open-questions gate prints three remedies that have never been probed
+  for reachability
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-29T15:06:32Z
-last_update: 2026-08-29T15:10:08Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-29T15:10:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-08-29T15:10:08Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:.agentic-framework/agents/context/check-active-task.sh,tools/_t386-drift-remedy-reachable.sh,tools/_t628-g020-remedy-reachable.sh,tools/_t629-g067-remedy-reachable.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-629: G-067 inception open-questions gate prints three remedies that have never been probed for reachability

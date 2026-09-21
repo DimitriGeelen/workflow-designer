@@ -1,13 +1,15 @@
 ---
 id: T-615
-name: "cut a 0.12.0 release candidate for the T-589 navigation up to but not including the VERSION bump, so the operator decides on bytes rather than on a question"
+name: "cut a 0.12.0 release candidate for the T-589 navigation up to but not including
+  the VERSION bump, so the operator decides on bytes rather than on a question"
 description: >
-  cut a 0.12.0 release candidate for the T-589 navigation up to but not including the VERSION bump, so the operator decides on bytes rather than on a question
+  cut a 0.12.0 release candidate for the T-589 navigation up to but not including
+  the VERSION bump, so the operator decides on bytes rather than on a question
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T08:57:46Z
-last_update: 2026-08-27T09:00:26Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-27T09:00:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-08-27T09:00:26Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:dist/MANIFEST.yaml,dist/aef-workflow-designer-0.11.0.html,dist/aef-workflow-designer-0.12.0.html,scripts/release-designer.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-615: cut a 0.12.0 release candidate for the T-589 navigation up to but not including the VERSION bump, so the operator decides on bytes rather than on a question

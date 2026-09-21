@@ -1,8 +1,15 @@
 ---
 id: T-565
-name: "IW-0 exit condition: measure the byte impact of always emitting aef:workflowMeta across the 24 rendered maps"
+name: "IW-0 exit condition: measure the byte impact of always emitting aef:workflowMeta
+  across the 24 rendered maps"
 description: >
-  T-501 IW-0 is DEFERRED, not answered — the operator has not ruled on whether export should always emit <aef:workflowMeta>. This task produces the evidence that deferral names as its exit condition and NOTHING ELSE: measure whether always emitting the element changes the bytes of any of the 24 rendered maps, and run the T-308/T-358 byte-identity gates against the result. It does NOT change the emitter. If nothing moves, the carve-out's motivating risk is absent; if something moves, the failure is attributable to this change alone.
+  T-501 IW-0 is DEFERRED, not answered — the operator has not ruled on whether export
+  should always emit <aef:workflowMeta>. This task produces the evidence that deferral
+  names as its exit condition and NOTHING ELSE: measure whether always emitting the
+  element changes the bytes of any of the 24 rendered maps, and run the T-308/T-358
+  byte-identity gates against the result. It does NOT change the emitter. If nothing
+  moves, the carve-out's motivating risk is absent; if something moves, the failure
+  is attributable to this change alone.
 
 status: work-completed
 workflow_type: test
@@ -17,7 +24,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T09:48:13Z
-last_update: 2026-08-26T16:45:21Z
+last_update: '2026-09-21T20:24:51Z'
 date_finished: 2026-08-26T16:45:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +36,16 @@ date_finished: 2026-08-26T16:45:21Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:51Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 1
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=1 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-565: IW-0 exit condition: measure the byte impact of always emitting aef:workflowMeta across the 24 rendered maps

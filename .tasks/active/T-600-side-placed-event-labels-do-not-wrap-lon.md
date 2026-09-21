@@ -2,7 +2,12 @@
 id: T-600
 name: "Side-placed event labels do not wrap: long label text overruns the lane boundary"
 description: >
-  Operator screenshot 2026-08-26: the label 'run halted - operator kill switch' on event node hum_3_run renders as one unwrapped line to the right of the circle and overruns the lane divider. Node labels rendered INSIDE a shape already wrap (src/aef-workflow-designer.html:3206 iterates a 'lines' array), so wrapping logic exists; the side-placed label path for circular event nodes bypasses it. Add wrapping there, with a width budget that respects the lane boundary rather than the node box.
+  Operator screenshot 2026-08-26: the label 'run halted - operator kill switch' on
+  event node hum_3_run renders as one unwrapped line to the right of the circle and
+  overruns the lane divider. Node labels rendered INSIDE a shape already wrap (src/aef-workflow-designer.html:3206
+  iterates a 'lines' array), so wrapping logic exists; the side-placed label path
+  for circular event nodes bypasses it. Add wrapping there, with a width budget that
+  respects the lane boundary rather than the node box.
 
 status: work-completed
 workflow_type: build
@@ -16,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T17:23:44Z
-last_update: 2026-08-26T19:20:38Z
+last_update: '2026-09-21T20:24:52Z'
 date_finished: 2026-08-26T19:20:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,17 @@ date_finished: 2026-08-26T19:20:38Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:src/aef-workflow-designer.html,tools/_t600-label-wrap.mjs); tier=2 
+      (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-600: Side-placed event labels do not wrap: long label text overruns the lane boundary

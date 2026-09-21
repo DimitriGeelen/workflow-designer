@@ -1,13 +1,21 @@
 ---
 id: T-645
-name: "test_htmx_returns_fragment[/timeline] fails on a substring scan: task PROSE containing the characters <html"
+name: "test_htmx_returns_fragment[/timeline] fails on a substring scan: task PROSE
+  containing the characters <html"
 description: >
-  web/test_app.py:143 asserts '<html' not in html to prove an HX-Request returns a fragment rather than a full page. /timeline renders task and report PROSE, and one of those bodies contains the literal characters '<html' while discussing HTMX fragments. The fragment IS a fragment (the response opens with <nav>), so the assertion is a false positive: a character-level scan standing in for a structural question. The structural test is whether the response has a root <html> ELEMENT, not whether those five characters appear anywhere in the rendered body. Ninth member of the family first named in T-633. Found while verifying T-643.
+  web/test_app.py:143 asserts '<html' not in html to prove an HX-Request returns a
+  fragment rather than a full page. /timeline renders task and report PROSE, and one
+  of those bodies contains the literal characters '<html' while discussing HTMX fragments.
+  The fragment IS a fragment (the response opens with <nav>), so the assertion is
+  a false positive: a character-level scan standing in for a structural question.
+  The structural test is whether the response has a root <html> ELEMENT, not whether
+  those five characters appear anywhere in the rendered body. Ninth member of the
+  family first named in T-633. Found while verifying T-643.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:08:53Z
-last_update: 2026-08-31T11:47:16Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-31T11:47:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,16 @@ date_finished: 2026-08-31T11:47:16Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (paths:.agentic-framework/web/test_app.py); tier=2
+      (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-645: test_htmx_returns_fragment[/timeline] fails on a substring scan: task PROSE containing the characters <html

@@ -7,7 +7,7 @@ description: >
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T11:51:25Z
-last_update: 2026-08-25T06:08:24Z
+last_update: '2026-09-21T20:25:06Z'
 date_finished: 2026-08-25T06:08:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -81,6 +81,16 @@ cost_estimate_proposed:
       effort: 8
     rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
       (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-21T20:25:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:tests/run-bridge-tests.sh,tools/_t499-ownership-teeth.py,tools/_t499-watchtower-ownership.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

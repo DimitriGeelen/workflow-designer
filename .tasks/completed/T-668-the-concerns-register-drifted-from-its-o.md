@@ -1,13 +1,15 @@
 ---
 id: T-668
-name: "the concerns register drifted from its own declared schema: two field names nothing reads"
+name: "the concerns register drifted from its own declared schema: two field names
+  nothing reads"
 description: >
-  the concerns register drifted from its own declared schema: two field names nothing reads
+  the concerns register drifted from its own declared schema: two field names nothing
+  reads
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-01T21:31:50Z
-last_update: 2026-09-01T21:36:11Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-01T21:36:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-09-01T21:36:11Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:.context/episodic/T-653.yaml,.context/project/concerns.yaml,tools/_t400-schema-teeth.sh,tools/concerns-schema.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-668: the concerns register drifted from its own declared schema: two field names nothing reads

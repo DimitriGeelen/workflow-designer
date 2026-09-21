@@ -9,7 +9,7 @@ description: >
 status: work-completed
 workflow_type: build
 owner: claude
-horizon: null
+horizon:
 tags: [arc-003, audit-remediation, RA-003]
 components: []
 related_tasks: []
@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:00Z
-last_update: 2026-09-16T13:36:12Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-16T13:36:12Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -56,6 +56,14 @@ cost_estimate_proposed:
       tier: 2
       effort: 7
     rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=7 
+      (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
       (no-signal)
     rubric_sha: e4a00f38e801
 ---

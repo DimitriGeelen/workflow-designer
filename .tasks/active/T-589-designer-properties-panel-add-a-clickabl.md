@@ -1,8 +1,10 @@
 ---
 id: T-589
-name: "designer properties panel: add a clickable component-fabric link and a URL field for code/tests"
+name: "designer properties panel: add a clickable component-fabric link and a URL
+  field for code/tests"
 description: >
-  designer properties panel: add a clickable component-fabric link and a URL field for code/tests
+  designer properties panel: add a clickable component-fabric link and a URL field
+  for code/tests
 
 status: work-completed
 workflow_type: build
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-25T22:39:21Z
-last_update: 2026-08-26T09:51:02Z
+last_update: '2026-09-21T20:24:52Z'
 date_finished: 2026-08-26T09:51:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-08-26T09:51:02Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 7
+    rationale: blast_radius=7 
+      (paths:docs/standards/aef-bpmn-mapping-v1.md,src/aef-workflow-designer.html,tests/test_editor_bridge_meta_parity.py,tests/test_mapping_standard_conformance.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-589: designer properties panel: add a clickable component-fabric link and a URL field for code/tests

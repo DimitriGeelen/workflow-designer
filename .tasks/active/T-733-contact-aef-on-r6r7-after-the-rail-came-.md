@@ -1,8 +1,14 @@
 ---
 id: T-733
-name: "Contact AEF on R6/R7 after the rail came back empty: re-establish the ask and record that the cited offsets no longer resolve"
+name: "Contact AEF on R6/R7 after the rail came back empty: re-establish the ask and
+  record that the cited offsets no longer resolve"
 description: >
-  Operator instructed hub start + AEF contact on R6/R7 (H6). Hub started clean: topic store holds only broadcast:global, agent-chat-arc absent. Every rail offset cited in arc-0-exit-clauses.yaml and operator-decisions.yaml (602/643/650/734/737/741/742) is now dangling. Re-post the R6/R7 ask stating the discontinuity explicitly, with producer attribution, and annotate the registers so the lost citations are visible rather than silently broken.
+  Operator instructed hub start + AEF contact on R6/R7 (H6). Hub started clean: topic
+  store holds only broadcast:global, agent-chat-arc absent. Every rail offset cited
+  in arc-0-exit-clauses.yaml and operator-decisions.yaml (602/643/650/734/737/741/742)
+  is now dangling. Re-post the R6/R7 ask stating the discontinuity explicitly, with
+  producer attribution, and annotate the registers so the lost citations are visible
+  rather than silently broken.
 
 status: work-completed
 workflow_type: build
@@ -17,7 +23,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T19:13:53Z
-last_update: 2026-09-16T19:17:35Z
+last_update: '2026-09-21T20:24:53Z'
 date_finished: 2026-09-16T19:17:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +35,17 @@ date_finished: 2026-09-16T19:17:35Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 
+      (paths:docs/research/executable-workflow/arc-0-exit-clauses.yaml); tier=2 
+      (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-733: Contact AEF on R6/R7 after the rail came back empty: re-establish the ask and record that the cited offsets no longer resolve

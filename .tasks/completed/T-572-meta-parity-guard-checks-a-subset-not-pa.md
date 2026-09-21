@@ -1,13 +1,31 @@
 ---
 id: T-572
-name: "meta-parity guard checks a subset, not parity: 9 bridge keys the editor never named stayed green"
+name: "meta-parity guard checks a subset, not parity: 9 bridge keys the editor never
+  named stayed green"
 description: >
-  tests/test_editor_bridge_meta_parity.py asserts ONE direction: check(editor_keys, bridge_keys) returns editor keys missing from the bridge, and the self-test at :94 confirms that is the only case it flags. Measured with the test's own extractors: editor metaKeys = 20, bridge META_KEYS = 29, and 9 keys the bridge EMITS were absent from the editor's export whitelist -- determinism, authority, endpoint, sideEffect, autoTriggerKind, restoresFrom, compensationSnapshot, compensatedBy, advisory. check() returns [] on that, so the guard has been green for the entire period in which opening a bridge-produced map in the editor and saving it destroyed up to 9 keys (T-570 measured and fixed the destruction; this task is about the guard that should have reported it). The file is NAMED parity and its assertion is SUBSET. That is the week's recurring shape once more -- a stated property standing in for a checked one, with the gap rendering as green. Note the fix is NOT simply 'assert equality': the two lists legitimately differ, because the editor now carries unlisted scalars generically rather than by name (T-570 src:9550) while the bridge enumerates its vocabulary. The guard has to assert the property that actually matters -- every key the bridge can emit survives an editor round trip -- which is a ROUND-TRIP assertion, not a set comparison, and should be measured against the editor rather than against its source text.
+  tests/test_editor_bridge_meta_parity.py asserts ONE direction: check(editor_keys,
+  bridge_keys) returns editor keys missing from the bridge, and the self-test at :94
+  confirms that is the only case it flags. Measured with the test's own extractors:
+  editor metaKeys = 20, bridge META_KEYS = 29, and 9 keys the bridge EMITS were absent
+  from the editor's export whitelist -- determinism, authority, endpoint, sideEffect,
+  autoTriggerKind, restoresFrom, compensationSnapshot, compensatedBy, advisory. check()
+  returns [] on that, so the guard has been green for the entire period in which opening
+  a bridge-produced map in the editor and saving it destroyed up to 9 keys (T-570
+  measured and fixed the destruction; this task is about the guard that should have
+  reported it). The file is NAMED parity and its assertion is SUBSET. That is the
+  week's recurring shape once more -- a stated property standing in for a checked
+  one, with the gap rendering as green. Note the fix is NOT simply 'assert equality':
+  the two lists legitimately differ, because the editor now carries unlisted scalars
+  generically rather than by name (T-570 src:9550) while the bridge enumerates its
+  vocabulary. The guard has to assert the property that actually matters -- every
+  key the bridge can emit survives an editor round trip -- which is a ROUND-TRIP assertion,
+  not a set comparison, and should be measured against the editor rather than against
+  its source text.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [bug, designer, test-guard]
 components: []
 related_tasks: []
@@ -16,7 +34,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T17:06:18Z
-last_update: 2026-08-20T18:16:50Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-20T18:16:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +46,17 @@ date_finished: 2026-08-20T18:16:50Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 7
+    rationale: blast_radius=7 
+      (paths:.context/project/concerns.yaml,tests/run-bridge-tests.sh,tests/test_editor_bridge_meta_parity.py,tests/test_editor_bridge_structured_parity.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-572: meta-parity guard checks a subset, not parity: 9 bridge keys the editor never named stayed green

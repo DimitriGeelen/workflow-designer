@@ -1,8 +1,10 @@
 ---
 id: T-608
-name: "Draft the AEF attestation request for Arc-0 clauses 1 and 2 - written and unsent, so the operator rules on concrete text"
+name: "Draft the AEF attestation request for Arc-0 clauses 1 and 2 - written and unsent,
+  so the operator rules on concrete text"
 description: >
-  Draft the AEF attestation request for Arc-0 clauses 1 and 2 - written and unsent, so the operator rules on concrete text
+  Draft the AEF attestation request for Arc-0 clauses 1 and 2 - written and unsent,
+  so the operator rules on concrete text
 
 status: work-completed
 workflow_type: build
@@ -17,7 +19,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T22:07:26Z
-last_update: 2026-08-26T22:13:30Z
+last_update: '2026-09-21T20:24:52Z'
 date_finished: 2026-08-26T22:13:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +31,17 @@ date_finished: 2026-08-26T22:13:30Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:docs/research/executable-workflow/aef-attestation-request-draft.md,docs/research/executable-workflow/arc-0-exit-clauses.yaml,tools/_t608-attestation-draft-gate.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-608: Draft the AEF attestation request for Arc-0 clauses 1 and 2 - written and unsent, so the operator rules on concrete text

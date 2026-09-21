@@ -2,13 +2,21 @@
 id: T-590
 name: "EWCR Arc-0 Designer contract inventory and one canonical rendered fixture"
 description: >
-  Execute the human-approved narrow Designer slice from T-587 under initiative ewcr-v1 and correlation ewcr-v1-designer-fixture: document the existing frozen Designer contract, defaults, inference rules and identity model; render one canonical human-gate to registered-script to human-gate BPMN fixture through Mapping Standard Part I without changing it; record cannot-represent-yet gaps; and create a hash-bearing paired handoff envelope referencing AEF draft arc-019 and T-3147. No runtime, proposal channel, autonomy, BVP confirmation, prior disposition reversal, cross-project write, or bulk task creation.
+  Execute the human-approved narrow Designer slice from T-587 under initiative ewcr-v1
+  and correlation ewcr-v1-designer-fixture: document the existing frozen Designer
+  contract, defaults, inference rules and identity model; render one canonical human-gate
+  to registered-script to human-gate BPMN fixture through Mapping Standard Part I
+  without changing it; record cannot-represent-yet gaps; and create a hash-bearing
+  paired handoff envelope referencing AEF draft arc-019 and T-3147. No runtime, proposal
+  channel, autonomy, BVP confirmation, prior disposition reversal, cross-project write,
+  or bulk task creation.
 
 status: work-completed
 workflow_type: build
 owner: human
 horizon: now
-tags: [ewcr-v1, ewcr-v1-designer-fixture, paired-contract, fixture, arc:ewcr-governed-delivery]
+tags: [ewcr-v1, ewcr-v1-designer-fixture, paired-contract, fixture, 
+      arc:ewcr-governed-delivery]
 components: []
 related_tasks: [T-587]
 arc_id: ewcr-governed-delivery
@@ -17,7 +25,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T09:00:46Z
-last_update: 2026-09-03T05:18:33Z
+last_update: '2026-09-21T20:24:52Z'
 date_finished: 2026-08-26T12:30:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +37,17 @@ date_finished: 2026-08-26T12:30:15Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 9
+    rationale: blast_radius=9 
+      (paths:.context/project/decisions.yaml,docs/aef-designer-integration-protocol.md,docs/research/executable-workflow/architecture-c9070637.md,docs/research/executable-workflow/cannot-represent-yet.md);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-590: EWCR Arc-0 Designer contract inventory and one canonical rendered fixture

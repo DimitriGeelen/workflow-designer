@@ -2,12 +2,22 @@
 id: T-603
 name: "Only the first bpmn:process is imported: every later process is silently discarded"
 description: >
-  MEASURED 2026-08-26 while landing T-602. parseBpmnXml takes processes[0] (src/aef-workflow-designer.html:10370) and ignores every other bpmn:process in the document. tests/fixtures/third-party/bizagi-nested-ns.bpmn declares two: the first holds only an empty laneSet, the second holds all the flow content. Round-tripping it through the real editor yields nodesInState 0, outDocs 0, outProcesses 1 - the entire diagram is discarded and the save writes an empty process back. Counts do not go down from any baseline the corpus holds, so no existing instrument reports it; T-347's census attributes the loss to 'documentation' because that is the only shape it counts. Severity is total data loss on any collaboration or multi-pool document, which is the normal shape for third-party exports (Bizagi here). Decide whether the fix is import-all-processes, import-the-largest, or refuse-with-a-named-reason - silently keeping the empty one is the only option that is certainly wrong.
+  MEASURED 2026-08-26 while landing T-602. parseBpmnXml takes processes[0] (src/aef-workflow-designer.html:10370)
+  and ignores every other bpmn:process in the document. tests/fixtures/third-party/bizagi-nested-ns.bpmn
+  declares two: the first holds only an empty laneSet, the second holds all the flow
+  content. Round-tripping it through the real editor yields nodesInState 0, outDocs
+  0, outProcesses 1 - the entire diagram is discarded and the save writes an empty
+  process back. Counts do not go down from any baseline the corpus holds, so no existing
+  instrument reports it; T-347's census attributes the loss to 'documentation' because
+  that is the only shape it counts. Severity is total data loss on any collaboration
+  or multi-pool document, which is the normal shape for third-party exports (Bizagi
+  here). Decide whether the fix is import-all-processes, import-the-largest, or refuse-with-a-named-reason
+  - silently keeping the empty one is the only option that is certainly wrong.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T17:47:20Z
-last_update: 2026-08-26T19:19:31Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-26T19:19:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,17 @@ date_finished: 2026-08-26T19:19:31Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 7
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:src/aef-workflow-designer.html,tests/fixtures/third-party/bizagi-nested-ns.bpmn,tools/_t602-documentation-roundtrip.mjs,tools/_t603-multiprocess-import.mjs);
+      tier=2 (no-signal); effort=7 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-603: Only the first bpmn:process is imported: every later process is silently discarded

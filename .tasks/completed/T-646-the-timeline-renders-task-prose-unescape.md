@@ -1,13 +1,21 @@
 ---
 id: T-646
-name: "the timeline renders task prose unescaped: raw < from a task body reaches the browser as markup"
+name: "the timeline renders task prose unescaped: raw < from a task body reaches the
+  browser as markup"
 description: >
-  GET /timeline returns 2 occurrences of the literal characters '<html' and 0 of '&lt;html'. The source is task prose discussing HTMX fragments; the page emits it as markup rather than text. Measured via app.test_client() on 2026-08-30. Task bodies are authored in-repo so this is not an external injection vector, but any task text containing < renders as a tag and can silently break the page's structure. Found while investigating T-645, which fired on exactly this byte for an unrelated reason. Sibling: T-645 fixes the ASSERTION, this task fixes the ESCAPING; fixing either alone leaves the other defect standing.
+  GET /timeline returns 2 occurrences of the literal characters '<html' and 0 of '&lt;html'.
+  The source is task prose discussing HTMX fragments; the page emits it as markup
+  rather than text. Measured via app.test_client() on 2026-08-30. Task bodies are
+  authored in-repo so this is not an external injection vector, but any task text
+  containing < renders as a tag and can silently break the page's structure. Found
+  while investigating T-645, which fired on exactly this byte for an unrelated reason.
+  Sibling: T-645 fixes the ASSERTION, this task fixes the ESCAPING; fixing either
+  alone leaves the other defect standing.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-30T18:24:16Z
-last_update: 2026-08-31T11:37:32Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-31T11:37:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,17 @@ date_finished: 2026-08-31T11:37:32Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.agentic-framework/web/test_app.py,tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-646: the timeline renders task prose unescaped: raw < from a task body reaches the browser as markup

@@ -1,8 +1,10 @@
 ---
 id: T-681
-name: "EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs 1-6 have no tasks at all"
+name: "EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs 1-6
+  have no tasks at all"
 description: >
-  Inception: EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs 1-6 have no tasks at all
+  Inception: EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs
+  1-6 have no tasks at all
 
 status: started-work
 workflow_type: inception
@@ -13,8 +15,8 @@ components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-05T14:17:12Z
-last_update: 2026-09-08T20:40:54Z
-date_finished: null
+last_update: '2026-09-21T20:24:52Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -35,6 +37,16 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
                                   # entire hv-lc quadrant ranked as one flat tie. `python3 tools/_t624-voi-provenance.py`
                                   # reports which tasks were ever deliberately scored. The 0.5 below is a placeholder that
                                   # exists only to satisfy the schema gate (PL-167) — it is not a recommendation.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 4
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 (no-signal); tier=4 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-681: EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs 1-6 have no tasks at all

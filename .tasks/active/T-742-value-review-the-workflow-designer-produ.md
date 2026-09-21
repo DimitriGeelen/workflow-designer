@@ -1,8 +1,15 @@
 ---
 id: T-742
-name: "Value review: the Workflow Designer product itself — src/, the editor, chain stage 1"
+name: "Value review: the Workflow Designer product itself — src/, the editor, chain
+  stage 1"
 description: >
-  Phase 0-5 value review under the operator's pasted PROMPT, scope option 3: the product itself, not the AEF seam (T-740 covered that and is parked unruled). Subject: src/aef-workflow-designer.html (single file, 997254 bytes, 254 function decls), tests/ (49 files), scripts/, and the release path. Yardstick carried forward from T-740's confirmed yardstick. External data: none (T-559 blocks 999-AEF). GATHERER/JUDGE/HUMAN role separation per the prompt; gatherers dispatched as TermLink workers. Research is not authorization - Phase 6 executes nothing without item-by-item operator approval.
+  Phase 0-5 value review under the operator's pasted PROMPT, scope option 3: the product
+  itself, not the AEF seam (T-740 covered that and is parked unruled). Subject: src/aef-workflow-designer.html
+  (single file, 997254 bytes, 254 function decls), tests/ (49 files), scripts/, and
+  the release path. Yardstick carried forward from T-740's confirmed yardstick. External
+  data: none (T-559 blocks 999-AEF). GATHERER/JUDGE/HUMAN role separation per the
+  prompt; gatherers dispatched as TermLink workers. Research is not authorization
+  - Phase 6 executes nothing without item-by-item operator approval.
 
 status: work-completed
 workflow_type: specification
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T21:47:33Z
-last_update: 2026-09-20T22:52:21Z
+last_update: '2026-09-21T20:24:53Z'
 date_finished: 2026-09-20T22:52:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,17 @@ date_finished: 2026-09-20T22:52:21Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 4
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md,docs/reports/VALUE-REVIEW-designer-product-2026-09-20/00-yardstick.md);
+      tier=4 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-742: Value review: the Workflow Designer product itself — src/, the editor, chain stage 1

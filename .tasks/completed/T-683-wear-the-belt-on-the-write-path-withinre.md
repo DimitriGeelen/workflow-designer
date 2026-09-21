@@ -1,13 +1,18 @@
 ---
 id: T-683
-name: "Wear the belt on the write path: _within_repo guards delete but not save, so one regex is the whole fence"
+name: "Wear the belt on the write path: _within_repo guards delete but not save, so
+  one regex is the whole fence"
 description: >
-  tools/gallery-serve.py:109 _within_repo documents itself as belt-and-braces over ID_RE, but is referenced only at :120 on the delete path. The /api/save write path has no containment check at all. T-681 S2 demonstrated behaviorally that widening ID_RE alone puts a write outside the version store (HTTP 200, escaped=True). Apply the guard on the save path so containment does not rest on a single regex.
+  tools/gallery-serve.py:109 _within_repo documents itself as belt-and-braces over
+  ID_RE, but is referenced only at :120 on the delete path. The /api/save write path
+  has no containment check at all. T-681 S2 demonstrated behaviorally that widening
+  ID_RE alone puts a write outside the version store (HTTP 200, escaped=True). Apply
+  the guard on the save path so containment does not rest on a single regex.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [ewcr, arc-2, isolation]
 components: [tools/gallery-serve.py, tools/_t683-save-containment-verify.py]
 related_tasks: []
@@ -17,7 +22,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-05T17:25:56Z
-last_update: 2026-09-07T21:11:31Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-07T21:11:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +34,16 @@ date_finished: 2026-09-07T21:11:31Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-683: Wear the belt on the write path: _within_repo guards delete but not save, so one regex is the whole fence

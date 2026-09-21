@@ -1,8 +1,14 @@
 ---
 id: T-732
-name: "Drain the H-register: four open operator rulings are the only Arc-0 exit path on our side of the fence"
+name: "Drain the H-register: four open operator rulings are the only Arc-0 exit path
+  on our side of the fence"
 description: >
-  Clause 3 is the sole Arc-0 exit clause not owned by AEF. It is gated on operator-decisions.yaml, where H1/H3/H5/H6 are open and each blocks_arc_0_exit. H3, H5 and H6 already carry prepared agent recommendations and measured evidence; H1 is a strategic ruling governing four hv-lc tasks (T-279/280/281/282). Clause 3 additionally needs definition_ratified via T-596's Human AC. Assemble one decision dossier so all four can be ruled in a single sitting, and surface it to /approvals.
+  Clause 3 is the sole Arc-0 exit clause not owned by AEF. It is gated on operator-decisions.yaml,
+  where H1/H3/H5/H6 are open and each blocks_arc_0_exit. H3, H5 and H6 already carry
+  prepared agent recommendations and measured evidence; H1 is a strategic ruling governing
+  four hv-lc tasks (T-279/280/281/282). Clause 3 additionally needs definition_ratified
+  via T-596's Human AC. Assemble one decision dossier so all four can be ruled in
+  a single sitting, and surface it to /approvals.
 
 status: started-work
 workflow_type: build
@@ -17,8 +23,8 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T18:48:54Z
-last_update: 2026-09-21T14:08:43Z
-date_finished: null
+last_update: '2026-09-21T20:24:53Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -29,6 +35,17 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:docs/reports/T-732-h-register-dossier.md,docs/research/executable-workflow/arc-0-exit-clauses.yaml,docs/research/executable-workflow/operator-decisions.yaml);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-732: Drain the H-register: four open operator rulings are the only Arc-0 exit path on our side of the fence

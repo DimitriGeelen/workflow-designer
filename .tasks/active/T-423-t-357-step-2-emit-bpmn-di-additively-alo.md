@@ -30,7 +30,17 @@ workflow_type: build
 owner: human
 horizon: now
 tags: []
-components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_emitted_comment_claims.py, tools/_t338-input-fidelity-cdp.mjs, tools/_t361-guard-teeth.py, tools/_t423-additive-export-cdp.mjs, tools/_t423-additive-export-guard.py, tools/_t423-additive-export-teeth.py, tools/_t423-carrier-agreement-cdp.mjs, tools/_t423-carrier-agreement-guard.py, tools/_t423-carrier-agreement-teeth.py, tools/_t423-di-roundtrip-idempotence-cdp.mjs, tools/_t423-di-roundtrip-teeth.py, tools/_t423-position-carrier-guard.py, tools/_t423-position-carrier-teeth.py, tools/_t509-instrument-sweep.sh, tools/_t563-fallback-id-derivation-cdp.mjs, tools/_t565-workflowmeta-emission-census.mjs]
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, 
+      tests/test_emitted_comment_claims.py, tools/_t338-input-fidelity-cdp.mjs, 
+      tools/_t361-guard-teeth.py, tools/_t423-additive-export-cdp.mjs, 
+      tools/_t423-additive-export-guard.py, tools/_t423-additive-export-teeth.py,
+  tools/_t423-carrier-agreement-cdp.mjs, tools/_t423-carrier-agreement-guard.py, 
+      tools/_t423-carrier-agreement-teeth.py, 
+      tools/_t423-di-roundtrip-idempotence-cdp.mjs, 
+      tools/_t423-di-roundtrip-teeth.py, tools/_t423-position-carrier-guard.py, 
+      tools/_t423-position-carrier-teeth.py, tools/_t509-instrument-sweep.sh, 
+      tools/_t563-fallback-id-derivation-cdp.mjs, 
+      tools/_t565-workflowmeta-emission-census.mjs]
 related_tasks: [T-357, T-340, T-424, T-425]
 arc_id: designer-authoring-surface
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -38,7 +48,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-09-09T07:40:00Z
+last_update: '2026-09-21T20:24:51Z'
 date_finished: 2026-09-09T07:40:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -106,6 +116,15 @@ cost_estimate_proposed:
     rationale: blast_radius=5 
       (paths:docs/reports/T-357-di-adoption.md,tests/fixtures/aef-bpmn/boundary-events.bpmn,tests/fixtures/aef-bpmn/typed-events.bpmn,tests/run-bridge-tests.sh);
       tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-21T20:24:51Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 9
+    rationale: blast_radius=9 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

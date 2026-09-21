@@ -1,13 +1,15 @@
 ---
 id: T-776
-name: "create-task.sh rewrites the task name when the name contains the id placeholder token"
+name: "create-task.sh rewrites the task name when the name contains the id placeholder
+  token"
 description: >
-  create-task.sh rewrites the task name when the name contains the id placeholder token
+  create-task.sh rewrites the task name when the name contains the id placeholder
+  token
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T14:52:54Z
-last_update: 2026-09-21T14:57:44Z
+last_update: '2026-09-21T20:25:10Z'
 date_finished: 2026-09-21T14:57:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-09-21T14:57:44Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:10Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 7
+    rationale: blast_radius=7 
+      (paths:./tools/_t774-create-task-substitution-probe.sh,./tools/_t775-create-task-linebreak-probe.sh,./tools/_t776-create-task-placeholder-probe.sh,.agentic-framework/agents/task-create/create-task.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-776: create-task.sh rewrites the task name when the name contains the id placeholder token

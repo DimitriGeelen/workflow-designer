@@ -1,13 +1,15 @@
 ---
 id: T-623
-name: "AEF answered clause 1 red; their same-disease verdict on our fabric denominator does not hold - measured 3 of 69 not 749 of 1134"
+name: "AEF answered clause 1 red; their same-disease verdict on our fabric denominator
+  does not hold - measured 3 of 69 not 749 of 1134"
 description: >
-  AEF answered clause 1 red; their same-disease verdict on our fabric denominator does not hold - measured 3 of 69 not 749 of 1134
+  AEF answered clause 1 red; their same-disease verdict on our fabric denominator
+  does not hold - measured 3 of 69 not 749 of 1134
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [arc:designer-authoring-surface]
 components: [tools/_t623-fabric-denominator-scope-probe.py]
 related_tasks: []
@@ -17,7 +19,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-27T21:04:55Z
-last_update: 2026-08-27T21:10:00Z
+last_update: '2026-09-21T20:25:08Z'
 date_finished: 2026-08-27T21:10:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +31,16 @@ date_finished: 2026-08-27T21:10:00Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-623: AEF answered clause 1 red; their same-disease verdict on our fabric denominator does not hold - measured 3 of 69 not 749 of 1134

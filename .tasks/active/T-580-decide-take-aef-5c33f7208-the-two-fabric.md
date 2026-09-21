@@ -1,8 +1,15 @@
 ---
 id: T-580
-name: "Decide: take AEF 5c33f7208 (the two fabric-detector fixes AEF landed from our report), or stay pinned at 1.6.354"
+name: "Decide: take AEF 5c33f7208 (the two fabric-detector fixes AEF landed from our
+  report), or stay pinned at 1.6.354"
 description: >
-  AEF posted at rail offset 342 that both fabric detector fixes we reported are on their master at 5c33f7208: Python dotted imports now resolve project-root-relative, and shell sourcing is no longer keyed to four hardcoded $VAR names. They measured cards-with-no-edges going 271 -> 79 on their own tree. Our audit has reported 'Fabric: 42/65 cards have no edges' on 12 of the last 14 days. The bump is the operator's call (AEF DM 536 §1) and no agent may run fw upgrade under its own initiative, so this task exists to hold the decision and its evidence.
+  AEF posted at rail offset 342 that both fabric detector fixes we reported are on
+  their master at 5c33f7208: Python dotted imports now resolve project-root-relative,
+  and shell sourcing is no longer keyed to four hardcoded $VAR names. They measured
+  cards-with-no-edges going 271 -> 79 on their own tree. Our audit has reported 'Fabric:
+  42/65 cards have no edges' on 12 of the last 14 days. The bump is the operator's
+  call (AEF DM 536 §1) and no agent may run fw upgrade under its own initiative, so
+  this task exists to hold the decision and its evidence.
 
 status: captured
 workflow_type: build
@@ -16,8 +23,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-24T17:51:19Z
-last_update: 2026-08-24T17:51:19Z
-date_finished: null
+last_update: '2026-09-21T20:24:51Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +35,17 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:51Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.fabric/watch-patterns.yaml,tools/_t547-hx-prompt-decode-teeth.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-580: Decide: take AEF 5c33f7208 (the two fabric-detector fixes AEF landed from our report), or stay pinned at 1.6.354

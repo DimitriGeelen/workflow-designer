@@ -1,13 +1,25 @@
 ---
 id: T-549
-name: "_t525 costs 5 full structure audits (86s of a 90s cap) and its cost tracks the growing watched tree"
+name: "_t525 costs 5 full structure audits (86s of a 90s cap) and its cost tracks
+  the growing watched tree"
 description: >
-  _t525-fabric-coverage-teeth.py invokes 'fw audit --sections structure' five times (baseline plus four synthetic-history scenarios), measured at 86.04s against _t509's 90s cap and crossing it under any concurrent load. T-548 made the crossing report honestly as DID NOT FINISH rather than as a regression; this task is the cost itself. The tempting repair is raising T509_TIMEOUT and it is wrong: the audit's cost tracks the watched tree (252 watched, 199 unregistered today) so the headroom is consumed again as the repo grows. Parallelising the five audits is NOT obviously safe either - they contend on .context/locks/audit.lock and each writes .context/audits/<date>.yaml, so concurrency needs measuring before it is assumed. Investigate what the five audits actually cost, whether the four scenario audits can share a single structure scan, and whether the probe can assert the same discrimination with fewer full audits. Do not weaken what it discriminates.
+  _t525-fabric-coverage-teeth.py invokes 'fw audit --sections structure' five times
+  (baseline plus four synthetic-history scenarios), measured at 86.04s against _t509's
+  90s cap and crossing it under any concurrent load. T-548 made the crossing report
+  honestly as DID NOT FINISH rather than as a regression; this task is the cost itself.
+  The tempting repair is raising T509_TIMEOUT and it is wrong: the audit's cost tracks
+  the watched tree (252 watched, 199 unregistered today) so the headroom is consumed
+  again as the repo grows. Parallelising the five audits is NOT obviously safe either
+  - they contend on .context/locks/audit.lock and each writes .context/audits/<date>.yaml,
+  so concurrency needs measuring before it is assumed. Investigate what the five audits
+  actually cost, whether the four scenario audits can share a single structure scan,
+  and whether the probe can assert the same discrimination with fewer full audits.
+  Do not weaken what it discriminates.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t548-sweep-classification-teeth.py]
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T17:53:01Z
-last_update: 2026-08-16T19:06:07Z
+last_update: '2026-09-21T20:25:07Z'
 date_finished: 2026-08-16T19:06:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,16 @@ date_finished: 2026-08-16T19:06:07Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:07Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-549: _t525 costs 5 full structure audits (86s of a 90s cap) and its cost tracks the growing watched tree

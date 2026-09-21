@@ -1,8 +1,21 @@
 ---
 id: T-676
-name: "P-002 blocks /resume itself: a session that ends by FILING a task cannot gather state in the next one"
+name: "P-002 blocks /resume itself: a session that ends by FILING a task cannot gather
+  state in the next one"
 description: >
-  MEASURED 2026-09-04 at session start. The previous session ended by filing T-674, which left focus.yaml pointing at a task with status 'captured'. check-active-task then refused EVERY Bash call in the new session - including the read-only 'git status --short' and 'git log --oneline -5' that the /resume skill's own Step 1 requires. The recovery workflow cannot run on the exact state that filing a task produces, and filing a task at session end is the behaviour the framework asks for. Note the gate blocks on TASK STATE, not on write-intent: 'git status' modifies nothing. Same family as OBS-033 (P-002 catch-22) and the T-672 leg that asserted a state its own satisfaction destroys. Workaround used: 'fw context focus T-575' to a started-work task - no bypass flag. Candidate fix: exempt read-only Bash from the captured-task block (the budget gate already classifies git status/log/diff as read-only in its allow-regex, so the classification exists and is not duplicated), or have the gate treat a 'captured' focus as no-focus rather than as a blocking violation.
+  MEASURED 2026-09-04 at session start. The previous session ended by filing T-674,
+  which left focus.yaml pointing at a task with status 'captured'. check-active-task
+  then refused EVERY Bash call in the new session - including the read-only 'git status
+  --short' and 'git log --oneline -5' that the /resume skill's own Step 1 requires.
+  The recovery workflow cannot run on the exact state that filing a task produces,
+  and filing a task at session end is the behaviour the framework asks for. Note the
+  gate blocks on TASK STATE, not on write-intent: 'git status' modifies nothing. Same
+  family as OBS-033 (P-002 catch-22) and the T-672 leg that asserted a state its own
+  satisfaction destroys. Workaround used: 'fw context focus T-575' to a started-work
+  task - no bypass flag. Candidate fix: exempt read-only Bash from the captured-task
+  block (the budget gate already classifies git status/log/diff as read-only in its
+  allow-regex, so the classification exists and is not duplicated), or have the gate
+  treat a 'captured' focus as no-focus rather than as a blocking violation.
 
 status: work-completed
 workflow_type: build
@@ -16,7 +29,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-04T21:55:13Z
-last_update: 2026-09-09T07:46:36Z
+last_update: '2026-09-21T20:24:52Z'
 date_finished: 2026-09-09T07:46:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +41,17 @@ date_finished: 2026-09-09T07:46:36Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:24:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.agentic-framework/agents/context/budget-gate.sh,.agentic-framework/agents/context/check-active-task.sh,.tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-676: P-002 blocks /resume itself: a session that ends by FILING a task cannot gather state in the next one

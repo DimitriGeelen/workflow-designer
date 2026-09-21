@@ -1,13 +1,15 @@
 ---
 id: T-667
-name: "_t534's D2 regex has aged out of agreement with the audit line it parses — dead teeth, visible only since T-666"
+name: "_t534's D2 regex has aged out of agreement with the audit line it parses —
+  dead teeth, visible only since T-666"
 description: >
-  _t534's D2 regex has aged out of agreement with the audit line it parses — dead teeth, visible only since T-666
+  _t534's D2 regex has aged out of agreement with the audit line it parses — dead
+  teeth, visible only since T-666
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-01T12:11:34Z
-last_update: 2026-09-01T21:16:10Z
+last_update: '2026-09-21T20:25:09Z'
 date_finished: 2026-09-01T21:16:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,17 @@ date_finished: 2026-09-01T21:16:10Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-21T20:25:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:.agentic-framework/agents/audit/audit.sh,tools/_t509-instrument-sweep.sh,tools/_t534-d2-queue-tier-teeth.py,tools/_t667-d2-format-derivation-teeth.py);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-667: _t534's D2 regex has aged out of agreement with the audit line it parses — dead teeth, visible only since T-666
