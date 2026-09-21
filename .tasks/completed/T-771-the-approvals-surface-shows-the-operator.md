@@ -4,20 +4,20 @@ name: "The /approvals surface shows the operator nothing while five rulings wait
 description: >
   The /approvals surface shows the operator nothing while five rulings wait in the queue
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t771-approvals-overflow-probe.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T12:30:14Z
-last_update: 2026-09-21T12:30:14Z
-date_finished: null
+last_update: 2026-09-21T14:08:23Z
+date_finished: 2026-09-21T14:08:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-055 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -101,6 +101,34 @@ date_finished: null
       Escalated as **G-055**, not patched here — the fix changes what the operator's own
       queue shows and is not the agent's to decide unasked.
 
+- [x] [REVIEWER] **The expanded view renders the Arc-0 rulings, and keeps rendering them
+      after the poll cycle.** Driven in a real browser at
+      `http://192.168.10.107:3013/approvals?expand=verifications`, probed twice with a
+      13-second wait between — longer than the 10s poll interval that T-772 fixed.
+
+      | property | at load | after poll |
+      |---|---|---|
+      | `details.ac-overflow` present | true | true |
+      | `.open` | **true** | **true** |
+      | `/tasks/T-736` anchor | present | present |
+      | `/tasks/T-732` anchor | present | present |
+      | `/tasks/T-596` anchor | present | present |
+      | document title | `Approvals — Workflow designer` | `Approvals (77 pending) — …` |
+
+      The title advancing is the proof the poll actually fired, rather than the probe
+      sitting on first paint and reporting a state nothing had challenged yet.
+
+      The cards carry their Human AC text, not just their ids — T-736 *"Rule on clause 1"*,
+      T-732 *"Rule H1 — do roadmap Arcs 4–6 supersede the standing DEFERs"*, T-596
+      *"Confirm the register reads H1 and H3 correctly as open"*.
+
+      **Negative control:** the same query for `T-99999` returns absent, so the probe can
+      tell a present card from a missing one rather than returning true for everything.
+
+      **What is still wrong and is deliberately not fixed here:** the summary reads
+      *"58 more verifications — lower priority, all still actionable"* over a population
+      measured at 92% top-priority. That is G-055.
+
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -132,19 +160,20 @@ date_finished: null
        `bin/fw reviewer T-771 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-- [ ] [RUBBER-STAMP] Confirm the expanded view actually shows you the five Arc-0 rulings
-  **Steps:**
-  1. Open `http://192.168.10.107:3013/approvals?expand=verifications`
-  2. Use your browser's find (Ctrl-F) for `T-736`, then `T-732`, then `T-596`
-  **Expected:** all three appear as cards with their Human ACs listed. T-736 carries one
-  `[REVIEW]` (rule on Arc-0 clause 1); T-732 carries five (H1, H3, H5, H6, plus ticking
-  T-596's ratification AC).
-  **If not:** say so and do not rule from the list — the per-task pages `/tasks/T-736`,
-  `/tasks/T-732` and `/tasks/T-596` render the same ACs without the list in the way.
+_No Human AC. The one criterion originally filed here was converted to an Agent AC — see
+`[REVIEWER]` in the section above. Its Expected clause was entirely deterministic (an
+element exists, a boolean is true, three anchors are in the DOM), which is the T-1811 /
+T-1878 conversion rule. Routing it to the operator was a classification error on my side,
+not a judgement that the check needed their eyes._
+
+_The genuine operator judgement in this area is **G-055** — whether a cap of 10, an
+oldest-first secondary sort and the label "lower priority" are the right design for their
+own queue. That stays theirs and is not touched here._
 
 
 ## Verification
 
+curl -sf "$(cat .context/working/watchtower.url)/approvals?expand=verifications" -o /tmp/.t771y.html && python3 -c "import sys; h=open('/tmp/.t771y.html',encoding='utf-8').read(); m=[t for t in ('T-736','T-732','T-596') if ('/tasks/'+t) in h or ('/review/'+t) in h]; sys.exit(0 if len(m)==3 and 'T-99999' not in h else 1)"
 ./tools/_t771-approvals-overflow-probe.sh --self-test
 curl -sf "$(cat .context/working/watchtower.url)/approvals?expand=verifications" -o /tmp/.t771x.html && grep -q 'ac-overflow" style="margin:0.75rem 0;" open' /tmp/.t771x.html
 grep -q '_ac_cap = 10' .agentic-framework/web/templates/_approvals_content.html
@@ -309,3 +338,15 @@ satisfied by making the button prettier a second time.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-771-the-approvals-surface-shows-the-operator.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ff5ae5ba
+- **Timestamp:** 2026-09-21T14:08:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-21T14:08:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
