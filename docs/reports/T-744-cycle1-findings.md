@@ -34,11 +34,12 @@ coverage overclaims**, so coverage is stated here.
 | oe-hourly | 0 | 2 | 0 | 0 | clean |
 | oe-weekly | 0 | 1 | 0 | 0 | clean |
 | oe-research | 0 | 5 | 0 | 0 | clean |
-| **oe-daily** | **124** | 58 | 0 | 0 | **TIMED OUT at 300s — coverage incomplete.** Any finding oe-daily would have reported after its 58th check is *not* in this baseline. Recorded as finding RA-046. |
+| **oe-daily** | 124 → **1** | 58 → **106** | 0 → **21** | 0 | First run TIMED OUT at 300s. Re-run at 1500s **completes in 578s**. It was never a hang. The 300s baseline missed 2 findings — see RA-047, RA-048. Recorded as RA-046. |
 | `fw doctor` | 0 | — | 2 | 0 | housekeeping surface (VS-1) |
 
-**Baseline totals across completed sections: 131 PASS, 25 WARN, 5 FAIL.**
-Coverage is 18 of 19 sections complete; `oe-daily` partial.
+**Baseline totals, oe-daily counted at its COMPLETE run: 179 PASS, 46 WARN, 5 FAIL.**
+Coverage is 19 of 19 sections. The first pass reported 18 of 19 and a partial oe-daily;
+re-running it properly is what produced RA-047 and RA-048 (§8).
 
 ## 2. Findings table
 
@@ -57,7 +58,9 @@ one task. Root-cause siblings are linked, not merged.
 | RA-043 | audit/deployment | FAIL | Deploy gate scaffold | `Dockerfile` | absent; gate expects present | **T-752** | NEW |
 | RA-044 | audit/deployment | FAIL | Deploy gate scaffold | `deploy/docker-compose.swarm.yml` | absent; gate expects present | **T-753** | NEW |
 | RA-045 | audit/deployment | FAIL | Deploy gate scaffold | `deploy/traefik-routes.yml` | absent; gate expects present | **T-754** | NEW |
-| RA-046 | audit/oe-daily | — | section does not terminate | `agents/audit/` oe-daily | exit 124 at 300s after 58 PASS; expected termination | **T-755** | NEW (localises OBS-358) |
+| RA-046 | audit/oe-daily | — | section exceeds timeout | `audit.sh:3618` CTL-013 | 578s to complete; the box was 300s | **T-755** | NEW (localises OBS-358) |
+| RA-047 | audit/oe-daily | WARN | CTL-013 verification re-run | task T-093 | 2 legs that passed at completion now fail | **T-756** | NEW (missed by the 300s box) |
+| RA-048 | audit/oe-daily | WARN | G-062 arc past threshold | `arc-002` | 25/27 = 0.9259 complete, still in-progress | **T-757** | NEW (missed by the 300s box) |
 | — | audit/structure | WARN | Uncommitted changes present | working tree | — | T-701 (RA-005) | already owned |
 | — | audit/observations | WARN | urgent observations pending | `.context/inbox.yaml` | **36** pending; was 34 at RA-006 | T-702 (RA-006) | already owned, **worsened** |
 | — | audit/observations | WARN | observations pending >7d | `.context/inbox.yaml` | **107** pending; was 101 at RA-007 | T-703 (RA-007) | already owned, **worsened** |
@@ -71,8 +74,8 @@ one task. Root-cause siblings are linked, not merged.
 ## 3. Reconciliation — findings in = tasks out
 
 ```
-Individual findings observed this cycle .................. 30
-  reconciled to a task created THIS cycle ................ 11   (RA-036 … RA-046 → T-745 … T-755)
+Individual findings observed this cycle .................. 32
+  reconciled to a task created THIS cycle ................ 13   (RA-036 … RA-048 → T-745 … T-757)
   reconciled to an existing arc-003 task ................. 19   (RA-005, RA-006, RA-007, RA-027,
                                                                  RA-028, RA-029, RA-033, RA-035,
                                                                  and the 14 already-owned CTL-029
@@ -80,7 +83,7 @@ Individual findings observed this cycle .................. 30
   unreconciled ........................................... 0
 ```
 
-**Zero findings remain outside the arc.** All 11 new tasks carry `arc_id: arc-003`, set
+**Zero findings remain outside the arc.** All 13 new tasks carry `arc_id: arc-003`, set
 through `fw arc tag`, never by hand.
 
 ## 4. Scores and quadrant placement
@@ -102,8 +105,10 @@ by the producer.
 | T-753 (RA-044) | 69 | undefined | low value | parked + Sovereign question |
 | T-754 (RA-045) | 69 | undefined | low value | parked + Sovereign question |
 | T-751 (RA-042) | 51 | 2.9 | `lv-lc` | parked |
+| T-757 (RA-048) | 74 | 1.6 | `lv-lc` | parked — closure needs a `--demo`, which is the operator's judgement |
+| T-756 (RA-047) | 54 | 2.8 | `lv-lc` | parked + Sovereign question |
 
-The value boundary in this build is **hv ≥ 100, lv ≤ 94**. Ten of the eleven new findings
+The value boundary in this build is **hv ≥ 100, lv ≤ 94**. Eleven of the thirteen new findings
 score below it. Per the mandate — *"Low-value tasks stay in the arc, scored and parked.
 Do not pick up a low-value task because it is quick"* — they were not worked.
 
@@ -163,5 +168,38 @@ Q1 (`hv-lc`) across the project, and why each is not agent-actionable:
   lifecycle anomalies 10→12).
 - New finding classes: 3 (deployment scaffold absence, CTL-029 on arc-003's own tasks,
   oe-daily non-termination).
-- arc-003 size: 35 tasks → 46 tasks.
+- arc-003 size: 35 tasks → 48 tasks.
 - arc-003 tasks closed this cycle: 0 — no agent-actionable task in the arc was unblocked.
+
+
+---
+
+## 8. RA-046 resolved within the cycle — what it turned out to be
+
+`oe-daily` does not hang. It completes in **578 seconds**. Every previous report of
+"full `fw audit` hangs" (OBS-358) was taken against a timeout shorter than that.
+
+The cost is `CTL-013` (`audit.sh:3618`), which `eval`s every shell command in the
+`## Verification` block of the three most recently completed tasks. At measurement time
+those were T-739, T-178 and T-093 — and T-093's block invokes **four full test suites**.
+Confirmed live rather than inferred: while the audit ran, `pgrep` showed
+`bash tests/run-bridge-tests.sh` (pid 2352331) as a child of the audit process.
+
+So oe-daily's wall time is not a property of the audit. It is the verification cost of
+whichever three tasks happen to have completed most recently, and any task may put a
+twelve-minute suite in its verification block.
+
+**This changes the baseline in §1.** Running the section properly surfaced two findings
+the truncated run could not see (RA-047, RA-048) — which is the concrete reason AC 5
+exists: a baseline that does not state its coverage does not merely under-report, it
+under-reports *silently*.
+
+**SQ-4 — Can CTL-013 tell a regression from a recorded decision?**
+One of T-093's two failing legs is `diff src/aef-workflow-designer.html
+build/gallery/designer.html`. The gallery mirror is drifted **by decision** — T-102 and
+T-105 are blocked on exactly this drift and must not be unblocked by rebuilding. The only
+two ways to make that warning go green are to rebuild the gallery (forbidden) or to edit
+a completed task's verification block (gaming the outcome). So CTL-013 will warn every
+day forever, and a warning that can never be cleared is one readers learn to skip — which
+costs the check its ability to report a real regression on the other two tasks in its
+window.

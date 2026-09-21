@@ -1,12 +1,12 @@
 ---
-id: T-755
-name: "RA-046: OBS-358 full-audit hang localises to the oe-daily section"
+id: T-757
+name: "RA-048: arc-002 is 25 of 27 complete but still in-progress"
 description: >
-  Sectioned audit run: oe-daily exits 124 (timeout) after emitting 58 PASS in 300s;
-  oe-fast, oe-hourly, oe-weekly, oe-research all complete in seconds. The long-standing
-  'full fw audit hangs' observation is not diffuse - it is one section.
+  Full oe-daily run reports [WARN] Arc 'arc-002': 25/27 tasks completed (0.9259) but
+  arc still in-progress. Threshold 0.80 reached - G-062 signature. Sibling of RA-032/T-728
+  which is the same check on arc-001.
 
-status: started-work
+status: captured
 workflow_type: test
 owner: agent
 horizon: now
@@ -18,8 +18,8 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-21T08:02:35Z
-last_update: 2026-09-21T08:12:51Z
+created: 2026-09-21T08:15:19Z
+last_update: '2026-09-21T08:16:13Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -32,106 +32,66 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-09-21T08:02:56Z'
+  - ts: '2026-09-21T08:16:12Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
-      D2: 4
-      D3: 2
+      D2: 2
+      D3: 0
       D4: 2
-      F-RECALL: 2
+      F-RECALL: 0
       F2: 0
       F4: 0
-      F3: 0
+      F3: 1
       F1: 1
-    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=2
-      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (no-signal); F3=0 
-      (no-signal); F1=1 (prose:process-enablement-incidental)
+    rationale: D1=4 (body:structural-gate); D2=2 
+      (body:telemetry-or-audit-entry); D3=0 (no-signal); D4=2 
+      (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 
+      (no-signal); F3=1 (prose:AEF seam-incidental); F1=1 
+      (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
-  - ts: '2026-09-21T08:02:56Z'
+  - ts: '2026-09-21T08:16:13Z'
     estimator: bvp-estimator-v1-heuristic
     cost_estimate:
       tier: 1
-      effort: 8
-    rationale: blast_radius=absent (no-signal); tier=1 (no-signal); effort=8 
-      (no-signal)
+      effort: 7
+      blast_radius: 1
+    rationale: blast_radius=1 (paths:.context/arcs/ewcr-governed-delivery.yaml);
+      tier=1 (no-signal); effort=7 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 
-# T-755: RA-046: OBS-358 full-audit hang localises to the oe-daily section
+# T-757: RA-048: arc-002 is 25 of 27 complete but still in-progress
 
 ## Context
 
 ### Verbatim tool output
 
-Sectioned run, each section timeout-boxed at 300s:
-
 ```
-oe-fast     EXIT=0   FAIL=0 WARN=0 PASS=4
-oe-hourly   EXIT=0   FAIL=0 WARN=0 PASS=2
-oe-daily    EXIT=124 FAIL=0 WARN=0 PASS=58      <-- 124 = timeout
-oe-weekly   EXIT=0   FAIL=0 WARN=0 PASS=1
-oe-research EXIT=0   FAIL=0 WARN=0 PASS=5
+[WARN] Arc 'arc-002': 25/27 tasks completed (0.9259) but arc still in-progress
+       Evidence: Threshold 0.80 reached — code-complete without explicit closure (G-062 signature)
+       Mitigation: Capture wire-evidence of the arc's headline_mechanic firing, then: fw arc close arc-002 --demo <path|url> --decision "..."
 ```
 
-Re-run of the same section with the box raised to 1500s:
+### The invariant that is not held
 
-```
-exit=1 elapsed=578s lines=207 pass=106
-```
+An arc past the 0.80 completion threshold that is still `in-progress` is code-complete without explicit closure — the G-062 signature. arc-002 (EWCR — Executable Workflow Contract Runtime) is at 25/27 = 0.9259.
 
-### Finding: it is not a hang
+`fw arc close` requires `--demo`: wire-level evidence of the arc's `headline_mechanic` actually firing. That requirement is the whole point of the gate — an arc is not closed because its task count says so, it is closed because somebody demonstrated the user-observable deliverable working. Producing that demo, or ruling that the arc has none and closing with a justification, is a judgement about whether the arc delivered. That is not the agent's call.
 
-`oe-daily` terminates. It takes **578 seconds** and exits 1 (warnings present, no
-failures). Every prior report of "full `fw audit` hangs" (OBS-358) was measured against
-a timeout shorter than 578s. The distinction matters: a hang is a defect to be fixed,
-a 578-second section is a cost to be budgeted, and the two get different treatment.
+### Root-cause links
 
-### Finding: the cost is CTL-013, and it is not the audit's own work
-
-`audit.sh:3618` — "CTL-013 OE: Verification Gate — spot-check recently completed tasks".
-CTL-013 takes the three most recently completed tasks and **`eval`s every shell command
-in their `## Verification` blocks**. The audit's runtime for this section is therefore
-not a property of the audit at all: it is the sum of whatever arbitrary shell the last
-three completed tasks happen to carry.
-
-At the time of measurement the three were T-739, T-178 and T-093. T-093's block is:
-
-```
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"
-out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"
-out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean"
-out=$(python3 tests/test_editor_bridge_structured_parity.py 2>&1); echo "$out" | grep -q "OK:"
-... plus 6 grep/diff/test legs
-```
-
-Four full test suites. This was confirmed **live, not inferred**: while the audit was
-running, `pgrep` showed pid 2352331 = `bash tests/run-bridge-tests.sh`, a child of the
-audit process. The T-742 value review independently measured the gating suite at 742s.
-
-So the relationship is: **oe-daily's wall time ≈ the verification cost of the three most
-recently completed tasks.** It is bounded (3 tasks, not N), but the bound is over a
-quantity the audit does not control and cannot predict — any task may put a twelve-minute
-suite in its `## Verification` block, and the next audit inherits it.
-
-### Consequence that is not yet a task
-
-CTL-013's re-run is a *moving window* over the three newest completed tasks. Whether a
-completed task's verification still passes is therefore checked for a few days and then
-never again — and which tasks get that scrutiny is decided by completion order, not by
-risk. Whether that is the intended semantic is a design question, not a defect to fix
-here.
+Sibling: RA-032/T-728 is the identical check on arc-001 (26/32 = 0.8125). Same root cause — both arcs are past threshold and neither has a captured demo. Kept as separate records per the one-finding-one-task rule.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] The oe-daily section is profiled to the individual check, and the check (or checks) consuming the bulk of the wall time is named with measured timings — not inferred from where the output stops.
-- [x] A bound is established: either oe-daily completes within a stated time limit, or it is shown to be genuinely unbounded (e.g. it scales with task count or audit history) and that relationship is stated with evidence.
-- [ ] `fw audit` with all sections completes, or the reason it cannot is recorded as a property of a named check rather than as the folk observation "full audit hangs". OBS-358 is updated to cite the section.
-- [x] No check is deleted, shortened, or given a relaxed threshold to make the run finish. If the only available fix is removing coverage, that is a Sovereign question, not a fix.
+- [ ] arc-002's `headline_mechanic` is read and quoted verbatim from `.context/arcs/ewcr-governed-delivery.yaml`, so the demo requirement is stated in the arc's own terms rather than paraphrased.
+- [ ] The two incomplete tasks are named, with their status, so 'is the remaining 2/27 the part that carries the mechanic?' is answerable without re-deriving it.
+- [ ] Either wire-level evidence of the headline mechanic firing is captured and cited, or the task is parked with a Sovereign question asking the operator to rule on closure. The agent does NOT run `fw arc close`, and does not supply `--demo none` with a justification to move the count — that would be the agent deciding the arc delivered.
+- [ ] The originating check reports PASS on re-run, or the reason it cannot is the operator's pending ruling, stated as such.
 
 ## Verification
 
@@ -182,9 +142,8 @@ here.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-grep -q 'CTL-013 OE: Verification Gate' .agentic-framework/agents/audit/audit.sh
-test "$(find .tasks/completed -maxdepth 1 -name '*.md' -type f -printf '%T@ %p\n' | sort -rn | head -3 | cut -d' ' -f2- | xargs -I{} awk '/^## Verification/{f=1;next} f&&/^## /{exit} f' {} | grep -cE 'run-bridge-tests|run-validator-tests|check-corpus-geometry')" -ge 1
-grep -q 'oe-daily' .context/audits/2026-09-21.yaml
+test -f .context/arcs/ewcr-governed-delivery.yaml
+grep -q 'headline_mechanic' .context/arcs/ewcr-governed-delivery.yaml
 
 ## RCA
 
@@ -240,7 +199,7 @@ grep -q 'oe-daily' .context/audits/2026-09-21.yaml
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-755 go|no-go|defer --rationale "..."
+     fw inception decide T-757 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -249,11 +208,7 @@ grep -q 'oe-daily' .context/audits/2026-09-21.yaml
 
 ## Updates
 
-### 2026-09-21T08:02:35Z — task-created [task-create-agent]
+### 2026-09-21T08:15:19Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-755-ra-046-obs-358-full-audit-hang-localises.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-757-ra-048-arc-002-is-25-of-27-complete-but-.md
 - **Context:** Initial task creation
-
-### 2026-09-21T08:12:51Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-
