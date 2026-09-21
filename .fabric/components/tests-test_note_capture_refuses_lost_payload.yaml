@@ -9,7 +9,9 @@ purpose: 'T-557: `fw note` must refuse a call whose payload it would otherwise d
   dispatches any unrecognised first word to the capture path, where it becomes the observation TEXT and everything after it
   is dropped by the flag loop''s `*) shift ;;`. Two shapes lose data, both at exit 0 with `OBS-NNN captured`: fw note add
   "<900 chars>" -> tex...'
-depends_on: []
+depends_on:
+- target: .context/inbox.yaml
+  type: calls
 depended_by:
 - target: tests/run-bridge-tests.sh
   type: calls
@@ -17,4 +19,4 @@ depended_by:
   type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-last_enriched: '2026-09-16'
+last_enriched: '2026-09-21'

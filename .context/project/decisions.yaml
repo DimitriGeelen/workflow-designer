@@ -2264,3 +2264,17 @@ decisions:
     date: 2026-09-21
     task: T-770
     rationale: "The operator's standing instruction of 2026-09-21 delegates Human-AC verification to the external reviewer except for high risk, Tier 0 and genuine UX judgement. An exception the agent adjudicates per case is relocated authority, not delegated authority. tools/_t770-delegation-boundary.py returns the bucket mechanically (REVIEWER-CLOSEABLE / AGENT-SELF / OPERATOR-ONLY) so the agent is not in the decision. Already AEF policy: T-1443 decisions 36/113/213, GO 2026-04-25. Enforcement gap held open as G-052."
+
+  - id: PD-303
+    decision: "express the operator's delegation as `tools/_t770-delegation-boundary.py`, a"
+    scope: project
+    date: 2026-09-21
+    task: T-770
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-304
+    decision: "T-745, T-747 and T-748 are IN SCOPE for the autonomous run despite having no computable BVP quadrant"
+    scope: project
+    date: 2026-09-21
+    task: T-745
+    rationale: "Operator ruling, 2026-09-21, verbatim: 'ja, doe die drie'. These three sit in the indeterminate value band — BVP 94/91/91, above the highest observed lv-lc (79) and below the lowest observed hv (126) — with no quadrant because G-073 makes cost unmeasurable before execution. The autonomous mandate excludes low-value work, but an unquadranted task is not known to be low-value, and deciding its class is a calibration judgement reserved to the operator. The agent surfaced the choice rather than taking it; the operator ruled them in. This ruling covers scope for this run only and does not assign a value class, does not confirm any BVP score, and does not close G-072 or G-073."

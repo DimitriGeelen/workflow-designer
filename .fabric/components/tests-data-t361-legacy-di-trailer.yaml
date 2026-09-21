@@ -1,0 +1,20 @@
+id: tests/data/t361-legacy-di-trailer.txt
+name: t361-legacy-di-trailer
+type: script
+subsystem: unknown
+location: tests/data/t361-legacy-di-trailer.txt
+tags: []
+purpose: 'TODO: describe what this component does'
+depends_on: []
+depended_by:
+- target: tests/test_emitted_comment_claims.py
+  type: called_by
+- target: tools/_t361-guard-teeth.py
+  type: called_by
+- target: tests/test_emitted_comment_claims.py
+  type: read_by
+- target: tools/_t361-guard-teeth.py
+  type: read_by
+last_verified: 2026-09-21
+created_by: unknown
+last_enriched: '2026-09-21'

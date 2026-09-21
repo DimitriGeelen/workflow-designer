@@ -1,0 +1,24 @@
+id: .fabric/watch-patterns.yaml
+name: watch-patterns
+type: config
+subsystem: unknown
+location: .fabric/watch-patterns.yaml
+tags: []
+purpose: 'TODO: describe what this component does'
+depends_on: []
+depended_by:
+- target: tools/_t524-fabric-validate-teeth.py
+  type: called_by
+- target: tools/_t525-fabric-coverage-teeth.py
+  type: called_by
+- target: tools/_t623-fabric-denominator-scope-probe.py
+  type: called_by
+- target: tools/_t671-arc0-fabric-fence.py
+  type: called_by
+- target: tools/_t673-fabric-cards.py
+  type: called_by
+- target: tools/_t671-arc0-fabric-fence.py
+  type: read_by
+last_verified: 2026-09-21
+created_by: unknown
+last_enriched: '2026-09-21'

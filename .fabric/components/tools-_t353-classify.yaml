@@ -14,9 +14,11 @@ depends_on:
   type: reads
 - target: tools/validate-workflow.py
   type: calls
+- target: docs/reports/T-352-member-scan.md
+  type: calls
 depended_by:
 - target: tools/_t353-convert.py
   type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-last_enriched: '2026-09-16'
+last_enriched: '2026-09-21'

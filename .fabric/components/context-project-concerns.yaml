@@ -1,0 +1,16 @@
+id: .context/project/concerns.yaml
+name: concerns
+type: data
+subsystem: unknown
+location: .context/project/concerns.yaml
+tags: []
+purpose: 'TODO: describe what this component does'
+depends_on: []
+depended_by:
+- target: tools/_t539-gap-closure-gauge-conformance.py
+  type: called_by
+- target: tools/concerns-schema.py
+  type: called_by
+last_verified: 2026-09-21
+created_by: unknown
+last_enriched: '2026-09-21'

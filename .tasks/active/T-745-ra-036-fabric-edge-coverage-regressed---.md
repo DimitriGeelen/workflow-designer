@@ -6,7 +6,7 @@ description: >
   Regression of RA-002/T-698, which was closed. The audit structure section reports
   [WARN] Fabric: 78/379 cards have no edges.
 
-status: captured
+status: issues
 workflow_type: refactor
 owner: agent
 horizon: now
@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:58:42Z
-last_update: '2026-09-21T08:01:03Z'
+last_update: 2026-09-21T15:26:48Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -85,11 +85,110 @@ Regression of RA-002 (T-698, work-completed). Sibling: RA-003/T-699 (fabric drif
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `fw audit --section structure` reports the fabric-edge check at PASS, or the check's own threshold is shown to be the thing that is wrong and a Sovereign question is filed instead of the threshold being moved.
-- [ ] The edgeless count is strictly lower than the 78 recorded at cycle 1, and the new count is recorded here with the command that produced it.
-- [ ] The regression itself is explained: RA-002/T-698 closed this finding once already, so either T-698's closure condition did not prevent recurrence, or new cards have been added edgeless since. Which one is stated, with evidence.
+- [x] **The check's threshold is the thing that is wrong, and it is filed rather than moved.**
+      Satisfied through this criterion's own escape clause, not through a PASS.
+
+      Two findings, both measured:
+
+      1. **The check is not in `--section structure`.** That section runs 12 checks and none
+         is the fabric-edge check; the warning is emitted elsewhere in `audit.sh`. The AC's
+         premise was wrong, which is recorded rather than quietly corrected.
+      2. **The check cannot pass in this project.** Its bound is absolute —
+         `fabric_unenriched -gt 10` warns — so against 394 cards it demands 97.5% edge
+         coverage. The measured structural floor is **41**: of 78 edgeless cards, 41
+         reference a path under `.agentic-framework/`, and those edges are DETECTED and then
+         discarded, because registration of a vendored target is refused:
+
+         ```
+         REJECT: vendored framework copy — .agentic-framework/bin/fw
+           Register the upstream framework file instead:
+           fw fabric register bin/fw
+         ```
+
+         `bin/fw` does not exist at a vendored consumer's root, so the remedy the rejection
+         names is unavailable and the dependency is permanently unrepresentable. 41 >= 10.
+
+      **Threshold not moved. No card marked `standalone: true`. No non-component
+      registered.** Filed as **G-074**, whose closure condition requires the check to reach
+      PASS without either of those two moves.
+- [ ] **FAILED — twice, and deliberately not forced to green a third time.**
+
+      | point | edgeless | cards |
+      |---|---|---|
+      | cycle-1 baseline | 78 | 379 |
+      | T-698 close (2026-09-16) | 73 | — |
+      | **this run, start** | **83** | 386 |
+      | after `fw fabric enrich` (attempt 1) | 79 | 390 |
+      | after registering 4 real detected edge targets + enrich (attempt 2) | **78** | 394 |
+
+      Command: `python3 -c` over `.fabric/components/*.yaml`, counting cards where
+      `len(depends_on) + len(depended_by) == 0`.
+
+      The criterion requires **strictly** lower than 78. 78 is not. **Failed by one.**
+
+      **Why there is no third attempt.** The remaining headroom is not topology, it is
+      bookkeeping: registering files that are not really components, or marking cards
+      `standalone: true`. Either would move the number without changing the graph, which is
+      the exact move AC1 forbids. Two attempts, both honest, both short — recorded as a
+      failure rather than closed by the means available.
+
+      What the two attempts DID buy, and it is not nothing: **+30 real edges**, and the
+      discard count fell 169 -> 148. Four genuinely-depended-upon targets now have cards.
+      The count moved 83 -> 78 while the population grew by 8 cards.
+- [x] **Both, and the second is the mechanism.**
+
+      **T-698's closure condition could not prevent recurrence.** Its three ACs were: count
+      strictly below 78; `fw fabric enrich` run and output recorded; residue enumerated by
+      name. All three are **level** checks on a snapshot. None constrains the RATE at which
+      new edgeless cards appear. T-698 drained the pool and left the tap open — the same
+      shape as L-302 (*fix the generator before shipping the detector*), one layer out: it
+      fixed the mess, not the thing producing it.
+
+      **New cards have been added edgeless since — including four by me, today.** The
+      population went 379 -> 386 between T-698's close and this run's start, and 73 -> 83.
+      `fw fabric register` creates a card and the enricher runs separately, so a tool
+      registered and never enriched is edgeless by default.
+
+      Checked against myself first: `_t770` (2 edges) and `_t771` (3) are fine, while
+      `_t774`, `_t775`, `_t776` and `_t777` are all at zero — registered this session. They
+      are **still** at zero after two enrich passes, and that is the diagnostic that
+      explains the whole class: their only dependencies are `create-task.sh` and `fw`, both
+      vendored, both permanently unregisterable. They can never carry an edge.
+
+      So the regression is not drift to be swept up periodically. Every instrument this
+      project builds against its own framework arrives permanently edgeless, and the metric
+      rises monotonically with the number of instruments. That is G-074.
+
+
+## Failure mode (recorded per the autonomous mandate)
+
+**AC2 failed on two attempts and the task is parked, not closed.**
+
+- Attempt 1 — `fw fabric enrich`: 83 -> 79. Only 2 edges added on the first pass; 169
+  discarded against 79 unregistered targets.
+- Attempt 2 — register the four highest-multiplicity REAL detected edge targets, re-enrich:
+  79 -> 78. +30 edges total, discards 169 -> 148.
+- Target: strictly < 78. Short by one.
+
+**The wall is structural, not effort.** 41 of the 78 remaining edgeless cards depend only on
+vendored framework paths, whose edges the fabric detects and then discards by design. No
+amount of further enrichment reaches the target; only bookkeeping would, and AC1 forbids it.
+
+**Not attempted, and why:** marking cards `standalone: true` (the check honours that flag and
+excludes them from the denominator) would take the count under 78 immediately. It is the
+cleanest available route to green and it is not taken, because it changes what is counted
+rather than what is true — and an agent that relaxes the check it is failing has certified
+its own work.
+
+**Disposition:** parked at `issues`. AC1 and AC3 are met; AC2 is met only if G-074 is ruled
+on, because the target is unreachable while the check's denominator includes a class of card
+that cannot carry an edge.
 
 ## Verification
+
+python3 -c "import os,yaml; D='.fabric/components'; n=sum(1 for f in os.listdir(D) if f.endswith('.yaml') and not ((lambda c: (c.get('depends_on') or [])+(c.get('depended_by') or []))(yaml.safe_load(open(os.path.join(D,f),encoding='utf-8')) or {}))); print('edgeless', n); assert n <= 78, 'edgeless count regressed above the cycle-1 baseline'"
+python3 -c "import yaml; c=yaml.safe_load(open('.context/project/concerns.yaml'))['concerns']; assert any(x.get('id')=='G-074' for x in c if isinstance(x,dict)), 'G-074 missing'"
+grep -q 'standalone' .fabric/components/tools-_t774-create-task-substitution-probe.yaml && exit 1 || exit 0
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -207,3 +306,10 @@ Regression of RA-002 (T-698, work-completed). Sibling: RA-003/T-699 (fabric drif
 - **Context:** Initial task creation
 
 test "$(cd /opt/832-Workflow-designer && .agentic-framework/bin/fw fabric drift 2>&1 | grep -c 'no fabric card')" -ge 0
+
+### 2026-09-21T15:19:53Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-09-21T15:26:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → issues
+- **Reason:** AC2 failed twice: edgeless count 83 -> 79 -> 78, target strictly < 78. The wall is structural — 41 of 78 remaining edgeless cards depend only on vendored framework paths whose edges the fabric detects and then discards by design. G-074 filed; threshold not moved, no card marked standalone.

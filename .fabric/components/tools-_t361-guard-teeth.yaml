@@ -22,7 +22,9 @@ depends_on:
   type: calls
 - target: src/aef-workflow-designer.html
   type: calls
+- target: tests/data/t361-legacy-di-trailer.txt
+  type: calls
 depended_by: []
 last_verified: 2026-09-03
 created_by: T-673
-last_enriched: '2026-09-16'
+last_enriched: '2026-09-21'

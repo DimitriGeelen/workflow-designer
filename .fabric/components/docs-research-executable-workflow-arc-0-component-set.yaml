@@ -1,0 +1,24 @@
+id: docs/research/executable-workflow/arc-0-component-set.txt
+name: arc-0-component-set
+type: script
+subsystem: unknown
+location: docs/research/executable-workflow/arc-0-component-set.txt
+tags: []
+purpose: 'TODO: describe what this component does'
+depends_on: []
+depended_by:
+- target: tools/_t671-arc0-card-gen.py
+  type: called_by
+- target: tools/_t671-arc0-edge-derive.py
+  type: called_by
+- target: tools/_t671-arc0-fabric-fence.py
+  type: called_by
+- target: tools/_t671-arc0-card-gen.py
+  type: read_by
+- target: tools/_t671-arc0-edge-derive.py
+  type: read_by
+- target: tools/_t671-arc0-fabric-fence.py
+  type: read_by
+last_verified: 2026-09-21
+created_by: unknown
+last_enriched: '2026-09-21'

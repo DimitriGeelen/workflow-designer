@@ -9,7 +9,9 @@ purpose: T-536 teeth — CTL-028 must still detect a task whose location and sta
   .agentic-framework/agents/audit/audit.sh) through the TASKS_DIR seam against a synthetic task tree. The real .tasks/ is
   neither read nor written. WHY THIS IS DRIVEN AGAINST A SYNTHETIC TREE, NOT THE REAL ONE T-536 cleaned the four real offenders,
   so a guard asserting "the re...
-depends_on: []
+depends_on:
+- target: .tasks/templates/default.md
+  type: calls
 depended_by:
 - target: tests/run-bridge-tests.sh
   type: calls
@@ -17,4 +19,4 @@ depended_by:
   type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-last_enriched: '2026-09-16'
+last_enriched: '2026-09-21'

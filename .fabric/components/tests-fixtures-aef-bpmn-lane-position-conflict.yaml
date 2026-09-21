@@ -1,0 +1,26 @@
+id: tests/fixtures/aef-bpmn/lane-position-conflict.bpmn
+name: lane-position-conflict
+type: script
+subsystem: unknown
+location: tests/fixtures/aef-bpmn/lane-position-conflict.bpmn
+tags: []
+purpose: 'TODO: describe what this component does'
+depends_on: []
+depended_by:
+- target: tests/test_t310_lane_position_conflict.py
+  type: called_by
+- target: tests/test_t315_lane_grow_on_import.py
+  type: called_by
+- target: tests/test_t310_lane_position_conflict.py
+  type: read_by
+- target: tests/test_t312_lane_geometry.py
+  type: read_by
+- target: tests/test_t315_lane_grow_on_import.py
+  type: read_by
+- target: tools/_t310-lane-position-conflict-cdp.mjs
+  type: read_by
+- target: tools/_t315-lane-grow-on-import-cdp.mjs
+  type: read_by
+last_verified: 2026-09-21
+created_by: unknown
+last_enriched: '2026-09-21'

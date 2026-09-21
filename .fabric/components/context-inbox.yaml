@@ -1,0 +1,16 @@
+id: .context/inbox.yaml
+name: inbox
+type: config
+subsystem: unknown
+location: .context/inbox.yaml
+tags: []
+purpose: 'TODO: describe what this component does'
+depends_on: []
+depended_by:
+- target: tests/test_note_capture_refuses_lost_payload.py
+  type: called_by
+- target: tools/_t703-inbox-residue.py
+  type: called_by
+last_verified: 2026-09-21
+created_by: unknown
+last_enriched: '2026-09-21'

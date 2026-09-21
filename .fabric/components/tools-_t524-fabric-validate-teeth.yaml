@@ -38,10 +38,12 @@ interfaces:
 depends_on:
 - .agentic-framework/agents/fabric/fabric.sh
 - .agentic-framework/agents/fabric/lib/drift.sh
+- target: .fabric/watch-patterns.yaml
+  type: calls
 depended_by:
 - tests/run-bridge-tests.sh
 - target: tools/_t532-hermeticity-scope-census.py
   type: called_by
 - target: tests/run-bridge-tests.sh
   type: called_by
-last_enriched: '2026-09-16'
+last_enriched: '2026-09-21'

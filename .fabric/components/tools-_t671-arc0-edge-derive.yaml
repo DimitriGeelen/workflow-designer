@@ -18,6 +18,8 @@ depends_on:
   type: reads
 - target: tools/validate-workflow.py
   type: calls
+- target: docs/research/executable-workflow/arc-0-component-set.txt
+  type: calls
 depended_by:
 - target: tools/_t671-arc0-card-gen.py
   type: reads
@@ -27,4 +29,4 @@ depended_by:
   type: read_by
 last_verified: 2026-09-03
 created_by: T-671
-last_enriched: '2026-09-16'
+last_enriched: '2026-09-21'

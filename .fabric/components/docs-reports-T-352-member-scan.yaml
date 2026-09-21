@@ -1,0 +1,18 @@
+id: docs/reports/T-352-member-scan.md
+name: T-352-member-scan
+type: script
+subsystem: unknown
+location: docs/reports/T-352-member-scan.md
+tags: []
+purpose: 'TODO: describe what this component does'
+depends_on: []
+depended_by:
+- target: tools/_t352-member-scan.py
+  type: called_by
+- target: tools/_t353-classify.py
+  type: called_by
+- target: tools/_t353-convert.py
+  type: called_by
+last_verified: 2026-09-21
+created_by: unknown
+last_enriched: '2026-09-21'

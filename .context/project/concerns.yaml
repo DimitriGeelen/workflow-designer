@@ -3711,3 +3711,60 @@ concerns:
     an agent that adjusts the cost axis is adjusting its own selection criteria.
 
     '
+
+- id: G-074
+  type: gap
+  status: watching
+  severity: high
+  title: The fabric-edge audit check cannot pass in a vendored consumer project — its
+    threshold is absolute while a structural floor of edgeless cards is unreachable by design
+  detected: 2026-09-21
+  origin_task: T-745
+  id_note: 'G-062..G-071 are vendored AEF ids already cited here; G-074 chosen by the
+    zero-reference scan in G-061''s id_note. FOURTH consecutive task needing that scan.
+
+    '
+  evidence: 'The check (audit.sh, the `fabric_unenriched -gt 10` branch) warns whenever more
+    than TEN cards carry no edges. The bound is absolute, not proportional: against the 394
+    cards this project now holds it demands 97.5% edge coverage.
+
+    Measured floor, 2026-09-21: of 78 edgeless cards, 41 reference a path under
+    `.agentic-framework/`. The enricher DETECTS those edges and then discards them —
+    "Edges discarded: 148 (target has no component card)" — because `fw fabric register`
+    refuses a vendored path outright:
+
+      REJECT: vendored framework copy — .agentic-framework/bin/fw
+        Register the upstream framework file instead:
+        fw fabric register bin/fw
+
+    In a vendored consumer `bin/fw` does not exist at the project root. So the remedy the
+    rejection names is unavailable here, and a dependency on the framework is permanently
+    unrepresentable. 41 >= 10, so the check is unsatisfiable by any legitimate means.
+
+    This is not a threshold that is merely strict. A project cannot reach it by doing the
+    thing the check asks for, and the only routes to green are (a) registering files that
+    are not really components, or (b) marking cards `standalone: true` to exclude them from
+    the denominator. Both make the number move without changing the topology, which is the
+    failure mode the check exists to prevent.
+
+    '
+  why_this_run_did_not_move_it: 'T-745 AC1 anticipated exactly this and said: show the
+    threshold is the thing that is wrong and FILE A SOVEREIGN QUESTION INSTEAD OF MOVING THE
+    THRESHOLD. The threshold was not moved, no card was marked standalone, and no file was
+    registered that was not already a detected edge target.
+
+    '
+  decision_trigger: 'Either the check becomes proportional and states its denominator
+    honestly (e.g. a coverage ratio over cards CAPABLE of carrying an edge), or vendored
+    framework paths become registerable in a consumer fabric so the detected edges can land,
+    or the check declares the vendored-dependency class out of scope explicitly rather than
+    silently counting it as failure. Demonstrated by the check reaching PASS in this project
+    without any card being marked standalone and without registering a non-component. Then
+    close G-074.
+
+    '
+  sovereignty_note: 'Changing the threshold is a calibration change to an audit control. An
+    agent that relaxes the check it is failing has certified its own work (producer-not-judge).
+    The operator owns this one.
+
+    '
