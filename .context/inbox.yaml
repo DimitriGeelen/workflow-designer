@@ -1734,3 +1734,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-368
+  text: "The healing auto-trigger on 'fw task update --status issues' produces no diagnosis, and takes over 300 seconds to produce it. Observed 2026-09-21 on T-745 (focus was T-748 when this note was filed; the observation is about T-745's transition). CLAUDE.md documents the healing loop as four steps: Classify the failure type, Lookup similar patterns in patterns.yaml, Suggest recovery via the Error Escalation Ladder, Log the resolution. Steps 1-3 emitted nothing at all. Complete captured output of the auto-trigger, verbatim and in full: '=== Auto-trigger: Healing Diagnosis ===' then '=== HEALING LOOP DIAGNOSIS ===' then 'Status: issues' then an echo of the status-update entry. No failure classification, no pattern match or miss reported, no suggestion. WHAT DID WORK, so the finding is not wider than it is: the status transition landed correctly and the --reason text was recorded in full in the task's Updates section. The record-keeping half is sound; the diagnostic half produced a header. TIMING: the command exceeded a 300s foreground timeout and had to complete in the background, so five-plus minutes of wall time yielded two lines of boilerplate. The reason passed was specific and substantial (a twice-failed numeric AC with a measured structural floor), i.e. exactly the input a classifier should have something to say about. NOT DIAGNOSED: I did not read healing.sh to establish whether diagnose exits early on a pattern miss, whether the auto-trigger swallows its output, or whether the 300s is the pattern scan. Filing the observation, not the root cause, because one bug one task and I have not measured which of those it is."
+  captured: 2026-09-21T15:48:12Z
+  context_task: T-748
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
