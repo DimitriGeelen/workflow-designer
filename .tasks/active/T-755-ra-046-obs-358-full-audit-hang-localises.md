@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:02:35Z
-last_update: 2026-09-21T08:18:36Z
+last_update: 2026-09-21T08:25:27Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -115,7 +115,7 @@ failures). Every prior report of "full `fw audit` hangs" (OBS-358) was measured 
 a timeout shorter than 578s. The distinction matters: a hang is a defect to be fixed,
 a 578-second section is a cost to be budgeted, and the two get different treatment.
 
-### Finding: the "hang" is a 600-second ceiling meeting a ~700-second job
+### Finding: the audit kills ITSELF at 600s — `audit.sh:312`
 
 Measured this cycle, and it is the part that actually explains the folklore.
 
@@ -128,11 +128,31 @@ exit=143 elapsed=600s
 ```
 
 Exit 143 is SIGTERM. The `timeout 2400` never fired — something with its own 600-second
-ceiling terminated the job first. That matters because of the number next to it:
+ceiling terminated the job first.
+
+**First attribution was wrong.** I assumed the ceiling belonged to the surface running
+the command (a shell or tool limit) and re-launched detached under `nohup setsid` to
+escape it. It died at exactly 600s again. The ceiling is not external at all: That matters because of the number next to it:
 **oe-daily alone takes 578s.** A full run is oe-daily plus eighteen other sections, so it
 needs roughly 700s and up. It therefore hits a 600s ceiling *every single time*, and what
 the ceiling produces — a process that stops emitting and never returns — is
 indistinguishable from a hang at the point of observation.
+
+```bash
+# audit.sh:312
+AUDIT_TIMEOUT="${FW_AUDIT_TIMEOUT:-600}"
+# audit.sh:346
+sleep "$AUDIT_TIMEOUT" && kill -TERM $$ 2>/dev/null
+```
+
+**The audit kills itself.** It arms a watchdog subshell that sleeps 600 seconds and then
+sends SIGTERM to its own PID. T-1162/T-866/T-1464 put it there to stop zombie audits
+accumulating under cron — a correct guard, sized when the audit was fast.
+
+The margin is the part that should worry somebody: **oe-daily alone measures 578s against
+a 600s self-kill.** That single section survives by 22 seconds. Any further growth in
+T-093's four suites, or a slower or busier host, and even a section-scoped run stops
+completing — and it will present the same way, as a hang.
 
 So the causal chain is:
 
@@ -140,16 +160,17 @@ So the causal chain is:
 2. T-093's `## Verification` block carries four full test suites.
 3. CTL-013 `eval`s that block on every oe-daily run → the section grows to 578s.
 4. A full audit is then ~700s+, which exceeds the 600s ceiling of the surface running it.
-5. SIGTERM at 600s, no summary, no exit code the caller can interpret → "full audit hangs".
+5. The audit's OWN watchdog fires at 600s and SIGTERMs the run → no summary, no
+   interpretable exit code → "full audit hangs".
 
 Nothing in that chain is a hang. Steps 1–3 are a real and structural cost, already owned
 by OBS-358. Step 4–5 is a **measurement artefact of the harness**, and it is the reason
 the cost has been described as a defect of the audit rather than a budget that outgrew
 its container.
 
-Re-run detached from that ceiling (`nohup setsid`) to establish whether the full run
-terminates at all when nothing kills it — that is what AC 3 actually needs to answer,
-and it could not have been answered from inside a 600s box.
+Decisive test for AC 3: re-run with `FW_AUDIT_TIMEOUT` raised. If the full run completes,
+the audit has no defect of correctness — it has a budget that no longer fits its own
+workload, and the remedy is a budget decision, not a shortened check.
 
 ### Finding: the cost is CTL-013, and it is not the audit's own work
 

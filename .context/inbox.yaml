@@ -1687,3 +1687,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-362
+  text: "Correction to OBS-361: the 600s kill is NOT an external ceiling, it is the audit killing itself. audit.sh:312 sets AUDIT_TIMEOUT from FW_AUDIT_TIMEOUT default 600, and audit.sh:346 arms a watchdog subshell that runs 'sleep AUDIT_TIMEOUT && kill -TERM $$' against its own PID. Added by T-1162/T-866/T-1464 as an anti-zombie guard for cron, which is a correct guard - it was simply sized when the audit was fast. Verified by elimination: re-launching the full run detached under nohup setsid, deliberately outside any shell or tool lifetime, still died at exactly 600s with exit 143. The margin is the alarming part: oe-daily ALONE measures 578s against a 600s self-kill, so that single section clears by 22 seconds. Any further growth in T-093's four suites, or a busier host, and even a section-scoped run stops completing - presenting identically, as a hang. Because the killer is inside the audit, nothing outside it ever reports a kill, which is why this read as a mystery for so long. Remedy is a budget decision (raise FW_AUDIT_TIMEOUT, or make the watchdog scale with the section set), NOT shortening any check. Operator's call - not actioned."
+  captured: 2026-09-21T08:35:20Z
+  context_task: T-755
+  tags: []
+  status: pending
+  promoted_to: null
