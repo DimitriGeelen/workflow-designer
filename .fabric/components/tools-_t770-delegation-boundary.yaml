@@ -1,0 +1,32 @@
+id: tools/_t770-delegation-boundary.py
+name: _t770-delegation-boundary
+type: script
+subsystem: verification
+location: tools/_t770-delegation-boundary.py
+tags:
+  - governance
+  - reviewer
+  - acceptance-criteria
+  - predicate
+
+purpose: >
+  Decides, mechanically, which acceptance criteria an external reviewer verdict may close
+  and which always return to the operator. Encodes the operator's standing instruction of
+  2026-09-21 (reviewer may stand in for human verification, except high risk, Tier 0 and
+  genuine UX judgement) as a classifier over section heading, literal prefix token,
+  frontmatter field and three fixed token lists — so that no agent adjudicates "high risk"
+  per case. Reports only; the write path is lib/reviewer/static_scan.py. G-052 tracks the
+  fact that those two encodings are never reconciled against each other.
+
+depends_on:
+  - target: .tasks/active
+    type: reads
+  - target: .tasks/templates/default.md
+    type: reads
+
+depended_by:
+  # P-011 verification block of T-770; no runtime caller — see G-052.
+  []
+
+last_verified: 2026-09-21
+created_by: T-770

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T12:00:17Z
-last_update: 2026-09-21T12:00:17Z
+last_update: 2026-09-21T12:03:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -72,17 +72,47 @@ date_finished: null
       (`FW_REVIEWER_IN_DISPATCH=1`), not independent opinion. Worth stating plainly so
       nobody reads "external reviewer" as "second mind".
 
-- [ ] **The delegation boundary is written down as a mechanical predicate, not a judgement
-      call.** A list a script can evaluate: which acceptance criteria may close on a
-      reviewer verdict, and which always return to the operator (Tier 0, `[REVIEW]` taste
-      and accountability calls, inception go/no-go, sovereignty fields, ownership changes,
-      releases). If the agent has to decide what counts as "high risk", the delegation has
-      not been made — it has been moved.
+- [x] **The delegation boundary is written down as a mechanical predicate, not a judgement
+      call.** `tools/_t770-delegation-boundary.py`. `classify(task, ac)` puts every
+      acceptance criterion in the live queue into exactly one bucket and returns the rule
+      that put it there:
 
-- [ ] **The policy is recorded as a decision AND the gap between policy and enforcement is
-      named.** A decision entry is not a gate. Whatever is not enforced is listed as still
-      unenforced, with the task that would enforce it, so this does not become the T-624
-      shape: a correct notice that changes no number.
+      | bucket | rule |
+      |---|---|
+      | `REVIEWER-CLOSEABLE` | `### Agent` + `[REVIEWER]` prefix, no carve-out fired. This is the entire delegated surface. |
+      | `AGENT-SELF` | `### Agent`, no `[REVIEWER]` prefix — the agent closes it under P-011; the reviewer may not tick it either (`static_scan.py:7`). |
+      | `OPERATOR-ONLY` | `### Human` section (AEF decision 113 — original classification is inviolable), or a carve-out fired. |
+
+      Carve-outs, in evaluation order — the criterion's own properties before the task's,
+      so the reason returned is the most specific one rather than the first one that
+      happens to be true: `taste` (`[REVIEW]`) · `act-in-the-world` (`[RUBBER-STAMP]`) ·
+      `tier0-or-bypass` (body names a gate-bypass or destructive token) ·
+      `sovereignty-field` · `release-surface` · `inception-decision` · `owner-human`.
+
+      Every input is a heading, a literal prefix token, a frontmatter field, or one of
+      three fixed token lists. There is no score, no threshold and no heuristic, which is
+      the point: **nowhere in the file does an agent decide what counts as "high risk".**
+      That was this criterion's actual test — a boundary the agent evaluates per case is
+      not a delegated boundary, it is a moved one.
+
+      `--self-test`: 12 legs green, each with a negative control in the set — prefix
+      removed must NOT be closeable; `cost_estimate_proposed:` must NOT demote where
+      `cost_estimate:` does; `[REVIEW]` must NOT be flagged convertible where `[REVIEWER]`
+      is. PL-178: a leg that cannot fail is asserting nothing.
+
+- [x] **The policy is recorded as a decision AND the gap between policy and enforcement is
+      named.** Decision recorded in `.context/project/decisions.yaml` (T-770). Gap
+      **G-052** registered `watching` in `.context/project/concerns.yaml` with a renderable
+      closure condition.
+
+      **What is NOT enforced, stated rather than implied:** the predicate is a reporter.
+      Nothing calls it. `fw task update --status work-completed` does not consult it, and
+      `fw reviewer` carries its own independent encoding of the same rule in
+      `static_scan.py:_should_auto_tick`. Two implementations of one boundary, neither
+      checking the other — exactly the drift shape this AC was written to avoid. Today they
+      agree; nothing makes them keep agreeing. G-052 holds that open, and names the check
+      that closes it: the predicate and the scanner must be shown to return the same
+      verdict over the live tree, by a test, not by inspection.
 
 - [x] **No Human AC is ticked by the agent under this task, and no ownership is changed.**
       The standing instruction authorises a future mechanism; it is not retroactive
@@ -144,6 +174,48 @@ idle, because the ACs it is allowed to touch were filed one heading too far down
 *"default to `[REVIEWER]` if Expected is grep-able … that AC should be an Agent AC with the
 reviewer command in `## Verification` instead of a Human AC here."*
 
+### Correction, 2026-09-21 — the 104 does not exist
+
+The table above was produced by a file-level grep for the `[REVIEWER]` token, and what it
+counted was the task template's own comment block. `.tasks/templates/default.md` ships a
+worked `[REVIEWER] example` *inside* the `### Human` HTML comment, and that comment is
+copied into every task file at creation. 108 of the active task files contain the token;
+**0 of them carry it on an acceptance-criterion line.**
+
+Measured again, this time restricted to AC lines (`^- \[[ xX]\] *\**\[PREFIX\]`):
+
+| | reported earlier | actually |
+|---|---|---|
+| `[REVIEWER]` on an AC line | 107 | **0** |
+| `[REVIEW]` on an AC line | 190 | **86** |
+| `[RUBBER-STAMP]` on an AC line | 6 | 6 |
+
+The finding survives the correction and gets sharper, pointing the other way. There is no
+queue of 104 mis-filed criteria waiting on a reclassification, and no reclassification to
+authorise. **The reviewer's delegated surface is empty — `REVIEWER-CLOSEABLE` = 0.** Nobody
+has ever written a `[REVIEWER]`-prefixed acceptance criterion in this project.
+
+L-302 one level up: I shipped the detector and read its output as the measurement without
+first asking what the generator puts into every file. The boilerplate *was* the signal.
+
+### What the predicate reports, 2026-09-21
+
+319 open acceptance criteria across `.tasks/active/`:
+
+| bucket | count |
+|---|---|
+| `REVIEWER-CLOSEABLE` | **0** |
+| `AGENT-SELF` | 115 |
+| `OPERATOR-ONLY` | 204 |
+
+`OPERATOR-ONLY` by rule: `owner-human` 92 · `taste` 76 · `inception-decision` 29 ·
+`act-in-the-world` 6 · `tier0-or-bypass` 1.
+
+The operator's own queue is **82 open `### Human` criteria** — 76 `[REVIEW]` and 6
+`[RUBBER-STAMP]`, none unprefixed. So the prefix-routing rule *is* being applied wherever a
+Human AC gets written. What nobody writes is the Agent-side `[REVIEWER]` AC, which is the
+only shape the reviewer is allowed to close.
+
 ### What this means for the standing instruction
 
 The operator's instruction — *reviewer says good, then it may close, except high risk,
@@ -151,12 +223,19 @@ Tier 0 and real UX judgement* — **is already AEF policy**, decisions 36/113/21
 2026-04-25. It needs no new authority. What it needs is for the 104 to be reclassified so
 the reviewer can reach them.
 
-**That reclassification is not a reviewer act and not an agent act.** Decision 113 makes
-original classification inviolable *to the reviewer*; T-1811/T-1878 permit Human→Agent
-conversion only for the deterministic mis-prefix class, which is exactly this population —
-but 104 at once is the operator's queue and needs the operator's word, per item.
+**Superseded by the correction above.** The population this paragraph proposed to
+reclassify is empty, so there is nothing to ask the operator to authorise. The
+conversion rule (T-1811/T-1878, Human→Agent for the deterministic mis-prefix class)
+stands unchanged and unused. What the standing instruction needs is not a reclassification
+but a supply: tasks written with `[REVIEWER]` Agent ACs in the first place.
 
 ## Verification
+
+./tools/_t770-delegation-boundary.py --self-test
+test $(grep -rlE '^- \[[ xX]\] *\**\[REVIEWER\]' .tasks/active/ | wc -l) -eq 0
+./tools/_t770-delegation-boundary.py --json > /tmp/.t770-boundary.json && python3 -c "import json,sys; d=json.load(open('/tmp/.t770-boundary.json')); sys.exit(0 if len(d) > 100 and all(r['rule'] and r['bucket'] for r in d) else 1)"
+grep -q 'G-052' .context/project/concerns.yaml
+grep -q 'T-770' .context/project/decisions.yaml
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -255,6 +334,25 @@ but 104 at once is the operator's queue and needs the operator's word, per item.
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-09-21 — the standing instruction is encoded as a predicate, not as prose
+
+- **Chose:** express the operator's delegation as `tools/_t770-delegation-boundary.py`, a
+  pure classifier over heading + prefix token + frontmatter field + fixed token lists, and
+  record the policy as a decision with its enforcement gap named (G-052).
+- **Why:** the instruction as spoken — *"except high risk, Tier 0 and large UX reviews"* —
+  names an exception the agent would have to adjudicate case by case. An exception the
+  agent adjudicates is not delegated authority; it is relocated authority. Encoding it so a
+  script returns the bucket removes the agent from the decision entirely, which is what
+  makes it safe to honour.
+- **Rejected:** writing the boundary as guidance in CLAUDE.md. It would read as governance
+  and enforce nothing — the T-624 shape, a correct notice that changes no number. Also
+  rejected: wiring the predicate into the completion gate in this task. That is a gate
+  change on the operator's queue and belongs to its own task under its own scrutiny; G-052
+  holds it open rather than letting it land as a side effect.
+- **Rejected:** proposing the 104-item reclassification I had drafted. The population was a
+  measurement artefact (see Findings). Acting on it would have edited 104 of the operator's
+  task files on the strength of a grep that counted template boilerplate.
 
 ## Decision
 

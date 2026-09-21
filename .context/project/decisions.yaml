@@ -2236,3 +2236,31 @@ decisions:
     date: 2026-09-21
     task: T-766
     rationale: "Operator ruling, 2026-09-21, with the semantics given by the operator's own example: 'Check if all doors are closed, unlocked with the exemption of the emergency exit door that needs always to be opened from the inside.' The exempted item is NOT skipped — it is asserted against a different correct state. Rejected alternatives: suppression (what audit.sh:5228 already does to the deployment section — invisible rather than not-applicable, and an invisible check cannot report that its exemption expired) and acknowledgement (visible but still cannot detect that the reason stopped being true). Acceptance test: an exemption MUST be able to go red; one that can never fail is suppression wearing a costume. Worked cases: RA-047/T-756 expects 'diverged AND T-102/T-105 open' — today's check goes GREEN on the forbidden gallery rebuild, actively rewarding the prohibited remedy; RA-050/T-759 expects the record in the task file with non-empty sections as T-706 measured; RA-051/T-760 is not an exemption at all but a hardcoded-path bug."
+
+  - id: PD-299
+    decision: "`--owner human` without `--human-ac` is **refused** with a message naming the"
+    scope: project
+    date: 2026-09-21
+    task: T-767
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-300
+    decision: "`bpmn-promote` / `designer-ghost` origins and `--type inception` do not"
+    scope: project
+    date: 2026-09-21
+    task: T-767
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-301
+    decision: "fix the generator, measure the population, reassign nothing."
+    scope: project
+    date: 2026-09-21
+    task: T-767
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-302
+    decision: "Reviewer delegation is encoded as a predicate over heading, prefix token and frontmatter field — never as an agent judgement about what counts as high risk"
+    scope: project
+    date: 2026-09-21
+    task: T-770
+    rationale: "The operator's standing instruction of 2026-09-21 delegates Human-AC verification to the external reviewer except for high risk, Tier 0 and genuine UX judgement. An exception the agent adjudicates per case is relocated authority, not delegated authority. tools/_t770-delegation-boundary.py returns the bucket mechanically (REVIEWER-CLOSEABLE / AGENT-SELF / OPERATOR-ONLY) so the agent is not in the decision. Already AEF policy: T-1443 decisions 36/113/213, GO 2026-04-25. Enforcement gap held open as G-052."

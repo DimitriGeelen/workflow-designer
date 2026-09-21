@@ -3411,3 +3411,66 @@ concerns:
   - T-739
   - T-155
   - T-642
+- id: G-052
+  type: gap
+  status: watching
+  severity: medium
+  title: The reviewer delegation boundary is encoded twice — in the scanner that enforces it
+    and in the predicate that reports it — and nothing checks the two against each other
+  detected: 2026-09-21
+  origin_task: T-770
+  decision_trigger: 'A test exists that runs `tools/_t770-delegation-boundary.py --json` and
+    `fw reviewer` over the same live tree and asserts the two agree on which acceptance
+    criteria are auto-tickable, AND it is listed in a task''s `## Verification` block so the
+    P-011 gate runs it. Then close G-052.
+
+    '
+  description: 'The operator issued a standing instruction on 2026-09-21: an external
+    reviewer verdict may stand in for human verification, excepting high risk, Tier 0 and
+    genuine UX judgement. That instruction is already AEF policy — T-1443 decisions 36, 113
+    and 213, GO 2026-04-25 — so it needed no new authority, only an encoding that does not
+    ask the agent to adjudicate "high risk" case by case.
+
+
+    T-770 produced that encoding as `tools/_t770-delegation-boundary.py`. The gap is that it
+    is the SECOND encoding. `lib/reviewer/static_scan.py:_should_auto_tick` already decides
+    the same question for the thing that actually writes checkboxes. The predicate reports;
+    the scanner enforces; neither reads the other. Measured 2026-09-21 they agree — both
+
+    admit `### Agent` + [REVIEWER] and nothing else — but agreement today is an observation,
+
+    not a property. Either side can be edited without the other failing.
+
+
+    This is registered rather than fixed because the fix is a change to what the completion
+
+    gate consults, on a queue that belongs to the operator. Landing that as a side effect of
+
+    a policy-recording task is how gates acquire behaviour nobody decided on.
+
+
+    Why this is a gap and not a task note (G-019): the enforcement asymmetry is the same
+
+    shape as PL-326, recorded one day earlier on a different control — a rule that is
+
+    enforced in one direction reads as governed in both. Here the rule is enforced in the
+
+    write path and merely described in the read path, so a drift between them surfaces as a
+
+    correct-looking report rather than as a failure.
+
+
+    Scope note, measured the same day: the delegated surface is currently EMPTY. 0 of 319
+
+    open acceptance criteria are [REVIEWER]-prefixed Agent ACs, so the two encodings agree
+
+    trivially over an empty set. That is what keeps the severity at medium — and also what
+
+    makes the drift easy to miss, because the first task to write a [REVIEWER] AC is the one
+
+    that will discover whether the two still agree.
+
+    '
+  related_tasks:
+  - T-770
+  - T-767
