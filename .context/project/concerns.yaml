@@ -3608,3 +3608,106 @@ concerns:
     that absence allowed. Then close G-061.
 
     '
+
+- id: G-072
+  type: gap
+  status: watching
+  severity: high
+  title: The value ranker has no notion of executability, so quadrant-ordered autonomous
+    selection is guaranteed to select work the agent cannot legally perform
+  detected: 2026-09-21
+  origin_task: T-777
+  id_note: 'G-062 to G-071 SKIPPED — all are vendored AEF gap ids already cited in this
+    tree. G-072 and G-073 chosen by the zero-reference scan recorded in G-061''s id_note.
+    THIRD consecutive task to need that scan. Recording the recurrence rather than stepping
+    around it silently a third time: the namespace question (SQ-9) is now evidenced by three
+    independent incidents and has no containment beyond a documented workaround.
+
+    '
+  evidence: 'Measured by tools/_t777-selection-eligibility-census.py on 2026-09-21, against
+    150 active tasks:
+
+      placed in a high-value quadrant (hv-lc or hv-hc) : 31
+      of those, agent-executable                       : 0
+      agent-executable overall                         : 22
+      ...all of which fall OUTSIDE every hv quadrant   : 22
+
+    The 31 break down as: 27 `owner: human` (completing human-owned tasks is not delegated);
+    3 agent-owned with every open Agent AC marked BLOCKED (T-341, T-358, T-696 — each
+    already established by a prior session as downstream of a Human ruling); and 1 (T-155)
+    whose remaining criterion requires `fw inception decide`, which two independent gates
+    forbid the agent to invoke.
+
+    `fw bvp` answers "what is most valuable?". Nothing answers "what can be executed?".
+    An autonomous run bound to select by quadrant therefore walks the ranking from the top
+    and finds every entry unworkable — not occasionally, but for all 31. The failure is
+    silent in the worst way: each individual refusal looks like a correct gate doing its
+    job, and only the census makes the totality visible.
+
+    THE CONTROL, because a census that rejected everything would report the same headline:
+    the executable set is non-empty (22 tasks), so the predicate admits work. The zero is a
+    measurement, not an artefact of an over-strict filter. The census self-test carries 8
+    fixtures including two that must classify as EXECUTABLE.
+
+    '
+  not_a_finding_about: 'This is NOT a claim that the backlog is mis-owned. 27 tasks being
+    human-owned may be exactly right — they are ratifications, taste judgements and scope
+    decisions. The gap is that the INSTRUMENT used to order autonomous work cannot see that
+    property, so it cannot route around it or report it.
+
+    '
+  decision_trigger: '`fw bvp` (or a wrapper the autonomous loop consults) reports
+    executability alongside value, so a run can select the highest-value EXECUTABLE task
+    instead of the highest-value task. Demonstrated by a ranking that omits or flags the 31,
+    and by the census agreeing with it. Re-owning tasks does NOT close this gap — that would
+    change the backlog to fit the instrument. Then close G-072.
+
+    '
+
+- id: G-073
+  type: gap
+  status: watching
+  severity: high
+  title: A task's cost quadrant is only computable after the task is finished, so the Q1/Q2
+    ordering cannot order unstarted work
+  detected: 2026-09-21
+  origin_task: T-777
+  evidence: 'F8 cost is `0.6*blast_radius + 0.3*tier + 0.1*effort`. `blast_radius` is derived
+    from the task''s `components:`, and `components:` is resolved from GIT HISTORY AT
+    COMPLETION — observed live four times on 2026-09-21 ("Components: 1 resolved from git
+    history", emitted by `fw task update --status work-completed`).
+
+    So the input to the cost axis does not exist until the work is done. Measured:
+
+      active tasks with non-empty `components:` : 7 of 149
+      active tasks with no quadrant at all      : 106 of 150
+      estimator output on an unstarted task     : `blast_radius=absent (no-signal)`
+
+    `fw bvp --include-proposed` states it plainly in its own header: "100% have no known
+    cost — blast_radius unmeasured, so no quadrant", and every `--quadrant` filter therefore
+    matches only the minority that happen to have one.
+
+    Demonstrated on this very task: T-777 was scored through the estimator BEFORE execution,
+    as the autonomous mandate requires, and came back `tier=2 effort=8
+    blast_radius=absent` — BVP 100, quadrant `-`. The task documenting the circularity
+    reproduced it on itself.
+
+    CONSEQUENCE for any quadrant-ordered run: the 31 tasks that DO have a quadrant are not
+    the most valuable 31, they are the ones that happen to have accumulated components. The
+    ordering is over a biased sample and nothing says so at the point of use.
+
+    '
+  decision_trigger: 'Either blast_radius becomes estimable pre-execution (from the task body,
+    touched paths named in ACs, or a declared component set), or the cost axis declares
+    itself unavailable and quadrant selection degrades to a stated fallback — the
+    `cost_estimate:` comment in the task template already names one ("Q2 fallback: T-shirt
+    S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable") which is NOT wired
+    into `fw bvp`. Demonstrated by a quadrant being assigned to a task with zero commits.
+    Then close G-073.
+
+    '
+  sovereignty_note: 'The fallback exists in the template as prose and is not implemented.
+    Wiring it is a calibration change to the scoring instrument, which is the operator''s —
+    an agent that adjusts the cost axis is adjusting its own selection criteria.
+
+    '

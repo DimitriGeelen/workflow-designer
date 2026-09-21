@@ -1718,3 +1718,19 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-366
+  text: "The fw MCP server surface resolves against a DIFFERENT PROJECT than the working directory. Measured 2026-09-21 from a session rooted at /opt/832-Workflow-designer: mcp__fw__task_list --status started-work returned 14 tasks belonging to a CashWeb/Ecwid/Azure-DevOps tree (T-098 'Ingest the CashWeb project CASH and Ecwid knowledge body', T-083 'Set up Azure DevOps push authentication', AR-02..AR-30 audit-remediation series) and mcp__fw__bvp_rank ranked the same foreign backlog. Zero overlap with this project's 150 active tasks, verified by direct filesystem read of .tasks/active/. The local CLI at .agentic-framework/bin/fw returns the correct tree, so the divergence is in the MCP server binding, not in fw itself. SAFETY IMPACT, not cosmetic: an autonomous run instructed to select work top-down from the ranking would have selected and executed another project's tasks, and the task-id collision makes it look plausible — foreign T-041 is 'AR-07 stale-slice-reference scan' while local T-041 is 'Render inception-review and run operator fidelity pilot'. Also note the foreign tree carries its own filed task T-057 'AR-23 bvp-estimator resolves tasks against the framework tree', which is the same class of defect seen from the other side. Workaround in use: never select work from the MCP fw surface; use the local CLI. Do not route fw state changes through MCP while this holds."
+  captured: 2026-09-21T15:16:02Z
+  context_task: T-777
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-367
+  text: "There is no Sovereign-question register. SQ-9 was raised 2026-09-21 and exists only as prose references inside concerns.yaml entries (G-055, G-061) and one episodic; there is no file, no id allocator, no status field and no instrument that can answer 'which Sovereign questions are open'. PL-145 states the rule this breaks: a ruling filed as PROSE is invisible to every instrument that looks for rulings — and the same is true of the QUESTIONS that precede rulings. Measured: grep across .context/ for SQ- returns only incidental mentions; the autonomous mandate of 2026-09-21 directs 'write it as a Sovereign question, park the task, move on', and there is nowhere to write it. Consequence: every SQ raised so far (SQ-3, SQ-5, SQ-6, SQ-7, SQ-8, SQ-9) is discoverable only by reading the task or gap that happened to mention it, so the count of open Sovereign questions is not knowable and a parked task cannot be linked to the question parking it. Not fixed here (one bug one task) and the remedy is not obviously a new register — gaps.yaml already has status/closure semantics and an SQ may simply be a concern of type sovereign-question. That choice is an architectural decision and is the operator's."
+  captured: 2026-09-21T15:16:11Z
+  context_task: T-777
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
