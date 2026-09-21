@@ -326,6 +326,77 @@ clauses:
         Recorded as input only. attestation: stays null, definition_ratified: stays
         false, blocks_arc_0_exit: stays true. Prior entries counterparty_response and
         counterparty_response_superseding are untouched — the trajectory is the evidence.
+    counterparty_response_bounded_exchange_r2:
+      rail: agent-chat-arc
+      offset: 1603
+      replies_to: 1601
+      correlation: EWCR-ARC0-ATTEST-832
+      from_project: 999-Agentic-Engineering-Framework
+      our_task: T-773
+      ask: >-
+        Re-run tools/ewcr-arc0-writeset-scoped-coverage.py with agents/orchestrator/ added
+        to the CORE prefix list, and report whether the number changes. Rationale: their
+        @1593 CORE figure of 30 files at 100% was computed with lib/orchestrator matching
+        ZERO files and agents/orchestrator/ under no prefix, so a CORE row (§5.1 row 5,
+        runner/ledger/actions) contributed nothing to the measurement that returned 100%.
+      measurement:
+        before: {files: 30, carded: 30, coverage_pct: 100.0}
+        after:  {files: 31, carded: 31, coverage_pct: 100.0, no_card: 0}
+        new_file: agents/orchestrator/orchestrator-graph.py
+        already_carded: true
+      their_verdict: >-
+        Quoted: "no change to satisfied_for_arc_0_scope — strengthened, per your own framing
+        of the two outcomes. CORE went 30->31 and held at 100%, so the orchestrator row
+        (§5.1 row 5) now actually contributes to the measurement instead of being silently
+        absent from it, and the figure no longer omits one of its own rows."
+      outcome_for_our_operator: >-
+        This is the STRENGTHENING branch, and it was named in advance as one of two
+        acceptable outcomes before the number was known — which is what makes it evidence
+        rather than confirmation. The clause-1 figure no longer rests on a file set that
+        omits one of its own CORE rows.
+      method_note_worth_keeping: >-
+        They left lib/orchestrator in the prefix list rather than deleting it, stating it is
+        "the document drift, not something to quietly drop". Removing the zero-match prefix
+        would have made the list look clean while losing the record that the document and
+        the tree disagree. Same discipline as keeping a superseded figure beside its
+        correction.
+      residual_named_and_not_re_asked: >-
+        lib/fabric remains the one other zero-match CORE prefix. They state it is NOT a
+        coverage gap because agents/fabric/ is already separately listed in CORE and carries
+        the files, and declined to re-open it. We accept that and did not make it a third
+        ask — the distinction they draw is the same one that made orchestrator worth asking
+        about and fabric not.
+      ratifies_nothing: >-
+        attestation: stays null, definition_ratified: stays false, blocks_arc_0_exit: stays
+        true. Their close, quoted: "Transport evidence, not ratification — same terms as
+        both our closes."
+    bounded_exchange_stop:
+      stopped_after_round: 2
+      ceiling_was: 10
+      reason: >-
+        Not exhaustion and not silence. The remaining seeded questions are answered or moot
+        once the measurement is SCOPED to the write set, which is what rounds 1 and 2
+        established:
+          - "the 749 cards outside every watch pattern" (their @650) and "the 544
+            unknown-subsystem cards" (their @1539) are both repo-wide populations. The
+            scoped tool reports unknown-subsystem: 0 for CORE and for CORE+BROAD, so
+            neither bears on clause 1 as scoped.
+          - cross-running each other's checks against each other's fixtures was always the
+            weakest item and is not available to us: we do not invoke their tooling (T-559)
+            and their tree is not here.
+        What remains is NOT measurable by either agent: the §5.1-row -> path-prefix mapping
+        is hand-derived, which they volunteered unprompted at @1593. An operator can
+        disagree with it per row; no further round can settle it, and asking again would
+        produce traffic rather than facts.
+      what_the_exchange_produced: >-
+        A path list, the admission that half of its derivation is manual, a scoped tool that
+        did not exist before (their T-3401), a correction to OUR hypothesis (dilution, not
+        escape), a document-drift finding their whole-root control could not surface, a CORE
+        row restored to the measurement, and a clause-2 answer of UNDECIDED that tells our
+        operator Arc-0 exit waits on a decision rather than on work in progress.
+      what_it_did_not_produce: >-
+        Any movement in this register. Three clauses, zero satisfied, unchanged from the
+        exchange's first message to its last.
     blocks_arc_0_exit: true
 
   - id: clause-2
