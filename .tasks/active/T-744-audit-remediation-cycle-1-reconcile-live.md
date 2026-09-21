@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:55:23Z
-last_update: 2026-09-21T07:55:23Z
+last_update: 2026-09-21T08:04:36Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -60,11 +60,11 @@ a pass-set baseline that does not state its own coverage is a baseline that over
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Cycle-1 findings table exists at `docs/reports/T-744-cycle1-findings.md`, one row per individual FAIL and per individual WARN, each row carrying: stable ID, source (audit|doctor), severity as the tool reported it, the check that fired, the artifact implicated, and the observed-vs-expected delta.
-- [ ] Every row in the table is reconciled to exactly one task: either an existing arc-003 task (cited by RA-id and T-id) or a task newly created in this cycle. Reconciliation is stated as an explicit count — findings in = tasks out — and the count of unreconciled findings is zero.
-- [ ] Every task newly created in this cycle resolves to arc `arc-003` via its `arc_id:` field, set through `fw arc tag` (not by hand), and carries the verbatim tool output that produced its finding.
-- [ ] Every task newly created in this cycle carries a BVP score written by `fw bvp estimate` (i.e. a `bvp_scores_proposed:` block), with rationale recorded before the score, not after.
-- [ ] The audit sections that could not be run to completion in this cycle are named in the findings table with the reason, so the pass-set baseline states its own coverage rather than implying it is total.
+- [x] Cycle-1 findings table exists at `docs/reports/T-744-cycle1-findings.md`, one row per individual FAIL and per individual WARN, each row carrying: stable ID, source (audit|doctor), severity as the tool reported it, the check that fired, the artifact implicated, and the observed-vs-expected delta.
+- [x] Every row in the table is reconciled to exactly one task: either an existing arc-003 task (cited by RA-id and T-id) or a task newly created in this cycle. Reconciliation is stated as an explicit count — findings in = tasks out — and the count of unreconciled findings is zero.
+- [x] Every task newly created in this cycle resolves to arc `arc-003` via its `arc_id:` field, set through `fw arc tag` (not by hand), and carries the verbatim tool output that produced its finding.
+- [x] Every task newly created in this cycle carries a BVP score written by `fw bvp estimate` (i.e. a `bvp_scores_proposed:` block), with rationale recorded before the score, not after.
+- [x] The audit sections that could not be run to completion in this cycle are named in the findings table with the reason, so the pass-set baseline states its own coverage rather than implying it is total.
 
 ## Verification
 
@@ -114,6 +114,13 @@ a pass-set baseline that does not state its own coverage is a baseline that over
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+test -f docs/reports/T-744-cycle1-findings.md
+grep -qE 'unreconciled \.+ 0' docs/reports/T-744-cycle1-findings.md
+test "$(grep -l '^arc_id: arc-003' .tasks/active/T-74[5-9]-*.md .tasks/active/T-75[0-7]-*.md | wc -l)" -eq 13
+test "$(grep -l '^bvp_scores_proposed:' .tasks/active/T-74[5-9]-*.md .tasks/active/T-75[0-7]-*.md | wc -l)" -eq 13
+test "$(grep -l 'Verbatim tool output' .tasks/active/T-74[5-9]-*.md .tasks/active/T-75[0-7]-*.md | wc -l)" -eq 13
+grep -q 'Coverage is 19 of 19 sections' docs/reports/T-744-cycle1-findings.md
 
 ## RCA
 
