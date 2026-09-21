@@ -4,10 +4,10 @@ name: "Audit remediation cycle 3: re-run verifies cycle 2, and finds the audit l
 description: >
   Audit remediation cycle 3: re-run verifies cycle 2, and finds the audit lost its own baseline
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -17,8 +17,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T09:36:29Z
-last_update: 2026-09-21T09:36:29Z
-date_finished: null
+last_update: 2026-09-21T09:43:40Z
+date_finished: 2026-09-21T09:43:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -94,19 +94,19 @@ without anyone touching the audit.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The re-run's counts, elapsed time and exact command are recorded, and its
+- [x] The re-run's counts, elapsed time and exact command are recorded, and its
       coverage is stated — the same self-description cycle 2 established.
-- [ ] Cycle 2's diagnosis is verified by the re-run rather than by assertion: the
+- [x] Cycle 2's diagnosis is verified by the re-run rather than by assertion: the
       predicted cause of the 687s runtime is confirmed or refuted with measurements.
-- [ ] Findings in = tasks out. Every finding in the re-run is reconciled to a task
+- [x] Findings in = tasks out. Every finding in the re-run is reconciled to a task
       record, the count of unreconciled findings is zero, and the three findings the
       cross-cycle comparison produced each get their own task.
-- [ ] The disappearance of RA-047 from the audit is shown to be a windowing artifact
+- [x] The disappearance of RA-047 from the audit is shown to be a windowing artifact
       and not a repair: the underlying condition is measured and reported unchanged.
-- [ ] This cycle's audit record is committed, so the baseline survives the next
+- [x] This cycle's audit record is committed, so the baseline survives the next
       same-scope run. This preserves the instance; the general defect stays open as
       RA-052 because preventing recurrence requires a ruling, not a commit.
-- [ ] New tasks are scored with `fw bvp estimate` and parked or worked strictly by
+- [x] New tasks are scored with `fw bvp estimate` and parked or worked strictly by
       the value boundary. No score is adjusted upward by the producer and no BVP
       calibration parameter is touched.
 
@@ -278,3 +278,20 @@ grep -q 'sections: "all"' .context/audits/2026-09-21.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-762-audit-remediation-cycle-3-re-run-verifie.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cbc8403c
+- **Timestamp:** 2026-09-21T09:43:41Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 60
+     - evidence: `! diff -q src/aef-workflow-designer.html build/gallery/designer.html >/dev/null 2>&1`
+
+### 2026-09-21T09:43:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

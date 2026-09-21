@@ -183,9 +183,9 @@ task that already exists.
 
 ```
 Individual findings observed this cycle .................. 33
-  reported by the audit run ..............................  30  (all reconciled to existing tasks)
-  produced by cross-cycle comparison .....................   3  (RA-052 … RA-054 → T-763 … T-765)
-  unreconciled ...........................................   0
+  reported by the audit run ............................... 30  (all reconciled to existing tasks)
+  produced by cross-cycle comparison ...................... 3   (RA-052 … RA-054 → T-763 … T-765)
+  unreconciled ............................................ 0
 ```
 
 **Zero findings remain outside the arc.** All three new tasks carry `arc_id: arc-003`,
