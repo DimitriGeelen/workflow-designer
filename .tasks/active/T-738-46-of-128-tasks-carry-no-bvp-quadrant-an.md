@@ -26,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T10:14:05Z
-last_update: 2026-09-21T21:46:24Z
+last_update: 2026-09-21T21:54:41Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,6 +89,38 @@ cost_estimate_proposed:
 **Calibration note (do not act on by rewording this body):** the estimator gave D2 (Reliability) = 0 with rationale `no-signal`, because the body names no `fw audit`/`fw doctor` invocation. A defect in the ranker that orders all other work is arguably a D2 item; the detector keys on a literal. Recorded for whoever tunes the rubric — the fix belongs in the rubric, not in this task's prose.
 
 **Sovereign question:** may an agent declare `components:` on tasks it did not author? Doing so is the input `score_blast_radius` asks for ("the author's own declaration"), and it changes the quadrant of up to 46 tasks — i.e. it changes what the next autonomous run is permitted to work on. That is a priority decision, not a build activity.
+
+## RCA
+
+**Symptom:** 50 non-completed active tasks carry `quadrant: '-'` and are invisible to
+quadrant-ordered selection. Worse, `fw bvp arcs` listed two of three in-progress arcs, silently
+omitting arc-002 `ewcr-governed-delivery` — the focused arc, holder of the Arc-0 exit clauses.
+
+**Root cause:** Two independent causes, not one. **(1)** `score_blast_radius` returns `None`
+when a task has empty `components:`, no `target_blast_radius:`, and names no existing source
+path in its body — correct behaviour (T-542/T-2189: absent beats a blind 0), and 44 tasks are
+in this state, of which 43 have no mechanical basis for a proposal because they were captured
+and never worked. **(2)** A cause this task's framing did not anticipate: the ranker needs a
+**value** score as well as a cost, so a task with no `bvp_scores_proposed:` has no `bvp_norm`
+and is dropped even when its cost is fully computed. Six tasks were in that state, two of them
+(T-681, T-732) being arc-002's only live tasks — which is why the arc rollup had no rankable
+constituent and the arc vanished.
+
+**Why structurally allowed:** the arc rollup reports "ranked" and "absent" identically. Nothing
+in `fw bvp arcs` distinguishes *"this arc has no rankable constituent"* from *"this arc does
+not exist"*, so an omission that should read as a measurement failure reads as a complete list.
+The same silence at task level is deliberate and correct; at arc level it removes an entire
+unit of work from a selection decision with no marker at all.
+
+**Prevention:** `tools/_t738-unrankable-task-census.py` is committed and re-derives the whole
+population, classifying each task by WHICH source was empty — including class C, which did not
+previously have a name. Class C was mechanically closed with the advisory verb and arc-002 now
+ranks first at 117. The structural half is NOT closed and must not be claimed as closed: the
+arc-level silence is registered under **G-076** as `escalation_closure_addendum`, whose closure
+condition requires `fw bvp arcs` to distinguish "ranked 0" from "not ranked". A second guard
+this task earned: the tool pins `PROJECT_ROOT`, because its absence made the tool report three
+estimator defects that did not exist — a reminder that an instrument importing the code it
+measures inherits that code's environment assumptions.
 
 ## Acceptance Criteria
 
