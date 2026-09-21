@@ -1,0 +1,33 @@
+id: tools/_t771-approvals-overflow-probe.sh
+name: _t771-approvals-overflow-probe
+type: script
+subsystem: verification-probes
+location: tools/_t771-approvals-overflow-probe.sh
+tags:
+  - approvals
+  - operator-surface
+  - disclosure
+  - g-055
+
+purpose: >
+  Measures the priority composition of what the /approvals overflow disclosure hides, and
+  prints the operator route that bypasses it. The page's summary calls everything behind it
+  "lower priority"; that text is generated from list position, never from the hidden set, so
+  the claim cannot be wrong in any way the page can detect. Measured 2026-09-21: 53 of 57
+  hidden items sat in the same top-priority group as the 10 shown. Detection only — nothing
+  schedules it and the label is unchanged (G-055).
+
+depends_on:
+  - target: .agentic-framework/web/blueprints/approvals.py
+    type: reads
+  - target: .agentic-framework/web/templates/_approvals_content.html
+    type: reads
+  - target: .context/working/watchtower.url
+    type: reads
+
+depended_by:
+  # P-011 verification block of T-771.
+  []
+
+last_verified: 2026-09-21
+created_by: T-771

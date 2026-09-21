@@ -3474,3 +3474,73 @@ concerns:
   related_tasks:
   - T-770
   - T-767
+- id: G-055
+  type: gap
+  status: watching
+  severity: high
+  title: The /approvals overflow hides 53 top-priority operator rulings behind a disclosure
+    that calls them lower priority, and the label is computed from position rather than from
+    what it hides
+  detected: 2026-09-21
+  origin_task: T-771
+  id_note: 'G-053 and G-054 were SKIPPED deliberately, not lost. Both are vendored-framework
+    gap ids already cited in this tree (G-053 217 times, G-054 56 times, G-067 201 times) and
+    the local register had reached G-052, so the next sequential local id would have collided
+    head-on with 217 existing references to a different gap. The collision is not solved by
+    this skip — it is only stepped around once. See SQ-9.
+
+    '
+  decision_trigger: '`tools/_t771-approvals-overflow-probe.sh` reports 0 collapsed
+    top-priority items against the live page, OR the disclosure summary derives its text from
+    the composition of the hidden set rather than from list position — demonstrated by a test
+    that changes the hidden set and asserts the summary text changes with it. A restyle of the
+    summary does NOT close this gap; that remedy was already tried at T-2406 and the operator
+    hit the same wall afterwards. Then close G-055.
+
+    '
+  description: 'Measured 2026-09-21 against the live page at the operator''s report that
+    /approvals showed "nothing to do" while five rulings gating Arc-0 exit were pending.
+
+
+    The page was not empty: 454,423 bytes, HTTP 200, containing all five. The visible list is
+    cut POSITIONALLY at 10 (_approvals_content.html:496) through a list sorted by
+    (sort_priority ASC, age_days DESC) (approvals.py:370). Priority group 0 — any task with an
+    unchecked [REVIEW] AC — holds 63 of 67 tasks, so the cut falls inside one priority group:
+    10 shown, 53 hidden, identical in priority. The summary hiding them reads "57 more
+    verifications — lower priority, all still actionable". 92% of what it calls lower priority
+    is the same top priority as the ten above it.
+
+
+    The secondary sort key is age DESCENDING, oldest first, so a ruling filed today sorts to
+    the bottom of its group. The two Arc-0 rulings are 1 day old (T-736, gates clause 1) and 4
+    days old (T-732, gates clause 3). The newer and more consequential a ruling is, the more
+    reliably this ordering buries it. Nothing in the sort knows that a ruling gates an arc exit
+    gate; priority is computed from AC prefix and age only.
+
+
+    WHY THE FRAMEWORK WAS BLIND (G-019 escalation, not the symptom): the summary text is
+    generated from POSITION in the list and never from the COMPOSITION of what it hides, so the
+    label cannot be wrong in any way the code is able to notice. Layered on PL-261 — "a surface
+    whose healthy state is EMPTY cannot report its own failure" — a disclosure concealing 53
+    top-priority rulings is visually indistinguishable from one concealing 53 pieces of trivia.
+
+
+    SECOND INSTANCE, AND THE FIRST REMEDY MISSED. _approvals_content.html:500-502 records the
+    first one in its own comment: "Operator framing was ''rows don''t render''; the rows DID
+    render but the disclosure was sub-perceptual." T-2406 answered by restyling the summary
+    from a dashed border to a coloured CTA button — it addressed VISIBILITY. The operator
+    walked into it again with that button in place. The defect is not that the label is hard to
+    see; it is that the label asserts something false about what it conceals, and a more
+    eye-catching button carrying a false claim is worse than a dim one.
+
+
+    NOT FIXED HERE, AND WHY. Changing the cap, the sort or the label changes what the
+    operator''s own decision queue shows and in what order. That is a change to the operator''s
+    instrument, not to the agent''s tooling, and the file is vendored framework code. Detection
+    landed (the probe); the remedy is the operator''s call.
+
+    '
+  related_tasks:
+  - T-771
+  - T-732
+  - T-736
