@@ -28,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T20:48:56Z
-last_update: '2026-09-21T20:53:27Z'
+last_update: 2026-09-21T20:53:29Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -74,6 +74,51 @@ cost_estimate_proposed:
 # T-781: RCA: the BVP estimator's calibration is structurally blind to un-started work, and the defect is upstream in vendored AEF code
 
 ## Context
+
+Full RCA: `docs/reports/T-781-bvp-calibration-rca.md`. Reproduce every figure with
+`python3 tools/_t781-bvp-calibration-census.py`. Transmitted to 999-AEF at `agent-chat-arc`
+@1606.
+
+## RCA
+
+**Symptom:** Three rounds of autonomous selection were governed by BVP quadrants that
+misreported the backlog. 46 of 149 active tasks carried no cost proposal; 45 of 103 ranked
+tasks rendered quadrant `-` and were invisible to selection; an entire in-progress arc — the
+*focused* one — was silently absent from `fw bvp arcs`; and the census's verdict "0 high-value
+tasks are agent-executable" was carried across three sessions as a property of the backlog when
+it was an artefact of incomplete measurement.
+
+**Root cause:** The F8 cost composite has three terms, two of which are near-constant on real
+data — `tier=2` on 86%, `effort=8` on 87.5%, the latter because `effort = clamp(body_lines//50
++ ac_count, 1, 8)` saturates on the line-count term alone for any task body over ~400 lines.
+So `cost = 0.6·blast_radius + 1.4`, verified exactly against live output (br 1→2.0, 3→3.2,
+5→4.4). The single live term, `blast_radius`, resolves from `components:` — which is populated
+from git history **at completion** — and falls back to source paths named in the body prose.
+Only 13% of tasks declare `components:`, so ~79% of costed tasks take their dominant cost term
+from documentation density. Measured consequence: `blast_radius` is present on 94% of
+work-completed tasks and **42% of captured ones**. A task's cost is least knowable precisely
+while it is still un-started, which is the only state a selection mechanism cares about.
+
+**Why structurally allowed:** Nothing asserts that the ranker's input population equals the
+backlog. `score_blast_radius` correctly declines to rank without a signal (T-542/T-2189 —
+*"declining to rank is honest; ranking it cheapest is not"*, and a blind 0 on the 0.6-weight
+term is the defect they already fixed), but the exclusion is **silent**: no output says "N
+tasks could not be ranked", they are simply absent. That silence composes upward —
+`lib/bvp.sh` takes its medians over rows that *have* a cost, so the high/low boundary is
+calibrated on the elaborated population, and the arc rollup drops an arc with no rankable
+constituents without a marker. Three layers each behaved correctly in isolation; no layer owned
+the question "is what I am ranking the same set as what exists?"
+
+**Prevention:** `tools/_t781-bvp-calibration-census.py` is committed and re-derives every
+figure, so the next reader measures rather than trusts. `tools/_t777-selection-eligibility-census.py`
+now carries the `exhausted` class with negative controls in both directions, and its control
+line distinguishes "nothing is executable" from "the only candidate is barred". The structural
+half is **not** closed by this task and must not be claimed as closed: it is registered as
+**G-076** with a closure condition requiring both that the count move AND that a task with
+genuinely no cost signal still declines to rank — so a "fix" that reinstates a default
+`blast_radius` cannot satisfy it by re-opening T-542. The upstream half is transmitted to the
+code's owner at @1606; RC-7 (D2 no-signal at 84%) is marked undetermined pending a second
+corpus, because one repository cannot distinguish a narrow detector from unrepresentative prose.
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
