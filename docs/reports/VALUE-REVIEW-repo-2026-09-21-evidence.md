@@ -219,3 +219,68 @@ Two independent breaks sit on the path from an authored workflow to a working ap
 
 Classification of these facts is the JUDGE's role and is not performed here. Recorded as
 evidence under Phase 3.
+
+---
+
+## F-5 — CORRECTION TO F-4: two standards in this tree disagree on `aef:endpoint`'s class
+
+F-4 above reported `aef:endpoint` as a field whose semantics "were never fixed". **That is
+wrong, and the correction matters more than the original finding.** The semantics were fixed
+twice, differently, in two documents in this repository.
+
+`docs/standards/aef-bpmn-mapping-v1.md`, **Part I — Frozen (v1)**, §1, verbatim:
+
+> **Presentational (diagram cosmetics):** `aef:position`, `aef:anchors`, **`aef:endpoint`**,
+> `aef:waypoint`, … The reverse compile MAY write these (layout) but MUST treat them as
+> derived, never authoritative. **A change to a presentational attribute alone MUST be a
+> no-op for the task graph.**
+
+`docs/standards/aef-bpmn-forward-compile-v1.md` §2, verbatim:
+
+> **Structured semantic elements** (v1 §1, semantic class): `aef:io`/`aef:input`/`aef:output`,
+> **`aef:endpoint`**, `aef:artifactsWrites`, `aef:contextReads`, …
+
+The forward-compile document states it *"adds no new contract"* and *"Derives from …
+mapping-v1 (child-1, frozen v1)"*. So a derived document places a field in the semantic class
+that its **frozen parent** places in the presentational class.
+
+**Consequence for the 264 references measured in F-4.** The same data supports two opposite
+readings, and which one holds is not ours to decide:
+
+- **presentational** → all 264 are cosmetic, a compiler must ignore them, the 45% unresolved
+  is harmless, and the content is misfiled documentation;
+- **semantic** → the reference corpus at `tests/fixtures/aef-bpmn/` (named by forward-compile
+  §5 as the translator's test input) feeds a compiler a field where 29–49% of values do not
+  resolve and most are not file references at all.
+
+**A reasoning error of this agent's, recorded rather than quietly dropped.** Before reading
+the frozen standard, this review was reasoning toward "give `aef:endpoint` a declared kind
+(`cites`/`invokes`/`binds`) so a step can state how mechanized it is." Under the frozen
+partition that proposal is backwards: it would push execution semantics into the class whose
+changes are *required to be a no-op*. PL-233 — grep the shared framework's source before
+escalating a cross-project anomaly — is what caught it, one step before it became a proposal
+to the operator.
+
+## F-6 — the execution engine is already specified, and is not ours to build
+
+`aef-bpmn-forward-compile-v1.md` §1, verbatim:
+
+> Child-2 (the forward bridge: **diagram → agent-enriched *proposed* task graph → one
+> sovereignty approval → governed work**) is **AEF-led**. AEF owns the translator, the
+> enrichment pass, and the sovereignty gate. … **No translator is built here.**
+
+This answers the operator's open question about the shape of an execution engine, and it
+answers it in the architecture's own terms: the engine is a **compiler to a proposed task
+graph**, not a process VM that dereferences endpoints. Drawing produces *proposals*; one
+sovereignty approval ratifies; governed work then runs through the task/AC/verification
+apparatus that already exists.
+
+The "ratification gate" this review reasoned was missing is therefore **specified** — it is
+the *"one sovereignty approval"* — and the authority concern (that an executable binding would
+let authority be acquired by drawing) is already answered by design rather than by this
+review's argument.
+
+**Open, and the only part that is ours:** whether AEF's Child-2 translator is built, and
+whether it reads `aef:endpoint`. Asked on `agent-chat-arc` **@1613**, correlation
+`AEF-ENDPOINT-CLASS-832`, as two questions — which class governs, and does the translator read
+the field. The second settles the first empirically.
