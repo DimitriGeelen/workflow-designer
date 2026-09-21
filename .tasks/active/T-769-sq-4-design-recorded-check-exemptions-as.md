@@ -1,15 +1,16 @@
 ---
-id: T-753
-name: "RA-044: deploy gate finds no deploy/docker-compose.swarm.yml"
+id: T-769
+name: "SQ-4 design: recorded check exemptions as SUBSTITUTED assertions, not suppressions"
 description: >
-  Audit deployment section reports [FAIL] Deploy gate: deploy/docker-compose.swarm.yml
-  missing.
+  Design the exemption mechanism the operator ruled for: an exempted item is asserted
+  against a different correct state rather than skipped, and every exemption must
+  be able to go red.
 
 status: captured
-workflow_type: build
+workflow_type: design
 owner: agent
 horizon: now
-tags: [audit-remediation, cycle-1]
+tags: []
 components: []
 related_tasks: []
 arc_id: arc-003
@@ -17,8 +18,8 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-21T07:59:15Z
-last_update: '2026-09-21T08:01:04Z'
+created: 2026-09-21T10:37:00Z
+last_update: '2026-09-21T10:38:09Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -31,61 +32,137 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-09-21T08:00:52Z'
+  - ts: '2026-09-21T10:38:09Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
       D2: 0
-      D3: 0
+      D3: 2
       D4: 2
-      F-RECALL: 0
+      F-RECALL: 2
       F2: 0
-      F4: 1
-      F3: 1
+      F4: 0
+      F3: 0
       F1: 1
-    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
-      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); 
-      F4=1 (prose:routing/geometry-incidental); F3=1 (prose:AEF 
-      seam-incidental); F1=1 (prose:process-enablement-incidental)
-    rubric_sha: e4a00f38e801
-cost_estimate_proposed:
-  - ts: '2026-09-21T08:01:04Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      tier: 2
-      effort: 5
-    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=5 
-      (no-signal)
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (no-signal); F3=0 
+      (no-signal); F1=1 (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
 ---
 
-# T-753: RA-044: deploy gate finds no deploy/docker-compose.swarm.yml
+# T-769: SQ-4 design: recorded check exemptions as SUBSTITUTED assertions, not suppressions
 
 ## Context
 
-### Verbatim tool output
+### The ruling
 
-```
-[FAIL] Deploy gate: deploy/docker-compose.swarm.yml missing
-       Evidence: deploy/docker-compose.swarm.yml not found in project root
-       Mitigation: Run: fw deploy scaffold --app <name> --pattern swarm --port-prod <N> --port-dev <N>
-```
+**SQ-4 — Can a check carry a recorded exemption? → YES.** Operator, 2026-09-21, with
+the semantics supplied by their own example:
 
-### The invariant that is not held
+> *"Check if all doors are closed, unlocked with the exemption of the emergency exit
+> door that needs always to be opened from the inside."*
 
-The deployment audit section asserts that every project holds Ring20 swarm deployment scaffolding, and reports its absence as FAIL. `deploy/docker-compose.swarm.yml` does not exist. The invariant not held is stated by the check; whether it SHOULD hold for this project is not something the check can answer. 832-Workflow-designer is served by Watchtower on a LAN port and ships its product as a single-file HTML artifact vendored by a consumer — it has never been a containerised service. Running `fw deploy scaffold` would manufacture a deployment posture nobody has decided on.
+That example decides the design, and decides it more sharply than the question was
+filed. **An exemption is not permission to skip an item. It is a statement that the
+item has a different correct state, which the check then asserts.** The emergency exit
+is not unchecked — it is checked against an inverted predicate. Weld it shut and the
+check fires.
+
+### Three candidate semantics
+
+| | Semantics | Verdict |
+|---|---|---|
+| Suppression | "skip this item" | **Rejected.** Exactly what `audit.sh:5228` already does to the deployment section: invisible rather than not-applicable. An invisible check can never report that its own exemption expired. |
+| Acknowledgement | "check it, report it, classify as accepted" | Visible, and better than suppression — but still cannot detect that the *reason* stopped being true. |
+| **Substitution** | "this item's correct state is different — assert that instead" | **Adopted.** Coverage is redirected, never reduced. |
+
+### The acceptance test that keeps this honest
+
+**An exemption must be able to go red.** An exemption that can never fail is
+suppression wearing a costume. Every exemption is therefore an assertion with a
+falsifiable negative, not an entry on a mute list.
+
+### The three worked cases
+
+- **RA-047 / T-756 — T-093 gallery mirror.** Expected state is not *"identical"*. It is
+  ***"diverged, and T-102/T-105 still open"***. This is the case that proves the design:
+  today's check goes **GREEN if someone rebuilds `build/gallery/`** — the one action
+  this project forbids. The current check actively rewards the prohibited remedy. A
+  substitution check goes red on the rebuild, which is the behaviour actually wanted.
+- **RA-050 / T-759 — T-250.** Expected state: the exploration record lives in the task
+  file with non-empty sections, which T-706 measured (Recommendation Evidence 1012
+  characters, Problem Statement 738, Open Questions 1198). Assert that. T-706's
+  existing red leg — which fires if the forbidden `docs/reports/` document appears —
+  is already half of the substituted assertion.
+- **RA-051 / T-760 — T-587.** **Not an exemption at all.** The check has a hardcoded
+  `docs/reports/` path and cannot see a 19,876-byte artifact in `docs/research/`. A
+  bug, and it must not be dressed as an exemption — doing so would hide a defect
+  behind a mechanism built for legitimate cases.
+
+Distinguishing case three from cases one and two is itself part of the design: a
+mechanism that makes it easy to exempt a check is a mechanism that makes it easy to
+stop fixing checks.
+
+### Open design questions for this task
+
+1. Where an exemption lives — beside the evidence in the task file, or in a central
+   register that can be counted and expired.
+2. What it must carry: the ruling task that authorised it, the substituted assertion,
+   and the condition under which it stops applying.
+3. How the audit reports exemptions so they stay countable rather than accumulating
+   silently.
 
 ### Root-cause links
 
-One class of three, same root cause and same Sovereign question. Siblings: T-752 (Dockerfile), T-754 (deploy/traefik-routes.yml). Related: RA-042/T-751 (deploy gate uncommitted-file count) is the same audit section but a different root cause.
+Cases: RA-047/T-756, RA-050/T-759, RA-051/T-760. Ruling: SQ-4, recorded by T-766. Related: RA-049/T-758, whose silent-skip guard is the anti-pattern this design exists to avoid.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] PARKED pending a Sovereign ruling. This task is NOT executed under agent initiative: creating deployment scaffolding decides that this project is a deployed service, which is an architectural decision the mandate forbids the agent from taking to keep momentum.
-- [ ] The Sovereign question is recorded verbatim on this task: does 832-Workflow-designer deploy as a Ring20 swarm service? If no, the deployment audit section is out of scope for this project and the correct fix is to scope the check — not to scaffold files to silence it.
-- [ ] Whichever way the ruling goes, the originating check reports PASS or the section is recorded as not-applicable with the ruling cited.
+- [ ] The three semantics are recorded with the rationale for adopting substitution, so a later reader cannot quietly re-implement suppression under the same name.
+- [ ] The mechanism specifies what an exemption must carry — authorising ruling, the substituted assertion, and its expiry or recheck condition — and where it lives, with the trade-off between task-local and central-register stated rather than assumed.
+- [ ] The must-be-able-to-go-red test is expressed as something mechanically checkable, not as advice. An exemption whose assertion cannot fail is rejected by construction.
+- [ ] The RA-047 case is carried through end to end as the worked example, including the fact that today's check goes green on the forbidden gallery rebuild — that inversion is the strongest argument for the design and must survive into the specification.
+- [ ] RA-051 is explicitly classified as a bug and NOT as an exemption candidate, with the reason stated: a mechanism that makes exempting cheap makes fixing checks optional.
+- [ ] This task produces the design only. No check is modified and no exemption is created under it — implementing an exemption mechanism changes what the audit asserts, which is a separate decision with its own review.
+
+<!-- No Human ACs: the operator has already ruled on the question behind this
+     task, and what remains is agent-verifiable. Adding an empty Human section
+     would lengthen a review queue already 67 deep (SQ-3) with nothing to review.
+
+     Original template guidance retained below for the next editor.
+
+     Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+     Remove this section if all criteria are agent-verifiable.
+     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+
+     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
+     If your Expected clause is grep-able / file-exists / structural (a deterministic
+     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
+     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
+     verification genuinely needs human taste (tone, feel, layout rhythm).
+     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+
+     [REVIEW] example (genuine human judgment):
+       - [ ] [REVIEW] Dashboard renders correctly
+         **Steps:**
+         1. Open https://example.com/dashboard in browser
+         2. Verify all panels load within 2 seconds
+         3. Check browser console for errors
+         **Expected:** All panels visible, no console errors
+         **If not:** Screenshot the broken panel and note the console error
+
+     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
+       - [ ] [REVIEWER] Block message names both bypass mechanisms
+         **Steps:**
+         1. Run `bin/fw reviewer T-769`
+         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
+         **If not:** Inspect hook block-message string and add missing mechanism
+       Conversion: this AC should be moved to ### Agent and
+       `bin/fw reviewer T-769 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+-->
 
 ## Verification
 
@@ -135,6 +212,9 @@ One class of three, same root cause and same Sovereign question. Siblings: T-752
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+grep -q 'SQ-4' .context/project/decisions.yaml
+! diff -q src/aef-workflow-designer.html build/gallery/designer.html >/dev/null 2>&1
 
 ## RCA
 
@@ -187,34 +267,10 @@ One class of three, same root cause and same Sovereign question. Siblings: T-752
      - **Rejected:** [alternatives and why not]
 -->
 
-### 2026-09-21 — SQ-1 ruled NO by the operator
-
-- **Chose:** 832-Workflow-designer does **not** deploy as a Ring20 swarm service. The
-  deployment audit section is out of scope for this project, and this FAIL is
-  dispositioned by the ruling rather than by producing the file it asks for.
-- **Why:** Operator ruling of 2026-09-21, recorded in
-  `.context/project/decisions.yaml` (SQ-1). The operator held the ruling open —
-  *"Unless you have another compelling reason why we would benefit from that"* — and
-  the agent was asked for one and found none: the product is a single-file HTML
-  artifact that consumers vendor rather than fetch; the AEF↔832 seam is
-  contract-and-fixture based, with `file_send` explicitly not a delivery mechanism for
-  seam bytes; and a container would add a release surface over bytes already under a
-  G-007 sovereignty promise.
-- **Rejected:** Running `fw deploy scaffold`. It would manufacture a deployment
-  posture nobody decided on, and turn the check green by giving it what it asked for
-  rather than by making it right. Also rejected: deleting or weakening the check.
-- **Still open, and why this task is not closed:** the ruling settles *whether this
-  project deploys*. It does not settle *how the audit should represent a section that
-  does not apply*. Today that section is silently skipped by the
-  `[ -n "$SECTIONS" ]` guard at `audit.sh:5228` — invisible rather than
-  not-applicable, which is the defect RA-049/T-758 owns. **This task is blocked on
-  T-758** and closes when the section is explicitly recorded as not-applicable with
-  this ruling cited.
-
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-753 go|no-go|defer --rationale "..."
+     fw inception decide T-769 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -223,9 +279,7 @@ One class of three, same root cause and same Sovereign question. Siblings: T-752
 
 ## Updates
 
-### 2026-09-21T07:59:15Z — task-created [task-create-agent]
+### 2026-09-21T10:37:00Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-753-ra-044-deploy-gate-finds-no-deploydocker.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-769-sq-4-design-recorded-check-exemptions-as.md
 - **Context:** Initial task creation
-
-test ! -e /opt/832-Workflow-designer/deploy/docker-compose.swarm.yml || test -e /opt/832-Workflow-designer/deploy/docker-compose.swarm.yml

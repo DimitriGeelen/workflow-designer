@@ -186,6 +186,30 @@ One class of three, same root cause and same Sovereign question. Siblings: T-752
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-09-21 — SQ-1 ruled NO by the operator
+
+- **Chose:** 832-Workflow-designer does **not** deploy as a Ring20 swarm service. The
+  deployment audit section is out of scope for this project, and this FAIL is
+  dispositioned by the ruling rather than by producing the file it asks for.
+- **Why:** Operator ruling of 2026-09-21, recorded in
+  `.context/project/decisions.yaml` (SQ-1). The operator held the ruling open —
+  *"Unless you have another compelling reason why we would benefit from that"* — and
+  the agent was asked for one and found none: the product is a single-file HTML
+  artifact that consumers vendor rather than fetch; the AEF↔832 seam is
+  contract-and-fixture based, with `file_send` explicitly not a delivery mechanism for
+  seam bytes; and a container would add a release surface over bytes already under a
+  G-007 sovereignty promise.
+- **Rejected:** Running `fw deploy scaffold`. It would manufacture a deployment
+  posture nobody decided on, and turn the check green by giving it what it asked for
+  rather than by making it right. Also rejected: deleting or weakening the check.
+- **Still open, and why this task is not closed:** the ruling settles *whether this
+  project deploys*. It does not settle *how the audit should represent a section that
+  does not apply*. Today that section is silently skipped by the
+  `[ -n "$SECTIONS" ]` guard at `audit.sh:5228` — invisible rather than
+  not-applicable, which is the defect RA-049/T-758 owns. **This task is blocked on
+  T-758** and closes when the section is explicitly recorded as not-applicable with
+  this ruling cited.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:

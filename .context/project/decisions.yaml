@@ -2215,3 +2215,24 @@ decisions:
     date: 2026-09-20
     task: T-730
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-296
+    decision: "SQ-1 RULED NO: 832-Workflow-designer does not deploy as a Ring20 swarm service"
+    scope: project
+    date: 2026-09-21
+    task: T-766
+    rationale: "Operator ruling, 2026-09-21, open to reversal if value is shown. Agent was asked for a compelling counter-reason and found none: the product is a single-file HTML artifact consumers vendor rather than fetch; the AEF-832 seam is contract-and-fixture based and file_send is explicitly not a delivery mechanism for seam bytes; a container adds a release surface over bytes already under a G-007 sovereignty promise. Consequence: the deployment audit section is OUT OF SCOPE for this project. RA-043/T-752, RA-044/T-753, RA-045/T-754 are dispositioned by this ruling and must NOT be fixed by running fw deploy scaffold. The residual defect belongs to RA-049/T-758: the section must become explicitly not-applicable, never silently skipped."
+
+  - id: PD-297
+    decision: "SQ-2 RULED NO: an agent-produced task must never be born owner:human with zero Human ACs"
+    scope: project
+    date: 2026-09-21
+    task: T-766
+    rationale: "Operator ruling, 2026-09-21, verbatim: 'That's wrong per definition. Yeah, I've seen it, so we need to fix that. And we also need to fix it upstream, tell our agentic handling agent that that's a structural fault it needs to remediate.' The defect: a task created that way is unclearable by the agent that created it — completing an owner:human task is not delegated, so the agent manufactures work it is structurally forbidden to finish, and it lands in a review queue already 67 deep. Four instances proved it: RA-038/T-747 (T-702), RA-039/T-748 (T-703), RA-040/T-749 (T-708), RA-041/T-750 (T-723), all reported by CTL-029 as completable-not-closed. Fix is required in this project AND upstream in the AEF task-creation path."
+
+  - id: PD-298
+    decision: "SQ-4 RULED YES: a check may carry a recorded exemption, and the exemption is a SUBSTITUTED assertion, not a suppression"
+    scope: project
+    date: 2026-09-21
+    task: T-766
+    rationale: "Operator ruling, 2026-09-21, with the semantics given by the operator's own example: 'Check if all doors are closed, unlocked with the exemption of the emergency exit door that needs always to be opened from the inside.' The exempted item is NOT skipped — it is asserted against a different correct state. Rejected alternatives: suppression (what audit.sh:5228 already does to the deployment section — invisible rather than not-applicable, and an invisible check cannot report that its exemption expired) and acknowledgement (visible but still cannot detect that the reason stopped being true). Acceptance test: an exemption MUST be able to go red; one that can never fail is suppression wearing a costume. Worked cases: RA-047/T-756 expects 'diverged AND T-102/T-105 open' — today's check goes GREEN on the forbidden gallery rebuild, actively rewarding the prohibited remedy; RA-050/T-759 expects the record in the task file with non-empty sections as T-706 measured; RA-051/T-760 is not an exemption at all but a hardcoded-path bug."

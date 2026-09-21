@@ -1,15 +1,16 @@
 ---
-id: T-753
-name: "RA-044: deploy gate finds no deploy/docker-compose.swarm.yml"
+id: T-767
+name: "SQ-2 fix: an agent-produced task must never be born owner: agenthuman with
+  zero Human ACs"
 description: >
-  Audit deployment section reports [FAIL] Deploy gate: deploy/docker-compose.swarm.yml
-  missing.
+  The task-creation path can produce a task the creating agent is structurally forbidden
+  to finish. Fix the default so ownership follows the presence of real Human ACs.
 
 status: captured
 workflow_type: build
-owner: agent
+owner:
 horizon: now
-tags: [audit-remediation, cycle-1]
+tags: []
 components: []
 related_tasks: []
 arc_id: arc-003
@@ -17,8 +18,8 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-21T07:59:15Z
-last_update: '2026-09-21T08:01:04Z'
+created: 2026-09-21T10:36:54Z
+last_update: '2026-09-21T10:38:08Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -31,61 +32,120 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-09-21T08:00:52Z'
+  - ts: '2026-09-21T10:38:08Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
       D2: 0
-      D3: 0
+      D3: 2
       D4: 2
-      F-RECALL: 0
+      F-RECALL: 2
       F2: 0
-      F4: 1
-      F3: 1
+      F4: 0
+      F3: 0
       F1: 1
-    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
-      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); 
-      F4=1 (prose:routing/geometry-incidental); F3=1 (prose:AEF 
-      seam-incidental); F1=1 (prose:process-enablement-incidental)
-    rubric_sha: e4a00f38e801
-cost_estimate_proposed:
-  - ts: '2026-09-21T08:01:04Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      tier: 2
-      effort: 5
-    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=5 
-      (no-signal)
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (no-signal); F3=0 
+      (no-signal); F1=1 (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
 ---
 
-# T-753: RA-044: deploy gate finds no deploy/docker-compose.swarm.yml
+# T-767: SQ-2 fix: an agent-produced task must never be born owner:human with zero Human ACs
 
 ## Context
 
-### Verbatim tool output
+### The ruling
 
-```
-[FAIL] Deploy gate: deploy/docker-compose.swarm.yml missing
-       Evidence: deploy/docker-compose.swarm.yml not found in project root
-       Mitigation: Run: fw deploy scaffold --app <name> --pattern swarm --port-prod <N> --port-dev <N>
-```
+**SQ-2 — Should an agent-produced task ever be born `owner: human` with zero Human
+ACs? → NO.** Operator, 2026-09-21, verbatim: *"No, that's wrong per definition. Yeah,
+I've seen it, so we need to fix that."*
 
-### The invariant that is not held
+### The defect in its own terms
 
-The deployment audit section asserts that every project holds Ring20 swarm deployment scaffolding, and reports its absence as FAIL. `deploy/docker-compose.swarm.yml` does not exist. The invariant not held is stated by the check; whether it SHOULD hold for this project is not something the check can answer. 832-Workflow-designer is served by Watchtower on a LAN port and ships its product as a single-file HTML artifact vendored by a consumer — it has never been a containerised service. Running `fw deploy scaffold` would manufacture a deployment posture nobody has decided on.
+A task created `owner: human` with no Human acceptance criteria is **unclearable by
+the agent that created it.** Completing an `owner: human` task is not delegated, so
+the agent manufactures work it is structurally forbidden to finish. The task then sits
+in `started-work` with every Agent AC ticked and nothing outstanding, and lands in a
+review queue that is already 67 deep — carrying nothing for the reviewer to actually
+review.
+
+The ownership field is meant to answer *"who verifies this?"*. When there are zero
+Human ACs, the honest answer is "nobody has to", and `owner: human` asserts the
+opposite.
+
+### The four instances that proved it
+
+CTL-029 reported all four as *completable, not closed*. They are arc-003's own
+remediation tasks, which is what made the fault visible: the remediation arc began
+generating the findings it exists to remediate, and could not clear them.
+
+| Finding | Task | Subject |
+|---|---|---|
+| RA-038 | T-747 | T-702 (36 urgent observations pending) |
+| RA-039 | T-748 | T-703 (107 observations pending >7d) |
+| RA-040 | T-749 | T-708 (two stuck partial-complete tasks) |
+| RA-041 | T-750 | T-723 (review queue >30d) |
+
+### Scope boundary
+
+This task fixes the **creation path** so the condition stops being produced. It does
+**not** change the ownership of the four existing tasks — changing ownership away from
+human is not delegated, and the operator's ruling authorises fixing the generator, not
+reassigning records the rule already produced. Their disposition stays with T-747–T-750.
+
+L-302 applies directly: fix the generator before shipping the detector, or the
+detector just reports the generator's output forever.
 
 ### Root-cause links
 
-One class of three, same root cause and same Sovereign question. Siblings: T-752 (Dockerfile), T-754 (deploy/traefik-routes.yml). Related: RA-042/T-751 (deploy gate uncommitted-file count) is the same audit section but a different root cause.
+Instances: RA-038/T-747, RA-039/T-748, RA-040/T-749, RA-041/T-750. Upstream report: T-768. Ruling: SQ-2 in `.context/project/decisions.yaml`, recorded by T-766.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] PARKED pending a Sovereign ruling. This task is NOT executed under agent initiative: creating deployment scaffolding decides that this project is a deployed service, which is an architectural decision the mandate forbids the agent from taking to keep momentum.
-- [ ] The Sovereign question is recorded verbatim on this task: does 832-Workflow-designer deploy as a Ring20 swarm service? If no, the deployment audit section is out of scope for this project and the correct fix is to scope the check — not to scaffold files to silence it.
-- [ ] Whichever way the ruling goes, the originating check reports PASS or the section is recorded as not-applicable with the ruling cited.
+- [ ] The creation path that can emit `owner: human` with zero Human ACs is located and named — file and line — rather than inferred from the symptom.
+- [ ] Whether the fault is in this project's usage or in the vendored framework's task-creation agent is established. If it is the vendored framework, the fix is made in-tree under G-008 and T-768 carries it upstream; the two are not conflated.
+- [ ] Ownership follows the presence of real Human ACs: a task with zero Human ACs is not born `owner: human`. The rule is stated so a reader can predict the ownership of a task before creating it.
+- [ ] A negative control demonstrates the fix: attempting to create a task in the old shape either produces `owner: agent` or is refused, and the check that demonstrates it is recorded. An assertion that it works without the check is an open task, not a closed one.
+- [ ] The four existing instances are NOT reassigned and no `### Human` AC is ticked. This task fixes the generator only.
+
+<!-- No Human ACs: the operator has already ruled on the question behind this
+     task, and what remains is agent-verifiable. Adding an empty Human section
+     would lengthen a review queue already 67 deep (SQ-3) with nothing to review.
+
+     Original template guidance retained below for the next editor.
+
+     Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+     Remove this section if all criteria are agent-verifiable.
+     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+
+     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
+     If your Expected clause is grep-able / file-exists / structural (a deterministic
+     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
+     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
+     verification genuinely needs human taste (tone, feel, layout rhythm).
+     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+
+     [REVIEW] example (genuine human judgment):
+       - [ ] [REVIEW] Dashboard renders correctly
+         **Steps:**
+         1. Open https://example.com/dashboard in browser
+         2. Verify all panels load within 2 seconds
+         3. Check browser console for errors
+         **Expected:** All panels visible, no console errors
+         **If not:** Screenshot the broken panel and note the console error
+
+     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
+       - [ ] [REVIEWER] Block message names both bypass mechanisms
+         **Steps:**
+         1. Run `bin/fw reviewer T-767`
+         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
+         **If not:** Inspect hook block-message string and add missing mechanism
+       Conversion: this AC should be moved to ### Agent and
+       `bin/fw reviewer T-767 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+-->
 
 ## Verification
 
@@ -135,6 +195,9 @@ One class of three, same root cause and same Sovereign question. Siblings: T-752
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+grep -q 'SQ-2' .context/project/decisions.yaml
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-7[45][0-9]-*.md' | xargs grep -l 'CTL-029' | wc -l)" -ge 4
 
 ## RCA
 
@@ -187,34 +250,10 @@ One class of three, same root cause and same Sovereign question. Siblings: T-752
      - **Rejected:** [alternatives and why not]
 -->
 
-### 2026-09-21 — SQ-1 ruled NO by the operator
-
-- **Chose:** 832-Workflow-designer does **not** deploy as a Ring20 swarm service. The
-  deployment audit section is out of scope for this project, and this FAIL is
-  dispositioned by the ruling rather than by producing the file it asks for.
-- **Why:** Operator ruling of 2026-09-21, recorded in
-  `.context/project/decisions.yaml` (SQ-1). The operator held the ruling open —
-  *"Unless you have another compelling reason why we would benefit from that"* — and
-  the agent was asked for one and found none: the product is a single-file HTML
-  artifact that consumers vendor rather than fetch; the AEF↔832 seam is
-  contract-and-fixture based, with `file_send` explicitly not a delivery mechanism for
-  seam bytes; and a container would add a release surface over bytes already under a
-  G-007 sovereignty promise.
-- **Rejected:** Running `fw deploy scaffold`. It would manufacture a deployment
-  posture nobody decided on, and turn the check green by giving it what it asked for
-  rather than by making it right. Also rejected: deleting or weakening the check.
-- **Still open, and why this task is not closed:** the ruling settles *whether this
-  project deploys*. It does not settle *how the audit should represent a section that
-  does not apply*. Today that section is silently skipped by the
-  `[ -n "$SECTIONS" ]` guard at `audit.sh:5228` — invisible rather than
-  not-applicable, which is the defect RA-049/T-758 owns. **This task is blocked on
-  T-758** and closes when the section is explicitly recorded as not-applicable with
-  this ruling cited.
-
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-753 go|no-go|defer --rationale "..."
+     fw inception decide T-767 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -223,9 +262,7 @@ One class of three, same root cause and same Sovereign question. Siblings: T-752
 
 ## Updates
 
-### 2026-09-21T07:59:15Z — task-created [task-create-agent]
+### 2026-09-21T10:36:54Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-753-ra-044-deploy-gate-finds-no-deploydocker.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-767-sq-2-fix-an-agent-produced-task-must-nev.md
 - **Context:** Initial task creation
-
-test ! -e /opt/832-Workflow-designer/deploy/docker-compose.swarm.yml || test -e /opt/832-Workflow-designer/deploy/docker-compose.swarm.yml

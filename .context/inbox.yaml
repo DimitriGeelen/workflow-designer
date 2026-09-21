@@ -1694,3 +1694,11 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-363
+  text: "create-task.sh sets owner: by first-match substitution, so a task whose NAME contains the text 'owner:' has its name rewritten and its real owner field left EMPTY. Measured on T-768: requested name 'SQ-2 upstream: report the owner:human-with-zero-Human-ACs fault to AEF for remediation' with --owner agent produced name '...report the owner: agenthuman-with-zero-Human-ACs...' and owner: (empty). Empty owner breaks ownership resolution and the audit's compliance checks. This is PL-164 firing live (prose ABOUT a string-matching mechanism contains the string it matches) and it is a second, independent defect in the same creation path that SQ-2/T-767 already owns. Fixed by hand on T-768; the generator is NOT fixed. One bug one task: needs its own record."
+  captured: 2026-09-21T10:39:20Z
+  context_task: T-766
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
