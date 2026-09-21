@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-761: Audit remediation cycle 2: the first complete 19-section baseline and what
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T09:35:34Z
+# ============================================================================
+
+task_id: T-761
+task_name: "Audit remediation cycle 2: the first complete 19-section baseline and what"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T09:29:27Z
+completed: 2026-09-21T09:35:28Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The complete 19-section baseline is recorded with its counts, its elapsed'
+  - 'Findings in = tasks out. Every finding the complete run produced that was not'
+  - 'Each cycle-2 task (T-758, T-759, T-760) carries the verbatim tool output that'
+  - 'Every open cycle-1 and cycle-2 remediation task is scored by'
+  - 'The delta against cycle 1 is stated: what closed, what is new, and what'
+  - 'Sovereign questions surfaced by cycle 2 are recorded in priority order and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-761-audit-remediation-cycle-2-the-first-comp.md
+generated_by: context-agent-hybrid
