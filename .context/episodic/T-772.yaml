@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-772: The approvals poll drops the operator expand choice every 10 seconds
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T12:45:33Z
+# ============================================================================
+
+task_id: T-772
+task_name: "The approvals poll drops the operator expand choice every 10 seconds"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T12:40:22Z
+completed: 2026-09-21T12:45:15Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-21T14:45:09+02:00
+last_commit: 2026-09-21T14:45:09+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the approvals poll reverted the operator's own click every 10 seconds
+
+# Key outcomes
+outcomes:
+  - '**The poll preserves the operator''s expand choice, and the default is unchanged.**'
+  - '**Verified the way the operator experiences it, not the way curl does.** Driven in'
+  - '**A negative control proves the test can fail — and it found something worse than'
+  - '**The divergence is declared.** Appended to `.agentic-framework/.vendor-divergence.yaml`'
+  - '**The scope boundary is stated and held.** This restores behaviour T-2406 already'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the approvals poll reverted the operator''s own click every 10 seconds'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.tasks/active/T-772-the-approvals-poll-drops-the-operator-ex.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T14:45:09"
+    action: 'T-772: the approvals poll reverted the operator''s own click every 10 seconds'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 3
+  lines_added: 294
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-772-the-approvals-poll-drops-the-operator-ex.md
+generated_by: context-agent-hybrid
