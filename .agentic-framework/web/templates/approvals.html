@@ -235,7 +235,7 @@
      which would otherwise swap the polling response into the whole page area, destroying
      the page-header and surrounding chrome (T-2060). -->
 <div id="approvals-content"
-     hx-get="/approvals/content"
+     hx-get="/approvals/content{% if expand_overflow %}?expand=verifications{% endif %}"
      hx-trigger="every 10s"
      hx-target="this"
      hx-swap="innerHTML">

@@ -1311,3 +1311,33 @@ entries:
       first draft asserted "add and commit cannot share a line" and FAILED — the claim was
       wrong, not the gate; both directions are now pinned so the message cannot drift back
       to the wrong explanation.
+
+  - path: .agentic-framework/web/templates/approvals.html
+    kind: content
+    task: T-772
+    upstream: fix
+    reason: >-
+      GENERIC upstream debt — the 10s htmx poll silently reverts the operator's own
+      disclosure choice, so a feature upstream deliberately shipped cannot be used.
+      T-2406 added `?expand=verifications` as the opt-in that opens the Verifications
+      overflow, because the closed default is T-2103's page-height cap. The polling
+      container at approvals.html:238 requests `/approvals/content` with NO query string,
+      and `_read_expand_overflow()` (approvals.py:520) reads the param off that request.
+      So every 10 seconds the expanded fragment is replaced by a collapsed one.
+
+      The opt-in therefore survives first paint and nothing else. Worse, and this is what
+      the operator actually hit: opening the disclosure BY HAND has the same fate, because
+      the poll swaps the whole container. Measured in a real browser, not with curl —
+      manually setting details.open = true on /approvals, then waiting one poll cycle,
+      returns open === false. With the param and this fix, open === true after the same
+      wait, with the page title advancing to "(77 pending)" to prove the poll fired.
+
+      The reason this survived is that a single GET never polls. The route was verified by
+      fetch, reported to the operator as working, and the operator found 57 top-priority
+      rulings unreachable by any route in the UI (G-055, T-771).
+
+      The diff is one line: the poll URL carries `?expand=verifications` only when
+      expand_overflow is already set. The default is unchanged — /approvals with no param
+      still renders and still polls without it, so T-2103's height cap is untouched. Owed
+      upstream because the defect is in the template every consumer vendors, and any
+      consumer whose operator uses the opt-in will lose it the same way.
