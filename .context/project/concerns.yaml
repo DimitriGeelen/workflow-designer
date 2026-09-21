@@ -3916,3 +3916,35 @@ concerns:
     yields.
 
     '
+  escalation_arc_level: 'T-780 measured the same mechanism one level up, and it is worse there
+    than at task level. `fw bvp arcs` — the ranking the mandate''s level-2 selection ("pick the
+    arc whose completion moves a project objective furthest") is supposed to consult — lists
+    TWO arcs: arc-001 designer-authoring-surface (BVP 112) and arc-003 (88). Three arcs exist
+    on disk and all three are status in-progress. The missing one is arc-002
+    ewcr-governed-delivery — the arc the project has FOCUSED, holder of the three Arc-0 exit
+    clauses that gate governed delivery.
+
+    Cause, traced: arc BVP is `derived-proposed`, a rollup over constituent tasks. arc-002 has
+    exactly two non-work-completed tasks, T-681 and T-732. Neither appears in `fw bvp
+    --include-proposed` at all, because both carry blast_radius absent -> cost `-` -> excluded
+    from the ranking. With no rankable constituents the rollup has nothing to derive from and
+    the arc is omitted silently — not reported as unrankable, simply absent.
+
+    So the decline-to-rank behaviour, which is correct at task level, propagates upward into an
+    ARC-level omission that a reader of `fw bvp arcs` cannot detect: the output does not say
+    "one arc could not be ranked", it shows two arcs and looks complete. An autonomous run
+    obeying level-2 selection would pick arc-001 and never learn that the focused arc was
+    never a candidate.
+
+    This is recorded under G-076 rather than as its own gap because it is the SAME root cause
+    (no cost signal -> declines to rank) observed at a second level, and filing it separately
+    would make the register count the symptom twice — the G-075 lesson.
+
+    '
+  escalation_closure_addendum: 'Whatever ruling closes G-076 must also make arc-level omission
+    VISIBLE: `fw bvp arcs` should distinguish "ranked 0" from "not ranked", so that an arc with
+    no rankable constituents is reported as such rather than silently dropped. Demonstrated by
+    arc-002 appearing in the output with an explicit unrankable marker while the two ranked
+    arcs keep their scores.
+
+    '

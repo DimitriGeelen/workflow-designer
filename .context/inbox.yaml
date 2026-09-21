@@ -1742,3 +1742,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-369
+  text: "fw bvp estimate-cost all --dry-run cannot preview its own effect: it reports every task as skipped whether or not there is work to do. Measured 2026-09-21 under T-778: the dry run printed 'cost-estimated 777 tasks: 0 wrote, 777 skipped, 0 errored'; the immediately following real run printed '214 wrote, 563 skipped' and closed the population of active tasks lacking cost_estimate_proposed from 46 to 0. Per-task dry-run does NOT share the defect - 'fw bvp estimate-cost T-553 --dry-run' correctly prints 'tier=2 effort=7 [dry-run]' for a task the sweep summary called skipped. So a reader using the documented preview to decide whether the sweep is worth running is told 'nothing to do' in exactly the case where there are 214 writes pending. Advisory severity: it misleads a reader, it does not corrupt state - the real run is correct. Suggested shape: the dry-run summary should count would-write separately from skipped, which is the distinction the per-task path already makes."
+  captured: 2026-09-21T20:42:16Z
+  context_task: T-780
+  tags: [bug]
+  status: pending
+  promoted_to: null
