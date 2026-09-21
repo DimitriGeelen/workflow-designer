@@ -1383,3 +1383,49 @@ entries:
       Probe: tools/_t774-create-task-substitution-probe.sh — 13 legs across both branches,
       with a negative control that rebuilds the pre-fix substitution in a throwaway copy
       and REQUIRES the defect to reappear.
+
+  - path: .agentic-framework/agents/task-create/create-task.sh
+    kind: content
+    task: T-775
+    upstream: fix
+    reason: >-
+      GENERIC upstream debt — the generator emits frontmatter that YAML refuses to parse
+      when a name or description contains a line break, and reports the task as created.
+
+      Two mechanisms, one root cause: user input is injected into YAML without regard for
+      line structure. Both reproduced against the shipped script, both confirmed by
+      yaml.safe_load raising a different exception:
+
+        --name with a break      -> `name: "line one` on one line and the remainder on the
+                                    next. That injected line STARTS WITH a frontmatter key,
+                                    so it captures the substitution T-774 anchored and
+                                    leaves the real field empty. ParserError.
+                                    This is the ONE input that defeats T-774's fix — the
+                                    anchor honours lines, so an input that manufactures a
+                                    line wins.
+        --description multi-line -> `description: >` is a folded block scalar and only the
+                                    first line carried the block indent, so the block
+                                    terminated and the continuation parsed as a top-level
+                                    key. ScannerError.
+
+      The two halves are fixed differently on purpose. A line break in the NAME is REFUSED
+      at the input boundary with a message naming the field and the alternative: a name
+      becomes a YAML scalar, an H1 and a filename slug, and it is none of those with a
+      break in it. Refused rather than silently stripped — quietly rewriting the operator's
+      input is the same class of defect as the substitution bug next to it. A multi-line
+      DESCRIPTION is EMITTED CORRECTLY, every line carrying the block indent, because the
+      description is the one field with a real reason to span lines and refusing it would
+      be fixing the bug by deleting the feature.
+
+      Probe: tools/_t775-create-task-linebreak-probe.sh — 6 legs. Its negative controls run
+      the GENUINE pre-fix script, retrieved with `git show <commit>:<path>`, rather than a
+      reconstruction of what it used to do; a reconstruction only proves the reconstruction
+      behaves as written. Both controls reproduce the original exceptions. One leg is a
+      control on the guard itself — an ordinary single-line name must still be accepted, so
+      a guard that refused everything could not score green.
+
+      NOT fixed here, and registered as G-061 rather than left implied: nothing parses the
+      frontmatter the generator has just written. Three defects of this family landed in
+      this one creation path within two days (OBS-363, OBS-364, OBS-365) and not one was
+      caught by a check — the first was noticed by a human reading a task file. A read-back
+      would have caught two of the three at the moment of creation.

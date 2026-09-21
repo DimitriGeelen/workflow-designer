@@ -3544,3 +3544,67 @@ concerns:
   - T-771
   - T-732
   - T-736
+
+- id: G-061
+  type: gap
+  status: watching
+  severity: high
+  title: The task generator does not read back what it writes, so a task file with corrupt
+    or missing frontmatter is created, moved into active/ and reported as a success
+  detected: 2026-09-21
+  origin_task: T-775
+  id_note: 'G-056 through G-060 were SKIPPED. Every one of them is already a vendored AEF
+    gap id cited in this tree (G-056 in lib/init.sh and lib/upgrade.sh, G-057 and G-058 in
+    audit.sh), so a sequential local id would have collided with an existing reference to a
+    different gap. G-061 was chosen by scanning G-056..G-090 for an id with ZERO references
+    anywhere in the tree; it is the lowest such id. This is the SECOND time an id has had to
+    be hand-picked this way (see G-055 on the first), which is the evidence that SQ-9 is a
+    live defect rather than a tidiness concern. The scan is written down here so the next
+    person does not rediscover it:
+
+    for n in $(seq 56 90); do g=$(printf ''G-%03d'' $n); printf ''%s %s\n'' "$g" "$(grep -rl
+    -- "$g" --include=''*.md'' --include=''*.yaml'' --include=''*.py'' --include=''*.sh''
+    --include=''*.html'' . 2>/dev/null | wc -l)"; done | awk ''$2==0''
+
+    Writing the method down is containment, not a fix (PL-124). The fix is a namespace
+    ruling and it is the operator''s: see SQ-9.
+
+    '
+  evidence: 'Three defects in one creation path inside two days, all of the same shape and
+    none detected by the framework: OBS-363 (an unanchored substitution empties the field it
+    failed to fill), OBS-364 (a line break in the name or description emits frontmatter that
+    yaml.safe_load refuses outright), OBS-365 (a name containing the id placeholder is
+    rewritten by a body-wide pass). T-774 and T-775 fixed the first two. None of the three
+    was found by any check — the first surfaced when a human read a task file and noticed
+    the ownership line was blank, the other two were found only because someone went looking
+    after the first.
+
+    The common factor is not the substitutions. It is that create-task.sh writes the file and
+    exits successfully without ever parsing what it produced. A task whose frontmatter does
+    not load is indistinguishable, at creation time, from one that does. The failure surfaces
+    later and somewhere else — in ownership resolution, in the audit''s compliance checks, in
+    a handover that silently omits the task — where it reads as an authoring problem rather
+    than a generator problem.
+
+    L-302 states the rule this violates: fix the generator before shipping the detector, or
+    the detector just reports the generator''s output. Here there is no detector EITHER, so
+    the generator''s output has never been checked by anything at all.
+
+    '
+  containment: 'Two probes now exist and both are green —
+    tools/_t774-create-task-substitution-probe.sh (13 legs) and
+    tools/_t775-create-task-linebreak-probe.sh (6 legs, negative controls driven from the
+    genuine pre-fix script retrieved from git). They are PROBES, NOT GATES: nothing runs them
+    automatically, and they test the two failure modes already found rather than the property
+    that matters. Saying that plainly is the point — a probe described as a guard is how a
+    gap gets closed while still open.
+
+    '
+  decision_trigger: 'create-task.sh parses the frontmatter of the file it has just written,
+    before reporting success, and refuses or reports rather than exiting 0 on a file that does
+    not load. Demonstrated by a test that makes the generator emit deliberately broken
+    frontmatter and asserts the script FAILS. Fixing any individual substitution bug does NOT
+    close this gap — G-061 is about the absence of the read-back, not about the three bugs
+    that absence allowed. Then close G-061.
+
+    '

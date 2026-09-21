@@ -167,6 +167,27 @@ if [ -z "$NAME" ]; then
     read -r NAME
 fi
 
+# T-775 (OBS-364): refuse a line break in the name.
+#
+# A task name is a single line by construction — it becomes a YAML scalar, an H1 and a
+# filename slug. A break makes it none of those. Measured before this guard: --name
+# 'line one\nowner: injected' emitted `name: "line one` on one line and `owner: injected`
+# on the next, which then CAPTURED the ownership substitution and left the real field
+# empty, and yaml.safe_load raised ParserError on the result. That is OBS-363's symptom
+# reached by a different route, and it is also the one input that defeats T-774's line
+# anchoring: the anchor honours lines, so an input that manufactures a line wins.
+#
+# Refused rather than silently stripped. Rewriting the operator's input without saying so
+# is the same class of defect as the substitution bug this guard sits next to.
+case "$NAME" in
+    *$'\n'*|*$'\r'*)
+        error "Task name contains a line break — refused (T-775, OBS-364)."
+        error "  A name becomes a YAML scalar, an H1 and a filename slug; a break makes it"
+        error "  none of those, and the injected line can capture a frontmatter substitution."
+        die   "  Put the detail in --description, which is a folded block and may span lines."
+        ;;
+esac
+
 # T-555: Reject template placeholder names
 _name_lower=$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 case "$_name_lower" in
@@ -478,7 +499,13 @@ def _fm(t, key, line):
     return t
 t = _fm(t, 'id:', 'id: ' + e['TC_TASK_ID'])
 t = _fm(t, 'name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"')
-t = _fm(t, 'description: >', 'description: >\n  ' + desc)
+# T-775 (OBS-364): indent EVERY line of the description, not just the first.
+# 'description: >' is a YAML folded block scalar: its content is the run of lines more
+# indented than the key. Emitting only the first line indented terminated the block, and
+# yaml.safe_load raised ScannerError on the continuation. Multi-line descriptions are
+# legitimate and are now emitted correctly rather than refused — the description is the
+# one field where a user has a real reason to write more than one line.
+t = _fm(t, 'description: >', 'description: >\n' + '\n'.join(('  ' + x).rstrip() for x in desc.split('\n')))
 t = _fm(t, 'status:', 'status: ' + e['TC_STATUS'])
 t = _fm(t, 'horizon:', 'horizon: ' + e['TC_HORIZON'])
 t = _fm(t, 'owner:', 'owner: ' + e['TC_OWNER'])
@@ -550,7 +577,13 @@ def _fm(t, key, line):
     return t
 t = _fm(t, 'id:', 'id: ' + e['TC_TASK_ID'])
 t = _fm(t, 'name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"')
-t = _fm(t, 'description: >', 'description: >\n  ' + desc)
+# T-775 (OBS-364): indent EVERY line of the description, not just the first.
+# 'description: >' is a YAML folded block scalar: its content is the run of lines more
+# indented than the key. Emitting only the first line indented terminated the block, and
+# yaml.safe_load raised ScannerError on the continuation. Multi-line descriptions are
+# legitimate and are now emitted correctly rather than refused — the description is the
+# one field where a user has a real reason to write more than one line.
+t = _fm(t, 'description: >', 'description: >\n' + '\n'.join(('  ' + x).rstrip() for x in desc.split('\n')))
 t = _fm(t, 'status:', 'status: ' + e['TC_STATUS'])
 t = _fm(t, 'workflow_type:', 'workflow_type: ' + e['TC_WORKFLOW_TYPE'])
 t = _fm(t, 'owner:', 'owner: ' + e['TC_OWNER'])
