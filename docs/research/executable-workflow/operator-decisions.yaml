@@ -44,10 +44,41 @@ questions:
     why_operator: >
       Reversing a recorded disposition is a sovereignty act. Until answered, treat those
       arcs as not actionable, whatever they score.
-    status: open
+    status: resolved
     blocks_arc_0_exit: true
+    decided_by: operator
+    decided_at: "2026-09-21"
+    chosen: >
+      The DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO STAND. Roadmap Arcs 4–6 do
+      NOT supersede them.
+    source_of_truth:
+      file: docs/research/executable-workflow/operator-decisions.yaml
+      path: decisions[id=H1].chosen
+      carries: [status, decided_by, decided_at, chosen]
+      note: >
+        H2 points at an envelope because an envelope existed to carry it. H1 has no
+        envelope and no artifact of its own, so this register entry IS the record. Naming
+        that here rather than leaving the field absent — an unstated source reads as an
+        oversight, and the next reader cannot tell the difference between "not recorded"
+        and "recorded nowhere else".
+    recorded_under: T-732
+    ruling_channel: >
+      Given verbally by the operator in session on 2026-09-21, twice: first as assent to
+      the agent recommendation read back to them, then as an explicit instruction to
+      record it. NOT a Watchtower tick. T-732's Human AC for H1 (line 96) is still
+      unticked and is the operator's to tick; this entry records WHAT they ruled, and the
+      tick records that they ruled it through the instrument. If the two ever disagree,
+      the tick wins — an agent transcribing a conversation is a weaker witness than the
+      operator's own signature.
+    agent_role: >
+      The agent recommended this outcome before the operator ruled it. That is a reason to
+      state the provenance precisely, not to treat the match as confirmation: an agent
+      whose recommendation is adopted has not thereby verified anything (PL-323 — never
+      paraphrase a recorded recommendation; the wording above is the operator's decision,
+      not a restatement of the recommendation below it).
     operative_state: >
-      The DEFERs and the NO-GO STAND. T-587's recorded GO decided the scope of one narrow
+      The DEFERs and the NO-GO STAND — now by ruling, previously by default. T-587's
+      recorded GO decided the scope of one narrow
       Arc-0 slice and explicitly declined to reverse them — its rationale names the
       absence directly: "without a superseding decision. Scheduling those would reverse
       recorded dispositions on a document's say-so." Deciding a slice's scope is not the

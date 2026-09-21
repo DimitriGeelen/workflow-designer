@@ -4,7 +4,7 @@ name: "Drain the H-register: four open operator rulings are the only Arc-0 exit 
 description: >
   Clause 3 is the sole Arc-0 exit clause not owned by AEF. It is gated on operator-decisions.yaml, where H1/H3/H5/H6 are open and each blocks_arc_0_exit. H3, H5 and H6 already carry prepared agent recommendations and measured evidence; H1 is a strategic ruling governing four hv-lc tasks (T-279/280/281/282). Clause 3 additionally needs definition_ratified via T-596's Human AC. Assemble one decision dossier so all four can be ruled in a single sitting, and surface it to /approvals.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -17,7 +17,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T18:48:54Z
-last_update: 2026-09-16T18:52:08Z
+last_update: 2026-09-21T14:08:43Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -232,3 +232,6 @@ grep -qi "supersed" docs/reports/T-732-h-register-dossier.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-732-drain-the-h-register-four-open-operator-.md
 - **Context:** Initial task creation
+
+### 2026-09-21T14:08:43Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
