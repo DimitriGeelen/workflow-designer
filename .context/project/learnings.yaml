@@ -2325,3 +2325,10 @@ learnings:
   date: 2026-09-21
   context: Added via context agent
   application: TBD
+- id: PL-328
+  learning: "AN ABSENCE-ASSERTING VERIFICATION LEG NEEDS A SIBLING THAT PROVES THE PATTERN MATCHES, AND 'I NEGATIVE-CONTROLLED IT IN MY SCRATCHPAD' DOES NOT COUNT. Measured: the T-560 ratchet went 78 -> 112 and 2 of the excess are legs I wrote today, both of the form '! grep -rlE PATTERN .tasks/active/'. I DID negative-control both against a poisoned fixture before trusting them - but that control lived in a scratchpad and never entered the '## Verification' block, so the committed leg is green whether the property holds or the pattern is simply wrong. The census's rule (control_level, _t560-absence-assertion-census.py:134) is exact: an absence leg counts as PATTERN-controlled only when a SIBLING LEG IN THE SAME VERIFICATION BLOCK uses the SAME STRING as its own grep pattern; mention inside a neighbouring snippet does not count, because 'a control satisfied by a coincidence of substrings is worth less than no control at all, because it is recorded as coverage'. PRACTICAL FORM: when writing '! grep -q P X', add a companion leg in the same block that greps P where it IS present - a fixture, or the positive fact itself. Do it AT WRITE TIME: once the task completes and moves to .tasks/completed/, adding that sibling is an edit to an archived record, which is an open operator ruling (T-353) - so the cheapest moment to control the assertion is the only moment an agent is certainly permitted to."
+  source: P-001
+  task: T-785
+  date: 2026-09-21
+  context: Added via context agent
+  application: TBD
