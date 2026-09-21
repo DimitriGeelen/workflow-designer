@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:02:35Z
-last_update: 2026-09-21T08:12:51Z
+last_update: 2026-09-21T08:17:03Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -81,6 +81,32 @@ Re-run of the same section with the box raised to 1500s:
 ```
 exit=1 elapsed=578s lines=207 pass=106
 ```
+
+### CORRECTION: the localisation was already recorded
+
+Before claiming credit for this: **OBS-358 already names CTL-013 and already names
+T-093's four suites.** It was filed 2026-09-20 from T-708 — one day before this cycle —
+and reads in part:
+
+> "Archiving a task moves its whole Verification block into CTL-013's re-run set, and the
+> audit pays that cost on every subsequent run. ... T-093's block runs four suites ...
+> The sweep was correct and should not be reverted; the cost is structural."
+
+So this task did not discover the mechanism. It re-derived it. What is genuinely added
+here is narrower, and worth stating as exactly that:
+
+1. **It terminates.** OBS-358 says oe-daily "stalls past 300s" — which is where every
+   prior measurement stopped. Raising the box to 1500s shows it completes in **578s**.
+   "Stalls past 300s" and "takes 578s" are different claims with different remedies, and
+   only the second one is true.
+2. **Live confirmation of the causal chain**, not inference from where output stops:
+   `pgrep` caught `bash tests/run-bridge-tests.sh` (pid 2352331) as a child of the running
+   audit.
+3. **Two findings recovered** that the 300s box had been hiding — RA-047, RA-048.
+
+OBS-358's AC clause ("OBS-358 is updated to cite the section") was therefore already
+satisfied when this task was written. It is not ticked on the strength of work this task
+did.
 
 ### Finding: it is not a hang
 

@@ -203,3 +203,21 @@ a completed task's verification block (gaming the outcome). So CTL-013 will warn
 day forever, and a warning that can never be cleared is one readers learn to skip — which
 costs the check its ability to report a real regression on the other two tasks in its
 window.
+
+---
+
+## 9. TermLink: where it was the right instrument, and where it was not
+
+The mandate asks for TermLink "where it is the right instrument, not decoratively," and
+permits working directly where it is unavailable or would obscure the audit trail. All
+three of its named uses were assessed:
+
+| Named use | Outcome |
+|---|---|
+| **Dispatch BVP estimation to the `bvp-estimator` worker** | Not available. `.agentic-framework/agents/` holds 24 agents and none is `bvp-estimator`. `fw bvp estimate` is the scorer — it identifies itself in the written record as `bvp-estimator-v1-heuristic`, so the name in the mandate refers to an in-process estimator, not a dispatchable worker. Scored through the verb. (VS-2) |
+| **Run independent Q1 tasks concurrently on disjoint paths** | Nothing to parallelise. Exactly one Q1 task in the whole project was agent-actionable this cycle (T-755); the rest are blocked on operator decisions (§6). Concurrency with a degree of one is decoration. |
+| **Carry the run record so it survives a context reset** | Declined, with reason. There is no project-internal topic for 832 run state. The rail this project holds is the AEF↔832 contract seam, and internal audit churn posted there is noise on a channel a peer reads for contract events. The run record is instead carried in git — `docs/reports/T-744-cycle1-findings.md` plus 13 task files, committed — which survives a context reset *and* is auditable in a way a rail post is not. |
+
+TermLink itself is healthy (`termlink 0.11.1766`, `fw termlink check` OK), so none of
+this is an availability failure. It is three assessments, two of which came back "the
+instrument does not fit this cut."
