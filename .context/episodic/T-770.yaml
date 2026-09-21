@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-770: Standing instruction: an external reviewer verdict may stand in for human verification, with named exceptions
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T12:23:53Z
+# ============================================================================
+
+task_id: T-770
+task_name: "Standing instruction: an external reviewer verdict may stand in for human verification, with named exceptions"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-21T12:00:17Z
+completed: 2026-09-21T12:23:46Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-21T14:03:50+02:00
+last_commit: 2026-09-21T14:22:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the reviewer is not missing — 104 of its criteria are filed where it may not reach. the delegation boundary becomes a predicate — and the 104 it was built for does not exist
+
+# Key outcomes
+outcomes:
+  - '**The reviewer''s written standard is located — and it is not where the instruction'
+  - '**Whether the implementation applies the standard: measured, and it does — more'
+  - '**The delegation boundary is written down as a mechanical predicate, not a judgement'
+  - '**The policy is recorded as a decision AND the gap between policy and enforcement is'
+  - '**No Human AC is ticked by the agent under this task, and no ownership is changed.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-21 — the standing instruction is encoded as a predicate, not as prose'
+    chose: 'express the operator''s delegation as `tools/_t770-delegation-boundary.py`, a pure classifier over heading + prefix token + frontmatter field + fixed token lists, and record the policy as a decision with its enforcement gap named (G-052).'
+    rationale: 'the instruction as spoken — *"except high risk, Tier 0 and large UX reviews"* — names an exception the agent would have to adjudicate case by case. An exception the agent adjudicates is not delegated authority; it is relocated authority. Encoding it so a script returns the bucket removes the agent from the decision entirely, which is what makes it safe to honour.'
+    alternatives_rejected: ['proposing the 104-item reclassification I had drafted. The population was a measurement artefact (see Findings). Acting on it would have edited 104 of the operator''s task files on the strength of a grep that counted template boilerplate.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.context/project/decisions.yaml'
+  - '.fabric/components/tools-_t770-delegation-boundary.yaml'
+  - '.tasks/active/T-770-standing-instruction-an-external-reviewe.md'
+  - 'tools/_t770-delegation-boundary.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T14:03:50"
+    action: 'T-770: the reviewer is not missing — 104 of its criteria are filed where it may not reach'
+  - time: "2026-09-21T14:22:32"
+    action: 'T-770: the delegation boundary becomes a predicate — and the 104 it was built for does not exist'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 23 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 23
+  commits: 2
+  files_changed: 5
+  lines_added: 914
+  lines_removed: 16
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-770-standing-instruction-an-external-reviewe.md
+generated_by: context-agent-hybrid

@@ -4,20 +4,20 @@ name: "Standing instruction: an external reviewer verdict may stand in for human
 description: >
   The operator delegated Human-AC verification to the external reviewer agent, except for high-risk, Tier 0 and genuine UX/taste judgement. Record it as policy AND make it a gate, not a note.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t770-delegation-boundary.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T12:00:17Z
-last_update: 2026-09-21T12:03:51Z
-date_finished: null
+last_update: 2026-09-21T12:23:46Z
+date_finished: 2026-09-21T12:23:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -324,6 +324,22 @@ grep -q 'T-770' .context/project/decisions.yaml
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-09-21 — the population the task was built for evaporated mid-build
+
+- **What changed:** the task was filed to make a delegation boundary reachable for 104
+  mis-filed `[REVIEWER]` criteria. Building the predicate that would classify them showed
+  there are none. The original count came from a file-level grep that matched the task
+  template's own worked example inside the `### Human` comment block — boilerplate present
+  in 108 of 109 active task files, and on zero acceptance-criterion lines.
+- **Plan impact:** the reclassification I had drafted for the operator was withdrawn before
+  it was offered. The deliverable is unchanged and the conclusion inverts: the boundary is
+  not blocked by mis-filing, it is unused because nothing in this project has ever been
+  written with a `[REVIEWER]` Agent AC. The delegated surface is empty, not obstructed.
+- **Triggered:** correction recorded in `## Findings` alongside the superseded table rather
+  than in place of it; G-052 registered for the unreconciled second encoding. No new task —
+  the supply question (why no task ever gets a `[REVIEWER]` AC) belongs to whoever next
+  edits the template, and is stated in the Findings rather than pre-empted here.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -370,3 +386,15 @@ grep -q 'T-770' .context/project/decisions.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-770-standing-instruction-an-external-reviewe.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3398d9e7
+- **Timestamp:** 2026-09-21T12:23:47Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-21T12:23:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
