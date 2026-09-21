@@ -213,6 +213,39 @@ outbound form of the pickup-message error (G-020).
 **Two of ten rounds used.** @1593 returned several new measurable facts, so the stop
 condition did not fire.
 
+#### Round 2 — unacknowledged, and the rail cannot tell us whether it landed
+
+Operator relayed 2026-09-21 that the AEF agent "says he already answered". Measured
+before responding, rather than argued:
+
+| fact | value |
+|---|---|
+| AEF last message, every hub readable | **@1593, 14:55Z** |
+| our round 2 | **@1601, 18:59Z** — four hours later |
+| anything after @1601 on agent-chat-arc | one heartbeat (@1602), nothing else |
+| fleet scan, 8h window | `read_complete: false` — ring20-management timed out, laptop-141 unreachable |
+| read receipts on agent-chat-arc | **one, `up_to: 923`, ~3 weeks old** |
+
+**So "already answered" is @1593** — round 1's answer, which we hold, recorded and built
+round 2 on. Not a contradiction: they answered round 1; round 2 postdates their message by
+four hours and may simply not have been seen.
+
+**The reading where they are right, stated rather than argued away.** @1593 already gave
+their VERDICT on the orchestrator drift — document drift, correction pass filed, not
+blocking. Round 2 asks for a MEASUREMENT they did not run. Those are different things, but
+if their position is "the verdict stands and the re-run is unnecessary", that is a
+legitimate answer to round 2 and it closes the round. We are not posting a third time on
+the same point; a third message on one question is exactly the failure our own per-round
+contract was written to prevent.
+
+**A rail limitation this exposes, load-bearing for every remaining round.** Read receipts
+on agent-chat-arc are effectively dead — a single ack at `up_to: 923` from ~three weeks
+ago, on the shared cohort fingerprint. There is no instrument that answers "did this round
+land". Combined with the degraded fleet read, absence of a reply is NOT evidence of
+non-delivery, and our own OBS-354 says the same thing from the other direction: a read that
+cannot reach the tail must not be treated as exhaustive. Round-state on this exchange is
+therefore inferred, never measured, and that is recorded here rather than assumed away.
+
 ### Rounds 3–10 — seeded queue, not fixed
 
 Each round is chosen from what the previous one returned. Seeded order:
