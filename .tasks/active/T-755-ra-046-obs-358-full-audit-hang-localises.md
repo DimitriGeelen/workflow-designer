@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:02:35Z
-last_update: 2026-09-21T08:25:27Z
+last_update: 2026-09-21T08:35:37Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -207,13 +207,29 @@ never again — and which tasks get that scrutiny is decided by completion order
 risk. Whether that is the intended semantic is a design question, not a defect to fix
 here.
 
+### AC 3 — answered: it completes in 687 seconds
+
+```
+FW_AUDIT_TIMEOUT=3000 fw audit     ->  exit=2  elapsed=687s
+                                       Pass: 175  Warn: 31  Fail: 1
+```
+
+687s against a 600s self-kill. **The audit was failing by 87 seconds.** With the watchdog
+budget raised it runs to completion and emits a full summary — so there is no defect of
+correctness anywhere in the audit. There is a fixed 600s budget that its own workload
+outgrew, and the remedy is a budget decision, not a shortened check (AC 4 holds).
+
+This is, as far as the audit records show, the first complete 19-section run this project
+has had. It immediately produced three findings that no section-scoped run had surfaced
+(RA-049, RA-050, RA-051) — the strongest possible argument for the coverage AC on T-744.
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] The oe-daily section is profiled to the individual check, and the check (or checks) consuming the bulk of the wall time is named with measured timings — not inferred from where the output stops.
 - [x] A bound is established: either oe-daily completes within a stated time limit, or it is shown to be genuinely unbounded (e.g. it scales with task count or audit history) and that relationship is stated with evidence.
-- [ ] `fw audit` with all sections completes, or the reason it cannot is recorded as a property of a named check rather than as the folk observation "full audit hangs". OBS-358 is updated to cite the section.
+- [x] `fw audit` with all sections completes, or the reason it cannot is recorded as a property of a named check rather than as the folk observation "full audit hangs". OBS-358 is updated to cite the section.
 - [x] No check is deleted, shortened, or given a relaxed threshold to make the run finish. If the only available fix is removing coverage, that is a Sovereign question, not a fix.
 
 ## Verification
