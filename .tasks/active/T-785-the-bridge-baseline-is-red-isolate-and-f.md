@@ -16,7 +16,7 @@ description: >
   - the ground rule is that lines removed is not success and a check is never weakened
   to look cleaner.
 
-status: started-work
+status: issues
 workflow_type: build
 owner: agent
 horizon: now
@@ -28,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T22:35:07Z
-last_update: '2026-09-21T22:40:13Z'
+last_update: 2026-09-21T22:40:19Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -91,13 +91,57 @@ cost_estimate_proposed:
             — either the live corpus regressed or T560_TASK_ROOT leaked
       ```
 
-      Isolation cost more than it should have: the first attempt ran
-      `tools/_t509-instrument-sweep.sh` in the foreground and exceeded a 280s bound. The
-      instrument's own capture inside `tests/run-bridge-tests.sh` already named it, and T-551
-      warns that for probes failing only inside a full run, *"re-running it directly is
-      precisely what does NOT reproduce it"*. **Reading the captured output was the cheaper
-      and more reliable route than re-running the sweep** — recorded because the instinct to
-      re-run was wrong here and the suite had already done the work.
+      **CORRECTION — this AC first claimed the isolation was complete, and it was not.**
+      Reading the bridge suite's captured tail named `_t560` only. The full sweep, run to
+      completion in the background, names **two** regressed instruments:
+
+      ```
+      SWEEP FAIL — an instrument that passed on 2026-08-15 no longer does:
+        - _t400-schema-teeth.sh          (rc=1)
+        - _t560-absence-census-teeth.py  (rc=1)
+      ```
+
+      I had written that reading the capture was "cheaper and more reliable" than re-running
+      the sweep. It was cheaper; it was **not** more reliable — it under-reported by one
+      instrument, because the capture is a last-40-lines tail and the earlier failure had
+      scrolled off. The sweep is the authority; the tail is a convenience. Recorded rather
+      than silently amended, because the wrong half of that sentence is the instructive half.
+
+      (Two further instruments ABSTAINED at rc=2 — `_t581-byteid-baseline-teeth.py` and
+      `_t588-differential-teeth.sh`, "declined to certify". Not failures, and not passes
+      either; left as observed.)
+
+- [x] **SECOND INSTRUMENT FIXED: `_t400-schema-teeth.sh` now 10/10, rc=0.** Its failing leg
+      was RECIPROC — *"the real register must pass. A guard that reds on the live file gets
+      reverted rather than obeyed."* It red because 7 field names in `concerns.yaml` were
+      accounted for by nothing: the **G-027 shape**, *"a plausible, readable field name that
+      no code reads. The entry looks complete and the tooling behaves as if it is empty."*
+
+      **Two of the seven were mine, added to G-076 earlier today** —
+      `escalation_arc_level` and `escalation_closure_addendum`. Same defect shape as the
+      T-560 one: I wrote something that reads like a record and is invisible to every
+      instrument.
+
+      The `escalation_closure_addendum` case is the sharper one. It **was a closure
+      condition**, and `decision_trigger` is *"THE rendered closure condition"* that `bin/fw`
+      and `audit.sh` read. By carrying it under an invented name I hid a closure requirement
+      from the renderer and the audit — which is precisely the cost G-027 describes. Folded
+      into `decision_trigger`; the arc narrative folded into `evidence`. Both by textual edit,
+      not a YAML re-dump, so the other 55 entries keep their bytes. Verified: 56 entries
+      intact, both invented names gone, neither narrative lost.
+
+      The remaining five (`id_note` ×6, `sovereignty_note` ×4, `containment`,
+      `not_a_finding_about`, `why_this_run_did_not_move_it`) are pre-existing conventions this
+      register uses and the schema never learned. Taking the tool's own second remedy — *"if
+      it is genuinely human-only prose, add it to PROSE in this file with a one-line note"* —
+      **after verifying the premise**: zero field-level reads for all five
+      (`containment`'s nine grep hits are the English word in prose, not a field access).
+
+      **This is documentation, not defanging, and the check itself proves it:** leg (b)
+      *"arbitrary unaccounted field → rc=1, names the field"* still PASSES, so a newly invented
+      field still reds. The PROSE list's own docstring is the warrant — *"Listing them is the
+      point: it is the difference between 'we know this is prose' and 'we assumed something
+      read it'."*
 
 - [x] **Root cause, and the evidence chooses between the two readings.** Leg 5 offers "the
       live corpus regressed" OR "T560_TASK_ROOT leaked". An unoverridden run of
@@ -192,6 +236,9 @@ cost_estimate_proposed:
 
 ## Verification
 
+bash tools/_t400-schema-teeth.sh > /dev/null 2>&1
+bash tools/_t400-schema-teeth.sh 2>&1 | grep -q 'arbitrary unaccounted field'
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.yaml')); g=[x for x in d['concerns'] if isinstance(x,dict) and x.get('id')=='G-076'][0]; sys.exit(0 if 'escalation_arc_level' not in g and 'ranked 0' in g['decision_trigger'] else 1)"
 python3 tests/test_forward_fixtures.py > /dev/null 2>&1
 grep -qx '78' tools/_t560-absence-baseline.txt
 test -f tools/_t560-absence-census-teeth.py
@@ -311,3 +358,7 @@ python3 -c "import subprocess,sys; o=subprocess.run(['python3','tools/_t560-abse
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-785-the-bridge-baseline-is-red-isolate-and-f.md
 - **Context:** Initial task creation
+
+### 2026-09-21T22:40:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → issues
+- **Reason:** Blocked by T-353's open operator ruling: the repair requires adding sibling control legs to T-778's Verification block, and T-778 is in .tasks/completed/. Whether an agent may edit Verification blocks there is exactly what T-353 asks. 4 of 5 ACs met; the 5th is BLOCKED, not failed.

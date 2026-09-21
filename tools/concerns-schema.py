@@ -65,6 +65,15 @@ READ_BY = {
 # is meant to. Listing them is the point: it is the difference between "we know this is
 # prose" and "we assumed something read it".
 PROSE = {
+    "id_note":           "how this entry's G-id was chosen (the zero-reference scan "
+                         "convention established by G-061); 6 entries carry it (T-785)",
+    "sovereignty_note":  "the question the entry deliberately does NOT answer, recorded so "
+                         "a later reader can see it was surfaced rather than decided (T-785)",
+    "containment":       "what limits the blast radius while the gap stays open (T-785)",
+    "not_a_finding_about": "what the entry is explicitly NOT claiming — carried to stop a "
+                         "later reader widening it (T-785)",
+    "why_this_run_did_not_move_it": "why a run that touched the area left the gap where it "
+                         "was (T-785)",
     "origin_task":       "which task discovered it",
     "detected":          "date first seen (NOTE: gaps.py reads `created`, not this)",
     "registered":        "date entered in the register (same note as `detected`)",
