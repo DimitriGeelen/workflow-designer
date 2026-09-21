@@ -127,9 +127,22 @@ claim is the JUDGE's to make.
 
 ## Baseline
 
-`tests/run-bridge-tests.sh` was started at 22:03Z and had not completed when this file was
-written; `tests/run-validator-tests.sh` not yet run. **Baseline is INCOMPLETE** and is
-recorded as such rather than omitted. A full `fw audit` is deliberately not run here: prompt 2
+**Baseline is RED, and it was red before this review touched anything.**
+
+| suite | result |
+|---|---|
+| `tests/run-validator-tests.sh` | **54 passed, 0 failed** |
+| `tests/run-bridge-tests.sh` | **FAIL** — `TEETH FAIL — 1 leg(s) failed` |
+
+The bridge failure reports: *"an instrument that passed on 2026-08-15 no longer does, or an
+exclusion went stale … these are hermetic and leave the repo untouched, so this one IS a real
+regression in whatever that teeth script guards, not harness noise."* The precise failing
+instrument was not isolated — `tools/_t509-instrument-sweep.sh` exceeded a 280s bound. That
+isolation is itself an open item.
+
+**This matters for Phase 6.** The execution rule is "re-run baseline after every slice; green →
+red: revert". The baseline is *already* red, so a red after a slice must be compared against
+this recorded state and not misattributed to the slice. A full `fw audit` is deliberately not run here: prompt 2
 of this sequence runs audit and housekeeping in full, and the last measured full run took 687s
 against a 600s self-kill (T-755).
 
