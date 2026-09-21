@@ -132,3 +132,77 @@ written; `tests/run-validator-tests.sh` not yet run. **Baseline is INCOMPLETE** 
 recorded as such rather than omitted. A full `fw audit` is deliberately not run here: prompt 2
 of this sequence runs audit and housekeeping in full, and the last measured full run took 687s
 against a 600s self-kill (T-755).
+
+---
+
+# YARDSTICK CONFIRMED BY OPERATOR (2026-09-21)
+
+> "Focus everything on the workflow designer and its integration with AEF and our ability to
+> facilitate the agent and human collaboration to iterate from the workflow to actual working
+> applications."
+
+This **resolves the contradiction flagged above in the opposite direction to the repo's
+centre of mass**. The purpose is the product — Designer, AEF seam, and the workflow →
+working-application path. Governance/meta work is not the yardstick and is judged only by
+whether it serves that path.
+
+**It also reclassifies a stated non-goal.** `README.md` records "usable today without the
+planned `fw workflow run` executor" as acceptable. Under the confirmed yardstick, iterating
+from workflow to working application *is* the purpose, so the executor gap is no longer an
+accepted non-goal — it is a candidate central ADD.
+
+Load-bearing drivers under this yardstick: **F3** V_AEF_INTEGRATION (9), **F4**
+V_WORKFLOW_ROUTING (9), **F1** V_SDLC_ENABLEMENT (9), **D3** Usability (5).
+
+---
+
+## F-4 — the workflow→application path has no mechanical link at any point
+
+**Measured** by `tools/_t784-endpoint-resolution-census.py` over 93 `.bpmn` files.
+`aef:endpoint` is the field that would bind a workflow node to code that runs.
+
+| resolution of the 264 endpoint references | refs | share |
+|---|---|---|
+| **MISSING** — path exists in neither the project nor `.agentic-framework/` | **120** | **45%** |
+| opaque — a command template, not a file (`fw work-on ${task_id}`, `fw arc rescore ${arc_id}`) | 115 | 44% |
+| resolves in `.agentic-framework/` | 25 | 9% |
+| resolves in the project | 4 | 2% |
+
+**Only 29 of 264 references (11%) name a file that exists.**
+
+### Where the broken ones live — not scratch work
+
+| directory | refs | MISSING | |
+|---|---|---|---|
+| `examples/aef-processes` | 108 | **53** | **49%** |
+| `build/gallery` | 108 | 53 | 49% (derived mirror) |
+| `tests/fixtures` | 48 | 14 | 29% |
+
+`examples/aef-processes/` is the seam artefact **AEF pins against**. Half its endpoint
+references do not resolve.
+
+### The sharper reading: the field holds three incompatible kinds of value
+
+Inspecting the MISSING values shows most were never intended as executable bindings:
+
+- **prose source-citations with line numbers and commentary** —
+  `resume.sh:95-99 (get_session:81, get_focus:72)`,
+  `type-specific suggestions (diagnose.sh:164-195)`,
+  `add automated check; update audit agent (diagnose.sh:197-199)`
+- **command templates with unexpanded placeholders** — `fw work-on ${task_id}`,
+  `fw arc tag ${arc_id} T-XXXX`, `watchtower:/arcs/${arc_id}/close | fw arc close --i-am-human`
+- **genuine `path:function` bindings** — `lib/notify.sh:fw_notify` (resolves in the framework)
+
+So `aef:endpoint` is simultaneously a citation, a template and a binding. **A consumer cannot
+dereference it mechanically**, because there is no rule that says which kind any given value is.
+
+### Consequence for the confirmed yardstick — stated as fact, not verdict
+
+Two independent breaks sit on the path from an authored workflow to a working application:
+
+1. **No executor.** `fw workflow` does not exist in this build (verified).
+2. **No binding to execute even if one existed.** The field that would carry it holds mixed
+   content, 89% of which is not a resolvable file reference.
+
+Classification of these facts is the JUDGE's role and is not performed here. Recorded as
+evidence under Phase 3.
