@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T13:48:51Z
-last_update: '2026-09-21T20:24:53Z'
+last_update: '2026-09-21T21:51:30Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -39,6 +39,24 @@ cost_estimate_proposed:
     rationale: blast_radius=3 
       (paths:.tasks/active/T-773-clause-1-bounded-exchange-with-aef-ten-r.md,docs/research/executable-workflow/arc-0-exit-clauses.yaml,tools/_t420-rail-attribution-gate.py);
       tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
+bvp_scores_proposed:
+  - ts: '2026-09-21T21:51:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 3
+      F-RECALL: 0
+      F2: 0
+      F4: 3
+      F3: 4
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=3 (body:portability-abstraction); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=3 (prose:routing-defect-class); F3=4 
+      (prose:seam-fixture-or-pin); F1=1 (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
 ---
 

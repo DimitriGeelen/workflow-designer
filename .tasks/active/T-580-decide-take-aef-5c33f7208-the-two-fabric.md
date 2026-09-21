@@ -23,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-24T17:51:19Z
-last_update: '2026-09-21T20:24:51Z'
+last_update: '2026-09-21T21:51:29Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -45,6 +45,24 @@ cost_estimate_proposed:
     rationale: blast_radius=3 
       (paths:.fabric/watch-patterns.yaml,tools/_t547-hx-prompt-decode-teeth.py);
       tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
+bvp_scores_proposed:
+  - ts: '2026-09-21T21:51:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 4
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 3
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=4 
+      (body:framework-level-ux); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=3 (prose:routing-defect-class); F3=0 
+      (no-signal); F1=1 (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
 ---
 

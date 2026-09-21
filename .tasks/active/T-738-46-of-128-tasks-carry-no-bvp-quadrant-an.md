@@ -12,7 +12,7 @@ description: >
   an estimator defect - and (B) genuine declaration gaps, and propose mechanical components:
   per task without applying them.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -26,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T10:14:05Z
-last_update: '2026-09-21T20:24:53Z'
+last_update: 2026-09-21T21:46:24Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -94,10 +94,63 @@ cost_estimate_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] An instrument reports every non-completed task with quadrant `-`, and which of score_blast_radius's three evidence sources was empty for it
-- [ ] The population is split into (A) bodies that DO name an existing source path yet still scored absent — an estimator defect with a named repro — and (B) genuine declaration gaps
-- [ ] For class B, a mechanical `components:` proposal per task is written to a report and NOT applied — applying it re-ranks the backlog, which is a priority decision (see Sovereign question below)
-- [ ] The 18 agent-owned unrankable tasks are named individually
+- [x] **`tools/_t738-unrankable-task-census.py` reports all 50**, and names which evidence
+      source was empty for each. It **imports the estimator's own functions** rather than
+      reimplementing them — a reimplementation would measure my reading of the detector, not
+      the detector.
+
+      It also found a **third exclusion mechanism that this task's framing did not anticipate**:
+      the ranker needs a VALUE score as well as a cost, so a task with no
+      `bvp_scores_proposed:` has no `bvp_norm` and is dropped **even when its cost is fully
+      computed**. Six were in that state. Recorded as class C.
+
+- [x] **Class A is EMPTY — there is no estimator defect, and the first run said there were 3.**
+
+      The first run reported T-580, T-691, T-732 as class A. That was **my tool, not the
+      estimator.** `PROJECT_ROOT` falls back to `Path(__file__).parents[3]`, which in a
+      VENDORED install resolves to `.agentic-framework/` rather than the project — so every
+      `(root / p).is_file()` check failed and `score_blast_radius` returned `None` for
+      everything. `fw` sets the env var, so it never bites in normal operation; it bit a direct
+      import. The tool now pins `PROJECT_ROOT`, carries a comment saying why, and class A is 0.
+
+      **Nothing is reported upstream as an estimator bug.** This is the second time in this
+      session that checking a suspected defect before filing it prevented a false report.
+
+- [x] **Class B proposals written to `docs/reports/T-738-unrankable-census.md`, NOT applied.**
+      44 declaration gaps: **B1 = 1** with a mechanical proposal derivable from the task's own
+      commits (the same signal `components:` is populated from at completion, so it is the
+      proposal the framework would have made, not a new opinion about scope); **B2 = 43** with
+      **no mechanical basis at all** — captured, never worked, naming nothing that exists.
+
+      That 43-of-44 ratio is the substantive answer to this task's Sovereign question: for the
+      overwhelming majority, no mechanical proposal is possible. Cost is knowable only once
+      work begins, which is the circularity measured in T-781's RCA.
+
+      Class C was the exception and WAS acted on, because it is fixable with `fw bvp estimate`
+      — advisory, explicitly non-sovereignty-bearing, writes `bvp_scores_proposed:` only. Five
+      of six now rank.
+
+- [x] **The agent-owned unrankable are named individually — 17** (the task said 18; the
+      population shifted as tasks completed): T-241, T-246, T-294, T-553, T-554, T-555, T-564,
+      T-573, T-577, T-582, T-583, T-584, T-622, T-746, T-749, T-750, T-773. All but T-773 are
+      `captured` class-B declaration gaps.
+
+      **The result that closes T-780's RC-6b:** two class-C tasks (T-681, T-732) are arc-002's
+      only live tasks. With them unranked the arc rollup had no rankable constituent and
+      `fw bvp arcs` dropped the arc **silently**. After scoring:
+
+      ```
+      arc-002  ewcr-governed-delivery      in-progress  117  0.37   <- was ABSENT
+      arc-001  designer-authoring-surface  in-progress  112  0.36
+      arc-003  arc-003                     in-progress   88  0.28
+      ```
+
+      The focused arc was invisible and is the **highest-ranked** arc.
+
+      **And the finding worth the operator's attention: T-732 ranks `lv-lc`, BVP 81.** It holds
+      H3, H5 and H6 — the only three open rulings gating Arc-0 exit. A rule that parks
+      low-value work would park the most consequential task in the project. Drivers: D1=4,
+      **D2=0**, **D3=0**, D4=2; the heuristic cannot see that a task gates an arc's exit.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -134,6 +187,13 @@ cost_estimate_proposed:
 # python3 tools/_t738-rankability.py --check
 
 ## Verification
+
+test -f docs/reports/T-738-unrankable-census.md
+python3 tools/_t738-unrankable-task-census.py > /dev/null 2>&1
+python3 tools/_t738-unrankable-task-census.py 2>/dev/null | grep -qE "estimator defect .*: 0"
+grep -q 'PROJECT_ROOT' tools/_t738-unrankable-task-census.py
+.agentic-framework/bin/fw bvp arcs 2>/dev/null | grep -q 'ewcr-governed-delivery'
+! grep -rlE '^bvp_scores:' .tasks/active/
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -249,3 +309,6 @@ cost_estimate_proposed:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-738-46-of-128-tasks-carry-no-bvp-quadrant-an.md
 - **Context:** Initial task creation
+
+### 2026-09-21T21:46:24Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
