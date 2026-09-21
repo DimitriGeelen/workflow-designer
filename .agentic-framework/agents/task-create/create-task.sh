@@ -482,6 +482,10 @@ e = os.environ
 with open(e['TC_TEMPLATE']) as f:
     t = f.read()
 name, desc = sys.argv[1], sys.argv[2]
+# T-776 (OBS-365) — see the note in the default-template branch below. Same reordering,
+# same reason; the inception branch is where T-660's placeholder actually bit the operator.
+t = t.replace('T-XXX', e['TC_TASK_ID'])
+
 # T-774 (OBS-363) — see the long note in the default-template branch below. This block
 # is a near-duplicate of it and carried the identical unanchored-substitution defect;
 # fixing only one branch would have left every inception task still exposed.
@@ -523,16 +527,18 @@ t = _fm(t, 'tags:', 'tags: ' + e['TC_TAGS_YAML'])
 t = _fm(t, 'related_tasks:', 'related_tasks: ' + e['TC_RELATED_YAML'])
 t = _fm(t, 'created:', 'created: ' + e['TC_TIMESTAMP'])
 t = _fm(t, 'last_update:', 'last_update: ' + e['TC_TIMESTAMP'])
-t = t.replace('# T-XXX: [Inception Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
-# T-660: substitute the id EVERYWHERE, not only in the frontmatter and the H1.
-# The inception template's Human AC reads 'Run: fw task review T-XXX' and shipped that
-# literal placeholder into every inception ever created here — nine of the ten unruled
-# inceptions on the operator's queue carry it, and 010-termlink reported the identical
-# string in their tree at rail @891, which is how a shared template announces itself.
-# The substitution mechanism already existed and simply stopped at the title. An AC whose
-# first step cannot be pasted costs the operator a reconstruction before they can even
-# begin, and that is what a deferred queue item looks like from the inside.
-t = t.replace('T-XXX', e['TC_TASK_ID'])
+# T-776: the H1 anchor now carries the real id, because the body-wide substitution has
+# already run above. T-660's own note, kept because it is the reason that pass exists:
+#   substitute the id EVERYWHERE, not only in the frontmatter and the H1. The inception
+#   template's Human AC reads 'Run: fw task review T-XXX' and shipped that literal
+#   placeholder into every inception ever created here — nine of the ten unruled
+#   inceptions on the operator's queue carried it, and 010-termlink reported the identical
+#   string in their tree at rail @891, which is how a shared template announces itself. An
+#   AC whose first step cannot be pasted costs the operator a reconstruction before they
+#   can even begin, and that is what a deferred queue item looks like from the inside.
+# The second, late pass is GONE: with the name already injected it rewrote the operator's
+# own text (OBS-365). Running it once, early, serves T-660 and cannot touch user input.
+t = t.replace('# ' + e['TC_TASK_ID'] + ': [Inception Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
 t = t.replace('[Chronological log', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created inception task\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation\n\n[Chronological log')
 with open(e['TC_FILEPATH'], 'w') as f:
     f.write(t)
@@ -548,6 +554,17 @@ e = os.environ
 with open(e['TC_TEMPLATE']) as f:
     t = f.read()
 name, desc = sys.argv[1], sys.argv[2]
+# T-776 (OBS-365): substitute the id while the template is still the TEMPLATE.
+# T-660 added a body-wide id replacement deliberately — without it every inception shipped
+# `Run: fw task review T-XXX` as the operator's literal first step. That intent is kept
+# exactly; only the ORDER changes. It used to run at the END, after the user-supplied name
+# had been injected, so a task NAMED after the placeholder had its own name rewritten:
+# `--name 'build tasks ship the literal T-XXX placeholder'` came out as '... T-996 ...'.
+# Running it here means there is no user text in the document yet for it to hit.
+# PL-164 once more: the task most likely to contain the placeholder is the task filed
+# about the placeholder.
+t = t.replace('T-XXX', e['TC_TASK_ID'])
+
 # T-774 (OBS-363): every frontmatter substitution below used to be an UNANCHORED
 # t.replace('<key>:', ..., 1) over a document into which the user-supplied NAME had
 # ALREADY been injected two lines earlier. The first match could therefore land inside
@@ -602,8 +619,9 @@ t = _fm(t, 'tags:', 'tags: ' + e['TC_TAGS_YAML'])
 t = _fm(t, 'related_tasks:', 'related_tasks: ' + e['TC_RELATED_YAML'])
 t = _fm(t, 'created:', 'created: ' + e['TC_TIMESTAMP'])
 t = _fm(t, 'last_update:', 'last_update: ' + e['TC_TIMESTAMP'])
-t = t.replace('# T-XXX: [Task Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
-t = t.replace('T-XXX', e['TC_TASK_ID'])  # T-660: see the inception branch above
+# T-776: anchor carries the real id — the body-wide pass already ran above, once, before
+# any user text entered the document. The late second pass is gone (OBS-365).
+t = t.replace('# ' + e['TC_TASK_ID'] + ': [Task Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
 t = t.replace('<!-- Auto-populated by git mining at task completion.\\n     Manual entries optional during execution. -->', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created task via task-create agent\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation')
 with open(e['TC_FILEPATH'], 'w') as f:
     f.write(t)

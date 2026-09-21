@@ -8,3 +8,4 @@ inception_commit_limit: 15
 upstream_repo: 
   https://github.com/DimitriGeelen/agentic-engineering-framework.git
 INCEPTION_COMMIT_LIMIT: 15
+CONTEXT_WINDOW: 800000

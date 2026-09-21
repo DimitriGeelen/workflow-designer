@@ -1429,3 +1429,39 @@ entries:
       this one creation path within two days (OBS-363, OBS-364, OBS-365) and not one was
       caught by a check — the first was noticed by a human reading a task file. A read-back
       would have caught two of the three at the moment of creation.
+
+  - path: .agentic-framework/agents/task-create/create-task.sh
+    kind: content
+    task: T-776
+    upstream: fix
+    reason: >-
+      GENERIC upstream debt — the generator rewrote the operator's own task NAME when that
+      name contained the id placeholder token, on both template branches.
+
+      T-660 added a body-wide substitution of the placeholder by the allocated id for a
+      real reason, and that reason still holds: without it every inception shipped
+      `Run: fw task review <placeholder>` as the operator's literal first step, and an AC
+      whose first step cannot be pasted costs a reconstruction before the operator can even
+      begin. Nine of ten unruled inceptions carried it, and a peer reported the identical
+      string in their own tree — which is how a shared template announces itself.
+
+      The defect was ORDER, not intent. That pass ran at the END, after the user-supplied
+      name had been injected into the document, so it hit the name too. Measured on both
+      branches: a task named 'build tasks ship the literal <placeholder> placeholder' came
+      out as '... T-996 ...'.
+
+      Fix: the substitution now runs ONCE, immediately after the template is read and
+      before any user text enters the document, and the H1 anchors carry the real id
+      because that pass has already run. The late second pass is removed. T-660's behaviour
+      is unchanged from the consumer's point of view.
+
+      Probe: tools/_t776-create-task-placeholder-probe.sh — 5 legs, negative control from
+      the genuine pre-fix script via `git show <commit>:<path>`. Two legs exist
+      specifically to stop the WRONG fix: asserting only that the name survives would pass
+      just as well if the substitution had been DELETED, silently restoring the defect
+      T-660 was built to fix. So one leg asserts the review command still carries the real
+      id, and another asserts an ordinary task comes out with zero literal placeholders
+      anywhere in the file.
+
+      Third of three in this family (OBS-363, OBS-364, OBS-365). G-061 — nothing parses the
+      frontmatter the generator has just written — is NOT closed by any of them.
