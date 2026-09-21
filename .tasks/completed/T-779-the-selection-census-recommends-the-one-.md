@@ -16,10 +16,10 @@ description: >
   and a task with a merely-open AC must still classify executable, so that a predicate
   which marked everything exhausted would fail the check.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [governance, selection, bvp]
 components: [tools/_t777-selection-eligibility-census.py]
 related_tasks: []
@@ -28,8 +28,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T20:32:56Z
-last_update: '2026-09-21T20:34:22Z'
-date_finished:
+last_update: 2026-09-21T20:38:13Z
+date_finished: 2026-09-21T20:38:13Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -287,3 +287,30 @@ python3 tools/_t777-selection-eligibility-census.py 2>/dev/null | grep -q "barre
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-779-the-selection-census-recommends-the-one-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7d7a409c
+- **Timestamp:** 2026-09-21T20:38:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 6
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 1
+     - evidence: `python3 tools/_t777-selection-eligibility-census.py --self-test > /dev/null 2>&1`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 2
+     - evidence: `python3 tools/_t777-selection-eligibility-census.py --self-test 2>&1 | grep -q "PASS  open AC records a SECOND failure"`
+  3. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 3
+     - evidence: `python3 tools/_t777-selection-eligibility-census.py --self-test 2>&1 | grep -q "PASS  open AC records a FIRST failure"`
+  4. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 4
+     - evidence: `python3 tools/_t777-selection-eligibility-census.py --self-test 2>&1 | grep -q "11 passed, 0 failed"`
+  5. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 5
+     - evidence: `python3 tools/_t777-selection-eligibility-census.py 2>/dev/null | grep -qE "T-745.*exhausted"`
+  6. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 6
+     - evidence: `python3 tools/_t777-selection-eligibility-census.py 2>/dev/null | grep -q "barred by the twice-failed rule"`
+
+### 2026-09-21T20:38:13Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

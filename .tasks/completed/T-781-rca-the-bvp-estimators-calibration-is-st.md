@@ -16,10 +16,10 @@ description: >
   to 999-AEF. Research is not authorization: this task diagnoses and reports, it does
   not change the estimator.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bvp, calibration, rca, aef]
 components: []
 related_tasks: []
@@ -28,8 +28,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T20:48:56Z
-last_update: 2026-09-21T20:53:29Z
-date_finished:
+last_update: 2026-09-21T20:54:10Z
+date_finished: 2026-09-21T20:54:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -333,3 +333,20 @@ python3 -c "import yaml,sys; y=yaml.safe_load(open('docs/research/executable-wor
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-781-rca-the-bvp-estimators-calibration-is-st.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-91cb9810
+- **Timestamp:** 2026-09-21T20:54:16Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 2
+     - evidence: `python3 tools/_t781-bvp-calibration-census.py > /dev/null 2>&1`
+
+### 2026-09-21T20:54:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

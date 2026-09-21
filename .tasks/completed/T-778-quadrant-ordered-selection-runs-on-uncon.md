@@ -17,10 +17,10 @@ description: >
   than decided: confirming a score is fw bvp confirm --i-am-human, so an agent that
   selects by quadrant is ranking its own work by its own estimate of that work's value.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bvp, governance, selection]
 components: []
 related_tasks: []
@@ -29,8 +29,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T20:23:00Z
-last_update: '2026-09-21T20:24:53Z'
-date_finished:
+last_update: 2026-09-21T20:31:04Z
+date_finished: 2026-09-21T20:31:04Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -297,3 +297,15 @@ python3 tools/_t777-selection-eligibility-census.py > /dev/null 2>&1; test $? -l
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-778-quadrant-ordered-selection-runs-on-uncon.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1b6331c6
+- **Timestamp:** 2026-09-21T20:31:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-21T20:31:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

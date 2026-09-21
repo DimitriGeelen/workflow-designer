@@ -12,10 +12,10 @@ description: >
   an estimator defect - and (B) genuine declaration gaps, and propose mechanical components:
   per task without applying them.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bug, tooling, bvp]
 components: [tools/_t738-rankability.py, 
       .agentic-framework/agents/termlink/bvp-estimator/estimator.py, 
@@ -26,8 +26,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T10:14:05Z
-last_update: 2026-09-21T21:54:41Z
-date_finished:
+last_update: 2026-09-21T21:56:03Z
+date_finished: 2026-09-21T21:56:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -344,3 +344,28 @@ grep -q 'PROJECT_ROOT' tools/_t738-unrankable-task-census.py
 
 ### 2026-09-21T21:46:24Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0f92ee10
+- **Timestamp:** 2026-09-21T21:57:05Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** yes
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 2
+     - evidence: `python3 tools/_t738-unrankable-task-census.py > /dev/null 2>&1`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 3
+     - evidence: `python3 tools/_t738-unrankable-task-census.py 2>/dev/null | grep -qE "estimator defect .*: 0"`
+  3. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 5
+     - evidence: `.agentic-framework/bin/fw bvp arcs 2>/dev/null | grep -q 'ewcr-governed-delivery'`
+
+- **Layer-1 escalations:** 1
+  1. **cross-project-blast** (medium) — Cross-project or cross-repo change
+     - matched: `VENDORED install`
+
+### 2026-09-21T21:56:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

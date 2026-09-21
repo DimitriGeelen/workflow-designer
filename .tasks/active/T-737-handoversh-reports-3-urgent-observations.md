@@ -9,7 +9,7 @@ description: >
   2026-09-20 under T-703 via tools/_t703-inbox-residue.py --counters. G-008: fix in-tree
   and upstream.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -21,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T09:15:18Z
-last_update: 2026-09-21T20:12:32Z
+last_update: 2026-09-21T20:45:50Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -228,3 +228,6 @@ grep -q 'handover' .agentic-framework/.vendor-divergence.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-737-handoversh-reports-3-urgent-observations.md
 - **Context:** Initial task creation
+
+### 2026-09-21T20:45:06Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

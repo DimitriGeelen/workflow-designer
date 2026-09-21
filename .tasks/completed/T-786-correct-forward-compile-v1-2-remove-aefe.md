@@ -16,10 +16,10 @@ description: >
   plus its provenance. The frozen mapping-v1 Part I is NOT touched - it is frozen
   and is not ours to edit, and no Part I amendment is proposed here.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [aef-seam, standards, workflow-designer]
 components: []
 related_tasks: []
@@ -28,8 +28,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T22:51:38Z
-last_update: '2026-09-21T22:54:06Z'
-date_finished:
+last_update: 2026-09-21T22:54:06Z
+date_finished: 2026-09-21T22:54:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -268,3 +268,22 @@ bash tools/_t400-schema-teeth.sh > /dev/null 2>&1
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-786-correct-forward-compile-v1-2-remove-aefe.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-dbfd77fe
+- **Timestamp:** 2026-09-21T22:54:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 2
+     - evidence: `python3 tests/test_forward_fixtures.py > /dev/null 2>&1`
+  2. **empty-output-success** (partial, heuristic) @ Verification:line 6
+     - evidence: `bash tools/_t400-schema-teeth.sh > /dev/null 2>&1`
+
+### 2026-09-21T22:54:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
