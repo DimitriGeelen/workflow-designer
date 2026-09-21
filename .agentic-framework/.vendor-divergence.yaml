@@ -608,9 +608,21 @@ entries:
   # ── local config: never travels upstream ───────────────────────────────────────────────
   - path: .agentic-framework/policy/designer-pin.yaml
     kind: content
-    task: T-296
+    task: T-296, T-743
     upstream: local-config
     reason: >-
+      T-743 (2026-09-21): advanced 0.8.0 -> 0.12.0, four releases in one step. This pin is
+      what OUR Watchtower's /designer blueprint reads, so it had been serving 0.8.0 to the
+      operator while src/ and dist/ sat at 0.12.0. Intake ran the sanctioned pull-at-tag
+      path: both anchors verified (MANIFEST at designer-v0.12.0 AND the pin), installed
+      read-only, live served bytes confirmed over HTTP at 997254 / 2b448b61. The outgoing
+      0.8.0 artifact is RETAINED, not deleted, so the pin can be moved back in one line.
+      AUTHORITY for this bump: the operator stated the objective directly ("I want our
+      consumers to use version 0.12 including AEF"). That is the operator's call being
+      made, which is what the note below requires — an agent must NOT bump this pin on its
+      own initiative, and this one was not. AEF's own pin is a separate file in their repo
+      and is untouched by this; their adoption remains theirs.
+      ---
       AEF's pin of OUR released designer artifact (their T-2521 contract file), updated here
       when we cut 0.8.0. Project-specific state by construction. Note the pin bump itself is
       the operator's call, not ours (AEF stated this at DM 536 §1).
