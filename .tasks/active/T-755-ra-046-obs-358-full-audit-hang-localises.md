@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:02:35Z
-last_update: 2026-09-21T08:17:03Z
+last_update: 2026-09-21T08:18:36Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -114,6 +114,42 @@ did.
 failures). Every prior report of "full `fw audit` hangs" (OBS-358) was measured against
 a timeout shorter than 578s. The distinction matters: a hang is a defect to be fixed,
 a 578-second section is a cost to be budgeted, and the two get different treatment.
+
+### Finding: the "hang" is a 600-second ceiling meeting a ~700-second job
+
+Measured this cycle, and it is the part that actually explains the folklore.
+
+A full `fw audit` (all sections) was launched wrapped in `timeout 2400`. It did not run
+for 2400s and it did not run to completion. It was killed at **exactly 600 seconds**:
+
+```
+Terminated
+exit=143 elapsed=600s
+```
+
+Exit 143 is SIGTERM. The `timeout 2400` never fired — something with its own 600-second
+ceiling terminated the job first. That matters because of the number next to it:
+**oe-daily alone takes 578s.** A full run is oe-daily plus eighteen other sections, so it
+needs roughly 700s and up. It therefore hits a 600s ceiling *every single time*, and what
+the ceiling produces — a process that stops emitting and never returns — is
+indistinguishable from a hang at the point of observation.
+
+So the causal chain is:
+
+1. T-723's sweep moved T-093 into `completed/` (OBS-358 records this correctly).
+2. T-093's `## Verification` block carries four full test suites.
+3. CTL-013 `eval`s that block on every oe-daily run → the section grows to 578s.
+4. A full audit is then ~700s+, which exceeds the 600s ceiling of the surface running it.
+5. SIGTERM at 600s, no summary, no exit code the caller can interpret → "full audit hangs".
+
+Nothing in that chain is a hang. Steps 1–3 are a real and structural cost, already owned
+by OBS-358. Step 4–5 is a **measurement artefact of the harness**, and it is the reason
+the cost has been described as a defect of the audit rather than a budget that outgrew
+its container.
+
+Re-run detached from that ceiling (`nohup setsid`) to establish whether the full run
+terminates at all when nothing kills it — that is what AC 3 actually needs to answer,
+and it could not have been answered from inside a 600s box.
 
 ### Finding: the cost is CTL-013, and it is not the audit's own work
 
