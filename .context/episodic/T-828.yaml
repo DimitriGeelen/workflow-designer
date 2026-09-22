@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-828: Apply PD-302: reviewer-close the arc's eligible Human ACs
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T19:30:25Z
+# ============================================================================
+
+task_id: T-828
+task_name: "Apply PD-302: reviewer-close the arc's eligible Human ACs"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T19:27:34Z
+completed: 2026-09-22T19:30:17Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The bucket for every unticked AC in the arc comes from `tools/_t770-delegation-boundary.py`, NOT from my reading of it. PD-302 exists precisely because "an exception the agent adjudicates per case is relocated authority, not delegated authority"'
+  - 'Every AC the tool returns REVIEWER-CLOSEABLE is put to the external reviewer, and closed on a positive verdict — this is the delegated surface and I have not been using it'
+  - 'Anything the tool returns OPERATOR-ONLY stays with the operator, and the RULE that put it there is quoted — not my opinion that it looked like judgement'
+  - 'Where the tool returns MISFILED (`### Human` + `[REVIEWER]`), it is reported as the per-item conversion decision the operator must make, with the item named — the tool''s own docstring says it becomes reviewer-closeable "only if the operator authorises the T-1811/T-1878 Human→Agent conversion, per item"'
+  - 'The reviewer''s verdict is QUOTED with its source, not summarised — a close justified by a verdict nobody can read is the same defect as a green leg that asserts nothing'
+  - 'If the delegated surface turns out to be EMPTY, that is reported as the finding rather than worked around — and the reason stated, since an empty surface means the operator''s delegation cannot reach this queue as it is currently written'
+  - 'No `### Human` AC is ticked by me under any circumstance, and no task ownership is changed away from human'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-828-apply-pd-302-reviewer-close-the-arcs-eli.md
+generated_by: context-agent-hybrid
