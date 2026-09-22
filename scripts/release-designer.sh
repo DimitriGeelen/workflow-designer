@@ -25,6 +25,36 @@ VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
 ARTIFACT="$DIST/aef-workflow-designer-$VERSION.html"
 MANIFEST="$DIST/MANIFEST.yaml"
 
+# Version parity gate (T-808, value review F-10). The designer renders APP_VERSION in its
+# header; that constant is a literal in src because this script's contract is a plain copy
+# (`diff -q SRC ARTIFACT` below) and AEF pins the resulting sha256. A literal is only safe
+# if something mechanical keeps it equal to ./VERSION — this is that something.
+#
+# Placed FIRST, ahead of the immutability guard and every write, for the same reason that
+# guard gives for its own position: a refused release must leave dist/ untouched. Shipping
+# an artifact whose header names a different version than the release it IS would be a
+# confident, wrong answer to "which build am I looking at" — the question F-10 exists
+# because nothing could answer.
+#
+# Fail-closed, and deliberately with no bypass env var. RELEASE_ALLOW_OVERWRITE and
+# RELEASE_SKIP_RENDER_CHECK exist because there are real situations (a deliberate re-cut, a
+# browser-less host) where the right answer is to proceed. There is no situation where
+# shipping a knowingly mislabelled version is right, so there is no flag for it.
+PARITY="$REPO_ROOT/tools/_t808-version-parity.sh"
+if [ -x "$PARITY" ]; then
+  if ! "$PARITY"; then
+    echo "ERROR: version parity gate FAILED — release aborted before any write to dist/." >&2
+    exit 1
+  fi
+else
+  # Absent guard is a hard stop, not a skipped step. A missing check that degrades to
+  # "allow" reads as a passing release (the exact fail-open shape AEF's hook-enable defect
+  # and our own RA-series keep producing).
+  echo "ERROR: version parity guard not found or not executable: $PARITY" >&2
+  echo "       Refusing to cut a release whose version could not be verified." >&2
+  exit 1
+fi
+
 # Release immutability guard (T-198, G-007). A release is a promise: version X
 # means these exact bytes, forever. AEF vendors a pinned copy of a dist/ artifact
 # and verifies its sha256 (protocol: docs/aef-designer-integration-protocol.md),

@@ -1,0 +1,29 @@
+id: tools/_t808-version-parity.sh
+name: _t808-version-parity
+type: script
+subsystem: release
+location: tools/_t808-version-parity.sh
+tags: [release, guard, version, teeth]
+
+purpose: "Asserts APP_VERSION in src/aef-workflow-designer.html equals ./VERSION, and fails
+  the release before any write to dist/ when they drift. Exists because the designer renders
+  its own build number (F-10) from a literal rather than a build-time substitution — the
+  release contract is a byte-identical copy (diff -q SRC ARTIFACT) that AEF pins by sha256,
+  so substitution is not available. The literal is safe only because this guard refuses the
+  release when it drifts. Fails when the constant is missing or duplicated, rather than
+  degrading to a pass: a blind guard reports green while the thing it guards is gone."
+purpose_source: "authored at creation by T-808 (pattern named in 1409-sprind's OBS-464 report:
+  fill purpose/subsystem at register time rather than leaving an L1 skeleton)"
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: VERSION
+    type: reads
+
+depended_by:
+  - target: scripts/release-designer.sh
+    type: calls
+
+last_verified: 2026-09-22
+created_by: T-808

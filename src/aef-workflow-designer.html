@@ -243,6 +243,21 @@ font-family: 'Outfit';
     cursor: pointer;
   }
   .brand-version:hover { color: var(--accent); }
+  /* T-808 — the APP's version, deliberately NOT .brand-version above.
+     .brand-version is orphaned CSS: T-158 retired the toolbar badge it styled, and that
+     badge showed the WORKFLOW's contract version (document metadata the operator edits in
+     the properties panel). Reusing its class for the build number would put two different
+     meanings behind one name and make T-158's tombstone comment read as if the badge were
+     back. Different meaning, different class. */
+  .brand-appversion {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--surface-3);
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.02em;
+  }
   .btn-icon {
     font-family: var(--sans);
     font-size: 14px;
@@ -1136,6 +1151,10 @@ font-family: 'Outfit';
     <div class="brand">
       <span class="brand-mark">AEF · BPMN</span>
       <span class="brand-title">Workflow Designer</span>
+      <!-- T-808 (F-10): which build is this? Populated from APP_VERSION at init — left
+           empty here on purpose, because a literal in the markup would be a SECOND copy
+           of the version and the whole point of the guard is that there is exactly one. -->
+      <span class="brand-appversion" id="brand-appversion" title="Designer build loaded in this page. Not the workflow's version — that is edited in the properties panel."></span>
       <span class="brand-separator">·</span>
       <!-- T-154: the workflow-picker <select> is replaced by this brand-area "Open project"
            button (operator decision — one unified full-corpus entry point, no half-populated
@@ -10050,13 +10069,43 @@ const DI_TRAILER = `${DI_TRAILER_PREFIX}; node geometry travels as aef:position`
 // they would have to assert our identity, which is a lie about provenance rather
 // than an accidental overlap of vocabulary.
 //
-// exporterVersion is DELIBERATELY NOT EMITTED. src carries no version constant, so
-// sourcing it would mean a second copy of VERSION living inside this file, kept in
-// step with the real one by good intentions — the exact duplicate-constant class
-// T-361 exists to prevent, ten lines above its own tombstone. Identity does not
-// need the version; if a per-release marker is ever wanted it needs build-time
-// substitution and a guard, which is a separate task.
+// exporterVersion is DELIBERATELY NOT EMITTED, and that is unchanged.
+//
+// T-808 UPDATE — this paragraph used to open "src carries no version constant".
+// That sentence is now false: APP_VERSION exists ten lines below. Correcting it
+// rather than leaving it is the whole T-361 lesson — a comment whose central claim
+// has quietly stopped being true ships inside bytes AEF pins by sha, and both prior
+// investigations of this very block asked WHERE a comment appeared without asking
+// whether it was TRUE.
+//
+// What the original objection actually was, and why it still stands for the EMITTER:
+// a second copy of VERSION "kept in step with the real one by good intentions" is the
+// duplicate-constant class T-361 exists to prevent. APP_VERSION is not kept in step by
+// good intentions — tools/_t808-version-parity.sh fails the release before dist/ is
+// written if it drifts. So the objection is answered for a UI string.
+//
+// It is NOT answered for exporterVersion, and that is a different decision, not an
+// oversight: emitting it would change the bytes of every exported document, and AEF
+// pins our artifacts by sha256. Adding a per-release field to the seam is theirs to
+// agree to, not ours to start doing because a constant became available. Identity
+// still does not need the version.
 const BPMN_EXPORTER = 'aef-workflow-designer';
+
+// T-808 (value review F-10) — the product's own version, for the human looking at it.
+//
+// WHY THIS EXISTS. Served bytes sat four releases behind src for weeks and nothing in
+// the product said so; F-01's consequence was a field bug report (T-293) that turned out
+// to be "a faithful test of old code" (FP-009). The operator could not tell which build
+// was on screen, because no build says.
+//
+// WHY A LITERAL AND NOT BUILD-TIME SUBSTITUTION. release-designer.sh asserts
+// `diff -q SRC ARTIFACT` — the released artifact IS the source, byte for byte, and AEF
+// pins that sha. Substituting at build time would break that contract for a string in a
+// header. A literal keeps the contract; the guard is what keeps the literal honest.
+//
+// KEEP IN STEP WITH ./VERSION. Not by remembering — tools/_t808-version-parity.sh is
+// wired into release-designer.sh ahead of every write to dist/.
+const APP_VERSION = '0.12.0';
 
 // A comment is the document's doc block only if it LEADS the document — appears
 // before any element child — and is not our own trailer. Position is the rule AEF's
@@ -11243,6 +11292,13 @@ const _seedBpmn = buildBpmnXml(state);
 _appReady = true;            // from here on, edits autosave to localStorage
 autoLoadStored();            // B1: if a prior session left unsaved work, bring it back automatically
 detectSaveApi();             // B3: reveal "Save to project" when the write-capable server is present
+
+// T-808 (F-10): state which build is on screen. The ONLY write of APP_VERSION into the
+// DOM — one constant, one render site, so there is nothing that can drift from anything.
+{
+  const _v = document.getElementById('brand-appversion');
+  if (_v) _v.textContent = 'v' + APP_VERSION;
+}
 </script>
 </body>
 </html>
