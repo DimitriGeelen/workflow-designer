@@ -4,10 +4,10 @@ name: "Make IW-3 decision-ready: verify what the README actually says about the 
 description: >
   Make IW-3 decision-ready: verify what the README actually says about the fw workflow run non-goal and what the yardstick does to it
 
-status: started-work
+status: work-completed
 workflow_type: design
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T10:12:04Z
-last_update: 2026-09-22T10:12:04Z
-date_finished: null
+last_update: 2026-09-22T10:15:12Z
+date_finished: 2026-09-22T10:15:12Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -168,7 +168,11 @@ grep -qF 'usable today without the planned' README.md
 # ── AC1/AC2/AC3: the withdrawal is published where the error was published ───
 grep -q 'WITHDRAWN, T-803' docs/reports/VALUE-REVIEW-repo-2026-09-21.md
 grep -q 'I manufactured it by misquoting' docs/reports/VALUE-REVIEW-repo-2026-09-21.md
-grep -q 'wrong when written' docs/reports/T-803-iw3-dissolved.md
+# Anchored on the text that is ACTUALLY there. The first version greped 'wrong when
+# written' — a phrase I remembered writing rather than one I wrote ('wrong when I wrote
+# it'). Asserting against remembered text is the same family as the defect this task is
+# about, committed in the leg that verifies it.
+grep -qF 'wrong when I wrote it' docs/reports/T-803-iw3-dissolved.md
 grep -q 'case for leaving it' docs/reports/T-803-iw3-dissolved.md
 
 ## RCA
@@ -238,3 +242,15 @@ grep -q 'case for leaving it' docs/reports/T-803-iw3-dissolved.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-803-make-iw-3-decision-ready-verify-what-the.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4893fd59
+- **Timestamp:** 2026-09-22T10:15:13Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T10:15:12Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

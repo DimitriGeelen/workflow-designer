@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-803: Make IW-3 decision-ready: verify what the README actually says about the fw workflow run non-goal and what the yardstick does to it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T10:15:18Z
+# ============================================================================
+
+task_id: T-803
+task_name: "Make IW-3 decision-ready: verify what the README actually says about the fw workflow run non-goal and what the yardstick does to it"
+workflow_type: design
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T10:12:04Z
+completed: 2026-09-22T10:15:12Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T12:14:49+02:00
+last_commit: 2026-09-22T12:14:49+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  item 3 needs no ruling — I manufactured the contradiction by misquoting our own README. THE README, verbatim at README.md:13-15: 'usable TODAY without THE PLANNED fw workflow run executor'. What I wrote in the Phase 5 review: 'usable without fw workflow run is an accepted non-goal in the README'. TWO WORDS DROPPED AND THEY CARRIED THE MEANING. 'Today' makes it a statement about the present rather than a commitment. 'The planned ... executor' ANTICIPATES the executor rather than disavowing it. A maturity statement became a non-goal; the non-goal became a contradiction with the operator's confirmed yardstick; the contradiction became T-788's IW-3; and IW-3 was put to the operator as one of three things needing their ruling. None of it existed. The README and the yardstick never disagreed — the README says the executor is planned, the yardstick says the path is central, and AEF confirmed at @1631 that it shipped. All three agree. WORSE THAN THE OTHER TWO CITATION DEFECTS TODAY, NOT BETTER: T-787 and T-801 decayed because the world moved and could be re-measured. This one was WRONG WHEN WRITTEN — the README has not changed since 2026-08-02. A paraphrase reads as evidence and is not obviously checkable. The tell, recorded as a learning: a paraphrase drops qualifiers, and qualifiers are what commitments are made of — check hardest when the paraphrase makes the finding MORE interesting than the source, as this one did. 'Our README contradicts the operator's yardstick' is a far better finding than 'the README is slightly stale', which is what was actually true. WHAT ACTUALLY REMAINS is optional and small: the README still calls the executor 'planned' where it is now shipped in v1.6.768. Wording drafted with the case FOR and AGAINST changing it. The README is NOT edited — that is the operator's, and a leg asserts it is byte-unchanged. T-788's IW-3 text is ALSO left uncorrected: it is in .tasks/completed/ and PD-308 does not cover it, since that ruling permits appending a sibling control leg where a teeth instrument requires it and nothing else. The narrow ruling constraining its own author within the hour is the ruling working. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the README''s actual words are quoted, not the Phase 5 report''s paraphrase of'
+  - '**AC2 — what has changed SINCE the non-goal was written is established, not assumed.**'
+  - '**AC3 — the options are drafted with their costs, as T-801 did.** Retiring a published'
+  - '**AC4 — the agent does not edit the README.** Retiring a published non-goal is the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/T-803-iw3-dissolved.md'
+  - 'docs/reports/VALUE-REVIEW-repo-2026-09-21.md'
+  - '.tasks/active/T-803-make-iw-3-decision-ready-verify-what-the.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T12:14:49"
+    action: 'T-803: item 3 needs no ruling — I manufactured the contradiction by misquoting our own README. THE README, verbatim at README.md:13-15: ''usable TODAY without THE PLANNED fw workflow run executor''. What I wrote in the Phase 5 review: ''usable without fw workflow run is an accepted non-goal in the README''. TWO WORDS DROPPED AND THEY CARRIED THE MEANING. ''Today'' makes it a statement about the present rather than a commitment. ''The planned ... executor'' ANTICIPATES the executor rather than disavowing it. A maturity statement became a non-goal; the non-goal became a contradiction with the operator''s confirmed yardstick; the contradiction became T-788''s IW-3; and IW-3 was put to the operator as one of three things needing their ruling. None of it existed. The README and the yardstick never disagreed — the README says the executor is planned, the yardstick says the path is central, and AEF confirmed at @1631 that it shipped. All three agree. WORSE THAN THE OTHER TWO CITATION DEFECTS TODAY, NOT BETTER: T-787 and T-801 decayed because the world moved and could be re-measured. This one was WRONG WHEN WRITTEN — the README has not changed since 2026-08-02. A paraphrase reads as evidence and is not obviously checkable. The tell, recorded as a learning: a paraphrase drops qualifiers, and qualifiers are what commitments are made of — check hardest when the paraphrase makes the finding MORE interesting than the source, as this one did. ''Our README contradicts the operator''s yardstick'' is a far better finding than ''the README is slightly stale'', which is what was actually true. WHAT ACTUALLY REMAINS is optional and small: the README still calls the executor ''planned'' where it is now shipped in v1.6.768. Wording drafted with the case FOR and AGAINST changing it. The README is NOT edited — that is the operator''s, and a leg asserts it is byte-unchanged. T-788''s IW-3 text is ALSO left uncorrected: it is in .tasks/completed/ and PD-308 does not cover it, since that ruling permits appending a sibling control leg where a teeth instrument requires it and nothing else. The narrow ruling constraining its own author within the hour is the ruling working. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 4
+  lines_added: 343
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-803-make-iw-3-decision-ready-verify-what-the.md
+generated_by: context-agent-hybrid
