@@ -4,20 +4,20 @@ name: "The bridge suite rewrites a tracked fixture, and that fixture has been st
 description: >
   Surfaced by T-813's first recorded suite run, not by a value-review finding. Running tests/run-bridge-tests.sh modifies tests/fixtures/exported/t423-carrier-witness.bpmn in the working tree: it regenerates the file with extensionElements before conditionExpression, while the committed copy has the opposite order. TWO separate defects. (1) STALENESS: the fixture was last committed 2026-08-23 (89bdecdc, T-423); the emitter ordering changed 2026-09-09 (66e04cff, T-690, 'extensionElements before conditionExpression'). So the tracked witness has disagreed with the emitter for 17 days and nothing reported it — a witness fixture that does not match what the emitter produces is not witnessing anything. (2) SIDE EFFECT ON A TRACKED FILE: a test suite that rewrites a committed file makes 'git status is clean' untrue after every run, which trains readers to ignore a dirty tree — and a dirty tree is how the retention-sweep deletions and the 1052 untracked files already hide. Decide per defect: regenerate and commit the fixture, and either make the suite write its witness to a scratch path or declare the regeneration intentional and gitignore it. Reverted rather than committed under T-813: it is not that task's change and the right disposition is a judgement, not a cleanup.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t813-history-trap-controls.sh, tools/_t813-suite-age.py, tools/_t815-witness-guard-controls.sh, tools/_t815-witness-ordering-guard.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T13:45:36Z
-last_update: 2026-09-22T14:26:33Z
-date_finished: null
+last_update: 2026-09-22T14:31:32Z
+date_finished: 2026-09-22T14:31:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -225,3 +225,15 @@ python3 tools/_t815-witness-ordering-guard.py
 
 ### 2026-09-22T13:48:02Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f27a511d
+- **Timestamp:** 2026-09-22T14:31:33Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T14:31:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

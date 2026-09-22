@@ -2397,3 +2397,10 @@ decisions:
     date: 2026-09-22
     task: T-816
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-322
+    decision: "assert the ordering invariant directly on the committed bytes."
+    scope: project
+    date: 2026-09-22
+    task: T-815
+    rationale: "Auto-captured from task file on completion"

@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-815: The bridge suite rewrites a tracked fixture, and that fixture has been stale since T-690
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T14:31:39Z
+# ============================================================================
+
+task_id: T-815
+task_name: "The bridge suite rewrites a tracked fixture, and that fixture has been stale since T-690"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T13:45:36Z
+completed: 2026-09-22T14:31:32Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-22T16:31:24+02:00
+last_commit: 2026-09-22T16:31:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a witness that stopped witnessing — 17 days out of step, and the half of my own filing that was wrong
+
+# Key outcomes
+outcomes:
+  - 'The regenerated fixture is compared against the committed one and the difference is explained, not merely refreshed — a witness that silently drifted once can drift again'
+  - 'The staleness is dated from the emitter change (T-690, `66e04cff`, 2026-09-09) against the fixture''s last commit (T-423, `89bdecdc`, 2026-08-23), so the 17-day blind window is recorded rather than tidied away'
+  - '~~`git status` is clean immediately after a full suite run~~ **WITHDRAWN — the premise was wrong.** The refresh is documented, intentional behaviour and the witness is deliberately not a snapshot; a run that changes it is the mechanism working. Withdrawn rather than quietly dropped, because an AC written on a false premise is worth more as a correction than as a deletion.'
+  - 'Whichever disposition is chosen, something MECHANICAL prevents the next silent drift: a check that the committed witness matches what the emitter currently produces'
+  - 'CONTROL: that check is proven to fail when the witness and the emitter disagree, by making them disagree in a throwaway copy'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — I filed this naming two defects; one of them was not a defect'
+  - decision: '2026-09-22 — a structural guard, not a re-export'
+    chose: 'assert the ordering invariant directly on the committed bytes.'
+  - decision: '2026-09-22 — the control replays the real drift, and its stimulus took three attempts'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t815-witness-guard-controls.yaml'
+  - '.fabric/components/tools-_t815-witness-ordering-guard.yaml'
+  - '.tasks/active/T-815-the-bridge-suite-rewrites-a-tracked-fixt.md'
+  - 'tests/fixtures/exported/t423-carrier-witness.bpmn'
+  - 'tools/_t815-witness-guard-controls.sh'
+  - 'tools/_t815-witness-ordering-guard.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T16:31:24"
+    action: 'T-815: a witness that stopped witnessing — 17 days out of step, and the half of my own filing that was wrong'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 45 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 45
+  commits: 1
+  files_changed: 6
+  lines_added: 357
+  lines_removed: 55
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-815-the-bridge-suite-rewrites-a-tracked-fixt.md
+generated_by: context-agent-hybrid
