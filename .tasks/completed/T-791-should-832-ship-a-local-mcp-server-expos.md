@@ -147,6 +147,9 @@ Research artifact: `docs/reports/T-791-mcp-server-for-the-designer.md`.
 # POSITIVE control on the same pattern — it HAS import lines — so leg (b)'s
 # silence is evidence about its dependencies and not about an unreadable file.
 grep -qE '^import (argparse|json|sys)' tools/validate-workflow.py
+# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
+# control on the SAME pattern string, so the silence below is evidence about the subject.
+grep -qE '^(import|from) (yaml|requests|lxml|pydantic|mcp|httpx)' tools/yaml-to-bpmn.py
 ! grep -qE '^(import|from) (yaml|requests|lxml|pydantic|mcp|httpx)' tools/validate-workflow.py
 
 # ── AC2: the demand counts and dates the report cites, re-measured ────────────

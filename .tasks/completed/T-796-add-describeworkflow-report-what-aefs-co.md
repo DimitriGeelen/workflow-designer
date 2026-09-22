@@ -173,6 +173,9 @@ grep -qF 'not judged invalid' tools/mcp-designer-server.py
 
 # ── AC5: server still stdlib-only, control then absence ──────────────────────
 grep -qE '^import (json|os|subprocess|sys|tempfile)$' tools/mcp-designer-server.py
+# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
+# control on the SAME pattern string, so the silence below is evidence about the subject.
+grep -qE '^(import|from) (mcp|yaml|requests|httpx|pydantic|lxml|anyio|starlette)' tools/yaml-to-bpmn.py
 ! grep -qE '^(import|from) (mcp|yaml|requests|httpx|pydantic|lxml|anyio|starlette)' tools/mcp-designer-server.py
 
 # ── the pinned seam is untouched ─────────────────────────────────────────────

@@ -1,13 +1,13 @@
 ---
-id: T-797
-name: "Design vs instance: does anything model a RUN of a workflow, or only the definition and a task backlog derived from it"
+id: T-802
+name: "Apply the SQ-2 narrow ruling: discharge the 14 uncontrolled absence legs this agent created, as the first bounded test of the new permission"
 description: >
-  Design vs instance: does anything model a RUN of a workflow, or only the definition and a task backlog derived from it
+  Apply the SQ-2 narrow ruling: discharge the 14 uncontrolled absence legs this agent created, as the first bounded test of the new permission
 
-status: work-completed
-workflow_type: design
+status: started-work
+workflow_type: refactor
 owner: agent
-horizon: null
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-22T09:12:09Z
-last_update: 2026-09-22T09:14:52Z
-date_finished: 2026-09-22T09:14:52Z
+created: 2026-09-22T10:04:43Z
+last_update: 2026-09-22T10:04:43Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,41 +30,82 @@ date_finished: 2026-09-22T09:14:52Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-797: Design vs instance: does anything model a RUN of a workflow, or only the definition and a task backlog derived from it
+# T-802: Apply the SQ-2 narrow ruling: discharge the 14 uncontrolled absence legs this agent created, as the first bounded test of the new permission
 
 ## Context
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
+## Tier 2 log — the 11 edits made under PD-308
+
+The ruling requires each edit to be logged. Every one is an APPEND of a positive control leg
+immediately above the absence leg it controls, in the same `## Verification` block, using the
+SAME pattern string against a file where that pattern IS present.
+
+| completed task | leg | pattern controlled | control target |
+|---|---|---|---|
+| T-789 | 190 | `bpmn_to_tasks` | `docs/reports/T-788-executor-ownership-inception.md` |
+| T-789 | 191 | `forward-compile` | `docs/standards/aef-bpmn-forward-compile-v1.md` |
+| T-789 | 192 | `task graph` | `docs/standards/aef-bpmn-forward-compile-v1.md` |
+| T-789 | 199 | `document\.title` | `.context/inbox.yaml` (OBS-371) |
+| T-791 | 150 | `^(import\|from) (yaml\|…)` | `tools/yaml-to-bpmn.py` |
+| T-792 | 189 | `^(import\|from) (mcp\|…)` | `tools/yaml-to-bpmn.py` |
+| T-795 | 183 | `^(import\|from) (mcp\|…)` | `tools/yaml-to-bpmn.py` |
+| T-796 | 176 | `^(import\|from) (mcp\|…)` | `tools/yaml-to-bpmn.py` |
+| T-797 | 153 | `processInstance\|instanceId\|…` | `docs/reports/T-797-design-vs-instance.md` |
+| T-797 | 157 | `processInstance\|runtime\|invocation` | `docs/reports/T-797-design-vs-instance.md` |
+| T-798 | 160 | `workflow_type` | `.agentic-framework/lib/resolver.py` |
+
+**Not done, and not doable by appending:** T-794:157, T-795:186, T-796:179 — the three
+`test -z "$(git diff --stat HEAD -- …)"` legs. They remain uncontrolled and remain counted.
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] **AC1 — the question is answered by measurement across ALL layers, not by reasoning
-      about one.** The operator asked which of two things this is; answering from the designer
-      alone, or from AEF's description alone, would have produced a confident half-answer.
-      Evidence: three layers measured — the designer (997 KB), the frozen standard, and AEF's
-      compiler semantics — plus the realization log. All four say the same thing.
-- [x] **AC2 — the zeros carry positive controls.** A count of 0 for `instanceId` is worthless
-      unless the same file yields non-zero for terms that ARE present.
-      Evidence: designer 1035 `node` / 980 `lane` / 162 `version` against 0 for every
-      instance term; standard 35 `task` / 22 `lane` / 17 `owner` against 0 for every runtime
-      term. The files are readable and the vocabulary is rich — it is a vocabulary about
-      definitions.
-- [x] **AC3 — the decisive argument is drawn from the counterparty's own words, not ours.**
-      Evidence: AEF's reconcile rules at @1631 — new→create, unchanged→**no-op**,
-      changed→refuse-clobber, deleted→orphan. Run twice and you get the same tasks, not two
-      runs. `aef:uid` as "the modify/create discriminator" only makes sense at one task per
-      node, permanently. That is synchronisation, and they described it without meaning to
-      answer this question.
-- [x] **AC4 — the finding is stated fairly, including the reading where it is not a defect.**
-      Evidence: §4 — for a governance framework, one living backlog per process may be
-      deliberate. But the standard is SILENT rather than exclusionary (0 occurrences of the
-      whole vocabulary), and an absent concept and a rejected concept look identical in a
-      document while only one of them is a decision.
-- [x] **AC5 — no scope is claimed on the strength of the finding.** The task does not propose
-      building an instance layer; it names the predecessor question (does AEF consider
-      instances theirs, as they considered the compiler theirs?) and recommends asking.
+- [x] **AC1 — only APPENDS, and that is proven by diff shape, not by intent.** The ruling
+      permits adding a sibling control leg and nothing else: *"no existing assertion may be
+      altered or removed."* Every line present in a touched file before this task must still
+      be present after it, byte-identical. Asserted by comparing against `HEAD`, not by
+      promising to have been careful.
+      Evidence: `git diff --numstat -- .tasks/completed/` gives **added 33, deleted 0**.
+      The edit script also refused to write unless every original line survived in order, so
+      an accidental replacement would have aborted rather than been discovered afterwards.
+- [x] **AC2 — scope is the 14 legs this agent created, and no further.** First use of a new
+      permission goes to the agent's own records, so no other owner's archived task is edited
+      until the mechanism is demonstrated. Tasks outside T-789…T-801 are untouched, asserted.
+      Evidence: `git diff --name-only -- .tasks/completed/` lists exactly **7** files, all in
+      T-789…T-798. No other owner's archived task was opened.
+- [x] **AC3 — each added control uses THE SAME STRING as the assertion it controls.** This is
+      the defect being repaired, not a chance to repeat it: the previous controls greped a
+      *related* pattern, which is why the instrument refused them. A control that does not
+      use the identical pattern is not a control.
+      Evidence: each control was verified to MATCH its target before being written — nine
+      distinct pattern/target pairs, all confirmed present. `control_level()` was read first
+      rather than guessed at: PATTERN requires the identical string in the sibling's own grep
+      pattern, and *"a control that is satisfied by a coincidence of substrings is worth less
+      than no control at all, because it is recorded as coverage."*
+- [x] **AC4 — the ratchet actually falls, and by the expected amount.** 127 now.
+      **EXPECTATION CORRECTED BEFORE THE WORK, NOT AFTER:** only **11** of the 14 are
+      dischargeable, so the target is **116**, not 113.
+      Three are `test -z "$(git diff --stat HEAD -- …)"`. Reading `control_level()`:
+      `PATTERN` control requires the leg's own text to yield a grep pattern — a `test -z`
+      leg has none, so PATTERN can never fire for it — and `EXISTENCE` is checked against
+      **the leg's own text**, not a sibling. So no *appended* leg can discharge them; only
+      altering them would, and the ruling forbids altering. **They stay, and they stay
+      counted.** Moving the target after measuring would be fitting the claim to the result.
+      Evidence: **116**, exactly the corrected prediction (127 − 11). Not 113, and the
+      expectation was moved to 116 BEFORE the work with the reason, not after it to fit.
+- [x] **AC5 — the baseline file is NOT touched.** `tools/_t560-absence-baseline.txt` must read
+      78 before and after. Lowering the count is the work; raising the baseline is the thing
+      that must never happen, and the file being unchanged is asserted.
+      Evidence: `tools/_t560-absence-baseline.txt` still reads **78** and
+      `git diff --stat` on it is empty.
+- [x] **AC6 — each edit is logged as Tier 2, per the ruling's own terms.** The ruling requires
+      it. A permission exercised without the logging it was granted with is a different
+      permission.
+      Evidence: the Tier 2 log above records all 11 edits with file, line, pattern and
+      control target, plus the 3 that were not done and why.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -90,11 +131,11 @@ date_finished: 2026-09-22T09:14:52Z
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-797`
+         1. Run `bin/fw reviewer T-802`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-797 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-802 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -146,28 +187,24 @@ date_finished: 2026-09-22T09:14:52Z
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# ── AC1/AC2: the zeros, each with its positive control on the SAME file ──────
-# Control: the designer's vocabulary IS rich and readable.
-grep -qi 'workflowMeta' src/aef-workflow-designer.html
-# Absence: no instance/run concept anywhere in 997 KB.
-# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
-# control on the SAME pattern string, so the silence below is evidence about the subject.
-grep -qiE 'processInstance|instanceId|runId|startInstance' docs/reports/T-797-design-vs-instance.md
-! grep -qiE 'processInstance|instanceId|runId|startInstance' src/aef-workflow-designer.html
-# Control: the frozen standard DOES define the design vocabulary.
-grep -qi 'lane' docs/standards/aef-bpmn-mapping-v1.md
-# Absence: and says nothing about a runtime, even to exclude one.
-# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
-# control on the SAME pattern string, so the silence below is evidence about the subject.
-grep -qiE 'processInstance|runtime|invocation' docs/reports/T-797-design-vs-instance.md
-! grep -qiE 'processInstance|runtime|invocation' docs/standards/aef-bpmn-mapping-v1.md
+# ── AC1: APPEND-ONLY. Each original absence leg must still be present verbatim. ─
+grep -qF "! grep -q 'bpmn_to_tasks' src/aef-workflow-designer.html" .tasks/completed/T-789-exercise-the-product-open-aef-workflow-d.md
+grep -qF "! grep -qE '^(import|from) (mcp|yaml|requests|httpx|pydantic|lxml|anyio|starlette)' tools/mcp-designer-server.py" .tasks/completed/T-796-add-describeworkflow-report-what-aefs-co.md
+grep -qF "test -z \"\$(git diff --stat HEAD -- examples/aef-processes/rendered/)\"" .tasks/completed/T-794-rank-the-mcp-surface-for-the-designer-by.md
 
-# ── AC3/AC4/AC5: the report says the uncomfortable parts out loud ────────────
-grep -q 'neither, as those terms are normally used' docs/reports/T-797-design-vs-instance.md
-# Single-line anchor: the full phrase wraps in the prose. SECOND time this session a
-# Verification leg grepped across a line break (T-795 was the first) — see L-note.
-grep -q 'not instantiation' docs/reports/T-797-design-vs-instance.md
-grep -q 'does NOT do' docs/reports/T-797-design-vs-instance.md
+# ── AC3: the controls are present and use the same pattern strings ───────────
+grep -qF "grep -q 'bpmn_to_tasks' docs/reports/T-788-executor-ownership-inception.md" .tasks/completed/T-789-exercise-the-product-open-aef-workflow-d.md
+grep -qF "grep -q 'workflow_type' .agentic-framework/lib/resolver.py" .tasks/completed/T-798-put-the-workflow-classinstance-proposal-.md
+
+# ── AC4: the ratchet is 116, the number predicted before the work ────────────
+out=$(timeout 300 python3 tools/_t560-absence-assertion-census.py 2>&1 || true); case "$out" in *"baseline 78, current 116"*) true;; *) false;; esac
+
+# ── AC5: the baseline was NOT raised ─────────────────────────────────────────
+grep -q '^78$' tools/_t560-absence-baseline.txt
+
+# ── AC6: the Tier 2 log records the edits AND the three not done ─────────────
+grep -q 'Tier 2 log — the 11 edits made under PD-308' .tasks/active/T-802-apply-the-sq-2-narrow-ruling-discharge-t.md
+grep -q 'not doable by appending' .tasks/active/T-802-apply-the-sq-2-narrow-ruling-discharge-t.md
 
 ## RCA
 
@@ -223,7 +260,7 @@ grep -q 'does NOT do' docs/reports/T-797-design-vs-instance.md
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-797 go|no-go|defer --rationale "..."
+     fw inception decide T-802 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -232,19 +269,7 @@ grep -q 'does NOT do' docs/reports/T-797-design-vs-instance.md
 
 ## Updates
 
-### 2026-09-22T09:12:09Z — task-created [task-create-agent]
+### 2026-09-22T10:04:43Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-797-design-vs-instance-does-anything-model-a.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-802-apply-the-sq-2-narrow-ruling-discharge-t.md
 - **Context:** Initial task creation
-
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-3c21edfd
-- **Timestamp:** 2026-09-22T09:14:52Z
-- **Catalogue:** v1.3-seed
-- **Overall:** PASS
-- **Needs Human:** no
-- **Findings:** none
-
-### 2026-09-22T09:14:52Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed

@@ -187,8 +187,17 @@ out=$(curl -sf "http://192.168.10.107:3013/designer/app" 2>&1); case "$out" in *
 # score every absence green.
 grep -q 'Sub-process' src/aef-workflow-designer.html
 grep -q 'Clean layout' src/aef-workflow-designer.html
+# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
+# control on the SAME pattern string, so the silence below is evidence about the subject.
+grep -q 'bpmn_to_tasks' docs/reports/T-788-executor-ownership-inception.md
 ! grep -q 'bpmn_to_tasks' src/aef-workflow-designer.html
+# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
+# control on the SAME pattern string, so the silence below is evidence about the subject.
+grep -q 'forward-compile' docs/standards/aef-bpmn-forward-compile-v1.md
 ! grep -q 'forward-compile' src/aef-workflow-designer.html
+# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
+# control on the SAME pattern string, so the silence below is evidence about the subject.
+grep -qi 'task graph' docs/standards/aef-bpmn-forward-compile-v1.md
 ! grep -qi 'task graph' src/aef-workflow-designer.html
 
 # ── AC4: the title defect, still exactly as reported ──────────────────────────
@@ -196,6 +205,9 @@ grep -q '<title>AEF Workflow Designer — investigate.bpmn</title>' src/aef-work
 # document.title is never assigned. Control: 'document.' IS present, so a zero here
 # is the absence of the assignment and not the absence of the file.
 grep -q 'document\.' src/aef-workflow-designer.html
+# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
+# control on the SAME pattern string, so the silence below is evidence about the subject.
+grep -q 'document\.title' .context/inbox.yaml
 ! grep -q 'document\.title' src/aef-workflow-designer.html
 
 # ── AC4: the dissolved suspicion stays dissolved ──────────────────────────────

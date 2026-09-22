@@ -186,6 +186,9 @@ python3 tools/_t792-mcp-server-probe.py 2>&1 | grep -q 'probe: 21 passed, 0 fail
 # Leg (a) proves the import-matching pattern FINDS things in this file, so leg
 # (b)'s silence is evidence about dependencies and not about an unreadable path.
 grep -qE '^import (json|os|subprocess|sys|tempfile)$' tools/mcp-designer-server.py
+# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
+# control on the SAME pattern string, so the silence below is evidence about the subject.
+grep -qE '^(import|from) (mcp|yaml|requests|httpx|pydantic|lxml|anyio|starlette)' tools/yaml-to-bpmn.py
 ! grep -qE '^(import|from) (mcp|yaml|requests|httpx|pydantic|lxml|anyio|starlette)' tools/mcp-designer-server.py
 
 # ── AC4: exactly one tool is registered, and it is the read-only one ──────────

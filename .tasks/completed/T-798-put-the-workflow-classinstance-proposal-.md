@@ -157,6 +157,9 @@ test -f examples/aef-processes/rendered/inception-lifecycle.bpmn
 # contrast rather than an observation about an unreadable tree.
 grep -q 'arcs/' .agentic-framework/agents/context/check-arc-id.py
 grep -q 'str(fm.get("workflow_type"' .agentic-framework/lib/resolver.py
+# SQ-2 control (PD-308, operator ruling 2026-09-22 — Tier 2, APPEND ONLY). Positive
+# control on the SAME pattern string, so the silence below is evidence about the subject.
+grep -q 'workflow_type' .agentic-framework/lib/resolver.py
 ! grep -rn 'workflow_type' .agentic-framework/lib/resolver.py | grep -qiE 'bpmn|\.workflow'
 
 # ── AC3/AC4/AC5: the report keeps the open parts open ────────────────────────
