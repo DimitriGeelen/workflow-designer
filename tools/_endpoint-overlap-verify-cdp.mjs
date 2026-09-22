@@ -139,7 +139,27 @@ async function main() {
     // Re-select A, raise to top, press on its halo, move well past threshold into open space, release.
     await ev(cmd, `(function(){ selection = { kind:'edge', id:${JSON.stringify(A)} }; multiSelect = new Set(); renderAll(); renderProperties(); var g=document.querySelector('.edge.selected'); if(g&&g.parentNode) g.parentNode.appendChild(g); })()`);
     await sleep(120);
-    const halo2 = await ev(cmd, `(function(){ var h=document.querySelector('.edge.selected .edge-handle-endpoint-hit[data-role="${dataRole}"]'); if(!h) return null; var r=h.getBoundingClientRect(); return { cx:r.left+r.width/2, cy:r.top+r.height/2 }; })()`);
+    // T-818: the halo is NOT a descendant of the selected edge's <g>. T-293 (2026-07-28)
+    // moved endpoint handles into #g-handles, above #g-nodes, because handles resident in
+    // #g-edges were shadowed by node bodies exactly where they matter — on the node border
+    // (T-168 anchors endpoints there). This probe was written 2026-07-06 against the old
+    // home, and its `.edge.selected .edge-handle-endpoint-hit` DESCENDANT selector went
+    // unsatisfiable 22 days later. Nothing re-ran the probe, so step 5 below never
+    // executed again: the assertion could not FAIL because its STIMULUS never fired
+    // (PL-206). It reported `pass:false` with a TypeError, which reads like a failing
+    // check and is not one — the drag was simply never performed.
+    //
+    // Match on the handle's OWN identity rather than on its parent, so the next relocation
+    // does not silently repeat this; and report the COUNT, so a missing or ambiguous halo
+    // is a named step rather than a null dereference three lines later.
+    const halo2 = await ev(cmd, `(function(){
+      var hs=document.querySelectorAll('.edge-handle-endpoint-hit[data-role="${dataRole}"]');
+      if(hs.length!==1) return { n:hs.length };
+      var r=hs[0].getBoundingClientRect();
+      return { n:1, cx:r.left+r.width/2, cy:r.top+r.height/2 };
+    })()`);
+    push('endpoint-halo-found', !!halo2 && halo2.n === 1, halo2);
+    if (!halo2 || halo2.n !== 1) throw new Error('COULD-NOT-MEASURE: expected exactly one selected-edge ' + dataRole + ' halo, found ' + (halo2 ? halo2.n : 'none') + ' — the drag regression below cannot be exercised');
     await mouse(cmd, 'mousePressed', halo2.cx, halo2.cy);
     await mouse(cmd, 'mouseMoved', halo2.cx + 40, halo2.cy + 40, { buttons: 1 });
     await sleep(30);
