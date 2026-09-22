@@ -4,10 +4,10 @@ name: "Prepare T-788 for a corrected decision: fix the two reviewer citation fin
 description: >
   Prepare T-788 for a corrected decision: fix the two reviewer citation findings and establish the re-decide path
 
-status: started-work
+status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T09:23:38Z
-last_update: 2026-09-22T09:23:38Z
-date_finished: null
+last_update: 2026-09-22T09:26:50Z
+date_finished: 2026-09-22T09:26:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -211,6 +211,42 @@ grep -q 'live worked example for SQ-2' .tasks/active/T-799-prepare-t-788-for-a-c
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom.** T-788's recorded decision reads `**Decision**: GO` while its stored rationale
+begins *"DEFER because the decisive fact is not ours to establish…"* and ends *"…GO would be
+building on an assumption."* The verdict and the reasoning attached to it argue opposite
+things, in a governance record, on a sovereignty decision.
+
+**Root cause.** `fw inception start` REQUIRES `--recommendation` and `--rationale` at filing
+time under `$CLAUDECODE=1` — correctly, so an agent's advisory is on record before a human
+decides. That filing rationale is then what `fw inception decide` carries into the Decision
+block **whatever verdict the human picks.** The two texts have different authors and different
+moments, and nothing checks that they agree.
+
+**Why structurally allowed.** The agent's rationale is written to justify the agent's
+RECOMMENDATION. The human's decision may differ — that is the entire point of the sovereignty
+split. So the failure is not an edge case; it is the *designed* case: any time a human decides
+against the agent's recommendation, the record stores a rationale arguing for the other answer.
+DEFER→GO simply makes it visible, because DEFER's rationale says the word "GO" in a sentence
+explaining why not to.
+
+Nothing detects it because no check compares the verdict to its own rationale. The reviewer ran
+and returned CONCERN — but on `disposition-incomplete` for IW-1/IW-2, not on the contradiction.
+It has no rule for "the rationale argues against the decision it is attached to."
+
+**Prevention.** Not attempted here, and the honest reason is that the fix is upstream and
+non-obvious: it needs `fw inception decide` to either require a fresh `--rationale` when the
+decision differs from the filed recommendation, or to record the two separately as
+*agent recommendation* and *human decision rationale* rather than collapsing them. Both are
+AEF's to design — `inception.sh` and `inception_decisions.py` are framework files, and the
+vendored-fix exemption (G-008) covers defects we can prove, not interface changes we would
+prefer. **This task's prevention is therefore narrow and local:** the prepared rationale
+argues its own verdict, so re-running the command leaves a record that does not contradict
+itself. That fixes this instance and not the class.
+
+**Filed for the class:** this belongs upstream. It is recorded here rather than sent, because
+sending a framework design change mid-conversation without the operator's sign-off is the
+scope creep the Scope Fence pattern exists to refuse.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -262,3 +298,15 @@ grep -q 'live worked example for SQ-2' .tasks/active/T-799-prepare-t-788-for-a-c
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-799-prepare-t-788-for-a-corrected-decision-f.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-54513b50
+- **Timestamp:** 2026-09-22T09:26:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T09:26:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

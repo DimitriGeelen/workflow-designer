@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-799: Prepare T-788 for a corrected decision: fix the two reviewer citation findings and establish the re-decide path
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T09:26:57Z
+# ============================================================================
+
+task_id: T-799
+task_name: "Prepare T-788 for a corrected decision: fix the two reviewer citation findings and establish the re-decide path"
+workflow_type: refactor
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T09:23:38Z
+completed: 2026-09-22T09:26:50Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T11:26:28+02:00
+last_commit: 2026-09-22T11:26:28+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  prepare T-788's corrected decision — and do not make it. Agents must not invoke the Tier 0 decide verb at all, so this task writes a copy-pasteable line and stops. A Verification leg asserts T-788 STILL READS GO, which goes red if this agent ever ran it — the distinction between preparing and deciding, made mechanical. THE RE-DECIDE PATH, established from the source because Tier 0 blocked even --help (correctly: the gate matches the verb in the command text, not the intent). lib/inception.sh writes the new block on encountering ## Decision and then SKIPS old decision content to the next H2+, so a second call overwrites rather than refusing; update-task.sh APPENDS a new dated inception-decision entry. Net effect: the original GO survives in Updates history and only the live verdict changes, which is the right shape for correcting a sovereignty record rather than erasing one. THE PREPARED RATIONALE ARGUES ITS OWN VERDICT, because the defect being corrected is exactly a decision whose stored rationale argued the opposite — repeating that shape while fixing it would be absurd. It cites docs/reports/ paths, a form the reviewer heuristic recognises, and names what it does NOT close: the instance question is separate and is with AEF at sidecar 6. TWO REVIEWER FINDINGS LEFT UNFIXED, DELIBERATELY AND WITH THE REASON STATED. IW-1 and IW-2 are flagged disposition-incomplete because their rationales cite a rail offset in a form the heuristic does not read as evidence. T-788 now lives in .tasks/completed/, so fixing them means editing a completed task file — which is precisely what SQ-2 asks and what T-353 is blocked on. Fixing it here would be deciding SQ-2 by doing it. The findings are partial/heuristic and the underlying evidence is real and quoted in the artifact; what is missing is a citation FORM, not a fact. That makes it a LIVE WORKED EXAMPLE for SQ-2 rather than a hypothetical — a two-line edit to another owner's completed task that fixes a real reviewer finding. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the re-decide path is established from the implementation, not assumed.**'
+  - '**AC2 — the corrected decision is NOT recorded by this agent.** `fw inception decide`'
+  - '**AC3 — the prepared rationale ARGUES the verdict it carries.** The defect being'
+  - '**AC4 — the two reviewer findings are handled honestly, including if they cannot be'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'prepare T-788''s corrected decision — and do not make it. Agents must not invoke the Tier 0 decide verb at all, so this task writes a copy-pasteable line and stops. A Verification leg asserts T-788 STILL READS GO, which goes red if this agent ever ran it — the distinction between preparing and deciding, made mechanical. THE RE-DECIDE PATH, established from the source because Tier 0 blocked even --help (correctly: the gate matches the verb in the command text, not the intent). lib/inception.sh writes the new block on encountering ## Decision and then SKIPS old decision content to the next H2+, so a second call overwrites rather than refusing; update-task.sh APPENDS a new dated inception-decision entry. Net effect: the original GO survives in Updates history and only the live verdict changes, which is the right shape for correcting a sovereignty record rather than erasing one. THE PREPARED RATIONALE ARGUES ITS OWN VERDICT, because the defect being corrected is exactly a decision whose stored rationale argued the opposite — repeating that shape while fixing it would be absurd. It cites docs/reports/ paths, a form the reviewer heuristic recognises, and names what it does NOT close: the instance question is separate and is with AEF at sidecar 6. TWO REVIEWER FINDINGS LEFT UNFIXED, DELIBERATELY AND WITH THE REASON STATED. IW-1 and IW-2 are flagged disposition-incomplete because their rationales cite a rail offset in a form the heuristic does not read as evidence. T-788 now lives in .tasks/completed/, so fixing them means editing a completed task file — which is precisely what SQ-2 asks and what T-353 is blocked on. Fixing it here would be deciding SQ-2 by doing it. The findings are partial/heuristic and the underlying evidence is real and quoted in the artifact; what is missing is a citation FORM, not a fact. That makes it a LIVE WORKED EXAMPLE for SQ-2 rather than a hypothetical — a two-line edit to another owner''s completed task that fixes a real reviewer finding. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-799-prepare-t-788-for-a-corrected-decision-f.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T11:26:28"
+    action: 'T-799: prepare T-788''s corrected decision — and do not make it. Agents must not invoke the Tier 0 decide verb at all, so this task writes a copy-pasteable line and stops. A Verification leg asserts T-788 STILL READS GO, which goes red if this agent ever ran it — the distinction between preparing and deciding, made mechanical. THE RE-DECIDE PATH, established from the source because Tier 0 blocked even --help (correctly: the gate matches the verb in the command text, not the intent). lib/inception.sh writes the new block on encountering ## Decision and then SKIPS old decision content to the next H2+, so a second call overwrites rather than refusing; update-task.sh APPENDS a new dated inception-decision entry. Net effect: the original GO survives in Updates history and only the live verdict changes, which is the right shape for correcting a sovereignty record rather than erasing one. THE PREPARED RATIONALE ARGUES ITS OWN VERDICT, because the defect being corrected is exactly a decision whose stored rationale argued the opposite — repeating that shape while fixing it would be absurd. It cites docs/reports/ paths, a form the reviewer heuristic recognises, and names what it does NOT close: the instance question is separate and is with AEF at sidecar 6. TWO REVIEWER FINDINGS LEFT UNFIXED, DELIBERATELY AND WITH THE REASON STATED. IW-1 and IW-2 are flagged disposition-incomplete because their rationales cite a rail offset in a form the heuristic does not read as evidence. T-788 now lives in .tasks/completed/, so fixing them means editing a completed task file — which is precisely what SQ-2 asks and what T-353 is blocked on. Fixing it here would be deciding SQ-2 by doing it. The findings are partial/heuristic and the underlying evidence is real and quoted in the artifact; what is missing is a citation FORM, not a fact. That makes it a LIVE WORKED EXAMPLE for SQ-2 rather than a hypothetical — a two-line edit to another owner''s completed task that fixes a real reviewer finding. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 1
+  lines_added: 264
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-799-prepare-t-788-for-a-corrected-decision-f.md
+generated_by: context-agent-hybrid
