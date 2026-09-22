@@ -1257,6 +1257,58 @@ else
 fi
 
 echo
+echo "== Session control probes re-executed, not merely completed (T-819) =="
+
+# PL-161, applied to the instruments written on 2026-09-22 rather than to someone else's:
+# "a completion gate is not a guard, and the only durable remedy is a caller that re-executes
+# without a task completing." Every probe below was written that day to prove some OTHER
+# guard had teeth, and every one was called from exactly one place — its task's ## Verification
+# block, which runs once and is then archived. They were the F-08 population, authored while
+# fixing F-08.
+#
+# ONE GROUPED LEG, NOT TEN, and the shape is measured rather than assumed: timed end to end
+# they total ~9.9s against a 784s suite (1.3%), and eight of the ten are between 22ms and
+# 514ms. Ten separate banners for ten sub-second checks would add noise to a suite whose
+# problem (F-03) is already that nobody runs it.
+#
+# The loop reports WHICH probe failed, so grouping costs no diagnosability. All ten were run
+# and observed green before being wired — the T-817 rule applies to my own tools too.
+_t819_failed=""
+# PATHS ARE LITERAL `tools/<name>`, not bare filenames joined to $ROOT at runtime, and that
+# is load-bearing rather than style. _t451's edge detector is
+# `re.compile(r'tools/([A-Za-z0-9_.\-]+\.(?:py|sh|mjs|js))')` — it matches the literal
+# string. A composed path is its documented FALSE POSITIVE ("a caller composing the path at
+# runtime is invisible, so its tool is reported unwired"). The first draft of this loop used
+# "$ROOT/tools/$_ctl" and moved the standing-guard count by ZERO: the probes ran, and the
+# instrument whose entire job is detecting wiring could not see it. Measured A/B, 138 both
+# ways, after I had already claimed otherwise in T-817's commit message.
+for _ctl in tools/_t809-frozen-meta-census.py \
+            tools/_t809-census-controls.sh \
+            tools/_t810-unreachable-values-census.py \
+            tools/_t812-adoption-predicate-controls.py \
+            tools/_t813-suite-age.py \
+            tools/_t813-history-trap-controls.sh \
+            tools/_t815-witness-ordering-guard.py \
+            tools/_t815-witness-guard-controls.sh \
+            tools/_t816-abbr-dup-controls.sh \
+            tools/_t817-wiring-controls.sh; do
+  case "$_ctl" in
+    *.py) _runner=python3 ;;
+    *)    _runner=bash ;;
+  esac
+  if ! timeout 120 "$_runner" "$ROOT/$_ctl" > "$TMP/leg-$(basename "$_ctl").out" 2>&1; then
+    _t819_failed="$_t819_failed $_ctl"
+    show_output "$TMP/leg-$(basename "$_ctl").out" "$_ctl"
+  fi
+done
+if [ -z "$_t819_failed" ]; then
+  pass=$((pass + 1))
+else
+  report FAIL "session control probe(s) failed:$_t819_failed — each of these asserts that some OTHER guard still discriminates, so a failure here means a guard has gone inert or its subject moved. Run the named script directly; its output names the branch that disagreed."
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Direct-manipulation gestures (T-817: wiring F-08's inventory to close part of F-07) =="
 
 # F-07 measured that the direct-manipulation surface — click-to-place, node drag, connect
@@ -1282,12 +1334,14 @@ echo "== Direct-manipulation gestures (T-817: wiring F-08's inventory to close p
 #                           test of old code"), and rebuilding it is not the agent's call.
 #
 # Each leg loads src/ directly, so it tests what the editor IS, not a build artefact.
-for _probe in _horizontal-spacing-verify-cdp.mjs \
-              _selection-align-verify-cdp.mjs \
-              _edge-straighten-verify-cdp.mjs \
-              _t263-save-target-cdp.mjs; do
-  _name="${_probe%.mjs}"
-  if timeout 180 node "$ROOT/tools/$_probe" > "$TMP/leg-$_name.out" 2>&1; then
+# Literal `tools/<name>` paths — see the note on the T-819 loop below for why this is
+# load-bearing and not style.
+for _probe in tools/_horizontal-spacing-verify-cdp.mjs \
+              tools/_selection-align-verify-cdp.mjs \
+              tools/_edge-straighten-verify-cdp.mjs \
+              tools/_t263-save-target-cdp.mjs; do
+  _name="$(basename "${_probe%.mjs}")"
+  if timeout 180 node "$ROOT/$_probe" > "$TMP/leg-$_name.out" 2>&1; then
     pass=$((pass + 1))
   else
     report FAIL "direct-manipulation probe $_probe failed — a gesture the editor IS regressed, or the probe's expectation went stale while nothing re-ran it (run 'node tools/$_probe'; its JSON names the offending element). This leg exists because F-07 found these gestures covered by nothing and F-08 found the probes for them already written and unwired."
