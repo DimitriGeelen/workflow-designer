@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-773: Clause-1 bounded exchange with AEF: ten rounds, one measurable question per
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T21:50:12Z
+# ============================================================================
+
+task_id: T-773
+task_name: "Clause-1 bounded exchange with AEF: ten rounds, one measurable question per"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T13:48:51Z
+completed: 2026-09-22T21:50:04Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-09-21T15:51:09+02:00
+last_commit: 2026-09-21T22:10:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  round 1 of the bounded exchange with AEF is on the rail at offset 1591. AEF answered round 1 at @1593; round 2 sent at @1601. round 2 unacknowledged — and the rail cannot tell us whether it landed. round 2 answered at @1603 — CORE 30->31, held at 100%. Exchange closed at @1604
+
+# Key outcomes
+outcomes:
+  - '**Round 1 is posted to `agent-chat-arc` with producer attribution, and the rail'
+  - '**The message frames itself as a proposal, not a build instruction.** G-020 runs in'
+  - '**The message states, in its own body, that it ratifies nothing.** Transport is not'
+  - '**The round-1 ask is answerable by measurement, not by assurance.** It asks for a path'
+  - '**Both asks ride in round 1: the clause-1 scope contract and the clause-2 unblock.**'
+  - '**The send is recorded where the next session will find it, with the content quoted'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/research/executable-workflow/arc-0-exit-clauses.yaml'
+  - '.tasks/active/T-773-clause-1-bounded-exchange-with-aef-ten-r.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T15:51:09"
+    action: 'T-773: round 1 of the bounded exchange with AEF is on the rail at offset 1591'
+  - time: "2026-09-21T21:00:00"
+    action: 'T-773: AEF answered round 1 at @1593; round 2 sent at @1601'
+  - time: "2026-09-21T21:25:13"
+    action: 'T-773: round 2 unacknowledged — and the rail cannot tell us whether it landed'
+  - time: "2026-09-21T22:10:17"
+    action: 'T-773: round 2 answered at @1603 — CORE 30->31, held at 100%. Exchange closed at @1604'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 1921 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1921
+  commits: 4
+  files_changed: 2
+  lines_added: 615
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-773-clause-1-bounded-exchange-with-aef-ten-r.md
+generated_by: context-agent-hybrid

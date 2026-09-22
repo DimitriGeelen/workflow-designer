@@ -5,20 +5,21 @@ name: "Clause-1 bounded exchange with AEF: ten rounds, one measurable question p
 description: >
   Clause-1 bounded exchange with AEF: ten rounds, one measurable question per round
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
+arc_id: ewcr-governed-delivery
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T13:48:51Z
-last_update: '2026-09-21T21:51:30Z'
-date_finished:
+last_update: 2026-09-22T21:50:04Z
+date_finished: 2026-09-22T21:50:04Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -373,6 +374,37 @@ python3 -c "import yaml,sys; d=yaml.safe_load(open('docs/research/executable-wor
 
 ## Evolution
 
+### 2026-09-22 — the ten rounds were a budget, not a target, and two was the right answer
+
+- **What changed:** this task is named "ten rounds" and the exchange stopped at **round 2 of
+  a ceiling of 10** — deliberately, and not from exhaustion or silence. What the two rounds
+  established is that the remaining question is **not measurable by either agent**: the
+  §5.1-row → path-prefix mapping is hand-derived, which AEF volunteered unprompted at their
+  @1593. An operator can disagree with it per row; no further round can settle that. The
+  register records the exchange's own verdict verbatim — *"what_it_did_not_produce: Any
+  movement in this register. Three clauses, zero satisfied, unchanged from the exchange's
+  first message to its last."*
+- **Plan impact:** the task name no longer describes the work and should be read as a
+  ceiling rather than a plan. More importantly, the premise that clause 1 could be closed by
+  a sufficiently well-posed agent-to-agent exchange is **disproved**, and that disproof is
+  the deliverable. Clause 2 came back UNDECIDED, which the register correctly reads as
+  telling the operator that Arc-0 exit waits on a **decision** rather than on work in
+  progress.
+- **What the two rounds DID produce**, which is not nothing and is why stopping is not a
+  failure: a path list, AEF's admission that half of its derivation is manual, a scoped tool
+  on their side that did not exist before (their T-3401), a correction to *our* hypothesis
+  (dilution, not escape), a document-drift finding their whole-root control could not
+  surface, and a CORE row restored to the measurement.
+- **Triggered:** T-825's arc scoping review recorded the standing conclusion — *"a third
+  round would be traffic"* — and the run mandate's re-entry at arc level followed from it.
+  Nothing further is opened against clauses 1 and 2 by agent action.
+- **Tagged into the arc late (2026-09-22, this run).** The task carried no `arc_id` despite
+  being clause-1 work — an Arc-0 exit clause of `ewcr-governed-delivery`. It was therefore
+  invisible to `fw arc show`, and a scoping pass earlier in this same run concluded the arc
+  had **no Q1 agent-eligible work** on exactly that basis. The conclusion was true of the
+  arc as tagged and false of the arc as it is. Corrected via `fw arc tag`; the mis-tagging,
+  not the scoring, was the defect.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -504,3 +536,15 @@ four-hour silence read as the second when it was in fact the first. That is the 
 this exchange worth carrying into the next one: on this rail, round state is inferred and
 never measured, and the correct response to silence is to wait and re-read rather than to
 re-send.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8f1f0461
+- **Timestamp:** 2026-09-22T21:50:05Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T21:50:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
