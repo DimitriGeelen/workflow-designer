@@ -2360,3 +2360,10 @@ learnings:
   date: 2026-09-22
   context: Added via context agent
   application: TBD
+- id: PL-333
+  learning: "ASK 'WHAT CAN I DO TO MAKE THIS DECISION CHEAP, CHECKED, OR UNNECESSARY' BEFORE ASKING 'WHOSE IS IT'. Owner is the last question, not the first. T-829: I reported six [RUBBER-STAMP] criteria to the operator as OPERATOR-ONLY and stopped there. The operator pushed back and was right — FOUR OF THE SIX WERE ALREADY SATISFIED and I could verify each in one command: T-586's worktree deny rules were already applied (guard exit 0, all three routes denied), T-580's load-bearing measurement reproduces as 0, and H2 was answered by the operator on 2026-08-26 with the register and envelope agreeing. I had classified 'Answer H2 — name the AEF counterparty project' as information only the operator holds, while (a) the operator had already given it two months earlier and (b) I have termlink and could have asked the counterparty directly. The correct output was not 'here is who owns these' but 'four of these are done and need a tick; one is irreducibly yours and here is the input I fetched from the counterparty to make it cheaper'. RELATED FAILURE IN THE SAME SESSION: I created three tasks with placeholder acceptance criteria and was blocked by the G-020 gate each time; when the external reviewer FAILED one for empty-body ACs I read that as evidence the queue was un-reviewable rather than as evidence I had not finished the task. A reviewer FAIL on my own output is a finding about my work first."
+  source: P-010
+  task: T-829
+  date: 2026-09-22
+  context: Added via context agent
+  application: TBD
