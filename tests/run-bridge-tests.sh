@@ -1388,6 +1388,50 @@ else
 fi
 
 echo
+echo "== Failures leave evidence (T-821: F-05, the review's highest-leverage ADD) =="
+
+# The product had 70 catch sites and no error surface: clipboard failures silent, autosave
+# quota "swallowed by design", seam failures bare. D1 Antifragility is weighted 9 and its
+# definition is "failures are learning events"; a bare catch is the precise inverse. It also
+# capped the review — ~93 items read D (UNMEASURED) because no channel existed that could
+# carry evidence even incidentally.
+#
+# Three legs, three different failure modes:
+
+# 1. THE RATCHET. Every catch is instrumented or carries a written excuse with an exact
+#    count. This is the PL-288 leg — "a chosen-set assertion cannot find what you forgot to
+#    choose" — and it guards against the instrumented set silently shrinking back.
+if python3 "$ROOT/tools/_t821-swallowed-failure-census.py" > "$TMP/leg-_t821-census.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a failure in the editor is being swallowed with no record and no stated reason, or an excuse's site count moved (run 'python3 tools/_t821-swallowed-failure-census.py'; it names each line. An excuse whose count FELL is also red — the reason on file no longer describes the tree, and left alone it would silently cover a future site it was never written for)"
+  show_output "$TMP/leg-_t821-census.out" "_t821-swallowed-failure-census.py"
+  fail=$((fail + 1))
+fi
+
+# 2. THE SURFACE. Records, shows, survives a reload, and cannot throw — plus one end-to-end
+#    leg that breaks navigator.clipboard and presses the real Copy button, because testing
+#    aefRecordFault directly proves the recorder and says nothing about the WIRING. That
+#    distinction is what T-818 found rotted in two probes on the same day.
+if timeout 240 node "$ROOT/tools/_t821-fault-surface-cdp.mjs" > "$TMP/leg-_t821-surface.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the fault surface stopped recording, showing, persisting, or became able to throw (run 'node tools/_t821-fault-surface-cdp.mjs'; its JSON names the step). recorder-never-throws red is the severe one: every caller sits inside a catch whose contract is 'never break the editor', so a throwing recorder turns each instrumented site into an editor-breaking one — strictly worse than the silence this replaced"
+  show_output "$TMP/leg-_t821-surface.out" "_t821-fault-surface-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
+# 3. THE CENSUS'S OWN TEETH. A census that only ever reports 0 on a passing tree would look
+#    like coverage and add none.
+if timeout 180 bash "$ROOT/tools/_t821-census-controls.sh" > "$TMP/leg-_t821-census-controls.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the swallowed-failure census stopped discriminating — a new bare catch, a de-instrumented site, or an extra copy of an excused pattern no longer turns it red, or it has started counting catches that appear in COMMENTS (run 'bash tools/_t821-census-controls.sh'; it names the branch)"
+  show_output "$TMP/leg-_t821-census-controls.out" "_t821-census-controls.sh"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== A save that changes nothing produces no diff (T-423 idempotence) =="
 # export -> re-import -> export must be byte-identical, on every corpus map. The reason is an
 # authoring one, not a purity one: if the second export differs from the first, every save

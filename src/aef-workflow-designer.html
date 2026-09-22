@@ -258,6 +258,31 @@ font-family: 'Outfit';
     border-radius: 3px;
     letter-spacing: 0.02em;
   }
+  /* T-821 (F-05) — the fault indicator. ABSENT, not greyed, when there is nothing to
+     report: a chrome element that is always present teaches the eye to stop seeing it,
+     and this one is only worth anything at the moment it appears. Warm amber rather
+     than red — these are recorded conditions the editor survived, not a crash, and
+     overstating them would train the operator to dismiss the badge. */
+  .brand-fault {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #1d1400;
+    background: #e8b339;
+    border: 1px solid #c9952a;
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    /* nowrap + inline-flex, because the default wrapped the glyph above the count and
+       made the badge twice the height of the version pill beside it. DOM geometry was
+       correct throughout — it took reading a rendered screenshot to see it. */
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .brand-fault:hover { background: #f2c556; }
   .btn-icon {
     font-family: var(--sans);
     font-size: 14px;
@@ -1155,6 +1180,10 @@ font-family: 'Outfit';
            empty here on purpose, because a literal in the markup would be a SECOND copy
            of the version and the whole point of the guard is that there is exactly one. -->
       <span class="brand-appversion" id="brand-appversion" title="Designer build loaded in this page. Not the workflow's version — that is edited in the properties panel."></span>
+      <!-- T-821 (F-05): recorded failures. `hidden` here and cleared only by
+           renderFaultIndicator() when the ring is non-empty — the element's PRESENCE is
+           the signal, so it must start absent rather than empty. -->
+      <button class="brand-fault" id="brand-fault" hidden title="Conditions the editor recorded rather than swallowed. Click to read them."></button>
       <span class="brand-separator">·</span>
       <!-- T-154: the workflow-picker <select> is replaced by this brand-area "Open project"
            button (operator decision — one unified full-corpus entry point, no half-populated
@@ -2325,6 +2354,150 @@ let _processSkipReport = [];
 let _laneGrowReport = [];
 
 // ============================================================================
+//  Fault record (T-821, F-05) — failures become evidence
+// ============================================================================
+// Before this existed the editor had 46 `catch (_) {}` sites and no error surface of any
+// kind. The review's reading: a bare catch is the precise inverse of D1 Antifragility,
+// whose definition is "failures are learning events" — a failure that cannot become one
+// because nothing records it happened. It also capped the review itself: ~93 inventoried
+// items carried reading D (UNMEASURED) because no channel existed that could carry
+// evidence even incidentally.
+//
+// DECLARED THIS EARLY ON PURPOSE. The first caller is the routing-prefs restore ~15 lines
+// below, at module top level. `let`/`const` hoist but do not initialise, so a recorder
+// defined next to APP_VERSION (~line 10100) would put every top-level call site in the
+// temporal dead zone and throw ReferenceError — turning a silent failure into a broken
+// editor, the one outcome worse than the silence being fixed.
+const FAULT_KEY = 'aefFaults';
+const FAULT_MAX = 50;          // bounded: a fault loop must not become the quota problem
+let _faults = [];
+
+// Every caller is inside a `catch` whose whole contract is "never break the editor". So
+// this may not throw, and returns nothing anyone branches on. The guards are not
+// defensive habit — they are the contract that makes it safe to call from those sites.
+function aefRecordFault(code, detail) {
+  try {
+    const rec = {
+      code: String(code),
+      detail: (detail && detail.message) ? String(detail.message)
+            : (detail == null ? '' : String(detail)).slice(0, 300),
+      ts: Date.now(),
+      v: (typeof APP_VERSION === 'string') ? APP_VERSION : '?',
+    };
+    // COALESCE a repeat of the same condition instead of pushing a row per occurrence.
+    // Seen by reading the rendered panel, not by reasoning about it: a quota error fires
+    // on EVERY preference write, so twelve identical rows filled the view and fifty would
+    // have evicted every other condition in the ring. A record that evicts the evidence
+    // is not evidence. Keep the first time it was seen, move the last, count the rest.
+    const last = _faults.length ? _faults[_faults.length - 1] : null;
+    if (last && last.code === rec.code && last.detail === rec.detail) {
+      last.n = (last.n || 1) + 1;
+      last.ts = rec.ts;
+    } else {
+      _faults.push(rec);
+    }
+    if (_faults.length > FAULT_MAX) _faults = _faults.slice(-FAULT_MAX);
+    // Persisting is best-effort BY NECESSITY, not laziness: one of the conditions this
+    // records IS localStorage refusing writes (quota). When that is the fault, this write
+    // fails too — and the in-memory ring still holds it, so the session's own surface
+    // stays correct even when nothing can be carried to the next one. Said explicitly
+    // because a reader will otherwise take this catch for the habit T-821 removed.
+    try { localStorage.setItem(FAULT_KEY, JSON.stringify(_faults)); } catch (_) {}
+    try { renderFaultIndicator(); } catch (_) {}
+  } catch (_) { /* the recorder is the one place silence is still the correct answer */ }
+}
+
+function aefFaults() { return _faults.slice(); }
+
+function aefClearFaults() {
+  _faults = [];
+  try { localStorage.removeItem(FAULT_KEY); } catch (_) {}
+  try { renderFaultIndicator(); } catch (_) {}
+}
+
+// The surface. Absence IS the healthy state — see the note on .brand-fault.
+function renderFaultIndicator() {
+  const b = document.getElementById('brand-fault');
+  if (!b) return;
+  if (!_faults.length) { b.hidden = true; return; }
+  b.hidden = false;
+  b.textContent = '\u26a0 ' + _faults.length;
+}
+
+function showFaultPanel() {
+  const backdrop = document.createElement('div');
+  backdrop.id = 'fault-panel';
+  backdrop.style.cssText = 'position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.55);'
+    + 'display:flex;align-items:center;justify-content:center;font:13px system-ui,sans-serif';
+  const close = () => backdrop.remove();
+  backdrop.onclick = e => { if (e.target === backdrop) close(); };
+
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:var(--panel,#1e2530);color:var(--fg,#e6edf3);'
+    + 'border:1px solid var(--border,#334);border-radius:10px;width:min(620px,94%);'
+    + 'max-height:75vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.5)';
+
+  const head = document.createElement('div');
+  head.style.cssText = 'padding:15px 16px 8px';
+  const h = document.createElement('strong');
+  h.textContent = '\u26a0 Recorded conditions';
+  h.style.cssText = 'display:block;font-size:15px';
+  const sub = document.createElement('div');
+  sub.style.cssText = 'margin-top:5px;color:var(--muted,#8b95a5);font-size:12px;line-height:1.4';
+  // Says what it is AND what it is not. Without the second sentence an operator reads a
+  // list of failures as a list of things currently broken and goes looking for damage.
+  sub.textContent = 'Things the editor handled instead of crashing. The editor kept working; '
+    + 'each line is a failure that would otherwise have left no trace at all.';
+  head.append(h, sub);
+
+  const body = document.createElement('div');
+  body.style.cssText = 'padding:6px 16px 0;overflow:auto;font-family:var(--mono,monospace);font-size:12px';
+  _faults.slice().reverse().forEach(f => {
+    const row = document.createElement('div');
+    row.style.cssText = 'padding:6px 0;border-top:1px solid var(--border,#334);line-height:1.5';
+    let when = '';
+    try { when = new Date(f.ts).toLocaleString(); } catch (_) { when = String(f.ts); }
+    const code = document.createElement('div');
+    code.textContent = f.code;
+    code.style.cssText = 'color:#e8b339';
+    const meta = document.createElement('div');
+    meta.style.cssText = 'color:var(--muted,#8b95a5)';
+    meta.textContent = when + ' \u00b7 build v' + f.v + ((f.n > 1) ? ' \u00b7 \u00d7' + f.n + ' (last)' : '');
+    row.append(code, meta);
+    if (f.detail) {
+      const d = document.createElement('div');
+      d.textContent = f.detail;
+      d.style.cssText = 'white-space:pre-wrap;word-break:break-word';
+      row.appendChild(d);
+    }
+    body.appendChild(row);
+  });
+
+  const foot = document.createElement('div');
+  foot.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;padding:12px 16px 14px';
+  const copy = document.createElement('button');
+  copy.className = 'btn'; copy.type = 'button'; copy.textContent = 'Copy';
+  copy.onclick = () => {
+    const txt = _faults.map(f => [f.ts, f.v, f.code, f.detail].join('\t')).join('\n');
+    // The copy path is itself one of the instrumented sites (clipboard-write). If it
+    // fails here it records a fault while the panel showing faults is open — correct,
+    // and the indicator behind the backdrop updates for the next open.
+    try { navigator.clipboard.writeText(txt); } catch (e) { aefRecordFault('clipboard-write', e); }
+  };
+  const clear = document.createElement('button');
+  clear.className = 'btn'; clear.type = 'button'; clear.textContent = 'Clear';
+  clear.onclick = () => { aefClearFaults(); close(); };
+  const done = document.createElement('button');
+  done.className = 'btn btn-primary'; done.type = 'button'; done.textContent = 'Close';
+  done.onclick = close;
+  foot.append(copy, clear, done);
+
+  panel.append(head, body, foot);
+  backdrop.appendChild(panel);
+  document.body.appendChild(backdrop);
+}
+
+// ============================================================================
 //  State
 // ============================================================================
 let state = null;
@@ -2342,22 +2515,22 @@ try {
   if (Number.isFinite(_storedRouting.straightenTol) && _storedRouting.straightenTol >= 0) routingPrefs.straightenTol = _storedRouting.straightenTol;
   if ([0, 4, 8].includes(_storedRouting.channelSep)) routingPrefs.channelSep = _storedRouting.channelSep;
   if ([0, 8, 16].includes(_storedRouting.routingMargin)) routingPrefs.routingMargin = _storedRouting.routingMargin;
-} catch (_) {}
+} catch (e) { aefRecordFault('prefs-restore:routing', e); }   // T-821: settings silently reverting is a real, confusing condition
 function setRoutingAttach(mode) {
   routingPrefs.attach = mode;
-  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (_) {}
+  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (e) { aefRecordFault('prefs-persist:routing', e); }
   renderEdges();
 }
 function setStraightenTol(px) {
   routingPrefs.straightenTol = Math.max(0, Math.min(40, Math.round(px) || 0));
-  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (_) {}
+  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (e) { aefRecordFault('prefs-persist:routing', e); }
   renderEdges();
 }
 // Channel separation (T-098, survey option 2): pitch of the T-097 fan/join
 // corridor channels — 0 restores the pre-T-097 converging look.
 function setChannelSep(px) {
   routingPrefs.channelSep = [0, 4, 8].includes(px) ? px : 8;
-  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (_) {}
+  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (e) { aefRecordFault('prefs-persist:routing', e); }
   renderEdges();
 }
 // Routing margin (T-106, survey option 3): extra clearance (0/8/16px) added to
@@ -2366,7 +2539,7 @@ function setChannelSep(px) {
 // Render-only (PD-044): re-renders live (PL-012), never mutates stored geometry.
 function setRoutingMargin(px) {
   routingPrefs.routingMargin = [0, 8, 16].includes(px) ? px : 8;
-  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (_) {}
+  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (e) { aefRecordFault('prefs-persist:routing', e); }
   renderEdges();
 }
 
@@ -2381,10 +2554,10 @@ try {
   if (typeof _storedSnap.magnet === 'boolean') snapPrefs.magnet = _storedSnap.magnet;
   if (typeof _storedSnap.grid === 'boolean') snapPrefs.grid = _storedSnap.grid;
   if (Number.isFinite(_storedSnap.gridSize) && _storedSnap.gridSize >= 4) snapPrefs.gridSize = _storedSnap.gridSize;
-} catch (_) {}
+} catch (e) { aefRecordFault('prefs-restore:snap', e); }
 function setSnapPref(key, value) {
   snapPrefs[key] = value;
-  try { localStorage.setItem('aefSnapPrefs', JSON.stringify(snapPrefs)); } catch (_) {}
+  try { localStorage.setItem('aefSnapPrefs', JSON.stringify(snapPrefs)); } catch (e) { aefRecordFault('prefs-persist:snap', e); }
 }
 
 // Lane-label fit ladder (T-084) — editor-local (localStorage), same seam
@@ -2396,10 +2569,10 @@ try {
   for (const k of ['wrapNames', 'showLane', 'showIds', 'showEdge', 'showPool'])
     if (typeof _storedLabel[k] === 'boolean') labelPrefs[k] = _storedLabel[k];
   if (['s', 'm', 'l'].includes(_storedLabel.size)) labelPrefs.size = _storedLabel.size;
-} catch (_) {}
+} catch (e) { aefRecordFault('prefs-restore:label', e); }
 function setLabelPref(key, value) {
   labelPrefs[key] = value;
-  try { localStorage.setItem('aefLabelPrefs', JSON.stringify(labelPrefs)); } catch (_) {}
+  try { localStorage.setItem('aefLabelPrefs', JSON.stringify(labelPrefs)); } catch (e) { aefRecordFault('prefs-persist:label', e); }
   renderAll();
 }
 
@@ -2418,10 +2591,10 @@ try {
   if (typeof _storedView.colSpacing === 'number' && _storedView.colSpacing >= 130 && _storedView.colSpacing <= 360) viewPrefs.colSpacing = _storedView.colSpacing;
   if (typeof _storedView.paletteHidden === 'boolean') viewPrefs.paletteHidden = _storedView.paletteHidden;
   if (typeof _storedView.propsHidden === 'boolean') viewPrefs.propsHidden = _storedView.propsHidden;
-} catch (_) {}
+} catch (e) { aefRecordFault('prefs-restore:view', e); }
 function setViewPref(key, value) {
   viewPrefs[key] = value;
-  try { localStorage.setItem('aefViewPrefs', JSON.stringify(viewPrefs)); } catch (_) {}
+  try { localStorage.setItem('aefViewPrefs', JSON.stringify(viewPrefs)); } catch (e) { aefRecordFault('prefs-persist:view', e); }
   applyViewChrome();
   renderAll();
 }
@@ -2716,7 +2889,7 @@ function aefEmitReady() {
       workflow: (state.workflowMeta && state.workflowMeta.id) || '',
       uids: state.nodes.map(n => n.uid),
     }, '*');
-  } catch (_) { /* seam must never break the editor */ }
+  } catch (e) { aefRecordFault('annotation-seam', e); }   // T-821: still never breaks the editor — now it leaves a trace
 }
 function _stripAnnotationLayer(root) {
   try { root.querySelectorAll('.aef-annotation').forEach(e => e.remove()); } catch (_) {}
@@ -2763,7 +2936,7 @@ window.addEventListener('message', ev => {
   if (!d || d.type !== 'aef:annotate') return;
   // T-261: wire-canonical carrier is `nodes` (AEF's live /api/overlay posts it
   // verbatim through their wrapper); `annotations` stays as the documented alias.
-  try { aefApplyAnnotations(Array.isArray(d.nodes) ? d.nodes : d.annotations); } catch (_) { /* never break the editor */ }
+  try { aefApplyAnnotations(Array.isArray(d.nodes) ? d.nodes : d.annotations); } catch (e) { aefRecordFault('annotation-apply', e); }
 });
 // T-814 (value review F-17) — refreshLibraryUI is GONE, and this note is why.
 //
@@ -7400,7 +7573,7 @@ function commitHistory(beforeXml) {
 // Push-BEFORE a definite mutation (drag-commit, add, delete). Snapshots current
 // state and clears redo. Cheap (~14 nodes); never throws into a handler.
 function pushHistory() {
-  try { commitHistory(buildBpmnXml(state)); } catch (_) { /* best-effort */ }
+  try { commitHistory(buildBpmnXml(state)); } catch (e) { aefRecordFault('history-commit', e); }   // T-821: a lost undo step is felt later, far from here
 }
 // Snapshot without committing — for button ops that decide post-hoc whether to record.
 function snapshotState() { try { return buildBpmnXml(state); } catch (_) { return null; } }
@@ -8679,7 +8852,9 @@ $('btn-xml').onclick = () => {
 $('btn-close-xml').onclick = () => { $('xml-panel').classList.remove('visible'); };
 $('btn-copy-xml').onclick = async () => {
   const raw = buildBpmnXml(state);
-  try { await navigator.clipboard.writeText(raw); } catch (_) {}
+  // T-821: was silent. A copy that does not reach the clipboard and says nothing is the
+  // failure an operator is most likely to blame themselves for.
+  try { await navigator.clipboard.writeText(raw); } catch (e) { aefRecordFault('clipboard-write', e); }
 };
 $('btn-save').onclick = () => {
   saveActiveToLibrary();
@@ -8941,10 +9116,12 @@ async function saveToProject() {
       setLoadedSavedVersion(data.v);   // T-157: now on the newly-saved snapshot
       refreshUuidIndex();   // T-240: a save can make a ghost uuid live (claim) — rebind
     } else {
+      aefRecordFault('save-to-project', data.error || ('HTTP ' + res.status));
       alert('Save to project failed: ' + (data.error || ('HTTP ' + res.status)));
       if (btn) btn.textContent = label || '⤓ Save to project';
     }
   } catch (e) {
+    aefRecordFault('save-to-project', e);
     alert('Save to project failed: ' + (e && e.message || e));
     if (btn) btn.textContent = label || '⤓ Save to project';
   }
@@ -8971,7 +9148,7 @@ async function revertToVersion(id, v) {
     setLoadedSavedVersion(v);   // T-157: now viewing snapshot vN
     // Accurate, action-free confirmation (T-148) — NOT the autosave-restore banner.
     if (typeof showToast === 'function') showToast(`↩ Reverted to ${id} v${v}.`);
-  } catch (e) { alert('Revert failed: ' + (e && e.message || e)); }
+  } catch (e) { aefRecordFault('revert', e); alert('Revert failed: ' + (e && e.message || e)); }
 }
 // T-165: non-destructive counterpart to Revert. Loads version vN into the editor in place
 // for viewing/editing, framed as "open" rather than "roll back". Same load mechanism; the
@@ -8985,7 +9162,7 @@ async function openVersionInPlace(id, v) {
     adoptImportedXml(bpmn, { userImport: false, replace: true });
     setLoadedSavedVersion(v);   // reflect that we're now viewing snapshot vN
     if (typeof showToast === 'function') showToast(`⤢ Opened ${id} v${v}.`);
-  } catch (e) { alert('Open failed: ' + (e && e.message || e)); }
+  } catch (e) { aefRecordFault('open', e); alert('Open failed: ' + (e && e.message || e)); }
 }
 // T-167: archive a single saved version (recoverable). Confirms, POSTs scope:'version'.
 async function deleteVersion(id, v) {
@@ -9004,7 +9181,7 @@ async function deleteVersion(id, v) {
     if (!res.ok || !d.ok) { alert('Delete failed: ' + (d.error || ('HTTP ' + res.status))); return; }
     if (typeof showToast === 'function') showToast(`🗑 Deleted ${id} v${v}.`);
     closeVersionsModal(); openVersionsModal();   // refresh
-  } catch (e) { alert('Delete failed: ' + (e && e.message || e)); }
+  } catch (e) { aefRecordFault('delete', e); alert('Delete failed: ' + (e && e.message || e)); }
 }
 // T-167: keep only the newest saved version; archive the rest. POSTs scope:'prune-old'.
 async function pruneOldVersions(id) {
@@ -9023,7 +9200,7 @@ async function pruneOldVersions(id) {
     if (!res.ok || !d.ok) { alert('Prune failed: ' + (d.error || ('HTTP ' + res.status))); return; }
     if (typeof showToast === 'function') showToast(`Kept only ${id} v${d.kept}.`);
     closeVersionsModal(); openVersionsModal();   // refresh
-  } catch (e) { alert('Prune failed: ' + (e && e.message || e)); }
+  } catch (e) { aefRecordFault('prune', e); alert('Prune failed: ' + (e && e.message || e)); }
 }
 
 // Neutral ▦ thumbnail placeholder — shared by the Versions modal and the Open-project
@@ -9056,7 +9233,7 @@ async function openVersionsModal() {
   try {
     const res = await fetch(`/api/versions?id=${encodeURIComponent(id)}`);
     if (res.ok) list = await res.json();
-  } catch (_) { /* fall through to empty state */ }
+  } catch (e) { aefRecordFault('list-fetch', e); }   // T-821: an empty list and a failed fetch look identical to the operator
   list = Array.isArray(list) ? list.slice().sort((a, b) => b.v - a.v) : [];
 
   const backdrop = document.createElement('div');
@@ -9240,6 +9417,7 @@ async function openProjectMap(m) {
     // T-157: reflect the loaded snapshot (or clear for a rendered baseline).
     setLoadedSavedVersion(ot.kind === 'version' ? ot.v : null);
   } catch (e) {
+    aefRecordFault('map-open', e);
     alert('Could not open “' + m.id + '”: ' + (e && e.message || e));
   }
 }
@@ -9308,7 +9486,7 @@ async function onDeleteWorkflow(m) {
     if (typeof showToast === 'function') showToast(`🗑 Deleted ${m.id} (archived to _trash).`);
     closeProjectModal();
     openProjectModal();   // re-fetch /api/list so the deleted map is gone from the browser
-  } catch (e) { alert('Delete failed: ' + (e && e.message || e)); }
+  } catch (e) { aefRecordFault('delete', e); alert('Delete failed: ' + (e && e.message || e)); }
 }
 
 // opts.pick(mapId): when supplied, this opens in PICK mode — a card click returns the
@@ -9333,7 +9511,7 @@ async function openProjectModal(opts) {
       // which is the very condition this list exists to surface.
       ghosts = pickMode ? [] : (Array.isArray(d.ghosts) ? d.ghosts : []);
     }
-  } catch (_) { /* fall through to empty state */ }
+  } catch (e) { aefRecordFault('list-fetch', e); }   // T-821: an empty list and a failed fetch look identical to the operator
 
   const backdrop = document.createElement('div');
   backdrop.id = 'project-modal';
@@ -9516,7 +9694,7 @@ async function openPendingRefModal() {
       ghosts = Array.isArray(d.ghosts) ? d.ghosts : [];
       maps = Array.isArray(d.maps) ? d.maps : [];
     }
-  } catch (_) { /* fall through to empty state */ }
+  } catch (e) { aefRecordFault('list-fetch', e); }   // T-821: an empty list and a failed fetch look identical to the operator
   // name-match suggest-only (T-228): a ghost whose name equals a live map's title/id is likely
   // an already-existing map the operator forgot to open — offer it, never auto-adopt over it.
   const liveByName = new Map();
@@ -9740,6 +9918,7 @@ $('btn-load').onclick = () => {
       adoptImportedXml(text, { userImport: true });
     } catch (e) {
       console.error('Load failed:', e);
+      aefRecordFault('workflow-parse', e);   // T-821: the alert is seen once and gone
       alert('Failed to parse workflow file:\n' + e.message);
     }
   };
@@ -9760,6 +9939,7 @@ $('btn-load').onclick = () => {
     adoptImportedXml(await res.text(), { userImport: true });
     _loadSrcKey = activeKey;   // T-234: remember which map identity this ?load adopted
   } catch (e) {
+    aefRecordFault('deeplink-load', e);
     console.error('Deep-link load failed:', e);
     alert('Could not load workflow from URL:\n' + e.message);
   }
@@ -11129,7 +11309,7 @@ let _suppressDeepLink = false;         // B1: set when a same-map restore should
 // original deep-link} and the next entry via the same ?load silently rendered the
 // wrong map (AEF T-2596). null = this session's document didn't come from ?load.
 let _loadSrcKey = null;
-try { _autosaveRestore = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'); } catch (_) {}
+try { _autosaveRestore = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'); } catch (e) { aefRecordFault('autosave-restore', e); }
 
 // The ?load deep-link src this session was opened with (stable — we never rewrite
 // the URL). Recorded in the autosave so a reload of the SAME deep-link restores the
@@ -11165,7 +11345,7 @@ function autosaveNow() {
       ts: Date.now(),
       xml: buildBpmnXml(state),
     }));
-  } catch (_) { /* quota / serialization — best-effort, never throw into render */ }
+  } catch (e) { aefRecordFault('autosave-persist', e); }   // T-821: quota/serialization — still best-effort, no longer silent
 }
 function scheduleAutosave() {
   if (!_appReady) return;              // don't clobber a prior autosave while seeding
@@ -11186,7 +11366,7 @@ function autoLoadStored() {
   // Same context: adopt the autosave silently, replacing the seed (no _v2). If a ?load
   // fetch for this same src is in flight, suppress it so it can't overwrite the restore.
   if (load && (s.src || null) === load) _suppressDeepLink = true;
-  try { adoptImportedXml(s.xml, { userImport: false, replace: true }); } catch (_) { return; }
+  try { adoptImportedXml(s.xml, { userImport: false, replace: true }); } catch (e) { aefRecordFault('autosave-adopt', e); return; }
   // T-234: a same-src restore means the restored document IS the deep-link's map —
   // track its identity so autosaveNow keeps stamping src for it (and stops after a jump).
   if (load && (s.src || null) === load) _loadSrcKey = activeKey;
@@ -11307,6 +11487,16 @@ detectSaveApi();             // B3: reveal "Save to project" when the write-capa
 {
   const _v = document.getElementById('brand-appversion');
   if (_v) _v.textContent = 'v' + APP_VERSION;
+  // T-821 (F-05): carry forward what the previous session recorded, and wire the surface.
+  // Faults survive a reload precisely because the conditions worth reading (quota, a seam
+  // that stopped answering) are the ones an operator hits and then reloads to escape.
+  try {
+    const _stored = JSON.parse(localStorage.getItem(FAULT_KEY) || '[]');
+    if (Array.isArray(_stored)) _faults = _stored.slice(-FAULT_MAX);
+  } catch (_) { _faults = []; }
+  const _fb = document.getElementById('brand-fault');
+  if (_fb) _fb.onclick = showFaultPanel;
+  renderFaultIndicator();
 }
 </script>
 </body>
