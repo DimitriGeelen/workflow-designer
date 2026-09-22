@@ -1,0 +1,28 @@
+id: tools/_t809-census-controls.sh
+name: _t809-census-controls
+type: script
+subsystem: conformance
+location: tools/_t809-census-controls.sh
+tags: [conformance, control, teeth, anti-vacuity]
+
+purpose: "Exercises tools/_t809-frozen-meta-census.py in throwaway corpus copies, so the
+  census is known to work rather than merely known to run. Four branches: coverage falls ->
+  census must fail (the ratchet has teeth); coverage rises -> census must SEE it (anti-vacuity
+  — a census counting nothing would pass every other branch for free); empty corpus -> must
+  fail (cannot-measure is not a pass); untouched corpus -> must pass (so the others mean
+  something). Exists because replacing one unexercised check with another would be no gain:
+  the finding it serves (F-06) is precisely a check that reported OK while never looking."
+purpose_source: "authored at creation by T-809"
+
+depends_on:
+  - target: tools/_t809-frozen-meta-census.py
+    type: calls
+  - target: tools/_t809-frozen-meta-baseline.txt
+    type: reads
+  - target: examples/aef-processes/rendered
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-809

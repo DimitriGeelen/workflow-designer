@@ -1,0 +1,32 @@
+# T-809 ratchet baseline — task-like nodes in examples/aef-processes/rendered/ carrying
+# each FROZEN v1 governance meta-key. Produced by tools/_t809-frozen-meta-census.py.
+#
+# The frozen standard (docs/standards/aef-bpmn-mapping-v1.md §2) says: "A conformant
+# editor MUST emit each on task-like nodes, and the bridge MUST round-trip each."
+# The corpus does not meet that today. These numbers record HOW FAR SHORT, mechanically,
+# so the gap cannot widen unnoticed while the ruling below is outstanding.
+#
+# DIRECTION, and it is the opposite of tools/_t560-absence-baseline.txt. There the number
+# counts defects: it may FALL freely and may not RISE. Here it counts COVERAGE: it may
+# RISE freely — raise it in the same commit that improves the corpus, because leaving it
+# low silently re-admits exactly that much regression — and it may NOT FALL.
+#
+# THIS IS NOT A CONFORMANCE GATE AND MUST NOT BE TURNED INTO ONE BY AN AGENT.
+# Whether the CORPUS must gain these keys or the STANDARD should change is a sovereign
+# question (value review T-742 §12 Q3). Nobody has ruled. Until someone does:
+#   - do not mass-edit the corpus to manufacture conformance
+#   - do not edit the frozen standard (it is not editable under agent control at all)
+#   - do not "fix" this instrument by lowering a number to make a run green
+#
+# 2026-09-22 (T-809): armed at the corpus as found. 24 documents, 165 task-like nodes.
+#
+# A CORRECTION TO THE FINDING THAT PRODUCED THIS FILE. Value review F-06 recorded
+# "tier 74 occ / 14 files OK, agentType 17 / 7 OK, horizon 0 ✗, workflowType 0 ✗" and so
+# reported TWO keys failing. Those were occurrence and file counts, which cannot answer a
+# per-NODE MUST. Parsed per node, ALL FOUR are short — tier covers 74 of 165 nodes and
+# agentType 17 of 165, neither of which is conformant. The finding understated the gap.
+
+horizon = 0
+workflowType = 0
+tier = 74
+agentType = 17

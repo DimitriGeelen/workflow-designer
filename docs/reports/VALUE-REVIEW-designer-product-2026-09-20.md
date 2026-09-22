@@ -425,7 +425,25 @@ trial. **D never justifies DELETE.**
 - **Evidence.** `05 D1`: `docs/standards/aef-bpmn-mapping-v1.md:55` — *"A conformant editor
   MUST emit each on task-like nodes, and the bridge MUST round-trip each."* Corpus totals by
   independent grep: `tier` 74 occ / 14 files ✓, `agentType` 17 / 7 ✓, **`horizon` 0 / 0 ✗,
-  `workflowType` 0 / 0 ✗.** Zero of 306 nodes. `05 D2`: `tests/test_mapping_standard_
+  `workflowType` 0 / 0 ✗.** Zero of 306 nodes.
+
+  > **CORRECTION (T-809, 2026-09-22) — this finding UNDERSTATED the gap, and the two ✓s
+  > above are wrong.** Those are *occurrence* and *file* counts, and the MUST is
+  > *per task-like node*, so they cannot answer it. Re-measured by parsing the XML
+  > (`tools/_t809-frozen-meta-census.py`) rather than grepping — `tier` appears in prose and
+  > in unrelated attribute values, which is what inflated it:
+  >
+  > | key | nodes carrying it | |
+  > |---|---|---|
+  > | `horizon` | 0/165 | ✗ |
+  > | `workflowType` | 0/165 | ✗ |
+  > | `tier` | 74/165 (44.8%) | **✗ — marked ✓ above** |
+  > | `agentType` | 17/165 (10.3%) | **✗ — marked ✓ above** |
+  >
+  > **All four are short, not two.** The "306 nodes" figure was also the count of
+  > `aef:position` elements, not of task-like nodes; there are **165**. The finding's
+  > conclusion is unchanged and its recommendation stands — the check is the finding — but
+  > the corpus is further from §2 than this paragraph said. `05 D2`: `tests/test_mapping_standard_
   conformance.py` prints *"OK: all 4 frozen governance meta-keys … present in both editor
   metaKeys and bridge META_KEYS"*, **exit 0** — it compares **key lists**, not emitted
   documents; **neither it nor `test_editor_bridge_meta_parity.py` opens a corpus map.**
