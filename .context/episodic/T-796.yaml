@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-796: Add describe_workflow: report what AEF's compiler would see in a .bpmn, including lane-derived owners and out-of-dialect authorities
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T08:57:43Z
+# ============================================================================
+
+task_id: T-796
+task_name: "Add describe_workflow: report what AEF's compiler would see in a .bpmn, including lane-derived owners and out-of-dialect authorities"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T08:52:44Z
+completed: 2026-09-22T08:57:34Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T10:57:27+02:00
+last_commit: 2026-09-22T10:57:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  describe_workflow reports what AEF's COMPILER would see, not what is in the file — and it agrees with the validator node-for-node. THE FRAMING CAME FROM @1631: 'owner is compiled FROM the lane; node-level owner is ignored.' So the lane is the fact that governs downstream, and a tool that dumps structure and leaves the caller to derive owners has answered the easy question. Every task node comes back with derived_owner mapped from its lane authority — sovereignty to human, authority to framework, initiative to agent. NEGATIVE-CONTROLLED: collapsing that mapping to all-human turns the probe red at 52 passed 1 failed, so the derivation is load-bearing rather than decorative. THE CROSS-CHECK IS THE BEST EVIDENCE HERE: describe's set of nodes-with-no-derivable-owner is asserted EQUAL to the set of nodes validate_workflow independently reports W-LANE-NO-OWNER for. Two separately written tools, same seven nodes on context-memory.bpmn, and the probe pins the equality so they cannot drift apart silently. That is stronger than either tool self-reporting. DISCRIMINATION PROVEN ON THE TWO FILES SENT TO AEF AT @1635: task-gate.bpmn gives 5 of 5 uids and zero ownerless nodes with no dialect flag; context-memory.bpmn gives 7 of 7 uids but SEVEN ownerless nodes and flags 'none'. The reports differ, asserted directly, so the tool cannot pass by being a constant. THE FLAG IS A QUESTION, NOT A VERDICT: non-core authorities surface under authority_values_to_confirm carrying 'FLAGGED, not judged invalid — the exact AEF lane dialect is unconfirmed here and was asked at agent-chat-arc @1635'. A probe leg pins that phrase. Our three-core reading is a PREDICTION awaiting their answer, and promoting a prediction to a verdict is exactly the drift @1616 caught in the other direction. FENCE CONSOLIDATED: the exact tool list is now declared once as EXPECTED_TOOLS and asserted from all three sections. Three separate copies had drifted across T-792/795/796 and each had to be chased individually when the surface grew — which is the assertion working, but three times over. Still EXACT rather than a subset check, so an accidental fourth tool fails there. Probe 53 passed, 0 failed. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the tool answers "what would AEF''s compiler see", not "what is in this file".**'
+  - '**AC2 — the three seam requirements are reported per-document, with coverage.** `aef:uid`'
+  - '**AC3 — out-of-dialect authority values are flagged as OURS to confirm, not as fact.**'
+  - '**AC4 — proven to DISCRIMINATE, not merely to emit.** Run against a document with only'
+  - '**AC5 — the surface stays fenced and unregressed.** Exactly three tools, all read-only,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/mcp-designer-server.md'
+  - '.tasks/active/T-796-add-describeworkflow-report-what-aefs-co.md'
+  - 'tools/mcp-designer-server.py'
+  - 'tools/_t792-mcp-server-probe.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T10:57:27"
+    action: 'T-796: describe_workflow reports what AEF''s COMPILER would see, not what is in the file — and it agrees with the validator node-for-node. THE FRAMING CAME FROM @1631: ''owner is compiled FROM the lane; node-level owner is ignored.'' So the lane is the fact that governs downstream, and a tool that dumps structure and leaves the caller to derive owners has answered the easy question. Every task node comes back with derived_owner mapped from its lane authority — sovereignty to human, authority to framework, initiative to agent. NEGATIVE-CONTROLLED: collapsing that mapping to all-human turns the probe red at 52 passed 1 failed, so the derivation is load-bearing rather than decorative. THE CROSS-CHECK IS THE BEST EVIDENCE HERE: describe''s set of nodes-with-no-derivable-owner is asserted EQUAL to the set of nodes validate_workflow independently reports W-LANE-NO-OWNER for. Two separately written tools, same seven nodes on context-memory.bpmn, and the probe pins the equality so they cannot drift apart silently. That is stronger than either tool self-reporting. DISCRIMINATION PROVEN ON THE TWO FILES SENT TO AEF AT @1635: task-gate.bpmn gives 5 of 5 uids and zero ownerless nodes with no dialect flag; context-memory.bpmn gives 7 of 7 uids but SEVEN ownerless nodes and flags ''none''. The reports differ, asserted directly, so the tool cannot pass by being a constant. THE FLAG IS A QUESTION, NOT A VERDICT: non-core authorities surface under authority_values_to_confirm carrying ''FLAGGED, not judged invalid — the exact AEF lane dialect is unconfirmed here and was asked at agent-chat-arc @1635''. A probe leg pins that phrase. Our three-core reading is a PREDICTION awaiting their answer, and promoting a prediction to a verdict is exactly the drift @1616 caught in the other direction. FENCE CONSOLIDATED: the exact tool list is now declared once as EXPECTED_TOOLS and asserted from all three sections. Three separate copies had drifted across T-792/795/796 and each had to be chased individually when the surface grew — which is the assertion working, but three times over. Still EXACT rather than a subset check, so an accidental fourth tool fails there. Probe 53 passed, 0 failed. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 543
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-796-add-describeworkflow-report-what-aefs-co.md
+generated_by: context-agent-hybrid
