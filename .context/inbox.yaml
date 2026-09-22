@@ -1749,3 +1749,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-370
+  text: "Inception template instructs the agent to change voi_score and target_blast_radius, but both are operator-owned fields and no *_proposed channel exists for either. T-788 filed today carried the planted defaults (target_blast_radius: 3, voi_score: 0.5) because the sovereignty rule forbids an agent writing them and there is nowhere else to put a proposal. Verified: grep for 'voi_score_proposed|target_blast_radius_proposed' across .agentic-framework/lib, .agentic-framework/agents and tools returns ZERO hits, where bvp_scores_proposed and cost_estimate_proposed both exist and are written by the estimator. So the template's own warning ('CHANGE THIS - leaving 0.5 does not score the task, it abstains') names a real defect and simultaneously asks the agent to cross a sovereignty boundary to fix it. The measured consequence is already recorded: 38 of 41 inceptions carry both defaults, which is why the hv-lc quadrant ranked as one flat tie. The missing piece is not agent discipline, it is the proposal channel that exists for every other BVP field."
+  captured: 2026-09-22T07:44:18Z
+  context_task: T-788
+  tags: []
+  status: pending
+  promoted_to: null

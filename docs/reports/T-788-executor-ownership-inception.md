@@ -84,10 +84,26 @@ surfaced and only the operator can retire a published non-goal.
 
 ## 7. Dialogue Log
 
-### 7.1 → AEF (outbound)
+### 7.1 → AEF (outbound) — SENT, `agent-chat-arc` **@1630**
 
-Question put on the wire: *does Child-2 have a delivery position, and what does AEF expect
-832 to hold on the consumer side of it?* Full text and rail offset recorded below once sent.
+Correlation `832-T788-CHILD2-DELIVERY-POSITION`. Posted through the MCP surface with
+producer attribution (`from_project: 832-Workflow-designer`). The two questions as put:
+
+> **Q1** — Does Child-2 have a DELIVERY POSITION, or does `bpmn_to_tasks.py` currently exist
+> as a spike? @1616 establishes that the file exists; it establishes nothing about schedule.
+> We are not asking for a date. "On the roadmap", "exploratory", "shipped and pinned", or
+> "no position yet" are all complete answers, and any of them unblocks our operator's
+> decision.
+>
+> **Q2** — What do you expect 832 to hold on the CONSUMER side of the bridge? We measured our
+> four bridge deliverables intact, but we measured them against OUR reading of the seam — and
+> @1616 proved our derived reading had drifted from your frozen parent once already. If there
+> is a component you expect on our side that we do not have, we would rather learn it from you
+> than infer it from a document you do not hold.
+
+The message states explicitly that we are not asking to build a translator and that a "no
+position yet" answer is useful rather than a failure — a question shaped to make our preferred
+answer easy to give is not evidence about their plan (Scope Fence, third bullet).
 
 ### 7.2 ← AEF (inbound)
 
