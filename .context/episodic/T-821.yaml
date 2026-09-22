@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-821: Failures become evidence: a fault recorder and an operator-visible surface (F-05)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T16:51:10Z
+# ============================================================================
+
+task_id: T-821
+task_name: "Failures become evidence: a fault recorder and an operator-visible surface (F-05)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T16:36:58Z
+completed: 2026-09-22T16:50:54Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T18:50:44+02:00
+last_commit: 2026-09-22T18:50:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the editor stops swallowing its own failures — F-05, the review's highest-leverage ADD
+
+# Key outcomes
+outcomes:
+  - '`aefRecordFault(code, detail)` exists and CANNOT THROW under any input — it is called only from inside `catch` blocks whose contract is "never break the editor", so a recorder that can throw converts a silent failure into a broken editor, which is strictly worse than the silence it replaces'
+  - 'It is declared ABOVE its earliest call site (module top level, ~line 2345). A recorder placed beside `APP_VERSION` would put every top-level caller in the temporal dead zone'
+  - 'A bounded ring (no unbounded growth) persisted to `localStorage`, with the quota case explicitly handled: when the fault BEING recorded is localStorage refusing writes, the in-memory record still stands'
+  - 'An operator-visible surface: an indicator that is ABSENT when there are no faults and appears when there are, opening a panel that lists each fault with code, detail, time and build'
+  - 'The meaningful swallowed sites are instrumented — clipboard write, autosave persist, autosave restore, prefs persist, prefs restore, annotation seam, workflow parse, save-to-project'
+  - 'CENSUS (PL-288: a chosen-set assertion cannot find what you forgot to choose): every `catch (_)` in `src/` is enumerated and must be either INSTRUMENTED or carry an EXPLICIT written excuse. The remainder fails. My hand-picked list of sites is exactly the thing that cannot audit itself'
+  - 'CONTROL: the recorder is proven to RECORD (a forced fault appears), the indicator proven to APPEAR only then, the recorder proven NOT TO THROW on hostile input, and the census proven to DISCRIMINATE (a new bare catch makes it red)'
+  - 'Visual verification: element-level screenshots of the indicator present and absent, in light and dark, READ — not DOM-measured (CLAUDE.md §Visual Verification)'
+  - 'The usage histogram (§8 item 3, the other half of F-05/F-18) is FILED as its own task, not built here — one task, one deliverable'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — instrument 31 of 70 catch sites, excuse 39, and make the split auditable'
+    chose: 'instrument where the operator LOSES something or is MISLED; excuse the rest with a written reason and an exact site count; enforce the split with a census.'
+    rationale: 'the two failure modes are opposite and both real. Instrumenting everything would put a permanent badge on a healthy editor — `getBBox` throws on every headless render — and OBS-293 records what a permanently-lit indicator teaches: to stop looking. Reporting nothing is where we started. The line is whether a human lost work or was shown something false: an empty list after a failed fetch is indistinguishable from "there is nothing", which is the worst case in the file and is now recorded.'
+    alternatives_rejected: ['a blanket rule either way. Also rejected: keeping the chosen set in my head, which is exactly PL-288''s hole — the census is the answer to my own judgement, not a supplement to it.']
+  - decision: '2026-09-22 — an excuse carries a COUNT, not just a reason'
+    chose: 'each excuse is keyed to a source line AND the number of sites it may cover.'
+    rationale: 'a reason is a claim about the sites that existed when it was written. Without the count, adding a fifth copy of an excused one-liner inherits an excuse nobody wrote for it, and the list rots from a record of decisions into a blindfold.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-821-failures-become-evidence-a-fault-recorde.md'
+  - '.tasks/active/T-822-usage-histogram-which-editor-capabilitie.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t821-census-controls.sh'
+  - 'tools/_t821-fault-surface-cdp.mjs'
+  - 'tools/_t821-swallowed-failure-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T18:50:44"
+    action: 'T-821: the editor stops swallowing its own failures — F-05, the review''s highest-leverage ADD'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 13 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 13
+  commits: 1
+  files_changed: 7
+  lines_added: 1285
+  lines_removed: 26
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-821-failures-become-evidence-a-fault-recorde.md
+generated_by: context-agent-hybrid

@@ -2425,3 +2425,17 @@ decisions:
     date: 2026-09-22
     task: T-820
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-326
+    decision: "instrument where the operator LOSES something or is MISLED; excuse the rest"
+    scope: project
+    date: 2026-09-22
+    task: T-821
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-327
+    decision: "each excuse is keyed to a source line AND the number of sites it may cover."
+    scope: project
+    date: 2026-09-22
+    task: T-821
+    rationale: "Auto-captured from task file on completion"
