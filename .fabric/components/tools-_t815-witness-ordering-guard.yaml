@@ -1,0 +1,25 @@
+id: tools/_t815-witness-ordering-guard.py
+name: _t815-witness-ordering-guard
+type: script
+subsystem: verification
+location: tools/_t815-witness-ordering-guard.py
+tags: [verification, fixture, drift, teeth]
+
+purpose: "Asserts that the committed t423 carrier witness carries extensionElements before
+  conditionExpression inside every sequence flow holding both — the ordering T-690 established
+  on 2026-09-09 and which the committed witness then contradicted for 17 days, reported by
+  nothing but a dirty git status after a 742s suite nobody schedules. Structural rather than a
+  re-export: re-exporting needs a browser and ~300s, and a guard that expensive runs as rarely
+  as the suite does, which is the condition being fixed rather than a fix. Fails when no flow
+  carries both children, so it cannot pass forever over an invariant the fixture stopped
+  exercising."
+purpose_source: "authored at creation by T-815"
+
+depends_on:
+  - target: tests/fixtures/exported/t423-carrier-witness.bpmn
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-815

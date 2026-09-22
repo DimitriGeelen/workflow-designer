@@ -1,0 +1,26 @@
+id: tools/_t815-witness-guard-controls.sh
+name: _t815-witness-guard-controls
+type: script
+subsystem: verification
+location: tools/_t815-witness-guard-controls.sh
+tags: [verification, control, teeth, anti-vacuity]
+
+purpose: "Proves the witness ordering guard discriminates: live witness passes, a pair swapped
+  inside one sequence flow fails, and the REAL pre-T-690 bytes at 89bdecdc fail. The last
+  branch replays the drift that actually happened rather than synthesising one — the objection
+  to git-ref fixtures (a HEAD~N mutant expiring silently) does not apply to a pinned immutable
+  sha, and the branch skips with a stated reason if the object is unreachable rather than
+  passing on absence. Exists because the guard passes on today's tree, and a guard whose only
+  observed behaviour is green is indistinguishable from one that examines nothing."
+purpose_source: "authored at creation by T-815"
+
+depends_on:
+  - target: tools/_t815-witness-ordering-guard.py
+    type: calls
+  - target: tests/fixtures/exported/t423-carrier-witness.bpmn
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-815

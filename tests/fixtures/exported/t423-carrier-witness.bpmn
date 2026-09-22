@@ -318,46 +318,46 @@
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_4" name="missing" sourceRef="frw_3_dir" targetRef="frw_4_no">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!exists}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!exists}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_5" name="exists" sourceRef="frw_3_dir" targetRef="frw_5_is">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${exists}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${exists}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_6" name="is framework" sourceRef="frw_5_is" targetRef="frw_6_refused">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${project_dir == FRAMEWORK_ROOT}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${project_dir == FRAMEWORK_ROOT}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_7" name="other project" sourceRef="frw_5_is" targetRef="frw_7_context">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${project_dir != FRAMEWORK_ROOT}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${project_dir != FRAMEWORK_ROOT}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_8" name="no context" sourceRef="frw_7_context" targetRef="frw_8_no">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!has_context}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!has_context}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_9" name="has context" sourceRef="frw_7_context" targetRef="frw_9_read">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${has_context}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
         <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${has_context}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_10" sourceRef="frw_9_read" targetRef="frw_10_fan">
@@ -461,27 +461,27 @@
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_25" name="dry-run" sourceRef="frw_19_dry" targetRef="frw_22_dry">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${dry_run}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_25"/>
         <aef:anchors sourcePort="SE"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${dry_run}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_26" name="no new items" sourceRef="frw_19_dry" targetRef="frw_23_nothing">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!dry_run &amp;&amp; new_total == 0}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_26"/>
         <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!dry_run &amp;&amp; new_total == 0}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_27" name="new items" sourceRef="frw_19_dry" targetRef="frw_20_log">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!dry_run &amp;&amp; new_total &gt; 0}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_27"/>
         <aef:anchors sourcePort="N" targetPort="W"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!dry_run &amp;&amp; new_total &gt; 0}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_28" sourceRef="frw_20_log" targetRef="frw_21_harvested">

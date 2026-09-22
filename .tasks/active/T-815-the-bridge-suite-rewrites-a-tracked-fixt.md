@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T13:45:36Z
-last_update: 2026-09-22T13:48:02Z
+last_update: 2026-09-22T14:26:33Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,48 +34,41 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Surfaced by T-813's first recorded suite run, not by any value-review finding.
+
+**CORRECTION TO THIS TASK'S OWN FILING.** I filed it naming *two* defects, and the second was
+wrong. I called the suite rewriting a tracked file a defect; it is documented, intentional
+behaviour — `tests/run-bridge-tests.sh:1247`:
+
+> "It refreshes tests/fixtures/exported/t423-carrier-witness.bpmn on success. Exports are
+> deterministic, so that file only moves when the emitter does — **and when it moves, it
+> should**."
+
+The witness is deliberately not a checked-in snapshot. `_t423-carrier-agreement-cdp.mjs`
+exports all 24 maps through a real browser on every run, precisely so the artefact under test
+is what the *current* source produces — *"wiring the guard against a checked-in witness would
+make this leg green on a snapshot."* The refresh is the mechanism working.
+
+**There is one defect, and it is the first one.** T-690 (`66e04cff`, 2026-09-09) changed the
+emitter ordering to put `extensionElements` before `conditionExpression`. The witness was last
+committed by T-423 (`89bdecdc`, 2026-08-23). So the emitter moved, the witness correctly moved
+with it on the next run — and nobody committed it. The tracked copy has disagreed with the
+emitter for **17 days**, and the only thing that noticed was a dirty `git status` after a
+13-minute suite nobody schedules.
+
+Regenerated: the diff is exactly 9 `conditionExpression` lines changing position. Same
+content, T-690's ordering. Nothing else moved.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The regenerated fixture is compared against the committed one and the difference is explained, not merely refreshed — a witness that silently drifted once can drift again
-- [ ] The staleness is dated from the emitter change (T-690, `66e04cff`, 2026-09-09) against the fixture's last commit (T-423, `89bdecdc`, 2026-08-23), so the 17-day blind window is recorded rather than tidied away
-- [ ] `git status` is clean immediately after a full suite run — either the witness is regenerated and committed, or the suite writes it to a scratch path, but a test run must not leave a tracked file dirty
-- [ ] Whichever disposition is chosen, something MECHANICAL prevents the next silent drift: a check that the committed witness matches what the emitter currently produces
-- [ ] CONTROL: that check is proven to fail when the witness and the emitter disagree, by making them disagree in a throwaway copy
+- [x] The regenerated fixture is compared against the committed one and the difference is explained, not merely refreshed — a witness that silently drifted once can drift again
+- [x] The staleness is dated from the emitter change (T-690, `66e04cff`, 2026-09-09) against the fixture's last commit (T-423, `89bdecdc`, 2026-08-23), so the 17-day blind window is recorded rather than tidied away
+- [x] ~~`git status` is clean immediately after a full suite run~~ **WITHDRAWN — the premise was wrong.** The refresh is documented, intentional behaviour and the witness is deliberately not a snapshot; a run that changes it is the mechanism working. Withdrawn rather than quietly dropped, because an AC written on a false premise is worth more as a correction than as a deletion.
+- [x] Whichever disposition is chosen, something MECHANICAL prevents the next silent drift: a check that the committed witness matches what the emitter currently produces
+- [x] CONTROL: that check is proven to fail when the witness and the emitter disagree, by making them disagree in a throwaway copy
 
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-815`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-815 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
 
 ## Verification
 
@@ -87,6 +80,14 @@ date_finished: null
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
+
+# --- T-815 legs. Each line's exit code is its own verdict; no chaining. ---
+# The committed witness must satisfy the emitter's CURRENT ordering invariant (T-690).
+# This is the check whose absence let the witness sit 17 days out of step.
+python3 tools/_t815-witness-ordering-guard.py
+# Controls in their own probe: live witness passes, an in-flow swap fails, and the REAL
+# pre-T-690 bytes at 89bdecdc fail — the last replays the actual drift rather than a mutant.
+./tools/_t815-witness-guard-controls.sh
 #
 # ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
 # P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.
@@ -168,14 +169,42 @@ date_finished: null
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-09-22 — I filed this naming two defects; one of them was not a defect
+
+- **Withdrawn:** "the suite rewrites a tracked file" as a defect. It is documented,
+  intentional behaviour — the witness is deliberately not a checked-in snapshot, because
+  *"wiring the guard against a checked-in witness would make this leg green on a snapshot."*
+  The refresh is the mechanism working.
+- **Why say so rather than quietly drop it:** the AC is struck through in place. A filing
+  written on a false premise is worth more as a visible correction than as a deletion — this
+  is the fourth count or claim this session that measurement moved, and the pattern only
+  teaches anything if the misses stay legible.
+- **What remains is one real defect:** T-690 changed the emitter and nobody committed the
+  witness it invalidated. 17 days.
+
+### 2026-09-22 — a structural guard, not a re-export
+
+- **Chose:** assert the ordering invariant directly on the committed bytes.
+- **Why not "re-export and diff":** that needs a real browser and ~300s. A guard that
+  expensive runs as rarely as the 742-second suite does — which is the condition being fixed,
+  not a fix. This runs in milliseconds and catches the class that actually occurred.
+- **Stated limit, not hidden:** it cannot catch every possible drift; only the emitter can.
+  It catches this class, often enough to matter.
+- **Vacuity guarded:** if no flow in the witness carries both children, the guard FAILS rather
+  than passing over an unexercised invariant.
+
+### 2026-09-22 — the control replays the real drift, and its stimulus took three attempts
+
+- **Branch C uses the actual pre-T-690 bytes** at `89bdecdc`. The usual objection to git-ref
+  fixtures — a `HEAD~N` mutant expires silently — does not apply to a pinned immutable sha,
+  and the branch skips with a stated reason if the object is ever unreachable rather than
+  passing on absence.
+- **Branch B's stimulus failed twice first.** Swapping the first matching pair in the document
+  spanned two different elements, so the guard correctly ignored it. Targeting the first
+  sequence flow hit one of the 19 that carry no pair at all. Only the third attempt — the
+  first flow that actually carries both — produced the condition the guard examines. Same
+  lesson as T-809's control B, one file over: **a stimulus must fire where the subject
+  looks.**
 
 ## Decision
 
