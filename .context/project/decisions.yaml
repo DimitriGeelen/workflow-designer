@@ -2390,3 +2390,10 @@ decisions:
     date: 2026-09-22
     task: T-814
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-321
+    decision: "implement `E-XML-ABBR-DUP` and stop there."
+    scope: project
+    date: 2026-09-22
+    task: T-816
+    rationale: "Auto-captured from task file on completion"

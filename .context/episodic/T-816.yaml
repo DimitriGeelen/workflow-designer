@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-816: Close the E-ABBR-DUP parity gap on the XML path (T-309 prerequisite, F-04)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T14:26:29Z
+# ============================================================================
+
+task_id: T-816
+task_name: "Close the E-ABBR-DUP parity gap on the XML path (T-309 prerequisite, F-04)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T14:20:37Z
+completed: 2026-09-22T14:26:18Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T16:26:11+02:00
+last_commit: 2026-09-22T16:26:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the parity gap with 96/96 carriers and no rule — E-XML-ABBR-DUP, and F-04's real critical path
+
+# Key outcomes
+outcomes:
+  - '`XmlValidator` emits `E-XML-ABBR-DUP` when two lanes carry the same `aef:laneMeta abbr`, matching the YAML path''s long-standing `E-ABBR-DUP`'
+  - 'It reads `abbr` from the `laneMeta` element the validator already walks — no second lane traversal, and no duplicated vocabulary constant (the mistake `E-XML-AUTHORITY`''s comment names)'
+  - 'The parity table moves `E-ABBR-DUP` from GAP to PAIRED, and `test_rule_form_parity.py` stays green'
+  - 'The whole 24-map corpus still validates clean: closing a parity gap must not manufacture findings on maps that were always valid'
+  - 'CONTROL: the rule is proven to FIRE, by injecting a duplicate abbr into a throwaway copy of a real corpus map — a rule that never fires is indistinguishable from an absent one'
+  - 'CONTROL: the rule is proven NOT to fire on distinct abbrs, so it is discriminating rather than merely noisy'
+  - 'A lane with no `abbr` at all is silent, not an error — absence of an optional carrier is not a violation'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — close ONE gap properly rather than start the editor surface'
+    chose: 'implement `E-XML-ABBR-DUP` and stop there.'
+    rationale: 'F-04''s headline remedy ("ADD the surface") is a multi-session build — the validator is 1773 lines and 50 rule codes, and the designer is standalone HTML that cannot call a Python CLI. Task sizing says split at 3+ sessions. More importantly **T-309 already identified the real critical path**: the editor would surface the weaker XML rule set, so parity comes first. This is that path, not a detour from it.'
+  - decision: '2026-09-22 — both classification guards refused the rule, and both were right'
+  - decision: '2026-09-22 — what I did NOT touch'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-320-rule-form-parity-census.md'
+  - '.fabric/components/tools-_t816-abbr-dup-controls.yaml'
+  - '.tasks/active/T-816-close-the-e-abbr-dup-parity-gap-on-the-x.md'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/_t816-abbr-dup-controls.sh'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T16:26:11"
+    action: 'T-816: the parity gap with 96/96 carriers and no rule — E-XML-ABBR-DUP, and F-04''s real critical path'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 7
+  lines_added: 411
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-816-close-the-e-abbr-dup-parity-gap-on-the-x.md
+generated_by: context-agent-hybrid

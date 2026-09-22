@@ -4,20 +4,20 @@ name: "Close the E-ABBR-DUP parity gap on the XML path (T-309 prerequisite, F-04
 description: >
   T-309's GO carries a revised shape the value review's F-04 did not capture: only 7 rule ids are shared between the YAML Validator and the XmlValidator, and the designer speaks BPMN — so surfacing 'the validator' in the editor today would surface the WEAKER rule set. Parity is the prerequisite, measured by tests/test_rule_form_parity.py: 49 rules classified, 11 gaps. E-ABBR-DUP is the highest-carrier one — lane abbr is carried by 96/96 BPMN maps and NO XML rule checks its uniqueness, while the YAML path has checked it since the beginning. aef:laneMeta already carries abbr and XmlValidator already reads laneMeta, so the predicate has everything it needs. Close this one gap properly rather than half-closing five.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/_t816-abbr-dup-controls.sh, tools/validate-workflow.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T14:20:37Z
-last_update: 2026-09-22T14:20:37Z
-date_finished: null
+last_update: 2026-09-22T14:26:18Z
+date_finished: 2026-09-22T14:26:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -226,3 +226,15 @@ bash -c 'n=0; for f in examples/aef-processes/rendered/*.bpmn; do n=$((n + $(pyt
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-816-close-the-e-abbr-dup-parity-gap-on-the-x.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1ca43fbf
+- **Timestamp:** 2026-09-22T14:26:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T14:26:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
