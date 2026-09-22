@@ -115,6 +115,33 @@ F-2b, F-3, F-8b, F-9d, I-2, I-3, I-4 — each with its unlocking datum in §9.
 itself is unreviewed. `examples/`, `build/gallery/`, `vendor/`, `scripts/`, and the ~90
 `tools/_tNNN-*` instruments were inventoried only by name.
 
+> **Superseded for the product, T-789 (2026-09-22).** The editor has now been opened and
+> exercised at `/designer/app`. Three things were measured, and they change the shape of this
+> review's central worry rather than confirming it:
+>
+> 1. **It works.** A saved workflow loads, the canvas renders it with lanes, and the console
+>    reports **0 errors and 0 warnings**. The palette encodes the authority model directly —
+>    Service Task *agent · Initiative*, User Task *human · Sovereignty*, Script Task
+>    *fw · Authority* — so the governance model is not bolted on, it is the vocabulary.
+> 2. **The corpus is almost entirely fixtures.** 6 saved workflows, of which 4 are
+>    `t101-review-*` and 1 is `t293-retest-*`. **One** (`audit-process`) is real content.
+> 3. **There is no execution affordance, and that is correct rather than missing.** Every
+>    control the editor exposes, enumerated from the DOM: Open project, Pending refs, zoom,
+>    Add Lane, Reset, Clean layout, View XML, Settings, Load, Versions, Save to project, Save.
+>    Nothing advances a diagram toward executable work. Confirmed at source level — the only
+>    two occurrences of `execute` in 997 KB are inside a code comment. This is exactly what
+>    the frozen standard specifies (*"No translator is built here"*), so the product is
+>    **scoped as designed**, and the yardstick's second half is upstream. That is the question
+>    T-788 now has on the wire at `agent-chat-arc` @1630.
+>
+> One defect found and reproduced: the tab title is a hardcoded literal (`investigate.bpmn`)
+> and `document.title` is never assigned anywhere in the file — **OBS-371**. One suspected
+> defect was checked and **dissolved**: `t293-retest-harvest` displaying the ID
+> `harvest-pipeline` is correct, because the stored bytes genuinely carry that internal id.
+>
+> The rest of this section stands — `examples/`, `build/gallery/`, `vendor/`, `scripts/` and
+> the instruments are still inventoried only by name.
+
 ## 12. Sovereign questions
 
 **SQ-1 — Does 832 build any part of the workflow→application executor?**

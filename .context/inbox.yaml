@@ -1756,3 +1756,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-371
+  text: "Product defect: the Workflow Designer's browser tab title is a hardcoded literal naming a document that is never loaded. src/aef-workflow-designer.html carries <title>AEF Workflow Designer - investigate.bpmn</title> and the file contains ZERO assignments to document.title (grep -c 'document.title' = 0 across all 997 KB). Reproduced across two different loads: opening audit-process and then t293-retest-harvest both leave the title reading 'investigate.bpmn' while the canvas and the ID field show the correct, different document. Not a localStorage artefact - the string 'investigate' does not appear in the aefAutosaveDoc key at all. Consequence: every tab, bookmark and window-switcher entry for this product is mislabelled, and with two workflows open in two tabs they are indistinguishable. It is also the first thing a new user sees. Cheap to fix (assign document.title wherever the loaded document name is set); filed rather than fixed because nothing else in this task modifies the product."
+  captured: 2026-09-22T07:48:14Z
+  context_task: T-789
+  tags: []
+  status: pending
+  promoted_to: null
