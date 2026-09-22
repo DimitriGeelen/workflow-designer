@@ -2503,7 +2503,6 @@ function loadFromLibrary(key) {
   mode = 'select';
   refreshDisplayIds();
   renderAll();
-  refreshLibraryUI();
   if (typeof setLoadedSavedVersion === 'function') setLoadedSavedVersion(null);  // T-157: switching library workflows clears the snapshot badge
   return true;
 }
@@ -2766,24 +2765,28 @@ window.addEventListener('message', ev => {
   // verbatim through their wrapper); `annotations` stays as the documented alias.
   try { aefApplyAnnotations(Array.isArray(d.nodes) ? d.nodes : d.annotations); } catch (_) { /* never break the editor */ }
 });
-function refreshLibraryUI() {
-  const picker = $('workflow-picker');
-  if (!picker) return;
-  picker.innerHTML = '';
-  // Sort by id for stable display
-  const keys = Array.from(library.keys()).sort();
-  for (const k of keys) {
-    const wf = library.get(k);
-    const opt = document.createElement('option');
-    opt.value = k;
-    const title = wf.workflowMeta?.title || wf.workflowMeta?.id || k;
-    opt.textContent = title;
-    if (k === activeKey) opt.selected = true;
-    picker.appendChild(opt);
-  }
-  // T-158: contract-version badge removed from the toolbar; the version is edited in the
-  // properties "Workflow version" field instead. (Was: update #brand-version textContent.)
-}
+// T-814 (value review F-17) — refreshLibraryUI is GONE, and this note is why.
+//
+// It populated a <select id="workflow-picker"> with the library's workflows. T-154 replaced
+// that dropdown with the brand-area "Open project" button — an operator decision, recorded
+// in the markup above: "one unified full-corpus entry point, no half-populated dropdown."
+//
+// The ELEMENT went; the FUNCTION and its ten call sites did not. Its first statement was
+// `const picker = $('workflow-picker'); if (!picker) return;` and nothing with that id has
+// existed in this file since. Every statement after that guard touched `picker` alone, so
+// the function was a pure no-op: called ten times, returning immediately every time, reading
+// nothing and writing nothing.
+//
+// Why this one was deleted when almost nothing else was: T-742 inventoried 93 items —
+// five zero-use schema constructs, four zero-use io types, five never-instantiated node
+// types, ten zero-reference functions — and this is the ONLY one that cleared the evidence
+// bar for DELETE. The rest are UNMEASURED, and unmeasured means investigate, not remove.
+// What cleared it here is not disuse; it is a positive, recorded reason the need is gone
+// (T-154) plus a predicate that provably cannot fire.
+//
+// If a workflow picker ever returns, it needs a new function against the new element, not
+// this one resurrected — the T-158 note it carried is preserved on the properties panel's
+// "Workflow version" field, which is where that value is edited now.
 
 // Create a new empty workflow and add it to the library, making it active.
 function createNewWorkflow() {
@@ -2820,7 +2823,6 @@ function createNewWorkflow() {
   multiSelect.clear();
   refreshDisplayIds();
   renderAll();
-  refreshLibraryUI();
   if (typeof setLoadedSavedVersion === 'function') setLoadedSavedVersion(null);  // T-157: new map = no snapshot
 }
 
@@ -2855,7 +2857,6 @@ function renameActiveWorkflow(newId) {
   if (state.pool && state.pool.id === `Pool_${activeKey}`) state.pool.id = `Pool_${newId}`;
   library.set(newId, state);
   activeKey = newId;
-  refreshLibraryUI();
   return true;
 }
 
@@ -5566,7 +5567,6 @@ function renderProperties() {
     }
     sMeta.appendChild(field('Title', wm.title || '', v => {
       wm.title = v;
-      refreshLibraryUI();
     }, { hint: 'human-readable name shown in picker' }));
     // Labelled "Workflow version" (not bare "Version") to disambiguate the manual
     // contract-version bump from the saved-snapshot revisions ("saved · vN" / the
@@ -5575,7 +5575,6 @@ function renderProperties() {
       const trimmed = (v || '').trim();
       if (!trimmed) return;
       wm.version = trimmed;
-      refreshLibraryUI();
     }, { mono: true, hint: 'bump manually when contract changes' }));
     sMeta.appendChild(field('Description', wm.description || '', v => {
       wm.description = v;
@@ -7417,7 +7416,6 @@ function _restoreSnapshot(xml) {
   multiSelect = new Set();
   refreshDisplayIds();
   renderAll();
-  refreshLibraryUI();
   scheduleAutosave();
   return true;
 }
@@ -8673,7 +8671,6 @@ $('btn-reset').onclick = () => {
   refreshDisplayIds();
   setMode('select');
   renderAll();
-  refreshLibraryUI();
 };
 $('btn-xml').onclick = () => {
   $('xml-output').innerHTML = colorizeXml(buildBpmnXml(state));
@@ -9655,7 +9652,6 @@ function createFromPendingRef(ghost) {
   multiSelect.clear();
   refreshDisplayIds();
   renderAll();
-  refreshLibraryUI();
   if (typeof setLoadedSavedVersion === 'function') setLoadedSavedVersion(null);   // new map = no snapshot
   if (typeof showToast === 'function') {
     showToast(`🔗 New map adopts pending ref ${ghost.uuid.slice(0, 8)}… — Save to project to claim it.`);
@@ -9691,7 +9687,6 @@ function adoptImportedXml(text, opts) {
   multiSelect.clear();
   refreshDisplayIds();
   renderAll();
-  refreshLibraryUI();
   // Clean-on-import (T-099): only for user-facing imports AND only when the
   // operator has opted in. cleanLayout() mutates geometry, so it must never
   // fire on programmatic/internal adoption (test sweeps, re-adoption) — PD-044.
@@ -11292,7 +11287,6 @@ function showRestoredToast(s) {
 // ============================================================================
 refreshDisplayIds();
 renderAll();
-refreshLibraryUI();
 setMode('select');
 // T-141: capture the pristine seed's PROCESSED BPMN now — refreshDisplayIds()+renderAll()
 // above have populated node refs, `state` is still the untouched seed (autoLoadStored below
