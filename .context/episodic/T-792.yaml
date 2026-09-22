@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-792: Build the designer MCP server: validate_workflow over local stdio, zero dependencies, read-only
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T08:22:09Z
+# ============================================================================
+
+task_id: T-792
+task_name: "Build the designer MCP server: validate_workflow over local stdio, zero dependencies, read-only"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T08:11:09Z
+completed: 2026-09-22T08:22:01Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T10:21:53+02:00
+last_commit: 2026-09-22T10:21:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the designer MCP server exists and has been spoken to — validate_workflow, stdio, zero dependencies, 21/21. Operator authorised T-791's GO. One tool, because proving the pattern beats shipping four. WHAT IT IS: a local stdio MCP server wrapping tools/validate-workflow.py. The caller passes THEIR bytes as content and gets back a verdict plus every finding with its rule id, so they learn why and not just whether — no checkout of this repo required, which is the entire point. HAND-ROLLED RATHER THAN SDK-BASED, DELIBERATELY: the mcp SDK is installed on this machine and would be conventional. It was rejected because the measured demand is another project's agent validating its own documents, and if adopting this needs pip install mcp into whatever environment that agent runs in, it is the same friction that killed the manual transport this replaces. One file, any python3, nothing to install. The cost is accepted knowingly and named in the module docstring: spec compliance is now ours. It is bounded to initialize/tools-list/tools-call and it is verified empirically rather than asserted. PROVEN BY BEING SPOKEN TO, NOT BY BEING READ: tools/_t792-mcp-server-probe.py spawns the server as a subprocess and speaks newline-delimited JSON-RPC at it. 21 passed, 0 failed. Both verdict directions in the same run — a valid document returns valid, E-XML-NODE-TYPE.xml returns invalid — plus a leg asserting the two DIFFER, so the tool cannot pass by being a constant. Unknown protocol version falls back instead of echoing nonsense back at the client. THE SCOPE FENCE HAS TEETH AND THEY WERE TESTED: there is no PreToolUse behind an MCP server, no task gate, no sovereignty boundary, so validate this file must not become read any file on the host. _resolve_repo_path resolves symlinks BEFORE the containment test; ../../etc/passwd and a deep traversal are both refused with a message saying why, and a positive control proves an in-repo path IS accepted so the refusals are about location rather than breakage. NEGATIVE-CONTROLLED: replacing the containment test with if False: turns the probe red at 18 passed 3 failed; restored, 21/21. The probe lives in tools/ and derives its root from its own location — leaving it in a scratchpad would have repeated T-787 on the same morning it was fixed. NOT wired into any live MCP config: that changes the operator's environment and is their call, not a side effect of a build. Install line in docs/mcp-designer-server.md, syntax taken from claude mcp add --help rather than from memory. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the server speaks MCP over stdio and is proven to do so by being spoken to.**'
+  - '**AC2 — the tool discriminates, proven in BOTH directions.** A valid document must come'
+  - '**AC3 — zero third-party imports, asserted mechanically.** The server imports only the'
+  - '**AC4 — the scope fence is enforced by the code, not just documented.** The server'
+  - '**AC5 — the operator can install it in one copy-pasteable line, and that line is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the designer MCP server exists and has been spoken to — validate_workflow, stdio, zero dependencies, 21/21. Operator authorised T-791''s GO. One tool, because proving the pattern beats shipping four. WHAT IT IS: a local stdio MCP server wrapping tools/validate-workflow.py. The caller passes THEIR bytes as content and gets back a verdict plus every finding with its rule id, so they learn why and not just whether — no checkout of this repo required, which is the entire point. HAND-ROLLED RATHER THAN SDK-BASED, DELIBERATELY: the mcp SDK is installed on this machine and would be conventional. It was rejected because the measured demand is another project''s agent validating its own documents, and if adopting this needs pip install mcp into whatever environment that agent runs in, it is the same friction that killed the manual transport this replaces. One file, any python3, nothing to install. The cost is accepted knowingly and named in the module docstring: spec compliance is now ours. It is bounded to initialize/tools-list/tools-call and it is verified empirically rather than asserted. PROVEN BY BEING SPOKEN TO, NOT BY BEING READ: tools/_t792-mcp-server-probe.py spawns the server as a subprocess and speaks newline-delimited JSON-RPC at it. 21 passed, 0 failed. Both verdict directions in the same run — a valid document returns valid, E-XML-NODE-TYPE.xml returns invalid — plus a leg asserting the two DIFFER, so the tool cannot pass by being a constant. Unknown protocol version falls back instead of echoing nonsense back at the client. THE SCOPE FENCE HAS TEETH AND THEY WERE TESTED: there is no PreToolUse behind an MCP server, no task gate, no sovereignty boundary, so validate this file must not become read any file on the host. _resolve_repo_path resolves symlinks BEFORE the containment test; ../../etc/passwd and a deep traversal are both refused with a message saying why, and a positive control proves an in-repo path IS accepted so the refusals are about location rather than breakage. NEGATIVE-CONTROLLED: replacing the containment test with if False: turns the probe red at 18 passed 3 failed; restored, 21/21. The probe lives in tools/ and derives its root from its own location — leaving it in a scratchpad would have repeated T-787 on the same morning it was fixed. NOT wired into any live MCP config: that changes the operator''s environment and is their call, not a side effect of a build. Install line in docs/mcp-designer-server.md, syntax taken from claude mcp add --help rather than from memory. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/mcp-designer-server.md'
+  - '.tasks/active/T-792-build-the-designer-mcp-server-validatewo.md'
+  - 'tools/mcp-designer-server.py'
+  - 'tools/_t792-mcp-server-probe.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T10:21:53"
+    action: 'T-792: the designer MCP server exists and has been spoken to — validate_workflow, stdio, zero dependencies, 21/21. Operator authorised T-791''s GO. One tool, because proving the pattern beats shipping four. WHAT IT IS: a local stdio MCP server wrapping tools/validate-workflow.py. The caller passes THEIR bytes as content and gets back a verdict plus every finding with its rule id, so they learn why and not just whether — no checkout of this repo required, which is the entire point. HAND-ROLLED RATHER THAN SDK-BASED, DELIBERATELY: the mcp SDK is installed on this machine and would be conventional. It was rejected because the measured demand is another project''s agent validating its own documents, and if adopting this needs pip install mcp into whatever environment that agent runs in, it is the same friction that killed the manual transport this replaces. One file, any python3, nothing to install. The cost is accepted knowingly and named in the module docstring: spec compliance is now ours. It is bounded to initialize/tools-list/tools-call and it is verified empirically rather than asserted. PROVEN BY BEING SPOKEN TO, NOT BY BEING READ: tools/_t792-mcp-server-probe.py spawns the server as a subprocess and speaks newline-delimited JSON-RPC at it. 21 passed, 0 failed. Both verdict directions in the same run — a valid document returns valid, E-XML-NODE-TYPE.xml returns invalid — plus a leg asserting the two DIFFER, so the tool cannot pass by being a constant. Unknown protocol version falls back instead of echoing nonsense back at the client. THE SCOPE FENCE HAS TEETH AND THEY WERE TESTED: there is no PreToolUse behind an MCP server, no task gate, no sovereignty boundary, so validate this file must not become read any file on the host. _resolve_repo_path resolves symlinks BEFORE the containment test; ../../etc/passwd and a deep traversal are both refused with a message saying why, and a positive control proves an in-repo path IS accepted so the refusals are about location rather than breakage. NEGATIVE-CONTROLLED: replacing the containment test with if False: turns the probe red at 18 passed 3 failed; restored, 21/21. The probe lives in tools/ and derives its root from its own location — leaving it in a scratchpad would have repeated T-787 on the same morning it was fixed. NOT wired into any live MCP config: that changes the operator''s environment and is their call, not a side effect of a build. Install line in docs/mcp-designer-server.md, syntax taken from claude mcp add --help rather than from memory. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 1
+  files_changed: 4
+  lines_added: 781
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-792-build-the-designer-mcp-server-validatewo.md
+generated_by: context-agent-hybrid
