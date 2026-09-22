@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-823: Fast-forward master to bleeding-edge (operator-delegated integration)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T18:04:21Z
+# ============================================================================
+
+task_id: T-823
+task_name: "Fast-forward master to bleeding-edge (operator-delegated integration)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T17:59:58Z
+completed: 2026-09-22T18:04:14Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T20:03:41+02:00
+last_commit: 2026-09-22T20:03:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  master fast-forwarded to bleeding-edge — 33 commits, operator-delegated
+
+# Key outcomes
+outcomes:
+  - 'The advance is proven to be a TRUE fast-forward before anything is pushed: `master` is an ancestor of `bleeding-edge`, with no merge commit and no rewritten history'
+  - '`origin/master` and local `master` are at the same commit beforehand — advancing a local ref already behind the remote would silently discard someone else''s push'
+  - 'The push targets `origin` ONLY. The github mirror is a OneDev-side `PushRepository` (D-701) and must never be pushed directly'
+  - 'The working tree is NOT disturbed: ~1,890 uncommitted paths (the `.context/audits/cron/` retention sweep, which is not the agent''s to commit — T-571) are exactly as they were afterwards'
+  - 'After the push, `origin/master`, local `master` and `bleeding-edge` are all the same commit — verified by reading the refs, not by the absence of an error'
+  - 'Integration authority is recorded: this is delegated by operator instruction in-session, against the standing rule that merging is NOT delegated to the agent. The delegation is quoted in Decisions'
+  - 'The version consequence is stated to the operator rather than silently absorbed: `src/` advances while `VERSION` and `dist/` stay at 0.12.0, so master''s bytes stop matching the released 0.12.0 artefact'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — integration authority: delegated, and recorded as such'
+  - decision: '2026-09-22 — pushed by refspec instead of checking out master'
+    chose: '`git push origin bleeding-edge:master`, then `git branch -f master bleeding-edge`.'
+    rationale: 'the working tree holds **1,898 uncommitted paths** — the `.context/audits/cron/` retention sweep, which is not the agent''s to commit (T-571). `git checkout master` would have dragged all of it across a branch switch, and any path differing between the branches would either block the checkout or silently carry over. The refspec form advances the remote server-side and never touches the working tree. Verified: 1,898 before, 1,898 after.'
+    alternatives_rejected: ['the checkout/merge/push/checkout sequence from the handover. It is the right command for a clean tree and the wrong one for this tree.']
+  - decision: '2026-09-22 — the version consequence, stated not absorbed'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-823-fast-forward-master-to-bleeding-edge-ope.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T20:03:41"
+    action: 'T-823: master fast-forwarded to bleeding-edge — 33 commits, operator-delegated'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 1
+  lines_added: 244
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-823-fast-forward-master-to-bleeding-edge-ope.md
+generated_by: context-agent-hybrid

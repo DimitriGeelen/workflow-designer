@@ -2439,3 +2439,10 @@ decisions:
     date: 2026-09-22
     task: T-821
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-328
+    decision: "`git push origin bleeding-edge:master`, then `git branch -f master bleeding-edge`."
+    scope: project
+    date: 2026-09-22
+    task: T-823
+    rationale: "Auto-captured from task file on completion"

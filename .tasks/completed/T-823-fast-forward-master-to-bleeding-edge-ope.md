@@ -4,10 +4,10 @@ name: "Fast-forward master to bleeding-edge (operator-delegated integration)"
 description: >
   Fast-forward master to bleeding-edge (operator-delegated integration)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T17:59:58Z
-last_update: 2026-09-22T17:59:58Z
-date_finished: null
+last_update: 2026-09-22T18:04:14Z
+date_finished: 2026-09-22T18:04:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -94,8 +94,16 @@ date_finished: null
 # 1. It really was a fast-forward. Still true after the fact: master must remain an
 #    ancestor-or-equal of bleeding-edge. A merge commit or a force would break this.
 git merge-base --is-ancestor master bleeding-edge
-# 2. All three refs are the same commit. Read, not inferred from the push not erroring.
-test "$(git rev-parse master)" = "$(git rev-parse bleeding-edge)" && test "$(git rev-parse origin/master)" = "$(git rev-parse bleeding-edge)"
+# 2. master landed on the intended commit, and local and remote agree.
+#    THE FIRST VERSION OF THIS LEG WAS WRONG and the gate caught it. It asserted that all
+#    THREE refs were equal — true for about ninety seconds, until committing this very task
+#    file advanced bleeding-edge to 80197a90. A leg that asserts a momentary alignment is
+#    invalidated by the act of recording it, and would have read as a broken fast-forward
+#    on every future run. What is DURABLY true is that master sits at the pushed commit,
+#    that origin agrees, and that master remains an ancestor of bleeding-edge (leg 1) while
+#    development continues ahead of it — which is the release train working, not drifting.
+test "$(git rev-parse master)" = "48e38d87554be0b035e9092834d0cac23e2f644e"
+test "$(git rev-parse origin/master)" = "$(git rev-parse master)"
 # 3. No merge commit was created anywhere in the advance — a fast-forward has none.
 test -z "$(git rev-list --merges 2a1ada15..48e38d87)"
 # 4. Still on bleeding-edge. Development continues here; master is the consumer surface
@@ -242,3 +250,15 @@ test "$(git rev-parse --abbrev-ref HEAD)" = "bleeding-edge"
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-823-fast-forward-master-to-bleeding-edge-ope.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0cd5e558
+- **Timestamp:** 2026-09-22T18:04:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T18:04:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
