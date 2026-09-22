@@ -1770,3 +1770,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-373
+  text: "tools/bake-clean-layout.py does not parse --help and runs its real, corpus-wide MUTATING operation instead. Invoked as 'python3 tools/bake-clean-layout.py --help' expecting usage text, it instead swept every map and rewrote 24 files under examples/aef-processes/rendered/ - the seam artefact AEF pins against - reporting 'moved 5' for audit-process and 'moved 9' for error-escalation-ladder. Reverted immediately with git checkout -- examples/; the tree is byte-identical to HEAD (git diff --stat empty) and nothing was committed, so there is no lasting damage. THE HAZARD IS THE SHAPE, NOT THIS INCIDENT: --help is the universal probe for 'what does this tool do', it is what any agent or new contributor reaches for FIRST, and here it is the trigger for a destructive sweep across a pinned seam. Every other public tool in tools/ that was probed this session (validate-workflow.py, yaml-to-bpmn.py, bpmn-cli.py) answers --help with usage text; bake-clean-layout.py is the outlier. Two cheap fixes, either sufficient: parse --help and print usage before doing anything, or require an explicit --write/--apply flag so the default run is a dry run. The second is stronger because it also protects the no-argument invocation. Related: this also disqualifies bake-clean-layout.py from the MCP surface under T-791's read-only scope fence - it is a corpus mutator, not a pure function, so it cannot be exposed as a tool no matter how useful auto-layout would be to an agent authoring a workflow."
+  captured: 2026-09-22T08:35:38Z
+  context_task: T-794
+  tags: []
+  status: pending
+  promoted_to: null
