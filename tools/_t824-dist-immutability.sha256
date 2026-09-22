@@ -1,0 +1,29 @@
+# _t824-dist-immutability.sha256 — every released artefact, pinned.
+#
+# T-824. A release is a promise: version X means these exact bytes, forever (G-007).
+# AEF vendors a dist/ artefact and verifies its sha256, so rewriting an already-released
+# version breaks a consumer's pin with NO local signal — release-designer.sh's own guard
+# fires only when IT is the thing doing the writing, and says nothing about a stray edit,
+# a bad merge, or a well-meant reformat.
+#
+# Generated, never hand-edited. Regenerate ONLY when adding a newly-cut release:
+#   cd /opt/832-Workflow-designer && sha256sum dist/aef-workflow-designer-*.html >> this file
+# Changing an existing line here is changing the definition of a shipped version.
+#
+# Verify: sha256sum -c tools/_t824-dist-immutability.sha256
+76bf20fb4a3ababc7540e33f801908213d4b361c9194e0cb8ff4a1fbacd39534  dist/aef-workflow-designer-0.10.0.html
+d0e0177cffd3cdd86f99710d4ee98cc17ee7be2bf0153c5b68a3f3feccb0317d  dist/aef-workflow-designer-0.1.0.html
+4f20b146def45626436e3b3ccc1b049a335254845eeafa755f4760a357dc5a39  dist/aef-workflow-designer-0.11.0.html
+2b448b61b7fa6c33f347535748c4df828f5d7c1d4b11322e3b25dc609631cf8c  dist/aef-workflow-designer-0.12.0.html
+c031cdef9bf287f411872d054d3ee7845ef83182d66b99dc66f1e08c321d3115  dist/aef-workflow-designer-0.13.0.html
+e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a  dist/aef-workflow-designer-0.2.0.html
+36be033d66aa1c159a9e75df674f02032eb9f308882af288fad909e6d754a4bb  dist/aef-workflow-designer-0.3.0.html
+d99a42da304fc9377e580a1e34e54467431727058026ded7a8ee85fd464fd05c  dist/aef-workflow-designer-0.3.1.html
+983e0e304a3dc12e41ed9ea7270ba6edd032453c72c9ee423f466aa9d9e8d38a  dist/aef-workflow-designer-0.3.2.html
+ea47db53a55be41df7ee6a2ff934146eeeed9f247b4a9bb1db9bcc152c3880d7  dist/aef-workflow-designer-0.4.0.html
+787e40251f624bb39532be096232f4e25ea9014fe7dc0da0bc46285e140e025e  dist/aef-workflow-designer-0.5.0.html
+c2aceff44a2cdf91dd2dfefb8c12db1550bfed2b40a4e62cdf7b145ba3a97e57  dist/aef-workflow-designer-0.6.0.html
+472d6a5d333ccb3c5e0d9cc5cfbb6bb9cff366c997d0362a77c3ec1856b8be04  dist/aef-workflow-designer-0.7.0.html
+d2bf0d633e9e347b3429f8c22f194d27d673d05e11650d32c1cb6a71359ca353  dist/aef-workflow-designer-0.7.1.html
+cab3c75183979b0e15e23192518f9360ea12fe33b6a4f78641d7e264f6110935  dist/aef-workflow-designer-0.8.0.html
+9ccd2c584e073bcd3702eb7efac5b0e5ec734b9ecabb572a3cff012083ff801a  dist/aef-workflow-designer-0.9.0.html

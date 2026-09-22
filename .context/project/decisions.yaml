@@ -2446,3 +2446,17 @@ decisions:
     date: 2026-09-22
     task: T-823
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-329
+    decision: "run with `RELEASE_ALLOW_OVERWRITE`, `RELEASE_SKIP_RENDER_CHECK` and"
+    scope: project
+    date: 2026-09-22
+    task: T-824
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-330
+    decision: "pin every released artefact's sha256 in `tools/_t824-dist-immutability.sha256`"
+    scope: project
+    date: 2026-09-22
+    task: T-824
+    rationale: "Auto-captured from task file on completion"

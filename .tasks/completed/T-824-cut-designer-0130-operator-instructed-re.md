@@ -4,20 +4,20 @@ name: "Cut designer 0.13.0 (operator-instructed release)"
 description: >
   Cut designer 0.13.0 (operator-instructed release)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T18:17:11Z
-last_update: 2026-09-22T18:17:11Z
-date_finished: null
+last_update: 2026-09-22T18:21:31Z
+date_finished: 2026-09-22T18:21:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -40,17 +40,17 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `VERSION` reads `0.13.0` and `APP_VERSION` in `src/` reads the same. The T-808 parity gate passes — it runs BEFORE any write to `dist/`, and a drifted version is refused rather than shipped
-- [ ] `scripts/release-designer.sh` runs to completion with NO bypass env var set: no `RELEASE_ALLOW_OVERWRITE`, no `RELEASE_SKIP_RENDER_CHECK`, no `RELEASE_SKIP_ANNOUNCE`. Each exists for a real situation; none of those situations is this one
-- [ ] `dist/aef-workflow-designer-0.13.0.html` is byte-identical to `src/aef-workflow-designer.html`, and `dist/MANIFEST.yaml` names it with a sha256 that matches the file on disk
-- [ ] NO already-released artefact changed. `dist/aef-workflow-designer-0.12.0.html` and every earlier one are byte-identical to before — a version denotes fixed bytes or it denotes nothing (G-007)
-- [ ] `supersedes` in the manifest reads `0.12.0`, derived from what is actually present in `dist/`
-- [ ] The release commit exists BEFORE the tag is applied. Tagging first would name a commit carrying neither this VERSION nor this artefact — a tag that looks right and resolves to the wrong tree
-- [ ] Tag `designer-v0.13.0` exists, is annotated, names the sha256, resolves to the release commit, and is pushed to `origin`
-- [ ] `master` is fast-forwarded to carry the release, and the tag is an ancestor of `master` — a branch tip is not a release, and AEF fetch the artefact by tag (rail 483)
-- [ ] The rail announcement either SUCCEEDED, or its failure is reported and the announcement is made through the MCP surface instead — a rail that still advertises 0.12.0 tells a consumer they are current when they are not, which is the false-green direction AEF called unacceptable
-- [ ] `python3 tools/_t382-release-lag.py` passes: src, released artefact and peer pin are in step
-- [ ] Release authority is recorded — bumping VERSION and writing `dist/` are a sovereignty promise over immutable bytes and are NOT delegated under agent initiative. The operator's instruction is quoted in Decisions
+- [x] `VERSION` reads `0.13.0` and `APP_VERSION` in `src/` reads the same. The T-808 parity gate passes — it runs BEFORE any write to `dist/`, and a drifted version is refused rather than shipped
+- [x] `scripts/release-designer.sh` runs to completion with NO bypass env var set: no `RELEASE_ALLOW_OVERWRITE`, no `RELEASE_SKIP_RENDER_CHECK`, no `RELEASE_SKIP_ANNOUNCE`. Each exists for a real situation; none of those situations is this one
+- [x] `dist/aef-workflow-designer-0.13.0.html` is byte-identical to `src/aef-workflow-designer.html`, and `dist/MANIFEST.yaml` names it with a sha256 that matches the file on disk
+- [x] NO already-released artefact changed. `dist/aef-workflow-designer-0.12.0.html` and every earlier one are byte-identical to before — a version denotes fixed bytes or it denotes nothing (G-007)
+- [x] `supersedes` in the manifest reads `0.12.0`, derived from what is actually present in `dist/`
+- [x] The release commit exists BEFORE the tag is applied. Tagging first would name a commit carrying neither this VERSION nor this artefact — a tag that looks right and resolves to the wrong tree
+- [x] Tag `designer-v0.13.0` exists, is annotated, names the sha256, resolves to the release commit, and is pushed to `origin`
+- [x] `master` is fast-forwarded to carry the release, and the tag is an ancestor of `master` — a branch tip is not a release, and AEF fetch the artefact by tag (rail 483)
+- [x] The rail announcement either SUCCEEDED, or its failure is reported and the announcement is made through the MCP surface instead — a rail that still advertises 0.12.0 tells a consumer they are current when they are not, which is the false-green direction AEF called unacceptable
+- [x] `python3 tools/_t382-release-lag.py` reports **BUILD LAG 0** — src carries nothing the release does not. ~~and the peer pin is in step~~ **THIS AC WAS WRONG AS WRITTEN and is corrected rather than ticked.** It demanded the gauge pass overall, but leg 2 measures ADOPTION lag — whether AEF has re-pinned — and they cannot have, seconds after the announce that tells them to. The gauge correctly reports WARN (exit 1), `peer pin behind: 0.12.0 -> 0.13.0, our release is 0 days old`. Demanding green here would have meant either faking a peer action or bypassing a gauge that is right. Same class as T-823's leg 2: an assertion of a momentary alignment that the act it describes makes impossible
+- [x] Release authority is recorded — bumping VERSION and writing `dist/` are a sovereignty promise over immutable bytes and are NOT delegated under agent initiative. The operator's instruction is quoted in Decisions
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -93,6 +93,31 @@ date_finished: null
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
+
+# ---- T-824 legs -------------------------------------------------------------
+# 1. Parity holds: the header names the release it IS.
+bash tools/_t808-version-parity.sh > /tmp/.t824-parity.out 2>&1
+# 2. The released artefact IS src, byte for byte. This is release-designer.sh's contract
+#    and the thing AEF's sha256 pin depends on.
+cmp -s src/aef-workflow-designer.html dist/aef-workflow-designer-0.13.0.html
+# 3. The manifest's sha256 matches the file on disk — read from both, not trusted from the
+#    script's own echo.
+test "$(grep -oP '(?<=^sha256: ")[a-f0-9]+' dist/MANIFEST.yaml)" = "$(sha256sum dist/aef-workflow-designer-0.13.0.html | awk '{print $1}')"
+# 4. IMMUTABILITY. Every previously-released artefact still hashes to what it did before
+#    this cut. A version denotes fixed bytes or it denotes nothing (G-007). The checksums
+#    were taken BEFORE the release and are pinned here as a file in the tree, so this leg
+#    keeps meaning something on every future run, not just today.
+sha256sum -c tools/_t824-dist-immutability.sha256 > /tmp/.t824-immut.out 2>&1
+# 5. The tag exists, is annotated, and resolves to a commit on master. A branch tip is not
+#    a release; AEF fetch the artefact by tag (rail 483).
+git rev-parse -q --verify refs/tags/designer-v0.13.0 > /dev/null
+test "$(git cat-file -t designer-v0.13.0)" = "tag"
+git merge-base --is-ancestor designer-v0.13.0 master
+# 6. BUILD LAG ZERO — src carries nothing the release does not. NOT the whole gauge: its
+#    second leg measures whether AEF has re-pinned, which they cannot have done seconds
+#    after the announce telling them to. See the corrected AC for why demanding overall
+#    green there would have meant faking a peer action or bypassing a gauge that is right.
+python3 tools/_t382-release-lag.py > /tmp/.t824-lag.out 2>&1; grep -q "unshipped product commits since designer-v0.13.0: 0" /tmp/.t824-lag.out
 #
 # ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
 # P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.
@@ -174,6 +199,39 @@ date_finished: null
 
 ## Decisions
 
+### 2026-09-22 — release authority: instructed, and recorded as such
+
+- **Standing rule:** bumping `VERSION`, writing `dist/`, or updating `dist/MANIFEST.yaml`
+  **under agent initiative** is forbidden — a release is a sovereignty promise over
+  immutable bytes (G-007).
+- **The instruction, verbatim:** *"go"* — in direct answer to "Cutting 0.13.0 is the remedy
+  whenever you want it — say the word and I'll walk it through `scripts/release-designer.sh`."
+  That is instruction, not initiative, which is the precise thing the rule turns on.
+- **Earlier in this same session** the operator said *"I run a release in the proper way, so
+  tell me the proper way and that's what we're going to do"*, and then chose not to cut.
+  The proper way is this script; this is that.
+
+### 2026-09-22 — no bypass, on a script that offers three
+
+- **Chose:** run with `RELEASE_ALLOW_OVERWRITE`, `RELEASE_SKIP_RENDER_CHECK` and
+  `RELEASE_SKIP_ANNOUNCE` all unset.
+- **Why:** each exists for a real situation — a deliberate re-cut, a browser-less host, an
+  unreachable hub — and none of those was this one. Reaching for a bypass because it is
+  there is how a gate becomes decoration. The script's own comment makes the point about
+  the one flag it deliberately does NOT offer: there is no situation where shipping a
+  knowingly mislabelled version is right, so there is no flag for it.
+
+### 2026-09-22 — immutability is now checked by something other than the releasing script
+
+- **Chose:** pin every released artefact's sha256 in `tools/_t824-dist-immutability.sha256`
+  and verify it as a standing leg.
+- **Why:** `release-designer.sh`'s immutability guard fires only when IT is the thing doing
+  the writing. It says nothing about a stray edit, a bad merge, or a well-meant reformat
+  touching a shipped artefact — and that is exactly the case with no local signal, because
+  AEF's pin breaks on their side, not ours. I took the checksums BEFORE the cut and verified
+  all 15 prior artefacts unchanged after; pinning them in the tree is what makes that a
+  repeatable check rather than a thing I happened to do once.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -199,3 +257,25 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-824-cut-designer-0130-operator-instructed-re.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6d66b486
+- **Timestamp:** 2026-09-22T18:21:32Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `scripts/release-designer.sh` runs to completion with NO bypass env var set: no `RELEASE_ALLOW_OVERWRITE`, no `RELEASE_SKIP_RENDER_CHECK`, no `RELEASE_SKIP_ANNOUNCE`. Each exists for a real situation;
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=scripts/release-designer.sh in: `scripts/release-designer.sh` runs to completion with NO bypass env var set: no `RELEASE_ALLOW_OVERWRITE`, no `RELEASE_SKIP_RENDER_CHECK`, no `RELEASE`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 26
+     - evidence: `git rev-parse -q --verify refs/tags/designer-v0.13.0 > /dev/null`
+
+### 2026-09-22T18:21:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
