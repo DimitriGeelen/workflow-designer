@@ -104,9 +104,19 @@ F-2b, F-3, F-8b, F-9d, I-2, I-3, I-4 — each with its unlocking datum in §9.
 
 - **README vs repo mass** — an editor described; 3207 md / 1915 yaml against 98 html / 80 mjs.
   Resolved by the operator's yardstick; the *allocation* question remains (SQ-3).
-- **README's non-goal vs the confirmed yardstick** — "usable without `fw workflow run`" is an
-  accepted non-goal in the README; under the yardstick the executor is central. Resolved by
-  SQ-1: it is real, and it is AEF's to build.
+- **~~README's non-goal vs the confirmed yardstick~~ — WITHDRAWN, T-803 (2026-09-22).**
+  **This contradiction did not exist; I manufactured it by misquoting.** The README says
+  (`README.md:13-15`): *"usable **today** without **the planned** `fw workflow run` executor."*
+  I recorded it above as *"an accepted non-goal"* — dropping **"today"** and **"the planned"**,
+  the two words carrying the meaning. "Today" makes it a statement about the present, not a
+  commitment; "the planned … executor" explicitly **anticipates** the executor rather than
+  disavowing it.
+  So the README and the yardstick never disagreed, and the open question this spawned (T-788
+  IW-3, put to the operator) rested on my paraphrase. Unlike the other citation defects found
+  this session, **this one was wrong when written** — the README had not changed since
+  2026-08-02. What remains is a factual staleness, not a conflict: the README still calls the
+  executor "planned" where AEF has since confirmed it shipped in v1.6.768. See
+  `docs/reports/T-803-iw3-dissolved.md`.
 - **forward-compile §2 vs frozen Part I** — resolved and corrected (T-786).
 
 ## 11. Not reviewed

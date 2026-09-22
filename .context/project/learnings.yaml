@@ -2346,3 +2346,10 @@ learnings:
   date: 2026-09-22
   context: Added via context agent
   application: TBD
+- id: PL-331
+  learning: "A PARAPHRASE IS WORSE THAN A DECAYED CITATION, because a decayed citation can be re-measured and a paraphrase reads as evidence. Three citation defects in one session, and the third is the instructive one. T-787: a probe cited 16/16 against a scratchpad path that had been reaped - the world moved. T-801: a Human AC still cited that same stale 16/16 - the world moved. T-803: the README says 'usable TODAY without THE PLANNED fw workflow run executor' and I recorded it in the Phase 5 review as 'an accepted non-goal'. The README had not changed since 2026-08-02, so nothing decayed - I dropped two words on the FIRST hop and they carried the whole meaning. 'Today' makes it a statement about the present rather than a commitment; 'the planned ... executor' ANTICIPATES the executor rather than disavowing it. A maturity statement became a non-goal, the non-goal became a contradiction with the operator's yardstick, the contradiction became an open question, and the open question was put to the operator as one of three things needing a ruling. None of it existed. RULE: when a claim about what a document SAYS will be carried into a decision, quote it verbatim with its file:line at the first hop, and never paraphrase a commitment into a stronger or weaker form - 'usable today without the planned X' and 'a non-goal of X' are not the same sentence. The tell is that a paraphrase drops qualifiers, and qualifiers are what commitments are made of. Check especially when the paraphrase makes the finding MORE interesting than the source, as this one did: 'the project's own README contradicts the operator's yardstick' is a far better finding than 'the README is slightly stale', which is what was actually true."
+  source: P-001
+  task: T-803
+  date: 2026-09-22
+  context: Added via context agent
+  application: TBD
