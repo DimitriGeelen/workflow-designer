@@ -136,7 +136,36 @@ YAML_TO_BPMN_TOOL = {
     },
 }
 
-TOOLS = [VALIDATE_TOOL, YAML_TO_BPMN_TOOL]
+DESCRIBE_TOOL = {
+    "name": "describe_workflow",
+    "description": (
+        "Read a BPMN document and report **what AEF's task compiler would see in it** — not a "
+        "structural dump. Returns lanes with their authority, every task node with the owner "
+        "DERIVED FROM ITS LANE, the edges, and per-document coverage of the three seam "
+        "requirements (`aef:uid`, `aef:laneMeta authority`, inception subProcesses).\n\n"
+        "Why lane-derived owner: AEF's compiler takes owner from the lane and IGNORES any "
+        "node-level owner, so the lane is the fact that governs downstream. This tool does "
+        "that derivation for you.\n\n"
+        "Non-core `authority` values are surfaced under `authority_values_to_confirm`. They "
+        "are flagged, NOT called invalid — the exact AEF lane dialect is unconfirmed on our "
+        "side, so this is a question to ask, not a verdict.\n\n"
+        "Pass `content` for bytes you hold, or `path` for a file inside the designer repo. "
+        "Exactly one. Read-only."
+    ),
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "content": {"type": "string",
+                        "description": "The BPMN XML, as text. Mutually exclusive with `path`."},
+            "path": {"type": "string",
+                     "description": "Repo-relative path to a .bpmn inside the designer repo. "
+                                    "Mutually exclusive with `content`."},
+        },
+        "additionalProperties": False,
+    },
+}
+
+TOOLS = [VALIDATE_TOOL, YAML_TO_BPMN_TOOL, DESCRIBE_TOOL]
 
 
 def _resolve_repo_path(rel):
@@ -306,9 +335,169 @@ def tool_yaml_to_bpmn(args):
     return out
 
 
+# The three lane authorities the AEF authority model is built on. Non-core values are
+# REPORTED, never rejected: the exact AEF lane dialect is unconfirmed on our side (asked at
+# agent-chat-arc @1635) and our corpus emits "none" and "external" as well. Treating our
+# prediction as a verdict is precisely the drift @1616 caught in the other direction.
+CORE_AUTHORITIES = ("sovereignty", "authority", "initiative")
+
+# Lane authority -> the owner AEF's compiler derives. Their words, @1631: "owner is compiled
+# FROM the lane; node-level owner is ignored."
+AUTHORITY_TO_OWNER = {"sovereignty": "human", "authority": "framework", "initiative": "agent"}
+
+TASK_TYPES = ("userTask", "serviceTask", "scriptTask", "manualTask", "businessRuleTask", "task")
+
+
+def _local(tag):
+    """Strip the namespace. AEF matches by local name, so we do too (@1631)."""
+    return tag.rsplit("}", 1)[-1] if "}" in tag else tag
+
+
+def _attr_by_local(elem, name):
+    for k, v in elem.attrib.items():
+        if _local(k) == name:
+            return v
+    return None
+
+
+def tool_describe_workflow(args):
+    import xml.etree.ElementTree as ET
+
+    content = args.get("content")
+    path = args.get("path")
+    if (content is None) == (path is None):
+        raise ValueError("pass exactly one of `content` or `path`")
+
+    if path is not None:
+        with open(_resolve_repo_path(path), encoding="utf-8") as fh:
+            content = fh.read()
+        source = path
+    else:
+        source = "<inline content>"
+
+    try:
+        root = ET.fromstring(content)
+    except ET.ParseError as exc:
+        raise ValueError("not parseable as XML: %s" % exc)
+
+    # ── lanes, and the owner each one implies ────────────────────────────────────────────
+    lanes = {}
+    lane_of_node = {}
+    for lane_el in root.iter():
+        if _local(lane_el.tag) != "lane":
+            continue
+        lid = _attr_by_local(lane_el, "id") or "<unnamed>"
+        authority = None
+        for sub in lane_el.iter():
+            if _local(sub.tag) == "laneMeta":
+                authority = _attr_by_local(sub, "authority")
+                break
+        lanes[lid] = {
+            "id": lid,
+            "name": _attr_by_local(lane_el, "name"),
+            "authority": authority,
+            "derived_owner": AUTHORITY_TO_OWNER.get(authority),
+            "in_core_dialect": authority in CORE_AUTHORITIES,
+        }
+        for ref in lane_el.iter():
+            if _local(ref.tag) == "flowNodeRef" and (ref.text or "").strip():
+                lane_of_node[ref.text.strip()] = lid
+
+    # ── nodes, with the owner AEF would derive ───────────────────────────────────────────
+    nodes, inceptions = [], []
+    for el in root.iter():
+        kind = _local(el.tag)
+        nid = _attr_by_local(el, "id")
+        if kind == "subProcess":
+            wf_type = None
+            for sub in el.iter():
+                if _local(sub.tag) == "meta":
+                    wf_type = _attr_by_local(sub, "workflowType")
+                    break
+            if wf_type == "inception":
+                lid = lane_of_node.get(nid)
+                inceptions.append({
+                    "id": nid,
+                    "lane": lid,
+                    "lane_authority": (lanes.get(lid) or {}).get("authority"),
+                    # AEF @1631: a mis-laned inception FAILS FAST rather than being forced to
+                    # owner:human. Reporting this is the point — it is a refusal predictor.
+                    "sovereignty_laned": (lanes.get(lid) or {}).get("authority") == "sovereignty",
+                })
+            continue
+        if kind not in TASK_TYPES or not nid:
+            continue
+        uid = None
+        for sub in el.iter():
+            if _local(sub.tag) == "uid":
+                uid = (sub.text or "").strip() or _attr_by_local(sub, "value")
+                break
+            found = _attr_by_local(sub, "uid")
+            if found:
+                uid = found
+                break
+        if uid is None:
+            uid = _attr_by_local(el, "uid")
+        lid = lane_of_node.get(nid)
+        lane = lanes.get(lid) or {}
+        nodes.append({
+            "id": nid,
+            "type": kind,
+            "name": _attr_by_local(el, "name"),
+            "lane": lid,
+            "lane_authority": lane.get("authority"),
+            "derived_owner": lane.get("derived_owner"),
+            "aef_uid": uid,
+        })
+
+    edges = []
+    for el in root.iter():
+        if _local(el.tag) == "sequenceFlow":
+            edges.append({
+                "id": _attr_by_local(el, "id"),
+                "source": _attr_by_local(el, "sourceRef"),
+                "target": _attr_by_local(el, "targetRef"),
+            })
+
+    missing_uid = [n["id"] for n in nodes if not n["aef_uid"]]
+    no_owner = [n["id"] for n in nodes if not n["derived_owner"]]
+    non_core = sorted({l["authority"] for l in lanes.values()
+                       if l["authority"] and not l["in_core_dialect"]})
+
+    out = {
+        "source": source,
+        "lanes": list(lanes.values()),
+        "task_nodes": nodes,
+        "edges": edges,
+        "inception_subprocesses": inceptions,
+        "seam_coverage": {
+            "task_nodes": len(nodes),
+            "with_aef_uid": len(nodes) - len(missing_uid),
+            "nodes_missing_uid": missing_uid,
+            "lanes": len(lanes),
+            "lanes_with_authority": sum(1 for l in lanes.values() if l["authority"]),
+            "nodes_with_no_derivable_owner": no_owner,
+            "inception_subprocesses": len(inceptions),
+        },
+    }
+    if non_core:
+        out["authority_values_to_confirm"] = {
+            "values": non_core,
+            "note": (
+                "These lane authorities are outside the three the AEF authority model is built "
+                "on (%s). They are FLAGGED, not judged invalid — the exact AEF lane dialect is "
+                "unconfirmed here and was asked at agent-chat-arc @1635. Nodes in these lanes "
+                "have no derivable owner, which our own validator reports as W-LANE-NO-OWNER."
+                % ", ".join(CORE_AUTHORITIES)
+            ),
+        }
+    return out
+
+
 HANDLERS = {
     "validate_workflow": tool_validate_workflow,
     "yaml_to_bpmn": tool_yaml_to_bpmn,
+    "describe_workflow": tool_describe_workflow,
 }
 
 

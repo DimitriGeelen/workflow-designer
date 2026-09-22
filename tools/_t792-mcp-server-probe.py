@@ -11,6 +11,12 @@ ROOT = os.environ.get("DESIGNER_REPO_ROOT",
                       os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SERVER = os.path.join(ROOT, "tools", "mcp-designer-server.py")
 
+# THE FENCE, declared once. Every section asserts against this exact list rather than
+# keeping its own copy — three copies drifted apart across T-792/795/796 and each one had
+# to be chased separately. EXACT, never a subset check: an accidentally added fourth tool
+# must fail here rather than pass unnoticed (T-791 scope fence: read-only, pure functions).
+EXPECTED_TOOLS = ["validate_workflow", "yaml_to_bpmn", "describe_workflow"]
+
 passed = failed = 0
 def check(cond, label):
     global passed, failed
@@ -59,8 +65,7 @@ names = [t["name"] for t in tl["result"]["tools"]]
 # T-795 widened this from one tool to two. The assertion stays EXACT rather than becoming
 # a subset check ("validate_workflow in names"), because an exact list is what makes an
 # accidentally-added third tool fail here instead of passing unnoticed.
-check(names == ["validate_workflow", "yaml_to_bpmn"],
-      "tools/list returns exactly the two read-only tools (scope fence)")
+check(names == EXPECTED_TOOLS, "tools/list matches the declared fence (scope fence)")
 check("content" in tl["result"]["tools"][0]["inputSchema"]["properties"], "schema exposes `content`")
 
 # ── AC2: discriminates in BOTH directions, same run ──────────────────────────────────────
@@ -117,8 +122,8 @@ def call_conv(args):
     return res, body
 
 tl2 = rpc("tools/list")
-check([t["name"] for t in tl2["result"]["tools"]] == ["validate_workflow", "yaml_to_bpmn"],
-      "tools/list returns exactly the two read-only tools (fence not widened)")
+check([t["name"] for t in tl2["result"]["tools"]] == EXPECTED_TOOLS,
+      "tools/list matches the declared fence (not widened)")
 desc = [t for t in tl2["result"]["tools"] if t["name"] == "yaml_to_bpmn"][0]["description"]
 check("`edges:`, NOT `flows:`" in desc,
       "the description names the key that gets guessed wrong (T-794)")
@@ -168,6 +173,60 @@ check(res["isError"], "yaml_to_bpmn: neither content nor path -> tool error")
 res, body = call_conv({"path": "examples/aef-processes/arc-lifecycle.workflow.yaml"})
 check(not res["isError"] and body["verdict"] == "valid",
       "control: a real corpus .workflow.yaml converts and validates clean")
+
+# ── T-796: describe_workflow ─────────────────────────────────────────────────────────────
+def call_desc(args):
+    r = rpc("tools/call", {"name": "describe_workflow", "arguments": args})
+    res = r["result"]
+    body = json.loads(res["content"][0]["text"]) if not res.get("isError") else None
+    return res, body
+
+tl3 = rpc("tools/list")
+check([t["name"] for t in tl3["result"]["tools"]] == EXPECTED_TOOLS,
+      "tools/list matches the declared fence after the third tool")
+
+CLEAN = "examples/aef-processes/rendered/task-gate.bpmn"
+NONE_ = "examples/aef-processes/rendered/context-memory.bpmn"
+
+res, clean = call_desc({"path": CLEAN})
+check(not res["isError"], "describe: clean document returns a report")
+check(clean["seam_coverage"]["with_aef_uid"] == clean["seam_coverage"]["task_nodes"] > 0,
+      "describe: every task node in the clean doc carries aef:uid")
+check(all(n["derived_owner"] for n in clean["task_nodes"]),
+      "describe: every node in the clean doc has a LANE-DERIVED owner (AEF @1631)")
+check(sorted({l["derived_owner"] for l in clean["lanes"]}) == ["agent", "framework", "human"],
+      "describe: the three core authorities map to human/framework/agent")
+check("authority_values_to_confirm" not in clean, "describe: clean doc raises no dialect flag")
+
+res, noneish = call_desc({"path": NONE_})
+check(not res["isError"], "describe: authority=none document returns a report")
+check(noneish.get("authority_values_to_confirm", {}).get("values") == ["none"],
+      "describe: authority=none IS flagged for confirmation")
+check("not judged invalid" in noneish["authority_values_to_confirm"]["note"],
+      "describe: the flag is worded as a question, not a verdict (our dialect is unconfirmed)")
+check(len(noneish["seam_coverage"]["nodes_with_no_derivable_owner"]) > 0,
+      "describe: authority=none yields nodes with NO derivable owner")
+
+# AC4 — the two reports must DIFFER, or the tool is not reading its input
+check(clean["seam_coverage"]["nodes_with_no_derivable_owner"]
+      != noneish["seam_coverage"]["nodes_with_no_derivable_owner"],
+      "describe: the two documents produce DIFFERENT owner-coverage (not a constant)")
+
+# CROSS-CHECK against a wholly independent implementation: the validator's own
+# W-LANE-NO-OWNER findings must name exactly the same nodes. Two tools, one truth.
+_res, _v = call({"path": NONE_})
+_warned = sorted({f["location"].split("'")[1] for f in _v["findings"]
+                  if f["rule"] == "W-LANE-NO-OWNER" and "'" in f["location"]})
+check(_warned == sorted(noneish["seam_coverage"]["nodes_with_no_derivable_owner"]),
+      "describe's ownerless nodes match the validator's W-LANE-NO-OWNER set EXACTLY")
+
+# fence + argument discipline apply to the third tool too
+res, _ = call_desc({"path": "../../etc/passwd"})
+check(res["isError"], "describe_workflow refuses path traversal")
+res, _ = call_desc({})
+check(res["isError"], "describe_workflow: neither content nor path -> tool error")
+res, _ = call_desc({"content": "not xml at all"})
+check(res["isError"], "describe_workflow: unparseable input -> tool error, not a bogus report")
 
 proc.stdin.close(); proc.wait(timeout=10)
 

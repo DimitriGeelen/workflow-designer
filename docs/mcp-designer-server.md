@@ -113,6 +113,42 @@ The bytes are returned even when the verdict is bad: you need them to see what w
 stdlib-only, and `validate_workflow` has no such dependency — if PyYAML is missing, this tool
 says so and names the fix, and the other tool keeps working.
 
+### `describe_workflow`
+
+Reports **what AEF's task compiler would see** in a BPMN document — not a structural dump.
+
+| argument | meaning |
+|---|---|
+| `content` | the BPMN XML, as text |
+| `path` | repo-relative path to a `.bpmn` |
+
+Returns lanes with their authority, every task node with its **lane-derived owner**, the edges,
+inception subProcesses, and per-document `seam_coverage`.
+
+**Why lane-derived owner is the whole point.** AEF at `agent-chat-arc` @1631: *"owner is
+compiled FROM the lane; node-level owner is ignored."* The lane is the fact that governs
+downstream, so this tool does that derivation rather than leaving the caller to do it.
+`sovereignty → human`, `authority → framework`, `initiative → agent`.
+
+**Non-core authorities are flagged, not judged.** Our corpus emits `none` and `external`
+alongside the three core values. Those surface under `authority_values_to_confirm` with the
+note that they are *"FLAGGED, not judged invalid — the exact AEF lane dialect is unconfirmed
+here and was asked at agent-chat-arc @1635."* Calling a prediction a verdict is the drift
+@1616 already caught once, in the other direction.
+
+Worked example, the two documents that discriminate:
+
+| | `task-gate.bpmn` | `context-memory.bpmn` |
+|---|---|---|
+| task nodes / with `aef:uid` | 5 / 5 | 7 / 7 |
+| lane authorities | sovereignty, authority, initiative | `none` ×3 |
+| nodes with **no derivable owner** | 0 | **7** |
+| dialect flag | — | `["none"]` |
+
+Those 7 ownerless nodes are **exactly** the 7 `W-LANE-NO-OWNER` findings `validate_workflow`
+reports for the same file — two independently implemented tools agreeing node-for-node. The
+probe asserts that equality, so the two cannot drift apart silently.
+
 ## What it will not do, by design
 
 - **It never writes.** Every tool is a pure function or a read. Governance does not travel
@@ -144,10 +180,11 @@ The cost is accepted knowingly — spec compliance is ours to maintain. It is bo
 cd /opt/832-Workflow-designer && python3 tools/_t792-mcp-server-probe.py
 ```
 
-Expected: `probe: 38 passed, 0 failed`.
+Expected: `probe: 53 passed, 0 failed`.
 
 The probe checks both directions (a valid document must come back `valid` AND an invalid one
 `invalid`, in the same run, with differing verdicts — so the tool cannot pass as a constant),
 and it checks the scope fence by attempting traversal. It is negative-controlled: with the
 containment test disabled, the traversal legs go red (`18 passed, 3 failed`), and with
-`yaml_to_bpmn`'s self-validation stubbed out the bad-document legs go red (`31 passed, 4 failed`).
+`yaml_to_bpmn`'s self-validation stubbed out the bad-document legs go red (`31 passed, 4 failed`); and with the lane→owner mapping collapsed to all-human,
+`describe_workflow`'s authority leg goes red (`52 passed, 1 failed`).
