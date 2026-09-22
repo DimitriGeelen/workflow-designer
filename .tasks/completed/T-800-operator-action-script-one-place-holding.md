@@ -4,10 +4,10 @@ name: "Operator action script: one place holding the decisions only a human can 
 description: >
   Operator action script: one place holding the decisions only a human can make, with the long commands pre-written
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T09:32:26Z
-last_update: 2026-09-22T09:32:26Z
-date_finished: null
+last_update: 2026-09-22T09:35:54Z
+date_finished: 2026-09-22T09:35:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -164,8 +164,12 @@ bash -n tools/operator-actions.sh
 grep -q '^\*\*Decision\*\*: GO' .tasks/completed/T-788-does-832-build-any-part-of-the-workflow-.md
 
 # ── AC4: read-only action really runs; consequential one refuses a wrong word ─
-./tools/operator-actions.sh t353-probe 2>&1 | grep -q 'probe: 23 passed, 0 failed'
-echo wrong | ./tools/operator-actions.sh t788-redecide 2>&1 | grep -q 'nothing was run'
+# NOT the pipe-to-grep form. The abort path exits 1 BY DESIGN — that is the behaviour
+# being asserted — and under P-011's pipefail a legitimate non-zero upstream kills the
+# pipeline regardless of what grep found. Capture, then case-match: no pipe, and the
+# script's own exit code is explicitly not the verdict.
+out=$(./tools/operator-actions.sh t353-probe 2>&1 || true); case "$out" in *"probe: 23 passed, 0 failed"*) true;; *) false;; esac
+out=$(echo wrong | ./tools/operator-actions.sh t788-redecide 2>&1 || true); case "$out" in *"nothing was run"*) true;; *) false;; esac
 
 # ── AC5: the script refuses to pretend the queue is executable end to end ────
 grep -qF "NEVER tick a ### Human AC on someone's behalf" tools/operator-actions.sh
@@ -238,3 +242,20 @@ grep -q 'NOT RUNNABLE FROM HERE' tools/operator-actions.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-800-operator-action-script-one-place-holding.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-010be57b
+- **Timestamp:** 2026-09-22T09:35:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 50
+     - evidence: `./tools/operator-actions.sh > /dev/null`
+
+### 2026-09-22T09:35:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

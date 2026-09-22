@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-800: Operator action script: one place holding the decisions only a human can make, with the long commands pre-written
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T09:36:02Z
+# ============================================================================
+
+task_id: T-800
+task_name: "Operator action script: one place holding the decisions only a human can make, with the long commands pre-written"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T09:32:26Z
+completed: 2026-09-22T09:35:54Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T11:35:16+02:00
+last_commit: 2026-09-22T11:35:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  one place holding the decisions only a human can make — listing by default, and refusing to pretend the queue is executable end to end. WHY IT EXISTS: several pending items are Tier 0 or sovereignty-gated, so the agent is structurally blocked from running them, which is correct. But the commands are long, and a long command pasted out of a chat log is a command nobody reads before running. THE SHAPE IS THE POINT: bare invocation LISTS and does nothing. Each action prints WHY a human is required above what it runs — t788 says what it does to the record (rewrites the Decision block, original GO survives in Updates), t353 says it is read-only, names the expected output, and admits the AC's own 16/16 citation decayed and is now 23/23. A queue of opaque one-liners would train exactly the reflex the gates exist to prevent. CONSEQUENTIAL AND READ-ONLY ARE NOT PRESENTED ALIKE: t353-probe runs immediately. t788-redecide demands the action id TYPED IN FULL, because y/N is too easy to fat-finger for something that writes a sovereignty record. Measured: answering 'yes' aborts with 'nothing was run'. THE COMMAND DISPLAY IS DELIBERATELY NOT %q-ESCAPED. The first version was, and it turned a paragraph of rationale into a wall of backslashes — unreadable, which defeats the one AC that matters here. If the point of showing a command is that a human reads it before approving, an unreadable rendering is worse than none. It is not meant to be copy-pasted; the script runs it. IT SAYS WHAT IT CANNOT DO: a NOT RUNNABLE FROM HERE section names SQ-2 and IW-3 as judgement rather than commands, states outright that a ### Human AC must never be ticked on someone's behalf — not the agent's to do and not this script's either — gives the file to edit, and the arithmetic that turns on it (113 - 17 = 96 > 78). THE AGENT DID NOT RUN ITS OWN SCRIPT: a Verification leg asserts T-788 still reads Decision: GO, and goes red if that ever stops being true. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — listing is the default; nothing executes without being named.** Running the'
+  - '**AC2 — each action states WHY it needs a human, not just what it runs.** A queue of'
+  - '**AC3 — the agent does not execute any listed action, and that is provable.** These are'
+  - '**AC4 — read-only actions are separated from consequential ones.** Running the T-353'
+  - '**AC5 — the script is honest about what it cannot do.** Some pending items are not'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-800-operator-action-script-one-place-holding.md'
+  - 'tools/operator-actions.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T11:35:16"
+    action: 'T-800: one place holding the decisions only a human can make — listing by default, and refusing to pretend the queue is executable end to end. WHY IT EXISTS: several pending items are Tier 0 or sovereignty-gated, so the agent is structurally blocked from running them, which is correct. But the commands are long, and a long command pasted out of a chat log is a command nobody reads before running. THE SHAPE IS THE POINT: bare invocation LISTS and does nothing. Each action prints WHY a human is required above what it runs — t788 says what it does to the record (rewrites the Decision block, original GO survives in Updates), t353 says it is read-only, names the expected output, and admits the AC''s own 16/16 citation decayed and is now 23/23. A queue of opaque one-liners would train exactly the reflex the gates exist to prevent. CONSEQUENTIAL AND READ-ONLY ARE NOT PRESENTED ALIKE: t353-probe runs immediately. t788-redecide demands the action id TYPED IN FULL, because y/N is too easy to fat-finger for something that writes a sovereignty record. Measured: answering ''yes'' aborts with ''nothing was run''. THE COMMAND DISPLAY IS DELIBERATELY NOT %q-ESCAPED. The first version was, and it turned a paragraph of rationale into a wall of backslashes — unreadable, which defeats the one AC that matters here. If the point of showing a command is that a human reads it before approving, an unreadable rendering is worse than none. It is not meant to be copy-pasted; the script runs it. IT SAYS WHAT IT CANNOT DO: a NOT RUNNABLE FROM HERE section names SQ-2 and IW-3 as judgement rather than commands, states outright that a ### Human AC must never be ticked on someone''s behalf — not the agent''s to do and not this script''s either — gives the file to edit, and the arithmetic that turns on it (113 - 17 = 96 > 78). THE AGENT DID NOT RUN ITS OWN SCRIPT: a Verification leg asserts T-788 still reads Decision: GO, and goes red if that ever stops being true. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 2
+  lines_added: 368
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-800-operator-action-script-one-place-holding.md
+generated_by: context-agent-hybrid
