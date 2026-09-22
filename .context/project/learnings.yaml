@@ -2353,3 +2353,10 @@ learnings:
   date: 2026-09-22
   context: Added via context agent
   application: TBD
+- id: PL-332
+  learning: "A probe that nothing re-runs does not merely stop informing — it starts MISINFORMING, and the reader it misinforms is whoever next triages the failure list. T-818 measured both shapes: _endpoint-overlap reported a TypeError that reads as a failing assertion but was a null dereference BEFORE the assertion ran (56 days), and _saveproject reported four red steps that read as 'the save path is broken' when the save had never been invoked — it was parked in a modal added three days after the probe was written (75 days). Both editor changes were deliberate and correct. The remedy is not only re-wiring: give every probe a NAMED step asserting its own STIMULUS exists, so a changed gesture reports COULD-NOT-MEASURE instead of a fabricated failure of a subject nothing touched, and control the stimulus-break branch as well as the subject-break branch — the second is the one everyone forgets, because it does not look like a test failure."
+  source: P-011
+  task: T-818
+  date: 2026-09-22
+  context: Added via context agent
+  application: TBD

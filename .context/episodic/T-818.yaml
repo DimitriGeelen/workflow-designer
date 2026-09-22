@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-818: Two direct-manipulation probes are RED and nobody knows since when
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T16:09:41Z
+# ============================================================================
+
+task_id: T-818
+task_name: "Two direct-manipulation probes are RED and nobody knows since when"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T14:47:07Z
+completed: 2026-09-22T16:09:10Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-22T18:09:04+02:00
+last_commit: 2026-09-22T18:09:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  both probes wired, and controlled on the branch that was missing — stimulus, not subject
+
+# Key outcomes
+outcomes:
+  - 'For each probe, the JSON verdict is read and the failure is attributed: either the EDITOR regressed or the EXPECTATION went stale — stated with evidence, not guessed'
+  - 'Whichever side is wrong is the side that changes. An expectation is not relaxed to make a red probe green unless the editor''s current behaviour is shown to be correct'
+  - 'If the editor regressed, the regression is dated as far as the tree allows, and the fact that nothing recorded when it broke is stated rather than glossed'
+  - 'Once green, each probe is wired into `tests/run-bridge-tests.sh` alongside T-817''s four, so it cannot rot unobserved again'
+  - 'CONTROL: each newly-wired probe is proven to fail the suite when its subject breaks'
+  - '`_endpoint-overlap` and `_saveproject` are handled as TWO separate diagnoses — one bug, one task''s worth of reasoning each; a shared "fixed the probes" commit would destroy the causality this task exists to recover'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-818-two-direct-manipulation-probes-are-red-a.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t818-probe-controls.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T18:09:04"
+    action: 'T-818: both probes wired, and controlled on the branch that was missing — stimulus, not subject'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 82 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 82
+  commits: 1
+  files_changed: 3
+  lines_added: 321
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-818-two-direct-manipulation-probes-are-red-a.md
+generated_by: context-agent-hybrid

@@ -4,20 +4,20 @@ name: "Two direct-manipulation probes are RED and nobody knows since when"
 description: >
   Measured while wiring T-817. tools/_endpoint-overlap-verify-cdp.mjs fails a real assertion (expects edge 'e_11'); tools/_saveproject-verify-cdp.mjs reports pass:false. Neither is an infrastructure error — both load src/ directly, drive a real headless Chrome, and emit structured JSON naming the offending element. They were written, passed once at their task's completion, and were never wired to anything that re-runs them (F-08's 118-instrument population), so NOTHING RECORDS WHEN THEY WENT RED. It is not knowable from the tree whether the editor regressed or the expectation went stale — the same 'UNMEASURED, not zero' shape F-03 named for the suite's own 7 failures. Deliberately NOT wired into the suite by T-817: wiring a red probe converts an unobserved failure into a permanently red leg, and OBS-293 records that a leg which is always red teaches readers to rerun rather than to look. Diagnose each: read the JSON, decide whether the editor or the expectation is wrong, fix the right one, then wire it.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_endpoint-overlap-verify-cdp.mjs, tools/_saveproject-verify-cdp.mjs, tools/_t817-wiring-controls.sh, tools/_t818-probe-controls.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T14:47:07Z
-last_update: 2026-09-22T16:03:15Z
-date_finished: null
+last_update: 2026-09-22T16:09:10Z
+date_finished: 2026-09-22T16:09:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -275,3 +275,19 @@ nobody.
 
 ### 2026-09-22T14:50:08Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e08dbb52
+- **Timestamp:** 2026-09-22T16:09:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `destroy`
+
+### 2026-09-22T16:09:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
