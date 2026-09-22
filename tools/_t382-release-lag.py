@@ -38,6 +38,7 @@ Exit: 0 ok, 1 warn, 2 fail, 3 could-not-measure (deliberately never confused wit
 import subprocess
 import sys
 import datetime
+import glob
 import hashlib
 import os
 import re
@@ -53,6 +54,28 @@ PEER_PIN = os.path.join(PROJ, ".agentic-framework/policy/designer-pin.yaml")
 # numbers that clear it would be fitting the gate to the tree.
 WARN_DAYS = 7
 FAIL_DAYS = 14
+
+# T-812 (value review F-02) — adoption is escalated on DISTANCE as well as on age.
+#
+# The defect this fixes: verdict()'s adoption leg escalated only on `adopt_days`, the age of
+# OUR OWN latest tag, while `adopt_behind` — the only value carrying the actual distance —
+# was interpolated into a message and never compared. Driven on constructed inputs, a peer
+# ELEVEN releases behind graded `ok` because we had cut a tag that day. Every cut reset the
+# gauge, so the condition could be held green indefinitely by the ordinary act of releasing.
+# This is the instrument that was supposed to catch the four-release delivery gap (F-01).
+#
+# Distance and age are independent signals and both are kept: a peer one release behind for
+# thirty days is a problem, and so is a peer four releases behind on the day we cut. The leg
+# escalates on whichever is worse.
+#
+# THRESHOLDS ARE A JUDGEMENT, and no recorded ruling exists — G-024 names the need for a
+# standing visible delta and gives the adoption leg no numbers (checked 2026-09-22:
+# concerns.yaml carries no threshold for it). Chosen so the incident that motivated the gap
+# would have been caught: F-01 was FOUR releases behind, so FAIL at 3. WARN at 1 makes the
+# gap visible on the day it opens rather than after WARN_DAYS, which is the property the old
+# predicate lacked. Raise or lower them deliberately; do not remove the comparison.
+WARN_BEHIND = 1
+FAIL_BEHIND = 3
 
 
 def git(*args, check=True):
@@ -70,6 +93,48 @@ def yaml_scalar(path, key):
             if m:
                 return m.group(1)
     return None
+
+
+def _vkey(v):
+    """Sortable key for a dotted version. Non-numeric components sort as -1 rather than
+    raising: a malformed name in dist/ must not take the whole probe down."""
+    out = []
+    for part in str(v).split("."):
+        try:
+            out.append(int(part))
+        except ValueError:
+            out.append(-1)
+    return tuple(out)
+
+
+def released_versions():
+    """Versions actually present in dist/, oldest first.
+
+    T-812. Read from the shipped artifacts rather than a curated list, for the reason
+    release-designer.sh gives where it computes `supersedes`: "a curated chain drifts from
+    what shipped, and the whole point of the field is to be countable against reality."
+    """
+    names = glob.glob(os.path.join(PROJ, "dist", "aef-workflow-designer-*.html"))
+    vs = []
+    for n in names:
+        base = os.path.basename(n)
+        v = base[len("aef-workflow-designer-"):-len(".html")]
+        if v:
+            vs.append(v)
+    return sorted(set(vs), key=_vkey)
+
+
+def versions_between(peer_v, ours):
+    """How many releases the peer is behind us. None when it cannot be placed.
+
+    None is deliberately NOT 0. Returning 0 for an unplaceable pin would say "not behind"
+    about a pin nobody could locate — the same false-green shape this leg is being repaired
+    for. The caller escalates on None.
+    """
+    series = released_versions()
+    if peer_v not in series or ours not in series:
+        return None
+    return series.index(ours) - series.index(peer_v)
 
 
 def days_since(iso):
@@ -126,8 +191,19 @@ def measure(tag_override=None):
     res["peer_pin_readable"] = peer_v is not None
     res["adopt_days"] = 0
     res["adopt_behind"] = None
+    res["adopt_versions_behind"] = 0
     if peer_v and peer_v != version:
         res["adopt_behind"] = "%s -> %s" % (peer_v, version)
+        # T-812: the DISTANCE, as a number the predicate can compare. Counted against the
+        # versions that actually shipped (the dist/ listing), which is the same source
+        # release-designer.sh uses for `supersedes` and for the same stated reason: "a
+        # curated chain drifts from what shipped, and the whole point of the field is to be
+        # countable against reality."
+        #
+        # None (not 0) when the series cannot place the peer's pin. An unmeasurable distance
+        # reported as zero-behind is how a false green starts, which is the entire defect
+        # this leg is being repaired for.
+        res["adopt_versions_behind"] = versions_between(peer_v, version)
         rel_tag = "designer-v%s" % version
         if git("tag", "-l", rel_tag):
             res["adopt_days"] = days_since(git("log", "-1", "--format=%cI", rel_tag))
@@ -166,16 +242,39 @@ def verdict(res):
             esc("warn")
     if res["adopt_behind"]:
         a = res["adopt_days"]
+        # T-812 (F-02): DISTANCE first, and independently of age. The old predicate read
+        # only `a` — the age of our own tag — so every cut reset this leg to green and a
+        # peer eleven releases behind graded ok on release day. `adopt_behind` carried the
+        # distance and was never compared; now `adopt_versions_behind` is.
+        n = res.get("adopt_versions_behind", 0)
+        if n is None:
+            reasons.append(
+                "peer pin behind (%s) — distance NOT measurable against the released "
+                "series" % res["adopt_behind"])
+            esc("fail")
+        elif n >= FAIL_BEHIND:
+            reasons.append("peer pin behind by %d releases (%s) (>= %d)"
+                           % (n, res["adopt_behind"], FAIL_BEHIND))
+            esc("fail")
+        elif n >= WARN_BEHIND:
+            reasons.append("peer pin behind by %d release(s) (%s)" % (n, res["adopt_behind"]))
+            esc("warn")
+
+        # Age, unchanged in meaning and still escalating on its own. A peer only one
+        # release behind but stuck there for a month is a real adoption problem that the
+        # distance rung above would grade as a mere warn.
         if a is None:
-            reasons.append("peer behind (%s) by an unmeasurable amount" % res["adopt_behind"])
+            reasons.append("peer behind (%s) and the release age is unmeasurable"
+                           % res["adopt_behind"])
             esc("fail")
         elif a >= FAIL_DAYS:
-            reasons.append("peer pin behind (%s), release %dd old (>= %dd)" % (res["adopt_behind"], a, FAIL_DAYS))
+            reasons.append("peer pin behind (%s), release %dd old (>= %dd)"
+                           % (res["adopt_behind"], a, FAIL_DAYS))
             esc("fail")
-        else:
-            reasons.append("peer pin behind (%s), release %dd old" % (res["adopt_behind"], a))
-            if a >= WARN_DAYS:
-                esc("warn")
+        elif a >= WARN_DAYS:
+            reasons.append("peer pin behind (%s), release %dd old (>= %dd)"
+                           % (res["adopt_behind"], a, WARN_DAYS))
+            esc("warn")
     return level, reasons
 
 
@@ -280,14 +379,49 @@ def teeth():
     # 4/5. Each escalation must fire ALONE, on a zero-lag input — otherwise it could be
     #      riding on the build-lag number rather than discriminating.
     base = {"sha_ok": True, "peer_pin_readable": True, "build_commits": 0,
-            "build_days": 0, "adopt_days": 0, "adopt_behind": None}
+            "build_days": 0, "adopt_days": 0, "adopt_behind": None,
+            "adopt_versions_behind": 0}
     leg("all-clean input -> ok", verdict(dict(base))[0] == "ok", "-> %s" % verdict(dict(base))[0])
     lv3, _ = verdict({**base, "sha_ok": False})
     leg("sha mismatch ALONE -> fail", lv3 == "fail", "-> %s" % lv3)
     lv4, _ = verdict({**base, "peer_pin_readable": False})
     leg("unreadable peer pin ALONE -> not ok", lv4 != "ok", "-> %s" % lv4)
-    lv5, _ = verdict({**base, "adopt_behind": "0.1.0 -> 0.8.0", "adopt_days": 99})
+    lv5, _ = verdict({**base, "adopt_behind": "0.1.0 -> 0.8.0", "adopt_days": 99,
+                      "adopt_versions_behind": 7})
     leg("stale peer pin ALONE -> fail", lv5 == "fail", "-> %s" % lv5)
+
+    # 6-9. T-812 (value review F-02) — THE LIVE SHAPE, which no leg above ever built.
+    #
+    # Leg 5 sets adopt_behind only alongside adopt_days=99, so the self-test passed over
+    # exactly the configuration production reports: a peer several releases behind while
+    # our own tag is fresh. That is how a probe whose adoption leg never compared the
+    # distance kept a clean teeth record. The legs below construct small adopt_days
+    # deliberately, so they can only pass if the DISTANCE is what escalates.
+    lv6, _ = verdict({**base, "adopt_behind": "0.8.0 -> 0.12.0",
+                      "adopt_versions_behind": 4, "adopt_days": 0})
+    leg("peer 4 behind + FRESH tag -> fail (the F-01 shape)", lv6 == "fail", "-> %s" % lv6)
+
+    lv7, _ = verdict({**base, "adopt_behind": "0.1.0 -> 0.12.0",
+                      "adopt_versions_behind": 11, "adopt_days": 0})
+    leg("peer 11 behind + FRESH tag -> fail", lv7 == "fail", "-> %s" % lv7)
+
+    lv8, _ = verdict({**base, "adopt_behind": "0.11.0 -> 0.12.0",
+                      "adopt_versions_behind": 1, "adopt_days": 0})
+    leg("peer 1 behind + fresh tag -> warn, not ok", lv8 == "warn", "-> %s" % lv8)
+
+    # An unplaceable pin must not read as zero-behind. Same shape as the peer_pin_readable
+    # leg: a leg that cannot measure must not report the healthy answer.
+    lv9, _ = verdict({**base, "adopt_behind": "9.9.9 -> 0.12.0",
+                      "adopt_versions_behind": None, "adopt_days": 0})
+    leg("unplaceable peer pin -> fail, never ok", lv9 == "fail", "-> %s" % lv9)
+
+    # 10. Anti-vacuity for the distance counter itself: it must place a real pair from the
+    #     shipped series, else legs 6-9 are asserting on a function that always returns None.
+    _series = released_versions()
+    _d = versions_between(_series[0], _series[-1]) if len(_series) >= 2 else None
+    leg("distance counter places a real pair from dist/",
+        _d is not None and _d == len(_series) - 1,
+        "-> %r over %d released version(s)" % (_d, len(_series)))
 
     print("teeth: %d passed, %d failed" % (passed, failed))
     return 0 if failed == 0 else 2

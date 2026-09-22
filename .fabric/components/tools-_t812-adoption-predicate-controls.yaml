@@ -1,0 +1,27 @@
+id: tools/_t812-adoption-predicate-controls.py
+name: _t812-adoption-predicate-controls
+type: script
+subsystem: release
+location: tools/_t812-adoption-predicate-controls.py
+tags: [release, control, teeth, anti-vacuity]
+
+purpose: "Asserts that the adoption leg of tools/_t382-release-lag.py escalates on DISTANCE
+  independently of tag age — every case pins adopt_days low, so a leg can only pass if the
+  distance moved it — and that every adoption reason carries the substring audit.sh greps for
+  ('peer pin behind'). The second assertion is the fragile one: the first wording of the T-812
+  fix omitted that anchor, so a distance-only escalation would have reached the saved audit
+  record as 'see probe' with the reason discarded, reintroducing the invisibility half of F-02
+  while fixing its predicate half. Nothing else checks that coupling and a reworded message is
+  one edit away from breaking it."
+purpose_source: "authored at creation by T-812"
+
+depends_on:
+  - target: tools/_t382-release-lag.py
+    type: calls
+  - target: dist
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-812
