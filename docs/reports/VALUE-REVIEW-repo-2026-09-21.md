@@ -124,7 +124,28 @@ consumer-side slice instead, which F-10 says is already intact. *Decides:* opera
 
 **SQ-2 — May an agent edit a `## Verification` block in `.tasks/completed/`?**
 The unchecked `[REVIEW]` on T-353, now load-bearing: `_t560` stays RED until ruled, and a
-proven 16/16 patch set sits unapplied. *Recommendation:* rule narrowly — permit appending
+proven patch set sits unapplied.
+
+> **Correction, T-787 (2026-09-22).** This section said "a proven **16/16** patch set". Run
+> on 2026-09-22 `tools/_t353-repair-probe.sh` reported **12 passed, 1 failed** — its fourth
+> target was a path in
+> an ephemeral scratchpad, copied faithfully from T-299's own archived Verification line, and
+> the file had been reaped. The probe was right to refuse (it will not measure the load-error
+> path and call it a pattern result); the *citation* was the thing that decayed, having been
+> recorded as durable while resting on a file outside the repository. Repaired in T-787: the
+> target is now the committed `context-memory.bpmn`, which reproduces the same condition
+> (`WARN … 0 error(s)`, zero occurrences of `VALID`), and the probe gained portability,
+> substitution and provenance legs. **The honest headline is now 23/23, not 16/16** — the
+> instrument changed, so the number had to. The ruling below is unaffected: it was never a
+> question about the patch set's correctness.
+>
+> A second measurement in the same pass: the `_t560` ratchet reads **113**, not the 112
+> recorded earlier, and **96 of the 113 are in `.tasks/completed/`**. Only 17 are in
+> `active/`. So the ratchet cannot return to its 78 baseline by any edit an agent is
+> currently permitted to make — 113 − 17 = 96 > 78. That makes SQ-2 *necessary* to closing
+> `_t560`, not merely helpful, which is stronger than this report originally claimed.
+
+*Recommendation:* rule narrowly — permit appending
 sibling control legs when a teeth instrument requires it, logged as Tier 2. *Decides:* human
 only; no evidence is offered that T-353's Human AC is satisfied.
 

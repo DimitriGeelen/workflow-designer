@@ -23,7 +23,12 @@
 # legs 1 go red by design: the defect they reproduce will no longer exist.
 set -uo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# T-787: ROOT is overridable so a COPY of this probe can be negative-controlled without
+# silently re-rooting onto wherever the copy happens to live. PL-193 — a harness that
+# derives its subject from its own file location answers confidently about the wrong
+# subject; the first attempt at controlling the legs below hit exactly that and reported
+# a failure that had nothing to do with the poison.
+ROOT="${PROBE_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 GATE_SRC="${GATE_SRC:-$ROOT/.agentic-framework/agents/task-create/update-task.sh}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -98,12 +103,64 @@ fixed_line() { printf 'out=$(python3 tools/validate-workflow.py %s 2>&1); echo "
 # output at all, so its line is RED today, not passing. Declaring the expectation here rather
 # than deriving it from the run keeps the probe falsifiable — if that document ever becomes
 # valid, leg 3n goes red and someone has to come back and say so.
+# T-787: the T-299 target was the scratchpad path its ARCHIVED line cites. That document
+# came from AEF over rail 314 and was never committed here; the scratchpad has since been
+# reaped, so this probe's headline went 16/16 -> 12+1 without anything about the repair
+# changing. The instrument was right to refuse (it will not measure the load-error path and
+# call it a pattern result) — what decayed was the CITATION, recorded as durable in T-353's
+# Human AC and in the Phase 5 review while resting on a file outside the repository.
+# Substituted: context-memory.bpmn reproduces the same condition from inside the repo —
+# `WARN ... 0 error(s)`, with the string VALID appearing zero times — which is what the
+# T-299 case exists to test. Equivalence is asserted by leg 0b below, not by this comment.
 TARGETS=(
   "T-288|yes|examples/aef-processes/tier0-escalation.workflow.yaml"
   "T-288|yes|examples/aef-processes/rendered/tier0-escalation.bpmn"
   "T-298|yes|examples/aef-processes/rendered/error-escalation-ladder.bpmn"
-  "T-299|no|/tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/draft-task-creation-v2.bpmn"
+  "T-299|no|examples/aef-processes/rendered/context-memory.bpmn"
 )
+
+# ── leg 0a: PORTABILITY. No target may resolve outside the repository. ────────────────
+# This is the defect T-787 fixed, asserted so it cannot return silently. A target that
+# lives in a scratchpad makes every leg below contingent on state no checkout carries.
+for entry in "${TARGETS[@]}"; do
+  d="${entry##*|}"
+  case "$d" in
+    /*) fail "portability: target '$d' is an absolute path — it cannot travel with the repo" ;;
+    *)  if [ -e "$ROOT/$d" ]; then ok "portability: $d is repo-relative and present"
+        else fail "portability: repo-relative target '$d' does not exist"; fi ;;
+  esac
+done
+
+# ── leg 0b: the SUBSTITUTION is equivalent, measured rather than asserted. ────────────
+# The T-299 case needs a document on which BOTH the original `grep -q "VALID"` and the
+# repaired `grep -q "^VALID"` fail — that is what makes "a tightened pattern cannot fix a
+# stale document" a measurement. Zero occurrences of VALID is the strongest form of that.
+sub_out="$(cd "$ROOT" && timeout 60 python3 tools/validate-workflow.py examples/aef-processes/rendered/context-memory.bpmn 2>&1)"
+if echo "$sub_out" | grep -q '^WARN' && echo "$sub_out" | grep -q '0 error(s)'; then
+  ok "substitution: context-memory.bpmn emits WARN with 0 error(s), as T-299's document did"
+else
+  fail "substitution: context-memory.bpmn no longer emits 'WARN ... 0 error(s)' — the stand-in has drifted"
+fi
+if echo "$sub_out" | grep -q 'VALID'; then
+  fail "substitution: 'VALID' now appears in context-memory.bpmn's output — it no longer reproduces the T-299 condition"
+else
+  ok "substitution: 'VALID' appears zero times, so both the original and repaired patterns fail on it"
+fi
+
+# ── leg 0c: the ARCHIVED line's defect is still there, so the finding is not lost. ────
+# T-299's completed task cites a path outside this repository that can never be re-run.
+# Derived from the archived line rather than hardcoded, so this measures the record and
+# not a copy of it. If that document is ever committed, this goes RED and a human has to
+# come back and say so — the same declared-expectation discipline as `valid_doc` above.
+T299_FILE="$ROOT/.tasks/completed/T-299-task-creation-pair-round-leg-aef-t-2666-.md"
+t299_path="$(grep -oE 'validate-workflow\.py [^ ]+' "$T299_FILE" 2>/dev/null | head -1 | awk '{print $2}')"
+if [ -z "$t299_path" ]; then
+  fail "provenance: could not find a validate-workflow.py invocation in T-299's archived record"
+elif [ -e "$t299_path" ]; then
+  fail "provenance: T-299's archived target '$t299_path' now EXISTS — the finding has changed, re-rule it"
+else
+  ok "provenance: T-299's archived line still cites '$t299_path', which is not in this repo"
+fi
 
 for entry in "${TARGETS[@]}"; do
   task="${entry%%|*}"

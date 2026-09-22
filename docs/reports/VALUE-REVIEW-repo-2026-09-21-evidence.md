@@ -336,7 +336,9 @@ The full sweep (not the bridge suite's truncated tail) names **two**, not one:
 in `.tasks/completed/`, and whether an agent may edit Verification blocks there is the exact
 open `[REVIEW]` criterion on **T-353** (`owner: human`, unchecked). T-353 records that *"the
 patch set is already built and proven, and no part of it has been applied"*
-(`tools/_t353-repair-probe.sh`, 16/16).
+(`tools/_t353-repair-probe.sh`, **23/23 as of T-787** — recorded here as 16/16, which was the
+count before that repair; the probe's fourth target was an ephemeral scratchpad path and it
+gained 7 legs when that was fixed. See the correction block in the Phase 5 report §12 SQ-2.)
 
 ## F-10 — 832's contractual deliverables to the AEF bridge are intact
 
