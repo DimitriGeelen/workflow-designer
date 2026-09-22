@@ -87,6 +87,12 @@ PAIRS = {
     # laned; an out-of-enum value sailed past it. Touching the same carrier is
     # not being a counterpart.
     "E-AUTHORITY":          {"E-XML-AUTHORITY"},
+    # T-816 built the counterpart. Both forms read the SAME carrier (lane abbr) and ask the
+    # SAME question (is this value already used by another lane), so this is a direct pair
+    # rather than the "touching the same carrier" near-miss the E-AUTHORITY note above warns
+    # about. The XML form previously had no rule at all: abbr is carried by 96/96 bpmn maps
+    # and was checked only on the form the designer does not author.
+    "E-ABBR-DUP":           {"E-XML-ABBR-DUP"},
     # PAIRED_SAME_ID (T-322): IW-9 O-3 is emitted under one id by BOTH forms, so
     # its counterpart is itself. Added because the AC2 drift guard caught its
     # absence on this guard's first run -- which is the drift guard working, not

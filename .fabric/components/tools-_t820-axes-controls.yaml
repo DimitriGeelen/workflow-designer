@@ -1,0 +1,24 @@
+id: tools/_t820-axes-controls.sh
+name: _t820-axes-controls
+type: script
+subsystem: conformance
+location: tools/_t820-axes-controls.sh
+tags: [conformance, control, teeth, anti-vacuity]
+
+purpose: "Proves the axis runner aggregates: it must FAIL when exactly ONE axis fails, not
+  only when everything is broken, because one-of-five is the real case — T-816 had three of
+  five passing. Drives the real runner against sandbox repos carrying stubbed axes, moving the
+  single failing stub through every position, plus a clean baseline and a missing-file case
+  that must report could-not-measure rather than silently checking four of five. Stubs rather
+  than mutated validator rules because what is under test is the runner's aggregation, not the
+  axes themselves."
+purpose_source: "authored at creation by T-820"
+
+depends_on:
+  - target: tools/_t820-rule-axes.sh
+    type: calls
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-820

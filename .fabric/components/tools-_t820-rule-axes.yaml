@@ -1,0 +1,34 @@
+id: tools/_t820-rule-axes.sh
+name: _t820-rule-axes
+type: script
+subsystem: conformance
+location: tools/_t820-rule-axes.sh
+tags: [conformance, validator, axes, teeth]
+
+purpose: "Runs every classification axis a validator rule must satisfy — form parity, dialect
+  axis, anchorability, cross-form agreement, pass reachability — as one command. Exists
+  because T-816 added a rule, satisfied two of the five, wrote its verification legs for
+  exactly those two, and passed its own gate: the legs were as incomplete as the work, and no
+  task-scoped gate could tell the difference. The machinery was never the problem; each axis
+  already fails loudly and correctly. The problem is that they are discoverable only by having
+  met them. This file was itself written listing FOUR and the fifth surfaced minutes later,
+  which is the argument for it rather than against it — the list belongs where a reader can
+  extend it."
+purpose_source: "authored at creation by T-820"
+
+depends_on:
+  - target: tests/test_rule_form_parity.py
+    type: calls
+  - target: tests/test_rule_dialect_axis.py
+    type: calls
+  - target: tests/test_finding_anchorability.py
+    type: calls
+  - target: tests/test_harness_cross_form_agreement.py
+    type: calls
+  - target: tests/test_check_pass_reachability.py
+    type: calls
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-820

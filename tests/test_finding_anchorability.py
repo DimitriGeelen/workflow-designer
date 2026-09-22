@@ -91,6 +91,13 @@ ANCHOR = {
     "I-XML-LANE-CAPACITY-SKIP":  "LANE",
     "W-XML-LANE-CAPACITY":       "LANE",
     "E-XML-AUTHORITY":           "LANE",
+    # T-816. LANE, not VALUE, and the distinction is the one this table is built on.
+    # VALUE is for a duplicated *id*: the anchor itself resolves to >=2 elements, so "the"
+    # element to point at does not exist. E-XML-ABBR-DUP duplicates an ATTRIBUTE (abbr)
+    # while its location names the offending lane's own id — unique, resolvable, and
+    # highlightable. The canvas can point at exactly the lane that collided, which is the
+    # whole test for gutter-ability.
+    "E-XML-ABBR-DUP":            "LANE",
     "E-INCEPTION-NOT-SOVEREIGN": "NODE",
     "W-TYPE-LANE-MISMATCH":      "NODE",
     "W-LANE-NO-OWNER":           "NODE",
