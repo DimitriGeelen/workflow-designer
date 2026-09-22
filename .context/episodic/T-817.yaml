@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-817: Wire four proven-working CDP probes into the gating suite (F-08 inventory closing part of F-07)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T14:50:04Z
+# ============================================================================
+
+task_id: T-817
+task_name: "Wire four proven-working CDP probes into the gating suite (F-08 inventory closing part of F-07)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T14:45:06Z
+completed: 2026-09-22T14:49:48Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T16:49:42+02:00
+last_commit: 2026-09-22T16:49:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  F-07 and F-08 are the same hole from opposite sides — four probes that already existed, now wired
+
+# Key outcomes
+outcomes:
+  - 'Each of the four probes is invoked by `tests/run-bridge-tests.sh` as its own leg, following the `_t423` pattern already in the file (timeout, captured output, a FAIL message naming what broke and how to re-run it)'
+  - 'Each was RUN and observed to pass before being wired — no probe is wired on the strength of its filename or its task''s claim'
+  - 'The unwired-guard census reflects the change: these four stop counting as having no live caller'
+  - 'The two failing probes and the two gallery-blocked ones are filed with their measured cause, not quietly skipped'
+  - 'CONTROL: a wired leg is proven to FAIL the suite when its probe fails, so the wiring is load-bearing rather than decorative'
+  - 'The suite''s existing legs are untouched — no leg reordered, removed, or given a different timeout'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — run all eight before wiring any'
+    chose: 'execute every named probe first, wire only what passed.'
+    rationale: 'F-08''s whole finding is instruments trusted on prose rather than execution — *"their WIRED verdict rests entirely on prose."* Wiring on the strength of a filename would have reproduced that defect while appearing to fix it. - **What it found**, which assumption would have got wrong in three different ways:'
+  - decision: '2026-09-22 — the two red probes are filed, not wired'
+  - decision: '2026-09-22 — the two gallery probes stay blocked, and the reason is F-01''s family'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t817-wiring-controls.yaml'
+  - '.tasks/active/T-817-wire-four-proven-working-cdp-probes-into.md'
+  - '.tasks/active/T-818-two-direct-manipulation-probes-are-red-a.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t817-wiring-controls.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T16:49:42"
+    action: 'T-817: F-07 and F-08 are the same hole from opposite sides — four probes that already existed, now wired'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 5
+  lines_added: 567
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-817-wire-four-proven-working-cdp-probes-into.md
+generated_by: context-agent-hybrid

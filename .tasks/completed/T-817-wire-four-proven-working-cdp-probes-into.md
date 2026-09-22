@@ -4,20 +4,20 @@ name: "Wire four proven-working CDP probes into the gating suite (F-08 inventory
 description: >
   F-08 measured 118 instruments that read as standing guards with no live caller — coverage written, run once at task completion, never wired to anything that re-runs it. F-07 separately measured that the direct-manipulation surface is named by no gating leg. Those connect: several of the unwired instruments are CDP probes for exactly those gestures. Measured all 8 named probes rather than assuming. SIX target src/ directly; two need a served gallery whose build/gallery/designer.html is dated Aug 14, 39 days stale, and which I must not rebuild — serving it would test old bytes, the FP-009 defect. Of the six: FOUR PASS (respaceColumns spacing T-115, selection Align/Distribute T-134, edge Straighten T-137, save-target binding T-263) and TWO FAIL on real assertions (_endpoint-overlap expected e_11; _saveproject pass:false). Wire the four that pass so they cannot rot unobserved; file the two failures with the measurement rather than fixing blind.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t817-wiring-controls.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T14:45:06Z
-last_update: 2026-09-22T14:45:06Z
-date_finished: null
+last_update: 2026-09-22T14:49:48Z
+date_finished: 2026-09-22T14:49:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -222,3 +222,15 @@ bash -c 'test "$(grep -c "_endpoint-overlap-verify-cdp.mjs\|_saveproject-verify-
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-817-wire-four-proven-working-cdp-probes-into.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8c72c825
+- **Timestamp:** 2026-09-22T14:49:59Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T14:49:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

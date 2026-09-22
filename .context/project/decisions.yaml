@@ -2404,3 +2404,10 @@ decisions:
     date: 2026-09-22
     task: T-815
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-323
+    decision: "execute every named probe first, wire only what passed."
+    scope: project
+    date: 2026-09-22
+    task: T-817
+    rationale: "Auto-captured from task file on completion"
