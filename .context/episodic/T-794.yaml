@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-794: Rank the MCP surface for the designer by value under the yardstick: which tool unlocks the agent-and-human loop
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T08:37:07Z
+# ============================================================================
+
+task_id: T-794
+task_name: "Rank the MCP surface for the designer by value under the yardstick: which tool unlocks the agent-and-human loop"
+workflow_type: design
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T08:32:40Z
+completed: 2026-09-22T08:37:01Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T10:36:55+02:00
+last_commit: 2026-09-22T10:36:55+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the value is not in exposing tools, it is in closing the loop that has no agent path — and I broke a pinned seam finding that out. THE MEASUREMENT THAT DECIDES IT: I wrote a workflow YAML from scratch with no template, the way an LLM naturally would, and ran it through the chain. yaml-to-bpmn CONVERTED IT CLEANLY at 2062 bytes and said nothing. validate-workflow then returned exit 1 with W-XML-UNREACHABLE on all three non-start nodes, because I had guessed the key 'flows:' where the schema says 'edges:'. One word. After the fix, exit 0 and zero findings. So the converter accepted a diagram whose every node was disconnected, and the mistake was the single most predictable one an LLM can make. THE PAIR IS THE UNIT, NOT TWO FEATURES: convert without validate is a silent broken-output generator, validate without convert is a judge with nothing of its own to judge. Together they are an agent's authoring path — agent drafts YAML, converts, validates, human opens it in the designer and refines — which is the yardstick's 'agent and human collaboration' in one sentence, entirely inside T-791's read-only fence. RANKING: 1) yaml_to_bpmn, highest value and near-zero cost since the tool exists and is stdlib+pyyaml. 2) describe_workflow, the only genuinely new code on the list, letting an agent reason about a diagram instead of parsing XML. 3) list_corpus/get_workflow, cheap but modest — our corpus is 5 of 6 fixtures with nothing saved since 2026-07-29. WHAT I BROKE, AND FIXED: probing bake-clean-layout.py with --help ran its real corpus-wide sweep instead of printing usage, rewriting 24 files under examples/aef-processes/rendered/ — the seam AEF pins against. Reverted with git checkout; the tree is byte-identical to HEAD and nothing was committed. Filed as OBS-373: --help is the first thing any agent reaches for, and here it triggers a destructive sweep. It also disqualifies auto-layout from the MCP surface twice over — a corpus mutator is not a pure function, which is exactly the case the scope fence exists to refuse. NOT WORTH BUILDING, stated so it is not rediscovered: do not re-expose the designer UI over MCP (the browser is the human's surface and it works), and do not build toward execution (upstream, T-788 at @1630). Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the ranking rests on a measurement, not on reasoning about what agents'
+  - '**AC2 — the pair-vs-single question is answered by evidence.** Whether `yaml_to_bpmn`'
+  - '**AC3 — at least one plausible candidate is EXCLUDED, with its reason.** A ranking in'
+  - '**AC4 — what NOT to build is stated, not just what to build.** Including the tempting'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the value is not in exposing tools, it is in closing the loop that has no agent path — and I broke a pinned seam finding that out. THE MEASUREMENT THAT DECIDES IT: I wrote a workflow YAML from scratch with no template, the way an LLM naturally would, and ran it through the chain. yaml-to-bpmn CONVERTED IT CLEANLY at 2062 bytes and said nothing. validate-workflow then returned exit 1 with W-XML-UNREACHABLE on all three non-start nodes, because I had guessed the key ''flows:'' where the schema says ''edges:''. One word. After the fix, exit 0 and zero findings. So the converter accepted a diagram whose every node was disconnected, and the mistake was the single most predictable one an LLM can make. THE PAIR IS THE UNIT, NOT TWO FEATURES: convert without validate is a silent broken-output generator, validate without convert is a judge with nothing of its own to judge. Together they are an agent''s authoring path — agent drafts YAML, converts, validates, human opens it in the designer and refines — which is the yardstick''s ''agent and human collaboration'' in one sentence, entirely inside T-791''s read-only fence. RANKING: 1) yaml_to_bpmn, highest value and near-zero cost since the tool exists and is stdlib+pyyaml. 2) describe_workflow, the only genuinely new code on the list, letting an agent reason about a diagram instead of parsing XML. 3) list_corpus/get_workflow, cheap but modest — our corpus is 5 of 6 fixtures with nothing saved since 2026-07-29. WHAT I BROKE, AND FIXED: probing bake-clean-layout.py with --help ran its real corpus-wide sweep instead of printing usage, rewriting 24 files under examples/aef-processes/rendered/ — the seam AEF pins against. Reverted with git checkout; the tree is byte-identical to HEAD and nothing was committed. Filed as OBS-373: --help is the first thing any agent reaches for, and here it triggers a destructive sweep. It also disqualifies auto-layout from the MCP surface twice over — a corpus mutator is not a pure function, which is exactly the case the scope fence exists to refuse. NOT WORTH BUILDING, stated so it is not rediscovered: do not re-expose the designer UI over MCP (the browser is the human''s surface and it works), and do not build toward execution (upstream, T-788 at @1630). Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'docs/reports/T-794-mcp-surface-value-ranking.md'
+  - '.tasks/active/T-794-rank-the-mcp-surface-for-the-designer-by.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T10:36:55"
+    action: 'T-794: the value is not in exposing tools, it is in closing the loop that has no agent path — and I broke a pinned seam finding that out. THE MEASUREMENT THAT DECIDES IT: I wrote a workflow YAML from scratch with no template, the way an LLM naturally would, and ran it through the chain. yaml-to-bpmn CONVERTED IT CLEANLY at 2062 bytes and said nothing. validate-workflow then returned exit 1 with W-XML-UNREACHABLE on all three non-start nodes, because I had guessed the key ''flows:'' where the schema says ''edges:''. One word. After the fix, exit 0 and zero findings. So the converter accepted a diagram whose every node was disconnected, and the mistake was the single most predictable one an LLM can make. THE PAIR IS THE UNIT, NOT TWO FEATURES: convert without validate is a silent broken-output generator, validate without convert is a judge with nothing of its own to judge. Together they are an agent''s authoring path — agent drafts YAML, converts, validates, human opens it in the designer and refines — which is the yardstick''s ''agent and human collaboration'' in one sentence, entirely inside T-791''s read-only fence. RANKING: 1) yaml_to_bpmn, highest value and near-zero cost since the tool exists and is stdlib+pyyaml. 2) describe_workflow, the only genuinely new code on the list, letting an agent reason about a diagram instead of parsing XML. 3) list_corpus/get_workflow, cheap but modest — our corpus is 5 of 6 fixtures with nothing saved since 2026-07-29. WHAT I BROKE, AND FIXED: probing bake-clean-layout.py with --help ran its real corpus-wide sweep instead of printing usage, rewriting 24 files under examples/aef-processes/rendered/ — the seam AEF pins against. Reverted with git checkout; the tree is byte-identical to HEAD and nothing was committed. Filed as OBS-373: --help is the first thing any agent reaches for, and here it triggers a destructive sweep. It also disqualifies auto-layout from the MCP surface twice over — a corpus mutator is not a pure function, which is exactly the case the scope fence exists to refuse. NOT WORTH BUILDING, stated so it is not rediscovered: do not re-expose the designer UI over MCP (the browser is the human''s surface and it works), and do not build toward execution (upstream, T-788 at @1630). Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 3
+  lines_added: 345
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-794-rank-the-mcp-surface-for-the-designer-by.md
+generated_by: context-agent-hybrid
