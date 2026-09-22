@@ -2327,3 +2327,17 @@ decisions:
     date: 2026-09-22
     task: T-808
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-312
+    decision: "a census that parses the corpus and ratchets per-key node coverage. Coverage may"
+    scope: project
+    date: 2026-09-22
+    task: T-809
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-313
+    decision: "re-measure by parsing XML, and write the correction into the value review itself."
+    scope: project
+    date: 2026-09-22
+    task: T-809
+    rationale: "Auto-captured from task file on completion"

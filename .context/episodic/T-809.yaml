@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-809: Corpus conformance census for the frozen governance meta-keys (F-06)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T13:04:25Z
+# ============================================================================
+
+task_id: T-809
+task_name: "Corpus conformance census for the frozen governance meta-keys (F-06)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T12:58:14Z
+completed: 2026-09-22T13:04:17Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T15:04:09+02:00
+last_commit: 2026-09-22T15:04:09+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the frozen-key MUST is finally checked against documents — and the gap is twice what the finding said
+
+# Key outcomes
+outcomes:
+  - 'A census instrument OPENS every corpus document and counts, per frozen key, how many task-like nodes carry it — the thing `test_mapping_standard_conformance.py` does not do'
+  - 'It parses XML rather than grepping: a bare `grep tier` matches prose and attribute values in unrelated elements, and the first measurement of this finding was wrong for exactly that reason'
+  - 'A ratchet baseline records coverage as found. Coverage may RISE freely; a FALL exits non-zero (the T-560 pattern, direction inverted because here the number is the good thing)'
+  - 'CANNOT-MEASURE IS NOT A PASS: a parse failure, a missing corpus, or zero task-like nodes found exits non-zero rather than reporting clean'
+  - 'CONTROL: the ratchet is proven to FAIL on a regression, by actually stripping a key from a throwaway copy of the corpus'
+  - 'CONTROL: the census is proven to SEE a key it should — a node given the key in a throwaway copy raises the count'
+  - 'The frozen standard is NOT edited, and no corpus file is modified — the ruling on which side must move is the operator''s (SQ 12-Q3)'
+  - 'The finding''s own numbers are corrected where measurement disagrees with them, rather than restated'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — A ratchet, deliberately not a conformance gate'
+    chose: 'a census that parses the corpus and ratchets per-key node coverage. Coverage may rise freely; a fall exits non-zero.'
+    rationale: 'F-06''s recommendation is explicit that the *check* is the finding and the *ruling* is not: *"Do not weaken §2 to make the corpus conformant — whether the corpus must comply or the standard should change is sovereign → §12 Q3."* A ratchet makes the condition mechanically visible and stops it widening, without deciding which side moves.'
+  - decision: '2026-09-22 — the anti-vacuity control failed first, and it was the control that was wrong'
+  - decision: '2026-09-22 — The finding''s own numbers were wrong, and I corrected them'
+    chose: 're-measure by parsing XML, and write the correction into the value review itself.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md'
+  - '.fabric/components/tools-_t809-census-controls.yaml'
+  - '.fabric/components/tools-_t809-frozen-meta-census.yaml'
+  - '.tasks/active/T-809-corpus-conformance-census-for-the-frozen.md'
+  - 'tools/_t809-census-controls.sh'
+  - 'tools/_t809-frozen-meta-baseline.txt'
+  - 'tools/_t809-frozen-meta-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T15:04:09"
+    action: 'T-809: the frozen-key MUST is finally checked against documents — and the gap is twice what the finding said'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 7
+  lines_added: 671
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-809-corpus-conformance-census-for-the-frozen.md
+generated_by: context-agent-hybrid

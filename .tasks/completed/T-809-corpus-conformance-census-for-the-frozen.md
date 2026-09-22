@@ -4,20 +4,20 @@ name: "Corpus conformance census for the frozen governance meta-keys (F-06)"
 description: >
   Value review T-742 finding F-06: the frozen standard says a conformant editor MUST emit horizon, workflowType, tier and agentType on task-like nodes, and tests/test_mapping_standard_conformance.py reports OK exit 0 while comparing KEY LISTS and never opening a corpus document. Re-measured per-node: horizon 0/165, workflowType 0/165, tier 74/165, agentType 17/165 — all four short, not the two the review recorded. Build the check that opens the documents. Whether the corpus must comply or the standard should change is the operator's ruling (sovereign, SQ 12-Q3) and this task does not make it.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t809-census-controls.sh, tools/_t809-frozen-meta-census.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T12:58:14Z
-last_update: 2026-09-22T12:58:14Z
-date_finished: null
+last_update: 2026-09-22T13:04:17Z
+date_finished: 2026-09-22T13:04:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -237,3 +237,15 @@ git diff --quiet HEAD -- examples/aef-processes/rendered/
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-809-corpus-conformance-census-for-the-frozen.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6d562b63
+- **Timestamp:** 2026-09-22T13:04:19Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T13:04:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
