@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-825: EWCR arc scoping review: task composition against what we now know
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T19:21:47Z
+# ============================================================================
+
+task_id: T-825
+task_name: "EWCR arc scoping review: task composition against what we now know"
+workflow_type: specification
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T19:15:48Z
+completed: 2026-09-22T19:21:41Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Every open task in the arc is enumerated with status, owner and unticked-AC count — the composition question cannot be answered from the arc''s headline count alone'
+  - 'The ownership split is stated as a number, not an impression: how many open arc tasks an agent could actually move'
+  - 'Arc-0''s exit state is read from the register itself, quoting its own verdict rather than summarising it'
+  - 'The scoping decision (T-681) is checked for whether it was ACTED ON, not just recorded — a GO with no build tasks behind it and a GO that shipped look identical from the task list'
+  - 'Anything MISSING from the arc is named, with evidence that it is missing rather than merely unfamiliar to me'
+  - 'Any task whose TITLE contradicts its own recorded content is identified — a misleading title on a closed task misinforms every future reader of the list'
+  - 'Missing work is FILED as tasks, attached to the arc, not left as prose in a report nobody re-reads'
+  - 'Human-owned tasks are NOT edited, completed or retitled by the agent — recommendations about them go to the operator'
+  - 'The report''s load-bearing numbers are re-derivable by command, so a reader can check them rather than trust them'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-825-ewcr-arc-scoping-review-task-composition.md
+generated_by: context-agent-hybrid
