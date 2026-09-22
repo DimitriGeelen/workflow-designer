@@ -4,10 +4,10 @@ name: "Put the workflow-class/instance proposal to AEF: the runs already exist u
 description: >
   Put the workflow-class/instance proposal to AEF: the runs already exist unmodelled, one design to N tasks with zero linkage
 
-status: started-work
+status: work-completed
 workflow_type: design
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T09:18:20Z
-last_update: 2026-09-22T09:18:20Z
-date_finished: null
+last_update: 2026-09-22T09:21:07Z
+date_finished: 2026-09-22T09:21:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -231,3 +231,20 @@ grep -q 'did not do' docs/reports/T-798-workflow-class-instance.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-798-put-the-workflow-classinstance-proposal-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b6e79286
+- **Timestamp:** 2026-09-22T09:21:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 58
+     - evidence: `! grep -rn 'workflow_type' .agentic-framework/lib/resolver.py | grep -qiE 'bpmn|\.workflow'`
+
+### 2026-09-22T09:21:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

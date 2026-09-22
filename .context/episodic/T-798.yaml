@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-798: Put the workflow-class/instance proposal to AEF: the runs already exist unmodelled, one design to N tasks with zero linkage
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T09:21:13Z
+# ============================================================================
+
+task_id: T-798
+task_name: "Put the workflow-class/instance proposal to AEF: the runs already exist unmodelled, one design to N tasks with zero linkage"
+workflow_type: design
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T09:18:20Z
+completed: 2026-09-22T09:21:07Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T11:21:07+02:00
+last_commit: 2026-09-22T11:21:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the operator's class/instance proposal, and it is far smaller than building an instance layer — the runs already exist and the class pointer already exists. THE INSTANCES ARE NOT HYPOTHETICAL, THEY ARE RUNNING TODAY: inception-lifecycle.bpmn has 44 inception tasks, task-lifecycle.bpmn has 797 tasks, session-handover.bpmn has 656 handovers, arc-lifecycle.bpmn has 3 arcs. Roughly 1,500 runs of 7 designs, with ZERO linkage back to the design they are runs of. An inception IS a workflow class and T-788 IS an instance of it; nothing records that. THE CLASS POINTER ALREADY EXISTS TOO: every task carries workflow_type: inception, which is the class name, read as a bare string at resolver.py:1060 with nothing joining it to a design document. The contrast that makes this actionable is in the SAME framework — arc_id DOES resolve, check-arc-id.py verifies .context/arcs/<arc_id>.yaml exists and BLOCKS under agent control when it does not. The resolving-reference pattern is already built and already gated one field over. So the proposal is not invent an instance model, it is make the pointer you already have resolve, after which 1,500 existing runs become tracked instances retroactively with no migration. THE DESIGN QUESTION WE DID NOT ANSWER FOR THEM: two diagram-to-work mappings that are incompatible. Today fw bpmn compile is node-to-task, a design becoming a backlog. An instance needs run-to-something, and the answer differs by workflow shape. For a LIFECYCLE design one run is ONE task passing through the nodes as STATES — T-788 went captured to started-work to work-completed — so compiling node-to-task there would produce a task called 'explore', which is not what an inception is. For a PIPELINE design one run plausibly IS a set of tasks. Both shapes are in the corpus, it does not resolve itself, and choosing silently is worse than leaving it open. OWNERSHIP ARGUED FROM THEIR OWN PRINCIPLE: AEF claimed Child-2 at @1631 because 'the .tasks/ write never leaves our task-gate perimeter'. An instance that tracks task execution IS task state — same perimeter, same argument. Put to them as two questions at sidecar @6, correlation 832-T798-WORKFLOW-CLASS-INSTANCE, with 'nobody owns this' named as a complete and useful answer. NOTHING BUILT, no schema proposed, frozen standard untouched. Guessing a schema and shipping an exporter for it is the T-786 error at larger radius, and this time there is no frozen document to catch it. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the claim "the instances already exist" is counted, not asserted.** The whole'
+  - '**AC2 — the "pointer exists but does not resolve" claim is traced to source, with its'
+  - '**AC3 — the design question we cannot answer is stated as a question.** Two mappings —'
+  - '**AC4 — ownership is argued from the counterparty''s own principle, not ours.**'
+  - '**AC5 — nothing is built or proposed on the strength of it.** No schema, no exporter,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the operator''s class/instance proposal, and it is far smaller than building an instance layer — the runs already exist and the class pointer already exists. THE INSTANCES ARE NOT HYPOTHETICAL, THEY ARE RUNNING TODAY: inception-lifecycle.bpmn has 44 inception tasks, task-lifecycle.bpmn has 797 tasks, session-handover.bpmn has 656 handovers, arc-lifecycle.bpmn has 3 arcs. Roughly 1,500 runs of 7 designs, with ZERO linkage back to the design they are runs of. An inception IS a workflow class and T-788 IS an instance of it; nothing records that. THE CLASS POINTER ALREADY EXISTS TOO: every task carries workflow_type: inception, which is the class name, read as a bare string at resolver.py:1060 with nothing joining it to a design document. The contrast that makes this actionable is in the SAME framework — arc_id DOES resolve, check-arc-id.py verifies .context/arcs/<arc_id>.yaml exists and BLOCKS under agent control when it does not. The resolving-reference pattern is already built and already gated one field over. So the proposal is not invent an instance model, it is make the pointer you already have resolve, after which 1,500 existing runs become tracked instances retroactively with no migration. THE DESIGN QUESTION WE DID NOT ANSWER FOR THEM: two diagram-to-work mappings that are incompatible. Today fw bpmn compile is node-to-task, a design becoming a backlog. An instance needs run-to-something, and the answer differs by workflow shape. For a LIFECYCLE design one run is ONE task passing through the nodes as STATES — T-788 went captured to started-work to work-completed — so compiling node-to-task there would produce a task called ''explore'', which is not what an inception is. For a PIPELINE design one run plausibly IS a set of tasks. Both shapes are in the corpus, it does not resolve itself, and choosing silently is worse than leaving it open. OWNERSHIP ARGUED FROM THEIR OWN PRINCIPLE: AEF claimed Child-2 at @1631 because ''the .tasks/ write never leaves our task-gate perimeter''. An instance that tracks task execution IS task state — same perimeter, same argument. Put to them as two questions at sidecar @6, correlation 832-T798-WORKFLOW-CLASS-INSTANCE, with ''nobody owns this'' named as a complete and useful answer. NOTHING BUILT, no schema proposed, frozen standard untouched. Guessing a schema and shipping an exporter for it is the T-786 error at larger radius, and this time there is no frozen document to catch it. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-798-workflow-class-instance.md'
+  - '.tasks/active/T-798-put-the-workflow-classinstance-proposal-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T11:21:07"
+    action: 'T-798: the operator''s class/instance proposal, and it is far smaller than building an instance layer — the runs already exist and the class pointer already exists. THE INSTANCES ARE NOT HYPOTHETICAL, THEY ARE RUNNING TODAY: inception-lifecycle.bpmn has 44 inception tasks, task-lifecycle.bpmn has 797 tasks, session-handover.bpmn has 656 handovers, arc-lifecycle.bpmn has 3 arcs. Roughly 1,500 runs of 7 designs, with ZERO linkage back to the design they are runs of. An inception IS a workflow class and T-788 IS an instance of it; nothing records that. THE CLASS POINTER ALREADY EXISTS TOO: every task carries workflow_type: inception, which is the class name, read as a bare string at resolver.py:1060 with nothing joining it to a design document. The contrast that makes this actionable is in the SAME framework — arc_id DOES resolve, check-arc-id.py verifies .context/arcs/<arc_id>.yaml exists and BLOCKS under agent control when it does not. The resolving-reference pattern is already built and already gated one field over. So the proposal is not invent an instance model, it is make the pointer you already have resolve, after which 1,500 existing runs become tracked instances retroactively with no migration. THE DESIGN QUESTION WE DID NOT ANSWER FOR THEM: two diagram-to-work mappings that are incompatible. Today fw bpmn compile is node-to-task, a design becoming a backlog. An instance needs run-to-something, and the answer differs by workflow shape. For a LIFECYCLE design one run is ONE task passing through the nodes as STATES — T-788 went captured to started-work to work-completed — so compiling node-to-task there would produce a task called ''explore'', which is not what an inception is. For a PIPELINE design one run plausibly IS a set of tasks. Both shapes are in the corpus, it does not resolve itself, and choosing silently is worse than leaving it open. OWNERSHIP ARGUED FROM THEIR OWN PRINCIPLE: AEF claimed Child-2 at @1631 because ''the .tasks/ write never leaves our task-gate perimeter''. An instance that tracks task execution IS task state — same perimeter, same argument. Put to them as two questions at sidecar @6, correlation 832-T798-WORKFLOW-CLASS-INSTANCE, with ''nobody owns this'' named as a complete and useful answer. NOTHING BUILT, no schema proposed, frozen standard untouched. Guessing a schema and shipping an exporter for it is the T-786 error at larger radius, and this time there is no frozen document to catch it. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 2
+  lines_added: 323
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-798-put-the-workflow-classinstance-proposal-.md
+generated_by: context-agent-hybrid
