@@ -1,42 +1,23 @@
 ---
-id: T-826
-name: "Emit the diagram-kind marker: the resolving pointer AEF named as the missing
-  piece"
+id: T-831
+name: "Score arc-002 eligible tasks for the autonomous run"
 description: >
-  T-213 dispositioned aef:workflowMeta diagram-kind (documentation|work-plan) GO on
-  2026-07-21. It was never built: grep -c diagramKind src/aef-workflow-designer.html
-  returns 0. AEF independently named the same field at agent-chat-arc @1644 answering
-  T-798 Q2, verbatim: 'Your designer distinguishing the two shapes (a diagram-kind
-  marker - we already have an open corpus gap on exactly that, T-2556) is what would
-  let a resolver pick the right join.' WHY IT MATTERS. AEF claimed the instance/execution-tracking
-  layer as theirs at @1644 Q1 ('YES... Design nothing'), so the Designer builds no
-  instance model. But their join CANNOT be picked without knowing the diagram's shape:
-  for a LIFECYCLE design one run is one task passing through nodes as states and the
-  instance record already exists (status transitions, Updates, episodic YAML) so instantiation
-  is a JOIN; for a PIPELINE design the instance is the compiled task SET and a run
-  id must be stamped at compile time. The marker is the discriminator. It is the single
-  piece of the workflow-to-execution chain that is unambiguously on our side of the
-  seam, and the only new arc-002 work an agent can do. SCOPE: emit the marker in the
-  exporter, surface it in the properties panel, classify the corpus, and carry it
-  through the round-trip. The frozen standard docs/standards/aef-bpmn-mapping-v1.md
-  Part I must NOT be edited - if the marker needs a home the standard does not give
-  it, that is a question for AEF, not an edit. Check T-213's disposition for the agreed
-  value vocabulary before choosing one.
+  Score arc-002 eligible tasks for the autonomous run
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
-arc_id: ewcr-governed-delivery
+# arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-22T19:18:37Z
-last_update: '2026-09-22T21:45:32Z'
-date_finished:
+created: 2026-09-22T21:44:21Z
+last_update: 2026-09-22T21:48:07Z
+date_finished: 2026-09-22T21:48:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -47,38 +28,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-09-22T21:45:28Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 0
-      D3: 2
-      D4: 2
-      F-RECALL: 0
-      F2: 0
-      F4: 0
-      F3: 2
-      F1: 1
-    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
-      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
-      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=2 
-      (prose:seam-namespace); F1=1 (prose:process-enablement-incidental)
-    rubric_sha: e4a00f38e801
-cost_estimate_proposed:
-  - ts: '2026-09-22T21:45:32Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      tier: 2
-      effort: 8
-      blast_radius: 3
-    rationale: blast_radius=3 
-      (paths:docs/standards/aef-bpmn-mapping-v1.md,tools/_t820-rule-axes.sh); 
-      tier=2 (no-signal); effort=8 (no-signal)
-    rubric_sha: e4a00f38e801
 ---
 
-# T-826: Emit the diagram-kind marker: the resolving pointer AEF named as the missing piece
+# T-831: Score arc-002 eligible tasks for the autonomous run
 
 ## Context
 
@@ -88,14 +40,12 @@ cost_estimate_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] T-213's disposition is read FIRST and its agreed value vocabulary used verbatim — a second vocabulary for a field already dispositioned is the T-786 error, and this time AEF is waiting on the field
-- [ ] The marker is emitted by the exporter and survives a full round-trip: export → re-import → export is byte-identical, so authoring a kind does not make every later save carry noise
-- [ ] The marker is authorable — visible and settable in the properties panel, not a value only a file editor can reach. An unreachable authored value is F-11, which this session already had to fix once
-- [ ] Every map in `examples/aef-processes/rendered/` carries a kind, and the classification of each is stated with its reason — lifecycle vs pipeline is the distinction AEF's resolver depends on, so a wrong classification is worse than an absent one
-- [ ] The validator rejects an unknown kind value, and that rule satisfies ALL FIVE axes via `tools/_t820-rule-axes.sh` — T-816 passed its own gate with three of five unsatisfied and only the full suite caught it
-- [ ] CONTROL: a map with no kind, and a map with a bogus kind, are each proven to fail the validator — and the guard is proven to pass on the corpus, or the failures prove nothing
-- [ ] `docs/standards/aef-bpmn-mapping-v1.md` Part I is NOT edited. If the marker has no home the frozen standard gives it, that is a question for AEF on the rail, not an edit
-- [ ] AEF is told the field exists, with its vocabulary and an example document — they named it as the missing piece at @1644 and cited their own open gap T-2556; shipping it silently would leave the join unbuilt on their side
+- [x] The arc's eligible task set is read from the ARC VERB (`fw arc show`), not from a grep — T-825 already established that a text match over-counts this arc by three
+- [x] Every agent-owned open task in the arc carries a BVP score produced by the SCORER, not by my estimate. If the bvp-estimator worker is reachable via TermLink it is used; if it is not, that is recorded with the reason rather than silently replaced by inline judgement
+- [x] Scores are written to `*_proposed:` fields ONLY. `bvp_scores:`, `cost_estimate:`, `voi_score:` and `target_blast_radius:` are the operator's fields and an agent writing them is the sovereignty breach this register exists to prevent
+- [x] The quadrant of each scored task is stated, and the run's selection follows from it rather than being decided first and justified after
+- [x] The regress is recorded, not hidden: this task is itself unscored and started, because the framework gate requires an active started task before any command runs and the mandate requires a score before any task starts. Framework precedence resolves it; the deviation is logged rather than papered over
+- [x] If the arc has no Q1/Q2 agent-eligible work, that is stated as the finding and the run re-enters at arc level — not filled with low-value work to look busy
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -121,11 +71,11 @@ cost_estimate_proposed:
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-826`
+         1. Run `bin/fw reviewer T-831`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-826 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-831 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -138,6 +88,22 @@ cost_estimate_proposed:
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
+
+# ---- T-831 legs -------------------------------------------------------------
+# 1. T-826 carries a score produced by the SCORER. Written to the proposed field only.
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.tasks/active/T-826-emit-the-diagram-kind-marker-the-resolvi.md').read().split('---')[1]); sys.exit(0 if d.get('bvp_scores_proposed') and d.get('cost_estimate_proposed') else 1)"
+# 2. SOVEREIGNTY: the operator's fields were NOT written. bvp_scores:, cost_estimate:,
+#    voi_score: and target_blast_radius: are theirs; an agent writing them is the breach
+#    the register exists to prevent. Absence is the assertion here, so it is asserted.
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.tasks/active/T-826-emit-the-diagram-kind-marker-the-resolvi.md').read().split('---')[1]); sys.exit(1 if any(d.get(k) for k in ('bvp_scores','cost_estimate','voi_score','target_blast_radius')) else 0)"
+# 3. THE FINDING ITSELF: T-826 is lv-lc. This is why the run re-entered at arc level rather
+#    than working it. If this ever reads hv-*, the selection that followed was wrong and
+#    someone must re-read this task — so it fails loudly rather than ageing into a footnote.
+.agentic-framework/bin/fw bvp --include-proposed > /tmp/.t831-rank.out 2>&1; grep -qE "^T-826 .* lv-lc" /tmp/.t831-rank.out
+# 4. AND THE CONTROL FOR IT: the quadrant filter is not vacuous — hv-lc returns a non-empty
+#    set. Without this, "T-826 is not in hv-lc" could mean the filter matches nothing at all
+#    (PL-307: an honest absence and a dead instrument share an exit code).
+test "$(.agentic-framework/bin/fw bvp --include-proposed --quadrant hv-lc 2>/dev/null | grep -c '^T-')" -ge 1
 #
 # ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
 # P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.
@@ -231,7 +197,7 @@ cost_estimate_proposed:
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-826 go|no-go|defer --rationale "..."
+     fw inception decide T-831 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -240,16 +206,19 @@ cost_estimate_proposed:
 
 ## Updates
 
-### 2026-09-22T19:18:37Z — task-created [task-create-agent]
+### 2026-09-22T21:44:21Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-826-emit-the-diagram-kind-marker-the-resolvi.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-831-score-arc-002-eligible-tasks-for-the-aut.md
 - **Context:** Initial task creation
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-0e2c8950
-- **Timestamp:** 2026-09-22T19:30:18Z
+- **Scan ID:** R-e09e024e
+- **Timestamp:** 2026-09-22T21:48:19Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-09-22T21:48:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
