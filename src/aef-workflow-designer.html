@@ -1907,7 +1907,22 @@ const AEF_FIELDS = {
   serviceTask:  ['horizon', 'workflowType', 'tier', 'determinism', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'fabricRef', 'links', 'note'],
   userTask:     ['horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'decisionOutputs', 'fabricRef', 'links', 'note'],
   scriptTask:   ['horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'fabricRef', 'links', 'note'],
-  exclusiveGateway: ['determinism', 'decisionInput', 'decisionOwner', 'note'],
+  // T-810 (value review F-11): `decisionOutputs` is the THIRD authored-but-unshowable field
+  // found here, after T-566 (305 values) and T-618 (215). The corpus carries
+  // <aef:decisionOutputs> on exclusiveGateway 17 times and on userTask 6; the panel offered
+  // it on userTask only, so 17 of 23 values a human had written could be neither seen nor
+  // edited. Nothing was lost — FIELD_META, the exporter and the importer all handle the
+  // field type-agnostically, and T-570's carriage preserves it on save — but the operator
+  // had no way to know it was there.
+  //
+  // Adding it here is the whole fix, and it follows T-618's stated principle verbatim:
+  // offer the field on exactly the types the corpus annotates. `decisionInput` and
+  // `decisionOutputs` are the input and output halves of one gateway decision, so a gateway
+  // that can author one and not the other was always the odd shape.
+  //
+  // Ordering per the rule above: structured fields first, `note` last. Kept adjacent to
+  // `decisionInput` so the pair reads together in the panel.
+  exclusiveGateway: ['determinism', 'decisionInput', 'decisionOutputs', 'decisionOwner', 'note'],
   parallelGateway: ['note'],
   linkEventThrow: ['workflowRef', 'name', 'targetWorkflow', 'linkId', 'note'],
   linkEventCatch: ['workflowRef', 'name', 'targetWorkflow', 'linkId', 'note'],

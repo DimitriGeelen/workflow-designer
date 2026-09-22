@@ -1,0 +1,30 @@
+id: tools/_t810-unreachable-values-census.py
+name: _t810-unreachable-values-census
+type: script
+subsystem: conformance
+location: tools/_t810-unreachable-values-census.py
+tags: [conformance, corpus, panel, census, teeth]
+
+purpose: "Counts authored aef values in the corpus that sit on a BPMN element whose editor
+  node type does not list that field in AEF_FIELDS — i.e. values a human wrote that the
+  properties panel cannot show or edit. Nothing is lost (emitters are type-agnostic and
+  T-570's carriage preserves unknown keys); the values round-trip invisibly. Exists because
+  this defect was found three times by humans reading files (T-566 305 values, T-618 215,
+  F-11 17) and nothing counted the general case, so a fourth instance was guaranteed to be
+  found the same way. On its first run it found 47 where the finding named 24, including
+  three groups the finding never mentioned. Parses AEF_FIELDS out of the editor rather than
+  keeping a copy, because a census measuring a stale copy of its own subject is the defect it
+  audits (PL-181). Prints a census and exits 0: which strandings are mistakes is a design
+  judgement, not a gate."
+purpose_source: "authored at creation by T-810"
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: examples/aef-processes/rendered
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-810
