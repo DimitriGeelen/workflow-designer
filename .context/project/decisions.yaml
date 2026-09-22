@@ -2313,3 +2313,10 @@ decisions:
     date: 2026-09-22
     task: T-805
     rationale: "AEF @1656 answered directly: a merge-squash puts a commit on master that is not on bleeding-edge, diverging it permanently, which makes fw release tag-and-release refuse every later release (T-3190) and fires fw doctor's diverged-fork and wrong-branch rails forever (T-3187). Confirmed with AEF that fw upgrade/vendor, fabric blast-radius and Updates git-mining do NOT depend on reachability, so the cost of squashing is exactly their release command plus two doctor rails. Operator was shown the cost and chose the fast-forward model over their original merge-squash instruction."
+
+  - id: PD-310
+    decision: "AEF's model verbatim. `master` = consumer install surface, advanced ONLY by"
+    scope: project
+    date: 2026-09-22
+    task: T-805
+    rationale: "Auto-captured from task file on completion"

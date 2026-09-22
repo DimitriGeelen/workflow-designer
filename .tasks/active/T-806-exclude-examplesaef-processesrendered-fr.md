@@ -1,11 +1,11 @@
 ---
-id: T-805
-name: "Branch topology: stable + bleeding-edge, checked against AEF"
+id: T-806
+name: "Exclude examples/aef-processes/rendered/ from every tool's default sweep"
 description: >
-  Branch topology: stable + bleeding-edge, checked against AEF
+  AEF pins against examples/aef-processes/rendered/ as a seam artefact. This session a --help invocation of one of our own tools ran its real corpus sweep and rewrote 24 files under exactly that path; it was caught and reverted byte-identical, but only by noticing. AEF's ask at agent-chat-arc @1656: 'keep examples/aef-processes/rendered/ out of every tool's default sweep' — the topology, not attention, should protect the seam. Audit every tool that walks the corpus and make that path opt-in.
 
 status: started-work
-workflow_type: design
+workflow_type: build
 owner: agent
 horizon: now
 tags: []
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-22T10:37:44Z
-last_update: 2026-09-22T12:13:42Z
+created: 2026-09-22T12:17:14Z
+last_update: 2026-09-22T12:17:57Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,32 +30,52 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-805: Branch topology: stable + bleeding-edge, checked against AEF
+# T-806: Exclude examples/aef-processes/rendered/ from every tool's default sweep
 
 ## Context
 
-The operator instructed a two-branch model (development on bleeding-edge, merge-squashed into a
-stable branch) and instructed us to check it with AEF first. Measured before asking: this project
-had NO split at all — `master` only, local and remote, `origin/HEAD -> master`, 2381 commits, 187
-in 7 days, 89 in 24 hours, last tag 139 commits behind HEAD, and no recorded branch decision
-anywhere. AEF answered at `agent-chat-arc @1656` and **contradicted the merge-squash half**: under
-their release train `master` is the consumer install surface advanced only by fast-forward, and a
-squash diverges it permanently, disabling `fw release tag-and-release` (T-3190) and two `fw doctor`
-rails (T-3187). The operator was shown the cost and chose AEF's model as-is.
-
-Model written down in `docs/branch-model.md`.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] `bleeding-edge` exists locally and on `origin`, cut from `master` at `1b89e29e`
-- [x] `master` is not ahead of `bleeding-edge` (the fast-forward invariant holds by construction)
-- [x] `origin/HEAD` still resolves to `origin/master` — the consumer surface is unchanged
-- [x] No `stable` branch exists, per AEF @1656 "never a third branch"
-- [x] The model is documented in `docs/branch-model.md`, citing AEF's offsets and the squash cost
-- [x] The vendored tree's contradictory integrate-onto-master nudge is recorded as a known defect (AEF OBS-467)
+- [ ] Every tool under `tools/` that walks the map corpus is enumerated, with the walk root each one uses recorded in the task
+- [ ] Each such tool either excludes `examples/aef-processes/rendered/` by default, or requires an explicit opt-in flag to touch it
+- [ ] A `--help` or `--dry-run` invocation of every enumerated tool writes nothing anywhere under `examples/aef-processes/rendered/` (proven by mtime comparison before/after, not by reading the code)
+- [ ] A regression test asserts the guard, and fails if a tool is added that sweeps the path by default
+- [ ] The control case is included: the test must fail when the guard is removed, so a passing run means the guard works rather than the test being vacuous
 
+### Human
+<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+     Remove this section if all criteria are agent-verifiable.
+     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+
+     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
+     If your Expected clause is grep-able / file-exists / structural (a deterministic
+     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
+     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
+     verification genuinely needs human taste (tone, feel, layout rhythm).
+     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+
+     [REVIEW] example (genuine human judgment):
+       - [ ] [REVIEW] Dashboard renders correctly
+         **Steps:**
+         1. Open https://example.com/dashboard in browser
+         2. Verify all panels load within 2 seconds
+         3. Check browser console for errors
+         **Expected:** All panels visible, no console errors
+         **If not:** Screenshot the broken panel and note the console error
+
+     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
+       - [ ] [REVIEWER] Block message names both bypass mechanisms
+         **Steps:**
+         1. Run `bin/fw reviewer T-806`
+         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
+         **If not:** Inspect hook block-message string and add missing mechanism
+       Conversion: this AC should be moved to ### Agent and
+       `bin/fw reviewer T-806 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+-->
 
 ## Verification
 
@@ -67,19 +87,6 @@ Model written down in `docs/branch-model.md`.
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
-
-# --- T-805 legs. Each line's own exit code is the verdict (no chaining; see errexit warning). ---
-git show-ref --verify --quiet refs/heads/bleeding-edge
-git show-ref --verify --quiet refs/remotes/origin/bleeding-edge
-test "$(git rev-list --count refs/heads/bleeding-edge..refs/heads/master)" = "0"
-test "$(git symbolic-ref refs/remotes/origin/HEAD)" = "refs/remotes/origin/master"
-test -z "$(git branch --list stable)"
-test -z "$(git branch -r --list origin/stable)"
-grep -q "never a third branch" docs/branch-model.md
-grep -q "OBS-467" docs/branch-model.md
-# CONTROL for the two greps above: the file must exist, so a FILE-NOT-FOUND (grep exit 2)
-# cannot pass as a satisfied assertion. T-804 hit exactly this in its own control leg.
-test -s docs/branch-model.md
 #
 # ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
 # P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.
@@ -161,30 +168,19 @@ test -s docs/branch-model.md
 
 ## Decisions
 
-### 2026-09-22 — Fast-forward release train, not merge-squash
-
-- **Chose:** AEF's model verbatim. `master` = consumer install surface, advanced ONLY by
-  fast-forward from `bleeding-edge`, ONLY at a release. `bleeding-edge` = development and
-  master's only writer. "Stable" is a tag series on master, not a branch.
-- **Why:** AEF @1656, asked directly. Because bleeding-edge is master's only writer, a clean
-  fast-forward exists by construction. A squash puts a commit on master that is not on
-  bleeding-edge, so master becomes ahead-and-behind — diverged — and `fw release tag-and-release`
-  refuses a diverged master permanently (T-3190), while `fw doctor`'s diverged-fork and
-  wrong-branch rails (T-3187) fire forever. Verified with AEF that `fw upgrade`/`fw vendor`,
-  `fabric blast-radius` and the `## Updates` git mining do NOT depend on reachability — so the
-  cost of squashing is precisely their release command plus two doctor rails.
-- **Rejected — merge-squash (the operator's original instruction):** the operator was shown the
-  cost above and chose the fast-forward model instead. AEF on the trade: "we would not."
-- **Rejected — a third branch named `stable`:** AEF @1656, "never a third branch." Taking the
-  operator's words literally would also have inverted the convention — anything reading
-  `origin/HEAD` would take our master as vetted when it runs at 89 commits/day.
-- **Not done, and not delegated:** the first fast-forward of `master`. Integration and merging
-  are the operator's to run or to explicitly delegate.
+<!-- Record decisions ONLY when choosing between alternatives.
+     Skip for tasks with no meaningful choices.
+     Format:
+     ### [date] — [topic]
+     - **Chose:** [what was decided]
+     - **Why:** [rationale]
+     - **Rejected:** [alternatives and why not]
+-->
 
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-805 go|no-go|defer --rationale "..."
+     fw inception decide T-806 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -193,7 +189,10 @@ test -s docs/branch-model.md
 
 ## Updates
 
-### 2026-09-22T10:37:44Z — task-created [task-create-agent]
+### 2026-09-22T12:17:14Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-805-branch-topology-stable--bleeding-edge-ch.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-806-exclude-examplesaef-processesrendered-fr.md
 - **Context:** Initial task creation
+
+### 2026-09-22T12:17:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

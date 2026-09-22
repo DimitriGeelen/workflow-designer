@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-805: Branch topology: stable + bleeding-edge, checked against AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T12:17:35Z
+# ============================================================================
+
+task_id: T-805
+task_name: "Branch topology: stable + bleeding-edge, checked against AEF"
+workflow_type: design
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T10:37:44Z
+completed: 2026-09-22T12:17:30Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T14:16:28+02:00
+last_commit: 2026-09-22T14:16:28+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  adopt AEF's fast-forward release train — bleeding-edge cut, master is the consumer surface
+
+# Key outcomes
+outcomes:
+  - '`bleeding-edge` exists locally and on `origin`, cut from `master` at `1b89e29e`'
+  - '`master` is not ahead of `bleeding-edge` (the fast-forward invariant holds by construction)'
+  - '`origin/HEAD` still resolves to `origin/master` — the consumer surface is unchanged'
+  - 'No `stable` branch exists, per AEF @1656 "never a third branch"'
+  - 'The model is documented in `docs/branch-model.md`, citing AEF''s offsets and the squash cost'
+  - 'The vendored tree''s contradictory integrate-onto-master nudge is recorded as a known defect (AEF OBS-467)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — Fast-forward release train, not merge-squash'
+    chose: 'AEF''s model verbatim. `master` = consumer install surface, advanced ONLY by fast-forward from `bleeding-edge`, ONLY at a release. `bleeding-edge` = development and master''s only writer. "Stable" is a tag series on master, not a branch.'
+    rationale: 'AEF @1656, asked directly. Because bleeding-edge is master''s only writer, a clean fast-forward exists by construction. A squash puts a commit on master that is not on bleeding-edge, so master becomes ahead-and-behind — diverged — and `fw release tag-and-release` refuses a diverged master permanently (T-3190), while `fw doctor`''s diverged-fork and wrong-branch rails (T-3187) fire forever. Verified with AEF that `fw upgrade`/`fw vendor`, `fabric blast-radius` and the `## Updates` git mining do NOT depend on reachability — so the cost of squashing is precisely their release command plus two doctor rails.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'docs/branch-model.md'
+  - '.tasks/active/T-805-branch-topology-stable--bleeding-edge-ch.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T14:16:28"
+    action: 'T-805: adopt AEF''s fast-forward release train — bleeding-edge cut, master is the consumer surface'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 99 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 99
+  commits: 1
+  files_changed: 3
+  lines_added: 292
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-805-branch-topology-stable--bleeding-edge-ch.md
+generated_by: context-agent-hybrid
