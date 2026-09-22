@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-801: Make the SQ-2 ruling decision-ready: re-verify T-353's cited evidence and surface that its yes/no does not contain the narrow option
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T09:48:16Z
+# ============================================================================
+
+task_id: T-801
+task_name: "Make the SQ-2 ruling decision-ready: re-verify T-353's cited evidence and surface that its yes/no does not contain the narrow option"
+workflow_type: refactor
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T09:41:49Z
+completed: 2026-09-22T09:47:53Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T11:47:52+02:00
+last_commit: 2026-09-22T11:47:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  three SQ-2 rulings drafted to be chosen — and the disclosure that I made the problem 14 worse. THE DISCLOSURE FIRST, because it changes how the recommendation should be read. The ratchet was 113 this morning and is 127 now. All 14 of the increase are mine, from T-789 through T-798, and ALL 14 are in .tasks/completed/ — behind the very ruling I am asking for. Worse, my control claim was overstated: I wrote across four tasks that the stdlib-only check had 'a positive control on the same pattern'. It does not. The absence greps ^(import|from) (mcp|yaml|requests|...) and the control greps ^import (json|os|sys|...) — DIFFERENT STRINGS. The control proves the file is readable and has imports; it does not prove the absence pattern would match if present, so a typo leaves both legs green. The instrument requires the SAME string and is right to refuse mine. The consequence clause I wrote was true, the mechanism clause was false, and I repeated it four times. Recorded as a learning. EVIDENCE RE-VERIFIED BEFORE SENDING ANYONE TO RUN IT: the AC's step 1 cites 16/16 and is STALE (23/23 since T-787). Step 2, _t353-convert.py, reproduces exactly — 19/19, DIVERGENT remaining 0. Step 3's artifact exists. Checking step 2 mattered: step 1 had already decayed, and sending the operator at step 2 unchecked would have repeated this morning's defect one AC line below where I found it. THE AC'S BINARY DOES NOT CONTAIN THE ANSWER. Yes applies a 23-line patch set to inert archived lines; No changes nothing. Neither is the narrow ruling, and the two populations differ — 23 archived lines with NO consequence against 110 of 127 _t560 legs in completed/ with a live one. 127 minus 17 is 110, still above the baseline of 78, so no agent-permitted action closes it. The AC's own 'If not' clause invites the third option: 'if the question is not the right one to be asking, say so'. ALL THREE DRAFTED TO THE SAME STANDARD, deliberately. Each carries ruling text AND a 'cost, stated fairly' paragraph. B's cost names what argues FOR acting — a permanently red check decays into noise people learn to ignore, so the honest follow-up would be retiring _t560 rather than leaving it red. C's cost names that narrow rules widen quietly, and that it was proposed by the agent who caused 14 of the problem. The recommendation sits in section 4, AFTER the drafts, so it does not colour them. THE HUMAN AC IS STILL UNTICKED and a Verification leg asserts it. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — every tool T-353''s Human AC tells the operator to run is re-run first.** One of'
+  - '**AC2 — the mismatch between the AC''s binary and the available rulings is surfaced.**'
+  - '**AC3 — the two populations are separated with counts.** T-353''s 23 lines are inert'
+  - '**AC4 — paste-ready text is drafted for EVERY option, including the ones I do not'
+  - '**AC5 — the `### Human` AC is not ticked, and that is asserted mechanically.** Drafting'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/T-801-sq2-ruling-options.md'
+  - '.tasks/active/T-801-make-the-sq-2-ruling-decision-ready-re-v.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T11:47:52"
+    action: 'T-801: three SQ-2 rulings drafted to be chosen — and the disclosure that I made the problem 14 worse. THE DISCLOSURE FIRST, because it changes how the recommendation should be read. The ratchet was 113 this morning and is 127 now. All 14 of the increase are mine, from T-789 through T-798, and ALL 14 are in .tasks/completed/ — behind the very ruling I am asking for. Worse, my control claim was overstated: I wrote across four tasks that the stdlib-only check had ''a positive control on the same pattern''. It does not. The absence greps ^(import|from) (mcp|yaml|requests|...) and the control greps ^import (json|os|sys|...) — DIFFERENT STRINGS. The control proves the file is readable and has imports; it does not prove the absence pattern would match if present, so a typo leaves both legs green. The instrument requires the SAME string and is right to refuse mine. The consequence clause I wrote was true, the mechanism clause was false, and I repeated it four times. Recorded as a learning. EVIDENCE RE-VERIFIED BEFORE SENDING ANYONE TO RUN IT: the AC''s step 1 cites 16/16 and is STALE (23/23 since T-787). Step 2, _t353-convert.py, reproduces exactly — 19/19, DIVERGENT remaining 0. Step 3''s artifact exists. Checking step 2 mattered: step 1 had already decayed, and sending the operator at step 2 unchecked would have repeated this morning''s defect one AC line below where I found it. THE AC''S BINARY DOES NOT CONTAIN THE ANSWER. Yes applies a 23-line patch set to inert archived lines; No changes nothing. Neither is the narrow ruling, and the two populations differ — 23 archived lines with NO consequence against 110 of 127 _t560 legs in completed/ with a live one. 127 minus 17 is 110, still above the baseline of 78, so no agent-permitted action closes it. The AC''s own ''If not'' clause invites the third option: ''if the question is not the right one to be asking, say so''. ALL THREE DRAFTED TO THE SAME STANDARD, deliberately. Each carries ruling text AND a ''cost, stated fairly'' paragraph. B''s cost names what argues FOR acting — a permanently red check decays into noise people learn to ignore, so the honest follow-up would be retiring _t560 rather than leaving it red. C''s cost names that narrow rules widen quietly, and that it was proposed by the agent who caused 14 of the problem. The recommendation sits in section 4, AFTER the drafts, so it does not colour them. THE HUMAN AC IS STILL UNTICKED and a Verification leg asserts it. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 3
+  lines_added: 357
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-801-make-the-sq-2-ruling-decision-ready-re-v.md
+generated_by: context-agent-hybrid
