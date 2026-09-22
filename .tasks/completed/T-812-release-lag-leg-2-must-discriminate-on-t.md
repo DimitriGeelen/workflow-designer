@@ -4,20 +4,20 @@ name: "Release-lag leg 2 must discriminate on the distance it already computes (
 description: >
   Value review T-742 F-02: verdict() in tools/_t382-release-lag.py escalates the adoption leg on adopt_days — the age of OUR OWN latest tag — while adopt_behind ('0.8.0 -> 0.12.0'), the only value carrying the actual distance, is interpolated into a message string and never enters a comparison. Driven on constructed inputs: peer 11 versions behind with our tag cut today grades ok. So any cut resets the gauge to green and the condition can be held green indefinitely by the ordinary act of releasing. This is the instrument that was supposed to catch F-01, the four-release delivery gap. Compounding: teeth() leg 5 sets adopt_behind only with adopt_days 99, so no self-test constructs the live shape. Make the leg discriminate on the distance, and add the missing teeth leg.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t382-release-lag.py, tools/_t812-adoption-predicate-controls.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T13:17:53Z
-last_update: 2026-09-22T13:17:53Z
-date_finished: null
+last_update: 2026-09-22T13:23:42Z
+date_finished: 2026-09-22T13:23:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -210,3 +210,15 @@ python3 tools/_t812-adoption-predicate-controls.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-812-release-lag-leg-2-must-discriminate-on-t.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a55ae0b9
+- **Timestamp:** 2026-09-22T13:23:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T13:23:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-812: Release-lag leg 2 must discriminate on the distance it already computes (F-02)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T13:23:49Z
+# ============================================================================
+
+task_id: T-812
+task_name: "Release-lag leg 2 must discriminate on the distance it already computes (F-02)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T13:17:53Z
+completed: 2026-09-22T13:23:42Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T15:23:36+02:00
+last_commit: 2026-09-22T15:23:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the gauge that graded a four-release gap PASS now compares the distance it always had — F-02
+
+# Key outcomes
+outcomes:
+  - '`measure()` computes the adoption distance as a NUMBER — how many released versions separate the peer''s pin from ours — counted against the versions that actually shipped, not parsed out of a message string'
+  - '`verdict()` escalates on that distance INDEPENDENTLY of `adopt_days`, so a fresh cut cannot reset the gauge to green'
+  - 'The three shapes the finding drove are asserted directly on constructed inputs: peer 4 behind + tag 0d, peer 3 behind + tag 28d, peer 11 behind + tag 0d — none of which may grade `ok`'
+  - 'A teeth leg constructs the LIVE shape (`adopt_behind` set, small `adopt_days`) — the configuration production actually reports and which `teeth()` leg 5 never built'
+  - 'CONTROL: reverting the predicate to the old days-only form makes the new teeth legs FAIL, proving they bind to the fix rather than passing regardless'
+  - 'The check is made truer, never weaker: no threshold is relaxed and no leg is removed'
+  - 'An unmeasurable distance is not a pass — if the version series cannot be read, the leg says so rather than reporting 0 behind'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — distance AND age, both escalating independently'
+    chose: 'count the distance as a number (`adopt_versions_behind`) against the versions actually present in `dist/`, and escalate on it independently of `adopt_days`.'
+  - decision: '2026-09-22 — I broke the audit''s grep, and fixed it on OUR side rather than in vendored code'
+    chose: 'reword every adoption reason to carry the anchor, verified by a control that drives all four shapes and asserts the substring.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t812-adoption-predicate-controls.yaml'
+  - '.tasks/active/T-812-release-lag-leg-2-must-discriminate-on-t.md'
+  - 'tools/_t382-release-lag.py'
+  - 'tools/_t812-adoption-predicate-controls.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T15:23:36"
+    action: 'T-812: the gauge that graded a four-release gap PASS now compares the distance it always had — F-02'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 508
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-812-release-lag-leg-2-must-discriminate-on-t.md
+generated_by: context-agent-hybrid

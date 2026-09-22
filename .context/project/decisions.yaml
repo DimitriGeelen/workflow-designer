@@ -2355,3 +2355,17 @@ decisions:
     date: 2026-09-22
     task: T-810
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-316
+    decision: "count the distance as a number (`adopt_versions_behind`) against the versions"
+    scope: project
+    date: 2026-09-22
+    task: T-812
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-317
+    decision: "reword every adoption reason to carry the anchor, verified by a control that"
+    scope: project
+    date: 2026-09-22
+    task: T-812
+    rationale: "Auto-captured from task file on completion"
