@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-810: Surface decisionOutputs on exclusiveGateway — 17 authored values the panel cannot show (F-11)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T13:16:28Z
+# ============================================================================
+
+task_id: T-810
+task_name: "Surface decisionOutputs on exclusiveGateway — 17 authored values the panel cannot show (F-11)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T13:10:08Z
+completed: 2026-09-22T13:16:14Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T15:16:07+02:00
+last_commit: 2026-09-22T15:16:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  17 authored values a human wrote and could never see — F-11, and the census found 23 more the finding missed
+
+# Key outcomes
+outcomes:
+  - '`AEF_FIELDS.exclusiveGateway` includes `decisionOutputs`, positioned with the other decision fields and above `note` (the ordering rule the table states)'
+  - 'A census instrument reports, per aef field, how many corpus values sit on a node type whose panel does not offer that field — so "authored but unreachable" is a number, not an anecdote'
+  - 'The census confirms the 17 unreachable `decisionOutputs` values become reachable, measured before and after rather than asserted'
+  - 'Round-trip is byte-identical across all 24 corpus maps: making a field visible must not change a single exported byte'
+  - 'Visual verification: a gateway carrying authored `decisionOutputs` shows the value in the panel, screenshotted and read'
+  - 'The remaining unreachable fields (`multiInstance`, `aggregation`, `compensates`, `timer` — no `FIELD_META` at all) are filed as their own task, not half-done here'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — build the general census first, fix the specific field second'
+    chose: 'write `tools/_t810-unreachable-values-census.py` before touching `AEF_FIELDS`.'
+    rationale: 'this is the *third* time the same defect was found by a human reading files, and each previous remedy was specific to the field that happened to be noticed. Nothing counted the general case, so a fourth instance was guaranteed to be found the same way. - **It paid immediately.** The census found **47** unreachable values where F-11 named 24, and **three groups the finding never mentioned**: `endpoint` on `exclusiveGateway` (11), `endpoint` on `startEvent` (7), `emits` on `scriptTask` (5). Those would not have been found by fixing only what F-11 listed. - **It reads `AEF_FIELDS` out of the editor** rather than keeping its own copy: a census measuring a stale copy of the thing it audits is the defect it is auditing (PL-181).'
+  - decision: '2026-09-22 — fix only `decisionOutputs`; DEFER the other 30 to T-811'
+    chose: 'one line in `AEF_FIELDS.exclusiveGateway`. 47 → 30 unreachable, measured.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t810-unreachable-values-census.yaml'
+  - '.playwright-mcp/t810-gateway-decisionoutputs.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-810-surface-decisionoutputs-on-exclusivegate.md'
+  - '.tasks/active/T-811-thirty-authored-corpus-values-still-unre.md'
+  - 'tools/_t810-unreachable-values-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T15:16:07"
+    action: 'T-810: 17 authored values a human wrote and could never see — F-11, and the census found 23 more the finding missed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 6
+  lines_added: 610
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-810-surface-decisionoutputs-on-exclusivegate.md
+generated_by: context-agent-hybrid

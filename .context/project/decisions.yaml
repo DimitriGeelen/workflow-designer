@@ -2341,3 +2341,17 @@ decisions:
     date: 2026-09-22
     task: T-809
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-314
+    decision: "write `tools/_t810-unreachable-values-census.py` before touching `AEF_FIELDS`."
+    scope: project
+    date: 2026-09-22
+    task: T-810
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-315
+    decision: "one line in `AEF_FIELDS.exclusiveGateway`. 47 → 30 unreachable, measured."
+    scope: project
+    date: 2026-09-22
+    task: T-810
+    rationale: "Auto-captured from task file on completion"

@@ -4,20 +4,20 @@ name: "Surface decisionOutputs on exclusiveGateway — 17 authored values the pa
 description: >
   Value review T-742 F-11: the corpus carries aef:decisionOutputs on exclusiveGateway 17 times and userTask 6 times. The editor offers the field on userTask only, so 17 of 23 authored values can be neither seen nor edited. FIELD_META, the exporter and the importer all already handle the field type-agnostically — the only gap is AEF_FIELDS.exclusiveGateway. Third recorded instance of 'authored values the panel could not show' after T-566 (305) and T-618 (215), and T-618 set the precedent: offer the field on exactly the types the corpus annotates.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tools/_t810-unreachable-values-census.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T13:10:08Z
-last_update: 2026-09-22T13:10:08Z
-date_finished: null
+last_update: 2026-09-22T13:16:14Z
+date_finished: 2026-09-22T13:16:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -227,3 +227,19 @@ screenshot is the full matrix.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-810-surface-decisionoutputs-on-exclusivegate.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-93e1911b
+- **Timestamp:** 2026-09-22T13:16:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -rf`
+
+### 2026-09-22T13:16:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
