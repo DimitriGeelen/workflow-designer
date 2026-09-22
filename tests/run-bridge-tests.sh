@@ -1388,6 +1388,45 @@ else
 fi
 
 echo
+echo "== Correlations are derived, resolving, and ratifiable (T-830: H3 ruled D) =="
+
+# The rule this replaces was TRUE, WRITTEN DOWN, AND INERT. source-manifest.yaml has
+# forbidden opening a peer handoff against an unassigned correlation since 2026-08-26; a
+# handoff opened anyway on 2026-08-27 and stayed open for two months, because nothing ever
+# evaluated the sentence. THREE correlation values were minted by agents and carried forward
+# by repetition in the meantime, and the register entry had already named that exact
+# mechanism before it recurred a third time.
+#
+# The operator ruled option D: derive both values from the arc instead of assigning strings.
+# A derived value cannot be minted by accident, cannot drift by repetition, and STOPS
+# RESOLVING when the object it derives from goes away — so it fails loudly rather than
+# quietly naming nothing. These two legs are what make that a property of the tree rather
+# than a sentence in it.
+if python3 "$ROOT/tools/_t830-correlation-gate.py" > "$TMP/leg-_t830-correlation.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  _t830_rc=$?
+  if [ "$_t830_rc" -eq 2 ]; then
+    report FAIL "the correlation is PROVISIONAL — assigned by an agent rather than the operator. Transport still works by design; what is refused is the COMPLETION claim, because an agent ratifying its own correlation is the entire subject of H3 (run 'python3 tools/_t830-correlation-gate.py')"
+  else
+    report FAIL "a correlation is unassigned, minted as a free string instead of derived, or derives from an arc that no longer resolves (run 'python3 tools/_t830-correlation-gate.py'; it names the RULE that fired). A dangling derivation is the severe one: a derived reference that cannot be checked is a minted string with extra steps, and minted strings are what H3 exists to end"
+  fi
+  show_output "$TMP/leg-_t830-correlation.out" "_t830-correlation-gate.py"
+  fail=$((fail + 1))
+fi
+
+# And the gate's own teeth — 7 branches including the negative control that the handoff rule
+# must NOT fire when no handoff is open. A rule that cries wolf is one readers learn to skip,
+# which is how the original sentence became inert.
+if timeout 180 bash "$ROOT/tools/_t830-correlation-gate-controls.sh" > "$TMP/leg-_t830-controls.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the correlation gate stopped discriminating — an unassigned, minted or dangling value no longer turns it red, or a provisional value stopped being distinguishable from a ratified one (run 'bash tools/_t830-correlation-gate-controls.sh'; it names the branch)"
+  show_output "$TMP/leg-_t830-controls.out" "_t830-correlation-gate-controls.sh"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Failures leave evidence (T-821: F-05, the review's highest-leverage ADD) =="
 
 # The product had 70 catch sites and no error surface: clipboard failures silent, autosave

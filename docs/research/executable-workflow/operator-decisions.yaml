@@ -115,8 +115,59 @@ questions:
       Assign the two correlations — one for this agent, one for the initiative.
     why_operator: >
       Phase 4 completion is undefined without them (IW-9).
-    status: open
+    status: resolved
     blocks_arc_0_exit: true
+    decided_by: operator
+    decided_at: "2026-09-22"
+    chosen: >
+      Option D — derive both correlations from the arc rather than assign a string.
+        shared_initiative_correlation: arc:ewcr-governed-delivery
+        designer_agent_correlation:    arc:ewcr-governed-delivery/832-workflow-designer
+      Plus the rule that goes with it: a correlation whose origin is an AGENT is
+      PROVISIONAL — usable for transport, structurally unable to satisfy a completion gate.
+    source_of_truth:
+      file: docs/research/executable-workflow/source-manifest.yaml
+      path: correlation
+      carries: [designer_agent_correlation, shared_initiative_correlation, provenance]
+      enforced_by: tools/_t830-correlation-gate.py
+    recorded_under: T-830
+    decision_record: >
+      The operator asked for the best long-term antifragile answer, then asked for it
+      explained as if to an eight-year-old, then ruled — verbatim: "d". The four options
+      were: (A) keep the two values already written down, (B) promote the string the live
+      rail traffic carries, (C) the operator mints fresh values, (D) stop inventing names
+      and derive them from the arc that already exists. D was the agent's recommendation
+      and the operator took it; recommendation and ruling are recorded separately so a
+      reader can tell which was which.
+    why_this_answer_and_not_a_string: >
+      The question as filed asks WHICH STRING. Every answer of that shape leaves the
+      failure available, because the failure was never about the string: three values were
+      minted by agents and carried forward by repetition, and this entry had already NAMED
+      that mechanism before it recurred a third time while the entry sat open. A derived
+      value cannot be minted by accident, cannot drift by repetition, and stops resolving
+      when the object it derives from goes away — so it fails loudly rather than quietly
+      naming nothing. The ruling therefore settles a RULE, not a name, and the same rule
+      answers the next initiative without anyone deciding again.
+    availability_check: >
+      Checked before implementing, and stated as a limit rather than a clearance: the
+      dispatch checklist's own text is NOT in this tree. Only a quotation survives, in
+      source-manifest.yaml and in questions-and-dispositions.md IW-9, both quoting it
+      identically as requiring "one correlation per agent and one shared initiative
+      correlation" — a COUNT and a PURPOSE with no constraint on the form of the value.
+      That absence is what makes a derived value permissible. If the operator holds the
+      original and it constrains the form, this ruling must be re-decided and option C
+      (operator-minted values with provenance) is the fallback.
+    note: >
+      RATIFICATION IS SEPARATE AND STILL OPEN, exactly as for H2. T-732's H3 acceptance
+      criterion is a Human AC and remains UNTICKED. The agent recorded this ruling; it did
+      not ratify it and did not tick the operator's box. The SHARED slot is additionally a
+      seam contract: 999-AEF has been told and must be able to carry the same value or say
+      why not, so it is assigned on our side and unconfirmed on theirs.
+    historical_values_not_rewritten: >
+      `ewcr-v1`, `ewcr-v1-designer-fixture` and `EWCR-ARC0-ATTEST-832` remain readable
+      wherever they appear, and the rail chain under the third is intact. They were the
+      correlation; they are not the correlation from here. Rewriting them would destroy the
+      provenance this ruling exists to protect.
     operative_state: >
       `ewcr-v1` (initiative) and `ewcr-v1-designer-fixture` (correlation) are already in
       DE FACTO use — in T-590's description and in the handoff envelope. Nothing records

@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-830: H3 ruled D: correlations derive from the arc, agent-minted values cannot close a gate
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T21:35:15Z
+# ============================================================================
+
+task_id: T-830
+task_name: "H3 ruled D: correlations derive from the arc, agent-minted values cannot close a gate"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T21:30:45Z
+completed: 2026-09-22T21:35:07Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The operator''s ruling is RECORDED with provenance — their word quoted, and where they said it named — following the H2/T-595 pattern. The agent records the decision; it does NOT ratify it and does NOT tick the Human AC'
+  - 'The availability check is stated before the implementation, including its limit: the dispatch checklist''s own text is ABSENT from this tree and only a quotation survives. The requirement as quoted is a count and a purpose ("one correlation per agent and one shared initiative correlation") with no format constraint — which is what makes D available. If the operator holds the original and it constrains the form, this must be re-decided'
+  - 'Both slots in `source-manifest.yaml` are filled with DERIVED values — nothing minted, by anyone. `UNASSIGNED` no longer appears in the correlation block'
+  - 'Every derived value RESOLVES: the arc id it derives from must exist in `.context/arcs/`, and a guard must fail if it ever stops resolving. A derived reference that cannot be checked is a minted string with extra steps'
+  - 'A `provenance` block records, for each slot, that the value is derived, what it derives from, and the rule that permits it — so the next reader can check it rather than trust it'
+  - 'The PROVISIONAL rule is implemented, not just written: a correlation whose origin is an agent is usable for transport but CANNOT satisfy a completion gate. This is the antifragile half — the system keeps working under an unratified value but cannot falsely report completion'
+  - 'The inert rule gets teeth: "no peer handoff may be opened until they are assigned" has been prose since 2026-08-26 and a handoff opened anyway on 2026-08-27. A guard now fails on handoff-open + slot unassigned-or-provisional'
+  - 'CONTROL: the guard is proven to go red when a slot is UNASSIGNED, when a value is agent-minted, and when the arc stops resolving — and proven green on the real tree, or the reds prove nothing'
+  - 'AEF is told, because the SHARED slot is a seam contract and cannot be set unilaterally — they must be able to carry the same value or say why not'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-830-h3-ruled-d-correlations-derive-from-the-.md
+generated_by: context-agent-hybrid

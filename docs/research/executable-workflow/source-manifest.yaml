@@ -17,13 +17,70 @@ governance:
   human_decision_owner: operator (dimitri@geelenandcompany.com)
 
 correlation:
-  designer_agent_correlation: UNASSIGNED   # operator checklist requires one per agent; not supplied in dispatch
-  shared_initiative_correlation: UNASSIGNED
+  # ASSIGNED 2026-09-22 by operator ruling H3. Both values are DERIVED from the arc,
+  # not minted by anyone. See `provenance:` below for why that is the whole point.
+  designer_agent_correlation: "arc:ewcr-governed-delivery/832-workflow-designer"
+  shared_initiative_correlation: "arc:ewcr-governed-delivery"
   note: >
     The operator dispatch checklist (prompt artifact §"Operator dispatch checklist")
     requires one correlation per agent and one shared initiative correlation.
-    Neither was supplied. No peer handoff may be opened until they are assigned,
-    because Phase 4 completion is defined as read-back on the SAME correlation.
+    Phase 4 completion is defined as read-back on the SAME correlation, so an
+    unassigned slot makes completion undefinable rather than merely unrecorded.
+  provenance:
+    status: derived
+    derives_from: .context/arcs/ewcr-governed-delivery.yaml
+    assigned_by: operator
+    assigned_at: "2026-09-22"
+    ruling: H3
+    decision_record: >
+      The operator was given four options and chose D, verbatim: "d". The options were put
+      to them in plain language at their request: (A) keep the two values already written
+      down, (B) promote the string the live rail traffic uses, (C) the operator mints fresh
+      values, (D) stop inventing names and derive them from the arc that already exists.
+      D was the agent's recommendation and the operator took it; the recommendation and the
+      ruling are recorded separately so a reader can see which was which.
+      RATIFICATION IS SEPARATE AND STILL OPEN, exactly as it is for H2: T-732's H3
+      acceptance criterion is a Human AC and remains UNTICKED. The agent recorded this
+      ruling; it did not ratify it and did not tick the operator's box.
+    why_derived_rather_than_minted: >
+      THREE values were in live use before this ruling — `ewcr-v1`,
+      `ewcr-v1-designer-fixture` and `EWCR-ARC0-ATTEST-832` — and every one of them was
+      minted by an agent and carried forward by repetition. The H3 register entry had
+      already NAMED that failure mode ("carried forward by repetition, which is how an
+      unratified value acquires the appearance of a decision") and then it happened a third
+      time, one layer out, while the entry sat open. Choosing a fourth string would have
+      been the fourth instance. A derived value cannot be minted by accident, cannot drift
+      by repetition, and stops resolving if the object it derives from goes away — so it
+      fails loudly instead of silently being wrong.
+    availability_check: >
+      The dispatch checklist's own text is NOT in this tree; only a quotation survives, in
+      this file and in questions-and-dispositions.md IW-9. Both quote it identically as
+      requiring "one correlation per agent and one shared initiative correlation" — a COUNT
+      and a PURPOSE, with no constraint on the form of the value. That absence of a format
+      constraint is what makes a derived value permissible. STATED AS A LIMIT, NOT A
+      CLEARANCE: if the operator holds the original and it does constrain the form, this
+      ruling must be re-decided, and option C (operator-minted values with provenance) is
+      the fallback.
+    superseded_values:
+      - value: ewcr-v1
+        was: de-facto initiative correlation, written by T-590 into revision 1
+        origin: agent-minted
+      - value: ewcr-v1-designer-fixture
+        was: de-facto agent correlation, and the handoff envelope's filename
+        origin: agent-minted
+      - value: EWCR-ARC0-ATTEST-832
+        was: the string the live peer traffic actually carries
+        origin: agent-minted on the rail at agent-chat-arc offset 602 (T-610), adopted by
+          the counterparty because we used it
+        note: >
+          HISTORICAL REFERENCES ARE NOT REWRITTEN. The rail chain under this name is intact
+          and stays readable; it is a thread name and a past correlation, and pretending
+          otherwise would destroy the provenance this ruling exists to protect. What changes
+          is which value is CANONICAL from here.
+    seam_note: >
+      The shared slot is a SEAM CONTRACT and cannot be set unilaterally. 999-AEF has been
+      told and must be able to carry the same value or say why not. Until they confirm,
+      the shared value is assigned on our side and unconfirmed on theirs.
 
 documents:
   - id: architecture-dossier
