@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-820: T-816 left a new validator rule unclassified on two of four axes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T15:16:37Z
+# ============================================================================
+
+task_id: T-820
+task_name: "T-816 left a new validator rule unclassified on two of four axes"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T15:11:08Z
+completed: 2026-09-22T15:16:19Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T17:16:08+02:00
+last_commit: 2026-09-22T17:16:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-816 passed its own gate with three of five axes unsatisfied — the legs were as incomplete as the work
+
+# Key outcomes
+outcomes:
+  - '`E-XML-ABBR-DUP` is classified on the anchorability axis, with the LANE-vs-VALUE choice reasoned from what the canvas can actually point at'
+  - '`E-ABBR-DUP` ↔ `E-XML-ABBR-DUP` is entered in the cross-form `PAIRS` table, and the behavioural comparison actually runs and reports AGREE on real documents'
+  - '~~ALL FOUR axes~~ **ALL FIVE** axes pass, run together. Written as four; a fifth (`test_check_pass_reachability.py`) was found by the suite *after* this AC was written and after the tool listing four had been built. Corrected in place — the miscount is the finding restating itself.'
+  - 'A single command exists that runs every axis, so the next rule author cannot repeat this by knowing only the axes they happened to meet'
+  - 'CONTROL: that command is proven to fail when any one axis is unsatisfied, not merely when all four are'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — a fixture, not a declaration'
+    chose: 'write `tests/fixtures/invalid/E-XML-ABBR-DUP.xml`, derived from a bridge-generated sibling by collapsing the second lane''s abbr onto the first.'
+  - decision: '2026-09-22 — the tool I built to prevent this repeated the mistake while I built it'
+  - decision: '2026-09-22 — what this says about task-scoped verification'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t820-axes-controls.yaml'
+  - '.fabric/components/tools-_t820-rule-axes.yaml'
+  - '.tasks/active/T-820-t-816-left-a-new-validator-rule-unclassi.md'
+  - 'tests/fixtures/invalid/E-XML-ABBR-DUP.xml'
+  - 'tests/.run-history.tsv'
+  - 'tests/test_finding_anchorability.py'
+  - 'tests/test_harness_cross_form_agreement.py'
+  - 'tools/_t820-axes-controls.sh'
+  - 'tools/_t820-rule-axes.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T17:16:08"
+    action: 'T-820: T-816 passed its own gate with three of five axes unsatisfied — the legs were as incomplete as the work'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 9
+  lines_added: 533
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-820-t-816-left-a-new-validator-rule-unclassi.md
+generated_by: context-agent-hybrid

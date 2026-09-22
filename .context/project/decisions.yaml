@@ -2418,3 +2418,10 @@ decisions:
     date: 2026-09-22
     task: T-819
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-325
+    decision: "write `tests/fixtures/invalid/E-XML-ABBR-DUP.xml`, derived from a"
+    scope: project
+    date: 2026-09-22
+    task: T-820
+    rationale: "Auto-captured from task file on completion"

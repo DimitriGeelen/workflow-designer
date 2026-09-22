@@ -4,20 +4,20 @@ name: "T-816 left a new validator rule unclassified on two of four axes"
 description: >
   Found by running the full suite after T-816 completed. Adding E-XML-ABBR-DUP requires classifying it on FOUR independent axes, and T-816's verification legs ran only two. Missed: (1) tests/test_finding_anchorability.py ANCHOR — 'an unclassified rule is measured against the wrong population and manufactures a false answer'; (2) tests/test_harness_cross_form_agreement.py PAIRS — 'a rule added to the parity table without a behavioural decision would be reported as agreeing by a guard that never compared it'. Both are exactly right and both caught a real hole: marking a rule PAIRED in the parity table is a CLAIM that the two forms agree, and nothing had compared them on a document. T-816's own legs passed because they asserted the two axes I knew about — the legs were as incomplete as the work. Classified ANCHOR=LANE (the duplicated thing is an attribute, not an id, so the location names a unique resolvable lane) and PAIRS E-ABBR-DUP<->E-XML-ABBR-DUP; cross-form now reports 21 pairs, 18 agree, OK.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_finding_anchorability.py, tests/test_harness_cross_form_agreement.py, tools/_t820-axes-controls.sh, tools/_t820-rule-axes.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T15:11:08Z
-last_update: 2026-09-22T15:11:08Z
-date_finished: null
+last_update: 2026-09-22T15:16:19Z
+date_finished: 2026-09-22T15:16:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -215,3 +215,15 @@ bash -c 'out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-A
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-820-t-816-left-a-new-validator-rule-unclassi.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-84899a3a
+- **Timestamp:** 2026-09-22T15:16:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T15:16:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
