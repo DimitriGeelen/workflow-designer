@@ -104,7 +104,39 @@ VALIDATE_TOOL = {
     },
 }
 
-TOOLS = [VALIDATE_TOOL]
+YAML_TO_BPMN_TOOL = {
+    "name": "yaml_to_bpmn",
+    "description": (
+        "Convert a workflow YAML document into BPMN XML, and validate the result in the same "
+        "call. Returns the BPMN plus the verdict — so a conversion that produced a structurally "
+        "broken diagram tells you so instead of handing back bytes and staying quiet.\n\n"
+        "SCHEMA NOTE, because this is the mistake that actually happens: the edge list key is "
+        "`edges:`, NOT `flows:`. A document using `flows:` converts without complaint and "
+        "produces a diagram in which every node is unreachable; the verdict is what catches it. "
+        "Top-level keys are `workflowMeta`, `pool`, `lanes`, `nodes`, `edges`. Each edge is "
+        "`{uid, source, target}` referencing node `uid`s.\n\n"
+        "Pass `content` for YAML you hold, or `path` for a *.workflow.yaml inside the designer "
+        "repository. Exactly one. This tool only reads — nothing is written to any repository."
+    ),
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "content": {
+                "type": "string",
+                "description": "The workflow YAML, as text. Mutually exclusive with `path`.",
+            },
+            "path": {
+                "type": "string",
+                "description": "Repo-relative path to a *.workflow.yaml inside the designer "
+                               "repo. Paths outside it are refused. Mutually exclusive with "
+                               "`content`.",
+            },
+        },
+        "additionalProperties": False,
+    },
+}
+
+TOOLS = [VALIDATE_TOOL, YAML_TO_BPMN_TOOL]
 
 
 def _resolve_repo_path(rel):
@@ -188,7 +220,96 @@ def tool_validate_workflow(args):
     }
 
 
-HANDLERS = {"validate_workflow": tool_validate_workflow}
+CONVERTER = os.path.join(REPO_ROOT, "tools", "yaml-to-bpmn.py")
+
+
+def tool_yaml_to_bpmn(args):
+    """Convert workflow YAML to BPMN, and validate the RESULT in the same call.
+
+    T-794 measured why the validation is not optional: a document using `flows:` where the
+    schema says `edges:` converts WITHOUT COMPLAINT into a diagram whose every node is
+    unreachable. Returning bytes alone would ship that silent failure to every caller, so
+    the verdict travels with the output. The bytes are still returned when the verdict is
+    bad — the caller needs them to see what went wrong.
+    """
+    content = args.get("content")
+    path = args.get("path")
+    if (content is None) == (path is None):
+        raise ValueError("pass exactly one of `content` or `path`")
+
+    tmp_in = None
+    try:
+        if path is not None:
+            src = _resolve_repo_path(path)
+            source = path
+        else:
+            fd, tmp_in = tempfile.mkstemp(suffix=".workflow.yaml", prefix="designer-mcp-")
+            with os.fdopen(fd, "w", encoding="utf-8") as fh:
+                fh.write(content)
+            src = tmp_in
+            source = "<inline content>"
+
+        proc = subprocess.run([sys.executable, CONVERTER, src],
+                              capture_output=True, text=True, timeout=120)
+        if proc.returncode != 0 or not proc.stdout.strip():
+            err = (proc.stderr or "").strip()
+            # AC4: the one third-party dependency in the chain, named rather than leaked as
+            # a traceback. The SERVER is stdlib-only; the converter it shells out to is not.
+            if "yaml" in err and ("ModuleNotFound" in err or "ImportError" in err):
+                raise RuntimeError(
+                    "the converter needs PyYAML, which is not installed in this Python "
+                    "(%s). Install it with: pip install pyyaml. Note that validate_workflow "
+                    "has no such dependency and still works." % sys.executable
+                )
+            raise RuntimeError("conversion failed (exit %d): %s" % (proc.returncode, err[:600]))
+
+        bpmn = proc.stdout
+    finally:
+        if tmp_in:
+            try:
+                os.unlink(tmp_in)
+            except OSError:
+                pass
+
+    # ── the half that makes this safe to use ──────────────────────────────────────────────
+    fd, tmp_out = tempfile.mkstemp(suffix=".bpmn", prefix="designer-mcp-")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(bpmn)
+        report = _run_validator(tmp_out, "xml")
+    finally:
+        try:
+            os.unlink(tmp_out)
+        except OSError:
+            pass
+
+    findings = report.get("findings", [])
+    code = report.get("exit_code", 2)
+    verdict = {0: "valid", 1: "valid-with-warnings"}.get(code, "invalid")
+    unreachable = [f for f in findings if f.get("rule") == "W-XML-UNREACHABLE"]
+
+    out = {
+        "verdict": verdict,
+        "source": source,
+        "bpmn": bpmn,
+        "error_count": sum(1 for f in findings if f.get("severity") == "ERROR"),
+        "warning_count": sum(1 for f in findings if f.get("severity") == "WARN"),
+        "findings": findings,
+    }
+    if unreachable:
+        # The measured failure mode, named where the caller will actually read it.
+        out["hint"] = (
+            "%d node(s) are unreachable from any startEvent. The usual cause is the edge list "
+            "being written as `flows:` instead of `edges:` — the converter accepts that "
+            "silently and produces a disconnected graph." % len(unreachable)
+        )
+    return out
+
+
+HANDLERS = {
+    "validate_workflow": tool_validate_workflow,
+    "yaml_to_bpmn": tool_yaml_to_bpmn,
+}
 
 
 # ── JSON-RPC plumbing ─────────────────────────────────────────────────────────────────────

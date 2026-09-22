@@ -47,7 +47,7 @@ Or as a `.mcp.json` fragment, for a client that reads one:
 **This is not wired into any live configuration by the build task.** Enabling it changes the
 operator's environment and is their decision, not a side effect.
 
-## The tool
+## The tools
 
 ### `validate_workflow`
 
@@ -75,6 +75,43 @@ Returns:
 ```
 
 The rule id travels with every finding, so the caller learns **why**, not just whether.
+
+### `yaml_to_bpmn`
+
+Converts workflow YAML to BPMN **and validates the result in the same call**.
+
+| argument | meaning |
+|---|---|
+| `content` | the workflow YAML, as text |
+| `path` | repo-relative path to a `*.workflow.yaml` |
+
+Exactly one of the two.
+
+**Why the validation is not optional.** T-794 measured the failure this closes: a document
+written with `flows:` where the schema says `edges:` converts **without complaint** into a
+diagram whose every node is unreachable. Guessing `flows:` is the most natural mistake an LLM
+can make here. Returning bytes alone would hand that silent failure to every caller, so the
+verdict travels with the output — and when nodes come back unreachable, a `hint` names the
+likely cause.
+
+The bytes are returned even when the verdict is bad: you need them to see what was built.
+
+```json
+{
+  "verdict": "valid-with-warnings",
+  "bpmn": "<?xml version=\"1.0\" …",
+  "warning_count": 2,
+  "findings": [{"severity": "WARN", "rule": "W-XML-UNREACHABLE", …}],
+  "hint": "2 node(s) are unreachable from any startEvent. The usual cause is the edge list being written as `flows:` instead of `edges:` …"
+}
+```
+
+**Schema, so you do not have to guess it:** top-level keys are `workflowMeta`, `pool`, `lanes`,
+`nodes`, `edges`. Each edge is `{uid, source, target}` referencing node `uid`s.
+
+**One dependency, and only here.** The converter needs PyYAML. The server itself is
+stdlib-only, and `validate_workflow` has no such dependency — if PyYAML is missing, this tool
+says so and names the fix, and the other tool keeps working.
 
 ## What it will not do, by design
 
@@ -107,9 +144,10 @@ The cost is accepted knowingly — spec compliance is ours to maintain. It is bo
 cd /opt/832-Workflow-designer && python3 tools/_t792-mcp-server-probe.py
 ```
 
-Expected: `probe: 21 passed, 0 failed`.
+Expected: `probe: 38 passed, 0 failed`.
 
 The probe checks both directions (a valid document must come back `valid` AND an invalid one
 `invalid`, in the same run, with differing verdicts — so the tool cannot pass as a constant),
 and it checks the scope fence by attempting traversal. It is negative-controlled: with the
-containment test disabled, the traversal legs go red (`18 passed, 3 failed`).
+containment test disabled, the traversal legs go red (`18 passed, 3 failed`), and with
+`yaml_to_bpmn`'s self-validation stubbed out the bad-document legs go red (`31 passed, 4 failed`).
