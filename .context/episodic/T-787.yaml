@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-787: repair probe cites an ephemeral scratchpad path: the 16/16 evidence under the SQ-2 ruling no longer reproduces
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T07:38:58Z
+# ============================================================================
+
+task_id: T-787
+task_name: "repair probe cites an ephemeral scratchpad path: the 16/16 evidence under the SQ-2 ruling no longer reproduces"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T07:33:28Z
+completed: 2026-09-22T07:38:48Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T09:38:44+02:00
+last_commit: 2026-09-22T09:38:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the SQ-2 evidence did not reproduce — an ephemeral scratchpad path was cited as durable
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the probe reproduces from a clean checkout.** `tools/_t353-repair-probe.sh`'
+  - '**AC2 — the substituted target is proven equivalent, not assumed.** The replacement'
+  - '**AC3 — the decayed fact is recorded mechanically rather than lost.** T-299''s archived'
+  - '**AC4 — the stale "16/16" citations are corrected where they were published.** The'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/VALUE-REVIEW-repo-2026-09-21-evidence.md'
+  - 'docs/reports/VALUE-REVIEW-repo-2026-09-21.md'
+  - '.tasks/active/T-787-repair-probe-cites-an-ephemeral-scratchp.md'
+  - 'tools/_t353-repair-probe.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T09:38:44"
+    action: 'T-787: the SQ-2 evidence did not reproduce — an ephemeral scratchpad path was cited as durable'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 362
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-787-repair-probe-cites-an-ephemeral-scratchp.md
+generated_by: context-agent-hybrid
