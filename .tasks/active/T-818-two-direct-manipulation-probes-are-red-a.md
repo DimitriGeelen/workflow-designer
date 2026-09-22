@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T14:47:07Z
-last_update: 2026-09-22T14:50:08Z
+last_update: 2026-09-22T16:03:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,12 +40,12 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] For each probe, the JSON verdict is read and the failure is attributed: either the EDITOR regressed or the EXPECTATION went stale — stated with evidence, not guessed
-- [ ] Whichever side is wrong is the side that changes. An expectation is not relaxed to make a red probe green unless the editor's current behaviour is shown to be correct
-- [ ] If the editor regressed, the regression is dated as far as the tree allows, and the fact that nothing recorded when it broke is stated rather than glossed
-- [ ] Once green, each probe is wired into `tests/run-bridge-tests.sh` alongside T-817's four, so it cannot rot unobserved again
-- [ ] CONTROL: each newly-wired probe is proven to fail the suite when its subject breaks
-- [ ] `_endpoint-overlap` and `_saveproject` are handled as TWO separate diagnoses — one bug, one task's worth of reasoning each; a shared "fixed the probes" commit would destroy the causality this task exists to recover
+- [x] For each probe, the JSON verdict is read and the failure is attributed: either the EDITOR regressed or the EXPECTATION went stale — stated with evidence, not guessed
+- [x] Whichever side is wrong is the side that changes. An expectation is not relaxed to make a red probe green unless the editor's current behaviour is shown to be correct
+- [x] If the editor regressed, the regression is dated as far as the tree allows, and the fact that nothing recorded when it broke is stated rather than glossed
+- [x] Once green, each probe is wired into `tests/run-bridge-tests.sh` alongside T-817's four, so it cannot rot unobserved again
+- [x] CONTROL: each newly-wired probe is proven to fail the suite when its subject breaks
+- [x] `_endpoint-overlap` and `_saveproject` are handled as TWO separate diagnoses — one bug, one task's worth of reasoning each; a shared "fixed the probes" commit would destroy the causality this task exists to recover
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -88,6 +88,26 @@ date_finished: null
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
+
+# ---- T-818 legs -------------------------------------------------------------
+# 1+2. Each probe passes on the real tree. Its own exit code is the verdict, so no
+#      context question arises (T-352). These are the two that were red for 56 and 75 days.
+node tools/_endpoint-overlap-verify-cdp.mjs > /tmp/.t818-eo.out 2>&1
+node tools/_saveproject-verify-cdp.mjs > /tmp/.t818-sp.out 2>&1
+# 3. The probes DISCRIMINATE — 6 controls: subject-break and stimulus-break for each, plus a
+#    clean baseline per probe without which a red result proves nothing.
+bash tools/_t818-probe-controls.sh > /tmp/.t818-ctl.out 2>&1
+# 4. All three are wired with LITERAL `tools/<name>` paths. Not style: _t451's edge detector
+#    matches the literal string, so a composed path runs the probe while the instrument whose
+#    job is detecting wiring cannot see it (measured A/B in T-819, delta ZERO).
+grep -q 'tools/_endpoint-overlap-verify-cdp.mjs' tests/run-bridge-tests.sh && grep -q 'tools/_saveproject-verify-cdp.mjs' tests/run-bridge-tests.sh && grep -q 'tools/_t818-probe-controls.sh' tests/run-bridge-tests.sh
+# 5. The census agrees they now have a live caller. `;` not `&&` is deliberate — the census
+#    exits non-zero BECAUSE it has findings, and the verdict here is the grep (T-352 says the
+#    line is judged on the last command alone; that is the intent, not an accident).
+#    The positive clause is the CONTROL for the two negative ones: _autoload-verify-cdp is a
+#    sibling probe still unwired (blocked on a stale build artefact), so if it disappears too
+#    the output is empty or broken and the absences below would be vacuous (T-804).
+python3 tools/_t451-unwired-guard-census.py > /tmp/.t818-census.out 2>&1; grep -q '_autoload-verify-cdp' /tmp/.t818-census.out && ! grep -q '_endpoint-overlap-verify-cdp' /tmp/.t818-census.out && ! grep -q '_saveproject-verify-cdp' /tmp/.t818-census.out
 #
 # ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
 # P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.
@@ -128,6 +148,64 @@ date_finished: null
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 ## RCA
+
+**Symptom:** two CDP probes that load `src/` directly and drive real headless Chrome both
+reported `pass:false`. Neither was an infrastructure error, and nothing recorded when either
+went red.
+
+**Root cause — the same one twice, and it is not in the editor.** Both probes were written
+against a gesture the editor then deliberately improved, and neither was re-run afterwards:
+
+| probe | written | the editor changed | red for |
+|---|---|---|---|
+| `_endpoint-overlap` | 2026-07-06 (T-136) | 2026-07-28 — T-293 moved endpoint halos to `#g-handles` above `#g-nodes`, because handles resident in `#g-edges` were shadowed by node bodies exactly where they matter (T-168 anchors endpoints on the node border) | 56 days |
+| `_saveproject` | 2026-07-06 (T-130) | 2026-07-09/10 — T-150 put an optional per-version note between click and POST, T-161 made it the in-app `#save-note-modal` | 75 days |
+
+Both editor changes were correct and both are documented at the change. The probes' *gestures*
+went stale, not the editor.
+
+**Why structurally allowed:** neither probe had a live caller. F-08 measured 118 such
+instruments — "written, ran once at task completion, never wired to anything that re-runs
+them". A probe in that state has no failure date because nothing ever asked it.
+
+**The part that is worse than silence, and the reason this is not just F-08 again:** an
+unobserved probe does not merely stop informing — it starts MISINFORMING, and the reader it
+misinforms is whoever next triages the list.
+
+- `_endpoint-overlap` reported a `TypeError: Cannot read properties of null (reading 'cx')`.
+  That reads as a failing check and is not one: `querySelector` returned null and the next
+  line dereferenced it, so the final assertion — that a real endpoint DRAG is not hijacked
+  into sibling-select — never executed. It could not FAIL because its STIMULUS never fired.
+  PL-206, inside the probe written to guard the T-136 fix.
+- `_saveproject` reported four red steps (no feedback, no version, no thumbnail, roundtrip
+  404) that together read as "the save path is broken". All four were consequences of one
+  stall in a modal. A reader would have gone looking at `/api/save`, the thumbnail capture
+  and the sidecar — none of which were ever invoked. The save path was never broken.
+
+**Prevention** — three things, only the first of which is the fix:
+
+1. Both probes now match on the element's own identity / drive the modal, so they exercise
+   the real gesture again.
+2. Each gained a NAMED step asserting its stimulus exists (`endpoint-halo-found`,
+   `save-note-modal-opened`) and fails as COULD-NOT-MEASURE when it does not. The next
+   relocation is then reported as "the gesture changed" instead of as a fabricated failure
+   of a subject nothing touched.
+3. `tools/_t818-probe-controls.sh` drives BOTH branches per probe — subject-break (editor
+   regresses, probe must go red) and stimulus-break (probe's gesture becomes unreachable,
+   probe must go red *naming the missing stimulus*). The second branch is the one that was
+   missing for 56 and 75 days. Every mutation asserts it matched exactly once, because a
+   mutation that silently fails to apply turns "the probe caught it" into "the probe ran
+   against unmutated source" — this task's defect wearing a control's clothes.
+
+All three are wired into `tests/run-bridge-tests.sh` with literal `tools/<name>` paths so
+`_t451` can see them; the census now reports both probes as having a live caller, while
+sibling `_autoload-verify-cdp` remains unwired and listed, which is what makes that a
+reading rather than an empty output.
+
+**Not prevented, and stated rather than glossed:** nothing dates either failure, and nothing
+can. The tree records when the editor changed; it does not record when the probe stopped
+agreeing. Only re-execution produces that, which is F-03 — the suite is still scheduled by
+nobody.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).

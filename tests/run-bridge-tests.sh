@@ -1324,10 +1324,22 @@ echo "== Direct-manipulation gestures (T-817: wiring F-08's inventory to close p
 #   PASS, wired below ..... _horizontal-spacing (T-115 respaceColumns), _selection-align
 #                           (T-134 Align/Distribute), _edge-straighten (T-137 Straighten),
 #                           _t263-save-target (T-263 save-target binding)
-#   FAIL on real assertions  _endpoint-overlap (expected e_11), _saveproject (pass:false)
-#                           -> T-818. Red for an unknown length of time, because nothing
-#                              ever re-ran them. Filed with the measurement rather than
-#                              fixed blind; wiring a red probe would just move the silence.
+#   RED, DIAGNOSED IN T-818, now wired below. The line that stood here called these
+#                           "FAIL on real assertions". THAT WAS WRONG, and the correction is
+#                           the finding: NEITHER probe was failing an assertion about the
+#                           editor. _endpoint-overlap died of a TypeError before its last
+#                           step ran, because T-293 (2026-07-28) moved the endpoint halos to
+#                           #g-handles and its descendant selector stopped matching — 56 days
+#                           in which the drag-regression assertion could not fail because its
+#                           stimulus never fired. _saveproject parked in the #save-note-modal
+#                           that T-150/T-161 added on 2026-07-09/10, THREE DAYS after it was
+#                           written, and reported four red steps that read as "the save path
+#                           is broken" when the save had never been asked to run — 75 days.
+#                           Both editor changes were deliberate and right. A probe nothing
+#                           re-runs does not merely stop informing; it starts misinforming,
+#                           and the reader it misinforms is the next person triaging this
+#                           list. Filing them with the measurement was still correct: wiring
+#                           a red probe would have moved the silence rather than ended it.
 #   BLOCKED ............... _autoload, _autosave need a served gallery, and
 #                           build/gallery/designer.html is dated 2026-08-14 — 39 days stale.
 #                           Serving it would test old bytes (the FP-009 defect: "a faithful
@@ -1339,7 +1351,9 @@ echo "== Direct-manipulation gestures (T-817: wiring F-08's inventory to close p
 for _probe in tools/_horizontal-spacing-verify-cdp.mjs \
               tools/_selection-align-verify-cdp.mjs \
               tools/_edge-straighten-verify-cdp.mjs \
-              tools/_t263-save-target-cdp.mjs; do
+              tools/_t263-save-target-cdp.mjs \
+              tools/_endpoint-overlap-verify-cdp.mjs \
+              tools/_saveproject-verify-cdp.mjs; do
   _name="$(basename "${_probe%.mjs}")"
   if timeout 180 node "$ROOT/$_probe" > "$TMP/leg-$_name.out" 2>&1; then
     pass=$((pass + 1))
@@ -1349,6 +1363,29 @@ for _probe in tools/_horizontal-spacing-verify-cdp.mjs \
     fail=$((fail + 1))
   fi
 done
+
+echo
+echo "== Those probes fail when their SUBJECT breaks and say so when their STIMULUS does (T-818) =="
+
+# The two probes added to the loop above were red for 56 and 75 days while asserting nothing.
+# Wiring them on the strength of one green run would be the same mistake that made them: a
+# probe is not shown to work by passing. tools/_t818-probe-controls.sh drives both branches
+# for each — the editor regressing (probe must go red) and the editor changing so the probe's
+# own gesture is unreachable (probe must go red NAMING the missing stimulus, having exercised
+# no subject). The second branch is the one that was absent, and PL-206 is about exactly it.
+#
+# ITS OWN LEG rather than a member of the T-819 loop above, because that loop's grouping is
+# justified by a measured shape — "~9.9s total, eight of the ten between 22ms and 514ms" —
+# and a 17s member would make that sentence false. Measured here too: 16.9s for six headless
+# runs, against a 784s suite (2.2%). I had assumed minutes and was going to leave it unwired
+# on that assumption; the number is why it is wired.
+if timeout 300 bash "$ROOT/tools/_t818-probe-controls.sh" > "$TMP/leg-_t818-probe-controls.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the direct-manipulation probes stopped discriminating — one of them now passes with its subject deliberately broken, or goes red without naming an unreachable stimulus (run 'bash tools/_t818-probe-controls.sh'; it names the branch. rc 3 means a MUTATION no longer applies, i.e. src moved and the control is measuring nothing until updated — that is a finding about this file, not a flake)"
+  show_output "$TMP/leg-_t818-probe-controls.out" "_t818-probe-controls.sh"
+  fail=$((fail + 1))
+fi
 
 echo
 echo "== A save that changes nothing produces no diff (T-423 idempotence) =="
