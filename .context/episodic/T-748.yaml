@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-748: RA-039: CTL-029 arc-003 task T-703 is completable but not closed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T22:11:41Z
+# ============================================================================
+
+task_id: T-748
+task_name: "RA-039: CTL-029 arc-003 task T-703 is completable but not closed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T07:58:51Z
+completed: 2026-09-22T22:11:33Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-21T17:48:20+02:00
+last_commit: 2026-09-21T17:48:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  OBS-368 — the healing auto-trigger produces no diagnosis, slowly
+
+# Key outcomes
+outcomes:
+  - '**RESOLVED (T-833) — was: BLOCKED — operator-only by this criterion''s own words.** T-703 is `owner: human`'
+  - '**RESOLVED (T-833) — was: BLOCKED — downstream of AC1, and the section name is wrong.** CTL-029 runs under'
+  - '**Stated separately, and it is the same defect as T-747''s — filed once, at G-075.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T17:48:20"
+    action: 'T-748: OBS-368 — the healing auto-trigger produces no diagnosis, slowly'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2292 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-1]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2292
+  commits: 2
+  files_changed: 4
+  lines_added: 183
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-748-ra-039-ctl-029-arc-003-task-t-703-is-com.md
+generated_by: context-agent-hybrid

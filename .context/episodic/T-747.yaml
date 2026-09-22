@@ -1,0 +1,69 @@
+# ============================================================================
+# EPISODIC MEMORY - T-747: RA-038: CTL-029 arc-003 task T-702 is completable but not closed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T22:11:33Z
+# ============================================================================
+
+task_id: T-747
+task_name: "RA-038: CTL-029 arc-003 task T-702 is completable but not closed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T07:58:48Z
+completed: 2026-09-22T22:11:25Z
+duration_days: 1
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**RESOLVED (T-833) — was: BLOCKED — operator-only by this criterion''s own words.** T-702 is `owner: human`'
+  - '**RESOLVED (T-833) — was: BLOCKED — downstream of AC1, and the section name is wrong.** CTL-029 does not'
+  - '**Stated separately — and the generic defect is not the one this AC names.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2292 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-1]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2292
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-747-ra-038-ctl-029-arc-003-task-t-702-is-com.md
+generated_by: context-agent-hybrid

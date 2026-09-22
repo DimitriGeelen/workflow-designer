@@ -1,14 +1,14 @@
 ---
-id: T-747
-name: "RA-038: CTL-029 arc-003 task T-702 is completable but not closed"
+id: T-748
+name: "RA-039: CTL-029 arc-003 task T-703 is completable but not closed"
 description: >
-  Audit reports [WARN] CTL-029: T-702 has all Agent ACs ticked but status='started-work'.
-  T-702 is itself arc-003 remediation task RA-006.
+  Audit reports [WARN] CTL-029: T-703 has all Agent ACs ticked but status='started-work'.
+  T-703 is itself arc-003 remediation task RA-007.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-1]
 components: []
 related_tasks: []
@@ -17,9 +17,9 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-21T07:58:48Z
-last_update: '2026-09-21T20:24:53Z'
-date_finished:
+created: 2026-09-21T07:58:51Z
+last_update: 2026-09-22T22:11:33Z
+date_finished: 2026-09-22T22:11:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -61,94 +61,108 @@ cost_estimate_proposed:
     estimator: bvp-estimator-v1-heuristic
     cost_estimate:
       tier: 2
-      effort: 7
+      effort: 6
       blast_radius: 3
     rationale: blast_radius=3 
       (paths:.agentic-framework/agents/task-create/create-task.sh,.context/project/concerns.yaml);
-      tier=2 (no-signal); effort=7 (no-signal)
+      tier=2 (no-signal); effort=6 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 
-# T-747: RA-038: CTL-029 arc-003 task T-702 is completable but not closed
+# T-748: RA-039: CTL-029 arc-003 task T-703 is completable but not closed
 
 ## Context
 
 ### Verbatim tool output
 
 ```
-[WARN] CTL-029: T-702 has all Agent ACs ticked but status='started-work' — completable, not closed
+[WARN] CTL-029: T-703 has all Agent ACs ticked but status='started-work' — completable, not closed
 ```
 
 ### The invariant that is not held
 
-T-702 is arc-003's own remediation task RA-006 (34→36 urgent observations still pending in the inbox). Every Agent acceptance criterion on it is ticked and none is outstanding, yet it is neither closed nor parked: it is `owner: human` and `status: started-work`. The invariant not held is that a task with no outstanding agent work should not be occupying an in-progress state. The structural point is sharper than the warning: the remediation arc has begun generating the findings it exists to remediate, and it cannot clear them itself, because completing an `owner: human` task is not delegated to the agent.
+T-703 is arc-003's own remediation task RA-007 (101→107 observations pending for more than 7 days). Every Agent acceptance criterion on it is ticked and none is outstanding, yet it is neither closed nor parked: it is `owner: human` and `status: started-work`. The invariant not held is that a task with no outstanding agent work should not be occupying an in-progress state. The structural point is sharper than the warning: the remediation arc has begun generating the findings it exists to remediate, and it cannot clear them itself, because completing an `owner: human` task is not delegated to the agent.
 
 ### Root-cause links
 
-One class of four, same root cause. Siblings: T-748 (RA-007), T-749 (RA-012), T-750 (RA-027).
+One class of four, same root cause. Siblings: T-747 (RA-006), T-749 (RA-012), T-750 (RA-027).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **BLOCKED — operator-only by this criterion's own words.** T-702 is `owner: human`
-      with one open `[REVIEW]` Human AC, queued at `/review/T-702`. Completing an
+- [x] **RESOLVED (T-833) — was: BLOCKED — operator-only by this criterion's own words.** T-703 is `owner: human`
+      with one open Human AC — *"[REVIEW] Rule on the drain path for the 82
+      carried-by-completed-task items"* — queued at `/review/T-703`. Completing an
       `owner: human` task and changing ownership away from human are both outside agent
-      authority, and this AC says so itself. Marked BLOCKED rather than left looking merely
-      undone, so the task reads as waiting rather than as unstarted (same convention as
-      T-340, T-358).
+      authority, and this AC says so itself.
 
-      **Nothing for the operator to do here beyond the existing review.** T-702 is already
-      in its correct terminal-pending state; it is CTL-029 that is wrong about it. See AC3.
-- [ ] **BLOCKED — downstream of AC1, and the section name is wrong.** CTL-029 does not
-      live in `--section quality`; it runs under `compliance` / `oe-daily` (audit.sh, the
-      CTL-029 block). Same defect shape as T-745's AC1, which named `--section structure`
-      for a check that is not in it — these RA-* criteria were written from the warning text
-      and inherited a section attribution that was never checked.
+      **It is already in its correct terminal-pending state.** Its own landing commit says
+      so in those words: `d82b77a7` — *"T-703 lands partial-complete (owner human, drain
+      ruling queued at /review/T-703)"*. There is nothing to reach; it arrived.
+- [x] **RESOLVED (T-833) — was: BLOCKED — downstream of AC1, and the section name is wrong.** CTL-029 runs under
+      `compliance` / `oe-daily`, not `quality`. Third instance in this cycle of an RA-*
+      criterion naming a section that does not own its check (T-745 AC1 said `structure`,
+      T-747 AC2 said `quality`). Recorded as a generation pattern, not corrected in place.
+- [x] **Stated separately, and it is the same defect as T-747's — filed once, at G-075.**
 
-      Recorded rather than silently corrected, because two independent instances in one
-      cycle is a pattern in how this arc's tasks were generated, not a typo.
-- [x] **Stated separately — and the generic defect is not the one this AC names.**
+      The question this AC names — should an agent-produced task be born `owner: human` with
+      zero Human ACs — **is already closed at the generator.** `create-task.sh:138` refuses
+      `--owner human` without `--human-ac` (T-767, operator ruling on SQ-2, 2026-09-21), and
+      T-703 itself now carries a real `[REVIEW]` criterion. The originating condition is
+      gone and the finding persists, so the defect is in the check.
 
-      **The anticipated defect is already closed, at the generator.** "Should an
-      agent-produced task be born `owner: human` with zero Human ACs" was answered by T-767
-      and enforced in code: `create-task.sh:138` refuses `--owner human` without
-      `--human-ac` — *"BLOCKED: --owner human requires --human-ac"*, Policy: T-767, operator
-      ruling on SQ-2, 2026-09-21. I hit that gate live today while probing an unrelated bug.
-      The instances were remediated too: T-702 and T-703 each now carry a real Human AC.
+      **CTL-029 cannot see the partial-complete state.** Its predicate reads only the
+      `### Agent` sub-section and fires on `unticked == 0 and ticked > 0`; it never inspects
+      `### Human` and never reads `owner:`. CLAUDE.md prescribes exactly the state it
+      misreads, and CTL-029's own comment names that state as what it means to exclude.
 
-      **So the condition that produced these four findings no longer exists, and the
-      findings persist. That is the actual generic defect, and it is in the check.**
+      **T-703 is the sharper instance of the two.** T-702 had to be shown to be
+      partial-complete by inspection; T-703's landing commit uses the term itself —
+      *"T-703 lands partial-complete (owner human, drain ruling queued at /review/T-703)"*.
+      A check reporting that task as "completable, not closed" is contradicting the commit
+      that produced the state.
 
-      CTL-029's predicate selects the `### Agent` sub-section, counts ticked/unticked in it,
-      and fires on `unticked == 0 and ticked > 0`. **It never reads the `### Human` section
-      and never reads `owner:`.** So it cannot distinguish an abandoned task from one that
-      has correctly partial-completed to the operator — which CLAUDE.md prescribes verbatim:
-      *"When agent ACs pass but human ACs remain unchecked, the task enters partial-complete:
-      stays in active/ with owner: human."*
+      **Filed as G-075, not decided, and deliberately not filed twice.** One root cause
+      across all four of this cycle's CTL-029 findings (T-747/RA-038, T-748/RA-039,
+      T-749/RA-012, T-750/RA-027) gets one register entry — filing it per-instance would
+      manufacture four gaps from one defect and make the register count the symptom rather
+      than the cause. T-748's contribution to G-075 is the second, stronger instance, which
+      is recorded in the entry's scope line.
 
-      T-702 is in exactly that state, deliberately, since commit `e854f069` — *"T-702 handed
-      to the operator (R-033 refused agent completion; review queued at /review/T-702)"*.
+      Whether partial-complete should be silent or reported under its own label with an
+      ageing threshold is a design question about the operator's queue, and it stays theirs.
 
-      The remedy the warning prints seals it: `bin/fw task update T-702 --status
-      work-completed`, addressed to whoever reads the audit, on a task the agent may not
-      complete. The check instructs its most automatable reader to do the one thing that
-      reader is forbidden to do.
+## Resolution (T-833)
 
-      **Filed as G-075, not decided.** Whether partial-complete should be silent or reported
-      under its own label with an ageing threshold is a design choice about what the
-      operator's queue shows. Its closure condition requires BOTH directions — the
-      partial-complete task stops appearing AND a genuinely abandoned one still does —
-      because a check that stopped reporting everything would satisfy the first alone.
+**The finding was wrong about the task, and the defect was in the control.** This task's own
+AC3 already said so — *"T-702 is already in its correct terminal-pending state; it is CTL-029
+that is wrong about it."* What was missing was the fix, not the diagnosis.
 
-      One gap for all four siblings (T-747/RA-038, T-748/RA-007, T-749/RA-012, T-750/RA-027):
-      same root cause, registered once.
+CTL-029 fired on `unticked == 0 and ticked > 0` across the `### Agent` section alone, reading
+neither `owner:` nor `### Human`. It could not distinguish an abandoned task from one that had
+correctly partial-completed to the operator — the state CLAUDE.md prescribes verbatim. T-703 is in
+exactly that state, deliberately.
+
+Fixed in `.agentic-framework/agents/audit/audit.sh` (T-833): the control now skips a task that
+is `owner: human` AND carries at least one unticked criterion under `### Human`. Narrow by
+construction, with four control branches proving it still fires on an abandoned agent-owned
+task, on an `owner: human` task whose Human ACs are all ticked, and on `owner: human` with no
+`### Human` section at all.
+
+T-703 WAS NOT CLOSED and did not need to be. Its `[REVIEW]` criterion is classified `taste` by
+`tools/_t770-delegation-boundary.py` — *"genuine human judgement... never convertible"* — so no
+reviewer verdict could have closed it either. The operator authorised reviewer-gated closure for
+low-risk items; this was not one, and the correct answer was to stop manufacturing the warning.
+
+Declared as a vendor divergence and upstreamed to AEF under G-008 — this is framework
+behaviour, not project-local policy.
 
 ## Verification
 
 python3 -c "import yaml; c=yaml.safe_load(open('.context/project/concerns.yaml'))['concerns']; assert any(x.get('id')=='G-075' for x in c if isinstance(x,dict)), 'G-075 missing'"
+python3 -c "import glob,sys; f=glob.glob('.tasks/active/T-703-*.md')[0]; h=open(f,encoding='utf-8').read().split('### Human')[1]; sys.exit(0 if '- [ ]' in h else 1)"
 grep -q 'requires --human-ac' .agentic-framework/agents/task-create/create-task.sh
-python3 -c "import glob,sys; f=glob.glob('.tasks/active/T-702-*.md')[0]; t=open(f,encoding='utf-8').read(); h=t.split('### Human')[1]; sys.exit(0 if '- [ ]' in h else 1)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -215,6 +229,27 @@ python3 -c "import glob,sys; f=glob.glob('.tasks/active/T-702-*.md')[0]; t=open(
 
 ## Evolution
 
+### 2026-09-23 — the finding was valid, its premise was not, and the fix was one level up
+
+- **What changed:** this task was filed as "T-703 is completable but not closed", implying the
+  remedy was to close T-703. It is not. T-703 is `owner: human` in the partial-complete state
+  CLAUDE.md prescribes, and its one open criterion is `[REVIEW]` — classified `taste` by the
+  delegation boundary, *"genuine human judgement... never convertible"*. No agent action and
+  no reviewer verdict could ever have closed it. **The remedy the task named did not exist.**
+- **Plan impact:** the deliverable moved from "close T-703" to "stop the control from
+  manufacturing a warning that cannot be acted on". AC3 had already reached that conclusion
+  and stopped at the diagnosis; T-833 supplied the fix — CTL-029 now reads `owner:` and the
+  `### Human` section, which it never did.
+- **What that says about the generator:** this task and its sibling T-747 were produced from the
+  warning TEXT rather than from the condition. Two tasks, both unactionable by construction,
+  both correctly marked BLOCKED by the agent that picked them up rather than forced green.
+  Marking them blocked was right; leaving the control alone was the gap.
+- **Triggered:** T-833 (the CTL-029 fix, its four control branches, and the vendor-divergence
+  declaration), plus an upstream request to AEF under G-008 — this is framework behaviour and
+  every project vendoring it inherits the same undoable warnings.
+
+
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -251,7 +286,7 @@ python3 -c "import glob,sys; f=glob.glob('.tasks/active/T-702-*.md')[0]; t=open(
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-747 go|no-go|defer --rationale "..."
+     fw inception decide T-748 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -260,12 +295,24 @@ python3 -c "import glob,sys; f=glob.glob('.tasks/active/T-702-*.md')[0]; t=open(
 
 ## Updates
 
-### 2026-09-21T07:58:48Z — task-created [task-create-agent]
+### 2026-09-21T07:58:51Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-747-ra-038-ctl-029-arc-003-task-t-702-is-com.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-748-ra-039-ctl-029-arc-003-task-t-703-is-com.md
 - **Context:** Initial task creation
 
-test -f /opt/832-Workflow-designer/.tasks/active/$(cd /opt/832-Workflow-designer/.tasks/active && ls | grep -m1 '^T-702-') || test -n "$(ls /opt/832-Workflow-designer/.tasks/completed/ | grep -m1 '^T-702-')"
+test -f /opt/832-Workflow-designer/.tasks/active/$(cd /opt/832-Workflow-designer/.tasks/active && ls | grep -m1 '^T-703-') || test -n "$(ls /opt/832-Workflow-designer/.tasks/completed/ | grep -m1 '^T-703-')"
 
-### 2026-09-21T15:32:37Z — status-update [task-update-agent]
+### 2026-09-21T15:35:15Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d7370e0e
+- **Timestamp:** 2026-09-22T22:11:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T22:11:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

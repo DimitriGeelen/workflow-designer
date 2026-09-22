@@ -3986,6 +3986,40 @@ for fname in sorted(os.listdir(active_dir)):
     else:
         scan = ac_block
 
+    # T-833 (832-Workflow-designer): PARTIAL-COMPLETE IS NOT A DEFECT.
+    #
+    # This control fired on `unticked == 0 and ticked > 0` over the ### Agent section
+    # ALONE, reading neither `owner:` nor ### Human. It therefore could not distinguish
+    # an abandoned task from one that has correctly partial-completed to the operator —
+    # which CLAUDE.md prescribes in those words: "When agent ACs pass but human ACs
+    # remain unchecked, the task enters partial-complete: stays in active/ with
+    # owner: human."
+    #
+    # The cost was not cosmetic. Every such task generated a standing audit warning, and
+    # those warnings were themselves filed as remediation tasks (T-708, T-709, T-747,
+    # T-748 ...) whose only possible fix was for the operator to close a task that was
+    # already in its correct terminal-pending state. A control that manufactures work
+    # which cannot be done is worse than one that stays silent.
+    #
+    # NARROW BY CONSTRUCTION — this suppresses exactly one shape and nothing else:
+    #   owner: human  AND  at least one unticked criterion under ### Human.
+    # An abandoned agent-owned task still fires. An owner: human task whose Human ACs
+    # are ALL ticked still fires, because that one genuinely is completable and unclosed.
+    owner_m = re.search(r"^owner:\s*(\S+)", fm, re.MULTILINE)
+    owner = owner_m.group(1).strip().strip('"\'') if owner_m else ""
+    human_h = re.search(r"^### Human\s*$", ac_block, re.MULTILINE)
+    human_unticked = 0
+    if human_h:
+        hrest = ac_block[human_h.end():]
+        hnext = re.search(r"^### |^## ", hrest, re.MULTILINE)
+        hscan = hrest[: hnext.start()] if hnext else hrest
+        for line in hscan.splitlines():
+            hm = AC_PAT.match(line)
+            if hm and not PLACEHOLDER_PAT.match(line) and hm.group(1) != "x":
+                human_unticked += 1
+    if owner == "human" and human_unticked > 0:
+        continue
+
     ticked = 0
     unticked = 0
     real_ac_count = 0

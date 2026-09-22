@@ -303,8 +303,24 @@ entries:
 
   - path: .agentic-framework/agents/audit/audit.sh
     kind: content
-    task: T-374, T-382, T-344, T-345, T-371
+    task: T-374, T-382, T-344, T-345, T-371, T-833
     upstream: fix
+    t833_change: >-
+      T-833 — CTL-029 (completable-but-not-completed) fired on `unticked == 0 and ticked > 0`
+      over the ### Agent section ALONE, reading neither `owner:` nor ### Human. It therefore
+      could not distinguish an ABANDONED task from one that had correctly PARTIAL-COMPLETED
+      to the operator — the state CLAUDE.md prescribes in those words. The cost was not
+      cosmetic: each such task produced a standing warning, and those warnings were filed as
+      remediation tasks (T-708, T-709, T-747, T-748) whose only available fix was for the
+      operator to close a task already in its correct terminal-pending state. A control that
+      manufactures undoable work is worse than one that stays silent.
+      FIX: skip when `owner: human` AND at least one unticked criterion under ### Human.
+      Narrow by construction — an abandoned agent-owned task still fires, an owner: human
+      task whose Human ACs are all ticked still fires (genuinely unclosed), and owner: human
+      with no ### Human section still fires (the T-767 mis-filing, not partial-complete).
+      Four control branches in tools/_t833-ctl029-partial-complete-controls.sh, and the
+      control REFUSES with exit 3 rather than passing if it cannot extract the predicate.
+      UPSTREAMED to AEF under G-008; this is framework behaviour, not project-local policy.
     superseded_changes:
       - change: T-374 — route both fabric coverage checks through expand_patterns.py so
                 `exclude:` is honored (email-archive's G-AUDIT-EXCLUDE-NOT-HONORED)
