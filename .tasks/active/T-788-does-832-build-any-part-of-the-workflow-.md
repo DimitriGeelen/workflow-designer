@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-09-22T07:40:05Z
-last_update: 2026-09-22T07:44:29Z
+last_update: 2026-09-22T08:48:04Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -87,18 +87,20 @@ Research artifact: `docs/reports/T-788-executor-ownership-inception.md`.
 
 - **IW-1: Does AEF's Child-2 translator have a delivery position, or does it exist only as a
   spike?**
-  confidence: 1
-  disposition: deferred
-  rationale: @1616 establishes the FILE exists (`tools/bpmn_to_tasks.py`, grepped by AEF
-  themselves) — it establishes nothing about schedule. This is the datum that separates the
-  two branches in §3 of the research artifact; asked on the wire under §7.1.
+  confidence: 3
+  disposition: answered
+  rationale: AEF at `agent-chat-arc` @1631 — "shipped and pinned. Not a spike." Wired as
+  `fw bpmn compile`, on master, contained in release tag v1.6.768, last changed 2026-08-26,
+  "no planned break in the seam". The branch this question existed to separate did not occur.
 
 - **IW-2: What does AEF expect 832 to hold on the consumer side of the seam?**
-  confidence: 1
-  disposition: deferred
-  rationale: Phase 5 F-10 measured 832's four bridge deliverables intact, but "intact" was
-  judged against OUR reading of the seam — and T-786 proved our derived reading had drifted
-  from the frozen parent once already. Only the counterparty can confirm the list is complete.
+  confidence: 3
+  disposition: answered
+  rationale: @1631 — "one artefact, the .bpmn file. Nothing else." The seam is the file
+  format, not a library or shared store. Three in-file requirements: stable `aef:uid` on task
+  nodes, `aef:laneMeta authority` in their lane dialect, inception as a sovereignty-laned
+  subProcess. Measured on receipt: uid 24/24 maps, laneMeta 24/24, inception 0/24 (untested,
+  our corpus has none). A byte-level conformance check is in flight at @1635.
 
 - **IW-3: Is the README's non-goal ("usable without `fw workflow run`") still the project's
   position, or was it superseded by the confirmed yardstick?**
@@ -107,6 +109,8 @@ Research artifact: `docs/reports/T-788-executor-ownership-inception.md`.
   rationale: Phase 5 §10 records this as an unresolved contradiction. The yardstick came later
   and from the operator, which is the stronger source — but a README non-goal is a published
   commitment and retiring one is the operator's call, not an inference from precedence.
+  UNCHANGED by @1631: this was never AEF's to answer, and their reply does not touch it. It is
+  the only one of the three still open, and it is the operator's.
 
 ## Exploration Plan
 
