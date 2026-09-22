@@ -4,10 +4,10 @@ name: "Add yaml_to_bpmn to the designer MCP server, validating its own output so
 description: >
   Add yaml_to_bpmn to the designer MCP server, validating its own output so the silent-broken-diagram path is closed by construction
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T08:39:48Z
-last_update: 2026-09-22T08:39:48Z
-date_finished: null
+last_update: 2026-09-22T08:44:39Z
+date_finished: 2026-09-22T08:44:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -205,6 +205,48 @@ grep -q '38 passed, 0 failed' docs/mcp-designer-server.md
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom.** `tools/yaml-to-bpmn.py` converts a workflow YAML whose edge list is written as
+`flows:` instead of `edges:` **without any complaint**, emitting a syntactically well-formed
+BPMN document in which every node is unreachable from the start event. Measured in T-794 on a
+document I authored from scratch: 2062 bytes out, exit 0, silence. Only running the separate
+validator surfaced it — `W-XML-UNREACHABLE` on all three non-start nodes.
+
+**Root cause.** The converter's contract is *render this YAML as BPMN*, and it honours that
+contract exactly: an unrecognised top-level key is not a rendering error, it is simply a key it
+does not read. Nothing in the chain is broken. The gap is that **the authoring format has a
+semantic requirement — nodes must be connected — that no single tool in the chain is
+responsible for.** The converter checks syntax; the validator checks semantics; and until this
+task nothing obliged a caller to run the second after the first.
+
+**Why structurally allowed.** Two reinforcing reasons.
+
+1. **The two tools have always been separate CLIs, and separation is correct for CLIs** — a
+   user who wants only conversion should not pay for validation. That design is fine at the
+   command line, where a human sees the output. It becomes a defect the moment the chain is
+   exposed to an agent that will act on the bytes without looking at them.
+2. **The mistake is not random, it is predictable.** `flows:` is the natural word for a list of
+   flows, and BPMN's own vocabulary calls these `sequenceFlow` elements — so the wrong guess is
+   the *better*-motivated one. A failure mode that is more likely than the correct behaviour,
+   and silent, will occur.
+
+**Prevention** — three layers, deliberately distinct from the fix:
+
+- **Structural, in the tool:** `yaml_to_bpmn` validates its own output and returns the verdict
+  in the same response. A caller cannot take the bytes without also receiving the judgement.
+  This is the fix, and it is the only layer that cannot be forgotten.
+- **Informational, in the description:** the tool description states *"the edge list key is
+  `edges:`, NOT `flows:`"* and lists the top-level keys, so the predictable guess is
+  pre-empted before it is made. Pinned by a probe leg so a later edit cannot drop it.
+- **Diagnostic, in the output:** when nodes come back unreachable, a `hint` names
+  `flows:`/`edges:` as the usual cause — so a caller who hits it anyway is told why rather than
+  left to rediscover T-794.
+
+**What is NOT prevented, and is left open honestly.** The standalone CLI
+`tools/yaml-to-bpmn.py` still converts silently; this task changed the MCP surface, not the
+tool. A human running the CLI directly can still produce a disconnected diagram and not be
+told. That is a smaller exposure — a human sees the output and the designer renders it
+visibly wrong — but it is the same defect and it is untouched here.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -256,3 +298,20 @@ grep -q '38 passed, 0 failed' docs/mcp-designer-server.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-795-add-yamltobpmn-to-the-designer-mcp-serve.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-99d40528
+- **Timestamp:** 2026-09-22T08:44:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 49
+     - evidence: `python3 tools/_t792-mcp-server-probe.py 2>&1 | grep -q 'probe: 38 passed, 0 failed'`
+
+### 2026-09-22T08:44:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

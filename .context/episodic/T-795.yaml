@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-795: Add yaml_to_bpmn to the designer MCP server, validating its own output so the silent-broken-diagram path is closed by construction
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T08:44:48Z
+# ============================================================================
+
+task_id: T-795
+task_name: "Add yaml_to_bpmn to the designer MCP server, validating its own output so the silent-broken-diagram path is closed by construction"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T08:39:48Z
+completed: 2026-09-22T08:44:39Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T10:43:59+02:00
+last_commit: 2026-09-22T10:43:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  yaml_to_bpmn lands, and it validates its own output so T-794's silent failure cannot travel through this surface. THE DESIGN DECISION, and it comes straight from the measurement: T-794 showed the converter accepting a document whose every node was unreachable and saying nothing, because the author wrote flows: where the schema says edges:. Wrapping convert ALONE would have shipped that defect to every caller. So this tool converts and then validates its own output in the same call, returning verdict and findings alongside the bpmn bytes, plus a hint naming the flows:/edges: cause when nodes come back unreachable. The bytes are returned even on a bad verdict - the caller needs them to see what was built. PROVEN LOAD-BEARING, NOT DECORATIVE: replacing the self-validation with a stubbed exit_code 0 makes the broken document report valid and drops the probe to 31 passed, 4 failed. Restored, 38/38. That negative control is the difference between claiming the validation matters and showing it. BOTH DIRECTIONS IN ONE RUN: the probe converts the SAME document twice, once with edges: and once with flows:. Good gives valid with no hint; bad gives a non-valid verdict, W-XML-UNREACHABLE, a hint naming the cause, and the bytes anyway. A further leg asserts the two verdicts DIFFER so the tool cannot pass by being a constant. THE CHEAPEST FIX FOR THE MEASURED ERROR is the tool description itself - it states that the edge list key is edges: and NOT flows:, with the full top-level key list, and a probe leg pins that string so a later edit cannot quietly drop it. PYYAML HANDLED HONESTLY: the server stays stdlib-only but the converter it shells out to needs PyYAML. PyYAML is installed here, so the absence branch is EXECUTED rather than read - the probe imports the module and monkeypatches subprocess.run to simulate ModuleNotFoundError, then asserts the message names pip install pyyaml, says validate_workflow still works, and does NOT misreport the situation as the document being invalid. FENCE NOT WIDENED: tools/list is asserted as an EXACT two-element list rather than a subset check, so an accidentally added third tool fails there instead of passing unnoticed; traversal is refused for the new tool too. T-792's exact single-tool assertion correctly went red when the second tool landed and was updated rather than loosened. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the tool validates its own output, so the silent-failure path measured in'
+  - '**AC2 — the tool is proven in BOTH directions, in one run.** Good YAML returns BPMN'
+  - '**AC3 — the tool description names the key that was actually guessed wrong.** A tool'
+  - '**AC4 — the pyyaml dependency is handled honestly rather than hidden.** The server'
+  - '**AC5 — the existing surface is not regressed.** `validate_workflow` keeps working and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'yaml_to_bpmn lands, and it validates its own output so T-794''s silent failure cannot travel through this surface. THE DESIGN DECISION, and it comes straight from the measurement: T-794 showed the converter accepting a document whose every node was unreachable and saying nothing, because the author wrote flows: where the schema says edges:. Wrapping convert ALONE would have shipped that defect to every caller. So this tool converts and then validates its own output in the same call, returning verdict and findings alongside the bpmn bytes, plus a hint naming the flows:/edges: cause when nodes come back unreachable. The bytes are returned even on a bad verdict - the caller needs them to see what was built. PROVEN LOAD-BEARING, NOT DECORATIVE: replacing the self-validation with a stubbed exit_code 0 makes the broken document report valid and drops the probe to 31 passed, 4 failed. Restored, 38/38. That negative control is the difference between claiming the validation matters and showing it. BOTH DIRECTIONS IN ONE RUN: the probe converts the SAME document twice, once with edges: and once with flows:. Good gives valid with no hint; bad gives a non-valid verdict, W-XML-UNREACHABLE, a hint naming the cause, and the bytes anyway. A further leg asserts the two verdicts DIFFER so the tool cannot pass by being a constant. THE CHEAPEST FIX FOR THE MEASURED ERROR is the tool description itself - it states that the edge list key is edges: and NOT flows:, with the full top-level key list, and a probe leg pins that string so a later edit cannot quietly drop it. PYYAML HANDLED HONESTLY: the server stays stdlib-only but the converter it shells out to needs PyYAML. PyYAML is installed here, so the absence branch is EXECUTED rather than read - the probe imports the module and monkeypatches subprocess.run to simulate ModuleNotFoundError, then asserts the message names pip install pyyaml, says validate_workflow still works, and does NOT misreport the situation as the document being invalid. FENCE NOT WIDENED: tools/list is asserted as an EXACT two-element list rather than a subset check, so an accidentally added third tool fails there instead of passing unnoticed; traversal is refused for the new tool too. T-792''s exact single-tool assertion correctly went red when the second tool landed and was updated rather than loosened. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/mcp-designer-server.md'
+  - '.tasks/active/T-795-add-yamltobpmn-to-the-designer-mcp-serve.md'
+  - 'tools/mcp-designer-server.py'
+  - 'tools/_t792-mcp-server-probe.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T10:43:59"
+    action: 'T-795: yaml_to_bpmn lands, and it validates its own output so T-794''s silent failure cannot travel through this surface. THE DESIGN DECISION, and it comes straight from the measurement: T-794 showed the converter accepting a document whose every node was unreachable and saying nothing, because the author wrote flows: where the schema says edges:. Wrapping convert ALONE would have shipped that defect to every caller. So this tool converts and then validates its own output in the same call, returning verdict and findings alongside the bpmn bytes, plus a hint naming the flows:/edges: cause when nodes come back unreachable. The bytes are returned even on a bad verdict - the caller needs them to see what was built. PROVEN LOAD-BEARING, NOT DECORATIVE: replacing the self-validation with a stubbed exit_code 0 makes the broken document report valid and drops the probe to 31 passed, 4 failed. Restored, 38/38. That negative control is the difference between claiming the validation matters and showing it. BOTH DIRECTIONS IN ONE RUN: the probe converts the SAME document twice, once with edges: and once with flows:. Good gives valid with no hint; bad gives a non-valid verdict, W-XML-UNREACHABLE, a hint naming the cause, and the bytes anyway. A further leg asserts the two verdicts DIFFER so the tool cannot pass by being a constant. THE CHEAPEST FIX FOR THE MEASURED ERROR is the tool description itself - it states that the edge list key is edges: and NOT flows:, with the full top-level key list, and a probe leg pins that string so a later edit cannot quietly drop it. PYYAML HANDLED HONESTLY: the server stays stdlib-only but the converter it shells out to needs PyYAML. PyYAML is installed here, so the absence branch is EXECUTED rather than read - the probe imports the module and monkeypatches subprocess.run to simulate ModuleNotFoundError, then asserts the message names pip install pyyaml, says validate_workflow still works, and does NOT misreport the situation as the document being invalid. FENCE NOT WIDENED: tools/list is asserted as an EXACT two-element list rather than a subset check, so an accidentally added third tool fails there instead of passing unnoticed; traversal is refused for the new tool too. T-792''s exact single-tool assertion correctly went red when the second tool landed and was updated rather than loosened. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 516
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-795-add-yamltobpmn-to-the-designer-mcp-serve.md
+generated_by: context-agent-hybrid
