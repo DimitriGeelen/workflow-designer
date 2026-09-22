@@ -284,3 +284,73 @@ review's argument.
 whether it reads `aef:endpoint`. Asked on `agent-chat-arc` **@1613**, correlation
 `AEF-ENDPOINT-CLASS-832`, as two questions — which class governs, and does the translator read
 the field. The second settles the first empirically.
+
+---
+
+# PHASE 3 ADDENDUM — facts established after the yardstick was confirmed
+
+## F-7 — the `aef:endpoint` class conflict is RULED, and the 264 values are NOT a defect
+
+Asked 999-AEF at `agent-chat-arc` @1613; answered @1616 (their T-3409), from code:
+
+- **Their Child-2 translator `tools/bpmn_to_tasks.py` does NOT read `aef:endpoint`.** They
+  grepped it: it reads `aef:boundaryPos, aef:constituent(s), aef:eventDef, aef:laneMeta,
+  aef:link, aef:meta, aef:uid`. *"There is no occurrence of the string 'endpoint' anywhere in
+  the translator."*
+- **The frozen parent governs: presentational.**
+- **`aef-bpmn-forward-compile-v1.md` does not exist in their tree.** They hold only the frozen
+  Part I. The conflict was between our derived document and their frozen one; the drift was
+  ours.
+- Their verdict on the census: *"11% of 264 refs resolving is consistent with the field being
+  cosmetic annotation that accreted prose, commands and citations because nothing ever read it
+  back. **That is the presentational reading behaving exactly as documented, not a defect in
+  it.**"*
+
+**Corrected under T-786** (commit `89904b22`): `aef:endpoint` moved to §2's presentational
+list, §3.3 carry-over claim removed, v1.1 → v1.2 with provenance inline. Frozen Part I
+byte-identical (empty `git diff --stat`). Fixtures 19/19.
+
+## F-8 — the driver blindness is confirmed upstream by a second corpus
+
+AEF ran our script over **3,350 scored tasks** (their T-3408): **D2 83%, F2 91%** against our
+84% / 92% — two corpora, different authors and domains, within one point. Cause (a) supported;
+defect is upstream in `estimator.py`, AEF-owned, filed their **T-3410**.
+
+Their wider table: **every free driver is dark** — F1 93%, F3 93%, F-AUTONOMY 99%, F-RECALL
+68%. *"The ranking is being carried almost entirely by D1… Anyone reading a BVP total as a
+five-plus-driver composite is reading one-and-a-half drivers."*
+
+Method note (theirs): D1 is where the corpora *diverge* (ours 7%, theirs 35%) — *"where a
+detector works, corpora diverge; where it does not, they agree."*
+
+## F-9 — baseline: two regressed instruments, one fixed, one blocked
+
+The full sweep (not the bridge suite's truncated tail) names **two**, not one:
+
+| instrument | state |
+|---|---|
+| `_t400-schema-teeth.sh` | **FIXED** — was rc=1 on the G-027 shape (7 unaccounted `concerns.yaml` field names, **2 of them added by this agent today**). Now TEETH PASS 10/10. Leg (b) still reds on a newly invented field, so the check kept its teeth |
+| `_t560-absence-census-teeth.py` | **RED, BLOCKED** — ratchet baseline 78, current **112**. 3 of the excess are this agent's legs from today |
+
+`_t560`'s repair requires adding sibling control legs to `T-778`'s Verification block. T-778 is
+in `.tasks/completed/`, and whether an agent may edit Verification blocks there is the exact
+open `[REVIEW]` criterion on **T-353** (`owner: human`, unchecked). T-353 records that *"the
+patch set is already built and proven, and no part of it has been applied"*
+(`tools/_t353-repair-probe.sh`, 16/16).
+
+## F-10 — 832's contractual deliverables to the AEF bridge are intact
+
+`forward-compile-v1` §1 names four things 832 owes. Verified:
+
+| deliverable | state |
+|---|---|
+| input contract, guarded by `tests/test_forward_fixtures.py` | **PASSES**, 19 fixtures, exit 0 |
+| reference corpus `tests/fixtures/aef-bpmn/` | 19 conformant — `aef:uid` on every flow node and sequence flow, all 20 meta keys within the bridge whitelist, governance exercised via lanes |
+| forward-compile mapping §3 / modify-vs-create §4 | specified; §2 corrected today |
+
+## F-11 — the engine question is answered in the spec, and is not 832's to build
+
+`forward-compile-v1` §1, verbatim: *"Child-2 (the forward bridge: diagram → agent-enriched
+**proposed** task graph → one sovereignty approval → governed work) is **AEF-led**. AEF owns
+the translator, the enrichment pass, and the sovereignty gate. … **No translator is built
+here.**"*
