@@ -182,7 +182,11 @@ PARITY = {
     "E-CONST-SHAPE":        (GAP, "aef:constituents carried by 23/96 bpmn; no XML rule"),
     "W-CONST-FIELD":        (GAP, "aef:constituents carried by 23/96 bpmn; no XML rule"),
     "W-IO-INPUT":           (GAP, "declared io carried by 17/96 bpmn; no XML rule"),
-    "E-ABBR-DUP":           (GAP, "lane abbr carried by 96/96 bpmn; no XML rule (0 live)"),
+    # T-816 closed this. It was the gap with the HIGHEST carrier count in the whole
+    # table -- abbr carried by 96/96 bpmn maps while nothing on that form checked it --
+    # and it is a T-309 prerequisite rather than tidiness: surfacing "the validator" in
+    # the editor surfaces the XML rule set, because the designer speaks BPMN.
+    "E-ABBR-DUP":           (PAIRED, "E-XML-ABBR-DUP (T-816)"),
     # T-321 closed this. Note the census's reasoning was half wrong: the XML set
     # is a TRANSLATION of NODE_TYPES (linkEventThrow -> intermediateThrowEvent,
     # eventError/Timer/Message -> intermediateCatchEvent) plus exactly ONE
@@ -196,6 +200,7 @@ PARITY = {
     "E-XML-LANEREF-DANGLING": (PAIRED, "E-NODE-LANE"),
     "E-XML-LANES-EMPTY":    (PAIRED, "E-LANES-EMPTY"),
     "E-XML-AUTHORITY":      (PAIRED, "E-AUTHORITY"),
+    "E-XML-ABBR-DUP":       (PAIRED, "E-ABBR-DUP (T-816)"),
     "E-XML-FLOW-DANGLING":  (PAIRED, "E-EDGE-DANGLING"),
     "E-XML-GW-OUTGOING":    (PAIRED, "E-GW-OUTGOING"),
     "E-XML-UID-DUP":        (PAIRED, "E-UID-DUP"),
@@ -261,7 +266,12 @@ OUT_OF_SCOPE_PROBES = {}
 # GAP (9 -> 12): they were classified on a corpus zero, and scopeOf is in the
 # canonical vocabulary. The count went UP because the census got more honest,
 # not because anything regressed.
-EXPECTED_GAPS = 11
+# T-816 closed abbr (11 -> 10): E-XML-ABBR-DUP now pairs E-ABBR-DUP. Re-derived in the
+# census, not nudged here — abbr was a one-id family, so both the family count (7 -> 6)
+# and the id count (11 -> 10) fall by exactly one. Closed first of the remaining gaps
+# because it had the highest carrier count in the table (96/96 bpmn) and because parity
+# is a T-309 prerequisite: the editor surface would show the XML rule set.
+EXPECTED_GAPS = 10
 
 
 # --------------------------------------------------------------------------

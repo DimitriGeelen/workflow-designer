@@ -228,6 +228,11 @@ RULE_CARRIERS = {
     # UNIVERSAL for the same reason. A different class here would mean the two
     # forms agree on the verdict while disagreeing on what kind of claim it is.
     "E-XML-AUTHORITY":          (("aef:laneMeta/@authority",), CONSTRAINS),
+    # T-816: same carrier and same polarity as the YAML-form E-ABBR-DUP above — the pair
+    # must agree on the axis, or the two forms would classify one fact two ways. Declared
+    # rather than hand-classified: classify() computes the class from the carrier map, so
+    # adding a rule here cannot quietly assert a class the carrier does not support.
+    "E-XML-ABBR-DUP":           (("aef:laneMeta/@abbr",), CONSTRAINS),
     "E-XML-GW-OUTGOING":        (("sequenceFlow",), STRUCTURAL),
     "W-XML-GW-AMBIGUOUS":       (("conditionExpression",), REQUIRES),
     "W-XML-NODE-UNASSIGNED":    (("flowNodeRef",), STRUCTURAL),

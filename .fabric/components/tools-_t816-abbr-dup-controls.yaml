@@ -1,0 +1,27 @@
+id: tools/_t816-abbr-dup-controls.sh
+name: _t816-abbr-dup-controls
+type: script
+subsystem: conformance
+location: tools/_t816-abbr-dup-controls.sh
+tags: [conformance, validator, control, teeth, anti-vacuity]
+
+purpose: "Proves E-XML-ABBR-DUP discriminates, by driving a real corpus map three ways in
+  throwaway copies: duplicate abbr must fire, distinct abbrs must be silent, and no abbr at
+  all must be silent. Exists because the corpus fires this rule ZERO times — every map has
+  distinct abbrs, which is correct — so the only evidence the rule works is a deliberate
+  violation. A rule that never fires against any input is indistinguishable from one that was
+  never wired, and the parity table would report the gap CLOSED either way. Uses a real
+  corpus map rather than a synthetic fixture, and refuses (exit 3) if no map carries two
+  distinct abbrs, because then branch A has no fixture capable of producing a collision."
+purpose_source: "authored at creation by T-816"
+
+depends_on:
+  - target: tools/validate-workflow.py
+    type: calls
+  - target: examples/aef-processes/rendered
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-816

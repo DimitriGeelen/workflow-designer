@@ -71,7 +71,7 @@ Residue, measured over 25 canonical YAML maps and 96 authored BPMN files
 | `E-CONST-DUP` / `E-CONST-SHAPE` / `W-CONST-FIELD` | YAML→XML | `aef:constituents`, **23/96** bpmn | **GAP** | not probed |
 | `E-SCOPEOF-SELF` / `E-SCOPEOF-DANGLING` / `W-SCOPEOF-TYPE` | YAML→XML | `aef:scopeOf`, **0/96 authored — but in the shared vocabulary** | ~~out of scope~~ **GAP** (overturned, see below) | 0 |
 | `W-IO-INPUT` | YAML→XML | declared io, **17/96** bpmn | **GAP** | not probed |
-| `E-ABBR-DUP` | YAML→XML | lane `abbr`, **96/96** bpmn | **GAP** | 0 |
+| `E-ABBR-DUP` | YAML→XML | lane `abbr`, **96/96** bpmn | ~~GAP~~ **CLOSED T-816** | 0 |
 | `E-NODE-TYPE` | YAML→XML | typed flow elements, **96/96** | ~~GAP~~ **CLOSED T-321** | 0 |
 | `W-TYPE-LANE-MISMATCH` | XML→YAML | authority + task-type, **24/24** yaml | ~~GAP~~ **CLOSED T-322** | 0 |
 | `E-INCEPTION-NOT-SOVEREIGN` | XML→YAML | ~~`workflowType=inception`, 2/24 yaml~~ **0/26 authored — in the canonical vocabulary** (corrected, see below) | ~~GAP~~ **CLOSED T-322** | 0 |
@@ -90,6 +90,15 @@ Residue, measured over 25 canonical YAML maps and 96 authored BPMN files
 > there: 8 families at first publication → 9 when `scopeOf` was overturned below
 > → 8 after T-322 closed `W-TYPE-LANE-MISMATCH` and
 > `E-INCEPTION-NOT-SOVEREIGN` → **7** after T-321 closed `E-NODE-TYPE`.
+>
+> **2026-09-22 (T-816): 6 gap families / 10 gap rule ids.** `E-ABBR-DUP` is closed
+> by `E-XML-ABBR-DUP`. It was a one-id family, so families and ids each fall by one.
+> Closed first of the remaining gaps because it had the highest carrier count in the
+> table — `abbr` is carried by **96/96** bpmn maps and nothing on that form checked
+> it — and because parity is a **T-309 prerequisite** rather than housekeeping:
+> surfacing "the validator" in the editor surfaces the XML rule set, since the
+> designer speaks BPMN. Closing a gap lowers this number; that is the only direction
+> it may move without a new finding to justify it.
 >
 > One more discrepancy found while reconciling those two figures, and it is
 > pre-existing rather than introduced here: the table below has always been

@@ -1570,11 +1570,41 @@ class XmlValidator:
         )
         # flow-node id -> its lane's authority
         node_authority = {}
+        # T-816: abbr uniqueness, on the form the designer actually authors.
+        #
+        # The YAML path has checked this since the beginning (E-ABBR-DUP, §2). The XML path
+        # never has, and tests/test_rule_form_parity.py recorded it as the gap with the
+        # HIGHEST carrier count in the whole table: "lane abbr carried by 96/96 bpmn; no XML
+        # rule". Every BPMN map in the corpus carries the field and nothing checked it.
+        #
+        # Why that matters beyond tidiness: T-309's GO revision found that surfacing "the
+        # validator" in the editor would surface the WEAKER rule set, because only 7 rule ids
+        # are shared between the two forms and the designer speaks BPMN. Parity is the
+        # prerequisite for the in-editor surface, not a separate nicety.
+        #
+        # Collected in the SAME walk as authority rather than a second pass — the lanes are
+        # already in hand and their laneMeta already resolved.
+        abbrs = {}
         for lane in lanes:
             lm = lane.find(
                 "{%s}extensionElements/{%s}laneMeta" % (BPMN_NS, AEF_NS)
             )
             authority = lm.get("authority") if lm is not None else None
+
+            # An ABSENT abbr is not a violation — the carrier is optional and a lane that
+            # makes no abbr claim cannot collide with one. Only a present, repeated value is
+            # an error, which is exactly the YAML rule's predicate (`if abbr is not None`).
+            abbr = lm.get("abbr") if lm is not None else None
+            if abbr is not None:
+                if abbr in abbrs:
+                    self.err(
+                        "E-XML-ABBR-DUP",
+                        "lane '%s'" % (lane.get("id") or "?"),
+                        "lane abbr '%s' already used by lane '%s'"
+                        % (abbr, abbrs[abbr]),
+                    )
+                else:
+                    abbrs[abbr] = lane.get("id") or "?"
             # T-329: the §5 vocabulary gate, on the form the designer authors.
             # Until this existed, authority="overlord" was carried faithfully
             # into <aef:laneMeta> and read by nothing here -- so the check lived
