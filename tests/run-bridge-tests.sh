@@ -1257,6 +1257,46 @@ else
 fi
 
 echo
+echo "== Direct-manipulation gestures (T-817: wiring F-08's inventory to close part of F-07) =="
+
+# F-07 measured that the direct-manipulation surface — click-to-place, node drag, connect
+# mode, lane resize, the whole keyboard surface — is named by NO gating leg, while 131 legs
+# pass. F-08 measured 118 instruments that read as standing guards with no live caller:
+# "coverage that was written, ran once at task completion, and was never wired to anything
+# that re-runs it."
+#
+# Those two findings are the same hole from opposite sides, and the fix needed no new tests.
+# All eight named CDP probes were RUN before any was wired here — a probe wired on the
+# strength of its filename is the F-08 condition with extra steps. What that measured:
+#
+#   PASS, wired below ..... _horizontal-spacing (T-115 respaceColumns), _selection-align
+#                           (T-134 Align/Distribute), _edge-straighten (T-137 Straighten),
+#                           _t263-save-target (T-263 save-target binding)
+#   FAIL on real assertions  _endpoint-overlap (expected e_11), _saveproject (pass:false)
+#                           -> T-818. Red for an unknown length of time, because nothing
+#                              ever re-ran them. Filed with the measurement rather than
+#                              fixed blind; wiring a red probe would just move the silence.
+#   BLOCKED ............... _autoload, _autosave need a served gallery, and
+#                           build/gallery/designer.html is dated 2026-08-14 — 39 days stale.
+#                           Serving it would test old bytes (the FP-009 defect: "a faithful
+#                           test of old code"), and rebuilding it is not the agent's call.
+#
+# Each leg loads src/ directly, so it tests what the editor IS, not a build artefact.
+for _probe in _horizontal-spacing-verify-cdp.mjs \
+              _selection-align-verify-cdp.mjs \
+              _edge-straighten-verify-cdp.mjs \
+              _t263-save-target-cdp.mjs; do
+  _name="${_probe%.mjs}"
+  if timeout 180 node "$ROOT/tools/$_probe" > "$TMP/leg-$_name.out" 2>&1; then
+    pass=$((pass + 1))
+  else
+    report FAIL "direct-manipulation probe $_probe failed — a gesture the editor IS regressed, or the probe's expectation went stale while nothing re-ran it (run 'node tools/$_probe'; its JSON names the offending element). This leg exists because F-07 found these gestures covered by nothing and F-08 found the probes for them already written and unwired."
+    show_output "$TMP/leg-$_name.out" "$_probe"
+    fail=$((fail + 1))
+  fi
+done
+
+echo
 echo "== A save that changes nothing produces no diff (T-423 idempotence) =="
 # export -> re-import -> export must be byte-identical, on every corpus map. The reason is an
 # authoring one, not a purity one: if the second export differs from the first, every save

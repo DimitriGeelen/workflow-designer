@@ -1,0 +1,25 @@
+id: tools/_t817-wiring-controls.sh
+name: _t817-wiring-controls
+type: script
+subsystem: verification
+location: tools/_t817-wiring-controls.sh
+tags: [verification, control, wiring, teeth]
+
+purpose: "Asserts the four direct-manipulation CDP probes wired by T-817 are named in
+  run-bridge-tests.sh, that the loop wiring them increments `fail` (so it GATES rather than
+  merely reports), and that every wired path resolves. Exists because wiring that does not
+  gate is the F-08 condition wearing a leg's clothes — the probe appears in the suite, the
+  suite goes green, and a regression in the gesture still ships. Structural rather than
+  driving the real 784s suite twice: a control that costs 26 minutes gets run as rarely as
+  the thing it controls, which is the disease rather than the cure. Proven non-vacuous
+  against a mutant runner whose loop had its fail increment stripped."
+purpose_source: "authored at creation by T-817"
+
+depends_on:
+  - target: tests/run-bridge-tests.sh
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-817
