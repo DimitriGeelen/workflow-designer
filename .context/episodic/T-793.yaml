@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-793: Remove the semgrep Guardian plugin: its hooks demand a commercial-service login and block Write/Edit
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T08:28:53Z
+# ============================================================================
+
+task_id: T-793
+task_name: "Remove the semgrep Guardian plugin: its hooks demand a commercial-service login and block Write/Edit"
+workflow_type: decommission
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T08:24:35Z
+completed: 2026-09-22T08:28:47Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T10:28:42+02:00
+last_commit: 2026-09-22T10:28:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  I was wrong twice about semgrep, and the uninstall I asked the operator to run had nothing to uninstall. The operator asked why I would not just run it. Fair question, and running it produced the answer: 'Plugin semgrep@claude-plugins-official not found in installed plugins'. CORRECTION 1, MY REPORTING. I described Write/Edit as blocked by an installed plugin and recommended removing it. It is not installed for this session on any register I can read - absent from installed_plugins.json (23 entries), from enabledPlugins in settings.json (17), and from claude plugin list (24 listed). The block spanned exactly two consecutive tool calls and every Edit since has passed, including the ones writing this correction. It was TRANSIENT and I reported it as standing. What is on disk is the shared plugin cache at semgrep/2.3.0 carrying .in_use PID markers stamped today; this machine runs a fleet of sessions for other projects against that same cache, which fits a transient load far better than an enablement here. CORRECTION 2, THE CLASSIFICATION, AND THIS ONE STANDS REGARDLESS. T-784 recorded semgrep in the borderline group as passing the operator's plugin-independence constraint, on the grounds that it spawns a local process with no third party, no account and no runtime network. That judged the semgrep CLI. The PLUGIN is Semgrep Guardian - its manifest says displayName 'Semgrep Guardian', author Semgrep - its hooks.json registers on BOTH PreToolUse and PostToolUse with matcher Write|Edit|Bash, and the hook's own words were 'Not logged into Semgrep Guardian. Ask the guardian mcp to login.' An account, and without it the editor blocks rather than degrades. That is disqualifying under the load-bearing line, in the same class as qdrant-skills rather than pyright-lsp. Four of the five borderline verdicts stand; only semgrep moves. Recorded as PD-307. WHAT I COULD NOT SETTLE, stated rather than papered over: /root/.claude.json is refused by the T-559 project-boundary hook as an outside path not in the read-side allowlist, so an enterprise/managed or foreign-project scope is UNVERIFIED rather than excluded. Absence legs carry positive controls on the same registers, so a bad path cannot score the silences green. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the actual enablement source is found, not guessed.** `semgrep` is absent from'
+  - '**AC2 — the hooks stop firing, proven by an action that they previously blocked.** Not'
+  - '**AC3 — nothing else is removed.** The other 23 plugins remain installed and enabled.'
+  - '**AC4 — the mis-classification is corrected where it was recorded.** T-784''s decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.tasks/active/T-793-remove-the-semgrep-guardian-plugin-its-h.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T10:28:42"
+    action: 'T-793: I was wrong twice about semgrep, and the uninstall I asked the operator to run had nothing to uninstall. The operator asked why I would not just run it. Fair question, and running it produced the answer: ''Plugin semgrep@claude-plugins-official not found in installed plugins''. CORRECTION 1, MY REPORTING. I described Write/Edit as blocked by an installed plugin and recommended removing it. It is not installed for this session on any register I can read - absent from installed_plugins.json (23 entries), from enabledPlugins in settings.json (17), and from claude plugin list (24 listed). The block spanned exactly two consecutive tool calls and every Edit since has passed, including the ones writing this correction. It was TRANSIENT and I reported it as standing. What is on disk is the shared plugin cache at semgrep/2.3.0 carrying .in_use PID markers stamped today; this machine runs a fleet of sessions for other projects against that same cache, which fits a transient load far better than an enablement here. CORRECTION 2, THE CLASSIFICATION, AND THIS ONE STANDS REGARDLESS. T-784 recorded semgrep in the borderline group as passing the operator''s plugin-independence constraint, on the grounds that it spawns a local process with no third party, no account and no runtime network. That judged the semgrep CLI. The PLUGIN is Semgrep Guardian - its manifest says displayName ''Semgrep Guardian'', author Semgrep - its hooks.json registers on BOTH PreToolUse and PostToolUse with matcher Write|Edit|Bash, and the hook''s own words were ''Not logged into Semgrep Guardian. Ask the guardian mcp to login.'' An account, and without it the editor blocks rather than degrades. That is disqualifying under the load-bearing line, in the same class as qdrant-skills rather than pyright-lsp. Four of the five borderline verdicts stand; only semgrep moves. Recorded as PD-307. WHAT I COULD NOT SETTLE, stated rather than papered over: /root/.claude.json is refused by the T-559 project-boundary hook as an outside path not in the read-side allowlist, so an enterprise/managed or foreign-project scope is UNVERIFIED rather than excluded. Absence legs carry positive controls on the same registers, so a bad path cannot score the silences green. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 2
+  lines_added: 266
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-793-remove-the-semgrep-guardian-plugin-its-h.md
+generated_by: context-agent-hybrid
