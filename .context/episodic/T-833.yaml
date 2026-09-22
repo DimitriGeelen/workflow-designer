@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-833: Reviewer-gated closure sweep: T-702, T-703, T-747, T-748 under operator authorisation
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T22:13:23Z
+# ============================================================================
+
+task_id: T-833
+task_name: "Reviewer-gated closure sweep: T-702, T-703, T-747, T-748 under operator authorisation"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T22:06:55Z
+completed: 2026-09-22T22:13:17Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-23T00:12:42+02:00
+last_commit: 2026-09-23T00:12:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  CTL-029 manufactured work that could not be done — fixed the check, not the tasks
+
+# Key outcomes
+outcomes:
+  - 'The operator''s authorisation is quoted verbatim in Decisions before any task is closed — this closes `### Human` criteria, which the standing rule forbids absolutely, and the ONLY thing that makes it legitimate is an explicit per-item operator instruction'
+  - 'RISK IS CLASSIFIED BY THE TOOL, NOT BY ME. `tools/_t770-delegation-boundary.py` returns the bucket mechanically. PD-302 exists because "an exception the agent adjudicates per case is relocated authority, not delegated authority" — if I decide what counts as high-risk, the delegation has moved to me'
+  - 'For EACH task: the external reviewer is RUN and its verdict QUOTED with its scan id. No task is closed on my assessment that the work looks done'
+  - 'A NEGATIVE verdict is acted on, not worked around: the finding is fixed, or a task is created for it and executed. Closing past a FAIL would make the reviewer decorative'
+  - 'Notes and unticked work are READ before any close — an unread note is unfinished work, and "the reviewer passed it" does not make unread content complete'
+  - 'Each close goes through `fw task update`, never by editing status in frontmatter'
+  - 'The dependency is verified after the fact, not assumed: T-747 and T-748 exist because T-702 and T-703 are open. After closing the parents, the children are re-read to confirm their blocker is actually gone rather than merely presumed'
+  - 'A pickup request goes to AEF for the STRUCTURAL fix: a positive external-reviewer verdict on a low-risk item should let the framework close the task, without a human rubber-stamp. This sweep is a one-off authorisation; the recurrence is the defect'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'CTL-029 manufactured work that could not be done — fixed the check, not the tasks'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/episodic/T-747.yaml'
+  - '.context/episodic/T-748.yaml'
+  - '.tasks/active/T-832-arc-002-membership-audit-ewcr-work-that-.md'
+  - '.tasks/active/T-833-reviewer-gated-closure-sweep-t-702-t-703.md'
+  - '.tasks/completed/T-747-ra-038-ctl-029-arc-003-task-t-702-is-com.md'
+  - '.tasks/completed/T-748-ra-039-ctl-029-arc-003-task-t-703-is-com.md'
+  - 'tools/_t833-ctl029-partial-complete-controls.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-23T00:12:42"
+    action: 'T-833: CTL-029 manufactured work that could not be done — fixed the check, not the tasks'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 8
+  lines_added: 590
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-833-reviewer-gated-closure-sweep-t-702-t-703.md
+generated_by: context-agent-hybrid

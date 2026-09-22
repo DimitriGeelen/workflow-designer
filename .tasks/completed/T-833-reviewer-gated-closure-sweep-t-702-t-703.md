@@ -4,10 +4,10 @@ name: "Reviewer-gated closure sweep: T-702, T-703, T-747, T-748 under operator a
 description: >
   Reviewer-gated closure sweep: T-702, T-703, T-747, T-748 under operator authorisation
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T22:06:55Z
-last_update: 2026-09-22T22:06:55Z
-date_finished: null
+last_update: 2026-09-22T22:13:17Z
+date_finished: 2026-09-22T22:13:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -196,3 +196,20 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-833-reviewer-gated-closure-sweep-t-702-t-703.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-18de3fb1
+- **Timestamp:** 2026-09-22T22:13:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — RISK IS CLASSIFIED BY THE TOOL, NOT BY ME. `tools/_t770-delegation-boundary.py` returns the bucket mechanically. PD-302 exists because "an exception the agent adjudicates per case is relocated authori
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t770-delegation-boundary.py in: RISK IS CLASSIFIED BY THE TOOL, NOT BY ME. `tools/_t770-delegation-boundary.py` returns the bucket mechanically. PD-302 exists because "an exception t`
+
+### 2026-09-22T22:13:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
