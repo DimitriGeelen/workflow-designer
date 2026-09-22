@@ -4,7 +4,7 @@ name: "The bridge suite rewrites a tracked fixture, and that fixture has been st
 description: >
   Surfaced by T-813's first recorded suite run, not by a value-review finding. Running tests/run-bridge-tests.sh modifies tests/fixtures/exported/t423-carrier-witness.bpmn in the working tree: it regenerates the file with extensionElements before conditionExpression, while the committed copy has the opposite order. TWO separate defects. (1) STALENESS: the fixture was last committed 2026-08-23 (89bdecdc, T-423); the emitter ordering changed 2026-09-09 (66e04cff, T-690, 'extensionElements before conditionExpression'). So the tracked witness has disagreed with the emitter for 17 days and nothing reported it — a witness fixture that does not match what the emitter produces is not witnessing anything. (2) SIDE EFFECT ON A TRACKED FILE: a test suite that rewrites a committed file makes 'git status is clean' untrue after every run, which trains readers to ignore a dirty tree — and a dirty tree is how the retention-sweep deletions and the 1052 untracked files already hide. Decide per defect: regenerate and commit the fixture, and either make the suite write its witness to a scratch path or declare the regeneration intentional and gitignore it. Reverted rather than committed under T-813: it is not that task's change and the right disposition is a judgement, not a cleanup.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T13:45:36Z
-last_update: 2026-09-22T13:45:36Z
+last_update: 2026-09-22T13:48:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,8 +40,11 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The regenerated fixture is compared against the committed one and the difference is explained, not merely refreshed — a witness that silently drifted once can drift again
+- [ ] The staleness is dated from the emitter change (T-690, `66e04cff`, 2026-09-09) against the fixture's last commit (T-423, `89bdecdc`, 2026-08-23), so the 17-day blind window is recorded rather than tidied away
+- [ ] `git status` is clean immediately after a full suite run — either the witness is regenerated and committed, or the suite writes it to a scratch path, but a test run must not leave a tracked file dirty
+- [ ] Whichever disposition is chosen, something MECHANICAL prevents the next silent drift: a check that the committed witness matches what the emitter currently produces
+- [ ] CONTROL: that check is proven to fail when the witness and the emitter disagree, by making them disagree in a throwaway copy
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -190,3 +193,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-815-the-bridge-suite-rewrites-a-tracked-fixt.md
 - **Context:** Initial task creation
+
+### 2026-09-22T13:48:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

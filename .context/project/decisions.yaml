@@ -2383,3 +2383,10 @@ decisions:
     date: 2026-09-22
     task: T-813
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-320
+    decision: "remove the function and all ten call sites, and leave a comment where the"
+    scope: project
+    date: 2026-09-22
+    task: T-814
+    rationale: "Auto-captured from task file on completion"

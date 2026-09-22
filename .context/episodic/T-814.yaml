@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-814: Delete refreshLibraryUI: inert body, ten no-op call sites (F-17)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T13:47:58Z
+# ============================================================================
+
+task_id: T-814
+task_name: "Delete refreshLibraryUI: inert body, ten no-op call sites (F-17)"
+workflow_type: refactor
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T13:41:06Z
+completed: 2026-09-22T13:47:44Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T15:47:38+02:00
+last_commit: 2026-09-22T15:47:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the review's single DELETE, executed — refreshLibraryUI and its ten no-op call sites
+
+# Key outcomes
+outcomes:
+  - 'Inertness proven BEFORE deletion, not assumed: `id="workflow-picker"` occurs 0 times, and every statement after the guard touches only `picker`'
+  - 'The function definition and all ten call sites are removed; zero references remain'
+  - 'A tombstone records why it went, so the next reader does not re-derive it — this file''s established convention (see `DI_TRAILER`, T-158)'
+  - 'The editor still loads with no console error and round-trips the corpus byte-identically: a no-op removal must be observably a no-op'
+  - 'Visual verification: the app renders and a map opens after the deletion'
+  - 'The review''s call-site count is corrected where measurement disagrees (it said 8; there are 10)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — delete, with a tombstone rather than silently'
+    chose: 'remove the function and all ten call sites, and leave a comment where the function was.'
+  - decision: '2026-09-22 — the review said 8 call sites; there are 10'
+  - decision: '2026-09-22 — my own tombstone defeated my own absence leg'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t814-after-deletion.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-814-delete-refreshlibraryui-inert-body-ten-n.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T15:47:38"
+    action: 'T-814: the review''s single DELETE, executed — refreshLibraryUI and its ten no-op call sites'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 3
+  lines_added: 272
+  lines_removed: 28
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-814-delete-refreshlibraryui-inert-body-ten-n.md
+generated_by: context-agent-hybrid

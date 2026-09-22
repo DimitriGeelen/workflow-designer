@@ -4,20 +4,20 @@ name: "Delete refreshLibraryUI: inert body, ten no-op call sites (F-17)"
 description: >
   Value review T-742 F-17, the ONLY item of 93 inventoried that cleared the DELETE evidence bar. refreshLibraryUI's first statement is 'const picker = $("workflow-picker"); if (!picker) return;' and no element with that id exists in the file — measured: 0 occurrences. Every statement after the guard operates on picker alone, so the function is a pure no-op that is called and returns immediately every time. T-154 records the dropdown's removal as deliberate ('one unified full-corpus entry point, no half-populated dropdown'), but that comment addresses the ELEMENT; the surviving call sites are residue it does not mention. Review said 8 call sites; measured 10.
 
-status: started-work
+status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T13:41:06Z
-last_update: 2026-09-22T13:46:55Z
-date_finished: null
+last_update: 2026-09-22T13:47:44Z
+date_finished: 2026-09-22T13:47:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -248,3 +248,19 @@ The extracted script block also passes `node --check`.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-814-delete-refreshlibraryui-inert-body-ten-n.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0835a237
+- **Timestamp:** 2026-09-22T13:47:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -rf`
+
+### 2026-09-22T13:47:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
