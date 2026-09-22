@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-789: Exercise the product: open aef-workflow-designer.html and measure whether the workflow-to-application path works end to end
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T07:50:29Z
+# ============================================================================
+
+task_id: T-789
+task_name: "Exercise the product: open aef-workflow-designer.html and measure whether the workflow-to-application path works end to end"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T07:44:45Z
+completed: 2026-09-22T07:50:23Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T09:49:25+02:00
+last_commit: 2026-09-22T09:49:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the product has now been opened — it works, and its missing half is missing on purpose
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the editor is opened, loaded with real saved content, and its console is'
+  - '**AC2 — the corpus population is measured, not eyeballed.** How many saved workflows'
+  - '**AC3 — the yardstick question is answered against the product''s own control surface.**'
+  - '**AC4 — every defect found is reproduced before it is reported.** Each claim is'
+  - '**AC5 — findings are filed where they survive this session.** Product defects become'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'docs/reports/VALUE-REVIEW-repo-2026-09-21.md'
+  - '.tasks/active/T-789-exercise-the-product-open-aef-workflow-d.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T09:49:25"
+    action: 'T-789: the product has now been opened — it works, and its missing half is missing on purpose'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 3
+  lines_added: 305
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-789-exercise-the-product-open-aef-workflow-d.md
+generated_by: context-agent-hybrid

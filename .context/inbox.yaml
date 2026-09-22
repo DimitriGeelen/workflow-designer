@@ -1763,3 +1763,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-372
+  text: "The P-011 Verification template documents 'out=$(cmd 2>&1); echo \"$out\" | grep -q PATTERN' as SIGPIPE-safe. Measured today: it is not, and its failure is payload-and-position dependent, which is worse than failing outright. Reproduced in T-789: capturing the designer page (994055 bytes) and piping to grep -q gave rc=141, and the completion gate reported 'DID NOT FINISH ... killed - signal 13, exit 141' with no output, so the leg told us nothing about the subject. Mechanism isolated with three controls: match EARLY in a 900 KB string -> rc=141; match LATE in the SAME 900 KB string -> rc=0; match EARLY in a 10 KB string -> rc=0. So the failure needs BOTH a payload larger than the pipe buffer AND a match early enough that grep -q exits before echo finishes writing. The consequence is that this pattern passes during development on small or late-matching inputs and dies in the gate when the page grows or the pattern moves - the template's own stated remedy for a SIGPIPE hazard reintroduces it above ~64 KB. The pipe-free form has no such dependency: case \"$out\" in *PATTERN*) true;; *) false;; esac, measured rc=0 on the same 994055-byte capture. Recommend the template state the size condition rather than an unqualified 'SIGPIPE-safe', and offer the case form for large captures."
+  captured: 2026-09-22T07:50:19Z
+  context_task: T-789
+  tags: []
+  status: pending
+  promoted_to: null

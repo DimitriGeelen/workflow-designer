@@ -4,20 +4,20 @@ name: "repair probe cites an ephemeral scratchpad path: the 16/16 evidence under
 description: >
   repair probe cites an ephemeral scratchpad path: the 16/16 evidence under the SQ-2 ruling no longer reproduces
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t353-repair-probe.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T07:33:28Z
-last_update: 2026-09-22T07:33:28Z
-date_finished: null
+last_update: 2026-09-22T07:38:48Z
+date_finished: 2026-09-22T07:38:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -276,3 +276,22 @@ grep -q '23/23 as of T-787' docs/reports/VALUE-REVIEW-repo-2026-09-21-evidence.m
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-787-repair-probe-cites-an-ephemeral-scratchp.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cbc1038e
+- **Timestamp:** 2026-09-22T07:38:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 49
+     - evidence: `bash tools/_t353-repair-probe.sh 2>&1 | grep -q 'probe: 23 passed, 0 failed'`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 68
+     - evidence: `out=$(timeout 60 python3 tools/validate-workflow.py examples/aef-processes/rendered/context-memory.bpmn 2>&1); ! echo "$out" | grep -q 'VALID'`
+
+### 2026-09-22T07:38:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

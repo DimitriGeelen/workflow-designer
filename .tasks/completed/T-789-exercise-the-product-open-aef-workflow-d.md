@@ -4,10 +4,10 @@ name: "Exercise the product: open aef-workflow-designer.html and measure whether
 description: >
   Exercise the product: open aef-workflow-designer.html and measure whether the workflow-to-application path works end to end
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T07:44:45Z
-last_update: 2026-09-22T07:44:45Z
-date_finished: null
+last_update: 2026-09-22T07:50:23Z
+date_finished: 2026-09-22T07:50:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -173,7 +173,12 @@ protocol is blocked to the browser tool, so all observation is through the runni
 
 # ── AC1: the editor is actually served and carries the palette we observed ────
 curl -sf "http://192.168.10.107:3013/designer/app" > /dev/null
-out=$(curl -sf "http://192.168.10.107:3013/designer/app" 2>&1); echo "$out" | grep -q 'Sovereignty'
+# NOT the template's `echo "$out" | grep -q` form. Measured here: that pattern is
+# documented in this very block as "SIGPIPE-safe", and at ~1 MB it is not — grep -q
+# closes stdin on the first match and echo dies on SIGPIPE, so the gate reported
+# "killed — signal 13, exit 141" rather than a pass or a fail. Case-match instead:
+# no pipe, so no reader to close the writer's stdin. Filed as OBS-372.
+out=$(curl -sf "http://192.168.10.107:3013/designer/app" 2>&1); case "$out" in *Sovereignty*) true;; *) false;; esac
 
 # ── AC3: no execution affordance, with POSITIVE CONTROLS on the same patterns ──
 # Legs (a) are the controls (T-560): each greps a string that IS present in the
@@ -269,3 +274,20 @@ grep -q 'OBS-371' .context/inbox.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-789-exercise-the-product-open-aef-workflow-d.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-51970549
+- **Timestamp:** 2026-09-22T07:50:24Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 49
+     - evidence: `curl -sf "http://192.168.10.107:3013/designer/app" > /dev/null`
+
+### 2026-09-22T07:50:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
