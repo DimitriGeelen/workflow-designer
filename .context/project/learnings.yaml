@@ -2332,3 +2332,10 @@ learnings:
   date: 2026-09-21
   context: Added via context agent
   application: TBD
+- id: PL-329
+  learning: "A Verification leg that greps a multi-word phrase from prose will fail when the phrase WRAPS across a line in the source, even though the phrase is present and correct. Hit twice in one session: T-795 (the edge list key is edges:, NOT flows: — spanned a Python string-literal boundary) and T-797 (synchronisation, not instantiation — spanned a markdown line wrap). Both times the content was right and only the leg was wrong, which is the expensive shape: the gate blocks a correct task and the obvious reaction is to doubt the work rather than the assertion. Rule: anchor a prose grep on a fragment SHORT enough to be certain it sits on one line, or grep the file with a tool that spans lines (python3 with the whole file read). Prefer the short anchor - it also survives later re-wrapping of the paragraph, which a long one will not."
+  source: P-011
+  task: T-797
+  date: 2026-09-22
+  context: Added via context agent
+  application: TBD

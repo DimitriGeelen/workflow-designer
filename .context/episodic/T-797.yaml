@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-797: Design vs instance: does anything model a RUN of a workflow, or only the definition and a task backlog derived from it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T09:14:57Z
+# ============================================================================
+
+task_id: T-797
+task_name: "Design vs instance: does anything model a RUN of a workflow, or only the definition and a task backlog derived from it"
+workflow_type: design
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T09:12:09Z
+completed: 2026-09-22T09:14:52Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T11:14:20+02:00
+last_commit: 2026-09-22T11:14:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the operator asked design or instance, and the answer is NEITHER — nothing anywhere models a run. Measured across three layers rather than reasoned from one. The designer, 997 KB: processInstance 0, instanceId 0, runId 0, execution 0, instantiate 0, startInstance 0. The frozen mapping standard: instance 0, runtime 0, execution 0, invocation 0. Both with positive controls on the same files so the zeros mean something — the designer yields 1035 node, 980 lane, 162 version; the standard 35 task, 22 lane, 17 owner. The files are readable and the vocabulary is rich. It is simply a vocabulary about DEFINITIONS. THE DECISIVE ARGUMENT IS AEF'S OWN, AND THEY MADE IT WITHOUT MEANING TO: their reconcile rules at @1631 are idempotent on (uid, source_bpmn_sha) — new creates, UNCHANGED IS A NO-OP, changed refuses to clobber, deleted orphans. Run fw bpmn compile twice and you do not get two runs, you get the same tasks. aef:uid described as 'the modify/create discriminator' only makes sense at exactly one task per node, permanently. That is SYNCHRONISATION, not instantiation. So the chain is one diagram to one task set kept in sync with it — never one diagram to run 1, run 2, run 3. IN THE OPERATOR'S OWN TERMS: process design is fully served — authored, validated, governed, and now exposed to agents through three MCP tools. Instantiation, where you track the execution, DOES NOT EXIST ON EITHER SIDE OF THE SEAM. Not here, not upstream, not in the frozen standard, and not in AEF's @1631 list of what they own. STATED FAIRLY: for a governance framework one living backlog per process may be deliberate — a process describing how a team works has one backlog, not one per occurrence. But the standard is SILENT rather than exclusionary, zero occurrences of the entire vocabulary, and an absent concept and a rejected concept look identical in a document while only one of them is a decision. It also collides with the yardstick's word 'iterate': if that means refine the design and recompile, today's stack delivers it; if it means run this process repeatedly and watch each run, nothing does. NO SCOPE CLAIMED ON THE STRENGTH OF THIS. The predecessor question is whether AEF considers instances theirs as they considered the compiler theirs, and asking is cheap where guessing wrong is the T-786 error again. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the question is answered by measurement across ALL layers, not by reasoning'
+  - '**AC2 — the zeros carry positive controls.** A count of 0 for `instanceId` is worthless'
+  - '**AC3 — the decisive argument is drawn from the counterparty''s own words, not ours.**'
+  - '**AC4 — the finding is stated fairly, including the reading where it is not a defect.**'
+  - '**AC5 — no scope is claimed on the strength of the finding.** The task does not propose'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the operator asked design or instance, and the answer is NEITHER — nothing anywhere models a run. Measured across three layers rather than reasoned from one. The designer, 997 KB: processInstance 0, instanceId 0, runId 0, execution 0, instantiate 0, startInstance 0. The frozen mapping standard: instance 0, runtime 0, execution 0, invocation 0. Both with positive controls on the same files so the zeros mean something — the designer yields 1035 node, 980 lane, 162 version; the standard 35 task, 22 lane, 17 owner. The files are readable and the vocabulary is rich. It is simply a vocabulary about DEFINITIONS. THE DECISIVE ARGUMENT IS AEF''S OWN, AND THEY MADE IT WITHOUT MEANING TO: their reconcile rules at @1631 are idempotent on (uid, source_bpmn_sha) — new creates, UNCHANGED IS A NO-OP, changed refuses to clobber, deleted orphans. Run fw bpmn compile twice and you do not get two runs, you get the same tasks. aef:uid described as ''the modify/create discriminator'' only makes sense at exactly one task per node, permanently. That is SYNCHRONISATION, not instantiation. So the chain is one diagram to one task set kept in sync with it — never one diagram to run 1, run 2, run 3. IN THE OPERATOR''S OWN TERMS: process design is fully served — authored, validated, governed, and now exposed to agents through three MCP tools. Instantiation, where you track the execution, DOES NOT EXIST ON EITHER SIDE OF THE SEAM. Not here, not upstream, not in the frozen standard, and not in AEF''s @1631 list of what they own. STATED FAIRLY: for a governance framework one living backlog per process may be deliberate — a process describing how a team works has one backlog, not one per occurrence. But the standard is SILENT rather than exclusionary, zero occurrences of the entire vocabulary, and an absent concept and a rejected concept look identical in a document while only one of them is a decision. It also collides with the yardstick''s word ''iterate'': if that means refine the design and recompile, today''s stack delivers it; if it means run this process repeatedly and watch each run, nothing does. NO SCOPE CLAIMED ON THE STRENGTH OF THIS. The predecessor question is whether AEF considers instances theirs as they considered the compiler theirs, and asking is cheap where guessing wrong is the T-786 error again. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-797-design-vs-instance.md'
+  - '.tasks/active/T-797-design-vs-instance-does-anything-model-a.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T11:14:20"
+    action: 'T-797: the operator asked design or instance, and the answer is NEITHER — nothing anywhere models a run. Measured across three layers rather than reasoned from one. The designer, 997 KB: processInstance 0, instanceId 0, runId 0, execution 0, instantiate 0, startInstance 0. The frozen mapping standard: instance 0, runtime 0, execution 0, invocation 0. Both with positive controls on the same files so the zeros mean something — the designer yields 1035 node, 980 lane, 162 version; the standard 35 task, 22 lane, 17 owner. The files are readable and the vocabulary is rich. It is simply a vocabulary about DEFINITIONS. THE DECISIVE ARGUMENT IS AEF''S OWN, AND THEY MADE IT WITHOUT MEANING TO: their reconcile rules at @1631 are idempotent on (uid, source_bpmn_sha) — new creates, UNCHANGED IS A NO-OP, changed refuses to clobber, deleted orphans. Run fw bpmn compile twice and you do not get two runs, you get the same tasks. aef:uid described as ''the modify/create discriminator'' only makes sense at exactly one task per node, permanently. That is SYNCHRONISATION, not instantiation. So the chain is one diagram to one task set kept in sync with it — never one diagram to run 1, run 2, run 3. IN THE OPERATOR''S OWN TERMS: process design is fully served — authored, validated, governed, and now exposed to agents through three MCP tools. Instantiation, where you track the execution, DOES NOT EXIST ON EITHER SIDE OF THE SEAM. Not here, not upstream, not in the frozen standard, and not in AEF''s @1631 list of what they own. STATED FAIRLY: for a governance framework one living backlog per process may be deliberate — a process describing how a team works has one backlog, not one per occurrence. But the standard is SILENT rather than exclusionary, zero occurrences of the entire vocabulary, and an absent concept and a rejected concept look identical in a document while only one of them is a decision. It also collides with the yardstick''s word ''iterate'': if that means refine the design and recompile, today''s stack delivers it; if it means run this process repeatedly and watch each run, nothing does. NO SCOPE CLAIMED ON THE STRENGTH OF THIS. The predecessor question is whether AEF considers instances theirs as they considered the compiler theirs, and asking is cheap where guessing wrong is the T-786 error again. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 2
+  lines_added: 322
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-797-design-vs-instance-does-anything-model-a.md
+generated_by: context-agent-hybrid

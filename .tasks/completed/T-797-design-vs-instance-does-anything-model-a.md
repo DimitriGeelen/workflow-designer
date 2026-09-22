@@ -4,10 +4,10 @@ name: "Design vs instance: does anything model a RUN of a workflow, or only the 
 description: >
   Design vs instance: does anything model a RUN of a workflow, or only the definition and a task backlog derived from it
 
-status: started-work
+status: work-completed
 workflow_type: design
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T09:12:09Z
-last_update: 2026-09-22T09:12:09Z
-date_finished: null
+last_update: 2026-09-22T09:14:52Z
+date_finished: 2026-09-22T09:14:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -158,7 +158,9 @@ grep -qi 'lane' docs/standards/aef-bpmn-mapping-v1.md
 
 # ── AC3/AC4/AC5: the report says the uncomfortable parts out loud ────────────
 grep -q 'neither, as those terms are normally used' docs/reports/T-797-design-vs-instance.md
-grep -q 'synchronisation, not instantiation' docs/reports/T-797-design-vs-instance.md
+# Single-line anchor: the full phrase wraps in the prose. SECOND time this session a
+# Verification leg grepped across a line break (T-795 was the first) — see L-note.
+grep -q 'not instantiation' docs/reports/T-797-design-vs-instance.md
 grep -q 'does NOT do' docs/reports/T-797-design-vs-instance.md
 
 ## RCA
@@ -228,3 +230,15 @@ grep -q 'does NOT do' docs/reports/T-797-design-vs-instance.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-797-design-vs-instance-does-anything-model-a.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3c21edfd
+- **Timestamp:** 2026-09-22T09:14:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T09:14:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
