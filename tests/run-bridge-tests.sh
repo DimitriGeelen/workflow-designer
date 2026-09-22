@@ -16,10 +16,58 @@ BRIDGE="$ROOT/tools/yaml-to-bpmn.py"
 VALIDATOR="$ROOT/tools/validate-workflow.py"
 CORPUS="$ROOT/examples/aef-processes"
 TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
 
 pass=0
 fail=0
+
+# ── T-813 (value review F-03): run history ──────────────────────────────────────────────
+#
+# THE PROBLEM THIS SOLVES, in the review's words: this suite runs 131 passed / 7 failed and
+# "no test-run artefact exists anywhere in the tree, so the age of the 7 failures is
+# unknowable — UNMEASURED, not zero." Seven failures that might be seven days old or seven
+# weeks old are not the same finding, and nothing could tell them apart. The same absence is
+# why F-09's golden drift has no knowable age either.
+#
+# WHY AN EXIT TRAP AND NOT A LINE AT THE END. A line after the last check records only runs
+# that reach it: a leg that calls `exit`, a Ctrl-C at minute nine of a twelve-minute suite, a
+# SIGTERM from a future scheduler's timeout — all would leave no trace, and the gap would be
+# invisible because the file would still look like a clean history. The runs most worth
+# recording are exactly the ones a tail-of-script recorder drops.
+#
+# RECORDS EVERY OUTCOME, deliberately including red ones. A history that only captures green
+# runs answers the opposite of the question being asked.
+#
+# The trap CHAINS the pre-existing TMP cleanup rather than replacing it — bash keeps one
+# handler per signal, so adding a second `trap ... EXIT` would silently discard the first and
+# leak a temp dir per run.
+_T813_START=$(date +%s)
+_T813_HISTORY="$ROOT/tests/.run-history.tsv"
+
+_T813_RECORDED=0
+_t813_record() {
+    # ONCE PER RUN. A signal handler that re-raises (below) lets the EXIT trap fire too, so
+    # without this guard every interrupted run wrote TWO records — one with the signal's
+    # code and one with the shell's final status. Found by the control, not by reading:
+    # a duplicated row would silently double the run count and make "how long has it been
+    # red" answerable only by a human noticing the pairs.
+    [ "$_T813_RECORDED" = "1" ] && return 0
+    _T813_RECORDED=1
+    local rc=$1
+    local dur=$(( $(date +%s) - _T813_START ))
+    local sha
+    sha=$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    # One tab-separated line, appended. Append-only and never rewritten: this is a record of
+    # what happened, not a cache of the current state.
+    printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+        "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$pass" "$fail" "$rc" "$dur" "$sha" \
+        >> "$_T813_HISTORY" 2>/dev/null || true
+}
+
+trap '_t813_record "$?"; rm -rf "$TMP"' EXIT
+# INT/TERM are not covered by EXIT in every bash configuration when the shell is killed
+# outright; re-raising after the handler preserves the true exit status for a caller.
+trap '_t813_record 130; rm -rf "$TMP"; trap - INT; kill -INT $$' INT
+trap '_t813_record 143; rm -rf "$TMP"; trap - TERM; kill -TERM $$' TERM
 
 report() { printf '  [%s] %s\n' "$1" "$2"; }
 

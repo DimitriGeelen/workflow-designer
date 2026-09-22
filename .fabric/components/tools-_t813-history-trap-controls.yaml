@@ -1,0 +1,28 @@
+id: tools/_t813-history-trap-controls.sh
+name: _t813-history-trap-controls
+type: script
+subsystem: verification
+location: tools/_t813-history-trap-controls.sh
+tags: [verification, control, teeth, anti-vacuity]
+
+purpose: "Drives the run-history recorder through green, RED and INTERRUPTED runs in a
+  synthetic runner carrying the same trap wiring. The last two branches are the reason the
+  recorder is an exit trap rather than a line at the end of the suite — those are the runs a
+  tail-of-script recorder drops, and a green-only control would pass against the naive
+  implementation. Found the double-record defect: the signal handler re-raises, so EXIT fired
+  too and every interrupted run wrote two rows. Refuses to run (exit 3) if run-bridge-tests.sh
+  no longer carries the wiring it models, so it cannot pass forever after the real recorder is
+  removed. Uses a synthetic rather than the 742s real suite because driving that three times
+  would make this control something nobody runs — the F-03 disease rather than its cure."
+purpose_source: "authored at creation by T-813"
+
+depends_on:
+  - target: tests/run-bridge-tests.sh
+    type: reads
+  - target: tools/_t813-suite-age.py
+    type: calls
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-813

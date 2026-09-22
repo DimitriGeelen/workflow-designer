@@ -1,0 +1,26 @@
+id: tools/_t813-suite-age.py
+name: _t813-suite-age
+type: script
+subsystem: verification
+location: tools/_t813-suite-age.py
+tags: [verification, run-history, age, teeth]
+
+purpose: "Reads tests/.run-history.tsv and answers how old the gating suite's current failure
+  state is. Exists because value review F-03 measured that no test-run artefact existed
+  anywhere in the tree, so '131 passed, 7 failed' could not be dated — 'UNMEASURED, not
+  zero' — and the same absence left F-09's golden drift undateable. Walks back to the last
+  green run to bound the red period, and says so explicitly when the history begins red (a
+  LOWER bound, not an age). Exits 3 on an empty or missing history: no history is not zero
+  failures, it is the F-03 condition itself. Reports rather than gates — no threshold for an
+  unacceptably stale suite has been recorded, and inventing one inside a reader would be
+  fitting the gate to the tree."
+purpose_source: "authored at creation by T-813"
+
+depends_on:
+  - target: tests/.run-history.tsv
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-09-22
+created_by: T-813
