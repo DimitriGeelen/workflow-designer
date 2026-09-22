@@ -4,10 +4,10 @@ name: "Apply the SQ-2 narrow ruling: discharge the 14 uncontrolled absence legs 
 description: >
   Apply the SQ-2 narrow ruling: discharge the 14 uncontrolled absence legs this agent created, as the first bounded test of the new permission
 
-status: started-work
+status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T10:04:43Z
-last_update: 2026-09-22T10:04:43Z
-date_finished: null
+last_update: 2026-09-22T10:08:55Z
+date_finished: 2026-09-22T10:08:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -273,3 +273,15 @@ grep -q 'not doable by appending' .tasks/active/T-802-apply-the-sq-2-narrow-ruli
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-802-apply-the-sq-2-narrow-ruling-discharge-t.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-98fffd87
+- **Timestamp:** 2026-09-22T10:08:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T10:08:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

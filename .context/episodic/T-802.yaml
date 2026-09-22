@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-802: Apply the SQ-2 narrow ruling: discharge the 14 uncontrolled absence legs this agent created, as the first bounded test of the new permission
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T10:09:02Z
+# ============================================================================
+
+task_id: T-802
+task_name: "Apply the SQ-2 narrow ruling: discharge the 14 uncontrolled absence legs this agent created, as the first bounded test of the new permission"
+workflow_type: refactor
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T10:04:43Z
+completed: 2026-09-22T10:08:55Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T12:08:54+02:00
+last_commit: 2026-09-22T12:08:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  first use of the SQ-2 narrow ruling, spent on cleaning up my own mess. Operator ruled Option C at 2026-09-22 — an agent may APPEND a sibling control leg to a Verification block in .tasks/completed/ only where a teeth instrument requires it, additive only, logged Tier 2. Recorded as PD-308. FIRST APPLICATION IS DELIBERATELY MY OWN 14, because the least invasive possible test of a new permission is the agent's own records: no other owner's archived task is opened until the mechanism is demonstrated. git diff --name-only shows exactly 7 files, all T-789 through T-798. APPEND-ONLY, PROVEN BY DIFF SHAPE RATHER THAN BY INTENT: added 33, DELETED 0. The edit script also refused to write unless every original line survived in order, so an accidental replacement would have aborted rather than been found afterwards. I READ control_level() BEFORE WRITING THE CONTROLS rather than guessing, which is what caused the original defect. PATTERN control requires the IDENTICAL string in the sibling's own grep pattern; the instrument's own docstring says a control satisfied by a coincidence of substrings is worth less than no control at all, because it is recorded as coverage. Every one of the nine pattern/target pairs was verified to MATCH before being written. THE EXPECTATION WAS CORRECTED BEFORE THE WORK, NOT AFTER IT: only 11 of the 14 are dischargeable, so the target was moved from 113 to 116 with the reason stated up front. The three test -z legs cannot be fixed by appending at all — PATTERN needs a grep pattern the leg does not have, and EXISTENCE is checked against the leg's OWN text rather than a sibling. Only altering them would work and the ruling forbids altering. They stay, and they stay counted. Measured: RATCHET baseline 78, current 116. Exactly the predicted number. THE BASELINE WAS NOT RAISED — still 78, git diff on it empty. Lowering the count is the work; raising the baseline is the thing that must never happen. And T-802's own Verification legs add ZERO new absence assertions, checked. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — only APPENDS, and that is proven by diff shape, not by intent.** The ruling'
+  - '**AC2 — scope is the 14 legs this agent created, and no further.** First use of a new'
+  - '**AC3 — each added control uses THE SAME STRING as the assertion it controls.** This is'
+  - '**AC4 — the ratchet actually falls, and by the expected amount.** 127 now.'
+  - '**AC5 — the baseline file is NOT touched.** `tools/_t560-absence-baseline.txt` must read'
+  - '**AC6 — each edit is logged as Tier 2, per the ruling''s own terms.** The ruling requires'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'first use of the SQ-2 narrow ruling, spent on cleaning up my own mess. Operator ruled Option C at 2026-09-22 — an agent may APPEND a sibling control leg to a Verification block in .tasks/completed/ only where a teeth instrument requires it, additive only, logged Tier 2. Recorded as PD-308. FIRST APPLICATION IS DELIBERATELY MY OWN 14, because the least invasive possible test of a new permission is the agent''s own records: no other owner''s archived task is opened until the mechanism is demonstrated. git diff --name-only shows exactly 7 files, all T-789 through T-798. APPEND-ONLY, PROVEN BY DIFF SHAPE RATHER THAN BY INTENT: added 33, DELETED 0. The edit script also refused to write unless every original line survived in order, so an accidental replacement would have aborted rather than been found afterwards. I READ control_level() BEFORE WRITING THE CONTROLS rather than guessing, which is what caused the original defect. PATTERN control requires the IDENTICAL string in the sibling''s own grep pattern; the instrument''s own docstring says a control satisfied by a coincidence of substrings is worth less than no control at all, because it is recorded as coverage. Every one of the nine pattern/target pairs was verified to MATCH before being written. THE EXPECTATION WAS CORRECTED BEFORE THE WORK, NOT AFTER IT: only 11 of the 14 are dischargeable, so the target was moved from 113 to 116 with the reason stated up front. The three test -z legs cannot be fixed by appending at all — PATTERN needs a grep pattern the leg does not have, and EXISTENCE is checked against the leg''s OWN text rather than a sibling. Only altering them would work and the ruling forbids altering. They stay, and they stay counted. Measured: RATCHET baseline 78, current 116. Exactly the predicted number. THE BASELINE WAS NOT RAISED — still 78, git diff on it empty. Lowering the count is the work; raising the baseline is the thing that must never happen. And T-802''s own Verification legs add ZERO new absence assertions, checked. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.tasks/active/T-802-apply-the-sq-2-narrow-ruling-discharge-t.md'
+  - '.tasks/completed/T-789-exercise-the-product-open-aef-workflow-d.md'
+  - '.tasks/completed/T-791-should-832-ship-a-local-mcp-server-expos.md'
+  - '.tasks/completed/T-792-build-the-designer-mcp-server-validatewo.md'
+  - '.tasks/completed/T-795-add-yamltobpmn-to-the-designer-mcp-serve.md'
+  - '.tasks/completed/T-796-add-describeworkflow-report-what-aefs-co.md'
+  - '.tasks/completed/T-797-design-vs-instance-does-anything-model-a.md'
+  - '.tasks/completed/T-798-put-the-workflow-classinstance-proposal-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T12:08:54"
+    action: 'T-802: first use of the SQ-2 narrow ruling, spent on cleaning up my own mess. Operator ruled Option C at 2026-09-22 — an agent may APPEND a sibling control leg to a Verification block in .tasks/completed/ only where a teeth instrument requires it, additive only, logged Tier 2. Recorded as PD-308. FIRST APPLICATION IS DELIBERATELY MY OWN 14, because the least invasive possible test of a new permission is the agent''s own records: no other owner''s archived task is opened until the mechanism is demonstrated. git diff --name-only shows exactly 7 files, all T-789 through T-798. APPEND-ONLY, PROVEN BY DIFF SHAPE RATHER THAN BY INTENT: added 33, DELETED 0. The edit script also refused to write unless every original line survived in order, so an accidental replacement would have aborted rather than been found afterwards. I READ control_level() BEFORE WRITING THE CONTROLS rather than guessing, which is what caused the original defect. PATTERN control requires the IDENTICAL string in the sibling''s own grep pattern; the instrument''s own docstring says a control satisfied by a coincidence of substrings is worth less than no control at all, because it is recorded as coverage. Every one of the nine pattern/target pairs was verified to MATCH before being written. THE EXPECTATION WAS CORRECTED BEFORE THE WORK, NOT AFTER IT: only 11 of the 14 are dischargeable, so the target was moved from 113 to 116 with the reason stated up front. The three test -z legs cannot be fixed by appending at all — PATTERN needs a grep pattern the leg does not have, and EXISTENCE is checked against the leg''s OWN text rather than a sibling. Only altering them would work and the ruling forbids altering. They stay, and they stay counted. Measured: RATCHET baseline 78, current 116. Exactly the predicted number. THE BASELINE WAS NOT RAISED — still 78, git diff on it empty. Lowering the count is the work; raising the baseline is the thing that must never happen. And T-802''s own Verification legs add ZERO new absence assertions, checked. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 9
+  lines_added: 315
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-802-apply-the-sq-2-narrow-ruling-discharge-t.md
+generated_by: context-agent-hybrid
