@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-791: Should 832 ship a local MCP server exposing the workflow designer to AEF users — measure the callable surface and the demand
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T08:08:27Z
+# ============================================================================
+
+task_id: T-791
+task_name: "Should 832 ship a local MCP server exposing the workflow designer to AEF users — measure the callable surface and the demand"
+workflow_type: design
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T08:04:49Z
+completed: 2026-09-22T08:08:21Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T10:08:16+02:00
+last_commit: 2026-09-22T10:08:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  recommend a narrow local MCP server for the designer — GO, read-only, no packaging. Measured rather than argued. THE SURFACE ALREADY EXISTS AND IS FREE OF DEPENDENCIES: validate-workflow.py imports argparse, json, sys and xml.etree and nothing else, so it satisfies the operator's standalone constraint by construction rather than by argument — no service to be unreachable, no account, no network. yaml-to-bpmn.py adds only pyyaml. The usual hard part of an MCP server, the dependency and auth story, is absent here. THE DEMAND IS REAL AND HISTORICAL, AND THE SECOND HALF MATTERS: 32 completed tasks mention dogfood, and AEF ran a formal pair-round series sending us their bytes to validate against our validator (T-297 dogfood 2, T-299 dogfood 3 of 4, rail 314). Then it stopped. T-297, T-299 and EVERY saved workflow in the corpus are dated 2026-07-29; the most recent dogfood mention anywhere is 2026-08-20; today is 2026-09-22. Two months of silence on exactly the collaboration this would serve. Two readings: the loop died of friction, or the finite exercise simply finished. 'dogfood #3 of 4' names its own length, so the second is better supported and I am not arguing the silence means what I would prefer. Both can be true at once: the transport was independently PROVEN lossy this morning, when T-299's archived verification line turned out to cite scratchpad bytes that had been reaped (T-787). THE ARGUMENT THAT SURVIVES ANYWAY is the yardstick: it says agent AND human collaboration, and today the designer is human-only — 997 KB of browser app with no programmatic entry point at all. The agent half has no surface, which is true whether or not AEF opens dogfood 5. The demand test is unfair to an interface that has never existed; what IS measurable is that when agents could reach this over a bad manual transport, they did it 32 times. THE GOVERNANCE GAP FROM T-790 BECOMES A SCOPE FENCE rather than a blocker: every tool is a pure function or a read, nothing writes into a governed tree. A pure function needs no governance — validate(bytes) cannot violate sovereignty. Four tools: validate_workflow, yaml_to_bpmn, list_corpus, get_workflow. NOT-list, so scope creep has something to collide with: no MCPB packaging (nobody has asked to install it, and G-007 makes shipped bytes a sovereignty promise), no remote HTTP (load-bearing service dependency), no write tools, no translator (T-788 is open and the frozen standard says none is built here). Decision remains the operator's. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the callable surface is enumerated with its real dependencies.** Not "we have'
+  - '**AC2 — demand is measured, including when it is inconvenient.** Whether anything has'
+  - '**AC3 — the competing reading of that evidence is stated and adjudicated.** Where the'
+  - '**AC4 — the governance gap from T-790 is converted into a scope fence, not waved at.**'
+  - '**AC5 — a recommendation with an explicit NOT-list.** One recommended shape, plus what'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-791-mcp-server-for-the-designer.md'
+  - '.tasks/active/T-791-should-832-ship-a-local-mcp-server-expos.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T10:08:16"
+    action: 'T-791: recommend a narrow local MCP server for the designer — GO, read-only, no packaging. Measured rather than argued. THE SURFACE ALREADY EXISTS AND IS FREE OF DEPENDENCIES: validate-workflow.py imports argparse, json, sys and xml.etree and nothing else, so it satisfies the operator''s standalone constraint by construction rather than by argument — no service to be unreachable, no account, no network. yaml-to-bpmn.py adds only pyyaml. The usual hard part of an MCP server, the dependency and auth story, is absent here. THE DEMAND IS REAL AND HISTORICAL, AND THE SECOND HALF MATTERS: 32 completed tasks mention dogfood, and AEF ran a formal pair-round series sending us their bytes to validate against our validator (T-297 dogfood 2, T-299 dogfood 3 of 4, rail 314). Then it stopped. T-297, T-299 and EVERY saved workflow in the corpus are dated 2026-07-29; the most recent dogfood mention anywhere is 2026-08-20; today is 2026-09-22. Two months of silence on exactly the collaboration this would serve. Two readings: the loop died of friction, or the finite exercise simply finished. ''dogfood #3 of 4'' names its own length, so the second is better supported and I am not arguing the silence means what I would prefer. Both can be true at once: the transport was independently PROVEN lossy this morning, when T-299''s archived verification line turned out to cite scratchpad bytes that had been reaped (T-787). THE ARGUMENT THAT SURVIVES ANYWAY is the yardstick: it says agent AND human collaboration, and today the designer is human-only — 997 KB of browser app with no programmatic entry point at all. The agent half has no surface, which is true whether or not AEF opens dogfood 5. The demand test is unfair to an interface that has never existed; what IS measurable is that when agents could reach this over a bad manual transport, they did it 32 times. THE GOVERNANCE GAP FROM T-790 BECOMES A SCOPE FENCE rather than a blocker: every tool is a pure function or a read, nothing writes into a governed tree. A pure function needs no governance — validate(bytes) cannot violate sovereignty. Four tools: validate_workflow, yaml_to_bpmn, list_corpus, get_workflow. NOT-list, so scope creep has something to collide with: no MCPB packaging (nobody has asked to install it, and G-007 makes shipped bytes a sovereignty promise), no remote HTTP (load-bearing service dependency), no write tools, no translator (T-788 is open and the frozen standard says none is built here). Decision remains the operator''s. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 2
+  lines_added: 367
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-791-should-832-ship-a-local-mcp-server-expos.md
+generated_by: context-agent-hybrid
