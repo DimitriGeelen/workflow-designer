@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-808: Render the product version in the designer UI (F-10)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T12:51:45Z
+# ============================================================================
+
+task_id: T-808
+task_name: "Render the product version in the designer UI (F-10)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T12:40:40Z
+completed: 2026-09-22T12:51:39Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T14:51:32+02:00
+last_commit: 2026-09-22T14:51:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the designer finally states which build it is — F-10, a guarded literal rather than a remembered one
+
+# Key outcomes
+outcomes:
+  - '`src/aef-workflow-designer.html` carries a single `APP_VERSION` constant whose value equals the `VERSION` file'
+  - 'The version renders visibly in the header, in a class of its own — NOT the orphaned `.brand-version`, which T-158 retired and which meant the *workflow''s* contract version, not the app''s'
+  - 'A mechanical guard asserts `APP_VERSION == VERSION`; drift is a hard failure, not a warning'
+  - 'The guard is wired into `scripts/release-designer.sh` and fires BEFORE any write to `dist/`, so a drifted release is refused rather than cut and then noticed'
+  - 'CONTROL: the guard is proven to FAIL when the two disagree, by actually making them disagree in a throwaway copy — a guard that has only ever been seen passing is not known to work (PL-206)'
+  - 'The artifact stays byte-identical to src: `release-designer.sh`''s `diff -q SRC ARTIFACT` contract is untouched, so no build-time substitution is introduced'
+  - 'Visual verification: the rendered header is screenshotted and read with the Read tool, in every visual mode this change can affect, confirming the string is legible rather than merely present in the DOM. (Written as "both themes" before measuring; the designer has exactly ONE appearance — `--text-dim`/`--surface-3` each defined once, no `data-theme`, no `prefers-color-scheme`, no density or font modes — so the matrix is one screenshot. Corrected rather than left, because an AC naming a mode that does not exist can only be satisfied by pretending.)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — A guarded literal, not build-time substitution'
+    chose: 'a single `APP_VERSION` literal in `src/`, rendered in the header, with `tools/_t808-version-parity.sh` wired into `release-designer.sh` ahead of every write to `dist/`. Fail-closed, and deliberately with no bypass env var.'
+    rationale: '`release-designer.sh` asserts `diff -q SRC ARTIFACT` — the released artifact IS the source byte for byte, and AEF pins that sha256. Build-time substitution, which T-399 named as the route, would break that contract for the sake of a header string. A literal preserves it; the guard is what makes the literal safe. T-399''s real objection was to a duplicate "kept in step by good intentions" — a gate that refuses the release answers it.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t808-version-parity.yaml'
+  - '.playwright-mcp/t808-header-light.png'
+  - 'scripts/release-designer.sh'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-808-render-the-product-version-in-the-design.md'
+  - 'tools/_t808-version-parity.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T14:51:32"
+    action: 'T-808: the designer finally states which build it is — F-10, a guarded literal rather than a remembered one'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 1
+  files_changed: 6
+  lines_added: 423
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-808-render-the-product-version-in-the-design.md
+generated_by: context-agent-hybrid

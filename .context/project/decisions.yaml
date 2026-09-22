@@ -2320,3 +2320,10 @@ decisions:
     date: 2026-09-22
     task: T-805
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-311
+    decision: "a single `APP_VERSION` literal in `src/`, rendered in the header, with"
+    scope: project
+    date: 2026-09-22
+    task: T-808
+    rationale: "Auto-captured from task file on completion"

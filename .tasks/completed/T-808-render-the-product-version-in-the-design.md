@@ -4,20 +4,20 @@ name: "Render the product version in the designer UI (F-10)"
 description: >
   Value review T-742 finding F-10: no product version string renders anywhere in the designer UI. This is the instrument whose absence made F-01 — served bytes four releases behind src — invisible from inside the product for weeks. The operator could not tell which build they were looking at. Add a visible version string to the UI, sourced so it cannot silently drift from VERSION.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [scripts/release-designer.sh, src/aef-workflow-designer.html, tools/_t808-version-parity.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T12:40:40Z
-last_update: 2026-09-22T12:40:40Z
-date_finished: null
+last_update: 2026-09-22T12:51:39Z
+date_finished: 2026-09-22T12:51:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -221,3 +221,19 @@ Two console errors present and both pre-existing/environmental: `/api/health` 40
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-808-render-the-product-version-in-the-design.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b25fdc97
+- **Timestamp:** 2026-09-22T12:51:40Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -rf`
+
+### 2026-09-22T12:51:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
