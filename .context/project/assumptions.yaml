@@ -253,3 +253,21 @@ assumptions:
   linked_task: T-357
   created: '2026-08-03'
   resolved_date: '2026-08-10'
+- id: A-021
+  statement: AEF regards Child-2 (the BPMN-to-task translator) as theirs to deliver,
+    not as a component shared with or partly built by 832
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-788
+  created: '2026-09-22'
+  resolved_date: null
+- id: A-022
+  statement: 832's four existing bridge deliverables are sufficient on the consumer
+    side once an executor exists upstream — no further 832-side component is required
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-788
+  created: '2026-09-22'
+  resolved_date: null
