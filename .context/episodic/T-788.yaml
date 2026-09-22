@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-788: Does 832 build any part of the workflow-to-application executor, or is the whole of it AEF's to deliver?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T09:06:12Z
+# ============================================================================
+
+task_id: T-788
+task_name: "Does 832 build any part of the workflow-to-application executor, or is the whole of it AEF's to deliver?"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T07:40:05Z
+completed: 2026-09-22T09:06:06Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-22T09:42:56+02:00
+last_commit: 2026-09-22T10:50:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception filed for SQ-1 — executor ownership, DEFER, no code under this task. question on the wire at agent-chat-arc @1630, and OBS-370 on the scoring sovereignty gap. AEF answered at @1631 and it CHANGES the inception rather than confirming it — the executor is shipped, pinned, and expects exactly one file from us. Q1, DELIVERY POSITION: 'shipped and pinned. Not a spike.' Wired as the CLI verb fw bpmn compile, on master, contained in release tag v1.6.768 — anything that fw upgrades from them has it today — maintained rather than frozen, last changed 2026-08-26, with 'no planned break in the seam'. The branch this inception existed to separate, hypothetical-or-unscheduled, DID NOT OCCUR. Q2, WHAT THEY EXPECT FROM US: 'one artefact, the .bpmn file. Nothing else. The compiler's entire input is a BPMN 2.0 file; the seam is the file format, not a library, callback, or shared store.' Three in-file requirements: stable aef:uid on task nodes as the modify/create discriminator reconciled on (uid, source_bpmn_sha); aef:laneMeta authority in THEIR lane dialect, owner compiled from the lane with node-level owner ignored; inception as a sovereignty-laned subProcess that fails fast when mis-laned. Explicitly NOT ours: a translator, a compile document, a staging area, a task writer. MEASURED ON RECEIPT, BEFORE ASKING THEM FOR ANYTHING: aef:uid present in 24 of 24 rendered maps, aef:laneMeta in 24 of 24, inception subProcess 0 of 24 — untested rather than absent-by-defect, and recorded as such because claiming coverage we do not have is the failure mode here. RECOMMENDATION MOVES FROM DEFER TO NO-GO, for the reason DEFER was holding out for rather than in spite of it: the operator is no longer being asked to decide without evidence. IW-1 and IW-2 disposed as ANSWERED at confidence 3; A-021 validated. IW-3 stays open and is explicitly the operator's — whether the README's 'usable without fw workflow run' non-goal survives the confirmed yardstick was never AEF's to answer and their reply does not touch it. ACCEPTED THEIR BYTE-LEVEL OFFER AT @1635 WITH A FALSIFIABLE PREDICTION: our lanes emit FIVE authority values corpus-wide, not three — initiative 23, authority 23, sovereignty 15, none 3, external 3. We predict none and external are out of their dialect, on the grounds that our OWN validator already emits W-LANE-NO-OWNER on authority=none saying 'a downstream compiler must invent one'. That is a prediction about their compiler written into our validator months ago and never tested against them. Two files sent by reference, chosen to discriminate: task-gate.bpmn (core authorities only, our validator exit 0) expected clean, and context-memory.bpmn (the authority=none case) expected refused or warned. A refusal on the second is the USEFUL result — it would mean our four bridge deliverables need a lane-dialect constraint we do not enforce at export time. No bytes on the wire; file_send stays unavailable for seam bytes until their OBS-108 closes. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/project/assumptions.yaml'
+  - 'docs/reports/T-788-executor-ownership-inception.md'
+  - '.tasks/active/T-788-does-832-build-any-part-of-the-workflow-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T09:42:56"
+    action: 'T-788: inception filed for SQ-1 — executor ownership, DEFER, no code under this task'
+  - time: "2026-09-22T09:44:28"
+    action: 'T-788: question on the wire at agent-chat-arc @1630, and OBS-370 on the scoring sovereignty gap'
+  - time: "2026-09-22T10:50:53"
+    action: 'T-788: AEF answered at @1631 and it CHANGES the inception rather than confirming it — the executor is shipped, pinned, and expects exactly one file from us. Q1, DELIVERY POSITION: ''shipped and pinned. Not a spike.'' Wired as the CLI verb fw bpmn compile, on master, contained in release tag v1.6.768 — anything that fw upgrades from them has it today — maintained rather than frozen, last changed 2026-08-26, with ''no planned break in the seam''. The branch this inception existed to separate, hypothetical-or-unscheduled, DID NOT OCCUR. Q2, WHAT THEY EXPECT FROM US: ''one artefact, the .bpmn file. Nothing else. The compiler''s entire input is a BPMN 2.0 file; the seam is the file format, not a library, callback, or shared store.'' Three in-file requirements: stable aef:uid on task nodes as the modify/create discriminator reconciled on (uid, source_bpmn_sha); aef:laneMeta authority in THEIR lane dialect, owner compiled from the lane with node-level owner ignored; inception as a sovereignty-laned subProcess that fails fast when mis-laned. Explicitly NOT ours: a translator, a compile document, a staging area, a task writer. MEASURED ON RECEIPT, BEFORE ASKING THEM FOR ANYTHING: aef:uid present in 24 of 24 rendered maps, aef:laneMeta in 24 of 24, inception subProcess 0 of 24 — untested rather than absent-by-defect, and recorded as such because claiming coverage we do not have is the failure mode here. RECOMMENDATION MOVES FROM DEFER TO NO-GO, for the reason DEFER was holding out for rather than in spite of it: the operator is no longer being asked to decide without evidence. IW-1 and IW-2 disposed as ANSWERED at confidence 3; A-021 validated. IW-3 stays open and is explicitly the operator''s — whether the README''s ''usable without fw workflow run'' non-goal survives the confirmed yardstick was never AEF''s to answer and their reply does not touch it. ACCEPTED THEIR BYTE-LEVEL OFFER AT @1635 WITH A FALSIFIABLE PREDICTION: our lanes emit FIVE authority values corpus-wide, not three — initiative 23, authority 23, sovereignty 15, none 3, external 3. We predict none and external are out of their dialect, on the grounds that our OWN validator already emits W-LANE-NO-OWNER on authority=none saying ''a downstream compiler must invent one''. That is a prediction about their compiler written into our validator months ago and never tested against them. Two files sent by reference, chosen to discriminate: task-gate.bpmn (core authorities only, our validator exit 0) expected clean, and context-memory.bpmn (the authority=none case) expected refused or warned. A refusal on the second is the USEFUL result — it would mean our four bridge deliverables need a lane-dialect constraint we do not enforce at export time. No bytes on the wire; file_send stays unavailable for seam bytes until their OBS-108 closes. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 86 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 86
+  commits: 3
+  files_changed: 4
+  lines_added: 494
+  lines_removed: 24
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-788-does-832-build-any-part-of-the-workflow-.md
+generated_by: context-agent-hybrid
