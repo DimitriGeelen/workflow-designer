@@ -4,20 +4,20 @@ name: "Run-history for the gating suite so failure AGE stops being unknowable (F
 description: >
   Value review T-742 F-03: the bridge suite runs 131 passed / 7 failed, exit 1, 742s, and NOTHING schedules it. No test-run artefact exists anywhere in the tree, so the age of the 7 failures is unknowable — the review's words: 'UNMEASURED, not zero'. That absence is also why F-09's golden drift has no knowable age. F-03's recommendation is a caller that re-executes on a schedule PLUS an exit-trap appending the summary line and exit code to a run-history file. Build the run-history half: it is self-contained, it makes age measurable immediately, and it is the prerequisite for anyone trusting a schedule later. Do NOT install a scheduler: cron lives outside the project boundary (T-559) and background installation requires explicit operator instruction.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t813-history-trap-controls.sh, tools/_t813-suite-age.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T13:25:28Z
-last_update: 2026-09-22T13:25:28Z
-date_finished: null
+last_update: 2026-09-22T13:46:32Z
+date_finished: 2026-09-22T13:46:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -220,3 +220,15 @@ bash -c 'python3 tools/_t813-suite-age.py >/dev/null 2>&1; rc=$?; test "$rc" -eq
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-813-run-history-for-the-gating-suite-so-fail.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-dd7233be
+- **Timestamp:** 2026-09-22T13:46:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T13:46:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-813: Run-history for the gating suite so failure AGE stops being unknowable (F-03)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T13:46:47Z
+# ============================================================================
+
+task_id: T-813
+task_name: "Run-history for the gating suite so failure AGE stops being unknowable (F-03)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T13:25:28Z
+completed: 2026-09-22T13:46:32Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T15:45:58+02:00
+last_commit: 2026-09-22T15:45:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the gating suite's failure age stops being unknowable — F-03, half of it
+
+# Key outcomes
+outcomes:
+  - 'The runner appends one record per run — timestamp, pass count, fail count, exit code, duration, HEAD sha — to a tracked run-history file'
+  - 'It records on EVERY exit path, including a failing run and an interrupted one: a history that only captures green runs answers the opposite of the question being asked'
+  - 'The record is written by an exit trap, not by a line after the last check, so an early `exit` or a signal cannot skip it'
+  - 'A reader reports the age of the current failure state from that history — the number F-03 calls "UNMEASURED, not zero" becomes a date'
+  - 'The reader distinguishes NO HISTORY from ZERO FAILURES: an empty file must not read as healthy'
+  - 'CONTROL: the trap is proven to fire on a failing run and on an interrupt, by driving both in a throwaway copy'
+  - 'The suite''s own pass/fail behaviour is unchanged — exit code identical, no leg added, removed or reordered'
+  - 'NO scheduler is installed. The cron line is handed to the operator as a copy-pasteable command and left for them (T-559 boundary, and background installation requires explicit instruction)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — build the run-history half; do NOT install the scheduler'
+    chose: 'the exit-trap recorder and a reader. Left the schedule to the operator.'
+  - decision: '2026-09-22 — an exit trap, not a line at the end of the script'
+    chose: '`trap ... EXIT` plus explicit INT and TERM handlers, chained onto the runner''s pre-existing `rm -rf "$TMP"` cleanup.'
+    rationale: 'the runs most worth recording are exactly the ones a tail-of-script recorder drops — a leg that calls `exit`, a Ctrl-C at minute nine, a future scheduler''s timeout. And the file would still *look* like a clean history, so the gap would be invisible.'
+  - decision: '2026-09-22 — the control found a double-record, and a bash behaviour worth writing down'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t813-history-trap-controls.yaml'
+  - '.fabric/components/tools-_t813-suite-age.yaml'
+  - '.tasks/active/T-813-run-history-for-the-gating-suite-so-fail.md'
+  - '.tasks/active/T-815-the-bridge-suite-rewrites-a-tracked-fixt.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/.run-history.tsv'
+  - 'tools/_t813-history-trap-controls.sh'
+  - 'tools/_t813-suite-age.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T15:45:58"
+    action: 'T-813: the gating suite''s failure age stops being unknowable — F-03, half of it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 21
+  commits: 1
+  files_changed: 8
+  lines_added: 801
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-813-run-history-for-the-gating-suite-so-fail.md
+generated_by: context-agent-hybrid

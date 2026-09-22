@@ -2369,3 +2369,17 @@ decisions:
     date: 2026-09-22
     task: T-812
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-318
+    decision: "the exit-trap recorder and a reader. Left the schedule to the operator."
+    scope: project
+    date: 2026-09-22
+    task: T-813
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-319
+    decision: "`trap ... EXIT` plus explicit INT and TERM handlers, chained onto the runner's"
+    scope: project
+    date: 2026-09-22
+    task: T-813
+    rationale: "Auto-captured from task file on completion"
