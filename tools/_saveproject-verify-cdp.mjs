@@ -4,6 +4,9 @@
 // a TEMP repo+docroot (never the real repo), drives the editor in ISOLATED headless
 // chromium (own --user-data-dir; never the shared browser, G-006), clicks Save, asserts a
 // version with a thumbnail was written and the "✓ Saved v1" feedback shows. Screenshots.
+//
+// T-818: the gesture is NOT just the click. saveToProject() awaits promptSaveNote(), so the
+// probe must also fill and submit the #save-note-modal — see the note at that step.
 // Exit 0 = pass.
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
@@ -70,6 +73,29 @@ async function main() {
 
     // click Save to project
     await ev(cmd, `document.getElementById('btn-save-project').click()`);
+
+    // T-818: the click is no longer the whole gesture, and has not been since three days
+    // after this probe was written. T-150 (af7f9936, 2026-07-09) put an optional per-version
+    // note BETWEEN the click and the POST; T-161 (9cab6f6e, 2026-07-10) made it the in-app
+    // #save-note-modal. saveToProject() does `const note = await promptSaveNote(id)`, so a
+    // probe that only clicks parks there — forever, with the button label still reading
+    // "⤓ Save to project" because execution never reaches "⤓ Saving…".
+    //
+    // The probe was therefore accusing the SAVE of being broken when the save had simply
+    // never been asked to run. Every step below the click failed as a CONSEQUENCE of that
+    // one: no version, no thumbnail, roundtrip 404 — four red lines, one cause, and none of
+    // them about the subject. Drive the modal as the operator does, and assert it OPENED as
+    // its own named step, so the next change to this gesture is reported here rather than
+    // re-appearing as a fabricated save failure.
+    const NOTE = 'T-818 probe note';
+    let modalUp = false;
+    for (let i = 0; i < 40; i++) { modalUp = await ev(cmd, `!!document.getElementById('save-note-modal')`); if (modalUp) break; await sleep(100); }
+    push('save-note-modal-opened', modalUp === true, modalUp);
+    if (!modalUp) throw new Error('COULD-NOT-MEASURE: #save-note-modal never opened — the save gesture changed again; nothing below exercises a real save');
+    await ev(cmd, `document.querySelector('#save-note-modal textarea').focus()`);
+    await cmd('Input.insertText', { text: NOTE });
+    await ev(cmd, `document.querySelector('#save-note-modal button.btn-primary').click()`);
+
     // wait for the POST to complete + feedback
     let fb = null;
     for (let i = 0; i < 40; i++) { fb = await ev(cmd, `document.getElementById('btn-save-project').textContent`); if (/Saved v/.test(fb)) break; await sleep(150); }
@@ -83,6 +109,9 @@ async function main() {
     const gv = await fetch(`${BASE}/api/version?id=${MAP}&v=1`);
     const gvt = await gv.text();
     push('version-roundtrip', gv.status === 200 && gvt.includes('<') && gvt.length > 200, { status: gv.status, len: gvt.length });
+    // The note the modal collected must reach the server, or "drove the modal" would mean
+    // no more than "dismissed the modal" — and the step above would pass either way.
+    push('note-roundtrip', !!vs[0] && vs[0].note === NOTE, vs[0] && vs[0].note);
 
     // screenshot
     const shot = await cmd('Page.captureScreenshot', { format: 'png' });
