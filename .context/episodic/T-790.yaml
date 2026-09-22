@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-790: Decide how 832 ships extension capability: Claude Code plugin, MCP server, or both — and what that costs in portability
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T08:01:52Z
+# ============================================================================
+
+task_id: T-790
+task_name: "Decide how 832 ships extension capability: Claude Code plugin, MCP server, or both — and what that costs in portability"
+workflow_type: design
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T07:57:25Z
+completed: 2026-09-22T08:01:46Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T10:01:33+02:00
+last_commit: 2026-09-22T10:01:33+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  plugin vs MCP is not a choice — one contains the other, and the skill's default collides with our own constraint. Read from the two installed trees rather than recalled, 8 citations checked including a positive control on the load-bearing absence. (1) NOT ALTERNATIVES: plugin-dev ships a whole mcp-integration skill about putting an MCP server INSIDE a plugin, and plugin-structure lists .mcp.json in the plugin layout. Containment, not competition. (2) The operator's portability instinct is CORRECT for capability — remote MCP works across Desktop, Code, claude.ai and third-party hosts — and INCOMPLETE for governance: MCP is a protocol for offering capability, it cannot intercept the host lifecycle, so the nine plugin hook events have no MCP equivalent. That is not abstract here: four gates fired in this session alone (P-002, G-020, G-067, T-638) and none of them is expressible over MCP. Nothing gets done without a task is not a tool, it is a veto on other tools. (3) THE COLLISION, which neither skill can know about: build-mcp-server's starred default is a remote streamable-HTTP server, which is a load-bearing service dependency by construction and therefore exactly the shape the operator's standalone ruling excludes. The two shapes that DO pass are the ones the skill ranks lower — local stdio, and MCPB which packages the runtime so it installs without Node or Python. (4) Recommendation: logic in an MCPB-packaged local stdio MCP server, a thin Claude Code plugin wrapping it for commands and skills, and governance explicitly NOT made portable — inventing a private protocol for it would be the lock-in D4 exists to prevent. Cost stated plainly: outside Claude Code the capability travels with none of the enforcement. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the comparison is grounded in the installed sources, not in priors.** Every'
+  - '**AC2 — the operator''s hypothesis is answered on its merits, including where it is'
+  - '**AC3 — the collision with this project''s own standalone constraint is surfaced.**'
+  - '**AC4 — a recommendation is made, not a survey.** One recommended arrangement, with'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-790-plugin-vs-mcp.md'
+  - '.tasks/active/T-790-decide-how-832-ships-extension-capabilit.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T10:01:33"
+    action: 'T-790: plugin vs MCP is not a choice — one contains the other, and the skill''s default collides with our own constraint. Read from the two installed trees rather than recalled, 8 citations checked including a positive control on the load-bearing absence. (1) NOT ALTERNATIVES: plugin-dev ships a whole mcp-integration skill about putting an MCP server INSIDE a plugin, and plugin-structure lists .mcp.json in the plugin layout. Containment, not competition. (2) The operator''s portability instinct is CORRECT for capability — remote MCP works across Desktop, Code, claude.ai and third-party hosts — and INCOMPLETE for governance: MCP is a protocol for offering capability, it cannot intercept the host lifecycle, so the nine plugin hook events have no MCP equivalent. That is not abstract here: four gates fired in this session alone (P-002, G-020, G-067, T-638) and none of them is expressible over MCP. Nothing gets done without a task is not a tool, it is a veto on other tools. (3) THE COLLISION, which neither skill can know about: build-mcp-server''s starred default is a remote streamable-HTTP server, which is a load-bearing service dependency by construction and therefore exactly the shape the operator''s standalone ruling excludes. The two shapes that DO pass are the ones the skill ranks lower — local stdio, and MCPB which packages the runtime so it installs without Node or Python. (4) Recommendation: logic in an MCPB-packaged local stdio MCP server, a thin Claude Code plugin wrapping it for commands and skills, and governance explicitly NOT made portable — inventing a private protocol for it would be the lock-in D4 exists to prevent. Cost stated plainly: outside Claude Code the capability travels with none of the enforcement. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 2
+  lines_added: 403
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-790-decide-how-832-ships-extension-capabilit.md
+generated_by: context-agent-hybrid

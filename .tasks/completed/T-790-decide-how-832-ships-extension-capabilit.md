@@ -4,10 +4,10 @@ name: "Decide how 832 ships extension capability: Claude Code plugin, MCP server
 description: >
   Decide how 832 ships extension capability: Claude Code plugin, MCP server, or both — and what that costs in portability
 
-status: started-work
+status: work-completed
 workflow_type: design
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T07:57:25Z
-last_update: 2026-09-22T07:57:25Z
-date_finished: null
+last_update: 2026-09-22T08:01:46Z
+date_finished: 2026-09-22T08:01:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -31,10 +31,6 @@ date_finished: null
 ---
 
 # T-790: Decide how 832 ships extension capability: Claude Code plugin, MCP server, or both — and what that costs in portability
-
-## Context
-
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Context
 
@@ -244,3 +240,15 @@ grep -q 'What this gives up, stated plainly' docs/reports/T-790-plugin-vs-mcp.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-790-decide-how-832-ships-extension-capabilit.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-086e423d
+- **Timestamp:** 2026-09-22T08:01:47Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T08:01:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
