@@ -4,10 +4,10 @@ name: "Why is the human ticking ACs at all: measure how many of the unchecked Hu
 description: >
   Why is the human ticking ACs at all: measure how many of the unchecked Human ACs are genuine judgement vs misfiled machine-checkable ones
 
-status: started-work
+status: work-completed
 workflow_type: design
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T10:18:08Z
-last_update: 2026-09-22T10:18:08Z
-date_finished: null
+last_update: 2026-09-22T10:21:21Z
+date_finished: 2026-09-22T10:21:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -162,7 +162,11 @@ out=$(timeout 300 python3 tools/_t783-human-ac-queue-extract.py 2>&1 || true); c
 # ── AC1: zero [REVIEWER] markers — with the POSITIVE CONTROL on the same string.
 # Leg (a) proves the pattern REVIEWER matches where it IS present (the task template
 # documents it), so leg (b)'s silence is about the queue and not a broken pattern.
-grep -q 'REVIEWER' .tasks/templates/zzz-default.md
+# Control target corrected: the template is default.md, not zzz-default.md. The first
+# version failed with grep exit 2 — FILE NOT FOUND, not 'pattern absent'. Worth noting
+# that the two are indistinguishable in a bare `grep -q` and only the exit CODE tells
+# them apart, which is the same confusion an uncontrolled absence leg lives on.
+grep -q 'REVIEWER' .tasks/templates/default.md
 out=$(timeout 300 python3 tools/_t783-human-ac-queue-extract.py 2>&1 || true); case "$out" in *"REVIEWER  "*) false;; *) true;; esac
 
 # ── AC2/AC3/AC4: the report says the uncomfortable parts ─────────────────────
@@ -238,3 +242,15 @@ grep -q 'Not ticking anything' docs/reports/T-804-human-ac-queue.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-804-why-is-the-human-ticking-acs-at-all-meas.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7cb15f60
+- **Timestamp:** 2026-09-22T10:21:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T10:21:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

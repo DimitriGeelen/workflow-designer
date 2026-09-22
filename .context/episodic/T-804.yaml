@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-804: Why is the human ticking ACs at all: measure how many of the unchecked Human ACs are genuine judgement vs misfiled machine-checkable ones
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T10:21:27Z
+# ============================================================================
+
+task_id: T-804
+task_name: "Why is the human ticking ACs at all: measure how many of the unchecked Human ACs are genuine judgement vs misfiled machine-checkable ones"
+workflow_type: design
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-22T10:18:08Z
+completed: 2026-09-22T10:21:21Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T12:20:58+02:00
+last_commit: 2026-09-22T12:20:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the operator asked why they should tick ACs at all, and my comfortable answer was disproved by the first measurement. I EXPECTED to find most of the 77 unchecked Human ACs were misfiled — machine-checkable work dressed as human judgement — because the framework has a marker for exactly that case. Measured: 71 [REVIEW], 6 [RUBBER-STAMP], and ZERO [REVIEWER]. Zero. The marker meaning 'this should have been an Agent AC' is unused across the entire live queue, and reading the [REVIEW]s confirms they are what they claim: 'Rule H1 — do roadmap Arcs 4-6 supersede the standing DEFERs', 'Rule on the rail substrate', 'Rule the 22 findings item by item'. Governance rulings a machine cannot make. So the queue is NOT misfiled and the tidy answer is gone. WHAT IS ACTUALLY WRONG IS VOLUME AND AGE: 77 ACs across 62 tasks, MEDIAN AGE 42 DAYS, 32 of them aged 31-90 days, oldest 73. Nothing has rotted past 90 so this is not abandonment — but nothing leaves either. The queue is held at a level rather than drained. And agents generate these faster than any human issues them: three went to the operator today, of which ONE was genuinely blocked on (SQ-2) and ONE DID NOT EXIST (IW-3, my own misquotation of the README). A 42-day median does not mean the human is slow. It means we are asking too much, and that is ours to fix rather than theirs. ONE PATHOLOGICAL SHAPE NAMED: T-732 carries an acceptance criterion whose content is ticking another acceptance criterion — 'Tick T-596's Human AC to set definition_ratified: true'. Queue recursion, pure overhead, a step without a judgement. ON THE SPECIFIC ONE I ASKED FOR: T-353's AC is a genuine [REVIEW] and legitimately theirs — but they ALREADY MADE IT. They said c, it is PD-308, it has been exercised (T-802 applied it) and it has already constrained me (T-803 was refused by it). The ruling was the valuable act; the tick is bookkeeping on a decision already in force. Skipping it costs one open task and nothing else. REMEDIES WITH COSTS, recommending A: stop adding — escalate only what is BLOCKED, and accept that the agent then makes calls it would have escalated. That is the trade the operator is implicitly asking for, it starts now, and it costs nothing to begin. NOT TICKING ANYTHING, and not converting [REVIEW]s to Agent ACs — there are none to convert, and doing it anyway would be manufacturing the tidy answer I went looking for. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the queue is counted and split by KIND, not just counted.** "77 unchecked Human'
+  - '**AC2 — the operator''s question is answered on its merits, including where the answer'
+  - '**AC3 — the age of the queue is measured.** A verification queue and a graveyard look'
+  - '**AC4 — a concrete remedy is proposed with its cost, not a principle.** "Write better'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the operator asked why they should tick ACs at all, and my comfortable answer was disproved by the first measurement. I EXPECTED to find most of the 77 unchecked Human ACs were misfiled — machine-checkable work dressed as human judgement — because the framework has a marker for exactly that case. Measured: 71 [REVIEW], 6 [RUBBER-STAMP], and ZERO [REVIEWER]. Zero. The marker meaning ''this should have been an Agent AC'' is unused across the entire live queue, and reading the [REVIEW]s confirms they are what they claim: ''Rule H1 — do roadmap Arcs 4-6 supersede the standing DEFERs'', ''Rule on the rail substrate'', ''Rule the 22 findings item by item''. Governance rulings a machine cannot make. So the queue is NOT misfiled and the tidy answer is gone. WHAT IS ACTUALLY WRONG IS VOLUME AND AGE: 77 ACs across 62 tasks, MEDIAN AGE 42 DAYS, 32 of them aged 31-90 days, oldest 73. Nothing has rotted past 90 so this is not abandonment — but nothing leaves either. The queue is held at a level rather than drained. And agents generate these faster than any human issues them: three went to the operator today, of which ONE was genuinely blocked on (SQ-2) and ONE DID NOT EXIST (IW-3, my own misquotation of the README). A 42-day median does not mean the human is slow. It means we are asking too much, and that is ours to fix rather than theirs. ONE PATHOLOGICAL SHAPE NAMED: T-732 carries an acceptance criterion whose content is ticking another acceptance criterion — ''Tick T-596''s Human AC to set definition_ratified: true''. Queue recursion, pure overhead, a step without a judgement. ON THE SPECIFIC ONE I ASKED FOR: T-353''s AC is a genuine [REVIEW] and legitimately theirs — but they ALREADY MADE IT. They said c, it is PD-308, it has been exercised (T-802 applied it) and it has already constrained me (T-803 was refused by it). The ruling was the valuable act; the tick is bookkeeping on a decision already in force. Skipping it costs one open task and nothing else. REMEDIES WITH COSTS, recommending A: stop adding — escalate only what is BLOCKED, and accept that the agent then makes calls it would have escalated. That is the trade the operator is implicitly asking for, it starts now, and it costs nothing to begin. NOT TICKING ANYTHING, and not converting [REVIEW]s to Agent ACs — there are none to convert, and doing it anyway would be manufacturing the tidy answer I went looking for. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-804-human-ac-queue.md'
+  - '.tasks/active/T-804-why-is-the-human-ticking-acs-at-all-meas.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T12:20:58"
+    action: 'T-804: the operator asked why they should tick ACs at all, and my comfortable answer was disproved by the first measurement. I EXPECTED to find most of the 77 unchecked Human ACs were misfiled — machine-checkable work dressed as human judgement — because the framework has a marker for exactly that case. Measured: 71 [REVIEW], 6 [RUBBER-STAMP], and ZERO [REVIEWER]. Zero. The marker meaning ''this should have been an Agent AC'' is unused across the entire live queue, and reading the [REVIEW]s confirms they are what they claim: ''Rule H1 — do roadmap Arcs 4-6 supersede the standing DEFERs'', ''Rule on the rail substrate'', ''Rule the 22 findings item by item''. Governance rulings a machine cannot make. So the queue is NOT misfiled and the tidy answer is gone. WHAT IS ACTUALLY WRONG IS VOLUME AND AGE: 77 ACs across 62 tasks, MEDIAN AGE 42 DAYS, 32 of them aged 31-90 days, oldest 73. Nothing has rotted past 90 so this is not abandonment — but nothing leaves either. The queue is held at a level rather than drained. And agents generate these faster than any human issues them: three went to the operator today, of which ONE was genuinely blocked on (SQ-2) and ONE DID NOT EXIST (IW-3, my own misquotation of the README). A 42-day median does not mean the human is slow. It means we are asking too much, and that is ours to fix rather than theirs. ONE PATHOLOGICAL SHAPE NAMED: T-732 carries an acceptance criterion whose content is ticking another acceptance criterion — ''Tick T-596''s Human AC to set definition_ratified: true''. Queue recursion, pure overhead, a step without a judgement. ON THE SPECIFIC ONE I ASKED FOR: T-353''s AC is a genuine [REVIEW] and legitimately theirs — but they ALREADY MADE IT. They said c, it is PD-308, it has been exercised (T-802 applied it) and it has already constrained me (T-803 was refused by it). The ruling was the valuable act; the tick is bookkeeping on a decision already in force. Skipping it costs one open task and nothing else. REMEDIES WITH COSTS, recommending A: stop adding — escalate only what is BLOCKED, and accept that the agent then makes calls it would have escalated. That is the trade the operator is implicitly asking for, it starts now, and it costs nothing to begin. NOT TICKING ANYTHING, and not converting [REVIEW]s to Agent ACs — there are none to convert, and doing it anyway would be manufacturing the tidy answer I went looking for. Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 2
+  lines_added: 338
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-804-why-is-the-human-ticking-acs-at-all-meas.md
+generated_by: context-agent-hybrid
