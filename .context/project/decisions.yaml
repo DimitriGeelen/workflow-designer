@@ -2411,3 +2411,10 @@ decisions:
     date: 2026-09-22
     task: T-817
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-324
+    decision: "one grouped leg reporting which probe failed, not ten banners. F-03's whole"
+    scope: project
+    date: 2026-09-22
+    task: T-819
+    rationale: "Auto-captured from task file on completion"

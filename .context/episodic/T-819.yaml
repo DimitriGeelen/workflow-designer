@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-819: This session's own control probes are completion gates, not guards (PL-161 on my own work)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-22T14:57:26Z
+# ============================================================================
+
+task_id: T-819
+task_name: "This session's own control probes are completion gates, not guards (PL-161 on my own work)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T14:51:29Z
+completed: 2026-09-22T14:57:20Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-22T16:51:56+02:00
+last_commit: 2026-09-22T16:57:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  filed against my own session's output — ten control probes written today are completion gates, not guards. ten probes I wrote today were completion gates, not guards — and I claimed a fix that had not happened
+
+# Key outcomes
+outcomes:
+  - 'Each of the ten instruments is RUN before being wired — the T-817 rule applies to my own tools too, and a probe wired on the strength of its filename is the defect being fixed'
+  - 'Anything that fails is filed with its measured cause, not wired red (OBS-293: a permanently red leg teaches readers to rerun rather than look)'
+  - 'The wiring is shaped to its cost: measure each probe''s runtime first, and prefer one grouped fast leg over ten separate ones if they are sub-second — the suite is already 784s and F-03 is about a suite nobody runs'
+  - '`_t451`''s standing-guard count falls by the number actually wired, measured by stashing rather than asserted'
+  - '`_t808-version-parity.sh` is NOT counted as a fix — it is already wired into the release gate; the census''s report of it is a documented false positive, and "fixing" it would be closing a hole that is not open'
+  - 'CONTROL: the new wiring is proven to gate, by driving a runner whose fail-increment is stripped'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'ten probes I wrote today were completion gates, not guards — and I claimed a fix that had not happened'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-22 — one grouped leg, shaped by a measurement'
+    chose: 'one grouped leg reporting which probe failed, not ten banners. F-03''s whole finding is a suite nobody runs; ten extra section headers for sub-second checks add noise to exactly the wrong thing. - All ten were **run and observed green before wiring** — the T-817 rule applied to my own tools, because a probe wired on the strength of its filename is the defect being fixed.'
+  - decision: '2026-09-22 — I claimed a census improvement that had not happened'
+  - decision: '2026-09-22 — `_t808` is not counted as a fix'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-819-this-sessions-own-control-probes-are-com.md'
+  - 'tests/run-bridge-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T16:51:56"
+    action: 'T-819: filed against my own session''s output — ten control probes written today are completion gates, not guards'
+  - time: "2026-09-22T16:57:15"
+    action: 'T-819: ten probes I wrote today were completion gates, not guards — and I claimed a fix that had not happened'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 2
+  files_changed: 2
+  lines_added: 329
+  lines_removed: 54
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-819-this-sessions-own-control-probes-are-com.md
+generated_by: context-agent-hybrid

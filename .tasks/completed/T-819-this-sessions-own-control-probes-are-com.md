@@ -4,20 +4,20 @@ name: "This session's own control probes are completion gates, not guards (PL-16
 description: >
   Measured at the end of the 2026-09-22 value-review session, against my own output. Twelve tools were added across T-808..T-817. ELEVEN are instruments; of those, _t808-version-parity.sh is genuinely wired (scripts/release-designer.sh runs it ahead of every write to dist/) but reported unwired by _t451 because the path is composed into a variable — the census's own documented FALSE POSITIVE, 'a caller composing the path at runtime is invisible'. The other TEN are called from exactly one place each: their task's ## Verification block. A Verification block runs once, at completion, and then the task is archived and never runs again. So every control probe written this session to prove a guard has teeth is itself a completion gate rather than a guard — PL-161 verbatim, quoted in F-03: 'a completion gate is not a guard, and the only durable remedy is a caller that re-executes without a task completing.' The runner records that the same mistake was made twice; this is the third. The remedy is the one T-817 just applied to four CDP probes: wire them into tests/run-bridge-tests.sh so something re-executes them. Note the cost honestly before doing it — the suite is already 784s and several of these are sub-second, so the right shape may be a single fast 'controls' leg that runs them as a group rather than ten separate legs.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T14:51:29Z
-last_update: 2026-09-22T14:52:45Z
-date_finished: null
+last_update: 2026-09-22T14:57:20Z
+date_finished: 2026-09-22T14:57:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -219,3 +219,15 @@ bash -c 'grep -q "tools/_t999-does-not-exist.sh" tests/run-bridge-tests.sh && ex
 
 ### 2026-09-22T14:52:45Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5a3e90b2
+- **Timestamp:** 2026-09-22T14:57:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-22T14:57:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
