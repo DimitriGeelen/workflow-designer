@@ -283,6 +283,19 @@ lane to fall to, and (2) reduces to (1) or (3) there. I have not resolved it bec
 open v1.1 question decides it.
 
 
+## HELD behind T-835 (recorded 2026-09-23, operator-directed)
+
+**Do not rule this task's open `[REVIEW]` criterion yet.** T-341's blocking ruling (default-lane policy for an orphaned flow node) rests on the same model. T-685 measured the mechanism directly: `lanes[0]` is POSITIONAL, so authority today is decided by third-party laneSet serialisation order. That is not a policy question with a right answer — it is a defect that DISAPPEARS when authority moves into the element. Ruling a default-lane policy now would be choosing which arbitrary position to trust.
+
+**Why this is a hold and not a defer:** T-685 ("Should authority live in the box (tier + owner)
+with the lane meaning domain") was decided **GO on 2026-09-08** — "the mechanism is genuinely
+unresolved and is the operator variable". No successor task was filed for fifteen days. T-835
+is that successor. Ruling this task before T-835 reports would bake in the model the operator
+has already decided to move away from.
+
+**Nothing here is ticked, waived or closed by this note.** The criterion stands exactly as
+written; only its sequencing is recorded.
+
 ## Acceptance Criteria
 
 ### Agent

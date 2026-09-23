@@ -116,6 +116,19 @@ Blocked-adjacent, not blocked: the repair choice interacts with T-341's orphan-l
 ruling (both are "what do we do when lane membership is absent or unresolvable")
 and should be decided with it, not before it.
 
+## HELD behind T-835 (recorded 2026-09-23, operator-directed)
+
+**Do not rule this task's open `[REVIEW]` criterion yet.** T-358's blocking ruling (choose the lane/pool fabrication repair: A/B/C/AB/no repair) is scored entirely against LANE-AS-AUTHORITY. Measured 2026-09-23: option A yields a document our own validator rejects — `E-XML-LANES-EMPTY`, "section 3 requires at least one lane" — because the frozen standard makes the lane the sole authority-of-record ("a node's owner MUST be its lane; there is no node-level owner override"). That error is not a fact about BPMN. It is a consequence of the model T-685 already GO'd for replacement. Under authority-on-the-element with lane-as-domain, a third-party file with no lanes DECLARES NO DOMAINS — nothing is missing, nothing needs fabricating, and A becomes straightforwardly correct rather than invalid.
+
+**Why this is a hold and not a defer:** T-685 ("Should authority live in the box (tier + owner)
+with the lane meaning domain") was decided **GO on 2026-09-08** — "the mechanism is genuinely
+unresolved and is the operator variable". No successor task was filed for fifteen days. T-835
+is that successor. Ruling this task before T-835 reports would bake in the model the operator
+has already decided to move away from.
+
+**Nothing here is ticked, waived or closed by this note.** The criterion stands exactly as
+written; only its sequencing is recorded.
+
 ## Acceptance Criteria
 
 ### Agent
