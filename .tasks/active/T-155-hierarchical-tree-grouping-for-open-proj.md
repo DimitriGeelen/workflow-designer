@@ -5,10 +5,10 @@ description: >
   Operator floated (tentative) reorganizing the flat Open-project grid into a hierarchical
   tree-style grouping. Larger redesign of openProjectModal. Backlog until prioritized.
 
-status: started-work
+status: captured
 workflow_type: inception
 owner: agent
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:59Z
-last_update: '2026-09-21T20:24:50Z'
+last_update: 2026-09-23T12:46:13Z
 date_finished:
 revisit_at: 2026-08-21
 revisit_evidence_needed: "NONE OUTSTANDING -- the evidence arrived 2026-09-20. IW-1/IW-2/IW-3
@@ -346,22 +346,18 @@ archive. Recorded here, where it is attached to the artifact it concerns, and in
 
 **Decision**: DEFER
 
-**Rationale**: Recommendation: DEFER — pending operator input on IW-1/IW-2 (full survey in `docs/reports/T-155-tree-grouping-inception.md`).
+**Rationale**: The corpus cannot support the feature as scoped. Of the three data-derived grouping
+keys, two have no data — the handoff graph is empty (`targetWorkflow` in 0 of 24 rendered files,
+`linkEvent` in 0 of 24) and id prefixes carry no hierarchy (one prefix with 5 members, all test
+probes; the rest at 1-2, i.e. ~20 groups over 48 items). The only surviving key, source class, has
+exactly two values, and a tree control over a two-valued key is a section header with extra
+machinery. Building a tree here means building a control for a hierarchy the corpus does not
+contain. What the measurement surfaced instead is that the browser shows **48 cards over 33
+distinct workflows** — 15 workflows appear twice, once as corpus baseline and once as the user's
+saved edit of the same workflow. Nearly a third of the grid is duplication, which a tree nests
+rather than fixes.
 
-Recommended shape once confirmed: A1 (source class: corpus vs saved) + optionally A2 (id prefix)
-as a second level, rendered as B1 (grouped collapsible sections over the existing card grid), C1
-(derive-only — zero storage/schema change).
-
-- Delivers the scannability win at a fraction of the cost of a full tree; purely additive to
-  `openProjectModal`, reuses the existing card renderer/hover-zoom/delete.
-- No serialization/server changes → no round-trip risk, no new failure surface (Reliability).
-- Explicitly NOT recommended now: A4+B2+C2 (user-defined nested folders with persisted
-  metadata) — subsystem-scale change for a tentatively-floated feature; let real use of B1 tell us
-  whether explicit folders are worth the storage complexity.
-- On operator confirmation (expected A1+B1+C1): file ONE bounded build task ("grouped sections in
-  openProjectModal, derived from source class") — not a subsystem redesign.
-
-**Date**: 2026-07-29T05:31:27Z
+**Date**: 2026-09-23T12:46:13Z
 
 ## Updates
 
@@ -403,3 +399,22 @@ as a second level, rendered as B1 (grouped collapsible sections over the existin
 ### 2026-09-20T10:26:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-09-23T12:46:13Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** DEFER
+- **Rationale:** The corpus cannot support the feature as scoped. Of the three data-derived grouping
+keys, two have no data — the handoff graph is empty (`targetWorkflow` in 0 of 24 rendered files,
+`linkEvent` in 0 of 24) and id prefixes carry no hierarchy (one prefix with 5 members, all test
+probes; the rest at 1-2, i.e. ~20 groups over 48 items). The only surviving key, source class, has
+exactly two values, and a tree control over a two-valued key is a section header with extra
+machinery. Building a tree here means building a control for a hierarchy the corpus does not
+contain. What the measurement surfaced instead is that the browser shows **48 cards over 33
+distinct workflows** — 15 workflows appear twice, once as corpus baseline and once as the user's
+saved edit of the same workflow. Nearly a third of the grid is duplication, which a tree nests
+rather than fixes.
+
+### 2026-09-23T12:46:13Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)
+- **Reason:** Inception decision: DEFER — parking task
