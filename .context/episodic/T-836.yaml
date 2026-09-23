@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-836: Unreachable-values census reports a flat count that hides three repair classes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-23T17:08:40Z
+# ============================================================================
+
+task_id: T-836
+task_name: "Unreachable-values census reports a flat count that hides three repair classes"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-23T17:00:13Z
+completed: 2026-09-23T17:08:30Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '~~The census separates content-bearing from empty · expected 24 content, 6 empty~~'
+  - '~~The empty six are named individually~~ **WITHDRAWN — there are no empty six.**'
+  - '**The census reports CARRIER SHAPE per group: text / attrs / children / EMPTY.** A value'
+  - '**The output states what each shape implies for the repair**, because the shape is the'
+  - '**A control proves each branch MOVES, not merely that it printed.** Mutations on a'
+  - '**The EMPTY branch is proven reachable.** The real corpus has zero empties, so that'
+  - '**A regression leg pins the false premise shut:** `emits` must be reported as a'
+  - '**The prose path is byte-identical for the pre-existing lines**, verified by diffing'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-836-unreachable-values-census-counts-empty-e.md
+generated_by: context-agent-hybrid

@@ -2,7 +2,11 @@
 id: T-807
 name: "Tag seam artefacts in release notes so AEF pins a tag, not a moving head"
 description: >
-  AEF's second ask at agent-chat-arc @1656, following the branch-model adoption (T-805, PD-309): 'tag the seam artefacts in your release notes so we pin a tag, not a moving head'. Under the release train AEF pins master, which advances at release. Release notes should name the seam artefact state (examples/aef-processes/rendered/) at each tag so AEF has a fixed reference rather than a branch head.
+  AEF's second ask at agent-chat-arc @1656, following the branch-model adoption (T-805,
+  PD-309): 'tag the seam artefacts in your release notes so we pin a tag, not a moving
+  head'. Under the release train AEF pins master, which advances at release. Release
+  notes should name the seam artefact state (examples/aef-processes/rendered/) at
+  each tag so AEF has a fixed reference rather than a branch head.
 
 status: captured
 workflow_type: build
@@ -16,8 +20,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T12:17:18Z
-last_update: 2026-09-22T12:17:18Z
-date_finished: null
+last_update: '2026-09-23T16:50:14Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +32,33 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-23T16:49:20Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 5
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=5 
+      (prose:seam-contract); F1=1 (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-09-23T16:50:14Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-807: Tag seam artefacts in release notes so AEF pins a tag, not a moving head

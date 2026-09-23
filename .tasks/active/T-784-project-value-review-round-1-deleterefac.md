@@ -2,7 +2,14 @@
 id: T-784
 name: "Project value review round 1: delete/refactor/add against the confirmed yardstick"
 description: >
-  Round 1 of the Review prompt in the operator's three-prompt sequence. GATHERER role, Phases 0-3: orient, snapshot usage data before generating any, build the data availability map, draft the yardstick, inventory the scope, and write the evidence file. Classification (Phase 4) and the report (Phase 5) are the JUDGE role and must not be performed from the same context that gathered the evidence - producer-not-judge. Research is not authorization: nothing is deleted, restructured or built under this task. The two [ASK] gates in Phase 1 and Phase 5 are mandatory and are not to be answered by the agent.
+  Round 1 of the Review prompt in the operator's three-prompt sequence. GATHERER role,
+  Phases 0-3: orient, snapshot usage data before generating any, build the data availability
+  map, draft the yardstick, inventory the scope, and write the evidence file. Classification
+  (Phase 4) and the report (Phase 5) are the JUDGE role and must not be performed
+  from the same context that gathered the evidence - producer-not-judge. Research
+  is not authorization: nothing is deleted, restructured or built under this task.
+  The two [ASK] gates in Phase 1 and Phase 5 are mandatory and are not to be answered
+  by the agent.
 
 status: started-work
 workflow_type: build
@@ -16,8 +23,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T22:01:08Z
-last_update: 2026-09-22T05:37:56Z
-date_finished: null
+last_update: '2026-09-23T16:50:14Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +35,33 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-23T16:49:19Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (no-signal); F3=0 
+      (no-signal); F1=1 (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-09-23T16:50:14Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-784: Project value review round 1: delete/refactor/add against the confirmed yardstick

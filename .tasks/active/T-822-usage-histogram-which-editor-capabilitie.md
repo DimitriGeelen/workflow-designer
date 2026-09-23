@@ -1,8 +1,23 @@
 ---
 id: T-822
-name: "Usage histogram: which editor capabilities are actually used (F-18, F-05 second half)"
+name: "Usage histogram: which editor capabilities are actually used (F-18, F-05 second
+  half)"
 description: >
-  The other half of F-05, deliberately NOT built in T-821 (one task, one deliverable). T-821 gave the product an error channel; this gives it a USE channel. Review §8 item 3: a localStorage['aefUsage'] histogram keyed by data-create type placed, by AEF_FIELDS field edited, and by toolbar button pressed, with a one-line dump in the XML panel. WHY IT MATTERS MORE THAN IT SOUNDS: every one of ~93 inventoried items in the value review carries reading D (UNMEASURED), and D can never reach DELETE. That is why §6 has ONE delete and §8 has FIFTEEN investigates. One operator-week of this histogram converts D into a real reading across the whole inventory and unlocks the DELETE axis the review could not use. Server-side alternative that does not touch the product: log one line per /api/save in tools/gallery-serve.py and diff successive versions to attribute which constructs were authored. NOTE the sovereignty question the operator may want to rule on first: this records what a human did with the editor, on their own machine, in their own localStorage. T-821's fault ring records conditions the software hit; a usage histogram records behaviour. They are different in kind and the operator may hold a different view on the second.
+  The other half of F-05, deliberately NOT built in T-821 (one task, one deliverable).
+  T-821 gave the product an error channel; this gives it a USE channel. Review §8
+  item 3: a localStorage['aefUsage'] histogram keyed by data-create type placed, by
+  AEF_FIELDS field edited, and by toolbar button pressed, with a one-line dump in
+  the XML panel. WHY IT MATTERS MORE THAN IT SOUNDS: every one of ~93 inventoried
+  items in the value review carries reading D (UNMEASURED), and D can never reach
+  DELETE. That is why §6 has ONE delete and §8 has FIFTEEN investigates. One operator-week
+  of this histogram converts D into a real reading across the whole inventory and
+  unlocks the DELETE axis the review could not use. Server-side alternative that does
+  not touch the product: log one line per /api/save in tools/gallery-serve.py and
+  diff successive versions to attribute which constructs were authored. NOTE the sovereignty
+  question the operator may want to rule on first: this records what a human did with
+  the editor, on their own machine, in their own localStorage. T-821's fault ring
+  records conditions the software hit; a usage histogram records behaviour. They are
+  different in kind and the operator may hold a different view on the second.
 
 status: captured
 workflow_type: build
@@ -16,8 +31,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T16:49:04Z
-last_update: 2026-09-22T16:49:04Z
-date_finished: null
+last_update: '2026-09-23T16:50:15Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +43,33 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-23T16:49:20Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+      (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-09-23T16:50:15Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 7
+    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=7 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-822: Usage histogram: which editor capabilities are actually used (F-18, F-05 second half)
