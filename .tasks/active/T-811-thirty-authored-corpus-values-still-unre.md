@@ -20,7 +20,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-09-22T13:14:41Z
-last_update: 2026-09-23T16:51:24Z
+last_update: 2026-09-23T16:58:50Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -127,9 +127,14 @@ makes this an inception rather than a build.
   problem and the last four a definition problem, this is two repairs wearing one task id.
   confidence: 3
   disposition: answered
-  rationale: Two repairs. 23/30 are mapping-class (field defined in FIELD_META, withheld by
-    AEF_FIELDS[type]); 7/30 are definition-class. src/aef-workflow-designer.html:1909 (AEF_FIELDS)
-    and :2021 (FIELD_META); table in docs/reports/T-811-unreachable-values-inception.md §S-3.
+  rationale: Two repairs. 23/30 are mapping-class BY STRUCTURE (field defined in FIELD_META,
+    withheld by AEF_FIELDS[type]); 7/30 are definition-class. src/aef-workflow-designer.html:1909
+    (AEF_FIELDS) and :2021 (FIELD_META); table in the artefact §S-3. CORRECTED TWICE BY §S-5:
+    an intermediate answer claiming the 5 `emits` were EMPTY elements was itself false (it
+    never tested child carriers). Measured: 0 of 30 empty. By CARRIER SHAPE it is 18 text /
+    6 attrs / 6 children — all 18 text carriers are `endpoint`, and `emits` has a text-shaped
+    FIELD_META entry over a repeated-child payload, which is worse than an absent one. So the
+    clean list-edit population is ZERO, not 23 and not 18.
 
 - **IW-2: Why did value review F-11 not name three of these seven groups?** F-11 enumerated
   the fields it believed were authored; the general census found three it never listed. Either
@@ -275,42 +280,47 @@ correction meets the GO conditions and is fenced as a separate item.
 
 ## Recommendation
 
-**Recommendation:** DEFER on the panel work · GO on one bounded instrument fix
+**Recommendation:** DEFER on the panel work · the one bounded item is delivered under T-836
 
 Full evidence: `docs/reports/T-811-unreachable-values-inception.md` (S-1 … S-5).
 
 **Rationale.** The pre-existing DEFER was half right, and the half it got right is
 load-bearing. **Wrong:** "endpoint on exclusiveGateway (11) and startEvent (7) may be corpus
-mistakes" — they are not; all 18 are unique, hand-authored and coherent (S-2). **Right:**
-"determinism was safe because it is semantically type-neutral, and endpoint is not" — S-2
-confirms it directly: `endpoint` means call-target on a task, trigger command on a start
-event, and implementation citation on a gateway (`update-task.sh:1010-1026`).
+mistakes" — they are not; all 18 are unique, hand-authored and coherent (S-2). **Right, and
+now doubly so:** "determinism was safe because it is semantically type-neutral, and endpoint
+is not" — S-2 confirms the overload directly: `endpoint` means call-target on a task, trigger
+command on a start event, and implementation citation on a gateway
+(`update-task.sh:1010-1026`).
 
-A GO was drafted at S-3 ("23 of 30 are a three-line `AEF_FIELDS` edit") and **withdrawn at
-S-5**, which measured content rather than presence:
+**Two recommendations were drafted and both withdrawn. Recorded, not hidden.**
 
-- **24 of 30 carry content; 6 are empty elements.** `emits` on scriptTask (5) and
-  `compensates` (1) are `<aef:… />` with nothing in them — there is nothing to make reachable.
-  Corroborating: `emits` is offered on `endEvent`, where the corpus uses it **zero** times.
-- **So the content-bearing mapping-class population is 18, and all 18 are `endpoint`** — the
-  one overloaded field. No smaller scoping avoids the dialect question; the escape S-3 relied
-  on does not exist.
-- Shipping the field ships its label: `FIELD_META.endpoint` reads
-  `hint: 'fw … | agent prompt | watchtower view'`, which is wrong for a gateway carrying a
-  source citation. Editable-under-a-wrong-label is worse than read-only, not better.
+1. S-3 drafted a GO: "23 of 30 are mapping-class, three `AEF_FIELDS` entries".
+2. S-5's first pass withdrew it on the claim that 6 of the 30 were EMPTY elements, and filed
+   T-836 on that. **That claim was also false** — it tested text and attributes and never
+   tested child elements, so `<aef:emits><aef:emit value="pass"/>…</aef:emits>` read as empty.
 
-**What changed is what the DEFER waits on** — from "are these corpus mistakes?" (answered,
-no) to **SQ-1**: does the dialect sanction the three-way overload, and should the panel label
-`endpoint` per node kind? 999-AEF is the counterparty and the mapping standard is frozen.
+**Measured correctly — carrier shape: 18 text, 6 attrs, 6 children, 0 empty.** The census's
+`30` was right all along.
 
-**Recommended now, needs no ruling:** `tools/_t810-unreachable-values-census.py` counts empty
-elements as authored values, overstating the gap by 6 (30 vs 24). A probe that reports absent
-content as present content does not stop informing, it **misinforms** (PL-332). Bounded, no
-standard, no seam, no panel.
+That kills the GO harder than the empty theory did. S-3 proposed adding `emits` to
+`AEF_FIELDS['scriptTask']` because it is already in `FIELD_META` — as
+`{ label: 'Emits', hint: 'event name(s)', textarea: false }`, **a single-line text field over
+a repeated-child payload.** A wrong-shaped field definition is worse than an absent one:
+absence is visible, and a wrong shape looks like it works. Of the 30, **18 are text carriers
+and all 18 are `endpoint`** (the field SQ-1 governs); the other **12 are structured**. Not one
+is a clean list edit.
 
-**Sovereign questions:** SQ-1 (endpoint overload — AEF's, frozen standard) · SQ-2 (is
-read-only sufficient? UX judgement, outside PD-302 delegation) · SQ-3 (`timer` vs `timerSpec`
-corpus/panel naming drift). Surfaced, not resolved.
+**Delivered under T-836, needs no ruling:** the census now reports carrier shape rather than a
+flat count, with 8 controls — including a leg that fails if `emits` is ever classed EMPTY
+again, and a leg proving the EMPTY branch can fire at all (the corpus has zero empties, so
+that branch is otherwise dead and an honest zero is indistinguishable from a broken test,
+PL-307). Its value is the inverse of its filing premise: not "the number is wrong by 6" but
+"the number was right and hid three repair classes behind one integer."
+
+**Sovereign questions:** SQ-1 (endpoint three-way overload — AEF's, frozen standard) · SQ-2
+(is read-only sufficient for the 18? UX judgement, outside PD-302) · SQ-3 (`timer` vs
+`timerSpec` corpus/panel naming drift) · SQ-4 (what shape do the structured twelve take?
+`FIELD_META` has no vocabulary for attribute- or child-carriers). Surfaced, not resolved.
 
 ## Decisions
 

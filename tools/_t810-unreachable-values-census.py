@@ -120,6 +120,17 @@ def main():
     unreachable = defaultdict(int)
     unmapped = defaultdict(int)
     total_values = 0
+    # T-836: the unreachable set splits by CARRIER SHAPE, and the shape is what decides
+    # whether a repair is a one-line AEF_FIELDS edit or a field design.
+    #
+    # This started as a content-vs-empty split on a claim that 6 of the 30 were empty
+    # elements. THAT CLAIM WAS FALSE and the first version of this code encoded it: it
+    # tested text and attributes and never tested CHILD ELEMENTS, so it reported
+    # <aef:emits><aef:emit value="pass"/>…</aef:emits> as empty. Measured: 30 of 30 carry
+    # content, 0 are empty. The honest instrument is not "is there content" — that answer
+    # is always yes — but "what shape is it", because a text carrier can go in a text
+    # field and a child-element carrier cannot.
+    unreachable_carrier = defaultdict(int)   # (field, bpmn_type, shape) -> count
 
     for path in files:
         try:
@@ -151,6 +162,19 @@ def main():
                     reachable[(field, bpmn_type)] += 1
                 else:
                     unreachable[(field, bpmn_type)] += 1
+                    # All three carriers are live in this corpus and each was found only by
+                    # looking: text (endpoint), attributes (aggregation over=/reduce=,
+                    # multiInstance over=, timer kind=/cycle=/anchor=) and child elements
+                    # (emits -> <aef:emit value=…>, compensates -> <aef:compensate ref=…>).
+                    # Testing only the first two reports the child-carriers as empty.
+                    shapes = []
+                    if (c.text or "").strip():
+                        shapes.append("text")
+                    if c.attrib:
+                        shapes.append("attrs")
+                    if len(list(c)):
+                        shapes.append("children")
+                    unreachable_carrier[(field, bpmn_type, "+".join(shapes) or "EMPTY")] += 1
 
     if total_values == 0:
         die("parsed the corpus and found ZERO authored aef values — either the corpus is "
@@ -178,7 +202,30 @@ def main():
             print(f"  {field:<18} on {btype:<20} {n:>3}")
         print()
 
+    # T-836: carrier shapes, printed after the existing blocks so every pre-existing line
+    # is byte-identical and anything parsing them keeps working.
+    by_shape = defaultdict(int)
+    for (field, btype, shape), n in unreachable_carrier.items():
+        by_shape[shape] += n
+
+    if unreachable_carrier:
+        print("CARRIER SHAPE of the unreachable values — what the repair has to hold:")
+        for (field, btype, shape), n in sorted(unreachable_carrier.items(),
+                                               key=lambda x: (-x[1], x[0][0])):
+            print(f"  {field:<18} on {btype:<20} {n:>3}   carrier: {shape}")
+        print("  text     → a text field can hold it; an AEF_FIELDS entry may suffice.")
+        print("  attrs    → multi-key payload; needs a field definition, not a list edit.")
+        print("  children → repeated sub-elements; a scalar text field would misrepresent")
+        print("             it and may destroy it on save.")
+        print()
+
+    n_empty = by_shape.get("EMPTY", 0)
+    shape_summary = ", ".join(f"{s}={by_shape[s]}" for s in sorted(by_shape))
+    print(f"of the {n_unreachable} unreachable, by carrier: {shape_summary}")
     print(f"TOTAL_UNREACHABLE={n_unreachable}")
+    print(f"UNREACHABLE_EMPTY={n_empty}")
+    for s in ("text", "attrs", "children"):
+        print(f"UNREACHABLE_CARRIER_{s.upper()}={by_shape.get(s, 0)}")
     return 0
 
 

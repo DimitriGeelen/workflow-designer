@@ -128,116 +128,132 @@ three groups entered the corpus was not established, and that would distinguish
 
 ---
 
-## S-5 — Content vs. empty (the check that overturned this report's first recommendation)
+## S-5 — Carrier shape (two wrong answers before the right one)
 
-§S-3 above concluded "23 of 30 are mapping-class, fixable with three `AEF_FIELDS` entries",
-and recommended GO on that. Before writing it up I checked whether the values actually carry
-content. **They do not all carry content, and the recommendation does not survive the check.**
+§S-3 concluded "23 of 30 are mapping-class, fixable with three `AEF_FIELDS` entries" and
+recommended GO. Two further measurements were needed, and the first of them was also wrong.
+Both are recorded, because the shape of the error is the point.
 
-| group | n | carries | |
+**Wrong answer 1 — "6 are empty."** Testing whether each element carried non-whitespace text
+or attributes produced 24 content-bearing and 6 empty (`emits` ×5, `compensates` ×1). That
+became a filed task (T-836) on the claim that the census overstated the gap by 6 and therefore
+misinformed (PL-332).
+
+**It was false.** `<aef:emits>` is not empty — it carries child elements:
+
+```xml
+<aef:emits>
+  <aef:emit value="pass"/>
+  <aef:emit value="warn"/>
+</aef:emits>
+```
+
+and `<aef:compensates>` carries `<aef:compensate ref="n_apply_settings"/>`. The test looked
+for two carriers and the corpus uses three. **Measured correctly: 30 of 30 carry content, 0
+are empty.** The census's headline `30` was right the whole time.
+
+This error was committed *inside the task that documents this exact failure shape*, minutes
+after writing §S-4's note that a chosen-set assertion cannot find what you forgot to choose
+(PL-288). The chosen set here was "text or attributes". Naming a pattern does not confer
+immunity to it.
+
+**Right answer — carrier shape.** The useful question is not *whether* there is content (the
+answer is always yes, so it carries no information) but *what shape* it is, because the shape
+decides whether a repair is a list edit or a field design:
+
+| group | n | carrier | what a repair must hold |
 |---|---|---|---|
-| `endpoint` on exclusiveGateway | 11 | text, all unique | content |
-| `endpoint` on startEvent | 7 | text, all unique | content |
-| `aggregation` on scriptTask | 2 | **attributes** — `over="FINDINGS[]" reduce="severity-max"` | content, structured |
-| `multiInstance` on scriptTask | 2 | **attributes** — `over="${changed_files}"` | content, structured |
-| `multiInstance` on serviceTask | 1 | **attributes** | content, structured |
-| `timer` on startEvent | 1 | **attributes** — `kind="cron" cycle="daily" anchor="G-053"` | content, structured |
-| `emits` on scriptTask | 5 | nothing — `<aef:emits/>` | **EMPTY** |
-| `compensates` on scriptTask | 1 | nothing | **EMPTY** |
+| `endpoint` on exclusiveGateway | 11 | **text** | a text field can hold it |
+| `endpoint` on startEvent | 7 | **text** | a text field can hold it |
+| `emits` on scriptTask | 5 | **children** | repeated `<aef:emit value=…>` |
+| `compensates` on scriptTask | 1 | **children** | repeated `<aef:compensate ref=…>` |
+| `aggregation` on scriptTask | 2 | **attrs** | `over=` + `reduce=` |
+| `multiInstance` on scriptTask | 2 | **attrs** | `over=` |
+| `multiInstance` on serviceTask | 1 | **attrs** | `over=` |
+| `timer` on startEvent | 1 | **attrs** | `kind=` + `cycle=` + `anchor=` |
 
-**24 carry content. 6 are empty elements.**
+**18 text · 6 attrs · 6 children · 0 empty.**
 
-Three consequences, each of which changes the answer:
+**This kills §S-3's GO more decisively than the empty theory did.** §S-3 proposed adding
+`emits` to `AEF_FIELDS['scriptTask']` because `emits` is already in `FIELD_META`. It is — as
+**`{ label: 'Emits', hint: 'event name(s)', textarea: false }`, a plain single-line text
+field.** Wiring that over a children carrier would put a text box on top of repeated
+sub-elements: at best it misrepresents the value, and on save it plausibly destroys it. The
+field definition exists and is *the wrong shape*, which is worse than absent, because absence
+is visible and a wrong-shaped definition looks like a working one.
 
-1. **The `emits` group is empty, so it cannot be part of a fix.** Adding `emits` to
-   `AEF_FIELDS['scriptTask']` would offer an editable field for five values that do not
-   exist. Corroborating: `emits` on `endEvent` — the one type where the panel *does* offer
-   it — occurs **zero** times in the corpus. The field is offered where nothing uses it and
-   withheld where five empty tags sit.
+So of the 30: **18 are text carriers and all 18 are `endpoint`**, the overloaded field that
+SQ-1 governs; the other **12 are structured** and need field design. **Not one of the thirty
+is the clean list edit §S-3 proposed.**
 
-2. **The content-bearing mapping-class population is therefore 18, not 23 — and all 18 are
-   `endpoint`.** That is precisely the semantically overloaded field. There is no subset of
-   this work that avoids SQ-1 by being scoped smaller; the scoping trick §S-3 relied on does
-   not exist.
-
-3. **The four structured groups are invisible even to the residue panel.** `hiddenKeys` at
-   `src/aef-workflow-designer.html:6310` filters to scalars (`typeof v !== 'object'`), so
-   attribute-bearing elements never reach "Other extensions". For these six values the
-   original "unreachable" framing is exactly right — §S-3's correction applies only to the
-   18 scalar `endpoint` values.
-
-**Instrument finding (independent of the decision).** The census counts empty elements as
-authored values, so its headline figure overstates the reachable-content gap by 6 (30 vs 24).
-A probe that reports absent content as present content does not merely stop informing, it
-**misinforms** (PL-332). This is a cheap, bounded fix to `tools/_t810-unreachable-values-census.py`
-and it is independent of every question below.
+**On the residue panel:** `hiddenKeys` at `src/aef-workflow-designer.html:6310` filters to
+scalars (`typeof v !== 'object'`), so only the 18 text carriers reach "Other extensions". The
+12 structured values are genuinely invisible — §S-3's correction to this task's framing
+applies to the 18, not to all 30.
 
 ---
 
 ## Recommendation
 
-**DEFER stands. My own GO, written at §S-3, is withdrawn — S-5 disproved it.**
+**DEFER stands. The GO drafted at §S-3 is withdrawn, and the instrument finding that replaced
+it (T-836, "the census overstates by 6") is withdrawn too — it was false.**
 
-The task's pre-existing DEFER rationale was half right and half wrong, and the half it got
-right is the load-bearing half:
+The task's pre-existing DEFER rationale was half wrong and half load-bearing:
 
 - **Wrong:** *"endpoint on exclusiveGateway and startEvent may be corpus mistakes."* They are
-  not. §S-2 shows 18 unique, hand-authored, semantically coherent values.
-- **Right:** *"that judgement touches the frozen mapping standard where 999-AEF is the
-  counterparty … determinism was safe because it is semantically type-neutral, and endpoint
-  is not."* §S-2 **confirms** the non-neutrality directly: `endpoint` means call-target on a
-  task, trigger command on a start event, and implementation citation on a gateway.
+  not. §S-2: 18 unique, hand-authored, coherent values.
+- **Right, and now doubly so:** *"determinism was safe because it is semantically
+  type-neutral, and endpoint is not."* §S-2 confirms the overload directly (call-target /
+  trigger / implementation citation).
 
-Shipping an editable field would ship its label and hint too. `FIELD_META.endpoint` reads
-`label: 'Endpoint', hint: 'fw … | agent prompt | watchtower view'`. On
-`verification-gate · frw_7_every`, whose value is `update-task.sh:1010-1026`, that label and
-that hint are both wrong. Making the value editable under a misdescribing label is not an
-improvement on read-only — it is a worse state, because it invites the author to write the
-wrong kind of thing there.
+And §S-5 adds a second, independent reason the panel work is not bounded: **12 of the 30 are
+structured carriers**, and one of them already has a text-shaped `FIELD_META` entry that would
+misrepresent it. Shipping the field ships its label and its widget — `FIELD_META.endpoint`'s
+hint `'fw … | agent prompt | watchtower view'` is wrong on a gateway holding
+`update-task.sh:1010-1026`, and `FIELD_META.emits`'s single-line text input is wrong on a
+repeated-child payload. Editable under a wrong label, or in a wrong widget, is worse than
+read-only — it invites the author to write something the carrier cannot hold.
 
-**What the DEFER is now waiting on has changed, and that is this inception's real output.**
-Before: *"are these corpus mistakes?"* — answered, no. Now: **SQ-1**, below — a sharper,
-answerable question for the counterparty.
+**What the DEFER waits on has changed, and that is this inception's real output.** Before:
+*"are these corpus mistakes?"* — answered, no. Now: **SQ-1**, does the dialect sanction the
+three-way `endpoint` overload; and **SQ-4**, what shape should the structured twelve take.
 
-**One thing is recommended for immediate action and needs no ruling:** fix the census to
-separate content-bearing from empty elements. It is an instrument correction, touches no
-standard, no seam and no panel, and until it lands every future reading of this population
-starts from a number that is wrong by 6.
+**Against the Go/No-Go criteria:** the fix path is not bounded — every text carrier is
+`endpoint` (dialect ruling not ours), and the remaining twelve need field design. Both stated
+NO-GO conditions fire.
 
-**Against the Go/No-Go criteria as written:** the fix path is *not* bounded — every
-content-bearing mapping-class value is `endpoint`, and `endpoint`'s repair requires a dialect
-ruling this project does not own. That meets the stated NO-GO test ("requires fundamental
-redesign or unbounded scope") for the panel work, while the census fix is a separate,
-bounded, non-gated item.
+**What IS delivered and needs no ruling:** the census now reports carrier shape rather than a
+flat count (`UNREACHABLE_CARRIER_TEXT/ATTRS/CHILDREN`, `UNREACHABLE_EMPTY`), with 8 controls
+including a leg that fails if `emits` is ever classified EMPTY again. That is T-836, and its
+value is the opposite of what it was filed for: not "the number is wrong by 6" but "the number
+was right and hid three different repair classes behind one integer."
 
 ---
 
 ## Sovereign questions raised (surfaced, not resolved)
 
 **SQ-1 — Does the dialect sanction `endpoint` carrying three semantics, and should the panel
-label it per node kind?** The corpus uses it as call-target (tasks), trigger command (start
-events, 7) and implementation citation (gateways, 11). Either the dialect blesses the
-overload and the panel needs per-node-kind labels and hints, or the field splits and the
-corpus migrates. **999-AEF is the counterparty; `docs/standards/aef-bpmn-mapping-v1.md` Part I
-is frozen and not editable under agent control.** Not an agent's call, and not answerable from
-this corpus alone.
+label it per node kind?** 18 of 30 values ride on this. 999-AEF is the counterparty;
+`docs/standards/aef-bpmn-mapping-v1.md` Part I is frozen and not editable under agent control.
 
-**SQ-2 — Is read-only sufficient for the 18 scalars?** They already render under "Other
-extensions". If read-only visibility is adequate, the panel work may not be worth its
-mandatory visual-verification cost even after SQ-1 resolves. A UX judgement, explicitly
-outside reviewer delegation under PD-302.
+**SQ-2 — Is read-only sufficient for the 18 text carriers?** They already render under "Other
+extensions". A UX judgement, outside reviewer delegation under PD-302.
 
-**SQ-3 — `timer` vs `timerSpec`.** The corpus writes `<aef:timer kind="cron" cycle="daily"
+**SQ-3 — `timer` vs `timerSpec`.** Corpus writes `<aef:timer kind="cron" cycle="daily"
 anchor="G-053">` on a `startEvent`; the panel defines `timerSpec` on node type `eventTimer`.
-Corpus-vs-panel naming drift that should be resolved as a drift before any field is built
-for it.
+Corpus/panel naming drift, resolve as a drift before building for it.
+
+**SQ-4 — What shape do the structured twelve take in the panel?** Six attribute carriers and
+six child carriers. `FIELD_META` has no vocabulary for either, and `emits` currently has a
+text-shaped entry that is actively wrong for its payload. Field design, not a list edit.
 
 ---
 
 ## Note on this report's own method
 
-§S-3's recommendation was written from a structural read of the panel and was internally
-consistent. It was wrong because it never asked whether the values it proposed to expose
-contained anything. The check that caught it cost one command. Recorded here rather than
-silently corrected, because the failure shape — reasoning forward from mechanism without
-measuring the population it acts on — is the one this whole task exists to document in F-11.
+This report reached three successive answers: a structural GO (§S-3), an "empty elements"
+instrument finding (§S-5 first pass), and the carrier-shape result that survived. The first
+two were each internally consistent and each wrong for the same reason — reasoning forward
+from a mechanism without measuring the population it acts on. Each was caught by one command
+that cost under a minute. Recorded rather than silently corrected: the failure shape is the
+one this whole task exists to document, and it was committed twice while documenting it.
