@@ -1,0 +1,23 @@
+id: tools/_t806-corpus-sweep-guard-controls.py
+name: _t806-corpus-sweep-guard-controls
+type: script
+subsystem: release
+location: tools/_t806-corpus-sweep-guard-controls.py
+tags: [regression-test, aef-seam, control-case]
+
+purpose: >
+  Regression test (T-806) proving unrecognized flags on bake-clean-layout.py refuse
+  instead of falling through to a corpus write. Stubs the CDP bake pipeline and
+  isolates the argument gate; control case runs the same harness against the
+  pre-fix source (git show HEAD) to prove the guard is load-bearing.
+
+depends_on:
+  - target: tools/bake-clean-layout.py
+    type: calls
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-24
+created_by: unknown
