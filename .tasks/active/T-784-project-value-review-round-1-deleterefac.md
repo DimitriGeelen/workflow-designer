@@ -16,14 +16,15 @@ workflow_type: build
 owner: agent
 horizon: now
 tags: [value-review, governance]
-components: []
+components: [
+      docs/reports/VALUE-REVIEW-designer-product-2026-09-20/00-yardstick.md]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T22:01:08Z
-last_update: '2026-09-23T16:50:14Z'
+last_update: '2026-09-24T22:02:37Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -60,6 +61,15 @@ cost_estimate_proposed:
       tier: 2
       effort: 8
     rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-24T22:02:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=8 
       (no-signal)
     rubric_sha: e4a00f38e801
 ---
