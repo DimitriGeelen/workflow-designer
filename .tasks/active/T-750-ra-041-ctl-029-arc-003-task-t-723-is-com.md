@@ -5,20 +5,20 @@ description: >
   Audit reports [WARN] CTL-029: T-723 has all Agent ACs ticked but status='started-work'.
   T-723 is itself arc-003 remediation task RA-027.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
 tags: [audit-remediation, cycle-1]
-components: []
-related_tasks: []
+components: [.tasks/active/T-723-ra-027-fail-d2-human-review-queue-has-12.md]
+related_tasks: [T-749, T-713, T-715]
 arc_id: arc-003
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:59:06Z
-last_update: '2026-09-21T08:01:04Z'
+last_update: 2026-09-24T22:00:03Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -55,6 +55,15 @@ cost_estimate_proposed:
       tier: 2
       effort: 5
     rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=5 
+      (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-24T21:59:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 6
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=6 
       (no-signal)
     rubric_sha: e4a00f38e801
 ---
@@ -202,4 +211,19 @@ One class of four, same root cause. Siblings: T-747 (RA-006), T-748 (RA-007), T-
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-750-ra-041-ctl-029-arc-003-task-t-723-is-com.md
 - **Context:** Initial task creation
 
-test -f /opt/832-Workflow-designer/.tasks/active/$(cd /opt/832-Workflow-designer/.tasks/active && ls | grep -m1 '^T-723-') || test -n "$(ls /opt/832-Workflow-designer/.tasks/completed/ | grep -m1 '^T-723-')"
+### 2026-09-24T22:06:00Z — investigation [T-837 round 2]
+- **AC1/AC2 confirmed still open:** T-723 (`owner: human`) has all three Agent ACs ticked
+  ([x]) but `status: started-work`, verified directly. Same structural block as T-749/T-708:
+  the AC text bars the agent from closing it or changing its ownership, so this cannot reach
+  a terminal state under agent initiative. Evidence for the operator: all 3 Agent ACs ticked,
+  no placeholders, no Human ACs section to block on.
+- **AC3 answered — see T-749 for the full population check.** T-723 is one of exactly four
+  CTL-029-flagged tasks (with T-189/T-713, T-286/T-715, T-708/T-749) that are `owner: human`
+  with zero `### Human` AC bullets, out of 16 tasks CTL-029 named this cycle. The other 12
+  each carry a genuine Human AC. Surfaced as a Sovereign question in the T-837 round 2
+  handback (see that report) rather than resolved here.
+- **Left as:** `started-work`, parked pending the operator closing T-723 (or T-723 acquiring
+  a real Human AC).
+
+### 2026-09-24T22:00:03Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

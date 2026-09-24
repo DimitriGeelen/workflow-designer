@@ -5,20 +5,20 @@ description: >
   Audit reports [WARN] CTL-029: T-708 has all Agent ACs ticked but status='started-work'.
   T-708 is itself arc-003 remediation task RA-012.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
 tags: [audit-remediation, cycle-1]
-components: []
-related_tasks: []
+components: [.tasks/active/T-708-ra-012-ctl-029-two-stuck-partial-complet.md]
+related_tasks: [T-750, T-713, T-715]
 arc_id: arc-003
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:59:03Z
-last_update: '2026-09-21T08:01:04Z'
+last_update: '2026-09-24T21:59:35Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -55,6 +55,15 @@ cost_estimate_proposed:
       tier: 2
       effort: 5
     rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=5 
+      (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-24T21:59:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 6
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=6 
       (no-signal)
     rubric_sha: e4a00f38e801
 ---
@@ -202,4 +211,28 @@ One class of four, same root cause. Siblings: T-747 (RA-006), T-748 (RA-007), T-
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-749-ra-040-ctl-029-arc-003-task-t-708-is-com.md
 - **Context:** Initial task creation
 
-test -f /opt/832-Workflow-designer/.tasks/active/$(cd /opt/832-Workflow-designer/.tasks/active && ls | grep -m1 '^T-708-') || test -n "$(ls /opt/832-Workflow-designer/.tasks/completed/ | grep -m1 '^T-708-')"
+### 2026-09-24T21:58:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-09-24T22:05:00Z — investigation [T-837 round 2]
+- **AC1/AC2 confirmed still open:** T-708 (`owner: human`) has all three Agent ACs ticked
+  ([x]) but `status: started-work`, verified directly (`sed -n '/### Agent/,/### Human/p'`).
+  Closing it requires the human to run `fw task update T-708 --status work-completed` — the
+  AC's own text bars the agent from doing it ("The agent does not close it and does not
+  change its ownership away from human"), so this task cannot itself reach a terminal state
+  this round. Evidence for the operator: all 3 Agent ACs are ticked, none is a placeholder,
+  and no Human ACs section exists to block on.
+- **AC3 answered:** checked owner/Human-AC-count directly (not estimated) across every task
+  CTL-029 named this cycle (T-041, T-101, T-102, T-105, T-189, T-209, T-286, T-293, T-309,
+  T-344, T-345, T-357, T-402, T-681, T-708, T-723 — 16 tasks, all `owner: human`). Exactly
+  four carry ZERO `### Human` AC bullets: T-189, T-286, T-708, T-723 — tracked by T-713
+  (RA-017), T-715 (RA-019), T-749 (this task), T-750. The other twelve each carry a genuine
+  Human AC, so `owner: human` is doing real work there. The generic defect is real and
+  confined to these four: an agent-produced task was set `owner: human` with no criterion a
+  human is actually needed to check, which is exactly the "completable, not closed" shape
+  CTL-029 flags. Surfaced as a Sovereign question in the T-837 round 2 handback rather than
+  resolved here — whether task-create tooling should refuse `owner: human` with an empty
+  `### Human` section, or whether these four should be reassigned, is an architectural call.
+- **Left as:** `started-work`, parked pending the operator closing T-708 (or T-708 acquiring
+  a real Human AC). Not completed by the agent — AC1 cannot be satisfied under agent
+  initiative by design.
