@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-24T21:23:12Z
-last_update: 2026-09-24T21:24:49Z
+last_update: 2026-09-24T22:08:13Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,29 +34,76 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Governance anchor for the two dispatched procAsFit rounds. Round handbacks:
+`docs/reports/T-837-procasfit-round-1.md`, `docs/reports/T-837-procasfit-round-2.md`.
+
+## Orchestrator findings — checks the rounds could not run on themselves
+
+Two things the workers could not establish from inside, recorded here because T-837's ACs
+depend on them and "producer-not-judge" cuts both ways.
+
+### F-1: a dispatched worker cannot attest to its own provenance
+
+Round 1 closed its handback by reporting it "ran as a direct invocation, same as round 0".
+**That was false** — it was dispatched via `fw termlink dispatch` and verified externally as
+pid 3295971, `claude -p`, `cwd=/opt/832-Workflow-designer`. `fw termlink dispatch` plants no
+marker a worker can read, so a worker's self-report on its execution mode is worthless in
+either direction. Round 2 was told its identity explicitly and instructed not to make the
+claim at all. The evidence for AC1/AC3 is therefore all external: `ps`, the worker directory,
+and the `exit_code` file — never the worker's own account.
+
+### F-2: "all 20 are lv-lc" is substantially an abstention, not a measurement — SQ-6
+
+Round 2's stop-condition rests on scoring the 20 unscored agent-owned tasks and finding every
+one `lv-lc`, therefore out of scope under the mandate's value gate. The quadrant assignments
+are real (round 2 wrote grounded `components:`, unlocking `blast_radius`). **The VALUE half is
+not.** Measured across the 19 still-active members:
+
+- Ten score exactly **61** — a flat tie of the same shape as the inception BVP-126 tie in SQ-0.
+- Every one carries **4 to 12 `no-signal` drivers**, each scored **0**.
+- T-553's value entry is dated **2026-09-10**: pre-existing, not produced by this run. Round 2
+  added only the cost half.
+
+`no-signal → 0` means the estimator found none of the phrases its heuristic greps for in the
+task body. That is **absence of evidence rendered as evidence of low value**, and an
+F3=0 from "the body never mentions AEF integration" is indistinguishable in the output from an
+F3=0 meaning "this genuinely does not help AEF integration". Same failure as SQ-0 one level
+over, and the third instance of PL-307 in this run: an honest abstention and a real verdict
+share one rendering.
+
+Consequence: the value gate excluded 20 tasks on the basis of **how they were written**, not
+what they are worth. This does not invalidate T-837's ACs — they are about whether the dispatch
+was governed and auditable, and it was — but it does mean round 2's "no agent-eligible Q1/Q2
+work remains anywhere in the project" should be read as "no task's prose scores above the
+median under a keyword heuristic". Corroborating: T-832 (61) and T-834 (70) are in this set,
+and were the same `lv` verdicts flagged as a calibration signal in earlier sessions.
+
+**Raised as SQ-6 (operator's): should a `no-signal` driver score 0, or should it abstain
+visibly?** An estimator that cannot distinguish "no evidence found" from "evidence of no
+value" cannot support a gate that excludes work. Not an agent's call — it is a calibration
+parameter, and the mandate forbids agents adjusting those.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Two rounds dispatched through the governed verb, not raw spawn.** Both rounds run via
+- [x] **Two rounds dispatched through the governed verb, not raw spawn.** Both rounds run via
       `fw termlink dispatch` (which is `--task`-gated and runs `claude -p` inside this project,
       so the PreToolUse hooks load), never via `termlink register --shell` + PTY inject. The
       worker directory for each round exists and carries a non-empty `result.md`.
 
-- [ ] **Round 2's prompt demonstrably contains round 1's result.** Verified by grepping round
+- [x] **Round 2's prompt demonstrably contains round 1's result.** Verified by grepping round
       2's `prompt.md` for a string that can only have come from round 1's output. Chaining
       that is asserted rather than shown is not chaining.
 
-- [ ] **Each round terminated on a recorded exit code**, not on my inference that it looked
+- [x] **Each round terminated on a recorded exit code**, not on my inference that it looked
       finished. `exit_code` exists for both workers and is reported as-is, including non-zero.
 
-- [ ] **Every state change the workers made is traceable to a verb or a commit.** `git log`
+- [x] **Every state change the workers made is traceable to a verb or a commit.** `git log`
       for the run window shows each round's commits; nothing in the run's report is claimed
       without a commit, a verb invocation, or a recorded check behind it.
 
-- [ ] **The gates the workers hit are reported, including any that blocked them.** A round
+- [x] **The gates the workers hit are reported, including any that blocked them.** A round
       that was refused by a gate reports the refusal. A round that hit no gate says so —
       silence is not evidence of a clean run.
 
@@ -92,6 +139,14 @@ date_finished: null
 -->
 
 ## Verification
+
+test -s /tmp/tl-dispatch/pa0924r1/result.md
+test -s /tmp/tl-dispatch/pa0924r2/result.md
+test "$(cat /tmp/tl-dispatch/pa0924r1/exit_code)" = "0"
+test "$(cat /tmp/tl-dispatch/pa0924r2/exit_code)" = "0"
+grep -q "seam-manifest.sh" /tmp/tl-dispatch/pa0924r2/prompt.md
+test -s docs/reports/T-837-procasfit-round-1.md
+test -s docs/reports/T-837-procasfit-round-2.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
