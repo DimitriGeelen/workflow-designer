@@ -31,10 +31,15 @@ Design (why this shape):
 
 Re-run after Clean logic changes:  tools/bake-clean-layout.py
 Check the corpus is a Clean fixpoint (idempotent, no writes):  --check
+Preview what a bake would touch without writing anything:      --dry-run
 
 Usage:
-  tools/bake-clean-layout.py [--check] [map ...]
+  tools/bake-clean-layout.py [--check|--dry-run] [map ...]
     (no map args → every map derived from examples/aef-processes/*.workflow.yaml)
+
+Flags are validated (T-806): an unrecognized `-`/`--` argument REFUSES (exit 2)
+rather than being silently ignored and falling through to a full bake — this is
+what let a `--help` invocation write the whole corpus before this fix.
 
 Refusal (T-447): this tool exits 2 rather than reporting on a corpus it could not
 enumerate — no sources, a rendered set missing counterparts, or a named map that does
@@ -267,9 +272,27 @@ def resolve_corpus(names):
     return rendered
 
 
+FLAGS = ("--check", "--dry-run", "--help", "-h")
+
+
 def main(argv):
+    # T-806: every `--`/`-`-prefixed arg used to be silently stripped and ignored
+    # rather than validated — `--help` fell through to a full bake of the corpus
+    # (this session's own incident: a --help invocation rewrote all 24 rendered
+    # files). Unknown flags now refuse loudly instead of being swallowed as if
+    # they were map names or no-ops; the corpus write only ever follows from
+    # names actually meant as map names.
+    unknown = [a for a in argv if a.startswith("-") and a not in FLAGS]
+    if unknown:
+        refuse("unknown flag(s): %s (see --help)" % " ".join(unknown))
+
+    if "--help" in argv or "-h" in argv:
+        print(__doc__)
+        return 0
+
     check = "--check" in argv
-    names = [a for a in argv if not a.startswith("--")]
+    dry_run = "--dry-run" in argv
+    names = [a for a in argv if not a.startswith("-")]
     maps = resolve_corpus(names)
 
     results = run_driver(maps)
@@ -335,6 +358,24 @@ def main(argv):
     if bad:
         raise SystemExit("driver returned errors for %d map(s); aborting bake" % bad)
 
+    scope = ("%d named map(s)" % len(maps)) if names else ("all %d source(s)" % len(sources()))
+
+    if dry_run:
+        # T-806: report what a real run would touch, without calling write_back()
+        # or mint_store_version() — no bytes under RENDERED or .editor-versions/
+        # change. Still validates the driver ran and produced xml, so a broken
+        # dry-run reports the same failure a real bake would have hit.
+        would_write = 0
+        for base in maps:
+            r = results[base]
+            if not r.get("xml"):
+                raise SystemExit("driver returned no xml for %s (buildBpmnXml missing?); aborting bake" % base)
+            would_write += 1
+            print("  would bake %-20s" % base)
+        print("\n--dry-run: would bake %d map(s); nothing written.  [scope: %s]"
+              % (would_write, scope))
+        return 0
+
     # Bake: write back editor-saved XML, mirror, mint store versions (T-145).
     minted = 0
     for base in maps:
@@ -345,7 +386,6 @@ def main(argv):
         m = mint_store_version(base, r["xml"], r.get("thumb"))
         minted += 1 if m else 0
         print("  baked %-24s%s" % (base, "  (store v%d minted)" % m if m else ""))
-    scope = ("%d named map(s)" % len(maps)) if names else ("all %d source(s)" % len(sources()))
     print("\nBaked Clean into %d maps; %d store versions minted; gallery mirror synced."
           "  [scope: %s]" % (len(maps), minted, scope))
     return 0

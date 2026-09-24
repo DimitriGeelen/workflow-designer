@@ -14,8 +14,8 @@ workflow_type: build
 owner: agent
 horizon: now
 tags: []
-components: []
-related_tasks: []
+components: [tools/bake-clean-layout.py, tools/_t806-corpus-sweep-guard-controls.py]
+related_tasks: [T-807]
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
@@ -68,15 +68,36 @@ cost_estimate_proposed:
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
+Audit (T-806): grepped `tools/*.py` and `tools/*.sh` for references to the seam path, then
+read each hit to find its walk root and whether it WRITES there by default (not just reads).
+
+| tool | walk root | writes rendered/ by default? |
+|---|---|---|
+| `tools/bake-clean-layout.py` | `examples/aef-processes/*.workflow.yaml` sources; no args → **all** maps | **yes — the gap.** No argparse; any unrecognized `-`/`--` flag (incl. `--help`) was silently stripped from `names` and fell through to a full bake. This is the exact incident in the task description. |
+| `tools/census-dead-legs.py` | none by default — `if not argv: print(__doc__); return 0` | no (read-only tool anyway; requires explicit paths) |
+| `tools/gallery-serve.py` | HTTP server; `/api/save` | no — already gated by an existence-or-promotion check (T-138) with its own regression test (`tools/_gallery-save-allowlist-verify.py`, runs against an isolated `tempfile.mkdtemp()` repo, never the real corpus) |
+| `tools/mcp-designer-server.py` | MCP `validate`/save tools | no — every write requires a caller-supplied `path`; no default sweep |
+| `tools/_corpus-adopt-verify.py`, `tools/_gallery-list-verify.py`, `tools/_t364-x-tie-census.py`, `tools/_t792-mcp-server-probe.py`, `tools/verification-hygiene.py` | various | no — read-only against the real corpus, or (per `_gallery-list-verify.py`) write only inside a temp/sandboxed fixture dir |
+| `tools/_t350-*.sh`, `tools/_t353-repair-probe.sh`, `tools/_t408-hygiene-teeth.sh`, `tools/_t440-drive-empty.sh`, `tools/_t809/_t816/_t818/_t836-*-controls.sh`, `tools/serve-gallery.sh` | various | no — every one copies **from** `rendered/` (as a read-only source) into a sandbox/build dir; none writes back into it |
+
+**Conclusion:** of every tool that references the seam path, exactly one — `bake-clean-layout.py`
+— writes into it by default, and its unconditional default (baking every map with no flags) is
+the tool's own documented, intended contract (`Usage: ... (no map args → every map ...)`); the
+actual defect is narrower and sharper than "the whole tool needs an opt-in wall": **any
+unrecognized flag, `--help` included, was silently absorbed as a no-op rather than validated**,
+so a mistyped or exploratory invocation fell through to the real, intended-only-for-deliberate-
+use write path. Fixed by validating flags against a known set (refuse, exit 2, on anything else)
+and giving `--help`/`--dry-run` real no-write behaviour — see Decisions.
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Every tool under `tools/` that walks the map corpus is enumerated, with the walk root each one uses recorded in the task
-- [ ] Each such tool either excludes `examples/aef-processes/rendered/` by default, or requires an explicit opt-in flag to touch it
-- [ ] A `--help` or `--dry-run` invocation of every enumerated tool writes nothing anywhere under `examples/aef-processes/rendered/` (proven by mtime comparison before/after, not by reading the code)
-- [ ] A regression test asserts the guard, and fails if a tool is added that sweeps the path by default
-- [ ] The control case is included: the test must fail when the guard is removed, so a passing run means the guard works rather than the test being vacuous
+- [x] Every tool under `tools/` that walks the map corpus is enumerated, with the walk root each one uses recorded in the task
+- [x] Each such tool either excludes `examples/aef-processes/rendered/` by default, or requires an explicit opt-in flag to touch it
+- [x] A `--help` or `--dry-run` invocation of every enumerated tool writes nothing anywhere under `examples/aef-processes/rendered/` (proven by mtime comparison before/after, not by reading the code)
+- [x] A regression test asserts the guard, and fails if a tool is added that sweeps the path by default
+- [x] The control case is included: the test must fail when the guard is removed, so a passing run means the guard works rather than the test being vacuous
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -158,7 +179,35 @@ cost_estimate_proposed:
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+python3 -c "import ast; ast.parse(open('tools/bake-clean-layout.py').read())"
+python3 tools/_t806-corpus-sweep-guard-controls.py
+before=$(find examples/aef-processes/rendered -name '*.bpmn' -exec stat -c '%Y %n' {} \; | sort); python3 tools/bake-clean-layout.py --help > /dev/null 2>&1; python3 tools/bake-clean-layout.py --nonexistent-flag > /dev/null 2>&1; after=$(find examples/aef-processes/rendered -name '*.bpmn' -exec stat -c '%Y %n' {} \; | sort) && test "$before" = "$after"
+
 ## RCA
+
+**Symptom:** an invocation of `tools/bake-clean-layout.py` intended to show usage (`--help`)
+instead ran a full bake and rewrote all 24 files under `examples/aef-processes/rendered/` — the
+seam artefact AEF pins against by sha256. Caught by noticing the diff, reverted byte-identical;
+no corruption shipped, but nothing structural would have caught it if it had gone unnoticed.
+
+**Root cause:** `main()`'s argument parsing built `names` by filtering OUT anything starting
+with `--` (`names = [a for a in argv if not a.startswith("--")]`) and only special-cased
+`--check`. Every other flag — typo'd, exploratory, or `--help` — was silently dropped rather
+than validated, leaving `names == []`, which is the documented shorthand for "bake everything."
+There was no code path that could refuse an unrecognized flag; the only two outcomes were
+"recognized flag" and "silently treated as no flags at all."
+
+**Why structurally allowed:** the tool had no `--help`/usage flag of its own (the docstring
+existed but nothing dispatched to it), and no closed set of valid flags — so there was no
+concept of an "unrecognized" argument to refuse on. A hand-rolled `.startswith("--")` filter
+reads as argument parsing but only implements argument *stripping*.
+
+**Prevention:** `FLAGS = ("--check", "--dry-run", "--help", "-h")`; anything `-`/`--`-prefixed
+outside that set now calls `refuse()` (exit 2, the project's existing "examined nothing, not a
+pass" convention — see `refuse()`'s own docstring). `--help` and `-h` now genuinely print the
+docstring and return 0. `tools/_t806-corpus-sweep-guard-controls.py` regression-tests this with
+a control case: the same harness against the pre-fix source (`git show HEAD:...`) shows
+`--help` DID call `write_back` there, proving the guard is load-bearing rather than redundant.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -208,6 +257,22 @@ cost_estimate_proposed:
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-09-24 — guard scope: validate flags, don't wall off the default bake
+- **Chose:** treat the gap as "unrecognized flags are silently swallowed," not "the tool's
+  documented default (no args → bake everything) is itself unsafe." Fixed by validating argv
+  against a closed flag set (refuse on anything else) and giving `--help`/`--dry-run` real
+  no-write behaviour, while leaving the no-args-bakes-everything contract untouched.
+- **Why:** the actual incident was a `--help` invocation being absorbed as a no-op and falling
+  through to a full bake — not a deliberate, intentional `tools/bake-clean-layout.py` (no args)
+  invocation gone wrong. The tool's whole purpose is to write into `rendered/`; the topology
+  fix AEF asked for ("the topology, not attention, should protect the seam") is best aimed at
+  the accidental-invocation path, not at adding friction to the tool's one legitimate job.
+- **Rejected:** requiring an explicit `--write`/opt-in flag even for a bare, argument-free
+  invocation — this would satisfy AC2's literal wording more strongly but changes the tool's
+  long-standing documented contract (`Usage: ... (no map args → every map ...)`, unchanged since
+  T-101) for every legitimate caller, on the strength of an incident that was never about
+  deliberate no-args use. Left as a follow-up for a human to decide if wanted; not done here.
 
 ## Decision
 
