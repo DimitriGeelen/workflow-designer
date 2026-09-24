@@ -8,19 +8,20 @@ description: >
   notes should name the seam artefact state (examples/aef-processes/rendered/) at
   each tag so AEF has a fixed reference rather than a branch head.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
-components: []
-related_tasks: []
+components: [scripts/release-designer.sh, scripts/announce-release.sh, 
+      docs/branch-model.md, docs/aef-designer-integration-protocol.md]
+related_tasks: [T-805]
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T12:17:18Z
-last_update: '2026-09-23T16:50:14Z'
+last_update: '2026-09-24T21:32:23Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -59,6 +60,15 @@ cost_estimate_proposed:
     rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
       (no-signal)
     rubric_sha: e4a00f38e801
+  - ts: '2026-09-24T21:32:23Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 (no-signal); tier=2 (no-signal); effort=8 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-807: Tag seam artefacts in release notes so AEF pins a tag, not a moving head
@@ -67,14 +77,26 @@ cost_estimate_proposed:
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
+AEF's second ask (`docs/branch-model.md` "The seam" section, `agent-chat-arc @1656`): tag
+`examples/aef-processes/rendered/` state in release notes so AEF pins a tag, not a moving head.
+The current cut mechanism is `scripts/release-designer.sh`, which writes `dist/MANIFEST.yaml`
+for the designer HTML artifact only — it has no record of `examples/aef-processes/rendered/`
+at all. There are 16 existing `designer-v*` tags (`designer-v0.1.0`..`designer-v0.13.0`) and no
+retroactive record for any of them. `scripts/announce-release.sh` is the other release-adjacent
+script (posts the rail announcement); `docs/aef-designer-integration-protocol.md` is the
+consumer-facing protocol doc AEF reads. Candidate touch points for the build: a new read-only
+script under `scripts/` that computes file-list + sha256 for `examples/aef-processes/rendered/`
+at an arbitrary git ref (no writes to `dist/`, `VERSION`, or the seam directory itself), plus a
+checked-in record doc under `docs/releases/`.
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The release process records, at each tag, the state of `examples/aef-processes/rendered/` (file list plus a content hash per file)
-- [ ] The record lives in the release notes or an artefact the notes reference, and is reachable from the tag alone — no branch head lookup required
-- [ ] AEF can resolve "which seam bytes does tag `designer-vX.Y.Z` carry" from the tag without fetching a moving branch
-- [ ] Verified against the existing tag series rather than only the next one, so the answer is not empty for everything already released
+- [x] The release process records, at each tag, the state of `examples/aef-processes/rendered/` (file list plus a content hash per file)
+- [x] The record lives in the release notes or an artefact the notes reference, and is reachable from the tag alone — no branch head lookup required
+- [x] AEF can resolve "which seam bytes does tag `designer-vX.Y.Z` carry" from the tag without fetching a moving branch
+- [x] Verified against the existing tag series rather than only the next one, so the answer is not empty for everything already released
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -156,6 +178,12 @@ cost_estimate_proposed:
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+test -x scripts/seam-manifest.sh
+out=$(./scripts/seam-manifest.sh designer-v0.13.0 2>&1); echo "$out" | grep -q "sha256:"
+diff <(./scripts/seam-manifest.sh designer-v0.9.0) <(./scripts/seam-manifest.sh designer-v0.9.0) > /tmp/.out 2>&1 && test ! -s /tmp/.out
+test "$(grep -c '^ref: "designer-v' docs/releases/seam-manifest.md)" = "$(git tag -l 'designer-v*' | wc -l)"
+out=$(grep -A2 "tag the seam artefacts" docs/branch-model.md 2>&1); echo "$out" | grep -q "done (T-807)"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -207,6 +235,25 @@ cost_estimate_proposed:
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-09-24 — record mechanism: computed-on-demand, not incrementally-stored
+- **Chose:** a read-only script (`scripts/seam-manifest.sh <ref>`) that computes the seam
+  manifest live from git's object store for any ref, plus a checked-in doc
+  (`docs/releases/seam-manifest.md`) backfilled now for all 16 existing `designer-v*` tags and
+  appended manually after each future cut.
+- **Why:** the seam directory's history was already fully recorded — by git itself, at every
+  past commit and tag. The actual gap was a *queryable, tag-addressable* answer, not a missing
+  record. A tool that reads git history directly satisfies AC4 (verified against the whole
+  existing series) without any backfill risk, since nothing about past commits needs to change.
+  Keeping `dist/`, `VERSION`, and `examples/aef-processes/rendered/` itself untouched avoids the
+  hard-reversal / sovereignty-adjacent surface those paths carry (a release is a promise, G-007).
+- **Rejected:** (a) writing per-tag manifest files into `dist/` alongside `MANIFEST.yaml` —
+  touches the artifact AEF already pins by sha and risks conflating two different guarantees;
+  (b) modifying `scripts/release-designer.sh`'s tag-cutting logic to auto-append the manifest at
+  cut time — real automation is a natural follow-up, but it changes behaviour of the live release
+  script for an external consumer (AEF) and deserves its own review rather than riding in on a
+  build task that only needed to make the record queryable. Documented as a manual step instead
+  (see `docs/releases/seam-manifest.md` header) so a human decides when to automate it.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -223,3 +270,7 @@ cost_estimate_proposed:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-807-tag-seam-artefacts-in-release-notes-so-a.md
 - **Context:** Initial task creation
+
+### 2026-09-24T21:32:13Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

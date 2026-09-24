@@ -66,10 +66,14 @@ advances at a release rather than continuously. Their words:
 > "Continuous pinning against a branch at 89/day is what put your rendered/ files one `--help`
 > invocation away from a rewrite; the topology, not attention, should protect the seam."
 
-Two outstanding asks from AEF, not yet done:
+Two outstanding asks from AEF:
 
-- keep `examples/aef-processes/rendered/` out of every tool's default sweep
-- tag the seam artefacts in release notes so AEF pins a tag, not a moving head
+- keep `examples/aef-processes/rendered/` out of every tool's default sweep — **not yet done**
+- tag the seam artefacts in release notes so AEF pins a tag, not a moving head — **done (T-807)**:
+  `scripts/seam-manifest.sh <tag>` computes file-list + sha256 for the seam dir at any ref,
+  read-only, straight from git's object store. `docs/releases/seam-manifest.md` carries the
+  record for every `designer-v*` tag so far (backfilled for v0.1.0 through v0.13.0, appended
+  going forward at each new cut — see that file's header for the update command).
 
 ## Note on the vendored framework
 
