@@ -212,5 +212,15 @@ T-2912 `fw upgrade` false-success). Hand-writing `bpmn_to_tasks.py` here would:
 
 Filed, scored and parked. The counterparty owns the remedy.
 
+## Updates
+
+<!-- T-746: this heading was absent from creation (2026-09-20T21:19:54Z) through at least
+2026-09-24 — a one-off, not a class defect. Population check (T-746, 2026-09-24): 0 of 681
+completed tasks and 0 of the other 154 active tasks are missing this heading; T-741 was the
+sole instance. The task-create-agent template (.tasks/templates/default.md:186) has always
+carried the heading, so this was not a template-version gap — the file was populated by a
+path that skipped it for this one task, and the one status-update entry below landed as a
+floating heading-less block under ## Decisions until this fix restored the anchor. -->
+
 ### 2026-09-20T21:22:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work

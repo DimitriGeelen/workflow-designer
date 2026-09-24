@@ -1,0 +1,69 @@
+# ============================================================================
+# EPISODIC MEMORY - T-746: RA-037: task file T-741 has no Updates section
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-24T21:56:22Z
+# ============================================================================
+
+task_id: T-746
+task_name: "RA-037: task file T-741 has no Updates section"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T07:58:45Z
+completed: 2026-09-24T21:56:09Z
+duration_days: 3
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'T-741 carries an `## Updates` section in the position the template defines.'
+  - '`fw audit --section compliance` no longer reports T-741 under the missing-Updates check.'
+  - 'The reason the section was absent is stated — whether T-741 predates the template change or was created by a path that does not apply the template — so the answer distinguishes a one-off from a class.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 5157 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-1]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5157
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-746-ra-037-task-file-t-741-has-no-updates-se.md
+generated_by: context-agent-hybrid

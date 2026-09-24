@@ -5,12 +5,12 @@ description: >
   Audit compliance section reports [WARN] Task T-741-vendored-tree-omits-tools-entirely--5-ve.md
   missing Updates section.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-1]
-components: []
+components: [.tasks/active/T-741-vendored-tree-omits-tools-entirely--5-ve.md]
 related_tasks: []
 arc_id: arc-003
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -18,8 +18,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:58:45Z
-last_update: '2026-09-21T08:01:03Z'
-date_finished:
+last_update: 2026-09-24T21:56:09Z
+date_finished: 2026-09-24T21:56:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -81,9 +81,9 @@ None known.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] T-741 carries an `## Updates` section in the position the template defines.
-- [ ] `fw audit --section compliance` no longer reports T-741 under the missing-Updates check.
-- [ ] The reason the section was absent is stated — whether T-741 predates the template change or was created by a path that does not apply the template — so the answer distinguishes a one-off from a class.
+- [x] T-741 carries an `## Updates` section in the position the template defines.
+- [x] `fw audit --section compliance` no longer reports T-741 under the missing-Updates check.
+- [x] The reason the section was absent is stated — whether T-741 predates the template change or was created by a path that does not apply the template — so the answer distinguishes a one-off from a class.
 
 ## Verification
 
@@ -134,6 +134,9 @@ None known.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+grep -q '^## Updates' /opt/832-Workflow-designer/.tasks/active/T-741-vendored-tree-omits-tools-entirely--5-ve.md
+.agentic-framework/bin/fw audit --section compliance 2>&1 > /tmp/.t746-audit.out; ! grep -q "T-741" /tmp/.t746-audit.out
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -174,6 +177,16 @@ None known.
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-09-24 — one-off confirmed, not a class
+- **What changed:** filing assumed the missing heading might be a template-version gap
+  affecting other tasks too. A direct population check (0 of 681 completed tasks, 0 of the
+  other 154 active tasks missing `## Updates`) showed T-741 was the sole instance — the
+  template (`.tasks/templates/default.md:186`) has carried the heading throughout, so no
+  second task needs the same repair.
+- **Plan impact:** none — the fix stayed a single-file edit, no broader sweep needed.
+- **Triggered:** nothing further; recorded the one-off finding inline in T-741 itself so a
+  future reader does not have to re-derive it.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -202,4 +215,17 @@ None known.
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-746-ra-037-task-file-t-741-has-no-updates-se.md
 - **Context:** Initial task creation
 
-grep -q '^## Updates' /opt/832-Workflow-designer/.tasks/active/T-741-vendored-tree-omits-tools-entirely--5-ve.md
+### 2026-09-24T21:55:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0c5ad799
+- **Timestamp:** 2026-09-24T21:56:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-24T21:56:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
