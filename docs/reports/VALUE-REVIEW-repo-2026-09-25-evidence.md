@@ -1462,3 +1462,65 @@ EVIDENCE was not just wrong about existence, it was wrong about existence of *wi
 - AEF-side seam telemetry / `/designer/app` access logs: operator did not answer whether these
   exist (per this worker's brief) — recorded again here as ABSENT-not-negative, not re-asked.
 
+
+---
+
+## Round 3b — seam evidence gathered by the orchestrator (facts only, no classification)
+
+Collected by the dispatching session, not by a GATHERER worker, because it required posting to
+the TermLink sidecar — outside a read-only worker's remit. Same rule applies: **facts with
+citations, no classes assigned.** Windows are activity-based where stated.
+
+### S-1 · The 832↔AEF sidecar has a reader failure ON BOTH ENDS
+
+| # | Data point | Citation | Kind |
+|---|---|---|---|
+| S-1a | 832 posted three consults to AEF (@16 2026-09-22 19:40, @17 21:34, @18 22:12) on `sidecar:999-Agentic-Engineering-Framework` | channel offsets 16–18 | structure |
+| S-1b | AEF replied to all three on 2026-09-23, to `inbox:cacc73ea32b121dd/832-Workflow-designer` — offsets 0 (asks 1–3), 4 (H3), 9 (CTL-029 + reviewer closure), 27 (T-3444 upstream) | inbox offsets 0/4/9/27 | usage |
+| S-1c | **Those replies were unread for ~2 days.** The dispatching session asserted in writing, twice (to the operator and to AEF at @19), that they were unanswered | sidecar @19, retracted at @20 | friction |
+| S-1d | An escalation ladder fired continuously and was not consumed: **nudges reached rung 4 with 10 attempts**, across 3 separate conversations, each reading "Run `fw sidecar inbox` to read it" | inbox offsets 3,5,8,11,13–26,30–35 | friction |
+| S-1e | **The mirror-image defect is recorded by the counterparty.** AEF's drive 7 found 832's clause-2 answer had "sat unread for weeks because that rail's consumer (framework-agent-systemd, 3bba15e681b3a078) has no reader"; registered as their **OBS-482** | inbox offset 0 | friction |
+| S-1f | The two failures differ in mechanism: AEF's rail had **no consumer at all**; 832's inbox **has a consumer that does not look**. A delivered-and-unread message is indistinguishable, from the sender's side, from a dropped one | derived from S-1b/S-1e | structure |
+| S-1g | Ground-rule instance: *"a channel cannot report its own failures."* The sidecar reported successful delivery throughout the ~2-day window in which nothing was consumed | prompt ground rules; S-1b–d | structure |
+
+**NON-USE DIAGNOSIS — `fw sidecar inbox` as an item (evidence for each reading; reading NOT assigned):**
+- **A BROKEN** — no evidence found. Messages were delivered, stored, and retrievable on demand; the nudge generator worked and escalated correctly.
+- **B NEVER WIRED** — partial. The producing side (nudge emission) is wired; no automated consumer surfaces inbox content into a session. Nothing polls it.
+- **C UNDISCOVERABLE** — evidence for. The nudge text names the exact remedy (`fw sidecar inbox`) and was emitted 10× per conversation without being acted on; `.claude/settings.json` contains no hook that surfaces it; CLAUDE.md's Session Start Protocol does not mention the sidecar inbox.
+- **D UNMEASURED** — evidence for. No instrumentation records whether an inbox was ever read; "unread for 2 days" was established only by reading the ladder afterwards, not by any counter.
+- **E NOT WANTED** — evidence against: the seam is mandated ("contacting 999-AEF is MANDATED, not gated"), the replies were materially load-bearing (see S-2), and the counterparty escalated rather than giving up.
+- **Intent evidence:** strong. Serves F3 AEF_INTEGRATION (weight 9). Referenced by the arc-002 EWCR contract seam.
+
+### S-2 · What the unread replies contained (each item independently actionable)
+
+| # | Data point | Citation | Kind |
+|---|---|---|---|
+| S-2a | **T-826 is unblocked.** AEF ruled: use 832's own T-213 values — additive `aef:workflowMeta kind=` with CLOSED enum `{documentation, work-plan}`; 832 owns the vocabulary; `lifecycle\|pipeline` is a different axis (run shape) and must NOT be folded into `kind`. T-826 is `status: captured`, parked precisely awaiting this | inbox offset 0; `.tasks/active/T-826-*` | value |
+| S-2b | **CTL-029 upstreamed** as AEF T-3444, commit `d325112a5`. 832's `.vendor-divergence.yaml` entry for `audit.sh` can drop on next `fw upgrade` — which is operator-gated, so the entry persists until then | inbox offset 27 | structure |
+| S-2c | Counterparty confirmed bidirectionally; `EWCR-ARC0-ATTEST-832` is keyed in no code path (free) | inbox offset 0 | structure |
+| S-2d | **`arc:ewcr-governed-delivery` does not resolve on AEF's side.** Their EWCR arc is arc-019 (`ewcr-arc0-contract-evidence`), Arc 0 only; they have **no initiative-level arc object**. They propose a `peer_correlation` entry in arc-019 so the value resolves via a checkable record on both sides. Their acceptance is explicitly PROVISIONAL pending their operator | inbox offset 4 | structure |
+| S-2e | Reviewer-closure request registered as AEF **OBS-486** with 832's numbers (REVIEWER-CLOSEABLE 0 / AGENT-SELF 130 / OPERATOR-ONLY 212). The delegation-boundary change is their operator's Sovereign question | inbox offset 9 | structure |
+| S-2f | AEF's fetch of 832's two review documents **failed twice** across the project boundary: a peer-side worker refused an unverifiable authorization, then a model-API safeguard classifier blocked the transfer prompt. Now a one-command operator action on their T-3389 | inbox offset 9 | friction |
+
+### S-3 · Seam questions posted and OPEN — these cap DELETE confidence
+
+Posted to `sidecar:999-Agentic-Engineering-Framework` @19 (2026-09-25), **unanswered at the time
+the JUDGE round was dispatched**:
+
+1. Which of 832's **24 rendered corpus maps** (`examples/aef-processes/rendered/`) does AEF actually consume?
+2. Which of 832's exported contracts have ever been **exercised** on AEF's side?
+3. Does AEF hold any **realization/adoption data** for the seam?
+4. Does anything on AEF's side **call into 832's `tools/` instruments**?
+
+**Why this is a hard cap, not a caveat:** the review's DELETE CHECK 5 is *"No external consumer
+(incl. consumer projects / fleet usage)."* Question 4 is the only instrument that can satisfy
+it for `tools/`, and question 1 the only one for the corpus. Both are unanswered. Per the
+ground rule **"no data is not zero"**, absence of an answer is NOT evidence of no consumer.
+
+### S-4 · Data still ABSENT after three rounds
+
+| Source | Status | Note |
+|---|---|---|
+| AEF-side seam telemetry | **ABSENT** | not reachable from this repo (T-559 read-side allowlist refuses `/opt/999-AEF` from Bash); requested from the counterparty, open |
+| `/designer/app` access logs or analytics | **ABSENT** | operator asked twice, not answered; recorded as absent, **not** as a negative answer |
+| `.context/audits/bvp-realization.jsonl` | **ABSENT** | consequence: **no prior value review's predictions have ever been checked against outcome** — four reviews, zero realization checks |
