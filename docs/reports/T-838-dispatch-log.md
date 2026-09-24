@@ -264,3 +264,76 @@ above, left in place, not authored or edited by hand.
 
 No task files, source files, config, or fabric cards were touched or edited by hand.
 
+---
+
+## Worker vr0925j1 — round 4 of 4 (JUDGE, final round)
+
+- **Worker name:** `vr0925j1`
+- **UTC start:** not measured — arrived inline in the invoking message, no reliable timestamp
+  capture point before the first tool call. Not fabricated, per the standing instruction carried
+  by every prior round in this file.
+- **UTC end:** `Thu Sep 24 11:32:50 PM UTC 2026` (`date -u`, run before writing this record).
+- **Own prompt file sha256:** not available — this worker's dispatch prompt arrived inline in the
+  invoking message, not as a readable path on disk, same gap every prior round in this file
+  recorded for the same reason.
+- **Dispatch mechanism:** cannot self-determine whether this invocation ran via
+  `fw termlink dispatch --task T-838` or directly. Not observable from inside, not claimed either
+  way — same standing instruction as rounds 1–3.
+
+### What this worker judged
+
+Read the full evidence file (1,526 lines: three GATHERER rounds plus the orchestrator's Round 3b
+seam addendum) and the confirmed yardstick supplied inline. Classified every evidence-backed item
+into KEEP / DELETE / REFACTOR / ADD / INVESTIGATE per the review's Phase 4 rules, applying the
+DELETE CHECKS literally (all seven, on each DELETE candidate) and the NON-USE DIAGNOSIS readings
+(A–E) before assigning any non-KEEP class. Result: 11 KEEP (named only), 1 DELETE
+(`t233-gallery.png` — the only candidate to clear all seven DELETE checks; every other candidate
+with an absence-of-use signal was blocked by DELETE CHECK 5, no external consumer, itself capped
+by the open AEF seam questions the orchestrator's Round 3b logged as unanswered), 5 REFACTOR, 6
+ADD, 7 INVESTIGATE. Wrote `docs/reports/VALUE-REVIEW-repo-2026-09-25.md` with all 12 required
+sections, a findings table with Counter-evidence and a pre-registered, checkable "Expected effect"
+per row, a data-gaps section naming what each gap unlocks, 7 contradictions (including one this
+worker's own dispatch brief introduced — the wrong KNOWN EVIDENCE claim about `policy/prompts/`/
+`agents/dispatch/` absence, corrected by round 3 but conflated here with a still-genuinely-absent
+project-root capability registry, kept as two separate findings rather than merged), and 6
+Sovereign questions, each with a recommendation but no decision.
+
+Re-verified three specific evidence claims directly against the live repo, because the
+classification hinged on them and each was cheap and safe-listed: (1) `docs/designer/schema.md`'s
+last-commit date (`git log -1 --format=%ai`, confirmed 2026-07-04, matches evidence D-9b
+verbatim); (2) `t233-gallery.png`'s reference count (`grep -rl` across `.md` files excluding this
+review's own report, confirmed zero, matches evidence D-16); (3) `fw fabric drift`'s unregistered-
+component list (confirmed 13, none under `.claude/`, matches evidence D-11's citation and
+independently confirms F-04's premise that `.claude/` is missing from fabric coverage entirely,
+not merely present in the already-known 13-unregistered set). All three commands were read-only
+and on the safe-command allowlist (`git log`, `grep`, `fw fabric drift`); no write, no Bash
+command outside that allowlist was attempted.
+
+### What this worker did not reach
+
+Did not re-open the 358-row per-file `tools/` table beyond the aggregate counts and the 5 named
+zero-reference files already in the evidence file. Did not independently query `fw healing
+patterns`, `fw costs`, or any source already logged ABSENT/not-queried by the GATHERER rounds —
+input was the evidence file plus the yardstick, not a license to re-gather. Did not attempt to
+resolve the 25-vs-26 misnamed-test-file discrepancy between round 1/2 and round 3 — recorded side
+by side in §10 of the JUDGE report as unreconciled, per the ground rule against silently
+preferring the newest reading.
+
+### Gates/friction encountered this round
+
+None refused. Three read-only, safe-listed commands were run for direct verification (above); no
+Tier 0 command was attempted; no bypass flag was used; `fw inception decide` was never run or
+grepped for, including in negated form, per the standing hard constraint every round in this file
+has honored.
+
+### Repo writes made by this worker
+
+Exactly two files, both within this worker's explicit write allowlist:
+
+1. `docs/reports/VALUE-REVIEW-repo-2026-09-25.md` — created, all 12 Phase 5 sections.
+2. `docs/reports/T-838-dispatch-log.md` — this section, appended.
+
+No task files, source files, config, or fabric cards were touched or edited by hand. No `fw audit`
+or other side-effecting command was run this round — only the three read-only verification
+commands named above.
+
