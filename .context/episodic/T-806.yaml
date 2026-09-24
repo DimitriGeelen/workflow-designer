@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-806: Exclude examples/aef-processes/rendered/ from every tool's default sweep
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-24T21:45:01Z
+# ============================================================================
+
+task_id: T-806
+task_name: "Exclude examples/aef-processes/rendered/ from every tool's default sweep"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T12:17:14Z
+completed: 2026-09-24T21:44:51Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-09-24T23:43:38+02:00
+last_commit: 2026-09-24T23:44:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  refuse unrecognized flags in bake-clean-layout.py instead of silently absorbing them. register regression test in component fabric. pin the control-case ref instead of using HEAD
+
+# Key outcomes
+outcomes:
+  - 'Every tool under `tools/` that walks the map corpus is enumerated, with the walk root each one uses recorded in the task'
+  - 'Each such tool either excludes `examples/aef-processes/rendered/` by default, or requires an explicit opt-in flag to touch it'
+  - 'A `--help` or `--dry-run` invocation of every enumerated tool writes nothing anywhere under `examples/aef-processes/rendered/` (proven by mtime comparison before/after, not by reading the code)'
+  - 'A regression test asserts the guard, and fails if a tool is added that sweeps the path by default'
+  - 'The control case is included: the test must fail when the guard is removed, so a passing run means the guard works rather than the test being vacuous'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-24 — guard scope: validate flags, don''t wall off the default bake'
+    chose: 'treat the gap as "unrecognized flags are silently swallowed," not "the tool''s documented default (no args → bake everything) is itself unsafe." Fixed by validating argv against a closed flag set (refuse on anything else) and giving `--help`/`--dry-run` real no-write behaviour, while leaving the no-args-bakes-everything contract untouched.'
+    rationale: 'the actual incident was a `--help` invocation being absorbed as a no-op and falling through to a full bake — not a deliberate, intentional `tools/bake-clean-layout.py` (no args) invocation gone wrong. The tool''s whole purpose is to write into `rendered/`; the topology fix AEF asked for ("the topology, not attention, should protect the seam") is best aimed at the accidental-invocation path, not at adding friction to the tool''s one legitimate job.'
+    alternatives_rejected: ['requiring an explicit `--write`/opt-in flag even for a bare, argument-free invocation — this would satisfy AC2''s literal wording more strongly but changes the tool''s long-standing documented contract (`Usage: ... (no map args → every map ...)`, unchanged since T-101) for every legitimate caller, on the strength of an incident that was never about deliberate no-args use. Left as a follow-up for a human to decide if wanted; not done here.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t806-corpus-sweep-guard-controls.yaml'
+  - '.tasks/active/T-806-exclude-examplesaef-processesrendered-fr.md'
+  - 'tools/bake-clean-layout.py'
+  - 'tools/_t806-corpus-sweep-guard-controls.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-24T23:43:38"
+    action: 'T-806: refuse unrecognized flags in bake-clean-layout.py instead of silently absorbing them'
+  - time: "2026-09-24T23:43:59"
+    action: 'T-806: register regression test in component fabric'
+  - time: "2026-09-24T23:44:46"
+    action: 'T-806: pin the control-case ref instead of using HEAD'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 3447 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3447
+  commits: 3
+  files_changed: 4
+  lines_added: 304
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-806-exclude-examplesaef-processesrendered-fr.md
+generated_by: context-agent-hybrid

@@ -9,10 +9,10 @@ description: >
   out of every tool's default sweep' — the topology, not attention, should protect
   the seam. Audit every tool that walks the corpus and make that path opt-in.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: [tools/bake-clean-layout.py, tools/_t806-corpus-sweep-guard-controls.py]
 related_tasks: [T-807]
@@ -21,8 +21,8 @@ related_tasks: [T-807]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T12:17:14Z
-last_update: '2026-09-23T16:50:14Z'
-date_finished:
+last_update: 2026-09-24T21:44:51Z
+date_finished: 2026-09-24T21:44:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -293,3 +293,15 @@ a control case: the same harness against the pre-fix source (`git show HEAD:...`
 
 ### 2026-09-22T12:17:57Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-373749a9
+- **Timestamp:** 2026-09-24T21:44:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-24T21:44:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
