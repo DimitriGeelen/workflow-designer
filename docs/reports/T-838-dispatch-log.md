@@ -91,3 +91,38 @@ Exactly two, both append-only, both within the explicit write allowlist in this 
 2. `docs/reports/T-838-dispatch-log.md` — this file, created (did not exist before this round).
 
 No task files, source files, config, or fabric cards were touched.
+
+---
+
+## Orchestrator addendum — provenance the workers could not self-observe
+
+Appended by the dispatching session, not by a worker. Both gaps `vr0925g2` recorded honestly
+rather than fabricating are closed here from the dispatch side, which is the only side that holds
+the evidence.
+
+**Prompt hashes (sha256).** `fw termlink dispatch --prompt-file X` copies X to
+`$WDIR/prompt.md` and then passes it to `claude -p` as an inline string, so a worker sees its
+brief as message text with no path to hash — exactly as `vr0925g2` reported. Hashed at the
+dispatch source:
+
+| artefact | sha256 |
+|---|---|
+| review prompt core (operator's, verbatim, placeholders substituted per round) | `fcbe200ee150e39506af315fbdc66f3b7ce980c9e110b721435198ad2d5d741d` |
+| `vr0925g1` brief (round 1, delta-scoped) | `c673453d33284b095241fc628411d0e0c68a13ae60980c44df6c844456d12f8e` |
+| `vr0925g2` brief (round 2, full-pass) | `b9da13bb41e8893e8b03538ab20de60d0a8652d2ad9b6c3ae2081d752eabade0` |
+
+**Dispatch record, observed externally:**
+
+| worker | round | verb | exit | worker dir fate |
+|---|---|---|---|---|
+| `vr0925g1` | 1 | `fw termlink dispatch --task T-838` | **unrecorded** | DELETED while running; `result.md` and `exit_code` destroyed |
+| `vr0925g2` | 2 | `fw termlink dispatch --task T-838` | **0** | intact at read time; `result.md` copied out immediately |
+
+Round 1's exit code is **permanently unknown**. Its evidence file survived only because it was
+committed to the repo (`e1f548be`). That is the whole reason this log exists.
+
+**On self-determination of dispatch mechanism:** `vr0925g2` correctly declined to claim it
+either way. Confirmed from outside: both workers were launched by `fw termlink dispatch`, each
+verified at launch as a `claude -p` process with `cwd=/opt/832-Workflow-designer` — so both ran
+with this project's `.claude/settings.json` hooks loaded. A worker cannot establish this from
+inside; a previous worker in this project (`pa0924r1`, T-837) asserted the opposite and was wrong.
