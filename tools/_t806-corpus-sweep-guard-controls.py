@@ -17,11 +17,13 @@ run_driver/write_back/mint_store_version, then asks one question per case: did
 write_back get called? That isolates the gate from the (expensive, unrelated)
 pipeline it gates.
 
-CONTROL CASE (T-806 AC5): the same harness runs against the PRE-FIX source
-(git show HEAD:tools/bake-clean-layout.py, i.e. the working tree before this
-task's edit) with `--help`. That version's guard does not exist, so write_back
-DOES get called — proving this test would have caught the original incident,
-not just that it passes against the fixed code.
+CONTROL CASE (T-806 AC5): the same harness runs against the PRE-FIX source,
+pinned at PRE_FIX_REF (the parent of the commit that introduced the flag
+guard — NOT `HEAD`, which is the fixed version from the moment the fix is
+committed and would silently turn this into fixed-vs-fixed on every later
+run) with `--help`. That version's guard does not exist, so write_back DOES
+get called — proving this test would have caught the original incident, not
+just that it passes against the fixed code.
 
 Exit 0 = all pass; exit 1 = any failure (P-011 gate reads this).
 """
@@ -35,6 +37,13 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, "tools", "bake-clean-layout.py")
 RENDERED = os.path.join(ROOT, "examples", "aef-processes", "rendered")
+
+# Pinned, not HEAD: HEAD is the fixed version from the moment the fix commit
+# lands, which would make the "control" compare fixed-vs-fixed on every run
+# after that moment and pass for the wrong reason. Pin to the parent of the
+# commit that introduced the guard so the control stays a real pre-fix source
+# forever, independent of how far HEAD has since moved.
+PRE_FIX_REF = "93fc39cf^"
 
 results = []
 
@@ -111,11 +120,18 @@ def main():
     # all). --check never called write_back before or after T-806.
 
     # --- Control case: the PRE-FIX source, same harness, same --help case ---
-    old_src = subprocess.run(["git", "-C", ROOT, "show", "HEAD:tools/bake-clean-layout.py"],
-                              capture_output=True, text=True)
+    old_src = subprocess.run(
+        ["git", "-C", ROOT, "show", "%s:tools/bake-clean-layout.py" % PRE_FIX_REF],
+        capture_output=True, text=True)
     if old_src.returncode != 0 or not old_src.stdout.strip():
         check("control: retrieved pre-fix source from git", False,
-              "git show failed: %s" % old_src.stderr.strip())
+              "git show %s failed: %s" % (PRE_FIX_REF, old_src.stderr.strip()))
+    elif "FLAGS = (" in old_src.stdout:
+        # The pin itself could rot (force-push, history rewrite) into pointing
+        # at a commit that already has the guard — which would make this
+        # control vacuous (fixed-vs-fixed again) without ever failing loudly.
+        check("control: pinned ref is genuinely pre-fix (no FLAGS guard present)", False,
+              "PRE_FIX_REF=%s already contains the guard — pin has rotted, update it" % PRE_FIX_REF)
     else:
         with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as fh:
             fh.write(old_src.stdout)
