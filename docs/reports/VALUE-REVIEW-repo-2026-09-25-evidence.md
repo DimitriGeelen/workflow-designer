@@ -493,3 +493,233 @@ Filled in above at D-2 once the run completed (142 passed / 9 failed / rc=1 / 10
 `2a841f3f`, appended to `tests/.run-history.tsv` as its row 3). Kept as a heading for traceability
 with how this file was assembled — no additional content beyond what D-2 already states.
 
+---
+
+## Round 2 — full-pass coverage
+
+**Round 2 of 4 (GATHERER only), worker `vr0925g2`, dispatched via `fw termlink dispatch --task
+T-838`.** Same role constraints as round 1: Phases 0–3 only, no classification, no
+recommendations, class-shaped words below are quotations. This section **extends** the file above
+— round 1's content is left unchanged. Where this round's findings sit alongside round 1's, they
+are cross-referenced, not merged.
+
+**Mandate for this round, per the operator's correction relayed in this worker's dispatch:**
+*"process all again and scan all folders"* — a full pass, not a delta, with specific instruction
+to close round 1's coverage gap: **`.claude/` received zero references in round 1's evidence
+file**, despite being explicitly named in the review prompt's Phase 2 inventory list (gates) and
+being the actual hook/enforcement wiring the whole CLAUDE.md governance model depends on.
+
+### Folder-by-folder coverage this round
+
+| Folder | Examined this round | Depth |
+|---|---|---|
+| `.claude/` | **Yes — new this round** | full: `settings.json` (all hook entries), `settings.local.json`, `commands/resume.md`, git-tracked status of each file |
+| `.fabric/` | Yes | targeted: searched for any `.claude`-named component card (see D-11) |
+| `dist/` | Yes — new this round | full file listing, sizes, `MANIFEST.yaml` read in full |
+| `vendor/designer/` | Yes — new this round | full listing + git log for both files |
+| `build/` | Yes — new this round | full recursive listing (27 files: 24 `.bpmn` + `customer-refund.bpmn` + `designer.html` + `index.html`) |
+| `.editor-versions/` | Yes — new this round | listing + tracked/untracked split (181 tracked, 15 untracked `vN.png` files pending) |
+| `.playwright-mcp/` | Yes — new this round | full listing, size, age range, cross-repo reference count |
+| root-level loose PNGs | Yes — new this round | tracked/untracked status, reference search, per-file git log |
+| `.mcp.json` | Yes — new this round | full read |
+| `.framework.yaml` | Yes — new this round | full read (surfaced D-12) |
+| `policy/` | Re-confirmed | listing only (2 files, matches round 1) |
+| `examples/` | Re-confirmed | directory-depth listing only (51 files, 4 top subdirs) — full corpus counts still not re-walked (carried gap from round 1) |
+| `tools/` | Sampled | 15-file random reference-count sample (see D-13); not a full orphan sweep |
+| `scripts/`, `src/`, `tests/`, `.tasks/`, `.context/`, `.agentic-framework/` | Not independently re-examined this round | round 1's coverage stands; see "Not reviewed" below |
+
+### D-10. `.claude/` — the enforcement wiring, inventoried for the first time in this review series
+
+`.claude/` contains exactly 3 files, 2 git-tracked:
+
+- **`.claude/settings.json`** (tracked) — the hook wiring CLAUDE.md's entire "Automated
+  Monitoring" and gate sections describe in prose. Verified by direct read, not by CLAUDE.md's
+  description of it:
+  - `PreCompact` → `fw hook pre-compact`
+  - `SessionStart` (matcher `compact`, matcher `resume`) → `fw hook post-compact-resume` (both)
+  - `PreToolUse`, 9 matcher blocks: `EnterPlanMode`→`block-plan-mode`; `Write|Edit|Bash`→
+    `check-active-task`; `Write|Edit`→`check-human-ac-tick`; `Bash`→`check-tier0`; `Agent`→
+    `check-agent-dispatch`; `Write|Edit|Bash`→`check-project-boundary`; `Write|Edit|Bash`→
+    `budget-gate`; `TodoWrite|TaskCreate|TaskUpdate|TaskList|TaskGet`→`block-task-tools`;
+    `mcp__termlink__.*`→ **not an `fw hook` call at all** — it invokes
+    `tools/_t420-rail-attribution-gate.py` directly, a project-local script outside the
+    `.agentic-framework/` vendored tree, on every TermLink MCP call.
+  - `PostToolUse`, 7 matcher blocks: two empty-matcher (`""`, i.e. all tools) entries —
+    `checkpoint post-tool` and `loop-detect` — plus `Bash`→`error-watchdog`, `Task|TaskOutput`→
+    `check-dispatch`, `Write`→`check-fabric-new-file`, `Write|Edit`→`commit-cadence`, and a
+    second empty-matcher entry → `audit-task-tools`.
+  - `permissions.deny`: `EnterWorktree`, `ExitWorktree`, `Bash(git worktree:*)` — git worktree use
+    is denied project-wide at the settings layer, independent of any `fw` gate.
+- **`.claude/commands/resume.md`** (tracked) — the `/resume` slash command definition. Text
+  differs from the `resume` **skill** listed in this session's system reminder (same name,
+  different source — the skill list shows a plugin/skill named `resume-full` too, "Pick Up Where
+  We Left Off"). Not cross-checked for behavioural drift between the command file and the skill
+  this round (gap).
+- **`.claude/settings.local.json`** (present on disk, confirmed **not git-tracked** — matched by
+  a rule in `/root/.config/git/ignore` at the *global* gitignore level, not this
+  project's `.gitignore`, per `git check-ignore -v`) — a permissions allowlist (58 entries, mostly
+  `mcp__termlink__*` read verbs and `mcp__playwright__*` browser verbs) plus
+  `enabledMcpjsonServers: [context7, playwright, termlink]`. Machine-local by design (global
+  ignore rule, not a project decision) — recorded for completeness, not a repo item to classify.
+
+**Why this matters as a coverage finding, not yet a verdict:** every Tier-0/G-020/budget-gate
+behaviour round 1 observed directly (T-838's own G-020 block, the `check-active-task.sh` line
+numbers cited) is *triggered* from this file. Round 1 read the downstream script
+(`.agentic-framework/agents/context/check-active-task.sh`) but never the dispatcher that wires it
+to specific tool matchers. No behavioural gap was found this round (the wiring matches what round
+1 observed happening) — the gap was purely in round 1's evidence file having zero citations to the
+file that causes it.
+
+### D-11. Component fabric has zero cards for `.claude/`, corroborating and extending the round-1 gap
+
+`find .fabric/components -iname "*claude*"` → **empty, 0 results**. `.fabric/` (411 component
+cards, per round 1's Phase 1b table) — the project's own "structural topology map of every
+significant file" (CLAUDE.md, Component Fabric section) — has **no card for `.claude/settings.json`
+or any file under `.claude/`**. This is not just round 1's evidence-file blind spot; it is the same
+blind spot in the project's own self-maintained structural map. `fw fabric drift` (round 1's Phase
+0 baseline) reported 13 unregistered files and 0 orphaned — not independently re-checked this round
+whether `.claude/settings.json` is among those 13 "unregistered" (would require reading the drift
+tool's unregistered-file list in full, not captured verbatim by round 1 or this round — data gap).
+
+### D-12. `CONTEXT_WINDOW` is configured to 800000, not the 300000 CLAUDE.md calls "default"
+
+`.framework.yaml:9` → `CONTEXT_WINDOW: 800000`. CLAUDE.md's own "Context Budget Management (P-009)"
+section states the escalation thresholds "at the default 300K window" (225K/255K/285K) and
+explicitly warns "any absolute number written here is a derived illustration that goes stale the
+moment the window changes — which is exactly what happened (T-614)." This project's actual
+configured window (800000) is 2.67× that illustrative default. The section is self-aware of this
+exact failure mode (T-614 is cited as a prior instance) but the illustrative numbers are still the
+only concrete numbers printed in the file — an agent skimming CLAUDE.md rather than running
+`checkpoint.sh budget` would compute thresholds against the wrong base by construction. Not a new
+class of defect (the section already names the risk), but this round confirms the risk is live
+right now in this project's own config, not hypothetical.
+
+### D-13. `dist/` — 17 releases kept, 13.5MB, no pruning mechanism found
+
+`dist/` holds every released version from 0.1.0 through 0.13.0 (17 `.html` files, 13,527,127 bytes
+total, `du`/`ls -la` this round) plus `MANIFEST.yaml`. `MANIFEST.yaml` (full read) records
+`latest`, `artifact`, `sha256`, `version`, `released`, `src_commit`, `supersedes` for the *current*
+release only — it has a `supersedes` chain field but **no retention or pruning instruction**; nothing
+in `docs/` found this round documents whether old `dist/*.html` files are meant to be pruned,
+archived elsewhere, or kept forever (searched `docs/**/*.md` for "retention"/"prune" — the 4 hits
+found are all *other* topics' retention policies — TermLink message retention, T-530 handover
+growth, T-617/T-762 unrelated — not one is about `dist/`). Growth is monotonic and unbounded on
+current evidence: 17 versions in ~2.5 months (`0.1.0` release date not captured this round;
+`0.13.0` released 2026-09-22 per MANIFEST). `dist/` is git-tracked (`git ls-files dist | wc -l` →
+17, confirmed earlier in this session) so every historical `.html` is also permanently in git
+history in addition to the working tree.
+
+### D-14. `vendor/designer/` — the local "consumer intake" pin is one release behind `dist/`'s latest
+
+`vendor/designer/` holds exactly 2 files: `aef-workflow-designer-0.8.0.html` and
+`aef-workflow-designer-0.12.0.html`. Git log on the 0.12.0 file shows it was added 2026-09-21 by
+T-743 ("our own Watchtower now serves 0.12.0 — consumer intake"). `dist/MANIFEST.yaml` (D-13)
+shows `dist/`'s actual latest is **0.13.0**, released 2026-09-22 — one day after the vendor pin was
+last updated. Whether this is "normal lag before the next consumer-intake pass" (reading D,
+unmeasured/not-yet-run) or something further behind cannot be determined from this evidence alone
+— no task was found this round committing to a cadence for re-running consumer intake after each
+release (not searched exhaustively).
+
+### D-15. `.playwright-mcp/` — 7.2MB of git-tracked verification screenshots, referenced by ~30 task files, inconsistent destination
+
+`.playwright-mcp/` holds 76 git-tracked PNG files (`git ls-files .playwright-mcp | wc -l` → 76),
+7.2MB total (`du -sh`), spanning **2026-07-05 to 2026-09-22** (`git log --diff-filter=A` first/last
+commit dates, ~2.5 months). These are **not orphaned** — `grep -rl "playwright-mcp/"` across `.md`/
+`.py`/`.sh` files (excluding the directory itself) finds 78 hits, including `.tasks/active/` and
+`.tasks/completed/` files citing specific screenshots as Human-AC or visual-verification evidence
+(e.g. `T-233`, `T-589`, `T-756`), consistent with CLAUDE.md's "Visual Verification for UI Changes"
+protocol requiring a screenshot reference before a CSS/HTML commit. **Destination is inconsistent**,
+however (new finding, cross-referenced with D-16 below): some screenshots land in
+`.playwright-mcp/` (tracked), some in `docs/screenshots/` (tracked, 20 files per the earlier `git
+ls-files "*.png"` listing), some in `docs/reports/<task>-evidence/` or `docs/reports/assets/`
+(tracked), and some are dumped loose at repo root and **never committed at all** (D-16). No single
+documented convention for "where does a verification screenshot go" was found this round (not
+exhaustively searched — CLAUDE.md's Visual Verification section says to take and read screenshots,
+not where to save them).
+
+### D-16. Loose, untracked PNGs at repo root — screenshot destination has no enforced convention
+
+Of the 6 `.png` files sitting at the repository root (`designer-initial.png`, `t233-gallery.png`,
+`t589-populated.png`, `t598-light.png`, `t646-after.png`, `t808-header-default.png`), **only
+`t233-gallery.png` is git-tracked** (`git ls-files "*.png"` this round). The other 5 are untracked
+working-tree files (`git status --porcelain` shows `?? designer-initial.png` etc.) — never
+committed, sitting in the live working tree of the project under review. `t233-gallery.png`
+itself, the one tracked exception, was swept into an unrelated commit (`b4a783cc`, 2026-08-15,
+commit message describes a PreCompact handover, not this PNG) and has **zero references** in any
+`.md` file in the repo (checked this round). 3 of the 5 untracked files (`t589-populated.png`,
+`t598-light.png`, `t646-after.png` — each with 2 `.md` references per this round's grep) are
+referenced from `.md` files despite
+being uncommitted, meaning the *committed* documentation points at images that exist only in this
+one working tree and would 404/break for anyone who clones the repo fresh. `designer-initial.png`
+and `t808-header-default.png` have zero references anywhere and are also untracked. Alongside
+`.editor-versions/`'s 15 untracked `vN.png` files (D found in the folder-by-folder pass above) and
+`.playwright-mcp/t258-annotation-badges.png` showing as locally-modified (`M`, not committed) plus
+3 more untracked `.playwright-mcp/page-*.png` timestamped files, this round's git-status scan shows
+a **recurring pattern of screenshot artifacts generated during sessions that never reach a commit**
+— consistent with, but broader than, the pre-existing mass-deletion state in `.context/audits/cron/`
+that round 1 flagged as present at session start and not this worker's doing.
+
+### D-17. `tools/` reference sampling — no clean orphans found in a 15-file random sample, but the metric is weak
+
+A random 15-file sample of `tools/*.py` (fixed seed, reproducible) cross-referenced against
+`.md`/`.py`/`.sh`/`.yaml` files repo-wide (excluding the file's own path) found every sampled file
+mentioned **at least 5 times** elsewhere (range 5–314; the top of the range,
+`tools/yaml-to-bpmn.py` at 314 and `tools/_t358-teeth.py` at 214, are the bridge tool and a
+frequently-cited test-hygiene gate respectively). **This is a discoverability/mention count, not a
+call-graph or execution-reachability measurement** — a task file that merely *discusses* a tool
+counts the same as a CI job or test that *invokes* it. The 2026-09-20 designer-product review's
+"118 instruments... sit in `tools/` with no caller" finding (round 1's Phase 2 table, citing that
+report) was **not reproduced or falsified this round** — this sample used a different, weaker
+method (string mention, not caller analysis) and a small random sample (15 of ~415 files), so it
+neither confirms nor contradicts that finding; a proper orphan sweep (e.g. grep for each filename
+used as a **subprocess/import target**, or a `vulture`-class tool per the Data Layer A row round 1
+recorded as ABSENT) remains undone across both rounds.
+
+### DELETE-relevant evidence gathered independently this round
+
+Per the operator's explicit instruction not to treat "0 DELETE across 3 prior reviews" as settled,
+this round looked specifically for references/supersession/staleness signals, independent of the
+prior reports' conclusions:
+
+| Candidate | References found | Superseded by | Activity window | Note |
+|---|---|---|---|---|
+| `designer-initial.png` (root) | 0 | — | untracked, mtime not captured | never committed; D-16 |
+| `t233-gallery.png` (root) | 0 | — | tracked since 2026-08-15, 41 days idle | committed incidentally alongside unrelated content; D-16 |
+| `t808-header-default.png` (root) | 0 | — | untracked | never committed; D-16 |
+| `dist/aef-workflow-designer-0.1.0.html` … `0.12.0.html` (16 superseded releases) | each superseded per `MANIFEST.yaml`'s `supersedes` chain | `dist/aef-workflow-designer-0.13.0.html` (current `latest`) | releases span the full project history to date | D-13 — intent evidence (release-history/audit trail value) not ruled out; `MANIFEST.yaml`'s own `src_commit`/`released` fields suggest these are meant as an audit trail, which is a reason *for* keeping them, not against |
+| 25 of 45 `test_*.py` files (not pytest-collectible) | referenced by pytest's own default collection as 0 test functions (round 1, D-1) | — | — | carried from round 1, not re-verified this round; included here because it is the clearest existing DELETE-shaped-or-REFACTOR-shaped candidate already on record (misnamed, not necessarily unused) |
+| `vendor/designer/aef-workflow-designer-0.8.0.html` | superseded within its own 2-file set by 0.12.0 | `vendor/designer/aef-workflow-designer-0.12.0.html` | added 2026-06 era (T-296 commit, per round 1's git log sample `405a39d9`) | D-14 — a "consumer intake" simulation artifact; whether keeping the oldest historical pin has test/regression value not determined this round |
+
+No item in this table clears the DELETE CHECKS (Phase 4 gate) on this evidence alone — in
+particular, checks 2 (readings A–D ruled out) and 5 (no external consumer) are not established for
+any row here; this is deliberately left as raw material for the JUDGE, not a proposal.
+
+### Non-use diagnosis additions (Round 2)
+
+| Candidate | A Broken | B Never wired | C Undiscoverable | D Unmeasured | E Not wanted | Intent evidence |
+|---|---|---|---|---|---|---|
+| `.claude/settings.json` hook wiring | no evidence of breakage found (round 1 observed its effects firing correctly — G-020 block, budget-gate) | no — actively firing | **yes, of the file itself** — the project's own structural map (`.fabric/`) and this review series (round 1) both missed it; CLAUDE.md describes its *effects* in prose but never names the file | — | no | it is the literal mechanism CLAUDE.md's entire "Enforcement Tiers" and "Automated Monitoring" sections describe; high intent evidence |
+| Root-level untracked PNGs (5 of 6) | not applicable — not a capability | not applicable | not applicable | not applicable | possible — could be pure session litter with no one intending to keep them | mixed: 3 of 5 are referenced from committed `.md` files (broken links for fresh clones — itself an A-shaped defect in the *documentation*, not the image); 2 of 5 have zero references anywhere |
+| `dist/` old-version retention | not applicable | possible — no pruning mechanism ever built despite unbounded growth | no — `dist/` and `MANIFEST.yaml` are named in `docs/aef-designer-integration-protocol.md` per the manifest's own header comment (not independently opened this round to confirm) | — | possible — if the audit-trail read is correct, "no pruning" may be intentional, not missing | `MANIFEST.yaml`'s structured `supersedes`/`released`/`src_commit` fields look deliberately built for an audit trail, which argues for intent over neglect |
+| `vendor/designer/` 0.8.0 (older of 2 pinned files) | no | possible | no | possible — could be a deliberate "first release" baseline kept for regression comparison, not measured | no evidence found | not determined this round |
+
+### Not reviewed (Round 2 — in addition to round 1's data gaps, still standing)
+
+1. `scripts/`, `src/`, `tests/`, `.tasks/`, `.context/`, `.agentic-framework/` content were not
+   independently re-opened this round beyond what round 1 already captured — this round trusted
+   round 1's readings there and spent its budget on the folders round 1 missed or under-covered.
+2. `tools/` orphan analysis remains a sample (15 of ~415 files), not a sweep; no `vulture`-class
+   tool was run (round 1's Data Layer A gap, still open).
+3. `.claude/commands/resume.md` vs. the `resume`/`resume-full` skills' actual current text —
+   named as a possible drift pair (D-10) but not diffed this round.
+4. `docs/aef-designer-integration-protocol.md` — cited by `dist/MANIFEST.yaml`'s header comment as
+   the protocol document for the release manifest, but not opened this round to confirm it
+   documents (or fails to document) `dist/` retention.
+5. `.fabric/`'s 13 "unregistered" files (per round 1's `fw fabric drift` output) were not
+   individually listed this round to confirm whether `.claude/settings.json` is one of them (D-11).
+6. Full corpus counts for `examples/aef-processes/` and `build/gallery/` — still not re-walked
+   (carried forward from round 1's own open gap #1).
+7. All of round 1's own "Data gaps that capped confidence" (healing patterns, `fw costs`,
+   `.context/project/*.yaml` content sampling, the lost bridge-suite failure detail, AEF-side
+   telemetry) remain open — not attempted again this round.
+
