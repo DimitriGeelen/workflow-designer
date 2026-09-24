@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-807: Tag seam artefacts in release notes so AEF pins a tag, not a moving head
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-24T21:36:08Z
+# ============================================================================
+
+task_id: T-807
+task_name: "Tag seam artefacts in release notes so AEF pins a tag, not a moving head"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-22T12:17:18Z
+completed: 2026-09-24T21:35:59Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-09-24T23:35:31+02:00
+last_commit: 2026-09-24T23:35:55+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  record examples/aef-processes/rendered/ state per release tag. register scripts/seam-manifest.sh in component fabric
+
+# Key outcomes
+outcomes:
+  - 'The release process records, at each tag, the state of `examples/aef-processes/rendered/` (file list plus a content hash per file)'
+  - 'The record lives in the release notes or an artefact the notes reference, and is reachable from the tag alone — no branch head lookup required'
+  - 'AEF can resolve "which seam bytes does tag `designer-vX.Y.Z` carry" from the tag without fetching a moving branch'
+  - 'Verified against the existing tag series rather than only the next one, so the answer is not empty for everything already released'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-24 — record mechanism: computed-on-demand, not incrementally-stored'
+    chose: 'a read-only script (`scripts/seam-manifest.sh <ref>`) that computes the seam manifest live from git''s object store for any ref, plus a checked-in doc (`docs/releases/seam-manifest.md`) backfilled now for all 16 existing `designer-v*` tags and appended manually after each future cut.'
+    rationale: 'the seam directory''s history was already fully recorded — by git itself, at every past commit and tag. The actual gap was a *queryable, tag-addressable* answer, not a missing record. A tool that reads git history directly satisfies AC4 (verified against the whole existing series) without any backfill risk, since nothing about past commits needs to change. Keeping `dist/`, `VERSION`, and `examples/aef-processes/rendered/` itself untouched avoids the hard-reversal / sovereignty-adjacent surface those paths carry (a release is a promise, G-007).'
+    alternatives_rejected: ['(a) writing per-tag manifest files into `dist/` alongside `MANIFEST.yaml` — touches the artifact AEF already pins by sha and risks conflating two different guarantees; (b) modifying `scripts/release-designer.sh`''s tag-cutting logic to auto-append the manifest at cut time — real automation is a natural follow-up, but it changes behaviour of the live release script for an external consumer (AEF) and deserves its own review rather than riding in on a build task that only needed to make the record queryable. Documented as a manual step instead (see `docs/releases/seam-manifest.md` header) so a human decides when to automate it.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/branch-model.md'
+  - 'docs/releases/seam-manifest.md'
+  - '.fabric/components/scripts-seam-manifest.yaml'
+  - 'scripts/seam-manifest.sh'
+  - '.tasks/active/T-807-tag-seam-artefacts-in-release-notes-so-a.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-24T23:35:31"
+    action: 'T-807: record examples/aef-processes/rendered/ state per release tag'
+  - time: "2026-09-24T23:35:55"
+    action: 'T-807: register scripts/seam-manifest.sh in component fabric'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3438 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3438
+  commits: 2
+  files_changed: 5
+  lines_added: 1064
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-807-tag-seam-artefacts-in-release-notes-so-a.md
+generated_by: context-agent-hybrid
