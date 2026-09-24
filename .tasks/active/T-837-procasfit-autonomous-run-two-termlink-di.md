@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-24T21:23:12Z
-last_update: 2026-09-24T22:08:13Z
+last_update: 2026-09-24T22:11:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -83,6 +83,38 @@ visibly?** An estimator that cannot distinguish "no evidence found" from "eviden
 value" cannot support a gate that excludes work. Not an agent's call — it is a calibration
 parameter, and the mandate forbids agents adjusting those.
 
+### F-3: I verified this task against ephemeral state, and it is now permanently red
+
+Five of the seven original `## Verification` legs asserted over
+`/tmp/tl-dispatch/<worker>/{result.md,exit_code,prompt.md}`. They passed **7/7 when run** —
+that is recorded truthfully and the ACs were genuinely evidenced at the time. `/tmp/tl-dispatch`
+was then **wiped wholesale**: `pa0924r1`, `pa0924r2` and a third worker's directory all gone,
+only another project's `t247-r1-audit` left. Mechanism found: `termlink.sh:488`,
+`rm -rf "$DISPATCH_DIR"`, reachable through `fw termlink cleanup`. Re-run after the wipe:
+**5 FAIL / 2 ok.**
+
+**This repo already carries this defect by name.** T-787: *"repair probe cites an ephemeral
+scratchpad path"*. I committed it again here, in a verification block, one week later.
+
+**What was actually lost, stated plainly rather than papered over:** the dispatch-provenance
+evidence for AC1 and AC3 — the `exit_code` files and both `result.md` files — no longer exists
+and **cannot be re-verified by anyone**. Those two ACs stay ticked because they were verified
+against real evidence at the time and the commits corroborate the work; but a reader should know
+the primary evidence is gone. The `result.md` of the third worker (the value-review GATHERER)
+was destroyed *while it was still running*, so that round has no handback at all — only the
+evidence file it had already written into `docs/reports/`, which survived precisely because it
+was in the repo.
+
+The replacement legs assert only over in-repo state. They are deliberately **not** equivalents
+of the deleted ones — no leg claims to prove exit codes or worker provenance any more, because
+nothing in the repo can. Writing weaker legs that go green while implying the same proof would
+be gaming the outcome.
+
+**Generalisable rule this run earns: a worker's record must be copied into the repo before it
+is treated as evidence.** `/tmp/tl-dispatch` is shared mutable state that any session's
+`fw termlink cleanup` can remove, including out from under a live worker. Applied immediately
+to T-838: dispatch provenance is captured into a tracked file as each worker completes.
+
 ## Acceptance Criteria
 
 ### Agent
@@ -140,13 +172,24 @@ parameter, and the mandate forbids agents adjusting those.
 
 ## Verification
 
-test -s /tmp/tl-dispatch/pa0924r1/result.md
-test -s /tmp/tl-dispatch/pa0924r2/result.md
-test "$(cat /tmp/tl-dispatch/pa0924r1/exit_code)" = "0"
-test "$(cat /tmp/tl-dispatch/pa0924r2/exit_code)" = "0"
-grep -q "seam-manifest.sh" /tmp/tl-dispatch/pa0924r2/prompt.md
+# F-3 (2026-09-25): the five legs that used to live here asserted over
+# /tmp/tl-dispatch/<worker>/{result.md,exit_code,prompt.md}. They passed 7/7 when run.
+# `/tmp/tl-dispatch` was then wiped wholesale (termlink.sh:488, `rm -rf "$DISPATCH_DIR"`,
+# reachable via `fw termlink cleanup`) and all five became PERMANENTLY RED. They are not
+# restored or replaced with easier equivalents — see F-3 in the body. What follows asserts
+# only over durable, in-repo state.
 test -s docs/reports/T-837-procasfit-round-1.md
 test -s docs/reports/T-837-procasfit-round-2.md
+git log --oneline d91e4ebf~1..HEAD > /tmp/.t837-log.out 2>&1 && grep -q "T-836: work-completed" /tmp/.t837-log.out
+git log --oneline d91e4ebf~1..HEAD > /tmp/.t837-l2.out 2>&1 && grep -q "T-807: work-completed" /tmp/.t837-l2.out
+git log --oneline d91e4ebf~1..HEAD > /tmp/.t837-l3.out 2>&1 && grep -q "T-806: work-completed" /tmp/.t837-l3.out
+git log --oneline d91e4ebf~1..HEAD > /tmp/.t837-l4.out 2>&1 && grep -q "T-746: work-completed" /tmp/.t837-l4.out
+# AC2 (the chain) was proven by grepping round 2's dispatched prompt.md for "seam-manifest.sh"
+# and "93fc39cf^" — round-1-only strings. That file is gone with the rest of /tmp/tl-dispatch,
+# so the DIRECT proof is unrecoverable. This is the strongest surviving substitute and it is
+# weaker on purpose: round 2's report discusses round 1 by name and carries round 1's own
+# "18 unscored" figure, which it could only have received as input.
+grep -q "18 unscored" docs/reports/T-837-procasfit-round-2.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
