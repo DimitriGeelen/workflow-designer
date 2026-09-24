@@ -1,0 +1,22 @@
+id: scripts/seam-manifest.sh
+name: seam-manifest
+type: script
+subsystem: release
+location: scripts/seam-manifest.sh
+tags: [release, aef-seam, read-only]
+
+purpose: >
+  Read-only: computes file-list + sha256 for examples/aef-processes/rendered/ at an
+  arbitrary git ref, straight from git's object store (no checkout, no writes).
+  Backs docs/releases/seam-manifest.md, AEF's per-tag seam-pinning record (T-807).
+
+depends_on:
+  - target: examples/aef-processes/rendered
+    type: reads
+
+depended_by:
+  - target: docs/releases/seam-manifest.md
+    type: renders
+
+last_verified: 2026-09-24
+created_by: unknown
