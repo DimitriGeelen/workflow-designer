@@ -214,6 +214,16 @@ D=$(mktemp -d); sed "s#^RE_QUIET = .*#RE_QUIET = re.compile(r'grep\s+-[a-zA-Z]*q
 
 # THE CLASS ITSELF, proven not argued: a command exiting 1 while printing the success word
 # passes the piped idiom under P-011's real runner shape (eval inside an if-condition).
+#
+# T-844 CONTROL. The leg below is already DIFFERENTIALLY controlled by its sibling three lines
+# down, which asserts rc=1 for the honest form — together they prove the runner discriminates,
+# which is a complete control. _t560 cannot see that: it models PATTERN and EXISTENCE and has
+# no notion of a differential (OBS-377), so the leg counted as uncontrolled. The line below is
+# the control it CAN see, and it is worth having on its own terms: it pins the fixture string,
+# so if someone edits "3 passed, 2 FAILED" the demonstration either keeps its meaning or fails
+# loudly here instead of silently asserting nothing. Herestring, not a pipe — `echo | grep -q`
+# is the L-387 SIGPIPE shape.
+grep -q 'passed' <<< "3 passed, 2 FAILED"
 if ( eval 'out=$( { echo "3 passed, 2 FAILED"; exit 1; } 2>&1 ); echo "$out" | grep -q "passed"' ); then rc=0; else rc=1; fi; test "$rc" -eq 0
 
 # ...and the honest bare form correctly FAILS the same control.

@@ -79,6 +79,30 @@ NONZERO_EQ = re.compile(r"-eq\s+([1-9]\d*)\b|\b([1-9]\d*)\s+-eq\b")
 # is empty and `test "" -eq 0` errors — it fails LOUD, which is the whole distinction
 # this tool draws. Counting it would have made the census flag its own task and, worse,
 # would have inflated the corpus number with legs that carry no silent-failure risk.
+#
+# T-844 — WHAT THIS ACTUALLY CATCHES IS WIDER THAN ITS NAME, AND THE WIDER READING IS
+# THE RIGHT ONE. The rule is better stated as: a zero means NO WORK HAPPENED rather
+# than NO MATCH. An empty search, an empty glob, and a loop that never iterated are the
+# same defect. Measured over 37 count-eq-zero legs: 32 compare a substitution containing
+# a search, 5 compare a bare variable — and 4 of those 5 are LOOP ACCUMULATORS
+# (`n=0; for f in …/*.bpmn; do n=$((n+1)); done; test "$n" -eq 0`), which pass having
+# measured nothing when the glob matches nothing. Verified: zero iterations leaves n=0
+# and the test passes. So flagging them is correct, and an earlier proposal to exclude
+# variable-operand zeros (OBS-376) would have traded one false positive for four false
+# negatives. That proposal is withdrawn and the classifier is deliberately UNCHANGED —
+# the only genuine false positive was one leg whose `rc` is assigned in both branches of
+# an if/else, and it was given a control instead.
+#
+# TWO LIMITS OF THE CONTROL MODEL, FOUND THE SAME WAY, BOTH BIASED TOWARD FLAGGING A
+# CONTROLLED LEG (OBS-377 and T-844):
+#   - `len(p) >= 3` in control_level() means a pattern of one or two characters can NEVER
+#     earn PATTERN credit. `^_` is two. A perfectly good same-string companion leg is
+#     silently not counted, and the author has no way to tell from the output why.
+#   - EXIST_CTRL matches only -f, -s and -d, so `test -x` is not recognised even though
+#     -x implies -f.
+# Neither is fixed here (one bug, one task). Both matter more than they did, because the
+# classifier now gates closes rather than printing a report: a control it cannot see
+# blocks a close and pushes the author toward the weaker form it can.
 SEARCH_SOURCED = re.compile(r"\bgrep\b|\bfind\b|\bgit\s+(?:diff|status|ls-files)\b|\bls\b")
 
 # Existence controls on the same line.
