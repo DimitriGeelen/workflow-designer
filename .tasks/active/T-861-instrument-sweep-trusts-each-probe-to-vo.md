@@ -29,7 +29,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T23:43:21Z
-last_update: 2026-09-25T23:47:44Z
+last_update: 2026-09-25T23:48:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -302,6 +302,43 @@ test -x tools/_t861-selfdeclare-teeth.sh
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** T-851's triage reported the sweep's split as `regressed 12, dead-control 2`. Reading
+the actual output of each instrument put the truth at **6 dead / 8 regressed** — wrong by four.
+
+**Root cause:** the sweep's `dead-control` bucket was reachable only by an instrument *volunteering*
+`rc=4` (the T-666 convention). Four instruments announce their own breakage in plain English and
+exit 1: `_t542` raised a traceback, `_t568`/`_t569` print `FAIL  control: unmutated source passes
+all four legs`, `_t574` prints `ABORT: … can no longer test what it claims to test`. All four were
+filed as regressions **in the things they guard**.
+
+**Why structurally allowed:** the classifier asked the classified party. A probe that is broken is
+precisely the thing least able to report its own state correctly — and four of them demonstrated it
+by describing their breakage accurately in prose while returning the exit code for something else.
+It is the same shape as the absence census before T-843, when the detector was opt-in: coverage that
+depends on the subject's cooperation measures cooperation, not coverage.
+
+The cost was not abstract. It misled *me*, in T-851, into publishing a triage table with four rows
+in the wrong bucket — and that table is what run 4 and run 5 of this mandate selected work from.
+
+**Prevention** (distinct from the fix):
+
+- The sweep now reads the capture on a non-zero exit and reclassifies on markers **copied from real
+  output**, not phrasings invented for the occasion. Each marker is a phrase a probe emits about
+  *itself*, so it will not fire on a probe that merely mentions a control in a finding about its
+  subject.
+- The report **names the marker that fired**, so the reclassification is auditable rather than a
+  bucket a reader must trust.
+- **The over-firing direction is the one actually tested.** A classifier that moved everything to
+  `dead-control` would satisfy the headline criterion and be worse than the bug, because every
+  genuine regression would be excused. `clean_failure_stays_regressed` is in the mutation run's
+  control set for exactly that reason.
+- `rc=4` is untouched — this adds a path. An instrument that adopts the convention keeps working,
+  and nothing was changed in any probe to make the sweep's job easier: the point is that the sweep
+  must not depend on the classified party.
+- **Named and not done:** the four self-declarers should still adopt `rc=4`, because prose detection
+  is a safety net and not a contract. That is four small tasks, one per probe, and belongs with each
+  probe's own repair rather than here.
 
 ## Evolution
 
