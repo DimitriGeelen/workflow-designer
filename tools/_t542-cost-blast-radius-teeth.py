@@ -253,9 +253,26 @@ def main():
         refuse("no task templates under %s — the template-blindness leg would pass "
                "vacuously" % tpl_dir)
     tpl_text = "\n".join(t.read_text(encoding="utf-8") for t in tpls)
-    if not mod._BODY_PATH_RE.search(tpl_text):
-        refuse("no source path is named in any task template — leg 8 would pass "
-               "vacuously, since there is nothing for the subtraction to remove")
+    # T-859: was `mod._BODY_PATH_RE.search(tpl_text)`. That attribute was REMOVED by
+    # 7b5e227e (T-840's upgrade to AEF 1.7.68, 1,409 vendored files replaced — one of the
+    # six reverted-fix casualties in OBS-386), so this probe raised AttributeError instead
+    # of measuring, and the sweep read its silence as a regression in the cost axis.
+    #
+    # NOT A RENAME. The module now exposes `_PATH_TOKEN_RE`, and it is a DIFFERENT
+    # predicate: the old pattern required a real extension (py|sh|js|…|bpmn) and carried a
+    # negative lookbehind; the new one matches any slash-separated token, allows glob
+    # metacharacters, and has no lookbehind. Swapping the name in would have silently
+    # changed what this guard asks.
+    #
+    # Asking via `_candidate_paths` is better than either regex, because this guard's
+    # question is in the SUBJECT's terms, not ours: leg 8 asserts the subject does not
+    # score the templates' own paths, so the stimulus that must exist is "the subject has
+    # paths here it would consider". Re-implementing the subject's notion of a path is how
+    # a probe drifts from its runner (PL-275) — this asks the subject directly.
+    if not mod._candidate_paths({}, tpl_text):
+        refuse("the estimator's own path extraction finds nothing in any task template — "
+               "leg 8 would pass vacuously, since there is nothing for the subtraction "
+               "to remove")
     br, ev = mod.score_blast_radius({"workflow_type": "build"}, tpl_text, [])
     if br is not None:
         failures.append("leg8: the task templates' OWN text scored blast_radius=%r (%s) — "
