@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T11:50:36Z
-last_update: 2026-09-25T11:50:36Z
+last_update: 2026-09-25T11:55:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -265,13 +265,21 @@ git diff --quiet HEAD -- .claude/settings.json
 # The handover doc carries the short command, the mandatory baseline refresh, and NO bare
 # `bin/fw` — the exact defect T-846 filed against four audit mitigations this session.
 R=docs/reports/T-843-route-3-hook-handover.md; grep -q 'install-absence-hook.py' "$R" && grep -q 'enforcement baseline' "$R"
+# CONTROL first: 'bin/fw' must actually APPEAR in the doc (inside .agentic-framework/bin/fw), or
+# the count below passes vacuously on a doc that lost every fw reference.
+grep -q 'bin/fw' docs/reports/T-843-route-3-hook-handover.md
 test "$(grep 'bin/fw' docs/reports/T-843-route-3-hook-handover.md | grep -vc '\.agentic-framework/bin/fw')" -eq 0
 
 # The reversal is recorded WITH its cause, so the change of advice is traceable.
 R=docs/reports/T-843-route-3-hook-handover.md; grep -q 'recommendation reversed' "$R" && grep -q 'safe to install' "$R"
 
 # And the reversal is TRUE: the hook is silent on the task it used to nag about.
-test -z "$(printf '{\"tool_input\":{\"file_path\":\"/opt/832-Workflow-designer/.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md\"}}' | bash tools/hooks/warn-uncontrolled-absence.sh 2>&1)"
+# DIFFERENTIAL, because the gate refused the single-sided version and was right to: asserting
+# "the hook is silent on T-592" proves nothing unless the hook can speak at all, and a hook that
+# exits early on every input satisfies it perfectly. One invocation must produce output (T-022
+# still carries an uncontrolled leg) and the other must not. test -f is the control the census
+# can SEE; the differential is the one that makes the claim sound (OBS-377).
+test -f tools/hooks/warn-uncontrolled-absence.sh && d=$(printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/completed/T-022-dogfood-map--validate-task-lifecycle-wor.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh 2>&1) && c=$(printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh 2>&1) && test -n "$d" && test -z "$c"
 
 
 ## RCA
