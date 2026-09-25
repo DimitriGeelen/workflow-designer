@@ -2397,3 +2397,33 @@ learnings:
   task: T-840
   date: 2026-09-25
   context: Added via context agent
+- id: PL-339
+  learning: "A MUTATION HARNESS WITHOUT A CONTROL SET CANNOT TELL 'fix removed' FROM 'script broken', and both present as a clean kill. Measured twice on 2026-09-25, hours apart. T-849: the harness copied checkpoint.sh into a temp dir, where its FRAMEWORK_ROOT derivation no longer resolved, so the copy could not source lib/paths.sh and ALL 14 cases failed with '//lib/paths.sh: No such file' — 8 expected reds plus 6 I would have read as noise. T-850: the same shape, caught because the control set existed by then. The discriminator is cases that do NOT depend on the patch: they must stay GREEN in the mutation run, and if they go red the harness must report MUTATION SETUP BROKEN rather than success. Without that half, a mutation run's reds are unattributable. Rule: every mutation mode declares two case lists, the dependent ones that must go red and the control ones that must stay green, and checks the controls FIRST."
+  source: P-011
+  task: T-849
+  date: 2026-09-25
+  context: Added via context agent
+- id: PL-340
+  learning: "A TEST CASE THAT ASSERTS ONLY 'rc != 0' OVER A FIXTURE THAT ALREADY FAILS IS TESTING THE FIXTURE, NOT THE FEATURE — and it goes green against unpatched code. T-850, measured: 2 of 12 cases survived the mutation run. 'only_needs_a_pattern' asserted just a non-zero exit, and an unpatched sweep ignores argv entirely and still exits non-zero because the fixture holds a deliberately failing stub. 'filtered_still_classifies' asserted the output contains 'regressed 1', which a FULL run of the same fixture also prints. Both would have shipped as green decoration over a feature they never touched. The repair is to assert FEATURE-SPECIFIC EVIDENCE: the refusal message text, the PARTIAL framing, the exact new sentence — something the code path under test is the only producer of. Generalisation: when a fixture is built to contain failures, every assertion over it must name something only the new behaviour emits, because the fixture supplies the failure signal for free."
+  source: P-011
+  task: T-850
+  date: 2026-09-25
+  context: Added via context agent
+- id: PL-341
+  learning: "A GAUGE WITH NO PLAUSIBILITY TEST ON ITS OWN NUMBER REPORTS 'HEALTHY' FOR 'UNMEASURED', and the discriminator is usually already in the data. T-849: checkpoint.sh's budget reader rejected a cache three ways — writer self-marked unknown, too old, wrong session — all of which ask 'is this the RIGHT cache' and none of which asks 'could this NUMBER be true'. tokens was read only to print it, so a cache written fresh by the current session carrying tokens: 0 passed everything and printed level: ok against a true 98,461. The same write already carried baseline_tokens: 88847, what the session had paid before its first turn, so tokens below baseline is ARITHMETICALLY IMPOSSIBLE rather than merely odd — the differential control was sitting unused in the file being read. Two rules. (1) When validating a cached measurement, test the VALUE for possibility, not only the envelope for freshness. (2) Look for a second number in the same record that constrains the first; a contradiction between two fields is measurable where a single suspicious field is only a guess. Also: the hole was open exactly when the reader is used — budget exists for /resume, /resume runs after compaction, compaction is when the cache holds a zero. A defect whose window coincides with its call site is the main path, not an edge case."
+  source: P-009
+  task: T-849
+  date: 2026-09-25
+  context: Added via context agent
+- id: PL-342
+  learning: "A CHECK TOO EXPENSIVE TO RUN IS A CHECK THAT IS NOT RUNNING, AND ITS SILENCE IS INDISTINGUISHABLE FROM HEALTH. Affordability is a coverage property, not a convenience. T-850, measured: the instrument sweep costs about 11 minutes and ran all 65 teeth scripts or none, so nobody paid it to check one thing — and its first full run this session reported 12 regressed instruments and 2 dead controls, none recent. One (_t542) was throwing AttributeError instead of measuring; one (_t400) was recorded in another task's ACs as fixed by T-668 and is red. The 11 minutes were not incidental to the 12 regressions, they were the cause. The remedy was not making it faster — the cost is the instruments' own runtime — but making a PART of it runnable, so per-instrument feedback costs about a second. Two corollaries. (1) When a guard's runtime makes it all-or-nothing, add a subset mode before adding more coverage to it. (2) A subset mode must be a DIFFERENT CLAIM, never a cheaper way to say the same thing: it must disclose what it skipped and must not emit the sentence a full run emits, or it becomes a way to manufacture a green over a chosen population."
+  source: P-009
+  task: T-850
+  date: 2026-09-25
+  context: Added via context agent
+- id: PL-343
+  learning: "SMALL BATCHES ARE RIGHT WHEN EACH STEP IS REVISABLE AND WRONG WHEN EACH WRITE IS IRREVERSIBLE — for append-only records, measure the whole population first and write once. T-669, measured: the drain appended companion legs to 28 archived task files under PD-308, which permits appending and forbids altering. Running ALL 55 candidate legs BEFORE writing anything is what revealed that 14 of them are RED as they stand — three assert over /tmp files that no longer exist, one greps .tasks/active/ for a task that moved to completed/, one is a git diff --cached that empties on commit, and nine assert a pattern now PRESENT in the file they claim it absent from. In batches of ten, that class would have surfaced in batch three, AFTER companions had been appended in batches one and two — and PD-308 makes those un-removable, so the mistake would have been permanent. The general rule inverts normal incremental practice: incrementalism buys the ability to correct course, which is worthless when the medium forbids correction. Where writes cannot be revised, front-load the measurement and take one pass. Also, and separately: 14 of 55 archived legs failing on re-run is its own finding — these tasks closed with those legs green and nothing has re-run them since (PL-332)."
+  source: P-011
+  task: T-669
+  date: 2026-09-25
+  context: Added via context agent

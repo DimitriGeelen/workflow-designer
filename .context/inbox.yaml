@@ -1856,3 +1856,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-385
+  text: "The close prints 'fw fix-learned T-XXX' as its follow-up IN THE SAME OUTPUT THAT MAKES THAT COMMAND UNRUNNABLE. Measured twice today, T-849 and T-850. Sequence: 'fw task update T-XXX --status work-completed' succeeds, the task leaves active/, focus goes null, and the closing output ends with a LEARNING PROMPT block saying 'Consider: fw fix-learned T-XXX'. That command is then refused by check-active-task with 'BLOCKED: No active task', because closing the last focused task cleared the focus the command requires. The framework is instructing the agent to do something it has just made impossible, at the only moment the instruction is in view. This is a sharper instance of the class in the stranded-closure observation from T-840, and the same self-sealing shape as the audit row whose remedy writes where the audit does not read: following the printed instruction can never succeed. The workaround is to re-focus some OTHER open task purely to satisfy the gate, which is focus drift dressed up as compliance and attributes the learning capture to an unrelated task. Candidate fixes, no recommendation between them: (a) fix-learned accepts a completed task id without requiring an active focus, since it writes a learning rather than doing work; (b) the close captures the learning itself, prompting for the text before it clears focus; (c) the prompt is not printed at all when it cannot be followed, which is worse for memory but at least not misleading. Cost of leaving it: two learnings from today existed only in commit bodies until a task was re-focused specifically to file them."
+  captured: 2026-09-25T16:08:16Z
+  context_task: T-669
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
