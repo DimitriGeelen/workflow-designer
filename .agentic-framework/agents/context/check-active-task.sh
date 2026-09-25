@@ -30,8 +30,29 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FRAMEWORK_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$FRAMEWORK_ROOT/lib/paths.sh"
 source "$FRAMEWORK_ROOT/lib/config.sh"
+# Anchored AC section extraction (T-3148, sibling to
+# lib/verification-port.sh:extract_verification_block, T-3134)
+source "$FRAMEWORK_ROOT/lib/section-extract.sh" 2>/dev/null || true
 fw_hook_crash_trap "check-active-task"
-FOCUS_FILE="$PROJECT_ROOT/.context/working/focus.yaml"
+
+# T-3038 (OBS-291): resolve focus through the shared helper so this gate reads
+# the same file `fw context focus` wrote. Under FW_SESSION_SCOPED_FOCUS=1 that is
+# a session-local focus.<key>.yaml; otherwise the shared focus.yaml, unchanged.
+#
+# The READER falls back to the shared file when the scoped one does not exist yet
+# — and that fallback is deliberate, not defensive padding. A dispatched worker
+# that never calls `fw work-on` should still be governed by the parent's active
+# task rather than being refused for having no focus of its own. Inheriting is
+# safe (read-only on the shared file); only WRITING it was ever the hijack.
+_resolve_focus_file() {
+    local f
+    f=$(fw_focus_file "$PROJECT_ROOT")
+    if [ ! -f "$f" ] && [ -f "$PROJECT_ROOT/.context/working/focus.yaml" ]; then
+        f="$PROJECT_ROOT/.context/working/focus.yaml"
+    fi
+    printf '%s\n' "$f"
+}
+FOCUS_FILE=$(_resolve_focus_file)
 
 # Read stdin (JSON from Claude Code)
 INPUT=$(cat)
@@ -54,9 +75,86 @@ except:
 # the original inline block so every hook shares one implementation). No-op for
 # non-worktree sessions. Recompute FOCUS_FILE after, since it caches PROJECT_ROOT.
 fw_reanchor_from_hook_stdin "$INPUT"
-FOCUS_FILE="$PROJECT_ROOT/.context/working/focus.yaml"
+FOCUS_FILE=$(_resolve_focus_file)   # T-3038: re-resolve, PROJECT_ROOT just moved
+
+# --- Drift-target extraction (T-1730; hoisted out of the gate by T-2880) ---
+# Answers ONE purely syntactic question: does this command name a task?
+# It reads only $1 — no focus, no filesystem — which is why it can run in the
+# Bash fast path far above the point where focus.yaml is parsed (line ~186).
+#
+# T-2880: that hoist is the whole fix. The fast path used to answer "does this
+# need an active task?" with `exit 0`, and that single early return silently
+# answered a SECOND, independent question — "is this attributed to the right
+# task?" — with "don't care". The two are not the same question:
+#
+#     needs a task?          about the SESSION state  (is any work in progress)
+#     attributed correctly?  about the COMMAND        (does it name another task)
+#
+# A command can be safe on the first and wrong on the second. `fw context
+# add-learning "x" --task T-OTHER` needs no active task (T-2878 — it is what
+# the framework prescribes right after completion, which is the exact moment
+# focus is null) and is still misattributed if focus points elsewhere.
+# Collapsing both into one `exit 0` made drift pattern 2 unreachable the moment
+# T-2878 safe-listed the capture verbs — a gate that stopped being consulted
+# while every test stayed green (L-555).
+#
+# Kept as ONE definition on purpose: the gate below consumes this result rather
+# than re-deriving it, so the two call sites cannot drift apart.
+_fw_extract_drift_target() {
+    local c="$1"
+    # Pattern 1: fw task update T-NNNN (mutation)
+    if [[ "$c" =~ (^|[[:space:]])(bin/)?fw[[:space:]]+task[[:space:]]+update[[:space:]]+(T-[0-9]+) ]]; then
+        printf '%s' "${BASH_REMATCH[3]}"; return 0
+    fi
+    # Pattern 2: fw context add-* --task T-NNNN
+    # T-2879: anchored, for the same reason T-2833 anchored pattern 3 below. The prior
+    # form was two independent regexes ANDed — "fw context add-" present anywhere AND
+    # "--task T-N" present anywhere — so the extracted id need not belong to the
+    # add-* invocation at all. `fw context add-learning "x"; fw task list --task T-9`
+    # extracted T-9 as the add-*'s target. Requiring the flag to follow the verb with
+    # no chain separator (| ; &) between them ties the id to its own command.
+    #
+    # 832 rail 474 §4 reported this class against their vendored copy and I answered
+    # that it did not reproduce here. That answer was wrong, and wrong in an avoidable
+    # way: I measured only `fw context add-*` shapes WITHOUT a --task flag, which
+    # cannot trip pattern 2 at all. Corrected on the rail.
+    #
+    # RESIDUAL, unfixed and not fixable with bash regex — identical to the one T-2833
+    # documented for pattern 3: a command whose QUOTED PAYLOAD contains a literal
+    # `fw context add-learning ... --task T-N` still matches, because the regex cannot
+    # see quote nesting. That is how this was hit live (a probe script listing example
+    # invocations as test strings). The T-1890 bypass mechanisms cover it, but it means
+    # rail posts and doc writes quoting real commands can still trip. Severity revised
+    # UP from "low" per 832 rail 478 §4: for agents whose medium is prose-containing-
+    # commands this is not an edge case — it blocked them on a rail post and mis-parsed
+    # a task name in two consecutive sessions.
+    if [[ "$c" =~ (^|[[:space:]])(bin/)?fw[[:space:]]+context[[:space:]]+add-[a-z-]+[^|\;\&]*--task[[:space:]=]+(T-[0-9]+) ]]; then
+        printf '%s' "${BASH_REMATCH[3]}"; return 0
+    fi
+    # Pattern 3: git commit ... -m/--message "T-NNNN: ..." (the canonical
+    # T-XXX: prefix marker). T-2833: anchored to the actual -m/--message flag
+    # value, not "leftmost T-N: anywhere in the string". The prior form was
+    # two independent regexes ANDed together — "git commit" present anywhere
+    # AND a T-N: pattern present anywhere — so the extracted id need not
+    # belong to the commit's own message at all. That produced a fail-open
+    # false negative (prose naming the focused task ahead of a commit that
+    # actually targets a different one read as "no drift") and a false
+    # positive (a grep pattern or earlier command's text supplying a T-N: the
+    # real commit doesn't target). Anchoring to the flag matches the P-002
+    # commit-msg convention the id is meant to describe in the first place.
+    # Known residual limit, not fixed here: a doc-write whose payload
+    # literally contains a working `git commit -m "T-N: ..."` example still
+    # matches, since bash regex cannot see quote-nesting. See T-2833.
+    if [[ "$c" =~ (^|[[:space:]])git[[:space:]]+commit ]] && \
+       [[ "$c" =~ (^|[[:space:]])(-[a-zA-Z]*m[a-zA-Z]*|--message)(=|[[:space:]]+)[\'\"]?(T-[0-9]+): ]]; then
+        printf '%s' "${BASH_REMATCH[4]}"; return 0
+    fi
+    return 0
+}
 
 # --- Bash tool: safe-command fast path (T-650) ---
+DRIFT_TARGET=""
+SAFE_ALLOWED=0
 if [ "$TOOL_NAME" = "Bash" ]; then
     BASH_CMD=$(echo "$INPUT" | python3 -c "
 import sys, json
@@ -74,34 +172,111 @@ except:
             ;;
     esac
 
-    # T-2410 case 2: universal --help / --version exemption.
-    # Any command with --help or --version is read-only by convention (the flag
-    # short-circuits all real work in every fw subcommand and 99% of other
-    # tools). Without this, `fw upstream --help` blocked at the work-completed
-    # focus gate purely because `upstream` is not in the safe-list — but the
-    # user just wanted to read help. Matches at any position so `cd … && fw
-    # upstream --help` is also exempt.
+    # Source safe-command allowlist.
+    # T-3231 moved this ABOVE the --help exemption, which now consults
+    # has_bash_write_pattern. Sourcing only defines functions, so the move is
+    # semantically inert for every branch below.
+    source "$SCRIPT_DIR/lib/safe-commands.sh" 2>/dev/null || true
+
+    # T-2410 case 2: --help / --version exemption. NARROWED by T-3231.
+    #
+    # The intent is still T-2410's and still correct: `fw upstream --help` was
+    # blocked at the work-completed focus gate purely because `upstream` is not
+    # safe-listed, when the user only wanted to read help. Position-independent
+    # matching is deliberate so `cd … && fw upstream --help` is exempt too.
+    #
+    # WHAT WAS WRONG (arc-012 review C2 / W2-F1). This was an unconditional
+    # `exit 0` ahead of EVERY gate — the first real one is ~40 lines below — on a
+    # regex that matches at any position, including inside a quoted argument. So
+    # `rm -rf /important/data --help` was exempt, and so was
+    # `git commit -m "document the --help flag"`. Any command could opt out of
+    # governance by appending seven characters. Reproduced with a control leg:
+    # bare `rm -rf /important/data` gated, the same command plus `--help` exempt.
+    #
+    # THE FIX IS TWO INDEPENDENT LEGS, because there are two distinct escapes:
+    #   1. Decide on a QUOTE-STRIPPED view — kills the flag hiding in a quoted
+    #      payload (`git commit -m "… --help …"`). This is exactly what the
+    #      T-2936 bootstrap branch ~40 lines below already does, and for the same
+    #      reason; it was simply never applied here.
+    #   2. Refuse the exemption when the stripped command carries a WRITE
+    #      PATTERN — kills `rm -rf … --help`. A real help invocation does not
+    #      write, so this costs the legitimate case nothing.
+    # Neither leg subsumes the other: leg 1 alone still exempts `rm -rf … --help`,
+    # leg 2 alone still exempts the quoted-payload commit.
+    #
+    # FAILS CLOSED. If safe-commands.sh did not source, `has_bash_write_pattern`
+    # is undefined, the `type` test is false, and the whole condition is false —
+    # so the command falls through to the gates rather than being exempted. Do
+    # not rewrite this as `! { type … && has_bash_write_pattern …; }`, which
+    # inverts to TRUE when the function is missing and silently reopens C2.
     if [[ "$BASH_CMD" =~ (^|[[:space:]])(--help|--version)([[:space:]]|$) ]]; then
-        exit 0
+        _help_unquoted=$(printf '%s' "$BASH_CMD" | sed "s/'[^']*'//g; s/\"[^\"]*\"//g")
+        if [[ "$_help_unquoted" =~ (^|[[:space:]])(--help|--version)([[:space:]]|$) ]] \
+           && type has_bash_write_pattern &>/dev/null \
+           && ! has_bash_write_pattern "$_help_unquoted"; then
+            exit 0
+        fi
     fi
 
-    # Source safe-command allowlist
-    source "$SCRIPT_DIR/lib/safe-commands.sh" 2>/dev/null || true
+    # T-2880: ask the attribution question BEFORE honouring the safety answer.
+    # Purely syntactic, no focus read — see _fw_extract_drift_target above.
+    DRIFT_TARGET=$(_fw_extract_drift_target "$BASH_CMD")
+
+    # T-2936: task-bootstrap exemption, decided BEFORE the write-pattern chain.
+    #
+    # The bootstrap branch further down (~:198, T-2052) is only reachable when no
+    # write pattern matched, and its own comment says so. That ordering assumes a
+    # write pattern means a write. It does not when the operator is inside a QUOTED
+    # PAYLOAD: `fw task create --name "count 11->10"` matches `[^2>&]>[^>&]`, so
+    # creating a task is classified as a file write and blocked for having no active
+    # task — while the block message names that very command as the way out. With
+    # focus null there is then no route back inside the sanctioned path. Hit live
+    # filing T-2935; proven by changing one character class (` to ` was allowed).
+    #
+    # Decided on a QUOTE-STRIPPED view so the exemption cannot swallow a real
+    # redirect: `fw task create --name 'x' > /tmp/out` still has its `>` outside
+    # quotes after stripping, still matches, still falls through to the gate.
+    # Both failure directions of the stripper are safe: under-stripping leaves the
+    # metacharacter and blocks (today's behaviour, loud); an unbalanced quote fails
+    # to match the strip pattern at all and also blocks. It can only fail toward
+    # BLOCKING, which is the direction the T-2880 note above argues for.
+    #
+    # L-432 (T-2052) is this class keyed on a command's first WORD; this is the
+    # same class keyed on its quoted PAYLOAD — the hazard the pattern-3 comments
+    # at :102-108 already record for other branches, unfixed for this one.
+    if [[ "$BASH_CMD" =~ (^|[[:space:]]|/)fw[[:space:]]+(work-on|task[[:space:]]+create|context[[:space:]]+focus|inception)([[:space:]]|$) ]]; then
+        _bootstrap_unquoted=$(printf '%s' "$BASH_CMD" | sed "s/'[^']*'//g; s/\"[^\"]*\"//g")
+        if ! { type has_bash_write_pattern &>/dev/null && has_bash_write_pattern "$_bootstrap_unquoted"; }; then
+            exit 0
+        fi
+    fi
 
     # Check write patterns FIRST — even "safe" commands with redirects are writes
     if type has_bash_write_pattern &>/dev/null && has_bash_write_pattern "$BASH_CMD"; then
         # Command has write patterns — fall through to active-task check
         :
     elif type is_bash_safe_command &>/dev/null && is_bash_safe_command "$BASH_CMD"; then
-        # Safe command with no write patterns — allow without task.
+        # Safe command with no write patterns.
         #
-        # T-392: DEFERRED, not immediate. This `exit 0` used to fire ~240 lines above
-        # the focus-drift gate, so every command on the safe-list bypassed drift
-        # detection entirely. `fw context add-learning --task T-OTHER` is on that list,
-        # which is why drift pattern 2 was not merely weak but UNREACHABLE — no anchor
-        # fix could rescue a block that never executed (T-607 widened the anchor and
-        # said so explicitly). The exit now happens after the gate, at the marked site.
-        _deferred_safe_exit=1
+        # T-2880: only take the early return when the command names NO task.
+        # When it does, safety is established but attribution is not, so we
+        # record the safety verdict and fall through to the drift gate, which
+        # needs focus.yaml and therefore cannot run this high in the file.
+        #
+        # WHICH WAY THE OMISSION FAILS is the reason SAFE_ALLOWED is consumed at
+        # exactly ONE checkpoint (the null-focus branch, ~line 300) and not at
+        # the stale-focus / G-013 / status checks. A flag honoured at one site
+        # fails toward BLOCKING if that site is ever missed — the deadlock comes
+        # back loudly, with a remedy in the block message. A flag that three
+        # sites must each remember fails toward PERMITTING: one site forgets and
+        # the gate silently stops enforcing, which is the exact failure this
+        # task exists to repair. Do not widen the flag's reach without inverting
+        # that argument first. (832 rail 478 §1 reached the same fork from the
+        # other side and named the deciding property; this is the answer.)
+        if [ -z "$DRIFT_TARGET" ]; then
+            exit 0
+        fi
+        SAFE_ALLOWED=1
     elif [[ "$BASH_CMD" =~ (^|[[:space:]]|/)fw[[:space:]]+(work-on|task[[:space:]]+create|context[[:space:]]+focus|inception)([[:space:]]|$) ]]; then
         # Task-bootstrap commands always allowed (T-2052) — they ESTABLISH the
         # active task, so gating them on one is a deadlock; the "No active task"
@@ -117,6 +292,123 @@ except:
     # FILE_PATH stays empty for Bash — exempt-path check won't match,
     # so we go straight to the task-exists check.
 fi
+
+# --- T-2987: explain WHY the advertised remedy did not apply -----------------
+#
+# Every block below names a bootstrap command (`fw work-on` / `context focus`)
+# as the unblock path, and the exemption at :194 and :227 honours exactly that.
+# But the exemption is guarded by has_bash_write_pattern, which classifies the
+# WHOLE command line while the exemption is about ONE command in it. So a `>`
+# anywhere on the line — on an unrelated chained command, or merely capturing
+# the bootstrap command's own output — voids it:
+#
+#     fw work-on T-016                 -> allowed
+#     fw work-on T-016 && fw doctor    -> allowed
+#     fw work-on T-016 > out.txt 2>&1  -> BLOCKED, and the block re-advertises
+#                                         the very command that just failed
+#
+# That is a loop: identical message, no signal to change SHAPE rather than
+# target. Reported from a fresh consumer whose focus pointed at a completed
+# T-001 (T-2987), and hit in-session before that.
+#
+# The guard is NOT the bug and is not relaxed here — :213-222 argues for failing
+# toward blocking, and L-547 (T-2834) says a fast-path exemption must classify
+# the whole command. Widening it would admit `fw work-on X > .claude/settings.json`.
+# The bug is that six sites advertise a remedy without its precondition. This
+# emits the precondition; permissions are unchanged.
+_bootstrap_shape_hint() {
+    local cmd="${1:-}"
+    [ -n "$cmd" ] || return 0
+    [[ "$cmd" =~ (^|[[:space:]]|/)fw[[:space:]]+(work-on|task[[:space:]]+create|context[[:space:]]+focus|inception)([[:space:]]|$) ]] || return 0
+    type has_bash_write_pattern &>/dev/null || return 0
+    has_bash_write_pattern "$cmd" || return 0
+
+    echo "" >&2
+    echo "  ⚠ Your command already contains that bootstrap command — it was blocked" >&2
+    echo "    anyway because the line also has a redirect, 'rm', 'tee', a heredoc or" >&2
+    echo "    an in-place sed. The bootstrap exemption is refused for the whole line" >&2
+    echo "    when any of those is present, even when it belongs to a different" >&2
+    echo "    command on the line (or is just capturing output)." >&2
+    echo "" >&2
+    echo "    Run the bootstrap command BARE and alone first, then re-run the rest:" >&2
+    echo "      $(_fw_cmd) work-on T-XXX          <- nothing else on the line" >&2
+    echo "" >&2
+    echo "    (Chaining itself is fine — 'fw work-on T-X && fw doctor' is allowed." >&2
+    echo "     It is the write pattern that voids the exemption, not the ';' or '&&'.)" >&2
+    echo "" >&2
+    echo "    This is a message, not a permission: the redirected form stays blocked" >&2
+    echo "    by design (T-2987, L-547)." >&2
+}
+
+# Bash blocks show an empty "Attempting to modify:" — FILE_PATH is populated only
+# for Write/Edit. That blank was load-bearing in the T-2987 loop: the message never
+# showed WHICH command was blocked, which is the one datum that makes a stray
+# redirect visible. Show the command for Bash, the path otherwise.
+_blocked_subject() {
+    if [ -n "${BASH_CMD:-}" ]; then
+        printf 'Blocked command: %s' "$(printf '%s' "$BASH_CMD" | tr '\n' ' ' | head -c 160)"
+        printf '\n%s' "$(_bash_gate_reason)"
+    else
+        printf 'Attempting to modify: %s' "${FILE_PATH:-}"
+    fi
+}
+
+# T-3096 / G-084: say which of the gate's TWO questions actually refused.
+#
+# The Bash arm asks (1) does this match a write pattern, and (2) is its base command on
+# the read-only allowlist. Every block message downstream is phrased for question 1 —
+# "Cannot modify files under a completed task", "before editing source files" — but most
+# real blocks come from question 2. Measured in one session: `sed -n RANGE file`,
+# `timeout 30 termlink agent inbox | head` and `./x.sh status | tail` were each told they
+# had attempted a modification. None writes.
+#
+# That is not a cosmetic problem. A gate that names a cause the agent knows to be false
+# teaches the agent that the gate's stated contract is unreliable, and the documented
+# consequence is that the agent routes around it rather than through the sanctioned
+# remedy (L-399 / T-1890 — a bypass contract that fails on one leg produced three weeks
+# of silent circumvention). Naming the real reason costs two lines and keeps the gate
+# credible on the occasions it is right.
+#
+# Emitted from _blocked_subject so all eight block sites inherit it with no new call
+# site to forget — the same "consume at exactly one checkpoint" argument the SAFE_ALLOWED
+# comment at :231 makes, for the same reason.
+_bash_gate_reason() {
+    [ -z "${BASH_CMD:-}" ] && return 0
+    type has_bash_write_pattern &>/dev/null || return 0
+
+    if has_bash_write_pattern "$BASH_CMD"; then
+        printf 'Why: it matches a file-write pattern (a redirect, rm, tee, sed -i, or a heredoc).'
+        return 0
+    fi
+
+    # No write pattern: the refusal came from recognition, not modification. Name the
+    # segment that was not recognised — with a chained command that is the one datum
+    # that turns "why is my read blocked?" into a one-second answer.
+    local _seg _bad=""
+    if type _fw_chain_split &>/dev/null && type _fw_single_command_is_safe &>/dev/null; then
+        # T-3223: `-d ''` — _fw_chain_split emits NUL-terminated segments, so a
+        # quoted argument containing a newline stays one segment. Reading this
+        # as lines is what made a multi-line commit message report five prose
+        # fragments as "not on the read-only allowlist".
+        while IFS= read -r -d '' _seg; do
+            [[ "$_seg" =~ ^[[:space:]]*$ ]] && continue
+            if ! _fw_single_command_is_safe "$_seg"; then
+                _bad=$(printf '%s' "$_seg" | sed 's/^[[:space:]]*//' | head -c 60)
+                break
+            fi
+        done < <(_fw_chain_split "$BASH_CMD")
+    fi
+
+    if [ -n "$_bad" ]; then
+        printf 'Why: this command writes nothing the gate can detect. It was gated because\n'
+        printf '     "%s" is not on the read-only allowlist\n' "$_bad"
+        printf '     (agents/context/lib/safe-commands.sh), so the gate cannot prove it is a read.\n'
+        printf '     If it genuinely only reads, that is a gap in the allowlist worth filing.'
+    else
+        printf 'Why: this command writes nothing the gate can detect, but it is not recognised\n'
+        printf '     as read-only (agents/context/lib/safe-commands.sh).'
+    fi
+}
 
 # Extract file path from tool input (supports file_path and notebook_path for NotebookEdit)
 FILE_PATH=$(echo "$INPUT" | python3 -c "
@@ -136,11 +428,45 @@ case "$FILE_PATH" in
     */settings.json)
         # Only block if it's the Claude Code settings file
         if echo "$FILE_PATH" | grep -q '\.claude/settings\.json$'; then
+            # T-3050: name the sanctioned route. This refusal used to end at
+            # "requires human review" and offer no mechanism, so every agent that
+            # tripped it escalated to the operator for a JSON paste-in — for a
+            # capability that has shipped since T-1189. A gate with no exit is a
+            # gate people route around.
+            # Not `local` — this case block is at script top level, not in a
+            # function. Consumer projects have no bin/ at their root (T-1257),
+            # and the framework repo ALSO vendors itself at .agentic-framework/,
+            # so test for the framework repo FIRST or it advertises the consumer
+            # path to itself. FRAMEWORK.md + bin/fw at root is the discriminator.
+            if [ -f "$PROJECT_ROOT/FRAMEWORK.md" ] && [ -x "$PROJECT_ROOT/bin/fw" ]; then
+                _fw="bin/fw"
+            elif [ -x "$PROJECT_ROOT/.agentic-framework/bin/fw" ]; then
+                _fw=".agentic-framework/bin/fw"
+            else
+                _fw="fw"
+            fi
             echo "" >&2
-            echo "BLOCKED: Cannot modify .claude/settings.json — this controls enforcement hooks." >&2
+            echo "BLOCKED: Cannot hand-edit .claude/settings.json — it registers the enforcement hooks." >&2
             echo "" >&2
-            echo "Modifying this file could disable task gates, Tier 0 checks, and budget enforcement." >&2
-            echo "Changes to hook configuration require human review." >&2
+            echo "Editing it directly could disable task gates, Tier 0 checks, and budget enforcement," >&2
+            echo "and a hand-written entry is easy to get subtly wrong (bad event name, absolute path" >&2
+            echo "that breaks on the next machine, a duplicate that runs the hook twice)." >&2
+            echo "" >&2
+            echo "To ADD a hook, use the governed path — it is idempotent, validates the event name," >&2
+            echo "writes atomically, and survives regeneration by fw upgrade:" >&2
+            echo "" >&2
+            echo "  cd $PROJECT_ROOT && $_fw hook-enable --name <hook> --event PreToolUse --matcher 'Write|Edit'" >&2
+            echo "  cd $PROJECT_ROOT && $_fw hook-enable --script /abs/path/to/hook.sh --event PreToolUse --matcher 'Bash'" >&2
+            echo "" >&2
+            echo "  --name   for framework hooks under agents/context/;  --script for project-local ones." >&2
+            echo "  Add --dry-run first to print the resulting JSON without writing." >&2
+            echo "" >&2
+            echo "To REMOVE or REWIRE an existing hook, stop and ask the operator. That is a" >&2
+            echo "sovereignty decision, not a configuration change." >&2
+            echo "" >&2
+            echo "Scope note: B-005 covers Write/Edit on this path only. It does not read the file's" >&2
+            echo "content, so it cannot tell an addition from a deletion — which is why additions are" >&2
+            echo "routed through the CLI above rather than permitted here." >&2
             echo "" >&2
             echo "Policy: B-005 (Enforcement Config Protection)" >&2
             exit 2
@@ -163,7 +489,7 @@ esac
 # before T-001-T-005 complete). Exempt the auto-memory directory
 # globally, regardless of user prefix or task state.
 case "$FILE_PATH" in
-    */.claude/projects/*/memory/*)
+    */.claude/projects/*/memory/*|*/.gemini/antigravity-cli/brain/*)
         exit 0
         ;;
 esac
@@ -174,16 +500,6 @@ if [ ! -d "$PROJECT_ROOT/.context/working" ]; then
 fi
 
 # If no focus file exists: block if project is initialized, allow if bootstrap (T-002)
-#
-# T-392: a deferred safe command settles here. With no focus file there is no focus to
-# drift from, so the gate below has nothing to say and the safe-list verdict stands.
-# Without this the deferral would have converted "ls is always allowed" into "ls is
-# blocked until you run context init" — a safe command must not acquire a task
-# precondition just because the drift gate now runs later.
-if [ ! -f "$FOCUS_FILE" ] && [ -n "${_deferred_safe_exit:-}" ]; then
-    exit 0
-fi
-
 if [ ! -f "$FOCUS_FILE" ]; then
     if [ -f "$PROJECT_ROOT/.framework.yaml" ]; then
         # Project is initialized but governance not active — block
@@ -240,35 +556,30 @@ fi
 # allowlist entry would short-circuit that. `git add` (task-agnostic, no drift)
 # stays in is_bash_safe_command.
 #
-# T-638: the match used to be a raw-string `=~ git[[:space:]]+commit` over the
-# WHOLE command. It therefore admitted every clause of `git commit -m "..."; X`,
-# admitted a `| tee` the write check above had already flagged (that check falls
-# through rather than exiting, so it reached here anyway), and admitted an
-# arbitrary unknown binary whose QUOTED ARGUMENT merely contained the words. The
-# predicate now judges each clause of the quote-stripped command; the paragraph
-# above is the argument for why that, and not "contains a commit", is the rule.
-# Fails CLOSED if the library did not load — this exemption runs with no task, so
-# an absent predicate must block, never allow.
+# T-3221: the test is `is_commit_checkpoint_command`, NOT a substring match for
+# the words. The predecessor asked whether the command CONTAINED "git commit"
+# and so admitted `git commit -m "…" ; rm -rf …`, `… | tee f`, and even
+# `somebinary --flag "please git commit this"` — an unknown binary let through
+# because a quoted argument said the words. See safe-commands.sh for the
+# measured matrix. The `--no-verify` exclusion and the write-pattern refusal now
+# live inside that predicate, so this branch and the T-3179 one below cannot
+# drift apart on either.
 if [ -z "$CURRENT_TASK" ] && [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ]; then
-    if type _sc_is_commit_only_command &>/dev/null && \
-       _sc_is_commit_only_command "$BASH_CMD" && \
-       ! [[ "$BASH_CMD" =~ (^|[[:space:]])(--no-verify|-n)([[:space:]]|$) ]]; then
+    if type is_commit_checkpoint_command &>/dev/null && \
+       is_commit_checkpoint_command "$BASH_CMD"; then
         echo "NOTE: no active task — allowing 'git commit' to checkpoint completed work (T-2054). commit-msg hook still enforces T-XXX." >&2
         exit 0
     fi
-fi
-
-# T-392: a deferred safe command settles here when focus is NULL. Drift is defined as
-# "target ≠ focus", so with no focus there is no drift to detect and nothing downstream
-# can have an opinion — the safe-list verdict stands.
-#
-# This guard is not cosmetic. Without it the deferral re-created exactly the T-390
-# deadlock it was built on top of: `fw note`, `fw context add-*`, `fw handover` and even
-# `git status` were blocked under null focus, because the deferred exit sits below this
-# block. Caught by the T-390 deadlock controls in tools/_t392-safelist-shadow-gate.py,
-# which is why that AC named the verbs instead of trusting an adjacent measurement.
-if [ -z "$CURRENT_TASK" ] && [ -n "${_deferred_safe_exit:-}" ]; then
-    exit 0
+    # T-2880: the SINGLE consumption point for the fast path's safety verdict.
+    # Reached only by a command that is safe-listed AND names a task — safety was
+    # established above, attribution could not be (focus is null, so there is
+    # nothing to be attributed to). This is what keeps T-2878 intact: after
+    # `--status work-completed` nulls focus, `fw context add-learning --task T-X`
+    # is exactly what the framework prescribes, and it must not deadlock.
+    if [ "$SAFE_ALLOWED" = "1" ]; then
+        echo "NOTE: no active task — allowing safe-listed '$(printf '%s' "$BASH_CMD" | head -c 60)' (T-2878). Drift not checked: focus is null." >&2
+        exit 0
+    fi
 fi
 
 if [ -z "$CURRENT_TASK" ]; then
@@ -278,27 +589,9 @@ if [ -z "$CURRENT_TASK" ]; then
     echo "To unblock:" >&2
     echo "  1. Create a task:  $(_fw_cmd) task create --name '...' --type build --start" >&2
     echo "  2. Set focus:      $(_fw_cmd) context focus T-XXX" >&2
-    # T-662: the post-completion commit reaches here and reads as a deadlock — G-047 was
-    # registered as "jointly unsatisfiable" on exactly this evidence. It is not one.
-    # `git add` is safe-listed and `git commit` has the T-2054 null-focus exemption, and
-    # they may share a line: `git add x; fw git commit -m "T-1: c"` is ADMITTED.
-    # What defeats the exemption is a $(...) substitution on the same line as the commit —
-    # T-638 judges each clause of the quote-stripped command, and the substitution's
-    # contents become another clause, which is not commit-only. Measured, all under null
-    # focus (tools/_t662-...sh): `echo hi; fw git commit` -> allowed;
-    # `echo "n=$(wc -l < f)"; fw git commit` -> BLOCKED; drop the commit and the same
-    # substitution is allowed again. Name that, or the next agent concludes it is stuck
-    # and reaches for a borrowed focus or a Tier-2 bypass — which is what happened at T-643.
-    if [ "$TOOL_NAME" = "Bash" ] && [[ "$BASH_CMD" =~ git[[:space:]]+commit ]]; then
-        echo "" >&2
-        echo "Committing a just-completed task is NOT blocked, even with no focus (T-2054)." >&2
-        echo "What blocks here is a \$(...) substitution sharing the line with the commit:" >&2
-        echo "its contents count as another clause (T-638). Put the commit on its own line:" >&2
-        echo "     git add <explicit paths>" >&2
-        echo "     $(_fw_cmd) git commit -m \"T-XXX: ...\"" >&2
-    fi
+    _bootstrap_shape_hint "${BASH_CMD:-}"
     echo "" >&2
-    echo "Attempting to modify: $FILE_PATH" >&2
+    echo "$(_blocked_subject)" >&2
     echo "Policy: P-002 (Structural Enforcement Over Agent Discipline)" >&2
     exit 2
 fi
@@ -306,12 +599,7 @@ fi
 # --- Session stamp validation (T-560) ---
 # If focus was set in a PREVIOUS session, block and advise.
 # This prevents stale focus from granting a free pass to new sessions.
-# T-392: skipped for a deferred safe command. Stale focus is a reason to refuse WORK,
-# not a reason to refuse `ls`; before the deferral those commands had already exited.
-# Threading the flag here keeps the safe-list contract intact while still letting the
-# command fall through to the drift gate below, which is the whole point of deferring.
-if [ -z "${_deferred_safe_exit:-}" ] && \
-   [ -n "$CURRENT_SESSION" ] && [ -n "$FOCUS_SESSION" ] && [ "$FOCUS_SESSION" != "$CURRENT_SESSION" ]; then
+if [ -n "$CURRENT_SESSION" ] && [ -n "$FOCUS_SESSION" ] && [ "$FOCUS_SESSION" != "$CURRENT_SESSION" ]; then
     # Look up task name for advisory
     STALE_TASK_NAME=""
     STALE_FILE=$(find_task_file "$CURRENT_TASK" active 2>/dev/null)
@@ -334,8 +622,9 @@ if [ -z "${_deferred_safe_exit:-}" ] && \
     echo "" >&2
     echo "  To start different work:" >&2
     echo "    $(_fw_cmd) work-on 'New task name' --type build" >&2
+    _bootstrap_shape_hint "${BASH_CMD:-}"
     echo "" >&2
-    echo "  Attempting to modify: $FILE_PATH" >&2
+    echo "  $(_blocked_subject)" >&2
     echo "  Policy: T-560 (Session-Stamped Focus Enforcement)" >&2
     echo "══════════════════════════════════════════════════════════" >&2
     echo "" >&2
@@ -368,38 +657,11 @@ _under_agent_control() {
 # Does NOT gate fw work-on / fw context focus / fw inception decide / fw task review|show
 # (those are intentional state transitions or read-only).
 if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && [ -n "$CURRENT_TASK" ]; then
-    TARGET_TASK=""
-    # Bash built-in regex (no subprocess fork — keeps hook fast).
-    #
-    # T-607: the path anchor is ([^[:space:]]*/)? — any directory prefix — NOT (bin/)?.
-    # CLAUDE.md mandates `cd /opt/... && .agentic-framework/bin/fw ...`, where the char
-    # before `bin/fw` is `/`, and the old alternation had no branch for it. Measured:
-    # bare `fw task update T-N` exited 2 with FOCUS-DRIFT while the SAME command written
-    # with the mandated path prefix exited 0, silent. The gate was blind to the only form
-    # the project tells people to use. Pattern 3 was unaffected because it anchors on the
-    # commit message, not on fw — which is why the gate looked alive: every drift block
-    # anyone actually saw was pattern 3.
-    #
-    # The trailing `/` inside the group is load-bearing: it keeps `myfw task update` from
-    # matching. A guard that fires on the wrong command trains people to bypass it.
-    #
-    # T-392 (landed): the safe-command early-return at the top of this file used to exit 0
-    # before this block ran, so pattern 2 was unreachable regardless of this anchor. That
-    # exit is now deferred to just below this gate, and pattern 2 fires. The comment is
-    # kept rather than deleted because the two defects shared one symptom and only the
-    # control that separated them showed there were two.
-    # T-639: the three patterns moved into _sc_drift_target (lib/safe-commands.sh),
-    # because each read task ids out of QUOTED arguments and so treated a command
-    # that merely mentioned a task as an action on it. The predicate keeps patterns
-    # 1 and 2 on the quote-stripped command (their id is a bare argument) while
-    # pattern 3 reads the raw -m value (its id is legitimately quoted) and anchors
-    # `T-NNN:` at the START of that value. Rationale in full at the definition.
-    # `type` guard, not decoration: the library is sourced with `|| true`, so an
-    # unguarded call would emit "command not found" into the hook's stderr on every
-    # Bash invocation if it ever failed to load.
-    if type _sc_drift_target &>/dev/null && _sc_drift_target "$BASH_CMD"; then
-        TARGET_TASK="$_SC_DRIFT_TARGET"
-    fi
+    # T-2880: consume the hoisted result rather than re-deriving it. The three
+    # patterns and their residual-limit notes now live in one place
+    # (_fw_extract_drift_target, top of file) so the fast-path test and the gate
+    # cannot disagree about what counts as naming a task.
+    TARGET_TASK="$DRIFT_TARGET"
 
     # If a target was identified and differs from focused task: drift
     if [ -n "$TARGET_TASK" ] && [ "$TARGET_TASK" != "$CURRENT_TASK" ]; then
@@ -428,7 +690,11 @@ if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && [ -n "$CURRENT_TASK" ]; th
                 echo "  flag: '$_bypass_mechanism'"
                 echo "  caller: 'check-active-task focus-drift'"
                 echo "  target: '$_t1861_esc_target'"
-                echo "  command: '$(echo "$BASH_CMD" | head -c 200 | tr -d "'")'"
+                # T-3412: head -c 200 truncates on a raw BYTE offset, which can split
+                # a multi-byte UTF-8 sequence (e.g. a smart quote in a commit -m
+                # message) in half and corrupt this file's YAML parse. Re-decode with
+                # errors="ignore" so an incomplete trailing sequence is dropped, not kept.
+                echo "  command: '$(printf '%s' "$BASH_CMD" | head -c 200 | python3 -c 'import sys; sys.stdout.write(sys.stdin.buffer.read().decode("utf-8", "ignore"))' 2>/dev/null | tr -d "'")'"
             } >> "$BYPASS_LOG" 2>/dev/null || true
             echo "NOTE: focus-drift override ($_bypass_mechanism) — target $TARGET_TASK ≠ focus $CURRENT_TASK. Logged." >&2
         elif _under_agent_control; then
@@ -443,36 +709,40 @@ if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && [ -n "$CURRENT_TASK" ]; th
             echo "  Framework rule: actions on a task should run with focus on" >&2
             echo "  that task. To proceed, either:" >&2
             echo "" >&2
-            # T-386: remedy 1 is unreachable when the target is COMPLETED. T-381
-            # scoped `fw context focus` to active/ (the gate reads focus back with
-            # `find_task_file "$CURRENT_TASK" active`, so focusing a completed id
-            # produced a writable-but-unusable state). The drift target is completed
-            # in the COMMON case — a follow-up `git commit -m "T-XXX: ..."` naming a
-            # task that just closed — so without this branch the gate's own first
-            # recommendation is a command the same subsystem will refuse.
-            # Scoped exactly like the writer now is; an id that resolves in neither
-            # directory falls through to the normal wording rather than asserting
-            # something about a task nobody can find.
-            # PROJECT_ROOT, not TASKS_DIR: this hook never sets TASKS_DIR, and a
-            # guard on an unset variable would have made the whole branch a silent
-            # no-op — the fix would have "shipped" while the message never changed.
-            # Line 469 below is the in-file precedent for "$PROJECT_ROOT"/.tasks/…
-            _t386_completed=""
-            if [ -n "${PROJECT_ROOT:-}" ]; then
-                for _t386_f in "$PROJECT_ROOT"/.tasks/completed/"$TARGET_TASK"-*.md; do
-                    [ -e "$_t386_f" ] && _t386_completed=1 && break
-                done
-            fi
-            if [ -n "$_t386_completed" ]; then
-                echo "    1. NOT AVAILABLE — $TARGET_TASK is completed, and" >&2
-                echo "       '$(_fw_cmd) context focus' accepts active tasks only (T-381)." >&2
-                echo "       Use option 2 or 3 below. This is the normal path for a" >&2
-                echo "       follow-up commit on a task that has already closed." >&2
-            else
+            # T-2875: only offer "switch focus" when focus CAN actually point there.
+            #
+            # T-2874 made `fw context focus` refuse a completed task id, so for a
+            # completed target this remedy is a command the framework itself refuses —
+            # the agent follows the instruction, gets a second refusal, and has to find
+            # options 2/3 unaided. The completed target is the COMMON case here: the
+            # usual trigger is a follow-up commit attributed to a task that just closed.
+            #
+            # Not a T-2874 regression. Before T-2874 this remedy appeared to work (exit
+            # 0) and then deadlocked every later gated call on "Task X is not active";
+            # T-2874 changed it from silently broken to loudly broken. Both wrong, only
+            # the second visible.
+            #
+            # NO REOPEN COMMAND IS OFFERED, deliberately. `fw task update <id> --status
+            # started-work` does not move a file from completed/ back to active/ — no
+            # such move exists in update-task.sh — so focus would refuse it again. That
+            # would be a second dead remedy replacing the first, which is the whole
+            # defect. Only mechanisms verified to work are named (L-399 / T-1890).
+            #
+            # The completed branch prints "2." and "3." with no "1." — deliberate, do not
+            # renumber. The digits identify MECHANISMS, not positions: option 3 is
+            # FW_SWITCH_FOCUS=1 in both branches, in the bypass log, and in every prior
+            # session transcript. Renumbering to 1./2. here would make "option 2" mean
+            # --switch-focus in one branch and FW_SWITCH_FOCUS=1 in the other.
+            if [ -n "$(find_task_file "$TARGET_TASK" active)" ]; then
                 echo "    1. Switch focus first:" >&2
                 echo "       $(_fw_cmd) context focus $TARGET_TASK" >&2
+                echo "" >&2
+            else
+                echo "    ($TARGET_TASK is not active, so focus cannot point at it —" >&2
+                echo "     'context focus' would refuse it. Use 2 or 3 below; the" >&2
+                echo "     action stays attributed to $TARGET_TASK either way.)" >&2
+                echo "" >&2
             fi
-            echo "" >&2
             echo "    2. Append --switch-focus to a fw command (logged Tier 2)." >&2
             echo "       Works for: fw task update, fw context add-*." >&2
             echo "" >&2
@@ -493,16 +763,6 @@ if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && [ -n "$CURRENT_TASK" ]; th
     fi
 fi
 
-# --- T-392: the deferred safe-command exit ---------------------------------
-# A safe-list command has now passed the focus-drift gate above and is allowed.
-# This is the site the early `exit 0` moved to; everything between there and here
-# is either a no-op for Bash (FILE_PATH-based checks) or explicitly guarded on
-# this flag. Placing it AFTER the gate is the entire fix: the gate was never weak
-# for pattern 2, it was unreachable, and unreachable reads as healthy.
-if [ -n "${_deferred_safe_exit:-}" ]; then
-    exit 0
-fi
-
 # Verify task is actually active (not completed/archived) — G-013
 ACTIVE_FILE=$(find_task_file "$CURRENT_TASK" active)
 if [ -z "$ACTIVE_FILE" ]; then
@@ -512,8 +772,9 @@ if [ -z "$ACTIVE_FILE" ]; then
     echo "To unblock:" >&2
     echo "  $(_fw_cmd) work-on T-XXX   (resume an active task)" >&2
     echo "  $(_fw_cmd) work-on 'name'  (create a new task)" >&2
+    _bootstrap_shape_hint "${BASH_CMD:-}"
     echo "" >&2
-    echo "Attempting to modify: $FILE_PATH" >&2
+    echo "$(_blocked_subject)" >&2
     echo "Policy: P-002 (Structural Enforcement Over Agent Discipline)" >&2
     exit 2
 fi
@@ -532,21 +793,106 @@ case "$TASK_STATUS" in
         echo "" >&2
         echo "To unblock:" >&2
         echo "  $(_fw_cmd) work-on $CURRENT_TASK   (sets status to started-work)" >&2
+        _bootstrap_shape_hint "${BASH_CMD:-}"
         echo "" >&2
-        echo "Attempting to modify: $FILE_PATH" >&2
+        echo "$(_blocked_subject)" >&2
         echo "Policy: P-002 (Task must be started before modifying files)" >&2
         exit 2
         ;;
     work-completed)
+        # T-3179: partial-complete commit deadlock — the residual half of T-2054.
+        #
+        # T-2054 (line ~506) allows `git commit` when focus is NULL, which is the
+        # state a FULLY completed task leaves behind (moved active/→completed/,
+        # focus nulled). A PARTIAL-complete task never reaches that state: an
+        # unchecked ### Human AC flips status to work-completed while the file
+        # STAYS in active/ and focus keeps pointing at it. So CURRENT_TASK is
+        # non-empty, control arrives here, and the agent's own verified work
+        # cannot be committed under its own task ID.
+        #
+        # That is the common case, not an edge one: every build task touching a
+        # render surface ends in partial-complete BY DESIGN (P-013), so the
+        # deadlock fires on exactly the tasks the framework steers there.
+        #
+        # The allowance is the same trade T-2054 already made, for the same
+        # reason: the work being committed was produced under the Write/Edit task
+        # gate — this is a checkpoint, not new work — and the commit-msg hook
+        # still refuses a message lacking T-XXX, so P-002's actual purpose
+        # (traceability) is preserved. The status quo is what LOSES traceability:
+        # the block's own advice is to focus a different task, which attributes
+        # this task's commit to another one.
+        #
+        # Safe to `exit 0` here: the focus-drift gate (T-1730, line ~605) has
+        # already run, so `git commit -m "T-B: …"` while T-A is focused is still
+        # blocked upstream. `--no-verify`/`-n` is excluded — it would skip the
+        # commit-msg hook that makes this allowance sound, so it falls through to
+        # the block below as a Tier-2 action needing explicit authorisation.
+        # T-3221: same predicate as the T-2054 branch above — one definition, so
+        # the two exemptions cannot drift. It is what makes the block message
+        # below ("write patterns void the allowance") true rather than aspirational.
+        if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && \
+           type is_commit_checkpoint_command &>/dev/null && \
+           is_commit_checkpoint_command "$BASH_CMD"; then
+            echo "NOTE: $CURRENT_TASK is work-completed (partial-complete) — allowing 'git commit' to checkpoint its own verified work (T-3179). commit-msg hook still enforces T-XXX; drift gate already passed." >&2
+            exit 0
+        fi
+
+        # T-3174 AC5: graduated escape for a further EDIT on a partial-complete
+        # task — the residual half T-3179 did not cover. T-3179 unblocked
+        # `git commit`; nothing unblocks a Write/Edit/other-Bash-write when the
+        # reviewer or human found something and the task needs one more pass
+        # while it stays partial-complete. The block message below used to name
+        # `fw work-on T-XXX` as the remedy — that transition does not exist
+        # (status-transitions.yaml has NO outgoing edge from work-completed, see
+        # `## Context`), so the only escape was FW_SAFE_MODE=1, which disables
+        # the ENTIRE task gate rather than authorising this one action.
+        #
+        # Same shape as the T-1890 focus-drift bypass: env-var form because it
+        # must work for `git commit` too (git rejects unknown flags), Tier-2
+        # logged so the authorisation is auditable rather than silent.
+        if [ "${FW_ALLOW_PARTIAL_COMPLETE_EDIT:-0}" = "1" ]; then
+            LOG_DIR="$PROJECT_ROOT/.context/working"
+            mkdir -p "$LOG_DIR" 2>/dev/null || true
+            LOG_FILE="$LOG_DIR/.gate-bypass-log.yaml"
+            _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            {
+                echo "- timestamp: '$_ts'"
+                echo "  task: '$CURRENT_TASK'"
+                echo "  flag: 'FW_ALLOW_PARTIAL_COMPLETE_EDIT'"
+                echo "  caller: 'check-active-task:partial-complete-edit'"
+                if [ -n "${BASH_CMD:-}" ]; then
+                    # T-3412: see the matching comment at the focus-drift logger above —
+                    # same fixed-byte-truncation corruption, same fix.
+                    echo "  command: '$(printf '%s' "$BASH_CMD" | head -c 200 | python3 -c 'import sys; sys.stdout.write(sys.stdin.buffer.read().decode("utf-8", "ignore"))' 2>/dev/null | tr -d "'")'"
+                else
+                    echo "  file: '${FILE_PATH:-}'"
+                fi
+            } >> "$LOG_FILE" 2>/dev/null || true
+            echo "NOTE: $CURRENT_TASK is work-completed (partial-complete) — allowing edit via FW_ALLOW_PARTIAL_COMPLETE_EDIT=1 (T-3174). Logged Tier-2." >&2
+            exit 0
+        fi
+
         echo "" >&2
         echo "BLOCKED: Task $CURRENT_TASK has status 'work-completed'." >&2
         echo "" >&2
-        echo "To unblock:" >&2
-        echo "  $(_fw_cmd) work-on T-XXX   (resume another task)" >&2
-        echo "  $(_fw_cmd) work-on 'name'  (create a new task)" >&2
+        echo "Note: 'git commit' IS allowed here (T-3179) — a partial-complete task" >&2
+        echo "may always checkpoint its own verified work under its own ID. If you" >&2
+        echo "were trying to commit, drop the redirect/heredoc from the line and" >&2
+        echo "run the commit bare; write patterns void the allowance." >&2
         echo "" >&2
-        echo "Attempting to modify: $FILE_PATH" >&2
-        echo "Policy: P-002 (Cannot modify files under a completed task)" >&2
+        echo "To make ANOTHER EDIT on THIS task while it stays partial-complete" >&2
+        echo "(Tier-2, logged). Note: '$(_fw_cmd) work-on $CURRENT_TASK' will NOT" >&2
+        echo "work here — status-transitions.yaml has no outgoing edge from" >&2
+        echo "work-completed, so that command exits 1 with 'Invalid transition'." >&2
+        echo "  FW_ALLOW_PARTIAL_COMPLETE_EDIT=1 <command>" >&2
+        echo "" >&2
+        echo "To work on something else instead:" >&2
+        echo "  $(_fw_cmd) work-on T-XXX   (resume a DIFFERENT active task)" >&2
+        echo "  $(_fw_cmd) work-on 'name'  (create a new task)" >&2
+        _bootstrap_shape_hint "${BASH_CMD:-}"
+        echo "" >&2
+        echo "$(_blocked_subject)" >&2
+        echo "Policy: P-002 (Cannot modify files under a completed task) / T-3174 (graduated bypass)" >&2
         exit 2
         ;;
     "")
@@ -559,13 +905,40 @@ esac
 # If incomplete onboarding tasks exist, only allow work on onboarding tasks.
 # Detection: tasks with tags containing "onboarding" in .tasks/active/.
 # Fast path: .context/working/.onboarding-complete marker means all done.
+#
+# T-2815: owner:human onboarding tasks are exempt from the block. An agent
+# session can never satisfy fw inception decide (blocked under CLAUDECODE=1,
+# T-1259/T-1260) nor tick a ### Human AC — so an owner:human task in this set
+# is a structural deadlock, not a checklist item. "readable but never
+# blocking": the task still exists, still carries the onboarding tag, still
+# shows up in `fw task list --tag onboarding` / `fw onboarding status` — it
+# just doesn't gate the agent's other work. The complementary case (an
+# onboarding task claiming owner:agent that is still agent-unresolvable) is
+# refused at write-time by check-onboarding-gate.py so this exemption cannot
+# be used to smuggle a real deadlock past the scan.
 ONBOARDING_MARKER="$PROJECT_ROOT/.context/working/.onboarding-complete"
 if [ ! -f "$ONBOARDING_MARKER" ]; then
     # Check if any active tasks have onboarding tag and are not completed
     INCOMPLETE_ONBOARDING=""
     for tf in "$PROJECT_ROOT"/.tasks/active/T-*.md; do
         [ -f "$tf" ] || continue
-        if head -20 "$tf" | grep -q '^tags:.*onboarding' 2>/dev/null; then
+        # T-2881: element-wise, not substring. The prior form was
+        # `grep -q '^tags:.*onboarding'`, which matched inside
+        # `arc:onboarding-curriculum` — so every task tagged into the
+        # onboarding-curriculum ARC counted as a member of the gated onboarding
+        # SET, and its mere existence in active/ blocked all other work. Sibling
+        # of the same conflation in check-onboarding-gate.py:has_onboarding_tag;
+        # both call sites are fixed together per L-399 producer/consumer parity,
+        # because a task refused by one and admitted by the other is worse than
+        # either behaviour alone.
+        #
+        # Latent rather than observed HERE only because `.onboarding-complete`
+        # short-circuits the whole block on this repo. In a project without that
+        # marker it fires, and the block message names onboarding tasks the
+        # operator does not have.
+        if head -20 "$tf" | grep -qE '^tags:[[:space:]]*\[?([^]]*,)?[[:space:]]*onboarding[[:space:]]*(,|\]|$)' 2>/dev/null; then
+            tf_owner=$({ grep "^owner:" "$tf" 2>/dev/null || true; } | head -1 | sed 's/owner:[[:space:]]*//')
+            [ "$tf_owner" = "human" ] && continue
             tf_status=$({ grep "^status:" "$tf" 2>/dev/null || true; } | head -1 | sed 's/status:[[:space:]]*//')
             if [ "$tf_status" != "work-completed" ]; then
                 tf_id=$({ grep "^id:" "$tf" 2>/dev/null || true; } | head -1 | sed 's/id:[[:space:]]*//')
@@ -593,8 +966,9 @@ if [ ! -f "$ONBOARDING_MARKER" ]; then
             echo "" >&2
             echo "To skip onboarding (not recommended):" >&2
             echo "  $(_fw_cmd) onboarding skip" >&2
+            _bootstrap_shape_hint "${BASH_CMD:-}"
             echo "" >&2
-            echo "Attempting to modify: $FILE_PATH" >&2
+            echo "$(_blocked_subject)" >&2
             echo "Policy: T-532 (Onboarding Enforcement Gate)" >&2
             exit 2
         fi
@@ -655,30 +1029,17 @@ if [ -n "$ACTIVE_FILE" ] && grep -q "^workflow_type: inception" "$ACTIVE_FILE" 2
                 echo "Inception work cannot edit source files until at least one Open Question is declared." >&2
                 echo "" >&2
                 echo "To unblock:" >&2
-                # T-629: name the surface. Remedies 1 and 2 are both task-file edits, and
-                # `.tasks/*` IS exempt — via a FILE_PATH test that a Bash call cannot
-                # satisfy, because it carries no file path. Stated bare, they read as
-                # available from the shell; measured, every shell form is refused. Same
-                # correction as G-020's remedy 1 (T-628), same reason, 25 lines apart.
-                echo "  1. Edit $CURRENT_TASK with the Edit/Write tool and add at least one entry under '## Open Questions':" >&2
+                echo "  1. Edit $CURRENT_TASK and add at least one entry under '## Open Questions':" >&2
                 echo "       - **IW-1: <question text>**" >&2
                 echo "         confidence: 0-3" >&2
                 echo "         disposition: answered|deferred|dissolved   # filled later" >&2
                 echo "         rationale: <one-line evidence>              # filled later" >&2
                 echo "" >&2
-                echo "  2. Or remove the '## Open Questions' section entirely, also with the Edit/Write tool (grandfathered)." >&2
-                echo "     (shell edits — sed -i, heredoc, redirect — are refused here: no FILE_PATH, so the .tasks/ exemption cannot apply)" >&2
+                echo "  2. Or remove the '## Open Questions' section entirely (grandfathered)." >&2
                 echo "" >&2
                 echo "  3. Override (logged Tier 2):  FW_ALLOW_INCEPTION_OPEN_QUESTIONS_DRIFT=1 <command>" >&2
                 echo "" >&2
-                # T-629: FILE_PATH is empty for every Bash call, so this line used to read
-                # "Attempting to modify: " with nothing after it — a blank exactly where
-                # the reader looks for the cause.
-                if [ -n "$FILE_PATH" ]; then
-                    echo "Attempting to modify: $FILE_PATH" >&2
-                else
-                    echo "Attempting to run (Bash): ${BASH_CMD:-<unknown>}" >&2
-                fi
+                echo "$(_blocked_subject)" >&2
                 echo "Policy: T-2194 / G-067 (Inception Open Questions readiness gate)" >&2
                 echo "See: 050-Inceptions.md §Disposition Gate, CLAUDE.md §Inception Discipline" >&2
                 exit 2
@@ -696,39 +1057,62 @@ if [ -n "$ACTIVE_FILE" ]; then
     WORKFLOW_TYPE=$({ grep "^workflow_type:" "$ACTIVE_FILE" 2>/dev/null || true; } | head -1 | sed 's/workflow_type:[[:space:]]*//')
     case "$WORKFLOW_TYPE" in
         build|refactor|test|decommission)
-            AC_SECTION=$(sed -n '/^## Acceptance Criteria/,/^## [^A]/p' "$ACTIVE_FILE" 2>/dev/null | sed '$d')
+            # T-3148: anchored, FIRST-WINS extraction (lib/section-extract.sh).
+            # Replaces the old `/^## [^A]/` terminator, which was even LOOSER
+            # than the sibling AC-gate sites — it failed to close the range on
+            # any subsequent heading beginning "## A" (e.g. a hypothetical
+            # "## Additional Notes"), which could silently fold that section's
+            # content into the AC count.
+            AC_SECTION=$(extract_ac_section "$ACTIVE_FILE")
+            # T-2944: strip HTML comments before counting, exactly as the G-067
+            # inception gate does at :700 in this same file. Without this, the two
+            # illustrative `- [ ] [REVIEW]` / `- [ ] [REVIEWER]` examples inside the
+            # shipped template's Human-guidance comment block count as real ACs — so
+            # deleting the two placeholders, which is *literally what this gate's own
+            # block message instructs*, clears both conditions below and leaves a
+            # build task with ZERO acceptance criteria able to write source.
+            # Measured against this hook before the fix: placeholders present → exit 2
+            # (positive control), placeholders deleted → exit 0, write allowed.
+            #
+            # The strip is correct HERE and would be a defect in P-011's extractor
+            # (T-2921, and 832's T-456 independently): this text is prose being
+            # COUNTED, not commands being handed to eval. Same regex, opposite
+            # correctness — the question is whether the span is discarded or executed.
+            #
+            # Reported by 832 as their T-453 (rail 564 §4), confirmed here by T-2943.
+            # The count reproduced exactly; the severity did not. Their report said the
+            # gate passes over zero ACs — the sharper statement is that the gate
+            # instructs you into that state.
+            AC_SECTION=$(echo "$AC_SECTION" | sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' | sed '/<!--/,/-->/d')
             HAS_PLACEHOLDER=$(echo "$AC_SECTION" | grep -ciE '\[(First|Second|Third|Fourth|Fifth) criterion\]' 2>/dev/null || true)
             REAL_AC_COUNT=$(echo "$AC_SECTION" | grep -cE '^\s*-\s*\[[ x]\]' 2>/dev/null || true)
             if [ "${HAS_PLACEHOLDER:-0}" -gt 0 ] || [ "${REAL_AC_COUNT:-0}" -eq 0 ]; then
-                # T-628 — THE ESCAPE THIS GATE PRINTS MUST BE RUNNABLE FROM THE STATE IT PRINTS IT IN.
+                # T-3299 (OBS-353): the remedies this block prints must be
+                # executable FROM the blocked state. They were not — remedy 2
+                # (`fw task update … --type inception`) fell through to this
+                # very branch, because `update` is not a safe-listed task
+                # sub-verb and nothing upstream admits it. The gate quoted its
+                # own escape route back verbatim while refusing it, and an
+                # agent whose only write surface was Bash had no legal move.
                 #
-                # Reported by 999-AEF (rail @775, their T-3216), reproduced by 577-CashWeb
-                # (@776) and then here from inside the blocked state. Both printed remedies
-                # are actions on `.tasks/`, and `.tasks/*` IS exempt — for Write/Edit, where
-                # this hook has a FILE_PATH to test the exemption against. A Bash command has
-                # no single file path, so the exemption cannot be evaluated on one of the two
-                # surfaces this gate restricts, and every shell form of both remedies fell
-                # through to the block. The gate then reprinted the command it had just refused.
-                #
-                # This is the SAME reasoning T-2052 already applied to the no-active-task gate
-                # ~560 lines above: "they ESTABLISH the active task, so gating them on one is a
-                # deadlock; the block message below even lists them as the unblock path." That
-                # fix was never generalised to the sibling gates in this file. It is generalised
-                # to this one now; the remaining sibling (G-067, inception open-questions) is
-                # left alone deliberately — its remedy 1 is a task-file edit with no `fw` verb
-                # to allowlist, so it needs the wording fix below, not an exemption.
-                #
-                # BOUNDED ON PURPOSE. Only the conversion of the CURRENTLY FOCUSED task is
-                # admitted. `--type` on any other id stays blocked, so this cannot become a
-                # route to retype an arbitrary task from inside a block. Write patterns are
-                # re-tested rather than assumed absent: `… --type inception > /etc/x` is the
-                # remedy plus a payload, and it is the payload that matters.
-                if [ "$TOOL_NAME" = "Bash" ] && [ -n "${BASH_CMD:-}" ] \
-                   && [[ "$BASH_CMD" =~ (^|[[:space:]]|/)fw[[:space:]]+task[[:space:]]+update[[:space:]]+"$CURRENT_TASK"[[:space:]]+--type[[:space:]] ]] \
-                   && ! { type has_bash_write_pattern &>/dev/null && has_bash_write_pattern "$BASH_CMD"; }; then
-                    echo "NOTE: G-020 is firing for $CURRENT_TASK; allowing its own prescribed conversion (T-628)." >&2
+                # Allow the metadata-only shapes here — and ONLY here, per the
+                # single-consumption-point argument at :269 (a predicate one
+                # site honours fails toward blocking if the site is missed).
+                # The predicate is narrow by construction (see safe-commands.sh
+                # is_task_metadata_update_command): one task id, only
+                # type/horizon/status/reason flags, no write patterns, no
+                # substitution, every chained clause independently safe. The
+                # drift gate (T-1730) already ran above, so a metadata update
+                # naming a task other than the focus never reaches this allow.
+                # Downstream, update-task.sh accepts every admitted flag —
+                # gate-allows/parser-rejects is the L-399 break this closes.
+                if [ "$TOOL_NAME" = "Bash" ] && [ -n "${BASH_CMD:-}" ] && \
+                   type is_task_metadata_update_command &>/dev/null && \
+                   is_task_metadata_update_command "$BASH_CMD"; then
+                    echo "NOTE: $CURRENT_TASK has placeholder/missing ACs (G-020) — allowing metadata-only 'fw task update' so the gate's own remedy is executable from the blocked state (T-3299)." >&2
                     exit 0
                 fi
+
                 echo "" >&2
                 echo "BLOCKED: Task $CURRENT_TASK is a $WORKFLOW_TYPE task with placeholder/missing ACs." >&2
                 echo "" >&2
@@ -736,24 +1120,18 @@ if [ -n "$ACTIVE_FILE" ]; then
                 echo "This prevents unscoped building. (G-020: Scope-Aware Task Gate)" >&2
                 echo "" >&2
                 echo "To unblock:" >&2
-                # Surface-accurate wording (T-628). Remedy 1 was previously stated as a bare
-                # "edit the task file", which reads as available from any surface. It is not:
-                # for Bash there is no FILE_PATH, so the `.tasks/*` exemption cannot fire and
-                # every shell form of the edit is refused. Saying so costs one clause and
-                # saves an agent from concluding the gate is simply broken.
-                echo "  1. Edit the task file with the Edit/Write tool: replace [First criterion] with real ACs" >&2
-                echo "     (shell edits — sed -i, heredoc, redirect — are refused here: no FILE_PATH, so the .tasks/ exemption cannot apply)" >&2
-                echo "  2. Or change to inception (allowed from this state, T-628):" >&2
+                echo "  1. Edit the task file with the Write/Edit TOOL: replace the placeholder" >&2
+                echo "     ACs with real ones. The task file (under .tasks/) is exempt for the" >&2
+                echo "     Write/Edit tools. SHELL writes to it (sed -i, redirects, heredocs)" >&2
+                echo "     stay blocked by design — the write scanner cannot prove a shell" >&2
+                echo "     write's sole target is the task file (T-3299)." >&2
+                echo "  2. Or change to inception (allowed from this blocked state):" >&2
                 echo "     $(_fw_cmd) task update $CURRENT_TASK --type inception" >&2
+                echo "  3. Or shelve it (also allowed from here):" >&2
+                echo "     $(_fw_cmd) task update $CURRENT_TASK --horizon later" >&2
+                _bootstrap_shape_hint "${BASH_CMD:-}"
                 echo "" >&2
-                # T-628: name the actual restricted call. FILE_PATH is empty for every Bash
-                # invocation, so this line used to read "Attempting to modify: " with nothing
-                # after it — a blank where the reader looks for the cause.
-                if [ -n "$FILE_PATH" ]; then
-                    echo "Attempting to modify: $FILE_PATH" >&2
-                else
-                    echo "Attempting to run (Bash): ${BASH_CMD:-<unknown>}" >&2
-                fi
+                echo "$(_blocked_subject)" >&2
                 echo "Policy: G-020 (Pickup message governance bypass prevention)" >&2
                 exit 2
             fi

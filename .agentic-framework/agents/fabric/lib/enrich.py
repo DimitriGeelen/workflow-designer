@@ -19,6 +19,11 @@ from datetime import date
 
 import yaml
 
+# T-3430: the describe pass. Imported by path because enrich.py is run as a
+# script from an arbitrary cwd, so a plain `import describe` is not reliable.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import describe as _describe  # noqa: E402
+
 
 # ---------------------------------------------------------------------------
 # YAML helpers
@@ -96,31 +101,422 @@ REVERSE_EDGE_TYPE = {
 # Pattern detectors — each returns list of (target_location, edge_type)
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Bash source-argument resolution (T-3122)
+# ---------------------------------------------------------------------------
+
+# Characters that may appear in a literal (unexpanded) path fragment.
+_PATH_CHARS = set(
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._+-/@"
+)
+
+# A `source` / `.` command, at a shell command position (start of line, or after
+# a separator / block keyword). The argument itself is scanned by hand below,
+# because it may contain quotes, `&&` and nested `$( )` that no regex should try
+# to balance.
+_SOURCE_CMD_RE = re.compile(
+    r'(?:^|[;&|(){}]|\bthen\b|\bdo\b|\belse\b)[ \t]*(?:source|\.)[ \t]+',
+    re.MULTILINE,
+)
+
+
+def _read_shell_word(text, i):
+    """Return the single shell word starting at ``text[i]``.
+
+    Tracks quote state and `$( )` nesting so that an argument like
+    ``"$(cd "$(dirname "$0")/.." && pwd)/lib/config.sh"`` is read whole instead
+    of being cut at the embedded `&&`.
+    """
+    quote = None
+    stack = []
+    out = []
+    while i < len(text):
+        ch = text[i]
+        if ch == '\n':
+            break
+        if ch == '\\' and i + 1 < len(text):
+            out.append(ch)
+            out.append(text[i + 1])
+            i += 2
+            continue
+        if ch == '$' and text.startswith('$(', i):
+            stack.append(quote)
+            quote = None
+            out.append('$(')
+            i += 2
+            continue
+        if ch == ')' and stack:
+            quote = stack.pop()
+            out.append(ch)
+            i += 1
+            continue
+        if quote is None and ch in '"\'':
+            quote = ch
+        elif quote == ch:
+            quote = None
+        elif quote is None and not stack and (ch.isspace() or ch in ';&|<>#'):
+            break
+        out.append(ch)
+        i += 1
+    return ''.join(out)
+
+
+def _iter_source_args(content):
+    """Yield the raw argument of every `source`/`.` command in ``content``."""
+    for m in _SOURCE_CMD_RE.finditer(content):
+        arg = _read_shell_word(content, m.end())
+        if arg:
+            yield arg
+
+
+def _trailing_literal_path(arg):
+    """Extract the trailing literal path from a source argument, or None.
+
+    ``"$FRAMEWORK_ROOT/lib/config.sh"``, ``"$fw_root/lib/config.sh"``,
+    ``"${ANYTHING}/lib/config.sh"``, ``"$(dirname "$0")/lib/config.sh"``,
+    ``./lib/config.sh`` and ``lib/config.sh`` all yield ``lib/config.sh``.
+    Whatever precedes the literal tail is irrelevant — the variable's *name* is
+    never consulted.
+    """
+    a = arg.strip()
+    bare = a.lstrip('"\'')
+    # Not project sources: absolute system paths and home-relative paths.
+    if not bare or bare[0] in '~/' or bare.startswith('$HOME'):
+        return None
+
+    # Blank out every expansion so only literal text survives the scan below.
+    s = a.replace('"', '').replace("'", '')
+    s = s.replace('$(', '\x00(')
+    s = re.sub(r'\$\{[^}]*\}', '\x00', s)
+    s = re.sub(r'\$[A-Za-z_][A-Za-z0-9_]*', '\x00', s)
+    s = re.sub(r'\$[0-9@*#?!$-]', '\x00', s)
+
+    i = len(s)
+    while i > 0 and s[i - 1] in _PATH_CHARS:
+        i -= 1
+    path = s[i:].lstrip('/')
+    while path.startswith('./'):
+        path = path[2:]
+    if not path or path.endswith('/') or path in ('.', '..'):
+        return None
+    return path
+
+
+def _resolve_source_path(rel, source_dir, framework_root):
+    """Resolve a literal source path against the source dir, then the root.
+
+    Order (first hit wins, existence-guarded at every step):
+      a) <source_dir>/<rel>
+      b) <source_dir>/lib/<rel>     — preserves the old `$LIB_DIR` behaviour
+      c) <project_root>/<rel>       — the `$FRAMEWORK_ROOT/...` idiom
+    """
+    for cand in (os.path.join(source_dir, rel),
+                 os.path.join(source_dir, 'lib', rel),
+                 rel):
+        cand = os.path.normpath(cand)
+        if os.path.isabs(cand) or cand.startswith('..'):
+            continue
+        if os.path.isfile(os.path.join(framework_root, cand)):
+            return cand
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Bash invocation resolution (T-3123)
+# ---------------------------------------------------------------------------
+#
+# Shell composes two ways. `source X` / `. X` splices X's TEXT into the caller
+# — that is the T-3122 path above. The other way is INVOCATION: the caller runs
+# X as a subprocess (`./x.sh`, `bash x.sh`, `exec "$D/x.sh"`). That edge was not
+# modelled at all, so a script whose only dependency is what it executes got a
+# card with zero edges.
+#
+# Everything below keys on SHELL grammar only — command position, POSIX
+# builtins, shell interpreter names. No directory name, no variable name and no
+# package prefix from this or any other tree appears here. That restraint is the
+# point: T-3121 hardcoded `web|lib|agents|tools`, T-3122 hardcoded four $VAR
+# names, and both broke the moment a file was written in a different idiom.
+
+# A command position: start of line, or immediately after a separator /
+# grouping character. Same construction as _SOURCE_CMD_RE, minus the fixed
+# command name — here it is the word AT the position that gets read.
+_CMD_POS_RE = re.compile(r'(?:^|[;&|(){}`])[ \t]*', re.MULTILINE)
+
+# Words that stand in FRONT of the real command and hand off to it. POSIX
+# builtins and coreutils wrappers, plus bats' `run`. Compared by basename, so
+# `/usr/bin/env` matches `env`.
+_CMD_PREFIX_WORDS = frozenset({
+    'exec', 'command', 'builtin', 'env', 'nohup', 'nice', 'sudo', 'time',
+    'if', 'elif', 'while', 'until', 'then', 'do', 'else', '!', 'run',
+})
+
+# Shell interpreters. After one of these, the script is the first non-option
+# argument rather than the command word itself.
+_SHELL_INTERPRETERS = frozenset({'sh', 'bash', 'zsh', 'ksh', 'dash', 'ash'})
+
+_ENV_ASSIGN_RE = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*=')
+
+
+def _mask_comment_lines(content):
+    """Blank out whole-line `#` comments, preserving line structure.
+
+    Usage banners and commented-out calls are prose, not composition; without
+    this a `# bash tools/x.sh` example line becomes a dependency edge.
+    """
+    return re.sub(r'^[ \t]*#.*$', '', content, flags=re.MULTILINE)
+
+
+_HEREDOC_START_RE = re.compile(r'<<-?\s*(["\']?)([A-Za-z_][A-Za-z0-9_]*)\1')
+
+
+def _mask_inert_regions(content):
+    """Blank the INSIDE of quoted strings, trailing comments and heredoc bodies.
+
+    Used only to locate command positions. A `;` inside an echo message and a
+    `(` inside an embedded `python3 - <<PY` body are text, not shell
+    separators — but the command-position regex cannot tell, so it opened a
+    bogus command at every one of them. That is where every false edge in this
+    repo's corpus came from: `add_issue "... see .context/inbox.yaml"` and
+    `print(f"  History: .context/bvp-weight-history.yaml")` both resolve to real
+    files and both are prose.
+
+    The result has the SAME length as ``content``, so a match offset found in it
+    indexes the original unchanged. Callers read the word itself from the
+    original, which is why masking a quoted argument is harmless: `exec
+    "$D/x.sh"` is found at the position of `exec`, then read raw.
+
+    Quote state is scoped to a LINE (heredocs excepted). Real shell is not a
+    language a 60-line lexer can track — an `awk` program, a regex class or an
+    apostrophe in a trailing comment will eventually desync it. Resetting per
+    line bounds the damage of any desync to that one line instead of blanking
+    the rest of a 5000-line file, which is exactly what an unscoped version did
+    here: it silently cost 90% of the real edges and looked like a clean run.
+    """
+    out = list(content)
+    heredoc = None          # (delimiter, allow_leading_tabs)
+    pos = 0
+    n = len(content)
+    while pos < n:
+        eol = content.find('\n', pos)
+        if eol == -1:
+            eol = n
+        line = content[pos:eol]
+
+        if heredoc is not None:
+            delim, strip_tabs = heredoc
+            if (line.lstrip('\t') if strip_tabs else line).strip() == delim:
+                heredoc = None
+            else:
+                for k in range(pos, eol):
+                    out[k] = ' '
+            pos = eol + 1
+            continue
+
+        quote = None        # None | "'" | '"' | '`'
+        stack = []          # quote states saved across $( ) nesting
+        i = pos
+        while i < eol:
+            ch = content[i]
+
+            if ch == '\\' and quote != "'" and i + 1 < eol:
+                out[i + 1] = ' '
+                i += 2
+                continue
+
+            if quote != "'" and content.startswith('$(', i):
+                stack.append(quote)
+                quote = None
+                i += 2
+                continue
+
+            if quote is None and stack and ch == ')':
+                quote = stack.pop()
+                i += 1
+                continue
+
+            if quote is None:
+                if ch == '#' and (i == pos or content[i - 1] in ' \t;&|('):
+                    for k in range(i, eol):
+                        out[k] = ' '
+                    break
+                if ch in '"\'`':
+                    quote = ch
+                    i += 1
+                    continue
+                if content.startswith('<<', i) and not content.startswith('<<<', i):
+                    m = _HEREDOC_START_RE.match(content, i)
+                    if m:
+                        heredoc = (m.group(2), content.startswith('<<-', i))
+                        i = m.end()
+                        continue
+            elif ch == quote:
+                quote = None
+                i += 1
+                continue
+            else:
+                out[i] = ' '
+
+            i += 1
+
+        pos = eol + 1
+
+    return ''.join(out)
+
+
+def _is_executable(rel, framework_root):
+    """Whether the resolved path can actually be RUN as a command.
+
+    The shell's own rule, used as the shell uses it: a bare command word only
+    invokes a file that carries the execute bit. A README, a YAML config or a
+    settings.json mentioned in passing cannot be a subprocess, so it cannot be
+    an invocation edge. Not applied behind an interpreter — `bash x.sh` runs a
+    file whether or not it is chmod +x.
+    """
+    return os.access(os.path.join(framework_root, rel), os.X_OK)
+
+
+def _trim_word_tail(word):
+    """Drop closer punctuation that a word scan carries along.
+
+    `_read_shell_word` stops at separators but not at an unmatched closer, so
+    `$(bash a/b.sh)` hands back `a/b.sh)`. The trailing literal-path scan reads
+    backwards from the end, so one stray `)` erases the whole path.
+    """
+    return word.rstrip(')}`;,')
+
+
+def _skip_blanks(text, i):
+    """Advance past spaces, tabs and backslash-newline continuations."""
+    while i < len(text):
+        if text[i] in ' \t':
+            i += 1
+        elif text.startswith('\\\n', i):
+            i += 2
+        else:
+            break
+    return i
+
+
+def _iter_shell_invocations(content):
+    """Yield the argument of every script INVOCATION in ``content``.
+
+    Yields ``(word, via_interpreter)`` where ``word`` is the raw shell word
+    naming the script and ``via_interpreter`` records whether it was reached
+    through `bash`/`sh`/... (in which case it need not look like a path) or as
+    the command word itself (in which case it must).
+
+    Recognised, with any number of prefix words in front:
+        ./a/b.sh          bash a/b.sh        sh b.sh        bash -e b.sh
+        exec "$D/b.sh"    "$D/b.sh" a1 a2    $(dirname "$0")/b.sh
+        command bash b.sh    VAR=1 exec ./b.sh    /usr/bin/env bash b.sh
+
+    Deliberately NOT recognised: `bash -c "..."` (the argument is an inline
+    command string, not a file), and any command word without a `/` — a bare
+    name is a PATH lookup, not a script in this tree, so `grep x.sh` and
+    `[ -f x.sh ]` never become edges.
+    """
+    scan = _mask_inert_regions(content)
+    for m in _CMD_POS_RE.finditer(scan):
+        # A line reached by backslash-continuation carries ARGUMENTS of the
+        # command above it, not a new command. Without this, every entry of a
+        # `for f in \` list and every wrapped `warn "..." \ "$D/x.sh"` argument
+        # reads as an invocation — 11 of this repo's first 24 new edges were
+        # exactly that, and every one pointed at a real executable file.
+        p = m.start()
+        if p > 0 and scan[p - 1] == '\n' and p >= 2 and scan[p - 2] == '\\':
+            continue
+        i = _skip_blanks(content, m.end())
+        via_interpreter = False
+        # Bounded: a real invocation reaches its script within a few words.
+        for _ in range(8):
+            word = _read_shell_word(content, i)
+            if not word:
+                break
+            nxt = _skip_blanks(content, i + len(word))
+            bare = word.strip('"\'')
+
+            if via_interpreter:
+                if bare.startswith('-'):
+                    # `-c` (alone or bundled, e.g. `-ec`) means the next word is
+                    # a command STRING. Abandon this command entirely.
+                    if 'c' in bare.lstrip('-').split('=', 1)[0]:
+                        break
+                    i = nxt
+                    continue
+                # `bash -euo pipefail x.sh` — `pipefail` is the argument of an
+                # option, not the script. A script argument is a path or carries
+                # a suffix; a bare suffixless word is not one, so keep scanning.
+                if '/' in bare or '.' in bare.rsplit('/', 1)[-1]:
+                    yield _trim_word_tail(word), True
+                    break
+                i = nxt
+                continue
+
+            if _ENV_ASSIGN_RE.match(bare):
+                i = nxt
+                continue
+
+            name = bare.rsplit('/', 1)[-1]
+            if name in _CMD_PREFIX_WORDS:
+                i = nxt
+                continue
+            if name in _SHELL_INTERPRETERS:
+                via_interpreter = True
+                i = nxt
+                continue
+
+            # The command word itself. Only a path can name a script in-tree.
+            if '/' in bare:
+                yield _trim_word_tail(word), False
+            break
+
+
 def detect_bash_sources(content, source_location, framework_root):
-    """Detect bash source/dot-source, exec, and variable-path patterns."""
+    """Detect bash source/dot-source, exec, and variable-path patterns.
+
+    `source X` / `. X` is resolved by extracting the TRAILING LITERAL PATH from
+    the argument and resolving that against the filesystem (T-3122). The prior
+    implementation matched on the *variable name* — it recognised only
+    `$LIB_DIR`, `$SCRIPT_DIR`, `$AGENTS_DIR` and `$FW_LIB_DIR`, so 127 of this
+    repo's 194 source statements (65%) emitted no edge at all, including the 88
+    written with the framework's own `$FRAMEWORK_ROOT/...` idiom. Same class as
+    the hardcoded `web|lib|agents|tools` prefix list fixed in T-3121: resolve
+    the path, don't trust a name list.
+    """
     edges = []
+    seen = set()
     source_dir = os.path.dirname(source_location)
 
-    # Pattern: source "$LIB_DIR/file.sh" or . "$LIB_DIR/file.sh"
-    for m in re.finditer(
-        r'(?:source|\.)\s+"?\$(?:LIB_DIR|SCRIPT_DIR)/([^"$\s]+)"?', content
-    ):
-        target_file = m.group(1)
-        candidates = [
-            os.path.join(source_dir, "lib", target_file),
-            os.path.join(source_dir, target_file),
-        ]
-        for c in candidates:
-            c = os.path.normpath(c)
-            if os.path.exists(os.path.join(framework_root, c)):
-                edges.append((c, "calls"))
-                break
+    def add(target, relation="calls"):
+        """Record an edge, guarding self-edges and duplicate targets."""
+        if target and target != source_location and target not in seen:
+            seen.add(target)
+            edges.append((target, relation))
+
+    # Pattern: source <arg> / . <arg> — any argument shape.
+    for arg in _iter_source_args(content):
+        rel = _trailing_literal_path(arg)
+        if rel:
+            add(_resolve_source_path(rel, source_dir, framework_root))
+
+    # Pattern: INVOCATION — the caller runs the target as a subprocess rather
+    # than splicing its text (T-3123). Resolved through exactly the same
+    # trailing-literal-path machinery as `source`, so `bash "$ANY_VAR/x.sh"`
+    # lands on the same target as `source "$ANY_VAR/x.sh"`. Shares `add()`, so
+    # a script both sourced and invoked yields one edge, not two.
+    for word, via_interpreter in _iter_shell_invocations(_mask_comment_lines(content)):
+        rel = _trailing_literal_path(word)
+        if not rel:
+            continue
+        target = _resolve_source_path(rel, source_dir, framework_root)
+        if target and (via_interpreter or _is_executable(target, framework_root)):
+            add(target)
 
     # Pattern: exec "$AGENTS_DIR/agent/script.sh" "$@"
     for m in re.finditer(r'exec\s+"?\$AGENTS_DIR/([^"$\s]+)"?', content):
         target = os.path.normpath(os.path.join("agents", m.group(1)))
         if os.path.exists(os.path.join(framework_root, target)):
-            edges.append((target, "calls"))
+            add(target)
 
     # Pattern: source/exec "$FW_LIB_DIR/file.sh"
     for m in re.finditer(
@@ -128,19 +524,19 @@ def detect_bash_sources(content, source_location, framework_root):
     ):
         target = os.path.normpath(os.path.join("lib", m.group(1)))
         if os.path.exists(os.path.join(framework_root, target)):
-            edges.append((target, "calls"))
+            add(target)
 
     # Pattern: exec python3 "$AGENTS_DIR/path"
     for m in re.finditer(r'exec\s+python3\s+"?\$AGENTS_DIR/([^"$\s]+)"?', content):
         target = os.path.normpath(os.path.join("agents", m.group(1)))
         if os.path.exists(os.path.join(framework_root, target)):
-            edges.append((target, "calls"))
+            add(target)
 
     # Pattern: exec python3 -m web.module
     for m in re.finditer(r'exec\s+python3\s+-m\s+(web\.\w+)', content):
         mod = m.group(1).replace(".", "/") + ".py"
         if os.path.exists(os.path.join(framework_root, mod)):
-            edges.append((mod, "calls"))
+            add(mod)
 
     # Pattern: "$FRAMEWORK_ROOT/path.sh" or "$PROJECT_ROOT/path.sh" (called as command)
     for m in re.finditer(
@@ -148,8 +544,7 @@ def detect_bash_sources(content, source_location, framework_root):
     ):
         target = os.path.normpath(m.group(1))
         if os.path.exists(os.path.join(framework_root, target)):
-            if target != source_location:
-                edges.append((target, "calls"))
+            add(target)
 
     # Pattern: "$FRAMEWORK_ROOT/agents/X/Y.sh" via variable like GIT_AGENT=
     for m in re.finditer(
@@ -157,8 +552,7 @@ def detect_bash_sources(content, source_location, framework_root):
     ):
         target = os.path.normpath(m.group(1))
         if os.path.exists(os.path.join(framework_root, target)):
-            if target != source_location:
-                edges.append((target, "calls"))
+            add(target)
 
     # Pattern: "$FRAMEWORK_ROOT/metrics.sh" or standalone script paths
     for m in re.finditer(
@@ -166,8 +560,7 @@ def detect_bash_sources(content, source_location, framework_root):
     ):
         target = os.path.normpath(m.group(1))
         if os.path.exists(os.path.join(framework_root, target)):
-            if target != source_location:
-                edges.append((target, "calls"))
+            add(target)
 
     # Pattern: "$FRAMEWORK_ROOT/bin/fw" / "$PROJECT_ROOT/bin/fw" — suffixless
     # invocation (T-2511). The FRAMEWORK_ROOT/*.sh pattern above requires a
@@ -176,7 +569,7 @@ def detect_bash_sources(content, source_location, framework_root):
     # not prose — distinct from the bare `bin/fw` grep-pattern false-positive class.
     if re.search(r'"\$(?:FRAMEWORK_ROOT|PROJECT_ROOT)/bin/fw"', content) \
        and source_location != "bin/fw" and os.path.exists(os.path.join(framework_root, "bin/fw")):
-        edges.append(("bin/fw", "calls"))
+        add("bin/fw")
 
     # Pattern: exec python3 "$(dirname "$0")/sibling.py"  (T-2511)
     # The fw hook dispatcher loads a thin .sh that exec's its own-dir .py sibling
@@ -185,7 +578,7 @@ def detect_bash_sources(content, source_location, framework_root):
     for m in re.finditer(r'\$\(\s*dirname\s+"?\$0"?\s*\)/([^"$\s]+\.(?:sh|py))', content):
         target = os.path.normpath(os.path.join(source_dir, m.group(1)))
         if os.path.exists(os.path.join(framework_root, target)) and target != source_location:
-            edges.append((target, "calls"))
+            add(target)
 
     return edges
 
@@ -251,6 +644,16 @@ def detect_bats_deps(content, source_location, framework_root):
     # fw routing depends on bin/fw, even when the path isn't quoted explicitly.
     if re.search(r'\bbin/fw\b', content) and "bin/fw" != source_location:
         edges.append(("bin/fw", "tests"))
+
+    # A .bats file that runs a script TESTS it. The generic bash detectors above
+    # label the same reference `calls` (T-3123 sees `run bash "$R/x.sh"` as an
+    # invocation, which it is), so without this a test file would carry two
+    # edges to one subject under two relations — and the reverse pass would
+    # write both `called_by` and `tested_by` onto the subject's card. The more
+    # specific relation wins.
+    tested = {t for t, etype in edges if etype == "tests"}
+    edges = [(t, etype) for t, etype in edges
+             if not (etype == "calls" and t in tested)]
 
     # De-duplicate while preserving order (multiple patterns may emit the same edge)
     seen = set()
@@ -434,14 +837,18 @@ def detect_template_deps(content, source_location, framework_root):
 
 def detect_generic_python_imports(content, source_location, project_root):
     """
-    Detect standard Python imports: from X import Y
+    Detect standard Python imports: `from X import Y` and `import X`.
 
-    Attempts to resolve module names to actual files in the project,
-    inferring paths based on source file location and common patterns.
+    Handles dotted module paths (`from pkg.mod import Y`, `import pkg.mod`),
+    resolving each to either `pkg/mod.py` or `pkg/mod/__init__.py` relative to
+    the source file's directory, then its parent. Flat imports resolve exactly
+    as before (T-3121 — the `\\w` pattern excluded `.`, so 114 dotted imports in
+    this repo emitted no edge at all).
 
     This is a prototype for consumer project support (L-CONSUMER-001).
     """
     edges = []
+    seen = set()
 
     # Get directory containing source file
     source_dir = os.path.dirname(source_location)
@@ -456,37 +863,68 @@ def detect_generic_python_imports(content, source_location, project_root):
         'flask', 'jinja2', 'werkzeug', 'requests', 'numpy', 'pandas'
     }
 
-    # Pattern: from module import something
-    for m in re.finditer(r'from\s+(\w+)\s+import', content):
-        module_name = m.group(1)
+    def resolve(module_name):
+        """Resolve a (possibly dotted) module name to a project-relative path."""
+        # Relative imports (`from . import x`) carry no resolvable root segment
+        if module_name.startswith('.') or module_name.endswith('.'):
+            return None
 
-        # Skip standard library and common third-party modules
-        if module_name in SKIP_MODULES:
-            continue
+        parts = module_name.split('.')
+        if not all(parts):
+            return None
 
-        # Try to resolve module to file
+        # SKIP_MODULES is consulted on the ROOT segment: `yaml.parser` is still
+        # third-party even though `yaml` alone is what the set lists.
+        if parts[0] in SKIP_MODULES:
+            return None
+
+        subpath = os.path.join(*parts)
+
+        candidates = []
         # Strategy 1: Same directory as source
-        target = os.path.join(source_dir, module_name + '.py')
-        if os.path.exists(os.path.join(project_root, target)):
-            if target != source_location:
-                edges.append((target, "uses"))
-            continue
-
+        candidates.append(os.path.join(source_dir, subpath + '.py'))
         # Strategy 2: Package init file
-        target = os.path.join(source_dir, module_name, '__init__.py')
-        if os.path.exists(os.path.join(project_root, target)):
-            if target != source_location:
-                edges.append((target, "uses"))
-            continue
-
+        candidates.append(os.path.join(source_dir, subpath, '__init__.py'))
         # Strategy 3: Check parent directory (for shared modules)
         parent_dir = os.path.dirname(source_dir)
         if parent_dir:
-            target = os.path.join(parent_dir, module_name + '.py')
+            candidates.append(os.path.join(parent_dir, subpath + '.py'))
+            candidates.append(os.path.join(parent_dir, subpath, '__init__.py'))
+
+        # Strategy 4: project-root-relative (T-3121). A dotted import is normally
+        # rooted at the project, not at the importing file's directory —
+        # `web/blueprints/tasks.py` doing `from web.shared import x` means
+        # `<root>/web/shared.py`, which strategies 1-3 cannot reach from
+        # `web/blueprints/`. Without this the generic detector returns zero edges
+        # for ANY nested source file, which is why detect_python_imports carries a
+        # hardcoded `web|lib|agents|tools` prefix list: that list is this strategy,
+        # written out for one project's top-level packages. Last so local
+        # resolution still wins, and existence-guarded like the rest.
+        candidates.append(subpath + '.py')
+        candidates.append(os.path.join(subpath, '__init__.py'))
+
+        for target in candidates:
             if os.path.exists(os.path.join(project_root, target)):
-                if target != source_location:
-                    edges.append((target, "uses"))
-                continue
+                return target
+        return None
+
+    def add(module_name):
+        target = resolve(module_name)
+        # Never a self-edge, never a duplicate target from one file
+        if target and target != source_location and target not in seen:
+            seen.add(target)
+            edges.append((target, "uses"))
+
+    # Pattern: from module.path import something
+    for m in re.finditer(r'^[ \t]*from\s+([\w.]+)\s+import\b', content, re.MULTILINE):
+        add(m.group(1))
+
+    # Pattern: import a.b, c as d
+    for m in re.finditer(r'^[ \t]*import\s+([^\n#;]+)', content, re.MULTILINE):
+        for chunk in m.group(1).split(','):
+            name = chunk.strip().split(' as ')[0].strip()
+            if name and re.fullmatch(r'[\w.]+', name):
+                add(name)
 
     return edges
 
@@ -652,20 +1090,42 @@ def detect_ts_js_imports(content, source_location, project_root):
 # Edge resolver
 # ---------------------------------------------------------------------------
 
-def resolve_edges(raw_edges, loc_to_id, source_id, discarded=None):
+def classify_unresolved(loc, project_root):
+    """Why did this target not resolve to a card? (T-2736)
+
+    Returns "ignorable" | "actionable" | "absent".
+
+    The distinction is derived from the target itself, never from an allowlist
+    of known-noisy paths (L-533) — a directory is ignorable *because it is a
+    directory*, not because someone remembered to list it. An allowlist can
+    only ever cover the noise its author had already seen.
+    """
+    path = os.path.join(project_root, loc) if project_root else loc
+    if os.path.isdir(path):
+        return "ignorable"      # a dependency on a directory is not a component
+    if os.path.isfile(path):
+        return "actionable"     # a real file with no card — `fw fabric register`
+    return "absent"             # referenced but not on disk
+
+
+def resolve_edges(raw_edges, loc_to_id, source_id, unresolved=None,
+                  project_root=None):
     """Convert (location, type) pairs to edge dicts. Deduplicates.
 
-    T-343: a `loc_to_id` miss means "target is not registered", NOT "target is
-    not a dependency" — the detectors have already existence-guarded every
-    location against disk before it gets here. Dropping that edge is correct
-    (an edge needs two cards), but dropping it SILENTLY is not: on a sparse
-    registry it is nearly all of them, and the run then reports a clean zero
-    that is indistinguishable from "there was nothing to add".
+    T-2736: unresolvable targets were dropped by a bare `continue` with no
+    counter, no verbose line and no effect on the summary — so enrichment could
+    only ever draw edges inside the already-registered set, and a run that
+    discarded everything reported identically to one that discarded nothing.
 
-    Pass a list as `discarded` to collect `(location, edge_type)` for the
-    unregistered arm only. The self-edge and duplicate arms below are genuine
-    non-results and are deliberately not collected — conflating the three is
-    what made the original T-342 measurement over-attribute.
+    Measured before the fix: 2419 raw edges detected, 2124 kept, 295 discarded
+    across 117 distinct targets, every one of which existed on disk. The split
+    is what makes the silence expensive — 148 of those edge instances pointed at
+    directories (genuine detector noise, correctly dropped) and 147 at real
+    uncarded files (genuine coverage loss). One mute branch was doing both jobs,
+    so no reader could tell a healthy run from a lossy one.
+
+    Passing `unresolved` (a dict) collects the breakdown for the caller to
+    report. Omitting it preserves the previous signature exactly.
     """
     seen = set()
     resolved = []
@@ -674,8 +1134,10 @@ def resolve_edges(raw_edges, loc_to_id, source_id, discarded=None):
         loc = os.path.normpath(loc)
         target_id = loc_to_id.get(loc)
         if not target_id:
-            if discarded is not None:
-                discarded.append((loc, edge_type))
+            if unresolved is not None:
+                kind = classify_unresolved(loc, project_root)
+                unresolved.setdefault(kind, {})
+                unresolved[kind][loc] = unresolved[kind].get(loc, 0) + 1
             continue
         if target_id == source_id:
             continue
@@ -692,14 +1154,13 @@ def resolve_edges(raw_edges, loc_to_id, source_id, discarded=None):
 # Forward pass — detect depends_on for each card
 # ---------------------------------------------------------------------------
 
-def compute_forward_edges(cards, loc_to_id, framework_root, discarded=None):
+def compute_forward_edges(cards, loc_to_id, framework_root, unresolved=None):
     """Analyze all cards and return new forward edges per card_path.
 
     Returns: dict of card_path -> list of edge dicts to ADD to depends_on
 
-    T-343: `discarded`, when a list is supplied, collects
-    `(source_location, target_location, edge_type)` for every detected edge
-    dropped because the target has no card.
+    T-2736: pass `unresolved` (a dict) to collect the breakdown of targets that
+    did not resolve to a card, so the summary can report what was dropped.
     """
     forward = {}  # card_path -> [edge_dicts]
 
@@ -764,11 +1225,9 @@ def compute_forward_edges(cards, loc_to_id, framework_root, discarded=None):
         if not raw_edges:
             continue
 
-        card_discarded = [] if discarded is not None else None
-        new_edges = resolve_edges(raw_edges, loc_to_id, card_id, card_discarded)
-        if card_discarded:
-            for tgt_loc, edge_type in card_discarded:
-                discarded.append((location, tgt_loc, edge_type))
+        new_edges = resolve_edges(raw_edges, loc_to_id, card_id,
+                                  unresolved=unresolved,
+                                  project_root=framework_root)
         if not new_edges:
             continue
 
@@ -931,6 +1390,50 @@ def apply_edges(cards, forward, reverse, dry_run, verbose):
 
 
 # ---------------------------------------------------------------------------
+# Describe pass (T-3430)
+# ---------------------------------------------------------------------------
+
+def apply_describe(targets, project_root, dry_run=False):
+    """Fill placeholder purpose/subsystem on the target cards.
+
+    Placeholders ONLY — a purpose a human wrote is never overwritten, and a
+    card whose subsystem is already routed is left alone. Returns
+    ``(described, refusals, unrouted, touched_paths)``; `refusals` is the list
+    of files that describe themselves nowhere, which the caller must print
+    rather than paper over.
+    """
+    rules = _describe.load_subsystem_rules(project_root)
+    described = 0
+    refusals = []
+    unrouted = []
+    touched = []
+
+    for card_path, card in sorted(targets.items()):
+        if not card:
+            continue
+        updates, refusal = _describe.describe_card(card, project_root, rules)
+        if refusal:
+            refusals.append(refusal)
+        if "purpose" in updates:
+            described += 1
+        if "subsystem" not in updates and _describe.is_placeholder_subsystem(
+                card.get("subsystem")):
+            loc = card.get("location") or card.get("id") or "?"
+            unrouted.append(loc)
+        if not updates:
+            continue
+        touched.append(card_path)
+        if not dry_run:
+            card.update(updates)
+
+    if not dry_run:
+        for card_path in touched:
+            save_card(card_path, targets[card_path])
+
+    return described, refusals, unrouted, touched
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -944,9 +1447,31 @@ def main():
                         help="Only enrich cards in this subsystem")
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Show each detected edge")
+    # T-3430. --describe is ON by default: the placeholders are the problem the
+    # pass exists to remove, and a fill-only pass that never overwrites a human
+    # sentence has no failure mode worth opting into. --no-describe skips it.
+    parser.add_argument("--describe", dest="describe", action="store_true",
+                        default=True,
+                        help="Fill placeholder purpose/subsystem (default: on)")
+    parser.add_argument("--no-describe", dest="describe", action="store_false",
+                        help="Skip the describe pass, edges only")
+    parser.add_argument("--describe-only", action="store_true",
+                        help="Run only the describe pass — no edge detection")
+    parser.add_argument("--list-refusals", action="store_true",
+                        help="Print every refusal, not just the first 10")
+    # T-3431: one summary line, no per-card output — for the SessionStart hook
+    # and `fw resume status`, where a 1,314-card corpus dump would blow the
+    # additionalContext budget every session. Implies --describe-only: edge
+    # recomputation is a distinct, slower job (13s measured on this corpus,
+    # over the 10s session-start budget) that stays an explicit `fw fabric
+    # enrich` call — the nightly cron only ever runs --describe-only too.
+    parser.add_argument("--quiet", action="store_true",
+                        help="One summary line only; implies --describe-only")
     parser.add_argument("cards", nargs="*",
                         help="Specific card paths to enrich (default: all)")
     args = parser.parse_args()
+    if args.quiet:
+        args.describe_only = True
 
     # Find project root (use PROJECT_ROOT env var if available, for embedded frameworks)
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -982,12 +1507,58 @@ def main():
         targets = cards
 
     mode = "DRY RUN" if args.dry_run else "ENRICHING"
-    print(f"\n=== Fabric Enrichment ({mode}) ===")
-    print(f"Processing {len(targets)} cards...\n")
+    if not args.quiet:
+        print(f"\n=== Fabric Enrichment ({mode}) ===")
+        print(f"Processing {len(targets)} cards...\n")
+
+    # Phase 0: describe (T-3430) — runs BEFORE edges so a card the describe
+    # pass routes into a subsystem is reported under that subsystem below.
+    if args.describe:
+        described, refusals, unrouted, touched = apply_describe(
+            targets, project_root, args.dry_run)
+
+        if args.quiet:
+            # T-3431: recompute post-update counts from the same `targets`
+            # dict apply_describe just mutated in place — no second scan.
+            # This is the line the SessionStart hook and `fw resume status`
+            # inject verbatim.
+            todo_after = sum(1 for c in targets.values()
+                              if _describe.is_placeholder_purpose(c.get("purpose")))
+            unknown_after = sum(1 for c in targets.values()
+                                 if _describe.is_placeholder_subsystem(c.get("subsystem")))
+            no_edges = sum(1 for c in targets.values()
+                           if _describe.card_edge_count(c) == 0)
+            print(f"Fabric: {len(targets)} cards · {todo_after} TODO purpose · "
+                  f"{unknown_after} unknown subsystem · {no_edges} no edges · "
+                  f"{len(refusals)} refused this run (bin/fw fabric drift for ids)")
+            return 0
+
+        print(f"=== Describe pass ===")
+        print(f"described {described}, refused {len(refusals)}")
+        shown = refusals if args.list_refusals else refusals[:10]
+        for line in shown:
+            print(f"  ! {line}")
+        if len(refusals) > len(shown):
+            print(f"  … and {len(refusals) - len(shown)} more "
+                  f"(--list-refusals to see all)")
+        if unrouted:
+            head = unrouted if args.list_refusals else unrouted[:10]
+            print(f"unrouted subsystem: {len(unrouted)} "
+                  f"(add a paths: pattern to .fabric/subsystems.yaml)")
+            for loc in head:
+                print(f"  ? {loc}")
+            if len(unrouted) > len(head):
+                print(f"  … and {len(unrouted) - len(head)} more")
+        print("")
+        if args.describe_only:
+            if args.dry_run:
+                print("(Dry run — no files were modified)")
+            return 0
 
     # Phase 1: Compute forward edges (depends_on)
-    discarded = []  # T-343: (source_location, target_location, edge_type)
-    forward = compute_forward_edges(targets, loc_to_id, project_root, discarded)
+    unresolved = {}
+    forward = compute_forward_edges(targets, loc_to_id, project_root,
+                                    unresolved=unresolved)
 
     # Phase 2: Compute reverse edges (depended_by) — uses ALL cards as targets
     reverse = compute_reverse_edges(forward, cards, id_to_card)
@@ -1009,26 +1580,30 @@ def main():
     print(f"Reverse edges:     {n_rev}  (depended_by)")
     print(f"Total edges added: {n_fwd + n_rev}")
 
-    # T-343: emitted UNCONDITIONALLY. A zero here means "every detected edge
-    # resolved"; the line's absence would mean "this build does not measure it".
-    # Those are different facts and must not share a rendering.
-    by_target = {}
-    for _src, tgt, _etype in discarded:
-        by_target[tgt] = by_target.get(tgt, 0) + 1
-    print(f"Edges discarded:   {len(discarded)}  "
-          f"(target has no component card; {len(by_target)} distinct targets)")
+    # T-2736: report what did NOT resolve. Before this, unresolvable targets
+    # were dropped by a bare `continue` — so a run that discarded 295 edges
+    # printed the same summary as one that discarded none, and the operator
+    # had no way to tell "nothing to add" from "everything thrown away".
+    #
+    # ACTIONABLE is printed even at zero. An absence has to be representable,
+    # or a clean run and a broken counter look identical (L-525).
+    n_actionable = sum(unresolved.get("actionable", {}).values())
+    n_ignorable = sum(unresolved.get("ignorable", {}).values())
+    n_absent = sum(unresolved.get("absent", {}).values())
+    d_actionable = len(unresolved.get("actionable", {}))
 
-    if discarded:
-        if args.verbose:
-            print(f"\nDiscarded edges — detected, target unregistered:")
-            for tgt, count in sorted(by_target.items(), key=lambda x: (-x[1], x[0])):
-                kind = "dir " if os.path.isdir(os.path.join(project_root, tgt)) else "file"
-                print(f"  {count:3d}x  [{kind}] {tgt}")
-            print(f"\n  Register a target to turn its edges on:")
-            print(f"    fw fabric register <path>")
-        else:
-            print(f"  (re-run with --verbose to list the {len(by_target)} "
-                  f"unregistered targets)")
+    print(f"\n=== Unresolved edge targets ===")
+    print(f"Actionable:        {n_actionable}  ({d_actionable} real file(s) "
+          f"with no card — run: fw fabric register <path>)")
+    print(f"Ignorable:         {n_ignorable}  (directories — not components)")
+    if n_absent:
+        print(f"Absent:            {n_absent}  (referenced but not on disk)")
+
+    if args.verbose and d_actionable:
+        print(f"\nUncarded files referenced as dependencies:")
+        for loc, count in sorted(unresolved["actionable"].items(),
+                                 key=lambda x: -x[1]):
+            print(f"  x{count:<4d} {loc}")
 
     if sub_stats:
         print(f"\nEdges by subsystem:")

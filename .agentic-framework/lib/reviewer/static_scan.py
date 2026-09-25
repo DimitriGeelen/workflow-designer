@@ -537,6 +537,80 @@ def detect_swallowed_errors(verification_section: str) -> list[Finding]:
     return findings
 
 
+# ── T-2728: HTTP assertions that cannot fail, and literal host:port URLs ──────
+#
+# Origin OBS-127: two shipped verification lines read
+#   curl -s -o /dev/null -w "%{http_code}\n" http://192.168.10.107:3000/api/...
+# `-w` only PRINTS the code; curl exits 0 on any successful connection, so 403/404/
+# 500 all pass. And the literal :3000 is the per-project-port anti-pattern (T-1376)
+# — this project serves on 3001, so the request reached a DIFFERENT project's
+# Watchtower. Green about the wrong server AND green regardless of the answer.
+#
+# Sibling of swallowed-errors / output-spoofing / empty-output-success: the family
+# is "the assertion cannot fail". This is its HTTP member.
+
+_CURL_RE = re.compile(r"\bcurl\b")
+# A real failure mechanism: -f/--fail makes curl exit non-zero on HTTP >= 400.
+_CURL_FAIL_RE = re.compile(r"(?:^|\s)(?:-[a-zA-Z]*f[a-zA-Z]*|--fail(?:-with-body|-early)?)(?:\s|$)")
+# The status code is only meaningful if something compares it. Any of these on the
+# line means the author did the work; assignment means the value is carried to a
+# later line, which this line-oriented scan must not second-guess.
+_CURL_COMPARED_RE = re.compile(r"\btest\b|\[\[?\s|\bgrep\b|==|-eq\b|\bcase\b")
+_ASSIGNMENT_RE = re.compile(r"^\s*\w+=")
+# A redirect carries the value to a later line this line-oriented scan cannot see.
+_REDIRECT_RE = re.compile(r">\s*\S")
+# Output discarded: nothing downstream can inspect the body either.
+_CURL_DISCARD_RE = re.compile(r"-o\s+/dev/null|--output\s+/dev/null")
+# T-2728: a `literal-host-port` detector was built and REMOVED after measurement.
+# It fired 391 times across the corpus: mostly long-completed tasks, but also
+# genuinely fixed-port services where a literal is correct (ollama :11434,
+# litellm :4000, :8834), deliberate negative fixtures (example.invalid:9999),
+# and a line asserting the string is ABSENT. Distinguishing "this project's
+# Watchtower" from "some other service" needs a maintained route allowlist —
+# the allowlist-as-oracle shape T-2722 was built to kill. The port anti-pattern
+# stays documented in CLAUDE.md; it does not get a detector that cries wolf 391
+# times. Regexes kept for a future narrowing, deliberately unwired.
+_LITERAL_HOSTPORT_RE = re.compile(r"https?://[A-Za-z0-9_.\-]+:\d{2,5}\b")
+# Ways a line can legitimately obtain the port.
+_PORT_RESOLVED_RE = re.compile(
+    r"watchtower\s+url|watchtower\s+port|\$\{?WURL|\$\{?FW_PORT|watchtower\.url|config\s+get\s+PORT"
+)
+
+
+def detect_toothless_http(verification_section: str) -> list[Finding]:
+    findings: list[Finding] = []
+    if not verification_section:
+        return findings
+    for lineno, raw in enumerate(verification_section.splitlines(), start=1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        if _CURL_RE.search(line):
+            # Only flag when the line both discards the body and has no failure
+            # mechanism of its own. A capture (`x=$(curl ...)`) defers the check to
+            # a later line this scan cannot see, so it is left alone.
+            if (
+                _CURL_DISCARD_RE.search(line)
+                and not _CURL_FAIL_RE.search(line)
+                and not _CURL_COMPARED_RE.search(line)
+                and not _ASSIGNMENT_RE.search(line)
+                and not _REDIRECT_RE.search(line)
+            ):
+                findings.append(
+                    Finding(
+                        pattern_id="toothless-http-assertion",
+                        pattern_name="HTTP assertion that cannot fail",
+                        detection_confidence="deterministic",
+                        lie_severity="severe",
+                        location=f"Verification:line {lineno}",
+                        evidence=line[:200],
+                    )
+                )
+
+    return findings
+
+
 # L-264-(b): widened — added more success markers + catch standalone
 # success-printing lines as well as echo/printf forms.
 _SUCCESS_TOKEN_RE = re.compile(
@@ -2011,6 +2085,89 @@ def detect_l387_sigpipe_risk(verification_section: str) -> list[Finding]:
     return findings
 
 
+_DECAY_TASK_PATH_RE = re.compile(r"\.tasks/active/(T-[0-9]+)")
+
+
+def _resolve_tasks_dir(task_path: str | None) -> Path | None:
+    """Find the `.tasks/` directory that owns `task_path`, or None.
+
+    Walks up from the task file rather than assuming a CWD, because the reviewer
+    runs from Watchtower (FRAMEWORK_ROOT) as well as the CLI (PROJECT_ROOT) —
+    the same split that made T-1317 add an explicit `cd` to the P-011 runner.
+    """
+    if not task_path:
+        return None
+    try:
+        p = Path(task_path).resolve()
+    except (OSError, ValueError):
+        return None
+    for parent in p.parents:
+        if parent.name == ".tasks" and (parent / "active").is_dir():
+            return parent
+    return None
+
+
+def detect_decaying_task_path_ref(
+    verification_section: str, task_path: str | None = None
+) -> list[Finding]:
+    """Verification line pins another task by its `.tasks/active/` path.
+
+    That path is a *decaying* reference. It passes at close — the referenced
+    task is still in `active/` then — and becomes a permanent false-red the
+    moment that task moves to `.tasks/completed/`. Nothing fires at the moment
+    of decay: the referenced task's own close breaks a *different* task's
+    verification block, and no gate looks sideways.
+
+    Safe rewrite — glob both trays, which matches wherever the task now lives:
+        grep -l PATTERN .tasks/*/T-1851-*.md
+
+    Only *decayed* references are flagged (referenced task no longer in
+    `active/`). A live reference to an in-flight sibling is legitimate and
+    common, so flagging it would cry wolf on ~every task that coordinates with
+    another. That distinction needs the filesystem, so when the tasks dir
+    cannot be resolved the detector stays silent rather than guessing.
+
+    Measured population at introduction (T-3274): 79 completed tasks pin such a
+    path in `## Verification`; 54 had already decayed. Only 1-2 surface per
+    audit run because CTL-013 re-runs a rotating window, so the rest sit latent
+    until they rotate into view.
+    """
+    findings: list[Finding] = []
+    if not verification_section:
+        return findings
+    tasks_dir = _resolve_tasks_dir(task_path)
+    if tasks_dir is None:
+        return findings
+    active_dir = tasks_dir / "active"
+    for lineno, raw in enumerate(verification_section.splitlines(), start=1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        refs = _DECAY_TASK_PATH_RE.findall(line)
+        if not refs:
+            continue
+        # Self-references decay too (the task's own file moves on close), and
+        # are the shape that blocked all 14 CTL-028 backfills in T-3265 round 3.
+        decayed = [r for r in dict.fromkeys(refs) if not list(active_dir.glob(f"{r}-*.md"))]
+        if not decayed:
+            continue
+        findings.append(
+            Finding(
+                pattern_id="decaying-task-path-ref",
+                pattern_name="Verification pins a .tasks/active/ path that has decayed",
+                detection_confidence="deterministic",
+                # `partial` keeps the verdict at CONCERN. The verification line
+                # is genuinely broken, but the WORK it attested to is usually
+                # intact — only the path moved. Failing the task would punish
+                # the author for a sibling task's later close.
+                lie_severity="partial",
+                location=f"Verification:line {lineno}",
+                evidence=f"{', '.join(decayed)} no longer in active/ — {line[:150]}",
+            )
+        )
+    return findings
+
+
 def detect_ac_verify_mismatch(ac_section: str, verification_section: str) -> list[Finding]:
     """AC checked AND mentions a specific file path, but no verification line touches it.
 
@@ -2424,6 +2581,63 @@ def detect_write_set_underdeclared(meta: dict | None, body: str) -> list[Finding
     return findings
 
 
+# ───── worktree-handoff-durability detector (T-2825, G-075 static backstop) ─────
+#
+# CLAUDE.md §Copy-Pasteable Commands (T-2825 worktree-durability clause): a handoff
+# command whose `cd` prefix targets `.claude/worktrees/<name>` and whose chained
+# verb outlives the current session (push, Tier 0 approval, task/arc review or
+# decision handoff) bets the command on a directory that may already be torn down
+# by the time the human runs it — `fw worktree remove` / `fw worktree gc` can
+# delete it at any point after the session ends. Origin: T-2428 — a handoff
+# one-liner `cd .../.claude/worktrees/livefire-t2389 && …` failed with `cd: No
+# such file or directory` days later; the branch's 6 commits sat unpushed for 5
+# weeks because nothing ever re-surfaced the failure.
+#
+# Single-line match (CLAUDE.md's own "no bare multi-line" rule for handoff
+# commands means the cd-prefix and the outliving verb are chained with `&&` on
+# one line): `cd <path containing .claude/worktrees/NAME> && ... <verb>`.
+_WORKTREE_HANDOFF_VERB_RE = (
+    r"(?:git\s+push|push\s+origin|fw\s+tier0\s+approve|tier0\s+approve|"
+    r"fw\s+task\s+review(?:-batch)?|task\s+review(?:-batch)?|"
+    r"fw\s+inception\s+decide|inception\s+decide|"
+    r"fw\s+arc\s+close|arc\s+close|fw\s+arc\s+approve-driver)"
+)
+_WORKTREE_HANDOFF_RE = re.compile(
+    r"cd\s+\S*\.claude/worktrees/[^\s&]+[^\n]*?&&[^\n]*?\b" + _WORKTREE_HANDOFF_VERB_RE + r"\b",
+    re.IGNORECASE,
+)
+
+
+def detect_worktree_handoff_durability(body: str) -> list[Finding]:
+    """Handoff command chains a `.claude/worktrees/` cd-prefix to a verb that
+    outlives the session (push / tier0 approve / task review / inception decide
+    / arc close|approve-driver).
+
+    Heuristic, partial lie-severity → CONCERN, needs_human=no.
+    Origin: T-2825 (G-075 static backstop), CLAUDE.md §Copy-Pasteable Commands
+    worktree-durability clause.
+    """
+    findings: list[Finding] = []
+    if not body:
+        return findings
+
+    for lineno, raw_line in enumerate(body.splitlines(), start=1):
+        m = _WORKTREE_HANDOFF_RE.search(raw_line)
+        if not m:
+            continue
+        findings.append(
+            Finding(
+                pattern_id="worktree-handoff-durability",
+                pattern_name="Handoff command uses ephemeral .claude/worktrees/ cwd for a verb that outlives the session (T-2825, G-075)",
+                detection_confidence="heuristic",
+                lie_severity="partial",
+                location=f"body:line {lineno}",
+                evidence=m.group(0).strip()[:200],
+            )
+        )
+    return findings
+
+
 # ───────────────────────── Orchestration ─────────────────────────
 
 
@@ -2497,6 +2711,7 @@ def scan_task(
     findings.extend(detect_tautology(verif_section))
     findings.extend(detect_empty_body(ac_section))
     findings.extend(detect_swallowed_errors(verif_section))
+    findings.extend(detect_toothless_http(verif_section))
     findings.extend(detect_output_spoofing(verif_section))
     # v1.1 detectors
     findings.extend(detect_empty_output_success(verif_section))
@@ -2509,6 +2724,9 @@ def scan_task(
     findings.extend(detect_reviewer_prose_mismatch(ac_section))
     # v1.5 +1: T-2059 — L-387 SIGPIPE detector (closes 7+ historical captures)
     findings.extend(detect_l387_sigpipe_risk(verif_section))
+    # v1.7 +1: T-3274 — decaying `.tasks/active/<T-XXXX>` verification refs
+    # (54 already-decayed instances in the corpus at introduction)
+    findings.extend(detect_decaying_task_path_ref(verif_section, task_path))
     # v1.6 +1: T-2147 — audience-mismatch (T-2143 leg B); reviewer-time
     # backstop for CLAUDE.md §AC Classification audience axis (T-2148).
     findings.extend(detect_audience_mismatch(ac_section))
@@ -2528,6 +2746,10 @@ def scan_task(
     # v1.7 +1: T-2504 — write-set-underdeclared (T-2324 IW-4); write_set:
     # declared but body references source-dir paths not covered by any glob.
     findings.extend(detect_write_set_underdeclared(meta, body))
+    # v1.7 +2: T-2825 — worktree-handoff-durability (G-075 static backstop);
+    # handoff command chains a `.claude/worktrees/` cd-prefix to a verb that
+    # outlives the session.
+    findings.extend(detect_worktree_handoff_durability(body))
 
     task_id = task_path.stem.split("-")[0] + "-" + task_path.stem.split("-")[1]
 
@@ -2683,7 +2905,14 @@ def write_verdict_to_task(
 
     new_section = render_verdict_md(verdict)
     if _VERDICT_SECTION_RE.search(text):
-        new_text = _VERDICT_SECTION_RE.sub(new_section, text)
+        # T-2730: the replacement MUST be a callable. Passing `new_section` as a
+        # string makes `re` parse it as a template, so any backslash the verdict
+        # quotes out of the task body is interpreted: `\x` raises
+        # `re.error: bad escape \x` and `\1` would silently splice in a capture
+        # group. The verdict is data, not a template. CLAUDE.md itself tells
+        # authors to write `sed 's/\x1b\[…'`, so this crashed the reviewer on
+        # exactly the tasks that follow the documented idiom.
+        new_text = _VERDICT_SECTION_RE.sub(lambda _m: new_section, text)
     else:
         sep = "" if text.endswith("\n") else "\n"
         new_text = text + sep + "\n" + new_section

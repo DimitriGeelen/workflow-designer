@@ -9,6 +9,33 @@ source "$FRAMEWORK_ROOT/lib/paths.sh"
 # production it is unset, so the default below is used unchanged.
 HANDOVER_DIR="${HANDOVER_DIR:-$CONTEXT_DIR/handovers}"
 
+# ─── T-3028 (T-3025 GO, option 3): state-dump digest ───
+#
+# Three sections — Observation Inbox, Work in Progress, Awaiting Your Action —
+# are 97.3% of a handover's bytes and are byte-identical between consecutive
+# sessions. That is what makes .context/handovers 68% of the semantic corpus and
+# 79% of its growth. Digested, each becomes: its own total, the command that
+# regenerates it in full, and the top N entries.
+#
+# What is NOT touched: the 14 narrative sections. The cold-reader probe (T-3025
+# IW-2) showed narrative is the payload — "what must you not do", "name a decision
+# and its reasoning" were answered correctly from the digest alone. What it loses
+# is a queue snapshot that is stale the moment it is written and that every
+# consumer re-derives anyway.
+#
+# HANDOVER_DIGEST=0 restores the full dumps. Subtraction before construction, and
+# reversible by construction, is why this candidate was ordered ahead of the
+# 10x binary-quantization build.
+source "$FRAMEWORK_ROOT/lib/config.sh" 2>/dev/null || true
+if declare -f fw_config >/dev/null 2>&1; then
+    HANDOVER_DIGEST=$(fw_config HANDOVER_DIGEST 2>/dev/null || echo 1)
+    DIGEST_TOP_N=$(fw_config HANDOVER_DIGEST_TOP_N 2>/dev/null || echo 5)
+else
+    HANDOVER_DIGEST="${FW_HANDOVER_DIGEST:-1}"
+    DIGEST_TOP_N="${FW_HANDOVER_DIGEST_TOP_N:-5}"
+fi
+case "$DIGEST_TOP_N" in ''|*[!0-9]*) DIGEST_TOP_N=5 ;; esac
+
 # T-1461: Resolve Watchtower URL once for inline link rendering.
 # Falls back to the literal port file or 3000 if `fw watchtower url` fails — the
 # handover should never crash if Watchtower isn't running. Renders as plain text
@@ -66,7 +93,38 @@ _push_to_remotes() {
     echo ""
     echo -e "${CYAN}Pushing to remotes...${NC}"
     _push_failed=false
-    _push_timeout="${FW_HANDOVER_PUSH_TIMEOUT:-60}"
+    # T-1277 set 60s to bound an UNREACHABLE remote. But the wall-clock this
+    # timeout actually has to cover is network + the pre-push hook, and the hook
+    # runs an audit: measured 347s before T-3062 split the whole-tree scanners
+    # out, ~59s after. At 60s the push was killed mid-gate every time — which is
+    # indistinguishable from a clean exit here, because a killed push and a
+    # blocked push both land in the same warning branch below. Seven commits sat
+    # unpushed across four sessions on exactly that.
+    #
+    # So the number is not a network budget, it is `gate cost + network`, and it
+    # needs real headroom above the gate or this returns the moment some check
+    # grows. tests/unit/handover_push_timeout.bats pins the relationship; it is
+    # the assertion, this comment is only the reason.
+    #
+    # T-3450: the static 300 above was itself an instance of exactly this
+    # failure — 300 had ~241s of headroom over the gate at T-3062 (~59s) and
+    # 32s of headroom by 2026-09-22 (gate grown to 268s), and three handovers
+    # on 2026-09-24 were killed at exit 124 as a result. The default is now
+    # derived per push from the measured gate cost (lib/prepush-lock-wait.sh,
+    # fw_handover_push_timeout_default) instead of asserted once and left to
+    # rot; an explicit FW_HANDOVER_PUSH_TIMEOUT still wins outright.
+    _push_timeout_source="explicit FW_HANDOVER_PUSH_TIMEOUT"
+    if [ -n "${FW_HANDOVER_PUSH_TIMEOUT:-}" ]; then
+        _push_timeout="$FW_HANDOVER_PUSH_TIMEOUT"
+    elif [ -f "$FRAMEWORK_ROOT/lib/prepush-lock-wait.sh" ]; then
+        . "$FRAMEWORK_ROOT/lib/prepush-lock-wait.sh"
+        _push_timeout=$(fw_handover_push_timeout_default "$PROJECT_ROOT")
+        _push_timeout_source="derived from $PROJECT_ROOT/.context/audits/full-audit-timing.yaml"
+    else
+        _push_timeout=300
+        _push_timeout_source="hardcoded fallback (lib/prepush-lock-wait.sh not found)"
+    fi
+    echo -e "  ${CYAN}Push timeout: ${_push_timeout}s (${_push_timeout_source})${NC}"
     # T-1255 (G-007): When >1 remote is configured AND `origin` is one of them,
     # push ONLY to origin. Mirroring (e.g. github) is OneDev's job via
     # .onedev-buildspec.yml's PushRepository job. Pushing directly to mirror
@@ -89,16 +147,41 @@ _push_to_remotes() {
         fi
         if timeout "$_push_timeout" git -C "$PROJECT_ROOT" push --follow-tags "$remote_name" HEAD 2>&1; then
             echo -e "  ${GREEN}Pushed to $remote_name ✓${NC}"
+            _push_kind="success"
         else
             _exit=$?
+            # T-3063: exit 124 is `timeout` killing the push, which means the
+            # pre-push gate never reached a verdict. That is categorically not
+            # the same event as a gate running to completion and refusing —
+            # one is the absence of an answer, the other is an answer. They
+            # shared this branch until now, which is why four sessions of
+            # killed pushes read exactly like four sessions of refused ones.
+            # Same distinction T-2930/OBS-221 drew for audit exit 75, applied
+            # at the caller that does the bounding.
             if [ "$_exit" -eq 124 ]; then
-                echo -e "  ${YELLOW}WARNING: Push to $remote_name timed out after ${_push_timeout}s (non-blocking, T-1277)${NC}" >&2
+                _push_kind="killed"
+                echo -e "  ${YELLOW}WARNING: Push to $remote_name was KILLED at ${_push_timeout}s (${_push_timeout_source}) — the pre-push gate did not finish, so NO verdict was produced (T-3063).${NC}" >&2
+                echo -e "  ${YELLOW}         This is not 'the gate refused you'. Measure it: time bin/fw audit --section structure${NC}" >&2
             else
-                echo -e "  ${YELLOW}WARNING: Push to $remote_name failed (non-blocking)${NC}" >&2
+                _push_kind="refused"
+                echo -e "  ${YELLOW}WARNING: Push to $remote_name was REFUSED (exit ${_exit}) — a gate or the remote said no; its message is above.${NC}" >&2
             fi
             _push_failed=true
         fi
     done < <(git -C "$PROJECT_ROOT" remote 2>/dev/null)
+
+    # T-3063: remember the outcome. A success clears the streak; a failure
+    # extends it. Only the origin push is worth recording — mirrors are skipped
+    # above, so _push_kind reflects origin whenever origin was attempted.
+    if [ -f "$FRAMEWORK_ROOT/lib/push-state.sh" ]; then
+        . "$FRAMEWORK_ROOT/lib/push-state.sh"
+        if [ "$_push_failed" = true ]; then
+            fw_push_state_record "$PROJECT_ROOT" failure "${_push_kind:-unknown}" "${SESSION_ID:-}"
+        else
+            fw_push_state_record "$PROJECT_ROOT" success
+        fi
+    fi
+
     if [ "$_push_failed" = true ]; then
         echo -e "${YELLOW}Some pushes failed. Run 'git push' manually after resolving.${NC}"
     fi
@@ -145,13 +228,59 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 # Ensure directories exist
 mkdir -p "$HANDOVER_DIR"
 
+# ─── T-3027 (OBS-276): classify .tasks/active/ by status, not by directory ───
+#
+# `tasks_active:` used to be every file in .tasks/active/ with its `id:` read and
+# its `status:` ignored. But .tasks/active/ is a directory, not a state: it holds
+# captured (parked), started-work, issues, and partial-complete (work-completed,
+# awaiting a human) side by side. The field therefore asserted ~119 tasks were
+# active when ~37 were in flight.
+#
+# That was survivable while the Work in Progress dump appeared a few hundred lines
+# below and carried per-task Status — a reader hitting the contradiction believed
+# the dump. T-3025's GO elides that dump, which promotes this frontmatter to the
+# only carrier of task state. The IW-2 probe measured the consequence directly:
+# given the digest alone, the reader read 82 parked tasks as live work and named
+# one as in-progress, with high confidence.
+#
+# Filtering alone would be lossy — a parked or awaiting-review task is still worth
+# surfacing — so the states the old field absorbed get their own fields. Union of
+# the four equals the directory listing; nothing is dropped.
+#
+# Sets: ACTIVE_TASKS, PARKED_TASKS, AWAITING_REVIEW_TASKS, UNKNOWN_STATUS_TASKS.
+classify_active_tasks() {
+    ACTIVE_TASKS=""; PARKED_TASKS=""; AWAITING_REVIEW_TASKS=""; UNKNOWN_STATUS_TASKS=""
+    local f task_id task_status
+    shopt -s nullglob
+    for f in "$TASKS_DIR/active"/*.md; do
+        [ -f "$f" ] || continue
+        task_id=$({ grep "^id:" "$f" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d ' ')
+        [ -n "$task_id" ] || continue
+        task_status=$({ grep "^status:" "$f" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d ' ')
+        case "$task_status" in
+            started-work|issues) ACTIVE_TASKS="$ACTIVE_TASKS$task_id, " ;;
+            captured)            PARKED_TASKS="$PARKED_TASKS$task_id, " ;;
+            work-completed)      AWAITING_REVIEW_TASKS="$AWAITING_REVIEW_TASKS$task_id, " ;;
+            # An unreadable or absent status is its own answer. Defaulting it into
+            # `active` would turn a parse failure into a live-work assertion — the
+            # exact class of silent wrongness this task exists to remove.
+            *)                   UNKNOWN_STATUS_TASKS="$UNKNOWN_STATUS_TASKS$task_id, " ;;
+        esac
+    done
+    shopt -u nullglob
+    ACTIVE_TASKS="${ACTIVE_TASKS%, }"
+    PARKED_TASKS="${PARKED_TASKS%, }"
+    AWAITING_REVIEW_TASKS="${AWAITING_REVIEW_TASKS%, }"
+    UNKNOWN_STATUS_TASKS="${UNKNOWN_STATUS_TASKS%, }"
+}
+
 # ─── Checkpoint Mode: lightweight mid-session snapshot ───
 if [ "$CHECKPOINT_MODE" = true ]; then
     HANDOVER_FILE="$HANDOVER_DIR/CHECKPOINT-$SESSION_ID.md"
     echo -e "${CYAN}=== Checkpoint Handover ===${NC}"
     echo "Session: $SESSION_ID"
 
-    ACTIVE_TASKS=""
+    classify_active_tasks   # T-3027: sets ACTIVE_TASKS + the three sibling lists
     ACTIVE_DETAILS=""
     shopt -s nullglob
     for f in "$TASKS_DIR/active"/*.md; do
@@ -160,7 +289,6 @@ if [ "$CHECKPOINT_MODE" = true ]; then
         task_name=$({ grep "^name:" "$f" 2>/dev/null || true; } | head -1 | cut -d: -f2- | sed 's/^ *//')
         task_status=$({ grep "^status:" "$f" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d ' ')
         task_wftype=$({ grep "^workflow_type:" "$f" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d ' ')
-        [ -n "$task_id" ] && ACTIVE_TASKS="$ACTIVE_TASKS$task_id, "
         # T-1461: render task as a Watchtower link when WT_URL is available.
         # Inception → /inception/T-XXX, otherwise → /review/T-XXX. Plain bold ID when WT_URL empty.
         if [ -n "$WT_URL" ]; then
@@ -175,7 +303,6 @@ if [ "$CHECKPOINT_MODE" = true ]; then
         ACTIVE_DETAILS="$ACTIVE_DETAILS- $_link: $task_name ($task_status)\n"
     done
     shopt -u nullglob
-    ACTIVE_TASKS="${ACTIVE_TASKS%, }"
 
     UNCOMMITTED=$(git -C "$PROJECT_ROOT" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
     RECENT_COMMITS=$(git -C "$PROJECT_ROOT" log -5 --pretty=format:"- %h %s" 2>/dev/null)
@@ -186,6 +313,9 @@ session_id: $SESSION_ID
 timestamp: $TIMESTAMP
 type: checkpoint
 tasks_active: [$ACTIVE_TASKS]
+tasks_parked: [$PARKED_TASKS]
+tasks_awaiting_review: [$AWAITING_REVIEW_TASKS]
+tasks_unknown_status: [$UNKNOWN_STATUS_TASKS]
 uncommitted_changes: $UNCOMMITTED
 owner: ${AGENT_OWNER:-claude-code}
 ---
@@ -218,7 +348,10 @@ CHECKPOINT_EOF
         fi
         if [ -n "$GIT_AGENT" ]; then
             git -C "$PROJECT_ROOT" add "$HANDOVER_FILE"
-            PROJECT_ROOT="$PROJECT_ROOT" "$GIT_AGENT" commit -m "$COMMIT_TASK: Checkpoint handover $SESSION_ID"
+            # T-3090: scope the commit by pathspec, not by the add. The add
+            # bounds the index; without `--` the commit takes the WHOLE index,
+            # including a concurrent session's staged-but-uncommitted work.
+            PROJECT_ROOT="$PROJECT_ROOT" "$GIT_AGENT" commit -m "$COMMIT_TASK: Checkpoint handover $SESSION_ID" -- "$HANDOVER_FILE"
             # T-2588: push immediately — checkpoints exist to survive session
             # death, so a checkpoint commit stranded locally defeats the point.
             _push_to_remotes
@@ -259,18 +392,8 @@ if [ -f "$HANDOVER_DIR/LATEST.md" ]; then
     PREDECESSOR=$(grep "^session_id:" "$HANDOVER_DIR/LATEST.md" 2>/dev/null | cut -d: -f2 | tr -d ' ')
 fi
 
-# Get active tasks
-ACTIVE_TASKS=""
-shopt -s nullglob
-for f in "$TASKS_DIR/active"/*.md; do
-    [ -f "$f" ] || continue
-    task_id=$({ grep "^id:" "$f" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d ' ')
-    if [ -n "$task_id" ]; then
-        ACTIVE_TASKS="$ACTIVE_TASKS$task_id, "
-    fi
-done
-shopt -u nullglob
-ACTIVE_TASKS="${ACTIVE_TASKS%, }"  # Remove trailing comma
+# Get active tasks — T-3027: classified by status, not by directory membership.
+classify_active_tasks
 
 # Get git info
 UNCOMMITTED=$(git -C "$PROJECT_ROOT" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
@@ -293,14 +416,65 @@ if [ -f "$FRAMEWORK_ROOT/lib/branch-hygiene.sh" ]; then
         _bd_ahead=$(echo "$_bd_line" | awk '{print $3}' | cut -d= -f2)
         _bd_behind=$(echo "$_bd_line" | awk '{print $4}' | cut -d= -f2)
         BRANCH_DIVERGENCE="**Branch:** \`$_bd_branch\` +${_bd_ahead} / −${_bd_behind} vs origin/master"
+
+        # T-3026 (OBS-275): ahead-of-master is NOT push state, and the rule this
+        # handover exists to serve is "do not end a session with unpushed commits".
+        # A fully-pushed branch can be +131 vs master (unlanded by decision); a
+        # fully-merged one can still hold unpushed commits. Reporting only the
+        # vs-master delta answers a different question from the one that matters,
+        # and reads as though it answered both. Surfaced unprompted by BOTH arms of
+        # the T-3025 IW-2 probe, in a session that had just lost hours to exactly
+        # this blind spot. Read from the local remote-tracking ref — no fetch, so
+        # handover generation stays offline and cannot hang on an unreachable
+        # remote; that ref is updated by our own pushes, which is precisely what
+        # "did I push?" asks.
+        _ps_ref="refs/remotes/origin/${_bd_branch}"
+        if ! git -C "$PROJECT_ROOT" rev-parse --verify --quiet "$_ps_ref" >/dev/null 2>&1; then
+            BRANCH_DIVERGENCE="$BRANCH_DIVERGENCE — **⚠ never pushed:** no \`origin/${_bd_branch}\` exists"
+        else
+            _ps_unpushed=$(git -C "$PROJECT_ROOT" rev-list --count \
+                "origin/${_bd_branch}..HEAD" 2>/dev/null || true)
+            case "$_ps_unpushed" in
+                ""|*[!0-9]*)
+                    BRANCH_DIVERGENCE="$BRANCH_DIVERGENCE — push state unknown" ;;
+                0)
+                    BRANCH_DIVERGENCE="$BRANCH_DIVERGENCE — in sync with \`origin/${_bd_branch}\`" ;;
+                *)
+                    BRANCH_DIVERGENCE="$BRANCH_DIVERGENCE — **⚠ ${_ps_unpushed} commit(s) NOT pushed** to \`origin/${_bd_branch}\`"
+                    # T-3063: the count above is a snapshot and reads the same
+                    # at "not yet" as at "stuck for four sessions". Only the
+                    # streak can tell those apart, so when there is one, say
+                    # so here — this line is what SessionStart injects, and it
+                    # is the only place the next session is guaranteed to look.
+                    if [ -f "$FRAMEWORK_ROOT/lib/push-state.sh" ]; then
+                        . "$FRAMEWORK_ROOT/lib/push-state.sh"
+                        _ps_stuck=$(fw_push_state_read "$PROJECT_ROOT" 2>/dev/null || true)
+                        if [ -n "$_ps_stuck" ]; then
+                            _ps_n=$(printf '%s\n' "$_ps_stuck" | grep -o 'failures=[0-9]*' | cut -d= -f2)
+                            _ps_since=$(printf '%s\n' "$_ps_stuck" | grep -o 'since=[^ ]*' | cut -d= -f2)
+                            _ps_kind=$(printf '%s\n' "$_ps_stuck" | grep -o 'kind=[^ ]*' | cut -d= -f2)
+                            BRANCH_DIVERGENCE="$BRANCH_DIVERGENCE
+
+**🛑 THE PUSH IS STUCK, not merely pending.** It has failed **${_ps_n} sessions in a row**, since \`${_ps_since}\`. Those ${_ps_unpushed} commit(s) exist in exactly one place — this working copy. $(fw_push_state_advice "$_ps_kind")"
+                        fi
+                    fi
+                    ;;
+            esac
+        fi
+        # T-3194: the nudge is the single most-read line in a handover — it is
+        # what SessionStart injects into the next session. Naming a literal
+        # `master` there hands the next agent an instruction that merges the
+        # older tree into the newer one, with the framework's own authority
+        # behind it. It has to name the branch the divergence was measured from.
+        _bd_devname=$(_fw_bh_dev_name "$PROJECT_ROOT")
         if printf '%s\n' "$_bd_out" | grep -q '^fork '; then
-            # T-100195: bidirectional fork — a bare `git merge origin/master`
+            # T-100195: bidirectional fork — a bare `git merge origin/<target>`
             # conflicts (T-100194 origin: 100+ conflicts). Reconcile while small,
             # do NOT recommend a one-way `fw integrate` (it cannot absorb the
-            # ${_bd_behind} commits master has that this branch lacks).
-            MERGEBACK_NUDGE="**⚠ Branch has FORKED from origin/master:** \`$_bd_branch\` is +${_bd_ahead} ahead AND −${_bd_behind} behind (threshold ${FW_BRANCH_BEHIND_WARN:-50}). This is a bidirectional fork, not a lag — a go-live \`git merge origin/master\` will conflict. Reconcile now while the fork is small: merge origin/master INTO this branch and resolve, or reset to origin/master if the unique commits are already landed. (RCA T-100194; safe go-live path: T-100195 Leg 2.)"
+            # ${_bd_behind} commits the target has that this branch lacks).
+            MERGEBACK_NUDGE="**⚠ Branch has FORKED from origin/${_bd_devname}:** \`$_bd_branch\` is +${_bd_ahead} ahead AND −${_bd_behind} behind (threshold ${FW_BRANCH_BEHIND_WARN:-50}). This is a bidirectional fork, not a lag — a go-live \`git merge origin/${_bd_devname}\` will conflict. Reconcile now while the fork is small: merge origin/${_bd_devname} INTO this branch and resolve, or reset to origin/${_bd_devname} if the unique commits are already landed. (RCA T-100194; safe go-live path: T-100195 Leg 2.)"
         elif printf '%s\n' "$_bd_out" | grep -q '^nudge '; then
-            MERGEBACK_NUDGE="**Merge-back overdue:** \`$_bd_branch\` is ${_bd_behind} commits behind origin/master (threshold ${FW_BRANCH_BEHIND_WARN:-50}) — land the strand with \`fw integrate run master --push\` before starting new work."
+            MERGEBACK_NUDGE="**Merge-back overdue:** \`$_bd_branch\` is ${_bd_behind} commits behind origin/${_bd_devname} (threshold ${FW_BRANCH_BEHIND_WARN:-50}) — land the strand with \`fw integrate run ${_bd_devname} --push\` before starting new work."
         fi
     fi
 fi
@@ -378,15 +552,52 @@ INBOX_FILE="$CONTEXT_DIR/inbox.yaml"
 PENDING_OBS=0
 URGENT_OBS=0
 if [ -f "$INBOX_FILE" ]; then
-    PENDING_OBS=$(grep -c 'status: pending' "$INBOX_FILE" 2>/dev/null) || PENDING_OBS=0
+    # T-2932: parse, do not grep. `grep -c 'status: pending'` counts the string
+    # ANYWHERE in the file, including inside an observation's own text. That was
+    # correct for as long as no observation quoted it — and it stopped being
+    # correct the same hour it was written down: OBS-233, filed to record the
+    # risk, quotes the string and pushed the count from 118 to 119. The latent
+    # case went live on the act of describing it.
+    PENDING_OBS=$(VALIDATE_FILE="$INBOX_FILE" python3 -c "
+import os, sys
+try:
+    import yaml
+    with open(os.environ['VALIDATE_FILE']) as f:
+        d = yaml.safe_load(f) or {}
+    print(sum(1 for o in (d.get('observations') or [])
+              if isinstance(o, dict) and o.get('status') == 'pending'))
+except Exception as e:
+    print('handover: could not read the observation inbox (%s)' % e.__class__.__name__, file=sys.stderr)
+    print(0)
+" 2>/dev/null) || PENDING_OBS=0
+    # T-2927: parse the YAML, do not guess its indentation. The previous form
+    # split on `\n  - ` — the 2-space list indent used by patterns.yaml, NOT the
+    # column-0 form inbox.yaml actually uses. T-2514 named that exact mismatch
+    # and fixed it in audit.sh; this site and the listing block below were never
+    # swept (L-533: a sibling sweep with no enumerating guard cannot tell
+    # "converted the ones we found" from "converted all of them").
+    #
+    # Measured before repair: this returned 1 urgent against a true count of 3.
+    # Reported by 832 as latent in their tree, where it always returned 0 —
+    # actively miscounting in ours, which is worse: 0 reads as "none", 1 reads
+    # as a working counter.
     URGENT_OBS=$(VALIDATE_FILE="$INBOX_FILE" python3 -c "
-import re, os
-with open(os.environ['VALIDATE_FILE']) as f:
-    content = f.read()
-blocks = re.split(r'\n  - ', content)
-urgent = sum(1 for b in blocks[1:] if 'status: pending' in b and 'urgent: true' in b)
-print(urgent)
-" 2>/dev/null || echo 0)
+import os, sys
+try:
+    import yaml
+    with open(os.environ['VALIDATE_FILE']) as f:
+        d = yaml.safe_load(f) or {}
+    obs = d.get('observations') or []
+    print(sum(1 for o in obs
+              if isinstance(o, dict)
+              and o.get('status') == 'pending'
+              and o.get('urgent') is True))
+except Exception as e:
+    # Loud, not silent: a swallowed parse error here prints 0 and reads as
+    # 'no urgent observations', which is the failure this task exists to fix.
+    print('WARN: could not parse %s for urgent count: %s' % (os.environ['VALIDATE_FILE'], e), file=sys.stderr)
+    print(0)
+" || echo 0)
 fi
 
 if [ "$PENDING_OBS" -gt 0 ]; then
@@ -481,9 +692,12 @@ fi
 # deprecated `--emergency` alias both route through this normal path. Best-effort:
 # the helper never fails the handover (graceful degradation to a placeholder).
 DISCARD_MANIFEST_LINE=""
-if [ -x "$FRAMEWORK_ROOT/agents/handover/discard-manifest.sh" ]; then
+# T-3051: -f + bash, not -x. This one was already dark on the origin host —
+# discard-manifest.sh sat at 664 in the worktree, so the handover silently
+# stopped emitting the manifest line and nothing reported it.
+if [ -f "$FRAMEWORK_ROOT/agents/handover/discard-manifest.sh" ]; then
     if SESSION_ID="$SESSION_ID" HANDOVER_DIR="$HANDOVER_DIR" PROJECT_ROOT="$PROJECT_ROOT" \
-        CONTEXT_DIR="$CONTEXT_DIR" "$FRAMEWORK_ROOT/agents/handover/discard-manifest.sh" \
+        CONTEXT_DIR="$CONTEXT_DIR" bash "$FRAMEWORK_ROOT/agents/handover/discard-manifest.sh" \
         "$SESSION_ID" >/dev/null 2>&1; then
         DISCARD_MANIFEST_LINE="**Discard Manifest:** \`$SESSION_ID.discard-manifest.yaml\` (category-level compaction discards — T-2366)
 
@@ -518,6 +732,9 @@ session_id: $SESSION_ID
 timestamp: $TIMESTAMP
 predecessor: $PREDECESSOR
 tasks_active: [$ACTIVE_TASKS]
+tasks_parked: [$PARKED_TASKS]
+tasks_awaiting_review: [$AWAITING_REVIEW_TASKS]
+tasks_unknown_status: [$UNKNOWN_STATUS_TASKS]
 tasks_touched: [$TASKS_TOUCHED]
 tasks_completed: []
 uncommitted_changes: $UNCOMMITTED
@@ -609,28 +826,8 @@ if [ -f "$ARC_FOCUS_FILE" ]; then
     fi
 fi
 
-# T-1452 / G-053: surface ripe revisit_at deferrals. Silent when the file is absent
-# or empty.
-#
-# T-626: this block used to attribute the two files to a daily cron invocation of
-# revisit-due-scan.sh, and read them without ever running it. That sentence made the omission
-# invisible: it names a producer, so every reader assumed one existed. In this project
-# none did — the only revisit-due-scan cron entry on the host is rooted at another
-# project — so the two files were written exactly once, by hand, and T-155's revisit sat
-# 8 days past its date unseen.
-#
-# The scan costs 14ms (measured). Making a 14ms check depend on a scheduled job is what
-# turned its cost of observation from negligible into infinite (G-044). Handover already
-# runs every session, so it refreshes what it is about to render.
-#
-# Best-effort by design: a handover that aborts because a diagnostic scan failed is a
-# worse outcome than the blindness it replaces, since generating the handover is the
-# load-bearing act and the revisit list is advisory. Failure here is silent by intent.
-_T626_SCAN="$FRAMEWORK_ROOT/agents/context/revisit-due-scan.sh"
-if [ -x "$_T626_SCAN" ]; then
-    PROJECT_ROOT="$PROJECT_ROOT" "$_T626_SCAN" >/dev/null 2>&1 || true
-fi
-
+# T-1452 / G-053: surface ripe revisit_at deferrals (populated by daily
+# revisit-due-scan.sh cron). Silent when the file is absent or empty.
 REVISITS_FILE="$PROJECT_ROOT/.context/working/.revisits-due.txt"
 if [ -s "$REVISITS_FILE" ]; then
     echo "## Revisits Ripe Today"
@@ -642,15 +839,21 @@ if [ -s "$REVISITS_FILE" ]; then
     echo ""
 fi
 
-# T-373 (G-008): deferrals with NO revisit date. Separate file and separate heading
-# from "Revisits Ripe Today" — these are not ripe, they have no scheduled return at
-# all, which is why nothing surfaced them before.
+# T-2865: surface DEFER decisions carrying no revisit date. Its own heading, not
+# extra lines above — "Ripe Today" asserts a date has arrived, and these have no
+# date at all. Same absent-or-empty silence contract.
 UNDATED_FILE="$PROJECT_ROOT/.context/working/.revisits-undated.txt"
 if [ -s "$UNDATED_FILE" ]; then
+    _undated_n=$(grep -c . "$UNDATED_FILE" 2>/dev/null || echo 0)
     echo "## Deferred With No Revisit Date"
     echo ""
-    echo "These carry a DEFER decision but no \`revisit_at\`, so the daily scan has"
-    echo "nothing to fire on. Set a date, or record why there is deliberately none."
+    echo "$_undated_n task(s) recorded a DEFER decision but carry no \`revisit_at\`, so"
+    echo "nothing will ever surface them as ripe."
+    echo ""
+    echo "There is **no CLI verb** that sets this field — verified, not assumed"
+    echo "(T-2865). To schedule a revisit, add \`revisit_at: YYYY-MM-DD\` to the task's"
+    echo "frontmatter by hand; the template carries it commented out. Or close the"
+    echo "task if the deferral is permanent."
     echo ""
     while IFS= read -r line; do
         [ -z "$line" ] && continue
@@ -664,14 +867,46 @@ fi
 EOF
 
 # Add active tasks sorted by horizon (now > next > later)
-TASKS_DIR_PY="$TASKS_DIR" WT_URL_PY="$WT_URL" PROJECT_ROOT_PY="$PROJECT_ROOT" python3 << 'PYEOF' >> "$HANDOVER_FILE"
+TASKS_DIR_PY="$TASKS_DIR" WT_URL_PY="$WT_URL" PROJECT_ROOT_PY="$PROJECT_ROOT" \
+HANDOVER_DIGEST="$HANDOVER_DIGEST" DIGEST_TOP_N="$DIGEST_TOP_N" python3 << 'PYEOF' >> "$HANDOVER_FILE"
 # T-1825: heredoc delimiter quoted ('PYEOF') so shellcheck doesn't lint Python
 # `==` as bash (SC2284 false-positive). Shell vars now come in via env; no \$
 # escapes needed inside the body.
 import os, re, glob
+import yaml
 
 tasks_dir = os.environ["TASKS_DIR_PY"] + "/active"
 WT_URL = os.environ.get("WT_URL_PY", "")  # T-1461: empty → plain task ID, no link
+
+
+def extract_frontmatter_name(content):
+    """T-3211: parse the YAML frontmatter for `name:` rather than a
+    first-physical-line regex, which truncated folded/quoted multi-line
+    name: values mid-sentence with an unclosed quote. Falls back to joining
+    indented continuation lines when the frontmatter doesn't parse as YAML."""
+    fm = re.search(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
+    if fm:
+        try:
+            data = yaml.safe_load(fm.group(1))
+            if isinstance(data, dict) and data.get('name'):
+                return str(data['name']).strip()
+        except Exception:
+            pass
+    lines = content.split('\n')
+    for i, line in enumerate(lines):
+        m = re.match(r'^name:\s*(.*)', line)
+        if not m:
+            continue
+        parts = [m.group(1)]
+        for cont in lines[i + 1:]:
+            if cont[:1] in (' ', '\t') and cont.strip():
+                parts.append(cont.strip())
+            else:
+                break
+        joined = ' '.join(p.strip() for p in parts).strip()
+        return joined.strip('"\'')
+    return ''
+
 
 def review_link(tid, name):
     """Render a [T-XXX](URL) link to /review/T-XXX, or plain bold ID if no WT_URL."""
@@ -705,7 +940,7 @@ for f in sorted(glob.glob(os.path.join(tasks_dir, '*.md'))):
     with open(f) as fh:
         content = fh.read()
     tid = re.search(r'^id:\s*(.+)', content, re.M)
-    tname = re.search(r'^name:\s*(.+)', content, re.M)
+    tname = extract_frontmatter_name(content)
     tstatus = re.search(r'^status:\s*(.+)', content, re.M)
     thoriz = re.search(r'^horizon:\s*(.+)', content, re.M)
     twf = re.search(r'^workflow_type:\s*(.+)', content, re.M)
@@ -720,10 +955,16 @@ for f in sorted(glob.glob(os.path.join(tasks_dir, '*.md'))):
     wf = twf.group(1).strip() if twf else ''
     dec_m = re.search(r'^\*\*Decision\*\*:\s*(GO|NO-GO|DEFER)\b', content, re.M)
     dec = dec_m.group(1) if dec_m else ''
+    # T-3028: last_update drives "most recently touched" ordering in digest mode.
+    # Ordering by task ID would surface whatever was filed most recently, which is
+    # not the same as what was worked on most recently — and the latter is what a
+    # reader resuming a session needs.
+    tlu = re.search(r'^last_update:\s*[\'"]?([^\'"\s]+)', content, re.M)
+    lu = tlu.group(1) if tlu else ''
     tasks.append((horizon_order.get(h, 0), tid.group(1).strip(),
-                  tname.group(1).strip() if tname else '',
+                  tname,
                   tstatus.group(1).strip() if tstatus else '',
-                  h, verdict, wf, dec))
+                  h, verdict, wf, dec, lu))
 
 tasks.sort(key=lambda t: (t[0], t[1]))
 current_horizon = None
@@ -733,7 +974,18 @@ current_horizon = None
 # "Awaiting Human Review" sub-section, interleaving 135+ partial-complete
 # tasks with active WIP. Single bottom footer = primary signal first.
 pending_completed = []
-for _, tid, tname, tstatus, h, verdict, wf, dec in tasks:
+
+# T-3028: digest mode retains the N most recently touched, and refers the reader
+# to the command that regenerates the rest. Identity for every in-flight task is
+# already in frontmatter `tasks_active:` — and, since T-3027, it is finally true
+# there, which is the precondition that makes eliding this dump safe rather than
+# merely smaller. Two of the four rendered fields were constant across all 119
+# entries anyway ("Next step: See task file", "Blockers: None" — 119/119; §11b).
+digest = os.environ.get('HANDOVER_DIGEST', '1') != '0'
+top_n = int(os.environ.get('DIGEST_TOP_N') or 5)
+
+wip = []
+for _, tid, tname, tstatus, h, verdict, wf, dec, lu in tasks:
     # T-1619: DEFER'd inceptions are parked (decision is final, not WIP).
     # Skip from WIP — they are surfaced in the "Deferred Inceptions"
     # section below (T-1517) which already covers visibility.
@@ -744,6 +996,23 @@ for _, tid, tname, tstatus, h, verdict, wf, dec in tasks:
     if tstatus == 'work-completed':
         pending_completed.append((tid, tname, verdict, h))
         continue
+    wip.append((tid, tname, tstatus, h, lu))
+
+total_wip = len(wip)
+if digest and wip:
+    # started-work outranks captured; within each, most recently touched first.
+    # Two stable passes rather than one composite key: last_update is a string,
+    # so it sorts descending by reverse= and cannot be negated inside a tuple.
+    wip.sort(key=lambda t: (t[4] or ''), reverse=True)
+    wip.sort(key=lambda t: t[2] != 'started-work')
+    wip = wip[:top_n]
+    print(f'Showing {len(wip)} of {total_wip} — in-flight first, then most recently '
+          f'touched. Every in-flight task ID is in frontmatter `tasks_active:`.')
+    print(f'Regenerate in full: `bin/fw task list --status started-work`')
+    print()
+
+current_horizon = None
+for tid, tname, tstatus, h, lu in wip:
     if h != current_horizon:
         current_horizon = h
         print(f'<!-- horizon: {h} -->')
@@ -763,8 +1032,11 @@ for _, tid, tname, tstatus, h, verdict, wf, dec in tasks:
     print(f'### {tid}: {tname}')
     print(f'- **Status:** {tstatus} (horizon: {h})')
     print(f'- **Last action:** {last_action}')
-    print(f'- **Next step:** See task file')
-    print(f'- **Blockers:** None')
+    if not digest:
+        # Constant across 119/119 entries when measured (§11b). Kept in full mode
+        # so `HANDOVER_DIGEST=0` reproduces the old output byte-for-byte.
+        print(f'- **Next step:** See task file')
+        print(f'- **Blockers:** None')
     print()
     print()
 
@@ -786,8 +1058,15 @@ if pending_completed:
             continue
         print(f'**horizon: {hk}** ({len(by_h[hk])})')
         print()
-        for pc_tid, pc_name, pc_verdict in by_h[hk]:
+        # T-3028: this footer re-lists the same set as "Awaiting Your Action"
+        # below — the duplication is ~40% of what the two sections cost together.
+        rows = by_h[hk]
+        shown = rows[:top_n] if digest else rows
+        for pc_tid, pc_name, pc_verdict in shown:
             print(f'- [{pc_verdict}] {review_link(pc_tid, pc_name)}')
+        if digest and len(rows) > len(shown):
+            print(f'- _…and {len(rows) - len(shown)} more at horizon {hk}. '
+                  f'Full queue: `bin/fw review-queue`._')
         print()
 
 # T-1461: render inception tasks awaiting decision with /inception/T-XXX links
@@ -799,7 +1078,7 @@ inception_pending = []
 inception_deferred = []
 # T-1619: tuple grew to 8 elements (verdict, wf, dec). Reuse the captured
 # values; no need to re-read each task file.
-for _, tid, tname, tstatus, h, _verdict, wf, dec in tasks:
+for _, tid, tname, tstatus, h, _verdict, wf, dec, _lu in tasks:
     if tstatus == 'work-completed':
         continue
     if wf != 'inception':
@@ -850,11 +1129,43 @@ fi
 
 # Step 2.1: Surface partial-complete tasks (T-372 — blind completion anti-pattern)
 # Tasks that are work-completed but have unchecked Human ACs
-PARTIAL_COMPLETE_SECTION=$(WT_URL_FOR_PYTHON="$WT_URL" python3 << 'PCEOF'
+PARTIAL_COMPLETE_SECTION=$(WT_URL_FOR_PYTHON="$WT_URL" \
+    HANDOVER_DIGEST="$HANDOVER_DIGEST" DIGEST_TOP_N="$DIGEST_TOP_N" python3 << 'PCEOF'
 import glob, re, os
+import yaml
 
 tasks_dir = os.environ.get("TASKS_DIR", ".tasks")
 WT_URL = os.environ.get("WT_URL_FOR_PYTHON", "")
+
+
+def extract_frontmatter_name(content):
+    """T-3211: parse the YAML frontmatter for `name:` rather than a
+    first-physical-line regex, which truncated folded/quoted multi-line
+    name: values mid-sentence with an unclosed quote. Falls back to joining
+    indented continuation lines when the frontmatter doesn't parse as YAML."""
+    fm = re.search(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
+    if fm:
+        try:
+            data = yaml.safe_load(fm.group(1))
+            if isinstance(data, dict) and data.get('name'):
+                return str(data['name']).strip()
+        except Exception:
+            pass
+    lines = content.split('\n')
+    for i, line in enumerate(lines):
+        m = re.match(r'^name:\s*(.*)', line)
+        if not m:
+            continue
+        parts = [m.group(1)]
+        for cont in lines[i + 1:]:
+            if cont[:1] in (' ', '\t') and cont.strip():
+                parts.append(cont.strip())
+            else:
+                break
+        joined = ' '.join(p.strip() for p in parts).strip()
+        return joined.strip('"\'')
+    return ''
+
 
 def extract_verdict(content):
     """T-1530: Extract GO/DEFER/NO-GO from ## Recommendation. H2+ terminator (L-293).
@@ -893,13 +1204,13 @@ for f in sorted(glob.glob(os.path.join(tasks_dir, "active", "*.md"))):
     if unchecked == 0:
         continue
     tid = re.search(r'^id:\s*(\S+)', content, re.M)
-    tname = re.search(r'^name:\s*"?(.+?)"?\s*$', content, re.M)
+    tname = extract_frontmatter_name(content)
     if tid:
         # Extract first unchecked AC text (truncated)
         first_ac = re.search(r'^\s*-\s*\[ \]\s*(.+)', human_section, re.M)
         ac_preview = first_ac.group(1)[:60] if first_ac else "?"
         verdict = extract_verdict(content)
-        partial.append((tid.group(1), tname.group(1) if tname else "?", unchecked, ac_preview, verdict))
+        partial.append((tid.group(1), tname if tname else "?", unchecked, ac_preview, verdict))
 
 if partial:
     print("## Awaiting Your Action (Human)")
@@ -910,7 +1221,18 @@ if partial:
     # in this queue. The [?] is defensive only.
     print("Review each when ready. No urgency implied. Prefix is the agent's recommendation: `[GO]` confirm, `[DEFER]`/`[NO-GO]` decide. `[NO-REC]` means the agent never wrote a Recommendation block — task isn't ready for review yet (T-1576). (`[?]` would mean a partial-complete task slipped past the T-1529 recommendation gate — should not occur in normal flow.)")
     print()
-    for tid, tname, count, preview, verdict in partial:
+    # T-3028: 48,355 B of a 265,888 B handover, and a snapshot of a queue that is
+    # stale the moment it is written. GO-first matches `fw review-queue`'s own
+    # ordering, so the retained head is the head of the queue the reader will open.
+    _digest = os.environ.get('HANDOVER_DIGEST', '1') != '0'
+    _top_n = int(os.environ.get('DIGEST_TOP_N') or 5)
+    _rows = partial
+    if _digest:
+        _rows = sorted(partial, key=lambda r: (r[4] != 'GO', r[0]))[:_top_n]
+        print(f"Showing {len(_rows)} of {len(partial)} (GO first). "
+              f"Full queue, same order: `bin/fw review-queue`.")
+        print()
+    for tid, tname, count, preview, verdict in _rows:
         # T-1461: render review URL inline if Watchtower is reachable
         # T-1530: prefix with agent recommendation verdict
         if WT_URL:
@@ -937,21 +1259,79 @@ if [ "$PENDING_OBS" -gt 0 ]; then
             echo "**$PENDING_OBS pending observations** — review with \`fw note list\` or \`fw note triage\`."
         fi
         echo ""
-        # List pending observation summaries
-        python3 << PYEOF
-import re
-with open("$INBOX_FILE") as f:
-    content = f.read()
-blocks = re.split(r'\n  - ', content)
-for b in blocks[1:]:
-    if 'status: pending' not in b:
-        continue
-    obs_id = re.search(r'id: (OBS-\d+)', b)
-    text = re.search(r'text: "(.*?)"', b)
-    urgent = 'urgent: true' in b
-    if obs_id and text:
+        # List pending observation summaries.
+        #
+        # T-2927: parses the YAML rather than splitting on a guessed indent.
+        # The previous form split on `\n  - ` and listed 1 of 112 pending
+        # observations. One listed is worse than none: a zero could read as
+        # "nothing to show", whereas a single well-formed entry under a
+        # "112 pending" heading reads as a working section.
+        #
+        # The regex was only half of it. The other half — 832's, and the half
+        # that keeps this class visible if the parse ever breaks again — is the
+        # mismatch line below: a listing that emits fewer rows than the count it
+        # just printed must SAY so. Without it, the section is well-formed and
+        # complete-looking with its payload absent, and nothing anywhere reports
+        # "listed 1 of 112".
+        INBOX_FILE="$INBOX_FILE" PENDING_OBS="$PENDING_OBS" \
+        HANDOVER_DIGEST="$HANDOVER_DIGEST" DIGEST_TOP_N="$DIGEST_TOP_N" python3 << 'PYEOF'
+import os, sys
+
+path = os.environ['INBOX_FILE']
+claimed = int(os.environ.get('PENDING_OBS') or 0)
+# T-3028: this section alone was 137,505 B of a 265,888 B handover.
+digest = os.environ.get('HANDOVER_DIGEST', '1') != '0'
+top_n = int(os.environ.get('DIGEST_TOP_N') or 5)
+
+rows = []
+err = None
+try:
+    import yaml
+    with open(path) as f:
+        d = yaml.safe_load(f) or {}
+    for o in (d.get('observations') or []):
+        if not isinstance(o, dict) or o.get('status') != 'pending':
+            continue
+        obs_id = o.get('id')
+        text = o.get('text')
+        if not obs_id or not text:
+            continue
+        rows.append((o.get('urgent') is True, obs_id, str(text).strip()))
+except Exception as e:
+    err = e
+
+listed = len(rows)
+
+if digest and rows:
+    # Urgent first, then most recently captured — file order is capture order.
+    shown = sorted(range(len(rows)), key=lambda i: (not rows[i][0], -i))[:top_n]
+    shown = [rows[i] for i in shown]
+    print(f"Showing {len(shown)} of {listed} (urgent first, then newest). "
+          f"Full list: `bin/fw note triage`.")
+    print("")
+    for urgent, obs_id, text in shown:
         prefix = "[URGENT] " if urgent else ""
-        print(f"- {prefix}{obs_id.group(1)}: {text.group(1)}")
+        # Digest the entry too — observation bodies run 400-1200 chars and the
+        # first sentence is the finding; the rest is evidence the reader can go
+        # get. Truncation is marked, never silent.
+        body = text if len(text) <= 240 else text[:240].rstrip() + "…"
+        print(f"- {prefix}{obs_id}: {body}")
+else:
+    for urgent, obs_id, text in rows:
+        prefix = "[URGENT] " if urgent else ""
+        print(f"- {prefix}{obs_id}: {text}")
+
+if err is not None:
+    print(f"- _Could not read the observation inbox ({err.__class__.__name__}). "
+          f"{claimed} pending — run `fw note list`._")
+elif listed < claimed:
+    # Never silent. The count and the list disagreeing is itself the finding.
+    # T-3028 note: this is about a PARSE shortfall, not the digest's deliberate
+    # top-N. The digest announces its own truncation on the line above; this line
+    # still means "entries we could not summarise at all", and must keep saying so.
+    print("")
+    print(f"_Listed {listed} of {claimed} pending — {claimed - listed} could not be "
+          f"summarised (missing `id` or `text`). Run `fw note list` for the full set._")
 PYEOF
         echo ""
     } >> "$HANDOVER_FILE"
@@ -1017,7 +1397,37 @@ ${MERGEBACK_NUDGE}
 
 $(python3 -c "
 import glob, re, os
+import yaml
 tasks_dir = '$TASKS_DIR/active'
+
+
+def extract_frontmatter_name(content):
+    # T-3211: parse the YAML frontmatter for name: rather than a
+    # first-physical-line regex, which truncated folded/quoted multi-line
+    # name: values mid-sentence with an unclosed quote. Falls back to
+    # joining indented continuation lines when frontmatter does not parse.
+    fm = re.search(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
+    if fm:
+        try:
+            data = yaml.safe_load(fm.group(1))
+            if isinstance(data, dict) and data.get('name'):
+                return str(data['name']).strip()
+        except Exception:
+            pass
+    lines = content.split('\n')
+    for i, line in enumerate(lines):
+        m = re.match(r'^name:\s*(.*)', line)
+        if not m:
+            continue
+        parts = [m.group(1)]
+        for cont in lines[i + 1:]:
+            if cont[:1] in (' ', '\t') and cont.strip():
+                parts.append(cont.strip())
+            else:
+                break
+        joined = ' '.join(p.strip() for p in parts).strip()
+        return joined.strip(chr(39) + chr(34))
+    return ''
 # Find first started-work task in horizon:now/next, prefer agent-owned.
 # T-1724: skip inception tasks with a recorded DEFER decision — those are
 # parked under 'Watching for Recurrence', not actionable. Without this
@@ -1038,14 +1448,40 @@ for f in sorted(glob.glob(os.path.join(tasks_dir, '*.md'))):
     if re.search(r'^\*\*Decision\*\*:\s*DEFER', content, re.M):
         continue
     tid = re.search(r'^id:\s*(.+)', content, re.M)
-    tname = re.search(r'^name:\s*(.+)', content, re.M)
+    tname = extract_frontmatter_name(content)
     owner = re.search(r'^owner:\s*(.+)', content, re.M)
     is_human = owner and owner.group(1).strip() == 'human'
     hval = 0 if h.group(1).strip() == 'now' else 1
-    candidates.append((is_human, hval, tid.group(1).strip() if tid else '', tname.group(1).strip() if tname else ''))
-candidates.sort()
-if candidates:
-    _, _, tid, tname = candidates[0]
+    lu = re.search(r'^last_update:\s*(.+)', content, re.M)
+    lu = lu.group(1).strip() if lu else ''
+    candidates.append((is_human, hval, lu, tid.group(1).strip() if tid else '', tname))
+# T-3210: the session's OWN focus outranks every heuristic below. The handover
+# already prints '## Current Focus:' a few sections up; a suggestion that names a
+# different task contradicts it in the same document, and the reader has no way to
+# tell which one is authoritative. Measured: focus said T-3181, this line said
+# T-1719 — a task in no other section except a bare id in tasks_active.
+focus_id = ''
+try:
+    with open(os.path.join('$CONTEXT_DIR', 'working', 'focus.yaml')) as fh:
+        m = re.search(r'^current_task:\s*(\S+)', fh.read(), re.M)
+        if m:
+            focus_id = m.group(1).strip().strip(chr(39) + chr(34))
+except OSError:
+    focus_id = ''
+# T-3210: recency, not string order. The old key was the task id AS A STRING, so a
+# 296-candidate pool resolved on lexicographic accident ('T-1062' < 'T-1719' <
+# 'T-332') and reliably surfaced the oldest-numbered started-work task rather than
+# anything this session touched. ISO-8601 sorts chronologically as text, and
+# Python's sort is stable, so the two passes below compose: recency first, then the
+# owner/horizon primary keys survive it.
+candidates.sort(key=lambda c: c[2], reverse=True)
+candidates.sort(key=lambda c: (c[0], c[1]))
+focused = [c for c in candidates if c[3] == focus_id] if focus_id else []
+if focused:
+    _, _, _, tid, tname = focused[0]
+    print(f'Continue {tid}: {tname}')
+elif candidates:
+    _, _, _, tid, tname = candidates[0]
     print(f'Continue {tid}: {tname}')
 else:
     print('See active tasks')
@@ -1130,8 +1566,14 @@ if [ "$AUTO_COMMIT" = true ]; then
         # Stage handover files
         git -C "$PROJECT_ROOT" add "$HANDOVER_FILE" "$HANDOVER_DIR/LATEST.md"
 
-        # Commit via git agent
-        PROJECT_ROOT="$PROJECT_ROOT" "$GIT_AGENT" commit -m "$COMMIT_TASK: Session handover $SESSION_ID"
+        # Commit via git agent — pathspec-scoped (T-3090).
+        #
+        # The `git add` above bounds STAGING only. Before T-3090 this commit had
+        # no pathspec, so it took the whole index: on 2026-08-19 it swept two
+        # files belonging to a concurrent session's T-3089 into d3d3e49db and
+        # emptied that session's index mid-compose. The `--` below is what makes
+        # the narrow add above actually mean what it looks like it means.
+        PROJECT_ROOT="$PROJECT_ROOT" "$GIT_AGENT" commit -m "$COMMIT_TASK: Session handover $SESSION_ID" -- "$HANDOVER_FILE" "$HANDOVER_DIR/LATEST.md"
 
         # Push to all remotes (T-1144: prevent unpushed commit accumulation)
         # T-1277: bound the push so an unreachable remote (e.g. onedev behind a

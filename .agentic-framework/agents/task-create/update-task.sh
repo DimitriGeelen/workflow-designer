@@ -28,8 +28,56 @@ source "$FRAMEWORK_ROOT/lib/keylock.sh" 2>/dev/null || true
 # Render-surface predicate (T-1766)
 source "$FRAMEWORK_ROOT/lib/render_surface.sh" 2>/dev/null || true
 
+# Anchored AC / Recommendation section extraction (T-3148, sibling to
+# lib/verification-port.sh:extract_verification_block, T-3134)
+source "$FRAMEWORK_ROOT/lib/section-extract.sh"
+
 # === Extracted gate functions (T-415) ===
 # Each function accesses outer-scope variables: TASK_FILE, TASK_ID, SKIP_*, colors
+
+# T-2864: stage an active/ -> completed/ move so BOTH sides land in the index.
+#
+# Why this exists. The archive move prefers `git mv` (T-1523) but falls back to
+# a plain `mv` when git refuses. That fallback removes the source from DISK while
+# leaving it tracked in the INDEX — a state where the T-1863 post-move guard
+# (`[ -e "$source" ]`) passes, because the file really is gone from disk, while
+# `dup-task-scan.sh` still refuses the commit, because it reads
+# `git ls-files --cached` and sees the same task id under active/ AND completed/.
+#
+# Disk and index are two different populations, and the guard was watching the
+# one where the violation cannot appear. Origin: T-2863's GO decision was recorded
+# through Watchtower and then refused at the commit boundary, leaving the decision
+# on disk and out of history.
+#
+# Idempotent and silent on the happy path (`git mv` already staged both sides).
+# Best-effort: a staging failure is not fatal here — the T-1863 disk check and
+# the pre-commit dup scan both still run behind it.
+_t2864_reconcile_index() {
+    local src="$1" dest="$2"
+    [ -n "$src" ] && [ -n "$dest" ] && [ "$src" != "$dest" ] || return 0
+    command -v git >/dev/null 2>&1 || return 0
+    git -C "$PROJECT_ROOT" rev-parse --git-dir >/dev/null 2>&1 || return 0
+    # Only act when the source is STILL tracked in the index after the move —
+    # i.e. the `|| mv` fallback ran and left a stale index entry behind.
+    if git -C "$PROJECT_ROOT" ls-files --error-unmatch -- "$src" >/dev/null 2>&1; then
+        git -C "$PROJECT_ROOT" add -A -- "$src" "$dest" >/dev/null 2>&1 || true
+    fi
+    return 0
+}
+
+# T-1032: after `git mv active/ → completed/` runs, the old active/ path no
+# longer exists in the working tree. Agents that reason from a pre-move git
+# status snapshot construct `git add <old-active-path>` and hit `fatal:
+# pathspec did not match any files`. Emit an explicit next-step hint naming
+# the invariant (rename staged in index; episodic added separately below and
+# untracked). Opt out with FW_QUIET_NEXT_HINT=1 for scripted callers that
+# parse stdout.
+_print_move_next_hint() {
+    [ "${FW_QUIET_NEXT_HINT:-0}" = "1" ] && return 0
+    local tid="${1:-$TASK_ID}"
+    printf '  \xe2\x86\xb3 rename staged in index; episodic added below (untracked)\n'
+    printf "  \xe2\x86\xb3 next: git add .context/episodic/%s.yaml && git commit -m '%s: close ...' && git push\n" "$tid" "$tid"
+}
 
 # Gate bypass audit log (T-1142)
 log_gate_bypass() {
@@ -82,7 +130,9 @@ check_acceptance_criteria() {
     local agent_acs ac_total ac_checked ac_unchecked ac_label
     local human_acs placeholder_acs placeholder_count
 
-    ac_section=$(sed -n '/^## Acceptance Criteria/,/^## /p' "$TASK_FILE" 2>/dev/null | sed '$d')
+    # T-3148: anchored, FIRST-WINS extraction (see lib/section-extract.sh header
+    # for why AC is first-wins while Recommendation, below, is last-wins).
+    ac_section=$(extract_ac_section "$TASK_FILE")
     # Strip HTML comments — template examples contain checkbox patterns that get miscounted.
     # T-1967 (L-414 root cause): sed range matching does NOT close on the same line where
     # it opens — `/<!--/,/-->/d` on a one-line `<!-- ... -->` enters delete-mode at that
@@ -96,6 +146,40 @@ check_acceptance_criteria() {
 
     has_agent_header=$(echo "$ac_section" | grep -c '^### Agent' || true)
     has_human_header=$(echo "$ac_section" | grep -c '^### Human' || true)
+
+    # T-3029 (origin: T-2417/T-2418/T-2420): the ac_section extraction above
+    # closes at the FIRST `## ` heading following `## Acceptance Criteria`. A
+    # `### Human` block placed after an intervening `## ` heading (e.g.
+    # `## Measured Result`) is invisible to has_human_header, and the code
+    # below would silently treat HUMAN_AC_TOTAL as 0 — the exact defect that
+    # let T-3028 archive to completed/ with an unticked [REVIEW] AC still in
+    # the body. T-2420's PreToolUse hook prevents this at write-time, but
+    # only once wired into .claude/settings.json, and only for agent-driven
+    # writes — this is the close-time backstop for every other path (manual
+    # edits, pre-existing offenders, the bypass window). Detect a `### Human`
+    # heading anywhere in the file that fell outside the extracted section
+    # and refuse rather than silently reporting zero.
+    #
+    # The raw-file grep this originally used had a ~10% false-positive rate: a
+    # `### Human` line quoted inside an HTML comment (the AC-routing guidance in
+    # the default template does exactly that) tripped it on 6 of 60 task files
+    # that have no misplaced heading at all. Strip comments the same way
+    # ac_section is stripped above, so both sides of the comparison see the same
+    # document. Measured before and after — 60 raw hits, 54 real.
+    _acs_body=$(sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' "$TASK_FILE" 2>/dev/null | sed '/<!--/,/-->/d')
+    if [ "$has_human_header" -eq 0 ] && echo "$_acs_body" | grep -qE '^### Human\b'; then
+        if [ "${FW_ALLOW_AC_STRUCTURE_DRIFT:-0}" = "1" ]; then
+            echo -e "${YELLOW}WARNING: \`### Human\` heading found outside \`## Acceptance Criteria\` — Human ACs reported as 0 (FW_ALLOW_AC_STRUCTURE_DRIFT=1 bypass)${NC}"
+            log_gate_bypass "FW_ALLOW_AC_STRUCTURE_DRIFT=1" "check_acceptance_criteria"
+        else
+            echo -e "${RED}ERROR: \`### Human\` heading found but positioned outside \`## Acceptance Criteria\` — an intervening \`## \` heading (e.g. \`## Measured Result\`) closed the block before reaching it.${NC}" >&2
+            echo "Human ACs would silently be reported as 0/0 and this task would archive as fully complete." >&2
+            echo "" >&2
+            echo "Fix: move the ### Human section so it directly follows ### Agent, with no ## heading in between." >&2
+            echo "Bypass: FW_ALLOW_AC_STRUCTURE_DRIFT=1 (logged Tier-2, same override as the T-2420 PreToolUse hook)." >&2
+            exit 1
+        fi
+    fi
 
     if [ "$has_agent_header" -gt 0 ]; then
         agent_acs=$(echo "$ac_section" | awk '/^### Agent/{f=1; next} /^### /{f=0} f')
@@ -140,7 +224,9 @@ check_acceptance_criteria() {
             # rather than re-doing the work. CLAUDE.md §Progressive AC ticking is
             # the procedural rule; this message surfaces it at the point of refusal.
             local _rec_block _rec_filled=false
-            _rec_block=$(sed -n '/^## Recommendation/,/^## /p' "$TASK_FILE" 2>/dev/null | sed '$d')
+            # T-3148: anchored, LAST-WINS extraction — the template ships a
+            # stub here and real content is appended after it (T-3144).
+            _rec_block=$(extract_recommendation_block "$TASK_FILE")
             if [ -n "$_rec_block" ] && echo "$_rec_block" | grep -qE '^\*\*(Recommendation|Rationale|Evidence)(:\*\*|\*\*:)'; then
                 _rec_filled=true
             fi
@@ -302,7 +388,7 @@ PYREC
             echo "  1. Add the Recommendation block, then retry" >&2
             echo "  2. Bypass via flag (logged Tier 2): --skip-recommendation" >&2
             echo "  3. Bypass via env var (logged Tier 2, T-1890 parity):" >&2
-            echo "       FW_ALLOW_EMPTY_RECOMMENDATION=1 fw task update T-XXX --status work-completed" >&2
+            echo "       FW_ALLOW_EMPTY_RECOMMENDATION=1 bin/fw task update T-XXX --status work-completed" >&2
             exit 1
             ;;
     esac
@@ -337,9 +423,12 @@ check_rca_for_bugfix() {
     [ "$NEW_STATUS" = "work-completed" ] || return 0
 
     local task_title task_type task_tags is_bug
-    task_title=$(grep '^name:' "$TASK_FILE" | head -1 | sed 's/name:[[:space:]]*//' | tr -d '"')
-    task_type=$(grep '^workflow_type:' "$TASK_FILE" | head -1 | sed 's/workflow_type:[[:space:]]*//' | tr -d '"' | tr -d "'")
-    task_tags=$(grep '^tags:' "$TASK_FILE" | head -1 | sed 's/tags:[[:space:]]*//')
+    # T-3301: '|| true' on each — a missing frontmatter key makes grep exit 1,
+    # and under set -euo pipefail that killed the whole close mid-flight
+    # (observed: tags-less task file died right after the AC-count print).
+    task_title=$(grep '^name:' "$TASK_FILE" | head -1 | sed 's/name:[[:space:]]*//' | tr -d '"' || true)
+    task_type=$(grep '^workflow_type:' "$TASK_FILE" | head -1 | sed 's/workflow_type:[[:space:]]*//' | tr -d '"' | tr -d "'" || true)
+    task_tags=$(grep '^tags:' "$TASK_FILE" | head -1 | sed 's/tags:[[:space:]]*//' || true)
 
     # Non-bug workflow types never gate on RCA, regardless of title keywords
     # (T-2132: "fix request" / "feature request" tasks are not bug fixes).
@@ -415,60 +504,6 @@ PYRCA
 }
 
 # Render-surface Human-AC Gate (T-1766, P-013)
-# === Uncommitted-work Warning (T-649, G-047 prevention) ===
-# Fires on --status work-completed when tracked, modified, non-.context/ files are
-# present. WARNS; never blocks.
-#
-# Origin: G-047. After this transition a task's own diff cannot be committed under its
-# own id. Focus on the completed task refuses every write; focus elsewhere trips
-# focus-drift on a `T-NNN:` subject; work-completed is terminal so the task cannot be
-# reopened; and with focus null the gate refuses even a READ (measured 2026-08-31,
-# `cat` of a .context/working file blocked by P-002). Every exit is a Tier-2 bypass,
-# i.e. the operator's to grant. The cadence that avoids the trap — COMMIT BEFORE YOU
-# COMPLETE — was written down nowhere, which is the actual defect: not that the gates
-# conflict, but that nothing tells you you are one command away from the conflict.
-#
-# Deliberately a warning. Uncommitted working-memory churn under .context/ is normal
-# and constant, and completing anyway is often right. Blocking would punish the common
-# case to prevent the rare one. The failure being addressed is an AWARENESS failure, so
-# the remedy is to say so at the last moment when acting on it is still free.
-#
-# The predicate is a heuristic — it cannot know which edits belong to this task — so
-# the wording claims nothing about ownership. It names files and names the cadence.
-warn_uncommitted_work() {
-    [ "$NEW_STATUS" = "work-completed" ] || return 0
-    command -v git >/dev/null 2>&1 || return 0
-    git -C "$PROJECT_ROOT" rev-parse --git-dir >/dev/null 2>&1 || return 0
-
-    local task_rel dirty count
-    task_rel=$(basename "$TASK_FILE")
-
-    # Tracked modifications only (` M`/`M `/`MM`). Untracked files are excluded: a new
-    # prober that has never been added is not something this transition takes away.
-    dirty=$(git -C "$PROJECT_ROOT" status --porcelain --untracked-files=no 2>/dev/null \
-            | grep -E '^[ MARC][MD]|^[MARC][ MD]' \
-            | sed 's/^...//' \
-            | grep -v '^\.context/' \
-            | grep -v "$task_rel" \
-            || true)
-    [ -n "$dirty" ] || return 0
-
-    count=$(printf '%s\n' "$dirty" | grep -c . )
-    echo "" >&2
-    echo "  ⚠ $count tracked file(s) modified and not committed:" >&2
-    printf '%s\n' "$dirty" | head -5 | sed 's/^/      /' >&2
-    [ "$count" -gt 5 ] && echo "      ... and $((count - 5)) more" >&2
-    echo "" >&2
-    echo "  After this transition they can no longer be committed under $TASK_ID:" >&2
-    echo "  focus here refuses all writes, focus elsewhere trips focus-drift on the" >&2
-    echo "  subject line, and work-completed is terminal. Every way out is a Tier-2" >&2
-    echo "  bypass, which is the operator's to grant. See G-047." >&2
-    echo "" >&2
-    echo "  The cadence that avoids it: COMMIT BEFORE YOU COMPLETE." >&2
-    echo "" >&2
-    return 0
-}
-
 # Fires on --status work-completed for build tasks whose components or body
 # references touch a render surface (web/templates, web/static, web/blueprints,
 # web/shared.py, etc.). Requires at least one Human AC prefixed with
@@ -503,29 +538,12 @@ check_render_surface_human_ac() {
         return 0
     fi
 
+    # T-1901: scan ALL `### Human` blocks (not just the first). T-3288 (OBS-373):
+    # tolerate heading suffixes — `### Human (Slice 1)` is a Human block; the
+    # prior exact-match regex saw only the empty template stub and false-blocked
+    # T-1719's close. Logic lives in lib/human_review_state.py so bats can pin it.
     local review_state
-    review_state=$(python3 - "$TASK_FILE" <<'PYREV' 2>/dev/null || echo "error"
-import sys, re
-try:
-    text = open(sys.argv[1]).read()
-except OSError:
-    print("error"); sys.exit(0)
-# T-1901: scan ALL `### Human` blocks (not just the first). When a task has
-# a template-comment Human block + a separate ACs Human block, the prior
-# `re.search` only saw the template block and returned "empty". `re.finditer`
-# captures every block; we union their content before scanning for [REVIEW].
-matches = list(re.finditer(r'^### Human\s*$(.*?)(?=^#{2,} |\Z)', text, re.MULTILINE | re.DOTALL))
-if not matches:
-    print("no_section"); sys.exit(0)
-human = "\n".join(m.group(1) for m in matches)
-human = re.sub(r'<!--.*?-->', '', human, flags=re.DOTALL)
-review_lines = [l for l in human.splitlines() if re.match(r'\s*-\s*\[[ x]\]\s*\[REVIEW\]', l)]
-if review_lines:
-    print("has_review"); sys.exit(0)
-ac_lines = [l for l in human.splitlines() if re.match(r'\s*-\s*\[[ x]\]', l)]
-print("only_other" if ac_lines else "empty")
-PYREV
-)
+    review_state=$(python3 "$FRAMEWORK_ROOT/lib/human_review_state.py" "$TASK_FILE" 2>/dev/null || echo "error")
 
     case "$review_state" in
         has_review)
@@ -603,7 +621,7 @@ check_inception_decision() {
     echo "decision queue and loses visibility into pending exploration outcomes." >&2
     echo "" >&2
     echo "Options:" >&2
-    echo "  1. Record the decision: fw inception decide $(basename "$TASK_FILE" .md | grep -oE '^T-[0-9]+') go|no-go|defer --rationale '...'" >&2
+    echo "  1. Record the decision: bin/fw inception decide $(basename "$TASK_FILE" .md | grep -oE '^T-[0-9]+') go|no-go|defer --rationale '...'" >&2
     echo "  2. Use --skip-inception-decision to bypass (logged, T-1626)" >&2
     exit 1
 }
@@ -646,20 +664,18 @@ check_inception_scope_trace() {
     # Run reachability check via Python helper
     # Returns: "OK" or one failure per line prefixed with "FAIL:"
     local py_output failures
-    py_output=$(FW_ROOT_FOR_PY="$FRAMEWORK_ROOT" python3 - "$TASK_FILE" "$PROJECT_ROOT" <<'PYEOF'
+    py_output=$(python3 - "$TASK_FILE" "$PROJECT_ROOT" "$FRAMEWORK_ROOT" <<'PYEOF'
 import sys, os
-# T-561: this block runs as `python3 -`, so __file__ is the literal '<stdin>'. The
-# original line walked three dirnames up from abspath(__file__) — correct for a script
-# at <framework>/agents/task-create/, and it resolves to '/' from stdin, so lib/ was
-# never on sys.path and every inception completion died at the import below. The shell
-# already knows FRAMEWORK_ROOT (it stats lib/inception_decisions.py with it one line
-# up); pass it in rather than re-derive it from a __file__ that does not exist.
-_fw_root = os.environ.get("FW_ROOT_FOR_PY", "")
-if _fw_root and _fw_root not in sys.path:
-    sys.path.insert(0, _fw_root)
-# argv[0] = "-" (stdin), argv[1] = task_file, argv[2] = project_root
-# But when called via bash heredoc, sys.argv may differ. Use env instead.
-import os
+# T-2734: the framework root arrives as argv[3]. It must NOT be derived from
+# __file__ here: this script is read from STDIN, so __file__ is the literal
+# string '<stdin>', abspath() resolves it against the CWD, and three dirname()s
+# later the result was always '/'. The import then succeeded only when CWD
+# happened to be the framework root — Python prepends the CWD to sys.path for a
+# stdin script — and raised ModuleNotFoundError everywhere else, which is every
+# consumer project (they run .agentic-framework/bin/fw from their own root).
+framework_root = sys.argv[3] if len(sys.argv) > 3 else os.environ.get("FRAMEWORK_ROOT", "")
+if framework_root:
+    sys.path.insert(0, framework_root)
 task_file = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("TASK_FILE", "")
 project_root = sys.argv[2] if len(sys.argv) > 2 else os.environ.get("PROJECT_ROOT", ".")
 
@@ -822,59 +838,21 @@ check_evolution_log() {
 #   FW_SKIP_DISPOSITION_GATE=1           (git/wrapper / env-only callers)
 # Both logged Tier-2 to .context/working/.gate-bypass-log.yaml.
 check_disposition_gate() {
-    # Only fires on inception tasks
-    local wf
-    wf=$(grep -E "^workflow_type:" "$TASK_FILE" | head -1 | awk '{print $2}' | tr -d '"' | tr -d "'")
-    if [ "$wf" != "inception" ]; then
-        return 0
-    fi
+    # T-3279 (G-102): the parsing predicate moved to lib/inception-readiness.sh so
+    # the decide preflight (lib/inception.sh) and review emission (lib/review.sh)
+    # run the SAME implementation — parity by construction. This function keeps
+    # the enforcement-point policy: messaging, bypass contract, Tier-2 logging.
+    source "$FRAMEWORK_ROOT/lib/inception-readiness.sh" 2>/dev/null || return 0
 
-    # Backward-compat: if ## Open Questions section absent, no-op (grandfathered)
-    if ! grep -qE "^## Open Questions" "$TASK_FILE"; then
-        return 0
-    fi
-
-    # Extract the Open Questions section between '## Open Questions' and the next '## '
-    local oq
-    oq=$(awk '/^## Open Questions/{flag=1;next} /^## /{flag=0} flag' "$TASK_FILE")
-
-    # Find IW-N (or any question marker) lines; for each, look for a sibling
-    # "disposition:" and "rationale:" within the same block.
-    # A "block" = lines from one question marker to the next (or section end).
-    local missing=0 missing_list=""
-    local current_q="" has_disposition=false has_rationale=false
-
-    while IFS= read -r line; do
-        # Match question markers (T-2218 RC5 fix): anchored to start-of-line marker
-        # forms only. The previous unanchored `IW-[0-9]+` branch matched IW-N
-        # mentions in prose (e.g. rationale text "depends on IW-1's answer"),
-        # causing a false flush of the prior question's disposition/rationale.
-        #   Valid: "- **IW-1: text**", "- IW-1: text", "### IW-1 title"
-        #   Plus the legacy Q-N list-item form (unchanged).
-        if echo "$line" | grep -qE "(^[[:space:]]*-[[:space:]]*\*?\*?IW-[0-9]+|^###[[:space:]]+IW-[0-9]+|^[[:space:]]*-[[:space:]]*Q-?[0-9]+)"; then
-            # Flush previous question's verdict
-            if [ -n "$current_q" ] && { [ "$has_disposition" = false ] || [ "$has_rationale" = false ]; }; then
-                missing=$((missing + 1))
-                missing_list="$missing_list\n    - $current_q (disposition=$has_disposition rationale=$has_rationale)"
-            fi
-            current_q=$(echo "$line" | grep -oE "IW-[0-9]+|Q-?[0-9]+" | head -1)
-            has_disposition=false
-            has_rationale=false
-            continue
-        fi
-        # Match dispositions
-        if echo "$line" | grep -qE "disposition:[[:space:]]*(answered|deferred|dissolved)"; then
-            has_disposition=true
-        fi
-        if echo "$line" | grep -qE "rationale:[[:space:]]*.+"; then
-            has_rationale=true
-        fi
-    done <<< "$oq"
-
-    # Flush the last question
-    if [ -n "$current_q" ] && { [ "$has_disposition" = false ] || [ "$has_rationale" = false ]; }; then
-        missing=$((missing + 1))
-        missing_list="$missing_list\n    - $current_q (disposition=$has_disposition rationale=$has_rationale)"
+    local underdisposed missing=0 missing_list=""
+    underdisposed=$(inception_underdisposed_questions "$TASK_FILE")
+    if [ -n "$underdisposed" ]; then
+        local q_id q_disp q_rat
+        while IFS=' ' read -r q_id q_disp q_rat; do
+            [ -n "$q_id" ] || continue
+            missing=$((missing + 1))
+            missing_list="$missing_list\n    - $q_id (${q_disp} ${q_rat})"
+        done <<< "$underdisposed"
     fi
 
     if [ "$missing" -eq 0 ]; then
@@ -1028,216 +1006,192 @@ PYRELATED
     exit 1
 }
 
+# Watchtower port-literal guard (T-2732)
+#
+# CLAUDE.md §Watchtower Port has banned a literal port-3000 URL in verification
+# examples since T-1376 — the port is per-project (triple-file → fw config PORT →
+# 3000) and a literal cannot track a per-project value. The rule was prose only:
+# nothing read the ## Verification block looking for it, least of all this
+# function, which executes those very lines.
+#
+# Measured 2026-08-02: 371 such lines across 277 tasks. On that host :3000 was a
+# DIFFERENT PROJECT's Watchtower (832's), and because both projects run the same
+# Flask app, the 224 lines asserting only reachability returned 200 from the wrong
+# server. Task IDs collide at low numbers, so even /tasks/T-152 answered 200. The
+# failure mode is a false green, which is why it reached 371 instead of 3.
+#
+# Predicate: a URL literal on port 3000 with NO port resolution on the same line.
+# The sanctioned defensive fallback documented in CLAUDE.md —
+#   WT_URL=$(bin/fw watchtower url 2>/dev/null || echo "http://localhost:3000")
+# — resolves on the same line and passes. "Mentions 3000" is not the predicate;
+# "reaches for 3000 without asking where it actually is" is.
+#
+# Deliberately fixed on 3000 rather than "the currently-resolved port": a gate
+# whose verdict depends on which port happens to be live today is the same class
+# of defect it exists to catch (a check asserting a property of the host at this
+# moment rather than of the task).
+check_verification_port_literals() {
+    local cmds="$1" offenders
+
+    [ "${FW_ALLOW_HARDCODED_PORT:-0}" = "1" ] && {
+        log_gate_bypass "FW_ALLOW_HARDCODED_PORT" "check_verification_port_literals"
+        return 0
+    }
+
+    # Predicate lives in lib/verification-port.sh so the regression suite runs
+    # THIS expression over the real corpus rather than a re-typed copy (L-533).
+    if ! declare -F find_port_literals >/dev/null 2>&1; then
+        source "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}/lib/verification-port.sh"
+    fi
+    offenders=$(find_port_literals "$cmds")
+
+    [ -z "$offenders" ] && return 0
+
+    echo -e "${RED}ERROR: Cannot complete — hard-coded Watchtower port in ## Verification:${NC}" >&2
+    printf '%s\n' "$offenders" | while IFS= read -r line; do
+        echo "    $line" >&2
+    done
+    echo "" >&2
+    echo "  Port 3000 is the framework default, not this project's port. It is" >&2
+    echo "  frequently ANOTHER project's Watchtower — such a line can pass while" >&2
+    echo "  asserting nothing about this project (T-1376, T-2732)." >&2
+    echo "" >&2
+    echo "  Resolve the port instead of assuming it:" >&2
+    echo "    WT_URL=\$(bin/fw watchtower url); curl -sf \"\$WT_URL/<path>\"" >&2
+    echo "" >&2
+    echo "  Current resolution: $("$FW_BIN" watchtower url 2>/dev/null || echo '<unresolved>')" >&2
+    echo "" >&2
+    echo "  Bypass: FW_ALLOW_HARDCODED_PORT=1 (logged Tier-2)" >&2
+    exit 1
+}
+
+# T-2738: a pass-marker verdict on an unjudged test run is green while tests fail.
+#
+# This gate runs each line as `if ( eval "$cmd" ); then` under `set -euo pipefail`.
+# pipefail survives into the condition, so pipelines are judged correctly — but
+# `set -e` does NOT, so in a sequence (`cmd1; cmd2`) only cmd2's status is the
+# verdict. Capture a pytest run into a variable and assert `grep -q "9 passed"`
+# on it, and a suite printing "3 failed, 9 passed" closes GREEN.
+#
+# Not a ban on the capture idiom — CLAUDE.md prescribes it as the L-387 SIGPIPE
+# remedy and 821 corpus lines use it soundly. The predicate is narrow by design;
+# see lib/verification-verdict.sh for what it does and does not fire on.
+check_verification_unjudged_test_runs() {
+    local cmds="$1" offenders
+
+    [ "${FW_ALLOW_UNJUDGED_TEST_RUN:-0}" = "1" ] && {
+        log_gate_bypass "FW_ALLOW_UNJUDGED_TEST_RUN" "check_verification_unjudged_test_runs"
+        return 0
+    }
+
+    # Predicate lives in lib/verification-verdict.sh so the regression suite runs
+    # THIS expression over the real corpus rather than a re-typed copy (L-533).
+    if ! declare -F find_unjudged_test_runs >/dev/null 2>&1; then
+        source "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}/lib/verification-verdict.sh"
+    fi
+    offenders=$(find_unjudged_test_runs "$cmds")
+
+    [ -z "$offenders" ] && return 0
+
+    echo -e "${RED}ERROR: Cannot complete — unjudged test run in ## Verification:${NC}" >&2
+    printf '%s\n' "$offenders" | while IFS= read -r line; do
+        echo "    $line" >&2
+    done
+    echo "" >&2
+    echo "  The test runner's exit code is discarded by the capture, and the" >&2
+    echo "  pass marker you assert instead is still printed by a partially" >&2
+    echo "  failing run. A suite reporting \"3 failed, 9 passed\" satisfies" >&2
+    echo "  grep -q \"9 passed\" — so the line reports success for a red suite." >&2
+    echo "  Generalising the count does not help: grep -qE \"[0-9]+ passed\"" >&2
+    echo "  matches the same output (T-2738)." >&2
+    echo "" >&2
+    echo "  Either keep the exit code as the verdict:" >&2
+    echo "    python3 -m pytest <file> -q > /tmp/.out 2>&1 && grep -q \"passed\" /tmp/.out" >&2
+    echo "" >&2
+    echo "  or add the absence-of-failure guard the exit code used to supply:" >&2
+    echo "    out=\$(python3 -m pytest <file> -q 2>&1); echo \"\$out\" | grep -q passed && ! echo \"\$out\" | grep -q failed" >&2
+    echo "    out=\$(bats <file> 2>&1); echo \"\$out\" | grep -q '^ok 1 ' && ! echo \"\$out\" | grep -q '^not ok'" >&2
+    echo "" >&2
+    echo "  Bypass: FW_ALLOW_UNJUDGED_TEST_RUN=1 (logged Tier-2)" >&2
+    exit 1
+}
+
 # Verification Gate (P-011)
 # Runs shell commands from ## Verification section before allowing work-completed.
 run_verification_commands() {
-    local verify_section verify_cmds verify_total verify_pass verify_fail verify_failures
-    # T-658: a command that never finished is not a command that failed. See the loop below.
-    local verify_unfinished verify_unfinished_list
+    local verify_cmds verify_total verify_pass verify_fail verify_failures
     local cmd display_cmd exit_code
-    local _v_exact _v_prefix _v_inline _v_exact_ln _v_prefix_ln _v_why
 
-    # ---------------------------------------------------------------------
-    # T-574 — LOCATE THE BLOCK EXACTLY, AND SAY WHAT WAS FOUND.
-    #
-    # This gate used to open its range with `sed -n '/^## Verification/,/^## /p'`
-    # and then `[ -z "$verify_cmds" ] && return 0`. That was a SILENT pass whose
-    # output was BYTE-IDENTICAL to a run that executed every leg and found no
-    # fault. T-572 completed that way with all TEN of its legs unrun, and the
-    # only reason anyone noticed was that its AC count happened to be a number
-    # somebody expected differently.
-    #
-    # `^## Verification` is a PREFIX match, and it fails in two OPPOSITE ways.
-    # Both have now been observed in this repo, one day apart:
-    #
-    #   T-572  the heading appeared mid-line — a backticked mention of itself
-    #          inside an acceptance criterion glued the real heading onto the end
-    #          of that line — so `^## Verification` never matched, sed returned
-    #          zero lines, and the gate PASSED SILENTLY on zero commands.
-    #
-    #   T-542  `## Verification of the probe itself` sat ABOVE `## Verification`,
-    #          so the prefix match opened the range on the wrong heading and the
-    #          gate was handed a markdown table as shell commands. It REFUSED —
-    #          loudly — and that is the only reason it cost ten minutes instead
-    #          of shipping a false green.
-    #
-    # One fragile regex, two shapes, and only one of them announces itself. The
-    # block is therefore located by an EXACT heading match, and every state that
-    # is not "exactly one exact heading, and it is the first one" is NAMED OUT
-    # LOUD rather than inferred from an empty string.
-    #
-    # PL-151: `grep -c` exits 1 when the count is zero. It still prints "0", so
-    # `|| true` keeps the count and stops `set -e` from killing the gate here.
-    # ---------------------------------------------------------------------
-    _v_exact=$(grep -c '^## Verification[[:space:]]*$' "$TASK_FILE" 2>/dev/null || true)
-    _v_prefix=$(grep -c '^## Verification' "$TASK_FILE" 2>/dev/null || true)
-    _v_inline=$(grep -c '.\+## Verification' "$TASK_FILE" 2>/dev/null || true)
-    _v_exact_ln=$(grep -n '^## Verification[[:space:]]*$' "$TASK_FILE" 2>/dev/null | head -1 | cut -d: -f1 || true)
-    _v_prefix_ln=$(grep -n '^## Verification' "$TASK_FILE" 2>/dev/null | head -1 | cut -d: -f1 || true)
+    # T-2921: extraction lives in lib/verification-port.sh so this gate and
+    # `fw verify-queue` cannot drift — same argument as find_port_literals two
+    # functions up (L-533: run THIS expression, not a re-typed copy). The copy
+    # that used to live here stripped `<!-- ... -->` over the whole block with a
+    # DOTALL regex, which corrupted any command carrying those delimiters as
+    # argument text and — worse — silently deleted every command between a
+    # mid-line `<!--` and the next `-->` below it, shrinking the population the
+    # gate then reported N/N green over. See the extractor's own comment.
+    if ! declare -F extract_verification_block >/dev/null 2>&1; then
+        source "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}/lib/verification-port.sh"
+    fi
+    # T-3232 (arc-012 review C3): capture the extractor's STATUS, not just its
+    # output. `|| extract_rc=$?` rather than a bare assignment because this file
+    # runs `set -euo pipefail` — an unguarded rc=2 would abort the script here
+    # with no message, which is a different silent failure, not a fix.
+    local extract_rc=0
+    verify_cmds=$(extract_verification_block "$TASK_FILE") || extract_rc=$?
 
-    _v_why=""
-    if [ "${_v_exact:-0}" -eq 0 ]; then
-        if [ "${_v_prefix:-0}" -eq 0 ] && [ "${_v_inline:-0}" -eq 0 ]; then
-            # Genuinely no such section. Documented backward-compatible
-            # pass-through (CLAUDE.md: "Tasks without ## Verification pass
-            # through") — but it is now SAID, not implied by silence.
-            echo ""
-            echo -e "${CYAN}=== Verification Gate (P-011) ===${NC}"
-            echo "Running 0 verification command(s) — this task has no ## Verification section."
-            echo -e "  ${YELLOW}NOTE${NC}: nothing was verified. That is a pass-through, not a pass."
-            echo ""
-            return 0
-        fi
-        if [ "${_v_inline:-0}" -gt 0 ]; then
-            _v_why="the text '## Verification' appears in this file but NOT at the start of a line ($_v_inline occurrence(s) mid-line). This is the T-572 shape: the heading is glued to the end of another line, so no range opens and ZERO commands would run."
+    # rc=2 means the extractor could not READ the block. That is NOT the same as
+    # the task not having one, and until T-3232 both produced empty output and
+    # exit 0 — so the gate below returned green having run nothing. Refuse.
+    #
+    # This deliberately does NOT re-check whether the file contains a
+    # `## Verification` heading. A guard that reimplements the code it guards
+    # cannot detect that code being fixed or re-broken (the G-072 class peer
+    # 577-CashWeb raised). The exit code is the entire contract.
+    if [ "$extract_rc" -eq 2 ]; then
+        if [ "${FW_ALLOW_UNEXTRACTABLE_VERIFICATION:-0}" = "1" ]; then
+            log_gate_bypass "FW_ALLOW_UNEXTRACTABLE_VERIFICATION" \
+                "verification block could not be extracted from $TASK_FILE" 2>/dev/null || true
         else
-            _v_why="this file has a heading starting with '## Verification' at line ${_v_prefix_ln:-?}, but no heading that is EXACTLY '## Verification'. The gate cannot tell which block is the real one."
+            echo "" >&2
+            echo -e "${RED}BLOCKED: the ## Verification block could not be extracted.${NC}" >&2
+            echo "" >&2
+            echo "  File: $TASK_FILE" >&2
+            echo "" >&2
+            echo "  The extractor failed — it did not report an ABSENT section, it reported" >&2
+            echo "  that it could not read the section that is there. Completing now would" >&2
+            echo "  run zero verification commands and print a pass (T-3232, arc-012 C3)." >&2
+            echo "" >&2
+            echo "  Most likely cause: a byte in the block is not valid UTF-8, so" >&2
+            echo "  lib/comment_strip.py cannot decode it. Find it with:" >&2
+            echo "    python3 -c \"import sys;d=open('$TASK_FILE','rb').read();d.decode('utf-8')\"" >&2
+            echo "" >&2
+            echo "  Bypass: FW_ALLOW_UNEXTRACTABLE_VERIFICATION=1 (logged Tier-2)" >&2
+            exit 1
         fi
-    elif [ "${_v_exact:-0}" -gt 1 ]; then
-        _v_why="this file contains $_v_exact headings that are exactly '## Verification'. Only the first would ever run, so the rest would be silently ignored."
-    elif [ -n "$_v_exact_ln" ] && [ -n "$_v_prefix_ln" ] && [ "$_v_exact_ln" != "$_v_prefix_ln" ]; then
-        _v_why="a heading at line $_v_prefix_ln begins with '## Verification' but is not the real heading (which is at line $_v_exact_ln). This is the T-542 shape: a prefix match opens the range EARLY and feeds prose to the shell."
     fi
 
-    if [ -n "$_v_why" ]; then
-        # COULD-NOT-LOOK GETS ITS OWN FAILURE LINE.
-        #
-        # Framing arrived at independently by 001-CashWeb on their own checker
-        # (agent-chat-arc offset 193) while fixing a PASS whose printed node
-        # count exceeded the nodes it had compared. Adopted verbatim because it
-        # is better than "print the count": a count can still be read past, a
-        # separate refusal cannot. "No verification command failed" and "no
-        # verification command ran" are different facts, and only one of them
-        # is about the task.
-        echo "" >&2
-        echo -e "${RED}=== Verification Gate (P-011): COULD NOT READ THE BLOCK ===${NC}" >&2
-        echo -e "${RED}This is NOT a finding about the task. It is a finding about the gate's${NC}" >&2
-        echo -e "${RED}ability to look at the task at all — and it is not a pass.${NC}" >&2
-        echo "" >&2
-        echo "  Why: $_v_why" >&2
-        echo "" >&2
-        echo "  Headings seen: exact='## Verification' x${_v_exact:-0} | starting-with x${_v_prefix:-0} | mid-line x${_v_inline:-0}" >&2
-        echo "" >&2
-        echo "Nothing was run. Fix the heading so exactly ONE line reads '## Verification'" >&2
-        echo "at column 0, and no OTHER heading in the file begins with that text." >&2
-        echo "Do not refer to the heading by its literal text elsewhere in the file." >&2
-        return 1
+    [ -z "$verify_cmds" ] && return 0
+
+    # T-2991: refuse an unparseable block BEFORE the read loop below evals any
+    # line of it. Order is the whole point — a multi-line `python3 -c "` block's
+    # Python body is eval'd as bash by that loop, which is how 56MB of
+    # ImageMagick PostScript reached this repo's root (T-2990). Checking after
+    # the loop would report the same finding and prevent nothing.
+    if ! check_verification_parseable "$verify_cmds"; then
+        exit 1
+    fi
+    if [ "${FW_ALLOW_UNPARSEABLE_VERIFICATION:-0}" = "1" ]; then
+        log_gate_bypass "FW_ALLOW_UNPARSEABLE_VERIFICATION" "verification block has unparseable line(s)" 2>/dev/null || true
     fi
 
-    # Anchored extraction: start AFTER the exact heading line, stop at the next
-    # '## ' heading. Replaces the sed range + `tail -n +2` entirely, so a prefix
-    # heading elsewhere in the file can no longer steer it.
-    verify_section=$(awk -v start="$_v_exact_ln" 'NR>start { if ($0 ~ /^## /) exit; print }' "$TASK_FILE" 2>/dev/null)
-    # Strip HTML comment blocks
-    verify_section=$(echo "$verify_section" | python3 -c "
-import sys, re
-text = sys.stdin.read()
-text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
-print(text)
-" 2>/dev/null || echo "$verify_section")
-    verify_cmds=$(echo "$verify_section" | grep -vE '^\s*$|^\s*#|^\s*```' || true)
-
-    if [ -z "$verify_cmds" ]; then
-        # Well-formed heading, nothing runnable under it. Legitimate, and still
-        # announced: AC-1 of T-574 is that a run of zero says zero in the same
-        # line that a run of nine says nine.
-        echo ""
-        echo -e "${CYAN}=== Verification Gate (P-011) ===${NC}"
-        echo "Running 0 verification command(s) — the ## Verification section at line $_v_exact_ln has no runnable line."
-        echo -e "  ${YELLOW}NOTE${NC}: nothing was verified. That is a pass-through, not a pass."
-        echo ""
-        return 0
-    fi
-
-    # T-391 (AEF OBS-201): refuse a block containing a MULTI-LINE construct.
-    #
-    # The loop below runs ONE LINE PER COMMAND (`eval "$cmd"` at the `cd
-    # "$PROJECT_ROOT" &&` below). A construct spanning lines is therefore torn
-    # apart: the opener runs truncated, and every continuation line runs as a
-    # BARE SHELL COMMAND in the repo root. CLAUDE.md tells agents to write
-    # `python3 -c "import yaml; ..."` verification lines, so the multi-line form
-    # of that idiom is a natural thing to write — and its second line is
-    # `import yaml, sys`, which the shell resolves to ImageMagick's screen
-    # capture binary. AEF found a 7 MB PostScript file named `yaml,sys` in their
-    # repo root, staged, caught only by a secret scanner false-positive.
-    #
-    # Two properties make the torn form worse than a stray file: `import` exits
-    # 0 after writing, so the line is reported PASS and counted toward the
-    # verification total; and cwd is forced to PROJECT_ROOT, so the artifact
-    # lands where `git add -A` stages it.
-    #
-    # The predicate is delegated to bash's own parser rather than to a pattern
-    # list. Counting quote characters was tried first and produced 12 false
-    # positives across 9 task files (`grep -q "x').onclick"` has an odd quote
-    # count and is perfectly valid) — PL-025: character-level regexes
-    # over-approximate shell intent. A vocabulary deny-list (`import`, `from`,
-    # ...) was rejected for the G-025/G-026 reason: enumeration cannot name
-    # every member of an open class, in either polarity. `bash -n` is the only
-    # thing that actually knows how quoting nests.
-    #
-    #   rc != 0      -> unterminated quote / syntax error: the line is a fragment
-    #   stderr != "" -> bash warns "here-document delimited by end-of-file":
-    #                   the line opens a heredoc whose body is on later lines
-    #
-    # BOUNDARY — what this does NOT catch (AEF, rail 479; they ran the positive
-    # control before trusting their own zero result). `import yaml, sys` PASSES
-    # `bash -n`: it is a syntactically valid shell command. That is the same
-    # argument used above against a keyword list, turned back on this remedy —
-    # `bash -n` has no vocabulary, which is its virtue against `import`-as-keyword
-    # and exactly why it cannot see `import`-as-command. A standalone dangerous
-    # line pasted into a Verification block is undetectable by syntax alone.
-    #
-    # It is still sufficient for the MECHANISM: tearing a quoted one-liner always
-    # leaves an unterminated opener, so the block is refused at the line before
-    # the damage. Corollary for anyone scanning with this predicate: a zero
-    # result means "no torn openers", never "no dangerous lines".
-    #
-    # `bash -n` parses without executing, so this is safe on any line. Measured
-    # blast radius at introduction: 1460 verification lines across 322 task
-    # files, 0 refused. Herestrings (`<<<`) and arithmetic shifts (`$((1<<2))`)
-    # are silent under this predicate and stay legal.
-    local _vc_line _vc_err _vc_rc _vc_bad
-    _vc_bad=""
-    while IFS= read -r _vc_line; do
-        _vc_line=$(echo "$_vc_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        [ -z "$_vc_line" ] && continue
-        # Guarded as an `if` condition, not a bare assignment: this script runs
-        # under `set -e` (line 14), and a bare `_vc_err=$(bash -n ...)` aborts
-        # the whole script the moment `bash -n` reports the very fragment this
-        # loop exists to catch — the guard would kill the gate instead of
-        # reporting it (observed: silent exit 2 right after the P-010 line).
-        if _vc_err=$(bash -n -c "$_vc_line" 2>&1 >/dev/null); then
-            _vc_rc=0
-        else
-            _vc_rc=$?
-        fi
-        if [ $_vc_rc -ne 0 ]; then
-            _vc_bad="${_vc_bad}\n  - incomplete command (bash -n exit $_vc_rc): ${_vc_line:0:100}"
-        elif [ -n "$_vc_err" ]; then
-            _vc_bad="${_vc_bad}\n  - opens an unterminated heredoc: ${_vc_line:0:100}"
-        fi
-    done <<< "$verify_cmds"
-
-    if [ -n "$_vc_bad" ]; then
-        echo "" >&2
-        echo -e "${RED}=== Verification Gate (P-011): MALFORMED BLOCK ===${NC}" >&2
-        echo "The ## Verification section contains a multi-line construct." >&2
-        echo "P-011 runs ONE LINE PER COMMAND, so its continuation lines would be" >&2
-        echo "executed as bare shell commands in $PROJECT_ROOT." >&2
-        echo -e "$_vc_bad" >&2
-        echo "" >&2
-        echo "Nothing was run. Rewrite each verification as a SINGLE line, e.g." >&2
-        echo "  python3 -c \"import yaml; yaml.safe_load(open('file.yaml'))\"" >&2
-        echo "or move the multi-line logic into a script and call the script." >&2
-        return 1
-    fi
+    check_verification_port_literals "$verify_cmds"
+    check_verification_unjudged_test_runs "$verify_cmds"
 
     verify_total=$(echo "$verify_cmds" | wc -l)
     verify_pass=0
     verify_fail=0
     verify_failures=""
-    verify_unfinished=0
-    verify_unfinished_list=""
 
     echo ""
     echo -e "${CYAN}=== Verification Gate (P-011) ===${NC}"
@@ -1262,60 +1216,29 @@ print(text)
         # T-1493: close inherited keylock FDs in the subshell so daemons
         # spawned by the verification command (.NET VBCSCompiler, gradle,
         # etc.) cannot inherit the lock FD and block future fw task ops.
+        # T-3219: `< /dev/null` is load-bearing, not tidiness. This loop is fed
+        # by `done <<< "$verify_cmds"`, so the command list IS the loop's stdin.
+        # Without this redirect a verification command that reads stdin — `cat`,
+        # `read`, an interactive tool, a `while read` — consumes the REMAINING
+        # verification lines, which then never run. The gate counted them before
+        # the loop, so it reports e.g. "2/4 passed" and, because nothing failed,
+        # calls it green. Measured on the real gate before the fix:
+        #     Running 4 verification command(s)...
+        #       PASS: echo one
+        #       PASS: cat > /dev/null
+        #     Verification: 2/4 passed ✓        <- exit 0, task completed
+        # A false green in the gate whose whole purpose is preventing false
+        # greens. Reported independently by 832-Workflow-designer and confirmed
+        # in a vendored copy by 577-CashWeb-integration (their G-072).
         local _close_locks_cmd
         _close_locks_cmd=$(type keylock_subshell_close_cmd >/dev/null 2>&1 && keylock_subshell_close_cmd || true)
-        # T-630: `< /dev/null` is load-bearing, not hygiene. Without it `eval` inherits
-        # the loop's stdin — which IS the list of remaining verification commands — and
-        # any command that reads stdin consumes them. They stay in `verify_total` (that
-        # was computed by `wc -l` before the loop) and never run, so they produce neither
-        # a PASS nor a FAIL line and `verify_fail` stays 0. Observed on T-629: four
-        # commands declared, two executed, "Verification: 2/4 passed ✓", task completed.
-        # The reconciliation guard after the loop is the second half of this fix; this
-        # line stops the swallowing, that one refuses to call the result a pass if
-        # anything ever swallows again by another route.
         if (unset TASKS_DIR CONTEXT_DIR _FW_PATHS_LOADED; eval "$_close_locks_cmd"; cd "$PROJECT_ROOT" && eval "$cmd") > /tmp/verify-$$.out 2>&1 < /dev/null; then
             echo -e "  ${GREEN}PASS${NC}: $display_cmd"
             verify_pass=$((verify_pass + 1))
         else
             exit_code=$?
-            # T-658: classify. "Ran and returned a verdict of wrong" and "never finished"
-            # were rendered in identical words, so the operator read "your check is wrong"
-            # when the truth was "your check did not finish" (OBS-332, seen on T-651: an
-            # `fw audit` line returned once, hung on an immediate second invocation, and
-            # was killed externally at five minutes — reported as a plain FAIL).
-            #
-            # The exit code already carries this and the runner was discarding it:
-            # timeout(1) exits 124; a process killed by signal N exits 128+N, so 137 is
-            # SIGKILL and 143 is SIGTERM. 128 itself is excluded — it is not 128+N for any
-            # N>=1 and shells use it for other purposes.
-            _vk_signal=""
-            if [ "$exit_code" -eq 124 ]; then
-                _vk_signal="timeout"
-            elif [ "$exit_code" -gt 128 ] && [ "$exit_code" -le 192 ]; then
-                _vk_signal="signal $((exit_code - 128))"
-            fi
-
-            if [ -n "$_vk_signal" ]; then
-                echo -e "  ${YELLOW}DID NOT FINISH${NC}: $display_cmd (killed — $_vk_signal, exit $exit_code)"
-                if [ -s /tmp/verify-$$.out ]; then
-                    head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
-                else
-                    # An empty evidence block after a kill is the normal case and is
-                    # exactly what made the original incident unreadable — it looked like
-                    # a check that failed for no stated reason.
-                    echo "    (no output captured before the process was killed)"
-                fi
-                verify_unfinished=$((verify_unfinished + 1))
-                verify_unfinished_list="${verify_unfinished_list}\n  - $display_cmd (killed — $_vk_signal)"
-            else
-                echo -e "  ${RED}FAIL${NC}: $display_cmd (exit $exit_code)"
-                head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
-            fi
-            # BOTH kinds still count as failures. Completion must stay blocked, and the
-            # T-630 reconciliation below compares verify_pass+verify_fail against
-            # verify_total — so peeling did-not-finish into its own bucket INSTEAD of
-            # incrementing this one would make the runner report a defect in itself.
-            # The distinction is in what we SAY, not in whether it counts.
+            echo -e "  ${RED}FAIL${NC}: $display_cmd (exit $exit_code)"
+            head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
             verify_fail=$((verify_fail + 1))
             verify_failures="${verify_failures}\n  - $display_cmd (exit $exit_code)"
         fi
@@ -1323,63 +1246,60 @@ print(text)
     done <<< "$verify_cmds"
 
     echo ""
-    # T-630 — RECONCILIATION. Every counted command must have produced a verdict.
+
+    # T-3219: RECONCILE THE COUNT BEFORE JUDGING IT.
     #
-    # The old summary was reached whenever `verify_fail` was 0, and never compared
-    # `verify_pass` with `verify_total`. That made "silently never executed"
-    # indistinguishable from "passed" — the exact equivalence 010-termlink named on the
-    # rail (@772): a runner that executes nothing and a runner whose every command passed
-    # produce the same summary. Ours went one worse, because it PRINTED the discrepancy
-    # (`2/4 passed ✓`) and completed the task anyway.
+    # The verdict below asks only "did anything fail?". That is green whenever
+    # verify_fail is 0 — including when the loop never reached most of the
+    # block. The fraction was already printed on the success line, and nothing
+    # compared its two halves: a denominator is evidence only if something
+    # compares it to the numerator.
     #
-    # This is deliberately a hard failure and deliberately not bypassable by
-    # --skip-verification. That flag means "I accept these failures"; an unreconciled
-    # count is not a failure the operator can accept, it is the runner reporting that it
-    # does not know what it ran. There is nothing to accept until that is fixed.
-    _verify_seen=$((verify_pass + verify_fail))
-    if [ "$_verify_seen" -ne "$verify_total" ]; then
-        echo -e "${RED}=== Verification Gate (P-011): RUNNER DEFECT ===${NC}" >&2
-        echo "Declared $verify_total command(s); only $_verify_seen produced a verdict" >&2
-        echo "($verify_pass passed, $verify_fail failed, $((verify_total - _verify_seen)) never ran)." >&2
-        echo "" >&2
-        echo "A command that was never executed is not a command that passed. Completion is" >&2
-        echo "blocked until every declared command reports. Most likely cause: one of the" >&2
-        echo "commands above reads stdin and consumed the rest of the list (T-630)." >&2
-        return 1
+    # DELIBERATELY NOT BYPASSABLE BY --skip-verification. That flag means "I
+    # have seen these failures and I accept them". An unreconciled count is not
+    # a failure anyone can accept — it is the runner reporting that it does not
+    # know what it ran. Those are different speech acts and one flag must not
+    # cover both. If this fires, the block did not execute as written and the
+    # right response is to fix the block, not to wave it through.
+    #
+    # Cannot false-positive on blank or comment lines: extract_verification_block
+    # already strips `^\s*$`, `^\s*#` and fences, so every counted line is a
+    # command the loop is expected to run.
+    if [ "$((verify_pass + verify_fail))" -ne "$verify_total" ]; then
+        echo -e "${RED}ERROR: Cannot complete — verification count does not reconcile.${NC}" >&2
+        echo -e "  ran $((verify_pass + verify_fail)) of $verify_total command(s): ${verify_pass} passed, ${verify_fail} failed." >&2
+        echo -e "  $(( verify_total - verify_pass - verify_fail )) command(s) never ran, so this block was NOT verified." >&2
+        echo -e "" >&2
+        echo -e "  Most likely cause: a command in the block reads stdin and consumed the" >&2
+        echo -e "  remaining lines. Redirect it — e.g. 'somecmd < /dev/null' — or remove it." >&2
+        echo -e "  --skip-verification does NOT bypass this: it accepts failures, and an" >&2
+        echo -e "  unreconciled count is not a failure, it is an unknown." >&2
+        # `exit`, not `return` — and NOT because a return would be discarded.
+        # Measured (T-3220): a `return 1` here blocks exactly as hard today.
+        # The call site is a bare statement and `set -euo pipefail` is live at
+        # line 14, so errexit aborts the script on a non-zero return.
+        #
+        # `exit` is chosen because that teeth-giving `set -e` is 1700 lines away
+        # and invisible from here. Wrap the call in `if`/`||`/`&&`, or drop the
+        # `-e`, and every `return`-based guard in this function silently becomes
+        # a no-op with no diff to any guard. `exit` survives all of that. The two
+        # sibling failure paths (the malformed-block guard above, the
+        # "N verifications failed" path below) both `exit 1` — this matches them.
+        #
+        # An earlier revision of this comment claimed the caller discarded a
+        # non-zero return. It did not, and the caller it named did not exist.
+        # `tests/unit/t3220_verification_gate_exits.bats` pins the choice so the
+        # reason cannot drift from the mechanism again.
+        exit 1
     fi
+
     if [ "$verify_fail" -gt 0 ]; then
         if [ "$SKIP_VERIFICATION" = true ]; then
             echo -e "${YELLOW}WARNING: $verify_fail/$verify_total verification(s) failed (--skip-verification bypass)${NC}"
             log_gate_bypass "--skip-verification" "run_verification_commands"
         else
-            # T-658: the count stays whole, but the two kinds are named separately. A
-            # per-line "DID NOT FINISH" that this summary flattens back into "N failed"
-            # would not have fixed the reported defect — this block is what the operator
-            # actually reads on a blocked completion.
-            _vk_ran=$((verify_fail - verify_unfinished))
-            if [ "$verify_unfinished" -gt 0 ]; then
-                echo -e "${RED}ERROR: Cannot complete — $verify_fail/$verify_total verification(s) did not pass:${NC}" >&2
-                if [ "$_vk_ran" -gt 0 ]; then
-                    echo "" >&2
-                    echo "  $_vk_ran ran and reported a failure:" >&2
-                    echo -e "$verify_failures" >&2
-                fi
-                echo "" >&2
-                echo "  $verify_unfinished never finished (killed, not failed):" >&2
-                echo -e "$verify_unfinished_list" >&2
-                echo "" >&2
-                echo "A killed command has told you nothing about your code. Do not 'fix' it" >&2
-                echo "until you know it can complete at all." >&2
-                echo "" >&2
-                echo "Most common cause (OBS-332): a whole \`fw audit\` invocation in ## Verification." >&2
-                echo "It runs from inside the very transaction it is auditing and contends with the" >&2
-                echo "lock FDs this transition holds, so it can hang indefinitely — and it makes this" >&2
-                echo "task's completion depend on every unrelated warning in the tree. Use a single" >&2
-                echo "section instead: fw audit --section <name>" >&2
-            else
-                echo -e "${RED}ERROR: Cannot complete — $verify_fail/$verify_total verification(s) failed:${NC}" >&2
-                echo -e "$verify_failures" >&2
-            fi
+            echo -e "${RED}ERROR: Cannot complete — $verify_fail/$verify_total verification(s) failed:${NC}" >&2
+            echo -e "$verify_failures" >&2
             echo "" >&2
             echo "Options:" >&2
             echo "  1. Fix the issues and retry" >&2
@@ -1424,6 +1344,10 @@ SKIP_INCEPTION_SCOPE_TRACE=false
 SKIP_RENDER_REVIEW=false
 SKIP_RENDER_REVIEW_REASON=""
 SCOPE_REDUCTION_ACK=""  # T-1762/P-012: --scope-reduction-acknowledged "rationale"
+# T-1719 A2: retrieval-happiness signal. Feeds the embeddings routing loop —
+# the rating is the outcome half of "recall returned chunks → was that useful?".
+HAPPINESS=""
+HAPPINESS_REASON=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -1434,6 +1358,8 @@ while [[ $# -gt 0 ]]; do
         --horizon) NEW_HORIZON="$2"; shift 2 ;;
         --type|-t) NEW_TYPE="$2"; shift 2 ;;
         --reason|-r) REASON="$2"; shift 2 ;;
+        --happiness) HAPPINESS="$2"; shift 2 ;;
+        --happiness-reason) HAPPINESS_REASON="$2"; shift 2 ;;
         --skip-sovereignty) SKIP_SOVEREIGNTY=true; shift ;;
         --skip-acceptance-criteria) SKIP_AC=true; shift ;;
         --skip-verification) SKIP_VERIFICATION=true; shift ;;
@@ -1493,6 +1419,10 @@ while [[ $# -gt 0 ]]; do
             echo "  --add-tag     Add tag(s) to existing (comma-separated)"
             echo "  --horizon     Priority horizon: now, next, later"
             echo "  --reason, -r  Reason for status change (logged in Updates)"
+            echo "  --happiness N Retrieval-happiness signal, -5..-1 or +1..+5 (T-1719 A2)"
+            echo "                Appends to .context/working/happiness.jsonl. 0 is rejected —"
+            echo "                the scale has no neutral, so a 0 is a mis-typed rating."
+            echo "  --happiness-reason \"...\"  Optional free-text alongside --happiness"
             echo "  --skip-sovereignty          Bypass human ownership completion gate (R-033)"
             echo "  --skip-acceptance-criteria   Bypass AC gate (P-010)"
             echo "  --skip-verification          Bypass verification gate (P-011)"
@@ -1535,53 +1465,78 @@ if [ -z "$TASK_FILE" ] || [ ! -f "$TASK_FILE" ]; then
     exit 1
 fi
 
-# === Completion watchdog (T-522) ===
-# T-1169 detects "episodic generation ran and produced nothing" and T-1860 logs every
-# invocation — but BOTH controls live INSIDE the episodic block, so neither can observe the
-# one failure mode where the block is never reached. That mode is real and it is silent:
-# `set -euo pipefail` (line 14) turns any unguarded non-zero command between the move-to-
-# completed/ and the episodic block into a bare `exit 1`, after the task file has already
-# been moved and rewritten. The operator sees a task in completed/ and no error worth
-# reading; the memory is simply missing, and stays missing until a handover notices weeks of
-# gaps. T-1374 fixed one instance, T-522 fixed another in the same block, and the pattern
-# says there will be a third.
-# So this watchdog sits OUTSIDE the block it guards, on the EXIT trap, and reports the
-# absence the inner controls structurally cannot see. It never blocks and never repairs —
-# it makes a silent abort loud, and it honours the T-1860 promise ("log EVERY invocation")
-# on the path where the logging code itself never ran.
-_T522_COMPLETION_PHASE=""       # "" none | "started" transition begun | "episodic" block reached
-_t522_completion_watchdog() {
-    local rc="${1:-0}"
-    [ "${_T522_COMPLETION_PHASE:-}" = "started" ] || return 0
-    # A partial-complete task deliberately skips episodic generation (T-1160/T-1103) and
-    # stays in active/ — that is a designed skip, not a lost one.
-    [ "${PARTIAL_COMPLETE:-false}" = true ] && return 0
-    local log="${CONTEXT_DIR:-$PROJECT_ROOT/.context}/working/episodic-gen/${TASK_ID}.log"
-    mkdir -p "$(dirname "$log")" 2>/dev/null || true
-    {
-        echo "=== episodic-gen NOT REACHED: $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
-        echo "task_id: $TASK_ID"
-        echo "detected_by: T-522 completion watchdog (EXIT trap)"
-        echo "script_exit_code: $rc"
-        echo "reason: the work-completed transition began but execution left update-task.sh"
-        echo "        before the Episodic Generation block. Under set -euo pipefail this is"
-        echo "        almost always an unguarded non-zero command between the move to"
-        echo "        completed/ and that block. Re-run with 'bash -x' to find the line."
-    } >> "$log" 2>&1
-    echo "" >&2
-    echo -e "${RED:-}ERROR: episodic generation was never reached for $TASK_ID (exit=$rc)${NC:-}" >&2
-    echo "  The task was completed but its episodic memory was NOT generated." >&2
-    echo "  This is a script-level abort, not a generator failure — see $log" >&2
-    echo -e "  Recover: $(_emit_user_command "context generate-episodic $TASK_ID" 2>/dev/null || echo "fw context generate-episodic $TASK_ID")" >&2
-}
-
-# Acquire per-task lock to prevent concurrent modifications (T-587)
-if type keylock_acquire &>/dev/null; then
-    keylock_acquire "$TASK_ID"
+# ── T-3306: close-gate reentry guard (OBS-372) ──────────────────────────────
+# A work-completed transition exports FW_TASK_UPDATE_IN_CLOSE=<id> around its
+# P-011 verification run. A nested `fw task update` on the SAME id from that
+# subtree would block forever on the per-task keylock the close already holds
+# (origin: T-1719's happiness suite — 3h+ silent hang). Fail fast, name the
+# remedy. A nested update on a DIFFERENT id is legitimate and proceeds.
+if [ -n "${FW_TASK_UPDATE_IN_CLOSE:-}" ] && [ "$FW_TASK_UPDATE_IN_CLOSE" = "$TASK_ID" ]; then
+    echo -e "${RED}ERROR: reentry — this 'fw task update $TASK_ID' was invoked from inside $TASK_ID's own close (P-011 verification subtree).${NC}" >&2
+    echo "The close holds $TASK_ID's keylock; proceeding would deadlock (OBS-372, T-3306)." >&2
+    echo "Fix: point the verification/test at a throwaway fixture task instead of the task under close" >&2
+    echo "(pattern: tests/unit/t1719_happiness_signal.bats setup/teardown fixture)." >&2
+    exit 1
 fi
-# Single composed EXIT trap (T-522): the watchdog must run even when the keylock library is
-# absent, and installing a second `trap ... EXIT` would silently replace the first.
-trap '_t522_rc=$?; _t522_completion_watchdog "$_t522_rc"; if type keylock_release >/dev/null 2>&1; then keylock_release "$TASK_ID" 2>/dev/null || true; fi' EXIT
+
+# ── T-1719 A2: retrieval-happiness signal ────────────────────────────────────
+# Validated BEFORE any mutation (L-286: body-mutation gates must validate before
+# mutating). A rejected rating must not leave a half-updated task behind.
+if [ -n "$HAPPINESS" ]; then
+    if ! [[ "$HAPPINESS" =~ ^[+-]?[0-9]+$ ]]; then
+        echo -e "${RED}ERROR: --happiness must be an integer, got '$HAPPINESS'${NC}" >&2
+        exit 1
+    fi
+    _hv=$((HAPPINESS))
+    # Range is -5..-1 and +1..+5. Zero is deliberately excluded: the scale has no
+    # neutral, so a 0 is a mis-typed rating rather than an opinion.
+    if [ "$_hv" -eq 0 ] || [ "$_hv" -lt -5 ] || [ "$_hv" -gt 5 ]; then
+        echo -e "${RED}ERROR: --happiness must be in -5..-1 or +1..+5 (got $_hv)${NC}" >&2
+        echo "  The scale has no neutral — 0 is rejected as a mis-typed rating." >&2
+        exit 1
+    fi
+
+    _happiness_file="$PROJECT_ROOT/.context/working/happiness.jsonl"
+    mkdir -p "$(dirname "$_happiness_file")"
+    # source: agent when running under an agent harness, else human.
+    _hsource="human"
+    if [ "${CLAUDECODE:-0}" = "1" ] || [ -n "${FW_AGENT_SOURCE:-}" ]; then
+        _hsource="agent"
+    fi
+    HAPPINESS_JSON_LINE=$(TASK_ID="$TASK_ID" HV="$_hv" HSRC="$_hsource" \
+        HREASON="$HAPPINESS_REASON" python3 -c '
+import json, os, datetime
+row = {
+    "task_id": os.environ["TASK_ID"],
+    "ts": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+    "source": os.environ["HSRC"],
+    "value": int(os.environ["HV"]),
+}
+reason = os.environ.get("HREASON", "").strip()
+if reason:
+    row["reason"] = reason
+print(json.dumps(row, sort_keys=True))
+') || {
+        echo -e "${RED}ERROR: failed to build happiness record${NC}" >&2
+        exit 1
+    }
+    printf '%s\n' "$HAPPINESS_JSON_LINE" >> "$_happiness_file"
+    echo -e "${GREEN}Happiness recorded:${NC} $_hv → .context/working/happiness.jsonl"
+fi
+
+# Acquire per-task lock to prevent concurrent modifications (T-587).
+# T-3306: bounded (120s) — an unguarded reentry path (a child process the
+# close-guard env didn't reach) must degrade to a loud timeout error, never
+# the unbounded silent hang OBS-372 measured at 3h+.
+if type keylock_acquire &>/dev/null; then
+    if ! keylock_acquire "$TASK_ID" 120; then
+        echo -e "${RED}ERROR: could not acquire $TASK_ID's task lock within 120s.${NC}" >&2
+        echo "Another 'fw task update $TASK_ID' holds it — possibly this task's own" >&2
+        echo "in-flight close, if this command runs inside its verification (OBS-372, T-3306)." >&2
+        exit 1
+    fi
+    trap 'keylock_release "$TASK_ID" 2>/dev/null' EXIT
+fi
 
 # Read current state
 OLD_STATUS=$({ grep "^status:" "$TASK_FILE" 2>/dev/null || true; } | head -1 | sed 's/status:[[:space:]]*//')
@@ -1607,8 +1562,8 @@ if [ -n "$NEW_STATUS" ]; then
         if [ "$OLD_STATUS" = "work-completed" ] && [ "$(dirname "$TASK_FILE")" = "$TASKS_DIR/active" ]; then
             # T-193: Partial-complete re-run — check if human ACs now satisfied
             echo -e "${CYAN}Re-checking partial-complete status...${NC}"
-            _T522_COMPLETION_PHASE="started"   # T-522: this branch can also move to completed/
-            AC_SECTION=$(sed -n '/^## Acceptance Criteria/,/^## /p' "$TASK_FILE" 2>/dev/null | sed '$d')
+            # T-3148: anchored, FIRST-WINS extraction (lib/section-extract.sh).
+            AC_SECTION=$(extract_ac_section "$TASK_FILE")
             # Strip HTML comments — template examples contain checkbox patterns.
             # T-1967: two-step strip (one-line first, then range) — see line ~87.
             AC_SECTION=$(echo "$AC_SECTION" | sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' | sed '/<!--/,/-->/d')
@@ -1641,6 +1596,15 @@ if [ -n "$NEW_STATUS" ]; then
                     mv "$TASK_FILE" "$DEST"
                 fi
                 TASK_FILE="$DEST"
+                # T-2864: reconcile the INDEX, not just the disk. The `|| mv`
+                # fallback above leaves the source tracked in the index while
+                # removing it from disk — so the `[ -e ]` check below passes
+                # and dup-task-scan.sh (which reads `git ls-files --cached`)
+                # still sees the id under active/ AND completed/. Disk and index
+                # are two different populations; the guard was watching the one
+                # where the violation cannot appear. Stage the rename so both
+                # sides land together, exactly as `git mv` would have.
+                _t2864_reconcile_index "$_t1863_orig" "$DEST"
                 # T-1863: post-move sanity — if source still exists, the move
                 # is incomplete and we'd land in a G-052 orphan state. Refuse
                 # so the agent fixes it before --status work-completed commits.
@@ -1653,29 +1617,7 @@ if [ -n "$NEW_STATUS" ]; then
                     exit 1
                 fi
                 echo -e "${GREEN}Moved to completed/${NC}"
-
-                # T-654: null the stored horizon here too. This branch is the OTHER way a
-                # file reaches completed/ — and until now the only one that left the
-                # horizon behind. The null at ~line 2147 (T-2163/T-2300) cannot cover it:
-                # that site lives inside Trigger 2, gated on `OLD_STATUS != work-completed`,
-                # and this branch's entry condition is OLD_STATUS == work-completed. The two
-                # conditions are exact complements, so no amount of lifting the other site
-                # out of ITS conditionals will ever reach this one.
-                #
-                # T-2300 already widened that site once, for the re-close path, after eight
-                # CTL-030 instances. It did not widen to here because the fix was aimed at
-                # the site where the symptom appeared rather than at the invariant. The
-                # invariant is one line long: A FILE THAT ARRIVES IN completed/ HAS NO
-                # HORIZON. It is now asserted at both arrival points, which is two — and
-                # `git grep -n 'completed/\$(basename' update-task.sh` is how a third would
-                # be found.
-                #
-                # This matters beyond tidiness because `fw task archive-eligible`
-                # (bin/fw:3403) re-invokes `--status work-completed` and therefore drives
-                # EXCLUSIVELY through this branch. The command `fw audit` recommends for
-                # stuck partial-complete tasks was the command that manufactured the
-                # CTL-030 FAILs the same audit then reported.
-                _sed_i "s/^horizon:.*/horizon: null/" "$TASK_FILE"  # T-654
+                _print_move_next_hint "$TASK_ID"
 
                 # T-2345: clean orphan review marker — marker exists to unblock
                 # fw inception decide (T-973), moot once task is in completed/.
@@ -1683,7 +1625,6 @@ if [ -n "$NEW_STATUS" ]; then
                 rm -f "$PROJECT_ROOT/.context/working/.reviewed-$TASK_ID" 2>/dev/null || true
 
                 # Generate episodic if not already present
-                _T522_COMPLETION_PHASE="episodic"   # T-522: reached the stage the watchdog guards
                 if [ ! -f "$CONTEXT_DIR/episodic/$TASK_ID.yaml" ]; then
                     echo ""
                     echo -e "${YELLOW}=== Auto-trigger: Episodic Generation ===${NC}"
@@ -1706,6 +1647,17 @@ if [ -n "$NEW_STATUS" ]; then
                 FW_BIN="$FRAMEWORK_ROOT/bin/fw"
                 if [ -x "$FW_BIN" ] && [ -f "$PROJECT_ROOT/.context/dispatches.jsonl" ]; then
                     PROJECT_ROOT="$PROJECT_ROOT" "$FW_BIN" outcome backprop "$TASK_ID" --skip-verification >/dev/null 2>&1 || true
+                fi
+
+                # T-3169 (arc-012 S3): advance the TASK-keyed continuous-run counter.
+                # Branch 1 of 2 — see the T-1698 note on the Trigger 2 path; both
+                # completion branches must carry this or the counter is half-wired
+                # in exactly the way that shipped T-1697 broken. No-op when the
+                # loop is disarmed, and never blocks a close.
+                if [ -f "$FRAMEWORK_ROOT/lib/continuous-mode.sh" ]; then
+                    # shellcheck source=/dev/null
+                    . "$FRAMEWORK_ROOT/lib/continuous-mode.sh"
+                    fw_continuous_note_task_completed "$TASK_ID" "$PROJECT_ROOT" || true
                 fi
             else
                 echo -e "${YELLOW}Still $ALL_UNCHECKED/$ALL_TOTAL ACs unchecked — task stays in active/${NC}"
@@ -1792,6 +1744,58 @@ PY
             fi
         fi
 
+        # === Decaying .tasks/active/ verification reference advisory (T-3274) ===
+        # Non-blocking heuristic, sibling of the L-387 advisory above. Warns when
+        # the ## Verification block pins another task by its `.tasks/active/<T-XXXX>`
+        # path AND that task is no longer in active/. Such a reference passes at
+        # close and turns into a permanent false-red the moment the referenced task
+        # completes — nothing fires at the moment of decay, because the referenced
+        # task's own close breaks a DIFFERENT task's verification block and no gate
+        # looks sideways. CTL-013 re-runs only a rotating window, so the population
+        # stays latent: 79 completed tasks pinned such a path when this landed, 54
+        # already decayed (T-3274, round 5 of the T-3265 audit sweep).
+        #
+        # Bypass: FW_SKIP_DECAY_ADVISORY=1 (advisory anyway — does NOT block).
+        if [ "$NEW_STATUS" = "started-work" ] && [ -z "${FW_SKIP_DECAY_ADVISORY:-}" ]; then
+            if command -v python3 >/dev/null 2>&1; then
+                _decay_findings=$(python3 - "$TASK_FILE" 2>/dev/null <<'PY' || true
+import sys
+from pathlib import Path
+for parent in [Path(sys.argv[0]).resolve()] + list(Path(sys.argv[0]).resolve().parents):
+    if (parent / "lib" / "reviewer" / "static_scan.py").exists():
+        sys.path.insert(0, str(parent))
+        break
+else:
+    sys.exit(0)
+try:
+    from lib.reviewer import static_scan as ss
+except Exception:
+    sys.exit(0)
+tf = sys.argv[1]
+try:
+    text = Path(tf).read_text()
+except Exception:
+    sys.exit(0)
+verif = ss.extract_section(text, "Verification") or ""
+if not verif:
+    sys.exit(0)
+for f in ss.detect_decaying_task_path_ref(verif, tf):
+    print(f"  - {f.location}: {f.evidence}")
+PY
+                )
+                if [ -n "$_decay_findings" ]; then
+                    echo ""
+                    echo -e "${YELLOW}ADVISORY (T-3274): Verification pins a .tasks/active/ path that has decayed${NC}"
+                    echo "$_decay_findings"
+                    echo "  These lines can no longer pass — the task they name has moved to completed/."
+                    echo "  Safe form (matches either tray):  grep -l PATTERN .tasks/*/T-XXXX-*.md"
+                    echo "  Suppress (does not block):  FW_SKIP_DECAY_ADVISORY=1 bin/fw task update ..."
+                    echo "  Reviewer pattern: decaying-task-path-ref (policy/anti-patterns.yaml)"
+                    echo ""
+                fi
+            fi
+        fi
+
         # === BVP Estimator Trigger (T-1922) ===
         # On transition to started-work ("ready"), fire the BVP estimator
         # in the background. Heuristic engine is ~10ms so the update latency
@@ -1800,10 +1804,11 @@ PY
         # the estimator's output is advisory; a missing proposed score does
         # not block any downstream gate.
         if [ "$NEW_STATUS" = "started-work" ] && [ -n "$TASK_ID" ]; then
-            if [ -x "$FRAMEWORK_ROOT/agents/termlink/bvp-estimator/bvp-estimator.sh" ]; then
+            # T-3051: -f + bash, not -x — git tracks this estimator as 100644.
+            if [ -f "$FRAMEWORK_ROOT/agents/termlink/bvp-estimator/bvp-estimator.sh" ]; then
                 (
                     PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" \
-                    "$FRAMEWORK_ROOT/agents/termlink/bvp-estimator/bvp-estimator.sh" \
+                    bash "$FRAMEWORK_ROOT/agents/termlink/bvp-estimator/bvp-estimator.sh" \
                         one "$TASK_ID" >/dev/null 2>&1
                 ) &
                 disown 2>/dev/null || true
@@ -1853,18 +1858,11 @@ PY
 
         # === Verification Gate (P-011) ===
         if [ "$NEW_STATUS" = "work-completed" ]; then
+            # T-3306: mark the verification subtree so a nested `fw task update`
+            # on this same task fails fast instead of deadlocking on our keylock.
+            export FW_TASK_UPDATE_IN_CLOSE="$TASK_ID"
             run_verification_commands
-        fi
-
-        # === Uncommitted-work Warning (T-649, G-047 prevention) ===
-        # Warns, never blocks. Placed AFTER the structural gates (sovereignty, P-010,
-        # P-011) and before the advisory ones: if a hard gate refuses, the transition
-        # did not happen and nothing has been lost yet, so the warning would be noise
-        # on an attempt that was never going to complete. It fires on the run that is
-        # actually about to make the diff uncommittable, which is the only run where
-        # acting on it is both necessary and still free.
-        if [ "$NEW_STATUS" = "work-completed" ]; then
-            warn_uncommitted_work
+            unset FW_TASK_UPDATE_IN_CLOSE
         fi
 
         # === Recommendation Gate (T-679 / T-1529) ===
@@ -1959,6 +1957,17 @@ fi
 
 # Update owner
 if [ -n "$NEW_OWNER" ]; then
+    # T-2924: validate against the enum, as --type and --horizon already do below
+    # (lines ~1718/~1744). `owner` was the one sibling of the three that did not.
+    # T-2674 closed the CREATE side (create-task.sh:203) and left this one open,
+    # so `fw task update T-XXX --owner anything` wrote the string verbatim while
+    # Watchtower's dropdowns whitelist the enum. Measured cost of the gap: 10 task
+    # files outside the enum (6 `claude`, 4 empty). Raised by 832 on the DM rail,
+    # whose BPMN compiler is about to emit `owner` values into task files.
+    if ! is_valid_owner "$NEW_OWNER"; then
+        error "Invalid owner '$NEW_OWNER'"
+        die "Valid owners: $VALID_OWNERS (enum source: status-transitions.yaml)"
+    fi
     OLD_OWNER=$({ grep "^owner:" "$TASK_FILE" 2>/dev/null || true; } | head -1 | sed 's/owner:[[:space:]]*//')
     # T-198/R-033: Owner protection — owner: human is sticky
     if [ "$OLD_OWNER" = "human" ] && [ "$NEW_OWNER" != "human" ]; then
@@ -2151,7 +2160,6 @@ fi
 
 # Trigger 2: work-completed → finalize
 if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATUS" != "work-completed" ]; then
-    _T522_COMPLETION_PHASE="started"   # T-522: watchdog is now armed until the episodic stage
     # Set date_finished
     _sed_i "s/^date_finished:.*/date_finished: $TIMESTAMP/" "$TASK_FILE"
     echo ""
@@ -2165,6 +2173,15 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
         echo -e "${YELLOW}Partial-complete: $HUMAN_AC_UNCHECKED_REMAINING human AC(s) pending verification${NC}"
         echo -e "${YELLOW}Task stays in active/ — owner set to human${NC}"
         echo "Human review required — see Watchtower link below."
+
+        # T-3212 (arc-012 IW-5): a human gate STOPS the continuous run — it does
+        # not park this task and take the next one. Silent no-op when the loop is
+        # disarmed, which is every ordinary session.
+        if [ -f "$FRAMEWORK_ROOT/lib/continuous-mode.sh" ]; then
+            # shellcheck source=/dev/null
+            . "$FRAMEWORK_ROOT/lib/continuous-mode.sh"
+            fw_continuous_note_human_gate "$TASK_ID" "human-ac" "$PROJECT_ROOT" || true
+        fi
 
         # T-634: Auto-emit review (URL + QR + artifacts) on partial-complete
         if [ -f "$FRAMEWORK_ROOT/lib/review.sh" ]; then
@@ -2206,6 +2223,8 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
                 mv "$TASK_FILE" "$DEST"
             fi
             TASK_FILE="$DEST"
+            # T-2864: reconcile the index (see the sibling call site above).
+            _t2864_reconcile_index "$_t1863_orig" "$DEST"
             # T-1863: post-move orphan check — same rationale as the T-193
             # re-run path above. Refuse rather than land in G-052 silently.
             if [ -e "$_t1863_orig" ] && [ "$_t1863_orig" != "$DEST" ]; then
@@ -2217,23 +2236,20 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
                 exit 1
             fi
             echo -e "${GREEN}Moved to completed/${NC}"
+            _print_move_next_hint "$TASK_ID"
             # T-2345: clean orphan review marker — marker exists to unblock
             # fw inception decide (T-973), moot once task is in completed/.
             # Idempotent; sibling cleanup at lib/inception.sh:731.
             rm -f "$PROJECT_ROOT/.context/working/.reviewed-$TASK_ID" 2>/dev/null || true
         fi
 
-        # T-2163 (arc-009 horizon-axis-hardening, Slice 4): null the stored
-        # horizon now that the file is in .tasks/completed/. Render derives
-        # `past` from _location (T-2160 Q1=(b)) so the stored value is
-        # behaviorally irrelevant — but a non-null value here is a YAML lie
-        # that CTL-030 (T-2162) would catch. Plug the source: write `null`.
-        # T-2300 (leg-gap): runs OUTSIDE the move-conditional so the re-close
-        # path (file already in completed/, status flip only) also nulls the
-        # horizon — was 8-instance CTL-030 class (T-2168/T-2180/T-2182/T-2196/
-        # T-2201/T-2203/T-2204/T-2248). Partial-complete branch does NOT touch
-        # this — that file stays in active/ and renders via the stored horizon.
-        _sed_i "s/^horizon:.*/horizon: null/" "$TASK_FILE"
+        # T-3235: the horizon null-ing that used to live here is now a
+        # post-condition at the end of this script (search: ARCHIVED-HORIZON
+        # INVARIANT). It was moved, not deleted. T-2163 introduced it and
+        # T-2300 widened it once after eight CTL-030 instances — but widening
+        # a site can never reach a branch whose entry condition is that site's
+        # exact complement, which is why the partial-complete recheck branch
+        # archived files with the horizon untouched for as long as it existed.
 
         # T-709: Push notification — task completed
         # T-2300: lifted out of move-conditional so re-close fires once too.
@@ -2248,7 +2264,19 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
     # === Clear focus if this was the focused task (T-354) ===
     # Only for full completion (not partial-complete — human still needs focus)
     if [ "${PARTIAL_COMPLETE:-false}" = false ]; then
-        FOCUS_FILE="$CONTEXT_DIR/working/focus.yaml"
+        # T-3432: resolve through the SAME helper the gate reads (fw_focus_file,
+        # lib/paths.sh, T-3038) instead of hard-coding the shared focus.yaml.
+        # Under FW_SESSION_SCOPED_FOCUS=1 the reader
+        # (agents/context/check-active-task.sh) looks at focus.<key>.yaml, so a
+        # close that nulled focus.yaml left the scoped file still naming the
+        # just-completed task: every subsequent Bash/Write was refused
+        # ("work-completed") and T-2054's null-focus commit allowance never
+        # fired, because the focus the gate saw was not null. The worker could
+        # not commit its own close. L-399 producer/consumer parity: one
+        # resolver, both sides. fw_focus_file honours CONTEXT_DIR itself, and
+        # returns the shared path verbatim when scoped mode is off, so the
+        # default (interactive) behaviour is unchanged.
+        FOCUS_FILE="$(fw_focus_file "$PROJECT_ROOT")"
         if [ -f "$FOCUS_FILE" ]; then
             FOCUSED_TASK=$(grep "^current_task:" "$FOCUS_FILE" | sed 's/current_task:[[:space:]]*//')
             if [ "$FOCUSED_TASK" = "$TASK_ID" ]; then
@@ -2292,22 +2320,8 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
         LOC_TO_ID_FILE=$(mktemp)
         for card in "$FABRIC_DIR"/*.yaml; do
             [ -f "$card" ] || continue
-            # T-522: `|| true` is load-bearing, not defensive noise. A component card that
-            # lacks `location:` (or `id:`) makes grep exit 1; under `set -euo pipefail`
-            # (line 14) pipefail propagates that through the pipe and the ASSIGNMENT ITSELF
-            # then terminates the whole script — mid-loop, exit 1, no message. The task has
-            # already been moved to completed/ by then, so completion LOOKS successful while
-            # everything below this point never runs: decision auto-capture, outcome
-            # back-prop, and the Episodic Generation block ~110 lines down. Measured: two
-            # hand-written cards without `location:` landed at 12:13:39Z on 2026-08-15 and
-            # the next two completions (T-520 12:13:59Z, T-521 13:34:03Z) both lost their
-            # episodics, while T-519 at 11:53:42Z — before the cards existed — was fine.
-            # This is the third instance of the same failure in this one block: T-1374
-            # (G-054) added `|| true` to the two greps ~40 lines below for exactly this
-            # reason and did not carry it to these two. The lesson is the one T-521 wrote
-            # down — a fix belongs at the mechanism, not at the site where it was noticed.
-            c_loc=$({ grep "^location:" "$card" 2>/dev/null || true; } | sed 's/^location:[[:space:]]*//' | head -1)
-            c_id=$({ grep "^id:" "$card" 2>/dev/null || true; } | sed 's/^id:[[:space:]]*//' | head -1)
+            c_loc=$(grep "^location:" "$card" 2>/dev/null | sed 's/^location:[[:space:]]*//' | head -1)
+            c_id=$(grep "^id:" "$card" 2>/dev/null | sed 's/^id:[[:space:]]*//' | head -1)
             if [ -n "$c_loc" ] && [ -n "$c_id" ]; then
                 echo "${c_loc}=${c_id}" >> "$LOC_TO_ID_FILE"
             fi
@@ -2426,7 +2440,6 @@ with open(path, 'w') as f:
     # Partial-complete means human ACs are unchecked; the task stays in active/.
     # Generating episodic now creates premature memory of unfinalized work.
     # The human-finalization path (line ~388) handles episodic generation on final completion.
-    _T522_COMPLETION_PHASE="episodic"   # T-522: reached the stage the watchdog guards
     if [ "${PARTIAL_COMPLETE:-false}" = false ]; then
         echo ""
         echo -e "${YELLOW}=== Auto-trigger: Episodic Generation ===${NC}"
@@ -2485,6 +2498,16 @@ with open(path, 'w') as f:
         if [ -x "$FW_BIN" ] && [ -f "$PROJECT_ROOT/.context/dispatches.jsonl" ]; then
             PROJECT_ROOT="$PROJECT_ROOT" "$FW_BIN" outcome backprop "$TASK_ID" --skip-verification >/dev/null 2>&1 || true
         fi
+
+        # T-3169 (arc-012 S3): advance the TASK-keyed continuous-run counter.
+        # Branch 2 of 2 — the sibling call is on the partial-complete re-run path
+        # above. The counter is idempotent per task id, so a task that reaches
+        # completion through both branches is still counted once.
+        if [ -f "$FRAMEWORK_ROOT/lib/continuous-mode.sh" ]; then
+            # shellcheck source=/dev/null
+            . "$FRAMEWORK_ROOT/lib/continuous-mode.sh"
+            fw_continuous_note_task_completed "$TASK_ID" "$PROJECT_ROOT" || true
+        fi
     fi
 
     # === Learning capture check for bugfix tasks (T-692, G-016, T-1192) ===
@@ -2519,6 +2542,34 @@ with open(path, 'w') as f:
             echo -e "${YELLOW}────────────────────────────────────────────${NC}"
         fi
     fi
+fi
+
+# === ARCHIVED-HORIZON INVARIANT (T-3235, peer 832 T-654 BUG 1) ===
+#
+# A task file that lives in .tasks/completed/ carries `horizon: null`. Asserted
+# here, once, on where TASK_FILE actually ENDED UP — not at the sites that move
+# it. Two branches archive a task, and their entry conditions are exact
+# complements (`OLD_STATUS != work-completed` for an ordinary completion vs
+# `OLD_STATUS == NEW_STATUS == work-completed` for the partial-complete
+# recheck), so no widening of one could ever reach the other. T-2163 wrote the
+# rule at the first site and T-2300 widened it there after eight CTL-030
+# instances; the second site was still archiving with the horizon untouched.
+#
+# The sharp end was `fw task archive-eligible`, which re-invokes
+# `--status work-completed` on tasks already at work-completed in active/ and
+# therefore drives EXCLUSIVELY through the unfixed branch — the sweep `fw audit`
+# recommends for stuck partial-completes would manufacture the CTL-030 failures
+# the same audit then reports.
+#
+# Keyed on LOCATION, never on status: a partial-complete that stays in active/
+# must KEEP its stored horizon (it still renders from it while the human owns
+# it), and that is the case a status-keyed check would break. Reported upstream
+# by peer 832-Workflow-designer (their T-654); confirmed in-tree against this
+# script before anything was changed. Zero instances here at the time of the
+# fix — a latent fault with no evidence yet, which is the cheapest moment.
+if [ -n "${TASK_FILE:-}" ] && [ -f "$TASK_FILE" ] \
+   && [ "$(dirname "$TASK_FILE")" = "$TASKS_DIR/completed" ]; then
+    _sed_i "s/^horizon:.*/horizon: null/" "$TASK_FILE"
 fi
 
 echo ""

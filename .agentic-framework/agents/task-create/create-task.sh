@@ -48,7 +48,6 @@ while [[ $# -gt 0 ]]; do
         --description) DESCRIPTION="$2"; shift 2 ;;
         --type) WORKFLOW_TYPE="$2"; shift 2 ;;
         --owner) OWNER="$2"; shift 2 ;;
-        --human-ac) HUMAN_AC="$2"; shift 2 ;;   # T-767: seeds a real Human AC; required by --owner human
         --tags) TAGS="$2"; shift 2 ;;
         --related) RELATED="$2"; shift 2 ;;
         --horizon) HORIZON="$2"; shift 2 ;;
@@ -56,6 +55,13 @@ while [[ $# -gt 0 ]]; do
         --recommendation) RECOMMENDATION="$2"; shift 2 ;;
         --rationale) RATIONALE="$2"; shift 2 ;;
         --i-am-human) I_AM_HUMAN=true; shift ;;
+        # T-1890: focus-drift hook sentinel; consumed silently. Sibling of the
+        # identical branch in update-task.sh:1290. T-2830 found this leg missing:
+        # `fw work-on <name> --switch-focus` shells to THIS script on the create
+        # path, so a contract that only update-task.sh honours is incomplete
+        # (L-399 — a bypass mechanism must be honoured by every consumer the
+        # gating hook can route to, or the caller is pushed onto an ungoverned path).
+        --switch-focus) shift ;;
         -h|--help)
             echo "Usage: create-task.sh [options]"
             echo ""
@@ -115,37 +121,6 @@ case "${FW_TASK_ORIGIN:-}" in
     ;;
 esac
 
-# T-767 (SQ-2, operator ruling 2026-09-21): ownership must follow the presence of a real
-# Human acceptance criterion. A task born `owner: human` with no Human AC is one the
-# creating agent is structurally forbidden to finish AND the human has nothing to verify
-# on, so it parks forever. Measured on this project 2026-09-21: 34 of 107 active
-# owner:human tasks carry zero Human AC checkboxes; 2 of them (T-708, T-723) have every
-# criterion ticked and are simply waiting on a human with no stated act to perform.
-#
-# The gate REFUSES; it does not silently rewrite OWNER to agent. An auto-flip would decide
-# ownership on the caller's behalf, and ownership is the operator's call — a refusal makes
-# the caller state the human's job, which is the thing that was missing.
-#
-# Gated writers are exempt BY POLICY, not by oversight: T-2543 (bpmn-promote) and T-2577
-# (designer-ghost) make those creates human-owned regardless of ACs. That bar is the
-# operator's sovereignty bar and this gate does not get to lower it.
-case "${FW_TASK_ORIGIN:-}" in
-  bpmn-promote|designer-ghost) ;;
-  *)
-    # `inception` is exempt: .tasks/templates/inception.md ships a real go/no-go Human AC
-    # with Steps/Expected/If-not, so an inception task cannot be born without one.
-    if [ "$OWNER" = "human" ] && [ -z "$HUMAN_AC" ] && [ "$WORKFLOW_TYPE" != "inception" ]; then
-        echo -e "${RED}BLOCKED: --owner human requires --human-ac \"<criterion>\".${NC}" >&2
-        echo "  A human-owned task must name what the human verifies. Without it the task" >&2
-        echo "  cannot be finished by the agent and has nothing for the human to check." >&2
-        echo "  Either pass --human-ac \"<what the human must verify>\", or create the task" >&2
-        echo "  with --owner agent." >&2
-        echo "  Policy: T-767, operator ruling on SQ-2 (2026-09-21)." >&2
-        exit 1
-    fi
-    ;;
-esac
-
 # Interactive mode if required fields missing.
 # T-100160 (OBS-086): prompt ONLY when stdin is a tty. In no-tty contexts
 # (background dispatch, cron, TermLink workers) stdin is a socket/pipe that
@@ -166,27 +141,6 @@ if [ -z "$NAME" ]; then
     echo -e "${YELLOW}Task name:${NC}"
     read -r NAME
 fi
-
-# T-775 (OBS-364): refuse a line break in the name.
-#
-# A task name is a single line by construction — it becomes a YAML scalar, an H1 and a
-# filename slug. A break makes it none of those. Measured before this guard: --name
-# 'line one\nowner: injected' emitted `name: "line one` on one line and `owner: injected`
-# on the next, which then CAPTURED the ownership substitution and left the real field
-# empty, and yaml.safe_load raised ParserError on the result. That is OBS-363's symptom
-# reached by a different route, and it is also the one input that defeats T-774's line
-# anchoring: the anchor honours lines, so an input that manufactures a line wins.
-#
-# Refused rather than silently stripped. Rewriting the operator's input without saying so
-# is the same class of defect as the substitution bug this guard sits next to.
-case "$NAME" in
-    *$'\n'*|*$'\r'*)
-        error "Task name contains a line break — refused (T-775, OBS-364)."
-        error "  A name becomes a YAML scalar, an H1 and a filename slug; a break makes it"
-        error "  none of those, and the injected line can capture a frontmatter substitution."
-        die   "  Put the detail in --description, which is a folded block and may span lines."
-        ;;
-esac
 
 # T-555: Reject template placeholder names
 _name_lower=$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
@@ -243,6 +197,14 @@ if ! is_valid_horizon "$HORIZON"; then
     die "Valid horizons: $VALID_HORIZONS"
 fi
 
+# Validate owner (T-2674, closes the residual G-040 creation-side hole: the
+# predicate existed since T-1180 but was never called here — any --owner string
+# was written verbatim while Watchtower's dropdowns whitelist the enum).
+if ! is_valid_owner "$OWNER"; then
+    error "Invalid owner '$OWNER'"
+    die "Valid owners: $VALID_OWNERS (enum source: status-transitions.yaml)"
+fi
+
 # T-100202 AC4 (recursion guard): refuse names carrying the self-feeding
 # audit-emitter signature — a WARN task named after another WARN task, e.g.
 # "Audit WARN — Task T-2488-audit-warn--task-t-2462-…". The emitter itself is
@@ -279,18 +241,12 @@ fi
 # snapshot of .tasks/ — possibly behind the main checkout — so scanning ONE
 # view computes a stale max and mints a duplicate ID (the T-100200 dup class).
 # generate_id therefore union-scans the .tasks/ of EVERY worktree of the repo
-# that owns TASKS_DIR. Falls back to the local view alone when TASKS_DIR is
-# not inside a git repo (test harness, non-git consumers).
-_task_view_dirs() {
-    local base wt
-    base="$(cd "$(dirname "$TASKS_DIR")" 2>/dev/null && pwd)"
-    if [ -n "$base" ] && git -C "$base" rev-parse --git-dir >/dev/null 2>&1; then
-        while IFS= read -r wt; do
-            [ -d "$wt/.tasks" ] && printf '%s\n' "$wt/.tasks"
-        done < <(git -C "$base" worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p')
-    fi
-    printf '%s\n' "$TASKS_DIR"
-}
+# that owns TASKS_DIR.
+#
+# T-3104: `_task_view_dirs` was lifted out of this file — it now lives as
+# `fw_task_view_dirs` in lib/paths.sh (sourced at the top of this script), so
+# the ID allocator and the audit duplicate-ID check share ONE definition of the
+# corpus view set. Read the contract and the L-506-leg-2 rationale there.
 
 generate_id() {
     local gap_threshold="${FW_ID_QUARANTINE_GAP:-1000}"
@@ -303,7 +259,7 @@ generate_id() {
             # Use 10# to force base-10 interpretation (avoids octal issues with 008, 009)
             [ -n "$id" ] && ids+=("$((10#$id))")
         done
-    done < <(_task_view_dirs | sort -u)
+    done < <(fw_task_view_dirs)
     shopt -u nullglob
 
     if [ "${#ids[@]}" -eq 0 ]; then
@@ -373,12 +329,18 @@ _log_recommendation_bypass() {
     local _log_file="$_log_dir/.gate-bypass-log.yaml"
     local _ts
     _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    # T-3412: ${NAME} is free text (task title) and can contain a single quote,
+    # which is the YAML escape character for this single-quoted scalar. Double
+    # it per the YAML single-quoted-scalar rule (same idiom as T-1861 in
+    # check-active-task.sh) instead of interpolating it raw.
+    local _t3412_esc_name="${NAME//\'/\'\'}"
+    local _t3412_esc_reason="${_reason//\'/\'\'}"
     {
         echo "- timestamp: '$_ts'"
-        echo "  task: '<filing: ${NAME}>'"
+        echo "  task: '<filing: ${_t3412_esc_name}>'"
         echo "  flag: '$_flag'"
         echo "  caller: 'create-task.sh'"
-        echo "  reason: '$_reason'"
+        echo "  reason: '$_t3412_esc_reason'"
     } >> "$_log_file" 2>/dev/null || true
 }
 
@@ -443,6 +405,17 @@ else
     STATUS="captured"
 fi
 
+# Validate status before write (T-2675, companion to T-2674's owner leg —
+# 832 rail-316: "two independent holes with separate root causes"). Today
+# STATUS is only ever the two internal constants above, so this guard is a
+# never-fires invariant; it exists so any FUTURE path that derives STATUS
+# from less-trusted input (promote/ghost origins, a --status flag) dies
+# here instead of writing an unvalidated value.
+if ! is_valid_status "$STATUS"; then
+    error "Invalid initial status '$STATUS'"
+    die "Valid statuses: $VALID_STATUSES (enum source: status-transitions.yaml)"
+fi
+
 # Format tags and related_tasks as YAML arrays
 format_yaml_array() {
     local input="$1"
@@ -474,7 +447,7 @@ RELATED_YAML=$(format_yaml_array "$RELATED")
 if [ "$WORKFLOW_TYPE" = "inception" ] && [ -f "$TASKS_DIR/templates/inception.md" ]; then
     TC_TEMPLATE="$TASKS_DIR/templates/inception.md" \
     TC_TASK_ID="$TASK_ID" TC_STATUS="$STATUS" TC_HORIZON="$HORIZON" \
-    TC_HUMAN_AC="$HUMAN_AC" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" TC_RELATED_YAML="$RELATED_YAML" \
+    TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" TC_RELATED_YAML="$RELATED_YAML" \
     TC_TIMESTAMP="$TIMESTAMP" TC_FILEPATH="$FILEPATH" \
     python3 -c "
 import sys, os
@@ -482,63 +455,28 @@ e = os.environ
 with open(e['TC_TEMPLATE']) as f:
     t = f.read()
 name, desc = sys.argv[1], sys.argv[2]
-# T-776 (OBS-365) — see the note in the default-template branch below. Same reordering,
-# same reason; the inception branch is where T-660's placeholder actually bit the operator.
-t = t.replace('T-XXX', e['TC_TASK_ID'])
-
-# T-774 (OBS-363) — see the long note in the default-template branch below. This block
-# is a near-duplicate of it and carried the identical unanchored-substitution defect;
-# fixing only one branch would have left every inception task still exposed.
-def _fm(t, key, line):
-    L = t.split('\n')
-    end = len(L)
-    for i in range(1, len(L)):
-        if L[i].rstrip() == '---':
-            end = i
-            break
-    for i in range(1, end):
-        if L[i].startswith(key):
-            L[i] = line
-            return '\n'.join(L)
-    return t
-t = _fm(t, 'id:', 'id: ' + e['TC_TASK_ID'])
-t = _fm(t, 'name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"')
-# T-775 (OBS-364): indent EVERY line of the description, not just the first.
-# 'description: >' is a YAML folded block scalar: its content is the run of lines more
-# indented than the key. Emitting only the first line indented terminated the block, and
-# yaml.safe_load raised ScannerError on the continuation. Multi-line descriptions are
-# legitimate and are now emitted correctly rather than refused — the description is the
-# one field where a user has a real reason to write more than one line.
-t = _fm(t, 'description: >', 'description: >\n' + '\n'.join(('  ' + x).rstrip() for x in desc.split('\n')))
-t = _fm(t, 'status:', 'status: ' + e['TC_STATUS'])
-t = _fm(t, 'horizon:', 'horizon: ' + e['TC_HORIZON'])
-t = _fm(t, 'owner:', 'owner: ' + e['TC_OWNER'])
-# T-767: seed the Human AC the gate just required. Anchored on the heading AND its
-# comment opener so a name or description containing '### Human' cannot capture the
-# substitution — that first-match capture is OBS-363, filed separately.
-if e.get('TC_HUMAN_AC'):
-    _anchor = '### Human\n<!--'
-    if _anchor in t:
-        t = t.replace(_anchor, '### Human\n\n- [ ] ' + e['TC_HUMAN_AC'] + '\n\n<!--', 1)
-    else:
-        sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
-        sys.exit(3)
-t = _fm(t, 'tags:', 'tags: ' + e['TC_TAGS_YAML'])
-t = _fm(t, 'related_tasks:', 'related_tasks: ' + e['TC_RELATED_YAML'])
-t = _fm(t, 'created:', 'created: ' + e['TC_TIMESTAMP'])
-t = _fm(t, 'last_update:', 'last_update: ' + e['TC_TIMESTAMP'])
-# T-776: the H1 anchor now carries the real id, because the body-wide substitution has
-# already run above. T-660's own note, kept because it is the reason that pass exists:
-#   substitute the id EVERYWHERE, not only in the frontmatter and the H1. The inception
-#   template's Human AC reads 'Run: fw task review T-XXX' and shipped that literal
-#   placeholder into every inception ever created here — nine of the ten unruled
-#   inceptions on the operator's queue carried it, and 010-termlink reported the identical
-#   string in their tree at rail @891, which is how a shared template announces itself. An
-#   AC whose first step cannot be pasted costs the operator a reconstruction before they
-#   can even begin, and that is what a deferred queue item looks like from the inside.
-# The second, late pass is GONE: with the name already injected it rewrote the operator's
-# own text (OBS-365). Running it once, early, serves T-660 and cannot touch user input.
-t = t.replace('# ' + e['TC_TASK_ID'] + ': [Inception Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
+def indent_block(s):
+    # T-2778: 'description: >' is a folded scalar, so EVERY line of the value must be
+    # indented, not just the first. Indenting only the first line ends the scalar at the
+    # first newline; YAML then reads the next paragraph as frontmatter. That fails two
+    # different ways, and the loud one is the lucky one: a paragraph containing 'word: word'
+    # parses as a junk top-level key and SILENTLY truncates description to its first line
+    # (no error, audit sees valid YAML), while a paragraph without a colon raises
+    # ScannerError and is caught. Found 5 corpus instances -- 1 loud, 4 silent.
+    # Blank lines are emitted bare: whitespace-only lines inside a block scalar are
+    # separators, and padding them to the indent width leaves trailing spaces.
+    return '\n'.join(('  ' + ln) if ln.strip() else '' for ln in s.split('\n'))
+t = t.replace('id: T-XXX', 'id: ' + e['TC_TASK_ID'])
+t = t.replace('name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"', 1)
+t = t.replace('description: >', 'description: >\n' + indent_block(desc), 1)
+t = t.replace('status: captured', 'status: ' + e['TC_STATUS'])
+t = t.replace('horizon: now', 'horizon: ' + e['TC_HORIZON'])
+t = t.replace('owner:', 'owner: ' + e['TC_OWNER'], 1)
+t = t.replace('tags: []', 'tags: ' + e['TC_TAGS_YAML'])
+t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])
+t = t.replace('created:', 'created: ' + e['TC_TIMESTAMP'], 1)
+t = t.replace('last_update:', 'last_update: ' + e['TC_TIMESTAMP'], 1)
+t = t.replace('# T-XXX: [Inception Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
 t = t.replace('[Chronological log', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created inception task\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation\n\n[Chronological log')
 with open(e['TC_FILEPATH'], 'w') as f:
     f.write(t)
@@ -546,7 +484,7 @@ with open(e['TC_FILEPATH'], 'w') as f:
 elif [ -f "$TASKS_DIR/templates/default.md" ]; then
     TC_TEMPLATE="$TASKS_DIR/templates/default.md" \
     TC_TASK_ID="$TASK_ID" TC_STATUS="$STATUS" TC_WORKFLOW_TYPE="$WORKFLOW_TYPE" \
-    TC_HUMAN_AC="$HUMAN_AC" TC_HORIZON="$HORIZON" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" \
+    TC_HORIZON="$HORIZON" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" \
     TC_RELATED_YAML="$RELATED_YAML" TC_TIMESTAMP="$TIMESTAMP" TC_FILEPATH="$FILEPATH" \
     python3 -c "
 import sys, os
@@ -554,86 +492,44 @@ e = os.environ
 with open(e['TC_TEMPLATE']) as f:
     t = f.read()
 name, desc = sys.argv[1], sys.argv[2]
-# T-776 (OBS-365): substitute the id while the template is still the TEMPLATE.
-# T-660 added a body-wide id replacement deliberately — without it every inception shipped
-# `Run: fw task review T-XXX` as the operator's literal first step. That intent is kept
-# exactly; only the ORDER changes. It used to run at the END, after the user-supplied name
-# had been injected, so a task NAMED after the placeholder had its own name rewritten:
-# `--name 'build tasks ship the literal T-XXX placeholder'` came out as '... T-996 ...'.
-# Running it here means there is no user text in the document yet for it to hit.
-# PL-164 once more: the task most likely to contain the placeholder is the task filed
-# about the placeholder.
-t = t.replace('T-XXX', e['TC_TASK_ID'])
-
-# T-774 (OBS-363): every frontmatter substitution below used to be an UNANCHORED
-# t.replace('<key>:', ..., 1) over a document into which the user-supplied NAME had
-# ALREADY been injected two lines earlier. The first match could therefore land inside
-# the name. Measured on T-768 and reproduced under T-774 against this script: a name
-# containing the ownership token came out rewritten AND left the real field empty.
-# The reported field was one of at least seven. Two severities, both measured:
-#   count=1 keys  (owner, workflow_type, created, last_update, description) — the NAME is
-#                 corrupted and the FIELD IS SILENTLY EMPTIED, because the single
-#                 substitution was spent inside the name and never reached its own line.
-#   unbounded keys (status, horizon, tags, related_tasks) — the name is corrupted but the
-#                 field survives, because every occurrence is replaced including its own.
-# _fm replaces the first FRONTMATTER LINE THAT STARTS WITH the key, so a key appearing
-# mid-line inside a value can no longer capture the substitution. This removes the class,
-# not the instance. PL-164: prose about a string-matching mechanism contains the string
-# it matches, which is why task names describing this very bug are the ones that trip it.
-def _fm(t, key, line):
-    L = t.split('\n')
-    end = len(L)
-    for i in range(1, len(L)):
-        if L[i].rstrip() == '---':
-            end = i
-            break
-    for i in range(1, end):
-        if L[i].startswith(key):
-            L[i] = line
-            return '\n'.join(L)
-    return t
-t = _fm(t, 'id:', 'id: ' + e['TC_TASK_ID'])
-t = _fm(t, 'name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"')
-# T-775 (OBS-364): indent EVERY line of the description, not just the first.
-# 'description: >' is a YAML folded block scalar: its content is the run of lines more
-# indented than the key. Emitting only the first line indented terminated the block, and
-# yaml.safe_load raised ScannerError on the continuation. Multi-line descriptions are
-# legitimate and are now emitted correctly rather than refused — the description is the
-# one field where a user has a real reason to write more than one line.
-t = _fm(t, 'description: >', 'description: >\n' + '\n'.join(('  ' + x).rstrip() for x in desc.split('\n')))
-t = _fm(t, 'status:', 'status: ' + e['TC_STATUS'])
-t = _fm(t, 'workflow_type:', 'workflow_type: ' + e['TC_WORKFLOW_TYPE'])
-t = _fm(t, 'owner:', 'owner: ' + e['TC_OWNER'])
-# T-767: seed the Human AC the gate just required. Anchored on the heading AND its
-# comment opener so a name or description containing '### Human' cannot capture the
-# substitution — that first-match capture is OBS-363, filed separately.
-if e.get('TC_HUMAN_AC'):
-    _anchor = '### Human\n<!--'
-    if _anchor in t:
-        t = t.replace(_anchor, '### Human\n\n- [ ] ' + e['TC_HUMAN_AC'] + '\n\n<!--', 1)
-    else:
-        sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
-        sys.exit(3)
-t = _fm(t, 'horizon:', 'horizon: ' + e['TC_HORIZON'])
-t = _fm(t, 'tags:', 'tags: ' + e['TC_TAGS_YAML'])
-t = _fm(t, 'related_tasks:', 'related_tasks: ' + e['TC_RELATED_YAML'])
-t = _fm(t, 'created:', 'created: ' + e['TC_TIMESTAMP'])
-t = _fm(t, 'last_update:', 'last_update: ' + e['TC_TIMESTAMP'])
-# T-776: anchor carries the real id — the body-wide pass already ran above, once, before
-# any user text entered the document. The late second pass is gone (OBS-365).
-t = t.replace('# ' + e['TC_TASK_ID'] + ': [Task Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
+def indent_block(s):
+    # T-2778: 'description: >' is a folded scalar, so EVERY line of the value must be
+    # indented, not just the first. Indenting only the first line ends the scalar at the
+    # first newline; YAML then reads the next paragraph as frontmatter. That fails two
+    # different ways, and the loud one is the lucky one: a paragraph containing 'word: word'
+    # parses as a junk top-level key and SILENTLY truncates description to its first line
+    # (no error, audit sees valid YAML), while a paragraph without a colon raises
+    # ScannerError and is caught. Found 5 corpus instances -- 1 loud, 4 silent.
+    # Blank lines are emitted bare: whitespace-only lines inside a block scalar are
+    # separators, and padding them to the indent width leaves trailing spaces.
+    return '\n'.join(('  ' + ln) if ln.strip() else '' for ln in s.split('\n'))
+t = t.replace('id: T-XXX', 'id: ' + e['TC_TASK_ID'])
+t = t.replace('name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"', 1)
+t = t.replace('description: >', 'description: >\n' + indent_block(desc), 1)
+t = t.replace('status: captured', 'status: ' + e['TC_STATUS'])
+t = t.replace('workflow_type:', 'workflow_type: ' + e['TC_WORKFLOW_TYPE'], 1)
+t = t.replace('owner:', 'owner: ' + e['TC_OWNER'], 1)
+t = t.replace('horizon: now', 'horizon: ' + e['TC_HORIZON'])
+t = t.replace('tags: []', 'tags: ' + e['TC_TAGS_YAML'])
+t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])
+t = t.replace('created:', 'created: ' + e['TC_TIMESTAMP'], 1)
+t = t.replace('last_update:', 'last_update: ' + e['TC_TIMESTAMP'], 1)
+t = t.replace('# T-XXX: [Task Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
 t = t.replace('<!-- Auto-populated by git mining at task completion.\\n     Manual entries optional during execution. -->', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created task via task-create agent\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation')
 with open(e['TC_FILEPATH'], 'w') as f:
     f.write(t)
 " "$NAME" "$DESCRIPTION"
 else
     # Fallback: minimal inline template (only if default.md missing)
+    # T-2778: indent every line of the description, not just the first — see indent_block()
+    # above for why the single-indent form corrupts multi-paragraph descriptions.
+    DESCRIPTION_INDENTED=$(printf '%s\n' "$DESCRIPTION" | awk '{ if (length($0)) print "  " $0; else print "" }')
     cat > "$FILEPATH" << EOF
 ---
 id: $TASK_ID
 name: "$NAME"
 description: >
-  $DESCRIPTION
+$DESCRIPTION_INDENTED
 status: $STATUS
 workflow_type: $WORKFLOW_TYPE
 horizon: $HORIZON

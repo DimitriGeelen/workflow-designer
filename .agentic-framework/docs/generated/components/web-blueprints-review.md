@@ -7,6 +7,8 @@
 ## What It Does
 
 T-1810: paused-dispatch helpers live in lib/ (CLI parity with `fw pause list`).
+T-2645 (832 G-004): lib/ is FRAMEWORK-owned — resolving it via PROJECT_ROOT
+500s every /review page in split-root consumers (roots coincide only here).
 
 ### Framework Reference
 
@@ -20,7 +22,7 @@ When agent ACs are complete and human ACs remain:
 
 *(truncated — see CLAUDE.md for full section)*
 
-## Dependencies (5)
+## Dependencies (9)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -29,8 +31,12 @@ When agent ACs are complete and human ACs remain:
 | [tasks](/docs/generated/web-blueprints-tasks) | registers | Flask blueprint: Tasks |
 | [inception](/docs/generated/web-blueprints-inception) | calls | Blueprint 'inception' — routes: /inception |
 | [inception](/docs/generated/web-blueprints-inception) | registers | Blueprint 'inception' — routes: /inception |
+| [review](/docs/generated/lib-review) | calls | fw task review helper: emit Watchtower URL, QR code, and research artifact links for human review presentation. |
+| [shared](/docs/generated/web-shared) | uses | Shared helpers for all web blueprints — path resolution, navigation groups, ambient status strip, render_page (htmx/full page rendering) |
+| [tasks](/docs/generated/web-blueprints-tasks) | uses | Flask blueprint: Tasks |
+| [inception](/docs/generated/web-blueprints-inception) | uses | Blueprint 'inception' — routes: /inception |
 
-## Used By (6)
+## Used By (7)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -39,6 +45,7 @@ When agent ACs are complete and human ACs remain:
 | [_review_error](/docs/generated/web-templates-_review_error) | used-by | htmx partial: review error message — displayed when task review action fails (task not found, validation error). |
 | [_review_error](/docs/generated/web-templates-_review_error) | used-by_by | htmx partial: review error message — displayed when task review action fails (task not found, validation error). |
 | [test_review_acs](/docs/generated/tests-playwright-test_review_acs) | called_by | Playwright tests for /review/<task_id>/acs fragment endpoint (T-1026). |
+| [__init__](/docs/generated/web-blueprints-__init__) | uses_by | Flask blueprint:   Init |
 
 ---
 *Auto-generated from Component Fabric. Card: `web-blueprints-review.yaml`*

@@ -38,6 +38,35 @@ bp = Blueprint("approvals", __name__)
 APPROVALS_DIR = PROJECT_ROOT / ".context" / "approvals"
 APPROVAL_FILE = PROJECT_ROOT / ".context" / "working" / ".tier0-approval"
 
+# T-3200: the continuous-run brake. Resolution MIRRORS agents/context/stop-driver.sh:60
+#   HALT_FILE="${FW_CONTINUOUS_HALT:-${WORKING_DIR}/.continuous-halt}"
+# and must stay mirrored: a button that writes a path the driver does not read is
+# worse than no button, because it reports success while the loop keeps running.
+#
+# Deliberately the SAME file, not a parallel mechanism. The driver checks it as
+# Brake 1 ahead of every other vote, and its trustworthiness comes from being a
+# file written outside the model's mediation. Watchtower is a second WRITER of
+# that file, never a second brake — so there is no new precedence question for
+# stop-driver.sh to resolve.
+def _halt_file() -> Path:
+    override = os.environ.get("FW_CONTINUOUS_HALT", "").strip()
+    if override:
+        return Path(override)
+    return PROJECT_ROOT / ".context" / "working" / ".continuous-halt"
+
+
+def _halt_state() -> dict:
+    """Current brake state, for the /approvals card."""
+    hf = _halt_file()
+    halted = hf.exists()
+    since = None
+    if halted:
+        try:
+            since = datetime.fromtimestamp(hf.stat().st_mtime, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        except OSError:
+            since = None
+    return {"halted": halted, "path": str(hf), "since": since}
+
 # Approvals older than this are considered expired (seconds)
 EXPIRY_SECONDS = 3600  # 1 hour
 
@@ -105,6 +134,48 @@ def _load_pending_approvals():
         except yaml.YAMLError:
             continue
     return approvals
+
+
+# T-3078: how a Tier 0 origin is described to the operator. Keyed by the `kind`
+# derived in agents/context/check-tier0.sh; anything unrecognised — including a
+# card written before provenance existed — falls through to "unknown origin"
+# rather than being presented as an agent request.
+_ORIGIN_LABELS = {
+    "agent": ("agent request", "agent requests"),
+    "test": ("test artefact", "test artefacts"),
+    "human": ("shell command", "shell commands"),
+    "unknown": ("unknown origin", "unknown origin"),
+}
+
+
+def _tier0_origin_summary(approvals) -> str:
+    """Describe what is actually pending, instead of asserting an agent asked.
+
+    The section subtitle used to read "Agent blocked — requires your decision"
+    unconditionally. That was a literal in the template, and it was false for
+    every card T-3077's governance suite filed against the live queue — the
+    operator saw `rm -rf /` attributed to a blocked agent that never existed.
+    Returns "" when nothing is pending, so the caller can omit the clause.
+    """
+    counts: dict[str, int] = {}
+    for a in approvals:
+        if a.get("status") != "pending":
+            continue
+        origin = a.get("origin")
+        kind = (origin or {}).get("kind") or "unknown"
+        if kind not in _ORIGIN_LABELS:
+            kind = "unknown"
+        counts[kind] = counts.get(kind, 0) + 1
+    if not counts:
+        return ""
+    parts = []
+    for kind in ("agent", "test", "human", "unknown"):
+        n = counts.get(kind)
+        if not n:
+            continue
+        singular, plural = _ORIGIN_LABELS[kind]
+        parts.append(f"{n} {singular if n == 1 else plural}")
+    return ", ".join(parts)
 
 
 def _load_resolved_approvals():
@@ -416,6 +487,20 @@ def _load_close_ready_arcs(threshold: float = 0.80) -> list[dict]:
     Filters: status=='in-progress' AND completion_ratio >= threshold AND
     anchor-task `## Recommendation` block present. Returns one dict per
     qualifying arc with the fields the template needs to render a row.
+
+    T-2986: the third condition no longer drops the arc silently. An arc that
+    meets the threshold but whose anchor carries no `## Recommendation` is
+    returned with ``blocked_reason`` set, and the template renders it without a
+    verdict badge. Close-ready rows are unchanged and carry ``blocked_reason``
+    as an empty string.
+
+    The motivating instance was arc-015 (onboarding-shape-detection): 2/2
+    complete, demo evidence captured and verified under T-2910, and absent from
+    the queue because its anchor closed without a Recommendation block. A bare
+    ``continue`` made "finished but blocked" look exactly like "not ready yet",
+    which is the one state an approvals queue exists to distinguish. Widening by
+    this single condition is deliberate — the queue stays bounded by the
+    threshold (T-2038 unbounded-list class).
     """
     import glob
     import yaml as _yaml
@@ -437,20 +522,66 @@ def _load_close_ready_arcs(threshold: float = 0.80) -> list[dict]:
         if stats["ratio"] < threshold:
             continue
         rec = _anchor_recommendation(arc)
+        anchor_id = rec.get("anchor_id", "") or str(arc.get("anchor_task") or "").strip()
+        blocked_reason = ""
         if not rec.get("present"):
-            continue
+            blocked_reason = (
+                f"anchor {anchor_id or '(none set)'} has no `## Recommendation` — the agent "
+                f"advisory that closure review reads. Until it is written the arc cannot be "
+                f"judged, only counted."
+            ) if anchor_id else (
+                "no anchor_task is set on the arc, so there is nowhere for the closure "
+                "advisory to live."
+            )
         out.append({
             "slug": str(arc.get("slug") or "").strip(),
             "id": str(arc.get("id") or "").strip(),
             "name": str(arc.get("name") or arc.get("slug") or ""),
-            "anchor": rec.get("anchor_id", ""),
-            "verdict": rec.get("verdict", "?"),
+            "anchor": anchor_id,
+            # Blocked rows carry no verdict: showing GO/CLOSE here would invite a close
+            # on evidence nobody has written down yet.
+            "verdict": rec.get("verdict", "?") if not blocked_reason else "",
+            "blocked_reason": blocked_reason,
             "completion_ratio": stats["ratio"],
             "completed": stats["completed"],
             "total": stats["total"],
             "headline_mechanic": str(arc.get("headline_mechanic") or ""),
         })
     return out
+
+
+def _load_decided_unclosed():
+    """T-3175: inceptions the operator has DECIDED that are still open.
+
+    Sibling of `_load_pending_go_decisions` and its exact complement: that one
+    keeps `decision == "pending"`, this one keeps the concluding decisions. A
+    task leaving the first section used to arrive nowhere, so the single
+    remaining action — the operator closing it — was on no surface at all.
+
+    Predicate lives in `lib/decided_unclosed.py` so `fw review-queue` can import
+    the same one. Two surfaces disagreeing about what is outstanding is how this
+    class of gap survives; a second copy here would guarantee it.
+    """
+    import sys
+
+    lib_dir = str(Path(__file__).resolve().parents[2] / "lib")
+    if lib_dir not in sys.path:
+        sys.path.insert(0, lib_dir)
+    try:
+        import decided_unclosed
+    except Exception:
+        # Never take the page down for a missing helper — an approvals page that
+        # 500s hides EVERY section, which is worse than the gap being closed.
+        return []
+
+    candidates = [
+        fm for fm in get_all_task_metadata()
+        if fm.get("_location") == "active" and fm.get("workflow_type") == "inception"
+    ]
+    try:
+        return decided_unclosed.scan(candidates, _get_body_cached)
+    except Exception:
+        return []
 
 
 def _build_approvals_context(expand_overflow: bool = False):
@@ -466,6 +597,7 @@ def _build_approvals_context(expand_overflow: bool = False):
     resolved_tier0 = _load_resolved_approvals()
     pending_go = _load_pending_go_decisions()
     pending_acs = _load_pending_human_acs()
+    decided_unclosed = _load_decided_unclosed()  # T-3175
     deferred_count = _count_deferred_inceptions()
     paused_dispatches = _load_paused_dispatches()  # T-1808
     arcs_close_ready = _load_close_ready_arcs()  # T-1961
@@ -477,6 +609,7 @@ def _build_approvals_context(expand_overflow: bool = False):
     bvp_proposals = _load_proposals()
 
     tier0_count = sum(1 for a in pending_tier0 if a.get("status") == "pending")
+    tier0_origin_summary = _tier0_origin_summary(pending_tier0)  # T-3078
     go_count = len(pending_go)
     ac_count = sum(
         sum(1 for ac in t["human_acs"] if not ac["checked"])
@@ -485,8 +618,13 @@ def _build_approvals_context(expand_overflow: bool = False):
     paused_count = len(paused_dispatches)  # T-1808
     arc_close_count = len(arcs_close_ready)  # T-1961
     bvp_proposal_count = len(bvp_proposals)  # T-2335
+    # T-3175: a decided-but-unclosed inception is one outstanding operator
+    # action, so it counts toward the badge like every other section. Omitting
+    # it from the total was how the queue read "complete" while three of these
+    # sat open.
+    decided_unclosed_count = len(decided_unclosed)
     total = (tier0_count + go_count + len(pending_acs) + paused_count
-             + arc_close_count + bvp_proposal_count)
+             + arc_close_count + bvp_proposal_count + decided_unclosed_count)
 
     # Count tasks ready for batch completion (all human ACs checked)
     ready_count = sum(
@@ -498,12 +636,15 @@ def _build_approvals_context(expand_overflow: bool = False):
         pending_tier0=pending_tier0,
         resolved_tier0=resolved_tier0,
         pending_go=pending_go,
+        decided_unclosed=decided_unclosed,          # T-3175
+        decided_unclosed_count=decided_unclosed_count,  # T-3175
         pending_acs=pending_acs,
         paused_dispatches=paused_dispatches,
         arcs_close_ready=arcs_close_ready,
         bvp_proposals=bvp_proposals,
         bvp_proposal_count=bvp_proposal_count,
         tier0_count=tier0_count,
+        tier0_origin_summary=tier0_origin_summary,  # T-3078
         go_count=go_count,
         ac_count=ac_count,
         ac_task_count=len(pending_acs),
@@ -514,6 +655,7 @@ def _build_approvals_context(expand_overflow: bool = False):
         ready_count=ready_count,
         deferred_count=deferred_count,
         expand_overflow=expand_overflow,
+        continuous=_halt_state(),          # T-3200
     )
 
 
@@ -653,7 +795,11 @@ def _execute_inception_decide(command_preview: str) -> dict:
         stdout_tail = (proc.stdout or "")[-400:]
         if proc.returncode == 0:
             return {"ok": True, "summary": f"{task_id} decided {verdict}", "error": None, "stdout_tail": stdout_tail}
-        return {"ok": False, "error": (proc.stderr or "").strip()[:400] or f"exit {proc.returncode}", "summary": "", "stdout_tail": stdout_tail}
+        # T-3284: operator-facing translation (G-102 defect B) — this error is
+        # rendered on /approvals; raw gate stderr carries agent-audience bypass
+        # instructions the operator must not be handed as the remedy.
+        from web.shared import operator_facing_stderr
+        return {"ok": False, "error": operator_facing_stderr((proc.stderr or "")[:3000]).strip()[:400] or f"exit {proc.returncode}", "summary": "", "stdout_tail": stdout_tail}
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": "timeout (30s)", "summary": "", "stdout_tail": ""}
     except Exception as e:
@@ -703,7 +849,9 @@ def complete_batch():
             if result.returncode == 0:
                 completed.append(task_id)
             else:
-                errors.append(f"{task_id}: {result.stderr[:100]}")
+                # T-3284: sanitize before rendering to the operator (G-102 defect B)
+                from web.shared import operator_facing_stderr
+                errors.append(f"{task_id}: {operator_facing_stderr((result.stderr or '')[:3000])[:100] or f'exit {result.returncode}'}")
         except Exception as e:
             errors.append(f"{task_id}: {str(e)[:100]}")
 
@@ -714,3 +862,58 @@ def complete_batch():
         parts.append(f'<p style="color:var(--pico-del-color);">Errors ({len(errors)}): {"<br>".join(errors)}</p>')
 
     return "\n".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# T-3200: continuous-run brake, reachable without shell access.
+#
+# Sovereignty says the human can override anything. Before this, the only
+# override was `touch .context/working/.continuous-halt` — which means an
+# operator watching a runaway loop from a phone had no brake at all.
+#
+# Both routes are state-changing POSTs and so pass through Watchtower's global
+# CSRF check (web/app.py before_request, T-1343) like every other mutating
+# route here. No bespoke auth: a one-off auth story for one endpoint is how
+# surfaces drift apart.
+#
+# On the DoS shape flagged when this was filed: the halt endpoint is fail-safe
+# in the direction that matters — the worst an unauthorised caller achieves is
+# STOPPING your agent, never starting one or approving anything. It is strictly
+# less dangerous than /api/approvals/decide, which already sits on this posture.
+# ---------------------------------------------------------------------------
+
+@bp.route("/api/continuous/halt", methods=["POST"])
+def continuous_halt():
+    """Engage the brake by writing the file stop-driver.sh reads as Brake 1."""
+    hf = _halt_file()
+    try:
+        hf.parent.mkdir(parents=True, exist_ok=True)
+        hf.write_text(
+            "halted via Watchtower /approvals at %s\n"
+            % datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        )
+    except OSError as exc:
+        return '<p style="color:var(--pico-del-color);">Could not write halt file: %s</p>' % exc, 500
+    return _halt_fragment()
+
+
+@bp.route("/api/continuous/resume", methods=["POST"])
+def continuous_resume():
+    """Release the brake. A brake with no release is a brake nobody dares use."""
+    hf = _halt_file()
+    try:
+        hf.unlink(missing_ok=True)
+    except OSError as exc:
+        return '<p style="color:var(--pico-del-color);">Could not remove halt file: %s</p>' % exc, 500
+    return _halt_fragment()
+
+
+@bp.route("/approvals/continuous-state")
+def continuous_state_fragment():
+    """Read-only fragment, so the card can refresh without a full page load."""
+    return _halt_fragment()
+
+
+def _halt_fragment():
+    from flask import render_template
+    return render_template("_continuous_halt.html", continuous=_halt_state())

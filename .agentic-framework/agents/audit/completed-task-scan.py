@@ -34,6 +34,12 @@ T-2202 (PL-212 closure): CTL-012 3-class taxonomy refinement.
           from the genuine AC-drift class so the auditor can render a different hint.
         - Class field on every entry: "drift" (default, real CTL-012) or "missing-decide"
           (new CTL-012-MISSING-DECIDE sub-class).
+T-2385: missing-decide grandfather cutoff (MISSING_DECIDE_CUTOFF). Tasks whose
+        date_finished predates the classifier's own ship date (2026-06-13) are
+        skipped entirely rather than emitted as missing-decide — they are
+        confirmed historical L-390 git-mv-bypass instances (git archaeology:
+        T-1902/T-2000/T-1915/T-1905), not a live/open flip path. New instances
+        (date_finished on/after cutoff) are unaffected and still flagged.
 """
 
 import json
@@ -41,48 +47,13 @@ import os
 import re
 import sys
 
-
-def comment_stripper():
-    """Return a stateful line filter that removes `<!-- ... -->` regions (T-674/T-678).
-
-    ONE definition of "what is a comment", shared by every scan in this file. Two
-    scans that each carried their own is exactly how T-678 happened: the AC loop
-    handled multi-line blocks and the Decision pre-scan skipped only lines that
-    START with `<!--` or END with `-->`, so the interior of a block read as content
-    and an empty Decision section looked filled.
-
-    State is per-instance because each scan walks the file independently — call it
-    once per pass, never share one across two loops.
-
-    Whitespace left behind by a removed comment is SEPARATOR, not authored
-    indentation, so the residue is lstripped — but only when something was actually
-    removed. `- [ ]` is anchored at ^, so without this a line like
-    `<!-- note --> - [ ] live AC` strips to ` - [ ] live AC` and stops matching: the
-    comment fix would have introduced a false NEGATIVE, worse than the false positive
-    it set out to remove. Lines containing no comment are returned untouched, so real
-    indentation still means what it meant before.
-    """
-    state = {"open": False}
-
-    def strip(raw):
-        out, touched = raw, False
-        if state["open"]:
-            if "-->" not in out:
-                return ""
-            out = out.split("-->", 1)[1]
-            state["open"], touched = False, True
-        while "<!--" in out:
-            before, _, rest = out.partition("<!--")
-            touched = True
-            if "-->" in rest:
-                out = before + rest.split("-->", 1)[1]
-            else:
-                state["open"] = True
-                out = before
-                break
-        return out.lstrip() if touched else out
-
-    return strip
+# T-2385: grandfather cutoff for the missing-decide sub-class. Tasks whose
+# date_finished predates the day the CTL-012-MISSING-DECIDE classifier
+# itself shipped (T-2202/PL-212 closure, commit 2c1576193, 2026-06-13) are
+# historical L-390 git-mv-bypass drift the detector could never have caught
+# live — flagging them forever adds no actionable signal (RCA: T-2385).
+# Tasks completed on/after this date are NOT exempt and are still flagged.
+MISSING_DECIDE_CUTOFF = "2026-06-13"
 
 
 def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
@@ -126,6 +97,7 @@ def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
         status = ""
         horizon = ""
         horizon_seen = False
+        date_finished = ""
         for line in content.split("\n"):
             if line.startswith("id:"):
                 task_id = line.split(":", 1)[1].strip().strip('"')
@@ -140,6 +112,11 @@ def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
                 if "#" in raw:
                     raw = raw.split("#", 1)[0]
                 horizon = raw.strip().strip('"').strip("'")
+            elif line.startswith("date_finished:"):
+                raw = line.split(":", 1)[1]
+                if "#" in raw:
+                    raw = raw.split("#", 1)[0]
+                date_finished = raw.strip().strip('"').strip("'")
             elif line.startswith("---") and task_id:
                 break  # past frontmatter
 
@@ -208,45 +185,22 @@ def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
         # decide ceremony never ran.
         decision_empty = True
         in_decision = False
-        # T-678: use the SHARED stripper. This loop used to carry its own idea of a
-        # comment — skip lines that START with `<!--` or END with `-->` — which misses
-        # the INTERIOR lines of a multi-line block. A `## Decision` section holding
-        # nothing but a comment therefore read as FILLED, and the task was classified
-        # `drift` instead of `missing-decide`: the operator got "AC gate may have been
-        # bypassed" when the actionable message was "run fw inception decide".
-        # Two scans in one function disagreeing about what a comment is was the bug;
-        # a second copy that agrees today would only postpone it.
-        strip_decision = comment_stripper()
         for line in content.split("\n"):
-            line = strip_decision(line)
             if line.startswith("## Decision") and not line.startswith("## Decisions"):
                 in_decision = True
                 continue
             if in_decision and line.startswith("## "):
                 break
             if in_decision:
-                if not line.strip():
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                if stripped.startswith("<!--") or stripped.startswith("-->") or stripped.endswith("-->"):
                     continue
                 # Any non-blank, non-comment content means the section has been filled.
                 decision_empty = False
                 break
-        # T-674: strip HTML comment regions BEFORE any of the checks below.
-        #
-        # CTL-012 used to match `- [ ]` on the raw line, so an AC that had been
-        # COMMENTED OUT still counted as outstanding. That made the warn fire on
-        # exactly the honest practice: T-508 kept its superseded ACs inside a
-        # `<!-- ... -->` block under the rationale "a rewritten AC set that hides its
-        # own supersession is the laundering this project keeps catching", and was
-        # reported as having unchecked ACs for it. Deleting the block would have
-        # silenced the warn. THE DETECTOR REWARDED THE LAUNDERING IT EXISTS TO CATCH.
-        #
-        # Stripping happens before the section checks, not just before the `- [ ]`
-        # match, so a commented-out `### Human` or `## Heading` cannot steer section
-        # state either — the previous code would have honoured one.
-        strip_comments = comment_stripper()
-
         for line in content.split("\n"):
-            line = strip_comments(line)
             if line.startswith("## Acceptance Criteria"):
                 in_ac = True
                 in_human = False
@@ -278,6 +232,22 @@ def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
                     ac_class = "drift"
                     if prev_was_auto_tick and decision_empty:
                         ac_class = "missing-decide"
+                        # T-2385 (grandfather): tasks that flipped to
+                        # work-completed via a bare git-mv into completed/
+                        # (L-390 class) BEFORE this classifier existed
+                        # (T-2202, shipped 2026-06-13) have no live decide
+                        # ceremony to backfill — the flip event predates the
+                        # detector that would have caught it. New instances
+                        # remain caught: CTL-028 (T-1870/T-1882/T-1883) fires
+                        # on the metadata desync at pre-push, independent of
+                        # this cutoff. RCA: T-2385, evidence: T-1902/T-2000/
+                        # T-1915/T-1905 (git archaeology confirms git-mv
+                        # side-effect renames, never `fw task update
+                        # --status work-completed` / `fw inception decide`).
+                        finished_date = date_finished[:10] if date_finished and date_finished.lower() not in ("null", "~", "") else ""
+                        if finished_date and finished_date < MISSING_DECIDE_CUTOFF:
+                            prev_was_auto_tick = False
+                            continue
                     unchecked_ac.append({"id": task_id, "line": line[:80], "class": ac_class})
                     break  # One unchecked AC is enough to flag
                 # Reset marker after a non-marker, non-AC line (prevents stale stick).

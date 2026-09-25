@@ -19,7 +19,7 @@ audit.sh --cron                       # Shorthand for --output .context/audits/c
 audit.sh schedule install|remove|status  # Manage cron schedule
 Sections: structure, compliance, quality, traceability, enforcement,
 
-## Dependencies (15)
+## Dependencies (29)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -38,8 +38,22 @@ Sections: structure, compliance, quality, traceability, enforcement,
 | [secret-scan](/docs/generated/agents-git-lib-secret-scan) | calls | TODO: describe what this component does |
 | [large-file-scan](/docs/generated/agents-git-lib-large-file-scan) | calls | TODO: describe what this component does |
 | [cron_dry_run](/docs/generated/lib-cron_dry_run) | calls | TODO: describe what this component does |
+| [orchestrator-mcp-scan](/docs/generated/agents-audit-orchestrator-mcp-scan) | calls | TODO: describe what this component does |
+| [notify](/docs/generated/lib-notify) | calls | Push notification wrapper — fw_notify() function sends alerts via skills-manager alert dispatcher. Fire-and-forget, opt-in via .context/notify-config.yaml. Used by check-tier0.sh, update-task.sh, audit.sh. |
+| [manifest](/docs/generated/agents-mcp-manifest) | calls | TODO: describe what this component does |
+| [workflow_coverage](/docs/generated/lib-workflow_coverage) | calls | TODO: describe what this component does |
+| [fw](/docs/generated/bin-fw) | calls | Single entry point for all framework operations. Reads .framework.yaml from the project directory to resolve FRAMEWORK_ROOT, then routes commands to the appropriate agent. Supports both in-repo and shared tooling modes. |
+| [corpus_conformance](/docs/generated/tools-corpus_conformance) | calls | TODO: describe what this component does |
+| [traceability](/docs/generated/lib-traceability) | calls | TODO: describe what this component does |
+| [cron-registry](/docs/generated/lib-cron-registry) | calls | TODO: describe what this component does |
+| [branch-hygiene](/docs/generated/lib-branch-hygiene) | calls | TODO: describe what this component does |
+| [gitignore-register](/docs/generated/lib-gitignore-register) | calls | TODO: describe what this component does |
+| [corpus_lint](/docs/generated/tools-corpus_lint) | calls | TODO: describe what this component does |
+| [verify_queue](/docs/generated/lib-verify_queue) | calls | TODO: describe what this component does |
+| [continuous-mode](/docs/generated/lib-continuous-mode) | calls | TODO: describe what this component does |
+| [bats_red_attribution](/docs/generated/lib-bats_red_attribution) | calls | TODO: describe what this component does |
 
-## Used By (32)
+## Used By (58)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -75,6 +89,32 @@ Sections: structure, compliance, quality, traceability, enforcement,
 | [static_scan](/docs/generated/lib-reviewer-static_scan) | called_by | TODO: describe what this component does |
 | [audit_ctl030_completed_horizon_drift](/docs/generated/tests-unit-audit_ctl030_completed_horizon_drift) | called_by | TODO: describe what this component does |
 | [audit_ctl030_completed_horizon_drift](/docs/generated/tests-unit-audit_ctl030_completed_horizon_drift) | tests_by | TODO: describe what this component does |
+| [watchtower_health_verdict_identity](/docs/generated/tests-unit-watchtower_health_verdict_identity) | called_by | TODO: describe what this component does |
+| [watchtower_health_verdict_identity](/docs/generated/tests-unit-watchtower_health_verdict_identity) | tests_by | TODO: describe what this component does |
+| [cron_dry_run](/docs/generated/lib-cron_dry_run) | called_by | TODO: describe what this component does |
+| [comment_strip](/docs/generated/lib-comment_strip) | called_by | TODO: describe what this component does |
+| [audit_corpus_lint_findings](/docs/generated/tests-unit-audit_corpus_lint_findings) | called_by | TODO: describe what this component does |
+| [audit_corpus_lint_findings](/docs/generated/tests-unit-audit_corpus_lint_findings) | tests_by | TODO: describe what this component does |
+| [audit_graduation_counter](/docs/generated/tests-unit-audit_graduation_counter) | called_by | TODO: describe what this component does |
+| [audit_graduation_counter](/docs/generated/tests-unit-audit_graduation_counter) | tests_by | TODO: describe what this component does |
+| [audit_root_commit_traceability](/docs/generated/tests-unit-audit_root_commit_traceability) | tests_by | TODO: describe what this component does |
+| [audit_seed_corpus_refs](/docs/generated/tests-unit-audit_seed_corpus_refs) | called_by | TODO: describe what this component does |
+| [audit_seed_corpus_refs](/docs/generated/tests-unit-audit_seed_corpus_refs) | tests_by | TODO: describe what this component does |
+| [fabric_coverage_single_source](/docs/generated/tests-unit-fabric_coverage_single_source) | called_by | TODO: describe what this component does |
+| [fabric_coverage_single_source](/docs/generated/tests-unit-fabric_coverage_single_source) | tests_by | TODO: describe what this component does |
+| [fabric_watch_pattern_fitness](/docs/generated/tests-unit-fabric_watch_pattern_fitness) | called_by | TODO: describe what this component does |
+| [fabric_watch_pattern_fitness](/docs/generated/tests-unit-fabric_watch_pattern_fitness) | tests_by | TODO: describe what this component does |
+| [self_vendor_parity](/docs/generated/tests-unit-self_vendor_parity) | tests_by | TODO: describe what this component does |
+| [t2927_observation_inbox_listing](/docs/generated/tests-unit-t2927_observation_inbox_listing) | tests_by | TODO: describe what this component does |
+| [t3049_fabric_url_location](/docs/generated/tests-unit-t3049_fabric_url_location) | called_by | TODO: describe what this component does |
+| [t3049_fabric_url_location](/docs/generated/tests-unit-t3049_fabric_url_location) | tests_by | TODO: describe what this component does |
+| [t3053_multiref_traceability](/docs/generated/tests-unit-t3053_multiref_traceability) | called_by | TODO: describe what this component does |
+| [t3053_multiref_traceability](/docs/generated/tests-unit-t3053_multiref_traceability) | tests_by | TODO: describe what this component does |
+| [test_audit_frontmatter_variants](/docs/generated/tests-unit-test_audit_frontmatter_variants) | called_by | TODO: describe what this component does |
+| [test_index_doctor_rail](/docs/generated/tests-unit-test_index_doctor_rail) | called_by | TODO: describe what this component does |
+| [test_index_doctor_rail](/docs/generated/tests-unit-test_index_doctor_rail) | tests_by | TODO: describe what this component does |
+| [audit_timing](/docs/generated/lib-audit_timing) | called_by | TODO: describe what this component does |
+| [config](/docs/generated/web-blueprints-config) | called_by | Flask blueprint that renders the configuration settings page showing all framework settings with current values and resolution sources |
 
 ## Related
 

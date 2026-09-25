@@ -139,6 +139,16 @@ CLI verbs), see **[012-ArcSystem.md](012-ArcSystem.md)**.
 | 2 | Human situational authorization | Single-use, mandatory logging | Git --no-verify + bypass log |
 | 3 | Pre-approved categories (health checks, status queries, git-status) | Configured | Defined in 011-EnforcementConfig.md |
 
+**Tier 0 inspects the command string only (T-2742).** The hook matches the literal text
+of the command it gates; it never opens a file that command refers to. `bash ./build.sh`,
+`make clean` and `python3 deploy.py` therefore pass regardless of what they do inside.
+**The moment a command becomes a file, Tier 0 stops seeing it** — a script is governed at
+write time by Tier 1 and not at run time by Tier 0. Do not read "the gate did not fire"
+as "the action was safe"; it means only that the destructive part was not in the text you
+typed. This is a scope boundary rather than a defect, documented because its absence
+reads as coverage. Origin: a consumer project lost a working tree to a `rm -rf "$OUT"`
+inside a build script, with the variable pointing at the repo root.
+
 ## Working with Tasks
 
 When starting work (**BEFORE reading code, editing files, or invoking external workflows**):
@@ -187,7 +197,7 @@ Each agent has a bash script (mechanical) and AGENT.md (intelligence/guidance).
 | Context | `agents/context/` | Manage memory fabric | `fw context init` |
 | Healing | `agents/healing/` | Error recovery | `fw healing diagnose T-XXX` |
 | Resume | `agents/resume/` | Post-compaction recovery | `fw resume status` |
-| Observe | `agents/observe/` | Capture anomalies | `fw observe "description"` |
+| Observe | `agents/observe/` | Capture anomalies | `fw note "description"` |
 | Dispatch | `agents/dispatch/` | Sub-agent prompt templates | Read templates before dispatching |
 
 ## Session Protocols

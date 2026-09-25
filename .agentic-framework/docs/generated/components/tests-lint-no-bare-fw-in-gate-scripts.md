@@ -6,10 +6,18 @@
 
 ## What It Does
 
-Invariant: gate scripts must not emit bare 'fw' commands — use _emit_user_command/_fw_cmd
-Origin: T-1146 GO / T-1203 — bare commands are not copy-pasteable and violate PL-007
+Invariant: gate scripts must not emit bare 'fw' COMMANDS — use bin/fw, or the
+_emit_user_command/_fw_cmd helpers that resolve the right path per project.
+Origin: T-1146 GO / T-1203 — bare commands are not copy-pasteable and violate PL-007.
+T-2700 rewrote the detector, which had been red and unrun (T-2697). It flagged
+six lines; two were real and four were not, in two distinct ways:
+1. `\bfw\b` matches inside `bin/fw`, because `/` is a word boundary. The
+guard flagged the exact form it wants. A guard that fires on its own fix
+cannot be acted on — the only way to satisfy it was to stop mentioning fw.
+2. It could not tell a COMMAND from PROSE ABOUT a command. Lines like
+"Works for: fw task update, fw context add-*." are sentences naming verbs,
 
-## Dependencies (11)
+## Dependencies (12)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -23,6 +31,7 @@ Origin: T-1146 GO / T-1203 — bare commands are not copy-pasteable and violate 
 | [check-agent-dispatch](/docs/generated/agents-context-check-agent-dispatch) | tests | Agent Dispatch Gate — PreToolUse hook for Agent tool. Tracks dispatches per session, blocks 3rd+ unless approved or TermLink not installed. |
 | [check-project-boundary](/docs/generated/agents-context-check-project-boundary) | tests | PreToolUse hook that blocks Write/Edit/Bash operations targeting paths outside PROJECT_ROOT. Prevents cross-project edits. Part of the project boundary enforcement gate (T-559). |
 | [init](/docs/generated/agents-context-lib-init) | tests | Context Agent - init command |
+| [fw](/docs/generated/bin-fw) | tests | Single entry point for all framework operations. Reads .framework.yaml from the project directory to resolve FRAMEWORK_ROOT, then routes commands to the appropriate agent. Supports both in-repo and shared tooling modes. |
 
 ---
 *Auto-generated from Component Fabric. Card: `tests-lint-no-bare-fw-in-gate-scripts.yaml`*

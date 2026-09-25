@@ -25,6 +25,7 @@ remains the score authority.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import glob
 import hashlib
 import json
@@ -122,15 +123,49 @@ def _load_drivers() -> dict[str, int]:
     return out
 
 
+def _resolve_arc_data(fm: dict) -> dict | None:
+    """T-3428 — resolve the task's `arc_id:` to its parsed arc YAML, or None.
+
+    Hoisted out of _arc_scoped_drivers_for_task so the weight reader and the
+    T-3428 scoring-spec reader resolve the arc exactly once each, the same way,
+    rather than forking the dual-form lookup. Resolution order: slug form
+    (`.context/arcs/<arc_id>.yaml`, T-1849) first, then an `arc-NNN` scan
+    matching each arc YAML's top-level `id:` or `slug:`. None on any
+    missing/error path: no arc_id, file missing, YAML parse error.
+    """
+    arc_id = fm.get("arc_id")
+    if not arc_id or not isinstance(arc_id, str):
+        return None
+
+    # Slug form first (cheapest path)
+    direct = ARCS_DIR / f"{arc_id}.yaml"
+    if direct.is_file():
+        try:
+            return yaml.safe_load(direct.read_text()) or {}
+        except yaml.YAMLError:
+            return None
+
+    # arc-NNN dual-form fallback (T-1849: arc_id may be `arc-011` while the
+    # file lives at slug `parallel-execution-aef.yaml`).
+    if ARCS_DIR.is_dir():
+        for arc_yaml in sorted(ARCS_DIR.glob("*.yaml")):
+            try:
+                candidate = yaml.safe_load(arc_yaml.read_text()) or {}
+            except yaml.YAMLError:
+                continue
+            if (candidate.get("id") == arc_id
+                    or candidate.get("slug") == arc_id):
+                return candidate
+    return None
+
+
 def _arc_scoped_drivers_for_task(fm: dict) -> dict[str, int]:
     """T-2357 — return {driver_id: weight} from the task's arc's scoped_drivers.
 
-    Resolves the task's `arc_id:` frontmatter to `.context/arcs/<arc_id>.yaml`
-    (slug form, T-1849), falling back to a `arc-NNN` dual-form scan that
-    matches each arc YAML's top-level `id:` or `slug:`. Returns the operator-
-    approved `scoped_drivers:` map (driver_id → weight). Empty on any
-    missing/error path: no arc_id, file missing, YAML parse error, empty
-    scoped_drivers.
+    Resolves the arc through _resolve_arc_data (slug form, then `arc-NNN`
+    dual-form scan — T-1849). Returns the operator-approved `scoped_drivers:`
+    map (driver_id → weight). Empty on any missing/error path: no arc_id, file
+    missing, YAML parse error, empty scoped_drivers.
 
     Read-only; never mutates arc YAMLs. Does NOT consult
     proposed_scoped_drivers: — only operator-approved scoped_drivers: fires
@@ -142,32 +177,7 @@ def _arc_scoped_drivers_for_task(fm: dict) -> dict[str, int]:
     arc-011 D-DISJOINT --weight 5 --from-watchtower` + same for
     D-WIRE-EVIDENCE), this helper yields them and estimate_task() dispatches.
     """
-    arc_id = fm.get("arc_id")
-    if not arc_id or not isinstance(arc_id, str):
-        return {}
-
-    # Slug form first (cheapest path)
-    direct = ARCS_DIR / f"{arc_id}.yaml"
-    arc_data: dict | None = None
-    if direct.is_file():
-        try:
-            arc_data = yaml.safe_load(direct.read_text()) or {}
-        except yaml.YAMLError:
-            return {}
-    else:
-        # arc-NNN dual-form fallback (T-1849: arc_id may be `arc-011` while
-        # the file lives at slug `parallel-execution-aef.yaml`).
-        if ARCS_DIR.is_dir():
-            for arc_yaml in sorted(ARCS_DIR.glob("*.yaml")):
-                try:
-                    candidate = yaml.safe_load(arc_yaml.read_text()) or {}
-                except yaml.YAMLError:
-                    continue
-                if (candidate.get("id") == arc_id
-                        or candidate.get("slug") == arc_id):
-                    arc_data = candidate
-                    break
-
+    arc_data = _resolve_arc_data(fm)
     if not arc_data:
         return {}
 
@@ -2239,192 +2249,392 @@ def score_free_driver(driver_id: str, fm: dict, body: str, tags: list[str]) -> t
     return min(hits, 2), [f"body/tag hits for '{driver_id}': {hits}", f"→{min(hits, 2)}"]
 
 
-# ---- 832-Workflow-designer product drivers (T-541) --------------------------
+# ---- declarative scoring specs (T-3428, OBS-463 leg 2) ----------------------
 #
-# Operator-requested 2026-08-16, filed to the proposal queue by T-540 as
-# V_WORKFLOW_ROUTING / V_AEF_INTEGRATION / V_SDLC_ENABLEMENT (weight 9 each).
-# LATENT until the operator approves those proposals in Watchtower — same shape
-# as score_f_autonomy (T-2329), which shipped before its policy carve opened.
+# A driver entry — free (policy/value-drivers.yaml) or arc-scoped
+# (.context/arcs/<slug>.yaml `scoped_drivers[]`) — may carry a `scoring:` block
+# the estimator interprets generically, so a project or an arc can define a
+# driver that WORKS without a framework code change. T-3427 stopped the
+# bleeding (an unscorable driver is omitted rather than scored 0); this is the
+# fix. D1-D4 and the V_* batch keep their hand-written handlers: their rubrics
+# are judgement over prose, not signal matching (see
+# docs/reports/T-3428-declarative-scoring.md §What stays hand-written).
 #
-# WHY THESE STRIP HTML COMMENTS AND THE OTHER HANDLERS DO NOT
-#   parse_task() (line 218) returns the body verbatim, comments included, and a
-#   task file is 33.6% HTML comment on average in this project (max 64%) — the
-#   Human-AC guidance block, the Verification errexit essay, the RCA/Evolution/
-#   Decisions templates. That boilerplate is IDENTICAL in every task, so any
-#   pattern matching it scores the template rather than the work.
-#   Measured, not assumed: score_d3_usability's "default tuned" pattern matches
-#   the template's own instruction prose, giving 37 of 58 non-completed tasks a
-#   flat D3=2 they never earned (52/58 non-zero drops to 15/58 once comments are
-#   stripped). That is an upstream defect in AEF's estimator, reported rather
-#   than silently patched here. These three handlers strip first so they cannot
-#   join it. PL-239 — measure the consumed corpus, not the existing one.
+# Shape:
+#   scoring:
+#     kind: signals              # the one kind this slice ships
+#     strip_template: true       # default true — see _strip_template() below
+#     levels:                    # int 1..5 -> any-of signals; highest wins
+#       1: {keywords: ["finding"]}
+#       3: {keywords: ["evidence"], paths: ["tools/*.py"]}
+#       5: {frontmatter: {workflow_type: build}, tags: ["audit"]}
 #
-# WHY THE OBVIOUS KEYWORDS ARE ABSENT
-#   Corpus frequencies over the 58 non-completed tasks, boilerplate stripped:
-#   "workflow" 51, "designer" 49, "AEF" 43. The project is named
-#   832-Workflow-designer and AEF is its peer, so those words appear in nearly
-#   every task regardless of subject. Matching them yields a driver that fires
-#   on everything, which ranks nothing. Each handler below is anchored on terms
-#   that actually discriminate (lanes 16, seam 16, validator 26, ...).
+# A level matches when ANY of its signals matches; the score is the highest
+# matching level; no matching level is a MEASURED 0 (evidence `L0: no signal`),
+# not "unscored" — the driver has a mechanism, it just did not fire here.
 
-_HTML_COMMENT_RE = re.compile(r'<!--.*?-->', re.S)
+SCORING_KIND = "signals"
+SIGNAL_KINDS = ("keywords", "paths", "frontmatter", "tags")
+_TEMPLATE_LINES_CACHE: set[str] | None = None
 
 
-def _prose(body: str) -> str:
-    """Task body with template boilerplate removed. See block comment above."""
-    return _HTML_COMMENT_RE.sub('', body or '')
+def _template_lines() -> set[str]:
+    """Stripped non-empty lines of `.tasks/templates/default.md`, cached.
 
-
-def _score_by_ladder(text: str, ladder: list, incidental: list,
-                     label: str, extra_gate_text: str = "") -> tuple[int, list[str]]:
-    """Score `text` against a descending (level, patterns, evidence) ladder.
-
-    THE ENTRY GATE IS DERIVED, NOT MAINTAINED SEPARATELY.
-    The hand-written handlers in this file each keep a `touch` gate listing the
-    patterns that mean "this driver applies at all", and then a ladder of level
-    patterns underneath it. Nothing makes the gate a superset of the ladder, and
-    when it is not, every level pattern the gate omits is DEAD CODE — the level
-    can never be returned no matter what a task says.
-
-    Measured, not theorised: the first cut of score_v_workflow_routing listed
-    `port-indicator` as a level-2 trigger but omitted "port" from its gate, so
-    T-294 ("Port-indicator pin click does not register") scored 0 and level 2 was
-    unreachable across the whole corpus. Same class as PL-203 — an exit branch
-    placed where control never arrives.
-
-    Here the gate IS the union of every ladder pattern plus the incidental set,
-    so a level cannot be added without becoming reachable.
+    Empty set when the template is absent (a consumer mid-bootstrap) — which
+    degrades stripping to a no-op rather than failing the score.
     """
-    all_pats = [p for _lvl, pats, _ev in ladder for p in pats] + list(incidental)
-    if not (_has_any(text, all_pats) or (extra_gate_text and _has_any(extra_gate_text, incidental))):
-        return 0, [f"→0 (no {label} signal)"]
-    for lvl, pats, evidence in ladder:
-        if _has_any(text, pats):
-            return lvl, [f"prose:{evidence}", f"→{lvl} ({evidence})"]
-    return 1, [f"prose:{label}-incidental", f"→1 (incidental {label} touch)"]
+    global _TEMPLATE_LINES_CACHE
+    if _TEMPLATE_LINES_CACHE is not None:
+        return _TEMPLATE_LINES_CACHE
+    tpl = PROJECT_ROOT / ".tasks" / "templates" / "default.md"
+    lines: set[str] = set()
+    try:
+        for ln in tpl.read_text(encoding="utf-8").splitlines():
+            s = ln.strip()
+            if s:
+                lines.add(s)
+    except OSError:
+        pass
+    _TEMPLATE_LINES_CACHE = lines
+    return lines
 
 
-def score_v_workflow_routing(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
-    """V_WORKFLOW_ROUTING — routing quality: does this produce cleaner workflows?
+def _strip_template(text: str) -> str:
+    """Drop every line that also appears verbatim in the task template.
 
-    T-541. Operator's wording: "anything that improves workflow routing (clean
-    workflows)". Scores the GEOMETRY AND ROUTING of the rendered workflow —
-    lanes, edges, waypoints, overlap, layout — not workflow semantics.
-
-    Rubric:
-      0: No routing or geometry dimension.
-      1: Incidental mention of lanes/edges/geometry.
-      2: One element's routing or geometry (arrowhead z-order, port pin, drag).
-      3: A routing DEFECT CLASS — overlap, collision, messiness misfire.
-      4: Structural geometry change across the corpus (bake layout, compaction).
-      5: The layout/routing ENGINE itself, or the geometry source of truth.
-
-    Ordering note: the single-element level sits ABOVE the defect-class level in
-    the ladder below, because "arrowheads render above badges" and "endpoint
-    reconnect drag fails" are single-element bugs whose prose also trips the
-    generic collision/overlap patterns. Descending order alone mis-scored both
-    (T-286 -> 4, T-293 -> 3) until the specific test ran first.
+    The trap this exists for (measured on consumer 1409-sprind): template
+    guidance prose — REHEARSING, PRODUCING, CLAUDE.md, .claude/settings.json —
+    is present in EVERY task file, so a keyword drawn from it matches uniformly
+    across a whole corpus and the driver ranks nothing. Stripping is line-exact
+    (not fuzzy): a line the author actually wrote survives even if it quotes a
+    template word, because it will not match the template line character for
+    character.
     """
-    ladder = [
-        (5, [r"cleanLayout (engine|algorithm|pass|rewrite)",
-             r"layout (engine|algorithm|strategy|pass)",
-             r"routing (engine|algorithm|strategy)",
-             r"BPMN DI\b.{0,40}(geometry|source of truth|adopt|retire)",
-             r"(adopt|retire).{0,40}\bBPMN DI\b",
-             r"retire aef:position"], "routing-engine"),
-        (2, [r"arrowhead", r"\bport[- ]indicator", r"endpoint (reconnect|drag)",
-             r"\bz[- ]?index\b", r"renders? above", r"pin click", r"mousedown"],
-            "routing-single-element"),
-        (4, [r"bake.{0,30}layout", r"lane[- ]compaction", r"vertical (lane[- ])?compaction",
-             r"corpus.{0,30}(layout|geometry)", r"(layout|geometry).{0,30}corpus",
-             r"emit BPMN DI", r"process[- ]dependency graph"], "routing-structural"),
-        (3, [r"\boverlap", r"collide|collision", r"messiness",
-             r"false[- ]positive.{0,30}(layout|pitch|branch)",
-             r"(silently|incorrectly) (reassign|reroute)", r"unresolvable flowNodeRef",
-             r"aligned gateways", r"branch[- ]stack"], "routing-defect-class"),
-    ]
-    incidental = [r"\blanes?\b", r"\bpools?\b", r"\bedges?\b", r"\bgeometry\b", r"\blayout\b",
-                  r"\brouting\b|\broute[sd]?\b", r"sequenceFlow", r"flowNodeRef", r"\bgateway",
-                  r"\bwaypoint", r"cleanLayout", r"compaction"]
-    return _score_by_ladder(_prose(body), ladder, incidental, "routing/geometry",
-                            _components_text(fm))
+    tpl = _template_lines()
+    if not tpl:
+        return text
+    return "\n".join(ln for ln in text.splitlines() if ln.strip() not in tpl)
 
 
-def score_v_aef_integration(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
-    """V_AEF_INTEGRATION — the 832<->AEF seam.
+def load_scoring_spec(driver_entry) -> dict | None:
+    """Return the `scoring:` block of a driver entry, or None when absent.
 
-    T-541. Operator's wording: "anything to improve integration into AEF".
-    Deliberately NOT anchored on the bare token "AEF": it appears in 43 of the 58
-    non-completed tasks because it is the peer project's name, not a signal.
-    Anchored on seam machinery instead — contracts, fixtures, the mapping
-    standard, round-trip fidelity, the vendor pin, the aef: namespace.
-
-    Rubric:
-      0: No seam dimension.
-      1: Incidental seam-adjacent mention.
-      2: aef: namespace / metadata field work.
-      3: A consumer-visible defect at the seam.
-      4: Fixtures, vendor pin, or version relationship gating the seam.
-      5: The seam CONTRACT itself — producer contract, mapping-standard delta,
-         round-trip fidelity across the boundary.
+    Shape-only: a present-but-malformed block comes back so the caller can run
+    validate_scoring_spec() and report the errors, rather than vanishing into
+    "this driver has no spec" (the silent-failure shape this whole task is
+    about). Non-mapping entries and non-mapping blocks return None.
     """
-    ladder = [
-        (5, [r"producer[- ]contract", r"mapping[- ]standard delta", r"standard delta",
-             r"seam (contract|bytes|fidelity)", r"round[- ]trip (fidelity|defect|contract)",
-             r"conformance key", r"contract\+fixture|contract and fixture"], "seam-contract"),
-        (4, [r"\bfixture", r"vendor (bump|pin)", r"version relat", r"release lag",
-             r"peer pin", r"vendored (arc|bpmn|standard|schema|fixture)"], "seam-fixture-or-pin"),
-        (3, [r"\bconsumer\b.{0,40}(defect|triage|facing|broken)",
-             r"(defect|triage).{0,40}\bconsumer\b",
-             r"AEF (consumer|record)", r"reverse discovery"], "seam-consumer-defect"),
-        (2, [r"aef:", r"aef[- ]bpmn", r"framework[- ]node typing"], "seam-namespace"),
-    ]
-    incidental = [r"\bseam\b", r"round[- ]trip", r"producer", r"\bconsumer\b",
-                  r"\bcontract\b", r"mapping[- ]standard"]
-    return _score_by_ladder(_prose(body), ladder, incidental, "AEF seam")
+    if not isinstance(driver_entry, dict):
+        return None
+    spec = driver_entry.get("scoring")
+    if not isinstance(spec, dict) or not spec:
+        return None
+    return spec
 
 
-def score_v_sdlc_enablement(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
-    """V_SDLC_ENABLEMENT — workflows as the substrate a dev process runs on.
+def _spec_levels(spec) -> dict[int, dict]:
+    """Normalise `levels:` keys to ints. Unparseable keys are dropped here and
+    reported by validate_scoring_spec() — validation is the gate, not this."""
+    out: dict[int, dict] = {}
+    levels = spec.get("levels") if isinstance(spec, dict) else None
+    if not isinstance(levels, dict):
+        return out
+    for k, v in levels.items():
+        try:
+            ik = int(k)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(v, dict):
+            out[ik] = v
+    return out
 
-    T-541. Operator's wording: "anything to enhance workflow capability to
-    support a software development process based on the workflows". Scores
-    whether the work moves the designer from "draws diagrams" toward "runs a
-    development process". Anchored away from "workflow" (51/58) and "designer"
-    (49/58), which are the project's own name, and away from bare "process"
-    (17/58 as incidental prose).
 
-    Rubric:
-      0: No process-enablement dimension.
-      1: Incidental process/validator mention.
-      2: Editor capability that makes authoring a process practical.
-      3: Conformance or validation surfacing that makes workflows trustworthy.
-      4: Named document workflows, guided mode, audience lenses.
-      5: Workflow COMPOSITION — fabric, process-dependency graph, callActivity.
+def validate_scoring_spec(spec) -> list[str]:
+    """Return a list of human-readable errors; empty list means valid.
 
-    Level 5 is reachable only on inception tasks in today's corpus (workflow
-    fabric, callActivity, tenancy are all still inceptions), and inceptions are
-    routed to _score_inception_voi before any handler runs. So level 5 is
-    REACHABLE BUT CURRENTLY UNREACHED in production scoring. Recorded rather than
-    presented as a working part of the scale.
+    Checked: kind is the one kind we ship; strip_template is a bool; levels is
+    a non-empty map whose keys are ints 1..5; each level carries at least one
+    signal of a known kind; keywords/paths/tags are non-empty lists of
+    non-empty strings; frontmatter is a flat map of scalars.
     """
-    ladder = [
-        (5, [r"workflow fabric", r"process[- ]dependency graph", r"callActivity",
-             r"sub[- ]?workflow (call|composition)", r"tenant[- ]neutral",
-             r"hosting and tenancy", r"collaboration and concurrency"], "process-composition"),
-        (4, [r"document workflow", r"review-map|future-map", r"guided[- ]mode",
-             r"audience (render )?lens", r"procedural guardrail"], "process-named-workflow"),
-        (3, [r"conformance", r"validator findings", r"surface .{0,30}validat",
-             r"stateKind", r"process[- ]level"], "process-conformance"),
-        (2, [r"\beditor\b.{0,40}(capability|create|claim|save|version)",
-             r"create from pending", r"off[- ]page claim", r"save[- ]target"],
-            "process-editor-capability"),
-    ]
-    incidental = [r"\bvalidator\b", r"software development process", r"sub[- ]?workflow"]
-    return _score_by_ladder(_prose(body), ladder, incidental, "process-enablement")
+    errors: list[str] = []
+    if not isinstance(spec, dict):
+        return ["scoring: must be a mapping"]
+
+    kind = spec.get("kind")
+    if kind is None:
+        errors.append(f"scoring.kind: missing (only '{SCORING_KIND}' is supported)")
+    elif kind != SCORING_KIND:
+        errors.append(f"scoring.kind: unknown kind {kind!r} (only '{SCORING_KIND}' is supported)")
+
+    if "strip_template" in spec and not isinstance(spec["strip_template"], bool):
+        errors.append("scoring.strip_template: must be true or false")
+
+    for unknown in sorted(set(spec) - {"kind", "strip_template", "levels"}):
+        errors.append(f"scoring.{unknown}: unknown key")
+
+    raw_levels = spec.get("levels")
+    if not isinstance(raw_levels, dict) or not raw_levels:
+        errors.append("scoring.levels: must be a non-empty mapping of level -> signals")
+        return errors
+
+    for k in raw_levels:
+        try:
+            ik = int(k)
+        except (TypeError, ValueError):
+            errors.append(f"scoring.levels[{k!r}]: level must be an integer 1..5")
+            continue
+        if not 1 <= ik <= 5:
+            errors.append(f"scoring.levels[{k}]: level out of range (must be 1..5; 0 is the no-match floor)")
+        sigs = raw_levels[k]
+        if not isinstance(sigs, dict) or not sigs:
+            errors.append(f"scoring.levels[{k}]: must be a mapping with at least one signal")
+            continue
+        known = [s for s in sigs if s in SIGNAL_KINDS]
+        for s in sorted(set(sigs) - set(SIGNAL_KINDS)):
+            errors.append(f"scoring.levels[{k}].{s}: unknown signal kind "
+                          f"(known: {', '.join(SIGNAL_KINDS)})")
+        if not known:
+            errors.append(f"scoring.levels[{k}]: no signal of a known kind "
+                          f"({', '.join(SIGNAL_KINDS)})")
+        for listy in ("keywords", "paths", "tags"):
+            if listy not in sigs:
+                continue
+            vals = sigs[listy]
+            if not isinstance(vals, list) or not vals:
+                errors.append(f"scoring.levels[{k}].{listy}: must be a non-empty list of strings")
+                continue
+            for v in vals:
+                if not isinstance(v, str) or not v.strip():
+                    errors.append(f"scoring.levels[{k}].{listy}: {v!r} is not a non-empty string")
+        if "frontmatter" in sigs:
+            fmm = sigs["frontmatter"]
+            if not isinstance(fmm, dict) or not fmm:
+                errors.append(f"scoring.levels[{k}].frontmatter: must be a non-empty flat mapping")
+            else:
+                for fk, fv in fmm.items():
+                    if isinstance(fv, (dict, list)):
+                        errors.append(f"scoring.levels[{k}].frontmatter.{fk}: must be a scalar "
+                                      f"(equality is a string compare)")
+    return errors
+
+
+_PATH_TOKEN_RE = re.compile(r"[A-Za-z0-9_.*-]+(?:/[A-Za-z0-9_.*-]+)+")
+
+
+def _candidate_paths(fm: dict, body: str) -> list[str]:
+    """Paths a `paths:` signal may fnmatch against: the task's `components:`
+    plus every path-shaped token in the body (which is where ACs and
+    Verification name files). Body tokens are taken from the TEMPLATE-STRIPPED
+    body for the same reason keywords are — the template names
+    `.claude/settings.json` and friends in prose every task carries."""
+    out: list[str] = []
+    comps = fm.get("components") or []
+    if isinstance(comps, list):
+        out.extend(str(c).strip() for c in comps if str(c).strip())
+    for tok in _PATH_TOKEN_RE.findall(body):
+        tok = tok.strip("`'\"(),;:")
+        # A token carrying glob metacharacters is a PATTERN, not a path — it
+        # only ever self-matches. Task bodies quote their own spec (this one
+        # does), so without this filter `paths: ["docs/reports/*.md"]` matches
+        # the sentence that declares it and reports `docs/reports/*.md` as the
+        # file it found. Concrete `components:` entries are unaffected.
+        if any(ch in tok for ch in "*?["):
+            continue
+        out.append(tok)
+    # de-dup, order-stable
+    seen: set[str] = set()
+    uniq: list[str] = []
+    for p in out:
+        if p and p not in seen:
+            seen.add(p)
+            uniq.append(p)
+    return uniq
+
+
+def declarative_matches(spec: dict, fm: dict, body: str,
+                        tags: list[str]) -> dict[int, list[str]]:
+    """Per-level matched signals, as `L<level>:<kind>=<value>` strings.
+
+    Returned for EVERY declared level (empty list = level did not match), so
+    `fw bvp driver --explain` can show the ladder rather than only the winner.
+    """
+    strip = spec.get("strip_template", True) is not False
+    body_txt = _strip_template(body) if strip else body
+    tag_strs = [str(t).strip() for t in (tags or [])]
+    hay = "\n".join([
+        str(fm.get("name") or ""),
+        str(fm.get("description") or ""),
+        body_txt,
+        " ".join(tag_strs),
+    ]).lower()
+    cand_paths = _candidate_paths(fm, body_txt)
+
+    result: dict[int, list[str]] = {}
+    for lvl, sigs in sorted(_spec_levels(spec).items()):
+        matched: list[str] = []
+        for kw in (sigs.get("keywords") or []):
+            if isinstance(kw, str) and kw.strip() and kw.strip().lower() in hay:
+                matched.append(f"L{lvl}:keyword={kw}")
+        for pat in (sigs.get("paths") or []):
+            if not isinstance(pat, str) or not pat.strip():
+                continue
+            hit = next((c for c in cand_paths if fnmatch.fnmatch(c, pat.strip())), None)
+            if hit:
+                matched.append(f"L{lvl}:path={pat}~{hit}")
+        fmm = sigs.get("frontmatter")
+        if isinstance(fmm, dict):
+            for fk, fv in fmm.items():
+                actual = fm.get(fk)
+                if actual is None:
+                    continue
+                if str(actual).strip().lower() == str(fv).strip().lower():
+                    matched.append(f"L{lvl}:frontmatter={fk}={fv}")
+        for t in (sigs.get("tags") or []):
+            if not isinstance(t, str) or not t.strip():
+                continue
+            if any(x.lower() == t.strip().lower() for x in tag_strs):
+                matched.append(f"L{lvl}:tag={t}")
+        result[lvl] = matched
+    return result
+
+
+def score_declarative(spec: dict, fm: dict, body: str,
+                      tags: list[str]) -> tuple[int, list[str]]:
+    """Score one driver from its declarative spec. Highest matching level wins.
+
+    Returns (score, evidence). No matching level is `0` with evidence
+    `L0: no signal` — a measured zero, distinct from T-3427's `unscored`
+    (which means no mechanism exists at all and keeps the driver OUT of the
+    ranking denominator).
+    """
+    matches = declarative_matches(spec, fm, body, tags)
+    hits = [(lvl, m) for lvl, m in matches.items() if m]
+    if not hits:
+        return 0, ["L0: no signal", "→0 (declarative: no level matched)"]
+    best = max(lvl for lvl, _ in hits)
+    ev = [s for _, m in sorted(hits) for s in m]
+    return best, ev + [f"→{best} (declarative: highest matching level)"]
+
+
+def _load_driver_specs() -> dict[str, dict]:
+    """`{driver id and name: validated scoring spec}` from the policy file.
+
+    Keyed by BOTH id and name so dispatch reaches a spec the same two ways the
+    handler table is reached (id, or the T-2343 name alias). Specs that fail
+    validation are omitted — an invalid spec is not a scorer, and the audit
+    rail (lib/bvp-scorability.sh) is what tells the operator so.
+    """
+    if not POLICY_PATH.is_file():
+        return {}
+    try:
+        policy = yaml.safe_load(POLICY_PATH.read_text()) or {}
+    except yaml.YAMLError:
+        return {}
+    out: dict[str, dict] = {}
+    for section in ("protected_drivers", "free_drivers"):
+        for d in (policy.get(section) or []):
+            spec = load_scoring_spec(d)
+            if spec is None or validate_scoring_spec(spec):
+                continue
+            for key in (d.get("id"), d.get("name")):
+                if key and isinstance(key, str):
+                    out[key] = spec
+    return out
+
+
+def _arc_scoped_specs_for_task(fm: dict) -> dict[str, dict]:
+    """T-3428 — `{driver_key: validated scoring spec}` from the task's arc.
+
+    Sibling of _arc_scoped_drivers_for_task (which yields weights); both read
+    the same operator-approved `scoped_drivers:` entries through
+    _resolve_arc_data, so an arc-scoped driver can ship its own mechanism
+    without a framework code change. Invalid specs are omitted, same rule as
+    the policy path.
+    """
+    arc_data = _resolve_arc_data(fm)
+    if not arc_data:
+        return {}
+    out: dict[str, dict] = {}
+    for sd in (arc_data.get("scoped_drivers") or []):
+        spec = load_scoring_spec(sd)
+        if spec is None or validate_scoring_spec(spec):
+            continue
+        for key in (sd.get("id"), sd.get("name")):
+            if key and isinstance(key, str):
+                out[key] = spec
+    return out
 
 
 # ---- top-level orchestration ------------------------------------------------
+
+def _handler_table() -> dict:
+    """The one table that decides whether a driver CAN be scored (T-3427).
+
+    Hoisted out of the scoring loop so `has_scorer()` — and through it
+    `fw bvp driver --add` — consults the same table the loop dispatches on.
+    Keys are canonical handler names; policy ids that differ (F3/F1/F2) reach
+    them through _load_driver_aliases(). Everything else is unscorable today.
+    """
+    return {
+        "D1": score_d1_antifragility,
+        "D2": score_d2_reliability,
+        "D3": score_d3_usability,
+        "D4": score_d4_portability,
+        "F-RECALL": score_f_recall,
+        "F-ORCH": score_f_orch,
+        "V_PROMPT_QUALITY": score_v_prompt_quality,
+        "V_CONTEXT_FABRIC": score_v_context_fabric,
+        "V_COMPONENT_FABRIC": score_v_component_fabric,
+        "F-AUTONOMY": score_f_autonomy,
+        "D-DISJOINT": score_d_disjoint,
+        "D-WIRE-EVIDENCE": score_d_wire_evidence,
+        "uncertainty-recognition": score_uncertainty_recognition,
+        "severity-likelihood-calibration": score_severity_likelihood_calibration,
+        "sovereignty-preservation": score_sovereignty_preservation,
+        "aesthetic-cohesion": score_aesthetic_cohesion,
+        "render-fidelity": score_render_fidelity,
+        "theme-portability": score_theme_portability,
+        "feedback-loop-completeness": score_feedback_loop_completeness,
+        "estimator-fidelity": score_estimator_fidelity,
+    }
+
+
+def has_scorer(driver_id: str, name: str | None = None,
+               entry: dict | None = None) -> bool:
+    """Can this driver be scored by anything but a grep for its own id?
+
+    True when the id, the name, or the id's policy alias is a handler key —
+    OR (T-3428) when a declarative `scoring:` spec exists and validates, for
+    the id, the name, or the `entry` passed in directly.
+
+    `fw bvp driver --add` asks this before it lets a Sovereign spend the one
+    free slot on a driver that would score 0 everywhere (OBS-463). It passes
+    `entry` when the caller supplied `--scoring-file`, because the entry is not
+    in the policy file yet at that point — the spec IS the answer, and reading
+    policy would say "no scorer" about a driver that ships one.
+    """
+    table = _handler_table()
+    if driver_id in table or (name and name in table):
+        return True
+    try:
+        alias = _load_driver_aliases().get(driver_id)
+    except Exception:
+        alias = None
+    if alias and alias in table:
+        return True
+    # T-3428: a validated declarative spec is a scorer.
+    if entry is not None:
+        spec = load_scoring_spec(entry)
+        if spec is not None and not validate_scoring_spec(spec):
+            return True
+    try:
+        specs = _load_driver_specs()
+    except Exception:
+        return False
+    return bool(driver_id in specs or (name and name in specs))
+
 
 def _score_inception_voi(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
     """T-2189 inception scoring exception (050-Inceptions.md §Scoring Exception).
@@ -2477,67 +2687,23 @@ def estimate_task(task_path: Path, drivers: dict[str, int]) -> dict:
     scores: dict[str, int] = {}
     evidence: dict[str, list[str]] = {}
 
-    handlers = {
-        "D1": score_d1_antifragility,
-        "D2": score_d2_reliability,
-        "D3": score_d3_usability,
-        "D4": score_d4_portability,
-        # T-2168 — dedicated free-driver heuristics. Generic score_free_driver
-        # remains the fallback for any other active free driver.
-        "F-RECALL": score_f_recall,
-        "F-ORCH": score_f_orch,
-        # T-2328 + T-2343 — dedicated handlers for the V_* batch. Active under
-        # the current policy: T-2336 added the drivers with `id: F3 / F1 / F2`
-        # and `name: V_PROMPT_QUALITY / V_CONTEXT_FABRIC / V_COMPONENT_FABRIC`.
-        # T-2343 wired the dispatch to consult both id and name via
-        # _load_driver_aliases() — so these handlers fire under the F3/F1/F2
-        # ids without requiring a Sovereign --add to re-canonicalise.
-        "V_PROMPT_QUALITY": score_v_prompt_quality,
-        "V_CONTEXT_FABRIC": score_v_context_fabric,
-        "V_COMPONENT_FABRIC": score_v_component_fabric,
-        # T-2329 — sibling of T-2171 AC#5. Latent until T-2171 uncomments
-        # the F-AUTONOMY carve in policy/value-drivers.yaml (Sovereign,
-        # gated by T-2158 continuous-run cycle + L5/L6 milestone). Carries
-        # the Sovereignty refuse-rule (level 0 on Tier-0 / safety-critical
-        # gate removal without at-least-as-safe replacement).
-        "F-AUTONOMY": score_f_autonomy,
-        # T-2356 — arc-011 scoped drivers (proposed via T-2344 batch_propose).
-        # Latent in two ways: (1) _load_drivers() reads only global policy, so
-        # arc-scoped drivers never reach `drivers:` here today; (2) even after
-        # operator approval via Watchtower, dispatch wiring for arc-scoped
-        # drivers is a separate slice. Keys match the IDs in arc-011.yaml.
-        "D-DISJOINT": score_d_disjoint,
-        "D-WIRE-EVIDENCE": score_d_wire_evidence,
-        # T-2359 — arc-001 (dispatch-safety) + arc-006 (value-prioritisation)
-        # scoped drivers. Latent until operator approves the proposed_scoped_drivers
-        # via Watchtower. T-2357 dispatch wiring + T-2358 name-form widening
-        # make activation immediate on approval. Keys match canonical name-form
-        # per T-2358 / lib/arc.sh:1258.
-        "uncertainty-recognition": score_uncertainty_recognition,
-        "severity-likelihood-calibration": score_severity_likelihood_calibration,
-        "sovereignty-preservation": score_sovereignty_preservation,
-        # T-2360 — arc-007 (watchtower-redesign) scoped drivers. Latent until
-        # operator approves the proposed_scoped_drivers via Watchtower.
-        "aesthetic-cohesion": score_aesthetic_cohesion,
-        "render-fidelity": score_render_fidelity,
-        "theme-portability": score_theme_portability,
-        # T-2361 — arc-005 (inception-review-loop) feedback-loop-completeness:
-        # LATENT until operator approves. arc-006 (value-prioritisation)
-        # estimator-fidelity: ALREADY APPROVED 2026-05-21 — this handler swaps
-        # the score_free_driver keyword fallback for rubric-anchored scoring.
-        "feedback-loop-completeness": score_feedback_loop_completeness,
-        "estimator-fidelity": score_estimator_fidelity,
-        # T-541 — 832-Workflow-designer product drivers. LATENT until the
-        # operator approves proposals P-bced1426 / P-0b1db872 / P-86588453 in
-        # Watchtower; keyed to the canonical names so approval activates them
-        # with no further code change (same shape as F-AUTONOMY under T-2329).
-        "V_WORKFLOW_ROUTING": score_v_workflow_routing,
-        "V_AEF_INTEGRATION": score_v_aef_integration,
-        "V_SDLC_ENABLEMENT": score_v_sdlc_enablement,
-    }
+    # T-3427: the table lives in _handler_table() so `has_scorer()` and
+    # `fw bvp driver --add` consult exactly what this loop dispatches on. The
+    # per-handler provenance (T-2168 free-driver heuristics; T-2328/T-2343 V_*
+    # batch reached via id aliases; T-2329 F-AUTONOMY; T-2356/T-2359/T-2360/
+    # T-2361 arc-scoped drivers, latent until approved) moved with it.
+    handlers = _handler_table()
     # T-2343: name-alias map for drivers whose policy id differs from their
     # canonical name (e.g. policy id F3, handler key V_PROMPT_QUALITY).
     name_aliases = _load_driver_aliases()
+    # T-3428: declarative `scoring:` specs, keyed by id AND name. Policy specs
+    # first, then the task's arc-scoped specs — an arc may ship a mechanism for
+    # a driver the policy file has never heard of. Arc keys do not overwrite
+    # policy keys (same precedence as the weight merge above: global wins).
+    specs = _load_driver_specs()
+    if not is_inception:
+        for _k, _v in _arc_scoped_specs_for_task(fm).items():
+            specs.setdefault(_k, _v)
     for driver_id in drivers:
         if is_inception:
             sc, ev = _score_inception_voi(fm, body, tags)
@@ -2545,8 +2711,25 @@ def estimate_task(task_path: Path, drivers: dict[str, int]) -> dict:
             sc, ev = handlers[driver_id](fm, body, tags)
         elif name_aliases.get(driver_id) in handlers:
             sc, ev = handlers[name_aliases[driver_id]](fm, body, tags)
+        elif driver_id in specs or name_aliases.get(driver_id) in specs:
+            # T-3428: declarative spec. Dispatch order is handler → alias →
+            # spec → unscored, so a hand-written handler always wins: it is the
+            # richer mechanism, and a policy edit must not silently displace it.
+            sc, ev = score_declarative(
+                specs.get(driver_id) or specs[name_aliases[driver_id]],
+                fm, body, tags)
         else:
-            sc, ev = score_free_driver(driver_id, fm, body, tags)
+            # T-3427 (OBS-463): a driver with no scorer is UNSCORED, not 0.
+            # score_free_driver grepped the task for the driver's own id —
+            # measured on a consumer: a weight-8 driver scored 0 on 46/50
+            # tasks, entered the ranking denominator (5×54 → 5×58) and ranked
+            # every real task lower; the one task scoring 1 contained the
+            # literal "F4". Omitting the key keeps it out of compute_bvp's
+            # weight_sum (lib/bvp.sh — drivers present in BOTH scores and
+            # weights), the same 0-vs-None distinction T-3068 drew for
+            # blast_radius. The evidence line says so in words.
+            evidence[driver_id] = [f"unscored (no scorer for {driver_id}; not counted)"]
+            continue
         scores[driver_id] = sc
         evidence[driver_id] = ev
 
@@ -2669,138 +2852,63 @@ COST_WORKFLOW_TIER = {
 }
 
 
-def _blast_ladder(n: int, kind: str) -> tuple[int, list[str]]:
-    """Shared 0/1/3/5/7/9 ladder over a count of touched things.
+def score_blast_radius(fm: dict, body: str, tags: list[str]) -> tuple[int | None, list[str]]:
+    """Heuristic: count `components:` entries → 1/3/5/7/9 scale, or None if unknown.
 
-    Non-linear by design — 7 vs 8 is rarely meaningful, 0 vs 1 vs 5+ is.
-    """
-    if n == 0: return 0, [f"→0 (no-{kind})"]
-    if n == 1: return 1, [f"→1 (single-{kind})"]
-    if n <= 3: return 3, [f"→3 ({n}-{kind})"]
-    if n <= 6: return 5, [f"→5 ({n}-{kind}-medium-blast)"]
-    if n <= 9: return 7, [f"→7 ({n}-{kind}-large-blast)"]
-    return 9, [f"→9 ({n}-{kind}-cross-cutting)"]
+    T-3068: returns **None, not 0**, when there is no component information.
+    `0` is the cheapest value on a term carrying weight 0.6 — more than the other
+    two cost terms combined — so scoring "the framework never recorded what this
+    touches" as 0 does not present as missing data, it presents as
+    *attractiveness*, and an HV/LC filter promotes on exactly that.
 
+    This is not a rare path. `components:` is populated at the `work-completed`
+    transition (update-task.sh resolves it from git history), and `fw bvp` excludes
+    work-completed by default (T-2223 — the rank answers "what should I work on
+    next"). Measured at the time of this change: of the 142 ranked tasks, **4 had
+    components**. So the term was unavailable for 97% of the population it ranked,
+    and unavailable meant cheapest.
 
-# Repo-relative source path as written in prose: at least one directory
-# segment, then a known source extension. Anchored on a non-word/non-slash
-# boundary so `web/app.js` matches inside a sentence but `foo.web/app.js`
-# does not. Extension list is deliberately closed — an open one matches
-# version strings and sentence-ending abbreviations.
-_BODY_PATH_RE = re.compile(
-    r"(?<![\w/.-])((?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+"
-    r"\.(?:py|sh|js|mjs|css|html|yaml|yml|json|md|bpmn))"
-)
+    Nothing is lost by giving up the 0 value: `n == 0` was the only route to it, so
+    a returned 0 has always meant "no information" rather than "touches nothing".
+    Now it says so. Recorded 0s already in frontmatter are deliberately NOT
+    reinterpreted — a stored 0 was a real (if wrong) estimate, and rewriting it
+    would destroy the evidence this change rests on.
 
+    Components are explicit declarations of what the task touches; longer
+    lists imply wider blast radius. The 1/3/5/7/9 ladder is non-linear by
+    design — a component count of 7 vs 8 is rarely meaningful, but 1 vs 5+ is.
 
-_TEMPLATE_PATHS_CACHE: set[str] | None = None
-
-
-def _template_paths(root: Path) -> set[str]:
-    """Source paths named by the TASK TEMPLATES themselves.
-
-    `.tasks/templates/default.md` cites `tools/_t352-p011-errexit-probe.sh`
-    and `tools/validate-workflow.py` in its errexit warning, and
-    `path-c-deep-dive.md` cites `.context/handovers/LATEST.md`. Every task
-    created from a template inherits those lines, so counting them measures
-    the template, not the task.
-
-    Measured on this repo: 7 of 59 non-completed tasks had NO blast-radius
-    signal except the template's own three paths, and the whole distribution
-    sat two rungs high. Same class as the T-541 finding that
-    `score_d3_usability` scores 37 of 58 tasks off boilerplate — and the same
-    remedy, PL-239: measure the consumed corpus, not the corpus.
-
-    Known trade-off, stated rather than hidden: a task that GENUINELY works on
-    `tools/validate-workflow.py` loses that one path. Accepted, because a path
-    present in every task file carries no discriminating information by
-    construction — it cannot separate two tasks, so it can only add offset.
-    """
-    global _TEMPLATE_PATHS_CACHE
-    if _TEMPLATE_PATHS_CACHE is None:
-        acc: set[str] = set()
-        for tpl in sorted((root / ".tasks" / "templates").glob("*.md")):
-            try:
-                acc |= set(_BODY_PATH_RE.findall(tpl.read_text(encoding="utf-8")))
-            except OSError:
-                continue
-        _TEMPLATE_PATHS_CACHE = acc
-    return _TEMPLATE_PATHS_CACHE
-
-
-def _paths_named_in_body(body: str, root: Path) -> set[str]:
-    """Distinct repo-relative source paths named in the body THAT EXIST.
-
-    The existence check is what makes this a measurement rather than a
-    word count: a task quoting `web/does-not-exist.js` names nothing, and
-    a renamed file stops counting the moment the rename lands.
-
-    Template-inherited paths are subtracted — see `_template_paths`.
-    """
-    named = {p for p in _BODY_PATH_RE.findall(body) if (root / p).is_file()}
-    return named - _template_paths(root)
-
-
-def score_blast_radius(fm: dict, body: str,
-                       tags: list[str]) -> tuple[int | None, list[str]]:
-    """Heuristic: how much surface does this task touch → 0/1/3/5/7/9, or None.
-
-    Three evidence sources, most explicit first:
-
-      1. `components:` frontmatter — the author's own declaration.
-      2. `target_blast_radius:` — inceptions only (T-2189), because an
-         inception's `components:` is empty BY DEFINITION and the count
-         would otherwise read 0.
-      3. Source paths named in the body and present in the tree (T-542).
-
-    Returns `None` when no source yields evidence. That is the point of
-    this function's contract and it is not a nicety:
-
-    THE 0 THIS USED TO RETURN WAS A BLIND READ WEARING THE CHEAPEST VALUE
-    ON THE SCALE. blast_radius carries weight 0.6 in F8 — the dominant
-    term — so "the fabric has never registered this task" and "this task
-    touches nothing" produced the same, most-attractive answer, and an
-    HV/LC filter promotes on it. Measured on this repo before the change:
-    `components:` was empty on 59 of 59 non-completed active tasks, so
-    every one of the 46 non-inceptions scored br=0 via `no-components`,
-    and the whole cost axis collapsed to `inception ? 3.6 : 1.4`.
-
-    T-2189 already recognised this exact shape — its docstring says the
-    count "always returns 0, making inceptions look artificially cheap" —
-    and repaired the one population where it was noticed. The same
-    sentence is true of every task with an empty `components:`; here that
-    is 100% of the non-inception corpus. Generalising it is T-542.
-
-    `None` propagates to an ABSENT `blast_radius` key, which the existing
-    consumer (`compute_cost` in lib/bvp.sh) already reads as
-    `source: 'absent'` → `quadrant: '-'` → excluded from the ranking.
-    Declining to rank is honest; ranking it cheapest is not.
+    T-2189 inception scoring exception: inceptions' `components:` is empty
+    by definition (the build doesn't exist yet), so the count below cannot
+    speak for them. When `workflow_type: inception`, prefer the
+    `target_blast_radius` (T-2188 schema) frontmatter field. See
+    050-Inceptions.md §Scoring Exception and policy/value-drivers.yaml
+    §inception_scoring_exception. T-3068 note: T-2189 identified this exact
+    shape one population earlier and repaired inceptions only — the same
+    sentence was true of the whole non-inception corpus, and nothing re-asked.
     """
     wf = (fm.get("workflow_type") or "").lower()
-
-    components = fm.get("components") or []
-    if not isinstance(components, list):
-        return None, ["→absent (components-malformed)"]
-    n = len([c for c in components if c])
-    if n:
-        return _blast_ladder(n, "components")
-
     if wf == "inception":
         tbr = fm.get("target_blast_radius")
         if tbr is not None:
             try:
-                v = max(0, min(9, int(tbr)))
+                v = int(tbr)
+                v = max(0, min(9, v))
                 return v, [f"→{v} (target_blast_radius:inception-T-2189)"]
             except (TypeError, ValueError):
-                pass  # malformed → fall through to the body-path source
+                # Malformed → fall through to components count
+                pass
 
-    named = _paths_named_in_body(body, PROJECT_ROOT)
-    if named:
-        v, ev = _blast_ladder(len(named), "body-paths")
-        return v, ev + [f"paths:{','.join(sorted(named)[:4])}"]
-
-    return None, ["→absent (no components, no target_blast_radius, "
-                  "no existing source path named in body)"]
+    components = fm.get("components") or []
+    if not isinstance(components, list):
+        return None, ["→? (components-malformed)"]
+    n = len([c for c in components if c])
+    if n == 0: return None, ["→? (no-components-UNMEASURED-not-zero)"]
+    if n == 1: return 1, ["→1 (single-component)"]
+    if n <= 3: return 3, [f"→3 ({n}-components)"]
+    if n <= 6: return 5, [f"→5 ({n}-components-medium-blast)"]
+    if n <= 9: return 7, [f"→7 ({n}-components-large-blast)"]
+    return 9, [f"→9 ({n}-components-cross-cutting)"]
 
 
 def score_tier(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
@@ -2846,16 +2954,14 @@ def estimate_cost(task_path: Path) -> dict:
     tier, tier_ev = score_tier(fm, body, tags)
     eff, eff_ev = score_effort(fm, body, tags)
 
-    # T-542: an unknown blast radius OMITS the key rather than writing 0 or
-    # null. `compute_cost` keys off `br is not None`, so an absent key lands
-    # on the existing `source: 'absent'` branch and the task drops out of the
-    # ranking instead of entering it at the cheapest value on the scale.
-    ce: dict = {"tier": tier, "effort": eff}
-    if br is not None:
-        ce["blast_radius"] = br
-
+    # T-3068: `blast_radius: null` is emitted deliberately rather than dropped or
+    # defaulted. `compute_cost` (lib/bvp.sh) requires all three terms present and
+    # otherwise reports source='absent' — so a null here propagates as "no cost
+    # known" all the way to the COST/QUAD columns, instead of a composite quietly
+    # assembled from the 0.3 and 0.1 terms while the 0.6 one was never measured.
+    # A cost built on an unknown blast radius is unknown, not cheap.
     return {
-        "cost_estimate": ce,
+        "cost_estimate": {"blast_radius": br, "tier": tier, "effort": eff},
         "evidence": {"blast_radius": br_ev, "tier": tier_ev, "effort": eff_ev},
         "version": ESTIMATOR_ID,
         "rubric_sha": _rubric_sha(),
@@ -2885,12 +2991,30 @@ def _cost_v2_delta_should_skip(proposed: dict, confirmed: dict | None) -> bool:
 
 
 def _cost_short_rationale(evidence: dict[str, list[str]]) -> str:
+    """Render `term=value (reason)` per cost component.
+
+    T-3068: this used to print `(no-signal)` for every term on every task. It
+    looked for evidence entries that do NOT start with the arrow, but all three
+    cost scorers return exactly one entry and it always starts with the arrow —
+    so the `signals` list was empty by construction, and the reason the scorer
+    had already computed was thrown away in favour of the words "no-signal".
+
+    Fixing it matters more now than it did: with blast_radius able to come back
+    unknown, the parenthetical is the only place the operator can see *why* a cost
+    is missing. `blast_radius=? (no-signal)` would say nothing;
+    `blast_radius=? (no-components-UNMEASURED-not-zero)` says what to do about it.
+    """
     parts = []
     for component, ev in evidence.items():
         arrow = next((e for e in ev if e.startswith("→")), "→?")
-        signals = [e for e in ev if not e.startswith("→")]
-        sig_str = ",".join(signals[:2]) if signals else "no-signal"
-        parts.append(f"{component}={arrow.split()[0][1:]} ({sig_str})")
+        head, _, tail = arrow.partition(" ")
+        value = head[1:] or "?"
+        # Prefer the scorer's own parenthetical; fall back to any non-arrow
+        # entries, which is the shape the original code assumed.
+        reason = tail.strip().strip("()") or ",".join(
+            e for e in ev if not e.startswith("→")
+        ) or "no-signal"
+        parts.append(f"{component}={value} ({reason})")
     return "; ".join(parts)
 
 

@@ -24,7 +24,6 @@ import json
 import re
 import subprocess
 from pathlib import Path
-from urllib.parse import unquote
 
 import yaml
 from flask import Blueprint, render_template, request
@@ -41,35 +40,6 @@ bp = Blueprint("bvp", __name__)
 POLICY_PATH = PROJECT_ROOT / "policy" / "value-drivers.yaml"
 PROPOSALS_PATH = PROJECT_ROOT / ".context" / "bvp-driver-proposals.jsonl"
 TSHIRT = {"S": 2, "M": 4, "L": 6, "XL": 8}
-
-
-def _hx_prompt() -> str:
-    """T-547: the operator's `hx-prompt` answer, decoded if htmx had to encode it.
-
-    XHR forbids non-ASCII header values, so htmx (htmx.min.js, `Cn`) retries a
-    rejected setRequestHeader with `encodeURIComponent` AND sets a companion
-    `<header>-URI-AutoEncoded: true` declaring that it did. htmx behaves
-    correctly; reading `HX-Prompt` raw is what stores `%E2%80%94` as the
-    operator's words. One em-dash, curly apostrophe or accented letter in a
-    rationale is enough — which is why pure-ASCII rationales hid this.
-
-    The decode is CONDITIONAL on the companion header, deliberately. An
-    unconditional `unquote()` would corrupt a rationale a human typed as
-    "covers 50%20 of cases": that string is pure ASCII, so htmx sends it
-    unencoded with no companion header, and decoding it anyway silently turns
-    it into "covers 50  of cases". Trusting htmx's own declaration is the only
-    way to tell an encoding from a percent sign.
-
-    Returns "" when the header is absent, so existing
-    `_hx_prompt() or request.form.get(...)` fallbacks for CLI/API callers
-    (which send the rationale as a form field) keep working unchanged.
-    """
-    raw = request.headers.get("HX-Prompt")
-    if not raw:
-        return ""
-    if (request.headers.get("HX-Prompt-URI-AutoEncoded") or "").lower() == "true":
-        return unquote(raw)
-    return raw
 
 
 def _load_proposals(state_filter: str | None = "pending") -> list[dict]:
@@ -733,7 +703,17 @@ def bvp_driver_add():
         "--from-watchtower",
     ]
     if drop_id:
-        cmd.extend(["--drop", drop_id])
+        # T-3066: this route is present-tense — the operator is looking at the
+        # live register as they submit — so resolving the id to a name here is
+        # not the late dereference the guard exists for. The pair is still
+        # mandatory, because `--drop` alone is refused by the CLI (deliberately:
+        # an optional identity check is one a caller can forget).
+        drop_name = next(
+            (d.get("name") for d in (_load_policy().get("free_drivers") or [])
+             if d.get("id") == drop_id), None)
+        if drop_name is None:
+            return f"Cannot drop {drop_id}: no free driver holds that id.", 400
+        cmd.extend(["--drop", drop_id, "--drop-name", drop_name])
     try:
         result = subprocess.run(
             cmd, cwd=str(PROJECT_ROOT),
@@ -777,7 +757,7 @@ def bvp_driver_remove():
         or ""
     ).strip()
     rationale = (
-        _hx_prompt()                      # T-547: decoded when htmx encoded it
+        request.headers.get("HX-Prompt")
         or request.form.get("rationale")
         or ""
     ).strip()
@@ -902,7 +882,21 @@ def bvp_driver_approve():
         "--from-watchtower",
     ]
     if proposal.get("drop"):
-        cmd.extend(["--drop", proposal["drop"]])
+        # T-3066: this is the route the hazard lives on — the proposal was written
+        # at one time and is being applied at another, so the stored slot id is
+        # passed with the stored NAME and the CLI refuses if they have come apart.
+        drop_name = proposal.get("drop_name")
+        if not drop_name:
+            # Legacy row (pre-T-3066): it records a slot but not what was in it,
+            # so what the operator agreed to is no longer recoverable. Refuse
+            # rather than apply an intent we cannot read.
+            return (
+                f"Proposal {proposal_id} predates drop-identity recording (T-3066): it "
+                f"names slot {proposal['drop']} but not which driver was in it, so the "
+                f"deletion cannot be verified. Reject it and re-file the proposal.",
+                409,
+            )
+        cmd.extend(["--drop", proposal["drop"], "--drop-name", drop_name])
     try:
         result = subprocess.run(
             cmd, cwd=str(PROJECT_ROOT),
@@ -937,7 +931,7 @@ def bvp_driver_reject():
     """
     proposal_id = (request.args.get("id") or request.form.get("id") or "").strip()
     rationale_decision = (
-        _hx_prompt()                      # T-547: decoded when htmx encoded it
+        request.headers.get("HX-Prompt")
         or request.form.get("rationale_decision")
         or ""
     ).strip()
@@ -962,14 +956,48 @@ def bvp_driver_reject():
     return json.dumps({"ok": True, "rejected": proposal_id, "rationale_decision": rationale_decision}), 200, {"Content-Type": "application/json"}
 
 
+# T-2780: task points per page. /bvp rendered every scored task in three places at once
+# (the scatter's JSON payload, the raw-data table, the per-driver-scores table) with no
+# bound on any of them — same unbounded-row class T-2775 found on /timeline. At 2,574 scored
+# tasks that was 5,385,019 bytes, over the 2 MB size-guard cap (test_all_routes_size.py) and
+# large enough to overflow the 64KB pipe buffer on a `curl | grep -q` verification line
+# (T-2743, L-387; T-2771 already moved T-1928's check to redirect-to-file for this reason).
+#
+# /bvp exists to rank tasks by value, so the window has to be a slice of a *sorted* list —
+# bounding it by glob/filename order (the previous implicit order) would show an arbitrary
+# 250 tasks and call it "the scatter", silently changing what the page means. Sorting by
+# bvp_norm descending first means page 1 is always the highest-value tasks, and paging is a
+# window over the ranking rather than a truncation of it.
+#
+# 250 tasks/page * ~2,035 bytes/task (measured pre-fix, JSON + raw row + driver row combined)
+# is ~509 KB plus ~118 KB of page furniture — under 630 KB, ~3.2x headroom under the 2 MB cap
+# for corpus growth, in line with /timeline's ~3.9x margin (T-2775).
+_BVP_TASKS_PER_PAGE = 250
+
+
 @bp.route("/bvp")
 def bvp_scatter():
     policy = _load_policy()
     weights = _driver_weights(policy)
     driver_names = _driver_names(policy)
     driver_rubrics = _driver_rubrics(policy)
-    task_points = _collect_task_points(weights)
-    arc_points = _collect_arc_points(weights)
+
+    # Sort by value (bvp_norm) descending BEFORE windowing — the window must be a slice of a
+    # sorted set so "page 1" always means "highest ranked", not "first found on disk" (T-2780).
+    all_task_points = sorted(_collect_task_points(weights), key=lambda p: p["bvp_norm"], reverse=True)
+    arc_points = sorted(_collect_arc_points(weights), key=lambda p: p["bvp_norm"], reverse=True)
+
+    total_tasks = len(all_task_points)
+    task_page_count = max(1, (total_tasks + _BVP_TASKS_PER_PAGE - 1) // _BVP_TASKS_PER_PAGE)
+    try:
+        task_page = int(request.args.get("page", 1))
+    except (TypeError, ValueError):
+        task_page = 1
+    task_page = max(1, min(task_page, task_page_count))
+
+    start = (task_page - 1) * _BVP_TASKS_PER_PAGE
+    task_points = all_task_points[start:start + _BVP_TASKS_PER_PAGE]
+
     pending_proposals = _load_proposals(state_filter="pending")
     return render_template(
         "bvp.html",
@@ -981,5 +1009,10 @@ def bvp_scatter():
         driver_names=driver_names,
         driver_rubrics=driver_rubrics,
         pending_proposals=pending_proposals,
-        empty=(not task_points and not arc_points),
+        empty=(not all_task_points and not arc_points),
+        task_page=task_page,
+        task_page_count=task_page_count,
+        total_tasks=total_tasks,
+        task_range_start=(start + 1) if total_tasks else 0,
+        task_range_end=min(start + _BVP_TASKS_PER_PAGE, total_tasks),
     )

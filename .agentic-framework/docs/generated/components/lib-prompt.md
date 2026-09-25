@@ -21,13 +21,12 @@ qid: <agent-id>/P-NNN          # cross-fleet stable reference (B2)
 
 ### Framework Reference
 
-When dispatching sub-agents, include in the prompt:
+If you can state scope, deliverable, output format and constraints, the work is
+**specified**: dispatch it. If writing the prompt requires you to first find out
+what is wrong, it is **not specified yet** — localise first, then dispatch the fix.
 
-1. **Scope**: Exactly what to investigate/produce (one clear deliverable)
-2. **Framework context**: Relevant framework structure (task format, episodic template, etc.)
-3. **Output format**: How to return results (write to file vs. return summary)
-4. **Constraints**: Don't modify files outside scope, don't return raw data
-5. **Token hint**: "Keep your response concise — the orchestrator has limited context budget"
+Writing the prompt *is* the test. If you sit down to write it and cannot, that is
+the signal, not a reason to push through.
 
 ## Dependencies (1)
 
@@ -35,11 +34,13 @@ When dispatching sub-agents, include in the prompt:
 |-----------|--------------|-------------|
 | `prompts/` | reads | — |
 
-## Used By (1)
+## Used By (3)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
 | [fw](/docs/generated/bin-fw) | sourced_by | Single entry point for all framework operations. Reads .framework.yaml from the project directory to resolve FRAMEWORK_ROOT, then routes commands to the appropriate agent. Supports both in-repo and shared tooling modes. |
+| [fw](/docs/generated/bin-fw) | called_by | Single entry point for all framework operations. Reads .framework.yaml from the project directory to resolve FRAMEWORK_ROOT, then routes commands to the appropriate agent. Supports both in-repo and shared tooling modes. |
+| [prompts](/docs/generated/web-blueprints-prompts) | called_by | TODO: describe what this component does |
 
 ---
 *Auto-generated from Component Fabric. Card: `lib-prompt.yaml`*

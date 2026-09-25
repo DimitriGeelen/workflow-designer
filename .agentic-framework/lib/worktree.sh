@@ -16,15 +16,65 @@
 # `create` is a separate follow-up. This avoids duplicating the existing integrate surface.
 
 # Resolve the "master" ref this repo integrates onto (local first, then origin).
+# The trunk every landing verdict is measured against.
+#
+# REMOTE FIRST (T-3117). This used to prefer refs/heads/master, and in the
+# session-on-master flow (T-100196) that ref is never updated: work lands by
+# pushing `HEAD:master` from a topic branch, which advances origin/master and
+# leaves the LOCAL master branch wherever it was. Measured here on 2026-08-23,
+# local master was **1744 commits behind** origin/master — so every "has this
+# landed?" answer in gc, `fw worktree status` and the branch-hygiene surfaces
+# was computed against a trunk from six weeks earlier. Nothing could ever be
+# reclaimed, which is why four stale worktrees survived R7's entire arc.
+#
+# "Landed" means on the SHARED trunk, so the remote-tracking ref is the
+# correct subject, not a local bookmark that may be stale or ahead. A local
+# master that is ahead of origin/master holds commits that are genuinely not
+# landed yet; reporting them as landed would be the dangerous direction of
+# this error, and preferring the remote gets that right too. The local refs
+# stay as fallback for repos with no remote at all.
 _wt_master_ref() {
     local r
-    for r in refs/heads/master refs/heads/main refs/remotes/origin/master refs/remotes/origin/main; do
+    for r in refs/remotes/origin/master refs/remotes/origin/main refs/heads/master refs/heads/main; do
         if git rev-parse --verify --quiet "$r" >/dev/null 2>&1; then
             printf '%s\n' "$r"
             return 0
         fi
     done
     return 1
+}
+
+# The TRUNK under the release-train model (T-3185, T-3197).
+#
+# `master` stopped being the trunk when the release train landed: it is the
+# consumer install surface and fast-forwards only at a release, so between
+# releases it deliberately lags. Two things follow, and this repo had both wrong:
+#
+#   1. A worktree branched from master starts behind the dev branch. Its
+#      merge-base is old, so `fw integrate check` reports both-sided files that
+#      are not genuinely both-sided and inflates the needs-human verdict.
+#   2. Work that HAS landed — via `fw integrate run bleeding-edge` — is not in
+#      master until the next release, so a master-based "merged?" test answers
+#      `no` for a branch that is fully landed. `lib/branch-hygiene.sh:100` already
+#      resolves FW_DEV_BRANCH (T-3188); this file did not, so the two rails
+#      disagreed about the same branch.
+#
+# Same remote-preferred order and the same rationale as _wt_master_ref above: a
+# local dev branch that is ahead of origin holds commits that are genuinely not
+# landed yet, and reporting those as landed is the dangerous direction.
+#
+# Falls back to _wt_master_ref when no dev branch exists, which keeps this a
+# widening rather than a swap — a repo that never adopted the release train
+# behaves exactly as it did before.
+_wt_dev_ref() {
+    local dev="${FW_DEV_BRANCH:-bleeding-edge}" r
+    for r in "refs/remotes/origin/$dev" "refs/heads/$dev"; do
+        if git rev-parse --verify --quiet "$r" >/dev/null 2>&1; then
+            printf '%s\n' "$r"
+            return 0
+        fi
+    done
+    _wt_master_ref
 }
 
 # is <a> an ancestor of <b>?  (true when b's history contains a)
@@ -68,7 +118,7 @@ do_worktree_status() {
         return 4
     fi
 
-    local master_ref; master_ref="$(_wt_master_ref || true)"
+    local master_ref; master_ref="$(_wt_dev_ref || true)"
 
     local -a _WT_PATH _WT_HEAD _WT_BRANCH
     _wt_parse
@@ -145,7 +195,7 @@ do_worktree_doctor_line() {
     # main checkout: git-dir == git-common-dir. Linked worktree: they differ.
     [ "$gd" != "$cgd" ] || return 1
 
-    local master_ref; master_ref="$(_wt_master_ref || true)"
+    local master_ref; master_ref="$(_wt_dev_ref || true)"
     local head branch
     head="$(git rev-parse --short HEAD 2>/dev/null)"
     branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
@@ -194,6 +244,7 @@ for line in sys.stdin:
         main = {"path": path, "branch": branch, "head": head,
                 "merged": merged, "live": live,
                 "on_master": branch in ("master", "main"),
+                "trunk_ref": master_ref or None,
                 "master_ref": master_ref or None}
     elif kind == "WT":
         _, path, branch, head, merged, live, is_master = parts
@@ -279,8 +330,8 @@ do_worktree_create() {
             echo "worktree create: --from ref not found: $from_ref" >&2; return 1; }
         base="$from_ref"; base_label="$from_ref"
     else
-        base="$(_wt_master_ref)" || {
-            echo "worktree create: no master/main ref to branch from (use --from <ref>)" >&2; return 1; }
+        base="$(_wt_dev_ref)" || {
+            echo "worktree create: no trunk ref to branch from (use --from <ref>)" >&2; return 1; }
         base_label="${base#refs/heads/}"; base_label="${base_label#refs/remotes/}"
     fi
 
@@ -312,6 +363,458 @@ do_worktree_create() {
     return 0
 }
 
+# ── fw worktree remove (T-2825, G-076) ───────────────────────────────────────
+# Sanctioned teardown path. `git worktree remove` on its own has no opinion about
+# whether the branch it points at is reachable from anywhere but this one working
+# directory -- remove the worktree and any commits on that branch become invisible
+# to the normal workflow (no cwd left to push from). Origin: T-2428/T-2825 -- a
+# 6-commit branch survived `git worktree remove` only because that command doesn't
+# delete branches, and sat unpushed for 5 weeks because nothing ever re-surfaced it.
+#
+# Guard: refuse removal when the worktree's branch holds commits that are absent
+# from EVERY configured remote (i.e. no remote has all of the branch's commits).
+# `--force` proceeds anyway and logs a Tier-2 entry to
+# .context/working/.gate-bypass-log.yaml (same convention as lib/inception.sh,
+# lib/review.sh). A repo with zero remotes configured cannot prove anything is
+# pushed, so it is treated as unpushed too (fail closed).
+
+# _wt_remove_resolve <name-or-path> -> sets _WT_REMOVE_PATH / _WT_REMOVE_BRANCH
+# Returns 1 (nothing printed) when no linked worktree matches.
+_wt_remove_resolve() {
+    local needle="$1"
+    local -a _WT_PATH _WT_HEAD _WT_BRANCH
+    _wt_parse
+    local main_root="${_WT_PATH[0]}"
+    local abs=""
+    abs="$(cd "$needle" 2>/dev/null && pwd || true)"
+    local i
+    for i in "${!_WT_PATH[@]}"; do
+        [ "$i" = "0" ] && continue
+        if [ -n "$abs" ] && [ "${_WT_PATH[$i]}" = "$abs" ]; then
+            _WT_REMOVE_PATH="${_WT_PATH[$i]}"; _WT_REMOVE_BRANCH="${_WT_BRANCH[$i]}"
+            return 0
+        fi
+        if [ "${_WT_PATH[$i]}" = "$main_root/.claude/worktrees/$needle" ]; then
+            _WT_REMOVE_PATH="${_WT_PATH[$i]}"; _WT_REMOVE_BRANCH="${_WT_BRANCH[$i]}"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# _wt_is_governance_path <relpath> -> 0 (true) when <relpath> is framework
+# governance state, 1 otherwise.
+#
+# T-3102 / T-2822 -- governance state (.context/**, .tasks/**) is TRACKED
+# content, so every linked worktree carries a FORK of it, and hooks firing in
+# the MAIN session mutate that fork independently of anything the worktree's
+# own work did. Measured on the four live worktrees at T-3102 time: 26/23,
+# 5/4, 2/1, 17/15 dirty/governance. The dirt is not the worktree's work; it is
+# ambient drift.
+#
+# T-2822's adopted GO settles what that dirt is WORTH: governance state inside
+# a linked worktree is NON-AUTHORITATIVE BY CONSTRUCTION -- master is the
+# authority, and the worktree's copy is a stale branch of it that nothing ever
+# reads back. Discarding it loses nothing that master does not already hold.
+#
+# SUPERSEDES T-2831's regenerable-vs-content split for governance paths.
+# T-2831 refused `.tasks/**`, `.context/project/decisions.yaml` and
+# `.context/working/feedback-stream.yaml` UNCONDITIONALLY on the theory that
+# they were irreplaceable content. Under T-2822 that theory is wrong for the
+# worktree copy specifically -- the authoritative copy is on master and is
+# untouched by this removal. What T-2831 was actually protecting -- "never
+# silently discard uncommitted work" -- survives intact below as the SOURCE
+# class, which is still refused unconditionally, --force included.
+#
+# The prefix rule is deliberate here, where T-2831's exact-match allowlist was
+# deliberate there: T-2831 needed narrowness because it was deciding whether a
+# file was regenerable (a per-file property). T-3102 decides whether a file is
+# authoritative in THIS working copy (a per-directory property -- the whole
+# governance tree is non-authoritative in a worktree, uniformly).
+#
+# NOTE (T-3102 correction): this predicate no longer decides on its own whether
+# dirt blocks removal -- see _wt_is_discardable_dirt below. It survives because
+# the discard SUMMARY still distinguishes governance dirt (non-authoritative
+# fork) from vendored/generated dirt (regenerable), and those are different
+# sentences to say to an operator.
+_wt_is_governance_path() {
+    case "$1" in
+        .context/*|.tasks/*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# _wt_is_discardable_dirt <relpath> -> 0 (true) when a dirty <relpath> inside a
+# linked worktree can be discarded on removal without losing work.
+#
+# T-3102 CORRECTION. The first cut of this task classed only `.context/**` and
+# `.tasks/**` as discardable. That basis was too narrow to be operational: the
+# read-only dry run found all four live worktrees still refused, every one of
+# them on a dirty `VERSION`, two of them also on `.agentic-framework/**` and
+# `lib/ts/dist/**`. The fix removed governance dirt as a CAUSE of refusal and
+# unblocked nothing.
+#
+# The right set already existed. `_wt_is_ignorable_path` (defined further down,
+# for `fw worktree gc`) enumerates exactly "vendored, generated, or
+# session-local churn" -- content that is not work. We REUSE it rather than
+# restate it: a second copy of that pattern list is precisely the drift bug this
+# task exists to fix. (Definition order is irrelevant -- the whole file is
+# sourced before any call, so the forward reference resolves.)
+#
+# Two deltas, both deliberate:
+#
+#   + .tasks/*   is discardable HERE but is NOT added to
+#                _wt_is_ignorable_path. gc calls that function for LANDING
+#                decisions ("did this branch's work reach master?"), and there a
+#                `.tasks/` file IS a deliverable -- sweeping it into gc's
+#                ignorable set would let gc reclaim a branch whose only real
+#                content was a task file. The dirt caller asks a different
+#                question ("would discarding this working copy lose anything?"),
+#                and under T-2822 the answer for `.tasks/` is no: master holds
+#                the authoritative copy. TWO CALLERS, TWO CORRECT ANSWERS. Do
+#                not "unify" them -- unifying them is the bug.
+#
+#   - .fabric/*  is ignorable for gc but is NOT discardable here. Sanity-checked
+#                at T-3102 rather than assumed: `fw fabric scan` SKIPS cards that
+#                already exist (agents/fabric/lib/register.sh:203,331) -- it only
+#                creates missing ones. So a MODIFIED card is not regenerable, and
+#                cards carry hand-authored prose (`purpose:`, `standalone_reason:`
+#                citing task ids). Discarding a dirty card would silently destroy
+#                that. It stays ignorable for gc, where the question is "is a
+#                changed card a deliverable?" (no), but blocking here, where the
+#                question is "would discarding it lose content?" (yes). None of
+#                the four live worktrees carries `.fabric/` dirt, so excluding it
+#                costs nothing operationally and keeps the guard honest.
+#
+# The other classes WERE checked, not assumed:
+#   .context/*            non-authoritative fork; master is the authority (T-2822)
+#   .agentic-framework/*  vendored copy of this repo's own source, rewritten
+#                         wholesale by `fw vendor self` (bin/fw:_self_vendor)
+#   VERSION               derived from FW_VERSION in bin/fw, restamped by
+#                         `fw version sync` (lib/version.sh:298)
+#   lib/ts/dist/*         build output of lib/ts/src (`npm run build` ->
+#                         lib/ts/../build.sh)
+#   *.budget-status|*.hook-counter|*.tool-counter|*.loop-detect.json
+#                         session-local counters, rewritten on next tool call
+_wt_is_discardable_dirt() {
+    case "$1" in
+        .fabric/*) return 1 ;;   # see above -- fabric scan will not regenerate it
+        .tasks/*)  return 0 ;;   # see above -- deliberately NOT in the gc set
+    esac
+    _wt_is_ignorable_path "$1"
+}
+
+# _wt_porcelain_path <porcelain-line> -> echoes the working-tree path.
+# Handles rename/copy records (`R  old -> new`) by taking the destination, and
+# strips git's quoting for paths with unusual characters.
+_wt_porcelain_path() {
+    local path="${1:3}"
+    case "$path" in
+        *' -> '*) path="${path##* -> }" ;;
+    esac
+    # git quotes paths containing specials; drop the wrapping quotes so the
+    # classification sees `.context/x`, not `".context/x"`.
+    case "$path" in
+        '"'*'"') path="${path:1:${#path}-2}" ;;
+    esac
+    printf '%s' "$path"
+}
+
+# _wt_dirty_summary <worktree_path> -> classifies `git status --porcelain` for
+# the worktree into discardable dirt vs real work. Prints a human-readable report.
+#
+# THE RULE (T-3102, corrected):
+#     blocking dirt = a dirty path that is NOT _wt_is_discardable_dirt
+# and _wt_is_discardable_dirt is _wt_is_ignorable_path (gc's vendored/generated/
+# session-local set) plus `.tasks/*`, minus `.fabric/*`. See that function for
+# why each delta exists and why the two callers must NOT be unified.
+#
+# Return codes:
+#   0 = clean (nothing dirty)
+#   1 = at least one SOURCE path is dirty -- names the specific paths (capped),
+#       refused unconditionally, --force included (T-2831 AC3, preserved)
+#   2 = dirty, but ONLY discardable paths -- safe to discard on removal
+_wt_dirty_summary() {
+    local wt_path="$1"
+    local -a source=() gov=() gen=()
+    local line path
+    while IFS= read -r line; do
+        [ -z "$line" ] && continue
+        path="$(_wt_porcelain_path "$line")"
+        if ! _wt_is_discardable_dirt "$path"; then
+            source+=("$path")
+        elif _wt_is_governance_path "$path"; then
+            # discardable AND governance -- "non-authoritative fork" (T-2822)
+            gov+=("$path")
+        else
+            # discardable AND vendored/generated/session-local -- "regenerable"
+            gen+=("$path")
+        fi
+    done < <(git -C "$wt_path" status --porcelain --untracked-files=all 2>/dev/null)
+
+    if [ "${#source[@]}" -eq 0 ] && [ "${#gov[@]}" -eq 0 ] && [ "${#gen[@]}" -eq 0 ]; then
+        return 0
+    fi
+
+    # Source wins over governance in a mixed worktree: the presence of ANY
+    # uncommitted source makes the removal lossy, whatever else is dirty.
+    if [ "${#source[@]}" -gt 0 ]; then
+        echo "${#source[@]} uncommitted source file(s) in $wt_path:"
+        local i shown=0
+        for i in "${!source[@]}"; do
+            [ "$shown" -ge 5 ] && break
+            echo "  ${source[$i]}"
+            shown=$((shown + 1))
+        done
+        if [ "${#source[@]}" -gt 5 ]; then
+            echo "  ... $(( ${#source[@]} - 5 )) more"
+        fi
+        return 1
+    fi
+
+    # Name the class, not just the count -- the two discardable classes have
+    # different reasons for being safe, and the operator should be able to tell
+    # which one they are looking at. The governance-only wording is preserved
+    # verbatim from the first cut so its meaning does not shift underneath the
+    # tests that pin it.
+    if [ "${#gen[@]}" -eq 0 ]; then
+        echo "${#gov[@]} governance file(s) dirty in $wt_path (non-authoritative fork; master is the authority) -- discardable"
+    elif [ "${#gov[@]}" -eq 0 ]; then
+        echo "${#gen[@]} vendored/generated file(s) dirty in $wt_path (regenerable: fw vendor self / fw version sync / build) -- discardable"
+    else
+        echo "$(( ${#gov[@]} + ${#gen[@]} )) discardable file(s) dirty in $wt_path: ${#gov[@]} governance (non-authoritative fork; master is the authority), ${#gen[@]} vendored/generated (regenerable) -- discardable"
+    fi
+    return 2
+}
+
+# _wt_unpushed_summary <branch> -> prints a non-empty summary and returns 1 when
+# <branch> holds commits reachable from NO remote-tracking ref; prints nothing
+# and returns 0 when every commit is already on some remote.
+#
+# T-2829 / OBS-177 -- the question this answers is "would removing this worktree
+# STRAND anything?", i.e. "is any commit here absent from every remote?". The
+# original implementation asked a narrower question -- "is refs/remotes/<r>/<branch>
+# caught up?" -- and reported the answer using the wider question's words
+# ("not on any remote"), while consulting exactly one ref per remote.
+#
+# Those two questions come apart under the T-100196 flow, which is the NORMAL
+# flow here: work FF-lands onto **master**, so origin/<branch> is stale or was
+# never created, while every commit sits safely on origin/master. Measured on
+# t100199-close: `origin/<branch>..<branch>` = 31, `<branch> --not --remotes` = 0.
+# Effect: every master-landed worktree was unremovable except via --force,
+# reinstating exactly the bypass habit the guard exists to prevent.
+#
+# `--not --remotes` is the primitive that matches the claim: reachable from the
+# branch, reachable from no remote-tracking ref. (`fw worktree gc` uses content
+# comparison instead -- deliberately, per T-100142, because re-derivation defeats
+# ref comparison. Different question, different primitive: gc asks "did this work
+# LAND", remove asks "would this work be LOST".)
+_wt_unpushed_summary() {
+    local branch="$1"
+    local -a remotes=()
+    while IFS= read -r r; do [ -n "$r" ] && remotes+=("$r"); done < <(git remote 2>/dev/null)
+
+    if [ "${#remotes[@]}" -eq 0 ]; then
+        echo "no git remotes configured -- cannot verify anything is pushed"
+        return 1
+    fi
+
+    # Undecidable ⇒ REFUSE, never allow. If the branch ref does not resolve we
+    # cannot compute reachability at all, and an empty `rev-list` result must not
+    # be read as "nothing stranded". Caught during T-2829's own live test: passing
+    # a worktree DIRECTORY name (which is not always the branch name -- here
+    # `.claude/worktrees/rca-worktree-push-strand` is on branch
+    # `worktree-rca-worktree-push-strand`) made rev-list print nothing, and the
+    # first draft's `${stranded:-0}` turned that silence into rc=0 "safe to
+    # remove". The predicate it replaced failed SAFE in this case (missing remote
+    # ref => refuse), so the fix would have been a regression in the one direction
+    # that loses work. Same class as the bug being fixed: a value that is empty
+    # for two different reasons, read as though it had only one.
+    if ! git rev-parse --verify --quiet "refs/heads/$branch" >/dev/null 2>&1; then
+        echo "branch '$branch' does not resolve -- cannot verify what would be stranded"
+        return 1
+    fi
+
+    # The actual gate: reachable from <branch>, reachable from no remote ref.
+    local stranded
+    stranded="$(git rev-list --count "refs/heads/$branch" --not --remotes 2>/dev/null || echo "")"
+    if [ -z "$stranded" ]; then
+        echo "could not compute reachability for '$branch' -- refusing rather than guessing"
+        return 1
+    fi
+    if [ "$stranded" = "0" ]; then
+        return 0
+    fi
+
+    # Only now -- once something IS genuinely stranded -- build the per-remote
+    # detail, so the operator can see which remote to push to.
+    local r remote_ref count
+    local -a lines=()
+    lines+=("$stranded commit(s) on '$branch' are on no remote (git log $branch --not --remotes)")
+    for r in "${remotes[@]}"; do
+        remote_ref="refs/remotes/$r/$branch"
+        if ! git rev-parse --verify --quiet "$remote_ref" >/dev/null 2>&1; then
+            lines+=("$r: branch '$branch' not present on remote")
+            continue
+        fi
+        count="$(git rev-list --count "${remote_ref}..refs/heads/$branch" 2>/dev/null || echo "")"
+        [ "${count:-0}" = "0" ] || \
+            lines+=("$r: $count commit(s) on '$branch' not on $r/$branch (git log $r/$branch..$branch)")
+    done
+
+    printf '%s\n' "${lines[@]}"
+    return 1
+}
+
+# do_worktree_remove <name-or-path> [--force]
+do_worktree_remove() {
+    local target="" force=0
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --force) force=1 ;;
+            -h|--help)
+                echo "usage: fw worktree remove <name-or-path> [--force]"
+                echo "  Removes the worktree directory (branch is kept). Refuses when the"
+                echo "  branch holds commits absent from every remote unless --force is given"
+                echo "  (logged Tier-2 to .context/working/.gate-bypass-log.yaml)."
+                echo "  Dirty worktrees (T-3102): governance state (.context/**, .tasks/**)"
+                echo "  does NOT block -- it is a non-authoritative fork of master's copy and"
+                echo "  is discarded with a summary line. Uncommitted SOURCE changes are"
+                echo "  refused unconditionally -- --force never discards them."
+                return 0 ;;
+            -*) echo "worktree remove: unknown option: $1" >&2; return 2 ;;
+            *)
+                if [ -z "$target" ]; then target="$1"
+                else echo "worktree remove: unexpected argument: $1" >&2; return 2; fi
+                ;;
+        esac
+        shift
+    done
+
+    if [ -z "$target" ]; then
+        echo "usage: fw worktree remove <name-or-path> [--force]" >&2
+        return 2
+    fi
+
+    git rev-parse --git-dir >/dev/null 2>&1 || {
+        echo "worktree remove: not inside a git repository" >&2; return 1; }
+
+    local _WT_REMOVE_PATH="" _WT_REMOVE_BRANCH=""
+    if ! _wt_remove_resolve "$target"; then
+        echo "worktree remove: no linked worktree matches '$target'" >&2
+        echo "  Run 'fw worktree status' to see registered worktrees." >&2
+        return 1
+    fi
+
+    # T-2831 + T-3102 -- classify uncommitted dirt BEFORE ever attempting `git
+    # worktree remove`. Uncommitted work is invisible to the strand guard below
+    # (it only counts commits), and git's own dirty refusal gives no indication
+    # of value -- exactly the shape that trains --force, and --force (via `git
+    # worktree remove --force`) discards uncommitted content with no warning.
+    #
+    # Two classes, and they get opposite treatment:
+    #   SOURCE      -> refused UNCONDITIONALLY, --force included. --force is the
+    #                  named strand-override, not a content-discard action
+    #                  (T-2831 AC3, preserved verbatim).
+    #   DISCARDABLE -> does NOT block. Two sub-classes, both safe for different
+    #                  reasons: governance state (non-authoritative fork under
+    #                  T-2822 -- master holds the authoritative copy) and
+    #                  vendored/generated/session-local churn (regenerable).
+    #                  Predicate: _wt_is_discardable_dirt, which REUSES gc's
+    #                  _wt_is_ignorable_path rather than restating it.
+    #
+    # Scoping this to governance ALONE (the first cut of T-3102) was measurably
+    # too narrow: all four live worktrees still refused, every one on a dirty
+    # `VERSION`. Refusing on non-work made --force routine on EVERY worktree
+    # (OBS-177), and --force then discarded genuinely unlanded commits.
+    local dirty_summary dirty_rc=0 discard_ok=0
+    dirty_summary="$(_wt_dirty_summary "$_WT_REMOVE_PATH")" || dirty_rc=$?
+
+    if [ "$dirty_rc" = "1" ]; then
+        echo "worktree remove: REFUSED -- uncommitted SOURCE changes in '$_WT_REMOVE_PATH'" >&2
+        echo "$dirty_summary" | sed 's/^/  /' >&2
+        echo "" >&2
+        echo "  This is source, not governance drift -- --force will NOT discard it." >&2
+        echo "  (If instead the branch has unlanded COMMITS, that is a different refusal" >&2
+        echo "   with a different remedy -- push/land the branch. This one is about" >&2
+        echo "   changes you have not committed at all.)" >&2
+        echo "  Review the diff, then either land it or explicitly discard per file:" >&2
+        echo "    git -C $_WT_REMOVE_PATH diff HEAD -- <file>     (inspect)" >&2
+        echo "    git -C $_WT_REMOVE_PATH checkout HEAD -- <file> (discard, per file, on purpose)" >&2
+        return 1
+    fi
+
+    if [ "$dirty_rc" = "2" ]; then
+        # Discardable-only: proceed. The unlanded-commit guard below is a
+        # SEPARATE refusal and still applies -- a worktree whose dirt is all
+        # discardable but whose branch holds unlanded commits must still refuse.
+        # (Confirmed live: after this correction all four worktrees have zero
+        # blocking dirt, and the two strands still refuse on 3 and 1 commits.)
+        discard_ok=1
+    fi
+
+    # T-2825 gotcha: bin/fw runs under `set -euo pipefail` -- `summary="$(cmd)"; rc=$?`
+    # aborts the whole script the instant cmd returns non-zero (a plain assignment
+    # statement is not exempt from errexit). `|| rc=$?` keeps the statement's own
+    # exit status 0 so errexit never fires.
+    local summary rc=0
+    summary="$(_wt_unpushed_summary "$_WT_REMOVE_BRANCH")" || rc=$?
+
+    if [ "$rc" != "0" ] && [ "$force" != "1" ]; then
+        echo "worktree remove: REFUSED -- branch '$_WT_REMOVE_BRANCH' has commits not on any remote" >&2
+        echo "$summary" | sed 's/^/  /' >&2
+        echo "" >&2
+        echo "  Removing this worktree now would strand those commits (no cwd left to push" >&2
+        echo "  from -- origin: T-2428/T-2825, a branch that sat unpushed for 5 weeks this way)." >&2
+        echo "" >&2
+        echo "  Push first:   git -C $_WT_REMOVE_PATH push origin $_WT_REMOVE_BRANCH" >&2
+        echo "  Or override:  fw worktree remove $target --force   (logged Tier-2)" >&2
+        return 1
+    fi
+
+    if [ "$rc" != "0" ] && [ "$force" = "1" ]; then
+        echo "worktree remove: --force override -- proceeding with unpushed commits:" >&2
+        echo "$summary" | sed 's/^/  /' >&2
+        _wt_log_tier2_bypass "$_WT_REMOVE_BRANCH" "$summary"
+    fi
+
+    # Announce the discard only once every guard has passed and removal is
+    # actually about to happen -- printing it at classification time would claim
+    # a discard that the unlanded guard may still refuse.
+    if [ "$discard_ok" = "1" ]; then
+        echo "$dirty_summary"
+    fi
+
+    if [ "$discard_ok" != "1" ] && git worktree remove "$_WT_REMOVE_PATH" 2>/dev/null; then
+        echo "Removed worktree: $_WT_REMOVE_PATH (branch '$_WT_REMOVE_BRANCH' kept)"
+    elif [ "$discard_ok" = "1" ] && git worktree remove --force "$_WT_REMOVE_PATH" 2>/dev/null; then
+        echo "Removed worktree: $_WT_REMOVE_PATH (branch '$_WT_REMOVE_BRANCH' kept)"
+    elif [ "$force" = "1" ] && git worktree remove --force "$_WT_REMOVE_PATH" 2>/dev/null; then
+        echo "Removed worktree --force: $_WT_REMOVE_PATH (branch '$_WT_REMOVE_BRANCH' kept)"
+    else
+        echo "worktree remove: git worktree remove failed (dirty/locked?) -- inspect manually: $_WT_REMOVE_PATH" >&2
+        return 1
+    fi
+    return 0
+}
+
+# _wt_log_tier2_bypass <branch> <summary> — append a Tier-2 entry, same append-only
+# YAML-list-of-blocks convention as lib/inception.sh:_log_file / lib/review.sh.
+_wt_log_tier2_bypass() {
+    local branch="$1" summary="$2"
+    local log_file="${PROJECT_ROOT:-.}/.context/working/.gate-bypass-log.yaml"
+    local ts; ts="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    mkdir -p "$(dirname "$log_file")" 2>/dev/null
+    {
+        echo "- timestamp: '$ts'"
+        echo "  branch: '$branch'"
+        echo "  flag: '--force'"
+        echo "  caller: 'do_worktree_remove'"
+        echo "  reason: 'worktree teardown unpushed-commit guard (G-076, T-2825)'"
+        printf '  summary: %s\n' "$(printf '%s' "$summary" | head -1 | tr -d '\n' | sed "s/'/''/g" | sed "s/^/'/; s/\$/'/")"
+    } >> "$log_file" 2>/dev/null
+}
+
 # ── fw worktree gc (T-100196 slice 2) ────────────────────────────────────────
 # Reclaim landed worktrees + branches. The core problem (T-100199 finding):
 # `git cherry` compares patch-ids, which NEVER match after re-derivation
@@ -336,6 +839,7 @@ _wt_is_ignorable_path() {
 
 # _wt_work_landed <branch> <master_ref>
 # Echoes a reason token; return: 0 = work landed, 1 = unlanded, 2 = undecidable.
+#   0 "merged"                    — every commit on the branch is IN master
 #   0 "no-deliverables"           — branch changed only ignorable paths
 #   0 "all-deliverables-on-master"— every deliverable file byte-identical on master
 #   1 "unlanded:<n>/<total>"      — n deliverable files differ from master
@@ -344,6 +848,31 @@ _wt_work_landed() {
     local branch="$1" master_ref="$2"
     local mb; mb="$(git merge-base "$branch" "$master_ref" 2>/dev/null)" || { echo "no-merge-base"; return 2; }
     [ -n "$mb" ] || { echo "no-merge-base"; return 2; }
+
+    # ANCESTRY FIRST — and it is not an optimisation (T-3117).
+    #
+    # The content comparison below asks "is every file this branch touched
+    # byte-identical on master TODAY?". For a branch whose commits are all
+    # already in master but which is 571 commits BEHIND, the answer is no —
+    # master has since changed those files again — and gc reported
+    # `unlanded:1440/1442` for a branch git itself calls a strict ancestor.
+    # That verdict is not conservative, it is wrong: there is nothing to land,
+    # so nothing can be at risk, and "push before any prune" is advice about
+    # commits that are already pushed.
+    #
+    # Measured: t100196-vendor-fix and t100199-close, both strict ancestors of
+    # origin/master, sat unreclaimable from 6 July because of this — the exact
+    # worktrees whose stale enforcement code produced the duplicate task IDs
+    # R7 was built to stop. The tool that should have removed them was telling
+    # the operator they held unlanded work.
+    #
+    # Ancestry is the stronger statement and needs no heuristic: if every
+    # commit is contained in master, the work landed. Ask that first; fall
+    # through to content comparison only for branches with unique commits,
+    # which is the case it was written for (re-derivation defeats `git cherry`).
+    if git merge-base --is-ancestor "$branch" "$master_ref" 2>/dev/null; then
+        echo "merged"; return 0
+    fi
 
     local -a deliverables=()
     local f
@@ -392,7 +921,7 @@ do_worktree_gc() {
     done
 
     git rev-parse --git-dir >/dev/null 2>&1 || { echo "ERROR: not in a git repository" >&2; return 4; }
-    local master_ref; master_ref="$(_wt_master_ref)" || { echo "ERROR: no master/main ref found" >&2; return 4; }
+    local master_ref; master_ref="$(_wt_dev_ref)" || { echo "ERROR: no trunk ref (dev branch, master or main) found" >&2; return 4; }
 
     local -a _WT_PATH _WT_HEAD _WT_BRANCH
     _wt_parse
@@ -408,7 +937,7 @@ do_worktree_gc() {
     for i in "${!_WT_PATH[@]}"; do
         [ "$i" = "0" ] && continue
         wtpath="${_WT_PATH[$i]}"; br="${_WT_BRANCH[$i]}"
-        case "$br" in master|main|"(detached)") continue ;; esac
+        case "$br" in master|main|"${FW_DEV_BRANCH:-bleeding-edge}"|"(detached)") continue ;; esac
         if reason="$(_wt_work_landed "refs/heads/$br" "$master_ref")"; then rc=0; else rc=$?; fi
         has_remote=no
         git rev-parse --verify --quiet "refs/remotes/origin/$br" >/dev/null 2>&1 && has_remote=yes
@@ -425,7 +954,7 @@ do_worktree_gc() {
     local listed
     while IFS= read -r br; do
         [ -z "$br" ] && continue
-        case "$br" in master|main) continue ;; esac
+        case "$br" in master|main|"${FW_DEV_BRANCH:-bleeding-edge}") continue ;; esac
         listed=0
         for i in "${!_WT_BRANCH[@]}"; do [ "${_WT_BRANCH[$i]}" = "$br" ] && listed=1 && break; done
         [ "$listed" = "1" ] && continue

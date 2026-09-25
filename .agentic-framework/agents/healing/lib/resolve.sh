@@ -72,23 +72,29 @@ do_resolve() {
 
     # Add failure pattern to patterns.yaml
     if [ -f "$PATTERNS_FILE" ]; then
-        # Get next FP ID
-        local max_id=$(grep "^  - id: FP-" "$PATTERNS_FILE" | sed 's/.*FP-0*//' | sort -n | tail -1)
+        # Get next FP ID — match any indent (T-2672 / 832 T-295: entries may sit
+        # at column 0; the old '^  - id:' scan was blind to them and re-minted ids)
+        local max_id=$(grep -E "^[[:space:]]*- id: FP-[0-9]+" "$PATTERNS_FILE" | sed 's/.*FP-0*//' | sort -n | tail -1)
         local next_id=$((${max_id:-0} + 1))
         local fp_id=$(printf "FP-%03d" $next_id)
 
         local date=$(date -u +"%Y-%m-%d")
 
+        # Emit at the indent of the last existing entry (default 2-space) — a
+        # fixed-indent block corrupts files whose top-level list sits at column 0
+        local fp_indent=$(grep -E "^[[:space:]]*- id: FP-[0-9]+" "$PATTERNS_FILE" | tail -1 | sed 's/- id:.*//')
+        [ -n "$(grep -E "^[[:space:]]*- id: FP-[0-9]+" "$PATTERNS_FILE" | tail -1)" ] || fp_indent="  "
+
         # Insert new pattern before the success_patterns or comment line
         local temp_file=$(mktemp)
-        awk -v id="$fp_id" -v pattern="$pattern_name" -v task="$task_id" -v date="$date" -v mitigation="$mitigation" '
+        awk -v id="$fp_id" -v pattern="$pattern_name" -v task="$task_id" -v date="$date" -v mitigation="$mitigation" -v ind="$fp_indent" '
             /^success_patterns:/ {
-                print "  - id: " id
-                print "    pattern: \"" pattern "\""
-                print "    description: \"Issue resolved in " task "\""
-                print "    learned_from: " task
-                print "    date_learned: " date
-                print "    mitigation: \"" mitigation "\""
+                print ind "- id: " id
+                print ind "  pattern: \"" pattern "\""
+                print ind "  description: \"Issue resolved in " task "\""
+                print ind "  learned_from: " task
+                print ind "  date_learned: " date
+                print ind "  mitigation: \"" mitigation "\""
                 print ""
                 inserted = 1
             }
@@ -107,30 +113,27 @@ do_resolve() {
     # Add learning to learnings.yaml
     local learnings_file="$CONTEXT_DIR/project/learnings.yaml"
     if [ -f "$learnings_file" ]; then
-        # T-295: match ids at ANY indent (column-0 files were invisible to the
-        # old '^  - id: L-' scan, so every run re-minted L-001), and consider
-        # numeric suffixes only.
+        # Match any indent (T-2672 / 832 T-295): the old '^  - id: L-' scan was
+        # blind to column-0 entries — every run re-minted the same id
         local max_lid=$(grep -E "^[[:space:]]*- id: L-[0-9]+" "$learnings_file" | sed 's/.*L-0*//' | sort -n | tail -1)
         local next_lid=$((${max_lid:-0} + 1))
         local l_id=$(printf "L-%03d" $next_lid)
         local date=$(date -u +"%Y-%m-%d")
 
-        # T-295: append at the file's ACTUAL list indent — a hard-coded 2-space
-        # block under a column-0 top-level sequence is invalid YAML (the T-1599
-        # pre-push gate caught exactly that on 2026-07-29). Detect the indent of
-        # the last existing entry; default to none.
-        local indent=$(grep -E "^[[:space:]]*- id: " "$learnings_file" | tail -1 | sed 's/- id: .*//')
+        # Emit at the indent of the last existing entry (default 2-space) — a
+        # fixed-indent block is invalid YAML when the list sits at column 0
+        local l_indent=$(grep -E "^[[:space:]]*- id: L-[0-9]+" "$learnings_file" | tail -1 | sed 's/- id:.*//')
+        [ -n "$(grep -E "^[[:space:]]*- id: L-[0-9]+" "$learnings_file" | tail -1)" ] || l_indent="  "
 
         # Append learning
-        cat >> "$learnings_file" << EOF
+        sed "s/^\(.\)/${l_indent}\1/" >> "$learnings_file" << EOF
 
-${indent}- id: $l_id
-${indent}  learning: "$mitigation"
-${indent}  source: healing-loop
-${indent}  task: $task_id
-${indent}  date: $date
-${indent}  context: "Resolved issue in $task_id"
-${indent}  application: "Apply when encountering similar $pattern_name issues"
+- id: $l_id
+  learning: "$mitigation"
+  source: healing-loop
+  task: $task_id
+  date: $date
+  context: "Resolved issue in $task_id"
 EOF
 
         echo -e "${GREEN}Learning recorded: $l_id${NC}"

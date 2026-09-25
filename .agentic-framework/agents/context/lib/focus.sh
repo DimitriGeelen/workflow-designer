@@ -5,7 +5,19 @@
 do_focus() {
     ensure_context_dirs
 
-    local focus_file="$CONTEXT_DIR/working/focus.yaml"
+    # T-3038 (OBS-291): under FW_SESSION_SCOPED_FOCUS=1 this resolves to a
+    # session-local focus.<key>.yaml so a dispatched worker cannot overwrite the
+    # parent's task + focus_session stamp and lock it out of its own work.
+    # Unset/0 returns the shared focus.yaml — default behaviour is unchanged.
+    # The reader (check-active-task.sh) calls the SAME helper; keeping one
+    # implementation is what makes producer/consumer parity structural (L-399)
+    # rather than a convention two files are trusted to remember.
+    local focus_file
+    if declare -F fw_focus_file >/dev/null 2>&1; then
+        focus_file=$(fw_focus_file "$PROJECT_ROOT")
+    else
+        focus_file="$CONTEXT_DIR/working/focus.yaml"
+    fi
 
     if [ $# -eq 0 ]; then
         # Show current focus
@@ -31,35 +43,40 @@ do_focus() {
     else
         local task_id="$1"
 
-        # Validate task exists AND is active (T-381).
+        # Validate task exists AND is active (T-2874).
         #
-        # This used to call `find_task_file "$task_id"` UNSCOPED, which resolves
-        # active/ then completed/. The gate that reads this value back requires
-        # active/ specifically (check-active-task.sh, G-013). The writer therefore
-        # accepted a wider set than its reader could use: focusing a completed task
-        # succeeded, and every gated Write/Edit/Bash afterwards was blocked with
-        # "Task <id> is not active". PL-020 class — validating that a value EXISTS
-        # is not validating that its consumer can USE it.
+        # The `active` scope is load-bearing, not defensive. find_task_file's scope
+        # parameter is OPTIONAL with a permissive default: unscoped it resolves active/
+        # and then falls back to completed/. The gate that reads this value back requires
+        # `find_task_file "$CURRENT_TASK" active` (check-active-task.sh:401). Omit the
+        # scope here and the writer's accepted set becomes a strict SUPERSET of the
+        # reader's usable set — every id in the difference writes a state that is
+        # writable but unusable: `fw context focus <completed-id>` exits 0, and then
+        # every gated Write/Edit/Bash dies on "Task X is not active".
         #
-        # Refusing here is consistent with how the framework already treats the
-        # state: T-2054 notes that `--status work-completed` nulls current_task and
-        # moves the file to completed/ precisely so it cannot be re-focused.
+        # T-2054's comment already asserts this state is impossible (--status
+        # work-completed nulls current_task AND moves the file), but nothing enforced it
+        # on the one path that could still write it. A rule stated in a comment on one
+        # side of a seam is not enforced on the other. Origin: 832 rail 461 (their
+        # 8842cedb); both call sites verified in our tree before adopting.
         local task_file=$(find_task_file "$task_id" active)
         if [ -z "$task_file" ]; then
-            local completed_file=$(find_task_file "$task_id" completed)
-            if [ -n "$completed_file" ]; then
-                echo -e "${RED}Task $task_id is completed — cannot focus it.${NC}"
-                echo "  Location: $completed_file"
-                echo ""
-                echo "Focus must name a task in .tasks/active/; the task gate requires it"
-                echo "and would block every Write/Edit/Bash until focus was changed back."
-                echo ""
-                echo "Did you mean:"
-                echo "  fw work-on T-XXX                        (resume an active task)"
-                echo "  fw work-on \"<name>\" --type build        (start new work)"
-                exit 1
+            # Distinguish the two causes. They exit identically but need different
+            # recoveries, and "not found" sends the operator hunting for a typo in an
+            # id that exists.
+            if [ -n "$(find_task_file "$task_id")" ]; then
+                echo -e "${RED}Cannot focus ${task_id}: it is completed, not active.${NC}" >&2
+                echo "" >&2
+                echo "  Focus must name a task the gates can still work under. Setting it to" >&2
+                echo "  a completed id would succeed here and then block every Write/Edit/Bash" >&2
+                echo "  after it, because the gate resolves focus against active/ only." >&2
+                echo "" >&2
+                echo "  To resume this task:    bin/fw work-on ${task_id}" >&2
+                echo "  To start something new: bin/fw work-on \"<name>\" --type build" >&2
+            else
+                echo -e "${RED}Task not found: $task_id${NC}" >&2
+                echo "  No task with that id in .tasks/active/ or .tasks/completed/." >&2
             fi
-            echo -e "${RED}Task not found: $task_id${NC}"
             exit 1
         fi
 

@@ -86,6 +86,32 @@ When done, your final message should be ≤ 5 lines:
   One-sentence summary
 ```
 
+### Never background a job — a worker has no next turn (T-3440)
+
+You are a `claude -p` worker. When your turn ends, your process ends. There is no
+later turn in which a notification can reach you, so a backgrounded job is
+fire-and-forget: its result reaches nobody, and the work that was supposed to
+follow it never happens.
+
+- **NEVER use `run_in_background: true`** — not for a Bash call, not for a Task
+  agent. The rule in §Orchestrator-Side Rules that says to background big agents
+  is for a parent session, not for you.
+- **Run every test, build and long command inline, under `timeout`** — e.g.
+  `timeout 900 bats tests/unit/foo.bats`. Blocking is fine; that is what the
+  timeout is for. Your dispatch timeout is the outer bound.
+- **Finish every unit to its close in the same turn** — the commit, the
+  `bin/fw task update T-XXX --status work-completed`, the push. "The background
+  job will notify me on completion — no need to poll" is the exact sentence that
+  left three tasks in `started-work` on 2026-09-22 (T-3211, T-3431/T-3435,
+  T-3433) with the work done and nobody left alive to close them.
+
+The driver checks this now: on exit 0 with the dispatched task still
+`started-work`, the run.sh post-step writes `close_state: incomplete` into the
+worker's `meta.json`, prints a warning naming the task, and records the outcome
+as incomplete rather than success. `fw termlink result` and `fw termlink status`
+surface it, so an unclosed task is visible to the parent without opening the
+worker directory.
+
 ### Commit the post-transition diff (L-419, T-1985 + T-1951 origin)
 
 If your worker's final action is `bin/fw task update T-XXX --status work-completed`,
@@ -100,6 +126,29 @@ bin/fw task update T-XXX --status work-completed && \
   git add .tasks/active/T-XXX-*.md && \
   FW_SWITCH_FOCUS=1 bin/fw git commit -m "T-XXX: work-completed transition"
 ```
+
+**If you are running inside a linked worktree, this commit will be REFUSED** — and
+correctly so. The task corpus is a registry with global invariants; a worktree holds
+a read-only *replica* of it, and a `.tasks/` commit from a replica is how T-2505,
+T-2506 and T-2428 were each minted twice (T-3110, R7 in
+`docs/design/task-corpus-concurrency-model.md`). The refusal is the gate working, not
+a bug to route around.
+
+Do this instead — stage and commit the corpus delta **at the authority**, which the
+block message names for you:
+
+```bash
+AUTH=$(git rev-parse --path-format=absolute --git-common-dir)/..
+git -C "$AUTH" add .tasks/active/T-XXX-*.md && \
+  FW_SWITCH_FOCUS=1 git -C "$AUTH" commit -m "T-XXX: work-completed transition"
+```
+
+Your *source* commits are unaffected — commit those from the worktree exactly as
+before, then `fw integrate` as normal. Only `.tasks/` is guarded.
+
+`FW_ALLOW_WORKTREE_CORPUS_COMMIT=1` exists as a last resort and writes a Tier-2 entry
+to the bypass log. Reach for the authority-side commit first; a bypass here recreates
+the divergence the gate exists to prevent.
 
 Origin: T-1985 (G-066 prong 2 worker) and T-1951 (G-066 prong 3 worker) both shipped
 clean slice commits, ran the transition, then exited — leaving the frontmatter
@@ -152,8 +201,13 @@ working as designed.
 
 ## Orchestrator-Side Rules
 
-After dispatching agents:
-1. Use `run_in_background: true` for any agent expected to produce >500 tokens
+**Scope: a parent session using the Task tool.** These rules are for the session
+that survives the dispatch and can read a result on a later turn. They do NOT
+apply inside a dispatched `claude -p` worker, which has no later turn — see
+§TermLink Workers → "Never background a job".
+
+After dispatching agents (parent sessions using the Task tool):
+1. Use `run_in_background: true` for any Task-tool agent expected to produce >500 tokens
 2. Read only the final summary from the agent (last 5 lines of output)
 3. If you need details, read the output file the agent wrote — don't ask the agent
 4. NEVER use `TaskOutput` with `block: true` for background agents (returns full JSONL transcript)
@@ -199,3 +253,24 @@ The orchestrator then either re-dispatches with adjusted scope or escalates.
 Any parse error / malformed content / stale flag → write allowed. The disjoint
 write-set declaration (T-2337) is the primary correctness barrier; this is a
 real-time safety supplement.
+
+### Peer consults at the yield point (T-3407, arc-011 slice 5)
+
+The sidecar the M2 note above anticipates now exists (`fw sidecar`, T-3402–T-3407).
+A dispatched worker is addressable by its `--name`: `fw termlink dispatch` sets
+`FW_SIDECAR_AGENT_ID=<name>` in the worker's environment and prepends a short
+consult stanza to its prompt, so nothing here has to be pasted by hand.
+
+**Worker contract.** At each yield point — the same moment you run
+`yield-point.sh check`, and once more before you finish — run `fw sidecar inbox`.
+If it prints a consult, answer it with
+`fw sidecar send --to <from> --conversation <conversation_id> --body '<answer>'`
+and continue. An empty inbox is one cheap command; do not poll in a loop.
+
+**How a consult reaches an interactive session.** Interactive sessions run hooks;
+workers (`--bare`) do not. A `UserPromptSubmit` hook (`fw hook sidecar-inbox`)
+*peeks* the inbox at the start of each human turn and surfaces pending consults as
+context. It never consumes: the consult stays in `fw sidecar inbox` until read.
+
+**Addressing.** Send to an agent id, never to a TermLink identity fingerprint —
+the fingerprint is machine-wide and names a host, not an agent (T-3405).

@@ -17,7 +17,18 @@
 #                                      Tag defaults to the pin's `source_tag`. --dry-run verifies the
 #                                      tag's self-consistency and reports pin-match without installing
 #                                      (works against any historical tag).
+#   fw designer install                Install the pinned build from the VENDORED copy that ships
+#                                      inside .agentic-framework/ — the ONBOARDING path (T-3064).
+#                                      Purely local: no network, same sha256-vs-pin verification
+#                                      and same reject-on-mismatch as `sync --from`.
 #   fw designer url                    Print the served Watchtower URL for the designer
+#   fw designer check-currency         Standalone CURRENCY probe (T-3158): is a newer
+#                                      `designer-v*` tag published at the pin's own
+#                                      `source_origin` than `version:`? Advisory only —
+#                                      always exits 0; prints a WARN/OK/SKIP line. This
+#                                      is the same check `fw doctor` runs inline; reach
+#                                      for this verb to run it in isolation (CI, cron,
+#                                      manual probe) without a full doctor pass.
 #
 # Boundary (T-559): both intake paths handle only frozen published bytes. --from takes a
 # DELIVERED artifact (file_send fallback); --from-tag fetches a frozen annotated tag from
@@ -28,9 +39,11 @@ set -euo pipefail
 PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 # T-2649 (OBS-097): pin is FRAMEWORK-owned (vendored for consumers) —
 # FRAMEWORK_ROOT-first, PROJECT_ROOT fallback for direct invocation.
-PIN_FILE="${FRAMEWORK_ROOT:-$PROJECT_ROOT}/policy/designer-pin.yaml"
+# FW_DESIGNER_PIN_FILE (T-2547 hermetic-test hook, T-3119/T-3158): points every verb in
+# this script at a temp pin copy so bats never mutates the live tracked pin file.
+PIN_FILE="${FW_DESIGNER_PIN_FILE:-${FRAMEWORK_ROOT:-$PROJECT_ROOT}/policy/designer-pin.yaml}"
 
-_c_red=$'\033[0;31m'; _c_grn=$'\033[0;32m'; _c_yel=$'\033[0;33m'; _c_bold=$'\033[1m'; _c_off=$'\033[0m'
+_c_red=$'\033[0;31m'; _c_grn=$'\033[0;32m'; _c_yel=$'\033[0;33m'; _c_cyn=$'\033[0;36m'; _c_bold=$'\033[1m'; _c_off=$'\033[0m'
 
 # Read a top-level scalar from a flat YAML file without a yq dependency.
 # Capture-then-strip (L-387: never `grep | ...` under pipefail on a live producer).
@@ -90,6 +103,13 @@ _install_readonly() {
     local src="$1" vpath
     vpath="$(_vendored_abs)"
     mkdir -p "$(dirname "$vpath")"
+    # T-3064: clear an existing target first. It was installed 0444, and neither
+    # `install` nor `cp` can write over a read-only file, so re-installing the
+    # same version (repairing a corrupted local copy) failed on the fallback too.
+    # AFTER verification, never before: the caller has already matched these bytes
+    # against the pin, so this only ever removes a file about to be replaced by a
+    # verified one.
+    rm -f "$vpath" 2>/dev/null || true
     # install read-only (AC5): the vendored copy is never edited in place.
     install -m 0444 "$src" "$vpath" 2>/dev/null || { cp -f "$src" "$vpath" && chmod 0444 "$vpath"; }
     echo "${_c_grn}✓ vendored${_c_off} $(_pin_get version) → ${vpath#"$PROJECT_ROOT"/} (sha256 verified, read-only)"
@@ -128,6 +148,57 @@ do_sync() {
         return 1
     fi
     _install_readonly "$src"
+}
+
+# T-3064 (A2/A4/A5): install the pinned build from the VENDORED copy — the path
+# onboarding takes. `fw init` calls this against a freshly vendored consumer, so
+# it is what decides whether a newly-onboarded project has a designer or a pin
+# naming a file that was never delivered.
+#
+# Reads FRAMEWORK_ROOT (the vendored .agentic-framework/ in a consumer), writes
+# PROJECT_ROOT — the two are the SAME directory only in the framework repo, where
+# the already-installed branch below returns first.
+#
+# A3 — verification is not re-implemented here. Once the source file is located,
+# this delegates to `do_sync --from`, so the sha256-vs-pin comparison and the
+# refusal on mismatch are literally the same lines the delivered-artifact path
+# has always run. A new call path cannot weaken a check it does not own.
+#
+# A4 — no network, ever. The bytes are already on disk because `fw vendor` put
+# them there; `--from-tag` (which does reach 832's internal OneDev) stays the
+# framework-repo intake verb and is NOT reachable from onboarding. So there is no
+# remote to hang on, and the absent-source case below exits NON-ZERO with a named
+# cause rather than returning success over a project with no designer.
+#
+# Exit codes: 0 installed or already present · 1 sha256 mismatch (refused)
+#             3 pin incomplete · 5 no vendored build to install from
+do_install() {
+    local rel vpath src expected
+    rel="$(_pin_get vendored_path)" || rel=""
+    [ -n "$rel" ] || { echo "${_c_red}pin has no vendored_path — cannot install${_c_off}" >&2; return 3; }
+    expected="$(_pin_get sha256)" || expected=""
+    [ -n "$expected" ] || { echo "${_c_red}pin has no sha256 — refusing to install an unverifiable build${_c_off}" >&2; return 3; }
+    vpath="$PROJECT_ROOT/$rel"
+
+    if [ -f "$vpath" ] && [ "$(_sha256 "$vpath")" = "$expected" ]; then
+        echo "${_c_grn}✓ designer already installed${_c_off} $(_pin_get version) → ${rel} (sha256 matches pin)"
+        return 0
+    fi
+
+    src="${FRAMEWORK_ROOT:-$PROJECT_ROOT}/$rel"
+    if [ ! -f "$src" ]; then
+        # LOUD and specific. The failure this whole task exists to close was a
+        # quiet one — a check that read as inapplicable — so the absent-source
+        # case names the file, the reason, and the verb that fixes it.
+        echo "${_c_yel}designer NOT installed${_c_off} — the pin names ${rel}, but no vendored build is present at:" >&2
+        echo "  ${src}" >&2
+        echo "  → this framework copy was vendored before the designer shipped with it." >&2
+        echo "  → refresh it (fw upgrade), or in the framework repo: fw designer sync --from-tag" >&2
+        return 5
+    fi
+
+    # Same verification path as the delivered-artifact flow (A3).
+    do_sync --from "$src"
 }
 
 # Pull-at-tag intake (T-247/D-335, T-2616). Fetch artifact + MANIFEST at the
@@ -221,6 +292,78 @@ do_url() {
     base="$("$PROJECT_ROOT/bin/fw" watchtower url 2>/dev/null || true)"
     [ -n "$base" ] || base="http://localhost:3000"
     printf '%s/designer\n' "$base"
+}
+
+# Compare two dotted version strings as INTEGER TUPLES — never as strings (T-3158
+# AC-1/AC-4, PL-021: lexical sort ranks "0.9.0" above "0.10.0"/"0.11.0", which is
+# exactly backwards). Returns 0 (true) if $1 > $2, 1 otherwise (including equal).
+# Missing trailing components pad as 0 ("1.2" vs "1.2.0" compares equal).
+_version_gt() {
+    local -a a b
+    IFS='.' read -r -a a <<< "$1"
+    IFS='.' read -r -a b <<< "$2"
+    local n=${#a[@]} i ai bi
+    [ ${#b[@]} -gt "$n" ] && n=${#b[@]}
+    for ((i = 0; i < n; i++)); do
+        ai="${a[i]:-0}"; ai="${ai//[^0-9]/}"; ai="${ai:-0}"
+        bi="${b[i]:-0}"; bi="${bi//[^0-9]/}"; bi="${bi:-0}"
+        if ((10#$ai > 10#$bi)); then return 0; fi
+        if ((10#$ai < 10#$bi)); then return 1; fi
+    done
+    return 1
+}
+
+# fw designer check-currency (T-3158) — standalone CURRENCY probe.
+#
+# Sibling of, but distinct from, `do_status`'s EXPOSURE check (does the vendored
+# build's sha256 match the pin). This asks CURRENCY: is `version:` still the newest
+# `designer-v*` tag the pin's own `source_origin:` publishes? Both green is required —
+# designer-v0.9.0 through v0.11.0 sat unconsumed for three releases with EXPOSURE
+# green throughout, because nothing asked this question (T-3119 origin).
+#
+# Advisory only: ALWAYS exits 0, regardless of WARN/OK/SKIP. An advisory that can
+# fail a caller's gate gets disabled the first time it is inconvenient, and then it
+# protects nothing (001-CashWeb's rationale for their `scripts/check-designer-
+# currency.py`, adopted verbatim here — no such file was found on this rail at
+# authoring time, so this is an independent implementation of the same contract,
+# not a port; attribution stays owed if 001-CashWeb's file is ever handed over).
+#
+# `fw doctor` calls this verb (rather than duplicating the probe inline) so there is
+# exactly one implementation; this verb is also directly reachable for CI/cron/manual
+# use without a full doctor pass. Network call is bounded (`timeout 10`) and refuses
+# to prompt for credentials, so an unreachable/slow origin cannot hang the caller.
+do_check_currency() {
+    local ver origin ls latest="" newest v line
+    ver="$(_pin_get version)" || ver=""
+    origin="$(_pin_get source_origin)" || origin=""
+    if [ -z "$ver" ] || [ -z "$origin" ]; then
+        echo -e "${_c_cyn}SKIP${_c_off}  designer pin currency not checkable (pin has no version/source_origin)"
+        return 0
+    fi
+    if ls=$(GIT_TERMINAL_PROMPT=0 GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5" timeout 10 git ls-remote --tags "$origin" 'designer-v*' 2>/dev/null); then
+        while IFS= read -r line; do
+            [ -n "$line" ] || continue
+            v="${line#designer-v}"
+            if [ -z "$latest" ] || _version_gt "$v" "$latest"; then
+                latest="$v"
+            fi
+        done <<< "$(printf '%s\n' "$ls" | sed -e 's|.*refs/tags/||' -e 's|\^{}$||' | grep '^designer-v' || true)"
+        if [ -z "$latest" ]; then
+            echo -e "${_c_cyn}SKIP${_c_off}  designer pin currency unknown — origin publishes no designer-v* tags"
+            echo -e "         origin: $origin"
+        elif [ "$latest" != "$ver" ] && _version_gt "$latest" "$ver"; then
+            echo -e "${_c_yel}WARN${_c_off}  designer pin is behind its origin — pinned $ver, newest released $latest"
+            echo -e "         tag designer-v$latest at $origin"
+            echo -e "         Run: fw designer sync --from-tag   (re-pin + sha256-verify at the tag)"
+        else
+            echo -e "${_c_grn}OK${_c_off}  designer pin current with origin (newest released $latest)"
+        fi
+    else
+        echo -e "${_c_cyn}SKIP${_c_off}  designer pin currency UNKNOWN — could not reach origin $origin"
+        echo -e "         This is not 'current': the origin's newest release was never read."
+        echo -e "         Set FW_SKIP_DESIGNER_CURRENCY=1 to skip this probe on offline runs."
+    fi
+    return 0
 }
 
 # T-2623: draft mode — cheap iteration tier. Convention: map id prefix `draft-`
@@ -332,10 +475,12 @@ case "$cmd" in
     status)  do_status "$@" ;;
     path)    do_path "$@" ;;
     sync)    do_sync "$@" ;;
+    install) do_install "$@" ;;
     url)     do_url "$@" ;;
     draft)   do_draft "$@" ;;
+    check-currency) do_check_currency "$@" ;;
     -h|--help|help)
-        sed -n '2,25p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+        sed -n '2,36p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
         ;;
-    *) echo "unknown verb: $cmd (try: status|path|sync|url|draft)" >&2; exit 2 ;;
+    *) echo "unknown verb: $cmd (try: status|path|sync|install|url|draft)" >&2; exit 2 ;;
 esac

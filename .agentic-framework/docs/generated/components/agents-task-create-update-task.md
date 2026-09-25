@@ -16,7 +16,7 @@ Usage:
 ./agents/task-create/update-task.sh T-XXX --owner claude-code
 ./agents/task-create/update-task.sh T-XXX --status blocked --reason "Waiting on API key"
 
-## Dependencies (14)
+## Dependencies (18)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -34,8 +34,12 @@ Usage:
 | [render_surface](/docs/generated/lib-render_surface) | calls | TODO: describe what this component does |
 | [bvp-estimator](/docs/generated/agents-termlink-bvp-estimator-bvp-estimator) | calls | TODO: describe what this component does |
 | [inception_decisions](/docs/generated/lib-inception_decisions) | calls | TODO: describe what this component does |
+| [fw](/docs/generated/bin-fw) | calls | Single entry point for all framework operations. Reads .framework.yaml from the project directory to resolve FRAMEWORK_ROOT, then routes commands to the appropriate agent. Supports both in-repo and shared tooling modes. |
+| [verification-port](/docs/generated/lib-verification-port) | calls | TODO: describe what this component does |
+| [verification-verdict](/docs/generated/lib-verification-verdict) | calls | TODO: describe what this component does |
+| [continuous-mode](/docs/generated/lib-continuous-mode) | calls | TODO: describe what this component does |
 
-## Used By (29)
+## Used By (50)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -68,6 +72,27 @@ Usage:
 | [disposition_gate](/docs/generated/tests-unit-disposition_gate) | tests_by | TODO: describe what this component does |
 | [test_update_task_horizon_null_reclose](/docs/generated/tests-unit-test_update_task_horizon_null_reclose) | called_by | TODO: describe what this component does |
 | [test_update_task_horizon_null_reclose](/docs/generated/tests-unit-test_update_task_horizon_null_reclose) | tests_by | TODO: describe what this component does |
+| [recommendation_gate_build_partial](/docs/generated/tests-unit-recommendation_gate_build_partial) | called_by | TODO: describe what this component does |
+| [recommendation_gate_build_partial](/docs/generated/tests-unit-recommendation_gate_build_partial) | tests_by | TODO: describe what this component does |
+| [render_surface_review_state_dup_human](/docs/generated/tests-unit-render_surface_review_state_dup_human) | tests_by | TODO: describe what this component does |
+| [ac_structure_close_gate](/docs/generated/tests-unit-ac_structure_close_gate) | called_by | TODO: describe what this component does |
+| [ac_structure_close_gate](/docs/generated/tests-unit-ac_structure_close_gate) | tests_by | TODO: describe what this component does |
+| [t2921_verification_comment_strip](/docs/generated/tests-unit-t2921_verification_comment_strip) | called_by | TODO: describe what this component does |
+| [t2921_verification_comment_strip](/docs/generated/tests-unit-t2921_verification_comment_strip) | tests_by | TODO: describe what this component does |
+| [t2924_update_task_owner_gate](/docs/generated/tests-unit-t2924_update_task_owner_gate) | called_by | TODO: describe what this component does |
+| [t2924_update_task_owner_gate](/docs/generated/tests-unit-t2924_update_task_owner_gate) | tests_by | TODO: describe what this component does |
+| [t2991_verification_preflight](/docs/generated/tests-unit-t2991_verification_preflight) | called_by | TODO: describe what this component does |
+| [t2991_verification_preflight](/docs/generated/tests-unit-t2991_verification_preflight) | tests_by | TODO: describe what this component does |
+| [t3030_two_writer_guard](/docs/generated/tests-unit-t3030_two_writer_guard) | tests_by | TODO: describe what this component does |
+| [update_task_orphan_guard](/docs/generated/tests-unit-update_task_orphan_guard) | called_by | TODO: describe what this component does |
+| [update_task_orphan_guard](/docs/generated/tests-unit-update_task_orphan_guard) | tests_by | TODO: describe what this component does |
+| [verification_pipe_buffer](/docs/generated/tests-unit-verification_pipe_buffer) | tests_by | TODO: describe what this component does |
+| [t3232_verification_extractor_failure](/docs/generated/tests-unit-t3232_verification_extractor_failure) | tests_by | TODO: describe what this component does |
+| [t3235_archived_horizon_invariant](/docs/generated/tests-unit-t3235_archived_horizon_invariant) | tests_by | Pins that a task file under .tasks/completed/ carries horizon: null whichever branch archived it. Two branches move a task there and their entry conditions are exact complements, so the null-ing written at the first site (T-2163, widened T-2300 after eight CTL-030 instances) could never reach the partial-complete recheck branch. The sharp end is fw task archive-eligible, which re-invokes --status work-completed and therefore drives exclusively through the branch that was unfixed. Every leg asserts WHICH branch ran before asserting the outcome, because the obvious fixture leaves status started-work and never enters the recheck branch at all — a rig that checks only the outcome goes green against the wrong path. A control pins the deliberate case the fix must NOT break: a partial-complete that stays in active/ keeps its stored horizon, which is why the post-condition keys on location, not status. The mutation control removes the post-condition from a live-derived copy and needs a symlink farm, since update-task.sh derives FRAMEWORK_ROOT from its own location and a dead subject reads exactly like a regressed one. Reported by peer 832-Workflow-designer (their T-654 BUG 1); confirmed in-tree first. |
+| [t3219_verification_count_reconciliation](/docs/generated/tests-unit-t3219_verification_count_reconciliation) | tests_by | Pins the P-011 verification gate against unreconciled counts: a stdin-reading verification command must not swallow the rest of the block, and pass+fail must equal total or the close is refused. Runs mutated copies of update-task.sh from a symlink farm because FRAMEWORK_ROOT is derived from script location. |
+| [t3220_verification_gate_exits](/docs/generated/tests-unit-t3220_verification_gate_exits) | tests_by | Pins that every failure path in run_verification_commands exits rather than returns, and that the choice does not depend on set -euo pipefail 1700 lines away. Four measured cells (exit/return x errexit present/absent) isolate the dependency; the two control cells stop the suite passing against anything. |
+| [t3235_archived_horizon_invariant](/docs/generated/tests-unit-t3235_archived_horizon_invariant) | called_by | Pins that a task file under .tasks/completed/ carries horizon: null whichever branch archived it. Two branches move a task there and their entry conditions are exact complements, so the null-ing written at the first site (T-2163, widened T-2300 after eight CTL-030 instances) could never reach the partial-complete recheck branch. The sharp end is fw task archive-eligible, which re-invokes --status work-completed and therefore drives exclusively through the branch that was unfixed. Every leg asserts WHICH branch ran before asserting the outcome, because the obvious fixture leaves status started-work and never enters the recheck branch at all — a rig that checks only the outcome goes green against the wrong path. A control pins the deliberate case the fix must NOT break: a partial-complete that stays in active/ keeps its stored horizon, which is why the post-condition keys on location, not status. The mutation control removes the post-condition from a live-derived copy and needs a symlink farm, since update-task.sh derives FRAMEWORK_ROOT from its own location and a dead subject reads exactly like a regressed one. Reported by peer 832-Workflow-designer (their T-654 BUG 1); confirmed in-tree first. |
+| [audit-yaml-validator](/docs/generated/audit-yaml-validator) | called_by | Validate all project YAML files parse correctly. Part of the audit structure section. Added as regression test after T-206 silent corruption. |
 
 ## Documentation
 

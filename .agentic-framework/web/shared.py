@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, TypeVar
 
-from markupsafe import Markup, escape
 import yaml
 from flask import render_template, request
 
@@ -177,6 +176,10 @@ NAV_GROUPS = [
             ("Quality",       "quality.quality_gate",                  None),
             ("Discoveries",   "discoveries_bp.discoveries_dashboard",  None),
             ("Escalation Drift", "escalation.escalation_drift",        None),
+            # T-1719 A4: recall-substrate instrument panel. Filed under Health
+            # rather than Architecture because the question it answers is "is
+            # this working right now", not "how is this put together".
+            ("Embeddings",    "embeddings.embeddings_panel",           None),
         ]),
         ("Operations", [
             ("Metrics",       "metrics.project_metrics",               None),
@@ -425,6 +428,21 @@ def load_scan() -> dict | None:
     return None
 
 
+# T-2774: libyaml-backed loader when the C extension is compiled in, pure-Python
+# SafeLoader otherwise. `getattr` rather than try/import because PyYAML always
+# exposes the name-or-nothing; a wheel built without libyaml simply lacks it, and
+# the framework must not require a C toolchain (Directive 4, portability).
+#
+# Measured on this repo's 2,761-task corpus: 9.820s -> 1.115s (8.8x). The parse
+# is byte-for-byte equivalent — all 2,761 frontmatter blocks were loaded under
+# both loaders and compared by repr, 0 differing files. That check mattered:
+# L-495 has us on record for PyYAML mangling unquoted ISO-8601 Z timestamps, and
+# the two loaders resolve implicit types through different code paths, so
+# "faster" had to be shown to also mean "same". tests/unit/test_frontmatter_loader_equivalence.py
+# pins it against the live corpus so a PyYAML upgrade cannot drift them apart silently.
+_YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+
 def parse_frontmatter(content):
     """Parse YAML frontmatter from a markdown file.
 
@@ -435,7 +453,7 @@ def parse_frontmatter(content):
     if not fm_match:
         return {}, content
     try:
-        fm = yaml.safe_load(fm_match.group(1))
+        fm = yaml.load(fm_match.group(1), Loader=_YAML_LOADER)
     except yaml.YAMLError:
         return {}, content
     if not isinstance(fm, dict):
@@ -609,12 +627,18 @@ def _build_artefact_path_re():
     root_files = "|".join(re_mod.escape(f) for f in sorted(ROOT_FILES))
     pattern = (
         # Three guards to keep idempotent and avoid wrapping an already-linked path:
+        # T-3368 removed three lookbehinds that used to sit here:
         #   (?<!href=")  — path is not the href target of an existing <a>
         #   (?<!/file/)  — path is not the suffix of an already-built /file/<...> URL
-        #   (?<!">)      — path is not the link text immediately following an anchor's closing `">`
-        r'(?<!href=")'
-        r'(?<!/file/)'
-        r'(?<!">)'
+        #   (?<!">)      — path is not the link text following an anchor's closing `">`
+        # All three were asking "am I inside a tag?", which a lookbehind cannot
+        # answer: it tests a fixed string at a fixed offset, and tag context is
+        # unbounded. They are subsumed by the tag/text partitioning in
+        # _auto_link_files, which answers the question directly. Keeping them
+        # would not be merely redundant — `(?<!">)` also suppressed a LEGITIMATE
+        # link whenever text followed any `">`-terminated tag (`<img src="x.png">
+        # web/shared.py` linkified nothing), so they cost real false negatives
+        # while providing coverage that was never complete.
         r'(`?)'
         r'('
             # Branch 1: prefix + path-body + extension (existing T-1722 shape).
@@ -630,6 +654,25 @@ def _build_artefact_path_re():
 
 
 _ARTEFACT_PATH_RE = _build_artefact_path_re()
+
+# T-3368: tag/text partitioning for _auto_link_files.
+#
+# The capturing group is deliberate — `re.split` with a capturing pattern keeps
+# the delimiters, so the result alternates text, tag, text, tag, …, text. Even
+# indices are always text and odd indices are always tags, which is what lets the
+# loop below rewrite one and never the other.
+#
+# `<[^>]*>` is not a general HTML parser and is not trying to be. It is exactly
+# as strict as the producer: this function only ever sees output from the
+# repo's own Markdown renderer with safe_mode='escape', so a literal `<` or `>`
+# in the source text arrives already escaped as `&lt;`/`&gt;` and cannot be
+# mistaken for a tag. Reaching for html.parser here would buy nothing and would
+# rewrite entities on the way out.
+_TAG_SPLIT_RE = re_mod.compile(r"(<[^>]*>)")
+
+# `<a` must not also match `<abbr`/`<article`, so require a delimiter after it.
+_A_OPEN_RE = re_mod.compile(r"<a(?=[\s/>])", re_mod.IGNORECASE)
+_A_CLOSE_RE = re_mod.compile(r"</a(?=[\s>])", re_mod.IGNORECASE)
 
 
 def _auto_link_files(html: str) -> str:
@@ -657,49 +700,59 @@ def _auto_link_files(html: str) -> str:
             return f'<a href="/file/{path}">{inner}</a>'
         return m.group(0)
 
-    return _ARTEFACT_PATH_RE.sub(_replace, html)
+    # T-3368: substitute in TEXT ONLY — never inside a tag, never inside an <a>.
+    #
+    # This used to be `_ARTEFACT_PATH_RE.sub(_replace, html)` over the whole
+    # rendered string, with three lookbehinds in the pattern standing in for tag
+    # awareness. Lookbehinds cannot do that job, because they test a fixed string
+    # at a fixed offset and the thing they need to know — "am I inside a tag?" —
+    # is unbounded. `(?<!href=")` saw `href="p"` and missed `href="./p"`: T-1551
+    # normalises leading-dot relative paths to `./`, which puts two characters
+    # between the guard and the path, so the six preceding characters read
+    # `ef="./`. The path inside the attribute was rewritten into an anchor and the
+    # result was `<a href="./<a href="/file/p">p</a>">`. Nothing guarded `src=` at
+    # all. A fourth lookbehind would have fixed the reported case and left the
+    # class open, which is exactly how this survived T-1722.
+    #
+    # Splitting on tags is the structural answer, but it is not sufficient alone:
+    # once tags are their own segments, the `(?<!">)` guard that kept link TEXT
+    # from being linkified no longer sees the `">` before it, so `<a …>p</a>`
+    # would nest from the inside instead. Hence the anchor depth counter.
+    parts = _TAG_SPLIT_RE.split(html)
+    anchor_depth = 0
+    for i, seg in enumerate(parts):
+        if i % 2:  # odd indices are the tags themselves — never rewritten
+            if _A_OPEN_RE.match(seg):
+                anchor_depth += 1
+            elif _A_CLOSE_RE.match(seg):
+                # Clamp: malformed markup can close more anchors than it opened,
+                # and a negative depth would silently re-enable rewriting inside
+                # the next real anchor.
+                anchor_depth = max(0, anchor_depth - 1)
+        elif anchor_depth == 0:
+            parts[i] = _ARTEFACT_PATH_RE.sub(_replace, seg)
+    return "".join(parts)
 
 
-def render_markdown_safe(text: str) -> Markup:
+def render_markdown_safe(text: str) -> str:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup, so callers no longer have to remember
-    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
-    was NOT sufficient for the reported symptom: /approvals' AC fields never
-    reach this function, they come from tasks.py's _render_md_inline. The
-    docstring below claims the blueprint-private parser pattern was broken by
-    promoting this helper here; the promotion happened and the private pair
-    survived. Both are now fixed. A contract with two definitions is one
-    definition and one impostor, and the impostor is where the bug lives.
+    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
+    mark returned string `| safe` in templates.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
     private parser pattern called out in the T-1575 RCA.
     """
     if not text:
-        return Markup("")
+        return ""
     try:
         import markdown2
     except ImportError:
-        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
-        # stated three lines up in this docstring — so returning the raw text handed
-        # unescaped, attacker-influenced content straight into the page whenever markdown2
-        # was missing. It was latent only because the import has always succeeded here.
-        # A fallback that silently turns escaping off is the same shape as the rest of this
-        # week's defects: the failure renders as health, and nothing in the output says the
-        # renderer degraded.
-        from markupsafe import escape as _escape
-        # T-606: was str(_escape(text)) — correct only because every caller then
-        # applied `| safe`. Now that this function owns the safety, return the
-        # Markup escape() already produced: the entities stay visible as literal
-        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
-        # escaping; it must not inherit the happy path's trust.
-        return _escape(text)
+        return text  # graceful degradation
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = _BARE_URL_RE_SHARED.sub(lambda m: f"[{m.group(1).rstrip('.,;:!?')}]({m.group(1).rstrip('.,;:!?')})", text)
     html = markdown2.markdown(text, safe_mode="escape").strip()
@@ -714,7 +767,7 @@ def render_markdown_safe(text: str) -> Markup:
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return Markup(html)
+    return html
 
 
 _REC_MARKER_RE = re_mod.compile(
@@ -743,12 +796,26 @@ def _classify_rec_marker(label: str) -> str:
     return "other"
 
 
+# T-3252: matches a verdict token optionally wrapped in its own bold markers
+# (e.g. "**GO** — promote…"), since `_REC_MARKER_RE` only consumes the marker
+# label ("Recommendation:") and leaves any inline emphasis on the value itself
+# in the body span.
+_REC_VERDICT_RE = re_mod.compile(
+    r"\s*\*{0,2}(KEEP-OPEN|NO[-_]GO|CLOSE|GO|DEFER)\b\*{0,2}",
+    re_mod.IGNORECASE,
+)
+
+
 def extract_recommendation(body: str) -> dict:
     """Extract structured fields from a task body's ## Recommendation section.
 
     Returns dict with `verdict` (GO/NO-GO/DEFER/'?'), `rationale` (str), `evidence`
-    (str — concatenation of all Evidence-* sub-blocks), and `raw` (full section
-    text after HTML-comment strip). All keys always present.
+    (str — concatenation of all Evidence-* sub-blocks), `verdict_note` (str — any
+    prose trailing the verdict token on the Recommendation line itself), `other`
+    (str — everything else the tokeniser found: text before the first bold marker,
+    spans under a marker `_classify_rec_marker` doesn't recognise, and a
+    Recommendation span whose value didn't match a known verdict token), and `raw`
+    (full section text after HTML-comment strip). All keys always present.
 
     Tokenises the section by bold markers (`**Recommendation:**`, `**Rationale:**`,
     `**Evidence — closed (7):**`, `**Captured learning:** ...`) and buckets each
@@ -764,8 +831,16 @@ def extract_recommendation(body: str) -> dict:
     closed (7):**` and similar real-world labels, dumping evidence + captured
     learning back into the rationale block. This second implementation replaces
     the alternation with a generic marker tokenizer.
+
+    T-3252: that tokenizer then silently discarded every span it couldn't name
+    (`other`, `captured_learning`), the text before the first marker, and any
+    prose trailing the verdict token on the Recommendation line — measured at
+    602/1058 cards on this repo's own corpus, 3401 dropped fragments
+    (`docs/reports/T-3252-recommendation-text-loss.md`). Nothing is dropped now:
+    every span that isn't rationale/evidence/verdict lands in `other` instead,
+    with its author-written label preserved where it had one.
     """
-    out = {"verdict": "?", "rationale": "", "evidence": "", "raw": ""}
+    out = {"verdict": "?", "rationale": "", "evidence": "", "other": "", "verdict_note": "", "raw": ""}
     if not body:
         return out
     m = re_mod.search(r"^## Recommendation\s*$(.*?)(?=^#{2,} |\Z)",
@@ -777,7 +852,15 @@ def extract_recommendation(body: str) -> dict:
 
     # Walk all bold markers and slice the section into labeled spans.
     matches = list(_REC_MARKER_RE.finditer(section))
-    buckets: dict[str, list[str]] = {"rationale": [], "evidence": []}
+    buckets: dict[str, list[str]] = {"rationale": [], "evidence": [], "other": []}
+
+    # T-3252 shape (a): text before the first marker — never inside any span, so
+    # never bucketed. When there are no markers at all, the whole section is
+    # "before the first marker".
+    preamble = (section[:matches[0].start()] if matches else section).strip()
+    if preamble:
+        buckets["other"].append(preamble)
+
     for idx, mk in enumerate(matches):
         label = mk.group(1)
         bucket = _classify_rec_marker(label)
@@ -788,9 +871,22 @@ def extract_recommendation(body: str) -> dict:
         if bucket == "recommendation":
             # NO_GO underscore form tolerated and normalized to NO-GO (T-1391
             # contract; T-1575's alternation dropped it — T-2581 regression fix).
-            v = re_mod.match(r"\s*(KEEP-OPEN|NO[-_]GO|CLOSE|GO|DEFER)\b", body_span, re_mod.IGNORECASE)
+            # Tolerates the verdict token itself being bold-wrapped (T-3252).
+            v = _REC_VERDICT_RE.match(body_span)
             if v:
                 out["verdict"] = v.group(1).upper().replace("_", "-")
+                # T-3252 shape (b): prose after the verdict token on the same
+                # line (e.g. "GO — demand has not materialised") — previously
+                # discarded outright. Strip the author's own leading separator
+                # (dash/em-dash) since the renderer supplies its own — otherwise
+                # "GO" + " — " + "— demand…" doubles up.
+                trailing = re_mod.sub(r"^[—–\-]\s*", "", body_span[v.end():].strip())
+                if trailing:
+                    out["verdict_note"] = trailing
+            elif body_span:
+                # Recommendation marker present but no recognised verdict token
+                # (e.g. "SHIP", "DROP") — still real author text, keep it.
+                buckets["other"].append(body_span)
         elif bucket == "rationale":
             buckets["rationale"].append(body_span)
         elif bucket == "evidence":
@@ -803,11 +899,18 @@ def extract_recommendation(body: str) -> dict:
                 buckets["evidence"].append(f"**{heading}**\n\n{body_span}")
             else:
                 buckets["evidence"].append(body_span)
-        # 'captured_learning' and 'other' intentionally dropped — they belong in
-        # neither rationale nor evidence; raw is preserved for full-text needs.
+        else:
+            # T-3252 shape (c): 'captured_learning' and 'other' — previously
+            # dropped along with everything up to the next recognised marker.
+            # Keep the label so a reader can tell an author's own heading from
+            # one the parser understands.
+            if body_span or label.strip():
+                heading = label.strip().rstrip(":").strip()
+                buckets["other"].append(f"**{heading}**\n\n{body_span}" if body_span else f"**{heading}**")
 
     out["rationale"] = "\n\n".join(b for b in buckets["rationale"] if b).strip()
     out["evidence"] = "\n\n".join(b for b in buckets["evidence"] if b).strip()
+    out["other"] = "\n\n".join(b for b in buckets["other"] if b).strip()
     return out
 
 
@@ -842,6 +945,62 @@ def extract_recommendation_state(body: str) -> str:
     return rec["verdict"]
 
 
+def _strip_html_comments(text: str) -> str:
+    """Remove HTML comments, distinguishing a real opener from a quoted one.
+
+    `re.sub(r"<!--.*?-->", "", text, flags=DOTALL)` is wrong on this corpus.
+    Task bodies quote `<!--` inside backticks when they discuss the template, so
+    openers outnumber closers — T-1545 carries four `<!--` and two `-->`. The
+    naive form pairs the third opener with the second closer and swallows ~3.9KB
+    of real content, including a genuine unchecked Human AC.
+
+    The discriminator is position, not balance: a real comment opener starts its
+    line, or closes on the same line. A `<!--` embedded mid-sentence with its
+    closer lines away is prose ABOUT a comment, not a comment.
+
+      1. `<!--` and `-->` on one line     -> inline comment, strip the span.
+      2. `<!--` at column 0 (after ws)    -> block comment, strip to `-->`;
+                                             with no `-->` at all, bound at the
+                                             next `^#` heading so an unterminated
+                                             comment cannot eat later sections.
+      3. anything else                    -> quoted text, leave it alone.
+
+    A removed span that contained a newline leaves one behind. Without that, the
+    text before the opener is joined onto the line after it, and a `### Human`
+    heading that is no longer at column 0 is invisible to every anchor
+    downstream — silent, and indistinguishable from a task with no Human ACs.
+    """
+    out: list[str] = []
+    i = 0
+    while True:
+        s = text.find("<!--", i)
+        if s < 0:
+            out.append(text[i:])
+            break
+        line_start = text.rfind("\n", 0, s) + 1
+        at_line_start = text[line_start:s].strip() == ""
+        close = text.find("-->", s)
+        eol = text.find("\n", s)
+        same_line = close >= 0 and (eol < 0 or close < eol)
+
+        if not same_line and not at_line_start:
+            # Case 3: quoted. Emit it verbatim and continue past the marker.
+            out.append(text[i:s + 4])
+            i = s + 4
+            continue
+
+        out.append(text[i:s])
+        if close < 0:
+            h = re_mod.search(r"^#", text[s:], re_mod.MULTILINE)
+            nxt = s + h.start() if h else len(text)
+        else:
+            nxt = close + 3
+        if "\n" in text[s:nxt]:
+            out.append("\n")
+        i = nxt
+    return "".join(out)
+
+
 def count_unchecked_human_acs(body: str) -> int:
     """Count unchecked `- [ ]` AC lines inside the `### Human` block.
 
@@ -853,9 +1012,14 @@ def count_unchecked_human_acs(body: str) -> int:
     Rules (must stay aligned with `_parse_acceptance_criteria` in tasks.py and
     the inline CLI regex this replaces at bin/fw):
 
-    - Only `- [ ]` lines INSIDE the `### Human` subsection of `## Acceptance Criteria`
-      count. `### Agent` ACs, `## Verification`, and decorative checklists elsewhere
-      are ignored.
+    - Only `- [ ]` lines INSIDE a `### Human` subsection count. `### Agent` ACs,
+      `## Verification`, and decorative checklists elsewhere are ignored.
+    - EVERY `### Human` block counts, wherever it sits, and each is bounded by the
+      next heading of level 1-3. It is deliberately NOT scoped to the
+      `## Acceptance Criteria` block (T-3139): three live tasks carried an
+      intervening `## Status:` / `## Measured Behaviour` heading between the two,
+      which truncated the scope and hid a real operator decision; one carried a
+      SECOND `### Human` block that a single `re.search` never reached.
     - HTML comment blocks (`<!-- ... -->`) are stripped before counting, so the
       `[REVIEW] Voice/tone…` placeholder in the template comment never inflates
       the count (T-1581 fix, also the L-298 cockpit class).
@@ -869,21 +1033,17 @@ def count_unchecked_human_acs(body: str) -> int:
     """
     if not body:
         return 0
-    ac_m = re_mod.search(
-        r"^## Acceptance Criteria\s*$(.*?)(?=^## |\Z)",
-        body, re_mod.MULTILINE | re_mod.DOTALL,
-    )
-    if not ac_m:
-        return 0
-    ac_block = ac_m.group(1)
-    human_m = re_mod.search(
-        r"^### Human\s*$(.*?)(?=^### |\Z)",
-        ac_block, re_mod.MULTILINE | re_mod.DOTALL,
-    )
-    if not human_m:
-        return 0
-    human_text = re_mod.sub(r"<!--.*?-->", "", human_m.group(1), flags=re_mod.DOTALL)
-    return len(re_mod.findall(r"^\s*-\s*\[ \]", human_text, re_mod.MULTILINE))
+    # Strip comments FIRST and over the whole body, then find EVERY `### Human`
+    # block wherever it sits. See T-3139 for why each of those three words is
+    # load-bearing; the docstring above carries the summary.
+    text = _strip_html_comments(body)
+    total = 0
+    for m in re_mod.finditer(
+        r"^### Human\s*$(.*?)(?=^#{1,3} |\Z)",
+        text, re_mod.MULTILINE | re_mod.DOTALL,
+    ):
+        total += len(re_mod.findall(r"^\s*-\s*\[ \]", m.group(1), re_mod.MULTILINE))
+    return total
 
 
 def needs_human_review(body: str) -> bool:
@@ -1084,30 +1244,14 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    r"""Convert T-XXX references to clickable Watchtower links (T-851).
-
-    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
-    Jinja filter in app.py, and a function may only vouch for markup it created
-    itself. Before this, the substitution ran over the RAW string and the whole
-    result was wrapped in Markup(), so every `<` in the source prose was published
-    as a tag. The source is not incidental: timeline narratives are read out of
-    committed handover markdown (blueprints/timeline.py:159), so the text is prose
-    that sessions wrote, and sessions write about HTML. Measured on the live
-    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
-    fragments. Injection-shaped rather than an open door — the input is our own
-    repository — but the ordering is wrong either way, and the fix is one line.
-
-    escape() is applied to the whole input; the anchors are then inserted into
-    already-escaped text, so they are the only markup this function vouches for.
-    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
-    """
+    """Convert T-XXX references to clickable Watchtower links (T-851)."""
     if not text:
         return text
-    return Markup(re_mod.sub(
+    return re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(escape(text)),
-    ))
+        str(text),
+    )
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (
@@ -1169,6 +1313,58 @@ def _check_render_page_fragment_convention(template_name):
         if line.startswith('{% extends "base.html"') or line.startswith("{% extends 'base.html'"):
             raise RuntimeError(_FRAGMENT_CONVENTION_VIOLATION.format(tmpl=template_name))
         return  # convention satisfied (or unrelated content) — done
+
+
+def operator_facing_stderr(text):
+    """T-3280 (G-102 defect B): translate fw gate stderr into operator-facing text.
+
+    Origin: the T-3278 GO incident (2026-09-05) — the disposition gate's refusal
+    was rendered raw to the operator, including its Tier-2 bypass instructions
+    (`--skip-disposition-gate`, `FW_SKIP_DISPOSITION_GATE=1`), the internal
+    `--skip-sovereignty` warning, and `=== Task Update ===` header noise. Gate
+    block messages are written FOR AGENTS (CLAUDE.md requires them to name their
+    bypass mechanisms); the operator is not the audience, and showing a human
+    bypass flags as the remedy normalises Tier-2 bypass for what is actually an
+    authoring gap. T-2219 widened this rendering; this function keeps the width
+    (the reason must stay visible) and fixes the register.
+
+    T-3284: lives here (not in a blueprint) because every Watchtower surface
+    that renders a subprocess's stderr to the operator is this function's
+    audience — inception decide (htmx + redirect paths) and the approvals
+    decide/batch-complete endpoints all call it. One implementation, N call
+    sites: parity by construction (L-399, same move as T-3279's predicate
+    extraction into lib/inception-readiness.sh).
+
+    Drops instruction/noise lines, keeps substantive reason lines. The
+    drop-patterns are one list so a [REVIEW] finding can extend it in one place.
+    """
+    import re as _re
+    if not text:
+        return ""
+    drop_patterns = [
+        r"--skip-[a-z-]+",                # any Tier-2 skip-flag instruction line
+        r"FW_[A-Z_]+=1",                  # env-var bypass instruction line
+        r"^\s*Options:\s*$",              # the bypass-options block header
+        r"^\s*\d+\.\s",                   # numbered option lines under it
+        r"logged Tier-2",                  # bypass-logging notes
+        r"=== Task Update ===",            # update-task.sh banner noise
+        r"^Task:\s|^File:\s",              # update-task.sh header lines
+        r"WARNING: Completing human-owned task",  # internal sovereignty note
+    ]
+    kept = []
+    for line in text.splitlines():
+        if any(_re.search(p, line) for p in drop_patterns):
+            continue
+        kept.append(line)
+    # collapse runs of blank lines left by the drops
+    out, prev_blank = [], False
+    for line in kept:
+        blank = not line.strip()
+        if blank and prev_blank:
+            continue
+        out.append(line)
+        prev_blank = blank
+    return "\n".join(out).strip()
 
 
 def render_page(template_name, **context):

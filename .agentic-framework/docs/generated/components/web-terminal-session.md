@@ -8,21 +8,23 @@
 
 ### Framework Reference
 
-When you need to propose a new free driver, an arc-scoped driver, or sharpen an existing one, the canonical workflow lives in **`policy/prompts/`** — NOT inlined into this CLAUDE.md.
-
-| Bundle file | When to reach for it |
-|-------------|----------------------|
-| `policy/prompts/bvp-driver-session.md` | **Always start here.** Keystone. Three workflows (A=batch-propose, B=discover+sharpen, C=sharpen named topic). Entry/exit conditions, outputs, init refusal, degraded mode. |
-| `policy/prompts/artefact-template.md` | When writing the research artefact (`docs/reports/T-XXXX-bvp-driver-*.md`). YAM
+**Async, parallel, or observable framework work runs through TermLink
+(`claude-fw --termlink`), not through Claude Code's own background-job
+daemon.** This is a distinct layer from the Sub-Agent Dispatch Protocol and
+the Built-in Task Tool Ban above: those govern dispatch *inside* a running
+conversation (Task-tool agents, TermLink workers); this governs how the
+*session itself* was launched, before any conversation starts.
 
 *(truncated — see CLAUDE.md for full section)*
 
-## Used By (2)
+## Used By (4)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
 | [terminal](/docs/generated/web-blueprints-terminal) | called_by | Flask blueprint providing the interactive web terminal API with session creation, I/O, resize, and profile-based configuration |
 | [registry](/docs/generated/web-terminal-registry) | called_by | Provides CRUD operations and YAML file persistence for terminal session records stored in .context/sessions/ |
+| [terminal](/docs/generated/web-blueprints-terminal) | uses_by | Flask blueprint providing the interactive web terminal API with session creation, I/O, resize, and profile-based configuration |
+| [registry](/docs/generated/web-terminal-registry) | uses_by | Provides CRUD operations and YAML file persistence for terminal session records stored in .context/sessions/ |
 
 ## Related
 

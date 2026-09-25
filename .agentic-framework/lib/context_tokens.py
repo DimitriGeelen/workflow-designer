@@ -1,202 +1,144 @@
 #!/usr/bin/env python3
-"""Single source of truth for "how big is this session's context right now?".
+"""Shared "how many tokens does THIS conversation currently hold" scan.
 
-Usage:
-    python3 context_tokens.py <transcript.jsonl> [<session-start-ts-file>]
+Used by both agents/context/budget-gate.sh (PreToolUse gate) and
+agents/context/checkpoint.sh (PostToolUse checkpoint) — T-2885. Both scripts
+previously carried their own hand-copied inline scan; they drifted
+(checkpoint.sh never received the T-2322 compact_boundary reset), and both
+scoped by RAW TRANSCRIPT POSITION — "last usage entry wins". Four models
+write usage entries into one transcript, and position tells you WHEN an
+entry was written, not WHOSE conversation it belongs to. A foreign-model
+cache-priming call landing after our own last turn (832 T-401) reports its
+own 300k+ prompt as ours.
 
-Prints one integer (token count) to stdout. Prints 0 when it cannot measure.
+Fix: scope to the model with the MOST usage entries since the last
+compact_boundary (the dominant writer — normal conversational turns from our
+own model vastly outnumber a foreign cache-priming call), not to the newest
+entry's model. Below two in-scope entries, return 0 rather than guess: a
+session that young cannot have filled its context, and a lone foreign entry
+right after a boundary is exactly the poisoning shape this replaces.
 
-WHY THIS FILE EXISTS (T-401)
-----------------------------
-This algorithm previously existed as two hand-copied inline scripts, in
-budget-gate.sh (PreToolUse, the BLOCKING gauge) and checkpoint.sh (PostToolUse,
-the warning gauge). They drifted: budget-gate gained the T-2322 compact_boundary
-reset and checkpoint never did. Two copies of one algorithm, one of them silently
-a version behind, both feeding the same enforcement decision.
-
-Cost accounting (lib/costs.sh, web/blueprints/costs.py) sums the SAME three usage
-fields and must NOT be routed through here. For cost, a cache-priming call on
-another model genuinely did cost money and belongs in the total. For context size
-it is noise. Same arithmetic, opposite correct answer — do not "unify" them.
-
-WHAT WENT WRONG (T-401)
------------------------
-On the first tool call of a post-compact session, the gauge scored 341880 tokens
-(critical -> BLOCK) for a session whose real size was 84629 (~28%). The gate
-refused all work in a session with ~72% headroom, immediately after a /compact
-run to reclaim exactly that context.
-
-The poisoning entry, verbatim from the transcript:
-
-    timestamp   2026-08-09T07:26:21.446Z   (18 min AFTER the compact_boundary)
-    model       claude-opus-4-8            (the session runs claude-opus-5)
-    isSidechain False                      (not a subagent)
-    sessionId   <this session>             (genuinely in our own file)
-    usage       input_tokens=2,
-                cache_creation_input_tokens=322661,
-                cache_read_input_tokens=19217
-    content[0]  ''                         (empty)
-
-input_tokens=2 with a 322k one-hour cache WRITE: a cache-priming call on a
-different model, logged into this session's transcript. Its prompt really was
-341880 tokens, so the arithmetic was never wrong -- the ENTRY SELECTION was.
-That is why the fix is scoping, not a formula tweak.
-
-Three defenses already existed and all three missed it, because all three filter
-by POSITION IN THE LOG and this entry is legitimately positioned:
-  - T-2322 compact_boundary reset  -> entry is 18 min AFTER the boundary
-  - T-1088 .session-start-ts filter-> entry is AFTER session start
-  - <synthetic> model filter       -> entry is a real model, not synthetic
-
-The only thing that separates it from the conversation is MODEL IDENTITY, so
-that is what this file adds. Position tells you when a call happened; it cannot
-tell you whose conversation it belonged to.
+Deliberately NOT shared with lib/costs.sh / web/blueprints/costs.py: those
+sum the SAME three usage fields for COST, where a foreign call genuinely did
+cost money and belongs in the total regardless of whose conversation it was.
+This module answers a different question ("what is in MY context window
+right now") — routing cost through it would silently drop real spend.
 """
-
 import json
-import os
 import sys
 from collections import Counter
 
-# Match the byte window the previous inline implementations used, so this change
-# cannot alter results by widening/narrowing history.
-TAIL_BYTES = 10_000_000
 
-# Below this many conversational entries we refuse to guess (see _pick below).
-MIN_ENTRIES_TO_JUDGE = 2
+def compute_context_tokens(lines, session_start_ts=""):
+    """Return the current context-window token count for THIS conversation.
 
-
-def _iter_entries(path):
-    """Yield parsed JSON objects from the last TAIL_BYTES of the transcript."""
-    try:
-        size = os.path.getsize(path)
-    except OSError:
-        return
-    try:
-        with open(path, "r", errors="replace") as f:
-            if size > TAIL_BYTES:
-                f.seek(size - TAIL_BYTES)
-                f.readline()  # discard the partial line the seek landed inside
-            for line in f:
-                try:
-                    yield json.loads(line)
-                except Exception:
-                    continue
-    except OSError:
-        return
-
-
-def _usage_total(usage):
-    """Full prompt size for one API call.
-
-    Kept identical to the previous inline formula on purpose. Every field here
-    is genuinely part of the prompt that was sent; the bug was never arithmetic.
+    Thin wrapper over compute_context_tokens_detail for the many callers that
+    only want the number. The default stdout of this module is likewise a bare
+    integer — see main().
     """
-    return (
-        usage["input_tokens"]
-        + usage.get("cache_read_input_tokens", 0)
-        + usage.get("cache_creation_input_tokens", 0)
-    )
+    return compute_context_tokens_detail(lines, session_start_ts)[0]
 
 
-def collect(transcript, session_start_ts=""):
-    """Return [(model, tokens)] for candidate entries, newest last."""
-    entries = []
-    for e in _iter_entries(transcript):
-        # T-2322: a compact boundary discards everything before it. The live
-        # context after a compaction starts near zero regardless of history.
+def compute_context_tokens_detail(lines, session_start_ts=""):
+    """Return (tokens, dominant_model) for THIS conversation.
+
+    The dominant model is computed anyway, to scope usage entries (T-2885). It
+    is returned here rather than discarded because the gauges that consume this
+    module apply a CONFIGURED BUDGET CAP (CONTEXT_WINDOW, default 300000) and
+    could not previously say which model the cap was being applied to — the cap's
+    own justifying comment still named a model two releases old. Returned as ""
+    whenever tokens are 0, since a count we refused to trust carries no model
+    we should report either (T-3204).
+
+    `lines` is an iterable of JSONL transcript lines (already position-scoped
+    by the caller, e.g. via `tail -c`). `session_start_ts` (ISO-8601 Z,
+    T-1088) excludes entries from before the current session started — e.g.
+    pre-compact entries `claude -c` carries over in the same JSONL.
+    """
+    entries = []  # (model, token_total) since the last compact_boundary, in order
+    for line in lines:
+        try:
+            e = json.loads(line)
+        except Exception:
+            continue
+
+        # T-2322: a compact_boundary discards everything before it — pre-compact
+        # usage belongs to a conversation that no longer exists in this window.
         if e.get("type") == "system" and e.get("subtype") == "compact_boundary":
             entries = []
             continue
 
-        message = e.get("message") or {}
-        model = message.get("model", "")
-
-        # Claude Code writes <synthetic> entries (0 tokens) around compaction.
+        model = e.get("message", {}).get("model", "")
         if model == "<synthetic>" or model.startswith("<"):
             continue
 
-        # T-1088: `claude -c` continues the same JSONL, so entries from before
-        # this session began are still in the file. ISO-8601 Z sorts lexically.
         if session_start_ts:
-            ts = e.get("timestamp", "")
-            if ts and ts < session_start_ts:
+            entry_ts = e.get("timestamp", "")
+            if entry_ts and entry_ts < session_start_ts:
                 continue
 
-        usage = message.get("usage")
-        if usage and "input_tokens" in usage:
-            entries.append((model, _usage_total(usage)))
-    return entries
+        u = e.get("message", {}).get("usage")
+        if u and "input_tokens" in u:
+            total = (
+                u["input_tokens"]
+                + u.get("cache_read_input_tokens", 0)
+                + u.get("cache_creation_input_tokens", 0)
+            )
+            entries.append((model, total))
 
+    if not entries:
+        return (0, "")
 
-def _pick(entries):
-    """Pick the last entry belonging to THIS session's conversation.
-
-    Scoping rule (T-401): the conversation is whichever model produced the most
-    entries. A foreign call -- cache priming, a background feature, a differently
-    modelled helper -- contributes a handful of entries; the conversation
-    contributes one per turn and always wins on volume.
-
-    Deliberately NOT "the model of the most recent entry": in the incident that
-    motivated this file, the foreign entry WAS the most recent one. A rule that
-    trusts the newest entry to identify the conversation reproduces the bug.
-
-    Sparse-data rule: below MIN_ENTRIES_TO_JUDGE we return 0 rather than guess.
-    This is the load-bearing half of the fix, not a rounding detail. At the
-    measured failure instant (07:36:33Z) the conversation had produced only one
-    or two entries against the foreign one, so frequency alone is a coin-flip
-    exactly when it matters most -- the opening calls of a resumed session.
-
-    Returning 0 there is a deliberate FAIL-OPEN. The cost of a false 'ok' is a
-    few unblocked calls that self-correct on the next read; the cost of a false
-    'critical' is a session that cannot work at all at the very moment it is
-    trying to resume. A session that has produced fewer than two assistant turns
-    since the last boundary cannot plausibly have filled its context, so the
-    fail-open direction is also the physically correct one.
-    """
-    if len(entries) < MIN_ENTRIES_TO_JUDGE:
-        return 0
     counts = Counter(model for model, _ in entries)
-    # Ties: prefer the model whose entry appears latest, so a genuine mid-session
-    # model switch converges to the new model instead of pinning to the old one.
-    best = max(counts, key=lambda m: (counts[m], _last_index(entries, m)))
-    for model, tokens in reversed(entries):
-        if model == best:
-            return tokens
-    return 0
+    dominant_model, _ = counts.most_common(1)[0]
+    in_scope = [total for model, total in entries if model == dominant_model]
+
+    # Fail-open, not fail-guess: too few entries to trust a scope decision.
+    if len(in_scope) < 2:
+        return (0, "")
+
+    return (in_scope[-1], dominant_model)
 
 
-def _last_index(entries, model):
-    for i in range(len(entries) - 1, -1, -1):
-        if entries[i][0] == model:
-            return i
-    return -1
+def main():
+    # Flags are parsed OUT of argv rather than positionally: callers pass the
+    # session-start timestamp as the first argument and it is frequently the
+    # empty string, so a flag must never be mistaken for it.
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    flags = {a for a in sys.argv[1:] if a.startswith("--")}
+    session_start_ts = args[0].strip() if args else ""
 
-
-def context_tokens(transcript, session_start_ts=""):
-    return _pick(collect(transcript, session_start_ts))
-
-
-def main(argv):
-    if len(argv) < 2:
-        print(0)
-        return 0
-    transcript = argv[1]
-    session_start_ts = ""
-    if len(argv) > 2 and argv[2] and os.path.exists(argv[2]):
-        try:
-            with open(argv[2]) as f:
-                session_start_ts = f.read().strip()
-        except OSError:
-            pass
+    # T-3241 (folds in field report 001-CashWeb T-222/G-087): a transcript
+    # containing invalid UTF-8 bytes raises UnicodeDecodeError while iterating
+    # `sys.stdin` for the NEXT line — outside the try/except above, which only
+    # guards json.loads on a line already successfully decoded. Uncaught, that
+    # produced a bare traceback on stderr + empty stdout + exit 1; callers
+    # (budget-gate.sh) already treat "no parseable integer on stdout" as a scan
+    # failure, so catching here just makes that outcome deliberate and quiet
+    # instead of an accidental crash with the same effect.
     try:
-        print(context_tokens(transcript, session_start_ts))
+        tokens, model = compute_context_tokens_detail(sys.stdin, session_start_ts)
     except Exception:
-        # This feeds a gate that runs on EVERY tool call. It must never raise:
-        # a traceback here would either block every tool or blind the gauge.
-        print(0)
-    return 0
+        sys.exit(1)
+
+    # DEFAULT STDOUT IS A BARE INTEGER AND MUST STAY THAT WAY (T-2885/T-3204
+    # pinned contract — tests/unit/t2885_context_tokens_model_scope.bats asserts
+    # "0" verbatim for the under-filled-scope cases). Both gauges capture this
+    # straight into a shell integer; an unconditional extra field would corrupt
+    # CONTEXT_TOKENS in both at once. The model is therefore strictly opt-in
+    # (T-3204) — and doubles, via --with-model, as the T-3241 "was this
+    # confidently measured" signal: model=="" on BOTH give-up branches of
+    # compute_context_tokens_detail (no entries; fewer than 2 dominant-model
+    # entries since the last boundary), and is likewise absent whenever this
+    # process exits via the except above. A confirmed measurement always
+    # carries a non-empty dominant_model. Callers that need to distinguish
+    # "confidently zero" from "could not measure" pass --with-model and check
+    # the model field, not the bare integer.
+    if "--with-model" in flags:
+        print(f"{tokens}\t{model}")
+    else:
+        print(tokens)
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    main()

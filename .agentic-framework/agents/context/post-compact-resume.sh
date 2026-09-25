@@ -39,9 +39,20 @@ except Exception:
 # startup is a loop auto-restart continuation); otherwise no-op. compact/resume
 # are unaffected.
 RESTART_SENTINEL="$PROJECT_ROOT/.context/working/.auto-restart-pending"
+# T-3168: the sentinel also needs a TTL. claude-fw's restart *signal* has carried a
+# 300s one from the start; the sentinel that gates this same path had none, so any
+# leak — a cancelled countdown, a crash between write and relaunch, a machine that
+# went to sleep — steered the next cold start days later. Stale is treated as absent,
+# and removed rather than left to mislead the start after this one too.
+RESTART_SENTINEL_TTL="${FW_RESTART_SENTINEL_TTL:-300}"
 if [ "$SOURCE_TAG" = "startup" ]; then
     if [ -f "$RESTART_SENTINEL" ]; then
-        rm -f "$RESTART_SENTINEL" 2>/dev/null   # one-shot: consume the marker
+        _sentinel_mt=$(stat -c %Y "$RESTART_SENTINEL" 2>/dev/null || echo 0)
+        _sentinel_age=$(( $(date +%s) - _sentinel_mt ))
+        rm -f "$RESTART_SENTINEL" 2>/dev/null    # one-shot either way: consume the marker
+        if [ "$_sentinel_age" -ge "$RESTART_SENTINEL_TTL" ]; then
+            exit 0                               # stale — treat as a cold start
+        fi
     else
         exit 0                                   # cold start — preserve pre-T-2376 no-op
     fi
@@ -76,17 +87,15 @@ done
 # a usage block hasn't landed yet on the first few tool calls). Seeding with
 # ok lets fast path serve the correct initial state for STATUS_MAX_AGE (90s),
 # during which real post-compact usage entries accumulate in the JSONL.
-# T-675: the seed above is a DELIBERATE ASSUMPTION with a ~90s shelf life, not a
-# reading — nothing scanned a transcript to produce it. `"measured": false` says so
-# in the file. The seed's VALUE is unchanged (`level: ok` is exactly what T-1087
-# requires and the fast path still serves it for STATUS_MAX_AGE); the flag only lets
-# an external reader tell an assumption from a measurement once it has outlived its
-# 90 seconds. Measured live: this seed was still being read as an authoritative
-# `{level: ok}` hours after compaction, while the session held 82,719 tokens.
-_PCR_SESSION_ID=$(grep '^session_id:' "$PROJECT_ROOT/.context/working/session.yaml" \
-    2>/dev/null | head -1 | cut -d: -f2 | tr -d '[:space:]') || _PCR_SESSION_ID=""
+# T-3241 (folds in field report 001-CashWeb T-222/G-087): stamp session_id even
+# on this deliberate reset, so a reader (checkpoint.sh budget) can tell this
+# value apart from a stale or foreign-session cache.
+_pcr_session_id=""
+if [ -f "$PROJECT_ROOT/.context/working/session.yaml" ]; then
+    _pcr_session_id=$(grep "^session_id:" "$PROJECT_ROOT/.context/working/session.yaml" 2>/dev/null | cut -d: -f2 | tr -d ' ') || true
+fi
 cat > "$PROJECT_ROOT/.context/working/.budget-status" <<BUDGET_EOF
-{"level": "ok", "tokens": 0, "timestamp": $(date +%s), "source": "post-compact-resume", "measured": false, "session_id": "${_PCR_SESSION_ID:-unknown}"}
+{"level": "ok", "tokens": 0, "timestamp": $(date +%s), "session_id": "${_pcr_session_id:-unknown}", "source": "post-compact-resume"}
 BUDGET_EOF
 
 # T-1088: Write the session-start timestamp in ISO-8601 Z format. budget-gate.sh
@@ -238,6 +247,35 @@ ${FABRIC_OVERVIEW}"
     fi
 fi
 
+# Fabric describe pass (T-3431, D-592) — a bounded `fw fabric enrich --describe`
+# on EVERY session start/resume/compact, not only the T-3430 nightly cron, so a
+# session is born with the best fabric the code can derive and sees what it
+# cannot. `--quiet` forces the fast describe-only path (~3s measured on 1,314
+# cards; full edge recomputation measured 13s — over budget, and stays the
+# cron's/explicit-call's job). Never blocks the session: on timeout or a
+# non-zero exit, the last-known line is read back from the cache file instead.
+FABRIC_DESCRIBE_TIMEOUT="${FW_FABRIC_DESCRIBE_TIMEOUT:-10}"
+FABRIC_CACHE="$PROJECT_ROOT/.context/working/.fabric-describe.last"
+if [ -d "$PROJECT_ROOT/.fabric/components" ]; then
+    FABRIC_OUT=$(cd "$PROJECT_ROOT" && PROJECT_ROOT="$PROJECT_ROOT" timeout "$FABRIC_DESCRIBE_TIMEOUT" \
+        "$FRAMEWORK_ROOT/bin/fw" fabric enrich --describe --quiet 2>/dev/null)
+    FABRIC_RC=$?
+    if [ "$FABRIC_RC" -eq 0 ] && [ -n "$FABRIC_OUT" ]; then
+        printf '%s\n' "$FABRIC_OUT" > "$FABRIC_CACHE" 2>/dev/null
+    elif [ -f "$FABRIC_CACHE" ]; then
+        FABRIC_OUT=$(cat "$FABRIC_CACHE" 2>/dev/null)
+    else
+        FABRIC_OUT=""
+    fi
+    if [ -n "$FABRIC_OUT" ]; then
+        CONTEXT="${CONTEXT}
+
+## Fabric Quality
+${FABRIC_OUT}
+"
+    fi
+fi
+
 # Discovery findings (T-241 — surface WARN/FAIL discoveries at session start)
 DISC_FILE="$PROJECT_ROOT/.context/audits/discoveries/LATEST.yaml"
 if [ -f "$DISC_FILE" ]; then
@@ -319,7 +357,7 @@ CONTEXT="${CONTEXT}
 
 Any budget assertion you see in the **handover narrative above** (e.g. \"Budget at 92%\", \"stopping new work\", \"context near critical\") was true at handover time but is **STALE in this resumed session**. The budget gauge was reset to {ok, 0, now} on resume (T-1087/T-1088). Do not defer to the prior session's budget statements when deciding whether to start new work.
 
-- **Live gauge (fast):** \`cat .context/working/.budget-status\` — current level, tokens, age (refreshed by PostToolUse).
+- **Live gauge (fast, safe):** \`./agents/context/checkpoint.sh budget\` — current level, tokens, age; reports \`unknown\` with a reason instead of a raw cat's plausible-looking but untrustworthy value (T-3241: a scan failure or a stale/foreign-session cache both used to read byte-identical to a healthy fresh session).
 - **On-demand probe:** \`./agents/context/checkpoint.sh status\` — exact token count from session JSONL.
 - **Doctor surface:** \`bin/fw doctor\` — flags out-of-range budget alongside other health.
 

@@ -25,9 +25,44 @@ _FW_WATCHTOWER_LOADED=1
 # (PROJECT_ROOT, else FRAMEWORK_ROOT). Single source of truth for the identity
 # handshake used by both the reader (_watchtower_url) and the writer
 # (bin/watchtower.sh's port-kill guard + triple-write gate). T-1803.
+# _watchtower_our_root
+#
+# T-3054: the single place the "which project are we?" answer is derived, and
+# the only place the FRAMEWORK_ROOT fallback is allowed to fire. It prints the
+# root on stdout and — when it fell back — a warning on stderr.
+#
+# The fallback existed in two places (bin/watchtower.sh's launch line and the
+# identity check below) and was silent in both, which is what made it a false
+# green: the check that exists to catch a wrong-project instance computed its
+# expected value with the same expression the instance had used, so a
+# misconfigured server matched itself and passed `fw doctor`. A guard whose
+# predicate is derived from the thing it validates cannot fail.
+#
+# The fallback is kept, not removed — serving the framework repo itself is a
+# legitimate run. It is now audible.
+_watchtower_our_root() {
+    if [ -n "${PROJECT_ROOT:-}" ]; then
+        printf '%s' "$PROJECT_ROOT"
+        return 0
+    fi
+    if [ -n "${FRAMEWORK_ROOT:-}" ]; then
+        if [ -z "${_WT_ROOT_FALLBACK_WARNED:-}" ]; then
+            _WT_ROOT_FALLBACK_WARNED=1
+            echo "WARNING: PROJECT_ROOT is unset — falling back to FRAMEWORK_ROOT ($FRAMEWORK_ROOT)." >&2
+            echo "         Watchtower will serve the FRAMEWORK's own .tasks/ and .context/, not a" >&2
+            echo "         consumer project's. If you meant to serve a project, export PROJECT_ROOT" >&2
+            echo "         and restart. (T-3054)" >&2
+        fi
+        printf '%s' "$FRAMEWORK_ROOT"
+        return 0
+    fi
+    return 1
+}
+
 _watchtower_identity_matches() {
     local _u="$1"
-    local _our_root="${PROJECT_ROOT:-${FRAMEWORK_ROOT:-}}"
+    local _our_root
+    _our_root=$(_watchtower_our_root) || _our_root=""
     local _json _svc _proot
     _json=$(curl -sf --max-time 2 "${_u}/api/_identity" 2>/dev/null) || return 1
     _svc=$(printf '%s' "$_json" | grep -oE '"service"[[:space:]]*:[[:space:]]*"[^"]*"' | sed -E 's/.*"([^"]*)"$/\1/')
@@ -76,7 +111,9 @@ _watchtower_url() {
         return 0
     fi
 
-    local _our_root="${PROJECT_ROOT:-${FRAMEWORK_ROOT:-}}"
+    # T-3054: through the shared resolver, so the fallback is audible here too.
+    local _our_root
+    _our_root=$(_watchtower_our_root) || _our_root=""
 
     # Helper: verify a url is OUR Watchtower via /api/_identity. Returns 0 iff
     # match. Delegates to the top-level _watchtower_identity_matches (T-1803) so
@@ -145,6 +182,76 @@ _watchtower_url() {
     echo "  Start one with: fw serve" >&2
     echo "  Or set WATCHTOWER_URL explicitly." >&2
     return 1
+}
+
+# _watchtower_base_or_placeholder [TASK_ID]
+#
+# T-2922. Same question as _watchtower_url — "what is this project's Watchtower
+# base URL?" — for the callers that must keep going when the answer is "there
+# isn't one running yet". _watchtower_url fails loud by design (Layer 3, exit 1,
+# no stdout) so callers needing a LIVE server can detect it; under `set -e` a
+# bare `x=$(_watchtower_url)` assignment aborts the caller outright. For
+# emit_review that abort happened BEFORE the `.reviewed-<id>` marker write —
+# the only unblock for `fw inception decide` — so on a fresh `fw init` project,
+# where nothing has yet told the user to run `fw serve`, the first inception was
+# uncompletable by any path.
+#
+# Answers on stdout in BOTH cases and distinguishes them by EXIT CODE, never by
+# output shape:
+#
+#   0 — live and identity-verified (delegates to _watchtower_url verbatim)
+#   2 — no Watchtower reachable. stdout is a WOULD-BE base URL: the port this
+#       project's Watchtower comes back on, wrong to treat as reachable now.
+#       Candidates are tried in order: the triple-file port (where it last ran,
+#       and where a bare `fw watchtower restart` rebinds, T-2598), then the
+#       configured port. A candidate that something is already listening on is
+#       skipped. We only get here because nothing identified as ours, so any
+#       holder is foreign, and naming its port would hand this project's review
+#       links to another server (T-3379: after a reboot, links pointed at a
+#       neighbour's Watchtower on :3000). If every candidate is held, the answer
+#       is an RFC 2606 `.invalid` host, which can never resolve to anyone.
+#
+# Two distinct non-empty answers rather than "empty means down", because an
+# empty base silently concatenates into "/review/T-XXX" — a broken relative path
+# that looks like a link. A caller that ignores the exit code gets a URL that is
+# merely premature; a caller that reads it gets the truth. (L-578: a check that
+# can only answer yes/no cannot say which question it answered — so the third
+# state gets its own code, not a sentinel value the caller may not notice.)
+#
+# This lives here, not in the callers, because lib/watchtower.sh is the single
+# source of port resolution (T-974, T-1154) and T-1155's invariant suite pins
+# that: `fw_config "PORT" 3000` inline in lib/review.sh or lib/verify-acs.sh is
+# structurally RED. The placeholder needs the configured port, so the
+# placeholder belongs on this side of that line.
+_watchtower_base_or_placeholder() {
+    local _live
+    if _live=$(_watchtower_url "${1:-}"); then
+        printf '%s\n' "$_live"
+        return 0
+    fi
+
+    # Not reachable. Name a port that is ours to come back on (see the exit-2
+    # contract above for the order and why a held port is skipped).
+    local _candidates=() _cand _triple="$PROJECT_ROOT/.context/working/watchtower.port"
+    [ -f "$_triple" ] && _candidates+=("$(tr -d '[:space:]' < "$_triple" 2>/dev/null)")
+    _candidates+=("$(fw_config "PORT" 3000 2>/dev/null || echo 3000)")
+    for _cand in "${_candidates[@]}"; do
+        case "$_cand" in ''|*[!0-9]*) continue ;; esac
+        _watchtower_port_listening "$_cand" && continue
+        printf 'http://localhost:%s\n' "$_cand"
+        return 2
+    done
+    printf 'http://watchtower-not-running.invalid\n'
+    return 2
+}
+
+# _watchtower_port_listening PORT
+#
+# Returns 0 iff some process is listening on TCP PORT. Same `ss` idiom as
+# bin/watchtower.sh:port_in_use, which lib/ does not source. It says nothing
+# about WHO holds the port: the identity question is _watchtower_identity_matches.
+_watchtower_port_listening() {
+    ss -tln 2>/dev/null | grep -q ":${1} "
 }
 
 # fw_task_review_url TASK_ID [TASK_FILE]

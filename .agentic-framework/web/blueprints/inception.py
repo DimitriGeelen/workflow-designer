@@ -9,6 +9,7 @@ from flask import Blueprint, abort, redirect, request, url_for
 from markupsafe import Markup
 
 from web.shared import (
+    FRAMEWORK_ROOT,
     PROJECT_ROOT,
     _auto_link_files,
     get_all_task_metadata,
@@ -123,6 +124,34 @@ def _extract_decision(body):
             if value and value != "<!--":
                 return value
     return "pending"
+
+
+def _is_decided_unclosed(task_data, task_body):
+    """T-3180: does this inception need exactly one thing — the operator closing it?
+
+    Imports the SAME predicate `/approvals` uses (`lib/decided_unclosed.py`) rather than
+    re-deriving it here. A fourth reimplementation of "is this decided" is precisely what
+    produced the bug: `/approvals` told the operator the decision was recorded while this
+    page offered only to re-decide it, because the two surfaces answered the question
+    independently. Sharing the predicate makes them agree by construction.
+
+    Fails CLOSED (returns False) on any error — a missing helper must not add a close
+    button to a page that should not have one, and must never take the page down.
+    """
+    import sys
+
+    # T-2645 / OBS-097: lib/ is FRAMEWORK-owned, so it resolves from FRAMEWORK_ROOT.
+    # PROJECT_ROOT is the consumer's project in a split-root install and has no lib/.
+    lib_dir = str(FRAMEWORK_ROOT / "lib")
+    if lib_dir not in sys.path:
+        sys.path.insert(0, lib_dir)
+    try:
+        import decided_unclosed
+
+        return decided_unclosed.is_decided_unclosed(task_data or {}, task_body or "")
+    except Exception as e:  # pragma: no cover - defensive
+        logger.warning("decided-unclosed predicate unavailable: %s", e)
+        return False
 
 
 def _extract_section(body, section_name):
@@ -413,6 +442,12 @@ def inception_detail(task_id):
 
     decision_state = _extract_decision(task_body)
 
+    # T-3180: a decided inception that is still in active/ needs closing, and until now
+    # that action was on no button anywhere. /review/<id> 302s here, so both routes
+    # converged on a page whose only form re-decides. The gap was introduced by T-3175's
+    # own copy ("Close it from /inception/T-XXXX") pointing at a page that could not.
+    decided_unclosed = _is_decided_unclosed(task_data, task_body)
+
     # T-1391 (F3 fix): compute rec_stance + decision_matches_recommendation so
     # the template can collapse the duplicate Recommendation card when the
     # human adopted the recommendation, or label both cards when overridden.
@@ -454,6 +489,7 @@ def inception_detail(task_id):
         sections=sections,
         extra_sections=extra_sections,
         decision_state=decision_state,
+        decided_unclosed=decided_unclosed,
         linked_assumptions=linked_assumptions,
         episodic=episodic,
         task_id=task_id,
@@ -490,6 +526,11 @@ def resolve_assumption(assumption_id):
     if referrer:
         return redirect(referrer)
     return redirect(url_for("inception.assumptions_list"))
+
+
+# T-3284: single implementation lives in web/shared.py (parity by construction,
+# L-399). The underscore alias keeps existing references and tests working.
+from web.shared import operator_facing_stderr as _operator_facing_stderr
 
 
 @bp.route("/inception/<task_id>/decide", methods=["POST"])
@@ -562,11 +603,16 @@ def record_decision(task_id):
                 # Mirrors the sibling escape+pre-wrap pattern at line ~579 (the
                 # pre-decision validation rejection path).
                 import html as _html
+                # T-3280: operator-facing translation — decision status + reason,
+                # bypass instructions and internal banners stripped.
+                _reason = _operator_facing_stderr((stderr or stdout)[:3000])[:1500]
                 warning_html = (
                     f'<div style="color:#f59e0b; font-size:0.85rem; margin-top:4px; '
                     f'white-space:pre-wrap;">'
-                    f'⚠ Decision recorded; side-effect warning: '
-                    f'{_html.escape((stderr or stdout)[:1500])}'
+                    f'⚠ Your decision is saved. Automatic completion was blocked by a '
+                    f'framework gate — the agent session can recover this '
+                    f'(fw inception sweep); no action needed from you unless it persists.\n'
+                    f'Reason: {_html.escape(_reason)}'
                     f'</div>'
                 )
             if not commit_ok:
@@ -596,7 +642,11 @@ def record_decision(task_id):
         # and the reason is visible inline. The logging.error above preserves
         # server-side observability regardless of the client-facing status.
         import html as _html
-        reason = _html.escape((stderr or stdout or "Unknown error from fw inception decide")[:300])
+        # T-3280: same operator-facing translation on the failure path.
+        reason = _html.escape(
+            _operator_facing_stderr((stderr or stdout or "Unknown error from fw inception decide")[:3000])[:300]
+            or "Unknown error from fw inception decide"
+        )
         return (
             f'<div class="go-decision" style="border:1px solid #ef4444; border-radius:6px; padding:0.6rem;">'
             f'<strong>{task_id}</strong>: '
@@ -612,10 +662,14 @@ def record_decision(task_id):
     # the user sees a silent redirect and clicks GO repeatedly.
     if not ok:
         if primary_landed:
-            # T-1470: primary succeeded, surface as warning (not error)
-            warn = (stderr or stdout or "side-effect warning")[:300]
+            # T-1470: primary succeeded, surface as warning (not error).
+            # T-3284: sanitize like the htmx sibling above — this redirect path
+            # renders to the operator too, and previously leaked bypass flags.
+            warn = (_operator_facing_stderr((stderr or stdout or "")[:3000])
+                    or "side-effect warning")[:300]
             return redirect(url_for("inception.inception_detail", task_id=task_id, warning=warn))
-        err = (stderr or stdout or "Unknown error from fw inception decide")[:300]
+        err = (_operator_facing_stderr((stderr or stdout or "")[:3000])
+               or "Unknown error from fw inception decide")[:300]
         return redirect(url_for("inception.inception_detail", task_id=task_id, error=err))
 
     # T-2053: success — surface a commit failure as a warning (no silent failure).
@@ -713,67 +767,64 @@ def _commit_decision(task_id: str, decision: str):
     Watchtower path has no agent follow-up, so without this the decision is left
     as uncommitted working-tree changes (T-2030).
 
-    Stages ONLY the decision's own files (matched by `_is_decision_file`) — never
-    `git add -A`, which would sweep unrelated churn — and commits with an explicit
-    pathspec so any pre-staged churn is left out. Graceful: returns
-    `(committed: bool, message: str)`; a commit failure (e.g. a commit-msg hook
-    rejecting a DEFER without a research artifact) is non-fatal.
+    T-2708: built entirely against a SCRATCH index (`GIT_INDEX_FILE` seeded from
+    `git read-tree HEAD`), never the operator's real `.git/index`. Two decisions
+    recorded seconds apart in one operator batch are, to each other, the "foreign
+    staged file" a same-index guard would refuse — the old implementation staged
+    into the real index and self-blocked on exactly that (T-2708 RCA). Building
+    off-index removes the shared channel: only `wanted` paths are ever added to
+    the scratch index, so unrelated work (including another in-flight decision)
+    can never leak in — by construction, not by refusal — and a failed commit
+    leaves the real index untouched because it was never written to.
 
-    The active→completed move is a filesystem `mv` (not `git mv`), so git sees a
-    delete + an untracked add (two porcelain lines, no rename arrow).
+    Graceful: returns `(committed: bool, message: str)`; a commit failure (e.g. a
+    commit-msg hook rejecting a DEFER without a research artifact) is non-fatal.
+
+    T-2864: the active→completed move is `git mv` whenever the task file is
+    tracked (update-task.sh, T-1523), so the normal porcelain form is a single
+    RENAME line (`RM old -> new`), NOT the delete + untracked-add pair this
+    docstring previously asserted. Both sides of that arrow must reach `wanted`
+    — see the loop below. The plain-`mv` two-line form only occurs when the file
+    was untracked, and is still handled.
     """
     import subprocess
     import os  # T-2509: needed for the FW_ALLOW_MASTER_COMMIT env below
+    import tempfile
     try:
         status = subprocess.run(
             ["git", "status", "--porcelain", "--untracked-files=all"],
             cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=30,
         )
         if status.returncode != 0:
-            return False, (status.stderr or status.stdout or "git status failed").strip()[:200]
+            return False, (_operator_facing_stderr(status.stderr or status.stdout or "")
+                           or "git status failed").strip()[:200]
 
         wanted = []
         for line in status.stdout.splitlines():
             if not line.strip():
                 continue
             path = line[3:]  # strip the 2-char XY status + the separating space
-            if " -> " in path:  # defensive: handle rename form if ever produced
-                path = path.split(" -> ", 1)[1]
-            path = path.strip().strip('"')
-            if _is_decision_file(task_id, path):
-                wanted.append(path)
+            # T-2864: a staged rename reports `R  old -> new`, and BOTH sides are
+            # load-bearing. The scratch index below is seeded from HEAD, where
+            # `old` still exists — so naming only `new` leaves the task id under
+            # BOTH .tasks/active/ and .tasks/completed/ in the index we are about
+            # to commit, and the G-052 dup-task-ID pre-commit gate refuses it.
+            # The decision is then recorded on disk and absent from history.
+            #
+            # This is the NORMAL case, not a defensive edge: update-task.sh
+            # archives with `git mv` when the file is tracked (T-1523), which
+            # stages the rename in the real index. Measured, not assumed:
+            #   RM .tasks/active/T-x.md -> .tasks/completed/T-x.md
+            # (Origin: T-2863's GO decision, refused at the commit boundary.)
+            for cand in (path.split(" -> ", 1) if " -> " in path else [path]):
+                cand = cand.strip().strip('"')
+                if _is_decision_file(task_id, cand):
+                    wanted.append(cand)
 
         if not wanted:
             # Nothing of ours to commit (already committed, or no files found).
             return True, "nothing to commit"
 
-        # Guard against bundling unrelated work: if the index already has staged
-        # changes that aren't this decision's files (e.g. an agent session staged
-        # a commit concurrently), skip rather than sweep them into the decision
-        # commit. Graceful — the decision stays on disk for a later commit.
-        pre = subprocess.run(
-            ["git", "diff", "--cached", "--name-only"],
-            cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=30,
-        )
-        foreign = [
-            p for p in pre.stdout.splitlines()
-            if p.strip() and not _is_decision_file(task_id, p.strip())
-        ]
-        if foreign:
-            return False, f"index has {len(foreign)} unrelated staged file(s); skipped to avoid bundling"
-
-        add = subprocess.run(
-            ["git", "add", "--"] + wanted,
-            cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=30,
-        )
-        if add.returncode != 0:
-            return False, (add.stderr or add.stdout or "git add failed").strip()[:200]
-
-        # Commit the index — now exactly this decision's files, including the
-        # active→completed deletion (a `git commit -- pathspec` cannot capture a
-        # deletion once the path is gone from the working tree; the foreign-staged
-        # guard above keeps a whole-index commit scoped).
-        #
         # T-2509: when the Watchtower serves from a checkout that sits on master
         # with PROTECT_MASTER=1 (the T-100196 trunk-based flow), the T-2394
         # master-guard pre-commit hook BLOCKS this direct commit ("master is
@@ -786,16 +837,49 @@ def _commit_decision(task_id: str, decision: str):
         # commit. Scoped to THIS subprocess only (not os.environ) so agent/session
         # commits on master stay guarded. Off master / on a feature branch the
         # guard exits before the bypass matters, so this is a safe no-op there.
-        _commit_env = {**os.environ, "FW_ALLOW_MASTER_COMMIT": "1"}
-        msg = f"{task_id}: inception decision {decision.upper()} (via Watchtower)"
-        commit = subprocess.run(
-            ["git", "commit", "-m", msg],
-            cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=30,
-            env=_commit_env,
-        )
-        if commit.returncode != 0:
-            return False, (commit.stderr or commit.stdout or "git commit failed").strip()[:200]
-        return True, msg
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            scratch_index = os.path.join(tmp_dir, "index")
+            _env = {
+                **os.environ,
+                "GIT_INDEX_FILE": scratch_index,
+                "FW_ALLOW_MASTER_COMMIT": "1",
+            }
+
+            # Seed the scratch index from HEAD — NOT from the operator's real
+            # index — so nothing pre-staged there (by an agent session, or by
+            # another decision landed a moment ago) is ever visible to us.
+            read_tree = subprocess.run(
+                ["git", "read-tree", "HEAD"],
+                cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=30,
+                env=_env,
+            )
+            if read_tree.returncode != 0:
+                return False, (_operator_facing_stderr(read_tree.stderr or read_tree.stdout or "")
+                               or "git read-tree failed").strip()[:200]
+
+            # `git add` on the scratch index reads the working tree (shared) but
+            # writes only to GIT_INDEX_FILE (not shared) — an explicit pathspec
+            # here stages the active→completed deletion too (git treats a named,
+            # now-missing path as "remove it", unlike a glob).
+            add = subprocess.run(
+                ["git", "add", "--"] + wanted,
+                cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=30,
+                env=_env,
+            )
+            if add.returncode != 0:
+                return False, (_operator_facing_stderr(add.stderr or add.stdout or "")
+                               or "git add failed").strip()[:200]
+
+            msg = f"{task_id}: inception decision {decision.upper()} (via Watchtower)"
+            commit = subprocess.run(
+                ["git", "commit", "-m", msg],
+                cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=30,
+                env=_env,
+            )
+            if commit.returncode != 0:
+                return False, (_operator_facing_stderr(commit.stderr or commit.stdout or "")
+                               or "git commit failed").strip()[:200]
+            return True, msg
     except Exception as e:  # never let a commit problem break the decision response
         return False, str(e)[:200]
 

@@ -78,11 +78,26 @@ export _FW_PATHS_DERIVED_BY
 # root that <cwd> resolves to (walking up for .framework.yaml / .tasks), when it
 # differs from the current PROJECT_ROOT. Always returns 0 (no-op cases included).
 #
-# T-2465 (generalizes T-2463 / OBS-080): every framework hook is wired into
-# Claude Code settings.json by MAIN's absolute path (`<main>/bin/fw hook …`). When
-# that hook fires inside a git-worktree (or spawned) session, bin/fw resolves
-# PROJECT_ROOT from the hook's process cwd / inherited env — the MAIN repo — so the
-# hook reads main's focus.yaml / tasks / context, NOT the worktree the tool ran in.
+# T-2465 (generalizes T-2463 / OBS-080): a framework hook can execute a `bin/fw`
+# other than the one belonging to the tree the tool actually ran in, so it reads the
+# wrong focus.yaml / tasks / context.
+#
+# T-2709 UPDATE — the original wording here said "every framework hook is wired into
+# settings.json by MAIN's absolute path (`<main>/bin/fw hook …`)". That premise is now
+# FALSE: both generators emit `${CLAUDE_PROJECT_DIR}/bin/fw hook …`, which Claude Code
+# expands to the session's project root. In a worktree session that resolves to the
+# WORKTREE root, so the worktree's own bin/fw executes — the opposite of main-anchoring.
+# The mismatch this function corrects therefore has two possible shapes now:
+#   (a) legacy settings.json still carrying main's baked absolute path  → main's fw runs
+#   (b) placeholder form                                                → worktree's fw runs
+# In (b) the anchoring is usually already correct and this function degrades to a no-op
+# (it compares against the resolved root and returns unchanged on a match). Note a
+# worktree may carry a different framework VERSION than main, so under (b) the executing
+# fw can differ in behaviour from main's — directionally an improvement (the tool runs
+# the code of the tree it acted on), but worth knowing when debugging.
+#
+# Either way, bin/fw may still resolve PROJECT_ROOT from the hook's process cwd /
+# inherited env rather than from the tree the tool ran in — which is what this fixes.
 # Claude Code passes the authoritative per-call working dir as top-level `cwd` on
 # the hook's stdin JSON ("working directory when the event fired"); this re-anchors
 # to it. Per-call stdin cwd is FRESH (not inherited), so it is immune to the
@@ -125,6 +140,116 @@ except Exception:
     print('')
 " 2>/dev/null)
     fw_reanchor_from_cwd "$cwd"
+}
+
+# T-3038 (OBS-291): resolve the focus file for THIS session.
+#
+# Focus was per-project global state: one `.context/working/focus.yaml` shared by
+# the parent session and every worker it dispatches. That is an unavoidable
+# converging write that no task declares as a component, so `fw write-set check`
+# returns rc=2 (undecidable) for every pair — the disjointness check cannot see it.
+#
+# The failure is not a lost write, it is a LOCKOUT. `fw context focus` stamps
+# `focus_session` alongside `current_task`, and check-active-task.sh:448 blocks
+# when that stamp does not match the running session. So a dispatched worker
+# calling `fw work-on` flips the shared file to its own task and its own session
+# id, and the PARENT is then refused on every Write AND every Bash — including
+# read-only ls/cat/grep (the G-078 class). The parent is locked out of its own
+# unrelated work by a worker it spawned. Recovery (`fw context focus T-PARENT`)
+# is racy: the next `fw work-on` in any worker re-hijacks it.
+#
+# The fix is to give workers their own file. When FW_SESSION_SCOPED_FOCUS=1, focus
+# reads and writes go to `focus.<key>.yaml` and the shared file is never touched,
+# so the parent's task and session stamp survive untouched.
+#
+# The key must be stable for the worker's whole lifetime and distinct per worker.
+# Preference order, first non-empty wins:
+#   FW_FOCUS_SESSION_KEY  explicit override; what `fw termlink dispatch` exports
+#                         (the worker name, which is unique per dispatch)
+#   TERMLINK_SESSION      set by TermLink itself when a session owns the shell
+#   PPID                  last-resort fallback — correct per-process, but not
+#                         stable if the parent shell is replaced, hence last
+#
+# Default (unset/0) returns the shared path verbatim: existing single-session
+# behaviour is unchanged, which is what keeps this safe to land without migration.
+#
+# T-3141: honour a CONTEXT_DIR override instead of re-deriving "$root/.context".
+# Callers always pass PROJECT_ROOT as $1, but tests (create_task.bats, T-2832)
+# sandbox CONTEXT_DIR alone — leaving PROJECT_ROOT pointed at the real repo so
+# template resolution still works — to stop --start's focus write from landing
+# in the live session's .context/working/. Re-deriving from root here defeated
+# that sandbox and clobbered the live focus.yaml. Fall back to "$root/.context"
+# only when CONTEXT_DIR is unset/empty, so non-test callers are unaffected.
+#
+# Usage: focus_file=$(fw_focus_file "$PROJECT_ROOT")
+fw_focus_file() {
+    local root="${1:-$PROJECT_ROOT}"
+    local dir="${CONTEXT_DIR:-$root/.context}/working"
+
+    if [ "${FW_SESSION_SCOPED_FOCUS:-0}" != "1" ]; then
+        printf '%s\n' "$dir/focus.yaml"
+        return 0
+    fi
+
+    local key="${FW_FOCUS_SESSION_KEY:-${TERMLINK_SESSION:-$PPID}}"
+    # Sanitize: the key lands in a filename and worker names are free-form
+    # (--name is caller-supplied). Dropping '/' alone would already contain the
+    # path, but '.' is excluded too so a key like '../x' cannot produce a
+    # filename containing '..' — there is no reason to carry traversal-shaped
+    # text into a path, even a contained one.
+    key=$(printf '%s' "$key" | tr -c 'a-zA-Z0-9_-' '-')
+    printf '%s\n' "$dir/focus.$key.yaml"
+}
+
+# T-3422: pre-seed a session-scoped focus file with a known task.
+#
+# check-active-task.sh falls back to the SHARED focus.yaml while a scoped file
+# does not exist yet (T-3038 — "a worker that never calls work-on should
+# inherit the parent's task"). For a dispatched worker that inheritance is a
+# defect, not a courtesy: the SEQ-T3411 value review watched four consecutive
+# fresh workers read a different, unrelated, real active task as their own
+# focus until their first `fw work-on`. Dispatch already knows the worker's
+# task (`--task` is mandatory), so it seeds the scoped file up front and the
+# fallback simply never fires for a dispatched worker.
+#
+# Resolves the path through fw_focus_file — the SAME resolver the gate and
+# `fw context focus` use (L-399 producer/consumer parity) — so the caller sets
+# FW_SESSION_SCOPED_FOCUS=1 and FW_FOCUS_SESSION_KEY=<name> exactly as it does
+# for the worker's env.sh. `focus_session` is left null on purpose: the
+# worker's own `fw work-on` stamps its session id later, and the gate's stamp
+# comparison only fires when both sides are non-empty.
+#
+# Never overwrites: an existing scoped file is a worker's own state (possibly a
+# re-dispatch under a reused name) and is left byte-identical.
+#
+# Usage: FW_SESSION_SCOPED_FOCUS=1 FW_FOCUS_SESSION_KEY="$name" \
+#            fw_focus_seed "$project_root" "$task_id"
+#   rc 0  seeded (prints the path)      rc 1  already existed (prints the path)
+#   rc 2  refused: not in scoped mode, or missing root/task
+fw_focus_seed() {
+    local root="${1:-}" task="${2:-}"
+    [ -n "$root" ] && [ -n "$task" ] || return 2
+    [ "${FW_SESSION_SCOPED_FOCUS:-0}" = "1" ] || return 2
+
+    local f
+    f=$(fw_focus_file "$root")
+    # Refuse to touch the shared file even if the resolver somehow returned it.
+    case "$f" in */focus.yaml) return 2 ;; esac
+
+    if [ -f "$f" ]; then
+        printf '%s\n' "$f"
+        return 1
+    fi
+    mkdir -p "$(dirname "$f")" 2>/dev/null || return 2
+    {
+        printf '# Working Memory - Current Focus\n'
+        printf '# Seeded by dispatch (T-3422) for worker key %s\n\n' "${FW_FOCUS_SESSION_KEY:-?}"
+        printf 'current_task: %s\n' "$task"
+        printf 'priorities: []\nblockers: []\npending_decisions: []\n'
+        printf 'reminders: []\nfocus_session: null\n'
+    } > "$f.tmp" && mv "$f.tmp" "$f" || return 2
+    printf '%s\n' "$f"
+    return 0
 }
 
 # T-2375: Claude Code transcript project-dir-name sanitizer.
@@ -187,22 +312,70 @@ fw_claude_project_dirs() {
     done
 }
 
-# fw_is_linked_worktree [dir] — exit 0 if DIR (default PROJECT_ROOT/$PWD) is a *linked*
-# git worktree (created via `git worktree add`), exit 1 if it's the main checkout or not a
-# git repo. Discriminator: a linked worktree's git-dir (<main>/.git/worktrees/<name>)
-# differs from its git-common-dir (<main>/.git); in the main checkout the two collapse to
-# the same path. Used to suppress HOST-level drift checks (cron install state, self-vendor
-# host snapshot) that are owned by the main checkout and false-FAIL in a transient worktree.
-# Origin: T-2435 (OBS-077) — the pre-push audit false-FAILed on every worktree push.
-fw_is_linked_worktree() {
-    local dir="${1:-${PROJECT_ROOT:-$PWD}}"
-    local gd gcd
-    gd=$(git -C "$dir" rev-parse --git-dir 2>/dev/null) || return 1
-    gcd=$(git -C "$dir" rev-parse --git-common-dir 2>/dev/null) || return 1
-    # Absolute-ize relative forms (the main checkout returns ".git" for both → equal).
-    case "$gd" in /*) ;; *) gd="$dir/$gd" ;; esac
-    case "$gcd" in /*) ;; *) gcd="$dir/$gcd" ;; esac
-    [ "$gd" != "$gcd" ]
+# fw_is_linked_worktree — defined in lib/worktree-identity.sh (T-3111).
+#
+# It moved out of this file because bin/fw needs the same predicate BEFORE any
+# path is resolved (the R7 leg-L2 redirect decides which binary runs), and
+# sourcing THIS file that early is not possible: paths.sh resolves and exports
+# FRAMEWORK_ROOT/PROJECT_ROOT/TASKS_DIR as a side effect of being sourced.
+# Sourced here so every existing caller keeps the function unchanged.
+# Resolved relative to this file rather than $FRAMEWORK_ROOT — same reason
+# lib/hook-parity.sh does: in a replica, FRAMEWORK_ROOT names the replica.
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/worktree-identity.sh"
+
+
+# fw_task_view_dirs — enumerate every `.tasks/` VIEW of the task corpus (T-3104).
+#
+# A git worktree checks out its own snapshot of `.tasks/`, possibly behind (or
+# ahead of) the main checkout. So "the task corpus" is not one directory — it is
+# the UNION of every worktree's `.tasks/`. Any consumer that reasons about the
+# corpus as a whole (ID allocation, duplicate-ID detection) must scan all views,
+# or it will be blind to whatever the other views hold.
+#
+# WHY THIS EXISTS — split-view ID collision (L-506 leg 2, origin T-100202,
+# 2026-07-21): an allocator computing max+1 over ONE view reads a stale max and
+# mints an ID another view already used. That is not hypothetical — T-2505,
+# T-2506 and T-2428 were each minted twice on 2026-07-01 across two worktrees.
+#
+# CONTRACT:
+#   - Emits one absolute `.tasks/` path per line.
+#   - Worktrees with no `.tasks/` directory are skipped (nothing to scan).
+#   - `$TASKS_DIR` (the local view) is ALWAYS emitted, even when it is not a
+#     directory and even when it does not appear in `git worktree list`. This is
+#     the load-bearing guarantee: a symlinked or otherwise non-matching local
+#     path must never fall out of the corpus.
+#   - Non-git fallback: when `$TASKS_DIR`'s parent is not inside a git repo
+#     (test harnesses, non-git consumers), the local view alone is returned —
+#     no crash, no stderr.
+#   - Output is DE-DUPLICATED, first-occurrence order preserved. Pre-lift the
+#     local view was emitted twice (once from `git worktree list`, once from the
+#     trailing append); the sole consumer piped through `sort -u`, so this
+#     changes the multiset, never the SET — see docs/reports/T-3104-*.md.
+#
+# NOT THE SAME QUESTION AS `_wt_is_ignorable_path` (lib/worktree.sh). That
+# predicate classifies `.tasks/` as a DELIVERABLE — a worktree whose only change
+# is under `.tasks/` has real work that must land before teardown. Here `.tasks/`
+# is CORPUS — a view to read IDs out of. Two callers, two correct answers. Do not
+# "unify" them; they would produce a bug in whichever direction you collapsed.
+fw_task_view_dirs() {
+    local base wt v seen
+    local -a views=()
+
+    base="$(cd "$(dirname "$TASKS_DIR")" 2>/dev/null && pwd)"
+    if [ -n "$base" ] && git -C "$base" rev-parse --git-dir >/dev/null 2>&1; then
+        while IFS= read -r wt; do
+            [ -d "$wt/.tasks" ] && views+=("$wt/.tasks")
+        done < <(git -C "$base" worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p')
+    fi
+    # Unconditional — the local view is in the corpus whether or not git named it.
+    views+=("$TASKS_DIR")
+
+    seen=$'\n'
+    for v in "${views[@]}"; do
+        case "$seen" in *$'\n'"$v"$'\n'*) continue ;; esac
+        seen="${seen}${v}"$'\n'
+        printf '%s\n' "$v"
+    done
 }
 
 # Context-aware fw command path (T-1102/T-1143)

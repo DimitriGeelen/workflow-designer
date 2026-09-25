@@ -6,12 +6,16 @@
 
 ## What It Does
 
-## Used By (2)
+## Used By (6)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
 | [terminal](/docs/generated/web-blueprints-terminal) | called_by | Flask blueprint providing the interactive web terminal API with session creation, I/O, resize, and profile-based configuration |
 | [__init__](/docs/generated/web-terminal-__init__) | called_by | Package entry point that manages PTY processes and bridges them to Flask-SocketIO WebSocket connections for the web terminal |
+| [terminal](/docs/generated/web-blueprints-terminal) | uses_by | Flask blueprint providing the interactive web terminal API with session creation, I/O, resize, and profile-based configuration |
+| [__init__](/docs/generated/web-terminal-__init__) | uses_by | Package entry point that manages PTY processes and bridges them to Flask-SocketIO WebSocket connections for the web terminal |
+| [__init__](/docs/generated/web-terminal-adapters-__init__) | called_by | TODO: describe what this component does |
+| [__init__](/docs/generated/web-terminal-adapters-__init__) | uses_by | TODO: describe what this component does |
 
 ## Related
 

@@ -1,0 +1,9 @@
+{# Stale-task list items for the dashboard's stale-tasks widget. #}
+{% for t in items %}
+<li>
+    <a href="/tasks/{{ t.id }}" hx-target="#content" hx-swap="innerHTML" hx-push-url="true">
+        <strong>{{ t.id }}</strong>
+    </a>
+    {{ t.name }} — <small style="color: var(--pico-del-color);">{{ t.reason }}</small>
+</li>
+{% endfor %}

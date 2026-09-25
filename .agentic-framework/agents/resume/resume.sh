@@ -124,10 +124,11 @@ cmd_status() {
     # NEVER blocks resume (cmd_with_sla always exits 0; output silent unless
     # the SLA was exceeded). Runs in background so even a hung subprocess
     # cannot delay status output.
-    if [ -n "$focus" ] && [ -x "$FRAMEWORK_ROOT/agents/termlink/bvp-estimator/bvp-estimator.sh" ]; then
+    # T-3051: -f + bash, not -x — git tracks this estimator as 100644.
+    if [ -n "$focus" ] && [ -f "$FRAMEWORK_ROOT/agents/termlink/bvp-estimator/bvp-estimator.sh" ]; then
         (
             PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" \
-            timeout 10 "$FRAMEWORK_ROOT/agents/termlink/bvp-estimator/bvp-estimator.sh" \
+            timeout 10 bash "$FRAMEWORK_ROOT/agents/termlink/bvp-estimator/bvp-estimator.sh" \
                 with-sla "$focus" --timeout 10 >/dev/null 2>&1 || true
         ) &
         disown 2>/dev/null || true
@@ -144,6 +145,21 @@ cmd_status() {
         echo -e "  ${GREEN}Working directory clean${NC}"
     fi
     echo ""
+
+    # T-3431 (D-592): Fabric quality line — mirrors the cache the SessionStart
+    # hook (post-compact-resume.sh) writes on every start/resume/compact, so
+    # `resume status` shows the same last-known counts without paying the
+    # ~3s describe scan on every invocation. Silent until the hook has run once.
+    local fabric_cache="$PROJECT_ROOT/.context/working/.fabric-describe.last"
+    if [ -f "$fabric_cache" ]; then
+        local fabric_line
+        fabric_line=$(cat "$fabric_cache" 2>/dev/null)
+        if [ -n "$fabric_line" ]; then
+            echo -e "${BOLD}Fabric Quality:${NC}"
+            echo "  $fabric_line"
+            echo ""
+        fi
+    fi
 
     # T-2365 (T-2158 S3): Continuous-mode status surface. Surfaces enabled,
     # iteration X/Y, tier_ceiling, last_resumed_at, expires_at, terminated

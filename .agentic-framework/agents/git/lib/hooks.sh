@@ -1,8 +1,45 @@
 #!/bin/bash
 # Git Agent - Hook installation subcommand
 
+# T-2852: the version of the commit-msg hook TEMPLATE in this file — i.e. the
+# value written as `# VERSION=` into the heredoc below, and therefore the value
+# that will be read back out of an installed hook on the next run.
+#
+# This is deliberately NOT `$VERSION` (agents/git/git.sh:19), which is the git
+# agent's own version. Those were compared against each other for an unknown
+# span: the template said 1.11, the agent said 1.6, so the equality at the
+# "already installed" check could never hold, the fast path was unreachable, and
+# every install-hooks call rewrote all four hooks while announcing a move from
+# the installed marker to the agent's number — phrasing that reads as a
+# downgrade and produced a confident, wrong bug report from a live onboarding
+# run (/opt/001-test-install, 2026-08-07). The old wording is deliberately not
+# reproduced here: a regression test greps this file for it, and quoting the
+# string one claims to have removed is its own recurring mistake (T-2847).
+#
+# git.sh already carried a comment instructing whoever edits a template to keep
+# the two in sync. It was correct and it was ignored across five marker bumps,
+# which is why the guard is now a test (tests/unit/hook_version_marker_parity.bats)
+# rather than a sixth sentence of prose.
+#
+# PL-078 still applies: when you change the CONTENT of any hook template below,
+# bump this constant AND the `# VERSION=` literal in the commit-msg heredoc
+# together, so consumers' next install-hooks redeploys all four.
+COMMIT_MSG_HOOK_VERSION="1.15"
+
+# T-2813: verify a hook actually landed by reading state back from disk,
+# rather than trusting that the `cat`/`chmod` calls that wrote it didn't
+# print an error. `cat > "$hook" << 'EOF'` fails silently at the redirect
+# (e.g. hooks directory missing) *before* any command in the heredoc body
+# runs, so neither a captured exit status nor the heredoc content itself
+# is a reliable signal — only the resulting file is.
+_verify_hook_written() {
+    [ -f "$1" ] && [ -x "$1" ]
+}
+
 do_install_hooks() {
     local force=false
+    local install_failed=false
+    local -a failed_hooks=()
 
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -23,7 +60,12 @@ do_install_hooks() {
 
     check_git_repo
 
-    local hooks_dir="$PROJECT_ROOT/.git/hooks"
+    local hooks_dir
+    hooks_dir=$(resolve_git_hooks_dir) || {
+        echo -e "${RED}ERROR: Could not resolve git hooks directory${NC}"
+        exit 1
+    }
+    mkdir -p "$hooks_dir"
     local commit_msg_hook="$hooks_dir/commit-msg"
     local pre_commit_hook="$hooks_dir/pre-commit"
     local post_commit_hook="$hooks_dir/post-commit"
@@ -33,12 +75,17 @@ do_install_hooks() {
     if [ -f "$commit_msg_hook" ] && [ "$force" = false ]; then
         local existing_version
         existing_version=$(grep "^# VERSION=" "$commit_msg_hook" 2>/dev/null | cut -d= -f2)
-        if [ "$existing_version" = "$VERSION" ]; then
-            echo -e "${GREEN}Hooks already installed (version $VERSION)${NC}"
+        if [ "$existing_version" = "$COMMIT_MSG_HOOK_VERSION" ]; then
+            echo -e "${GREEN}Hooks already installed (version $COMMIT_MSG_HOOK_VERSION)${NC}"
             echo "Use --force to reinstall"
             exit 0
         else
-            echo -e "${YELLOW}Updating hooks from version $existing_version to $VERSION${NC}"
+            # State the difference, not a direction. Nothing here compares
+            # ordering, so "updating X to Y" was claiming knowledge the code
+            # does not have — and when the installed marker happened to sort
+            # above the template's, it read as a downgrade and was reported as
+            # a version-comparison bug (T-2852).
+            echo -e "${YELLOW}Hook version differs (installed: ${existing_version:-none}, template: $COMMIT_MSG_HOOK_VERSION) — reinstalling${NC}"
         fi
     fi
 
@@ -55,7 +102,7 @@ do_install_hooks() {
 # commit-msg hook - Task Reference Enforcement
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.10
+# VERSION=1.15
 
 COMMIT_MSG_FILE="$1"
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
@@ -70,6 +117,27 @@ if [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
     exit 0
 fi
 
+# Resolve the fw entry point for THIS project shape (T-2816, T-1257 class).
+# The framework repo carries bin/fw at its root; a consumer carries only
+# .agentic-framework/bin/fw unless the PATH shim is installed. This hook is the
+# ONLY framework gate a by-hand operator ever trips — the PreToolUse task gate
+# is a Claude Code hook and never fires for a human at a terminal — so a remedy
+# that does not exist here is the first and possibly only enforcement message
+# that operator ever reads. Resolved at hook runtime, not at install time: the
+# heredoc that writes this file is quoted, and the project may be re-shaped
+# (shim installed, framework vendored) long after the hook was written.
+_fw_entry() {
+    if [ -x "./bin/fw" ] && [ -f "./FRAMEWORK.md" ]; then
+        echo "bin/fw"
+    elif command -v fw >/dev/null 2>&1; then
+        echo "fw"
+    elif [ -x "./.agentic-framework/bin/fw" ]; then
+        echo ".agentic-framework/bin/fw"
+    else
+        echo "fw"
+    fi
+}
+
 # Check for task reference
 if ! echo "$COMMIT_MSG" | grep -qE "T-[0-9]+"; then
     echo ""
@@ -79,7 +147,7 @@ if ! echo "$COMMIT_MSG" | grep -qE "T-[0-9]+"; then
     echo ""
     echo "To fix:"
     echo "  1. Add task reference: git commit -m \"T-XXX: your message\""
-    echo "  2. Create a task: ./agents/task-create/create-task.sh"
+    echo "  2. Create a task: $(_fw_entry) work-on \"your task name\" --type build"
     echo ""
     echo "Bypass: git commit --no-verify"
     echo "  (In agent context, Tier 0 will prompt for approval on --no-verify.)"
@@ -180,11 +248,7 @@ if [ -n "$TASK_REF" ]; then
                 echo ""
                 echo "Bypass: git commit --no-verify"
                 echo "  (In agent context, Tier 0 will prompt for approval on --no-verify.)"
-                # Key is case-sensitive and is READ as INCEPTION_COMMIT_LIMIT (see the
-                # fw_config call above). Emitting the lowercase form made this remediation a
-                # no-op: following it exactly left the gate reading the default and blocking
-                # with this same message (T-686).
-                echo "  Configure: $(_emit_user_command "config set INCEPTION_COMMIT_LIMIT N")"
+                echo "  Configure: $(_emit_user_command "config set inception_commit_limit N")"
                 exit 1
             else
                 echo ""
@@ -264,6 +328,7 @@ exit 0
 HOOK_EOF
 
     chmod +x "$commit_msg_hook"
+    _verify_hook_written "$commit_msg_hook" || { install_failed=true; failed_hooks+=("$commit_msg_hook"); }
 
     # T-1844: Create pre-commit hook for secret-scan
     # Origin: T-1828/T-1834 — Azure DevOps PAT committed at 79e3361d (T-1736
@@ -272,10 +337,11 @@ HOOK_EOF
     # scanning to agents/git/lib/secret-scan.sh and fails the commit on hit.
     cat > "$pre_commit_hook" << 'HOOK_EOF'
 #!/bin/bash
-# pre-commit hook - Master-merge-only guard (T-2396) + Secret Scan (T-1844)
+# pre-commit hook - Master-merge-only guard (T-2396) + task-corpus guard (T-3110)
+#                   + Secret Scan (T-1844)
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.2
+# VERSION=1.3
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -300,38 +366,58 @@ if [ -f "$MASTER_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
 fi
 
-# T-659: retention-sweep deletions are not the agent's to commit.
+# FW-HOOK-BLOCK: t3110-corpus-guard
+# T-3110 (R7 leg L1, docs/design/task-corpus-concurrency-model.md): task-corpus
+# commit guard. Refuses a commit that stages any path under `.tasks/` when the
+# commit is made from a LINKED WORKTREE. Silent otherwise; source-only commits
+# from a worktree are the normal supported flow and are untouched.
 #
-# A retention cron prunes .context/audits/cron/ and leaves the deletions pending in the
-# working tree indefinitely. Committing them is a housekeeping decision belonging to the
-# operator, not a side effect of whatever the agent was doing. Three sessions held this
-# line by staging explicit paths every time — until one `git add .context/` to pick up a
-# single episodic file swept 338 of them into the index. The rule lived in the agent's
-# head; the index does not consult it. Habit is what failed, so a habit is not the fix.
-#
-# Blocks only under agent control ($CLAUDECODE). The operator committing a retention
-# sweep deliberately is the intended path and is not obstructed.
-if [ "${CLAUDECODE:-0}" = "1" ] && [ "${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" ]; then
-    _rs_n=$(git diff --cached --name-only --diff-filter=D 2>/dev/null \
-            | grep -c '^\.context/audits/cron/' || true)
-    if [ "${_rs_n:-0}" -gt 0 ]; then
-        echo "" >&2
-        echo "ERROR: Commit blocked — $_rs_n retention-sweep deletion(s) staged (T-659)." >&2
-        echo "" >&2
-        echo "  .context/audits/cron/ is pruned by a retention cron. Those deletions are" >&2
-        echo "  the operator's to commit, not a byproduct of the current task." >&2
-        echo "" >&2
-        echo "  Almost always the cause: a directory-wide 'git add .context/' rather than" >&2
-        echo "  explicit paths. Unstage them and keep the rest of your work:" >&2
-        echo "" >&2
-        echo "    git reset HEAD .context/audits/" >&2
-        echo "" >&2
-        echo "  Then re-add only the files your task produced, by name." >&2
-        echo "" >&2
-        echo "  Operator, or a deliberate sweep: FW_ALLOW_RETENTION_SWEEP=1 git commit ..." >&2
-        echo "" >&2
-        exit 1
+# RESOLVED FROM THE AUTHORITY, DELIBERATELY NOT FROM $FRAMEWORK_ROOT.
+# Every other scanner in this hook resolves off `git rev-parse --show-toplevel`,
+# which in a linked worktree IS the worktree — i.e. the replica's own tracked,
+# possibly months-stale copy. That is precisely the circularity R7 describes: the
+# replica supplying the code meant to constrain the replica. `.git/hooks` is the
+# one anchor that does not fork, so this block walks back to the main checkout
+# via --git-common-dir and loads the guard from there. Do not "simplify" it to
+# match its siblings; that silently deletes the only version-independent leg.
+_fw_gcd=$(git rev-parse --git-common-dir 2>/dev/null)
+case "$_fw_gcd" in
+    "") ;;
+    /*) ;;
+    *)  _fw_gcd="$PROJECT_ROOT/$_fw_gcd" ;;
+esac
+AUTHORITY_ROOT=""
+[ -n "$_fw_gcd" ] && AUTHORITY_ROOT=$(cd "$(dirname "$_fw_gcd")" 2>/dev/null && pwd)
+
+CORPUS_GUARD=""
+if [ -n "$AUTHORITY_ROOT" ]; then
+    for _cand in "$AUTHORITY_ROOT/agents/git/lib/worktree-corpus-guard.sh" \
+                 "$AUTHORITY_ROOT/.agentic-framework/agents/git/lib/worktree-corpus-guard.sh"; do
+        if [ -f "$_cand" ]; then CORPUS_GUARD="$_cand"; break; fi
+    done
+    if [ -z "$CORPUS_GUARD" ] && [ -f "$AUTHORITY_ROOT/.framework.yaml" ]; then
+        _afp=$(grep "^framework_path:" "$AUTHORITY_ROOT/.framework.yaml" 2>/dev/null | sed 's/framework_path:[[:space:]]*//')
+        if [ -n "$_afp" ] && [ -f "$_afp/agents/git/lib/worktree-corpus-guard.sh" ]; then
+            CORPUS_GUARD="$_afp/agents/git/lib/worktree-corpus-guard.sh"
+        fi
     fi
+fi
+if [ -n "$CORPUS_GUARD" ]; then
+    # T-2061 bash-invoke pattern: gate on -f, run via `bash`, so a vendored copy
+    # that landed without +x still runs.
+    PROJECT_ROOT="$PROJECT_ROOT" FW_AUTHORITY_ROOT="$AUTHORITY_ROOT" \
+        bash "$CORPUS_GUARD" scan-staged || exit 1
+elif [ -n "$AUTHORITY_ROOT" ] && [ "$AUTHORITY_ROOT" != "$PROJECT_ROOT" ] && [ -d "$AUTHORITY_ROOT/.tasks" ]; then
+    # Degrade to ALLOW — a guard that failed closed on its own missing dependency
+    # would block every commit in the repo. But not SILENTLY (T-2647: a control
+    # that no-ops is indistinguishable from one that passed), and only where it
+    # could have mattered: a linked worktree of a repo that has a task corpus.
+    # The main checkout and every worktree-free consumer print nothing, ever.
+    echo "WARNING: task-corpus commit guard is NOT running (T-3110) — not found at:" >&2
+    echo "  $AUTHORITY_ROOT/agents/git/lib/worktree-corpus-guard.sh" >&2
+    echo "Commits touching .tasks/ from this worktree are unguarded." >&2
+    echo "Fix at the authority: cd $AUTHORITY_ROOT && bin/fw upgrade" >&2
+    echo "  (framework repo: bin/fw vendor self)" >&2
 fi
 
 SCANNER="$FRAMEWORK_ROOT/agents/git/lib/secret-scan.sh"
@@ -442,6 +528,7 @@ exit 0
 HOOK_EOF
 
     chmod +x "$pre_commit_hook"
+    _verify_hook_written "$pre_commit_hook" || { install_failed=true; failed_hooks+=("$pre_commit_hook"); }
 
     # Create post-commit hook for bypass detection + context checkpoint
     cat > "$post_commit_hook" << 'HOOK_EOF'
@@ -449,7 +536,7 @@ HOOK_EOF
 # post-commit hook - Bypass Detection + Context Checkpoint
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.6
+# VERSION=1.7
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -565,17 +652,46 @@ if [ -f "$LATEST" ]; then
         fi
     fi
 fi
+
+# --- T-3130: refresh the episodic git footprint now the commit exists ---
+#
+# The episodic is generated by `fw task update --status work-completed`, which
+# by design runs BEFORE the commit carrying the task's work — that ordering is
+# what lets the completion gate block. So `git log --grep=T-XXX` mines a history
+# that does not contain the commit being described, and a task whose whole
+# history lands in one completion commit records `commits: 0` beside
+# `git_mining: ok`: a measured zero, true for one second, and never re-asked.
+#
+# This is the re-ask, and it hangs off the COMMIT rather than the completion
+# because the completion is the wrong vantage point by construction.
+#
+# Only `git_mining: ok` episodics are touched. `skipped` ones are T-3129's
+# absent measurements and are repaired by backfill — filling them from here
+# would erase the evidence that generation-time mining failed.
+FOOTPRINT_LIB="$FRAMEWORK_ROOT/lib/episodic_footprint.py"
+if [ -f "$FOOTPRINT_LIB" ] && command -v python3 >/dev/null 2>&1; then
+    _fp_sha=$(git rev-parse --short HEAD 2>/dev/null || echo unknown)
+    # One refresh per distinct task id in the message; `sort -u` because a
+    # message may name the same task several times.
+    for _fp_task in $(echo "$COMMIT_MSG" | grep -oE 'T-[0-9]+' | sort -u); do
+        [ -f "$PROJECT_ROOT/.context/episodic/$_fp_task.yaml" ] || continue
+        python3 "$FOOTPRINT_LIB" "$_fp_task" \
+            --project-root "$PROJECT_ROOT" --commit "$_fp_sha" 2>/dev/null || true
+    done
+    unset _fp_sha _fp_task
+fi
 HOOK_EOF
 
     chmod +x "$post_commit_hook"
+    _verify_hook_written "$post_commit_hook" || { install_failed=true; failed_hooks+=("$post_commit_hook"); }
 
     # Create pre-push hook for audit enforcement
     cat > "$pre_push_hook" << 'HOOK_EOF'
 #!/bin/bash
-# pre-push hook - Audit Enforcement + lightweight-tag rejection + VERSION monotonicity + self-vendor drift (T-1593, T-1603, T-1829, T-2240)
+# pre-push hook - Audit Enforcement + lightweight-tag rejection + VERSION monotonicity + self-vendor drift (T-1593, T-1603, T-1829, T-2240, T-3125, T-3126, T-3297)
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.5
+# VERSION=1.8
 
 # T-1603: VERSION monotonicity check.
 # Origin: T-1602 surfaced silent VERSION rollback in cc38e98f5 (1.5.463 → 1.5.19,
@@ -744,6 +860,69 @@ fi
 # Guard 2: FW_SKIP_SELF_VENDOR_CHECK=1 bypass for legitimate skip scenarios
 # (e.g. release prep where vendor refresh is the next commit). Tier-2 visibility
 # via stderr WARN — matches existing hook pattern (no separate log writes).
+# T-3125: the detector above judges the WORKING TREE; the property this gate
+# protects is about the PUSHED REF. `fw vendor self --dry-run` compares
+# working-tree source against working-tree vendored copies, so ANY session with
+# an uncommitted edit to a vendored-class file blocked EVERY other session's
+# push, with no exit but a Tier-2 or Tier-0 bypass. Observed live 2026-08-23: 19
+# commits held for hours by a concurrent session's uncommitted bin/fw and
+# agents/audit/audit.sh — for both, `git show HEAD:<src>` was byte-identical to
+# the vendored blob. The ref being pushed was clean; the block was false.
+#
+# So the dry-run stays as the cheap DETECTOR, and these two helpers decide
+# whether the drift it found actually exists in the COMMITTED tree.
+#
+# _t3125_vendor_class mirrors the classes `fw vendor self --check` syncs
+# (lib/bin/agents/web/policy/.tasks-templates/designer). It is a deliberate
+# read-only MIRROR, not a shared list: bin/fw and agents/audit/audit.sh own the
+# canonical filters and their mismatch is a separate open defect (T-2607) which
+# this task does not touch. Getting the mirror wrong is safe in one direction
+# only — a class listed here that vendor-self does not sync could hold a real
+# push, so keep it conservative. VERSION is excluded on purpose: it is
+# sync-only, outside --check, and is rewritten on every commit.
+_t3125_vendor_class() {
+    case "$1" in
+        bin/*.pyc)                                  return 1 ;;
+        bin/*)                                      return 0 ;;
+        lib/*.sh|lib/*.py|lib/*.md)                 return 0 ;;
+        agents/*.sh|agents/*.py|agents/*.md)        return 0 ;;
+        web/*.sh|web/*.py|web/*.html|web/*.css|web/*.js|web/*.svg|web/*.j2|web/*.jinja2) return 0 ;;
+        .tasks/templates/*.md)                      return 0 ;;
+        policy/value-drivers.yaml|policy/bvp-scoring-rubric.md|policy/capability-overlay/tool-set.yaml|policy/anti-patterns.yaml|policy/escalation-patterns.yaml|policy/designer-pin.yaml) return 0 ;;
+    esac
+    # Designer class: only the build the ref's own pin names. The vendored tree
+    # deliberately prunes superseded builds, so matching vendor/designer/*.html
+    # would report 8 permanent phantoms and never let the gate downgrade.
+    [ -n "$_t3125_pinned_designer" ] && [ "$1" = "$_t3125_pinned_designer" ] && return 0
+    return 1
+}
+
+# Prints every class-matching source path whose vendored counterpart in $1 is
+# missing or different. Walks SOURCE paths (not the vendored tree) because that
+# is what vendor-self iterates: it syncs when the destination is absent OR
+# differs, so a newly committed lib/foo.sh that was never vendored is drift and
+# must still BLOCK. One `git ls-tree` fork, compared in-memory by blob sha.
+_t3125_committed_drift() {
+    local _ref="$1" _line _meta _path _sha
+    declare -A _t3125_blob
+    while IFS= read -r -d '' _line; do
+        _meta="${_line%%$'\t'*}"
+        _path="${_line#*$'\t'}"
+        _sha="${_meta##* }"
+        _t3125_blob["$_path"]="$_sha"
+    done < <(git -C "$PROJECT_ROOT" ls-tree -r -z "$_ref" 2>/dev/null)
+    _t3125_pinned_designer=$(git -C "$PROJECT_ROOT" show "$_ref:policy/designer-pin.yaml" 2>/dev/null \
+        | grep -E '^vendored_path:' | head -1 \
+        | sed -e 's/^vendored_path:[[:space:]]*//' -e 's/#.*//' -e 's/^"//' -e 's/"[[:space:]]*$//' -e 's/[[:space:]]*$//')
+    for _path in "${!_t3125_blob[@]}"; do
+        case "$_path" in .agentic-framework/*) continue ;; esac
+        _t3125_vendor_class "$_path" || continue
+        if [ "${_t3125_blob[.agentic-framework/$_path]:-}" != "${_t3125_blob[$_path]}" ]; then
+            printf '%s\n' "$_path"
+        fi
+    done
+}
+
 if [ -x "$PROJECT_ROOT/bin/fw" ] && [ -d "$PROJECT_ROOT/.agentic-framework/lib" ]; then
     if [ "${FW_SKIP_SELF_VENDOR_CHECK:-0}" = "1" ]; then
         echo "" >&2
@@ -753,24 +932,69 @@ if [ -x "$PROJECT_ROOT/bin/fw" ] && [ -d "$PROJECT_ROOT/.agentic-framework/lib" 
     else
         _sv_out=$("$PROJECT_ROOT/bin/fw" vendor self --dry-run 2>&1 || true)
         if echo "$_sv_out" | grep -q "would sync"; then
+            # T-3125: which ref is actually being pushed? git feeds pre-push
+            # "<local-ref> <local-sha> <remote-ref> <remote-sha>" on stdin, already
+            # buffered into $_stdin_buf by the T-1603 block above. Take the first
+            # non-deletion branch sha — that is the tree consumers will vendor.
+            # Fall back to HEAD when stdin carried nothing usable (manual
+            # invocation, tag-only push, deletion): HEAD is the closest committed
+            # approximation, and it is still strictly better than the working
+            # tree, which is what the false positive was made of.
+            _t3125_ref=""
+            while IFS=' ' read -r _t3125_lref _t3125_lsha _t3125_rref _t3125_rsha; do
+                [ -z "$_t3125_lref" ] && continue
+                [ "$_t3125_lsha" = "$_zero" ] && continue
+                case "$_t3125_lref" in refs/heads/*) ;; *) continue ;; esac
+                _t3125_ref="$_t3125_lsha"
+                break
+            done <<EOF
+$_stdin_buf
+EOF
+            [ -n "$_t3125_ref" ] || _t3125_ref="HEAD"
+            _sv_committed=$(_t3125_committed_drift "$_t3125_ref")
+
+            if [ -n "$_sv_committed" ]; then
+                echo "" >&2
+                echo "ERROR: Push blocked — self-vendor drift detected (T-2240):" >&2
+                echo "" >&2
+                echo "$_sv_out" | grep "would sync" | head -3 >&2
+                echo "" >&2
+                echo "Vendored .agentic-framework/ is stale; see the 'would sync' line(s)" >&2
+                echo "above for the affected class(es). Consumers that vendor from origin" >&2
+                echo "would inherit the divergence silently." >&2
+                echo "" >&2
+                echo "Stale in the COMMITTED tree being pushed (T-3125), first 5:" >&2
+                printf '%s\n' "$_sv_committed" | head -5 | sed 's/^/  /' >&2
+                echo "" >&2
+                echo "Fix:" >&2
+                echo "  cd $PROJECT_ROOT && bin/fw vendor self && git add .agentic-framework/ && git commit -m 'T-XXX: refresh vendored copies'" >&2
+                echo "" >&2
+                echo "Bypass (logged Tier-2):" >&2
+                echo "  FW_SKIP_SELF_VENDOR_CHECK=1 git push" >&2
+                echo "Bypass (Tier 0):" >&2
+                echo "  git push --no-verify" >&2
+                echo "" >&2
+                exit 1
+            fi
+
             echo "" >&2
-            echo "ERROR: Push blocked — self-vendor drift detected (T-2240):" >&2
+            echo "WARN: Self-vendor drift is working-tree-only — push allowed (T-3125)" >&2
+            echo "  Affected class(es):" >&2
+            echo "$_sv_out" | grep "would sync" | head -3 | sed 's/^ */    /' >&2
+            echo "  The tree being pushed ($_t3125_ref) is IN SYNC: every vendored-class" >&2
+            echo "  file matches its vendored copy in that commit, so consumers vendoring" >&2
+            echo "  from origin inherit nothing stale. The drift above lives only in" >&2
+            echo "  uncommitted edits — yours or a concurrent session's." >&2
+            # T-3165: point at the NARROWED invocation. The bare form used to sweep
+            # every dirty vendored-class file, including a concurrent task's, so this
+            # remedy for your drift silently staged someone else's unfinished work.
+            # `fw vendor self` now withholds those by default and names them; naming
+            # your own paths is what actually clears the gate.
+            echo "  Before COMMITTING your edits, sync only YOUR files:" >&2
+            echo "    FW_VENDOR_ONLY=\"<your-path> <your-path>\" bin/fw vendor self" >&2
+            echo "  The bare form withholds any dirty file you did not name and lists it," >&2
+            echo "  so you no longer have to already know which files are someone else's." >&2
             echo "" >&2
-            echo "$_sv_out" | grep "would sync" | head -3 >&2
-            echo "" >&2
-            echo "Vendored .agentic-framework/ is stale; see the 'would sync' line(s)" >&2
-            echo "above for the affected class(es). Consumers that vendor from origin" >&2
-            echo "would inherit the divergence silently." >&2
-            echo "" >&2
-            echo "Fix:" >&2
-            echo "  cd $PROJECT_ROOT && bin/fw vendor self && git add .agentic-framework/ && git commit -m 'T-XXX: refresh vendored copies'" >&2
-            echo "" >&2
-            echo "Bypass (logged Tier-2):" >&2
-            echo "  FW_SKIP_SELF_VENDOR_CHECK=1 git push" >&2
-            echo "Bypass (Tier 0):" >&2
-            echo "  git push --no-verify" >&2
-            echo "" >&2
-            exit 1
         fi
     fi
 fi
@@ -876,19 +1100,238 @@ echo ""
 
 # T-862: Run fast audit subset for pre-push (full audit takes >90s with 100+ tasks)
 # Structure checks: dirs exist, YAML parses, fabric valid — fast and catches real breaks
-"$AUDIT_SCRIPT" --section structure
-audit_exit=$?
+#
+# T-3126: the output is captured as well as shown, because the FAIL verdict alone
+# does not say WHICH TREE the failure lives in. The audit reads the working tree;
+# this gate decides a REF operation. `tee` keeps the run streaming to the operator
+# (it takes tens of seconds) while PIPESTATUS preserves the audit's own exit code —
+# the whole point of the exit-75 branch below is that the pipeline's exit code must
+# not be substituted for the audit's.
+_t3126_out=$(mktemp -t fw-prepush-audit-XXXXXX 2>/dev/null || echo "")
 
-if [ $audit_exit -eq 2 ]; then
+# T-3297: one audit attempt — shared by the first run and the bounded-wait
+# retries below. Sets $audit_exit; captures to $_t3126_out when available.
+_t3297_run_audit() {
+    if [ -n "$_t3126_out" ]; then
+        "$AUDIT_SCRIPT" --section structure 2>&1 | tee "$_t3126_out"
+        audit_exit=${PIPESTATUS[0]}
+    else
+        # mktemp unavailable: run exactly as before. No capture means no scope line,
+        # and the gate below treats a missing scope line as "block" — degraded to the
+        # pre-T-3126 behaviour, never to something weaker.
+        "$AUDIT_SCRIPT" --section structure
+        audit_exit=$?
+    fi
+}
+_t3297_run_audit
+
+# T-3297 / OBS-305: bounded wait for the audit lock before giving up.
+# The exit-75 BLOCK below is correct (a gate that did not run is not a gate that
+# passed — T-2930), but its original premise ("the cron audit finishes within a
+# minute or two") decayed: structural-30m cron audits stack when a run overlaps
+# the next trigger, so the lock can stay held for many minutes and every push
+# contends (observed 2026-08-16: 3 concurrent framework audits + 2 from another
+# project). Waiting a bounded window converts most contention hits into a short
+# pause instead of a failed push, without weakening the no-false-pass rule:
+# window exhausted → the same BLOCK as before, verbatim in effect.
+# T-3421: the 90s default decayed the same way T-3297's "minute or two" did —
+# the structure audit this gate runs measures ~292s in the timing ledger, so a
+# 90s window expired before the audit it waited for could finish, and every
+# contended push failed and re-ran a fresh 292s audit against the next pusher.
+# The default is now DERIVED from the last measured structure duration
+# (lib/prepush-lock-wait.sh: 1.25x, clamped [90,600], 360 without a ledger).
+# An explicit FW_PREPUSH_LOCK_WAIT still wins, exactly as before.
+_t3297_wait_source="FW_PREPUSH_LOCK_WAIT"
+if [ -n "${FW_PREPUSH_LOCK_WAIT:-}" ]; then
+    _t3297_wait="$FW_PREPUSH_LOCK_WAIT"
+else
+    _t3297_wait=""
+    if [ -f "$FRAMEWORK_ROOT/lib/prepush-lock-wait.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$FRAMEWORK_ROOT/lib/prepush-lock-wait.sh"
+        _t3297_wait="$(fw_prepush_lock_wait_default "$PROJECT_ROOT" 2>/dev/null)"
+        _t3297_wait_source="derived from .context/audits/full-audit-timing.yaml (T-3421)"
+    fi
+    if [ -z "$_t3297_wait" ]; then
+        _t3297_wait=360
+        _t3297_wait_source="fallback default (T-3421)"
+    fi
+fi
+case "$_t3297_wait" in ''|*[!0-9]*) _t3297_wait=360; _t3297_wait_source="fallback default (T-3421)" ;; esac
+_t3297_lock_file="$PROJECT_ROOT/.context/locks/audit.lock"
+# Probe mirrors audit.sh's own arm selection: flock when available, else the
+# fallback lock file's existence. The flock arm never unlinks the lock file
+# (T-3298: flock binds an inode, the path is a permanent rendezvous point), so a
+# transient `flock -n <file> -c true` is a safe held/free probe.
+_t3297_lock_free() {
+    if command -v flock >/dev/null 2>&1; then
+        [ -e "$_t3297_lock_file" ] || return 0
+        flock -n "$_t3297_lock_file" -c true 2>/dev/null
+    else
+        [ ! -f "$_t3297_lock_file" ]
+    fi
+}
+_t3297_waited=0
+if [ "$audit_exit" -eq 75 ] && [ "$_t3297_wait" -gt 0 ]; then
     echo ""
-    echo "ERROR: Push blocked - audit has FAILURES"
-    echo ""
-    echo "Fix the issues above before pushing."
-    echo ""
-    echo "Bypass: git push --no-verify"
-    echo "  (In agent context, Tier 0 will prompt for approval on --no-verify.)"
-    echo ""
-    exit 1
+    echo "Audit lock held — waiting up to ${_t3297_wait}s for it to free (FW_PREPUSH_LOCK_WAIT=$_t3297_wait, 0 disables)..."
+    _t3297_start=$(date +%s)
+    _t3297_deadline=$(( _t3297_start + _t3297_wait ))
+    _t3297_blind=0
+    while [ "$audit_exit" -eq 75 ] && [ "$(date +%s)" -lt "$_t3297_deadline" ]; do
+        if _t3297_lock_free; then
+            # Lock looks free — retry now. The retry may still lose the
+            # re-acquire race and return 75 again; keep waiting if so.
+            _t3297_run_audit
+            if [ "$audit_exit" -eq 75 ]; then
+                _t3297_blind=$(( _t3297_blind + 1 ))
+                # Probe says free yet the audit still reports contention: the
+                # contended lock is not one this probe can observe (a vendored
+                # audit resolving a different CONTEXT_DIR, an exotic host).
+                # Waiting blind burns the window for nothing — give up after 2
+                # consecutive blind retries and fall through to the BLOCK.
+                [ "$_t3297_blind" -ge 2 ] && break
+            fi
+        else
+            _t3297_blind=0
+        fi
+        [ "$audit_exit" -eq 75 ] && sleep 1
+    done
+    _t3297_waited=$(( $(date +%s) - _t3297_start ))
+fi
+
+# T-3297: Tier-2 log writer for the contention-only bypass (same entry shape as
+# lib/review.sh:_log_empty_recommendation_bypass and the other gate writers).
+_t3297_log_bypass() {
+    _t3297_log_dir="$PROJECT_ROOT/.context/working"
+    mkdir -p "$_t3297_log_dir" 2>/dev/null || return 0
+    _t3297_task=$(sed -n 's/^current_task:[[:space:]]*//p' "$_t3297_log_dir/focus.yaml" 2>/dev/null | head -1)
+    {
+        echo "- timestamp: '$(date -u +'%Y-%m-%dT%H:%M:%SZ')'"
+        echo "  task: '${_t3297_task:-unknown}'"
+        echo "  flag: 'FW_PUSH_SKIP_AUDIT_ON_CONTENTION=1'"
+        echo "  caller: 'pre-push audit gate (T-3297)'"
+        echo "  reason: 'audit lock contention (exit 75) — no verdict produced; contention-only Tier-2 skip after ${_t3297_waited:-0}s wait'"
+    } >> "$_t3297_log_dir/.gate-bypass-log.yaml" 2>/dev/null || true
+}
+
+# Parse the T-3126 partition. Absent line, unparseable count, or no capture at all
+# → _t3126_ref_fails stays empty → the FAILURES branch blocks, exactly as before.
+_t3126_ref_fails=""
+_t3126_wt_fails=""
+if [ -n "$_t3126_out" ] && [ -f "$_t3126_out" ]; then
+    _t3126_scope_line=$(grep -E '^AUDIT-SCOPE: ' "$_t3126_out" 2>/dev/null | tail -1)
+    if [ -n "$_t3126_scope_line" ]; then
+        _t3126_ref_fails=$(printf '%s\n' "$_t3126_scope_line" | sed -n 's/.*[[:space:]]ref=\([0-9][0-9]*\).*/\1/p')
+        _t3126_wt_fails=$(printf '%s\n' "$_t3126_scope_line" | sed -n 's/.*[[:space:]]worktree=\([0-9][0-9]*\).*/\1/p')
+    fi
+fi
+
+if [ $audit_exit -eq 75 ]; then
+    # T-2930 / OBS-221: 75 = EX_TEMPFAIL = the audit DID NOT RUN (lock contention).
+    # This is not a pass. Before this branch existed, contention exited 0 and landed
+    # in the "no failures" path, so a push during the daily audit cron was waved
+    # through with the gate never having evaluated anything — observed live
+    # 2026-08-11 with an invariant RED at the time.
+    #
+    # BLOCK rather than warn. The asymmetry is what decides it: a push blocked on
+    # contention costs seconds — wait for the other audit and push again — whereas a
+    # push waved through on an unevaluated gate costs whatever the unaudited commit
+    # does downstream, discovered later and attributed elsewhere.
+    #
+    # T-3297: contention-only Tier-2 bypass. It is checked HERE, inside the
+    # exit-75 branch, and nowhere else — so a real FAIL (exit 2) still blocks
+    # with the env set. Skipping a gate that produced NO verdict is a logged
+    # Tier-2 call; skipping one that produced a FAIL verdict would be a false
+    # pass, and no env var buys that.
+    if [ "${FW_PUSH_SKIP_AUDIT_ON_CONTENTION:-0}" = "1" ]; then
+        _t3297_log_bypass
+        echo ""
+        echo "WARNING: audit COULD NOT RUN (lock contention) — push allowed by"
+        echo "  FW_PUSH_SKIP_AUDIT_ON_CONTENTION=1 (Tier-2, logged to"
+        echo "  .context/working/.gate-bypass-log.yaml)."
+        echo "  No audit verdict exists for this push; run 'fw audit' once the lock frees."
+        echo ""
+    else
+        echo ""
+        echo "ERROR: Push blocked - audit COULD NOT RUN (another audit holds the lock)"
+        echo ""
+        echo "This is not an audit failure. No verdict was produced, so the gate has"
+        echo "nothing to pass you on."
+        echo ""
+        echo "The gate waited ${_t3297_waited:-0}s of its ${_t3297_wait:-0}s window (${_t3297_wait_source:-FW_PREPUSH_LOCK_WAIT})"
+        echo "for the lock to free. Cron audits can stack when a run overlaps the next"
+        echo "trigger, so the lock may stay held for many minutes (T-3297); the window"
+        echo "is sized from the last measured structure audit, so more than one queued"
+        echo "pusher can still outlast it (T-3421)."
+        echo "  Check: ls -l $PROJECT_ROOT/.context/locks/audit.lock; pgrep -af audit.sh"
+        echo ""
+        echo "What to do — each command works as-is from this blocked state:"
+        echo "  1. Wait for the running audit(s) to finish, then push again."
+        echo "  2. Wait longer in-gate:  FW_PREPUSH_LOCK_WAIT=600 git push"
+        echo "       (seconds to wait for the lock; 0 disables the wait)"
+        echo "  3. Tier-2 bypass, CONTENTION ONLY:  FW_PUSH_SKIP_AUDIT_ON_CONTENTION=1 git push"
+        echo "       Applies only when the audit could not run (exit 75) — a real audit"
+        echo "       FAIL still blocks. Logged to .context/working/.gate-bypass-log.yaml."
+        echo ""
+        echo "Last resort: git push --no-verify"
+        echo "  (Tier 0 — prompts for human approval in agent context. Prefer 2 or 3.)"
+        echo ""
+        [ -n "$_t3126_out" ] && rm -f "$_t3126_out"
+        exit 1
+    fi
+elif [ $audit_exit -eq 2 ]; then
+    # T-3126: block only on REF-scoped failures.
+    #
+    # A worktree-scoped FAIL is real — the audit is right to report it — but it is
+    # a property of uncommitted edits, untracked files, or host state, none of
+    # which any git ref contains. Refusing the push does not fix it, and it is
+    # routinely somebody ELSE's in-flight work: on 2026-08-23 a concurrent
+    # session's uncommitted bin/fw + agents/audit/audit.sh and two untracked
+    # tests/lint/*.bats files held a push of a ref containing neither.
+    #
+    # The downgrade requires PROOF: a scope line saying ref=0 with at least one
+    # worktree-scoped failure. Anything else — no line (audit predates T-3126, or
+    # the capture failed), a non-numeric count, or ref>0 — blocks.
+    if [ "$_t3126_ref_fails" = "0" ] && [ -n "$_t3126_wt_fails" ] && [ "$_t3126_wt_fails" != "0" ]; then
+        echo ""
+        echo "WARNING: Audit FAILED, but every failure is in the WORKING TREE (T-3126)"
+        echo ""
+        echo "  Worktree-scoped failure(s):"
+        grep -E '^AUDIT-SCOPE-WORKTREE: ' "$_t3126_out" 2>/dev/null \
+            | sed -e 's/^AUDIT-SCOPE-WORKTREE: /    - /'
+        echo ""
+        echo "  These findings are in the WORKING TREE: uncommitted edits, untracked"
+        echo "  files, or host state such as /etc/cron.d."
+        echo "  They are NOT in the ref being pushed — a clean checkout of that commit"
+        echo "  does not contain them."
+        echo "  They are therefore NOT BLOCKING THIS PUSH."
+        echo ""
+        echo "  They are still real. Fix them before COMMITTING the edits that caused"
+        echo "  them — or, if they are a concurrent session's, leave them to that"
+        echo "  session. Details: the [FAIL] blocks above, each with a 'Scope:' line."
+        echo ""
+    else
+        echo ""
+        echo "ERROR: Push blocked - audit has FAILURES"
+        echo ""
+        if [ -n "$_t3126_ref_fails" ]; then
+            echo "  $_t3126_ref_fails failure(s) are REF-scoped — present in the commit being"
+            echo "  pushed, not just in your working tree."
+        else
+            echo "  Failure scope could not be determined (no AUDIT-SCOPE line — the audit"
+            echo "  predates T-3126, or its output could not be captured). Blocking:"
+            echo "  an undetermined scope is not a determination that the ref is clean."
+        fi
+        echo ""
+        echo "Fix the issues above before pushing."
+        echo ""
+        echo "Bypass: git push --no-verify"
+        echo "  (In agent context, Tier 0 will prompt for approval on --no-verify.)"
+        echo ""
+        [ -n "$_t3126_out" ] && rm -f "$_t3126_out"
+        exit 1
+    fi
 elif [ $audit_exit -eq 1 ]; then
     echo ""
     echo "WARNING: Audit has warnings (push allowed)"
@@ -896,10 +1339,36 @@ elif [ $audit_exit -eq 1 ]; then
     echo ""
 fi
 
+[ -n "$_t3126_out" ] && rm -f "$_t3126_out"
 exit 0
 HOOK_EOF
 
     chmod +x "$pre_push_hook"
+    _verify_hook_written "$pre_push_hook" || { install_failed=true; failed_hooks+=("$pre_push_hook"); }
+
+    # T-2813: report actual disk state, not the write that was attempted.
+    # A hook is only listed as installed once _verify_hook_written confirmed
+    # it exists and is executable — a hook whose write failed is reported as
+    # a failure, never silently folded into a success banner.
+    if [ "$install_failed" = true ]; then
+        echo -e "${RED}ERROR: hook installation failed — ${#failed_hooks[@]} of 4 hook(s) were not written:${NC}" >&2
+        echo "" >&2
+        for _fh in "${failed_hooks[@]}"; do
+            echo "  - $_fh" >&2
+        done
+        echo "" >&2
+        echo "Cause: the target file does not exist (or is not executable) after the" >&2
+        echo "write, which means the write to the hooks directory did not complete —" >&2
+        echo "most commonly because the hooks directory itself does not exist or is" >&2
+        echo "not writable." >&2
+        echo "" >&2
+        echo "Fix:" >&2
+        echo "  1. Check the resolved hooks dir exists and is writable:" >&2
+        echo "       git rev-parse --git-path hooks" >&2
+        echo "  2. Re-run: $(_emit_user_command "git install-hooks" 2>/dev/null || echo "fw git install-hooks")" >&2
+        echo "" >&2
+        exit 1
+    fi
 
     echo -e "${GREEN}=== Hooks Installed ===${NC}"
     echo ""
@@ -913,7 +1382,7 @@ HOOK_EOF
     echo "  - Blocks commits without task references (T-XXX)"
     echo "  - Blocks commits introducing secrets (T-1844 — Azure PAT, AWS keys, SSH keys, etc.)"
     echo "  - Allows merge commits and rebases"
-    echo "  - Runs audit before push (blocks on FAIL, warns on WARN)"
+    echo "  - Runs audit before push (blocks on FAIL, blocks if audit could not run, warns on WARN)"
     echo "  - Bypass: $(_emit_user_command "tier0 approve") (Tier 0 protected)"
     echo "           then: git commit/push --no-verify"
 }
@@ -931,7 +1400,7 @@ Options:
 Installs:
   - commit-msg hook: Validates task reference in commit message
   - post-commit hook: Detects bypasses and reminds to log them
-  - pre-push hook: Runs audit before push (blocks on FAIL)
+  - pre-push hook: Runs audit before push (blocks on FAIL, and on could-not-run)
 
 The hooks enforce task traceability (P-002: Structural Enforcement).
 

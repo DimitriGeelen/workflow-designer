@@ -122,6 +122,27 @@ do_start() {
         case "$1" in
             --port|-p) port="$2"; shift 2 ;;
             --debug)   debug_flag="--debug"; shift ;;
+            # T-2806: `fw serve --help` routes here, not to the top-level help
+            # branch below — `--help` arrives as an ARGUMENT to start, so the
+            # catch-all rejected it: "[watchtower] Unknown option: --help",
+            # exit 1. Asking a command how to use it is never an error, and the
+            # failure taught the opposite: an operator's onboarding agent read it
+            # as "the verb does not exist" and went looking elsewhere.
+            -h|--help)
+                echo "Usage: fw serve [--port N] [--debug]"
+                echo ""
+                echo "Start the Watchtower web UI for this project."
+                echo ""
+                echo "Options:"
+                echo "  --port N, -p N   Listen port (default: resolved per-project,"
+                echo "                   not hard-coded — see 'fw watchtower port')"
+                echo "  --debug          Run in the foreground with debug logging"
+                echo ""
+                echo "Related:"
+                echo "  fw watchtower status|port|url    Inspect a running instance"
+                echo "  fw watchtower stop|restart       Lifecycle"
+                exit 0
+                ;;
             *)         log_error "Unknown option: $1"; exit 1 ;;
         esac
     done
@@ -184,7 +205,16 @@ do_start() {
 
     # Start Watchtower
     # Pass PROJECT_ROOT so Flask serves the correct project's data (T-467)
-    export PROJECT_ROOT="${PROJECT_ROOT:-$FRAMEWORK_ROOT}"
+    # T-3054: route through the shared resolver so an unset PROJECT_ROOT warns
+    # instead of silently serving the framework's own .tasks/ and .context/.
+    # The substitution stays — serving the framework repo is a legitimate run —
+    # but it is no longer invisible to the operator who did not intend it.
+    if type _watchtower_our_root >/dev/null 2>&1; then
+        PROJECT_ROOT="$(_watchtower_our_root)"
+    else
+        PROJECT_ROOT="${PROJECT_ROOT:-$FRAMEWORK_ROOT}"
+    fi
+    export PROJECT_ROOT
     log_info "Starting Watchtower on port $port (project: $PROJECT_ROOT)..."
     cd "$FRAMEWORK_ROOT"
     PROJECT_ROOT="$PROJECT_ROOT" python3 -m web.app --port "$port" $debug_flag > "$LOG_FILE" 2>&1 &
@@ -322,6 +352,38 @@ do_status() {
 }
 
 # ---------------------------------------------------------------------------
+# do_current — Is the RUNNING process serving the code on disk? (T-3282, G-104)
+# ---------------------------------------------------------------------------
+# rc 0 = current, OR no Watchtower running (nothing can be stale — this keeps
+#        the verb safe inside ## Verification blocks on headless/CI/worktree
+#        hosts, same scoping idea as `command -v dotnet && dotnet build`).
+# rc 1 = the running process predates at least one file under web/ — every
+#        web/ change since it started is inert, including operator-facing
+#        fixes already closed green. Both prior incidents (T-2938, T-3282)
+#        polluted a live human decision this way.
+do_current() {
+    local pid=""
+    # set -euo pipefail is active: a missing pid file must read as "not
+    # running", not abort the script mid-verdict.
+    [ -f "$PID_FILE" ] && pid=$(tr -d '[:space:]' < "$PID_FILE" 2>/dev/null || true)
+    if [ -z "$pid" ] || ! kill -0 "$pid" 2>/dev/null; then
+        log_info "current: no Watchtower running — nothing to be stale"
+        return 0
+    fi
+    # shellcheck source=/dev/null
+    . "$FRAMEWORK_ROOT/lib/watchtower-staleness.sh"
+    local stale
+    if stale=$(watchtower_stale_sources "$pid" "$PROJECT_ROOT/web"); then
+        log_error "STALE: Watchtower pid $pid predates $(printf '%s\n' "$stale" | grep -c .) file(s) under web/"
+        printf '%s\n' "$stale" | head -5 | sed 's|^|  - |' >&2
+        log_error "Every web/ change since it started is inert. Run: bin/fw watchtower restart"
+        return 1
+    fi
+    log_info "current: Watchtower pid $pid is newer than every file under web/"
+    return 0
+}
+
+# ---------------------------------------------------------------------------
 # do_port / do_url — Public accessors for triple-file source-of-truth (T-1376 B5)
 # ---------------------------------------------------------------------------
 do_port() {
@@ -332,7 +394,43 @@ do_port() {
     fi
 }
 
+# T-2802: what to say when we cannot identify a Watchtower of ours. Distinguishes
+# the two states an unverified port can be in, because they have different fixes
+# and the old code reported neither: nothing is listening (start one) vs. someone
+# ELSE is listening (do not curl it — that is the 371-line false-green class).
+_url_refuse() {
+    local _p="$1"
+    local _probe
+    log_error "Cannot identify a Watchtower for this project."
+    # PROJECT_ROOT is always set here — lib/paths.sh:39-46 falls back to
+    # FRAMEWORK_ROOT — so naming it is the useful thing to print: on a
+    # multi-project host, "which project am I actually being asked about" is
+    # half the answer.
+    echo "  Project: $PROJECT_ROOT" >&2
+    if _probe=$(curl -sf --max-time 2 "http://localhost:${_p}/api/_identity" 2>/dev/null); then
+        echo "  Something IS listening on localhost:${_p}, but it is not this" >&2
+        echo "  project's Watchtower. Do not treat it as ours — on a multi-project" >&2
+        echo "  host the same Flask app answers 200 for almost any path, so a curl" >&2
+        echo "  against it passes while asserting nothing." >&2
+        echo "" >&2
+        echo "  Identity reported: $(printf '%s' "$_probe" | head -c 200)" >&2
+        echo "  Start yours on another port: fw serve --port <N>" >&2
+    else
+        echo "  Nothing is listening on localhost:${_p}." >&2
+        echo "  Start one with: fw serve" >&2
+    fi
+    echo "  Or set WATCHTOWER_URL explicitly." >&2
+    return 1
+}
+
 do_url() {
+    # T-2802: env override first, for parity with lib/watchtower.sh's
+    # _watchtower_url — a caller who states the answer is not guessing.
+    if [ -n "${WATCHTOWER_URL:-}" ]; then
+        echo "$WATCHTOWER_URL"
+        return 0
+    fi
+
     # T-1622: when running, regenerate LAN URL from current detect_lan_ip — the
     # cached URL_FILE goes stale on DHCP IP rotation (T-1621). Witness: this host
     # bounced between .123 and .107 8x in one day, file kept first-write value
@@ -349,11 +447,19 @@ do_url() {
             echo "http://localhost:${p}"
         fi
     elif [ -f "$URL_FILE" ]; then
+        # Written by our own start (triple-file), so it is project-scoped by
+        # construction: "where it WAS running". Stale, but never someone else's.
         cat "$URL_FILE"
     else
+        # T-2802: this used to be `echo "http://localhost:$(fw_config PORT 3000)"`
+        # — a guess wearing the shape of an answer. lib/watchtower.sh's
+        # _watchtower_url has refused to do that since T-1803 ("never return a URL
+        # to a service we didn't positively identify"); this accessor, the one
+        # CLAUDE.md puts inside ## Verification blocks, kept doing it.
         local p
         p=$(fw_config "PORT" "$DEFAULT_PORT")
-        echo "http://localhost:$p"
+        _url_refuse "$p"
+        return 1
     fi
 }
 
@@ -370,6 +476,7 @@ case "$cmd" in
     status)  do_status ;;
     port)    do_port ;;
     url)     do_url ;;
+    current) do_current ;;
     ""|help|-h|--help)
         echo "Usage: $(basename "$0") {start|stop|restart|status|port|url} [options]"
         echo ""
@@ -380,6 +487,7 @@ case "$cmd" in
         echo "  status                         Show current state"
         echo "  port                           Print current port (triple-file source of truth; T-1376 B5)"
         echo "  url                            Print current URL (triple-file source of truth; T-1376 B5)"
+        echo "  current                        Exit 1 if the running process predates web/ source (T-3282)"
         echo ""
         echo "Environment:"
         echo "  FW_PORT  Default port (default: 3000)"

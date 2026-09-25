@@ -53,6 +53,18 @@ do_drift() {
         [ -f "$card" ] || continue
         local loc
         loc=$({ grep "^location:" "$card" 2>/dev/null || true; } | head -1 | sed 's/^location: //')
+        # T-3049: a URL location is not a path, and "does this file exist" has no
+        # answer for it — so decline the question instead of answering no. Cards
+        # for hosted services (saas-account cards in consumer projects) carry
+        # https:// locations and were flagged (file missing) permanently.
+        # Neither existing escape catches it: the T-1673 branch below tests only
+        # for a leading /, and git check-ignore on a URL string returns
+        # not-ignored, so T-2519's exemption passes it through to the warning.
+        # Requires the full :// separator — a path containing a bare colon, or a
+        # malformed http:/single-slash, is still a path and still checked.
+        case "$loc" in
+            [a-zA-Z]*://*) continue ;;
+        esac
         # T-1673: handle absolute paths (cross-repo cards from T-1652) — don't
         # join with PROJECT_ROOT when the location is already absolute.
         local resolved
@@ -181,175 +193,65 @@ PYEOF
     [ "$stale" -eq 0 ] && echo "  (none)"
 
     echo ""
-    echo -e "${BOLD}Summary:${NC} unregistered: $unregistered, orphaned: $orphaned, stale: $stale"
+
+    # 4. Under-populated cards (T-3430). A card that says nothing is invisible
+    # to every class above: it IS registered, its file DOES exist, and its
+    # absent edges cannot be stale. 792 of 1314 cards on this repo carried the
+    # template TODO and no health check had an opinion about it.
+    echo -e "${CYAN}Under-populated cards:${NC}"
+    local under_populated=0 up_todo=0 up_unknown=0 up_noedges=0
+    local _up_raw
+    _up_raw=$(python3 "$LIB_DIR/underpopulated.py" "$COMPONENTS_DIR" 2>/dev/null || true)
+    if [ -n "$_up_raw" ]; then
+        local _up_lines
+        _up_lines=$({ printf '%s\n' "$_up_raw" | grep -v '^##UP_' || true; })
+        [ -n "$_up_lines" ] && printf '%s\n' "$_up_lines"
+        up_todo=$(printf '%s\n' "$_up_raw" | sed -n 's/^##UP_TODO=\([0-9]*\)##$/\1/p')
+        up_unknown=$(printf '%s\n' "$_up_raw" | sed -n 's/^##UP_UNKNOWN=\([0-9]*\)##$/\1/p')
+        up_noedges=$(printf '%s\n' "$_up_raw" | sed -n 's/^##UP_NOEDGES=\([0-9]*\)##$/\1/p')
+        under_populated=$(printf '%s\n' "$_up_raw" | sed -n 's/^##UP_TOTAL=\([0-9]*\)##$/\1/p')
+    fi
+    : "${up_todo:=0}" "${up_unknown:=0}" "${up_noedges:=0}" "${under_populated:=0}"
+    if [ "$under_populated" -eq 0 ]; then
+        echo "  (none)"
+    else
+        echo "  TODO purpose: $up_todo, unknown subsystem: $up_unknown, no edges: $up_noedges"
+        echo "  Fix: bin/fw fabric enrich --describe-only"
+    fi
+
+    echo ""
+    echo -e "${BOLD}Summary:${NC} unregistered: $unregistered, orphaned: $orphaned, stale: $stale, under-populated: $under_populated"
 
     if [ "$summary_flag" = "--summary" ]; then
         echo "unregistered: $unregistered"
         echo "orphaned: $orphaned"
         echo "stale: $stale"
+        echo "under-populated: $under_populated"
+        echo "under-populated-todo-purpose: $up_todo"
+        echo "under-populated-unknown-subsystem: $up_unknown"
+        echo "under-populated-no-edges: $up_noedges"
     fi
 
     return 0
 }
 
-# T-524: card well-formedness. This used to print "checking..." for every card, then
-# "Deep validation not yet implemented", then `return 0` — the banner was honest but the
-# EXIT CODE was not, so `fw fabric validate && echo ok` reported success for work that was
-# never done. An abstention must be distinguishable from a pass (PL-205); "I validated
-# nothing" and "everything is valid" may not share an exit code.
-#
-# SCOPE BOUNDARY vs do_drift, deliberately drawn so the two do not overlap:
-#   drift    = card versus the world  (unregistered files, orphaned cards, stale edges)
-#   validate = the card ITSELF        (parses, carries the fields every reader assumes, unique id)
-# A `location:` that names a file which does not exist is drift's orphan check and is NOT
-# repeated here.
-#
-# WHY THIS EXISTS AT ALL — T-522. A card missing `location:` aborted update-task.sh mid-
-# completion under `set -euo pipefail` and silently lost two episodics. That fix added
-# `|| true` at both greps, which makes a malformed card NON-FATAL but not VISIBLE: the card
-# simply stops participating, and nothing says so. Worse, it is not merely inert — a card
-# with no `location:` contributes nothing to the `registered` set built at line 25, so the
-# file it describes is reported as UNREGISTERED and the operator is advised to run
-# `fw fabric scan`, which would mint a SECOND card for the same file. Silence that
-# manufactures duplicates.
-#
-# Exit: 0 = every card valid, 1 = findings, 2 = REFUSE (nothing was evaluated).
 do_validate() {
     ensure_fabric_dirs
 
     local component="${1:-}"
-    local out rc=0
-
-    # `out=$(...)` must not be a bare assignment: under the inherited `set -euo pipefail`
-    # a non-zero exit from the substitution terminates the whole script rather than
-    # setting rc — the exact defect T-522 diagnosed, and this function's reason to exist.
-    # The `|| rc=$?` makes it a compound list, which suspends set -e for the assignment.
-    out=$(python3 - "$COMPONENTS_DIR" "$PROJECT_ROOT" "$component" <<'PYEOF'
-import glob
-import os
-import sys
-
-try:
-    import yaml
-except ImportError:
-    print("REFUSE: PyYAML is not available, so no card could be parsed.")
-    print("Nothing was evaluated — this is an abstention, not a pass.")
-    sys.exit(2)
-
-components_dir, project_root, only = sys.argv[1], sys.argv[2], sys.argv[3]
-
-# Every required field is justified by a READER that misbehaves without it, cited by
-# file:line. A field nobody reads is not required — inventing a schema and then enforcing
-# it would make this a generator of busywork rather than a detector, and would be the
-# "convention used as a classifier" failure T-509 records.
-REQUIRED = {
-    "id": "depends_on edges name card ids; a card without one can never be resolved as a "
-          "dependency target (lib/drift.sh stale-edge pass, lib/deps.sh)",
-    "name": "every report prints it as the subject of the line; without it drift renders "
-            "'! → <path>' with a blank subject (lib/drift.sh:81)",
-    "location": "the ONLY link from a card to the file it describes — registration "
-                "matching (lib/drift.sh:25), orphan detection (lib/drift.sh:55), and "
-                "component resolution in agents/task-create/update-task.sh (T-522)",
-}
-
-cards = sorted(glob.glob(os.path.join(components_dir, "*.yaml")))
-
-if only:
-    stem = os.path.splitext(os.path.basename(only))[0]
-    kept = []
-    for c in cards:
-        if os.path.splitext(os.path.basename(c))[0] == stem:
-            kept.append(c)
-            continue
-        try:
-            with open(c) as fh:
-                doc = yaml.safe_load(fh) or {}
-            if isinstance(doc, dict) and str(doc.get("id", "")) == only:
-                kept.append(c)
-        except Exception:
-            pass
-    if not kept:
-        print("REFUSE: no card matches %r (looked by card id and by filename stem)." % only)
-        print("Nothing was evaluated — this is an abstention, not a pass.")
-        sys.exit(2)
-    cards = kept
-
-if not cards:
-    print("REFUSE: no component cards found under %s"
-          % os.path.relpath(components_dir, project_root))
-    print("Nothing was evaluated — this is an abstention, not a pass. A run over zero")
-    print("cards must not be reportable as 'all cards valid'.")
-    sys.exit(2)
-
-findings = []          # (card_basename, field_or_kind, detail)
-ids_seen = {}          # id -> [basenames]
-
-for path in cards:
-    base = os.path.basename(path)
-    try:
-        with open(path) as fh:
-            doc = yaml.safe_load(fh)
-    except Exception as exc:
-        # An unparseable card is skipped in silence by every python pass in this file
-        # (they wrap safe_load in bare try/except) — so it is present, counted by ls, and
-        # invisible to the graph. That is the same silence, one level lower.
-        findings.append((base, "yaml", "does not parse: %s" % str(exc).splitlines()[0][:120]))
-        continue
-
-    if not isinstance(doc, dict):
-        findings.append((base, "yaml", "parses to %s, not a mapping" % type(doc).__name__))
-        continue
-
-    for field, why in REQUIRED.items():
-        if field not in doc:
-            findings.append((base, field, "missing — %s" % why))
-        elif doc[field] is None or str(doc[field]).strip() == "":
-            findings.append((base, field, "present but empty — %s" % why))
-
-    cid = doc.get("id")
-    if cid is not None and str(cid).strip():
-        ids_seen.setdefault(str(cid).strip(), []).append(base)
-
-for cid, holders in sorted(ids_seen.items()):
-    if len(holders) > 1:
-        # Two cards claiming one id makes every edge naming it ambiguous, and which one
-        # wins is glob order — i.e. the filename, which nobody thinks of as semantic.
-        findings.append((", ".join(sorted(holders)), "id",
-                         "duplicate id %r held by %d cards" % (cid, len(holders))))
-
-print("Fabric card validation")
-print("cards checked: %d" % len(cards))
-print("required fields: %s" % ", ".join(sorted(REQUIRED)))
-print("")
-
-if not findings:
-    print("OK: %d card(s) valid" % len(cards))
-    sys.exit(0)
-
-by_card = {}
-for base, field, detail in findings:
-    by_card.setdefault(base, []).append((field, detail))
-
-for base in sorted(by_card):
-    print("  ! %s" % base)
-    for field, detail in by_card[base]:
-        print("      %s: %s" % (field, detail))
-
-print("")
-print("INVALID: %d finding(s) across %d card(s) of %d checked"
-      % (len(findings), len(by_card), len(cards)))
-sys.exit(1)
-PYEOF
-    ) || rc=$?
-
-    echo "$out"
-
-    if [ "$rc" -eq 2 ]; then
-        echo -e "${YELLOW:-}Refused — nothing was validated (exit 2).${NC:-}" >&2
-    elif [ "$rc" -eq 0 ]; then
-        echo -e "${GREEN:-}Fabric cards valid${NC:-}"
+    if [ -z "$component" ]; then
+        echo "Validating all components..."
+        for card in "$COMPONENTS_DIR"/*.yaml; do
+            [ -f "$card" ] || continue
+            local name
+            name=$({ grep "^name:" "$card" 2>/dev/null || true; } | head -1 | sed 's/^name: //')
+            echo -e "${CYAN}$name${NC}: checking..."
+            # TODO: deep validation per card
+        done
     else
-        echo -e "${RED:-}Fabric card validation FAILED${NC:-}" >&2
+        echo "Validating: $component"
+        # TODO: deep validation for specific component
     fi
-    return "$rc"
+    echo -e "${YELLOW}Deep validation not yet implemented — use 'fw fabric drift' for basic checks${NC}"
+    return 0
 }

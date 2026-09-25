@@ -5,6 +5,10 @@
 # Ensure _fw_cmd/_emit_user_command are available (T-1143)
 [[ -z "${_FW_PATHS_LOADED:-}" ]] && source "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/lib/paths.sh" 2>/dev/null || true
 
+# Anchored AC / Recommendation section extraction (T-3148, sibling to
+# lib/verification-port.sh:extract_verification_block, T-3134)
+[[ -z "${_FW_SECTION_EXTRACT_LOADED:-}" ]] && source "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/lib/section-extract.sh" 2>/dev/null || true
+
 do_inception() {
     local subcmd="${1:-}"
     shift || true
@@ -126,9 +130,15 @@ do_inception_start() {
         local _log_file="${PROJECT_ROOT}/.context/working/.gate-bypass-log.yaml"
         local _ts
         _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        # T-3412: $name is free text (inception title) and can contain a single
+        # quote, the escape character for this single-quoted YAML scalar. Double
+        # it per the YAML rule (same idiom as T-1861 / create-task.sh's sibling
+        # logger) instead of interpolating raw — sibling bug found while fixing
+        # agents/task-create/create-task.sh:_log_recommendation_bypass.
+        local _t3412_esc_name="${name//\'/\'\'}"
         {
             echo "- timestamp: '$_ts'"
-            echo "  task: '<filing: $name>'"
+            echo "  task: '<filing: $_t3412_esc_name>'"
             echo "  flag: '--i-am-human'"
             echo "  caller: 'do_inception_start'"
             echo "  reason: 'filing-time recommendation gate (T-1715/T-1716)'"
@@ -423,6 +433,47 @@ do_inception_decide() {
         exit 1
     fi
 
+    # Target validation runs BEFORE the sovereignty gate (T-2964, 832's OBS-047).
+    # The ordering is load-bearing, not cosmetic. The sovereignty refusal below
+    # dispatches on the COMMAND NAME and never looks at an argument, so while it ran
+    # first, EVERY malformed request came back as "this belongs to the human" —
+    # including `decide` aimed at a build task, which is not an inception decision at
+    # all. A refusal is where the agent's next hypothesis comes from, and that one
+    # sent 832's agent to hand its operator a command that could not have worked;
+    # two independent gates refusing read as corroboration when in fact both were
+    # dispatching on the same blind spot. The four sibling sovereignty gates in
+    # lib/arc.sh already validate their target first (_arc_exists /
+    # _arc_require_status ahead of the CLAUDECODE check) — this site was the
+    # outlier, not the pattern.
+
+    # Find task file
+    local task_file
+    task_file=$(find_task_file "$task_id" active)
+    if [ -z "$task_file" ]; then
+        echo -e "${RED}Task $task_id not found in active tasks${NC}" >&2
+        exit 1
+    fi
+
+    # Verify it's an inception task
+    if ! grep -q "workflow_type: inception" "$task_file"; then
+        local _wf
+        _wf=$(grep -m1 '^workflow_type:' "$task_file" | sed 's/^workflow_type:[[:space:]]*//' | tr -d '"'"'" )
+        echo -e "${RED}ERROR: $task_id is not an inception task (workflow_type: ${_wf:-unset})${NC}" >&2
+        echo "" >&2
+        echo -e "'fw inception decide' records GO/NO-GO/DEFER on an exploration. It does not" >&2
+        echo -e "apply to a ${_wf:-non-inception} task, however real the ruling it is carrying." >&2
+        echo "" >&2
+        echo -e "What applies instead:" >&2
+        echo -e "  • Ruling belongs to an unchecked Human AC on this task:" >&2
+        echo -e "      $(_emit_user_command "task review $task_id")" >&2
+        echo -e "    (human ticks the AC, then 'fw task update $task_id --status work-completed')" >&2
+        echo -e "  • Ruling is a design choice worth recording:" >&2
+        echo -e "      $(_emit_user_command "context add-decision --task $task_id")" >&2
+        echo -e "  • The task genuinely IS an exploration — fix its frontmatter first:" >&2
+        echo -e "      $(_emit_user_command "task update $task_id --type inception")" >&2
+        exit 1
+    fi
+
     # Gate (T-1259): block agent invocation — enforces T-679
     # Agents must use `fw task review T-XXX` + Watchtower; never call decide directly.
     # $CLAUDECODE=1 is set by Claude Code when running agent sessions.
@@ -442,20 +493,6 @@ do_inception_decide() {
         echo "" >&2
         echo -e "If this is a human running inside an agent session (rare), pass --i-am-human." >&2
         echo -e "See CLAUDE.md §Presenting Work for Human Review." >&2
-        exit 1
-    fi
-
-    # Find task file
-    local task_file
-    task_file=$(find_task_file "$task_id" active)
-    if [ -z "$task_file" ]; then
-        echo -e "${RED}Task $task_id not found in active tasks${NC}"
-        exit 1
-    fi
-
-    # Verify it's an inception task
-    if ! grep -q "workflow_type: inception" "$task_file"; then
-        echo -e "${RED}$task_id is not an inception task${NC}"
         exit 1
     fi
 
@@ -519,10 +556,41 @@ do_inception_decide() {
     # Mirrors update-task.sh:73-105 AC counting logic; no new behavior, just
     # early validation. (T-131 in downstream 003-NTB-ATC-Plugin / P-010.)
     if [ "$decision" = "go" ] || [ "$decision" = "no-go" ]; then
+        # T-3279 (G-102): decision-readiness preflight — runs the SAME disposition
+        # predicate the completion gate (T-2190) enforces, BEFORE anything mutates
+        # the task body (tick_inception_decide_acs writes the file too). Without
+        # this, a decide on an under-disposed inception records the decision, then
+        # the completion side-effect refuses — the class-2 stuck state (decision
+        # recorded, status started-work) the operator hit on T-3278, with the
+        # gate's agent-facing stderr surfaced raw in Watchtower. Refuse HERE,
+        # body untouched, in language both operator and agent can act on.
+        source "$FRAMEWORK_ROOT/lib/inception-readiness.sh" 2>/dev/null || true
+        if command -v inception_underdisposed_questions >/dev/null 2>&1; then
+            local _underdisposed
+            _underdisposed=$(inception_underdisposed_questions "$task_file")
+            if [ -n "$_underdisposed" ]; then
+                local _ud_count
+                _ud_count=$(printf '%s\n' "$_underdisposed" | grep -c .)
+                echo -e "${RED}ERROR: Cannot record $decision_upper — $_ud_count Open Question(s) not yet disposed.${NC}" >&2
+                echo "" >&2
+                echo "This inception's decision is not ready: each IW-N under '## Open Questions'" >&2
+                echo "needs 'disposition: answered|deferred|dissolved' plus a one-line rationale" >&2
+                echo "before a go/no-go can complete (T-2190 disposition gate)." >&2
+                echo "" >&2
+                echo "Not yet disposed:" >&2
+                printf '%s\n' "$_underdisposed" | sed 's/^/    - /' >&2
+                echo "" >&2
+                echo "Nothing was written — the task body is untouched. Fill the dispositions" >&2
+                echo "(deferring a question to the build work is a valid disposition), then decide again." >&2
+                return 1
+            fi
+        fi
+
         tick_inception_decide_acs "$task_file"
 
         local _ac_section _agent_acs _agent_total _agent_checked _agent_unchecked
-        _ac_section=$(sed -n '/^## Acceptance Criteria/,/^## /p' "$task_file" 2>/dev/null | sed '$d' | sed '/<!--/,/-->/d')
+        # T-3148: anchored, FIRST-WINS extraction (lib/section-extract.sh).
+        _ac_section=$(extract_ac_section "$task_file" | sed '/<!--/,/-->/d')
         if echo "$_ac_section" | grep -q '^### Agent'; then
             _agent_acs=$(echo "$_ac_section" | awk '/^### Agent/{f=1; next} /^### /{f=0} f')
             _agent_total=$(echo "$_agent_acs" | grep -cE '^\s*-\s*\[[ x]\]' || true)
@@ -536,7 +604,9 @@ do_inception_decide() {
                 echo "" >&2
                 # T-1836 (T-1831 C-3): body-vs-checkbox drift hint at decide-preflight.
                 local _rec_block _rec_filled=false
-                _rec_block=$(sed -n '/^## Recommendation/,/^## /p' "$task_file" 2>/dev/null | sed '$d')
+                # T-3148: anchored, LAST-WINS extraction — the template ships
+                # a stub here and real content is appended after it (T-3144).
+                _rec_block=$(extract_recommendation_block "$task_file")
                 if [ -n "$_rec_block" ] && echo "$_rec_block" | grep -qE '^\*\*(Recommendation|Rationale|Evidence)(:\*\*|\*\*:)'; then
                     _rec_filled=true
                 fi

@@ -1,6 +1,5 @@
 """Tasks blueprint — task list, detail, status API."""
 
-from markupsafe import Markup
 import re as re_mod
 from datetime import datetime, timezone
 
@@ -173,7 +172,7 @@ def _load_enums():
         _ENUM_CACHE["workflow_types"] = ["build", "test", "refactor", "specification", "design", "decommission", "inception"]
         _ENUM_CACHE["horizons"] = ["now", "next", "later"]
         _ENUM_CACHE["statuses"] = ["captured", "started-work", "issues", "work-completed"]
-        _ENUM_CACHE["owners"] = ["human", "claude-code"]
+        _ENUM_CACHE["owners"] = ["human", "claude-code", "agent"]
     return _ENUM_CACHE
 
 
@@ -366,17 +365,10 @@ def _render_md_inline(text):
     """Render text as Markdown HTML for inline display (T-1551).
     Strips <p> wrapper for use inside <li> contexts. safe_mode='escape'
     blocks raw HTML — only Markdown syntax (links, code, emphasis) renders.
-    Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
+    Returns '' for empty input. The caller must mark returned strings safe.
     """
     if not text:
-        return Markup('')
+        return ''
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
     text = _auto_link_bare_urls(text)
@@ -386,22 +378,14 @@ def _render_md_inline(text):
         html = html[3:-4]
     html = _linkify_code_urls(html)
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 def _render_md_block(text):
     """Same as _render_md_inline but keeps <p> wrapping for block contexts
-    (Expected, If-not). T-1551.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
-    """
+    (Expected, If-not). T-1551."""
     if not text:
-        return Markup('')
+        return ''
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
     text = _auto_link_bare_urls(text)
@@ -409,7 +393,16 @@ def _render_md_block(text):
     html = markdown2.markdown(text, safe_mode='escape').strip()
     html = _linkify_code_urls(html)
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
+
+
+# T-3224: an AC field heading is `**<marker><suffix>:**`, where the optional
+# suffix carries a parenthetical or qualifier (`**Steps (Route A — manual):**`,
+# `**If not visible:**`). The suffix excludes `*` and `:` so inline bold later on
+# the same line can never be mistaken for the closing `:**`. Group 3 is whatever
+# follows the heading ON THE SAME LINE — dropping it was the Class-2 loss.
+_AC_FIELD_MARKER_RE = re_mod.compile(r'^\*\*(Steps|Expected|If not)([^*:]*?)\s*:\*\*\s*(.*)$')
+_AC_FIELD_BY_MARKER = {'Steps': 'steps', 'Expected': 'expected', 'If not': 'if_not'}
 
 
 def _parse_ac_body(body):
@@ -419,6 +412,14 @@ def _parse_ac_body(body):
     so `[label](url)`, inline `code`, and `**emphasis**` work in the
     /review/T-XXX surface (the original T-1548 friction). Templates must
     use `| safe` on these values.
+
+    T-3224: all three markers tolerate a heading suffix and keep same-line
+    content. Previously only Expected/If-not kept the rest of the line, and all
+    three required a byte-exact heading — so `**Steps:** 1. do it` rendered no
+    Steps at all, and `**Steps (Route A):**` was swallowed into the field above.
+    A suffix is kept as a bold label (it is what tells two `Steps` blocks apart),
+    and re-opening a field appends rather than replaces, so an AC offering two
+    routes renders both instead of only the last.
     """
     steps = []
     expected = ''
@@ -427,40 +428,34 @@ def _parse_ac_body(body):
         return steps, expected, if_not
 
     lines = body.split('\n')
+    collected = {'steps': [], 'expected': [], 'if_not': []}
     current_field = None
     current_content = []
 
     for line in lines:
         stripped = line.strip()
-        if stripped.startswith('**Steps:**'):
-            current_field = 'steps'
+        marker = _AC_FIELD_MARKER_RE.match(stripped)
+        if marker:
+            if current_field:
+                collected[current_field].extend(current_content)
+            current_field = _AC_FIELD_BY_MARKER[marker.group(1)]
             current_content = []
-            continue
-        elif stripped.startswith('**Expected:**'):
-            if current_field == 'steps':
-                steps = [s for s in current_content if s.strip()]
-            current_field = 'expected'
-            rest = stripped[len('**Expected:**'):].strip()
-            current_content = [rest] if rest else []
-            continue
-        elif stripped.startswith('**If not:**'):
-            if current_field == 'steps':
-                steps = [s for s in current_content if s.strip()]
-            elif current_field == 'expected':
-                expected = '\n'.join(current_content).strip()
-            current_field = 'if_not'
-            rest = stripped[len('**If not:**'):].strip()
-            current_content = [rest] if rest else []
+            suffix = marker.group(2).strip()
+            if suffix:
+                current_content.append(f'**{suffix}**')
+            rest = marker.group(3).strip()
+            if rest:
+                current_content.append(rest)
             continue
         if current_field:
             current_content.append(stripped)
 
-    if current_field == 'steps':
-        steps = [s for s in current_content if s.strip()]
-    elif current_field == 'expected':
-        expected = '\n'.join(current_content).strip()
-    elif current_field == 'if_not':
-        if_not = '\n'.join(current_content).strip()
+    if current_field:
+        collected[current_field].extend(current_content)
+
+    steps = [s for s in collected['steps'] if s.strip()]
+    expected = '\n'.join(collected['expected']).strip()
+    if_not = '\n'.join(collected['if_not']).strip()
 
     # Strip numbered prefixes from steps (e.g., "1. Do thing" → "Do thing")
     steps = [re_mod.sub(r'^\d+\.\s*', '', s) for s in steps]
@@ -862,6 +857,7 @@ def task_detail(task_id):
         episodic=episodic,
         task_id=task_id,
         status_options=status_options,
+        enum_owners=_load_enums()["owners"],
         ac_items=ac_items,
         artifacts=artifacts,
         can_complete=can_complete,

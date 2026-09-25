@@ -22,6 +22,31 @@ date_finished: null
 
 First task after `fw init`. Read existing project files, understand what __PROJECT_NAME__ does, and verify the framework is healthy.
 
+## For the Operator
+
+*Read this if you want to; nothing here is yours to do, and nothing here blocks the agent.*
+
+**What is happening:** the agent is learning __PROJECT_NAME__ — reading the README, finding
+the entry points — and running two health checks. `fw doctor` asks *is this install wired
+correctly*. `fw audit` asks *is this project's governance in good standing*.
+
+**Why it matters to you:** this is an existing codebase, so the audit numbers the agent
+records now are a **baseline**, not a verdict. Warnings on first run are normal — the
+framework has just arrived and is measuring a project that predates it. What matters is the
+direction that number moves over the coming weeks.
+
+The rule everything else hangs off: **nothing gets done without a task.** That is a hook
+that refuses file edits when no task is active, not a habit the agent has agreed to. When
+you see the agent stop and report itself blocked, this is usually why, and it is correct.
+
+**What you can do meanwhile:** open Watchtower (`fw serve`, then the URL it prints) — the
+window into tasks, decisions, health, and the maps named through this curriculum.
+
+**Go deeper:** `fw corpus explain aef-session-lifecycle` — what a session is, start to end.
+Or `fw corpus explain aef-existing-project-onboarding` — the whole T-001→T-006 prologue you
+are standing at the front of, as one diagram, including what is worth your attention at each
+step and why none of it waits for you.
+
 ## Acceptance Criteria
 
 ### Agent

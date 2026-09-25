@@ -17,7 +17,7 @@ Steps:
 5. First Task          — optional initial task creation
 6. Verification        — fw doctor + cheat sheet
 
-## Dependencies (4)
+## Dependencies (6)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -25,8 +25,10 @@ Steps:
 | [git](/docs/generated/agents-git-git) | calls | Git Agent - Structural Enforcement for Git Operations |
 | [context-dispatcher](/docs/generated/context-dispatcher) | calls | Central dispatcher for all context agent commands (init, focus, add-learning, add-pattern, add-decision, status, generate-episodic) |
 | [create-task](/docs/generated/agents-task-create-create-task) | calls | Task Creation Agent - Mechanical Operations |
+| [fw](/docs/generated/bin-fw) | calls | Single entry point for all framework operations. Reads .framework.yaml from the project directory to resolve FRAMEWORK_ROOT, then routes commands to the appropriate agent. Supports both in-repo and shared tooling modes. |
+| [git-identity](/docs/generated/lib-git-identity) | calls | TODO: describe what this component does |
 
-## Used By (4)
+## Used By (5)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -34,6 +36,7 @@ Steps:
 | [lib_setup](/docs/generated/tests-unit-lib_setup) | called-by | Unit tests for setup (2 tests) |
 | [lib_setup](/docs/generated/tests-unit-lib_setup) | called_by | Unit tests for setup (2 tests) |
 | [lib_setup](/docs/generated/tests-unit-lib_setup) | tests_by | Unit tests for setup (2 tests) |
+| [git_identity_check](/docs/generated/tests-unit-git_identity_check) | tests_by | TODO: describe what this component does |
 
 ## Related
 

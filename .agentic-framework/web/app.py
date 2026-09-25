@@ -24,10 +24,7 @@ import secrets
 import signal
 import sys
 
-from flask import (
-    Flask, abort, jsonify, make_response, render_template, request, session,
-)
-from markupsafe import escape
+from flask import Flask, abort, jsonify, render_template, request, session
 
 from web.config import Config
 from web.shared import APP_DIR, NAV_ITEMS, NAV_GROUPS, PROJECT_ROOT, build_ambient
@@ -64,6 +61,30 @@ def _resolve_secret_key(project_root) -> tuple[str, str]:
     return key, "generated"
 
 
+def session_cookie_name(port) -> str:
+    """T-3065: the cookie slot is named for the port actually being served.
+
+    One definition of the naming rule, called from two places, because the port
+    is not knowable at the same moment in both. `create_app()` runs at import
+    (module-level `app` below) and can only see the environment; the `--port`
+    flag does not exist until `main()` parses it. T-2278 named the cookie from
+    `Config.PORT` alone, which reads FW_PORT-or-3000 once at import and is never
+    updated by the flag — so `fw serve --port 3012` served 3012 and emitted
+    `fw_session_3000`, colliding with a :3000 instance in the one slot the
+    scoping exists to split apart.
+    """
+    return f"fw_session_{port}"
+
+
+def apply_session_cookie_name(app, port) -> None:
+    """Re-scope an already-built app's cookie slot to its real listen port.
+
+    Safe to call any time before the first request — Flask reads
+    SESSION_COOKIE_NAME per-request, not at construction.
+    """
+    app.config["SESSION_COOKIE_NAME"] = session_cookie_name(port)
+
+
 def create_app() -> Flask:
     """Create and configure the Watchtower Flask application."""
     app = Flask(
@@ -89,7 +110,12 @@ def create_app() -> Flask:
     # cookie, breaking CSRF on every cross-tab POST (403 Forbidden).
     # Scoping the name by port allocates a distinct browser cookie slot
     # per instance.
-    app.config["SESSION_COOKIE_NAME"] = f"fw_session_{Config.PORT}"
+    #
+    # T-3065: this is the ENVIRONMENT-only default. `Config.PORT` is read once at
+    # import and knows nothing about `--port`, so this line alone was false for
+    # every flag-started instance. `main()` calls apply_session_cookie_name()
+    # with the resolved port; do not treat this line as the whole guarantee.
+    apply_session_cookie_name(app, Config.PORT)
 
     # -------------------------------------------------------------------
     # CSRF protection
@@ -314,8 +340,15 @@ def create_app() -> Flask:
             result["ollama"] = "unreachable"
 
         # Check embedding index (lightweight — never trigger rebuild)
+        #
+        # T-3012: "a handle is open" was the entire basis for reporting `ok`, so
+        # this said ok for a five-month-old index (T-3004). Age now comes from
+        # index_freshness(), which reads the T-3011 corpus manifest — and is
+        # reported alongside the status rather than folded into it, so a caller
+        # that only understands `status` is unaffected while one that wants the
+        # age can have it.
         try:
-            from web.embeddings import DB_PATH, _db, _db_built_at
+            from web.embeddings import DB_PATH, _db, index_freshness
             if _db is not None:
                 num = _db.execute("SELECT COUNT(*) FROM documents").fetchone()[0]
                 result["embeddings"] = {"status": "ok", "chunks": num}
@@ -323,6 +356,9 @@ def create_app() -> Flask:
                 result["embeddings"] = {"status": "stale"}
             else:
                 result["embeddings"] = {"status": "no_index"}
+            fresh = index_freshness()
+            result["embeddings"]["index_age_seconds"] = fresh["age_seconds"]
+            result["embeddings"]["freshness_source"] = fresh["source"]
         except Exception:
             result["embeddings"] = {"status": "unavailable"}
 
@@ -362,6 +398,11 @@ def create_app() -> Flask:
             "version": _ver,
             "project_root": str(PROJECT_ROOT),
             "started_at": _started_at,
+            # T-2782: the Playwright fixture adopts an already-listening server rather
+            # than starting its own. To bound how stale an adopted server may be it has
+            # to be able to recycle one, and to recycle a process it did not spawn it
+            # needs the pid. `started_at` alone answers "how old" but not "which one".
+            "pid": os.getpid(),
         })
 
     # -------------------------------------------------------------------
@@ -378,50 +419,6 @@ def create_app() -> Flask:
             "project_root": str(PROJECT_ROOT),
         }
 
-    def _is_spliced_request() -> bool:
-        """True when the caller will splice or parse this body rather than
-        navigate to it — an `/api/*` fragment endpoint, or a non-boosted htmx
-        request (`hx-post`/`hx-get` on an element with an `hx-target`).
-
-        T-545: this deliberately does NOT exempt boosted navigations, though
-        `base.html` sets `hx-boost="true"` on <body> and an earlier draft of
-        this fix did exempt them to protect T-2309's full-page recovery UI.
-        That exemption was wrong, and measuring the corpus is what showed it:
-        five routes take a plain `<form method="post">` under hx-boost
-        (`/arcs/*/close`, `/assumptions/*/resolve`, `/inception/*/decide`,
-        `/inception/*/add-assumption`, `/review/*/pause/*/resolve`), so they
-        are boosted POSTs and would have kept the exact defect this task
-        exists to fix.
-
-        The deciding fact is in the shipped library, not in reasoning about
-        intent: htmx 2.0.4's default `responseHandling` is
-        `[{code:"204",swap:false},{code:"[23]..",swap:true},
-        {code:"[45]..",swap:false,error:true}]`. A 4xx is NEVER swapped —
-        boosted or not, htmx raises `htmx:responseError` and the body reaches
-        only `htmx-toast.js`. So a full page is never *rendered* for an htmx
-        403; it is only ever scraped. T-2309's page remains reachable by the
-        thing that actually displays it: a genuine non-htmx navigation.
-        """
-        return (request.path.startswith("/api/")
-                or bool(request.headers.get("HX-Request")))
-
-    def _compact_error(status: int, kind: str, human: str):
-        """A small fragment in the same content type the success path returns.
-
-        T-545: these endpoints answer htmx with HTML FRAGMENTS on success, so a
-        fragment is the honest error shape — not JSON, which the callers do not
-        parse, and emphatically not a whole document.
-
-        `kind` goes in a header rather than the body so a machine can still
-        tell a stale token from a real permission denial (the distinction
-        T-2309 introduced) without parsing prose.
-        """
-        resp = make_response(
-            f'<p class="error" role="alert">{escape(human)}</p>', status
-        )
-        resp.headers["HX-Error-Kind"] = kind
-        return resp
-
     @app.errorhandler(403)
     def forbidden(e):
         # T-2309 (P-003 fix): distinguish CSRF token failures from generic 403s.
@@ -434,26 +431,6 @@ def create_app() -> Flask:
             str(e.description) if hasattr(e, "description") else str(e)
         )
         is_csrf = description.startswith("CSRF token")
-
-        # T-545: an htmx/API caller gets a fragment, not the T-2309 page.
-        # Measured, not supposed: rendering the full page here returned 66456
-        # bytes of text/html to an `hx-post`, and `htmx-toast.js` extracts its
-        # message with `.replace(/<[^>]*>/g, '')` — a TAG stripper, which
-        # removes the tags but keeps the TEXT INSIDE <title> and <script>. The
-        # operator's Approve button therefore surfaced
-        # "Session expired — Workflow designer (function(){var t=localStorage…"
-        # — the page title followed by the theme bootstrap's JavaScript source.
-        # The full-page branch below is right for a navigation and wrong here;
-        # nothing about the 403 was wrong, only who it was written for.
-        if _is_spliced_request():
-            if is_csrf:
-                return _compact_error(
-                    403, "csrf",
-                    "Session expired. Reload the page and submit again — "
-                    "nothing was lost.",
-                )
-            return _compact_error(403, "forbidden", f"Forbidden: {description}")
-
         if is_csrf:
             return render_template(
                 "_wrapper.html",
@@ -527,26 +504,11 @@ def main():
     host = Config.HOST
     port = args.port
 
-    # T-544: re-derive the port-scoped cookie name from the port actually bound.
-    #
-    # create_app() runs at MODULE level (above), before argparse exists, so the
-    # T-2278 cookie name is built from `Config.PORT` — which reads FW_PORT or
-    # falls back to 3000 and is never updated by `--port`. `--port` changes the
-    # listening socket and nothing else. Consequence measured on this host:
-    # AEF's Watchtower on :3000 and this project's on :3012 BOTH emitted
-    # `fw_session_3000`; RFC 6265 does not scope cookies by port, so each
-    # overwrote the other's session on the same host, and because each instance
-    # signs with its own `.context/working/.fw-secret-key` the survivor's cookie
-    # could not even be decoded by the other — `session` came back empty,
-    # `session.get("_csrf_token")` was None, and every state-changing POST 403'd
-    # as "Session expired". That is precisely the failure T-2278's comment says
-    # the port suffix exists to prevent; the defence was reading the wrong port.
-    #
-    # Set it here rather than assigning Config.PORT: Config.PORT is read by other
-    # call sites as "the configured port", and making the CLI mutate shared
-    # config to fix a cookie name would trade one action-at-a-distance for
-    # another. The cookie name is the only thing that must follow the socket.
-    app.config["SESSION_COOKIE_NAME"] = f"fw_session_{port}"
+    # T-3065: the flag is the last word on which port we serve, so it must also
+    # be the last word on which cookie slot we occupy. Without this the name is
+    # stuck at FW_PORT-or-3000 and two instances collide (see T-2278 comment in
+    # create_app). Must run before run(), which it does — nothing serves yet.
+    apply_session_cookie_name(app, port)
 
     def handle_sigint(sig, frame):
         print("\nShutting down Watchtower...")

@@ -19,6 +19,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FRAMEWORK_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$FRAMEWORK_ROOT/lib/config.sh"
+# T-2917: fw_worker_git_identity_env — default git identity for direct
+# `fw termlink dispatch` (see cmd_dispatch below).
+source "$FRAMEWORK_ROOT/lib/git-identity.sh"
 
 # Colors
 RED='\033[0;31m'
@@ -142,8 +145,16 @@ _resolve_dispatch_model() {
 # Key shape mirrors /opt/termlink RouteCache (route_cache.rs):
 #   model_stats["<model>:<task_type>"] = {model, task_type, successes,
 #                                          failures, last_used}
+#
+# T-3440: a 4th arg carries the dispatch's close_state ("incomplete" | "closed" |
+# "n/a"). An incomplete close is NOT a success — the worker exited 0 with its task
+# still started-work — so it lands in `failures`, and exit 0 alone no longer buys a
+# success. The literal `incomplete` value is recorded in an append-only sidecar
+# (dispatch-close-states.jsonl) rather than as a new ModelStats key: route-cache.json
+# is shared with the TermLink hub's Rust RouteCache and its field set is pinned by
+# tests/fixtures/termlink-route-cache-schema.json (T-1650). New file, no reader broken.
 _route_cache_record_outcome() {
-    local model="$1" task_type="$2" exit_code="$3"
+    local model="$1" task_type="$2" exit_code="$3" close_state="${4:-}" task="${5:-}"
     [ -n "$model" ] && [ -n "$task_type" ] && [ -n "$exit_code" ] || return 0
     command -v python3 >/dev/null 2>&1 || return 0
     local cache_file
@@ -152,15 +163,34 @@ _route_cache_record_outcome() {
     cache_dir=$(dirname "$cache_file")
     mkdir -p "$cache_dir" 2>/dev/null || return 0
     [ -w "$cache_dir" ] || return 0
-    python3 - "$cache_file" "$model" "$task_type" "$exit_code" <<'PY' 2>/dev/null || true
+    python3 - "$cache_file" "$model" "$task_type" "$exit_code" "$close_state" "$task" <<'PY' 2>/dev/null || true
 import fcntl, json, os, sys, tempfile
 from datetime import datetime, timezone
 
 cache_file, model, task_type, exit_code = (
     sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 )
+close_state = sys.argv[5] if len(sys.argv) > 5 else ""
+task = sys.argv[6] if len(sys.argv) > 6 else ""
 key = f"{model}:{task_type}"
-ok = (exit_code == "0")
+incomplete = (close_state == "incomplete")
+ok = (exit_code == "0") and not incomplete
+
+# T-3440 sidecar: the outcome VALUE, uncollapsed, in a file only we read.
+if close_state:
+    try:
+        side = os.path.join(os.path.dirname(cache_file) or ".",
+                            "dispatch-close-states.jsonl")
+        with open(side, "a") as f:
+            f.write(json.dumps({
+                "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "model": model, "task_type": task_type, "task": task,
+                "exit_code": exit_code, "close_state": close_state,
+                "outcome": ("incomplete" if incomplete
+                            else ("success" if ok else "failure")),
+            }) + "\n")
+    except Exception:
+        pass
 
 lock_path = cache_file + ".lock"
 lock_fd = open(lock_path, "w")
@@ -257,6 +287,41 @@ is_macos() { [[ "$(uname -s)" == "Darwin" ]]; }
 
 # --- Subcommands ---
 
+# T-3424: hub-store parity. Two stores can coexist on one host (the systemd
+# hub's /var/lib/termlink and `termlink mcp serve`'s default /tmp/termlink-0)
+# and a post into the wrong one returns an offset and reads straight back —
+# indistinguishable from delivery. Counts do not discriminate (the /tmp store
+# is BUSY with session events; 1409-sprind measured 118 event topics there vs
+# 43 on the fleet hub). MEMBERSHIP does: a known fleet channel exists only on
+# the canonical store. So: (1) the MCP config must name the runtime dir the
+# running hub uses; (2) the CLI's store must resolve agent-chat-arc.
+_check_hub_store_parity() {
+    local project_root="${PROJECT_ROOT:-$(pwd)}"
+    local mcp="$project_root/.mcp.json"
+    local hub_pid hub_dir cfg_dir
+    hub_pid=$(pgrep -f "termlink hub start" 2>/dev/null | head -1)
+    if [ -n "$hub_pid" ] && [ -r "/proc/$hub_pid/environ" ]; then
+        hub_dir=$(tr '\0' '\n' < "/proc/$hub_pid/environ" 2>/dev/null | sed -n 's/^TERMLINK_RUNTIME_DIR=//p' | head -1)
+    fi
+    if [ -f "$mcp" ]; then
+        cfg_dir=$(python3 -c "import json,sys; c=json.load(open(sys.argv[1])); print((c.get('mcpServers',{}).get('termlink',{}).get('env') or {}).get('TERMLINK_RUNTIME_DIR',''))" "$mcp" 2>/dev/null)
+        if [ -z "$cfg_dir" ]; then
+            echo -e "${YELLOW}WARN${NC}  .mcp.json termlink server sets no TERMLINK_RUNTIME_DIR — MCP channel tools default to /tmp/termlink-0, a store the fleet does not read (T-3424)"
+            [ -n "$hub_dir" ] && echo "  Running hub (pid $hub_pid) uses: $hub_dir — set that in .mcp.json env"
+        elif [ -n "$hub_dir" ] && [ "$cfg_dir" != "$hub_dir" ]; then
+            echo -e "${YELLOW}WARN${NC}  .mcp.json TERMLINK_RUNTIME_DIR=$cfg_dir but the running hub (pid $hub_pid) uses $hub_dir — MCP posts land in a different store (T-3424)"
+        else
+            echo "  Hub store: ${cfg_dir}${hub_dir:+ (matches running hub pid $hub_pid)}"
+        fi
+    fi
+    # Membership, not count: the fleet channel must resolve on the CLI's store.
+    if termlink channel list 2>/dev/null | grep -q "agent-chat-arc"; then
+        echo "  Fleet channel agent-chat-arc: present on the CLI's store"
+    else
+        echo -e "${YELLOW}WARN${NC}  agent-chat-arc is NOT on the store the CLI resolves — posts from here will not reach the fleet (T-3424)"
+    fi
+}
+
 cmd_check() {
     if command -v termlink >/dev/null 2>&1; then
         local version
@@ -264,6 +329,7 @@ cmd_check() {
         echo -e "${GREEN}OK${NC}  TermLink installed: $version"
         echo "  Path: $(command -v termlink)"
         echo "  Repo: https://onedev.docker.ring20.geelenandcompany.com/termlink"
+        _check_hub_store_parity
         return 0
     else
         echo -e "${YELLOW}WARN${NC}  TermLink not installed"
@@ -354,7 +420,15 @@ cmd_status() {
             termlink list 2>/dev/null | grep -q "$name" && session_alive="yes" || true
             local task_tag=""
             [ -f "$wdir/task" ] && task_tag=" [$(cat "$wdir/task")]"
-            printf "  %-20s  status: %-20s  session: %s%s\n" "$name" "$status" "$session_alive" "$task_tag"
+            # T-3440: exit 0 is not the whole story — surface whether the task
+            # the worker was dispatched for actually reached a close.
+            local close_tag=""
+            if [ -f "$wdir/close_state" ]; then
+                local cs
+                cs=$(cat "$wdir/close_state" 2>/dev/null)
+                [ "$cs" = "n/a" ] || close_tag="  close: $cs"
+            fi
+            printf "  %-20s  status: %-20s  session: %s%s%s\n" "$name" "$status" "$session_alive" "$task_tag" "$close_tag"
         done
         echo ""
     fi
@@ -615,6 +689,21 @@ cmd_dispatch() {
     local wdir="$DISPATCH_DIR/$name"
     mkdir -p "$wdir"
 
+    # T-3407 / arc-011 slice 5: every dispatched worker is addressable by its
+    # --name and is told, once, how a peer consult reaches it. Workers spawn
+    # --bare (no CLAUDE.md, no hooks), so the prompt is the only channel this
+    # can ride on. Kept short: an empty inbox costs the worker one command.
+    local _consult_stanza="[PEER CONSULTS — arc-011 sidecar, T-3407]
+You are addressable as agent id '$name'. Other agents may send you a consult
+while you work. At each yield point (before a Write/Edit, and before you
+finish), run:  fw sidecar inbox
+If it prints a consult, answer it with:
+  fw sidecar send --to <from> --conversation <conversation_id> --body '<answer>'
+then continue your task. An empty inbox costs nothing; do not poll in a loop."
+    prompt="$_consult_stanza
+
+$prompt"
+
     # Save prompt, task tag, and metadata (from tl-dispatch.sh pattern)
     echo "$prompt" > "$wdir/prompt.md"
     [ -n "$task" ] && echo "$task" > "$wdir/task"
@@ -623,6 +712,57 @@ cmd_dispatch() {
     # Keys validated at parse time (KEY=VAL with KEY ∈ [A-Z_][A-Z0-9_]*).
     # Values are written verbatim with shell-quoted form so spaces/specials survive.
     : > "$wdir/env.sh"
+    # T-2917: default worker git identity, written FIRST so any caller-supplied
+    # --env GIT_AUTHOR_*/--env GIT_COMMITTER_* (e.g. forwarded by a resolver
+    # dispatch — TermLinkWorker._build_dispatch_argv turns envelope["env"]
+    # into --env pairs) overrides it: env.sh is sourced top-to-bottom, later
+    # `export` wins. `$name` (required, unique per dispatch) stands in for a
+    # dispatch_id here — this call path has no dispatches.jsonl row to join
+    # against; the TermLink worker dir at /tmp/tl-dispatch/$name is the join
+    # target instead. Mechanism is fixed "termlink-dispatch": this is the
+    # direct-dispatch path (CLAUDE.md §Sub-Agent Dispatch Protocol), distinct
+    # from a resolver-loop worker (which arrives with mechanism already set
+    # via --env and overrides these lines).
+    fw_worker_git_identity_env "termlink-dispatch" "$name" >> "$wdir/env.sh"
+    # T-3407: the worker's sidecar identity IS its dispatch name, so
+    # `fw sidecar send --to $name` lands in this worker's inbox with no
+    # second naming scheme. Written before caller --env pairs so an explicit
+    # --env FW_SIDECAR_AGENT_ID=... still wins (later export overrides).
+    printf 'export FW_SIDECAR_AGENT_ID=%q\n' "$name" >> "$wdir/env.sh"
+
+    # T-3038 (OBS-291): give every dispatched worker its own focus file.
+    #
+    # Without this the worker's first `fw work-on` overwrites the SHARED
+    # .context/working/focus.yaml — task and focus_session both — and the parent
+    # session is then blocked by check-active-task.sh on every Write and every
+    # Bash, read-only commands included. The parent gets locked out of its own
+    # unrelated work by a worker it spawned, and re-asserting focus only holds
+    # until the next worker calls work-on.
+    #
+    # Written BEFORE the caller's --env pairs so an explicit --env
+    # FW_SESSION_SCOPED_FOCUS=0 can still opt a worker back onto the shared file
+    # (same later-wins ordering the git identity block above relies on). The key
+    # is $name, which dispatch already requires to be unique per worker.
+    printf 'export FW_SESSION_SCOPED_FOCUS=%q\n' "1" >> "$wdir/env.sh"
+    printf 'export FW_FOCUS_SESSION_KEY=%q\n' "$name" >> "$wdir/env.sh"
+
+    # T-3422: seed that scoped file NOW, with the worker's own --task. Without
+    # this the gate's read-side fallback (T-3038) hands the worker whatever task
+    # the SHARED focus.yaml happens to hold until its first `fw work-on` —
+    # observed as a different, unrelated, real task in four consecutive
+    # SEQ-T3411 rounds (Δ8). Same resolver as the reader (lib/paths.sh), same
+    # env the worker will run under, never overwrites an existing file.
+    if ! declare -F fw_focus_seed >/dev/null 2>&1; then
+        # shellcheck source=/dev/null
+        source "$FRAMEWORK_ROOT/lib/paths.sh" 2>/dev/null || true
+    fi
+    if declare -F fw_focus_seed >/dev/null 2>&1; then
+        local _seeded
+        _seeded=$(FW_SESSION_SCOPED_FOCUS=1 FW_FOCUS_SESSION_KEY="$name" \
+                  fw_focus_seed "$project_dir" "$task") && \
+            echo "  Focus seeded: $(basename "$_seeded") -> $task"
+    fi
+
     local env_keys_json="[]"
     if [ "${#envs[@]}" -gt 0 ]; then
         local _key_list=""
@@ -878,11 +1018,63 @@ if command -v jq >/dev/null 2>&1 && [ -f "$WDIR/meta.json" ]; then
         || rm -f "$WDIR/meta.json.tmp"
 fi
 
+# --- T-3440 close-state check (start) ---
+# A `claude -p` worker has no next turn. If it ended its turn waiting on a
+# background job, the close never ran and exit 0 means nothing: the work may be
+# done but the task is still open and nobody is left alive to close it (three
+# instances on 2026-09-22 — T-3211, T-3431/T-3435, T-3433). Decide here, while
+# the task id and the exit code are both in hand.
+#   incomplete — exit 0, task file still in .tasks/active/ as started-work
+#   closed     — task in .tasks/completed/, or work-completed in active/
+#                (partial-complete, waiting on a Human AC — the worker did its part)
+#   n/a        — no task dispatched, no task file found, non-zero exit, or any
+#                other status (nothing to assert)
+CLOSE_TASK=""
+[ -f "$WDIR/task" ] && CLOSE_TASK=$(cat "$WDIR/task" 2>/dev/null)
+CLOSE_STATE="n/a"
+if [ -n "$CLOSE_TASK" ] && [ "${EXIT_CODE:-1}" = "0" ]; then
+    _cs_found=""
+    for _cs_cand in "$PROJECT_DIR/.tasks/completed/$CLOSE_TASK"-*.md \
+                    "$PROJECT_DIR/.tasks/completed/$CLOSE_TASK.md"; do
+        [ -f "$_cs_cand" ] || continue
+        CLOSE_STATE="closed"; _cs_found="$_cs_cand"; break
+    done
+    if [ -z "$_cs_found" ]; then
+        for _cs_cand in "$PROJECT_DIR/.tasks/active/$CLOSE_TASK"-*.md \
+                        "$PROJECT_DIR/.tasks/active/$CLOSE_TASK.md"; do
+            [ -f "$_cs_cand" ] || continue
+            _cs_status=$(grep -m1 '^status:' "$_cs_cand" 2>/dev/null \
+                | sed 's/^status:[[:space:]]*//; s/[[:space:]]*$//')
+            case "$_cs_status" in
+                started-work)   CLOSE_STATE="incomplete" ;;
+                work-completed) CLOSE_STATE="closed" ;;
+                *)              CLOSE_STATE="n/a" ;;
+            esac
+            break
+        done
+    fi
+fi
+echo "$CLOSE_STATE" > "$WDIR/close_state"
+if [ "$CLOSE_STATE" = "incomplete" ]; then
+    echo "WARNING: worker exited 0 but $CLOSE_TASK is still started-work — close not run"
+fi
+# Same best-effort jq pattern as the meta.json rewrite above.
+if command -v jq >/dev/null 2>&1 && [ -f "$WDIR/meta.json" ]; then
+    jq --arg cs "$CLOSE_STATE" --arg ct "$CLOSE_TASK" \
+       '.close_state = $cs | .close_state_task = $ct' \
+       "$WDIR/meta.json" > "$WDIR/meta.json.tmp" 2>/dev/null \
+        && mv "$WDIR/meta.json.tmp" "$WDIR/meta.json" \
+        || rm -f "$WDIR/meta.json.tmp"
+fi
+# --- T-3440 close-state check (end) ---
+
 # T-1669 Step 2: record outcome into route_cache so future dispatches can
 # learn from it. Best-effort — missing model / task_type / fw skips silently.
+# T-3440: --close-state rides along; an incomplete close is not a success.
 if [ -n "$MODEL" ] && [ -n "$TASK_TYPE" ] && [ -n "$FW_BIN" ] && [ -x "$FW_BIN" ]; then
     "$FW_BIN" termlink record-outcome \
         --model "$MODEL" --task-type "$TASK_TYPE" --exit-code "$EXIT_CODE" \
+        --close-state "$CLOSE_STATE" --task "$CLOSE_TASK" \
         >/dev/null 2>&1 || true
 fi
 
@@ -968,6 +1160,20 @@ cmd_result() {
     local wdir="$DISPATCH_DIR/$name"
     [ -d "$wdir" ] || die "No dispatch directory for worker '$name'"
 
+    # T-3440: lead with the close verdict. A worker that ended its turn waiting
+    # on a background job exits 0 with a perfectly readable result and an open
+    # task — the parent needs to see that without opening the worker directory.
+    if [ -f "$wdir/close_state" ]; then
+        local cs ct=""
+        cs=$(cat "$wdir/close_state" 2>/dev/null)
+        [ -f "$wdir/task" ] && ct=$(cat "$wdir/task" 2>/dev/null)
+        if [ "$cs" = "incomplete" ]; then
+            echo -e "${YELLOW}WARN${NC}  close_state: incomplete — ${ct:-the dispatched task} is still started-work (worker exited 0, close not run)"
+        elif [ "$cs" != "n/a" ]; then
+            echo "close_state: $cs${ct:+ ($ct)}"
+        fi
+    fi
+
     if [ -f "$wdir/result.md" ]; then
         cat "$wdir/result.md"
     else
@@ -985,7 +1191,9 @@ cmd_update() {
     local quiet=false
     [ "${1:-}" = "--quiet" ] && quiet=true
 
-    if [ ! -d "$repo_dir/.git" ]; then
+    # T-3129: `-e` — a TermLink checkout that happens to be a linked worktree
+    # has a `.git` file, and the `git fetch` below works fine from one.
+    if [ ! -e "$repo_dir/.git" ]; then
         $quiet && exit 1
         die "TermLink repo not found at $repo_dir\n  Set TERMLINK_REPO or clone: git clone https://onedev.docker.ring20.geelenandcompany.com/termlink $repo_dir"
     fi
@@ -1062,16 +1270,18 @@ cmd_help() {
 # Called from dispatch run.sh after the worker exits, and usable directly for
 # tests / manual replay. No-op on missing args (best-effort recording).
 cmd_record_outcome() {
-    local model="" task_type="" exit_code=""
+    local model="" task_type="" exit_code="" close_state="" task=""
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --model) model="$2"; shift 2 ;;
             --task-type) task_type="$2"; shift 2 ;;
             --exit-code) exit_code="$2"; shift 2 ;;
+            --close-state) close_state="$2"; shift 2 ;;   # T-3440
+            --task) task="$2"; shift 2 ;;                 # T-3440
             *) die "Unknown option: $1" ;;
         esac
     done
-    _route_cache_record_outcome "$model" "$task_type" "$exit_code"
+    _route_cache_record_outcome "$model" "$task_type" "$exit_code" "$close_state" "$task"
 }
 
 # --- Main routing ---

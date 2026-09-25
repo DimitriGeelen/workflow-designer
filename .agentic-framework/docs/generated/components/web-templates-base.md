@@ -12,7 +12,7 @@
 |-----------|--------------|-------------|
 | [_pins](/docs/generated/web-templates-_pins) | includes | TODO: describe what this component does |
 
-## Used By (10)
+## Used By (13)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -26,6 +26,9 @@
 | [arcs_index](/docs/generated/web-templates-arcs_index) | extended_by | Renders /arcs index — list of every arc with focus dot indicator, status badge (in-progress/closed), constituent count, anchor task link, link to arc detail. |
 | [orchestrator](/docs/generated/web-templates-orchestrator) | extended_by | TODO: describe what this component does |
 | [bvp](/docs/generated/web-templates-bvp) | extended_by | TODO: describe what this component does |
+| [test_nav_layout_polish](/docs/generated/tests-unit-test_nav_layout_polish) | called_by | TODO: describe what this component does |
+| [test_settings_nav_link](/docs/generated/tests-unit-test_settings_nav_link) | called_by | TODO: describe what this component does |
+| [test_theme_toggle_contrast](/docs/generated/tests-unit-test_theme_toggle_contrast) | called_by | TODO: describe what this component does |
 
 ## Related
 

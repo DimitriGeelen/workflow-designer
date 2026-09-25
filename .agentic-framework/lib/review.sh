@@ -103,8 +103,22 @@ emit_review() {
     _arc_parent_gate "$task_id" "$task_file" || true
 
     # Determine Watchtower URL via shared helper (T-1154: single chokepoint)
-    local base_url
-    base_url=$(_watchtower_url "$task_id")
+    #
+    # T-2922: emit_review must survive "no Watchtower running". _watchtower_url
+    # fails loud (exit 1, no stdout) by design, and under this script's `set -e`
+    # a bare `base_url=$(_watchtower_url ...)` assignment aborts emit_review
+    # before it reaches the marker write at the bottom of this function — the
+    # ONLY unblock for `fw inception decide`. On a fresh `fw init` project,
+    # where nothing has yet told the user to run `fw serve`, that made the first
+    # inception uncompletable by any path (T-2862 origin).
+    #
+    # _watchtower_base_or_placeholder answers in both cases and reports which
+    # via exit code (0 live / 2 placeholder). Port resolution stays inside
+    # lib/watchtower.sh — T-1155's invariant suite makes inline `fw_config
+    # "PORT" 3000` in this file structurally RED, and it is right to: the
+    # consumer-port bug it guards against is the same class as this one.
+    local base_url watchtower_reachable=true
+    base_url=$(_watchtower_base_or_placeholder "$task_id") || watchtower_reachable=false
     # Detect workflow type for URL routing (T-642) — also drives the label below
     local workflow_type=""
     workflow_type=$(grep -m1 'workflow_type:' "$task_file" 2>/dev/null | sed 's/.*workflow_type:[[:space:]]*//' | tr -d '[:space:]')
@@ -117,6 +131,27 @@ emit_review() {
     if [ "$workflow_type" = "inception" ]; then
         [ -n "$review_url" ] || review_url="${base_url}/inception/${task_id}"
         review_label="Inception Review"
+
+        # T-3279 (G-102): decision-readiness warning at the INVITATION surface.
+        # The review handoff invites a go/no-go; if the T-2190 disposition gate
+        # would refuse the completion that decision triggers, say so NOW — to the
+        # agent emitting the handoff — instead of letting the human discover it
+        # as a half-failed decide (T-3278 origin incident). Warn-only: dialogue
+        # on the review page is a legitimate way to reach dispositions, so
+        # emission is not blocked.
+        source "$FRAMEWORK_ROOT/lib/inception-readiness.sh" 2>/dev/null || true
+        if command -v inception_underdisposed_questions >/dev/null 2>&1; then
+            local _underdisposed
+            _underdisposed=$(inception_underdisposed_questions "$task_file")
+            if [ -n "$_underdisposed" ]; then
+                echo "" >&2
+                echo "WARNING: this inception is NOT decision-ready — $(printf '%s\n' "$_underdisposed" | grep -c .) Open Question(s) lack disposition/rationale:" >&2
+                printf '%s\n' "$_underdisposed" | sed 's/^/    - /' >&2
+                echo "  A go/no-go recorded now will be refused by the disposition gate (T-2190)." >&2
+                echo "  Dispose each IW-N (answered|deferred|dissolved + rationale) BEFORE handing off the decision." >&2
+                echo "" >&2
+            fi
+        fi
     else
         [ -n "$review_url" ] || review_url="${base_url}/review/${task_id}"
         review_label="Human AC Review"
@@ -134,8 +169,39 @@ emit_review() {
     # next `## ` heading (`## Context`), so the counter never reached the real
     # AC block and Watchtower rendered `Human ACs: 0/0`. Mirror update-task.sh's
     # `sed -n '/^## Acceptance Criteria/,/^## /p'` anchoring discipline.
-    local human_total=0 human_checked=0 in_ac=false in_human=false
+    #
+    # T-2948 (832 rail 570 §3): skip HTML-comment spans before counting.
+    #
+    # This counter was already comment-*immune*, but by accident: its globs are
+    # `"- [ ]"*`, whitespace-intolerant, and default.md's commented example ACs
+    # happen to sit indented seven spaces. Nothing recorded that the indentation
+    # was load-bearing, so de-indenting those examples — pure formatting, the
+    # kind no reviewer stops — would have made this counter see two phantom
+    # Human ACs on EVERY task created from the template. Each fresh build task
+    # would read as partial-complete 0/2 and trip T-2421's rec-gate below on
+    # work nobody had started.
+    #
+    # Same direction as G-067 (:700) and G-020 (:754) in check-active-task.sh:
+    # the span is being DISCARDED as prose, so stripping it is correct. The
+    # opposite case — P-011 stripping comments out of text it is about to hand
+    # to `eval` — is T-2921, and there the same regex is a defect. The rule is
+    # not "strip comments"; it is "strip them where the span is discarded".
+    #
+    # Fourth site of the comment-boundary class 832 registered as their G-036,
+    # and the only one that was getting the right answer for the wrong reason.
+    local human_total=0 human_checked=0 in_ac=false in_human=false in_comment=false
     while IFS= read -r line; do
+        # Runs BEFORE the heading cases, so a commented `## `/`### ` heading can
+        # no longer open or close a block either.
+        case "$line" in
+            *"<!--"*) in_comment=true ;;
+        esac
+        if $in_comment; then
+            case "$line" in
+                *"-->"*) in_comment=false ;;
+            esac
+            continue
+        fi
         case "$line" in
             "## Acceptance Criteria"*)
                 in_ac=true
@@ -261,6 +327,13 @@ emit_review() {
     echo -e "  ${BOLD}${review_label}: $task_id${NC}"
     echo -e "  ${CYAN}${human_checked}/${human_total} checked${NC}"
     echo -e ""
+    if ! $watchtower_reachable; then
+        # T-2922 AC5: name the prerequisite (fw serve) rather than only
+        # printing a URL that presumes a server the user hasn't started.
+        echo -e "  ${YELLOW}No Watchtower is running for this project yet.${NC}"
+        echo -e "  ${YELLOW}Start one with: fw serve${NC}  (then open the link below)"
+        echo -e ""
+    fi
     echo "  ${review_url}"
     echo -e ""
 

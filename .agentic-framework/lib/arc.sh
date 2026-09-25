@@ -79,6 +79,18 @@ _arc_source_membership_lib() {
 }
 _arc_source_membership_lib
 
+# T-3429 (D-586): the external value-driver reviewer. Defines
+# `arc_review_driver` and `_arc_driver_review_run` — the static check that
+# replaced the operator-approval step as the DEFAULT path through
+# `arc_approve_driver`. Same idempotent-source shape as the membership lib.
+_arc_source_driver_review_lib() {
+    local script_dir
+    script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+    # shellcheck source=lib/arc-driver-review.sh
+    . "${script_dir}/arc-driver-review.sh"
+}
+_arc_source_driver_review_lib
+
 # ─── helpers ────────────────────────────────────────────────────────────────
 
 _arc_validate_id() {
@@ -90,12 +102,41 @@ _arc_validate_id() {
 }
 
 # T-1852: state-machine helpers.
+#
+# T-2968: ONE reader for status:. There were five, and they disagreed.
+#
+# The arc YAML template itself writes inline comments on top-level keys
+# (`scoped_drivers: []   # max 3, weight <=6 each (M2)...`), so a comment on
+# `status:` is house style, not an exotic input. arc-013 carries one, and the
+# five readers returned five different values from that one line — the gate's
+# reader welded the comment onto the value (having deleted every space first),
+# `fw arc list` printed it raw, and one site was correct purely because it used
+# awk's default field splitting rather than -F': '. Correct by accident is not
+# correct: nothing stopped the next reader from being written the other way.
+#
+# Consequence while it stood: every _arc_require_status caller refused for
+# arc-013 on a status value that appears nowhere in the file, while YAML-reading
+# surfaces (fw audit, Watchtower) rendered it in-progress. Structurally
+# unclosable, and only the refusal text said so.
+#
+# Comment stripping is YAML-faithful: a `#` opens a comment only when preceded
+# by whitespace, so `status: a#b` keeps `a#b` — matching what yaml.safe_load does.
+_arc_status_from_file() {
+    local f="$1"
+    [ -f "$f" ] || return 1
+    awk -F': ' '/^status:/ {
+            sub(/^status:[[:space:]]*/, "")
+            sub(/[[:space:]]+#.*$/, "")
+            print; exit
+        }' "$f" \
+        | tr -d ' "' | head -c 32
+}
+
 _arc_get_status() {
     local id="$1" f
     f="$(_arc_path "$id")"
     [ -f "$f" ] || return 1
-    awk -F': ' '/^status:/ {sub(/^status:[[:space:]]*/, ""); print; exit}' "$f" \
-        | tr -d ' "' | head -c 32
+    _arc_status_from_file "$f"
 }
 
 _arc_require_status() {
@@ -512,7 +553,7 @@ arc_list() {
         # T-1848: slug is the tag namespace; arc-NNN is the display id.
         slug=$(awk -F': ' '/^slug:/ {print $2; exit}' "$f")
         [ -z "$slug" ] && slug="$(basename "$f" .yaml)"
-        status=$(awk -F': ' '/^status:/ {print $2; exit}' "$f")
+        status=$(_arc_status_from_file "$f")   # T-2968: was printing the inline comment too
         name=$(awk -F': ' '/^name:/ {sub(/^name: /,""); print; exit}' "$f")
         task_count=$(_arc_tasks_for "${slug}" | wc -l | tr -d ' ')
         marker="  "
@@ -537,9 +578,7 @@ arc_show() {
 
     cat "$f"
     echo ""
-    # T-467: membership is arc_id: (canonical) unioned with the legacy arc:<id> tag,
-    # so "tagged" named only half of what is listed below.
-    echo "─── Tasks in arc ${id} ───"
+    echo "─── Tasks tagged arc:${id} ───"
     local found=0
     while IFS= read -r tid; do
         if [ -z "$tid" ]; then continue; fi
@@ -557,9 +596,7 @@ arc_show() {
             printf "  %s (file not found)\n" "$tid"
         fi
     done < <(_arc_tasks_for "${id}")
-    # T-467: this used to tell the reader to edit frontmatter by hand, because the
-    # tag verb could not write arc_id:. It can now, so point at the command.
-    [ "$found" -eq 0 ] && echo "  (no tasks yet — add one with: fw arc tag $id T-XXXX)"
+    [ "$found" -eq 0 ] && echo "  (no tasks yet — set 'arc_id: $id' on a task's frontmatter)"
 
     [ "$id" = "$current" ] && echo "" && echo "[FOCUSED]"
     return 0
@@ -584,102 +621,124 @@ arc_tag() {
     tf=$({ ls "$PROJECT_ROOT"/.tasks/{active,completed}/"$tid"-*.md 2>/dev/null || true; } | head -1)
     [ -n "$tf" ] || { echo "Error: task $tid not found in .tasks/{active,completed}/" >&2; return 1; }
 
-    # ── 1. Record membership in the SOURCE-OF-TRUTH field (T-467). ───────────
-    #
-    # This verb used to write `tags: [arc:<slug>]` and nothing else. T-1849 made
-    # task-side `arc_id:` canonical and T-1850 MIGRATED 162 tasks off the tag form
-    # — so every call to the command this file's own --help recommends ("prefer
-    # task-side arc_id: + 'fw arc tag'") was re-creating, one task at a time,
-    # exactly what that migration had just cleaned up. The command named as the way
-    # to set arc_id: was the one command that could not set it, and arc_show told
-    # the user to write the field by hand.
-    #
-    # Nothing broke visibly, and that is the whole reason it survived: every reader
-    # (lib/arc_membership.py) takes the UNION of both forms, so an arc whose members
-    # are recorded in two representations renders identically to one recorded in
-    # one. Found by T-466 only because a verification leg asserted the field BY NAME
-    # instead of asserting that the rendered output looked right — an instrument
-    # checking the render would have passed it.
-    #
-    # The deprecated tag is no longer written. Checked, not assumed: the audit's own
-    # "No inline arc:<slug> tag-only scans outside canonical lib (T-1881)" check
-    # passes, and the single tag-only scan inside this file (arc_migrate step 3)
-    # feeds task ids straight back into this function — so it now UPGRADES
-    # legacy-tagged tasks rather than re-confirming their tags. Legacy `tags:`
-    # already on a task are left untouched (D-Immutability); readers keep unioning.
-    local _rc=0
-    python3 - "$tf" "$id" "$tid" <<'PY' || _rc=$?
+    # 0. Canonical write: task-side arc_id: (T-1849). Checked/written BEFORE the
+    # legacy tag/constituent_tasks writes below so a conflict aborts atomically —
+    # `fw arc tag` previously wrote only the deprecated `arc:<slug>` tag form and
+    # never this field, despite the neighbouring comment naming arc_id: as the
+    # source of truth (832 T-467 / T-2955).
+    local existing_arc_id
+    existing_arc_id="$(python3 - "$tf" <<'PY'
 import re, sys
-
-fn, arc_id, tid = sys.argv[1], sys.argv[2], sys.argv[3]
+fn = sys.argv[1]
 text = open(fn).read()
-
-# Bound every edit to the frontmatter region. This matters concretely: task
-# BODIES quote `arc_id:` when they discuss arc membership — T-467's own file
-# does — and the tag-writer replaced here searched the WHOLE document for
-# `^tags:`, so it could rewrite prose describing a field instead of the field.
-m = re.match(r'^---\n(.*?\n)---\n', text, re.DOTALL)
-if not m:
-    sys.stderr.write("no YAML frontmatter in %s\n" % fn)
-    sys.exit(1)
-fm = m.group(1)
-
-live = re.search(r'^arc_id:[ \t]*(\S.*?)[ \t]*$', fm, re.MULTILINE)
-if live:
-    cur = live.group(1).strip().strip('"').strip("'")
-    if cur == arc_id:
-        sys.exit(10)            # already a member — idempotent no-op
-    sys.stderr.write("%s already carries arc_id: %s\n" % (tid, cur))
-    sys.exit(11)                # reassignment is a scope change, not a tagging
-
-# T-679: consult the SAME UNION the readers do. The guard above reads only
-# arc_id:, but lib/arc_membership.py unions arc_id: with the legacy `arc:<slug>`
-# tag — so a task whose membership is recorded ONLY in the tag was invisible to
-# the reassignment check, which is the population that most needs it: 26 tasks
-# in this tree are legacy-tag-only. Measured, not theorised — `fw arc tag
-# designer-authoring-surface T-590` set the field and exited 0 on a task already
-# in ewcr-governed-delivery. Scanning only the `tags:` line inside frontmatter,
-# because `arc:` appears in body prose and a document-wide scan would refuse
-# legitimate taggings on tasks that merely discuss arcs.
-tags_line = re.search(r'^tags:.*$', fm, re.MULTILINE)
-tagged = re.findall(r'arc:([A-Za-z0-9._-]+)', tags_line.group(0)) if tags_line else []
-if len(set(tagged)) > 1:
-    # arc_id: is single-valued; the legacy list form was not. Writing it would
-    # silently drop a membership, so the collapse is the human's to make.
-    sys.stderr.write("%s carries %d arc tags (%s); arc_id: holds one\n"
-                     % (tid, len(set(tagged)), ", ".join(sorted(set(tagged)))))
-    sys.exit(12)
-if tagged and tagged[0] != arc_id:
-    sys.stderr.write("%s already belongs to %s via its legacy arc: tag\n" % (tid, tagged[0]))
-    sys.exit(11)
-# A legacy tag naming THIS arc falls through on purpose: writing arc_id: is the
-# upgrade path, and it is what arc_migrate step 3 walks legacy tasks through.
-
-line = "arc_id: %s\n" % arc_id
-# Prefer the slot the task template documents, so the explanatory comment block
-# stays attached to the field it explains.
-anchor = re.search(r'^#[ \t]*arc_id:', fm, re.MULTILINE)
-if anchor:
-    fm = fm[:anchor.start()] + line + fm[anchor.start():]
-else:
-    tail = re.search(r'^related_tasks:.*$', fm, re.MULTILINE)
-    fm = (fm[:tail.end()] + "\n" + line.rstrip("\n") + fm[tail.end():]) if tail else fm + line
-
-open(fn, "w").write(text[:m.start(1)] + fm + text[m.end(1):])
-sys.exit(0)
+try:
+    fm_end = text.index("\n---", 4)
+except ValueError:
+    fm_end = len(text)
+head = text[:fm_end]
+m = re.search(r'^arc_id:\s*(\S.*?)\s*$', head, re.MULTILINE)
+print(m.group(1).strip().strip('"').strip("'") if m else "")
 PY
-    case "$_rc" in
-        0)  echo "Set arc_id: $id on task $tid" ;;
-        10) echo "Task $tid already has arc_id: $id — no change" ;;
-        11) echo "Error: $tid belongs to a different arc; refusing to reassign." >&2
-            echo "  Moving a task between arcs is a scope decision — edit arc_id: deliberately." >&2
-            return 1 ;;
-        12) echo "Error: $tid carries multiple legacy arc: tags (see above)." >&2
-            echo "  arc_id: is single-valued — collapsing them would drop a membership." >&2
-            echo "  Decide which arc owns it, then edit tags:/arc_id: deliberately." >&2
-            return 1 ;;
-        *)  echo "Error: failed writing arc_id: to $tf" >&2; return 1 ;;
-    esac
+)"
+    if [ -n "$existing_arc_id" ]; then
+        local existing_norm
+        existing_norm="$(_arc_normalize_input "$existing_arc_id")"
+        if [ "$existing_norm" = "$id" ]; then
+            echo "Task $tid already has arc_id: ${existing_arc_id} — skipping arc_id write"
+        else
+            echo "Error: task $tid already has arc_id: ${existing_arc_id} (normalizes to '${existing_norm}'); refusing to overwrite with '${id}'. A task's arc_id: is a single-arc reference (T-1849) — resolve the conflict manually before tagging into a different arc." >&2
+            return 1
+        fi
+    else
+        python3 - "$tf" "$id" <<'PY'
+import re, sys
+fn, new_id = sys.argv[1], sys.argv[2]
+text = open(fn).read()
+try:
+    fm_end = text.index("\n---", 4)
+except ValueError:
+    fm_end = len(text)
+head, tail = text[:fm_end], text[fm_end:]
+cm = re.search(r'^#\s*arc_id:', head, re.MULTILINE)
+if cm:
+    head = head[:cm.start()] + f"arc_id: {new_id}\n" + head[cm.start():]
+else:
+    rm = re.search(r'^related_tasks:.*$', head, re.MULTILINE)
+    if rm:
+        head = head[:rm.end()] + f"\narc_id: {new_id}" + head[rm.end():]
+    else:
+        head = head.replace("---\n", f"---\narc_id: {new_id}\n", 1)
+open(fn, "w").write(head + tail)
+PY
+        echo "Set arc_id: ${id} on task $tid"
+    fi
+
+    local arc_tag="arc:${id}"
+
+    # 1. Add tag to task file (idempotent).
+    if grep -qE "^tags:.*${arc_tag}" "$tf"; then
+        echo "Task $tid already has tag $arc_tag — skipping task edit"
+    else
+        # update-task.sh handles the tag append safely
+        if [ -x "${FRAMEWORK_ROOT:-$PROJECT_ROOT}/agents/task-create/update-task.sh" ]; then
+            (cd "$PROJECT_ROOT" && "${FRAMEWORK_ROOT:-$PROJECT_ROOT}/agents/task-create/update-task.sh" "$tid" --add-tag "$arc_tag" >/dev/null) \
+                || { echo "Error: update-task.sh failed adding tag" >&2; return 1; }
+        else
+            python3 - "$tf" "$arc_tag" <<'PY'
+import re, sys
+fn, tag = sys.argv[1], sys.argv[2]
+text = open(fn).read()
+m = re.search(r'^(tags:\s*)(\[.*?\]|\S.*?)$', text, re.MULTILINE)
+if m:
+    cur = m.group(2).strip()
+    if cur.startswith("["):
+        new = cur.rstrip("]").rstrip() + (f', "{tag}"]' if cur != "[]" else f'"{tag}"]')
+    else:
+        new = f"[{cur}, \"{tag}\"]"
+    text = text[:m.start(2)] + new + text[m.end(2):]
+else:
+    # insert after frontmatter line `---` open
+    text = text.replace("---\n", f"---\ntags: [\"{tag}\"]\n", 1)
+open(fn, "w").write(text)
+PY
+        fi
+        echo "Tagged task $tid with $arc_tag"
+    fi
+
+    # 1.5. Set canonical arc_id: on task frontmatter (T-2955, 832 T-467).
+    # The tag write above (arc:<slug>) is the legacy form; task-side arc_id:
+    # is the actual source-of-truth per T-1849. `fw arc tag` used to write
+    # only the deprecated form, leaving arc_id: unset — silently correct
+    # (fw arc show unions both forms) but drifted from its own documented
+    # canonical field. Never overwrites a DIFFERENT existing arc_id: — a
+    # task belongs to one arc at a time, and a mismatch is a reassignment
+    # decision this command should surface, not make silently.
+    python3 - "$tf" "$id" <<'PY'
+import re, sys
+fn, arc_id = sys.argv[1], sys.argv[2]
+text = open(fn).read()
+m = re.search(r'^arc_id:[ \t]*(.*)$', text, re.MULTILINE)
+if m:
+    cur = m.group(1).strip().strip('"').strip("'")
+    if cur == arc_id:
+        print(f"Task already has arc_id: {arc_id} — skipping")
+    elif cur:
+        print(f"WARNING: task already has arc_id: {cur} (differs from '{arc_id}') "
+              f"— not overwriting. A task belongs to one arc at a time (T-1849); "
+              f"edit arc_id: by hand if reassignment is intended.")
+    else:
+        text = text[:m.start(1)] + arc_id + text[m.end(1):]
+        open(fn, "w").write(text)
+        print(f"Set arc_id: {arc_id} on task frontmatter")
+else:
+    m2 = re.search(r'^(related_tasks:.*)$', text, re.MULTILINE)
+    if m2:
+        text = text[:m2.end(1)] + f"\narc_id: {arc_id}" + text[m2.end(1):]
+    else:
+        text = text.replace("---\n", f"---\narc_id: {arc_id}\n", 1)
+    open(fn, "w").write(text)
+    print(f"Set arc_id: {arc_id} on task frontmatter")
+PY
 
     # 2. Append to arc's constituent_tasks (idempotent).
     # T-1851: field deprecated for new arcs (post-2026-05-16). When the field
@@ -1016,17 +1075,9 @@ Verbs:
   focus <id> | --clear      Set/clear the focused arc (one at a time)
   list                      Show all arcs (* marks focused)
   show <id>                 Detail: metadata + constituent tasks
-  tag <id> T-XXXX           Set task-side arc_id: <id> — the source-of-truth field
-                            (T-1849). Idempotent; refuses to reassign a task that
-                            already belongs to a different arc.
-                            T-467: this verb used to write the T-1851-deprecated
-                            arc:<id> tag INSTEAD of arc_id:, so the command named
-                            here as the way to set the canonical field was the one
-                            command that could not set it. It no longer writes the
-                            tag; legacy tags already on a task are left in place and
-                            readers still union both forms.
-                            Legacy: also appends to arc's constituent_tasks: if
-                            present (T-1851 deprecation).
+  tag <id> T-XXXX           Add arc:<id> tag to a task. Legacy: also appends to
+                            arc's constituent_tasks: if present (T-1851 deprecation).
+                            Source-of-truth is task-side arc_id: (T-1849).
   close <id> --demo <path|url|none> [--justification "..."] [--decision "..."]
                             Mark arc closed. --demo is REQUIRED (§ACD/G-062):
                             wire-level evidence of the headline_mechanic firing.
@@ -1076,8 +1127,7 @@ Examples:
 Storage:
   .context/arcs/<id>.yaml          — registry
   .context/working/arc-focus.yaml  — focused arc (single)
-  Task frontmatter: arc_id: <id> (canonical, T-1849 — written by 'fw arc tag')
-  Task tags: arc:<id> (legacy, T-1851 — still read, no longer written); from-T-XXXX alias
+  Task tags: arc:<id> (canonical); from-T-XXXX as legacy alias
 
 Surfaces:
   - Handover: ## Current Arc section (if focus set)
@@ -1101,7 +1151,7 @@ arc_review() {
 
     local arc_path status anchor name
     arc_path="$(_arc_path "$id")"
-    status=$(awk '/^status:[[:space:]]/ {print $2; exit}' "$arc_path" | tr -d ' "')
+    status=$(_arc_status_from_file "$arc_path")   # T-2968: was correct only via default field splitting
     anchor=$(awk '/^anchor_task:[[:space:]]/ {print $2; exit}' "$arc_path" | tr -d ' "')
     name=$(awk -F': ' '/^name:[[:space:]]/ {sub(/^[[:space:]"]+/,"",$2); sub(/[[:space:]"]+$/,"",$2); print $2; exit}' "$arc_path")
 
@@ -1169,6 +1219,7 @@ arc_dispatch() {
         abandon) arc_abandon "$@";;
         migrate) arc_migrate "$@";;
         approve-driver)   arc_approve_driver   "$@";;   # T-1926 (arc-006)
+        review-driver)    arc_review_driver    "$@";;   # T-3429 (arc-006, D-586)
         remove-driver)    arc_remove_driver    "$@";;   # T-1976 (arc-006)
         set-scoped-weight) arc_set_scoped_weight "$@";; # T-1977 (arc-006)
         show-suggestions) arc_show_suggestions "$@";;   # T-1926 (arc-006)
@@ -1195,7 +1246,7 @@ arc_dispatch() {
 
 arc_approve_driver() {
     local id="" name="" weight="" rationale="" justification="" want_none=false
-    local i_am_human=false from_watchtower=false
+    local i_am_human=false from_watchtower=false all_reviewed=false scoring_file=""
     while [ $# -gt 0 ]; do
         case "$1" in
             --weight) weight="$2"; shift 2;;
@@ -1204,6 +1255,8 @@ arc_approve_driver() {
             --justification) justification="$2"; shift 2;;
             --i-am-human) i_am_human=true; shift;;
             --from-watchtower) from_watchtower=true; shift;;
+            --all-reviewed) all_reviewed=true; shift;;   # T-3429 (D-586)
+            --scoring-file) scoring_file="$2"; shift 2;;  # T-3429: give an ad-hoc driver a mechanism
             --help|-h) _arc_approve_help; return 0;;
             *)
                 if [ -z "$id" ]; then id="$1"
@@ -1241,6 +1294,12 @@ arc_approve_driver() {
         echo "OK: arc '$id' approved with no scoped drivers (--none)."
         echo "  Justification logged to .context/audits/arc-scoped-driver-bypass.jsonl"
         return 0
+    fi
+
+    # ── --all-reviewed path (T-3429, D-586) ──
+    if [ "$all_reviewed" = "true" ]; then
+        _arc_approve_all_reviewed "$id" "$rationale"
+        return $?
     fi
 
     # ── approve-driver normal path ──
@@ -1308,12 +1367,61 @@ for sd in (d.get('scoped_drivers') or []):
         return 1
     fi
 
-    if ! _arc_approve_driver_acd_gate "approve-driver" "$i_am_human" "$from_watchtower"; then
-        return 1
+    # ── T-3429 (D-586): the reviewer, not the operator, is the default gate. ──
+    #
+    # Operator ruling 2026-09-22: "per default just create them and add them; if
+    # needed institute an external value driver reviewer". So the §ACD refusal
+    # that used to stand here became the OVERRIDE path (--i-am-human /
+    # --from-watchtower still approve directly, recorded as approved_by: human),
+    # and an unflagged call now runs the static reviewer instead of refusing.
+    # Cap 3, weight ≤6 (M2) and the T-1979 dedup above are unchanged — the
+    # ruling moved WHO certifies quality, not WHAT the structural limits are.
+    local approved_by="human" reviewer_json=""
+    if [ "$i_am_human" = "false" ] && [ "$from_watchtower" = "false" ]; then
+        # An ad-hoc name with no proposed entry is reviewed from the arguments
+        # (see FW_ARC_REVIEW_INLINE_ENTRY in lib/arc-driver-review.sh).
+        local inline_entry
+        inline_entry=$(python3 -c '
+import json, sys
+e = {"name": sys.argv[1], "weight": int(sys.argv[2]), "rationale": sys.argv[3]}
+if len(sys.argv) > 4 and sys.argv[4]:
+    e["scoring_file"] = sys.argv[4]
+print(json.dumps(e))' "$name" "$w" "$rationale" "$scoring_file")
+        reviewer_json=$(FW_ARC_REVIEW_INLINE_ENTRY="$inline_entry" \
+            _arc_driver_review_run "$f" "$PROJECT_ROOT" "$name" "false" "json")
+        local review_rc=$?
+        if [ "$review_rc" -ne 0 ]; then
+            echo "Error: driver '$name' did not pass review — not approved." >&2
+            echo "" >&2
+            python3 - "$reviewer_json" >&2 <<'PYREPORT'
+import json, sys
+try:
+    d = json.loads(sys.argv[1] or "{}")
+except Exception:
+    d = {}
+if d.get("error"):
+    print("  " + d["error"])
+for r in d.get("reviewed") or []:
+    for k in ("a", "b", "c"):
+        c = (r.get("checks") or {}).get(k) or {}
+        if c.get("verdict") == "fail":
+            print("  FAILED (%s) %s: %s" % (k, c.get("check"), c.get("reason")))
+PYREPORT
+            echo "" >&2
+            echo "  Re-run the review after fixing it:" >&2
+            echo "    fw arc review-driver $id \"$name\" --dry-run" >&2
+            echo "" >&2
+            echo "  Overrides (the operator-approval path, now the exception — T-3429/D-586):" >&2
+            echo "    --i-am-human       human typing into an agent session" >&2
+            echo "    --from-watchtower  Flask backend POST" >&2
+            return 1
+        fi
+        approved_by="reviewer:${FW_ARC_REVIEWER_ID:-static-v1}"
+        echo "Reviewer PASS ($approved_by) — checks (a) scorable, (b) distinct, (c) distinguishes."
     fi
 
     # Append + flip-if-draft via python (preserves YAML structure).
-    python3 - "$f" "$name" "$w" "$rationale" <<'PY'
+    python3 - "$f" "$name" "$w" "$rationale" "$approved_by" "$reviewer_json" <<'PY'
 import os, sys, datetime
 try:
     from ruamel.yaml import YAML
@@ -1324,6 +1432,8 @@ except ImportError:
     HAS_RUAMEL = False
 
 fn, name, weight, rationale = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
+approved_by = sys.argv[5] if len(sys.argv) > 5 else "human"
+reviewer_json = sys.argv[6] if len(sys.argv) > 6 else ""
 
 if HAS_RUAMEL:
     with open(fn) as fh: data = yaml_r.load(fh)
@@ -1333,9 +1443,26 @@ else:
 
 sd = data.get('scoped_drivers') or []
 ts = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
-entry = {'name': name, 'weight': weight, 'approved_at': ts}
+entry = {'name': name, 'weight': weight, 'approved_at': ts, 'approved_by': approved_by}
 if rationale:
     entry['rationale'] = rationale
+# T-3429: carry the verdict onto the approved entry. Without it, an
+# `approved_by: reviewer:...` row is an unfalsifiable claim — which is exactly
+# what check_arc_driver_reviewer_record (agents/audit/audit.sh) WARNs about.
+if reviewer_json:
+    import json as _json
+    try:
+        _rv = _json.loads(reviewer_json)
+    except Exception:
+        _rv = None
+    if isinstance(_rv, dict):
+        for _r in (_rv.get('reviewed') or []):
+            if _r.get('name') == name:
+                entry['reviewer'] = {'verdict': _r.get('verdict'),
+                                     'checks': _r.get('checks'),
+                                     'ts': _r.get('ts'),
+                                     'reviewer_id': _r.get('reviewer_id')}
+                break
 sd.append(entry)
 data['scoped_drivers'] = sd
 
@@ -1361,7 +1488,7 @@ PY
 
     echo "OK: approved scoped driver '$name' (weight=$w) on arc '$id'."
     local new_status
-    new_status=$(awk -F': ' '/^status:/ {print $2; exit}' "$f" | tr -d ' ')
+    new_status=$(_arc_status_from_file "$f")   # T-2968
     [ "$new_status" = "in-progress" ] && echo "  Arc status: draft → in-progress (first driver decision)."
 
     # T-2076 (T-2065 GO): deterministic-consequence rescore. Driver authorisation
@@ -1796,17 +1923,110 @@ arc_rescore() {
     fi
 }
 
+# T-3429 (D-586): approve every proposed driver that passes review, in proposal
+# order, stopping at the M2 cap of 3 and naming what it skipped.
+#
+# Serial on purpose: each approval changes the cap headroom and the dedup set
+# the NEXT review reads, so the reviews cannot be batched up front — the second
+# driver has to be judged against the arc as the first one left it.
+_arc_approve_all_reviewed() {
+    local id="$1" rationale_override="${2:-}"
+    local f
+    f="$(_arc_path "$id")"
+
+    local names
+    names=$(python3 - "$f" <<'PY'
+import sys, yaml
+d = yaml.safe_load(open(sys.argv[1])) or {}
+for p in (d.get('proposed_scoped_drivers') or []):
+    if isinstance(p, dict) and p.get('name'):
+        print(p['name'])
+PY
+)
+    if [ -z "$names" ]; then
+        echo "No proposed scoped drivers on arc '$id' — nothing to approve."
+        return 0
+    fi
+
+    local approved=0 failed=0 skipped=0
+    local skipped_names=""
+    while IFS= read -r dname; do
+        [ -z "$dname" ] && continue
+        local count
+        count=$(python3 -c "
+import yaml
+d = yaml.safe_load(open('$f')) or {}
+print(len(d.get('scoped_drivers') or []))
+")
+        if [ "$count" -ge 3 ]; then
+            skipped=$((skipped + 1))
+            skipped_names="$skipped_names$dname, "
+            continue
+        fi
+        # Weight from the proposal (proposals use `weight:` or `weight_suggestion:`).
+        local w rat
+        w=$(python3 - "$f" "$dname" <<'PY'
+import sys, yaml
+d = yaml.safe_load(open(sys.argv[1])) or {}
+for p in (d.get('proposed_scoped_drivers') or []):
+    if isinstance(p, dict) and p.get('name') == sys.argv[2]:
+        print(p.get('weight') or p.get('weight_suggestion') or 3)
+        break
+PY
+)
+        rat="$rationale_override"
+        if [ -z "$rat" ]; then
+            rat=$(python3 - "$f" "$dname" <<'PY'
+import sys, yaml
+d = yaml.safe_load(open(sys.argv[1])) or {}
+for p in (d.get('proposed_scoped_drivers') or []):
+    if isinstance(p, dict) and p.get('name') == sys.argv[2]:
+        print((p.get('rationale') or '').strip())
+        break
+PY
+)
+        fi
+        if arc_approve_driver "$id" "$dname" --weight "${w:-3}" --rationale "$rat"; then
+            approved=$((approved + 1))
+        else
+            failed=$((failed + 1))
+        fi
+    done <<< "$names"
+
+    echo ""
+    echo "--all-reviewed on arc '$id': $approved approved, $failed refused by review, $skipped skipped."
+    if [ "$skipped" -gt 0 ]; then
+        echo "  Skipped (scoped_drivers: at the M2 cap of 3): ${skipped_names%, }"
+        echo "  Free a slot first: fw arc remove-driver $id \"<name>\" --rationale \"<≥30 chars why>\""
+    fi
+    [ "$failed" -gt 0 ] && return 1
+    return 0
+}
+
 _arc_approve_help() {
     echo "Usage:"
-    echo "  fw arc approve-driver <arc-id> \"<name>\" [--weight N] [--i-am-human|--from-watchtower]"
+    echo "  fw arc approve-driver <arc-id> \"<name>\" [--weight N] [--rationale R]"
+    echo "  fw arc approve-driver <arc-id> --all-reviewed"
     echo "  fw arc approve-driver <arc-id> --none --justification \"<≥30 chars>\""
     echo ""
     echo "  Appends to scoped_drivers: (cap 3, M2 weight ≤6, default weight=3)."
     echo "  On first approval — or on --none — flips arc status: draft → in-progress."
-    echo "  --none --justification declares the arc has no scoped drivers worth tracking;"
-    echo "  the justification is logged to .context/audits/arc-scoped-driver-bypass.jsonl."
     echo ""
-    echo "  Refuses under \$CLAUDECODE=1 unless --i-am-human or --from-watchtower (M6, §ACD)."
+    echo "  DEFAULT PATH (T-3429, D-586): the external value-driver reviewer certifies"
+    echo "  the driver — checks (a) scorable, (b) distinct, (c) distinguishes — and the"
+    echo "  entry is recorded as approved_by: reviewer:<id> with the verdict attached."
+    echo "  On FAIL nothing is approved and the failed checks are named."
+    echo "    Preview a verdict: fw arc review-driver <arc-id> \"<name>\" --dry-run"
+    echo "    --scoring-file P   give an ad-hoc driver (one with no proposal behind it) the"
+    echo "                       scoring spec check (a) needs; schema in policy/value-drivers.yaml"
+    echo "    --all-reviewed     approve every proposed driver that passes, up to the cap"
+    echo ""
+    echo "  OVERRIDE PATH: --i-am-human / --from-watchtower approve WITHOUT the reviewer,"
+    echo "  recorded as approved_by: human. The operator ruling made this the exception."
+    echo ""
+    echo "  --none --justification declares the arc has no scoped drivers worth tracking;"
+    echo "  it stays §ACD-gated (a negative ruling is sovereign) and the justification is"
+    echo "  logged to .context/audits/arc-scoped-driver-bypass.jsonl."
 }
 
 _arc_approve_driver_acd_gate() {
@@ -1844,7 +2064,7 @@ _arc_flip_to_in_progress_if_draft() {
     local f
     f="$(_arc_path "$id")"
     local cur
-    cur=$(awk -F': ' '/^status:/ {print $2; exit}' "$f" | tr -d ' ')
+    cur=$(_arc_status_from_file "$f")   # T-2968: a commented draft arc never auto-promoted
     if [ "$cur" = "draft" ]; then
         python3 - "$f" <<'PY'
 import re, sys
