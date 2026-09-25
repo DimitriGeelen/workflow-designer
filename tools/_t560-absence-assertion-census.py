@@ -93,21 +93,36 @@ NONZERO_EQ = re.compile(r"-eq\s+([1-9]\d*)\b|\b([1-9]\d*)\s+-eq\b")
 # the only genuine false positive was one leg whose `rc` is assigned in both branches of
 # an if/else, and it was given a control instead.
 #
-# TWO LIMITS OF THE CONTROL MODEL, FOUND THE SAME WAY, BOTH BIASED TOWARD FLAGGING A
-# CONTROLLED LEG (OBS-377 and T-844):
-#   - `len(p) >= 3` in control_level() means a pattern of one or two characters can NEVER
-#     earn PATTERN credit. `^_` is two. A perfectly good same-string companion leg is
-#     silently not counted, and the author has no way to tell from the output why.
-#   - EXIST_CTRL matches only -f, -s and -d, so `test -x` is not recognised even though
-#     -x implies -f.
-# Neither is fixed here (one bug, one task). Both matter more than they did, because the
-# classifier now gates closes rather than printing a report: a control it cannot see
-# blocks a close and pushes the author toward the weaker form it can.
+# THREE LIMITS OF THE CONTROL MODEL WERE FOUND THE SAME WAY, ALL BIASED TOWARD FLAGGING
+# A CONTROLLED LEG (OBS-377, OBS-379). T-845 FIXED TWO AND DEFERRED ONE:
+#   - FIXED: `len(p) >= 3` made a one- or two-character pattern impossible to credit.
+#   - FIXED: EXIST_CTRL matched only -f/-s/-d, so `test -x` was not credited though -x
+#     implies -f. Now -x/-e/-r too.
+#   - DEFERRED: no notion of a DIFFERENTIAL control (one line asserting both a non-empty
+#     and an empty result from the same subject), which is the STRONGEST control there is
+#     and reads as NONE. Not implemented because every definition drafted was fuzzy enough
+#     to over-credit, and over-crediting produces FALSE NEGATIVES in a classifier that now
+#     gates closes — the trade T-844 measured and refused.
+#
+# HONEST RESULT OF THOSE TWO FIXES ON THE LIVE CORPUS: the uncontrolled count did NOT move
+# (103 before, 103 after). Two legs upgraded EXISTENCE -> PATTERN and nothing gained credit,
+# because the only legs the defects were blocking had already been hand-guarded around them.
+# The value is prospective, plus the WHY NOT CREDITED line, which is the part that actually
+# changes behaviour: it reveals that the dominant uncontrolled shape is
+# `test -z "$(git status --porcelain ...)"` — no grep pattern at all, so a same-string
+# companion is not even the right remedy for most of the population.
 SEARCH_SOURCED = re.compile(r"\bgrep\b|\bfind\b|\bgit\s+(?:diff|status|ls-files)\b|\bls\b")
 
 # Existence controls on the same line.
+#
+# T-845: -x, -e and -r added. `-x` was the case that exposed the gap — it proves a file exists
+# AND is executable, so it IMPLIES -f and is strictly stronger, yet it was not credited at all.
+# Measured: an -x-guarded leg was flagged, and adding a redundant `test -f` beside it cleared
+# the flag with no change in what the leg establishes. An instrument that refuses the stronger
+# assertion teaches authors to write the weaker one, which matters more now that this classifier
+# gates closes rather than printing a report (OBS-377).
 EXIST_CTRL = re.compile(
-    CMD_START + r"(?:test|\[)\s+-[fsd]\s|"          # test -f / -s / -d
+    CMD_START + r"(?:test|\[)\s+-[fsdxer]\s|"       # test -f / -s / -d / -x / -e / -r
     r"\bgit\s+ls-files\b|"                          # materialises a file list first
     r">\s*/tmp/\.[\w.-]+"                           # captures output to a file it greps
 )
@@ -167,8 +182,20 @@ def control_level(text, sibling_texts):
     distinction this corpus keeps relearning — and a control that is satisfied by a
     coincidence of substrings is worth less than no control at all, because it is
     recorded as coverage.
+
+    T-845: THE `len(p) >= 3` FLOOR IS GONE, and the same-string rule above is why that is
+    safe. The floor existed to stop a control being satisfied by a short substring turning up
+    somewhere incidental — but credit already requires the pattern to BE one of the sibling's
+    own grep patterns (`p in sib_pats`), not to appear anywhere in its text, so the exactness
+    carries that guard on its own. What the floor actually did was make a whole class of valid
+    controls impossible to express: `^_` is two characters, so T-155's legs could not be
+    credited no matter what companion was written beside them, and nothing in the output said
+    so. That silence cost a false claim — T-843 reported 16 of 17 legs drained when it was 14,
+    because the companion leg passed and the corpus count fell for unrelated reasons (OBS-379).
+    Both over-crediting guards are pinned by tests in tools/_t845-control-recogniser-tests.sh:
+    a pattern MENTIONED but never grepped is still refused, at two characters as at ten.
     """
-    pats = [p for p in patterns_in(text) if len(p) >= 3]
+    pats = patterns_in(text)
     for sib in sibling_texts:
         if classify(sib):
             continue              # the sibling is itself an absence leg — not a control
@@ -179,6 +206,38 @@ def control_level(text, sibling_texts):
     if EXIST_CTRL.search(text):
         return "EXISTENCE"
     return "NONE"
+
+
+def control_reason(text, sibling_texts):
+    """T-845 — why was this leg NOT credited? Empty string if it WAS credited.
+
+    The cheaper half of OBS-379 and the half that matters most. Before this, an author who had
+    just added a control saw the leg still listed as uncontrolled with nothing to distinguish
+    "your control is wrong" from "your pattern was never considered". That ambiguity produced a
+    false claim in T-843 (16 legs reported drained; 14 actually were), and the fix is not a
+    better classifier but a classifier that says what it did.
+
+    Deliberately descriptive, not prescriptive: it names what is MISSING, and the repair routes
+    live in the close gate's block message where the author is actually stopped.
+    """
+    if control_level(text, sibling_texts) != "NONE":
+        return ""
+    pats = patterns_in(text)
+    if not pats:
+        if "test -z" in text or "-eq 0" in text or "-eq  0" in text:
+            return "no grep pattern to control (zero comes from a command's output, not a match)"
+        return "pattern unreadable — quote it literally if you want it checked"
+    sib_pats = set()
+    for sib in sibling_texts:
+        if classify(sib):
+            continue          # a sibling that is itself an absence leg is not a control
+        sib_pats.update(patterns_in(sib))
+    if sib_pats:
+        return ("no sibling GREPS %s (siblings assert %s); and no -f/-s/-d/-x/-e/-r guard on the line"
+                % (", ".join(repr(p) for p in pats[:3]),
+                   ", ".join(repr(p) for p in sorted(sib_pats)[:3])))
+    return ("no sibling asserts %s positively, and no -f/-s/-d/-x/-e/-r guard on the line"
+            % ", ".join(repr(p) for p in pats[:3]))
 
 
 def _is_unparseable_absence(text):
@@ -270,9 +329,13 @@ def main():
                     # by the same rule this denominator line counts (L-533).
                     unparsed += 1
                 siblings = [t for t in texts if t != text]
+                # T-845: the REASON is computed here, where the siblings are in scope. The
+                # report loop below has no access to them, which is why an uncredited leg
+                # could not explain itself before.
                 absence.append((
                     os.path.relpath(path, ROOT), lineno,
                     ",".join(forms), control_level(text, siblings), text,
+                    control_reason(text, siblings),
                 ))
 
     uncontrolled = [a for a in absence if a[3] == "NONE"]
@@ -298,9 +361,13 @@ def main():
     if uncontrolled:
         print("UNCONTROLLED ABSENCE ASSERTIONS")
         print("-" * 78)
-        for relpath, lineno, forms, _, text in uncontrolled:
+        for relpath, lineno, forms, _, text, reason in uncontrolled:
             print("%s:%d  [%s]" % (relpath, lineno, forms))
             print("    %s" % (text if len(text) <= 160 else text[:157] + "..."))
+            # T-845: say WHY it was not credited. "Your control is wrong" and "your pattern was
+            # never considered" used to look identical here, and that cost a false claim.
+            if reason:
+                print("    WHY NOT CREDITED: %s" % reason)
         print()
 
     count = len(uncontrolled)

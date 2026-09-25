@@ -260,12 +260,17 @@ the original survey, and the measurement gives no new reason to revisit it.
 # T-155 legs — the four figures the NO-GO rests on, re-measured from the tree.
 # Each is a direct count, not a self-report. Command substitution keeps pipefail off `test`.
 test "$(ls examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 24
-# T-843 CONTROL, CORRECTED BY T-844. The line below proves `^_` actually matches, which is
-# worth keeping on its own terms — but it can NEVER earn PATTERN credit from _t560, because
-# control_level filters patterns shorter than 3 characters (census line 147) and `^_` is two.
-# T-843's commit therefore over-claimed: it said 16 of 17 legs drained; these two were not,
-# making it 14. The two legs below now carry an EXISTENCE control instead (the directory they
-# enumerate must exist), which is the weaker control and is what the instrument can see.
+# T-843 CONTROL, corrected by T-844, then VINDICATED by T-845. History, because the middle
+# state is the instructive one:
+#   T-843 added the `^_` companion below and claimed these two legs drained. They were not.
+#   T-844 found why — control_level filtered patterns under 3 characters and `^_` is two, so
+#         the companion could not be credited and nothing in the census output said so. That
+#         made T-843's "16 of 17 drained" really 14 (OBS-379). EXISTENCE guards added instead.
+#   T-845 removed the length floor, because the same-string rule already guards the coincidence
+#         the floor was for. The companion now earns PATTERN credit, as it always should have.
+# Both controls are kept: the companion (PATTERN — catches a wrong pattern) and `test -d`
+# (EXISTENCE — catches a wrong path). They catch different mistakes and the census is explicit
+# that they are not interchangeable.
 test "$(ls -d .editor-versions/*/ 2>/dev/null | xargs -n1 basename | grep -c '^_')" -ge 1
 test -d .editor-versions && test "$(ls -d .editor-versions/*/ 2>/dev/null | xargs -n1 basename | grep -vc '^_')" -eq 24
 test -d .editor-versions && test -d examples/aef-processes/rendered && test "$(comm -12 <(ls examples/aef-processes/rendered/*.bpmn | xargs -n1 basename | sed 's/\.bpmn$//' | sort) <(ls -d .editor-versions/*/ | xargs -n1 basename | grep -v '^_' | sort) | wc -l)" -eq 15
