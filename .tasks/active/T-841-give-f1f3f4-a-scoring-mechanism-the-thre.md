@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T07:49:50Z
-last_update: 2026-09-25T07:49:50Z
+last_update: 2026-09-25T08:38:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -46,7 +46,7 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The defect is stated as the audit states it, with the weights.** F1 V_SDLC_ENABLEMENT,
+- [x] **The defect is stated as the audit states it, with the weights.** F1 V_SDLC_ENABLEMENT,
       F3 V_AEF_INTEGRATION, F4 V_WORKFLOW_ROUTING — each `weight: 9`, together 27 of total
       weight — have neither a handler nor a `scoring:` spec, so `lib/bvp-scorability.sh` WARNs
       per driver and T-3427 omits them from the normalisation denominator. Every task scores a
@@ -64,47 +64,83 @@ date_finished: null
       assumed a rubric existed; it does not, and the assumption is recorded rather than
       quietly restated.
 
-- [ ] **The level ladders are PROPOSED, and marked as proposals throughout.** With no rubric,
+- [x] **The level ladders are PROPOSED, and marked as proposals throughout.** With no rubric,
       any 0–5 ladder is a judgement about what the operator's own value model means — what
       counts as L1 vs L5 AEF-integration. That is theirs. The ladders follow the house pattern
       set by F-RECALL and F2 (0–5 plus guardrails plus polarity) and each level cites the clause
       of the one-line rationale it claims to encode, so the operator can see exactly where a
       reading was supplied rather than derived. **Nothing is installed.**
 
-- [ ] **The rubric absence is raised as a Sovereign question in its own right.** Three weight-9
+- [x] **The rubric absence is raised as a Sovereign question in its own right.** Three weight-9
       drivers with no levels is not a mechanism gap that a spec fixes — it is an unfinished
       policy decision from 2026-08-16 that has silently zeroed 27 of the model's weight for 40
       days. A spec written over it encodes the agent's reading of the operator's intent, which
       is exactly what "surfaced, not resolved" exists to prevent.
 
-- [ ] **Every spec passes `fw bvp driver --validate-scoring`.** Recorded verbatim, all three.
+- [x] **Every spec passes `fw bvp driver --validate-scoring`.** Recorded verbatim, all three.
 
-- [ ] **THE TEMPLATE TRAP IS TESTED, NOT ASSUMED.** The schema warns that a keyword drawn from
+- [x] **THE TEMPLATE TRAP IS TESTED, NOT ASSUMED.** The schema warns that a keyword drawn from
       `.tasks/templates/default.md` matches every task uniformly, so the driver ranks nothing
       while appearing to work — measured on consumer 1409-sprind. For each spec: run
       `--explain` against a task the driver SHOULD score high and one it should score 0, and
       show the scores DIFFER. A spec that returns the same level for both has not been shown to
       discriminate, whatever `--validate-scoring` says about its shape.
 
-- [ ] **T-826 is one of the explain targets, and its F3 result is recorded.** It is an
+- [x] **T-826 is one of the explain targets, and its F3 result is recorded.** It is an
       AEF-integration task (AEF's own `kind=documentation|work-plan` ruling) currently reading
       `lv` at BVP 79. If F3 scores it 0 under a spec derived from F3's rubric, the spec is wrong
       or the rubric is — either way that is the finding, reported rather than tuned away.
 
-- [ ] **The ranking delta is measured, not asserted.** With the specs supplied via
+- [x] **The ranking delta is measured, not asserted.** With the specs supplied via
       `--scoring-file`, how many of the currently-`lv` tasks would move, and does any reach Q1.
       Reported as a table. This is the number that tells the operator what their ruling buys.
 
-- [ ] **Nothing is attached, and the reason is recorded.** `--scoring-file` attaches only via
+- [x] **Nothing is attached, and the reason is recorded.** `--scoring-file` attaches only via
       `fw bvp driver --add` (new drivers); there is no verb to give an EXISTING driver a
       mechanism. Hand-editing is forbidden by the schema header ("never hand-edit a spec into
       this file — the verbs validate"), and `--add`/`--remove` are §ACD-gated. Verified by
       `.context/working/.gate-bypass-log.yaml` carrying no new entry for this task, and by
       `policy/value-drivers.yaml` being unmodified.
 
-- [ ] **The verb-surface gap is filed for AEF.** The audit WARNs on three existing drivers while
+- [x] **The verb-surface gap is filed for AEF.** The audit WARNs on three existing drivers while
       the only remedy it names (`--add --scoring-file`) cannot address an existing driver. That
       is a gap between the check and the fix path, and it is upstream's.
+
+#### Recorded shortfalls on the ticks above
+
+Three of the nine ticks carry a qualification. Ticking them without saying so would be the
+false-green this task is otherwise about.
+
+**AC "raised as a Sovereign question" — satisfied only as PROSE, and that is the known
+defect.** There is no Sovereign-question register in this project: no file, no id
+allocator, no status field, and no instrument that can answer "which Sovereign questions
+are open". So SQ-8 is recorded in `docs/reports/T-841-scoring-mechanism-measurement.md`
+and in concern **G-080**, following the G-055 / G-061 precedent of naming an SQ from a
+concern. That is the most durable home available and it is still prose — exactly the
+failure PL-145 names (a ruling filed as prose is invisible to instruments), applied here
+to the QUESTION rather than the ruling. Not fixed here: one bug, one task, and the remedy
+(new register vs. a concern type) is an architectural decision that is the operator's.
+
+**AC "THE TEMPLATE TRAP IS TESTED" — the test RAN and TWO OF THREE SPECS FAILED IT.** The
+AC asks that scores DIFFER between a task the driver should score high and one it should
+score 0. F3 passes (T-826=3, T-839=0, and 6 distinct levels across 44 tasks). F1 and F4 do
+not: 93.2% and 86.4% of 44 tasks land on a single level. The AC is ticked because the test
+was performed and reported, not because all three passed. **F1 and F4 are tabled as
+measured failures, deliberately not tuned** — fitting their keywords until a 44-task
+spread looked better would fit them to this corpus rather than to a meaning, and the next
+44 tasks would resaturate. Cause was mine and is recorded in the report: I drew their
+L4/L5 keywords from my own authoring vocabulary, so the specs measured who wrote the task.
+
+**AC "the ranking delta is measured, not asserted" — measured, with an arithmetic limit
+recorded.** The migration (median BVP 80 -> 98; 4 promoted lv->hv, 4 demoted; T-826
+79 -> 106) is my arithmetic over `--explain` output, applying `+9 x F3` and re-deriving the
+median. It is not the ranker's own number. T-3427's normalisation denominator also changes
+when a driver becomes scorable, so NORM and the cost axis may shift in ways this does not
+capture. **The true post-attach ranking cannot be measured without attaching, and
+attaching is gated** — which is the verb-surface gap itself, not a shortcut I declined to
+take. Read the migration as sound in direction, approximate in magnitude. An earlier
+fixed-threshold pass claimed 10 promotions; that was wrong and is superseded.
+
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -265,6 +301,46 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# ── T-841 legs ────────────────────────────────────────────────────────────────
+# Each leg below is paired with a control inside tools/_t841-scoring-spec-controls.sh
+# that was SHOWN to fail on a mutant. Leg 2 is the one that matters: it asserts the
+# controls actually RAN, because a control instrument nobody re-runs starts misinforming
+# (PL-332) and an all-green run with zero controls is indistinguishable from a dead one.
+
+out=$(bash tools/_t841-scoring-spec-controls.sh 2>&1); echo "$out" | grep -q '^# passed ' && ! echo "$out" | grep -q '^not ok'
+out=$(bash tools/_t841-scoring-spec-controls.sh 2>&1); test "$(echo "$out" | grep -c 'CONTROL leg-')" -ge 6
+
+# All three PROPOSED specs still validate. Sub-shell so every iteration counts, not just
+# the last (the `cmd1; cmd2` trap documented above).
+bash -c 'set -eo pipefail; for f in F1-sdlc-enablement F3-aef-integration F4-workflow-routing; do .agentic-framework/bin/fw bvp driver --validate-scoring "docs/proposals/T-841-$f-PROPOSED.yaml" >/dev/null; done'
+
+# The measurement record carries the two findings it claims to carry. Pinned on phrases
+# that are conclusions, not on live counts (T-3326).
+#
+# THIS LEG WAS WRONG ON ITS FIRST WRITING AND THE DEFECT IS THE ONE T-803 NAMED: it
+# greped 'modal level 0', a phrase from my own shell output that I remembered writing,
+# rather than one that is in the report — where the modal level is a bare table cell.
+# Caught by rehearsing under `bash -c 'set -o pipefail; ...'` before closing, which is
+# the only reason it did not ship green-looking and dead.
+R=docs/reports/T-841-scoring-mechanism-measurement.md; grep -q '93.2' "$R" && grep -q '86.4' "$R" && grep -q '79 -> 106' "$R" && grep -q 'Saturation at the floor is a measurement' "$R"
+
+# NOTHING WAS INSTALLED. The task's central negative claim.
+git diff --quiet HEAD -- .agentic-framework/policy/value-drivers.yaml
+
+# No gate was bypassed under this task id. Scoped to T-841 only — asserting the log has
+# "no diff at all" would be a false claim about other sessions' rows (T-839's lesson).
+! grep -q 'T-841' .context/working/.gate-bypass-log.yaml
+
+# G-080 is registered AND the register still parses. Both halves matter: an unparseable
+# concerns.yaml with G-080 in it is not a registration, it is a broken file.
+python3 -c "import yaml,sys; c=yaml.safe_load(open('.context/project/concerns.yaml'))['concerns']; sys.exit(0 if any(isinstance(e,dict) and e.get('id')=='G-080' for e in c) else 1)"
+
+# DELIBERATELY NOT A LEG: that the AEF post landed. It went to framework:pickup via the
+# MCP surface (posting via Bash is forbidden here), so no shell leg can read it back
+# without violating that boundary — and a rail offset is not evidence in any case. The
+# post's CONTENT is quoted in this task's Recommendation section instead, which is the
+# house rule: quote inline, do not cite a timestamp.
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -333,6 +409,58 @@ date_finished: null
      for Human Review). If the artefact is complete and you still don't want to
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
+
+**Recommendation:** GO on F3 as a PROPOSAL for the operator to rule on; NO-GO on F1 and F4.
+
+**Rationale:** The task's deliverable was drafted, validated and dry-run specs plus a
+measured ranking delta — all delivered. F3 earns its proposal: it discriminates across six
+levels on 44 tasks and it reproduces SQ-6 by name, lifting T-826 from 79 to 106 and across
+the hv threshold. F1 and F4 do not and should not be tabled as candidates: 93.2% and 86.4%
+of tasks land on one level, so attaching either would add weight to the model without
+adding information — the same defect as leaving them unscored, wearing a mechanism's
+clothes. Nothing is installed either way; attaching is the operator's and the verb to do it
+does not exist upstream yet.
+
+**Evidence:**
+- Three specs pass `--validate-scoring`; two of the three rank nothing. Shape validation
+  cannot see saturation.
+- F3 level spread over 44 lv tasks: `0:26 1:1 2:3 3:12 4:1 5:1`. F1: `4:41` of 44. F4:
+  `5:38` of 44.
+- Ranking delta, F3 alone: median BVP 80 -> 98, 8 of 82 tasks change quadrant, T-826
+  79 -> 106. Arithmetic limit recorded — the true post-attach ranking needs the attach.
+- `policy/value-drivers.yaml` unmodified against HEAD; no bypass-log entry for T-841.
+- 13/13 on `tools/_t841-scoring-spec-controls.sh`, every leg paired with a control that
+  was shown to fire on a mutant.
+
+### Sent to AEF — content quoted inline (rail offsets are not evidence)
+
+Posted to `framework:pickup` via the MCP surface, `metadata.from_project=832-Workflow-designer`,
+`origin_task=T-841`. Two findings, both discovered while trying to ACT on 1.7.68's own WARN:
+
+**Finding 1 — the audit's named remedy cannot reach the drivers the audit flags.** The WARN
+tells the reader to draft a spec, validate it, and try it with `--explain --scoring-file`;
+`--validate-scoring`'s success output then says *"Attach it to a driver with: fw bvp driver
+--add ... --scoring-file <file>"*. But `--add` creates a NEW driver. `--scoring-file` is
+accepted by `--add` and `--explain` and nothing else. There is no verb that gives an
+existing driver a mechanism, hand-editing is forbidden by the schema header, and
+`--add`/`--remove` are ACD-gated. A consumer following the advice literally would have to
+remove a live policy axis and re-add it under a new id. Suggested: a `--set-scoring Fn
+--scoring-file FILE` verb; ACD-gating it is fine, the gate is not the problem, the absence
+is. Consequence named for them: a check whose remedy cannot be applied trains readers to
+skip the check — ours sat 40 days, and when we finally read it the fix path did not exist.
+
+**Finding 2 — `--validate-scoring` passes specs that rank nothing**, with our three specs
+and their level distributions as the worked example, plus the asymmetry we think belongs in
+their schema docs: saturation at 0 is a measurement (most tasks genuinely do not touch the
+seam, and `L0: no signal` stays in the denominator), saturation at 5 is flattery. And the
+trap distinct from the one they already document: we drew F1/F4's L4/L5 keywords from our
+own authoring vocabulary, so the specs measured *who wrote the task*. `strip_template: true`
+cannot help — the saturating vocabulary is not in `default.md`, it is in the author.
+Suggested: `--explain --corpus` reporting level distribution and modal share, warning above
+~70% modal share.
+
+Explicitly NOT asked for: no bump, no branch action, no ruling on our ladders. The rubric
+absence is our operator's call and is parked as G-080 / SQ-8.
 
 ## Decisions
 

@@ -3948,3 +3948,53 @@ concerns:
     yields.
 
     '
+- id: G-080
+  type: gap
+  status: watching
+  severity: high
+  title: Three weight-9 value drivers have no rubric, so 27 of the model's weight has scored a
+    structural zero for 40 days and any ladder written over it encodes the agent's reading of
+    the operator's intent
+  detected: 2026-09-25
+  origin_task: T-841
+  id_note: 'G-077, G-078 and G-079 were SKIPPED deliberately, not lost. All three are vendored
+    AEF gap ids already referenced in this tree (G-077/G-084 the Bash task gate hazard, cited in
+    .agentic-framework/docs/reports/T-3181-iw4-cold-resume.md), so a sequential local allocation
+    would collide head-on with live references to a different gap. Same class as G-055''s skip of
+    G-053/G-054 and unsolved by either step-around: the namespace question is SQ-9.'
+  detail: >
+    F1 V_SDLC_ENABLEMENT, F3 V_AEF_INTEGRATION and F4 V_WORKFLOW_ROUTING each carry weight 9 —
+    the three highest free drivers, 27 of total weight — and each carries ONLY id, name, weight,
+    protected and a one-line rationale sourced "operator directive 2026-08-16". No rubric, no
+    polarity, no guardrails, no retire_when. F-RECALL and F2 carry all five. 1.7.68's
+    lib/bvp-scorability.sh (AEF T-3427/T-3428) WARNs that each "cannot be scored, so it
+    contributes nothing to any ranking while its weight and rubric read as a live axis" — which
+    for these three is generous, since there is no rubric either.
+
+    This is the mechanism behind SQ-6 and behind four consecutive `lv` verdicts. Measured
+    corroboration: 56 of 82 quadranted tasks sit on just four BVP values, 14 tied at exactly
+    126 / NORM 0.40. T-841 proved the causal link by name — T-826, an AEF-integration task
+    reading `lv` at BVP 79, rises to 106 and crosses into hv the moment F3 can score at all.
+
+    WHY A SPEC DOES NOT CLOSE THIS. The gap is not a missing mechanism; it is an unfinished
+    policy decision. With no rubric, every 0-5 ladder is a judgement about what the operator's
+    own value model MEANS — what counts as L1 versus L5 AEF integration. T-841 tabled an F3
+    ladder as a proposal with each level citing the clause of the one-line rationale it claims
+    to encode, and tabled F1 and F4 as MEASURED FAILURES (93.2% and 86.4% of 44 tasks on a
+    single level) rather than as candidates. Writing better keywords would not help: the failure
+    was that the agent drew L4/L5 signals from its own authoring vocabulary, so the spec measured
+    who wrote the task.
+
+    Open as SQ-8 — what L1..L5 mean for these three axes is the operator's to rule. Filed here as
+    prose because there is no Sovereign-question register (the defect PL-145 names, and itself
+    an open observation); this concern is the only durable home available, following the G-055 /
+    G-061 precedent of referencing an SQ from a concern.
+  prevention_missing: >
+    Two upstream gaps make this class recurrable rather than one-off. (1) `fw bvp driver --add`
+    is the only verb that accepts --scoring-file, and it creates a NEW driver — there is no verb
+    that gives an EXISTING driver a mechanism, hand-editing is forbidden by the schema header,
+    and --add/--remove are ACD-gated, so the audit's own named remedy cannot reach the drivers
+    the audit flags. (2) `--validate-scoring` validates SHAPE, not discrimination: it returned OK
+    for all three T-841 specs including the two that rank nothing. Until a check reports level
+    distribution and modal share over a corpus, a worthless spec is indistinguishable from a
+    working one at the moment it ships. Both sent to AEF.
