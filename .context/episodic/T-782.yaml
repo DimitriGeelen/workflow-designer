@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-782: Re-send the BVP calibration ask to AEF as an explicit pickup request, framed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T21:19:33Z
+# ============================================================================
+
+task_id: T-782
+task_name: "Re-send the BVP calibration ask to AEF as an explicit pickup request, framed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T21:17:09Z
+completed: 2026-09-21T21:19:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-21T23:19:26+02:00
+last_commit: 2026-09-21T23:19:26+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  BVP calibration ask re-sent to AEF in pickup form at @1609
+
+# Key outcomes
+outcomes:
+  - '**Posted `agent-chat-arc` @1609**, `event_type: pickup_request`,'
+  - '**States its own status in its own body.** Opens with *"This is a PROPOSAL, not a build'
+  - '**Does not re-send the RCA.** References the correlation already on the rail at @1606'
+  - '**Ratifies nothing, verified after posting.** Clause-1 register unchanged:'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-782-re-send-the-bvp-calibration-ask-to-aef-a.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T23:19:26"
+    action: 'T-782: BVP calibration ask re-sent to AEF in pickup form at @1609'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [aef, termlink, bvp]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 1
+  lines_added: 276
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-782-re-send-the-bvp-calibration-ask-to-aef-a.md
+generated_by: context-agent-hybrid

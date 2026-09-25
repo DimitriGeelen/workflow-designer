@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-783: Evidence-prep the operator review queue: turn 36 GO-marked Human ACs from investigations
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T21:31:17Z
+# ============================================================================
+
+task_id: T-783
+task_name: "Evidence-prep the operator review queue: turn 36 GO-marked Human ACs from investigations"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T21:26:24Z
+completed: 2026-09-21T21:31:09Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-21T23:31:07+02:00
+last_commit: 2026-09-21T23:31:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  review queue triaged — 2 of 77 are evidenced, and 4 blocked tasks are invisible to the operator
+
+# Key outcomes
+outcomes:
+  - '**Enumerated from the task files: 77 criteria across 62 tasks.** The handover renders'
+  - '**Triaged into four classes with the rule stated per item**, in'
+  - '**Both EVIDENCED items carry the command and its actual output.**'
+  - '**Zero ticked, zero ownership moved — proven, not asserted.** Unchecked Human AC count'
+  - '**TASTE reported as TASTE, and its size IS the negative control.** 71 of 77 are'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-783-review-queue-triage.md'
+  - '.tasks/active/T-783-evidence-prep-the-operator-review-queue-.md'
+  - '.tasks/completed/T-782-re-send-the-bvp-calibration-ask-to-aef-a.md'
+  - 'tools/_t783-human-ac-queue-extract.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T23:31:07"
+    action: 'T-783: review queue triaged — 2 of 77 are evidenced, and 4 blocked tasks are invisible to the operator'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [review-queue, governance, human-ac]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 556
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-783-evidence-prep-the-operator-review-queue-.md
+generated_by: context-agent-hybrid

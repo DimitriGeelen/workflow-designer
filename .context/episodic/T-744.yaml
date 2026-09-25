@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-744: Audit remediation cycle 1: reconcile live audit+doctor findings against arc-003
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T08:51:59Z
+# ============================================================================
+
+task_id: T-744
+task_name: "Audit remediation cycle 1: reconcile live audit+doctor findings against arc-003"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T07:55:23Z
+completed: 2026-09-21T08:51:53Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-21T10:04:35+02:00
+last_commit: 2026-09-21T10:49:51+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  audit remediation cycle 1 — 11 new findings become 11 tasks, ten of them parked by the scorer. cycle-1 acceptance criteria close on mechanical checks, each negative-controlled. cycle 2 — the first complete 19-section audit this project has run, and it says the checks are wrong
+
+# Key outcomes
+outcomes:
+  - 'Cycle-1 findings table exists at `docs/reports/T-744-cycle1-findings.md`, one row per individual FAIL and per individual WARN, each row carrying: stable ID, source (audit|doctor), severity as the tool reported it, the check that fired, the artifact implicated, and the observed-vs-expected delta.'
+  - 'Every row in the table is reconciled to exactly one task: either an existing arc-003 task (cited by RA-id and T-id) or a task newly created in this cycle. Reconciliation is stated as an explicit count — findings in = tasks out — and the count of unreconciled findings is zero.'
+  - 'Every task newly created in this cycle resolves to arc `arc-003` via its `arc_id:` field, set through `fw arc tag` (not by hand), and carries the verbatim tool output that produced its finding.'
+  - 'Every task newly created in this cycle carries a BVP score written by `fw bvp estimate` (i.e. a `bvp_scores_proposed:` block), with rationale recorded before the score, not after.'
+  - 'The audit sections that could not be run to completion in this cycle are named in the findings table with the reason, so the pass-set baseline states its own coverage rather than implying it is total.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-744-cycle1-findings.md'
+  - '.tasks/active/T-744-audit-remediation-cycle-1-reconcile-live.md'
+  - '.tasks/active/T-745-ra-036-fabric-edge-coverage-regressed---.md'
+  - '.tasks/active/T-746-ra-037-task-file-t-741-has-no-updates-se.md'
+  - '.tasks/active/T-747-ra-038-ctl-029-arc-003-task-t-702-is-com.md'
+  - '.tasks/active/T-748-ra-039-ctl-029-arc-003-task-t-703-is-com.md'
+  - '.tasks/active/T-749-ra-040-ctl-029-arc-003-task-t-708-is-com.md'
+  - '.tasks/active/T-750-ra-041-ctl-029-arc-003-task-t-723-is-com.md'
+  - '.tasks/active/T-751-ra-042-deploy-gate-counts-746-uncommitte.md'
+  - '.tasks/active/T-752-ra-043-deploy-gate-finds-no-dockerfile-i.md'
+  - '.tasks/active/T-753-ra-044-deploy-gate-finds-no-deploydocker.md'
+  - '.tasks/active/T-754-ra-045-deploy-gate-finds-no-deploytraefi.md'
+  - '.tasks/active/T-755-ra-046-obs-358-full-audit-hang-localises.md'
+  - '.tasks/active/T-758-ra-049-the-deployment-section-is-exclude.md'
+  - '.tasks/active/T-759-ra-050-regression---inception-t-250-stil.md'
+  - '.tasks/active/T-760-ra-051-regression---inception-t-587-stil.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T10:04:35"
+    action: 'T-744: audit remediation cycle 1 — 11 new findings become 11 tasks, ten of them parked by the scorer'
+  - time: "2026-09-21T10:19:43"
+    action: 'T-744: cycle-1 acceptance criteria close on mechanical checks, each negative-controlled'
+  - time: "2026-09-21T10:49:51"
+    action: 'T-744: cycle 2 — the first complete 19-section audit this project has run, and it says the checks are wrong'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 56 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 56
+  commits: 3
+  files_changed: 16
+  lines_added: 3356
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-744-audit-remediation-cycle-1-reconcile-live.md
+generated_by: context-agent-hybrid

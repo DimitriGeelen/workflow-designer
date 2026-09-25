@@ -1,0 +1,70 @@
+# ============================================================================
+# EPISODIC MEMORY - T-707: RA-011: completed inception T-587 has no research artifact
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-16T14:56:01Z
+# ============================================================================
+
+task_id: T-707
+task_name: "RA-011: completed inception T-587 has no research artifact"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-16T13:25:21Z
+completed: 2026-09-16T14:55:54Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The artifact the finding says is missing is located, and its path and size are recorded — **`docs/research/executable-workflow/reflection-designer.md`, 19,876 bytes, dated 2026-08-25**. Three further T-587 research documents sit beside it: `operating-digest.md`, `designer-contract-inventory.md`, `questions-and-dispositions.md`'
+  - 'T-587 is confirmed NOT to share the empty-inception shape of T-015/T-103 — measured, every section filled: Problem Statement 680ch, Assumptions 123ch, Open Questions 141ch, Exploration Plan 569ch, Scope Fence 413ch, Recommendation Evidence 1072ch. **Zero `@auto-tick-on-decide` markers** (T-015, T-103 and T-250 each carry 4). Episodic is `auto-complete` with no template-placeholder `decisions:` block'
+  - 'No document is written to `docs/reports/` for T-587 — verified by the Verification block below, which fails if one appears'
+  - 'The Sovereign ruling that closed this task is recorded verbatim with attribution — see Context'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 90 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc-003, audit-remediation, RA-011]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 90
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-707-ra-011-completed-inception-t-587-has-no-.md
+generated_by: context-agent-hybrid

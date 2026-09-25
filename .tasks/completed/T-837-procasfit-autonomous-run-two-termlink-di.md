@@ -2,12 +2,20 @@
 id: T-837
 name: "procAsFit autonomous run: two TermLink-dispatched rounds, chained"
 description: >
-  Operator instruction 2026-09-24: run the procAsFit mandate via TermLink, twice, feeding each round's result into the next. This task is the governance anchor the dispatch requires (T-652/T-630) - it is NOT the work; the work is whatever each round selects under the mandate's own ladder. Round 0 (direct, 2026-09-23, commits d91e4ebf/e68a057d/29ef957c) is prior context fed into round 1. Each round runs as a claude -p worker via fw termlink dispatch, which cds into this project and therefore loads .claude/settings.json and every PreToolUse hook - measured in termlink.sh run.sh line 5 and line 124, not assumed. This is the governed dispatch path, distinct from termlink register --shell which spawns bare bash with no hooks.
+  Operator instruction 2026-09-24: run the procAsFit mandate via TermLink, twice,
+  feeding each round's result into the next. This task is the governance anchor the
+  dispatch requires (T-652/T-630) - it is NOT the work; the work is whatever each
+  round selects under the mandate's own ladder. Round 0 (direct, 2026-09-23, commits
+  d91e4ebf/e68a057d/29ef957c) is prior context fed into round 1. Each round runs as
+  a claude -p worker via fw termlink dispatch, which cds into this project and therefore
+  loads .claude/settings.json and every PreToolUse hook - measured in termlink.sh
+  run.sh line 5 and line 124, not assumed. This is the governed dispatch path, distinct
+  from termlink register --shell which spawns bare bash with no hooks.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +24,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-24T21:23:12Z
-last_update: 2026-09-24T22:11:11Z
-date_finished: null
+last_update: 2026-09-25T06:09:18Z
+date_finished: 2026-09-25T06:09:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +36,35 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-25T06:07:25Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 1
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (no-signal); F3=1 
+      (prose:AEF seam-incidental); F1=1 (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-09-25T06:07:25Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:docs/reports/T-837-procasfit-round-1.md,docs/reports/T-837-procasfit-round-2.md);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-837: procAsFit autonomous run: two TermLink-dispatched rounds, chained
@@ -308,3 +345,19 @@ grep -q "18 unscored" docs/reports/T-837-procasfit-round-2.md
 
 ### 2026-09-24T21:24:49Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2d60f824
+- **Timestamp:** 2026-09-25T06:09:20Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -rf`
+
+### 2026-09-25T06:09:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

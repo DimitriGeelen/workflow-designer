@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-755: RA-046: OBS-358 full-audit hang localises to the oe-daily section
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T08:51:02Z
+# ============================================================================
+
+task_id: T-755
+task_name: "RA-046: OBS-358 full-audit hang localises to the oe-daily section"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T08:02:35Z
+completed: 2026-09-21T08:50:56Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-21T10:17:03+02:00
+last_commit: 2026-09-21T10:50:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the full-audit "hang" is a 578-second section, and the cost is not the audit's. correct the record — OBS-358 already localised this, filed the day before. the "full audit hangs" folklore is a 600s ceiling meeting a ~700s job. OBS-361 — the ceiling finding, linked to OBS-358 rather than rewriting it. correction — the audit kills itself. audit.sh:312, not an external ceiling.. AC3 answered — the full audit completes in 687s against a 600s self-kill
+
+# Key outcomes
+outcomes:
+  - 'The oe-daily section is profiled to the individual check, and the check (or checks) consuming the bulk of the wall time is named with measured timings — not inferred from where the output stops.'
+  - 'A bound is established: either oe-daily completes within a stated time limit, or it is shown to be genuinely unbounded (e.g. it scales with task count or audit history) and that relationship is stated with evidence.'
+  - '`fw audit` with all sections completes, or the reason it cannot is recorded as a property of a named check rather than as the folk observation "full audit hangs". OBS-358 is updated to cite the section.'
+  - 'No check is deleted, shortened, or given a relaxed threshold to make the run finish. If the only available fix is removing coverage, that is a Sovereign question, not a fix.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'docs/reports/T-744-cycle1-findings.md'
+  - '.tasks/active/T-755-ra-046-obs-358-full-audit-hang-localises.md'
+  - '.tasks/active/T-756-ra-047-ctl-013-reports-t-093-verificatio.md'
+  - '.tasks/active/T-757-ra-048-arc-002-is-25-of-27-complete-but-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T10:17:03"
+    action: 'T-755: the full-audit "hang" is a 578-second section, and the cost is not the audit''s'
+  - time: "2026-09-21T10:18:36"
+    action: 'T-755: correct the record — OBS-358 already localised this, filed the day before'
+  - time: "2026-09-21T10:24:45"
+    action: 'T-755: the "full audit hangs" folklore is a 600s ceiling meeting a ~700s job'
+  - time: "2026-09-21T10:25:27"
+    action: 'T-755: OBS-361 — the ceiling finding, linked to OBS-358 rather than rewriting it'
+  - time: "2026-09-21T10:35:36"
+    action: 'T-755: correction — the audit kills itself. audit.sh:312, not an external ceiling.'
+  - time: "2026-09-21T10:50:12"
+    action: 'T-755: AC3 answered — the full audit completes in 687s against a 600s self-kill'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 48 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-1]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 48
+  commits: 6
+  files_changed: 5
+  lines_added: 701
+  lines_removed: 57
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-755-ra-046-obs-358-full-audit-hang-localises.md
+generated_by: context-agent-hybrid

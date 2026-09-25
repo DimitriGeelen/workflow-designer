@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-738: 46 of 128 tasks carry no BVP quadrant, and 18 of them are agent-owned — the
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T21:57:11Z
+# ============================================================================
+
+task_id: T-738
+task_name: "46 of 128 tasks carry no BVP quadrant, and 18 of them are agent-owned — the"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-20T10:14:05Z
+completed: 2026-09-21T21:56:03Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-20T12:15:05+02:00
+last_commit: 2026-09-21T23:56:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  filed — 46 of 128 tasks carry no BVP quadrant and 18 are agent-owned, so the ranker is blind to work it orders; scored lv-lc (61/3.1) by the scorer and parked unworked. no estimator defect — but a third exclusion hid the focused arc, and it is the top-ranked one. add the structured RCA block the completion gate requires
+
+# Key outcomes
+outcomes:
+  - '**`tools/_t738-unrankable-task-census.py` reports all 50**, and names which evidence'
+  - '**Class A is EMPTY — there is no estimator defect, and the first run said there were 3.**'
+  - '**Class B proposals written to `docs/reports/T-738-unrankable-census.md`, NOT applied.**'
+  - '**The agent-owned unrankable are named individually — 17** (the task said 18; the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-738-unrankable-census.md'
+  - '.tasks/active/T-580-decide-take-aef-5c33f7208-the-two-fabric.md'
+  - '.tasks/active/T-599-manual-connector-routing-addremove-waypo.md'
+  - '.tasks/active/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - '.tasks/active/T-691-regenerate-the-24-rendered-corpus-maps-s.md'
+  - '.tasks/active/T-732-drain-the-h-register-four-open-operator-.md'
+  - '.tasks/active/T-738-46-of-128-tasks-carry-no-bvp-quadrant-an.md'
+  - '.tasks/active/T-773-clause-1-bounded-exchange-with-aef-ten-r.md'
+  - '.tasks/completed/T-783-evidence-prep-the-operator-review-queue-.md'
+  - 'tools/_t738-unrankable-task-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-20T12:15:05"
+    action: 'T-738: filed — 46 of 128 tasks carry no BVP quadrant and 18 are agent-owned, so the ranker is blind to work it orders; scored lv-lc (61/3.1) by the scorer and parked unworked'
+  - time: "2026-09-21T23:54:39"
+    action: 'T-738: no estimator defect — but a third exclusion hid the focused arc, and it is the top-ranked one'
+  - time: "2026-09-21T23:56:03"
+    action: 'T-738: add the structured RCA block the completion gate requires'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 2141 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, tooling, bvp]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2141
+  commits: 3
+  files_changed: 10
+  lines_added: 780
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-738-46-of-128-tasks-carry-no-bvp-quadrant-an.md
+generated_by: context-agent-hybrid

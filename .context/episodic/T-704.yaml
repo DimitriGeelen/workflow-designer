@@ -1,0 +1,69 @@
+# ============================================================================
+# EPISODIC MEMORY - T-704: RA-008: completed inception T-015 has no research artifact
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-16T13:57:27Z
+# ============================================================================
+
+task_id: T-704
+task_name: "RA-008: completed inception T-015 has no research artifact"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-16T13:25:13Z
+completed: 2026-09-16T13:57:20Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'docs/reports/T-015-*.md exists and states the question the inception explored, the evidence gathered, and the decision reached — `docs/reports/T-015-tasksdir-contextdir-contamination.md`. §1 the question, §2 the finding quoted verbatim, §3 **the evidence gathered was none** (the Evidence block is an unfilled template comment), §4 the GO decision'
+  - 'The artifact is reconstructed from the task file, episodic summary and commit trail, and states explicitly which parts are reconstruction rather than contemporaneous record — every section carries a `*Source:*` line, and the header states outright that the document did not exist when T-015 was decided and is a repair, not a record'
+  - 'No claim in the artifact is asserted beyond what those sources support — the one substantive technical claim is **quoted verbatim rather than paraphrased** (PL-323), and §3 states explicitly that its word "Confirmed" is unsupported by any file path, commit or test output in the record. §7 lists three things the artifact deliberately does not decide'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 32 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc-003, audit-remediation, RA-008]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 32
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-704-ra-008-completed-inception-t-015-has-no-.md
+generated_by: context-agent-hybrid

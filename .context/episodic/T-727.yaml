@@ -1,0 +1,68 @@
+# ============================================================================
+# EPISODIC MEMORY - T-727: RA-031: D6 completion velocity sustained drop, recent average 0.0
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-16T13:47:27Z
+# ============================================================================
+
+task_id: T-727
+task_name: "RA-031: D6 completion velocity sustained drop, recent average 0.0"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-16T13:26:16Z
+completed: 2026-09-16T13:47:18Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Completion velocity is recovered, or this task records the arithmetic showing the drop is attributable to the RA-012..RA-027 backlog rather than to work not being done — **recovered**. Cycle 1: `drop recent_avg=0.0 vs earlier_avg=1.6` (WARN). Cycle 2: `[PASS] D6: Completion velocity — normal (PASS recent=1.0 earlier=1.6)`'
+  - 'The attribution is evidenced by counting tasks with all Agent ACs ticked and status started-work, not asserted — the audit''s own CTL-029 check names **14** such tasks (T-041 T-101 T-102 T-105 T-189 T-209 T-286 T-293 T-309 T-344 T-345 T-357 T-402 T-681), plus **2** stuck partial-complete (T-093 T-178). 16 tasks are one operator status-flip away from counting as completions; 34 more await Human AC verification (RA-027)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc-003, audit-remediation, RA-031]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 21
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-727-ra-031-d6-completion-velocity-sustained-.md
+generated_by: context-agent-hybrid

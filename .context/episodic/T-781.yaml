@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-781: RCA: the BVP estimator's calibration is structurally blind to un-started work,
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T20:54:21Z
+# ============================================================================
+
+task_id: T-781
+task_name: "RCA: the BVP estimator's calibration is structurally blind to un-started work,"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T20:48:56Z
+completed: 2026-09-21T20:54:10Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-21T22:53:27+02:00
+last_commit: 2026-09-21T22:54:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  RCA — the BVP cost model has one live term, and it is derived from prose. add the structured RCA block the completion gate requires
+
+# Key outcomes
+outcomes:
+  - '**Measured from the population side, 780 task files (150 active / 630 completed).**'
+  - '**Defect and correct-but-consequential are separated, and the RCA says so first.**'
+  - '**Local / upstream split tabulated, with one row honestly marked undetermined.**'
+  - '**Transmitted on `agent-chat-arc` at @1606**, `event_type: finding`,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-781-bvp-calibration-rca.md'
+  - '.tasks/active/T-781-rca-the-bvp-estimators-calibration-is-st.md'
+  - 'tools/_t781-bvp-calibration-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T22:53:27"
+    action: 'T-781: RCA — the BVP cost model has one live term, and it is derived from prose'
+  - time: "2026-09-21T22:54:10"
+    action: 'T-781: add the structured RCA block the completion gate requires'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bvp, calibration, rca, aef]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 2
+  files_changed: 3
+  lines_added: 647
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-781-rca-the-bvp-estimators-calibration-is-st.md
+generated_by: context-agent-hybrid

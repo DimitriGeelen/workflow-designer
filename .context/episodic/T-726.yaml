@@ -1,0 +1,69 @@
+# ============================================================================
+# EPISODIC MEMORY - T-726: RA-030: D3 commit velocity dropped to 0.1x of average
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-16T13:46:06Z
+# ============================================================================
+
+task_id: T-726
+task_name: "RA-030: D3 commit velocity dropped to 0.1x of average"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-16T13:26:13Z
+completed: 2026-09-16T13:46:00Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Commit velocity for the day is recorded against expectation in this task — cycle 1: `today=1 expected_by_now=12 avg=19 ratio=0.1x` (WARN). Cycle 2: `today=4 avg=19 ratio=0.2x` (PASS)'
+  - 'This run commits after each completed remediation task rather than batching, and that cadence is visible in the git log — `80b4148c` (RA-001/RA-003), `5f839191` (RA-002), preceded by `27b8bb0f` (arc open). D7 commit-bunching also passes at `4_commits_24h`, so the recovery is cadence, not one batch'
+  - 'The measurement is taken from `fw audit --section discovery-trends` in a later cycle, not asserted here — cycle-2 full audit re-run, 2026-09-16: `[PASS] D3: Commit velocity — normal`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 19 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc-003, audit-remediation, RA-030]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 19
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-726-ra-030-d3-commit-velocity-dropped-to-01x.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-786: Correct forward-compile-v1 §2: remove aef:endpoint from the semantic list,
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T22:54:14Z
+# ============================================================================
+
+task_id: T-786
+task_name: "Correct forward-compile-v1 §2: remove aef:endpoint from the semantic list,"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T22:51:38Z
+completed: 2026-09-21T22:54:06Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-22T00:54:06+02:00
+last_commit: 2026-09-22T00:54:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF ruled — aef:endpoint is presentational, and the drifted document was ours
+
+# Key outcomes
+outcomes:
+  - '**Moved, not merely deleted.** `aef:endpoint` now sits in forward-compile-v1 §2''s'
+  - '**Frozen Part I byte-identical**, proven: `git diff --stat'
+  - '**Version bumped 1.1 → 1.2 (2026-09-21)** with a dated correction note in the header, so'
+  - '**Reference corpus untouched.** `python3 tests/test_forward_fixtures.py` exits 0 over all'
+  - '**The 264 corpus values were NOT "repaired", deliberately.** AEF ruled them cosmetic'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - 'docs/standards/aef-bpmn-forward-compile-v1.md'
+  - '.tasks/active/T-786-correct-forward-compile-v1-2-remove-aefe.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-22T00:54:06"
+    action: 'T-786: AEF ruled — aef:endpoint is presentational, and the drifted document was ours'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [aef-seam, standards, workflow-designer]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 3
+  lines_added: 324
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-786-correct-forward-compile-v1-2-remove-aefe.md
+generated_by: context-agent-hybrid

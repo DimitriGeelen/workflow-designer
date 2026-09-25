@@ -1,0 +1,289 @@
+# ============================================================================
+# EPISODIC MEMORY - T-778: Quadrant-ordered selection runs on unconfirmed agent self-estimates, and 46
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T20:31:32Z
+# ============================================================================
+
+task_id: T-778
+task_name: "Quadrant-ordered selection runs on unconfirmed agent self-estimates, and 46"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T20:23:00Z
+completed: 2026-09-21T20:31:04Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-21T22:30:55+02:00
+last_commit: 2026-09-21T22:30:55+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the backlog's 'no legal move' was an artefact — 46 cost gaps closed, verdict flipped, and 44% of the rank is invisible by design
+
+# Key outcomes
+outcomes:
+  - '**46 -> 0, via the agent-permissible verb only.** `fw bvp estimate-cost all` wrote'
+  - '**Verdict recorded as a number, and it FLIPPED.** T-777 census, same tool, before and'
+  - '**Negative control passes, and the moved task is the decisive one.** Four tasks were'
+  - '**Filed as G-076, surfaced and not resolved.** Two mechanisms, one root cause — the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md'
+  - '.tasks/active/T-265-adopt-the-t-145-tail-5-editor-saved-corp.md'
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-392-safe-list-early-return-shadows-the-focus.md'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-433-fw-upgrade-refuses-the-sanctioned-consum.md'
+  - '.tasks/active/T-537-termlinkagentchatarcrecent-returns-oktru.md'
+  - '.tasks/active/T-540-bootstrap-bvp-scoring-and-produce-the-fi.md'
+  - '.tasks/active/T-553-sweep-report-must-survive-a-callers-stdo.md'
+  - '.tasks/active/T-554-record-browser-version-viewport-and-dpr-.md'
+  - '.tasks/active/T-555-population-wide-check-for-guards-that-ar.md'
+  - '.tasks/active/T-564-t-501-build-3-load-time-id-normalisation.md'
+  - '.tasks/active/T-565-iw-0-exit-condition-measure-the-byte-imp.md'
+  - '.tasks/active/T-573-emits-panel-field-writes-a-scalar-where-.md'
+  - '.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md'
+  - '.tasks/active/T-577-prose-dispositions-are-never-reconciled-.md'
+  - '.tasks/active/T-579-the-third-party-byte-identity-gate-is-re.md'
+  - '.tasks/active/T-580-decide-take-aef-5c33f7208-the-two-fabric.md'
+  - '.tasks/active/T-582-byte-identity-goldens-are-recorded-from-.md'
+  - '.tasks/active/T-583-nothing-enumerates-the-instruments-that-.md'
+  - '.tasks/active/T-584-episodic-git-mining-runs-one-commit-too-.md'
+  - '.tasks/active/T-586-kill-worktree-isolation-and-pin-no-backg.md'
+  - '.tasks/active/T-588-upstream-ships-an-unanchored-verificatio.md'
+  - '.tasks/active/T-589-designer-properties-panel-add-a-clickabl.md'
+  - '.tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md'
+  - '.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md'
+  - '.tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md'
+  - '.tasks/active/T-596-arc-0-exit-gate-is-uncheckable-the-opera.md'
+  - '.tasks/active/T-597-both-remaining-arc-0-exit-clauses-are-co.md'
+  - '.tasks/active/T-599-manual-connector-routing-addremove-waypo.md'
+  - '.tasks/active/T-600-side-placed-event-labels-do-not-wrap-lon.md'
+  - '.tasks/active/T-601-side-placed-labels-have-no-pool-or-lane-.md'
+  - '.tasks/active/T-606-renderer-output-is-escaped-at-the-templa.md'
+  - '.tasks/active/T-608-draft-the-aef-attestation-request-for-ar.md'
+  - '.tasks/active/T-609-review-cards-drop-stepsexpectedif-not-so.md'
+  - '.tasks/active/T-622-an-unattributed-write-ticked-three-human.md'
+  - '.tasks/active/T-643-review-queue-renders-close-and-keep-open.md'
+  - '.tasks/active/T-647-t-640s-fetcher-write-guard-over-blocks-t.md'
+  - '.tasks/active/T-669-uncontrolled-absence-assertions-rose-78-.md'
+  - '.tasks/active/T-671-component-fabric-does-not-meet-the-arc-0.md'
+  - '.tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md'
+  - '.tasks/active/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - '.tasks/active/T-691-regenerate-the-24-rendered-corpus-maps-s.md'
+  - '.tasks/active/T-695-task-template-boilerplate-is-scored-as-i.md'
+  - '.tasks/active/T-700-ra-004-oldest-unshipped-product-change-i.md'
+  - '.tasks/active/T-702-ra-006-34-urgent-observations-still-pend.md'
+  - '.tasks/active/T-703-ra-007-101-observations-pending-for-more.md'
+  - '.tasks/active/T-723-ra-027-fail-d2-human-review-queue-has-12.md'
+  - '.tasks/active/T-732-drain-the-h-register-four-open-operator-.md'
+  - '.tasks/active/T-733-contact-aef-on-r6r7-after-the-rail-came-.md'
+  - '.tasks/active/T-735-the-permanent-audit-store-overwrites-sam.md'
+  - '.tasks/active/T-736-aef-attested-arc-0-clause-1-green-with-i.md'
+  - '.tasks/active/T-737-handoversh-reports-3-urgent-observations.md'
+  - '.tasks/active/T-738-46-of-128-tasks-carry-no-bvp-quadrant-an.md'
+  - '.tasks/active/T-740-value-review-the-aef-seam-and-the-workfl.md'
+  - '.tasks/active/T-741-vendored-tree-omits-tools-entirely--5-ve.md'
+  - '.tasks/active/T-742-value-review-the-workflow-designer-produ.md'
+  - '.tasks/active/T-743-consumer-intake-take-our-own-watchtower-.md'
+  - '.tasks/active/T-745-ra-036-fabric-edge-coverage-regressed---.md'
+  - '.tasks/active/T-747-ra-038-ctl-029-arc-003-task-t-702-is-com.md'
+  - '.tasks/active/T-748-ra-039-ctl-029-arc-003-task-t-703-is-com.md'
+  - '.tasks/active/T-752-ra-043-deploy-gate-finds-no-dockerfile-i.md'
+  - '.tasks/active/T-753-ra-044-deploy-gate-finds-no-deploydocker.md'
+  - '.tasks/active/T-754-ra-045-deploy-gate-finds-no-deploytraefi.md'
+  - '.tasks/active/T-763-ra-052-the-audit-overwrote-its-own-only-.md'
+  - '.tasks/active/T-764-ra-053-ctl-013-three-task-window-silentl.md'
+  - '.tasks/active/T-769-sq-4-design-recorded-check-exemptions-as.md'
+  - '.tasks/active/T-773-clause-1-bounded-exchange-with-aef-ten-r.md'
+  - '.tasks/active/T-778-quadrant-ordered-selection-runs-on-uncon.md'
+  - '.tasks/completed/T-195-draft-g-3-collapsed-inception-v11-delta-.md'
+  - '.tasks/completed/T-228-s4-off-page-claim-ux--create-from-pendin.md'
+  - '.tasks/completed/T-301-store-card-id-vs-workflowmeta-id-seam-ve.md'
+  - '.tasks/completed/T-354-t-178-verification-pins-020-against-mani.md'
+  - '.tasks/completed/T-440-t-429-measured-35-of-35-counter-bearing-.md'
+  - '.tasks/completed/T-467-fw-arc-tag-writes-the-deprecated-tags-fo.md'
+  - '.tasks/completed/T-499-watchtower-liveness-confirms-a-server-an.md'
+  - '.tasks/completed/T-501-map-id-round-trip-defect-triage-aef-cons.md'
+  - '.tasks/completed/T-541-write-dedicated-bvp-estimator-handlers-f.md'
+  - '.tasks/completed/T-543-t-523-nesting-teeth-legs-7-8-fail-interm.md'
+  - '.tasks/completed/T-544-watchtower-session-cookie-is-named-for-t.md'
+  - '.tasks/completed/T-545-the-403-handler-answers-api-htmx-clients.md'
+  - '.tasks/completed/T-546-report-six-generic-upstream-defects-to-a.md'
+  - '.tasks/completed/T-547-hx-prompt-rationale-stored-percent-encod.md'
+  - '.tasks/completed/T-548-t509-sweep-reports-a-probe-that-did-not-.md'
+  - '.tasks/completed/T-549-t525-costs-5-full-structure-audits-86s-o.md'
+  - '.tasks/completed/T-550-t-344-denominator-guard-reads-the-audits.md'
+  - '.tasks/completed/T-551-the-instrument-sweep-discards-every-prob.md'
+  - '.tasks/completed/T-552-t525-hermeticity-leg-cannot-pass-on-the-.md'
+  - '.tasks/completed/T-556-rail-sender-fingerprint-is-host-wide-so-.md'
+  - '.tasks/completed/T-557-fw-note-swallows-an-unrecognised-subcomm.md'
+  - '.tasks/completed/T-558-bridge-suite-went-red-in-one-session-and.md'
+  - '.tasks/completed/T-560-verification-legs-that-assert-absence-ca.md'
+  - '.tasks/completed/T-561-completion-crashes-on-inception-tasks-up.md'
+  - '.tasks/completed/T-562-t-501-build-1-lift-sanitizeworkflowidisv.md'
+  - '.tasks/completed/T-563-t-501-build-2-replace-the-9950-id-deriva.md'
+  - '.tasks/completed/T-566-make-aefnote-readable-and-writable-in-th.md'
+  - '.tasks/completed/T-567-episodic-generator-emits-git-subjects-as.md'
+  - '.tasks/completed/T-568-fabric-card-cache-is-keyed-on-directory-.md'
+  - '.tasks/completed/T-569-component-card-purpose-is-autoescaped-so.md'
+  - '.tasks/completed/T-570-aefmeta-keys-absent-from-metakeys-are-im.md'
+  - '.tasks/completed/T-571-remove-stray-0-byte-file-47b2499bdbf7-sw.md'
+  - '.tasks/completed/T-572-meta-parity-guard-checks-a-subset-not-pa.md'
+  - '.tasks/completed/T-574-p-011-gate-passes-silently-when-its-veri.md'
+  - '.tasks/completed/T-576-t-423-fallout-the-trailer-probe-asserts-.md'
+  - '.tasks/completed/T-578-the-unwired-guard-census-strips-python-a.md'
+  - '.tasks/completed/T-581-the-byte-identity-gates-baseline-is-a-ha.md'
+  - '.tasks/completed/T-585-the-approvals-queue-cannot-tell-an-empty.md'
+  - '.tasks/completed/T-587-ingest-and-reflect-on-the-aef-executable-w.md'
+  - '.tasks/completed/T-591-ewcr-arc-0-prove-the-pilot-fixture-is-a-.md'
+  - '.tasks/completed/T-594-residual-prose-still-claims-the-operator.md'
+  - '.tasks/completed/T-595-record-the-operators-h2-answer--aef-name.md'
+  - '.tasks/completed/T-598-connectors-show-direction-only-at-the-de.md'
+  - '.tasks/completed/T-602-bpmndocumentation-on-a-flow-node-is-drop.md'
+  - '.tasks/completed/T-603-only-the-first-bpmnprocess-is-imported-e.md'
+  - '.tasks/completed/T-604-chromium-driven-verification-legs-fail-n.md'
+  - '.tasks/completed/T-605-input-fidelity-census-still-expects-docu.md'
+  - '.tasks/completed/T-607-focus-drift-gate-cannot-see-the-fw-invoc.md'
+  - '.tasks/completed/T-610-send-the-arc-0-attestation-request-to-ae.md'
+  - '.tasks/completed/T-611-ewcr-arc-4-diagram-fabric-navigation-pro.md'
+  - '.tasks/completed/T-612-make-the-t-589-operator-review-actionabl.md'
+  - '.tasks/completed/T-613-010-termlinks-finished-and-waiting-blind.md'
+  - '.tasks/completed/T-614-claudemd-context-budget-thresholds-are-2.md'
+  - '.tasks/completed/T-615-cut-a-0120-release-candidate-for-the-t-5.md'
+  - '.tasks/completed/T-616-verify-which-operator-surface-if-any-car.md'
+  - '.tasks/completed/T-617-designer-node-execution-contract-determi.md'
+  - '.tasks/completed/T-618-author-execution-contract-scalars-execut.md'
+  - '.tasks/completed/T-619-retry-safety-declaration-on-task-like-no.md'
+  - '.tasks/completed/T-620-ewcr-arc-0-landing-route-r6r7-request-th.md'
+  - '.tasks/completed/T-621-operator-decisions-filed-as-agent-acs-ar.md'
+  - '.tasks/completed/T-623-aef-answered-clause-1-red-their-same-dis.md'
+  - '.tasks/completed/T-624-inception-ranking-carries-no-information.md'
+  - '.tasks/completed/T-625-inception-cost-axis-may-be-planted-too-t.md'
+  - '.tasks/completed/T-626-handover-waits-on-a-cron-that-does-not-e.md'
+  - '.tasks/completed/T-627-revisit-dates-without-a-recorded-decisio.md'
+  - '.tasks/completed/T-628-g-020-block-message-names-two-escapes-bo.md'
+  - '.tasks/completed/T-629-g-067-inception-open-questions-gate-prin.md'
+  - '.tasks/completed/T-630-p-011-reported-verification-24-passed-an.md'
+  - '.tasks/completed/T-631-is-the-tier-0-approval-command-reachable.md'
+  - '.tasks/completed/T-632-read-only-commands-classified-as-writes-.md'
+  - '.tasks/completed/T-633-shared-tmp-sinks-we-are-on-the-same-host.md'
+  - '.tasks/completed/T-634-p-011s-runner-defect-and-malformed-block.md'
+  - '.tasks/completed/T-635-t-630s-prober-asserts-against-a-model-of.md'
+  - '.tasks/completed/T-636-fw-note-is-allowlisted-for-the-no-task-c.md'
+  - '.tasks/completed/T-637-what-actually-blocks-each-outstanding-in.md'
+  - '.tasks/completed/T-638-t-2054-commit-exemption-matches-git-comm.md'
+  - '.tasks/completed/T-639-focus-drift-gate-reads-task-id-shaped-to.md'
+  - '.tasks/completed/T-640-safe-list-admits-curl-and-wget-unconditi.md'
+  - '.tasks/completed/T-641-t-639-prober-sandbox-is-ignored-so-it-me.md'
+  - '.tasks/completed/T-642-review-queue-shows-8-agent-recommendatio.md'
+  - '.tasks/completed/T-644-fw-ask-crashes-in-a-vendored-install-pro.md'
+  - '.tasks/completed/T-645-testhtmxreturnsfragmenttimeline-fails-on.md'
+  - '.tasks/completed/T-646-the-timeline-renders-task-prose-unescape.md'
+  - '.tasks/completed/T-648-the-other-two-fragment-assertions-still-.md'
+  - '.tasks/completed/T-649-warn-when-a-task-is-completed-with-its-o.md'
+  - '.tasks/completed/T-650-the-completion-path-suggests-a-command-i.md'
+  - '.tasks/completed/T-651-three-files-in-the-repo-root-are-named-a.md'
+  - '.tasks/completed/T-652-fw-git-commit-is-refused-where-git-commi.md'
+  - '.tasks/completed/T-653-g-047-register-update-record-what-t-650t.md'
+  - '.tasks/completed/T-654-ctl-030-two-completed-tasks-kept-horizon.md'
+  - '.tasks/completed/T-655-sweep-the-stuck-partial-complete-tasks-t.md'
+  - '.tasks/completed/T-656-d2-counts-tasks-as-awaiting-human-judgem.md'
+  - '.tasks/completed/T-657-vendor-divergence-guard-has-no-delivery-.md'
+  - '.tasks/completed/T-658-p-011-reports-a-killed-verification-comm.md'
+  - '.tasks/completed/T-659-constraint-t-571-near-miss-git-add-conte.md'
+  - '.tasks/completed/T-660-gate-green-and-operator-actionable-are-s.md'
+  - '.tasks/completed/T-661-probers-pin-an-exact-substitution-count-.md'
+  - '.tasks/completed/T-662-g-047-is-recorded-as-jointly-unsatisfiab.md'
+  - '.tasks/completed/T-663-t-364-teeth-are-dead-the-control-pins-an.md'
+  - '.tasks/completed/T-664-approvals-queue-has-one-representation-f.md'
+  - '.tasks/completed/T-665-t358-teethpy-is-dead-the-same-way-t-663-.md'
+  - '.tasks/completed/T-666-a-dead-control-and-an-honest-abstention-.md'
+  - '.tasks/completed/T-667-t534s-d2-regex-has-aged-out-of-agreement.md'
+  - '.tasks/completed/T-668-the-concerns-register-drifted-from-its-o.md'
+  - '.tasks/completed/T-670-ewcr-has-no-arc-fourteen-tasks-and-three.md'
+  - '.tasks/completed/T-672-housekeeping-2026-09-03-commit-finalisat.md'
+  - '.tasks/completed/T-673-audit-remediation-cycles-2026-09-03-clos.md'
+  - '.tasks/completed/T-674-ctl-012-counts-acs-inside-html-comment-b.md'
+  - '.tasks/completed/T-675-budget-gate-writes-an-unmeasured-state-i.md'
+  - '.tasks/completed/T-677-the-pre-push-structure-only-audit-overwr.md'
+  - '.tasks/completed/T-678-the-decisionempty-pre-scan-reads-a-multi.md'
+  - '.tasks/completed/T-679-arc-tag-reassignment-guard-reads-only-ar.md'
+  - '.tasks/completed/T-680-ewcr-arc-0-is-blocked-on-an-aef-attestat.md'
+  - '.tasks/completed/T-682-arc-2-boundary-enumeration-name-every-au.md'
+  - '.tasks/completed/T-683-wear-the-belt-on-the-write-path-withinre.md'
+  - '.tasks/completed/T-684-ship-the-arc-2-mutation-control-with-a-m.md'
+  - '.tasks/completed/T-685-should-authority-live-in-the-box-tier--o.md'
+  - '.tasks/completed/T-686-inception-commit-gate-tells-you-to-set-a.md'
+  - '.tasks/completed/T-687-posttooluse-hooks-starve-each-other-chec.md'
+  - '.tasks/completed/T-688-vendor-divergence-register-has-no-drain-.md'
+  - '.tasks/completed/T-689-arc-2-isolation-proof-measures-execution.md'
+  - '.tasks/completed/T-690-sequenceflow-emits-extensionelements-aft.md'
+  - '.tasks/completed/T-692-pickup-findings-for-the-aef-agent-three-.md'
+  - '.tasks/completed/T-693-correct-the-aef-pickup-document-t-2054-a.md'
+  - '.tasks/completed/T-694-bvp-quadrant-is-not-a-measurement-for-mo.md'
+  - '.tasks/completed/T-697-ra-001-one-watched-source-file-has-no-fa.md'
+  - '.tasks/completed/T-699-ra-003-fabric-drift-reports-1-unregister.md'
+  - '.tasks/completed/T-704-ra-008-completed-inception-t-015-has-no-.md'
+  - '.tasks/completed/T-705-ra-009-completed-inception-t-103-has-no-.md'
+  - '.tasks/completed/T-706-ra-010-completed-inception-t-250-has-no-.md'
+  - '.tasks/completed/T-707-ra-011-completed-inception-t-587-has-no-.md'
+  - '.tasks/completed/T-727-ra-031-d6-completion-velocity-sustained-.md'
+  - '.tasks/completed/T-734-new-scope-absence-claimed-from-a-truncat.md'
+  - '.tasks/completed/T-744-audit-remediation-cycle-1-reconcile-live.md'
+  - '.tasks/completed/T-755-ra-046-obs-358-full-audit-hang-localises.md'
+  - '.tasks/completed/T-761-audit-remediation-cycle-2-the-first-comp.md'
+  - '.tasks/completed/T-762-audit-remediation-cycle-3-re-run-verifie.md'
+  - '.tasks/completed/T-766-act-on-sovereign-rulings-sq-1-sq-2-sq-4-.md'
+  - '.tasks/completed/T-767-sq-2-fix-an-agent-produced-task-must-nev.md'
+  - '.tasks/completed/T-768-sq-2-upstream-report-the-ownerhuman-with.md'
+  - '.tasks/completed/T-770-standing-instruction-an-external-reviewe.md'
+  - '.tasks/completed/T-771-the-approvals-surface-shows-the-operator.md'
+  - '.tasks/completed/T-772-the-approvals-poll-drops-the-operator-ex.md'
+  - '.tasks/completed/T-774-create-tasksh-rewrites-the-task-name-and.md'
+  - '.tasks/completed/T-775-create-tasksh-emits-unparseable-frontmat.md'
+  - '.tasks/completed/T-776-create-tasksh-rewrites-the-task-name-whe.md'
+  - '.tasks/completed/T-777-autonomous-selection-is-structurally-blo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T22:30:55"
+    action: 'T-778: the backlog''s ''no legal move'' was an artefact — 46 cost gaps closed, verdict flipped, and 44% of the rank is invisible by design'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bvp, governance, selection]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 217
+  lines_added: 4058
+  lines_removed: 639
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-778-quadrant-ordered-selection-runs-on-uncon.md
+generated_by: context-agent-hybrid

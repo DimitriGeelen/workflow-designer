@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-688: Vendor-divergence register has no drain metric: 46 fixes queued for upstream, delivery unmeasurable
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-07T20:29:04Z
+# ============================================================================
+
+task_id: T-688
+task_name: "Vendor-divergence register has no drain metric: 46 fixes queued for upstream, delivery unmeasurable"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-07T20:26:45Z
+completed: 2026-09-07T20:28:57Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-07T22:28:48+02:00
+last_commit: 2026-09-07T22:28:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  drain ratchet for the vendor-divergence register — undrained upstream fixes may not rise above the measured 46, and the baseline cannot be re-seeded.
+
+# Key outcomes
+outcomes:
+  - '`tools/_t688-divergence-drain-ratchet.py` exists and counts entries with `upstream: fix`'
+  - 'The terminal-state vocabulary is defined and the tool honours it: an entry counts as drained'
+  - 'Both verdicts reachable, proven by `--self-test`: RED when the undrained count exceeds'
+  - 'Baseline is seeded at the MEASURED current value (46) and never hand-raised — the tool'
+  - 'The register itself is NOT edited in this task. Adding `delivered:` to 46 entries is a claim'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'drain ratchet for the vendor-divergence register — undrained upstream fixes may not rise above the measured 46, and the baseline cannot be re-seeded.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-07 — Ratchet the queue''s growth; do not backfill 46 delivery states we cannot verify'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-688-vendor-divergence-register-has-no-drain-.md'
+  - 'tools/_t688-divergence-drain-baseline.txt'
+  - 'tools/_t688-divergence-drain-ratchet.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-07T22:28:48"
+    action: 'T-688: drain ratchet for the vendor-divergence register — undrained upstream fixes may not rise above the measured 46, and the baseline cannot be re-seeded.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 3
+  lines_added: 415
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-688-vendor-divergence-register-has-no-drain-.md
+generated_by: context-agent-hybrid

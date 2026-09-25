@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-837: procAsFit autonomous run: two TermLink-dispatched rounds, chained
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T06:09:28Z
+# ============================================================================
+
+task_id: T-837
+task_name: "procAsFit autonomous run: two TermLink-dispatched rounds, chained"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-24T21:23:12Z
+completed: 2026-09-25T06:09:18Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-24T23:46:09+02:00
+last_commit: 2026-09-25T00:11:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  track round 1's own governance-anchor task file. round 1 handback. round 2 handback -- closed T-746, scored the full 20-task unscored pool (all lv-lc), audited every agent-eligible Q1/Q2 slot, raised SQ-5. both rounds dispatched, exit 0/0 -- and the run's own stop condition rests on an abstention
+
+# Key outcomes
+outcomes:
+  - '**Two rounds dispatched through the governed verb, not raw spawn.** Both rounds run via'
+  - '**Round 2''s prompt demonstrably contains round 1''s result.** Verified by grepping round'
+  - '**Each round terminated on a recorded exit code**, not on my inference that it looked'
+  - '**Every state change the workers made is traceable to a verb or a commit.** `git log`'
+  - '**The gates the workers hit are reported, including any that blocked them.** A round'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-837-procasfit-round-1.md'
+  - 'docs/reports/T-837-procasfit-round-2.md'
+  - '.tasks/active/T-837-procasfit-autonomous-run-two-termlink-di.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-24T23:46:09"
+    action: 'T-837: track round 1''s own governance-anchor task file'
+  - time: "2026-09-24T23:47:06"
+    action: 'T-837: round 1 handback'
+  - time: "2026-09-25T00:08:13"
+    action: 'T-837: round 2 handback -- closed T-746, scored the full 20-task unscored pool (all lv-lc), audited every agent-eligible Q1/Q2 slot, raised SQ-5'
+  - time: "2026-09-25T00:11:10"
+    action: 'T-837: both rounds dispatched, exit 0/0 -- and the run''s own stop condition rests on an abstention'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 526 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 526
+  commits: 5
+  files_changed: 4
+  lines_added: 965
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-837-procasfit-autonomous-run-two-termlink-di.md
+generated_by: context-agent-hybrid

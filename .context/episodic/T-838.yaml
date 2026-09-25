@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-838: Project value review: delete/refactor/add, GATHERER+JUDGE dispatched
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T06:09:49Z
+# ============================================================================
+
+task_id: T-838
+task_name: "Project value review: delete/refactor/add, GATHERER+JUDGE dispatched"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-24T22:21:27Z
+completed: 2026-09-25T06:09:40Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-25T00:52:41+02:00
+last_commit: 2026-09-25T01:35:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  value review round 1 (GATHERER) — evidence file for repo scope. round 2 (GATHERER) full-pass coverage — closes the .claude/ blind spot. orchestrator provenance addendum — closing the two gaps round 2 refused to fabricate. round 3 (GATHERER) full-pass — orphan census settled, folder coverage complete. seam evidence — the sidecar has a reader failure on BOTH ends, and I am one of them. JUDGE round (4/4) — value review classification and report
+
+# Key outcomes
+outcomes:
+  - '**GATHERER and JUDGE ran as separate dispatched workers, and the separation is'
+  - '**The GATHERER''s evidence file contains no classification.** Verified by grepping it for'
+  - '**The JUDGE''s input was the evidence file and the yardstick, and nothing else.**'
+  - '**The Phase 1 [ASK] reached the operator before any Phase 4 verdict was produced.** The'
+  - '**Phase 6 executed nothing without per-item approval.** No DELETE, REFACTOR or ADD is'
+  - '**Every data source in the availability map carries a status verified against the live'
+  - '**The dispatch-vs-G-020 gap found while setting this task up is recorded.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-838-dispatch-log.md'
+  - 'docs/reports/VALUE-REVIEW-repo-2026-09-25-evidence.md'
+  - 'docs/reports/VALUE-REVIEW-repo-2026-09-25.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-25T00:52:41"
+    action: 'T-838: value review round 1 (GATHERER) — evidence file for repo scope'
+  - time: "2026-09-25T01:03:24"
+    action: 'T-838: round 2 (GATHERER) full-pass coverage — closes the .claude/ blind spot'
+  - time: "2026-09-25T01:05:06"
+    action: 'T-838: orchestrator provenance addendum — closing the two gaps round 2 refused to fabricate'
+  - time: "2026-09-25T01:25:28"
+    action: 'T-838: round 3 (GATHERER) full-pass — orphan census settled, folder coverage complete'
+  - time: "2026-09-25T01:28:20"
+    action: 'T-838: seam evidence — the sidecar has a reader failure on BOTH ends, and I am one of them'
+  - time: "2026-09-25T01:35:53"
+    action: 'T-838: JUDGE round (4/4) — value review classification and report'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 468 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 468
+  commits: 6
+  files_changed: 3
+  lines_added: 2181
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-838-project-value-review-deleterefactoradd-g.md
+generated_by: context-agent-hybrid

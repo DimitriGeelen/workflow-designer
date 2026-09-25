@@ -1,8 +1,8 @@
 ---
-id: T-838
-name: "Project value review: delete/refactor/add, GATHERER+JUDGE dispatched"
+id: T-839
+name: "Closing the last active task strands its own commit: T-2054 exemption does not fire"
 description: >
-  Operator instruction 2026-09-25: run the Project Value Review prompt via TermLink, 4 rounds, chained. Governance anchor for the dispatch (T-652/T-630). The prompt carries producer-not-judge role separation (GATHERER phases 0-3 read-only; JUDGE phases 4-5 from the evidence file only; HUMAN decides phase 5 and approves phase 6) and two [ASK] gates that a non-interactive claude -p worker cannot answer. Round structure therefore: GATHERER runs 0-3 (read-only, needs no approval), stops at the Phase 1 [ASK] material and surfaces yardstick + data-availability map to the operator. JUDGE (phases 4-5) runs only against a CONFIRMED yardstick - the prompt states 'no yardstick, no verdict'. Phase 6 executes nothing without per-item operator approval. Predecessor: T-837 (two dispatched procAsFit rounds, exit 0/0).
+  Measured 2026-09-25 while closing T-837 and T-838 back to back. After the SECOND completion, focus.yaml current_task becomes null. check-active-task then BLOCKS both Write and any Bash that modifies - including the git commit that would record the closures. The hook's own message states 'Committing a just-completed task is NOT blocked, even with no focus (T-2054)' and then blocks it anyway, attributing the block to a $(...) substitution that is not present in the command. Tried and refused: multi-line -m, single-line -m, message prefixed 'T-837 + T-838:', message prefixed cleanly 'T-838:'. Also tried 'fw context focus T-838' - silently no-ops because the task is completed, leaving current_task null. NET EFFECT: an agent that correctly closes its last active task cannot commit that closure, cannot write a note about it, and the prescribed remedy is to create a task - which is what this is. The staged closure sits in the index meanwhile, which is the exact state P-009's commit-cadence rule exists to prevent.
 
 status: started-work
 workflow_type: build
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-24T22:21:27Z
-last_update: 2026-09-24T22:24:20Z
+created: 2026-09-25T06:12:31Z
+last_update: 2026-09-25T06:12:31Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-838: Project value review: delete/refactor/add, GATHERER+JUDGE dispatched
+# T-839: Closing the last active task strands its own commit: T-2054 exemption does not fire
 
 ## Context
 
@@ -40,42 +40,33 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **GATHERER and JUDGE ran as separate dispatched workers, and the separation is
-      demonstrable.** Distinct worker directories under `/tmp/tl-dispatch/`, each with a
-      recorded `exit_code`. The prompt's producer-not-judge rule is the point: if one worker
-      did both, every confidence in the report drops a level by the prompt's own CONFIDENCE
-      section, and the report must say so.
+- [ ] **The block is reproduced by a control that FAILS if the defect is absent.** A script that
+      sets `current_task: null` in a throwaway fixture, invokes the hook's predicate with a
+      commit-shaped command, and asserts it BLOCKS. A control that only demonstrates the current
+      behaviour proves nothing about the fix (PL-206) — it must also pass against a fixture where
+      focus IS set, so the leg discriminates rather than merely agreeing with today's output.
 
-- [ ] **The GATHERER's evidence file contains no classification.** Verified by grepping it for
-      `KEEP`/`DELETE`/`REFACTOR`/`ADD` used as a verdict on an item. Facts and the five
-      NON-USE readings' *evidence* are required; picking a reading is the JUDGE's job. A
-      GATHERER that classified has collapsed the roles whatever the directory layout says.
+- [ ] **The hook's stated exemption and its actual behaviour are shown to disagree, in the
+      hook's own text.** The message says "Committing a just-completed task is NOT blocked, even
+      with no focus (T-2054)" and then blocks, attributing the block to a `$(...)` substitution
+      that is not in the command. Cite the file and line of both the exemption and the predicate
+      that overrides it. A gate that names the wrong reason is PL-304's failure mode and this is
+      an instance of it.
 
-- [ ] **The JUDGE's input was the evidence file and the yardstick, and nothing else.** Its
-      dispatched `prompt.md` is checked to contain the evidence file (or its content) and to
-      contain no findings, proposals or verdicts authored by me or by the GATHERER's summary.
+- [ ] **Four refused invocations are recorded verbatim**, so the next reader does not re-derive
+      them: multi-line `-m`; single-line `-m`; message prefixed `T-837 + T-838:`; message
+      prefixed cleanly `T-838:`. Plus `fw context focus T-838` silently no-opping on a completed
+      task, leaving `current_task: null`.
 
-- [ ] **The Phase 1 [ASK] reached the operator before any Phase 4 verdict was produced.** The
-      prompt says "no yardstick, no verdict" and "do not continue until confirmed". A
-      non-interactive worker cannot ask, so the gate is honoured by the orchestrator: the
-      yardstick and the DESIGNED-ONLY/ABSENT rows are put to the operator, and the JUDGE is
-      not dispatched until they answer. Evidence: the [ASK] section exists in the evidence
-      file, and the JUDGE dispatch is later than the operator's reply.
+- [ ] **The fix is scoped and the alternative is named, without either being implemented here.**
+      Either the exemption learns to detect a just-completed task from the index/`git diff
+      --cached` rather than from focus, or `fw context focus` accepts a just-completed task for a
+      grace window. Both touch a PreToolUse enforcement path, so which one lands is a Sovereign
+      question — recorded as such, not chosen.
 
-- [ ] **Phase 6 executed nothing without per-item approval.** No DELETE, REFACTOR or ADD is
-      performed under this task on the strength of the review alone. Verified by `git log` for
-      the run window showing no commit that removes or restructures code un-approved.
-
-- [ ] **Every data source in the availability map carries a status verified against the live
-      repo** (EXISTS / PARTIAL / DESIGNED-ONLY / ABSENT), not inherited from the prompt's
-      indicative paths. "Designed is not built" is a ground rule and this project has known
-      DESIGNED-ONLY rows (workflow execution traces among them).
-
-- [ ] **The dispatch-vs-G-020 gap found while setting this task up is recorded.**
-      `fw termlink dispatch --task T-838` succeeded while T-838 still carried the template's
-      placeholder ACs; the next `Bash` call was refused by G-020 for exactly that. So the
-      dispatch verb does not apply the build-readiness gate its `--task` argument exists to
-      enforce, and a worker can be launched against a task no editing would be allowed under.
+- [ ] **No bypass was used to escape it.** Verified by `.context/working/.gate-bypass-log.yaml`
+      carrying no new entry for this task. The route out was the gate's own remedy #1 (create a
+      task), which is why this task exists at all.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -101,11 +92,11 @@ date_finished: null
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-838`
+         1. Run `bin/fw reviewer T-839`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-838 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-839 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -211,7 +202,7 @@ date_finished: null
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-838 go|no-go|defer --rationale "..."
+     fw inception decide T-839 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -220,10 +211,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-09-24T22:21:27Z — task-created [task-create-agent]
+### 2026-09-25T06:12:31Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-838-project-value-review-deleterefactoradd-g.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-839-closing-the-last-active-task-strands-its.md
 - **Context:** Initial task creation
-
-### 2026-09-24T22:24:20Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work

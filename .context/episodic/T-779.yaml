@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-779: The selection census recommends the one task the failure rule bars: its predicate
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-21T20:39:02Z
+# ============================================================================
+
+task_id: T-779
+task_name: "The selection census recommends the one task the failure rule bars: its predicate"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T20:32:56Z
+completed: 2026-09-21T20:38:13Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-21T22:38:08+02:00
+last_commit: 2026-09-21T22:38:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the census recommended the one task the failure rule bars — it now knows what exhausted means
+
+# Key outcomes
+outcomes:
+  - '**`exhausted` added, read from the task''s own text — no id list.** The class fires when'
+  - '**Negative control, both directions, in the self-test.** Three fixtures added:'
+  - '**Summary and control lines now separate the two states.** Added'
+  - '**The original eight fixtures pass unchanged — 11 passed, 0 failed.** The new class'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-779-the-selection-census-recommends-the-one-.md'
+  - '.tasks/completed/T-778-quadrant-ordered-selection-runs-on-uncon.md'
+  - 'tools/_t777-selection-eligibility-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-21T22:38:08"
+    action: 'T-779: the census recommended the one task the failure rule bars — it now knows what exhausted means'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [governance, selection, bvp]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 3
+  lines_added: 356
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-779-the-selection-census-recommends-the-one-.md
+generated_by: context-agent-hybrid

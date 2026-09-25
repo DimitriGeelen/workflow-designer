@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-687: PostToolUse hooks starve each other: checkpoint.sh drains shared stdin, loop-detect has never recorded an organic fire
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-07T19:36:55Z
+# ============================================================================
+
+task_id: T-687
+task_name: "PostToolUse hooks starve each other: checkpoint.sh drains shared stdin, loop-detect has never recorded an organic fire"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-07T19:29:57Z
+completed: 2026-09-07T19:36:48Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-07T21:31:38+02:00
+last_commit: 2026-09-07T21:36:47+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  real ACs and P-011 legs — a function check that must be able to go red on the live defect, plus a negative leg keeping settings.json untouched.. function check with all three verdicts reachable, upstream report with both withdrawn hypotheses, and the reorder rejected on merits not on the gate.. five ACs ticked on passing evidence; live confirmation still accumulating fires.. live confirmation — the check went RED on production data at 21 fires with no replay, and held inconclusive below threshold instead of guessing.. tick the negative AC — settings.json untouched, verified by P-011 leg 6, reorder rejected on merits in Decisions.
+
+# Key outcomes
+outcomes:
+  - 'A function check exists for stdin-consuming hooks: `tools/_t687-hook-function-check.py`'
+  - 'The check is proven on the real defect by REPLAYING the two states measured today'
+  - 'A genuine LIVE confirmation: baseline recorded at fires=420, then re-run after >= 20'
+  - 'The check is proven against a healthy state too: given a state file that grew in step with'
+  - 'The upstream report is written to `docs/reports/T-687-posttooluse-stdin-starvation.md` and'
+  - 'G-050 lists T-687 in `related_tasks` and its correction block is reconciled with this task''s'
+  - 'No change is made to `.claude/settings.json` (B-005, operator-only), and no hook reorder is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-07 — Reject the hook reorder; build detection here, send the fix upstream'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - 'docs/reports/T-687-posttooluse-stdin-starvation.md'
+  - '.fabric/components/tools-_t687-hook-function-check.yaml'
+  - '.tasks/active/T-687-posttooluse-hooks-starve-each-other-chec.md'
+  - 'tools/_t687-hook-function-check.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-07T21:31:38"
+    action: 'T-687: real ACs and P-011 legs — a function check that must be able to go red on the live defect, plus a negative leg keeping settings.json untouched.'
+  - time: "2026-09-07T21:35:08"
+    action: 'T-687: function check with all three verdicts reachable, upstream report with both withdrawn hypotheses, and the reorder rejected on merits not on the gate.'
+  - time: "2026-09-07T21:36:01"
+    action: 'T-687: five ACs ticked on passing evidence; live confirmation still accumulating fires.'
+  - time: "2026-09-07T21:36:36"
+    action: 'T-687: live confirmation — the check went RED on production data at 21 fires with no replay, and held inconclusive below threshold instead of guessing.'
+  - time: "2026-09-07T21:36:47"
+    action: 'T-687: tick the negative AC — settings.json untouched, verified by P-011 leg 6, reorder rejected on merits in Decisions.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 5
+  files_changed: 5
+  lines_added: 622
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-687-posttooluse-hooks-starve-each-other-chec.md
+generated_by: context-agent-hybrid
