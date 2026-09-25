@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-845: Census control recogniser under-credits: test -x unrecognised, 3-char pattern floor silently refuses valid controls, and no reason is reported
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T11:10:35Z
+# ============================================================================
+
+task_id: T-845
+task_name: "Census control recogniser under-credits: test -x unrecognised, 3-char pattern floor silently refuses valid controls, and no reason is reported"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T10:47:39Z
+completed: 2026-09-25T11:10:23Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T13:10:08+02:00
+last_commit: 2026-09-25T13:10:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  both recogniser defects fixed, the count did not move, and the reason line taught me the population is not what I assumed
+
+# Key outcomes
+outcomes:
+  - '**`test -x`, `-e` and `-r` are recognised as existence controls.** `EXIST_CTRL` matches'
+  - '**The 3-character pattern floor is removed, and the reason it was safe to remove is'
+  - '**A leg that is NOT credited says WHY.** The cheaper half of OBS-379 and the half that'
+  - '**DIFFERENTIAL recognition is DEFERRED, with the reason recorded rather than omitted.**'
+  - '**Tests first, red first.** Written and run before the change and recorded failing for the'
+  - '**EVERY leg whose classification changes is listed individually, before and after.** A net'
+  - '**NO leg loses its flag for a bad reason.** This change makes the census see *fewer*'
+  - '**Both consumers still pass.** T-843''s unit suite (12) and integration probe (16) read this'
+  - '**The baseline moves only if the count genuinely falls, in the same commit, and the cause'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'both recogniser defects fixed, the count did not move, and the reason line taught me the population is not what I assumed'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md'
+  - '.tasks/active/T-845-census-control-recogniser-under-credits-.md'
+  - 'tools/_t560-absence-assertion-census.py'
+  - 'tools/_t845-control-recogniser-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T13:10:08'
+    action: 'T-845: both recogniser defects fixed, the count did not move, and the reason line taught me the population is not what I assumed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 22 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 22
+  commits: 1
+  files_changed: 4
+  lines_added: 619
+  lines_removed: 19
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-845-census-control-recogniser-under-credits-.md
+generated_by: context-agent-hybrid
