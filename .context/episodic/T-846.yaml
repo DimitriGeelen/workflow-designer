@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-846: Triage the 15 standing audit warnings: is each claim true here, and is each named remedy runnable
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T11:48:22Z
+# ============================================================================
+
+task_id: T-846
+task_name: "Triage the 15 standing audit warnings: is each claim true here, and is each named remedy runnable"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T11:20:02Z
+completed: 2026-09-25T11:48:14Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T13:46:47+02:00
+last_commit: 2026-09-25T13:48:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  all 15 audit warnings triaged — 6 defective, and my predicted hit rate was wrong by more than half. the gate refused this task too, and one of the two legs was genuinely broken
+
+# Key outcomes
+outcomes:
+  - '**All 15 WARN rows from the latest audit are enumerated, and the denominator is stated.**'
+  - '**Each row is answered against BOTH questions, individually.** (a) *Is the claim true in'
+  - '**Each row gets one of four verdicts**, and the counts are reported:'
+  - '**The worked example is carried to a conclusion, not just diagnosed.** The unit-suite row'
+  - '**Nothing in `.agentic-framework/` is changed under this task.** This is a triage, not a'
+  - '**Every finding is filed where an instrument can see it**, not left in this task''s prose.'
+  - '**A report is written to `docs/reports/` with the full 15-row table**, so the next reader'
+  - '**The hit rate is stated plainly, including if it is low.** I predicted a high rate from'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'docs/reports/T-846-audit-warning-triage.md'
+  - '.tasks/active/T-846-triage-the-15-standing-audit-warnings-is.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T13:46:47'
+    action: 'T-846: all 15 audit warnings triaged — 6 defective, and my predicted hit rate was wrong by more than half'
+  - time: '2026-09-25T13:48:13'
+    action: 'T-846: the gate refused this task too, and one of the two legs was genuinely broken'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 28 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 28
+  commits: 2
+  files_changed: 3
+  lines_added: 546
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-846-triage-the-15-standing-audit-warnings-is.md
+generated_by: context-agent-hybrid
