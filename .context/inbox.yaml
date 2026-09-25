@@ -1840,3 +1840,19 @@ observations:
   tags: [idea]
   status: pending
   promoted_to: null
+- id: OBS-383
+  text: "Auto-handover DISCARDS hand-enrichment of Suggested First Action — measured, one commit apart. In S-2026-0925-1441 I replaced a one-line stub Suggested First Action with a 50-line drain plan (55/48 split, payoff arithmetic, four traps) and committed it in 19bf3dbf. The PreCompact hook then generated S-2026-0925-1453, which regenerated the section from scratch: LATEST.md now reads, in full, 'Continue T-737: handover.sh reports 3 urgent observations where the register holds 36'. The enrichment survives only in the superseded file. So the generator is not merely thin — it is NON-CARRYING: every hand-improvement to a handover has a shelf life of exactly one compaction, and the next session reads the stub. This is the same false-silence class as the rest of T-841..T-848: the handover LOOKS complete (zero TODO markers, all sections present) while the one section a next session acts on has been emptied. Candidate fixes: (a) enricher reads the predecessor's Suggested First Action and carries it forward unless the focus task changed; (b) the section is sourced FROM the focus task's body rather than authored in the handover, which is the workaround applied by hand today under T-737; (c) a check that refuses a handover whose Suggested First Action is shorter than its predecessor's for the same focus task."
+  captured: 2026-09-25T13:11:22Z
+  context_task: T-737
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-384
+  text: "G-087's guard has no ZERO-TOKEN test, so the exact payload it was built to stop still reads back as ok. Measured today, twice, two minutes apart: 'checkpoint.sh budget' printed 'level: ok / tokens: 0 / age_seconds: 51' immediately post-compaction; two minutes later the same command printed 'level: unknown / reason: cache is 109s old / raw_tokens: 96832', and 'checkpoint.sh status' put the real figure at 98461 context tokens. So the guard reported a healthy zero against a true ~96K. Reading checkpoint.sh:639-645, the guard has exactly three rejection tests — writer self-marked unknown, age over BUDGET_STATUS_MAX_AGE, session_id mismatch. A cache written FRESH by THIS session carrying tokens: 0 passes all three and prints level ok. That is the literal payload named in the G-087 field report. The stale door and the foreign-session door were closed; the zero door was left open, and it is the one that opens every time a session compacts, i.e. precisely when an agent runs /resume and asks for the gauge. A discriminator is already in the file and unused: the same write carries baseline_tokens 88847 and headroom_ratio 0.89, so tokens: 0 next to a non-zero baseline is detectably impossible rather than merely suspicious. Proposed: treat tokens in (0, null, absent) as 'unknown — writer reported no measurement', and where baseline_tokens is non-zero say so as the reason. Cost of the miss is not theoretical: the honest read would have told me this session had 89 percent headroom, and the false-green ok/0 is indistinguishable from the same shape at 95 percent."
+  captured: 2026-09-25T13:13:39Z
+  context_task: T-737
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
