@@ -1,0 +1,80 @@
+# PROPOSED scoring spec for F3 V_AEF_INTEGRATION (weight 9). NOT INSTALLED.
+#
+# There is no rubric to derive from. F3 carries only:
+#   rationale: 'operator directive 2026-08-16: anything improving integration into AEF'
+# Every level below is the AGENT'S READING of that one line, following the house
+# pattern set by F-RECALL and F2. Each level names which clause it claims to encode
+# and where the reading was supplied rather than derived. The operator rules.
+#
+# READING TAKEN: "integration into AEF" is treated as the SEAM — the contract surface
+# between this project and 999-AEF — and the ladder rewards moving that seam from
+# assertion toward a checkable, two-sided record. It does NOT reward merely mentioning
+# AEF, which is the failure mode the template trap warns about.
+
+kind: signals
+strip_template: true
+
+levels:
+  # L1 — touches the seam's vocabulary at all. Deliberately weak: naming AEF is
+  # not integrating with it. Encodes "integration into AEF" at its loosest.
+  1:
+    keywords:
+      - "aef:"
+      - "999-agentic"
+      - "counterparty"
+      - "vendor-divergence"
+
+  # L2 — reads or writes a seam ARTEFACT. Still one-sided.
+  2:
+    paths:
+      - "examples/aef-processes/*"
+      - "examples/aef-processes/rendered/*"
+      - "docs/standards/aef-bpmn-mapping-v1.md"
+      - "vendor/designer/*"
+      - ".agentic-framework/.vendor-divergence.yaml"
+    keywords:
+      - "seam artefact"
+      - "designer-pin"
+
+  # L3 — changes what crosses the seam: the mapping, the extension schema, the
+  # contract the counterparty reads. Encodes "improving integration".
+  3:
+    keywords:
+      - "aef:workflowMeta"
+      - "aef:endpoint"
+      - "extensionElements"
+      - "metaKeys"
+      - "conformance key"
+      - "producer contract"
+    paths:
+      - "src/aef-workflow-designer.html"
+      - "tools/_t8*-*aef*"
+
+  # L4 — the change is AGREED with the counterparty, not just made. This is the
+  # level that separates integration from unilateral change, and it is the
+  # clearest place the reading was supplied: the one-line rationale does not say
+  # "agreed", but a seam improved unilaterally is how every drift in this project
+  # started (H3, the three minted correlations, EWCR-ARC0-ATTEST-832).
+  4:
+    keywords:
+      - "sidecar:999"
+      - "framework:pickup"
+      - "pickup request"
+      - "upstreamed as"
+      - "peer_correlation"
+      - "ratified"
+    tags:
+      - "aef-seam"
+
+  # L5 — the seam gains a CHECK, so the agreement can fail loudly later. Encodes
+  # "improving" at its strongest: a contract nothing verifies is a claim.
+  5:
+    keywords:
+      - "seam-manifest"
+      - "contract test"
+      - "producer-contract test"
+      - "pins a tag, not a moving head"
+      - "arc-0-exit-clauses"
+    paths:
+      - "scripts/seam-manifest.sh"
+      - "docs/releases/seam-manifest.md"
