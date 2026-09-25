@@ -1,0 +1,77 @@
+# PROPOSED scoring spec for F4 V_WORKFLOW_ROUTING (weight 9).
+# Shape mirrored from the operator-approved F3 draft (T-841).
+#
+# No rubric exists. F4 carries only:
+#   rationale: 'operator directive 2026-08-16: anything improving workflow routing / clean workflows'
+#
+# READING TAKEN, and it is a reading: "routing" is treated as HOW CONTROL FLOWS
+# THROUGH A DIAGRAM — edges, gateways, lanes, geometry — and "clean workflows" as
+# that flow being both correct and legible. The ladder rewards moving routing from
+# renders-something toward provably-correct.
+#
+# SUPPLIED, not derived: the rationale says "improving", not "verified". L5 requires
+# a CHECK. Mirrored from F3's L5 on the same argument — routing that nothing verifies
+# is a claim, and this project's routing defects (T-293 endpoint drag, T-341 orphaned
+# flowNodeRef, T-358 fabricated lanes) were all found by a probe, never by looking.
+
+kind: signals
+strip_template: true
+
+levels:
+  # L1 — speaks the routing vocabulary. Weak on purpose: naming an edge is not routing.
+  1:
+    keywords:
+      - "sequenceFlow"
+      - "arrowhead"
+      - "waypoint"
+      - "edge-handle"
+      - "endpoint drag"
+
+  # L2 — touches a routing-bearing artefact or its geometry.
+  2:
+    keywords:
+      - "cleanLayout"
+      - "lane band"
+      - "BPMN DI"
+      - "bendpoint"
+      - "orthogonal"
+      - "mapMessiness"
+    paths:
+      - "examples/aef-processes/rendered/*"
+      - "build/gallery/*"
+
+  # L3 — changes routing SEMANTICS: what a gateway decides, where a node belongs,
+  # what a reference resolves to. Encodes "improving workflow routing".
+  3:
+    keywords:
+      - "exclusiveGateway"
+      - "flowNodeRef"
+      - "linkEvent"
+      - "boundaryEvent"
+      - "attachedToRef"
+      - "decisionOutputs"
+      - "routingHint"
+      - "loopDetour"
+
+  # L4 — the routing is CORRECT against something external, not just rendered:
+  # round-trips, conforms to the standard, or survives import/export.
+  # SUPPLIED: "clean" is read as "conformant", which the one line does not say.
+  4:
+    keywords:
+      - "round-trip"
+      - "conformance"
+      - "schema-invariant"
+      - "aef-bpmn-mapping"
+      - "validator finding"
+      - "silently discarded"
+
+  # L5 — a routing property gains a CHECK that can fail. SUPPLIED, see header.
+  5:
+    keywords:
+      - "cdp probe"
+      - "regression test"
+      - "control leg"
+      - "visual verification"
+    paths:
+      - "tools/_t*-*cdp*"
+      - "tools/_t*-probe*"

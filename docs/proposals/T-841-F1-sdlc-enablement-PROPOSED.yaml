@@ -1,0 +1,79 @@
+# PROPOSED scoring spec for F1 V_SDLC_ENABLEMENT (weight 9).
+# Shape mirrored from the operator-approved F3 draft (T-841).
+#
+# No rubric exists. F1 carries only:
+#   rationale: 'operator directive 2026-08-16: anything enhancing workflow capability
+#               to support a software development process built on the workflows'
+#
+# READING TAKEN: the operative phrase is "a software development process BUILT ON THE
+# WORKFLOWS". So F1 is not "governance work" generally — it is the distance between a
+# workflow being a PICTURE and being the thing that actually drives development. The
+# ladder rewards moving a process step from drawn, to expressible, to governed, to
+# enforced.
+#
+# SUPPLIED, not derived: the split between "expressible" (L3) and "enforced" (L5) is
+# mine. The one line does not distinguish them. I supplied it because this project's
+# whole register says the difference is where value lives — a gate that cannot fire
+# is PL-206, and a rule filed as prose is invisible to every instrument (PL-145).
+
+kind: signals
+strip_template: true
+
+levels:
+  # L1 — speaks the process vocabulary without changing what a workflow can do.
+  1:
+    keywords:
+      - "workflow_type"
+      - "task lifecycle"
+      - "horizon"
+      - "episodic"
+
+  # L2 — touches the authoring surface for process metadata: a field a workflow can
+  # carry ABOUT development work.
+  2:
+    keywords:
+      - "FIELD_META"
+      - "AEF_FIELDS"
+      - "properties panel"
+      - "aef:owner"
+      - "aef:tier"
+      - "authority lane"
+    paths:
+      - "src/aef-workflow-designer.html"
+
+  # L3 — a process concept becomes EXPRESSIBLE that was not: a new carrier, a
+  # vocabulary, a binding between diagram and task system.
+  3:
+    keywords:
+      - "task-yaml"
+      - "compile"
+      - "promote"
+      - "governed task"
+      - "inception graph"
+      - "reverse discovery"
+      - "resolver join"
+
+  # L4 — a process step becomes GOVERNED: it runs under a gate, an authority, or a
+  # recorded decision rather than by convention.
+  4:
+    keywords:
+      - "P-011"
+      - "P-010"
+      - "G-020"
+      - "CTL-029"
+      - "disposition gate"
+      - "sovereignty"
+      - "PreToolUse"
+      - "verification gate"
+
+  # L5 — the governance is ENFORCED and provably so: the gate exists, it fires, and a
+  # control demonstrates it can refuse. SUPPLIED, see header.
+  5:
+    keywords:
+      - "negative control"
+      - "teeth instrument"
+      - "control that can fail"
+      - "proven to fail"
+      - "exit 3"
+    paths:
+      - "tools/_t*-controls.sh"
