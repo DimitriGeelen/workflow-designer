@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-839: Closing the last active task strands its own commit: T-2054 exemption does not fire
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T06:29:30Z
+# ============================================================================
+
+task_id: T-839
+task_name: "Closing the last active task strands its own commit: T-2054 exemption does not fire"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T06:12:31Z
+completed: 2026-09-25T06:29:21Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T08:13:31+02:00
+last_commit: 2026-09-25T08:23:33+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-837 and T-838 closed; closing the last active task stranded its own commit. root cause found — the exemption is wrapper-blind, and its message names a cause it never tested
+
+# Key outcomes
+outcomes:
+  - '**The block is reproduced by a control that FAILS if the defect is absent.** A script that'
+  - '**The hook''s stated exemption and its actual behaviour are shown to disagree, in the'
+  - '**Four refused invocations are recorded verbatim**, so the next reader does not re-derive'
+  - '**The fix is scoped and the alternative is named, without either being implemented here.**'
+  - '**No bypass was used to escape it.** Verified by `.context/working/.gate-bypass-log.yaml`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-687.yaml'
+  - '.context/episodic/T-688.yaml'
+  - '.context/episodic/T-698.yaml'
+  - '.context/episodic/T-704.yaml'
+  - '.context/episodic/T-705.yaml'
+  - '.context/episodic/T-706.yaml'
+  - '.context/episodic/T-707.yaml'
+  - '.context/episodic/T-726.yaml'
+  - '.context/episodic/T-727.yaml'
+  - '.context/episodic/T-738.yaml'
+  - '.context/episodic/T-744.yaml'
+  - '.context/episodic/T-755.yaml'
+  - '.context/episodic/T-778.yaml'
+  - '.context/episodic/T-779.yaml'
+  - '.context/episodic/T-780.yaml'
+  - '.context/episodic/T-781.yaml'
+  - '.context/episodic/T-782.yaml'
+  - '.context/episodic/T-783.yaml'
+  - '.context/episodic/T-786.yaml'
+  - '.context/episodic/T-837.yaml'
+  - '.context/episodic/T-838.yaml'
+  - '.tasks/active/T-737-handoversh-reports-3-urgent-observations.md'
+  - '.tasks/active/T-835-authority-on-the-element-lane-as-domain-.md'
+  - '.tasks/active/T-839-closing-the-last-active-task-strands-its.md'
+  - '.tasks/completed/T-837-procasfit-autonomous-run-two-termlink-di.md'
+  - '.tasks/completed/T-838-project-value-review-deleterefactoradd-g.md'
+  - 'tools/_t839-commit-exemption-probe.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-09-25T08:13:31"
+    action: 'T-839: T-837 and T-838 closed; closing the last active task stranded its own commit'
+  - time: "2026-09-25T08:23:33"
+    action: 'T-839: root cause found — the exemption is wrapper-blind, and its message names a cause it never tested'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 16 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 16
+  commits: 2
+  files_changed: 28
+  lines_added: 2420
+  lines_removed: 60
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-839-closing-the-last-active-task-strands-its.md
+generated_by: context-agent-hybrid

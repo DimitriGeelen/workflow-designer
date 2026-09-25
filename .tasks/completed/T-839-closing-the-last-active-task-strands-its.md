@@ -4,10 +4,10 @@ name: "Closing the last active task strands its own commit: T-2054 exemption doe
 description: >
   Measured 2026-09-25 while closing T-837 and T-838 back to back. After the SECOND completion, focus.yaml current_task becomes null. check-active-task then BLOCKS both Write and any Bash that modifies - including the git commit that would record the closures. The hook's own message states 'Committing a just-completed task is NOT blocked, even with no focus (T-2054)' and then blocks it anyway, attributing the block to a $(...) substitution that is not present in the command. Tried and refused: multi-line -m, single-line -m, message prefixed 'T-837 + T-838:', message prefixed cleanly 'T-838:'. Also tried 'fw context focus T-838' - silently no-ops because the task is completed, leaving current_task null. NET EFFECT: an agent that correctly closes its last active task cannot commit that closure, cannot write a note about it, and the prescribed remedy is to create a task - which is what this is. The staged closure sits in the index meanwhile, which is the exact state P-009's commit-cadence rule exists to prevent.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-25T06:12:31Z
-last_update: 2026-09-25T06:13:32Z
-date_finished: null
+last_update: 2026-09-25T06:29:21Z
+date_finished: 2026-09-25T06:29:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -127,31 +127,31 @@ an agent widening the gate that governs it is the shape this whole register exis
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The block is reproduced by a control that FAILS if the defect is absent.** A script that
+- [x] **The block is reproduced by a control that FAILS if the defect is absent.** A script that
       sets `current_task: null` in a throwaway fixture, invokes the hook's predicate with a
       commit-shaped command, and asserts it BLOCKS. A control that only demonstrates the current
       behaviour proves nothing about the fix (PL-206) — it must also pass against a fixture where
       focus IS set, so the leg discriminates rather than merely agreeing with today's output.
 
-- [ ] **The hook's stated exemption and its actual behaviour are shown to disagree, in the
+- [x] **The hook's stated exemption and its actual behaviour are shown to disagree, in the
       hook's own text.** The message says "Committing a just-completed task is NOT blocked, even
       with no focus (T-2054)" and then blocks, attributing the block to a `$(...)` substitution
       that is not in the command. Cite the file and line of both the exemption and the predicate
       that overrides it. A gate that names the wrong reason is PL-304's failure mode and this is
       an instance of it.
 
-- [ ] **Four refused invocations are recorded verbatim**, so the next reader does not re-derive
+- [x] **Four refused invocations are recorded verbatim**, so the next reader does not re-derive
       them: multi-line `-m`; single-line `-m`; message prefixed `T-837 + T-838:`; message
       prefixed cleanly `T-838:`. Plus `fw context focus T-838` silently no-opping on a completed
       task, leaving `current_task: null`.
 
-- [ ] **The fix is scoped and the alternative is named, without either being implemented here.**
+- [x] **The fix is scoped and the alternative is named, without either being implemented here.**
       Either the exemption learns to detect a just-completed task from the index/`git diff
       --cached` rather than from focus, or `fw context focus` accepts a just-completed task for a
       grace window. Both touch a PreToolUse enforcement path, so which one lands is a Sovereign
       question — recorded as such, not chosen.
 
-- [ ] **No bypass was used to escape it.** Verified by `.context/working/.gate-bypass-log.yaml`
+- [x] **No bypass was used to escape it.** Verified by `.context/working/.gate-bypass-log.yaml`
       carrying no new entry for this task. The route out was the gate's own remedy #1 (create a
       task), which is why this task exists at all.
 
@@ -315,3 +315,15 @@ grep -c "2026-09-25" .context/working/.gate-bypass-log.yaml > /tmp/.t839b2.out 2
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-839-closing-the-last-active-task-strands-its.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6f7d5ba9
+- **Timestamp:** 2026-09-25T06:29:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-25T06:29:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
