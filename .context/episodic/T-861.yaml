@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-861: instrument sweep trusts each probe to volunteer rc=4, so four self-declared broken guards are counted as subject regressions
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T23:49:30Z
+# ============================================================================
+
+task_id: T-861
+task_name: "instrument sweep trusts each probe to volunteer rc=4, so four self-declared broken guards are counted as subject regressions"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T23:43:21Z
+completed: 2026-09-25T23:49:03Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-26T01:48:07+02:00
+last_commit: 2026-09-26T01:49:02+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the sweep no longer takes a broken guard's word for it — self-declared breakage is detected, not volunteered. RCA — the classifier asked the classified party, and four probes answered in prose while returning the wrong exit code
+
+# Key outcomes
+outcomes:
+  - 'The sweep classifies a probe as **DEAD CONTROL when the probe says so in its output**, not only when it volunteers `rc=4`. T-851 measured the cost: `regressed 12, dead-control 2` where the truth was 6 dead / 8 regressed — wrong by four, because four probes announce breakage in plain English and exit 1'
+  - 'The detection is driven by **markers the probes actually emit**, quoted from their real output, not from phrasings I invent: `_t542`''s traceback, `_t568`/`_t569`''s `control: unmutated source passes all four legs`, `_t574`''s `ABORT: … can no longer test what it claims to test`'
+  - 'A traceback is classified as a **broken guard**, not a regression — a probe that raises has reported nothing about its subject. This is the distinction the whole fix exists for'
+  - '**A probe that genuinely fails its subject is still `regressed`.** The suite proves both directions, because a classifier that moves everything to `dead-control` would satisfy the first criterion and be worse than the bug'
+  - '`rc=4` continues to work exactly as before — this **adds** a detection path, it does not replace the convention'
+  - 'The full-run summary sentence and the `PARTIAL` sentence keep their existing shapes, since other probes read this file''s source and output (T-850 established that constraint the hard way)'
+  - 'The count actually moves on the live corpus: a filtered run over the known self-declarers reports them as `dead-control`, verified by running it rather than by reading the diff'
+  - 'Tests extend `tools/_t850-sweep-subset-teeth.sh` (or a sibling) with fixture probes that self-declare, and are **mutation-checked with a control set** — stripping the new detection turns the new cases red while the pre-existing cases stay green'
+  - 'No probe under `tools/` is edited to make the sweep''s job easier — the point is that the sweep must not depend on the classified party''s cooperation'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-861-instrument-sweep-trusts-each-probe-to-vo.md'
+  - 'tools/_t509-instrument-sweep.sh'
+  - 'tools/_t861-selfdeclare-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-26T01:48:07'
+    action: 'T-861: the sweep no longer takes a broken guard''s word for it — self-declared breakage is detected, not volunteered'
+  - time: '2026-09-26T01:49:02'
+    action: 'T-861: RCA — the classifier asked the classified party, and four probes answered in prose while returning the wrong exit code'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 2
+  files_changed: 3
+  lines_added: 610
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-861-instrument-sweep-trusts-each-probe-to-vo.md
+generated_by: context-agent-hybrid

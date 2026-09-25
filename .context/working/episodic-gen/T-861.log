@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-25T23:49:29Z ===
+task_id: T-861
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-861.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: instrument sweep trusts each probe to volunteer rc=4, so four self-declared broken guards are counted as subject regressions
+  Duration: 0 days (5 min)
+  Updates: 2
+  Commits: 2
+  Lines: +610 -2 across 3 files
+  Outcomes: 9 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-861-instrument-sweep-trusts-each-probe-to-vo.md
+--- exit code: 0 ---

@@ -6,10 +6,10 @@ description: >
   _t534 D2-queue guard is a dead control: audit.sh no longer composes the d2_msg line
   it anchors on
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -24,7 +24,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T23:27:19Z
-last_update: '2026-09-25T23:28:59Z'
+last_update: 2026-09-25T23:30:04Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -362,3 +362,8 @@ so was a probe the same upgrade disabled.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-860-t534-d2-queue-guard-is-a-dead-control-au.md
 - **Context:** Initial task creation
+
+### 2026-09-25T23:30:04Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)
+- **Reason:** parked: blocked on the Sovereign question in OBS-393 — restore T-656's split or retire legs 1-3

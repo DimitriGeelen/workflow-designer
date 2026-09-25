@@ -11971,3 +11971,21 @@ scan_id: R-6e50f0b5
 task_id: T-859
 payload:
   task_file: .tasks/active/T-859-t542-cost-axis-guard-raises-attributeerr.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T23:49:24Z'
+scan_id: R-25755a93
+task_id: T-861
+payload:
+  overall: CONCERN
+  finding_count: 5
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T23:49:24Z'
+scan_id: R-25755a93
+task_id: T-861
+payload:
+  task_file: .tasks/active/T-861-instrument-sweep-trusts-each-probe-to-vo.md

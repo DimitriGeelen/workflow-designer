@@ -26,7 +26,7 @@ alone (CLAUDE.md Human Task Completion Rule).
 Rows with an empty `## Verification` block need that scrutiny most —
 nothing mechanical would gate their close.
 
-## Qualifying tasks (11)
+## Qualifying tasks (10)
 
 | Task | Status | Workflow | Name | Agent ACs | Verification cmds? |
 |------|--------|----------|------|----------:|--------------------|
@@ -40,5 +40,4 @@ nothing mechanical would gate their close.
 | T-681 | started-work | inception | EWCR arc holds only Arc-0 and every task in it is cl... | 3 | yes |
 | T-708 | started-work | build | RA-012: CTL-029 two stuck partial-complete tasks T-0... | 3 | yes |
 | T-723 | started-work | build | RA-027: FAIL D2 human review queue has 12 tasks wait... | 3 | yes |
-| T-859 | started-work | build | _t542 cost-axis guard raises AttributeError instead ... | 8 | yes |
 

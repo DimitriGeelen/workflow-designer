@@ -1,10 +1,10 @@
 # Audit Results - 2026-09-26-0130
-timestamp: 2026-09-25T23:30:39Z
-sections: "structure"
+timestamp: 2026-09-25T23:30:01Z
+sections: "structure,compliance,quality,discovery"
 summary:
-  pass: 21
-  warn: 14
-  fail: 0
+  pass: 32
+  warn: 26
+  fail: 1
 findings:
   - level: PASS
     check: "Tasks directory exists"
@@ -90,3 +90,64 @@ findings:
   - level: WARN
     check: "Fabric: 96 under-populated card(s)"
     mitigation: "Run: bin/fw fabric enrich --describe-only (fills purpose/subsystem from each file's own header; names what it refuses). Zero-edge cards want a look, not a re-run: bin/fw fabric drift"
+  - level: PASS
+    check: "All active tasks are valid — examined 157 active task(s)"
+  - level: PASS
+    check: "All active tasks meet quality thresholds — examined 157 active task(s)"
+  - level: WARN
+    check: "10 active task(s) have every Agent AC ticked and no Human AC outstanding, but are still started-work/issues"
+    mitigation: "Candidates for close, not closures — spot-check with 'fw task verify T-XXX' per task, then 'fw task update T-XXX --status work-completed'. Full list: /opt/832-Workflow-designer/.context/audits/unclosed-satisfied/LATEST.md"
+  - level: PASS
+    check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
+  - level: PASS
+    check: "CTL-028: All completed/ tasks have frontmatter status: work-completed — examined 702 completed task(s)"
+  - level: PASS
+    check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009) — examined 702 completed task(s)"
+  - level: WARN
+    check: "CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-041 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-101 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-102 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-102 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-105 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-105 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-293 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-293 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-309 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-309 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-357 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-357 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-681 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-681 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-708 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-708 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-723 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-723 --status work-completed"
+  - level: INFO
+    check: "CTL-029: 2 of the above are unclosable-misfiled (owner:human, no Human criteria, all Agent ACs ticked) — see: bin/fw review-queue"
+  - level: WARN
+    check: "CTL-012: Completed task T-508 has unchecked AC"
+    mitigation: "Review task completion — AC gate may have been bypassed"
+  - level: PASS
+    check: "D1: Episodic quality — 0% [TODO] (0/702)"
+  - level: FAIL
+    check: "D2: Human review queue — 26 task(s) waiting >30d: T-233(42d) T-308(58d) T-310(58d) T-325(55d) T-340(41d) T-351(53d) T-353(53d) T-368(48d) T-392(30d) T-410(47d) T-423(16d) T-432(34d) T-433(34d) T-449(44d) T-537(29d) T-540(29d) T-565(30d) T-579(32d) T-586(29d) T-588(30d) T-589(30d) T-590(30d) T-592(30d) T-593(30d) T-596(30d) T-597(30d) T-600(30d) T-601(30d) T-606(30d) T-608(30d) T-609(29d) T-643(26d) T-647(25d) T-671(22d) T-676(16d)"
+    mitigation: "Review with: fw task verify (lists unchecked Human ACs)"
+  - level: PASS
+    check: "D8: Handover quality — no [TODO] in LATEST.md"
+  - level: PASS
+    check: "D8b: Handover archive — 0/10 recent handovers have [TODO]s"
+  - level: PASS
+    check: "D10: Decision-without-dialogue — none detected"
+  - level: PASS
+    check: "D11: Gap register staleness — all gaps fresh"
