@@ -431,6 +431,48 @@ def create_app() -> Flask:
             str(e.description) if hasattr(e, "description") else str(e)
         )
         is_csrf = description.startswith("CSRF token")
+
+        # ── T-858: write the 403 for the CLIENT THAT ASKED FOR IT ──────────────
+        # THE OPERATOR SAW THIS. They clicked Approve on /approvals and the toast
+        # read "Session expired — Workflow designer (function(){var t=localStorage
+        # .getItem(…". Not a garbled message: a whole 66KB HTML document being
+        # scraped. T-2309 renders the full recovery PAGE, and
+        # web/static/htmx-toast.js extracts its message with
+        #     .replace(/<[^>]*>/g, '').trim().substring(0, 100)
+        # which is a TAG stripper, not a text extractor — it removes <title> and
+        # <script> TAGS and keeps the text INSIDE them, so the page title and the
+        # theme bootstrap's JavaScript source became the error message.
+        #
+        # WHY THE FRAGMENT CARRIES NO <script> AND NO <title>: those are exactly
+        # what that expression turns into prose. Fixing the byte count alone would
+        # leave the defect the moment any element with text content is added.
+        #
+        # BOOSTED REQUESTS ARE INCLUDED, NOT EXEMPTED. _t545's leg 5 records that
+        # the first attempt at this fix exempted HX-Boosted to protect T-2309's
+        # full-page recovery UI — and five routes post plain <form method="post">
+        # under hx-boost, so they are boosted POSTs and kept the whole defect.
+        # htmx sets HX-Request on boosted requests too, so testing HX-Request
+        # alone covers them; adding "and not HX-Boosted" is the known wrong fix.
+        # It is safe because htmx never swaps a 4xx (leg 6 re-checks that fact,
+        # since the design rests on it and a library upgrade could retire it), so
+        # this body reaches the toast and nothing else.
+        #
+        # A PLAIN NAVIGATION STILL GETS THE FULL PAGE — the discrimination is by
+        # caller, not a replacement of one wrong answer with another.
+        if request.headers.get("HX-Request") == "true" or request.path.startswith("/api/"):
+            from flask import make_response
+            from markupsafe import escape
+
+            if is_csrf:
+                kind, msg = "csrf", "Session expired — reload the page and try again."
+            else:
+                kind, msg = "generic", f"Forbidden — {description}"
+            # HX-Error-Kind so a machine client can tell a stale token from a real
+            # permission denial without parsing prose.
+            resp = make_response(f'<div class="toast-error">{escape(msg)}</div>', 403)
+            resp.headers["HX-Error-Kind"] = kind
+            return resp
+
         if is_csrf:
             return render_template(
                 "_wrapper.html",
