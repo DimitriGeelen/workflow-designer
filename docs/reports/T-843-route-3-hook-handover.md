@@ -25,30 +25,36 @@ to earn a standing bypass. This hook fires while the author still has the contex
 one line. **If it works, the close gate should almost never trigger** — which is the outcome
 you want from an enforcement point.
 
-## The change to apply
+## The change to apply — two commands (T-847)
 
-Register it under `PostToolUse` for `Write|Edit`. If that matcher already has entries, append
-this to its `hooks` array rather than replacing it:
+**Superseded the hand-edit.** The original version of this doc gave a JSON fragment to paste,
+which was a poor handover: `.claude/settings.json` already carries a `Write|Edit` PostToolUse
+group holding `fw hook commit-cadence`, so pasting a *new* group with the same matcher is valid
+JSON and quietly duplicated semantics. The fragment had to be merged into the existing group by
+hand. A tested, idempotent registrar does it instead.
 
-```json
-{
-  "matcher": "Write|Edit",
-  "hooks": [
-    {
-      "type": "command",
-      "command": "$CLAUDE_PROJECT_DIR/tools/hooks/warn-uncontrolled-absence.sh"
-    }
-  ]
-}
+Look first if you like:
+
+```
+cd /opt/832-Workflow-designer && python3 tools/hooks/install-absence-hook.py --dry-run
 ```
 
-**After editing `.claude/settings.json`, refresh the enforcement baseline** or `fw doctor` will
-report a standing FAIL ("Enforcement baseline CHANGED") that accumulates silently — L-398,
-which bit T-1849/T-1730/T-1731 each in turn:
+Then apply, and refresh the baseline:
 
+```
+cd /opt/832-Workflow-designer && python3 tools/hooks/install-absence-hook.py
+```
 ```
 cd /opt/832-Workflow-designer && .agentic-framework/bin/fw enforcement baseline
 ```
+
+The second is not optional: without it `fw doctor` reports a standing "Enforcement baseline
+CHANGED" FAIL that accumulates silently (L-398 — it bit T-1849, T-1730 and T-1731 each in turn).
+
+The registrar is idempotent (re-running reports "already registered" and writes nothing), appends
+rather than duplicating, and refuses outright if the settings file is not valid JSON rather than
+rewriting a half-parsed file. All four behaviours were verified against scratch copies before this
+was offered — never against the live file.
 
 ## Verified before handover
 
@@ -59,18 +65,20 @@ cd /opt/832-Workflow-designer && .agentic-framework/bin/fw enforcement baseline
   NOT-EVALUATED principle the close gate applies to its own dependency.
 - Only inspects task files; every other write path exits immediately.
 
-## One caveat you should know before installing
+## The caveat that used to be here is GONE — recommendation reversed (T-847)
 
-**It will currently warn on `T-592`, and that warning is a false positive.** Not the hook's
-fault: the census's `SEARCH_SOURCED` test lacks the command-boundary anchoring its form
-patterns have, so the literal word `grep` inside a quoted `eval` payload reads as a search
-invocation. Filed as **OBS-376**, deliberately not worked around — fitting the corpus to the
-instrument would make the corpus number less meaningful.
+This section previously said **do not install yet**: the hook warned on `T-592`, that warning was
+a false positive, and a nagging advisory is how advisories get muted. That advice was right when
+written and is now stale.
 
-So: installing this now means one recurring nag on one task until OBS-376 is fixed. A nagging
-advisory is how advisories get muted, so **the defensible order is OBS-376 first, then install
-this.** I would not install it today. That is a recommendation, not a decision — the config is
-yours either way, and the hook is ready when you want it.
+**T-844 resolved it.** The false positive was narrower than OBS-376 claimed — one leg, not a
+class — and rather than change a classifier that now gates closes, T-592's leg was given a
+control that is worth having on its own terms (it pins the fixture string the demonstration
+depends on). Re-verified: the hook produces **no output** against `T-592` now, and `active/`
+carries zero uncontrolled legs, so on a clean corpus the advisory is silent.
+
+**Recommendation is therefore: safe to install.** Recorded as a reversal with its cause, so the
+change of advice is traceable rather than mysterious.
 
 ## What is already live without you doing anything
 
