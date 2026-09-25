@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T22:05:16Z
-last_update: 2026-09-25T22:13:33Z
+last_update: 2026-09-25T22:16:52Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -410,6 +410,40 @@ decided which kind of caller was asking.
      for Human Review). If the artefact is complete and you still don't want to
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
+
+**Recommendation:** GO
+
+**Rationale:** The defect is fixed at the layer that caused it and the fix is narrow: 42 inserted
+lines, zero removed, one new branch that fires only for a caller that identifies itself as htmx or
+hits `/api/*`. Every mechanical property the probe pins is green, including the one that represents
+what the operator actually experienced — the toast expression now yields a sentence rather than
+JavaScript source. The full-page recovery path is measurably untouched (66,746 bytes, same as
+before), so this is a discrimination by caller and not a replacement of one wrong answer with
+another. The one remaining unticked criterion is a genuine `[REVIEW]`: it asks a human to look at a
+rendered toast, which no leg here can do, and it is not covering an evidence gap in the fix itself.
+
+GO rather than DEFER because there is no evidence gap left that I could close by working longer. The
+open item is a category of proof I cannot produce — a person reading a rendered element — not a
+question I am avoiding.
+
+**Evidence:**
+- `/api/*` 403 body **66,456 → 79 bytes**; `tools/_t545-error-shape-teeth.py` exits 0 with *all legs
+  green*, and the suite's rc-2 REFUSE path is asserted separately so a refusal cannot read as a pass.
+- The consequence leg, which is the operator's symptom: `toast would read : 'Session expired — reload
+  the page and try again.'` — previously `(function(){var t=localStorage.getItem(`.
+- Navigation 403 still **66,746 bytes — "T-2309 page retained"**. The recovery UI did not become
+  collateral damage.
+- `HX-Error-Kind: csrf=csrf generic=generic`, so a machine client can distinguish a stale token from
+  a real denial without parsing prose.
+- Boosted POSTs are covered rather than exempted, asserted positively on the `HX-Request` condition.
+  The teeth record that the previous attempt at this fix exempted `HX-Boosted` and thereby preserved
+  the whole defect on the five `hx-boost` form routes — the operator's own path.
+- `fw doctor` remains at **zero failures**; 11/11 verification legs rehearsed under `set -o pipefail`
+  before the gate ran them.
+- **Known limitation, stated rather than buried:** `htmx-toast.js` is still a tag stripper. It is now
+  fed a safe body, so the symptom is gone, but any other route returning text-bearing HTML on an
+  error reproduces the class. The durable fix is a message contract between server and JS, which is
+  AEF's design call and is filed with them (offset 171) rather than invented here.
 
 ## Decisions
 
