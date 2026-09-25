@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T09:27:29Z
-last_update: 2026-09-25T09:27:29Z
+last_update: 2026-09-25T09:43:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -46,21 +46,21 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **TESTS FIRST, AND THE TEST SUITE IS RED BEFORE THE IMPLEMENTATION EXISTS.** Operator
+- [x] **TESTS FIRST, AND THE TEST SUITE IS RED BEFORE THE IMPLEMENTATION EXISTS.** Operator
       directive: build on tests. The predicate's test file is written and run BEFORE
       `find_uncontrolled_absence_legs` exists, and its first run is recorded failing for the
       right reason (function not found), not passing vacuously. A suite that was only ever
       run after the code cannot distinguish "the code works" from "the suite asserts nothing"
       — the exact class this whole task addresses.
 
-- [ ] **ONE implementation of the classifier, not two.** The predicate shells to
+- [x] **ONE implementation of the classifier, not two.** The predicate shells to
       `tools/_t560-absence-assertion-census.py` via a new `--file PATH` mode that reuses
       `classify()`, `patterns_in()` and `control_level()` UNCHANGED. It is not re-written in
       bash. L-533: run THIS expression, not a re-typed copy — and the existing
       `find_port_literals` / `find_unjudged_test_runs` predicates cite that rule for the same
       reason. Verified by `git diff` showing no change to those three functions' bodies.
 
-- [ ] **UNPARSEABLE LEGS REPORT `NOT EVALUATED`, NEVER PASS AND NEVER FAIL.** The census
+- [x] **UNPARSEABLE LEGS REPORT `NOT EVALUATED`, NEVER PASS AND NEVER FAIL.** The census
       already cannot extract a pattern from 2 legs corpus-wide. A gate that fails them blocks
       closes for reasons unrelated to the defect; one that passes them claims coverage it does
       not have. This follows the T-3105 shape 1.7.68's own audit already prints four times
@@ -68,49 +68,86 @@ date_finished: null
       have"). **This is the constraint the task will not ship without**, and it is tested with
       a fixture leg the parser genuinely cannot read.
 
-- [ ] **The gate is a third instance of an existing pattern, not new architecture.** Predicate
+- [x] **The gate is a third instance of an existing pattern, not new architecture.** Predicate
       in a sourced lib (`lib/verification-absence.sh`), called from `update-task.sh`'s
       pre-verification phase with the extracted block, printing ERROR + offender lines +
       both repair routes. Shape copied from `find_port_literals`' call site so the three
       cannot drift.
 
-- [ ] **An escape exists, is named in the block message, and is never used by the agent.**
+- [x] **An escape exists, is named in the block message, and is never used by the agent.**
       `FW_ALLOW_UNCONTROLLED_ABSENCE=1`, matching the `FW_ALLOW_UNJUDGED_TEST_RUN=1`
       precedent. Verified by the bypass log carrying no entry for this task and by the block
       message naming the variable (a gate that refuses without naming its own escape is
       PL-304).
 
-- [ ] **The block message's remedy is EXECUTED once before shipping, not just written.** The
+- [x] **The block message's remedy is EXECUTED once before shipping, not just written.** The
       lesson of OBS-374 and the bvp verb gap: a check that names a remedy the reader cannot
       apply trains readers to skip the check. Whatever the message tells the author to do is
       performed against a real offending task and shown to clear the gate.
 
-- [ ] **The 17 live legs are drained so the gate is adoptable rather than instantly hostile.**
+- [x] **The 17 live legs are drained so the gate is adoptable rather than instantly hostile.**
       17 uncontrolled legs across 11 active tasks (T-155×4, T-449×3, T-606×2, then T-764,
       T-740, T-676, T-592, T-540, T-432, T-351, T-209). Each repaired by one of the two routes
       the census itself names, recorded per leg with which route and why. Without this the
       gate blocks 11 existing closes on day one, which is how a gate earns a standing bypass.
 
-- [ ] **The corpus count FALLS and the baseline falls with it, in the same commit.** The
+- [x] **The corpus count FALLS and the baseline falls with it, in the same commit.** The
       census header: lowering is the sanctioned direction and must happen in the same commit
       as the reduction; leaving it high silently re-admits exactly that many. Raising it
       remains forbidden. Recorded before and after.
 
-- [ ] **The ratchet and the gate are shown to be complementary, not redundant.** The gate
+- [x] **The ratchet and the gate are shown to be complementary, not redundant.** The gate
       covers legs at admission (active tasks closing); the ratchet covers the 103 legacy legs
       in 93 completed tasks that no close will ever re-examine. Stated with the split measured,
       so a later reader does not retire one believing the other covers it.
 
-- [ ] **AEF is told in the operator's prescribed order: the ISSUE first, before the fix
+- [x] **AEF is told in the operator's prescribed order: the ISSUE first, before the fix
       exists; then the ROOT CAUSE and the FIX once done.** Two posts, not one summary after
       the fact, so their side can react to the problem independently of our solution to it.
       Both quoted inline in this task.
 
-- [ ] **Route 3 is prepared and handed over, not silently dropped.** The project-local hook
+- [x] **Route 3 is prepared and handed over, not silently dropped.** The project-local hook
       layer needs `.claude/settings.json`, which the agent is structurally blocked from
       writing (B-005) with no `settings.local.json` side door. The exact change is written out
       for the operator to apply, and the fact that it is theirs to run is stated rather than
       left as an unexplained gap.
+
+#### Recorded shortfalls on the ticks above
+
+Three of the eleven need qualification. Ticking them silently would be the false green this
+task exists to prevent.
+
+**AC "ONE implementation" — the interface is `--block` on stdin, not `--file PATH`.** The AC
+named a mode I had not written yet and guessed its shape. Stdin is the right one: the gate
+already holds the extracted block as a string (`$verify_cmds`), so a file mode would have
+meant writing it to a temp file and reading it back — and a temp file is the T-837 defect. The
+substance of the AC (one classifier, reused unchanged, not re-typed in bash) holds exactly;
+only the flag name in my own AC was wrong.
+
+**AC "the 17 live legs are drained" — 16 of 17.** The survivor, `T-592:217`, is a FALSE
+POSITIVE in the census rather than a bad leg: `SEARCH_SOURCED` lacks the command-boundary
+anchoring the `FORMS` patterns have, so the literal word `grep` inside a quoted `eval` payload
+reads as a search invocation. The leg is sound — `rc` is set by an if/else and can never be
+unset, so it fails loud. Filed as **OBS-376** and deliberately left alone: adding a control to
+a sound leg, or rewriting `test "$rc" -eq 0` to dodge the classifier, would be fitting the
+corpus to the instrument and would make the corpus number mean less, not more. Its priority
+rose with this task, because the census is now load-bearing for a close gate — a false
+positive here blocks a close instead of inflating a report.
+
+**AC "the corpus count FALLS and the baseline falls with it" — the count fell, the baseline
+could not, and the AC's premise was wrong.** It assumed the drain would reach 78. It cannot:
+122 → 106 is real but 106 is still above 78, so lowering is unavailable and raising stays
+forbidden. **The ratchet is still red and should be.** Reaching 78 needs ~28 more legs, and
+105 of the 106 now sit in 93 COMPLETED tasks — PD-308 applied at a scale far beyond the 2
+edits made under it, on other owners' archived records. PD-308's own rationale confines its
+first application to this agent's own tasks. Extending it to 93 is a scope decision and it is
+the operator's.
+
+**Also worth stating plainly: the gate does NOT make the ratchet redundant, and the split is
+the reason.** The gate covers admission — an active task closing cannot add an uncontrolled
+leg. The ratchet covers the 105 legacy legs in completed tasks that no close will ever
+re-examine. Retire either believing the other covers it and one whole population goes dark.
+
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -284,8 +321,15 @@ out=$(bash tools/_t843-absence-gate-tests.sh 2>&1); echo "$out" | grep -q 'PRE: 
 out=$(bash tools/_t843-absence-gate-integration.sh 2>&1); echo "$out" | grep -q '^# passed ' && ! echo "$out" | grep -q '^not ok'
 out=$(bash tools/_t843-absence-gate-integration.sh 2>&1); echo "$out" | grep -q 'THE PRINTED REMEDY CLEARS THE GATE'
 
-# The corpus census is UNBROKEN by the --block addition: same denominator, same counts.
-out=$(python3 tools/_t560-absence-assertion-census.py 2>&1); echo "$out" | grep -q 'executable legs examined           : 3482'
+# The corpus census is UNBROKEN by the --block addition: it still walks the corpus and still
+# reports its denominator, its ratchet and its NONE class.
+#
+# THIS LINE FIRST PINNED THE EXACT COUNT (3482) AND WENT RED WITHIN THE HOUR — T-3326, the
+# mutable-corpus trap, warned about at length in the header above this very block, and walked
+# into anyway. What broke it was this task's OWN drain adding control legs to the corpus it
+# was counting. Pinning the shape rather than the number is the fix; the number lives in the
+# commit message where it cannot rot.
+out=$(python3 tools/_t560-absence-assertion-census.py 2>&1); echo "$out" | grep -qE 'executable legs examined +: [0-9]+' && echo "$out" | grep -q 'RATCHET' && echo "$out" | grep -qE 'NONE .*: [0-9]+'
 
 # ONE classifier, not two. The gate must not re-implement classify()/control_level() in
 # bash — the lib shells to the census (L-533).
@@ -303,6 +347,27 @@ out=$(sed -n '/^check_verification_uncontrolled_absence/,/^}/p' .agentic-framewo
 # Both scripts parse.
 bash -n .agentic-framework/agents/task-create/update-task.sh
 bash -n .agentic-framework/lib/verification-absence.sh
+
+# ROUTE 3 — the write-time advisory exists, is executable, and behaves as designed: it warns
+# on an offending task file, stays silent on a clean one, and exits 0 either way. A blocking
+# write-time hook would make the correct workflow (assertion first, control second) impossible.
+test -x tools/hooks/warn-uncontrolled-absence.sh
+out=$(printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh 2>&1); echo "$out" | grep -q 'uncontrolled absence assertion'
+out=$(printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-740-value-review-the-aef-seam-and-the-workfl.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh 2>&1); test -z "$out"
+printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh >/dev/null 2>&1
+
+# Route 3 is HANDED OVER, not silently dropped: the doc carries the settings fragment AND the
+# enforcement-baseline refresh that L-398 says must follow it, and says installing is the
+# operator's because B-005 blocks the agent from .claude/settings.json.
+R=docs/reports/T-843-route-3-hook-handover.md; grep -q 'PostToolUse' "$R" && grep -q 'fw enforcement baseline' "$R" && grep -q 'B-005' "$R"
+
+# THE DRAIN: at least 10 active tasks now carry an explicit control leg. A floor, not an exact
+# count, so the corpus can grow without rotting this line (T-3326).
+test "$(grep -l 'T-843 CONTROL' .tasks/active/*.md | wc -l)" -ge 10
+
+# THE BASELINE WAS NOT RAISED. 106 is still above 78, so lowering was unavailable and raising
+# stays forbidden. This is the line that would catch the one-keystroke way to fake a green.
+grep -qx '78' tools/_t560-absence-baseline.txt
 
 # CONTROLLED ABSENCE ASSERTION — the gate's own rule, applied to this task. The companion
 # below greps the SAME STRING where it IS present, which is what makes the negation mean
