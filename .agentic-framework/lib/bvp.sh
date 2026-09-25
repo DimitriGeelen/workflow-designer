@@ -86,14 +86,97 @@ def _str_safe_load(text):
     return yaml.load(text, Loader=_L)
 
 
+# ------------------------------------------------- operator-ruled auto-approval
+# T-856. OPERATOR RULING 2026-09-25: "BVP scoring should come automatically, no
+# approval from user anymore. Scoring just happens." And: "key thing is we want to
+# have telemetry about it. We want to collect data so we can analyze it and
+# improve it."
+#
+# WHAT THIS DOES NOT DO. acd_gate guards five verbs. This opens exactly ONE —
+# `confirm`, which scores a task. `weight --set`, `driver --add`,
+# `driver --remove` and `auto-promote --enable` stay gated: they edit the VALUE
+# MODEL itself (D8, sovereignty at policy-edit time), which is a different thing
+# from scoring a task against it, and the ruling did not cover them. A blanket
+# CLAUDECODE bypass would be the obvious wrong implementation and would look
+# identical from the happy path, so a test asserts the other four still refuse.
+#
+# WHY A SWITCH AND NOT A DELETION. A deleted gate is invisible and
+# indistinguishable from upstream behaviour, so the next `fw upgrade` silently
+# "fixes" it back — measured in T-853, where one upgrade reverted six in-tree
+# vendored fixes and nothing noticed for weeks. A config-consulted switch
+# defaults OFF, leaving upstream semantics unchanged for anyone who has not set
+# it, and makes the divergence legible.
+_AUTO_PATH = {'verb': None, 'key': None}
+
+
+def _fw_config_raw(key, default=""):
+    """Read one key from .framework.yaml. Deliberately a flat line scan rather
+    than a YAML load: this runs inside a gate, and a config file that fails to
+    parse must not be able to turn the gate into a traceback."""
+    env = os.environ.get('FW_' + key)
+    if env is not None and env != '':
+        return env
+    cfg = PROJECT_ROOT / '.framework.yaml'
+    try:
+        for line in cfg.read_text().splitlines():
+            line = line.strip()
+            if line.startswith(key + ':'):
+                return line.split(':', 1)[1].strip().strip('"').strip("'")
+    except Exception:
+        return default
+    return default
+
+
+def _auto_enabled(key):
+    return _fw_config_raw(key, '0').lower() in ('1', 'true', 'yes', 'on')
+
+
+def _telemetry(event):
+    """Append one JSONL row per auto-approved action. Append-only, and written
+    ONLY on the auto path — logging a human-approved action as automatic would
+    make the ledger unable to answer the question it exists for. Never raises:
+    telemetry that can break the verb it observes is worse than none."""
+    import json as _json
+    try:
+        # FW_BVP_TELEMETRY_PATH exists so a TEST never writes into the ledger the
+        # operator analyses. Without it the first test run contaminated the real
+        # ledger with fixture rows — an append-only ledger cannot be cleaned up
+        # afterwards, so the redirect has to exist before the test does.
+        override = os.environ.get('FW_BVP_TELEMETRY_PATH')
+        if override:
+            path = Path(override)
+            path.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            d = PROJECT_ROOT / '.context' / 'telemetry'
+            d.mkdir(parents=True, exist_ok=True)
+            path = d / 'bvp-auto-approval.jsonl'
+        row = dict(event)
+        row.setdefault('ts', _utc_now())
+        with open(path, 'a') as fh:
+            fh.write(_json.dumps(row, sort_keys=True) + "\n")
+    except Exception as exc:  # pragma: no cover - never break the verb
+        print(f"WARN: auto-approval telemetry not written ({exc})", file=sys.stderr)
+
+
 # ----------------------------------------------------------- §ACD agent gate
-def acd_gate(verb, args, refusal_hint=""):
+def acd_gate(verb, args, refusal_hint="", auto_key=None):
     """T-1671 §ACD shape: refuse under $CLAUDECODE=1 unless --i-am-human or
     --from-watchtower. Returns True if allowed, False if refused (and prints
-    error). Used by all mutating verbs."""
+    error). Used by all mutating verbs.
+
+    T-856: `auto_key` names the config switch that may permit this ONE verb
+    automatically. Callers passing no auto_key are unchanged — four of the five
+    call sites, deliberately."""
     if os.environ.get('CLAUDECODE') != '1':
         return True
     if '--i-am-human' in args or '--from-watchtower' in args:
+        return True
+    if auto_key and _auto_enabled(auto_key):
+        _AUTO_PATH['verb'] = verb
+        _AUTO_PATH['key'] = auto_key
+        print(f"AUTO-APPROVED: '{verb}' permitted for an agent by {auto_key}=1 "
+              f"(operator ruling, T-856); recorded to "
+              f".context/telemetry/bvp-auto-approval.jsonl", file=sys.stderr)
         return True
     print(f"Error: agents must not invoke 'fw bvp {verb}' directly (§ACD, M6).", file=sys.stderr)
     print("", file=sys.stderr)
@@ -863,8 +946,12 @@ def cmd_confirm(args):
     # the §ACD refusal). Different ordering from cmd_weight (where rationale
     # validation precedes §ACD) — confirm has no comparable "form" check that
     # benefits from running first.
+    # T-856: the ONLY call site that names an auto_key. The operator ruled that
+    # scoring happens without approval; the other four acd_gate call sites are
+    # untouched and still refuse.
     if not acd_gate('confirm', args,
-                    refusal_hint="Correct flow: human reviews proposed scores in Watchtower or runs `fw bvp confirm T-<id> --i-am-human`"):
+                    refusal_hint="Correct flow: human reviews proposed scores in Watchtower or runs `fw bvp confirm T-<id> --i-am-human`",
+                    auto_key='BVP_AUTO_CONFIRM'):
         return 1
 
     # Locate task file.
@@ -918,9 +1005,24 @@ def cmd_confirm(args):
         print(f"Error: no scores to write — proposed was non-empty but didn't contain a score map.", file=sys.stderr)
         return 1
 
+    # T-856: capture the proposal BEFORE it is cleared, so telemetry can compare
+    # what the estimator said against what was written. Clearing it first and then
+    # logging would record the confirmed values twice and answer nothing.
+    _auto = _AUTO_PATH['verb'] == 'confirm'
+    _proposed_scores = {}
+    if proposed:
+        _latest = proposed[-1] if isinstance(proposed, list) else proposed
+        if isinstance(_latest, dict):
+            _src = _latest.get('scores') if 'scores' in _latest else _latest
+            _proposed_scores = {k: v for k, v in (_src or {}).items()
+                                if isinstance(v, (int, float)) and not isinstance(v, bool)}
+
     fm['bvp_scores'] = confirmed
     fm['bvp_scores_proposed'] = []  # M3 — cleared; estimator may re-populate next sweep.
-    fm['confirmed_by'] = os.environ.get('USER', 'unknown')
+    # On the auto path `confirmed_by` must NOT read as a person: USER is the OS
+    # account the agent happens to run as, and recording that would make every
+    # auto-confirmation indistinguishable from an operator's in the task file.
+    fm['confirmed_by'] = ('agent:auto (%s)' % _AUTO_PATH['key']) if _auto else os.environ.get('USER', 'unknown')
     fm['confirmed_at'] = _utc_now()
 
     # Re-serialise frontmatter + write back.
@@ -933,6 +1035,27 @@ def cmd_confirm(args):
 
     new_body = raw[:m.start(1)] + new_fm_text + raw[m.end(1):]
     _atomic_write_text(task_path, new_body)
+
+    # T-856 telemetry — written AFTER the write succeeds, so the ledger records
+    # what actually landed rather than what was intended. Auto path only.
+    if _auto:
+        _delta = {k: (confirmed.get(k) - _proposed_scores.get(k))
+                  for k in sorted(set(confirmed) & set(_proposed_scores))
+                  if confirmed.get(k) != _proposed_scores.get(k)}
+        _telemetry({
+            'event': 'bvp_confirm_auto',
+            'verb': 'confirm',
+            'switch': _AUTO_PATH['key'],
+            'target': task_id,
+            'task_file': str(task_path.relative_to(PROJECT_ROOT)),
+            'proposal_existed': bool(_proposed_scores),
+            'proposed': _proposed_scores,
+            'confirmed': confirmed,
+            'overrides': overrides or {},
+            'delta_vs_proposed': _delta,
+            'proposer_exact': bool(_proposed_scores) and not _delta and not overrides,
+            'os_user': os.environ.get('USER', 'unknown'),
+        })
 
     print(f"OK: confirmed bvp_scores for {task_id}")
     print(f"  Scores: {confirmed}")
