@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T11:20:02Z
-last_update: 2026-09-25T11:20:02Z
+last_update: 2026-09-25T11:46:47Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -296,12 +296,24 @@ test ! -d .agentic-framework/tests
 
 # DEFECT 3 re-measured: bleeding-edge is NOT merged into master, so the remedy's first clause
 # (git branch -d, for merged branches) cannot apply to the finding that produced it.
-test -z "$(git branch --merged master | grep bleeding-edge)" && git rev-parse --verify --quiet bleeding-edge >/dev/null
+# The absence leg below had an UNQUOTED grep pattern, so no companion could ever be matched
+# against it; quoted now, with a same-string positive sibling proving the string is findable in
+# git branch output. The second clause was already a differential (the ref must exist) but the
+# census cannot see differentials — OBS-377.
+test "$(git branch --list 'bleeding-edge' | grep -c 'bleeding-edge')" -ge 1
+test -z "$(git branch --merged master | grep 'bleeding-edge')" && git rev-parse --verify --quiet bleeding-edge >/dev/null
 
 # THE CROSS-CUTTING FINDING re-measured, not just asserted: the four vacuous rails are vacuous
 # because the directories are absent, which is a layout fact and not a transient one.
 test ! -d web/templates && test ! -d web/blueprints
-test "$(find web lib -name '*.py' 2>/dev/null | wc -l)" -eq 0
+# THE GATE WAS RIGHT AND THIS LEG WAS GENUINELY BROKEN. It read
+#   test "$(find web lib -name '*.py' 2>/dev/null | wc -l)" -eq 0
+# and it passed because `web/` and `lib/` DO NOT EXIST — find errored, stderr was swallowed, the
+# count was zero, and the leg reported "no Python under web/ or lib/" having walked nothing. A
+# vacuous pass, inside the verification block of a report about vacuous passes, caught by the
+# gate this session built rather than by me. The layout fact is what I actually meant to assert,
+# so assert it directly:
+test ! -d web && test ! -d lib
 
 # NOTHING IN THE VENDORED TREE WAS CHANGED. The task's central boundary — this was a triage,
 # not a fix round.
