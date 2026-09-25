@@ -67,6 +67,42 @@ cd "$ROOT" || { echo "REFUSING: cannot cd to $ROOT" >&2; exit 2; }
 
 TIMEOUT="${T509_TIMEOUT:-90}"
 
+# ── SUBSET SELECTION (T-850) ──────────────────────────────────────────────────────────
+# WHY THIS EXISTS. The full sweep costs ~11 minutes and had no way to run a part of
+# itself, so in practice nobody ran it — and on 2026-09-25 it reported 12 regressed
+# instruments and 2 dead controls that had accumulated invisibly, one of them
+# (_t542) throwing an AttributeError rather than measuring anything. A check too
+# expensive to run is a check that is not running; that is the same false-silence
+# class the instruments here exist to catch, hit by the sweep over them.
+#
+# WHY IT CANNOT BE USED TO FAKE COVERAGE. A filtered run is a DIFFERENT CLAIM from a
+# sweep, and says so: it prints how many of the population it skipped, and it never
+# emits the full-run summary sentence, so nothing that greps for that sentence can be
+# satisfied by a subset. The value of this script is that it covers everything; the
+# subset mode is for iterating on ONE instrument, not for reporting on the corpus.
+ONLY=()
+LIST_ONLY=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --list)  LIST_ONLY=1; shift;;
+    --only)  [ $# -ge 2 ] || { echo "REFUSING: --only needs a pattern" >&2; exit 2; }
+             ONLY+=("$2"); shift 2;;
+    --only=*) ONLY+=("${1#--only=}"); shift;;
+    -h|--help)
+             echo "usage: _t509-instrument-sweep.sh [--list] [--only PATTERN]..."
+             echo "  --list          print the population and exit; run nothing"
+             echo "  --only PATTERN  run only instruments whose basename contains PATTERN"
+             echo "                  (repeatable). A filtered run is NOT a coverage claim."
+             exit 0;;
+    *)
+             # An unknown flag is refused, never silently treated as a pattern: a typo'd
+             # --onyl that fell through to a full sweep would read as deliberate.
+             echo "REFUSING: unknown argument '$1'. See --help." >&2; exit 2;;
+  esac
+done
+FILTERED=0
+[ "${#ONLY[@]}" -gt 0 ] && FILTERED=1
+
 # ── EXCLUSIONS ────────────────────────────────────────────────────────────────────────
 # Each entry is "name|reason". The reason is printed on every run. Not one of these is
 # excluded for being inconvenient; each is excluded for a property that makes running it
@@ -115,6 +151,40 @@ done
 if [ "$stale" -ne 0 ]; then
   echo "SWEEP FAIL — $stale stale exclusion(s); an exemption outliving its file is an amnesty." >&2
   exit 1
+fi
+
+if [ "$LIST_ONLY" -eq 1 ]; then
+  # --list answers "what would run", which is the question you ask before spending 11
+  # minutes. It runs nothing, so it makes no claim and needs no verdict.
+  echo
+  echo "POPULATION (--list; nothing was run):"
+  for f in "${ALL[@]}"; do
+    if reason="$(is_excluded "$f")"; then printf '  EXCLUDED  %s\n' "$f"
+    else                                  printf '  would-run %s\n' "$f"; fi
+  done
+  exit 0
+fi
+
+if [ "$FILTERED" -eq 1 ]; then
+  POP_TOTAL="${#ALL[@]}"
+  declare -a SEL=()
+  for f in "${ALL[@]}"; do
+    for pat in "${ONLY[@]}"; do
+      case "$f" in *"$pat"*) SEL+=("$f"); break;; esac
+    done
+  done
+  if [ "${#SEL[@]}" -eq 0 ]; then
+    # Same principle as the unfiltered "sweep over nothing" refusal: a green over an
+    # empty selection would be a verdict about no instrument at all.
+    echo "REFUSING: --only matched no instrument of $POP_TOTAL (patterns: ${ONLY[*]})." >&2
+    echo "          A run over nothing is not a pass. Try --list." >&2
+    exit 2
+  fi
+  ALL=("${SEL[@]}")
+  echo
+  echo "PARTIAL RUN (T-850) — ${#SEL[@]} of $POP_TOTAL instrument(s) selected by --only ${ONLY[*]}."
+  echo "  $((POP_TOTAL - ${#SEL[@]})) instrument(s) were NOT run. This is not a sweep and not a"
+  echo "  coverage statement: it cannot tell you the corpus is clean, only these are."
 fi
 
 echo
@@ -236,7 +306,13 @@ if [ "$ran" -eq 0 ]; then
   exit 2
 fi
 
+if [ "$FILTERED" -eq 1 ]; then
+  # Deliberately a DIFFERENT SENTENCE. Two probes read this file for the full-run line,
+  # and a gate or a reader grepping for it must never be satisfied by a subset.
+  echo "PARTIAL $ran of $POP_TOTAL, passed $pass, regressed ${#REGRESSED[@]}, dead-control ${#DEAD[@]}, did-not-finish ${#TIMEDOUT[@]}, abstained ${#ABSTAINED[@]} — NOT a sweep"
+else
 echo "RAN $ran, passed $pass, regressed ${#REGRESSED[@]}, dead-control ${#DEAD[@]}, did-not-finish ${#TIMEDOUT[@]}, abstained ${#ABSTAINED[@]}"
+fi
 
 if [ "${#TIGHT[@]}" -ne 0 ]; then
   echo
