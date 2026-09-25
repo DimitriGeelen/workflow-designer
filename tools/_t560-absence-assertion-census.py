@@ -157,7 +157,66 @@ def control_level(text, sibling_texts):
     return "NONE"
 
 
+def _is_unparseable_absence(text):
+    """An absence-shaped leg whose PATTERN the parser cannot extract.
+
+    Same condition main() already uses for its `unparsed` denominator line, factored out
+    so the close gate and the census cannot disagree about which legs are unreadable.
+    These legs are NOT EVALUATED: reporting them as controlled would claim coverage the
+    parser does not have, and reporting them as uncontrolled would block a close for a
+    reason unrelated to the defect (T-3105's distinction, T-843).
+    """
+    return bool(classify(text)) and "grep" in text \
+        and not patterns_in(text) and "test -z" not in text
+
+
+def block_mode(argv):
+    """T-843 — classify ONE verification block read from stdin, for the close gate.
+
+    Exists so `find_uncontrolled_absence_legs` can shell to THIS classifier rather than
+    re-implement it in bash (L-533: run this expression, not a re-typed copy). A bash
+    re-implementation would drift, and then the corpus number and the close decision would
+    mean different things.
+
+    --uncontrolled  print legs the census would count (control level NONE)
+    --unparseable   print absence legs whose pattern cannot be extracted (NOT EVALUATED)
+
+    Exit 0 always: this is a reporter, not a verdict. The caller decides what to do with
+    the lines, exactly as it does with find_port_literals.
+    """
+    want = "uncontrolled"
+    if "--unparseable" in argv:
+        want = "unparseable"
+
+    texts = []
+    for raw in sys.stdin.read().splitlines():
+        s = raw.strip()
+        if not s or s.startswith("#") or s.startswith("<!--") or s.startswith("-->"):
+            continue
+        texts.append(s)
+
+    for text in texts:
+        if not classify(text):
+            continue
+        unreadable = _is_unparseable_absence(text)
+        if want == "unparseable":
+            if unreadable:
+                print(text)
+            continue
+        # An unreadable leg is neither controlled nor uncontrolled — it is unmeasured,
+        # and it must not appear here or the gate fails a close over a parser limit.
+        if unreadable:
+            continue
+        siblings = [t for t in texts if t != text]
+        if control_level(text, siblings) == "NONE":
+            print(text)
+    return 0
+
+
 def main():
+    if "--block" in sys.argv:
+        return block_mode(sys.argv)
+
     files = 0
     legs_seen = 0
     absence = []
@@ -180,9 +239,11 @@ def main():
                 forms = classify(text)
                 if not forms:
                     continue
-                if "grep" in text and not patterns_in(text) and "test -z" not in text:
+                if _is_unparseable_absence(text):
                     # An absence-shaped leg whose pattern the parser cannot extract.
-                    # Counted and reported, never silently dropped.
+                    # Counted and reported, never silently dropped. Predicate factored to
+                    # _is_unparseable_absence so T-843's close gate classifies "unreadable"
+                    # by the same rule this denominator line counts (L-533).
                     unparsed += 1
                 siblings = [t for t in texts if t != text]
                 absence.append((

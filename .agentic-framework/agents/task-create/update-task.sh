@@ -1116,6 +1116,95 @@ check_verification_unjudged_test_runs() {
     exit 1
 }
 
+# T-843 — refuse a close whose ## Verification asserts an ABSENCE with no control.
+#
+# `! grep -q PATTERN FILE` passes vacuously when FILE is deleted or renamed: a broken
+# pattern and a satisfied assertion produce the identical green.
+#
+# WHY THIS IS A GATE AND NOT ONLY A CENSUS, which is the whole argument for adding it here.
+# A project-local census has found these accurately since 2026-09-01, ratcheted against a
+# committed baseline. Across that window the count it measures rose from 78 to 122 and it
+# prevented nothing, because running it was OPT-IN — 7 task files of 840 — so it measured at
+# audit time and never where a leg is admitted. Two of the 122 were written by the agent
+# inside the two tasks whose explicit subject was that an assertion must be able to fail.
+# A check that is not on the path that admits the thing it checks does not prevent it; it
+# only records it. And once permanently red it stops doing even that.
+#
+# MIRRORS THE CENSUS IN BOTH DIRECTIONS. Only control level NONE blocks. EXISTENCE-controlled
+# legs are weakly controlled and the census does not count them, so this must not either — a
+# gate stricter than its own census makes the corpus number and the close decision mean
+# different things.
+check_verification_uncontrolled_absence() {
+    local cmds="$1" offenders unreadable
+
+    [ "${FW_ALLOW_UNCONTROLLED_ABSENCE:-0}" = "1" ] && {
+        log_gate_bypass "FW_ALLOW_UNCONTROLLED_ABSENCE" "check_verification_uncontrolled_absence"
+        return 0
+    }
+
+    # Predicate lives in lib/verification-absence.sh so the regression suite runs THIS
+    # expression rather than a re-typed copy (L-533), and the lib itself shells to the
+    # census's own classifier rather than reimplementing it in bash for the same reason.
+    if ! declare -F find_uncontrolled_absence_legs >/dev/null 2>&1; then
+        source "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}/lib/verification-absence.sh" 2>/dev/null || return 0
+    fi
+    declare -F find_uncontrolled_absence_legs >/dev/null 2>&1 || return 0
+
+    # NOT EVALUATED, case 1: the classifier is not installed in this project. Report and do
+    # NOT block. Passing silently would claim coverage this check does not have; failing
+    # would block every close in a project that simply does not ship the census (T-3105).
+    if declare -F _fw_absence_classifier_available >/dev/null 2>&1 \
+       && ! _fw_absence_classifier_available; then
+        echo -e "${YELLOW}NOT EVALUATED: uncontrolled-absence check (T-843) — classifier not found${NC}" >&2
+        echo "       The check could not run, so this is not a PASS. A PASS here would assert" >&2
+        echo "       coverage the check does not have (T-3105)." >&2
+        return 0
+    fi
+
+    # NOT EVALUATED, case 2: absence legs whose PATTERN the parser cannot extract (an
+    # unquoted variable, typically). Reported, never blocked — failing a close over a
+    # parser limit is a defect, not enforcement.
+    unreadable=$(find_unparseable_absence_legs "$cmds" 2>/dev/null || true)
+    if [ -n "$unreadable" ]; then
+        echo -e "${YELLOW}NOT EVALUATED: absence leg(s) whose pattern could not be read (T-843)${NC}" >&2
+        printf '%s\n' "$unreadable" | while IFS= read -r line; do
+            [ -n "$line" ] && echo "    $line" >&2
+        done
+        echo "       Not blocking: these are unmeasured, not proven bad. Quote the pattern" >&2
+        echo "       literally if you want them checked." >&2
+    fi
+
+    offenders=$(find_uncontrolled_absence_legs "$cmds" 2>/dev/null || true)
+    [ -z "$offenders" ] && return 0
+
+    echo -e "${RED}ERROR: Cannot complete — uncontrolled absence assertion in ## Verification:${NC}" >&2
+    printf '%s\n' "$offenders" | while IFS= read -r line; do
+        [ -n "$line" ] && echo "    $line" >&2
+    done
+    echo "" >&2
+    echo "  Each line above asserts something is NOT present, and nothing establishes" >&2
+    echo "  that the search could have succeeded. Delete or rename the target and the" >&2
+    echo "  leg passes vacuously: a broken pattern and a satisfied assertion produce the" >&2
+    echo "  identical green." >&2
+    echo "" >&2
+    echo "  Repair it in one of the two ways the census itself names." >&2
+    echo "" >&2
+    echo "  1. Add a companion leg that greps the SAME pattern where it IS present:" >&2
+    echo "       grep -q 'PATTERN' <a file that contains it>" >&2
+    echo "       ! grep -q 'PATTERN' <the file it must be absent from>" >&2
+    echo "     The companion's own grep pattern must be the same STRING — a pattern that" >&2
+    echo "     merely appears in a neighbouring line does not count, because a control" >&2
+    echo "     satisfied by a coincidence of substrings is recorded as coverage." >&2
+    echo "" >&2
+    echo "  2. Or assert the positive fact directly, and drop the negation." >&2
+    echo "" >&2
+    echo "  Adding 'test -f <file>' on the same line proves the PATH but not the PATTERN," >&2
+    echo "  so it is a weaker control; add it as well if you want both covered." >&2
+    echo "" >&2
+    echo "  Bypass: FW_ALLOW_UNCONTROLLED_ABSENCE=1 (logged Tier-2)" >&2
+    exit 1
+}
+
 # Verification Gate (P-011)
 # Runs shell commands from ## Verification section before allowing work-completed.
 run_verification_commands() {
@@ -1187,6 +1276,7 @@ run_verification_commands() {
 
     check_verification_port_literals "$verify_cmds"
     check_verification_unjudged_test_runs "$verify_cmds"
+    check_verification_uncontrolled_absence "$verify_cmds"
 
     verify_total=$(echo "$verify_cmds" | wc -l)
     verify_pass=0
