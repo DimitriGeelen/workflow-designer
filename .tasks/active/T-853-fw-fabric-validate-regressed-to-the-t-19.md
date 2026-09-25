@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T19:52:27Z
-last_update: 2026-09-25T20:11:08Z
+last_update: 2026-09-25T20:13:20Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -280,10 +280,24 @@ out=$(.agentic-framework/bin/fw fabric validate 2>&1); echo "$out" | grep -q 're
 out=$(.agentic-framework/bin/fw fabric validate 2>&1); echo "$out" | grep -qE 'cards checked: [0-9]+'
 out=$(.agentic-framework/bin/fw fabric validate 2>&1); echo "$out" | grep -qE 'OK: [0-9]+ card\(s\) valid'
 
-# The stub is gone from the function, and the string is checked where it IS still present —
-# my own banner comment quotes it as the measurement, so this pair cannot pass vacuously.
-! grep -q 'TODO: deep validation for specific component' .agentic-framework/agents/fabric/lib/drift.sh
-grep -q 'TODO: deep validation per card' .agentic-framework/agents/fabric/lib/drift.sh
+# The stub's absence is NOT asserted here, and the reason is worth recording: my first attempt
+# was `! grep -q 'TODO: deep validation for specific component' <file>` with a companion grepping
+# 'TODO: deep validation per card'. THE GATE I BUILT IN T-843 REFUSED IT, correctly — PATTERN
+# credit needs the companion's own pattern to be the SAME STRING, and those are two different
+# strings. Nor is there any honest witness: that string existed only in the stub, which is now
+# gone, so there is nowhere it IS present. The remedy does not apply, so the leg goes. The
+# positive legs above already prove the stub is gone — a validator that reports 413 cards checked
+# and names its required fields is not the function that printed "not yet implemented".
+#
+# What IS worth asserting positively: the banner explaining WHY this function was restored. A
+# vendored fix whose rationale is invisible is the one the next upgrade reverts again, which is
+# the entire finding of this task.
+grep -q 'RESTORED under T-853' .agentic-framework/agents/fabric/lib/drift.sh
+# Single-line substring deliberately: my first attempt greped "reverted to the T-191 stub by
+# 7b5e227e", which is how the banner READS but not how it is stored — it wraps after "reverted
+# to", so the pattern spanned a line break and grep is line-oriented. Same defect as T-803, and
+# caught the same way, by rehearsing instead of assuming.
+grep -q 'the T-191 stub by 7b5e227e' .agentic-framework/agents/fabric/lib/drift.sh
 
 # The restored implementation is present, and its refusal path with it.
 grep -q 'REFUSE: PyYAML is not available' .agentic-framework/agents/fabric/lib/drift.sh
