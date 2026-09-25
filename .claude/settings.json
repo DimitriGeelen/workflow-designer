@@ -169,7 +169,7 @@
           },
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/tools/hooks/warn-uncontrolled-absence.sh"
+            "command": "/opt/832-Workflow-designer/tools/hooks/warn-uncontrolled-absence.sh"
           }
         ]
       },
