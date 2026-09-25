@@ -2367,3 +2367,33 @@ learnings:
   date: 2026-09-22
   context: Added via context agent
   application: TBD
+- id: PL-334
+  learning: "SATURATION AT THE FLOOR IS A MEASUREMENT; SATURATION AT THE CEILING IS A RUBBER STAMP. When a scoring mechanism, rubric, or classifier gives the same answer to most of the corpus, the direction of that answer decides whether it is a defect. T-841 measured three BVP scoring specs across 44 tasks: F3 returned level 0 for 26 of 44 and that was CORRECT, because most tasks genuinely do not touch the AEF seam and an honest no-signal stays in the denominator. F4 awarded the MAXIMUM to 38 of 44 and F1 level 4 to 41 of 44, which is not measurement at all. Modal share is the cheap diagnostic: F3 59 percent, F4 86 percent, F1 93 percent. Rule of thumb: if the modal level is the top of the ladder, suspect the instrument; if it is the bottom, ask whether abstention is the right answer before calling it broken."
+  source: P-001
+  task: T-841
+  date: 2026-09-25
+  context: Added via context agent
+- id: PL-335
+  learning: "A KEYWORD SPEC DRAWN FROM YOUR OWN VOCABULARY MEASURES WHO WROTE THE TASK, NOT WHAT IT IS WORTH. This is a SIBLING of the documented template trap, not an instance, and strip_template cannot help because the saturating vocabulary is not in the template file, it is in the author. T-841: I gave F1 and F4 their top levels using control leg, negative control, regression test, P-011, PreToolUse, cdp probe. Every task this project files contains those words BECAUSE I WRITE THEM, so both specs saturated. F3 survived only because its signals are domain-bound (aef:workflowMeta, sidecar:999, seam-manifest) and cannot be typed accidentally. TEST: before shipping a keyword-based measure, ask whether the keywords could appear in a task about something else entirely just because of house style. If yes the measure is an authorship detector. And do NOT tune the keywords until a sample looks better, which fits them to that corpus rather than to a meaning and resaturates on the next batch."
+  source: P-001
+  task: T-841
+  date: 2026-09-25
+  context: Added via context agent
+- id: PL-336
+  learning: "REHEARSE EVERY VERIFICATION LEG UNDER THE GATE'S EXACT SEMANTICS BEFORE CLOSING, AND YOU WILL CATCH THE PHRASE YOU REMEMBER WRITING. T-841: a leg greped for 'modal level 0' in its own report. That phrase came from my shell output; the report has the modal level as a bare table cell. Identical defect to T-803, which recorded 'greped a phrase I remembered writing rather than one I wrote' -- so the defect recurred inside a task whose whole subject was false-green checks. The rehearsal loop caught it: read each non-comment line out of the Verification block and run it as bash -c with set -o pipefail and NOT set -e (T-3203: the -e rehearsal only ever produces false reds). Cost about ten seconds and it is the single habit I would keep out of this session. Corollary: when you grep your own artefact, copy the pattern OUT of the artefact, never out of your memory of writing it."
+  source: P-001
+  task: T-841
+  date: 2026-09-25
+  context: Added via context agent
+- id: PL-337
+  learning: "A CHECK THAT NAMES A REMEDY THE READER CANNOT APPLY TRAINS READERS TO SKIP THE CHECK. Three instances measured in one day, all the same shape: (1) the BVP scorability audit WARNs on three EXISTING drivers and names 'fw bvp driver --add --scoring-file' as the fix, but --add creates a NEW driver and no verb attaches a spec to an existing one, while hand-editing is forbidden by the schema header; (2) fw fabric register REFUSES a subsystem with 'add a paths: pattern to .fabric/subsystems.yaml' and that file has never existed in this project, which root-causes the standing '30 unknown subsystem' cards nobody had explained (OBS-374); (3) T-840's fw upgrade reported upstream_repo unconfigured when the URL was on the next line. THE WARNING IS NOT THE PRODUCT, THE FIX PATH IS. When writing a check, execute its own mitigation text once against a real instance before shipping the check. When READING a check whose remedy fails, the un-actionability is a second defect worth filing separately from the thing the check found -- our BVP warning sat 40 days and when finally read the fix path did not exist."
+  source: P-001
+  task: T-841
+  date: 2026-09-25
+  context: Added via context agent
+- id: PL-338
+  learning: "PL-304 COST ME TWO TURNS TODAY AND I INVENTED THE RULE BOTH TIMES. Closing the last active task clears focus, after which check-active-task blocks the very commit that records the closure. T-840 already measured the regression: 'fw git commit' BLOCKS under null focus while bare 'git commit' ALLOWS, because is_commit_checkpoint_command does not recognise the wrapper spelling. But the gate never says that. It gave me TWO DIFFERENT WRONG REASONS for one block: with a long commit message, 'it matches a file-write pattern (a redirect, rm, tee, sed -i, or a heredoc)' -- a false positive on my own commit PROSE; with a short message, 'not on the read-only allowlist ... the gate cannot prove it is a read'. Neither is the cause. That is PL-304 exactly, and both explanations were plausible enough that I acted on them. FOURTH instance this week of a gate matching command TEXT rather than intent, after T-559 parsing a regex character class as a write path, T-559 refusing a commit whose MESSAGE held a literal path, and focus-drift matching a task id inside a grep pattern. PRACTICAL: set focus to the next real task BEFORE closing the current one, and when a gate's stated reason does not match what your command does, distrust the reason rather than rewriting the command to satisfy it."
+  source: P-001
+  task: T-840
+  date: 2026-09-25
+  context: Added via context agent
