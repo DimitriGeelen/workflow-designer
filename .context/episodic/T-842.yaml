@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-842: Pin the commit-checkpoint exemption: the mandated fw git commit spelling is the one it cannot match
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T08:57:19Z
+# ============================================================================
+
+task_id: T-842
+task_name: "Pin the commit-checkpoint exemption: the mandated fw git commit spelling is the one it cannot match"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T08:51:54Z
+completed: 2026-09-25T08:57:11Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T10:56:51+02:00
+last_commit: 2026-09-25T10:56:51+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pin the commit-checkpoint exemption as a two-directional ratchet; gate deliberately NOT patched
+
+# Key outcomes
+outcomes:
+  - '**The two defects are isolated from each other and from the thing that is NOT wrong.**'
+  - '**The regression is pinned as a TWO-DIRECTIONAL ratchet, not a red test.** A suite'
+  - '**`--strict` mode exists and asserts what SHOULD be true.** Every mandated spelling'
+  - '**The probe carries negative controls that were shown to fire.** `rm -rf /`,'
+  - '**The `Co-Authored-By` trailer row is present and passing.** The mandated trailer puts'
+  - '**The fixture task id is this task''s own, and the reason is recorded in the file.**'
+  - '**The gate is NOT modified under this task, and that is a deliberate boundary.**'
+  - '**Both defects are sent to AEF with the root cause, not just the symptom**, including'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-842-pin-the-commit-checkpoint-exemption-the-.md'
+  - 'tools/_t842-commit-exemption-spelling-regression.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T10:56:51'
+    action: 'T-842: pin the commit-checkpoint exemption as a two-directional ratchet; gate deliberately NOT patched'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 2
+  lines_added: 514
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-842-pin-the-commit-checkpoint-exemption-the-.md
+generated_by: context-agent-hybrid

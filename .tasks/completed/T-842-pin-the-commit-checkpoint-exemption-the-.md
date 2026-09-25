@@ -4,12 +4,12 @@ name: "Pin the commit-checkpoint exemption: the mandated fw git commit spelling 
 description: >
   Pin the commit-checkpoint exemption: the mandated fw git commit spelling is the one it cannot match
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t842-commit-exemption-spelling-regression.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +22,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T08:51:54Z
-last_update: 2026-09-25T08:51:54Z
-date_finished: null
+last_update: 2026-09-25T08:57:11Z
+date_finished: 2026-09-25T08:57:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -382,3 +382,15 @@ git diff --quiet HEAD -- .agentic-framework/agents/context/lib/safe-commands.sh 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-842-pin-the-commit-checkpoint-exemption-the-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-73f45a8b
+- **Timestamp:** 2026-09-25T08:57:13Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-25T08:57:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
