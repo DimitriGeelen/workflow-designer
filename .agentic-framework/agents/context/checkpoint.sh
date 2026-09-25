@@ -644,6 +644,31 @@ if age > max_age:
 if sid != 'unknown' and my_sid != 'unknown' and sid != my_sid:
     reasons.append(f'cache was written by session {sid}, not this session ({my_sid})')
 
+# T-849 (closes the hole left in T-3241's remediation of G-087): the three tests
+# above shut the stale door and the foreign-session door and left the ZERO door
+# open — and the zero door is the one that opens on every compaction, which is
+# exactly when an agent runs /resume and asks for the gauge. Measured
+# 2026-09-25: this reader printed 'level: ok / tokens: 0 / age_seconds: 51' from
+# a cache written fresh by this very session, against a true 98,461. That is
+# verbatim the {'level':'ok','tokens':0} payload the field report was written
+# about, surviving the guard built to stop it. A level without a credible count
+# is not a gauge: report unknown and make the reader run 'checkpoint.sh status'.
+# baseline_tokens rides along in the same write, so the contradiction is
+# MEASURABLE rather than merely suspicious — tokens below a non-zero baseline is
+# impossible, since baseline is what the session had already paid before its
+# first turn.
+_base = s.get('baseline_tokens')
+_base_known = isinstance(_base, int) and not isinstance(_base, bool) and _base > 0
+if not isinstance(tokens, int) or isinstance(tokens, bool):
+    reasons.append(f'cache carries no numeric token count (tokens: {tokens!r}) — a level without a count is not a gauge')
+elif tokens <= 0:
+    if _base_known:
+        reasons.append(f'cache reports tokens: {tokens} while baseline_tokens: {_base} — impossible, a session cannot hold fewer tokens than it had paid before its first turn')
+    else:
+        reasons.append(f'cache reports tokens: {tokens} — the writer recorded no measurement, which is NOT the same as a healthy zero')
+elif _base_known and tokens < _base:
+    reasons.append(f'cache reports tokens: {tokens} below baseline_tokens: {_base} — impossible, so the measurement is not trustworthy')
+
 if reasons:
     print('level: unknown')
     for r in reasons:
