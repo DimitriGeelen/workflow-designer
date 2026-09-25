@@ -1864,3 +1864,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-386
+  text: "T-840's UPGRADE SILENTLY REVERTED AT LEAST SIX IN-TREE VENDORED FIXES, and only the one that broke a human-typed command was noticed. 7b5e227e upgraded AEF to bleeding-edge 1.7.68 and replaced 1409 vendored files. Proven per instrument by the disappearance of the exact string each guard anchors on, pre-upgrade count vs now: _t524 'REFUSE: PyYAML is not available' 1->0 (fw fabric validate reverted to its T-191 stub, certifying 413 cards it never checked); _t534 'd2_msg=\"D2: Human review queue' 2->0; _t542 '_BODY_PATH_RE' 3->0, renamed to _PATH_TOKEN_RE; _t574 '_v_exact=$(grep -c' 1->0, the exact-heading locator gone from update-task.sh; _t411 'application: TBD' 2->0 in learning.sh and 'Apply when encountering similar' 1->0 in resolve.sh; _t371 'missing research artifact check' 2->1, which is the C-002 partition collapsing. _t535 and _t550 are unchanged across the upgrade so they are NOT this cause; the remainder are untested. THE TRIAGE FRAMING WAS WRONG: these are not independent defects that rotted over weeks, they are ONE EVENT in one afternoon. THREE LAYERS OF WHY. (1) fw upgrade does not know which vendored files carry local fixes, so it cannot warn it is about to discard them, and nothing anywhere lists them. (2) The existing convention for protecting an in-tree fix is to declare it upstream and report it — T-524 DID BOTH, recorded in its commit, reported at rail 11918, and was reverted anyway. The convention records an intention, not a mechanism, and depends on a counterparty acting. (3) The reverts were invisible because the only detector costs eleven minutes all-or-nothing, so nobody ran it. The one regression from this upgrade that WAS caught, the mandated commit spelling named in T-840's own commit subject, was caught because it broke a command a human typed. PROPOSED, and arguably upstream's since fw upgrade is theirs: a manifest of locally-modified vendored files that upgrade consults and reports against BEFORE writing, turning a silent revert into a conflict the operator resolves. One fix restored under T-853; the others are each their own task and are not started."
+  captured: 2026-09-25T20:10:59Z
+  context_task: T-853
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true

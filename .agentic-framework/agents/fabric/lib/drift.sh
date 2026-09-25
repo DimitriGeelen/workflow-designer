@@ -235,23 +235,150 @@ PYEOF
     return 0
 }
 
+# RESTORED under T-853. This function was implemented in 08629640 (T-524) and reverted to
+# the T-191 stub by 7b5e227e (T-840's upgrade to AEF 1.7.68), which changed 1,409 vendored
+# files. Measured: 'REFUSE: PyYAML is not available' present pre-upgrade, absent after;
+# 'TODO: deep validation per card' absent pre-upgrade, present after. The stub returned 0
+# unconditionally while printing '<name>: checking...' per card, so it performed the
+# APPEARANCE of validation and certified whatever it was handed. Only this function is
+# restored: the upgrade's other 174 changed lines in this file (T-3049's URL-location
+# handling among them) are kept.
 do_validate() {
     ensure_fabric_dirs
 
     local component="${1:-}"
-    if [ -z "$component" ]; then
-        echo "Validating all components..."
-        for card in "$COMPONENTS_DIR"/*.yaml; do
-            [ -f "$card" ] || continue
-            local name
-            name=$({ grep "^name:" "$card" 2>/dev/null || true; } | head -1 | sed 's/^name: //')
-            echo -e "${CYAN}$name${NC}: checking..."
-            # TODO: deep validation per card
-        done
+    local out rc=0
+
+    # `out=$(...)` must not be a bare assignment: under the inherited `set -euo pipefail`
+    # a non-zero exit from the substitution terminates the whole script rather than
+    # setting rc — the exact defect T-522 diagnosed, and this function's reason to exist.
+    # The `|| rc=$?` makes it a compound list, which suspends set -e for the assignment.
+    out=$(python3 - "$COMPONENTS_DIR" "$PROJECT_ROOT" "$component" <<'PYEOF'
+import glob
+import os
+import sys
+
+try:
+    import yaml
+except ImportError:
+    print("REFUSE: PyYAML is not available, so no card could be parsed.")
+    print("Nothing was evaluated — this is an abstention, not a pass.")
+    sys.exit(2)
+
+components_dir, project_root, only = sys.argv[1], sys.argv[2], sys.argv[3]
+
+# Every required field is justified by a READER that misbehaves without it, cited by
+# file:line. A field nobody reads is not required — inventing a schema and then enforcing
+# it would make this a generator of busywork rather than a detector, and would be the
+# "convention used as a classifier" failure T-509 records.
+REQUIRED = {
+    "id": "depends_on edges name card ids; a card without one can never be resolved as a "
+          "dependency target (lib/drift.sh stale-edge pass, lib/deps.sh)",
+    "name": "every report prints it as the subject of the line; without it drift renders "
+            "'! → <path>' with a blank subject (lib/drift.sh:81)",
+    "location": "the ONLY link from a card to the file it describes — registration "
+                "matching (lib/drift.sh:25), orphan detection (lib/drift.sh:55), and "
+                "component resolution in agents/task-create/update-task.sh (T-522)",
+}
+
+cards = sorted(glob.glob(os.path.join(components_dir, "*.yaml")))
+
+if only:
+    stem = os.path.splitext(os.path.basename(only))[0]
+    kept = []
+    for c in cards:
+        if os.path.splitext(os.path.basename(c))[0] == stem:
+            kept.append(c)
+            continue
+        try:
+            with open(c) as fh:
+                doc = yaml.safe_load(fh) or {}
+            if isinstance(doc, dict) and str(doc.get("id", "")) == only:
+                kept.append(c)
+        except Exception:
+            pass
+    if not kept:
+        print("REFUSE: no card matches %r (looked by card id and by filename stem)." % only)
+        print("Nothing was evaluated — this is an abstention, not a pass.")
+        sys.exit(2)
+    cards = kept
+
+if not cards:
+    print("REFUSE: no component cards found under %s"
+          % os.path.relpath(components_dir, project_root))
+    print("Nothing was evaluated — this is an abstention, not a pass. A run over zero")
+    print("cards must not be reportable as 'all cards valid'.")
+    sys.exit(2)
+
+findings = []          # (card_basename, field_or_kind, detail)
+ids_seen = {}          # id -> [basenames]
+
+for path in cards:
+    base = os.path.basename(path)
+    try:
+        with open(path) as fh:
+            doc = yaml.safe_load(fh)
+    except Exception as exc:
+        # An unparseable card is skipped in silence by every python pass in this file
+        # (they wrap safe_load in bare try/except) — so it is present, counted by ls, and
+        # invisible to the graph. That is the same silence, one level lower.
+        findings.append((base, "yaml", "does not parse: %s" % str(exc).splitlines()[0][:120]))
+        continue
+
+    if not isinstance(doc, dict):
+        findings.append((base, "yaml", "parses to %s, not a mapping" % type(doc).__name__))
+        continue
+
+    for field, why in REQUIRED.items():
+        if field not in doc:
+            findings.append((base, field, "missing — %s" % why))
+        elif doc[field] is None or str(doc[field]).strip() == "":
+            findings.append((base, field, "present but empty — %s" % why))
+
+    cid = doc.get("id")
+    if cid is not None and str(cid).strip():
+        ids_seen.setdefault(str(cid).strip(), []).append(base)
+
+for cid, holders in sorted(ids_seen.items()):
+    if len(holders) > 1:
+        # Two cards claiming one id makes every edge naming it ambiguous, and which one
+        # wins is glob order — i.e. the filename, which nobody thinks of as semantic.
+        findings.append((", ".join(sorted(holders)), "id",
+                         "duplicate id %r held by %d cards" % (cid, len(holders))))
+
+print("Fabric card validation")
+print("cards checked: %d" % len(cards))
+print("required fields: %s" % ", ".join(sorted(REQUIRED)))
+print("")
+
+if not findings:
+    print("OK: %d card(s) valid" % len(cards))
+    sys.exit(0)
+
+by_card = {}
+for base, field, detail in findings:
+    by_card.setdefault(base, []).append((field, detail))
+
+for base in sorted(by_card):
+    print("  ! %s" % base)
+    for field, detail in by_card[base]:
+        print("      %s: %s" % (field, detail))
+
+print("")
+print("INVALID: %d finding(s) across %d card(s) of %d checked"
+      % (len(findings), len(by_card), len(cards)))
+sys.exit(1)
+PYEOF
+    ) || rc=$?
+
+    echo "$out"
+
+    if [ "$rc" -eq 2 ]; then
+        echo -e "${YELLOW:-}Refused — nothing was validated (exit 2).${NC:-}" >&2
+    elif [ "$rc" -eq 0 ]; then
+        echo -e "${GREEN:-}Fabric cards valid${NC:-}"
     else
-        echo "Validating: $component"
-        # TODO: deep validation for specific component
+        echo -e "${RED:-}Fabric card validation FAILED${NC:-}" >&2
     fi
-    echo -e "${YELLOW}Deep validation not yet implemented — use 'fw fabric drift' for basic checks${NC}"
-    return 0
+    return "$rc"
 }
