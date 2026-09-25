@@ -1,0 +1,108 @@
+# ============================================================================
+# EPISODIC MEMORY - T-843: Gate uncontrolled absence assertions at the close path: move the detector to the point of admission
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T10:05:33Z
+# ============================================================================
+
+task_id: T-843
+task_name: "Gate uncontrolled absence assertions at the close path: move the detector to the point of admission"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T09:27:29Z
+completed: 2026-09-25T10:05:19Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T11:37:42+02:00
+last_commit: 2026-09-25T12:05:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the absence detector now stands where the mistake gets made; tests written first and red first. drained active/ from 17 uncontrolled legs to 1, and the 1 left is the instrument's bug not the leg's. route 3 built and handed over; 11/11 ACs with three premises corrected. the gate refused the task that built it, and it was right
+
+# Key outcomes
+outcomes:
+  - '**TESTS FIRST, AND THE TEST SUITE IS RED BEFORE THE IMPLEMENTATION EXISTS.** Operator'
+  - '**ONE implementation of the classifier, not two.** The predicate shells to'
+  - '**UNPARSEABLE LEGS REPORT `NOT EVALUATED`, NEVER PASS AND NEVER FAIL.** The census'
+  - '**The gate is a third instance of an existing pattern, not new architecture.** Predicate'
+  - '**An escape exists, is named in the block message, and is never used by the agent.**'
+  - '**The block message''s remedy is EXECUTED once before shipping, not just written.** The'
+  - '**The 17 live legs are drained so the gate is adoptable rather than instantly hostile.**'
+  - '**The corpus count FALLS and the baseline falls with it, in the same commit.** The'
+  - '**The ratchet and the gate are shown to be complementary, not redundant.** The gate'
+  - '**AEF is told in the operator''s prescribed order: the ISSUE first, before the fix'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'drained active/ from 17 uncontrolled legs to 1, and the 1 left is the instrument''s bug not the leg''s'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/lib/verification-absence.sh'
+  - '.context/inbox.yaml'
+  - 'docs/reports/T-843-route-3-hook-handover.md'
+  - '.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md'
+  - '.tasks/active/T-209-832-side-compile-promote-create-producer.md'
+  - '.tasks/active/T-351-serve-gallerysh-can-never-stop-its-own-s.md'
+  - '.tasks/active/T-432-full-fw-audit-reports-60-fail-across-non.md'
+  - '.tasks/active/T-449-provenance-pair-draft-rows-are-two-sided.md'
+  - '.tasks/active/T-540-bootstrap-bvp-scoring-and-produce-the-fi.md'
+  - '.tasks/active/T-606-renderer-output-is-escaped-at-the-templa.md'
+  - '.tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md'
+  - '.tasks/active/T-740-value-review-the-aef-seam-and-the-workfl.md'
+  - '.tasks/active/T-764-ra-053-ctl-013-three-task-window-silentl.md'
+  - '.tasks/active/T-843-gate-uncontrolled-absence-assertions-at-.md'
+  - 'tools/hooks/warn-uncontrolled-absence.sh'
+  - 'tools/_t560-absence-assertion-census.py'
+  - 'tools/_t843-absence-gate-integration.sh'
+  - 'tools/_t843-absence-gate-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T11:37:42'
+    action: 'T-843: the absence detector now stands where the mistake gets made; tests written first and red first'
+  - time: '2026-09-25T11:43:48'
+    action: 'T-843: drained active/ from 17 uncontrolled legs to 1, and the 1 left is the instrument''s bug not the leg''s'
+  - time: '2026-09-25T11:56:16'
+    action: 'T-843: route 3 built and handed over; 11/11 ACs with three premises corrected'
+  - time: '2026-09-25T12:05:13'
+    action: 'T-843: the gate refused the task that built it, and it was right'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 37 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 37
+  commits: 4
+  files_changed: 19
+  lines_added: 1204
+  lines_removed: 24
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-843-gate-uncontrolled-absence-assertions-at-.md
+generated_by: context-agent-hybrid

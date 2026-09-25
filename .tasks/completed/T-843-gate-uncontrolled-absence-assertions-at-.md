@@ -4,12 +4,12 @@ name: "Gate uncontrolled absence assertions at the close path: move the detector
 description: >
   Gate uncontrolled absence assertions at the close path: move the detector to the point of admission
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t560-absence-assertion-census.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +22,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T09:27:29Z
-last_update: 2026-09-25T09:56:19Z
-date_finished: null
+last_update: 2026-09-25T10:05:19Z
+date_finished: 2026-09-25T10:05:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -486,3 +486,20 @@ test -f .context/working/.gate-bypass-log.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-843-gate-uncontrolled-absence-assertions-at-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2d19ae71
+- **Timestamp:** 2026-09-25T10:05:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 187
+     - evidence: `printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh >/dev/null 2>&1`
+
+### 2026-09-25T10:05:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
