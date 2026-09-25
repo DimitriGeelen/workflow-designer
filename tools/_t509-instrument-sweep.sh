@@ -274,6 +274,42 @@ emit_capture() {
   tail -n "$CAPTURE_LINES" "$cap" | sed 's/^/      | /' >&2
 }
 
+# ── SELF-DECLARED BROKEN GUARDS (T-861) ───────────────────────────────────────────────
+# The rc classification above depends on each instrument VOLUNTEERING rc=4 when its own
+# control leg fails. Four do not: they announce it in plain English and exit 1, so the
+# sweep filed them as regressions in the things they guard. T-851 measured the cost —
+# reported "regressed 12, dead-control 2" where the truth was 6 dead / 8 regressed, wrong
+# by four. A classification that depends on the classified party self-reporting honestly
+# is not a classification; it is the same shape as the absence census before T-843, when
+# the detector was opt-in.
+#
+# This ADDS a detection path and changes nothing about rc=4, which keeps working exactly
+# as before for the instruments that do follow the convention.
+#
+# The markers are QUOTED FROM REAL OUTPUT, not invented — each was copied out of a capture
+# during the T-851 triage:
+#   Traceback …                     _t542 raised AttributeError and reached no verdict
+#   FAIL  control: …                _t568/_t569 print their own control leg failing
+#   TEETH BROKEN                    _t534/_t585 say it outright
+#   can no longer test what it …    _t574's ABORT, which calls itself "a failure, not a skip"
+# They are anchored tightly enough not to fire on a probe that merely MENTIONS a control in
+# a finding about its subject: each is a phrase a probe emits about ITSELF.
+SELF_DECLARED=(
+  "Traceback (most recent call last):"
+  "FAIL  control:"
+  "TEETH BROKEN"
+  "can no longer test what it claims to test"
+)
+
+self_declared_broken() { # $1 = capture file -> prints the marker, returns 0 if found
+  local cap="$1" m
+  [ -f "$cap" ] || return 1
+  for m in "${SELF_DECLARED[@]}"; do
+    if grep -qF -- "$m" "$cap" 2>/dev/null; then printf '%s' "$m"; return 0; fi
+  done
+  return 1
+}
+
 for f in "${ALL[@]}"; do
   if reason="$(is_excluded "$f")"; then continue; fi
   case "$f" in *.py) runner="python3";; *) runner="bash";; esac
@@ -289,7 +325,14 @@ for f in "${ALL[@]}"; do
     124) TIMEDOUT+=("$f (did not finish within ${TIMEOUT}s)");;
     2)   ABSTAINED+=("$f (rc=2, declined to certify)");;
     4)   DEAD+=("$f (rc=4, its own control leg failed)");;
-    *)   REGRESSED+=("$f (rc=$rc)");;
+    # T-861: before calling a non-zero exit a regression in the SUBJECT, ask whether the
+    # probe already said it was broken itself. A probe that raised, or printed its own
+    # control leg failing, has reported nothing about what it guards.
+    *)   if marker="$(self_declared_broken "$cap")"; then
+           DEAD+=("$f (rc=$rc, SELF-DECLARED broken guard — output contains \"$marker\"; it did not use rc=4)")
+         else
+           REGRESSED+=("$f (rc=$rc)")
+         fi;;
   esac
   # Headroom, reported on GREEN runs too. _t525 sat at 86s of a 90s budget — 95.6% — and
   # nothing said so until the run it first crossed, at which point it presented as a
