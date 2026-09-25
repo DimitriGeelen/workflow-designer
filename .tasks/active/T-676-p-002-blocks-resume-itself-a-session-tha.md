@@ -360,7 +360,10 @@ python3 -c 'import re,sys;t=open(".tasks/active/T-676-p-002-blocks-resume-itself
 #    went red on T-662's legitimate edit — right answer to the wrong question. Kept in the
 #    record because a verification leg that fails for a reason unrelated to its task is how
 #    a gate gets bypassed with --force by whoever meets it next.
-test -z "$(git log --oneline --grep '^T-676' -- .agentic-framework/agents/context/check-active-task.sh)"
+# T-843 CONTROL (EXISTENCE, the weaker one). `^T-676` has no positive home: the assertion
+# is that no commit on this file references the task. The guard proves the PATH is real, so a
+# renamed hook file cannot read as "no such commit".
+test -f .agentic-framework/agents/context/check-active-task.sh && test -z "$(git log --oneline --grep '^T-676' -- .agentic-framework/agents/context/check-active-task.sh)"
 
 # 5. ...and the working tree carries no uncommitted edit to it either, which leg 4 cannot see.
 git diff --quiet HEAD -- .agentic-framework/agents/context/check-active-task.sh

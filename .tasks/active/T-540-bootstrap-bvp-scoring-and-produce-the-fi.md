@@ -406,7 +406,11 @@ python3 -c "import yaml; yaml.safe_load(open('policy/value-drivers.yaml'))"
 .agentic-framework/bin/fw bvp --include-proposed > /tmp/.t540-bvp.out 2>&1 && grep -q "BVP" /tmp/.t540-bvp.out
 # Sovereignty: zero confirmed scores written under agent control. Anchored, so the
 # commented template lines in every task file cannot satisfy it (the 494 trap).
-test "$(grep -rlE '^bvp_scores:' .tasks/ | wc -l)" -eq 0
+# T-843 CONTROL (EXISTENCE, the weaker one — stated as such). `^bvp_scores:` has no
+# positive home anywhere: the whole point is that no task carries a CONFIRMED score, and
+# `bvp_scores_proposed:` does not match `^bvp_scores:`. So there is no same-string sibling to
+# be had, and this guard proves the search had a corpus to walk, not that the pattern is right.
+test -d .tasks && test "$(grep -rlE '^bvp_scores:' .tasks/ | wc -l)" -eq 0
 # The estimator ran over the real corpus, not a sample.
 test "$(grep -rlE '^bvp_scores_proposed:' .tasks/active/ | wc -l)" -ge 60
 

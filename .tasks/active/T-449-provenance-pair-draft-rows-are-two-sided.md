@@ -261,9 +261,17 @@ task lands the facts and the correction; it does not pick the taxonomy.
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 # 1. dispatch-loop's arc ref is corrected, and arc-015 is gone from the table entirely.
-P=tests/fixtures/aef-bpmn/PROVENANCE.md; grep -q '`dispatch-loop` | T-215 | \*\*pair-draft\*\* (AEF arc-014' "$P" && ! grep -q 'arc-015 )\?|' "$P"
+# T-843 CONTROL (EXISTENCE, the weaker one — named as such). The negated pattern
+# 'arc-015 )\?|' has no positive home anywhere: its absence is the whole assertion. The guard
+# proves the PATH is real, so a renamed fixture cannot read as a satisfied assertion. It does
+# NOT prove the pattern is right, and the census is explicit that those are different controls.
+P=tests/fixtures/aef-bpmn/PROVENANCE.md; test -f "$P" && grep -q '`dispatch-loop` | T-215 | \*\*pair-draft\*\* (AEF arc-014' "$P" && ! grep -q 'arc-015 )\?|' "$P"
 # 2. The file no longer describes the three rows as one-sided/unconfirmed — the condition
 #    that was true on 2026-08-12 morning and is not true now.
+# T-843 CONTROL: "Unconfirmed by AEF" IS present in this task's own file, so the search is
+# demonstrably capable of finding that string; its absence from PROVENANCE.md is therefore a
+# measurement rather than a typo.
+grep -q "Unconfirmed by AEF" .tasks/active/T-449-provenance-pair-draft-rows-are-two-sided.md
 P=tests/fixtures/aef-bpmn/PROVENANCE.md; ! grep -q "asserted on 832 evidence alone" "$P" && ! grep -q "Unconfirmed by AEF" "$P"
 # 3. BOTH definitions are stated, AEF's carrying its source rather than a paraphrase.
 P=tests/fixtures/aef-bpmn/PROVENANCE.md; grep -q "T-2553:101" "$P" && grep -q "AEF or 832" "$P" && grep -q "drafting-agent" "$P"
@@ -279,7 +287,9 @@ P=tests/fixtures/aef-bpmn/PROVENANCE.md; grep -q "DM 556" "$P" && grep -q "rail 
 python3 tools/_t365-normative-fixture-guard.py > /tmp/.t449-7.out 2>&1 && grep -q "PASS" /tmp/.t449-7.out
 # 8. The fixture corpus itself is untouched by this doc change — provenance is a claim
 #    ABOUT the bytes and must never quietly become a claim that edits them.
-test -z "$(git diff --name-only HEAD -- tests/fixtures/aef-bpmn/ | grep -v PROVENANCE.md)"
+# T-843 CONTROL (EXISTENCE). An empty `git diff` and a mistyped pathspec are the same
+# empty string; the guard proves the directory the pathspec names actually exists.
+test -d tests/fixtures/aef-bpmn && test -z "$(git diff --name-only HEAD -- tests/fixtures/aef-bpmn/ | grep -v PROVENANCE.md)"
 
 ## RCA
 

@@ -268,6 +268,9 @@ bash tools/_t351-shutdown-probe.sh
 bash tools/_t351-teeth.sh
 bash -n tools/serve-gallery.sh
 grep -qE '^[^#]*kill -TERM "\$SRV"' tools/serve-gallery.sh
+# T-843 CONTROL: the identical pattern matches in the teeth script, so its absence in
+# serve-gallery.sh is a measurement rather than a broken regex.
+grep -qE '^[^#]*kill -INT' tools/_t351-teeth.sh
 ! grep -qE '^[^#]*kill -INT' tools/serve-gallery.sh
 # (T-2090): `echo "$out" | tail -3 | grep -q PAT` re-introduces the SIGPIPE risk
 # the capture step closed off — the middle stage is what `grep -q` slams its

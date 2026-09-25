@@ -469,6 +469,9 @@ make visible rather than to change unilaterally.
 # is narrower and stable: the CTL-030 residue is gone, and the commit that removed it
 # exists. Whole class asserted, not just the backfilled value, per T-434's own reasoning
 # — a residue class returns wearing a different label if you guard one value only.
+# T-843 CONTROL: the identical pattern where it IS present (every active task carries a
+# horizon), so "none in completed/" is not a silently-broken regex.
+grep -qE '^horizon: (now|next|later)$' .tasks/active/T-432-full-fw-audit-reports-60-fail-across-non.md
 test "$(grep -lE '^horizon: (now|next|later)$' .tasks/completed/*.md 2>/dev/null | wc -l)" -eq 0
 git cat-file -e 5bf8fb26^{commit}
 # The claim that rehabilitates option (b): D2 IS reachable from a section list. ~8s, against

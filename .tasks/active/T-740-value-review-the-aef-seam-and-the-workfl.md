@@ -235,6 +235,9 @@ test -f docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md
 test "$(grep -cE '^## (1|2|3|4|5|6|7|8|9|10|11|12)\. ' docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md)" -eq 12
 grep -q "COUNTER-EVIDENCE against this session's own T-739 filing" docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/06-operator-surface.md
 grep -q "Sovereign questions" docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md
+# T-843 CONTROL: the same string where it IS present, so a deleted or renamed bypass log
+# cannot read as "no bypass was taken".
+grep -q 'T-740' .tasks/active/T-740-value-review-the-aef-seam-and-the-workfl.md
 test "$(grep -c 'T-740' .context/working/.gate-bypass-log.yaml)" -eq 0
 
 ## RCA

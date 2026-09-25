@@ -208,6 +208,12 @@ Same root cause as RA-054/T-765 (CTL-013 evaluating completed tasks' verificatio
 
 grep -q 'check latest 3' .agentic-framework/agents/audit/audit.sh
 ! diff -q src/aef-workflow-designer.html build/gallery/designer.html >/dev/null 2>&1
+# T-843 CONTROL: T-093 IS in completed/, so the search demonstrably finds it; the assertion
+# is only that it is not in the newest three.
+# `grep -c` not `grep -q`: with -q grep exits on the first match and closes stdin, ls
+# takes SIGPIPE and the pipeline returns 141 under the gate's live pipefail (L-387).
+# Measured failing that way while rehearsing this very control.
+test "$(ls .tasks/completed/ | grep -c 'T-093')" -ge 1
 test "$(find .tasks/completed -maxdepth 1 -name '*.md' -type f -printf '%T@ %p\n' | sort -rn | head -3 | grep -c 'T-093')" -eq 0
 
 ## RCA

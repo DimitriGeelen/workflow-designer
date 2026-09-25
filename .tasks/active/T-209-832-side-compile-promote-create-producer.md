@@ -346,6 +346,9 @@ here.
 
 python3 tests/test_promote_contract.py
 python3 tests/test_two_lane_joint_contract.py
+# T-843 CONTROL: the identical regex, where it DOES match, so a broken alternation
+# cannot masquerade as a clean designer.
+grep -cE '<aef:(provenance)|status="captured"' docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/02-workflow-to-program.md
 test 0 -eq "$(grep -cE '<aef:(provenance)|status="captured"' src/aef-workflow-designer.html)"
 
 # Shell commands that MUST pass before work-completed. One per line.

@@ -215,10 +215,16 @@ timeout 420 python3 tools/_t606-render-escaping.py
 # 2. Independent of the verifier's own harness: what the operator's browser receives.
 #    Fails closed if curl fails (&&), and requires REAL <code> present so an empty or
 #    error page cannot pass by merely lacking the escaped form.
-cd /opt/832-Workflow-designer && curl -sf --max-time 30 "$(cat .context/working/watchtower.url)/approvals" > /tmp/t606-approvals.html && grep -q "<code>" /tmp/t606-approvals.html && ! grep -q "&lt;code&gt;" /tmp/t606-approvals.html
+# T-843 CONTROL (EXISTENCE): `test -s` proves the fetched page is non-empty, so a failed or
+# truncated curl cannot read as "no escaped markup found". The escaped form "&lt;code&gt;" has
+# no positive home by design — if it appeared anywhere the bug would be live.
+# SEPARATE DEFECT, NOT FIXED HERE (one bug one task): this leg asserts over /tmp, which any
+# session can wipe — the T-837 class. It needs an in-repo target, filed rather than folded in.
+cd /opt/832-Workflow-designer && curl -sf --max-time 30 "$(cat .context/working/watchtower.url)/approvals" > /tmp/t606-approvals.html && test -s /tmp/t606-approvals.html && grep -q "<code>" /tmp/t606-approvals.html && ! grep -q "&lt;code&gt;" /tmp/t606-approvals.html
 # 3. The second consumer, on an AC-rich task (T-604 has nothing to render and measures
 #    clean either way — sampling it is how this defect stayed hidden).
-cd /opt/832-Workflow-designer && curl -sf --max-time 30 "$(cat .context/working/watchtower.url)/tasks/T-347" > /tmp/t606-task.html && grep -q "<code>" /tmp/t606-task.html && ! grep -q "&lt;code&gt;" /tmp/t606-task.html
+# T-843 CONTROL (EXISTENCE): same reasoning as the /approvals leg above.
+cd /opt/832-Workflow-designer && curl -sf --max-time 30 "$(cat .context/working/watchtower.url)/tasks/T-347" > /tmp/t606-task.html && test -s /tmp/t606-task.html && grep -q "<code>" /tmp/t606-task.html && ! grep -q "&lt;code&gt;" /tmp/t606-task.html
 # 4. Security direction: hostile task-file HTML must still arrive escaped.
 cd /opt/832-Workflow-designer/.agentic-framework && python3 -c "import sys; sys.path.insert(0,'.'); from web.shared import render_markdown_safe as r; h=str(r('<script>alert(1)</script>')); assert '<script>' not in h and '&lt;script&gt;' in h, h; print('escaped')"
 

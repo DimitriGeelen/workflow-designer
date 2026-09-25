@@ -260,10 +260,17 @@ the original survey, and the measurement gives no new reason to revisit it.
 # T-155 legs — the four figures the NO-GO rests on, re-measured from the tree.
 # Each is a direct count, not a self-report. Command substitution keeps pipefail off `test`.
 test "$(ls examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 24
+# T-843 CONTROL: proves `^_` actually matches, so the -v exclusions below mean something.
+# Without it a typo'd pattern excludes nothing and both counts still look plausible.
+test "$(ls -d .editor-versions/*/ 2>/dev/null | xargs -n1 basename | grep -c '^_')" -ge 1
 test "$(ls -d .editor-versions/*/ 2>/dev/null | xargs -n1 basename | grep -vc '^_')" -eq 24
 test "$(comm -12 <(ls examples/aef-processes/rendered/*.bpmn | xargs -n1 basename | sed 's/\.bpmn$//' | sort) <(ls -d .editor-versions/*/ | xargs -n1 basename | grep -v '^_' | sort) | wc -l)" -eq 15
 # the handoff graph IW-1(c) assumed: absent. Both attributes, zero files.
+# T-843 CONTROL: the same string where it IS present, so a typo fails loudly here.
+grep -q 'targetWorkflow' src/aef-workflow-designer.html
 test "$(grep -l 'targetWorkflow' examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 0
+# T-843 CONTROL: `linkEvent` is named in the frozen mapping standard, so the search works.
+grep -q 'linkEvent' docs/standards/aef-bpmn-mapping-v1.md
 test "$(grep -l 'linkEvent' examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 0
 grep -q 'Measured against the corpus' docs/reports/T-155-tree-grouping-inception.md
 
