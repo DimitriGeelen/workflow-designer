@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-25T06:12:31Z
-last_update: 2026-09-25T06:12:31Z
+last_update: 2026-09-25T06:13:32Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,7 +34,94 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Found by walking into it while closing T-837 and T-838 back to back. Probe:
+`tools/_t839-commit-exemption-probe.sh` (11/11).
+
+## Root cause — TWO defects, and the second is why the first cost four attempts
+
+### Defect 1 — the exemption is wrapper-blind (this is what blocked the commit)
+
+`.agentic-framework/agents/context/lib/safe-commands.sh` · `_sc_is_commit_only_command()`
+splits the command into clauses and matches each one **positionally**: `tok1` (path-stripped),
+`tok2`, `tok3`. The `git` branch needs `tok1=git, tok2=commit`; the `fw` branch needs
+`tok1=fw, tok2=git, tok3=commit`. **Any exec-wrapper prefix shifts every token**, the `case`
+falls through to `_sc_simple_is_safe`, that rejects, and the whole command is judged not
+commit-only — so `check-active-task.sh:252` never grants the T-2054 exemption.
+
+Measured, and the discriminators matter as much as the failures:
+
+| command | verdict |
+|---|---|
+| `fw git commit -m …` | ALLOW |
+| `git commit -m …` | ALLOW |
+| `cd $REPO && fw git commit -m …` | **ALLOW** — `cd` is NOT the cause |
+| `git add a && fw git commit -m …` | ALLOW (the documented shape) |
+| `timeout 300 fw git commit -m …` | **BLOCK** |
+| `cd $REPO && timeout 300 fw git commit -m …` | **BLOCK** ← the shape used on T-837/T-838 |
+| `env GIT_X=1 fw git commit -m …` | **BLOCK** |
+| `nice fw git commit -m …` | **BLOCK** |
+
+The class is exec-wrappers generally — `timeout`, `env`, `nice`, and by the same token walk
+`nohup`, `command`, `stdbuf`. **A timeout on a commit is ordinary defensive shell**, not an
+evasion: it is there so a hung commit cannot wedge the session. The gate refuses the careful
+spelling and admits the careless one, which is T-652's defect in a third place — that comment
+in the file already records the same shape for `fw git commit` vs `git commit`.
+
+### Defect 2 — the block message names a cause it never tested (PL-304)
+
+`.agentic-framework/agents/context/check-active-task.sh:292`:
+
+```bash
+if [ "$TOOL_NAME" = "Bash" ] && [[ "$BASH_CMD" =~ git[[:space:]]+commit ]]; then
+    echo "Committing a just-completed task is NOT blocked, even with no focus (T-2054)."
+    echo "What blocks here is a \$(...) substitution sharing the line with the commit:"
+```
+
+The branch fires on the command merely **containing** `git commit`. It performs **zero** test
+for `$(` — verified by grep over the emitting block. So it asserted a substitution was present
+in four consecutive commands that contained none.
+
+The irony is load-bearing: the comment directly above it says *"Name that, or the next agent
+concludes it is stuck and reaches for a borrowed focus or a Tier-2 bypass — which is what
+happened at T-643."* The naming is there. It names the **wrong thing** whenever the cause is
+anything but a substitution, and a confidently-wrong diagnosis is worse than silence, because
+the reader acts on it. I spent four attempts editing message text — multi-line `-m`, single-line
+`-m`, prefix `T-837 + T-838:`, prefix `T-838:` — hunting a substitution that never existed, and
+`fw context focus T-838` silently no-ops on a completed task (G-013 requires the focused task in
+`active/`), so there was no way back either.
+
+**The four refused invocations, verbatim in shape:**
+1. `cd $REPO && timeout 300 .agentic-framework/bin/fw git commit -m "<multi-line>"`
+2. `cd $REPO && timeout 300 .agentic-framework/bin/fw git commit -m "<single-line>"`
+3. same, message prefixed `T-837 + T-838:`
+4. same, message prefixed cleanly `T-838:`
+
+Every one carried `timeout 300`. None carried a `$(`.
+
+## Remediation — scoped, NOT implemented here
+
+Both files are vendored AEF framework code, so this is upstream's to land.
+`safe-commands.sh` already carries a declared divergence (`kind: content`, T-404/T-405/T-390,
+`upstream: fix`), which is why the fix is proposed rather than applied unilaterally.
+
+**R1 (defect 1, small).** Before the positional walk, strip a leading exec-wrapper from each
+clause: `timeout [opts] N`, `env [VAR=val]...`, `nice [-n N]`, `nohup`, `command`, `stdbuf
+[opts]`. Strip only from a **closed allowlist** — never "skip tokens until something matches" —
+so an unknown binary whose arguments happen to contain `git commit` is still refused, which is
+the exact hole T-638 closed and must not be reopened.
+
+**R2 (defect 2, smaller and more valuable).** Make the diagnosis conditional. Test the command
+for `$(`/backtick and say so only then; otherwise report which clause actually failed
+`_sc_simple_is_safe`. A gate that can name the refusing clause turns a four-attempt hunt into
+one read.
+
+**R2 is worth more than R1** even though R1 is the blocker: R1 fixes one spelling, R2 fixes
+every future misdiagnosis of this predicate — and the predicate will keep growing clauses.
+
+**Sovereign question (SQ-7), not decided here:** both changes touch a PreToolUse enforcement
+path. R1 widens what the exemption admits, which is a governance-surface change however
+narrow the allowlist. Whether to take R1, R2, or R2-only is the operator's and upstream's —
+an agent widening the gate that governs it is the shape this whole register exists to prevent.
 
 ## Acceptance Criteria
 
@@ -100,6 +187,19 @@ date_finished: null
 -->
 
 ## Verification
+
+bash tools/_t839-commit-exemption-probe.sh
+grep -q "_sc_is_commit_only_command" .agentic-framework/agents/context/lib/safe-commands.sh
+grep -q "substitution sharing the line" .agentic-framework/agents/context/check-active-task.sh
+grep -q "Defect 1 — the exemption is wrapper-blind" .tasks/active/T-839-closing-the-last-active-task-strands-its.md
+# No bypass was used to escape this gate — the route out was the gate's own remedy #1.
+# NOT "the log is unchanged": it carries two UNCOMMITTED entries predating this session
+# (2026-09-08 T-685, 2026-09-22 T-788, both --skip-sovereignty from check_human_sovereignty,
+# i.e. the operator's inception-decide path). Asserting no-diff would have been a false
+# claim about someone else's rows. Assert the precise thing instead: nothing for this task,
+# and nothing dated today.
+grep -c "T-839" .context/working/.gate-bypass-log.yaml > /tmp/.t839b1.out 2>&1; test "$(cat /tmp/.t839b1.out)" = "0"
+grep -c "2026-09-25" .context/working/.gate-bypass-log.yaml > /tmp/.t839b2.out 2>&1; test "$(cat /tmp/.t839b2.out)" = "0"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
