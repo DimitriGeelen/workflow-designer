@@ -4,9 +4,9 @@ name: "403 handler writes a whole HTML document to htmx callers, so the toast sc
 description: >
   403 handler writes a whole HTML document to htmx callers, so the toast scrapes JavaScript source at the operator
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [bug]
 components: []
@@ -22,8 +22,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T22:05:16Z
-last_update: 2026-09-25T22:16:52Z
-date_finished: null
+last_update: 2026-09-25T22:19:38Z
+date_finished: 2026-09-25T22:19:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -475,3 +475,20 @@ question I am avoiding.
 
 ### 2026-09-25T22:13:33Z — status-update [task-update-agent]
 - **Change:** tags: +bug
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3c534719
+- **Timestamp:** 2026-09-25T22:21:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — **B — the CONSEQUENCE:** the message `web/static/htmx-toast.js` actually extracts from that body contains **no script source**. (A) alone is an assertion about byte counts; (B) is the thing the operat
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=web/static/htmx-toast.js in: **B — the CONSEQUENCE:** the message `web/static/htmx-toast.js` actually extracts from that body contains **no script source**. (A) alone is an assert`
+
+### 2026-09-25T22:19:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -19,20 +19,8 @@ date_finished: null
 target_blast_radius: 3            # int 0..9. Anticipated component count of the build work this inception would authorise on GO.
                                   # Substitutes for the absent components: list in the F8 cost formula (040). Required.
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
-                                  # ⚠ CHANGE THIS TOO (T-625). Measured 2026-08-29: 38 of 41 inceptions still carried this
-                                  # exact 3, the same 38 that carried voi_score: 0.5. Between them the two fields fix the
-                                  # task's ENTIRE BVP position — value and cost — so leaving both planted means the
-                                  # ranking is the template's opinion, not anyone's. The 3 is a placeholder, not a guide.
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
-                                  # ⚠ CHANGE THIS (T-624). For an inception voi_score IS the entire BVP composite: the
-                                  # estimator skips per-driver scoring and derives all nine drivers from this one number
-                                  # (estimator.py _score_inception_voi). Leaving 0.5 does not score the task, it abstains —
-                                  # and an abstention is printed as a confident BVP 126 that no reader can tell from a real
-                                  # score. Measured 2026-08-29: 38 of 41 inceptions still carried this exact default, so the
-                                  # entire hv-lc quadrant ranked as one flat tie. `python3 tools/_t624-voi-provenance.py`
-                                  # reports which tasks were ever deliberately scored. The 0.5 below is a placeholder that
-                                  # exists only to satisfy the schema gate (PL-167) — it is not a recommendation.
 ---
 
 # T-XXX: [Inception Name]

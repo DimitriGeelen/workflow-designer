@@ -4,12 +4,12 @@ name: "instrument sweep is all-or-nothing and takes 11 minutes, so nobody runs i
 description: >
   instrument sweep is all-or-nothing and takes 11 minutes, so nobody runs it and five broken instruments sat invisible
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
-components: []
+components: [tools/_t509-instrument-sweep.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +22,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T15:25:59Z
-last_update: 2026-09-25T15:33:59Z
-date_finished: null
+last_update: 2026-09-25T15:36:55Z
+date_finished: 2026-09-25T15:36:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -412,3 +412,26 @@ part of anyone's loop.
 
 ### 2026-09-25T15:33:59Z — status-update [task-update-agent]
 - **Change:** tags: +bug
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2e4a168f
+- **Timestamp:** 2026-09-25T15:37:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 4
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 130
+     - evidence: `bash tools/_t850-sweep-subset-teeth.sh > /dev/null 2>&1`
+  2. **empty-output-success** (partial, heuristic) @ Verification:line 150
+     - evidence: `python3 tools/_t548-sweep-classification-teeth.py > /dev/null 2>&1`
+  3. **empty-output-success** (partial, heuristic) @ Verification:line 151
+     - evidence: `python3 tools/_t551-sweep-capture-teeth.py > /dev/null 2>&1`
+  4. **empty-output-success** (partial, heuristic) @ Verification:line 152
+     - evidence: `python3 tools/_t364-tie-guard-teeth.py > /dev/null 2>&1`
+
+### 2026-09-25T15:36:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

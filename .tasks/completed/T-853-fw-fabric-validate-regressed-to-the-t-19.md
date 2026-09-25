@@ -4,10 +4,10 @@ name: "fw fabric validate regressed to the T-191 stub: T-840's upgrade reverted 
 description: >
   fw fabric validate regressed to the T-191 stub: T-840's upgrade reverted T-524's vendored fix, and how many other reds share that cause
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
 components: []
 related_tasks: []
@@ -22,8 +22,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T19:52:27Z
-last_update: 2026-09-25T20:13:20Z
-date_finished: null
+last_update: 2026-09-25T20:16:31Z
+date_finished: 2026-09-25T20:16:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -463,3 +463,15 @@ the project had no way to find out when that goodwill ran out.
 
 ### 2026-09-25T20:11:08Z — status-update [task-update-agent]
 - **Change:** tags: +bug
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-87a62b07
+- **Timestamp:** 2026-09-25T20:16:43Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-25T20:16:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
