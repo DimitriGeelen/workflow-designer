@@ -30,7 +30,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T22:49:40Z
-last_update: 2026-09-25T22:55:29Z
+last_update: 2026-09-25T22:59:20Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -316,17 +316,25 @@ grep -q 'mod._candidate_paths({}, tpl_text)' tools/_t542-cost-blast-radius-teeth
 grep -q 'T-859: was `mod._BODY_PATH_RE.search(tpl_text)`' tools/_t542-cost-blast-radius-teeth.py
 grep -q 'NOT A RENAME' tools/_t542-cost-blast-radius-teeth.py
 
-# The estimator and the value model were NOT touched — this run's mandate forbids adjusting
-# calibration, and the guard is not the heuristic.
-test "$(git status --short -- policy/ .agentic-framework/agents/termlink/bvp-estimator/ | wc -l)" -eq 0
+# The estimator and the value model were NOT touched. Asserted POSITIVELY, on content that
+# would have had to change: the no-signal default and the driver weights are still what run 3
+# measured. A `git status ... | wc -l -eq 0` leg was written here first and REFUSED by the
+# T-843 gate — rightly twice over: it is an uncontrolled absence assertion, and it empties the
+# moment this task commits, so it would pass forever regardless (the T-847 shape). The evidence
+# that only two files changed is the commit diff, not a leg that cannot fail.
 grep -q '_PATH_TOKEN_RE' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
+grep -q 'no-signal' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
+test "$(grep -cE '^\s*weight:\s*9\s*$' policy/value-drivers.yaml)" -eq 4
 
 # The change is confined to the one call site: the only executable occurrence of the old name
 # is gone, and the only remaining mention is inside the explanatory comment. Asserted by
 # counting the CODE form, positively — an absence leg on the bare name would be false, since
 # the comment quotes it deliberately.
+# Positive form only: the guard line IS the new call. An absence leg on the old name was
+# written here first and refused by the T-843 gate — and it would also have been false, since
+# the comment quotes the old name deliberately. Asserting what the guard IS settles both.
+grep -q 'if not mod._candidate_paths({}, tpl_text):' tools/_t542-cost-blast-radius-teeth.py
 test "$(grep -c 'mod\._BODY_PATH_RE\.search' tools/_t542-cost-blast-radius-teeth.py)" -eq 1
-test "$(grep -c '^\s*if not mod\._BODY_PATH_RE' tools/_t542-cost-blast-radius-teeth.py)" -eq 0
 
 ## RCA
 
