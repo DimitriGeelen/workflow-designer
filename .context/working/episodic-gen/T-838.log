@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-25T06:09:48Z ===
+task_id: T-838
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-838.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Project value review: delete/refactor/add, GATHERER+JUDGE dispatched
+  Duration: 1 days (468 min)
+  Updates: 2
+  Commits: 6
+  Lines: +2181 -0 across 3 files
+  Outcomes: 7 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-838-project-value-review-deleterefactoradd-g.md
+--- exit code: 0 ---

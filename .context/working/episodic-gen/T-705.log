@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-16T15:55:11Z ===
+task_id: T-705
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-705.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: RA-009: completed inception T-103 has no research artifact
+  Duration: 0 days (149 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 4 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-705-ra-009-completed-inception-t-103-has-no-.md
+--- exit code: 0 ---

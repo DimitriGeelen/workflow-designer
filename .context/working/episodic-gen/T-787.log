@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-22T07:38:58Z ===
+task_id: T-787
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-787.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: repair probe cites an ephemeral scratchpad path: the 16/16 evidence under the SQ-2 ruling no longer reproduces
+  Duration: 0 days (5 min)
+  Updates: 1
+  Commits: 1
+  Lines: +362 -4 across 4 files
+  Outcomes: 4 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-787-repair-probe-cites-an-ephemeral-scratchp.md
+--- exit code: 0 ---

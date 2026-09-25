@@ -1004,3 +1004,22 @@ cat >> .context/handovers/LATEST.md <<EOF
     rather than the full ten the grant allowed — it was decisive on its own and the rest would have
     spent context for no additional evidence. Result: hypothesis DISPROVED (registration is
     identical). Recorded in G-050.'
+- timestamp: '2026-09-08T09:23:43Z'
+  task: 'T-685'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Inception decision: GO'
+- timestamp: '2026-09-22T09:06:06Z'
+  task: 'T-788'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Inception decision: GO'
+- timestamp: '2026-09-25T08:58:21Z'
+  task: 'T-840'
+  flag: '--switch-focus'
+  caller: 'check-active-task focus-drift'
+  target: 'T-842'
+  command: 'git commit -q -m "T-842: work-completed, 8/8 ACs, 6/6 verification legs run BY THE GATE
+
+Closed, and this time I captured the gates own output instead of tailing it off:
+Running 6 verification comma'

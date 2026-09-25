@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-25T06:09:27Z ===
+task_id: T-837
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-837.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: procAsFit autonomous run: two TermLink-dispatched rounds, chained
+  Duration: 1 days (526 min)
+  Updates: 2
+  Commits: 5
+  Lines: +965 -13 across 4 files
+  Outcomes: 5 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-837-procasfit-autonomous-run-two-termlink-di.md
+--- exit code: 0 ---

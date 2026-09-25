@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-25T21:26:36Z ===
+task_id: T-856
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-856.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: trial: BVP confirm and arc creation become automatic for agents, with telemetry, per operator ruling
+  Duration: 0 days (11 min)
+  Updates: 1
+  Commits: 1
+  Lines: +725 -4 across 7 files
+  Outcomes: 10 AC checked
+  Artifacts: 7 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-856-trial-bvp-confirm-and-arc-creation-becom.md
+--- exit code: 0 ---

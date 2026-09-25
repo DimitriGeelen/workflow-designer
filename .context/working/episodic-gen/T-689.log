@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-08T20:49:56Z ===
+task_id: T-689
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-689.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Arc-2 isolation proof measures execution and secret but never ledger — one of the three authorities the roadmap column names
+  Duration: 0 days (8 min)
+  Updates: 1
+  Commits: 3
+  Lines: +606 -32 across 7 files
+  Outcomes: 8 AC checked
+  Artifacts: 7 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-689-arc-2-isolation-proof-measures-execution.md
+--- exit code: 0 ---

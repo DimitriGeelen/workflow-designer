@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-31T19:47:34Z ===
+task_id: T-661
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-661.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Probers pin an exact substitution count where the invariant is a floor
+  Duration: 0 days (10 min)
+  Updates: 1
+  Commits: 2
+  Lines: +652 -53 across 17 files
+  Outcomes: 6 AC checked
+  Artifacts: 17 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-661-probers-pin-an-exact-substitution-count-.md
+--- exit code: 0 ---

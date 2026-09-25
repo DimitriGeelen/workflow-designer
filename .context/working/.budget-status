@@ -1,1 +1,1 @@
-{"level": "ok", "tokens": 142812, "timestamp": 1788079237, "source": "budget-gate"}
+{"level": "ok", "tokens": 719002, "timestamp": 1790377193, "session_id": "S-2026-0924-2149", "source": "budget-gate", "baseline_tokens": 88847, "headroom_tokens": 911153, "headroom_ratio": 0.91}

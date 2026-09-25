@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-01T12:11:08Z ===
+task_id: T-666
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-666.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: A dead control and an honest abstention both exit 2, so the sweep tells the reader to trust a dead instrument
+  Duration: 0 days (18 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-666-a-dead-control-and-an-honest-abstention-.md
+--- exit code: 0 ---

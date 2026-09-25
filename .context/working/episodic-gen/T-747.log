@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-22T22:11:32Z ===
+task_id: T-747
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-747.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: RA-038: CTL-029 arc-003 task T-702 is completable but not closed
+  Duration: 1 days (2292 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 3 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-747-ra-038-ctl-029-arc-003-task-t-702-is-com.md
+--- exit code: 0 ---

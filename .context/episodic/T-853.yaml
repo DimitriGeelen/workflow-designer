@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-853: fw fabric validate regressed to the T-191 stub: T-840's upgrade reverted T-524's vendored fix, and how many other reds share that cause
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T20:16:49Z
+# ============================================================================
+
+task_id: T-853
+task_name: "fw fabric validate regressed to the T-191 stub: T-840's upgrade reverted T-524's vendored fix, and how many other reds share that cause"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T19:52:27Z
+completed: 2026-09-25T20:16:31Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-25T22:13:18+02:00
+last_commit: 2026-09-25T22:16:30+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fw fabric validate was not unimplemented — an upgrade reverted it, along with five other vendored fixes. the absence gate I built in T-843 refused my own leg, and the remedy genuinely did not apply
+
+# Key outcomes
+outcomes:
+  - 'The **cause is established, not assumed**: `08629640` (T-524) implemented `do_validate`, `7b5e227e` (T-840''s upgrade to AEF 1.7.68) is the last commit to touch that file, and the file now holds the T-191 stub. Shown with git evidence, not inference'
+  - '**The blast radius is measured before anything is restored.** Cross-reference the files `7b5e227e` changed against the subjects of the 13 still-red instruments, and state how many of them plausibly share this one cause'
+  - '`do_validate` is **restored from `08629640`** rather than rewritten — the implementation was reviewed, tested and reported upstream once; retyping it would invent a second version'
+  - '`_t524-fabric-validate-teeth.py` passes **10/10** after the restore, including the legs that specify rc 2 refusals on an empty register and an unknown component id'
+  - 'The restore is verified against the teeth''s own mutation-sensitive leg 3 — T-524''s commit records that leg passing **vacuously** against the stub, so a green suite is only evidence if that leg is discriminating'
+  - '**The recurrence is addressed, not just the instance.** A vendored fix that is not upstream survives only until the next `fw upgrade`; T-524 declared it upstream and reported it at rail 11918, and it was reverted anyway. Record what would have caught this — the check is "did the upgrade revert a local fix", which nothing currently asks'
+  - 'Every other in-tree vendored fix at risk from the same mechanism is **named** if the measurement finds them, each as its own task — one bug, one task; this task restores validate only'
+  - 'Sent to AEF, because the upstream fix evidently never landed despite being reported'
+  - '`fw fabric validate` on the live register no longer exits 0 while evaluating nothing — proven by running it and reading the verdict, not by reading the code'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fw fabric validate was not unimplemented — an upgrade reverted it, along with five other vendored fixes'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-853-fw-fabric-validate-regressed-to-the-t-19.md'
+  - '.tasks/completed/T-852-g-080-carries-preventionmissing-a-field-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T22:13:18'
+    action: 'T-853: fw fabric validate was not unimplemented — an upgrade reverted it, along with five other vendored fixes'
+  - time: '2026-09-25T22:16:30'
+    action: 'T-853: the absence gate I built in T-843 refused my own leg, and the remedy genuinely did not apply'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 24 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 24
+  commits: 2
+  files_changed: 4
+  lines_added: 618
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-853-fw-fabric-validate-regressed-to-the-t-19.md
+generated_by: context-agent-hybrid

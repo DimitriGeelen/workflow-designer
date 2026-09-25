@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-30T11:00:31Z ===
+task_id: T-642
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-642.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Review queue shows 8 agent recommendations as unreadable because the verdict vocabulary is narrower than the positions agents hold
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 1
+  Lines: +467 -4 across 9 files
+  Outcomes: 6 AC checked
+  Artifacts: 9 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-642-review-queue-shows-8-agent-recommendatio.md
+--- exit code: 0 ---

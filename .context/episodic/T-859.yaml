@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-859: _t542 cost-axis guard raises AttributeError instead of measuring — the upgrade renamed _BODY_PATH_RE
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T23:01:18Z
+# ============================================================================
+
+task_id: T-859
+task_name: "_t542 cost-axis guard raises AttributeError instead of measuring — the upgrade renamed _BODY_PATH_RE"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T22:49:40Z
+completed: 2026-09-25T23:01:09Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-26T00:59:19+02:00
+last_commit: 2026-09-26T01:01:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the cost-axis guard reaches a verdict again — and its first words explain why BVP cannot rank the corpus. the T-843 absence gate refused two of my own legs, and both were genuinely bad
+
+# Key outcomes
+outcomes:
+  - 'The replacement attribute is **verified to mean the same thing**, not assumed from a similar name: `_PATH_TOKEN_RE`''s pattern is compared against what `_BODY_PATH_RE` matched pre-upgrade (`git show 7b5e227e~1`). If the semantics differ, that is a finding and the probe needs more than a rename'
+  - '`python3 tools/_t542-cost-blast-radius-teeth.py` **reaches a verdict** — exits 0 or 1, not a traceback. A crashing probe reports nothing; that distinction is the whole task'
+  - 'If it now exits **1**, the failing leg is reported as a real finding about the cost axis and is **not** fixed here — one bug, one task. Repairing the guard and repairing what it guards are different deliverables'
+  - 'The **sweep''s classification changes accordingly**: `_t509-instrument-sweep.sh --only _t542` no longer counts it under `regressed` for the wrong reason. Checked by running the subset mode added in T-850, not inferred'
+  - 'The probe''s own logic is **unchanged apart from the attribute reference** — asserted by a diff line count, so "fixed it by rewriting it" cannot pass as a rename'
+  - 'The fix carries an **in-file note naming the upgrade commit and the old name**, because the next `fw upgrade` can rename it again and the next reader needs to know this already happened once (T-853)'
+  - 'The repair is verified against the **still-broken** state too: the old name must be gone from the probe, checked positively via the new name''s presence rather than by an uncontrolled absence assertion'
+  - 'No change to `policy/value-drivers.yaml`, to any BVP weight, or to the estimator''s scoring logic — this run''s mandate forbids adjusting calibration parameters, and the cost heuristic is not the guard'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-859-t542-cost-axis-guard-raises-attributeerr.md'
+  - 'tools/_t542-cost-blast-radius-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-26T00:59:19'
+    action: 'T-859: the cost-axis guard reaches a verdict again — and its first words explain why BVP cannot rank the corpus'
+  - time: '2026-09-26T01:01:08'
+    action: 'T-859: the T-843 absence gate refused two of my own legs, and both were genuinely bad'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 11
+  commits: 2
+  files_changed: 2
+  lines_added: 505
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-859-t542-cost-axis-guard-raises-attributeerr.md
+generated_by: context-agent-hybrid

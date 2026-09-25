@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-22T09:06:11Z ===
+task_id: T-788
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer/.agentic-framework
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-788.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Does 832 build any part of the workflow-to-application executor, or is the whole of it AEF's to deliver?
+  Duration: 0 days (86 min)
+  Updates: 2
+  Commits: 3
+  Lines: +494 -24 across 4 files
+  Outcomes: 4 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-788-does-832-build-any-part-of-the-workflow-.md
+--- exit code: 0 ---

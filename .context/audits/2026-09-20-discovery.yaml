@@ -1,0 +1,21 @@
+# Audit Results - 2026-09-20-2026
+timestamp: 2026-09-20T18:26:49Z
+sections: "discovery"
+summary:
+  pass: 5
+  warn: 0
+  fail: 1
+findings:
+  - level: PASS
+    check: "D1: Episodic quality — 0% [TODO] (0/611)"
+  - level: FAIL
+    check: "D2: Human review queue — 10 task(s) waiting >30d: 10 awaiting judgement: T-233(37d) T-308(52d) T-310(52d) T-325(49d) T-340(36d) T-351(48d) T-353(48d) T-368(43d) T-410(42d) T-449(39d); 23 waiting >14d: T-392(24d) T-432(29d) T-433(29d) T-537(23d) T-540(23d) T-565(25d) T-579(26d) T-586(23d) T-588(25d) T-589(25d) T-590(25d) T-592(25d) T-593(25d) T-596(25d) T-597(25d) T-600(24d) T-601(24d) T-606(24d) T-608(24d) T-609(23d) T-643(21d) T-647(20d) T-671(17d)"
+    mitigation: "Review with: fw task verify (lists unchecked Human ACs)"
+  - level: PASS
+    check: "D8: Handover quality — no [TODO] in LATEST.md"
+  - level: PASS
+    check: "D8b: Handover archive — 0/10 recent handovers have [TODO]s"
+  - level: PASS
+    check: "D10: Decision-without-dialogue — none detected"
+  - level: PASS
+    check: "D11: Gap register staleness — all gaps fresh"

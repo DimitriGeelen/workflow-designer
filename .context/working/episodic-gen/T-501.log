@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-01T19:39:38Z ===
+task_id: T-501
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-501.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Map ID round-trip defect triage (AEF consumer)
+  Duration: 18 days (26083 min)
+  Updates: 2
+  Commits: 4
+  Lines: +1129 -19 across 4 files
+  Outcomes: 4 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-501-map-id-round-trip-defect-triage-aef-cons.md
+--- exit code: 0 ---

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-31T12:04:45Z ===
+task_id: T-649
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-649.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: warn when a task is completed with its own work still uncommitted (G-047 prevention)
+  Duration: 0 days (5 min)
+  Updates: 1
+  Commits: 1
+  Lines: +552 -1 across 5 files
+  Outcomes: 8 AC checked
+  Artifacts: 5 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-649-warn-when-a-task-is-completed-with-its-o.md
+--- exit code: 0 ---

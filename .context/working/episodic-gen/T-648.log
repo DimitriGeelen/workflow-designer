@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-31T11:58:42Z ===
+task_id: T-648
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-648.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: the other two fragment assertions still use the substring scan, and are weaker than the one T-645 fixed
+  Duration: 0 days (7 min)
+  Updates: 1
+  Commits: 1
+  Lines: +364 -59 across 6 files
+  Outcomes: 7 AC checked
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-648-the-other-two-fragment-assertions-still-.md
+--- exit code: 0 ---

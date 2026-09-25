@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-31T15:27:27Z ===
+task_id: T-656
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-656.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: D2 counts tasks as awaiting human judgement when every AC is already ticked
+  Duration: 0 days (7 min)
+  Updates: 1
+  Commits: 1
+  Lines: +548 -15 across 5 files
+  Outcomes: 5 AC checked
+  Artifacts: 5 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-656-d2-counts-tasks-as-awaiting-human-judgem.md
+--- exit code: 0 ---

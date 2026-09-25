@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-31T11:37:44Z ===
+task_id: T-646
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-646.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: the timeline renders task prose unescaped: raw < from a task body reaches the browser as markup
+  Duration: 1 days (1033 min)
+  Updates: 2
+  Commits: 1
+  Lines: +277 -11 across 4 files
+  Outcomes: 7 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-646-the-timeline-renders-task-prose-unescape.md
+--- exit code: 0 ---

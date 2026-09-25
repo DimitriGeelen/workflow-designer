@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-850: instrument sweep is all-or-nothing and takes 11 minutes, so nobody runs it and five broken instruments sat invisible
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T15:37:19Z
+# ============================================================================
+
+task_id: T-850
+task_name: "instrument sweep is all-or-nothing and takes 11 minutes, so nobody runs it and five broken instruments sat invisible"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T15:25:59Z
+completed: 2026-09-25T15:36:55Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-25T17:36:45+02:00
+last_commit: 2026-09-25T17:36:45+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the sweep can now be run in part, because all-or-nothing at 11 minutes meant nobody ran it
+
+# Key outcomes
+outcomes:
+  - '`_t509-instrument-sweep.sh --list` prints the population — every teeth script with its excluded/included state — and exits 0 without running anything'
+  - '`--only <pattern>` (repeatable, matched against the basename) runs just the matching instruments, so one instrument can be re-run in seconds instead of eleven minutes'
+  - '`--only` with a pattern matching nothing **REFUSES** (non-zero) rather than reporting a clean sweep over an empty set — a sweep over nothing is not a pass, which the script already says for the unfiltered case'
+  - '**A filtered run can never be mistaken for full coverage.** Its summary is a different sentence, it carries a banner naming how many of the population were skipped, and the phrase a full run emits does not appear in filtered output'
+  - 'The **full-run output is unchanged** for population, exclusions, summary and exit codes — two probes read this script''s SOURCE for a literal one-line sentence (flagged in its own comments), so neither that line nor the full-run summary may be reflowed'
+  - 'Exclusions, the stale-exclusion check, the rc classification (0/124/2/4/other) and the headroom warning all behave identically under `--only`'
+  - 'An unknown flag is refused rather than silently treated as a pattern — a typo''d `--onyl` must not run the whole sweep and read as intentional'
+  - 'A test instrument exists and is **mutation-tested**: with the subset feature stripped, the new cases go red while cases that do not depend on it stay green (a red-for-the-wrong-reason mutation run proves nothing — T-849''s lesson, the same day)'
+  - 'The tests never invoke the real eleven-minute sweep over the real population: they run it against a **fixture directory of tiny stub instruments**, so the suite is fast enough to actually be run'
+  - '`bash -n` passes, and one real filtered invocation against the live tree is exercised end to end'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-850-instrument-sweep-is-all-or-nothing-and-t.md'
+  - 'tools/_t509-instrument-sweep.sh'
+  - 'tools/_t850-sweep-subset-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T17:36:45'
+    action: 'T-850: the sweep can now be run in part, because all-or-nothing at 11 minutes meant nobody ran it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 10
+  commits: 1
+  files_changed: 3
+  lines_added: 682
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-850-instrument-sweep-is-all-or-nothing-and-t.md
+generated_by: context-agent-hybrid

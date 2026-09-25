@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-24T21:36:07Z ===
+task_id: T-807
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-807.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Tag seam artefacts in release notes so AEF pins a tag, not a moving head
+  Duration: 2 days (3438 min)
+  Updates: 2
+  Commits: 2
+  Lines: +1064 -13 across 5 files
+  Outcomes: 4 AC checked
+  Artifacts: 5 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-807-tag-seam-artefacts-in-release-notes-so-a.md
+--- exit code: 0 ---

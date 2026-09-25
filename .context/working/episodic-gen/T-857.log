@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-25T21:49:50Z ===
+task_id: T-857
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-857.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: OBS-388: is the absence advisory actually firing, or only broken to doctor's validator
+  Duration: 0 days (19 min)
+  Updates: 2
+  Commits: 2
+  Lines: +511 -1 across 4 files
+  Outcomes: 8 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-857-obs-388-is-the-absence-advisory-actually.md
+--- exit code: 0 ---

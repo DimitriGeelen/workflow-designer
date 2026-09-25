@@ -1,40 +1,37 @@
 === Handover Agent ===
-Session: S-2026-0827-1121
-Timestamp: 2026-08-27T09:21:10Z
+Session: S-2026-0921-1054
+Timestamp: 2026-09-21T08:54:50Z
 
 Gathering state...
 
 Checking episodic completeness...
 ✓ All recent completed tasks have enriched episodics
-⚠ Observation inbox: 92 pending (3 urgent)
+⚠ Observation inbox: 127 pending (3 urgent)
   Run: cd /opt/832-Workflow-designer && fw note triage
-Concerns register: 36 watching
-Session metrics extracted: 57351 turns, 1531 commits, 1566 errors, 1452 edit bursts
-  Cumulative — CPT: 0.0267 | FTC rate: 0.0544 | PTR: 0.3509
-  Per-session (126 turns) — CPT: 0.0397 | FTC rate: 0.0938 | PTR: 0.4286
+Concerns register: 44 watching
+Session metrics extracted: 69094 turns, 1932 commits, 1884 errors, 1658 edit bursts
+  Cumulative — CPT: 0.028 | FTC rate: 0.0543 | PTR: 0.3603
+  Per-session (19 turns) — CPT: 0.0 | FTC rate: 0.4444 | PTR: 0.3158
   Output: /opt/832-Workflow-designer/.context/working/.session-metrics.yaml
 Creating handover document...
 
 === Handover Created ===
-File: /opt/832-Workflow-designer/.context/handovers/S-2026-0827-1121.md
+File: /opt/832-Workflow-designer/.context/handovers/S-2026-0921-1054.md
 Latest: /opt/832-Workflow-designer/.context/handovers/LATEST.md
 
 Auto-committing handover...
+[master 192c5d5c] T-737: Session handover S-2026-0921-1054
+ 2 files changed, 1051 insertions(+), 1 deletion(-)
+ create mode 100644 .context/handovers/S-2026-0921-1054.md
 
-WARNING: Task T-005 is closed (in .tasks/completed/)
-  Consider: create a new task, or reopen this one.
-  Commit allowed (Tier 1 warning).
-
-[master 38de3789] T-005: Session handover S-2026-0827-1121
- 2 files changed, 731 insertions(+), 1 deletion(-)
- create mode 100644 .context/handovers/S-2026-0827-1121.md
+Task T-737 updated (handover.sh reports 3 urgent observations where the register holds 36)
 
 Pushing to remotes...
 
 === Pre-Push Audit Check ===
 
 === AUDIT REPORT ===
-Timestamp: 2026-08-27T11:21:29+02:00
+Timestamp: 2026-09-21T10:55:11+02:00
 Project: /opt/832-Workflow-designer
 Sections: structure
 
@@ -45,55 +42,54 @@ Sections: structure
 [PASS] Tasks/templates directory exists
 [PASS] Task template exists
 [PASS] No duplicate task IDs across active/ and completed/
-[PASS] All 10 project YAML files parse correctly
-[PASS] All 1 arc anchor_task references resolve to existing tasks
-[PASS] All 1 in-progress arc(s) had task commits within 30 days
+[PASS] All 12 project YAML files parse correctly
+[PASS] All 2 arc anchor_task references resolve to existing tasks
+[PASS] All 3 in-progress arc(s) had task commits within 30 days
 [INFO] free driver F2: retire_when text present, no recognition heuristic — manual review
 [PASS] No inline arc:<slug> tag-only scans outside canonical lib (T-1881)
 [PASS] No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)
 [PASS] No stale-slice-references (L-417)
 [PASS] No GO-scope-not-propagated inception(s) (sibling to L-417)
-[WARN] Fabric: 69 registered, 250 unregistered (of 316 watched — 21% covered, cards flat since earlier today (69))
-       Evidence: 250 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
-       Mitigation: Run: fw fabric scan
-[WARN] Fabric: 46/69 cards have no edges
+[PASS] Fabric: 379 registered, 0 unregistered (of 376 watched)
+[WARN] Fabric: 78/379 cards have no edges
        Evidence: Graph coverage below target
        Mitigation: Run: fw fabric enrich
-[WARN] Fabric drift: 250 source file(s) have no fabric card
-       Evidence: 250 of 316 watched files matching watch-patterns.yaml are unregistered
-       Mitigation: Run: fw fabric scan
+[PASS] Fabric drift: all 376 watched source file(s) registered (379 cards)
 [PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
 [PASS] Hook threshold: no hooks failing over threshold
 [PASS] Secret scan: tracked tree clean
+[PASS] Stray root files: no zero-byte untracked files in repo root
+[PASS] Vendor divergence: all 50 diverged path(s) declared
+[PASS] Human AC actionability: every unticked Human AC in the live queue is executable as written
 [PASS] Designer ghost registry: ghost↔task joins clean
 [PASS] Release lag: src, released artifact and peer pin are in step
-[WARN] Watching gap(s) with no closure condition: G-043
-       Evidence: A gap that cannot be closed is permanent furniture (T-382)
-       Mitigation: Add decision_trigger: to each, or downgrade/close the gap
+[PASS] Gap register: every watching gap has a renderable closure condition
 
 === SUMMARY ===
-Pass: 19
-Warn: 4
+Pass: 25
+Warn: 1
 Fail: 0
 
 === PRIORITY ACTIONS ===
-     1	Add decision_trigger: to each, or downgrade/close the gap
-     2	Run: fw fabric enrich
-     3	Run: fw fabric scan
+     1	Run: fw fabric enrich
+Note: 2026-09-21 already holds a record covering more sections than
+      this run; writing alongside it rather than replacing it (T-677).
 
 === TREND ANALYSIS ===
 Repeated issues detected in last 14 days (candidates for practice):
-  - Fabric drift: 245 source file(s) have no fabric card (12 times)
-  - Fabric: 46/69 cards have no edges (12 times)
-  - Fabric: 69 registered, 245 unregistered (of 311 watched — 22% covered, cards flat since earlier today (69)) (8 times)
-  - Watching gap(s) with no closure condition: G-043 (4 times)
+  - Fabric: 78/379 cards have no edges (8 times)
+  - Release lag EXCEEDED:   - oldest unshipped product change is 27d old (>= 14d) (7 times)
+  - Fabric drift: 1 source file(s) have no fabric card (3 times)
+  - Fabric: 373 registered, 1 unregistered (of 371 watched — 100% covered, cards flat since earlier today (373)) (3 times)
 
 Consider creating a practice to address these recurring issues.
 Run: fw context add-learning "description" --task T-XXX
 
-Audit history: 12 audit(s) in last 14 days + today
+Audit history: 10 audit(s) across 7 day(s) in last 14 days + today
+  Coverage: 2 full, 8 partial (section-scoped). Trends can only
+  surface a check that was actually RUN in the records above (T-677).
 
-Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-08-27.yaml
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-09-21-structure.yaml
 
 === END AUDIT ===
 
@@ -101,5 +97,5 @@ WARNING: Audit has warnings (push allowed)
 Consider addressing the issues above.
 
 To ssh://192.168.10.201:6611/workflow-designer
-   7b486b45..38de3789  HEAD -> master
+   97392b95..192c5d5c  HEAD -> master
   Pushed to origin ✓

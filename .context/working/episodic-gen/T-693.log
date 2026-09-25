@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-09T08:33:14Z ===
+task_id: T-693
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-693.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Correct the AEF pickup document: T-2054 already exempts the full-completion path, so item 1 is narrower than written
+  Duration: 0 days (1 min)
+  Updates: 1
+  Commits: 1
+  Lines: +258 -4 across 2 files
+  Outcomes: 3 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-693-correct-the-aef-pickup-document-t-2054-a.md
+--- exit code: 0 ---

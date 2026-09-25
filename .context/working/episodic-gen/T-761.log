@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-21T09:35:33Z ===
+task_id: T-761
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-761.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Audit remediation cycle 2: the first complete 19-section baseline and what
+  Duration: 0 days (6 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-761-audit-remediation-cycle-2-the-first-comp.md
+--- exit code: 0 ---

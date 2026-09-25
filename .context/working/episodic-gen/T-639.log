@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-30T10:01:12Z ===
+task_id: T-639
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-639.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Focus-drift gate reads task-id-shaped tokens out of quoted test fixtures, blocking probes that only mention a task id
+  Duration: 0 days (8 min)
+  Updates: 1
+  Commits: 1
+  Lines: +2468 -1662 across 27 files
+  Outcomes: 8 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 27 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-639-focus-drift-gate-reads-task-id-shaped-to.md
+--- exit code: 0 ---

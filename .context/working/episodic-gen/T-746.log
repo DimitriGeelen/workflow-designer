@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-24T21:56:21Z ===
+task_id: T-746
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-746.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: RA-037: task file T-741 has no Updates section
+  Duration: 3 days (5157 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 3 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-746-ra-037-task-file-t-741-has-no-updates-se.md
+--- exit code: 0 ---

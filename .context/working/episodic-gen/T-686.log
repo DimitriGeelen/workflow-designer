@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-06T18:43:48Z ===
+task_id: T-686
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-686.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Inception commit gate tells you to set a config key it does not read
+  Duration: 0 days (12 min)
+  Updates: 2
+  Commits: 1
+  Lines: +219 -1 across 2 files
+  Outcomes: 4 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-686-inception-commit-gate-tells-you-to-set-a.md
+--- exit code: 0 ---

@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-22T09:26:56Z ===
+task_id: T-799
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-799.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Prepare T-788 for a corrected decision: fix the two reviewer citation findings and establish the re-decide path
+  Duration: 0 days (3 min)
+  Updates: 1
+  Commits: 1
+  Lines: +264 -0 across 1 files
+  Outcomes: 4 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 1 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-799-prepare-t-788-for-a-corrected-decision-f.md
+--- exit code: 0 ---

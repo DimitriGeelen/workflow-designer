@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-25T08:57:19Z ===
+task_id: T-842
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-842.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Pin the commit-checkpoint exemption: the mandated fw git commit spelling is the one it cannot match
+  Duration: 0 days (5 min)
+  Updates: 1
+  Commits: 1
+  Lines: +514 -0 across 2 files
+  Outcomes: 8 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-842-pin-the-commit-checkpoint-exemption-the-.md
+--- exit code: 0 ---

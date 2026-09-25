@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-21T14:23:05Z ===
+task_id: T-774
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-774.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: create-task.sh rewrites the task name and empties the ownership field when the name contains the ownership token
+  Duration: 0 days (11 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 7 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-774-create-tasksh-rewrites-the-task-name-and.md
+--- exit code: 0 ---

@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-30T10:42:32Z ===
+task_id: T-640
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-640.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Safe-list admits curl and wget unconditionally though curl -o writes a file with no redirect, violating the list's own stated admission rule
+  Duration: 0 days (39 min)
+  Updates: 3
+  Commits: 3
+  Lines: +631 -10 across 7 files
+  Outcomes: 6 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 7 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-640-safe-list-admits-curl-and-wget-unconditi.md
+--- exit code: 0 ---

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-22T09:36:02Z ===
+task_id: T-800
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-800.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Operator action script: one place holding the decisions only a human can make, with the long commands pre-written
+  Duration: 0 days (3 min)
+  Updates: 1
+  Commits: 1
+  Lines: +368 -0 across 2 files
+  Outcomes: 5 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-800-operator-action-script-one-place-holding.md
+--- exit code: 0 ---

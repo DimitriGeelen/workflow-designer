@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-25T14:33:06Z ===
+task_id: T-849
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-849.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: G-087 guard admits level ok with tokens 0 — the zero door is the one that opens on every compaction
+  Duration: 0 days (22 min)
+  Updates: 2
+  Commits: 1
+  Lines: +668 -0 across 3 files
+  Outcomes: 10 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-849-g-087-guard-admits-level-ok-with-tokens-.md
+--- exit code: 0 ---

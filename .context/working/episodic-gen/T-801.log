@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-22T09:48:16Z ===
+task_id: T-801
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-801.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Make the SQ-2 ruling decision-ready: re-verify T-353's cited evidence and surface that its yes/no does not contain the narrow option
+  Duration: 0 days (6 min)
+  Updates: 1
+  Commits: 1
+  Lines: +357 -0 across 3 files
+  Outcomes: 5 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-801-make-the-sq-2-ruling-decision-ready-re-v.md
+--- exit code: 0 ---

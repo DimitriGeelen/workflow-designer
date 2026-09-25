@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-04T22:32:00Z ===
+task_id: T-677
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-677.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: The pre-push structure-only audit OVERWRITES the day's full audit record, so 13 of 14 days of 'audit history' contain none of the compliance checks the trend analysis claims to trend
+  Duration: 0 days (18 min)
+  Updates: 2
+  Commits: 2
+  Lines: +1067 -7 across 7 files
+  Outcomes: 6 AC checked
+  Artifacts: 7 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-677-the-pre-push-structure-only-audit-overwr.md
+--- exit code: 0 ---

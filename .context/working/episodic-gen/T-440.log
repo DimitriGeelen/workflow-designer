@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-01T18:45:18Z ===
+task_id: T-440
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-440.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Zero-leg blindness beyond bash: the 60+ .mjs CDP probes and every python check
+  Duration: 21 days (30042 min)
+  Updates: 5
+  Commits: 6
+  Lines: +5067 -12963 across 161 files
+  Outcomes: 5 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 161 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-440-t-429-measured-35-of-35-counter-bearing-.md
+--- exit code: 0 ---

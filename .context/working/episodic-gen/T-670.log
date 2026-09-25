@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-05T10:56:54Z ===
+task_id: T-670
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-670.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: EWCR has no arc: fourteen tasks and three exit clauses with no arc to hold them
+  Duration: 2 days (3219 min)
+  Updates: 2
+  Commits: 4
+  Lines: +646 -34 across 16 files
+  Outcomes: 5 AC checked
+  Artifacts: 16 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-670-ewcr-has-no-arc-fourteen-tasks-and-three.md
+--- exit code: 0 ---

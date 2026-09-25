@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-22T10:09:01Z ===
+task_id: T-802
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-802.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Apply the SQ-2 narrow ruling: discharge the 14 uncontrolled absence legs this agent created, as the first bounded test of the new permission
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 1
+  Lines: +315 -0 across 9 files
+  Outcomes: 6 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 9 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-802-apply-the-sq-2-narrow-ruling-discharge-t.md
+--- exit code: 0 ---

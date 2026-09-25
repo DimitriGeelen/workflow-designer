@@ -24,7 +24,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T20:29:02Z
-last_update: 2026-09-25T22:38:23Z
+last_update: 2026-09-25T23:01:46Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -344,5 +344,23 @@ bvp_scores_proposed:
 - **Reason:** parked: OBS-387 blocks delivery; mandate stop condition already exceeded
 
 ### 2026-09-25T22:38:23Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-09-25T22:39:22Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)
+- **Reason:** run 2 terminated on the empty-eligible-set stop condition; OBS-390 and OBS-391 filed
+
+### 2026-09-25T22:42:20Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-09-25T22:46:29Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)
+- **Reason:** run 3 terminated: eligible Q1/Q2 are operator acts, twice-failed, or contentless stubs; OBS-392 filed
+
+### 2026-09-25T23:01:46Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-25T11:56:57Z ===
+task_id: T-847
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-847.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Make Route 3 installable in one paste: a tested, idempotent settings registrar the operator can run
+  Duration: 0 days (6 min)
+  Updates: 1
+  Commits: 2
+  Lines: +497 -30 across 3 files
+  Outcomes: 6 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-847-make-route-3-installable-in-one-paste-a-.md
+--- exit code: 0 ---

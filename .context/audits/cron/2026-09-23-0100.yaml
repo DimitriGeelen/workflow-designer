@@ -1,0 +1,122 @@
+# Audit Results - 2026-09-23-0100
+timestamp: 2026-09-22T23:00:01Z
+sections: "structure,compliance,quality,discovery"
+summary:
+  pass: 30
+  warn: 17
+  fail: 1
+findings:
+  - level: PASS
+    check: "Tasks directory exists"
+  - level: PASS
+    check: "Tasks/active directory exists"
+  - level: PASS
+    check: "Tasks/completed directory exists"
+  - level: PASS
+    check: "Tasks/templates directory exists"
+  - level: PASS
+    check: "Task template exists"
+  - level: PASS
+    check: "No duplicate task IDs across active/ and completed/"
+  - level: PASS
+    check: "All 12 project YAML files parse correctly"
+  - level: PASS
+    check: "All 2 arc anchor_task references resolve to existing tasks"
+  - level: PASS
+    check: "All 3 in-progress arc(s) had task commits within 30 days"
+  - level: INFO
+    check: "free driver F2: retire_when text present, no recognition heuristic — manual review"
+  - level: PASS
+    check: "No inline arc:<slug> tag-only scans outside canonical lib (T-1881)"
+  - level: PASS
+    check: "No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)"
+  - level: PASS
+    check: "No stale-slice-references (L-417)"
+  - level: PASS
+    check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
+  - level: WARN
+    check: "Fabric: 408 registered, 13 unregistered (of 410 watched — 99% covered, cards flat since earlier today (408))"
+    mitigation: "Run: fw fabric scan"
+  - level: WARN
+    check: "Fabric: 79/408 cards have no edges"
+    mitigation: "Run: fw fabric enrich"
+  - level: WARN
+    check: "Fabric drift: 13 source file(s) have no fabric card"
+    mitigation: "Run: fw fabric scan"
+  - level: PASS
+    check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
+  - level: PASS
+    check: "Hook threshold: no hooks failing over threshold"
+  - level: PASS
+    check: "Secret scan: tracked tree clean"
+  - level: WARN
+    check: "Stray root files: 1 zero-byte untracked file(s) in repo root (T-651)"
+    mitigation: "Shell-redirect debris from unquoted markdown. Verify none collide with a tracked path, then remove by explicit name (never a glob — such names can contain *)"
+  - level: PASS
+    check: "Vendor divergence: all 51 diverged path(s) declared"
+  - level: WARN
+    check: "Human AC actionability: 1 live-queue task(s) ask for something that cannot be executed as written (T-660)"
+    mitigation: "An AC the operator must decode before running is a deferred sitting, not a pending decision. Detail: python3 tools/_t660-human-ac-actionability.py"
+  - level: PASS
+    check: "Designer ghost registry: ghost↔task joins clean"
+  - level: WARN
+    check: "Release lag:    peer pin behind: 0.12.0 -> 0.13.0   (our release is 0 days old)"
+    mitigation: "Cut a release, or record why the delay is intended"
+  - level: PASS
+    check: "Gap register: every watching gap has a renderable closure condition"
+  - level: WARN
+    check: "Task T-741-vendored-tree-omits-tools-entirely--5-ve.md missing Updates section"
+    mitigation: "Fix missing Updates section in T-741-vendored-tree-omits-tools-entirely--5-ve.md"
+  - level: PASS
+    check: "All active tasks meet quality thresholds"
+  - level: PASS
+    check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
+  - level: PASS
+    check: "CTL-028: All completed/ tasks have frontmatter status: work-completed"
+  - level: PASS
+    check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009)"
+  - level: WARN
+    check: "CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-041 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-101 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-102 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-102 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-105 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-105 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-293 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-293 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-309 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-309 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-357 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-357 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-681 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-681 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-708 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-708 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-723 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-723 --status work-completed"
+  - level: PASS
+    check: "CTL-012: All 678 completed tasks have checked ACs"
+  - level: PASS
+    check: "D1: Episodic quality — 0% [TODO] (0/678)"
+  - level: FAIL
+    check: "D2: Human review queue — 12 task(s) waiting >30d: 12 awaiting judgement: T-233(39d) T-308(55d) T-310(55d) T-325(52d) T-340(38d) T-351(50d) T-353(50d) T-368(45d) T-410(44d) T-432(31d) T-433(31d) T-449(41d); 21 waiting >14d: T-392(27d) T-537(26d) T-540(26d) T-565(27d) T-579(29d) T-586(26d) T-588(27d) T-589(27d) T-590(27d) T-592(27d) T-593(27d) T-596(27d) T-597(27d) T-600(27d) T-601(27d) T-606(27d) T-608(27d) T-609(26d) T-643(23d) T-647(22d) T-671(19d)"
+    mitigation: "Review with: fw task verify (lists unchecked Human ACs)"
+  - level: PASS
+    check: "D8: Handover quality — no [TODO] in LATEST.md"
+  - level: PASS
+    check: "D8b: Handover archive — 0/10 recent handovers have [TODO]s"
+  - level: PASS
+    check: "D10: Decision-without-dialogue — none detected"
+  - level: PASS
+    check: "D11: Gap register staleness — all gaps fresh"

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-22T08:57:42Z ===
+task_id: T-796
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-796.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Add describe_workflow: report what AEF's compiler would see in a .bpmn, including lane-derived owners and out-of-dialect authorities
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 1
+  Lines: +543 -7 across 4 files
+  Outcomes: 5 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-796-add-describeworkflow-report-what-aefs-co.md
+--- exit code: 0 ---

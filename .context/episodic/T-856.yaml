@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-856: trial: BVP confirm and arc creation become automatic for agents, with telemetry, per operator ruling
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T21:26:37Z
+# ============================================================================
+
+task_id: T-856
+task_name: "trial: BVP confirm and arc creation become automatic for agents, with telemetry, per operator ruling"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T21:14:19Z
+completed: 2026-09-25T21:26:18Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T23:26:14+02:00
+last_commit: 2026-09-25T23:26:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  BVP scoring is now automatic for agents, with the telemetry that makes it reviewable — operator ruling
+
+# Key outcomes
+outcomes:
+  - '**Only what the operator ruled on is opened.** `acd_gate` guards five verbs; the ruling covers scoring (`confirm`) and arc creation. `weight --set`, `driver --add`, `driver --remove` and `auto-promote --enable` stay gated — they carry policy-edit authority over the value model itself (D8), which is a different thing from scoring a task, and were not ruled on'
+  - 'The gate is **not deleted**. A config-consulted policy switch is added that `acd_gate` reads, defaulting **off** so upstream behaviour is unchanged, and set on in this project only. A deleted gate is invisible; a switch is reversible and shows up as divergence'
+  - 'Auto-confirm **promotes `bvp_scores_proposed:` into `bvp_scores:` and preserves the proposed record** — the proposed/confirmed distinction survives in the data, so telemetry can later show how often the proposer was wrong. Throwing that away would defeat the operator''s stated reason for wanting this'
+  - '**Telemetry is written for every auto-approved action**, append-only, one row per event, carrying at minimum: timestamp, verb, target id, whether a proposal existed, the proposed values, the confirmed values, the per-driver delta, and the switch state that permitted it'
+  - 'Telemetry is written **only on the auto path** — a human-approved action is not silently logged as automatic, or the data cannot answer the question it exists for'
+  - 'The switch being **off** still refuses, with the original message, proven by a test that flips it off rather than by reading the code'
+  - 'The switch being **on** for `confirm` does **not** open `weight` or `driver` — proven by a test, because a blanket `CLAUDECODE` bypass is the obvious wrong implementation and would look identical from the happy path'
+  - 'Arc creation is opened on the same pattern, with its own switch and its own telemetry rows, and its own test'
+  - 'A test instrument exists and is **mutation-tested** with a control set: stripping the switch turns the auto-path cases red while the still-gated verbs and the refusal cases stay green'
+  - 'The vendored edit carries its rationale **in-file**, naming the operator ruling and the date — T-853 measured that a vendored fix without visible rationale is what the next `fw upgrade` reverts'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/lib/bvp.sh'
+  - '.context/telemetry/bvp-auto-approval.jsonl'
+  - '.context/telemetry/README.md'
+  - '.framework.yaml'
+  - '.tasks/active/T-856-trial-bvp-confirm-and-arc-creation-becom.md'
+  - '.tasks/completed/T-855-contextwindow-is-persisted-at-800000-not.md'
+  - 'tools/_t856-auto-approval-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T23:26:14'
+    action: 'T-856: BVP scoring is now automatic for agents, with the telemetry that makes it reviewable — operator ruling'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 11
+  commits: 1
+  files_changed: 7
+  lines_added: 725
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-856-trial-bvp-confirm-and-arc-creation-becom.md
+generated_by: context-agent-hybrid

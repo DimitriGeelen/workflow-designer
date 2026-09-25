@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-855: CONTEXT_WINDOW is persisted at 800000, not the 1000K the operator believed was set
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T21:04:15Z
+# ============================================================================
+
+task_id: T-855
+task_name: "CONTEXT_WINDOW is persisted at 800000, not the 1000K the operator believed was set"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T20:45:22Z
+completed: 2026-09-25T21:01:07Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T23:01:05+02:00
+last_commit: 2026-09-25T23:01:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  CONTEXT_WINDOW 800000 -> 1000000, persisted — the 1000K the operator believed was already set was not
+
+# Key outcomes
+outcomes:
+  - '`CONTEXT_WINDOW` is set to **1000000** through the `fw config` verb, not by hand-editing `.framework.yaml` — verb gates only'
+  - 'The change is **persisted**, so it survives this session: `.framework.yaml` carries the new value and `fw config get CONTEXT_WINDOW` reads it back. The operator believed 1000K was already permanent and it was not — the whole point of this task is that the value stuck'
+  - 'The escalation ladder derived from it is checked at the new cap, not assumed: `checkpoint.sh status` reports the percentage against 1000000, and the 75/85/95 thresholds land at 750K / 850K / 950K'
+  - 'The **previous value is recorded** (800000) so a later reader can see what changed and when, rather than finding an unexplained number'
+  - '`fw doctor` still passes — the config file is read by the framework on every invocation, so a malformed edit would surface there'
+  - 'The value matches the model''s actual window (Opus 5, 1M) rather than exceeding it — a cap above the real window would make the gauge unable to warn before the hard limit'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.framework.yaml'
+  - '.tasks/active/T-855-contextwindow-is-persisted-at-800000-not.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T23:01:05'
+    action: 'T-855: CONTEXT_WINDOW 800000 -> 1000000, persisted — the 1000K the operator believed was already set was not'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 15
+  commits: 1
+  files_changed: 3
+  lines_added: 357
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-855-contextwindow-is-persisted-at-800000-not.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-08-31T12:44:37Z ===
+task_id: T-650
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-650.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: the completion path suggests a command it then forbids (OBS-331)
+  Duration: 0 days (9 min)
+  Updates: 1
+  Commits: 1
+  Lines: +523 -4 across 4 files
+  Outcomes: 7 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 4 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-650-the-completion-path-suggests-a-command-i.md
+--- exit code: 0 ---

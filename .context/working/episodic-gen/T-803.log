@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-22T10:15:18Z ===
+task_id: T-803
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-803.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Make IW-3 decision-ready: verify what the README actually says about the fw workflow run non-goal and what the yardstick does to it
+  Duration: 0 days (3 min)
+  Updates: 1
+  Commits: 1
+  Lines: +343 -3 across 4 files
+  Outcomes: 4 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-803-make-iw-3-decision-ready-verify-what-the.md
+--- exit code: 0 ---

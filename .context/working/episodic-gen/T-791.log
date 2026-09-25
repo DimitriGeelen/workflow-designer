@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-22T08:08:27Z ===
+task_id: T-791
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-791.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Should 832 ship a local MCP server exposing the workflow designer to AEF users — measure the callable surface and the demand
+  Duration: 0 days (3 min)
+  Updates: 1
+  Commits: 1
+  Lines: +367 -0 across 2 files
+  Outcomes: 5 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-791-should-832-ship-a-local-mcp-server-expos.md
+--- exit code: 0 ---

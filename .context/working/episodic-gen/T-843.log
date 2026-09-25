@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-25T10:05:32Z ===
+task_id: T-843
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-843.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Gate uncontrolled absence assertions at the close path: move the detector to the point of admission
+  Duration: 0 days (37 min)
+  Updates: 1
+  Commits: 4
+  Lines: +1204 -24 across 19 files
+  Outcomes: 10 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 19 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-843-gate-uncontrolled-absence-assertions-at-.md
+--- exit code: 0 ---

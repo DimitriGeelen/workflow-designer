@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-25T10:47:00Z ===
+task_id: T-844
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-844.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Census counts a zero-comparison as absence when a search appears anywhere on the line, not when the compared VALUE came from a search
+  Duration: 0 days (10 min)
+  Updates: 1
+  Commits: 1
+  Lines: +491 -4 across 5 files
+  Outcomes: 9 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 5 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-844-census-counts-a-zero-comparison-as-absen.md
+--- exit code: 0 ---

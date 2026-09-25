@@ -8681,3 +8681,3293 @@ scan_id: R-34c4fe51
 task_id: T-638
 payload:
   task_file: .tasks/active/T-638-t-2054-commit-exemption-matches-git-comm.md
+---
+kind: scan_emitted
+timestamp: '2026-08-30T10:01:09Z'
+scan_id: R-9836463f
+task_id: T-639
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-30T10:01:09Z'
+scan_id: R-9836463f
+task_id: T-639
+payload:
+  task_file: .tasks/active/T-639-focus-drift-gate-reads-task-id-shaped-to.md
+---
+kind: scan_emitted
+timestamp: '2026-08-30T10:37:20Z'
+scan_id: R-25ec5ff7
+task_id: T-641
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-30T10:37:20Z'
+scan_id: R-25ec5ff7
+task_id: T-641
+payload:
+  task_file: .tasks/active/T-641-t-639-prober-sandbox-is-ignored-so-it-me.md
+---
+kind: scan_emitted
+timestamp: '2026-08-30T10:42:29Z'
+scan_id: R-59783093
+task_id: T-640
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-30T10:42:29Z'
+scan_id: R-59783093
+task_id: T-640
+payload:
+  task_file: .tasks/active/T-640-safe-list-admits-curl-and-wget-unconditi.md
+---
+kind: scan_emitted
+timestamp: '2026-08-30T11:00:29Z'
+scan_id: R-22905b79
+task_id: T-642
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-30T11:00:29Z'
+scan_id: R-22905b79
+task_id: T-642
+payload:
+  task_file: .tasks/active/T-642-review-queue-shows-8-agent-recommendatio.md
+---
+kind: scan_emitted
+timestamp: '2026-08-30T18:13:16Z'
+scan_id: R-18faff5c
+task_id: T-643
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-30T18:13:16Z'
+scan_id: R-18faff5c
+task_id: T-643
+payload:
+  task_file: .tasks/active/T-643-review-queue-renders-close-and-keep-open.md
+---
+kind: scan_emitted
+timestamp: '2026-08-30T18:21:15Z'
+scan_id: R-ea5fe244
+task_id: T-644
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-30T18:21:15Z'
+scan_id: R-ea5fe244
+task_id: T-644
+payload:
+  task_file: .tasks/active/T-644-fw-ask-crashes-in-a-vendored-install-pro.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T11:21:51Z'
+scan_id: R-20e99d64
+task_id: T-647
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T11:21:51Z'
+scan_id: R-20e99d64
+task_id: T-647
+payload:
+  task_file: .tasks/active/T-647-t-640s-fetcher-write-guard-over-blocks-t.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T11:37:42Z'
+scan_id: R-c5a94dc3
+task_id: T-646
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T11:37:42Z'
+scan_id: R-c5a94dc3
+task_id: T-646
+payload:
+  task_file: .tasks/active/T-646-the-timeline-renders-task-prose-unescape.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T11:48:09Z'
+scan_id: R-9e147fbd
+task_id: T-645
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T11:48:09Z'
+scan_id: R-9e147fbd
+task_id: T-645
+payload:
+  task_file: .tasks/active/T-645-testhtmxreturnsfragmenttimeline-fails-on.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T11:58:39Z'
+scan_id: R-b693b828
+task_id: T-648
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T11:58:39Z'
+scan_id: R-b693b828
+task_id: T-648
+payload:
+  task_file: .tasks/active/T-648-the-other-two-fragment-assertions-still-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T12:04:43Z'
+scan_id: R-0bb28c88
+task_id: T-649
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T12:04:43Z'
+scan_id: R-0bb28c88
+task_id: T-649
+payload:
+  task_file: .tasks/active/T-649-warn-when-a-task-is-completed-with-its-o.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T12:44:34Z'
+scan_id: R-6259dd5f
+task_id: T-650
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T12:44:34Z'
+scan_id: R-6259dd5f
+task_id: T-650
+payload:
+  task_file: .tasks/active/T-650-the-completion-path-suggests-a-command-i.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T13:12:06Z'
+scan_id: R-c957b31d
+task_id: T-651
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T13:12:06Z'
+scan_id: R-c957b31d
+task_id: T-651
+payload:
+  task_file: .tasks/active/T-651-three-files-in-the-repo-root-are-named-a.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T13:17:04Z'
+scan_id: R-f643b82e
+task_id: T-652
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T13:17:04Z'
+scan_id: R-f643b82e
+task_id: T-652
+payload:
+  task_file: .tasks/active/T-652-fw-git-commit-is-refused-where-git-commi.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T13:21:26Z'
+scan_id: R-fbc97f22
+task_id: T-653
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T13:21:26Z'
+scan_id: R-fbc97f22
+task_id: T-653
+payload:
+  task_file: .tasks/active/T-653-g-047-register-update-record-what-t-650t.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T15:12:46Z'
+scan_id: R-0048232c
+task_id: T-654
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T15:12:46Z'
+scan_id: R-0048232c
+task_id: T-654
+payload:
+  task_file: .tasks/active/T-654-ctl-030-two-completed-tasks-kept-horizon.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T15:19:24Z'
+scan_id: R-77ce6e64
+task_id: T-655
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T15:19:24Z'
+scan_id: R-77ce6e64
+task_id: T-655
+payload:
+  task_file: .tasks/active/T-655-sweep-the-stuck-partial-complete-tasks-t.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T15:27:25Z'
+scan_id: R-0d201be2
+task_id: T-656
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T15:27:25Z'
+scan_id: R-0d201be2
+task_id: T-656
+payload:
+  task_file: .tasks/active/T-656-d2-counts-tasks-as-awaiting-human-judgem.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T18:37:12Z'
+scan_id: R-a7a0b932
+task_id: T-657
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T18:37:12Z'
+scan_id: R-a7a0b932
+task_id: T-657
+payload:
+  task_file: .tasks/active/T-657-vendor-divergence-guard-has-no-delivery-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T18:45:02Z'
+scan_id: R-04d347d4
+task_id: T-658
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T18:45:02Z'
+scan_id: R-04d347d4
+task_id: T-658
+payload:
+  task_file: .tasks/active/T-658-p-011-reports-a-killed-verification-comm.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T18:50:45Z'
+scan_id: R-1b26390a
+task_id: T-659
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T18:50:45Z'
+scan_id: R-1b26390a
+task_id: T-659
+payload:
+  task_file: .tasks/active/T-659-constraint-t-571-near-miss-git-add-conte.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T19:09:27Z'
+scan_id: R-2acd2c66
+task_id: T-660
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T19:09:27Z'
+scan_id: R-2acd2c66
+task_id: T-660
+payload:
+  task_file: .tasks/active/T-660-gate-green-and-operator-actionable-are-s.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T19:47:31Z'
+scan_id: R-d0c1c7ea
+task_id: T-661
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T19:47:31Z'
+scan_id: R-d0c1c7ea
+task_id: T-661
+payload:
+  task_file: .tasks/active/T-661-probers-pin-an-exact-substitution-count-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-31T19:58:24Z'
+scan_id: R-c9c81cd9
+task_id: T-662
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-31T19:58:24Z'
+scan_id: R-c9c81cd9
+task_id: T-662
+payload:
+  task_file: .tasks/active/T-662-g-047-is-recorded-as-jointly-unsatisfiab.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T09:52:09Z'
+scan_id: R-ea6fe955
+task_id: T-663
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T09:52:09Z'
+scan_id: R-ea6fe955
+task_id: T-663
+payload:
+  task_file: .tasks/active/T-663-t-364-teeth-are-dead-the-control-pins-an.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T10:05:21Z'
+scan_id: R-5c76ab30
+task_id: T-664
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T10:05:21Z'
+scan_id: R-5c76ab30
+task_id: T-664
+payload:
+  task_file: .tasks/active/T-664-approvals-queue-has-one-representation-f.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T10:46:03Z'
+scan_id: R-b2a152e7
+task_id: T-665
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T10:46:03Z'
+scan_id: R-b2a152e7
+task_id: T-665
+payload:
+  task_file: .tasks/active/T-665-t358-teethpy-is-dead-the-same-way-t-663-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T12:11:05Z'
+scan_id: R-fce93417
+task_id: T-666
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T12:11:05Z'
+scan_id: R-fce93417
+task_id: T-666
+payload:
+  task_file: .tasks/active/T-666-a-dead-control-and-an-honest-abstention-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T18:41:55Z'
+scan_id: R-d23a3bd0
+task_id: T-440
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T18:41:55Z'
+scan_id: R-d23a3bd0
+task_id: T-440
+payload:
+  task_file: .tasks/active/T-440-t-429-measured-35-of-35-counter-bearing-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T18:45:14Z'
+scan_id: R-ddf51115
+task_id: T-440
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T18:45:14Z'
+scan_id: R-ddf51115
+task_id: T-440
+payload:
+  task_file: .tasks/active/T-440-t-429-measured-35-of-35-counter-bearing-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T19:36:49Z'
+scan_id: R-1300c46a
+task_id: T-195
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T19:36:49Z'
+scan_id: R-1300c46a
+task_id: T-195
+payload:
+  task_file: .tasks/active/T-195-draft-g-3-collapsed-inception-v11-delta-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T19:37:43Z'
+scan_id: R-3a1b90b2
+task_id: T-200
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T19:37:43Z'
+scan_id: R-3a1b90b2
+task_id: T-200
+payload:
+  task_file: .tasks/active/T-200-release-designer-with-iw-9-editor-versio.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T19:38:13Z'
+scan_id: R-f67b96a6
+task_id: T-228
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T19:38:13Z'
+scan_id: R-f67b96a6
+task_id: T-228
+payload:
+  task_file: .tasks/active/T-228-s4-off-page-claim-ux--create-from-pendin.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T19:39:35Z'
+scan_id: R-2327848c
+task_id: T-501
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T19:39:35Z'
+scan_id: R-2327848c
+task_id: T-501
+payload:
+  task_file: .tasks/active/T-501-map-id-round-trip-defect-triage-aef-cons.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-09-01T19:39:35Z'
+scan_id: RC-eba1e12e
+task_id: T-501
+payload:
+  overall: CONTRADICTED
+  claim_count: 6
+---
+kind: scan_emitted
+timestamp: '2026-09-01T21:14:11Z'
+scan_id: R-49e5972a
+task_id: T-667
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T21:14:11Z'
+scan_id: R-49e5972a
+task_id: T-667
+payload:
+  task_file: .tasks/active/T-667-t534s-d2-regex-has-aged-out-of-agreement.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T21:15:14Z'
+scan_id: R-1b903534
+task_id: T-667
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T21:15:14Z'
+scan_id: R-1b903534
+task_id: T-667
+payload:
+  task_file: .tasks/active/T-667-t534s-d2-regex-has-aged-out-of-agreement.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T21:16:00Z'
+scan_id: R-2beddf92
+task_id: T-667
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T21:16:00Z'
+scan_id: R-2beddf92
+task_id: T-667
+payload:
+  task_file: .tasks/active/T-667-t534s-d2-regex-has-aged-out-of-agreement.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T21:16:39Z'
+scan_id: R-b5313b43
+task_id: T-667
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T21:16:39Z'
+scan_id: R-b5313b43
+task_id: T-667
+payload:
+  task_file: .tasks/active/T-667-t534s-d2-regex-has-aged-out-of-agreement.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T21:35:54Z'
+scan_id: R-b5773b75
+task_id: T-668
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T21:35:54Z'
+scan_id: R-b5773b75
+task_id: T-668
+payload:
+  task_file: .tasks/active/T-668-the-concerns-register-drifted-from-its-o.md
+---
+kind: scan_emitted
+timestamp: '2026-09-01T21:36:13Z'
+scan_id: R-3379b39e
+task_id: T-668
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-01T21:36:13Z'
+scan_id: R-3379b39e
+task_id: T-668
+payload:
+  task_file: .tasks/active/T-668-the-concerns-register-drifted-from-its-o.md
+---
+kind: scan_emitted
+timestamp: '2026-09-03T10:04:43Z'
+scan_id: R-5b526449
+task_id: T-671
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-03T10:04:43Z'
+scan_id: R-5b526449
+task_id: T-671
+payload:
+  task_file: .tasks/active/T-671-component-fabric-does-not-meet-the-arc-0.md
+---
+kind: scan_emitted
+timestamp: '2026-09-03T15:40:49Z'
+scan_id: R-899bbee4
+task_id: T-672
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-03T15:40:49Z'
+scan_id: R-899bbee4
+task_id: T-672
+payload:
+  task_file: .tasks/active/T-672-housekeeping-2026-09-03-commit-finalisat.md
+---
+kind: scan_emitted
+timestamp: '2026-09-03T20:09:41Z'
+scan_id: R-377bc106
+task_id: T-673
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-03T20:09:41Z'
+scan_id: R-377bc106
+task_id: T-673
+payload:
+  task_file: .tasks/active/T-673-audit-remediation-cycles-2026-09-03-clos.md
+---
+kind: scan_emitted
+timestamp: '2026-09-03T21:41:03Z'
+scan_id: R-c02ae717
+task_id: T-675
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-03T21:41:03Z'
+scan_id: R-c02ae717
+task_id: T-675
+payload:
+  task_file: .tasks/active/T-675-budget-gate-writes-an-unmeasured-state-i.md
+---
+kind: scan_emitted
+timestamp: '2026-09-04T22:01:57Z'
+scan_id: R-5ad41115
+task_id: T-674
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-04T22:01:57Z'
+scan_id: R-5ad41115
+task_id: T-674
+payload:
+  task_file: .tasks/active/T-674-ctl-012-counts-acs-inside-html-comment-b.md
+---
+kind: scan_emitted
+timestamp: '2026-09-04T22:31:54Z'
+scan_id: R-520531f4
+task_id: T-677
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-04T22:31:54Z'
+scan_id: R-520531f4
+task_id: T-677
+payload:
+  task_file: .tasks/active/T-677-the-pre-push-structure-only-audit-overwr.md
+---
+kind: scan_emitted
+timestamp: '2026-09-05T08:00:36Z'
+scan_id: R-c722f36e
+task_id: T-678
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-05T08:00:36Z'
+scan_id: R-c722f36e
+task_id: T-678
+payload:
+  task_file: .tasks/active/T-678-the-decisionempty-pre-scan-reads-a-multi.md
+---
+kind: scan_emitted
+timestamp: '2026-09-05T10:30:45Z'
+scan_id: R-fb2a8370
+task_id: T-619
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-05T10:30:45Z'
+scan_id: R-fb2a8370
+task_id: T-619
+payload:
+  task_file: .tasks/active/T-619-retry-safety-declaration-on-task-like-no.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-09-05T10:30:45Z'
+scan_id: RC-de73acf6
+task_id: T-619
+payload:
+  overall: CONFIRMED
+  claim_count: 3
+---
+kind: scan_emitted
+timestamp: '2026-09-05T10:47:37Z'
+scan_id: R-8f99b194
+task_id: T-467
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-05T10:47:37Z'
+scan_id: R-8f99b194
+task_id: T-467
+payload:
+  task_file: .tasks/active/T-467-fw-arc-tag-writes-the-deprecated-tags-fo.md
+---
+kind: scan_emitted
+timestamp: '2026-09-05T10:53:31Z'
+scan_id: R-0df27a7f
+task_id: T-679
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-05T10:53:31Z'
+scan_id: R-0df27a7f
+task_id: T-679
+payload:
+  task_file: .tasks/active/T-679-arc-tag-reassignment-guard-reads-only-ar.md
+---
+kind: scan_emitted
+timestamp: '2026-09-05T10:56:48Z'
+scan_id: R-dc06afbb
+task_id: T-670
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-05T10:56:48Z'
+scan_id: R-dc06afbb
+task_id: T-670
+payload:
+  task_file: .tasks/active/T-670-ewcr-has-no-arc-fourteen-tasks-and-three.md
+---
+kind: scan_emitted
+timestamp: '2026-09-05T16:21:00Z'
+scan_id: R-8f9245ae
+task_id: T-680
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-05T16:21:00Z'
+scan_id: R-8f9245ae
+task_id: T-680
+payload:
+  task_file: .tasks/active/T-680-ewcr-arc-0-is-blocked-on-an-aef-attestat.md
+---
+kind: scan_emitted
+timestamp: '2026-09-06T18:43:43Z'
+scan_id: R-20f20b15
+task_id: T-686
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-06T18:43:43Z'
+scan_id: R-20f20b15
+task_id: T-686
+payload:
+  task_file: .tasks/active/T-686-inception-commit-gate-tells-you-to-set-a.md
+---
+kind: scan_emitted
+timestamp: '2026-09-07T19:36:49Z'
+scan_id: R-b579ab07
+task_id: T-687
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-07T19:36:49Z'
+scan_id: R-b579ab07
+task_id: T-687
+payload:
+  task_file: .tasks/active/T-687-posttooluse-hooks-starve-each-other-chec.md
+---
+kind: scan_emitted
+timestamp: '2026-09-07T20:28:59Z'
+scan_id: R-18c7b62f
+task_id: T-688
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-07T20:28:59Z'
+scan_id: R-18c7b62f
+task_id: T-688
+payload:
+  task_file: .tasks/active/T-688-vendor-divergence-register-has-no-drain-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-07T21:12:10Z'
+scan_id: R-81b052c3
+task_id: T-683
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-07T21:12:10Z'
+scan_id: R-81b052c3
+task_id: T-683
+payload:
+  task_file: .tasks/active/T-683-wear-the-belt-on-the-write-path-withinre.md
+---
+kind: scan_emitted
+timestamp: '2026-09-07T21:16:34Z'
+scan_id: R-ab9ca1c4
+task_id: T-684
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-07T21:16:34Z'
+scan_id: R-ab9ca1c4
+task_id: T-684
+payload:
+  task_file: .tasks/active/T-684-ship-the-arc-2-mutation-control-with-a-m.md
+---
+kind: scan_emitted
+timestamp: '2026-09-07T21:21:25Z'
+scan_id: R-527d57c2
+task_id: T-682
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-07T21:21:25Z'
+scan_id: R-527d57c2
+task_id: T-682
+payload:
+  task_file: .tasks/active/T-682-arc-2-boundary-enumeration-name-every-au.md
+---
+kind: scan_emitted
+timestamp: '2026-09-08T09:23:44Z'
+scan_id: R-cddc3616
+task_id: T-685
+payload:
+  overall: CONCERN
+  finding_count: 5
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-08T09:23:44Z'
+scan_id: R-cddc3616
+task_id: T-685
+payload:
+  task_file: .tasks/active/T-685-should-authority-live-in-the-box-tier--o.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-09-08T09:23:44Z'
+scan_id: RC-65e583f8
+task_id: T-685
+payload:
+  overall: CONFIRMED
+  claim_count: 1
+---
+kind: scan_emitted
+timestamp: '2026-09-08T20:49:51Z'
+scan_id: R-9a8a5c7c
+task_id: T-689
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-08T20:49:51Z'
+scan_id: R-9a8a5c7c
+task_id: T-689
+payload:
+  task_file: .tasks/active/T-689-arc-2-isolation-proof-measures-execution.md
+---
+kind: scan_emitted
+timestamp: '2026-09-09T07:37:24Z'
+scan_id: R-68730e47
+task_id: T-690
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-09T07:37:24Z'
+scan_id: R-68730e47
+task_id: T-690
+payload:
+  task_file: .tasks/active/T-690-sequenceflow-emits-extensionelements-aft.md
+---
+kind: scan_emitted
+timestamp: '2026-09-09T07:40:15Z'
+scan_id: R-7f5b28f8
+task_id: T-423
+payload:
+  overall: CONCERN
+  finding_count: 6
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-09T07:40:15Z'
+scan_id: R-7f5b28f8
+task_id: T-423
+payload:
+  task_file: .tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md
+---
+kind: scan_emitted
+timestamp: '2026-09-09T07:46:37Z'
+scan_id: R-8c92e415
+task_id: T-676
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-09T07:46:37Z'
+scan_id: R-8c92e415
+task_id: T-676
+payload:
+  task_file: .tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md
+---
+kind: scan_emitted
+timestamp: '2026-09-09T08:30:32Z'
+scan_id: R-71602412
+task_id: T-692
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-09T08:30:32Z'
+scan_id: R-71602412
+task_id: T-692
+payload:
+  task_file: .tasks/active/T-692-pickup-findings-for-the-aef-agent-three-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-09T08:33:10Z'
+scan_id: R-9d66179f
+task_id: T-693
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-09T08:33:10Z'
+scan_id: R-9d66179f
+task_id: T-693
+payload:
+  task_file: .tasks/active/T-693-correct-the-aef-pickup-document-t-2054-a.md
+---
+kind: scan_emitted
+timestamp: '2026-09-10T05:48:29Z'
+scan_id: R-0d6699a6
+task_id: T-694
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-10T05:48:29Z'
+scan_id: R-0d6699a6
+task_id: T-694
+payload:
+  task_file: .tasks/active/T-694-bvp-quadrant-is-not-a-measurement-for-mo.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T13:35:21Z'
+scan_id: R-5d1f35a6
+task_id: T-697
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T13:35:21Z'
+scan_id: R-5d1f35a6
+task_id: T-697
+payload:
+  task_file: .tasks/active/T-697-ra-001-one-watched-source-file-has-no-fa.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T13:36:23Z'
+scan_id: R-6d962afd
+task_id: T-699
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T13:36:23Z'
+scan_id: R-6d962afd
+task_id: T-699
+payload:
+  task_file: .tasks/active/T-699-ra-003-fabric-drift-reports-1-unregister.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T13:40:44Z'
+scan_id: R-193fe639
+task_id: T-698
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T13:40:44Z'
+scan_id: R-193fe639
+task_id: T-698
+payload:
+  task_file: .tasks/active/T-698-ra-002-78-of-373-fabric-cards-carry-no-d.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T13:46:01Z'
+scan_id: R-02a88459
+task_id: T-726
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T13:46:01Z'
+scan_id: R-02a88459
+task_id: T-726
+payload:
+  task_file: .tasks/active/T-726-ra-030-d3-commit-velocity-dropped-to-01x.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T13:47:19Z'
+scan_id: R-6a069be7
+task_id: T-727
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T13:47:19Z'
+scan_id: R-6a069be7
+task_id: T-727
+payload:
+  task_file: .tasks/active/T-727-ra-031-d6-completion-velocity-sustained-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T13:57:21Z'
+scan_id: R-7b02f0a5
+task_id: T-704
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T13:57:21Z'
+scan_id: R-7b02f0a5
+task_id: T-704
+payload:
+  task_file: .tasks/active/T-704-ra-008-completed-inception-t-015-has-no-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T14:55:56Z'
+scan_id: R-7c2099f6
+task_id: T-707
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T14:55:56Z'
+scan_id: R-7c2099f6
+task_id: T-707
+payload:
+  task_file: .tasks/active/T-707-ra-011-completed-inception-t-587-has-no-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T15:55:06Z'
+scan_id: R-d0a413de
+task_id: T-705
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T15:55:06Z'
+scan_id: R-d0a413de
+task_id: T-705
+payload:
+  task_file: .tasks/active/T-705-ra-009-completed-inception-t-103-has-no-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T17:16:55Z'
+scan_id: R-4927c562
+task_id: T-706
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T17:16:55Z'
+scan_id: R-4927c562
+task_id: T-706
+payload:
+  task_file: .tasks/active/T-706-ra-010-completed-inception-t-250-has-no-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-16T19:17:36Z'
+scan_id: R-b6844ae5
+task_id: T-733
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-16T19:17:36Z'
+scan_id: R-b6844ae5
+task_id: T-733
+payload:
+  task_file: .tasks/active/T-733-contact-aef-on-r6r7-after-the-rail-came-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-19T21:27:37Z'
+scan_id: R-c388bd69
+task_id: T-734
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-19T21:27:37Z'
+scan_id: R-c388bd69
+task_id: T-734
+payload:
+  task_file: .tasks/active/T-734-new-scope-absence-claimed-from-a-truncat.md
+---
+kind: scan_emitted
+timestamp: '2026-09-19T22:09:11Z'
+scan_id: R-6be9a292
+task_id: T-735
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-19T22:09:11Z'
+scan_id: R-6be9a292
+task_id: T-735
+payload:
+  task_file: .tasks/active/T-735-the-permanent-audit-store-overwrites-sam.md
+---
+kind: scan_emitted
+timestamp: '2026-09-20T08:06:48Z'
+scan_id: R-ff260d0b
+task_id: T-736
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-20T08:06:48Z'
+scan_id: R-ff260d0b
+task_id: T-736
+payload:
+  task_file: .tasks/active/T-736-aef-attested-arc-0-clause-1-green-with-i.md
+---
+kind: scan_emitted
+timestamp: '2026-09-20T13:31:16Z'
+scan_id: R-cf26edc7
+task_id: T-730
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-20T13:31:16Z'
+scan_id: R-cf26edc7
+task_id: T-730
+payload:
+  task_file: .tasks/active/T-730-ra-034-typescript-build-is-stale.md
+---
+kind: scan_emitted
+timestamp: '2026-09-20T20:30:56Z'
+scan_id: R-bee3621f
+task_id: T-740
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-20T20:30:56Z'
+scan_id: R-bee3621f
+task_id: T-740
+payload:
+  task_file: .tasks/active/T-740-value-review-the-aef-seam-and-the-workfl.md
+---
+kind: scan_emitted
+timestamp: '2026-09-20T21:02:04Z'
+scan_id: R-43aec1a5
+task_id: T-739
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-20T21:02:04Z'
+scan_id: R-43aec1a5
+task_id: T-739
+payload:
+  task_file: .tasks/active/T-739-review-queue-decisions-drops-every-incep.md
+---
+kind: scan_emitted
+timestamp: '2026-09-20T22:52:22Z'
+scan_id: R-8b1893cb
+task_id: T-742
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-20T22:52:22Z'
+scan_id: R-8b1893cb
+task_id: T-742
+payload:
+  task_file: .tasks/active/T-742-value-review-the-workflow-designer-produ.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T07:31:09Z'
+scan_id: R-6c740a39
+task_id: T-743
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T07:31:09Z'
+scan_id: R-6c740a39
+task_id: T-743
+payload:
+  task_file: .tasks/active/T-743-consumer-intake-take-our-own-watchtower-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T08:50:57Z'
+scan_id: R-aada87bb
+task_id: T-755
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T08:50:57Z'
+scan_id: R-aada87bb
+task_id: T-755
+payload:
+  task_file: .tasks/active/T-755-ra-046-obs-358-full-audit-hang-localises.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T08:51:54Z'
+scan_id: R-851f51e4
+task_id: T-744
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T08:51:54Z'
+scan_id: R-851f51e4
+task_id: T-744
+payload:
+  task_file: .tasks/active/T-744-audit-remediation-cycle-1-reconcile-live.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T09:35:29Z'
+scan_id: R-2c424ba9
+task_id: T-761
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T09:35:29Z'
+scan_id: R-2c424ba9
+task_id: T-761
+payload:
+  task_file: .tasks/active/T-761-audit-remediation-cycle-2-the-first-comp.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T09:42:14Z'
+scan_id: R-dec3c653
+task_id: T-765
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T09:42:14Z'
+scan_id: R-dec3c653
+task_id: T-765
+payload:
+  task_file: .tasks/active/T-765-ra-054-audit-runtime-swings-32x-on-recen.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T09:43:41Z'
+scan_id: R-cbc8403c
+task_id: T-762
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T09:43:41Z'
+scan_id: R-cbc8403c
+task_id: T-762
+payload:
+  task_file: .tasks/active/T-762-audit-remediation-cycle-3-re-run-verifie.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T10:46:27Z'
+scan_id: R-eca991b7
+task_id: T-768
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T10:46:27Z'
+scan_id: R-eca991b7
+task_id: T-768
+payload:
+  task_file: .tasks/active/T-768-sq-2-upstream-report-the-ownerhuman-with.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T10:47:19Z'
+scan_id: R-3b38dfac
+task_id: T-766
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T10:47:19Z'
+scan_id: R-3b38dfac
+task_id: T-766
+payload:
+  task_file: .tasks/active/T-766-act-on-sovereign-rulings-sq-1-sq-2-sq-4-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T11:33:52Z'
+scan_id: R-9853ee65
+task_id: T-767
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T11:33:52Z'
+scan_id: R-9853ee65
+task_id: T-767
+payload:
+  task_file: .tasks/active/T-767-sq-2-fix-an-agent-produced-task-must-nev.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T12:23:47Z'
+scan_id: R-3398d9e7
+task_id: T-770
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T12:23:47Z'
+scan_id: R-3398d9e7
+task_id: T-770
+payload:
+  task_file: .tasks/active/T-770-standing-instruction-an-external-reviewe.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T12:45:28Z'
+scan_id: R-7145847a
+task_id: T-772
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T12:45:28Z'
+scan_id: R-7145847a
+task_id: T-772
+payload:
+  task_file: .tasks/active/T-772-the-approvals-poll-drops-the-operator-ex.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T14:08:27Z'
+scan_id: R-ff5ae5ba
+task_id: T-771
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T14:08:27Z'
+scan_id: R-ff5ae5ba
+task_id: T-771
+payload:
+  task_file: .tasks/active/T-771-the-approvals-surface-shows-the-operator.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T14:23:00Z'
+scan_id: R-599cfe9f
+task_id: T-774
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T14:23:00Z'
+scan_id: R-599cfe9f
+task_id: T-774
+payload:
+  task_file: .tasks/active/T-774-create-tasksh-rewrites-the-task-name-and.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T14:36:09Z'
+scan_id: R-8815cf41
+task_id: T-775
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T14:36:09Z'
+scan_id: R-8815cf41
+task_id: T-775
+payload:
+  task_file: .tasks/active/T-775-create-tasksh-emits-unparseable-frontmat.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T14:58:03Z'
+scan_id: R-cdfb82b7
+task_id: T-776
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T14:58:03Z'
+scan_id: R-cdfb82b7
+task_id: T-776
+payload:
+  task_file: .tasks/active/T-776-create-tasksh-rewrites-the-task-name-whe.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T15:17:25Z'
+scan_id: R-ef184bb2
+task_id: T-777
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T15:17:25Z'
+scan_id: R-ef184bb2
+task_id: T-777
+payload:
+  task_file: .tasks/active/T-777-autonomous-selection-is-structurally-blo.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T20:31:26Z'
+scan_id: R-1b6331c6
+task_id: T-778
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T20:31:26Z'
+scan_id: R-1b6331c6
+task_id: T-778
+payload:
+  task_file: .tasks/active/T-778-quadrant-ordered-selection-runs-on-uncon.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T20:38:56Z'
+scan_id: R-7d7a409c
+task_id: T-779
+payload:
+  overall: CONCERN
+  finding_count: 6
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T20:38:56Z'
+scan_id: R-7d7a409c
+task_id: T-779
+payload:
+  task_file: .tasks/active/T-779-the-selection-census-recommends-the-one-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T20:44:14Z'
+scan_id: R-29ec44a0
+task_id: T-780
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T20:44:14Z'
+scan_id: R-29ec44a0
+task_id: T-780
+payload:
+  task_file: .tasks/active/T-780-re-enter-selection-at-arc-level-does-any.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T20:54:16Z'
+scan_id: R-91cb9810
+task_id: T-781
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T20:54:16Z'
+scan_id: R-91cb9810
+task_id: T-781
+payload:
+  task_file: .tasks/active/T-781-rca-the-bvp-estimators-calibration-is-st.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T21:19:28Z'
+scan_id: R-8d1b54fe
+task_id: T-782
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T21:19:28Z'
+scan_id: R-8d1b54fe
+task_id: T-782
+payload:
+  task_file: .tasks/active/T-782-re-send-the-bvp-calibration-ask-to-aef-a.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T21:31:11Z'
+scan_id: R-3f3f0fb6
+task_id: T-783
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T21:31:11Z'
+scan_id: R-3f3f0fb6
+task_id: T-783
+payload:
+  task_file: .tasks/active/T-783-evidence-prep-the-operator-review-queue-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T21:57:05Z'
+scan_id: R-0f92ee10
+task_id: T-738
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T21:57:05Z'
+scan_id: R-0f92ee10
+task_id: T-738
+payload:
+  task_file: .tasks/active/T-738-46-of-128-tasks-carry-no-bvp-quadrant-an.md
+---
+kind: scan_emitted
+timestamp: '2026-09-21T22:54:08Z'
+scan_id: R-dbfd77fe
+task_id: T-786
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-21T22:54:08Z'
+scan_id: R-dbfd77fe
+task_id: T-786
+payload:
+  task_file: .tasks/active/T-786-correct-forward-compile-v1-2-remove-aefe.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T07:38:52Z'
+scan_id: R-cbc1038e
+task_id: T-787
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T07:38:52Z'
+scan_id: R-cbc1038e
+task_id: T-787
+payload:
+  task_file: .tasks/active/T-787-repair-probe-cites-an-ephemeral-scratchp.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T07:50:24Z'
+scan_id: R-51970549
+task_id: T-789
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T07:50:24Z'
+scan_id: R-51970549
+task_id: T-789
+payload:
+  task_file: .tasks/active/T-789-exercise-the-product-open-aef-workflow-d.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T08:01:47Z'
+scan_id: R-086e423d
+task_id: T-790
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T08:01:47Z'
+scan_id: R-086e423d
+task_id: T-790
+payload:
+  task_file: .tasks/active/T-790-decide-how-832-ships-extension-capabilit.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T08:08:22Z'
+scan_id: R-9e56829d
+task_id: T-791
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T08:08:22Z'
+scan_id: R-9e56829d
+task_id: T-791
+payload:
+  task_file: .tasks/active/T-791-should-832-ship-a-local-mcp-server-expos.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T08:22:04Z'
+scan_id: R-24cf7e09
+task_id: T-792
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T08:22:04Z'
+scan_id: R-24cf7e09
+task_id: T-792
+payload:
+  task_file: .tasks/active/T-792-build-the-designer-mcp-server-validatewo.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T08:28:48Z'
+scan_id: R-c7c15527
+task_id: T-793
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T08:28:48Z'
+scan_id: R-c7c15527
+task_id: T-793
+payload:
+  task_file: .tasks/active/T-793-remove-the-semgrep-guardian-plugin-its-h.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T08:37:02Z'
+scan_id: R-492616c0
+task_id: T-794
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T08:37:02Z'
+scan_id: R-492616c0
+task_id: T-794
+payload:
+  task_file: .tasks/active/T-794-rank-the-mcp-surface-for-the-designer-by.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T08:44:42Z'
+scan_id: R-99d40528
+task_id: T-795
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T08:44:42Z'
+scan_id: R-99d40528
+task_id: T-795
+payload:
+  task_file: .tasks/active/T-795-add-yamltobpmn-to-the-designer-mcp-serve.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T08:57:37Z'
+scan_id: R-28ab5987
+task_id: T-796
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T08:57:37Z'
+scan_id: R-28ab5987
+task_id: T-796
+payload:
+  task_file: .tasks/active/T-796-add-describeworkflow-report-what-aefs-co.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T09:06:07Z'
+scan_id: R-7c6259d1
+task_id: T-788
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T09:06:07Z'
+scan_id: R-7c6259d1
+task_id: T-788
+payload:
+  task_file: .tasks/active/T-788-does-832-build-any-part-of-the-workflow-.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-09-22T09:06:07Z'
+scan_id: RC-e61e3af5
+task_id: T-788
+payload:
+  overall: UNVERIFIED
+  claim_count: 0
+---
+kind: scan_emitted
+timestamp: '2026-09-22T09:14:52Z'
+scan_id: R-3c21edfd
+task_id: T-797
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T09:14:52Z'
+scan_id: R-3c21edfd
+task_id: T-797
+payload:
+  task_file: .tasks/active/T-797-design-vs-instance-does-anything-model-a.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T09:21:08Z'
+scan_id: R-b6e79286
+task_id: T-798
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T09:21:08Z'
+scan_id: R-b6e79286
+task_id: T-798
+payload:
+  task_file: .tasks/active/T-798-put-the-workflow-classinstance-proposal-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T09:26:51Z'
+scan_id: R-54513b50
+task_id: T-799
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T09:26:51Z'
+scan_id: R-54513b50
+task_id: T-799
+payload:
+  task_file: .tasks/active/T-799-prepare-t-788-for-a-corrected-decision-f.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T09:35:57Z'
+scan_id: R-010be57b
+task_id: T-800
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T09:35:57Z'
+scan_id: R-010be57b
+task_id: T-800
+payload:
+  task_file: .tasks/active/T-800-operator-action-script-one-place-holding.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T09:48:11Z'
+scan_id: R-e373589d
+task_id: T-801
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T09:48:11Z'
+scan_id: R-e373589d
+task_id: T-801
+payload:
+  task_file: .tasks/active/T-801-make-the-sq-2-ruling-decision-ready-re-v.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T10:08:56Z'
+scan_id: R-98fffd87
+task_id: T-802
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T10:08:56Z'
+scan_id: R-98fffd87
+task_id: T-802
+payload:
+  task_file: .tasks/active/T-802-apply-the-sq-2-narrow-ruling-discharge-t.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T10:15:13Z'
+scan_id: R-4893fd59
+task_id: T-803
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T10:15:13Z'
+scan_id: R-4893fd59
+task_id: T-803
+payload:
+  task_file: .tasks/active/T-803-make-iw-3-decision-ready-verify-what-the.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T10:21:22Z'
+scan_id: R-7cb15f60
+task_id: T-804
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T10:21:22Z'
+scan_id: R-7cb15f60
+task_id: T-804
+payload:
+  task_file: .tasks/active/T-804-why-is-the-human-ticking-acs-at-all-meas.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T12:17:30Z'
+scan_id: R-ec6fb76f
+task_id: T-805
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T12:17:30Z'
+scan_id: R-ec6fb76f
+task_id: T-805
+payload:
+  task_file: .tasks/active/T-805-branch-topology-stable--bleeding-edge-ch.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T12:51:40Z'
+scan_id: R-b25fdc97
+task_id: T-808
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T12:51:40Z'
+scan_id: R-b25fdc97
+task_id: T-808
+payload:
+  task_file: .tasks/active/T-808-render-the-product-version-in-the-design.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T13:04:19Z'
+scan_id: R-6d562b63
+task_id: T-809
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T13:04:19Z'
+scan_id: R-6d562b63
+task_id: T-809
+payload:
+  task_file: .tasks/active/T-809-corpus-conformance-census-for-the-frozen.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T13:16:23Z'
+scan_id: R-93e1911b
+task_id: T-810
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T13:16:23Z'
+scan_id: R-93e1911b
+task_id: T-810
+payload:
+  task_file: .tasks/active/T-810-surface-decisionoutputs-on-exclusivegate.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T13:23:44Z'
+scan_id: R-a55ae0b9
+task_id: T-812
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T13:23:44Z'
+scan_id: R-a55ae0b9
+task_id: T-812
+payload:
+  task_file: .tasks/active/T-812-release-lag-leg-2-must-discriminate-on-t.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T13:46:42Z'
+scan_id: R-dd7233be
+task_id: T-813
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T13:46:42Z'
+scan_id: R-dd7233be
+task_id: T-813
+payload:
+  task_file: .tasks/active/T-813-run-history-for-the-gating-suite-so-fail.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T13:47:52Z'
+scan_id: R-0835a237
+task_id: T-814
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T13:47:52Z'
+scan_id: R-0835a237
+task_id: T-814
+payload:
+  task_file: .tasks/active/T-814-delete-refreshlibraryui-inert-body-ten-n.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T14:26:23Z'
+scan_id: R-1ca43fbf
+task_id: T-816
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T14:26:23Z'
+scan_id: R-1ca43fbf
+task_id: T-816
+payload:
+  task_file: .tasks/active/T-816-close-the-e-abbr-dup-parity-gap-on-the-x.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T14:31:33Z'
+scan_id: R-f27a511d
+task_id: T-815
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T14:31:33Z'
+scan_id: R-f27a511d
+task_id: T-815
+payload:
+  task_file: .tasks/active/T-815-the-bridge-suite-rewrites-a-tracked-fixt.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T14:49:59Z'
+scan_id: R-8c72c825
+task_id: T-817
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T14:49:59Z'
+scan_id: R-8c72c825
+task_id: T-817
+payload:
+  task_file: .tasks/active/T-817-wire-four-proven-working-cdp-probes-into.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T14:57:21Z'
+scan_id: R-5a3e90b2
+task_id: T-819
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T14:57:21Z'
+scan_id: R-5a3e90b2
+task_id: T-819
+payload:
+  task_file: .tasks/active/T-819-this-sessions-own-control-probes-are-com.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T15:16:31Z'
+scan_id: R-84899a3a
+task_id: T-820
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T15:16:31Z'
+scan_id: R-84899a3a
+task_id: T-820
+payload:
+  task_file: .tasks/active/T-820-t-816-left-a-new-validator-rule-unclassi.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T16:09:35Z'
+scan_id: R-e08dbb52
+task_id: T-818
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T16:09:35Z'
+scan_id: R-e08dbb52
+task_id: T-818
+payload:
+  task_file: .tasks/active/T-818-two-direct-manipulation-probes-are-red-a.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T16:51:04Z'
+scan_id: R-ac78ac56
+task_id: T-821
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T16:51:04Z'
+scan_id: R-ac78ac56
+task_id: T-821
+payload:
+  task_file: .tasks/active/T-821-failures-become-evidence-a-fault-recorde.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T18:04:15Z'
+scan_id: R-0cd5e558
+task_id: T-823
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T18:04:15Z'
+scan_id: R-0cd5e558
+task_id: T-823
+payload:
+  task_file: .tasks/active/T-823-fast-forward-master-to-bleeding-edge-ope.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T18:21:32Z'
+scan_id: R-6d66b486
+task_id: T-824
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T18:21:32Z'
+scan_id: R-6d66b486
+task_id: T-824
+payload:
+  task_file: .tasks/active/T-824-cut-designer-0130-operator-instructed-re.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T19:21:42Z'
+scan_id: R-a9ce60c2
+task_id: T-825
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T19:21:42Z'
+scan_id: R-a9ce60c2
+task_id: T-825
+payload:
+  task_file: .tasks/active/T-825-ewcr-arc-scoping-review-task-composition.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T19:29:05Z'
+scan_id: R-c79664af
+task_id: T-826
+payload:
+  overall: FAIL
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T19:29:05Z'
+scan_id: R-c79664af
+task_id: T-826
+payload:
+  task_file: .tasks/active/T-826-emit-the-diagram-kind-marker-the-resolvi.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T19:29:34Z'
+scan_id: R-04b00a64
+task_id: T-826
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T19:29:34Z'
+scan_id: R-04b00a64
+task_id: T-826
+payload:
+  task_file: .tasks/active/T-826-emit-the-diagram-kind-marker-the-resolvi.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T19:30:09Z'
+scan_id: R-3c4ba6fb
+task_id: T-826
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T19:30:09Z'
+scan_id: R-3c4ba6fb
+task_id: T-826
+payload:
+  task_file: .tasks/active/T-826-emit-the-diagram-kind-marker-the-resolvi.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T19:30:18Z'
+scan_id: R-0e2c8950
+task_id: T-826
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T19:30:18Z'
+scan_id: R-0e2c8950
+task_id: T-826
+payload:
+  task_file: .tasks/active/T-826-emit-the-diagram-kind-marker-the-resolvi.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T19:30:19Z'
+scan_id: R-c8e612a0
+task_id: T-828
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T19:30:19Z'
+scan_id: R-c8e612a0
+task_id: T-828
+payload:
+  task_file: .tasks/active/T-828-apply-pd-302-reviewer-close-the-arcs-eli.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T19:41:16Z'
+scan_id: R-ab888f51
+task_id: T-829
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T19:41:16Z'
+scan_id: R-ab888f51
+task_id: T-829
+payload:
+  task_file: .tasks/active/T-829-stop-handing-back-blocked-items-make-eac.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T21:35:10Z'
+scan_id: R-936c3ed6
+task_id: T-830
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T21:35:10Z'
+scan_id: R-936c3ed6
+task_id: T-830
+payload:
+  task_file: .tasks/active/T-830-h3-ruled-d-correlations-derive-from-the-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T21:48:19Z'
+scan_id: R-e09e024e
+task_id: T-831
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T21:48:19Z'
+scan_id: R-e09e024e
+task_id: T-831
+payload:
+  task_file: .tasks/active/T-831-score-arc-002-eligible-tasks-for-the-aut.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T21:50:05Z'
+scan_id: R-8f1f0461
+task_id: T-773
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T21:50:05Z'
+scan_id: R-8f1f0461
+task_id: T-773
+payload:
+  task_file: .tasks/active/T-773-clause-1-bounded-exchange-with-aef-ten-r.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T22:11:03Z'
+scan_id: R-18e262e9
+task_id: T-747
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T22:11:03Z'
+scan_id: R-18e262e9
+task_id: T-747
+payload:
+  task_file: .tasks/active/T-747-ra-038-ctl-029-arc-003-task-t-702-is-com.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T22:11:03Z'
+scan_id: R-f6651079
+task_id: T-748
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T22:11:03Z'
+scan_id: R-f6651079
+task_id: T-748
+payload:
+  task_file: .tasks/active/T-748-ra-039-ctl-029-arc-003-task-t-703-is-com.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T22:11:27Z'
+scan_id: R-bb0f7639
+task_id: T-747
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T22:11:27Z'
+scan_id: R-bb0f7639
+task_id: T-747
+payload:
+  task_file: .tasks/active/T-747-ra-038-ctl-029-arc-003-task-t-702-is-com.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T22:11:35Z'
+scan_id: R-d7370e0e
+task_id: T-748
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T22:11:35Z'
+scan_id: R-d7370e0e
+task_id: T-748
+payload:
+  task_file: .tasks/active/T-748-ra-039-ctl-029-arc-003-task-t-703-is-com.md
+---
+kind: scan_emitted
+timestamp: '2026-09-22T22:13:18Z'
+scan_id: R-18de3fb1
+task_id: T-833
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-22T22:13:18Z'
+scan_id: R-18de3fb1
+task_id: T-833
+payload:
+  task_file: .tasks/active/T-833-reviewer-gated-closure-sweep-t-702-t-703.md
+---
+kind: scan_emitted
+timestamp: '2026-09-23T17:08:33Z'
+scan_id: R-8c98a456
+task_id: T-836
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-23T17:08:33Z'
+scan_id: R-8c98a456
+task_id: T-836
+payload:
+  task_file: .tasks/active/T-836-unreachable-values-census-counts-empty-e.md
+---
+kind: scan_emitted
+timestamp: '2026-09-24T21:36:00Z'
+scan_id: R-0104ff65
+task_id: T-807
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-24T21:36:00Z'
+scan_id: R-0104ff65
+task_id: T-807
+payload:
+  task_file: .tasks/active/T-807-tag-seam-artefacts-in-release-notes-so-a.md
+---
+kind: scan_emitted
+timestamp: '2026-09-24T21:44:53Z'
+scan_id: R-373749a9
+task_id: T-806
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-24T21:44:53Z'
+scan_id: R-373749a9
+task_id: T-806
+payload:
+  task_file: .tasks/active/T-806-exclude-examplesaef-processesrendered-fr.md
+---
+kind: scan_emitted
+timestamp: '2026-09-24T21:56:15Z'
+scan_id: R-0c5ad799
+task_id: T-746
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-24T21:56:15Z'
+scan_id: R-0c5ad799
+task_id: T-746
+payload:
+  task_file: .tasks/active/T-746-ra-037-task-file-t-741-has-no-updates-se.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T06:09:20Z'
+scan_id: R-2d60f824
+task_id: T-837
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T06:09:20Z'
+scan_id: R-2d60f824
+task_id: T-837
+payload:
+  task_file: .tasks/active/T-837-procasfit-autonomous-run-two-termlink-di.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T06:09:41Z'
+scan_id: R-c4e5fa44
+task_id: T-838
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T06:09:41Z'
+scan_id: R-c4e5fa44
+task_id: T-838
+payload:
+  task_file: .tasks/active/T-838-project-value-review-deleterefactoradd-g.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T06:29:22Z'
+scan_id: R-6f7d5ba9
+task_id: T-839
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T06:29:22Z'
+scan_id: R-6f7d5ba9
+task_id: T-839
+payload:
+  task_file: .tasks/active/T-839-closing-the-last-active-task-strands-its.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T08:46:48Z'
+scan_id: R-dbdc9153
+task_id: T-841
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T08:46:48Z'
+scan_id: R-dbdc9153
+task_id: T-841
+payload:
+  task_file: .tasks/active/T-841-give-f1f3f4-a-scoring-mechanism-the-thre.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T08:57:13Z'
+scan_id: R-73f45a8b
+task_id: T-842
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T08:57:13Z'
+scan_id: R-73f45a8b
+task_id: T-842
+payload:
+  task_file: .tasks/active/T-842-pin-the-commit-checkpoint-exemption-the-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T10:05:26Z'
+scan_id: R-2d19ae71
+task_id: T-843
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T10:05:26Z'
+scan_id: R-2d19ae71
+task_id: T-843
+payload:
+  task_file: .tasks/active/T-843-gate-uncontrolled-absence-assertions-at-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T10:46:54Z'
+scan_id: R-db133ae2
+task_id: T-844
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T10:46:54Z'
+scan_id: R-db133ae2
+task_id: T-844
+payload:
+  task_file: .tasks/active/T-844-census-counts-a-zero-comparison-as-absen.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T11:10:28Z'
+scan_id: R-196e49c2
+task_id: T-845
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T11:10:28Z'
+scan_id: R-196e49c2
+task_id: T-845
+payload:
+  task_file: .tasks/active/T-845-census-control-recogniser-under-credits-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T11:48:15Z'
+scan_id: R-8d0b4906
+task_id: T-846
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T11:48:15Z'
+scan_id: R-8d0b4906
+task_id: T-846
+payload:
+  task_file: .tasks/active/T-846-triage-the-15-standing-audit-warnings-is.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T11:56:52Z'
+scan_id: R-9233fcc5
+task_id: T-847
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T11:56:52Z'
+scan_id: R-9233fcc5
+task_id: T-847
+payload:
+  task_file: .tasks/active/T-847-make-route-3-installable-in-one-paste-a-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T12:13:21Z'
+scan_id: R-e9dcb732
+task_id: T-848
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T12:13:21Z'
+scan_id: R-e9dcb732
+task_id: T-848
+payload:
+  task_file: .tasks/active/T-848-seed-the-realization-ledger-with-review-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T14:33:01Z'
+scan_id: R-dd4b234e
+task_id: T-849
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T14:33:01Z'
+scan_id: R-dd4b234e
+task_id: T-849
+payload:
+  task_file: .tasks/active/T-849-g-087-guard-admits-level-ok-with-tokens-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T15:37:14Z'
+scan_id: R-2e4a168f
+task_id: T-850
+payload:
+  overall: CONCERN
+  finding_count: 4
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T15:37:14Z'
+scan_id: R-2e4a168f
+task_id: T-850
+payload:
+  task_file: .tasks/active/T-850-instrument-sweep-is-all-or-nothing-and-t.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T16:53:47Z'
+scan_id: R-6d08c1a2
+task_id: T-851
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T16:53:47Z'
+scan_id: R-6d08c1a2
+task_id: T-851
+payload:
+  task_file: .tasks/active/T-851-triage-the-14-red-instruments-which-are-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T19:47:50Z'
+scan_id: R-ac578391
+task_id: T-852
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T19:47:50Z'
+scan_id: R-ac578391
+task_id: T-852
+payload:
+  task_file: .tasks/active/T-852-g-080-carries-preventionmissing-a-field-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T20:16:43Z'
+scan_id: R-87a62b07
+task_id: T-853
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T20:16:43Z'
+scan_id: R-87a62b07
+task_id: T-853
+payload:
+  task_file: .tasks/active/T-853-fw-fabric-validate-regressed-to-the-t-19.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T21:04:09Z'
+scan_id: R-9ec5739b
+task_id: T-855
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T21:04:09Z'
+scan_id: R-9ec5739b
+task_id: T-855
+payload:
+  task_file: .tasks/active/T-855-contextwindow-is-persisted-at-800000-not.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T21:26:31Z'
+scan_id: R-3ee06973
+task_id: T-856
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T21:26:31Z'
+scan_id: R-3ee06973
+task_id: T-856
+payload:
+  task_file: .tasks/active/T-856-trial-bvp-confirm-and-arc-creation-becom.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T21:49:45Z'
+scan_id: R-dbac9879
+task_id: T-857
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T21:49:45Z'
+scan_id: R-dbac9879
+task_id: T-857
+payload:
+  task_file: .tasks/active/T-857-obs-388-is-the-absence-advisory-actually.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T22:21:03Z'
+scan_id: R-3c534719
+task_id: T-858
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T22:21:03Z'
+scan_id: R-3c534719
+task_id: T-858
+payload:
+  task_file: .tasks/active/T-858-403-handler-writes-a-whole-html-document.md
+---
+kind: scan_emitted
+timestamp: '2026-09-25T23:01:12Z'
+scan_id: R-6e50f0b5
+task_id: T-859
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-25T23:01:12Z'
+scan_id: R-6e50f0b5
+task_id: T-859
+payload:
+  task_file: .tasks/active/T-859-t542-cost-axis-guard-raises-attributeerr.md

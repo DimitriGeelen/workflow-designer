@@ -1,3 +1,5 @@
 T-155 fires 2026-08-21: Hierarchical tree grouping for Open-project map browser
+T-279 fires 2026-09-15: Guided-mode procedural guardrail (package P3, Locks 3+6): revive or retire
 T-291 fires 2026-08-28: Document workflow 'review-map' (referenced, not yet created)
 T-292 fires 2026-08-28: Document workflow 'future-map' (referenced, not yet created)
+T-424 fires 2026-09-11: T-357 step 3: retire aef:position

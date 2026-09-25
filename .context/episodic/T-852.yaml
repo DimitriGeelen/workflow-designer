@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-852: G-080 carries prevention_missing, a field I invented hours ago when prevention_partial already meant exactly that
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T19:47:56Z
+# ============================================================================
+
+task_id: T-852
+task_name: "G-080 carries prevention_missing, a field I invented hours ago when prevention_partial already meant exactly that"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T19:45:06Z
+completed: 2026-09-25T19:47:45Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T21:47:44+02:00
+last_commit: 2026-09-25T21:47:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  prevention_partial already meant what I invented prevention_missing to mean — one line, one red cleared
+
+# Key outcomes
+outcomes:
+  - '`prevention_missing:` in G-080 is renamed to `prevention_partial:` — the field the schema already documents as "notes that mitigation exists but prevention does not", which is exactly what the text says'
+  - '**The text is unchanged.** This is a key rename, not a rewrite; the content was right, only the name was invented'
+  - '**`tools/concerns-schema.py` is NOT edited.** Adding my invented field to `PROSE` would fix the red by widening the schema to admit the mistake — the same move as raising the `_t560` baseline, which was refused this morning for the same reason'
+  - '`concerns.yaml` parses as YAML after the edit (the last append to this file fused two entries because it had no trailing newline — verify, do not assume)'
+  - '`bash tools/_t400-schema-teeth.sh` exits **0**, with the RECIPROC leg green — the live register passing is the leg that was failing'
+  - 'No other entry in the register is touched: the diff is exactly one line changed'
+  - '`prevention_missing` appears nowhere in the register afterwards, and the string is not re-introduced anywhere else in the tree as a field key'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-852-g-080-carries-preventionmissing-a-field-.md'
+  - '.tasks/completed/T-851-triage-the-14-red-instruments-which-are-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T21:47:44'
+    action: 'T-852: prevention_partial already meant what I invented prevention_missing to mean — one line, one red cleared'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 3
+  lines_added: 331
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-852-g-080-carries-preventionmissing-a-field-.md
+generated_by: context-agent-hybrid

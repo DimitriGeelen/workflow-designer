@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-05T10:30:50Z ===
+task_id: T-619
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer/.agentic-framework
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-619.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Retry-safety declaration on task-like nodes: is sideEffect already the answer?
+  Duration: 9 days (12553 min)
+  Updates: 2
+  Commits: 2
+  Lines: +353 -11 across 6 files
+  Outcomes: 4 AC checked
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-619-retry-safety-declaration-on-task-like-no.md
+--- exit code: 0 ---

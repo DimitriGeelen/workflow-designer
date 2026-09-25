@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-05T08:00:45Z ===
+task_id: T-678
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-678.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: The decision_empty pre-scan reads a multi-line comment as content, so an inception with an EMPTY Decision section is misclassified drift instead of missing-decide
+  Duration: 0 days (2 min)
+  Updates: 2
+  Commits: 1
+  Lines: +313 -35 across 3 files
+  Outcomes: 4 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-678-the-decisionempty-pre-scan-reads-a-multi.md
+--- exit code: 0 ---

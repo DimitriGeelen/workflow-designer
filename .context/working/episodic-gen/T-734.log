@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-19T21:27:42Z ===
+task_id: T-734
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-734.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: NEW SCOPE: absence claimed from a truncated search — guard the Arc-0 evidence base against the defect that produced OBS-352 and OBS-353
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 1
+  Lines: +574 -0 across 2 files
+  Outcomes: 6 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-734-new-scope-absence-claimed-from-a-truncat.md
+--- exit code: 0 ---

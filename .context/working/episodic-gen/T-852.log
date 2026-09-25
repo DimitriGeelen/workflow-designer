@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-25T19:47:55Z ===
+task_id: T-852
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-852.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: G-080 carries prevention_missing, a field I invented hours ago when prevention_partial already meant exactly that
+  Duration: 0 days (2 min)
+  Updates: 1
+  Commits: 1
+  Lines: +331 -1 across 3 files
+  Outcomes: 7 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-852-g-080-carries-preventionmissing-a-field-.md
+--- exit code: 0 ---

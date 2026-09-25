@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-849: G-087 guard admits level ok with tokens 0 — the zero door is the one that opens on every compaction
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T14:33:07Z
+# ============================================================================
+
+task_id: T-849
+task_name: "G-087 guard admits level ok with tokens 0 — the zero door is the one that opens on every compaction"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T14:09:54Z
+completed: 2026-09-25T14:32:47Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-25T16:32:34+02:00
+last_commit: 2026-09-25T16:32:34+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  close the zero door in G-087's own guard — a level without a credible count is not a gauge
+
+# Key outcomes
+outcomes:
+  - '`checkpoint.sh budget` reports `level: unknown` when the cache carries `tokens: 0`, and the reason names the zero explicitly rather than blaming age or session'
+  - 'When `baseline_tokens` is present and non-zero, the reason states the **contradiction** (tokens below a baseline the session had already paid) rather than the generic no-measurement wording'
+  - 'A non-integer, `null`, or absent `tokens` also reports `level: unknown` — a level without a count is not a gauge'
+  - 'A non-zero `tokens` **below** a non-zero `baseline_tokens` reports `level: unknown` — the same impossibility, caught for counts other than zero'
+  - 'A healthy cache (fresh, this session, `tokens` above baseline) still reports `level: ok` with its token count and headroom fields — the fix does not turn the gauge off'
+  - '`raw_level:` / `raw_tokens:` passthrough is preserved on every new rejection path, so a reader can still see what the cache claimed'
+  - 'A test instrument exists, is executable, and every case is **mutation-tested**: reverting the patch turns the new cases RED (a test that passes against unpatched code proves nothing — PL-206)'
+  - 'The instrument runs against **fixture caches in the scratchpad**, never against the live `.budget-status`, and never writes to it'
+  - '`bash -n` passes on the edited script and `checkpoint.sh budget` still runs against the live cache without a traceback'
+  - 'The vendored edit is recorded for upstream (G-008) — the observation is filed and the fix is described in the commit, since the gap id is AEF''s and not minted locally'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.tasks/active/T-849-g-087-guard-admits-level-ok-with-tokens-.md'
+  - 'tools/_t849-budget-zero-token-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T16:32:34'
+    action: 'T-849: close the zero door in G-087''s own guard — a level without a credible count is not a gauge'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 22 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 22
+  commits: 1
+  files_changed: 3
+  lines_added: 668
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-849-g-087-guard-admits-level-ok-with-tokens-.md
+generated_by: context-agent-hybrid

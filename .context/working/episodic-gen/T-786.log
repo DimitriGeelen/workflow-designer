@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-21T22:54:13Z ===
+task_id: T-786
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-786.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Correct forward-compile-v1 §2: remove aef:endpoint from the semantic list,
+  Duration: 0 days (2 min)
+  Updates: 1
+  Commits: 1
+  Lines: +324 -4 across 3 files
+  Outcomes: 5 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-786-correct-forward-compile-v1-2-remove-aefe.md
+--- exit code: 0 ---

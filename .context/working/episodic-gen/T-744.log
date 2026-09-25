@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-21T08:51:58Z ===
+task_id: T-744
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-744.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Audit remediation cycle 1: reconcile live audit+doctor findings against arc-003
+  Duration: 0 days (56 min)
+  Updates: 1
+  Commits: 3
+  Lines: +3356 -6 across 16 files
+  Outcomes: 5 AC checked
+  Artifacts: 16 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-744-audit-remediation-cycle-1-reconcile-live.md
+--- exit code: 0 ---

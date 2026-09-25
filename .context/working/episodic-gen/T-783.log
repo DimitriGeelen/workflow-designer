@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-21T21:31:16Z ===
+task_id: T-783
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-783.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Evidence-prep the operator review queue: turn 36 GO-marked Human ACs from investigations
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 1
+  Lines: +556 -0 across 4 files
+  Outcomes: 5 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-783-evidence-prep-the-operator-review-queue-.md
+--- exit code: 0 ---

@@ -1,0 +1,92 @@
+# Audit Results - 2026-09-25-2349
+timestamp: 2026-09-25T21:49:54Z
+sections: "structure"
+summary:
+  pass: 21
+  warn: 14
+  fail: 0
+findings:
+  - level: PASS
+    check: "Tasks directory exists"
+  - level: PASS
+    check: "Tasks/active directory exists"
+  - level: PASS
+    check: "Tasks/completed directory exists"
+  - level: PASS
+    check: "Tasks/templates directory exists"
+  - level: PASS
+    check: "Task template exists"
+  - level: PASS
+    check: "No duplicate task IDs — examined 856 task file(s) across 1 corpus view(s)"
+  - level: PASS
+    check: "All project YAML files parse correctly — examined 12 project YAML file(s)"
+  - level: PASS
+    check: "All arc anchor_task references resolve to existing tasks — examined 2 arc anchor_task reference(s)"
+  - level: WARN
+    check: "All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s))"
+    mitigation: "No 'fw corpus explain <id>' reference was found in lib/seeds/tasks — either the seeds stopped routing to maps, or lib/seeds/tasks is absent"
+  - level: PASS
+    check: "All assessed arcs had task commits within 30 days — examined 3 in-progress arc(s) with constituents"
+  - level: INFO
+    check: "free driver F2: retire_when text present, no recognition heuristic — manual review"
+  - level: PASS
+    check: "No inline arc:<slug> tag-only scans outside canonical lib (T-1881) — examined 293 source file(s) under lib/ web/ agents/ bin/ tools/"
+  - level: WARN
+    check: "No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/)"
+    mitigation: "The scan walked no .py files under web/ or lib/ — the OBS-097 rail asserted nothing this run"
+  - level: WARN
+    check: "No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib)"
+    mitigation: "The scan walked no files — the L-417 rail asserted nothing this run"
+  - level: WARN
+    check: "Found 26 GO-scope-not-propagated inception(s) of 30 GO-recorded completed inception(s) examined — GO recorded, related_tasks empty, nobody back-references, no unlocks_inception_decision"
+    mitigation: "Triage: per inception either backfill related_tasks: / unlocks_inception_decision:, or file the slices its GO approved. Full list: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; sibling to L-417/T-1975)"
+  - level: PASS
+    check: "Fabric: 413 registered card(s)"
+  - level: WARN
+    check: "Fabric: 82/413 cards have no edges"
+    mitigation: "Run: fw fabric enrich"
+  - level: WARN
+    check: "Fabric drift: 26 source file(s) have no fabric card"
+    mitigation: "Run: fw fabric scan"
+  - level: WARN
+    check: "Fabric: 11 card(s) point at files no watch pattern covers"
+    mitigation: "Widen .fabric/watch-patterns.yaml, or remove the cards if they are not components"
+  - level: PASS
+    check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
+  - level: PASS
+    check: "Watchtower currency: running pid 798028 is newer than every file under web/"
+  - level: PASS
+    check: "Exec-bit parity: every 100755-indexed script is executable on disk — examined 170 indexed-100755 script(s) (*.sh + bin/fw)"
+  - level: WARN
+    check: "Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab)"
+    mitigation: "Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing"
+  - level: PASS
+    check: "Branch hygiene: no stale branches, worktrees or remote refs"
+  - level: PASS
+    check: "Hook threshold: no hooks failing over threshold"
+  - level: INFO
+    check: "Invariant suite (tests/lint) skipped — framework-repo property; PROJECT_ROOT is not the framework repo"
+  - level: INFO
+    check: "Dead-negation lint (tests/) skipped — framework-repo property; PROJECT_ROOT is not the framework repo"
+  - level: WARN
+    check: "Unit suite (tests/unit) NOT CHECKED — no report at .context/audits/unit-suite/LATEST.yaml (T-3302)"
+    mitigation: "Run once by hand: agents/audit/unit-suite.sh — or wait for the nightly cron (unit-suite-nightly)"
+  - level: PASS
+    check: "Designer ghost registry: ghost↔task joins clean"
+  - level: WARN
+    check: "BVP driver F4 has neither a handler nor a scoring spec"
+    mitigation: "Give it a mechanism: draft a scoring: spec, check it with 'bin/fw bvp driver --validate-scoring <file>', try it with 'bin/fw bvp driver --explain F4 T-XXXX --scoring-file <file>'; schema in policy/value-drivers.yaml header (T-3428)"
+  - level: WARN
+    check: "BVP driver F3 has neither a handler nor a scoring spec"
+    mitigation: "Give it a mechanism: draft a scoring: spec, check it with 'bin/fw bvp driver --validate-scoring <file>', try it with 'bin/fw bvp driver --explain F3 T-XXXX --scoring-file <file>'; schema in policy/value-drivers.yaml header (T-3428)"
+  - level: WARN
+    check: "BVP driver F1 has neither a handler nor a scoring spec"
+    mitigation: "Give it a mechanism: draft a scoring: spec, check it with 'bin/fw bvp driver --validate-scoring <file>', try it with 'bin/fw bvp driver --explain F1 T-XXXX --scoring-file <file>'; schema in policy/value-drivers.yaml header (T-3428)"
+  - level: PASS
+    check: "Delegation surface: reviewer-closeable 7, agent-self 2, operator-only 75 across 69 active task(s) with open Human criteria"
+  - level: WARN
+    check: "Continuous-run loop STOPPED: no-signal"
+    mitigation: "Relaunch with: claude-fw"
+  - level: WARN
+    check: "Fabric: 96 under-populated card(s)"
+    mitigation: "Run: bin/fw fabric enrich --describe-only (fills purpose/subsystem from each file's own header; names what it refuses). Zero-edge cards want a look, not a re-run: bin/fw fabric drift"

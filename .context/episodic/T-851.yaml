@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-851: triage the 14 red instruments: which are dead guards and which are real regressions nobody was told about
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T16:53:53Z
+# ============================================================================
+
+task_id: T-851
+task_name: "triage the 14 red instruments: which are dead guards and which are real regressions nobody was told about"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T16:45:06Z
+completed: 2026-09-25T16:53:38Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T18:53:30+02:00
+last_commit: 2026-09-25T18:53:30+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  triage of the 14 red instruments — 6 dead guards, 8 real regressions, and the sweep's own split is wrong
+
+# Key outcomes
+outcomes:
+  - 'All 14 are run individually and their **actual** failure evidence captured — not inferred from the sweep''s one-line classification, which says `rc=1` and nothing about why'
+  - 'Each is classified into exactly one of: **DEAD GUARD** (the instrument itself is broken — crash, moved fixture, renamed symbol — so the subject''s health is UNKNOWN, not bad), **REAL REGRESSION** (the instrument works and the thing it guards actually broke), or **NEEDS DEEPER LOOK** (cannot be settled from one run)'
+  - 'The distinction is stated per instrument with the evidence that decides it — a traceback is a dead guard, a clean assertion failure naming a subject property is a real regression'
+  - '**`_t400-schema-teeth.sh` is resolved specifically**: T-669''s own ACs record it as "cleared by T-668", and it is red. Either T-668''s fix regressed, or the AC was wrong when written. Say which, with evidence'
+  - '**`_t542`''s crash is root-caused to a name**: `AttributeError: module ''aef_bvp_estimator'' has no attribute ''_BODY_PATH_RE''` — find what that attribute is now called or whether it was deleted, so the fix is a known edit rather than an investigation'
+  - 'The two **DEAD CONTROL (rc=4)** instruments are distinguished from the rc=1 twelve: rc=4 means the unmutated control leg failed, so nothing below it proves anything, which is a different repair from a failing assertion'
+  - 'A report exists at `docs/reports/T-851-red-instrument-triage.md` with one row per instrument: name, rc, classification, the deciding evidence, and the smallest next action'
+  - 'The report states, as a number, **how many of the 14 are dead guards versus real regressions** — the answer changes what the twelve mean: dead guards are tooling debt, real regressions mean the project has been broken and unreported'
+  - '**No instrument is fixed under this task.** Triage only; each fix is its own task per the one-bug-one-task rule, informed by this classification'
+  - 'Verification re-runs a sample of the classification mechanically rather than trusting the report''s prose — at least one dead guard proven to crash and one real regression proven to fail an assertion cleanly'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-851-red-instrument-triage.md'
+  - '.tasks/active/T-851-triage-the-14-red-instruments-which-are-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T18:53:30'
+    action: 'T-851: triage of the 14 red instruments — 6 dead guards, 8 real regressions, and the sweep''s own split is wrong'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 2
+  lines_added: 466
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-851-triage-the-14-red-instruments-which-are-.md
+generated_by: context-agent-hybrid

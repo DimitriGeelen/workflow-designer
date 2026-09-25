@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-857: OBS-388: is the absence advisory actually firing, or only broken to doctor's validator
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T21:49:51Z
+# ============================================================================
+
+task_id: T-857
+task_name: "OBS-388: is the absence advisory actually firing, or only broken to doctor's validator"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T21:30:33Z
+completed: 2026-09-25T21:49:43Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-25T23:48:31+02:00
+last_commit: 2026-09-25T23:49:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the absence advisory has NEVER fired — OBS-388 understated it, and doctor was right. RCA — the red check was right and I talked past it
+
+# Key outcomes
+outcomes:
+  - 'The **script itself** is proven to work when invoked directly with a realistic payload — separating "the script is broken" from "Claude Code never calls it", which doctor''s FAIL cannot distinguish'
+  - 'Whether the hook **actually fired during this session** is answered from evidence, not assumed: an offending leg was written into a task file under T-853 today, so a firing advisory would have warned at that moment'
+  - 'The verdict states plainly which of the three it is: script broken / registered path unresolvable at runtime / registered fine and doctor''s validator is the only thing wrong'
+  - 'A **fixer the operator can run in one short command** is produced, since B-005 blocks the agent from writing `.claude/settings.json` — same pattern as T-847''s registrar, which the operator ran'
+  - 'The fixer is **idempotent and fails closed** on malformed JSON, and does not touch any of the other 19 hook entries'
+  - 'The fixer prints the mandatory `fw enforcement baseline` follow-up, because editing settings changes the canonical hash and omitting it leaves a silent `fw doctor` FAIL (L-398)'
+  - 'The fixer is **tested against a COPY** of settings.json, never against the live file — the agent must not write it even transiently'
+  - 'OBS-388 is updated with the measured verdict, or a follow-up observation records it, so the register carries the answer rather than the original suspicion'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-857-obs-388-is-the-absence-advisory-actually.md'
+  - '.tasks/completed/T-856-trial-bvp-confirm-and-arc-creation-becom.md'
+  - 'tools/hooks/fix-absence-hook-path.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T23:48:31'
+    action: 'T-857: the absence advisory has NEVER fired — OBS-388 understated it, and doctor was right'
+  - time: '2026-09-25T23:49:42'
+    action: 'T-857: RCA — the red check was right and I talked past it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 19 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 19
+  commits: 3
+  files_changed: 7
+  lines_added: 513
+  lines_removed: 3
+  footprint_refreshed_at: '2026-09-25T22:06:24Z'
+  footprint_refreshed_by_commit: 43fbfa6c
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-857-obs-388-is-the-absence-advisory-actually.md
+generated_by: context-agent-hybrid

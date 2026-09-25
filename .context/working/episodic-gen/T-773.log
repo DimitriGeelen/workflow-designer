@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-22T21:50:11Z ===
+task_id: T-773
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-773.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Clause-1 bounded exchange with AEF: ten rounds, one measurable question per
+  Duration: 1 days (1921 min)
+  Updates: 4
+  Commits: 4
+  Lines: +615 -3 across 2 files
+  Outcomes: 6 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-773-clause-1-bounded-exchange-with-aef-ten-r.md
+--- exit code: 0 ---

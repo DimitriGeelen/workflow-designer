@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-31T19:58:27Z ===
+task_id: T-662
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-662.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: G-047 is recorded as jointly unsatisfiable but its third focus state was never measured
+  Duration: 0 days (8 min)
+  Updates: 1
+  Commits: 1
+  Lines: +498 -0 across 5 files
+  Outcomes: 6 AC checked
+  Artifacts: 5 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-662-g-047-is-recorded-as-jointly-unsatisfiab.md
+--- exit code: 0 ---

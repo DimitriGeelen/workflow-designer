@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-22T08:28:53Z ===
+task_id: T-793
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-793.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Remove the semgrep Guardian plugin: its hooks demand a commercial-service login and block Write/Edit
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 1
+  Lines: +266 -0 across 2 files
+  Outcomes: 4 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-793-remove-the-semgrep-guardian-plugin-its-h.md
+--- exit code: 0 ---
