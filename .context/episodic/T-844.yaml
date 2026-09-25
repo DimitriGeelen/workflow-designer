@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-844: Census counts a zero-comparison as absence when a search appears anywhere on the line, not when the compared VALUE came from a search
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T10:47:00Z
+# ============================================================================
+
+task_id: T-844
+task_name: "Census counts a zero-comparison as absence when a search appears anywhere on the line, not when the compared VALUE came from a search"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T10:36:28Z
+completed: 2026-09-25T10:46:51Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T12:46:41+02:00
+last_commit: 2026-09-25T12:46:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the fix I proposed was wrong, the measurement said so, and the classifier is deliberately unchanged
+
+# Key outcomes
+outcomes:
+  - '**THE FIX I FIRST PROPOSED IS DISPROVED AND THE RECORD SAYS SO.** OBS-376 proposed'
+  - '**The actual defect is stated precisely, and it is narrower than "quoting".**'
+  - '**The corpus is measured BEFORE the change, by operand class.** For every leg currently'
+  - '**THE CLASSIFIER IS NOT CHANGED, AND THE MEASUREMENT IS WHY.** This AC replaces four'
+  - '**OBS-376 is corrected on both counts, not quietly superseded.** It was wrong about the'
+  - '**T-592''s leg is CONTROLLED rather than exempted, and the reason is that the control is'
+  - '**`SEARCH_SOURCED`''s documentation is corrected to describe what it actually catches.**'
+  - '**Nothing regresses: both consumers are re-run.** T-843''s unit suite (12) and integration'
+  - '**The baseline is NOT lowered, and the count movement is attributed honestly.** Any'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the fix I proposed was wrong, the measurement said so, and the classifier is deliberately unchanged'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md'
+  - '.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md'
+  - '.tasks/active/T-844-census-counts-a-zero-comparison-as-absen.md'
+  - 'tools/_t560-absence-assertion-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T12:46:41'
+    action: 'T-844: the fix I proposed was wrong, the measurement said so, and the classifier is deliberately unchanged'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 10
+  commits: 1
+  files_changed: 5
+  lines_added: 491
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-844-census-counts-a-zero-comparison-as-absen.md
+generated_by: context-agent-hybrid
