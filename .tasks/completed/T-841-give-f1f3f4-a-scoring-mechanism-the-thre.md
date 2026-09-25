@@ -4,12 +4,12 @@ name: "Give F1/F3/F4 a scoring mechanism: the three weight-9 drivers cannot be s
 description: >
   Root cause of SQ-6, named by 1.7.68's new audit (lib/bvp-scorability.sh, AEF T-3427/T-3428). F1 V_SDLC_ENABLEMENT, F3 V_AEF_INTEGRATION and F4 V_WORKFLOW_ROUTING each carry weight 9 - the three highest in the model, 27 of total weight - and each has NEITHER a handler NOR a declarative scoring: spec. Per the audit: 'cannot be scored, so it contributes nothing to any ranking while its weight and rubric read as a live axis'. T-3427 omits them from the normalisation denominator. So every task in this project scores structurally 0 on all three, always, and cannot do otherwise - which is the mechanism behind what we raised as SQ-6 (no-signal rendered as evidence of no value) and why T-826, an AEF-integration task, reads lv while serving F3 at weight 9. Deliverable this task: drafted and VALIDATED scoring specs for all three, dry-run with fw bvp driver --explain --scoring-file against real tasks, and the ranking delta measured. ATTACHING them is NOT in scope: --scoring-file only attaches via --add (new drivers), there is no verb to give an EXISTING driver a mechanism, hand-editing is forbidden by the schema header, and --add/--remove are ACD-gated. That gap is a finding for AEF and the attach is the operator's.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t841-scoring-spec-controls.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +22,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T07:49:50Z
-last_update: 2026-09-25T08:38:02Z
-date_finished: null
+last_update: 2026-09-25T08:46:41Z
+date_finished: 2026-09-25T08:46:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -489,3 +489,15 @@ absence is our operator's call and is parked as G-080 / SQ-8.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-841-give-f1f3f4-a-scoring-mechanism-the-thre.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-dbdc9153
+- **Timestamp:** 2026-09-25T08:46:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-25T08:46:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1777,3 +1777,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-374
+  text: "fw fabric register names a remediation file that has NEVER existed in this project: it REFUSES to assign a subsystem with 'add a paths: pattern to .fabric/subsystems.yaml', and .fabric/subsystems.yaml is absent. Only .fabric/watch-patterns.yaml exists under .fabric/. The reader is sent to edit a file that is not there, with no hint that creating it is the actual step. Source: .agentic-framework/agents/fabric/lib/describe.py:356 joins project_root + '.fabric/subsystems.yaml' and silently finds nothing; lib/summary.sh:8-12 has the honest branch ('No subsystems.yaml found') so the absence IS known to one code path and not to the other. THIS EXPLAINS A STANDING AUDIT WARNING: 'Fabric: 94 under-populated card(s) - TODO purpose: 30, unknown subsystem: 30'. Those 30 are not neglect, they are structurally unassignable - every card registered since the rule file went missing gets subsystem: unknown and the named remedy cannot be followed. The 411 older cards DO carry subsystems (release, conformance, verification on the tools/_t8* family), so assignment worked at some point and the rule file was lost or never vendored rather than never used. Measured today registering tools/_t841-scoring-spec-controls.sh. SAME CLASS as the verb-surface gap sent to AEF under T-841 and as T-840's upstream_repo defect: a check that names a remedy the reader cannot apply. Not fixed here - one bug one task - and the fix needs a decision about whether the pattern set is authored locally or vendored from AEF, which determines whether this is ours or upstream's."
+  captured: 2026-09-25T08:46:35Z
+  context_task: T-841
+  tags: [bug]
+  status: pending
+  promoted_to: null

@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-841: Give F1/F3/F4 a scoring mechanism: the three weight-9 drivers cannot be scored at all
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T08:46:55Z
+# ============================================================================
+
+task_id: T-841
+task_name: "Give F1/F3/F4 a scoring mechanism: the three weight-9 drivers cannot be scored at all"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T07:49:50Z
+completed: 2026-09-25T08:46:41Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T10:07:12+02:00
+last_commit: 2026-09-25T10:45:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  SQ-6's root cause found — three weight-9 drivers have no rubric and no mechanism. F3 discriminates and promotes T-826; F1 and F4 measured as FAILURES, not tuned. 9/9 ACs with three recorded shortfalls; controls 13/13; G-080 registered; both findings sent
+
+# Key outcomes
+outcomes:
+  - '**The defect is stated as the audit states it, with the weights.** F1 V_SDLC_ENABLEMENT,'
+  - '~~Each spec is derived from the driver''s OWN declared rubric~~ **WITHDRAWN — THERE IS NO'
+  - '**The level ladders are PROPOSED, and marked as proposals throughout.** With no rubric,'
+  - '**The rubric absence is raised as a Sovereign question in its own right.** Three weight-9'
+  - '**Every spec passes `fw bvp driver --validate-scoring`.** Recorded verbatim, all three.'
+  - '**THE TEMPLATE TRAP IS TESTED, NOT ASSUMED.** The schema warns that a keyword drawn from'
+  - '**T-826 is one of the explain targets, and its F3 result is recorded.** It is an'
+  - '**The ranking delta is measured, not asserted.** With the specs supplied via'
+  - '**Nothing is attached, and the reason is recorded.** `--scoring-file` attaches only via'
+  - '**The verb-surface gap is filed for AEF.** The audit WARNs on three existing drivers while'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - 'docs/proposals/T-841-F1-sdlc-enablement-PROPOSED.yaml'
+  - 'docs/proposals/T-841-F3-aef-integration-PROPOSED.yaml'
+  - 'docs/proposals/T-841-F4-workflow-routing-PROPOSED.yaml'
+  - 'docs/reports/T-841-scoring-mechanism-measurement.md'
+  - '.tasks/active/T-841-give-f1f3f4-a-scoring-mechanism-the-thre.md'
+  - 'tools/_t841-scoring-spec-controls.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T10:07:12'
+    action: 'T-841: SQ-6''s root cause found — three weight-9 drivers have no rubric and no mechanism'
+  - time: '2026-09-25T10:38:02'
+    action: 'T-841: F3 discriminates and promotes T-826; F1 and F4 measured as FAILURES, not tuned'
+  - time: '2026-09-25T10:45:39'
+    action: 'T-841: 9/9 ACs with three recorded shortfalls; controls 13/13; G-080 registered; both findings sent'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 56 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 56
+  commits: 3
+  files_changed: 7
+  lines_added: 1085
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-841-give-f1f3f4-a-scoring-mechanism-the-thre.md
+generated_by: context-agent-hybrid
