@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T21:30:33Z
-last_update: 2026-09-25T21:48:10Z
+last_update: 2026-09-25T21:48:34Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -259,6 +259,53 @@ grep -q 'OBS-389' .context/inbox.yaml
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** `fw doctor` reported two failures — `Hook path validation: 1/20 hooks have broken
+paths` and `Hook config: PostToolUse: script not found: warn-uncontrolled-absence.sh` — while the
+script existed, was executable, and was committed. I recorded it in OBS-388 as a probable validator
+quirk over a hook that "probably works". Measured here: **the advisory has never fired.**
+
+**Root cause:** the registrar written under T-847 emitted the hook command as
+`$CLAUDE_PROJECT_DIR/tools/hooks/warn-uncontrolled-absence.sh`. `CLAUDE_PROJECT_DIR` is **unset in
+this environment**, so the command resolves to `/tools/hooks/warn-uncontrolled-absence.sh` and fails
+with *No such file or directory*. PostToolUse failures are non-fatal, so it failed silently on every
+qualifying write since install. 19 of the other 20 entries use a plain absolute path; mine was the
+only one depending on a variable that is not there.
+
+**Why structurally allowed** — two layers, and the second is mine rather than the framework's:
+
+1. **Nothing asserts that an installed hook has ever run.** `fw doctor` validates that the path
+   resolves, which is a static check and the right one — it *did* catch this. What does not exist
+   is any signal of *invocation*: no counter, no last-fired timestamp, no "this hook has produced
+   no output in N writes". An advisory that silently does nothing is indistinguishable from an
+   advisory with nothing to say, which is the same shape as every other defect this session.
+2. **I dismissed the red check because I believed the thing it flagged worked.** I have spent the
+   day finding checks that report green while measuring nothing, and then did the mirror image:
+   reported a genuine FAIL as a reporting artifact on the strength of an assumption about variable
+   expansion that I never tested. That is the more important failure, because it is not a tooling
+   gap — the tool was right and I talked past it.
+
+Compounding: after the operator installed the hook I verified the group count and *Enforcement
+baseline intact*, and stopped. I checked that the registration existed and never that it worked,
+which is the T-843 pattern again — verify the mechanism and the outcome, skip the thing most likely
+to be wrong.
+
+**Prevention** (distinct from the fix):
+
+- `tools/hooks/fix-absence-hook-path.py` repairs the one entry and is the operator's to run (B-005).
+  Idempotent, fails closed with rc 2 on three distinct bad inputs — each measured, not assumed —
+  backs up first, changes exactly one line, and prints the mandatory `fw enforcement baseline`
+  follow-up so the repair cannot be half-done (L-398).
+- Two verification legs assert the agent never wrote the live settings file, so a later reader can
+  see the boundary was respected mechanically rather than by claim.
+- **Named and NOT built:** a hook-invocation signal. The real prevention is that an installed hook
+  which has never produced output should be visible as such, because that is what turns "silently
+  dead for a day" into "noticed on the next doctor run". Doctor already checks the path; it cannot
+  check that the path was exercised. That is its own task and arguably AEF's, since the hook
+  registry and `fw doctor` are theirs.
+- The wording lesson is worth keeping even though it is not mechanisable: OBS-388 said "probably
+  works". A register entry that contains a guess should say which part is measured and which part
+  is guessed, so the next reader knows what still needs testing. OBS-389 corrects it in those terms.
 
 ## Evolution
 
