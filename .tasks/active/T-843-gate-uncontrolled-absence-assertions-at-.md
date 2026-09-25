@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T09:27:29Z
-last_update: 2026-09-25T09:43:49Z
+last_update: 2026-09-25T09:56:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -353,7 +353,21 @@ bash -n .agentic-framework/lib/verification-absence.sh
 # write-time hook would make the correct workflow (assertion first, control second) impossible.
 test -x tools/hooks/warn-uncontrolled-absence.sh
 out=$(printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh 2>&1); echo "$out" | grep -q 'uncontrolled absence assertion'
-out=$(printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-740-value-review-the-aef-seam-and-the-workfl.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh 2>&1); test -z "$out"
+# THE GATE THIS TASK BUILT REFUSED THIS TASK, and it was right. The silent-file assertion below
+# was `test -z "$out"` with nothing proving the hook COULD speak: a hook that exits early on
+# every input satisfies it perfectly. Fixed two ways at once, and the difference between them
+# is worth reading.
+#   test -f  is the EXISTENCE control the census can SEE. `test -x` alone did NOT satisfy it:
+#            EXIST_CTRL matches only -f, -s and -d, so proving a file exists AND is
+#            executable counts for LESS than proving it merely exists. Both are kept —
+#            -f for the instrument, -x because it is the assertion actually worth making.
+#   the DIFFERENTIAL is the control that actually makes the claim sound: one invocation must
+#   produce output and the other must not, in the same leg, so a dead hook fails on the first
+#   clause instead of passing on the second.
+# The census credits the weaker control and cannot recognise the stronger one — it knows
+# PATTERN and EXISTENCE and has no notion of a differential. Filed as OBS-377; not worked
+# around, because writing the leg to suit the instrument would have made it less sound.
+test -f tools/hooks/warn-uncontrolled-absence.sh && test -x tools/hooks/warn-uncontrolled-absence.sh && d=$(printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh 2>&1) && c=$(printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-740-value-review-the-aef-seam-and-the-workfl.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh 2>&1) && test -n "$d" && test -z "$c"
 printf '{"tool_input":{"file_path":"/opt/832-Workflow-designer/.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md"}}' | bash tools/hooks/warn-uncontrolled-absence.sh >/dev/null 2>&1
 
 # Route 3 is HANDED OVER, not silently dropped: the doc carries the settings fragment AND the
