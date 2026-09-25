@@ -4,10 +4,10 @@ name: "G-087 guard admits level ok with tokens 0 — the zero door is the one th
 description: >
   G-087 guard admits level ok with tokens 0 — the zero door is the one that opens on every compaction
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
 components: []
 related_tasks: []
@@ -22,8 +22,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T14:09:54Z
-last_update: 2026-09-25T14:31:59Z
-date_finished: null
+last_update: 2026-09-25T14:32:47Z
+date_finished: 2026-09-25T14:32:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -433,3 +433,24 @@ absence `_t560`'s header has twice recorded as deferred — here it was free.
 
 ### 2026-09-25T14:31:59Z — status-update [task-update-agent]
 - **Change:** tags: +bug
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-dd4b234e
+- **Timestamp:** 2026-09-25T14:33:01Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** yes
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 131
+     - evidence: `bash tools/_t849-budget-zero-token-tests.sh > /dev/null 2>&1`
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -rf`
+
+### 2026-09-25T14:32:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

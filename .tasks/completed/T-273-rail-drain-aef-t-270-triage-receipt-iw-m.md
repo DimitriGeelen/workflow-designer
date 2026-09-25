@@ -173,6 +173,11 @@ out=$(grep -rEn '^[[:space:]]*(\*|#)[[:space:]]+\*{0,2}(IW-[0-9]+|Q-?[0-9]+)' .t
 python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
 grep -q "T-2645" .context/project/concerns.yaml
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -Eq '^[[:space:]]*(\*|#)[[:space:]]+\*{0,2}(IW-[0-9]+|Q-?[0-9]+)' tools/validate-workflow.py
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches

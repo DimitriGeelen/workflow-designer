@@ -175,6 +175,11 @@ Prefer the editor fix (portable, benefits all workflows); confirm approach befor
 grep -q "function contentRightEdge" src/aef-workflow-designer.html
 ! grep -q "POOL_X + LANE_HEADER + POOL_WIDTH + 30" src/aef-workflow-designer.html
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q 'POOL_X + LANE_HEADER + POOL_WIDTH + 30' docs/designer/aef-workflow-designer-complete.md
+
 ## RCA
 
 **Symptom:** After T-042 made the editor honour authored positions, the `inception-review`

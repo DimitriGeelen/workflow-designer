@@ -179,6 +179,11 @@ grep -q "T-298" examples/aef-processes/rendered/error-escalation-ladder.bpmn
 grep -q "x-advisory-reachability" examples/aef-processes/error-escalation-ladder.workflow.yaml
 ! grep -q "yaml-to-bpmn.py. Do not edit by hand" examples/aef-processes/rendered/session-capture.bpmn
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q 'yaml-to-bpmn.py. Do not edit by hand' tools/yaml-to-bpmn.py
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches

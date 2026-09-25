@@ -340,6 +340,11 @@ grep -q "WHAT THIS DOCUMENT GOT WRONG" docs/reports/T-501-map-id-remediation-pro
 # matching build command (dotnet build / go build / cargo check / tsc --noEmit /
 # mvn compile) to that build task's ## Verification — P-011 only runs what you write.
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q "getAttribute('id') || procName || 'imported'," .agentic-framework/vendor/designer/aef-workflow-designer-0.11.0.html
+
 ## Recommendation
 
 **Recommendation:** GO on a NARROWED package — three fixes, with D1's proposed fix replaced.

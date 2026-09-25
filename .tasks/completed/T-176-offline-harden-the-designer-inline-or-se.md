@@ -188,6 +188,11 @@ out=$(python3 tests/test_designer_owner_derived.py 2>&1); echo "$out" | grep -q 
 python3 tests/test_editor_bridge_meta_parity.py
 python3 tests/test_editor_namespace_consistency.py
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -Eq 'fonts\.(googleapis|gstatic)\.com' .agentic-framework/policy/designer-pin.yaml
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches

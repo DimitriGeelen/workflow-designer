@@ -288,6 +288,11 @@ git merge-base --is-ancestor 3bf37909 4c40414c
 grep -q "const BPMN_EXPORTER = 'aef-workflow-designer'" src/aef-workflow-designer.html
 python3 -c "import sys; sys.exit(0 if len(' '*18 + 'exporter=' + chr(34) + 'aef-workflow-designer' + chr(34)) + 1 == 51 else 1)"
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -Eiq 'sha256|sha1|hashlib|md5' .agentic-framework/agents/audit/audit.sh
+
 ## RCA
 
 **Symptom:** T-509 published a mechanism for `_t364-t308-teeth.py`'s red control — *"its

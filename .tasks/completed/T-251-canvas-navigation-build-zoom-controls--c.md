@@ -187,6 +187,11 @@ bash tests/check-corpus-geometry.sh > /tmp/.t251-geom.out 2>&1
 bash tests/run-bridge-tests.sh > /tmp/.t251-bridge.out 2>&1
 python3 tests/test_designer_render.py > /tmp/.t251-render.out 2>&1
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q 'zoomFactor' .agentic-framework/vendor/designer/aef-workflow-designer-0.11.0.html
+
 ## Visual Verification
 
 Element-level screenshots (hermetic harness, tools/_t251-visual-shots.mjs), all READ and checked 2026-07-25:

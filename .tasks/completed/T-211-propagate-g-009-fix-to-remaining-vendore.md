@@ -182,6 +182,11 @@ bash .agentic-framework/agents/task-create/tests/test_ac_comment_strip.sh
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q '\[\^>\]\*-->' .agentic-framework/docs/reports/T-3289-triage-w4.md
+
 ## RCA
 
 **Symptom:** The `>`-mis-parse defect (G-009) that T-210 fixed at one site persists at two

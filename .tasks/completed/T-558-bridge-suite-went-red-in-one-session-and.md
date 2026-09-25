@@ -228,6 +228,11 @@ python3 tools/_t558-hermeticity-census-teeth.py > /tmp/.t558-teeth 2>&1 && grep 
 # No mutant residue: the teeth plant files in tools/ and remove them in a finally.
 test 0 -eq "$(ls tools/ | grep -c 't558-teeth-mutant')"
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q 't558-teeth-mutant' tools/_t558-hermeticity-census-teeth.py
+
 ## RCA
 
 **Symptom.** `bash tests/run-bridge-tests.sh` reported **109 passed, 4 failed**. Three tasks

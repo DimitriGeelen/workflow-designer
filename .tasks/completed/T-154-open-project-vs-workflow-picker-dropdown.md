@@ -182,6 +182,11 @@ test "$(grep -c 'id="btn-open-project"' src/aef-workflow-designer.html)" -eq 1
 ! grep -q 'id="workflow-picker"' src/aef-workflow-designer.html
 ! grep -q "workflow-picker').onchange" src/aef-workflow-designer.html
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q "workflow-picker').onchange" docs/designer/aef-workflow-designer-complete.md
+
 ## Visual Verification
 
 Viewport 1440×900, gallery on :8834, fresh load:

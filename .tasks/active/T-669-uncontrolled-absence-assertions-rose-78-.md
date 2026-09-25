@@ -19,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-01T21:38:40Z
-last_update: 2026-09-25T09:14:59Z
+last_update: 2026-09-25T14:51:40Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -118,6 +118,94 @@ coincidence of substrings as worth less than none, since it is recorded as cover
 **Verified by the instrument, not by assertion:** PATTERN controls 20 → 22 and uncontrolled
 122 → 120 across the two edits. The ratchet remains RED (120 vs baseline 78) and the
 baseline was **not** touched.
+
+## Tier 2 log — the 28 drain edits of 2026-09-25 (PD-308)
+
+The drain ran in one pass. **103 -> 74, baseline lowered 78 -> 74 in the same commit, and the
+ratchet is GREEN for the first time since 2026-09-01.** Every edit below is an APPEND to a
+`## Verification` block in `.tasks/completed/`: `git diff --numstat` over the 28 files shows
+insertions and **zero deletions**, which is the mechanical form of PD-308's additive-only
+constraint. Nothing above any appended line was altered.
+
+**The costing was wrong about the population, and measuring it first is what saved the pass.**
+The handover said 55 reachable legs. 55 legs do carry an extractable pattern — but:
+
+- **14 of the 55 are RED as they stand.** They fail today, inside closed tasks, because the
+  corpus moved under them: three assert over `/tmp` files that no longer exist, one greps
+  `.tasks/active/T-556-...` after T-556 moved to `completed/`, one is a `git diff --cached`
+  that necessarily empties on commit, and nine assert a pattern that is now PRESENT in the
+  file they claim it is absent from. Appending a control to a leg that already fails records
+  coverage that does not exist — the over-crediting the census header calls worse than none.
+  They got no companion and are tabled separately below.
+- **12 have no honest witness.** Either the census extracts no pattern at all (three
+  loop-accumulator legs), or the string exists nowhere outside the leg's own task file, and
+  grepping the task file that CONTAINS the assertion is circular: the pattern is in the leg,
+  so the companion can never fail. Not attempted.
+- **29 were drained** (28 companions; T-361's two legs assert the same string and one
+  companion credits both, verified by the count falling 103 -> 74 rather than 103 -> 75).
+
+Each companion greps THE SAME STRING as the assertion it controls, in a file that is not an
+operand of the original leg, and every one was rehearsed under `set -o pipefail` before being
+written. Six were then mutation-checked by corrupting the pattern: all six went red, so they
+are spelling controls and not decoration.
+
+| # | archived task | line | pattern asserted absent | companion appended — same string, where it IS present |
+|---|---------------|------|--------------------------|--------------------------------------------------------|
+| 1 | `T-042` | 178 | `aef.anchorpoint.dev/extensions` | `tests/test_editor_namespace_consistency.py` |
+| 2 | `T-043` | 176 | `POOL_X + LANE_HEADER + POOL_WIDTH + 30` | `docs/designer/aef-workflow-designer-complete.md` |
+| 3 | `T-081` | 129 | `x-checks:\\|x-sources:\\|x-captures:` | `.tasks/completed/T-086-migrate-remaining-constituents-like-x--s.md` |
+| 4 | `T-086` | 117 | `x-checks:\\|x-sources:\\|x-captures:\\|x-gates:` | `.tasks/completed/T-081-subprocess-node-type-phase-1-collapsed-o.md` |
+| 5 | `T-108` | 142 | `viewPrefs.density\\|set-density\\|DENSITY_PITCH` | `.context/episodic/T-085.yaml` |
+| 6 | `T-154` | 183 | `workflow-picker').onchange` | `docs/designer/aef-workflow-designer-complete.md` |
+| 7 | `T-161` | 174 | `window.prompt('Optional note` | `.tasks/completed/T-150-version-notes-are-inert-wire-up-or-remov.md` |
+| 8 | `T-171` | 136 | `open(METRICS_FILE, "w")` | `.context/episodic/T-171.yaml` |
+| 9 | `T-176` | 177 | `fonts\.(googleapis\|gstatic)\.com` | `.agentic-framework/policy/designer-pin.yaml` |
+| 10 | `T-211` | 144 | `\[\^>\]\*-->` | `.agentic-framework/docs/reports/T-3289-triage-w4.md` |
+| 11 | `T-237` | 197 | `EVENT_KIND_TYPE` | `.agentic-framework/vendor/designer/aef-workflow-designer-0.11.0.html` |
+| 12 | `T-238` | 178 | `api/save` | `.agentic-framework/bin/fw` |
+| 13 | `T-251` | 183 | `zoomFactor` | `.agentic-framework/vendor/designer/aef-workflow-designer-0.11.0.html` |
+| 14 | `T-273` | 171 | `^[[:space:]]*(\*\|#)[[:space:]]+\*{0,2}(IW-[0-9]+\|Q-?[0` | `tools/validate-workflow.py` |
+| 15 | `T-300` | 180 | `yaml-to-bpmn.py. Do not edit by hand` | `tools/yaml-to-bpmn.py` |
+| 16 | `T-326` | 165 | `>[ ]?/dev/null 2>&1` | `.agentic-framework/agents/audit/audit.sh` |
+| 17 | `T-361` | 254 | `AEF generates it from node coordinates` | `.context/designer/projects/audit-process/v1.bpmn` |
+| 18 | `T-407` | 169 | `exporter` | `.agentic-framework/tools/corpus_spec.py` |
+| 19 | `T-501` | 305 | `getAttribute('id') \|\| procName \|\| 'imported',` | `.agentic-framework/vendor/designer/aef-workflow-designer-0.11.0.html` |
+| 20 | `T-510` | 277 | `sha256\|sha1\|hashlib\|md5` | `.agentic-framework/agents/audit/audit.sh` |
+| 21 | `T-558` | 229 | `t558-teeth-mutant` | `tools/_t558-hermeticity-census-teeth.py` |
+| 22 | `T-654` | 188 | `^horizon: \(now\\|next\\|later\)$` | `.agentic-framework/.tasks/templates/default.md` |
+| 23 | `T-661` | 195 | `\[ "\$(MUTATED\|REVERTED\|SUBST)[A-Z_]*" -(ne\|eq) [0-9]` | `tools/lib/mutation-assert.sh` |
+| 24 | `T-682` | 128 | `No execution primitive exists in this file` | `tools/_t682-boundary-inventory.py` |
+| 25 | `T-738` | 228 | `^bvp_scores:` | `.agentic-framework/lib/arc.sh` |
+| 26 | `T-762` | 225 | `T-093` | `.agentic-framework/.vendor-divergence.yaml` |
+| 27 | `T-770` | 248 | `^- \[[ xX]\] *\**\[REVIEWER\]` | `tools/_t770-delegation-boundary.py` |
+| 28 | `T-778` | 182 | `^bvp_scores:` | `.agentic-framework/lib/arc.sh` |
+
+### The 14 RED legs — measured, not repaired
+
+These are a DIFFERENT defect and PD-308 does not reach them: repairing a leg means altering an
+existing assertion in an archived task, which the ruling forbids. They are recorded here so the
+next reader does not mistake them for drain candidates.
+
+| # | archived task | line | why NO companion was appended |
+|---|---------------|------|-------------------------------|
+| 1 | `T-154` | 182 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 2 | `T-312` | 245 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 3 | `T-326` | 160 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 4 | `T-329` | 229 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 5 | `T-330` | 284 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 6 | `T-401` | 195 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 7 | `T-450` | 242 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 8 | `T-463` | 234 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 9 | `T-463` | 235 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 10 | `T-626` | 168 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 11 | `T-648` | 225 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 12 | `T-686` | 106 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 13 | `T-686` | 107 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+| 14 | `T-774` | 223 | leg is RED as it stands — it fails today, so a control over it would record coverage that does not exist |
+
+That 14 of 55 archived legs fail when re-run is its own finding: these tasks closed with those
+legs green, and nothing has re-run them since. A leg nobody re-runs stops being a check and
+starts being a claim (PL-332).
 
 ## Drain plan — the durable copy (moved here 2026-09-25)
 

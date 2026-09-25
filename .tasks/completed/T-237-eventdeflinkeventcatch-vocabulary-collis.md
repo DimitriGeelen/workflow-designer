@@ -196,6 +196,11 @@ python3 tests/test_corpus_fixture_pins.py
 # The 0.3.0 artifact provably lacks the vocabulary (root-cause evidence stays checkable)
 test "$(grep -c "EVENT_KIND_TYPE" dist/aef-workflow-designer-0.3.0.html)" -eq 0
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q 'EVENT_KIND_TYPE' .agentic-framework/vendor/designer/aef-workflow-designer-0.11.0.html
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches

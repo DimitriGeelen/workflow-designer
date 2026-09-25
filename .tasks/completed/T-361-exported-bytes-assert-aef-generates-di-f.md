@@ -257,6 +257,11 @@ python3 tools/_t361-guard-teeth.py
 ! grep -q "AEF generates it from node coordinates" tests/fixtures/exported/t361-trailer-witness.bpmn
 
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q 'AEF generates it from node coordinates' .context/designer/projects/audit-process/v1.bpmn
+
 ## RCA
 
 **Symptom:** every `.bpmn` we exported carried `<!-- BPMN DI (visual layout) omitted in

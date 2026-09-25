@@ -18,4 +18,11 @@
 # those took their zero from a PARSED NUMBER rather than from an empty search result and
 # fail loud when the parse breaks, so they carry none of the silent-failure risk this
 # ratchet exists for. Found by dogfooding — one of the seven was this task's own suite leg.
-78
+#
+# 2026-09-25 (T-669): 78 -> 74. The count had risen to 103 while the census ran as an
+# opt-in probe rather than a close gate (fixed in T-843). Drained 29 legs by appending a
+# same-string companion under PD-308 to 28 archived tasks — additive only. 74 is the
+# measured count after that drain, not a target. 14 of the 55 reachable legs were RED
+# when measured and got no companion: a control over a leg that already fails records
+# coverage that does not exist. They are listed in T-669's Tier 2 log.
+74

@@ -224,6 +224,11 @@ grep -q 'sections: "all"' .context/audits/2026-09-21.yaml
 ! diff -q src/aef-workflow-designer.html build/gallery/designer.html >/dev/null 2>&1
 ! grep -q 'T-093' .context/audits/2026-09-21.yaml
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q 'T-093' .agentic-framework/.vendor-divergence.yaml
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches

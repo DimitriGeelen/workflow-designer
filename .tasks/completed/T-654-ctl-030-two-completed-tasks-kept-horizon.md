@@ -193,6 +193,11 @@ test -f .context/episodic/T-542.yaml && test -f .context/episodic/T-574.yaml
 # The fix is declared as vendored divergence (G-008): two T-654 entries, both upstream: fix.
 test "$(grep -c 'task: T-654' .agentic-framework/.vendor-divergence.yaml)" -eq 2
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q '^horizon: \(now\|next\|later\)$' .agentic-framework/.tasks/templates/default.md
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches

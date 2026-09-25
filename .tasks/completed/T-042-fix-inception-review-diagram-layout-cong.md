@@ -181,6 +181,11 @@ python3 tools/validate-workflow.py examples/aef-processes/rendered/inception-rev
 bash tests/run-bridge-tests.sh
 python3 tools/check-lane-bands.py examples/aef-processes/inception-review.workflow.yaml
 
+# T-669 drain (PD-308: appended, nothing above altered). Companion leg(s) proving the absence
+# assertion(s) above could have found something: each greps THE SAME STRING where it IS
+# present, so a mis-spelled pattern goes red instead of passing vacuously.
+grep -q 'aef.anchorpoint.dev/extensions' tests/test_editor_namespace_consistency.py
+
 ## RCA
 
 **Symptom:** The rendered `inception-review` diagram loaded with the correct nodes but a
