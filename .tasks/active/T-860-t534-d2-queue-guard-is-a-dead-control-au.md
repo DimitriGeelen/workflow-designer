@@ -1,15 +1,15 @@
 ---
-id: T-854
-name: "orchestrate the procAsFit autonomous mandate over TermLink, three rounds, each
-  fed the previous round's result"
+id: T-860
+name: "_t534 D2-queue guard is a dead control: audit.sh no longer composes the d2_msg
+  line it anchors on"
 description: >
-  orchestrate the procAsFit autonomous mandate over TermLink, three rounds, each fed
-  the previous round's result
+  _t534 D2-queue guard is a dead control: audit.sh no longer composes the d2_msg line
+  it anchors on
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -23,8 +23,8 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-25T20:29:02Z
-last_update: 2026-09-25T23:11:44Z
+created: 2026-09-25T23:27:19Z
+last_update: '2026-09-25T23:28:59Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -36,42 +36,76 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-09-25T20:39:52Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); 
-      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=? (unscored (no 
-      scorer for F4; not counted)); F3=? (unscored (no scorer for F3; not 
-      counted)); F1=? (unscored (no scorer for F1; not counted))
-    rubric_sha: e4a00f38e801
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-25T23:28:59Z'
 ---
 
-# T-854: orchestrate the procAsFit autonomous mandate over TermLink, three rounds, each fed the previous round's result
+# T-860: _t534 D2-queue guard is a dead control: audit.sh no longer composes the d2_msg line it anchors on
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**PARKED — blocked on a Sovereign decision. Not a failure, and not attempted twice.**
+
+Selected under the autonomous mandate as a small bounded unit: re-anchor `_t534` to the subject's
+current D2 message, the way T-859 re-aimed `_t542`. Discovery says it is not that.
+
+**What the probe does:** `src.find('d2_msg="D2: Human review queue')` locates the composition block,
+then checks six `FORMAT_ANCHORS` are present in the 2,500 chars after it.
+
+**Why it is dead:** `audit.sh` no longer builds a `d2_msg` variable at all — it calls `fail`/`warn`/
+`pass` with the message inline (lines 6096, 6100, 6104). That alone would be a re-anchor.
+
+**Why it is NOT a re-anchor — measured:** four of the six format anchors are **absent from
+`audit.sh` entirely**, not merely outside the block.
+
+| anchor | where |
+|---|---|
+| `task(s) waiting >30d` | line 6096 |
+| ` waiting >14d` | line 6100 |
+| ` awaiting judgement:` | **ABSENT** |
+| ` signed off, awaiting only the status flip:` | **ABSENT** |
+| `(of which ` | **ABSENT** |
+| ` signed off:` | **ABSENT** |
+
+So the D2 line no longer reports the judgement-versus-signed-off split. **That split was the point
+of T-656** — the probe's own docstring records the intent as *"names both kinds and keeps the
+total"*, and leg 3 holds the audit to it in both directions. The legs cannot be re-anchored to
+something that no longer exists.
+
+**The Sovereign question, and why I did not decide it.** Restoring the guard requires restoring the
+subject's behaviour, and AC7 of this very task forbids editing `audit.sh` here — a guard that edits
+its subject to match itself is not a guard. Two coherent answers exist and choosing between them is
+a design call about what the audit should report:
+
+1. **Restore the split** — the review queue has two populations needing different actions, and
+   collapsing them hides which.
+2. **Accept the simpler line** and retire `_t534`'s legs 1-3 as measuring a superseded contract.
+
+Recorded as **OBS-393**, which also notes this is the **seventh** casualty of `7b5e227e` and the
+first where the *subject's behaviour* changed rather than only the guard — a worse class, because
+the upgrade quietly reduced what the audit tells its reader and the only thing that would have said
+so was a probe the same upgrade disabled.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] The delivery mechanism is established by measurement, not assumption: TermLink spawns a **command**, not a prompt, so the mandate is delivered as an argv argument to the project's own `claude`/`claude-fw` entry point. PTY inject is **not** used — it is the known-lossy path (T-559-era ruling, "not a delivery mechanism"), and a lossily-delivered autonomous mandate can lose its governance-bindings section while keeping "proceed autonomously"
-- [ ] PARTIAL — The spawned session's **governance posture is verified before it is trusted**, not asserted: whether it loads this project's PreToolUse hooks, and what its permission default is. The mandate's central premise is "framework governance applies in full" — if that is false in fact for a headless session, it is reported rather than papered over
-- [x] **No permission-bypass flag is passed.** `--dangerously-skip-permissions` or equivalent would strip exactly the governance the mandate says applies, so a run that cannot proceed without it is reported as blocked, not unblocked
-- [ ] PARTIAL (drafted, never delivered) — Guardrails are **added** to the dispatched prompt, never subtracted: explicit prohibition on wiring `_t350-teeth.sh` / `_t351-teeth.sh` into anything (an earlier mutant of `_t350` deleted this repository; its own header says that is "not an agent's call"), and on passing `--i-am-human` or any `FW_*` bypass
-- [ ] UNMET, blocking — Each round is dispatched **separately**, with the previous round's actual output read and fed forward — the request is a sequence where each prompt acts on the prior result, which cannot be satisfied by three fire-and-forget launches
-- [x] The run record is carried on TermLink so it survives a context reset here, per the mandate's own TermLink binding
-- [x] Each round's result is reported to the operator as received — including refusals, denials and empty rounds — with no round's outcome inferred or predicted before it lands
-- [x] If a round cannot execute at all, that is recorded as the measured result of that round with the reason, and the sequence is not abandoned silently nor continued as if it had succeeded
+- [ ] The subject's **current** D2 message shape is read from `audit.sh` and quoted, rather than the probe being re-anchored to a string I assume exists. If the line was restructured rather than renamed, the re-anchor has to follow the restructure
+- [ ] `python3 tools/_t534-d2-queue-tier-teeth.py` no longer exits **4** — the unmutated control passes, so the legs below it actually run. rc=4 means every anchor beneath is a claim about a sentence that does not exist
+- [ ] Whatever verdict it then reaches (0 or 1) is reported as a **real finding about the D2 queue**, and is **not** fixed under this task — repairing a guard and repairing its subject are different deliverables
+- [ ] The re-anchor is **structural where it can be**: anchor on what the line must contain to be the D2 queue line, not on incidental prose that the next edit will move again. If only a literal will do, say why
+- [ ] The fix carries an **in-file note** naming the upgrade commit `7b5e227e` and the old anchor, because this is the second guard in two tasks decapitated by that upgrade and the next reader needs the pattern, not just the instance (OBS-386)
+- [ ] `_t509-instrument-sweep.sh --only _t534` reflects the new state — specifically it must **leave the `dead-control` bucket**, since that bucket is exactly "the guard is broken" and the guard will no longer be
+- [ ] **`audit.sh` is not edited.** The subject's message is the subject's; a guard that changes its subject to match itself is not a guard. If the message is genuinely wrong, that is a separate finding
+- [ ] No BVP weight, rubric, driver or estimator logic is touched — this run's mandate forbids adjusting calibration, and none of it is in scope here
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -324,48 +358,7 @@ bvp_scores_proposed:
 
 ## Updates
 
-### 2026-09-25T20:29:02Z — task-created [task-create-agent]
+### 2026-09-25T23:27:19Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-854-orchestrate-the-procasfit-autonomous-man.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-860-t534-d2-queue-guard-is-a-dead-control-au.md
 - **Context:** Initial task creation
-
-### 2026-09-25T20:38:55Z — status-update [task-update-agent]
-- **Change:** horizon: now → later
-- **Change:** status: started-work → captured (auto-sync)
-- **Reason:** parked: OBS-387 blocks delivery; the mandate's own ~300k stop condition is already exceeded at 429k
-
-### 2026-09-25T20:39:51Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: later → now (auto-sync)
-
-### 2026-09-25T20:41:28Z — status-update [task-update-agent]
-- **Change:** horizon: now → later
-- **Change:** status: started-work → captured (auto-sync)
-- **Reason:** parked: OBS-387 blocks delivery; mandate stop condition already exceeded
-
-### 2026-09-25T22:38:23Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: later → now (auto-sync)
-
-### 2026-09-25T22:39:22Z — status-update [task-update-agent]
-- **Change:** horizon: now → later
-- **Change:** status: started-work → captured (auto-sync)
-- **Reason:** run 2 terminated on the empty-eligible-set stop condition; OBS-390 and OBS-391 filed
-
-### 2026-09-25T22:42:20Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: later → now (auto-sync)
-
-### 2026-09-25T22:46:29Z — status-update [task-update-agent]
-- **Change:** horizon: now → later
-- **Change:** status: started-work → captured (auto-sync)
-- **Reason:** run 3 terminated: eligible Q1/Q2 are operator acts, twice-failed, or contentless stubs; OBS-392 filed
-
-### 2026-09-25T23:01:46Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: later → now (auto-sync)
-
-### 2026-09-25T23:11:44Z — status-update [task-update-agent]
-- **Change:** horizon: now → later
-- **Change:** status: started-work → captured (auto-sync)
-- **Reason:** run 4 complete: T-859 closed, 8/8 ACs; stopping at the 75% budget line
