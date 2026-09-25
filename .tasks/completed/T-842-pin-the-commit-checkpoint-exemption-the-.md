@@ -285,6 +285,18 @@ git diff --quiet HEAD -- .agentic-framework/agents/context/lib/safe-commands.sh 
 # No Tier-2 bypass was taken under this task id. The focus-drift gate offered --switch-focus
 # and FW_SWITCH_FOCUS=1; neither was used, the fixture data was changed instead.
 ! grep -q 'T-842' .context/working/.gate-bypass-log.yaml
+#
+# ── CONTROL LEGS APPENDED AFTER CLOSE, under PD-308, by T-669 ─────────────────
+# Same repair as T-841's, and the same admission: this task shipped a two-directional
+# ratchet whose whole argument is that an assertion must be shown to fail, and then asserted
+# an absence with nothing establishing the search could have succeeded. _t560 counted it.
+#
+# TWO controls, because _t560 distinguishes them and refuses to conflate them: the first
+# leg's own grep pattern is the SAME STRING as the absence assertion's (PATTERN — catches a
+# wrong pattern), the second proves the target exists (EXISTENCE — catches a wrong path).
+# Nothing above was altered; these lines are additions only.
+grep -q 'T-842' tools/_t842-commit-exemption-spelling-regression.sh
+test -f .context/working/.gate-bypass-log.yaml
 
 ## RCA
 

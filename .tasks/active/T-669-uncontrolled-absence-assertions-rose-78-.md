@@ -67,7 +67,57 @@ cost_estimate_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The ratchet is red and this task is the drain. **Two corrections to the task's own premise,
+recorded rather than quietly restated:**
+
+**The number has moved. This task's title says 78 → 90; the census now reports 78 → 120.**
+Measured 2026-09-25: 3,482 executable legs examined, 157 asserting absence, 22 PATTERN-
+controlled, 120 uncontrolled. So the population to drain is not 12 legs but 42, and AC1's
+"12 new assertions" was true when filed and is not true now. The drift itself is the
+finding: the instrument has been red continuously while the thing it measures grew by 30.
+
+**Why it grew while an accurate detector was running: the detector is opt-in.** Seven task
+files out of 840 run `_t560` in their own `## Verification`. It is a census, not a gate — it
+measures at audit time and never at the moment a leg is admitted. A leg that raises the
+count sails through the close of any task that does not volunteer to check. That is the
+mechanism, and it means the drain alone will not hold: without moving the check onto the
+close path, the count will regrow exactly as it did from 90 to 120.
+
+**Two of the 120 were mine, added the same day I argued for mandatory discriminators.**
+T-841 and T-842 each shipped `! grep -q 'T-84X' .context/working/.gate-bypass-log.yaml`
+with nothing establishing the search could have succeeded — in T-841's case beside a 13-leg
+control instrument I had just written, and in T-842's beside a ratchet whose entire argument
+is that an assertion must be shown to fail. Repaired below as the first drain increment.
+
+## Tier 2 log — the 2 edits made under PD-308
+
+PD-308 (operator ruling, 2026-09-22, T-802) permits an agent to **APPEND** a sibling control
+leg to a `## Verification` block inside `.tasks/completed/` **only** where a teeth instrument
+requires it to discharge an uncontrolled assertion, **additive only**, each edit **logged as
+Tier 2**. This is that log. Both targets are tasks this agent completed the same day, which
+is the same least-invasive choice T-802 made on first application: no other owner's archived
+record is touched.
+
+| # | file | line of the uncontrolled leg | pattern asserted absent | controls appended | route |
+|---|------|------------------------------|--------------------------|-------------------|-------|
+| 1 | `.tasks/completed/T-841-give-f1f3f4-a-scoring-mechanism-the-thre.md` | 332 | `T-841` | `grep -q 'T-841' docs/reports/T-841-scoring-mechanism-measurement.md` (PATTERN) + `test -f .context/working/.gate-bypass-log.yaml` (EXISTENCE) | companion leg greps the same pattern where it IS present |
+| 2 | `.tasks/completed/T-842-pin-the-commit-checkpoint-exemption-the-.md` | 287 | `T-842` | `grep -q 'T-842' tools/_t842-commit-exemption-spelling-regression.sh` (PATTERN) + `test -f .context/working/.gate-bypass-log.yaml` (EXISTENCE) | companion leg greps the same pattern where it IS present |
+
+**Both edits are additions only.** No existing assertion was altered or removed; `git diff`
+on each file shows inserted lines and no deletions.
+
+**Two controls per site, deliberately, not one.** `_t560`'s header states that PATTERN and
+EXISTENCE catch different mistakes and that reading `test -f X && ! grep -q P X` as
+controlled is "the exact overstatement this tool exists to avoid". PATTERN catches a wrong
+pattern; EXISTENCE catches a wrong path. **The PATTERN leg's own grep pattern is the SAME
+STRING as the absence assertion's** — required, because PD-308's own rationale discloses
+that a previous attempt was credited for controls that "used a related pattern rather than
+the same string the instrument requires", and the census rejects a control satisfied by a
+coincidence of substrings as worth less than none, since it is recorded as coverage.
+
+**Verified by the instrument, not by assertion:** PATTERN controls 20 → 22 and uncontrolled
+122 → 120 across the two edits. The ratchet remains RED (120 vs baseline 78) and the
+baseline was **not** touched.
 
 ## Acceptance Criteria
 

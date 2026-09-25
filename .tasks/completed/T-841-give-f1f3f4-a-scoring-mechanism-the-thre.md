@@ -330,6 +330,23 @@ git diff --quiet HEAD -- .agentic-framework/policy/value-drivers.yaml
 # No gate was bypassed under this task id. Scoped to T-841 only — asserting the log has
 # "no diff at all" would be a false claim about other sessions' rows (T-839's lesson).
 ! grep -q 'T-841' .context/working/.gate-bypass-log.yaml
+#
+# ── CONTROL LEGS APPENDED AFTER CLOSE, under PD-308, by T-669 ─────────────────
+# The absence assertion directly above shipped UNCONTROLLED and _t560's census counted it
+# as one of the 122. It is the defect this very task argued against: if the bypass log were
+# deleted or renamed, `! grep -q` passes vacuously and reports a clean result. I wrote a
+# 13-leg control instrument for this task and then shipped an uncontrolled absence
+# assertion beside it.
+#
+# TWO controls, not one, because _t560's header is explicit that they catch different
+# mistakes and are NOT interchangeable: PATTERN catches a wrong pattern, EXISTENCE catches
+# a wrong path, and reading `test -f X && ! grep -q P X` as fully controlled is "the exact
+# overstatement this tool exists to avoid". The first leg's own grep pattern is the SAME
+# STRING as the absence assertion's — required, because an earlier attempt was credited for
+# a control whose pattern merely APPEARED nearby, and mention is not invocation.
+# Nothing above was altered; these lines are additions only.
+grep -q 'T-841' docs/reports/T-841-scoring-mechanism-measurement.md
+test -f .context/working/.gate-bypass-log.yaml
 
 # G-080 is registered AND the register still parses. Both halves matter: an unparseable
 # concerns.yaml with G-080 in it is not a registration, it is a broken file.
