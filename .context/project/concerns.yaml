@@ -3989,7 +3989,7 @@ concerns:
     prose because there is no Sovereign-question register (the defect PL-145 names, and itself
     an open observation); this concern is the only durable home available, following the G-055 /
     G-061 precedent of referencing an SQ from a concern.
-  prevention_missing: >
+  prevention_partial: >
     Two upstream gaps make this class recurrable rather than one-off. (1) `fw bvp driver --add`
     is the only verb that accepts --scoring-file, and it creates a NEW driver — there is no verb
     that gives an EXISTING driver a mechanism, hand-editing is forbidden by the schema header,
