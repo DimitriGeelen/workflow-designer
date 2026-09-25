@@ -98,10 +98,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 37
-  commits: 4
-  files_changed: 19
-  lines_added: 1204
-  lines_removed: 24
+  commits: 5
+  files_changed: 21
+  lines_added: 1334
+  lines_removed: 29
+  footprint_refreshed_at: '2026-09-25T10:06:25Z'
+  footprint_refreshed_by_commit: 7a7be025
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-843-gate-uncontrolled-absence-assertions-at-.md

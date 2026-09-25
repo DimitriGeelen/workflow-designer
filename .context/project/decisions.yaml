@@ -2460,3 +2460,17 @@ decisions:
     date: 2026-09-22
     task: T-824
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-331
+    decision: "a read-only script (`scripts/seam-manifest.sh <ref>`) that computes the seam"
+    scope: project
+    date: 2026-09-24
+    task: T-807
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-332
+    decision: "treat the gap as \"unrecognized flags are silently swallowed,\" not \"the tool's"
+    scope: project
+    date: 2026-09-24
+    task: T-806
+    rationale: "Auto-captured from task file on completion"

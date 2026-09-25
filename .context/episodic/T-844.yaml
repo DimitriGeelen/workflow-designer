@@ -77,10 +77,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 10
-  commits: 1
-  files_changed: 5
-  lines_added: 491
-  lines_removed: 4
+  commits: 2
+  files_changed: 7
+  lines_added: 595
+  lines_removed: 9
+  footprint_refreshed_at: '2026-09-25T10:47:16Z'
+  footprint_refreshed_by_commit: b17737cf
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-844-census-counts-a-zero-comparison-as-absen.md

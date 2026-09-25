@@ -83,10 +83,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 56
-  commits: 3
-  files_changed: 7
-  lines_added: 1085
-  lines_removed: 11
+  commits: 4
+  files_changed: 13
+  lines_added: 1225
+  lines_removed: 18
+  footprint_refreshed_at: '2026-09-25T08:48:20Z'
+  footprint_refreshed_by_commit: b8f8aab9
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-841-give-f1f3f4-a-scoring-mechanism-the-thre.md
