@@ -5,6 +5,7 @@ version: 1.6.354
 provider: claude
 initialized_at: 2026-06-04T07:53:19Z
 inception_commit_limit: 15
-upstream_repo: https://github.com/DimitriGeelen/agentic-engineering-framework.git
+upstream_repo: 
+  https://github.com/DimitriGeelen/agentic-engineering-framework.git
 INCEPTION_COMMIT_LIMIT: 15
-CONTEXT_WINDOW: 800000
+CONTEXT_WINDOW: 1000000
