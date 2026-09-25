@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-848: Seed the realization ledger with review-level predictions, which are checkable now, and record why arc-level realization is not
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-25T12:13:27Z
+# ============================================================================
+
+task_id: T-848
+task_name: "Seed the realization ledger with review-level predictions, which are checkable now, and record why arc-level realization is not"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-25T11:59:07Z
+completed: 2026-09-25T12:13:18Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-25T14:13:14+02:00
+last_commit: 2026-09-25T14:13:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the realization log exists, and the first thing it says is that 3 of my 5 resolved predictions today were wrong
+
+# Key outcomes
+outcomes:
+  - '**The gap is re-stated correctly, because four reviews have stated it wrongly.** Every'
+  - '**ARC-LEVEL realization is BLOCKED, and the reason is measured not assumed.** All three'
+  - '**REVIEW-LEVEL realization is NOT blocked, and that distinction is the task.** A value'
+  - '**The ledger lives at the path four reviews already name**,'
+  - '**Every seeded row is a PREDICTION THAT COULD BE WRONG**, with its predicted observable'
+  - '**Rows whose trigger has not fired are `NOT_YET_DUE`, never `PASS` and never `FAIL`.**'
+  - '**At least one row is recorded as OBSERVED-TRUE and at least one as OBSERVED-FALSE or'
+  - '**The checker reports, and does NOT gate.** No close is blocked by a realization verdict.'
+  - '**`bvp_scores:` / `cost_estimate:` / `voi_score:` are NOT written.** Those are the'
+  - '**Tests first, red first**, and the checker''s own three-valued behaviour is asserted with'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/bvp-realization.jsonl'
+  - '.tasks/active/T-848-seed-the-realization-ledger-with-review-.md'
+  - 'tools/_t848-realization-check.py'
+  - 'tools/_t848-realization-check-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-25T14:13:14'
+    action: 'T-848: the realization log exists, and the first thing it says is that 3 of my 5 resolved predictions today were wrong'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 14
+  commits: 1
+  files_changed: 4
+  lines_added: 601
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-848-seed-the-realization-ledger-with-review-.md
+generated_by: context-agent-hybrid
