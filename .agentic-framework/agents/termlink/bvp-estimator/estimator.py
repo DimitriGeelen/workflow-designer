@@ -2279,21 +2279,37 @@ _TEMPLATE_LINES_CACHE: set[str] | None = None
 
 
 def _template_lines() -> set[str]:
-    """Stripped non-empty lines of `.tasks/templates/default.md`, cached.
+    """Stripped non-empty lines of EVERY `.tasks/templates/*.md`, cached.
 
-    Empty set when the template is absent (a consumer mid-bootstrap) — which
+    Empty set when templates are absent (a consumer mid-bootstrap) — which
     degrades stripping to a no-op rather than failing the score.
+
+    T-865: this used to read ONLY `default.md`, and the omission was load-
+    bearing. Inceptions are created from `inception.md`, whose boilerplate was
+    therefore never stripped — so any signal keyed on a word that template
+    supplies fires on every inception in the corpus. Measured when it bit: a
+    VoI signal on "go/no-go" (a phrase `inception.md` ships) scored 11 of 14
+    active inceptions at an identical 0.6, reproducing the very uniform-score
+    defect it had just been written to fix, one level up.
+
+    A stripper that covers one of three templates is worse than none, because
+    it presents as coverage. Reading the directory means a new template is
+    covered the day it is added rather than the day someone remembers.
     """
     global _TEMPLATE_LINES_CACHE
     if _TEMPLATE_LINES_CACHE is not None:
         return _TEMPLATE_LINES_CACHE
-    tpl = PROJECT_ROOT / ".tasks" / "templates" / "default.md"
     lines: set[str] = set()
+    tpl_dir = PROJECT_ROOT / ".tasks" / "templates"
     try:
-        for ln in tpl.read_text(encoding="utf-8").splitlines():
-            s = ln.strip()
-            if s:
-                lines.add(s)
+        for tpl in sorted(tpl_dir.glob("*.md")):
+            try:
+                for ln in tpl.read_text(encoding="utf-8").splitlines():
+                    s = ln.strip()
+                    if s:
+                        lines.add(s)
+            except OSError:
+                continue
     except OSError:
         pass
     _TEMPLATE_LINES_CACHE = lines
@@ -2636,6 +2652,165 @@ def has_scorer(driver_id: str, name: str | None = None,
     return bool(driver_id in specs or (name and name in specs))
 
 
+# ── T-865: automatic inception inputs, with human values made STICKY ─────────
+#
+# Operator direction 2026-09-26, verbatim in substance: rank everything, take
+# the human out of scoring as far as possible, keep a feedback signal so the
+# estimates improve — "but if I want to override it then it should not be
+# overwritten by an automatic ranking".
+#
+# That last clause is what makes full automation safe rather than reckless. If
+# a re-score can silently paint over a judgement call, then re-scoring is a
+# destructive act and nobody dares run it often; the estimates then never
+# improve, because improvement requires running them repeatedly. Sticky is the
+# precondition for "run it as often as you like".
+#
+# TWO STATES, NO THIRD. `<field>_source: human` is sticky. Everything else is
+# estimated and freely overwritten. A third "unknown provenance" state was
+# considered and rejected: it reintroduces exactly the ambiguity this replaces.
+# Legacy values carrying the template's 0.5 have no source, so they count as
+# estimated and are corrected on the first pass — which is the point.
+#
+# OBSERVABILITY IS NOT OPTIONAL HERE. A sticky guard that silently stops working
+# is indistinguishable from one that works, right up until someone notices their
+# overrides have been quietly erased for weeks. So every run reports the count
+# it protected. That is the whole reason the count exists.
+
+_STICKY_TELEMETRY_DEFAULT = ".context/telemetry/bvp-sticky.jsonl"
+
+
+def _sticky_telemetry(event: dict) -> None:
+    """Append one JSON line. Honours FW_BVP_STICKY_TELEMETRY_PATH.
+
+    The env override exists because T-856 learned it the hard way: its first
+    test run wrote fixture rows into the real append-only ledger, which cannot
+    be cleaned. A test must be able to point this somewhere disposable.
+    """
+    path = os.environ.get("FW_BVP_STICKY_TELEMETRY_PATH") or str(
+        PROJECT_ROOT / _STICKY_TELEMETRY_DEFAULT)
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(event, sort_keys=True) + "\n")
+    except OSError:
+        pass  # telemetry must never fail a score
+
+
+_VOI_SIGNALS = (
+    # (level, label, needles) — highest matching level wins, same ladder shape
+    # as the declarative driver specs so the two read alike.
+    (1.0, "blocks-named-work", ("blocks arc", "blocks every", "gating decision",
+                                "blocks all", "prerequisite for")),
+    (0.8, "unblocks-or-blocked", ("unblocks", "blocked on", "blocks ", "gates ")),
+    (0.6, "decision-with-alternatives", ("go/no-go", "alternatives", "option a",
+                                         "either way", "no-repair", "trade-off")),
+    (0.4, "open-question", ("open question", "we do not know", "unclear whether",
+                            "assumption", "validate whether", "decide ")),
+)
+
+
+def _estimate_voi(fm: dict, body: str, tags: list[str]) -> tuple[float, list[str]]:
+    """Estimate the value of RESOLVING this inception's question, 0.0..1.0.
+
+    Not "is this task important" — that is what the D-drivers measure. VoI is
+    how much is unlocked by turning the question into an answer, so the signals
+    are about leverage and blockage, not about the subject matter.
+
+    A no-signal inception scores 0.2, NOT a neutral mid. That is deliberate and
+    is the operator's direction: everything stays in the ranking grid, so an
+    inception that states no question and blocks nothing must rank low rather
+    than be excluded. 0.2 is a measurement ("nothing here indicates leverage"),
+    not an abstention — and unlike the old 0.5 it is distinguishable from a
+    human's considered mid-score, because that one carries source: human.
+    """
+    hay = "\n".join([
+        str(fm.get("name") or ""),
+        str(fm.get("description") or ""),
+        _strip_template(body or ""),
+        " ".join(str(t) for t in (tags or [])),
+    ]).lower()
+    ev: list[str] = []
+    for level, label, needles in _VOI_SIGNALS:
+        hit = next((n for n in needles if n in hay), None)
+        if hit:
+            ev.append(f"voi:{label}~'{hit.strip()}'")
+            return level, ev
+    # Related tasks are a weak dependency signal when the prose carries none.
+    rel = fm.get("related_tasks") or []
+    if isinstance(rel, list) and len(rel) >= 2:
+        return 0.4, [f"voi:has-{len(rel)}-related-tasks"]
+    return 0.2, ["voi:no-leverage-signal (measured low, not unassessed)"]
+
+
+def _estimate_target_blast_radius(fm: dict, body: str,
+                                  tags: list[str]) -> tuple[int, list[str]]:
+    """Estimate an inception's target blast radius 0..9 from its own text.
+
+    Same pre-fill problem as voi_score and the same 42/45 population. Scales
+    off how wide the question's ANSWER would reach, which the body states in
+    practice ("the standard", "every task", "one script").
+    """
+    hay = "\n".join([
+        str(fm.get("name") or ""),
+        str(fm.get("description") or ""),
+        _strip_template(body or ""),
+    ]).lower()
+    for score, needles in (
+        (9, ("every task", "corpus-wide", "the standard", "all agents",
+             "cross-cutting", "whole corpus")),
+        (7, ("subsystem", "every instrument", "all inceptions", "the ranking")),
+        (5, ("several files", "multiple", "each arc")),
+        (3, ("one subsystem", "a handful", "single surface")),
+    ):
+        hit = next((n for n in needles if n in hay), None)
+        if hit:
+            return score, [f"tbr:reach~'{hit}'→{score}"]
+    return 1, ["tbr:no-reach-signal→1"]
+
+
+def propose_inception_inputs(task_path: Path, dry_run: bool = False) -> dict:
+    """Estimate voi_score / target_blast_radius unless a human set them.
+
+    Returns {'protected': [...], 'estimated': {...}, 'diverged': [...]}.
+    `protected` is what the caller REPORTS — an unreported sticky guard is an
+    unverifiable one.
+    """
+    fm, body = parse_task(task_path)
+    out: dict = {"protected": [], "estimated": {}, "diverged": []}
+    if (fm.get("workflow_type") or "").lower() != "inception":
+        return out
+    tags = list(fm.get("tags") or [])
+
+    for field, estimator in (("voi_score", _estimate_voi),
+                             ("target_blast_radius", _estimate_target_blast_radius)):
+        src = str(fm.get(f"{field}_source") or "").strip().lower()
+        est, _ev = estimator(fm, body, tags)
+        if src == "human":
+            out["protected"].append(field)
+            # The gap between what a human chose and what the machine would have
+            # said IS the training signal. It cannot be reconstructed later —
+            # once the human value is stored, the estimate that disagreed with
+            # it is gone unless it is written down at the moment of divergence.
+            stored = fm.get(field)
+            try:
+                if stored is not None and abs(float(stored) - float(est)) > 1e-9:
+                    out["diverged"].append(field)
+                    _sticky_telemetry({
+                        "ts": _utc_now(),
+                        "task": str(fm.get("id") or task_path.stem),
+                        "field": field,
+                        "human": stored,
+                        "estimate": est,
+                        "delta": round(float(est) - float(stored), 4),
+                        "estimator": ESTIMATOR_ID,
+                    })
+            except (TypeError, ValueError):
+                pass
+            continue
+        out["estimated"][field] = est
+    return out
+
+
 def _score_inception_voi(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
     """T-2189 inception scoring exception (050-Inceptions.md §Scoring Exception).
 
@@ -2645,19 +2820,39 @@ def _score_inception_voi(fm: dict, body: str, tags: list[str]) -> tuple[int, lis
     D-handlers measure. Same score is returned for every requested driver —
     rank is determined by voi alone. Build-task scoring is unchanged.
 
-    Missing or malformed `voi_score` returns a neutral mid-score (2) so
-    grandfathered inceptions (pre-T-2188) still rank, just not by VoI.
+    T-865 (operator-directed 2026-09-26): the value is now ESTIMATED when no
+    human chose it, rather than read from whatever the template pre-filled.
+
+    Before T-865 this returned a neutral 2 for absent-or-malformed, while the
+    task template shipped `voi_score: 0.5` — and int(round(0.5*5)) is also 2. So
+    "nobody assessed this" and "someone judged it mid" produced an identical
+    score, and 42 of 45 inceptions ranked on a number no person had chosen.
+    T-624 tried to fix that with a warning printed above the field; 28 days
+    later the figure had not moved by one, because a comment is not a gate.
+
+    The rule now has exactly two states, and no third:
+      voi_score_source: human  -> STICKY. Used as-is, never re-derived.
+      anything else            -> estimated from the task's own text.
+
+    Nothing is excluded from ranking to achieve this (operator direction:
+    ranking is automatic and universal, no abstention bucket) — an inception
+    with no signal scores LOW, which is a measurement, not an abstention.
     """
+    src = str(fm.get("voi_score_source") or "").strip().lower()
     voi = fm.get("voi_score")
-    if voi is None:
-        return 2, ["→2 (voi-absent-grandfathered)"]
-    try:
-        voi_f = float(voi)
-    except (TypeError, ValueError):
-        return 2, ["→2 (voi-malformed)"]
-    voi_f = max(0.0, min(1.0, voi_f))
+
+    if src == "human" and voi is not None:
+        try:
+            voi_f = max(0.0, min(1.0, float(voi)))
+        except (TypeError, ValueError):
+            voi_f = None
+        if voi_f is not None:
+            score = int(round(voi_f * 5))
+            return score, [f"→{score} (voi:{voi_f:.2f} HUMAN-SET, sticky)"]
+
+    voi_f, ev = _estimate_voi(fm, body, tags)
     score = int(round(voi_f * 5))
-    return score, [f"→{score} (voi:{voi_f:.2f})"]
+    return score, ev + [f"→{score} (voi:{voi_f:.2f} estimated)"]
 
 
 def estimate_task(task_path: Path, drivers: dict[str, int]) -> dict:
@@ -3103,12 +3298,23 @@ def cmd_one(task_id: str, dry_run: bool = False, json_out: bool = False) -> int:
     result["reason"] = reason
     result["task_id"] = task_id
     result["task_path"] = str(task_path.relative_to(PROJECT_ROOT))
+    # T-865: report what the sticky guard protected. A guard nobody can see is
+    # indistinguishable from one that has silently stopped working — which is
+    # the failure mode this whole arc exists to hunt, so it is reported on every
+    # run rather than only when something looks wrong.
+    inc = propose_inception_inputs(task_path, dry_run=dry_run)
+    result["inception_inputs"] = inc
     if json_out:
         print(json.dumps(result, indent=2))
     else:
         sc = result["scores"]
         sc_str = " ".join(f"{k}={v}" for k, v in sc.items())
         print(f"{task_id}: {sc_str}  [{reason}]  ({result['latency_s']}s)")
+        if inc["protected"]:
+            extra = (f"; {len(inc['diverged'])} diverged from the estimate "
+                     f"(logged)") if inc["diverged"] else ""
+            print(f"  left {len(inc['protected'])} human-set value(s) untouched: "
+                  f"{', '.join(inc['protected'])}{extra}")
     return 0
 
 

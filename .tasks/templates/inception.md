@@ -16,11 +16,37 @@ date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
-target_blast_radius: 3            # int 0..9. Anticipated component count of the build work this inception would authorise on GO.
-                                  # Substitutes for the absent components: list in the F8 cost formula (040). Required.
-                                  # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
-voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
-                                  # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+#
+# T-865 (operator-directed 2026-09-26): BOTH fields below are now ESTIMATED
+# automatically from this task's own text. Do not pre-fill them.
+#
+# They used to ship with `target_blast_radius: 3` and `voi_score: 0.5` already
+# filled in, and that default was doing real damage: int(round(0.5*5)) == 2, and
+# an ABSENT voi_score also scored 2, so "nobody assessed this" and "someone
+# judged it middling" were the same number. 42 of 45 inceptions ranked on a
+# value no person had chosen, and because 2 is mid-range they sorted ahead of
+# measured work. T-624 tried to fix it with a warning printed right here; 28
+# days later the figure had not moved by one, because a comment is not a gate.
+# Deleting the default IS the gate.
+#
+# TO OVERRIDE. Set the value AND its source, and it becomes sticky — no
+# automatic pass will ever change it again:
+#
+#   voi_score: 0.9
+#   voi_score_source: human
+#
+# Anything without `_source: human` is treated as the estimator's own and is
+# freely recomputed. There is no third state, deliberately: an "unknown
+# provenance" value is exactly the ambiguity this replaced.
+#
+# target_blast_radius — int 0..9. Anticipated component count of the build work
+#   this inception would authorise on GO; substitutes for the absent
+#   components: list in the F8 cost formula (040).
+#   Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem
+#   (M), 7=multi-arc (L), 9=framework-wide (XL).
+# voi_score — float 0..1. Value of Information: expected value of RESOLVING
+#   this question, independent of build cost. Higher when the answer affects
+#   many tasks or unblocks a strategic decision.
 ---
 
 # T-XXX: [Inception Name]
