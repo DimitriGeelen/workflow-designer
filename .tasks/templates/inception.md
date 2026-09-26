@@ -60,6 +60,20 @@ date_finished: null
 <!-- REQUIRED before a GO decision (T-866, arc-004). Fill the three blanks below and
      delete this comment. Keep the three phrases — the gate looks for them.
 
+     NOT EVERY INCEPTION HAS ONE, and that is fine. "Research how X works" produces
+     understanding, not a delivered outcome, and forcing it into "we will achieve
+     <outcome>" would manufacture a fake claim to satisfy a gate — which teaches
+     authors to write fiction and is worse than no gate at all.
+
+     If this is that kind of inception, set in the frontmatter:
+
+         inception_kind: research
+
+     and delete this section. The gate then passes. Declare it NOW, while framing the
+     work — not later at the decision, when you know whether the hypothesis would have
+     been inconvenient. The count of research inceptions is reported, so if the
+     exemption quietly becomes the default that is visible rather than silent.
+
      This is the form the BVP scoring method expects. Every support score in this
      task's value-driver table is an ARGUMENT ABOUT THIS SENTENCE: "support 5 on
      Reliability" means something only once the sentence says what success looks

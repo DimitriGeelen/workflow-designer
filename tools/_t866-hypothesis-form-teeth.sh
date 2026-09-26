@@ -39,7 +39,13 @@ PASS=0; FAIL=0
 # than found a defect in the subject — the reflex "a surviving case means missing
 # coverage" is wrong about as often as it is right, and the first hypothesis
 # should be that the case is in the wrong bucket.
-GATE_CASES="empty_section_refused missing_clause_refused vague_success_refused refusal_names_what_is_missing unreadable_file_errors"
+#
+# FOURTH correction, same run: research_kind_exempt was filed as a control too.
+# It asserts rc=0 AND that the output SAYS "exempt" — and the always-pass stub
+# returns 0 silently, so the message assertion dies with the body. The message is
+# kept rather than weakened: an exemption that fires without saying so is an
+# unobservable escape hatch, which is the thing this gate is designed not to be.
+GATE_CASES="empty_section_refused missing_clause_refused vague_success_refused refusal_names_what_is_missing unreadable_file_errors research_word_in_body_still_gated research_kind_exempt"
 CONTROL_CASES="checkable_success_accepted nogo_passes_untouched defer_passes_untouched"
 
 ok()  { PASS=$((PASS+1)); printf '  PASS  %s\n' "$1"; }
@@ -50,9 +56,11 @@ grep -q 'audit_inception_hypothesis()' "$SUBJECT" || {
     echo "This probe can no longer test what it claims to test. Not reporting a pass."
     exit 4; }
 
-mk() { # $1 = file, $2 = hypothesis body (empty for none)
-    { printf -- '---\nid: T-9992\nworkflow_type: inception\n---\n\n'
-      printf '## Problem Statement\n\nsomething\n\n'
+mk() { # $1 = file, $2 = hypothesis body, $3 = extra frontmatter line, $4 = problem text
+    { printf -- '---\nid: T-9992\nworkflow_type: inception\n'
+      [ -n "${3:-}" ] && printf '%s\n' "$3"
+      printf -- '---\n\n'
+      printf '## Problem Statement\n\n%s\n\n' "${4:-something}"
       printf '## Hypothesis\n\n%s\n\n' "$2"
       printf '## Assumptions\n\nnone\n'
     } > "$1"
@@ -169,6 +177,26 @@ out=$(run_gate "$WORK/good2.md" go)
 printf '%s' "$out" | grep -q 'RC=0' \
   && echo "  note  non-numeric but checkable clause accepted ('no longer reports')" \
   || echo "  note  non-numeric checkable clause REFUSED — proxy is stricter than intended"
+
+# ── The research exemption (operator 2026-09-26) ───────────────────────────
+# Not every inception carries a claim; "research how X works" produces
+# understanding. Forcing it into "we will achieve <outcome>" would manufacture
+# a fake claim to pass a gate, which teaches authors to write fiction.
+mk "$WORK/research.md" "" "inception_kind: research"
+out=$(run_gate "$WORK/research.md" go)
+if printf '%s' "$out" | grep -q 'RC=0' && printf '%s' "$out" | grep -q 'exempt'; then
+    ok research_kind_exempt
+else bad research_kind_exempt "a declared research inception was still gated: $(printf '%s' "$out" | tr '\n' '/')"; fi
+
+# THE CASE THAT KEEPS THE EXEMPTION HONEST. It must require the DECLARED field,
+# not the word appearing somewhere in the prose — otherwise every inception that
+# mentions research escapes, and the gate has a hole shaped like a common word.
+mk "$WORK/researchword.md" "" "" "We need to research how the importer handles lanes. Research is the point."
+out=$(run_gate "$WORK/researchword.md" go)
+if printf '%s' "$out" | grep -q 'RC=1'; then
+    ok research_word_in_body_still_gated
+else bad research_word_in_body_still_gated "the word 'research' in prose exempted the task — the exemption must be a declared field, not a word match"; fi
+
 
 echo
 echo "PASS $PASS / FAIL $FAIL"

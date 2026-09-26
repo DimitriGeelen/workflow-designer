@@ -33,7 +33,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T12:22:50Z
-last_update: 2026-09-26T13:48:13Z
+last_update: 2026-09-26T13:53:42Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -96,6 +96,9 @@ Human AC rather than quietly skipped.
 - [x] The gate is wired into the inception decision path, ahead of the decision being written
 - [x] **The refusal is actionable, not just correct.** Each refusal names what is missing and shows the form or an example of a checkable clause. T-624's prevention was a correct, emphatic, adjacent warning and the number it tracked did not move in 28 days — a gate that only says "no" is a warning with a worse exit code
 - [x] `tools/_t866-hypothesis-form-teeth.sh` covers the above with a `--mutation` mode whose CONTROL SET reports `MUTATION SETUP BROKEN` rather than reading a broken harness as a clean kill
+- [x] **Research inceptions are exempt, and the exemption is declared at creation rather than reached for at decision time.** Added on operator direction 2026-09-26: "research how X works" produces understanding, not a delivered outcome, and forcing it into "we will achieve <outcome>" would manufacture a fake claim to satisfy a gate — which teaches authors to write fiction and is worse than no gate. `inception_kind: research` in the frontmatter exempts; a decision-time flag deliberately does NOT exist, because a flag reachable at the moment of decision is reached for by an author who wants through
+- [x] **The exemption requires the declared field, not the word.** A body that says "we need to research how the importer handles lanes" is still gated — otherwise the hole is shaped like a common English word. Pinned by its own teeth case
+- [x] **The exemption announces itself when it fires**, so an escape hatch that quietly becomes the default is visible rather than silent. This is why the exemption case is a gate case and not a control: it asserts the message, not just the exit code
 - [x] **The observability check is documented as a proxy, with its own limits stated in the code.** It cannot decide "is this observable"; it decides "does this clause contain anything a person could later look at". It is foolable deliberately and not foolable by the sincere vague clause, which is the failure that actually occurs
 
 ### Human

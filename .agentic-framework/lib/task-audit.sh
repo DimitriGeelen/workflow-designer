@@ -206,6 +206,33 @@ audit_inception_hypothesis() {
         *) return 0 ;;
     esac
 
+    # ── Research exemption (T-866, operator 2026-09-26) ──────────────────────
+    #
+    # Not every inception carries a claim. "Research how X works" is a real and
+    # common shape: its output is understanding, and demanding "we will achieve
+    # <outcome>" of it would manufacture a fake value claim to satisfy a gate.
+    # That is worse than no gate — it teaches authors to write fiction.
+    #
+    # THE EXEMPTION IS DECLARED AT CREATION, NOT TAKEN AT DECISION TIME, and the
+    # distinction is the whole safety property. A flag reachable at the moment of
+    # decision is reached for under pressure, by an author who wants through;
+    # `inception_kind: research` is set when the work is framed, before anyone
+    # knows whether the hypothesis would have been inconvenient.
+    #
+    # AND IT IS COUNTABLE. `fw audit` can count inception_kind: research against
+    # the total, so an exemption that quietly becomes the default is visible
+    # rather than silent. An escape hatch nobody measures is how a gate decays
+    # into a warning — which is T-624's failure arriving by a different road.
+    local kind
+    kind=$(grep -m1 '^inception_kind:' "$task_file" 2>/dev/null \
+           | sed 's/^inception_kind:[[:space:]]*//' | tr -d " '\"" \
+           | tr '[:upper:]' '[:lower:]')
+    if [ "$kind" = "research" ]; then
+        echo "HYPOTHESIS: exempt — inception_kind: research (output is understanding," >&2
+        echo "  not a delivered outcome). Exemption declared at creation and countable." >&2
+        return 0
+    fi
+
     # Same extraction shape as audit_inception_recommendation (T-1528): stop at any
     # H2-or-deeper heading, so a later section quoting the word cannot leak in.
     local section stripped
