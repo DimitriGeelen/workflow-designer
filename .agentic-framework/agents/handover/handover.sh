@@ -392,6 +392,164 @@ if [ -f "$HANDOVER_DIR/LATEST.md" ]; then
     PREDECESSOR=$(grep "^session_id:" "$HANDOVER_DIR/LATEST.md" 2>/dev/null | cut -d: -f2 | tr -d ' ')
 fi
 
+# ── SUGGESTED FIRST ACTION CARRY-FORWARD (T-862, OBS-383) ──────────────────────
+#
+# Every other section of this document is DERIVED — from git, from the task
+# register, from the audit. Regenerating them from scratch each run is correct.
+# Exactly one section is AUTHORED, and it is the only one a reader is invited to
+# improve: Suggested First Action. Before T-862 the generator overwrote it
+# unconditionally with a single computed line, so a hand-written plan survived
+# precisely one regeneration. Measured four times on 2026-09-25/26; the cleanest
+# pair is cfc7e9ed -> f98bf459, one commit apart, focus unchanged, 4,982 chars
+# replaced by 7 lines.
+#
+# The loss was silent BY CONSTRUCTION. A stub is present, and a stub is not
+# missing, so every completeness check the document has passed. Nothing anywhere
+# compared a handover to its predecessor. That is the same false-green shape as
+# the rest of T-841..T-861: the artefact looks finished because the check cannot
+# tell "nothing to say" from "the words were discarded".
+#
+# WHAT THIS DOES NOT DO. It does not decide where handover content ought to live.
+# OBS-383(b) — render the section from the focus task's body — would relocate
+# authority over the content and is a Sovereign question, left open deliberately.
+# Carrying bytes the generator did not author forward is data preservation and
+# commits to nothing.
+#
+# THE DANGEROUS FAILURE IS NOT "it fails to carry". That shows up the first time
+# anyone looks. It is "it carries always", which would silently present a plan
+# written for a DIFFERENT task as this task's next step — a worse false-green
+# than the one being fixed, and one that reads as authoritative. Hence the focus
+# guard below, and hence the over-firing control in the teeth.
+
+# The session's own focus, read from the same file the generator below consults
+# (focus.yaml:current_task) so the two cannot disagree about what we are on.
+FOCUS_TASK=$(grep -m1 '^current_task:' "$CONTEXT_DIR/working/focus.yaml" 2>/dev/null \
+    | sed 's/^current_task:[[:space:]]*//' | tr -d " '\"" )
+case "$FOCUS_TASK" in T-[0-9]*) ;; *) FOCUS_TASK="" ;; esac
+
+# Resolve LATEST.md to the file it points at. Called BEFORE the symlink is
+# repointed (that happens at the end of this script), so it is the predecessor.
+_sfa_predecessor_file() {
+    local l="$HANDOVER_DIR/LATEST.md"
+    [ -e "$l" ] || return 1
+    if [ -L "$l" ]; then readlink -f "$l"; else printf '%s' "$l"; fi
+}
+
+# Print the body of the Suggested First Action section, minus any carry label a
+# previous run added. Without the strip, repeated carries stack provenance
+# banners until the banner is longer than the content.
+_sfa_extract() {
+    [ -f "${1:-}" ] || return 1
+    awk '
+        /^## Suggested First Action[[:space:]]*$/ { inside=1; next }
+        inside && /^## / { exit }
+        inside && /^<!-- sfa-carry-begin -->$/ { skip=1; next }
+        inside && /^<!-- sfa-carry-end -->$/   { skip=0; next }
+        inside && !skip { print }
+    ' "$1"
+}
+
+# The task id a section was written for. The marker is authoritative and is
+# emitted by this script from T-862 onward; the `Continue T-NNN` fallback reads
+# handovers written before the marker existed. Empty means unknown, and unknown
+# is NOT treated as a match — see _sfa_compose.
+_sfa_origin_focus() {
+    local f="${1:-}" m
+    m=$(grep -m1 -oE '<!-- sfa-focus: (T-[0-9]+) -->' "$f" 2>/dev/null | grep -oE 'T-[0-9]+')
+    [ -n "$m" ] && { printf '%s' "$m"; return 0; }
+    _sfa_extract "$f" | grep -m1 -oE '^Continue (T-[0-9]+)' | grep -oE 'T-[0-9]+'
+}
+
+# Is this section nothing but what the generator itself would have produced?
+# Blank lines, HTML comments, the mergeback nudge, and a lone `Continue T-NNN`
+# / `See active tasks` line are all generator output. If nothing else remains,
+# there is nothing worth preserving and carrying would only add provenance
+# noise to content that has no provenance.
+_sfa_is_stub() {
+    local n
+    n=$(printf '%s\n' "$1" \
+        | grep -vE '^[[:space:]]*$' \
+        | grep -vE '^[[:space:]]*<!--' \
+        | grep -vE '^(Continue T-[0-9]+|See active tasks)' \
+        | grep -vE '^\*\*Mergeback|^>[[:space:]]*\*\*Mergeback' \
+        | grep -c '')
+    [ "$n" -eq 0 ]
+}
+
+# $1 = the freshly generated one-liner. Prints the section body to emit.
+_sfa_compose() {
+    local generated="$1"
+    local cur_focus pred body origin age_note pred_id
+
+    printf '<!-- sfa-focus: %s -->\n' "${FOCUS_TASK:-none}"
+
+    cur_focus="${FOCUS_TASK:-}"
+    pred="$(_sfa_predecessor_file)" || { printf '%s\n' "$generated"; return 0; }
+    body="$(_sfa_extract "$pred")" || { printf '%s\n' "$generated"; return 0; }
+
+    # Nothing authored in the predecessor -> generate, and say nothing about it.
+    if _sfa_is_stub "$body"; then printf '%s\n' "$generated"; return 0; fi
+
+    origin="$(_sfa_origin_focus "$pred")"
+
+    # The focus guard. An authored plan is about a TASK; presenting it under a
+    # different task is the over-firing failure this is built to avoid. When the
+    # origin cannot be established at all, fall back to asking whether the
+    # content itself still names the task we are on — and if it does not, refuse
+    # to carry. Unknown provenance fails CLOSED.
+    if [ -n "$origin" ]; then
+        [ "$origin" = "$cur_focus" ] || { printf '%s\n' "$generated"; return 0; }
+        age_note="focus $origin unchanged"
+    else
+        if [ -z "$cur_focus" ] || ! printf '%s' "$body" | grep -qF -- "$cur_focus"; then
+            printf '%s\n' "$generated"; return 0
+        fi
+        age_note="origin focus not recorded; carried because the text names $cur_focus"
+    fi
+
+    pred_id=$(grep -m1 '^session_id:' "$pred" 2>/dev/null | cut -d: -f2- | tr -d ' ')
+    [ -n "$pred_id" ] || pred_id="$(basename "$pred" .md)"
+
+    # Age, not just provenance. "Carried from S-2026-0926-0154" tells a reader
+    # where the text came from but not whether to trust it; a plan that is two
+    # hours old and one that is nine days old warrant different reactions, and
+    # the session id only encodes the former to someone who does the arithmetic.
+    # Falls back to file mtime, then to saying plainly that the age is unknown —
+    # an unknown age is reported as unknown rather than omitted, because a label
+    # silently missing its age reads as freshness.
+    local pred_ts age_txt now_s then_s mins
+    pred_ts=$(grep -m1 '^timestamp:' "$pred" 2>/dev/null | cut -d: -f2- | sed 's/^[[:space:]]*//')
+    now_s=$(date -u +%s 2>/dev/null)
+    then_s=$(date -u -d "$pred_ts" +%s 2>/dev/null) \
+        || then_s=$(stat -c %Y "$pred" 2>/dev/null)
+    if [ -n "${then_s:-}" ] && [ -n "${now_s:-}" ] && [ "$then_s" -le "$now_s" ] 2>/dev/null; then
+        mins=$(( (now_s - then_s) / 60 ))
+        if   [ "$mins" -lt 60 ]   ; then age_txt="${mins}m old"
+        elif [ "$mins" -lt 2880 ] ; then age_txt="$(( mins / 60 ))h old"
+        else                            age_txt="$(( mins / 1440 ))d old"
+        fi
+    else
+        age_txt="age unknown"
+    fi
+    age_note="$age_note, $age_txt"
+
+    # The label is not decoration. A carried section that reads as freshly
+    # authored is a new false-green: the reader would act on a plan without
+    # knowing when it was written or that nobody has revisited it since.
+    printf '<!-- sfa-carry-begin -->\n'
+    printf '> **Carried forward from `%s`** — %s.\n' "$pred_id" "$age_note"
+    printf '> This section was authored by hand, not generated, so it is preserved rather than\n'
+    printf '> overwritten (T-862/OBS-383). Nobody has re-checked it since it was written: if it\n'
+    printf '> is stale, replace it — regeneration will not, which is the whole point.\n'
+    printf '> The generator would otherwise have written here: `%s`\n' "$generated"
+    printf '<!-- sfa-carry-end -->\n\n'
+    printf '%s\n' "$body"
+}
+# ── end T-862 carry-forward ──
+# tools/_t862-handover-carry-teeth.sh extracts the block between this marker and
+# the banner above, and sources it. Move or rename either marker and the teeth
+# exit 4 announcing they can no longer reach the code — they do not quietly pass.
+
 # Get active tasks — T-3027: classified by status, not by directory membership.
 classify_active_tasks
 
@@ -1395,7 +1553,7 @@ See gaps register above.
 
 ${MERGEBACK_NUDGE}
 
-$(python3 -c "
+$(_sfa_compose "$(python3 -c "
 import glob, re, os
 import yaml
 tasks_dir = '$TASKS_DIR/active'
@@ -1485,7 +1643,7 @@ elif candidates:
     print(f'Continue {tid}: {tname}')
 else:
     print('See active tasks')
-" 2>/dev/null || echo "See active tasks")
+" 2>/dev/null || echo "See active tasks")")
 
 ## Files Changed This Session
 
