@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-865: Estimate voi_score and target_blast_radius automatically, and make human-set values sticky so repeated auto-scoring cannot erase judgement
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T08:55:15Z
+# ============================================================================
+
+task_id: T-865
+task_name: "Estimate voi_score and target_blast_radius automatically, and make human-set values sticky so repeated auto-scoring cannot erase judgement"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T08:46:15Z
+completed: 2026-09-26T08:55:07Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-26T10:54:41+02:00
+last_commit: 2026-09-26T10:54:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inceptions are now scored automatically, and a human's number is sticky — with two of my own false greens caught by the mutation on the way
+
+# Key outcomes
+outcomes:
+  - '`voi_score` is ESTIMATED from the task body when no human set it, instead of read from a template pre-fill — measured on a real inception whose estimate differs from 0.5'
+  - '`target_blast_radius` is estimated the same way, since it carries the identical 42/45 pre-fill problem'
+  - '**A value marked `source: human` wins over the estimate, and the protection is where it actually bites.** CORRECTED during build: the first wording said "never overwritten", describing a write that does not happen — nothing writes these fields back, so a byte-identical assertion passes whether the guard exists or not, and it duly survived the mutation. The real protection is at SCORE time. Proven: fixture with human `voi_score: 0.9` against an estimate of 0.2 scores **4**, evidence `HUMAN-SET, sticky`; under the mutation it scores 1'
+  - '**The protection is observable, not assumed:** the run reports how many human-set values it left untouched. A sticky mechanism nobody can see is indistinguishable from one that silently stopped working'
+  - 'Every human-vs-estimate divergence emits a telemetry row carrying both numbers and the delta — that delta is the only training signal a later feedback loop can use, and it cannot be reconstructed after the fact'
+  - 'Nothing lands outside the ranking grid: every inception still receives a score and a quadrant, per the operator''s direction that ranking is automatic and universal'
+  - '`tools/_t865-sticky-scoring-teeth.sh` covers the above with a `--mutation` mode whose CONTROL SET reports `MUTATION SETUP BROKEN` rather than reading a broken harness as a clean kill, and a dedicated over-write mutation proving the sticky guard is what protects the value'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md'
+  - '.tasks/active/T-865-estimate-voiscore-and-targetblastradius-.md'
+  - '.tasks/templates/inception.md'
+  - 'tools/_t865-sticky-scoring-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-26T10:54:41'
+    action: 'T-865: inceptions are now scored automatically, and a human''s number is sticky — with two of my own false greens caught by the mutation on the way'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bvp, automation, arc:arc-003]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 5
+  lines_added: 839
+  lines_removed: 23
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-865-estimate-voiscore-and-targetblastradius-.md
+generated_by: context-agent-hybrid

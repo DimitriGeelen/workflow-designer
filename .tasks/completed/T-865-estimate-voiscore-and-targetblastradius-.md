@@ -14,10 +14,10 @@ description: >
   human-vs-estimate delta because that delta is the only training signal a future
   feedback loop can use.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bvp, automation, arc:arc-003]
 components:
   - .agentic-framework/agents/termlink/bvp-estimator/estimator.py
@@ -35,8 +35,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T08:46:15Z
-last_update: 2026-09-26T08:46:57Z
-date_finished:
+last_update: 2026-09-26T08:55:07Z
+date_finished: 2026-09-26T08:55:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -272,6 +272,31 @@ python3 -c "import re,sys; t=open('.tasks/templates/inception.md').read(); sys.e
 
 ## Evolution
 
+### 2026-09-26 — two false greens of my own, both caught by measuring rather than by reasoning
+
+- **What changed (1):** the first VoI estimator scored 11 of 14 inceptions at an identical
+  0.6, all matching `'go/no-go'` — a phrase the inception TEMPLATE ships. I had rebuilt the
+  uniform-score defect one level up. `_template_lines()` read only `default.md`, so
+  `inception.md`'s boilerplate was never stripped and any signal keyed on a template word
+  fires corpus-wide. This was invisible when checking one task (T-155 moved 0.40 -> 0.60 and
+  looked like a success); only the DISTRIBUTION showed it.
+- **Plan impact:** fixed at the stripper, not at my signal list — it now reads every
+  `templates/*.md`, so a new template is covered the day it is added rather than the day
+  someone remembers. That also silently repairs T-864's F1/F3/F4 specs, which were written
+  against the same broken assumption.
+- **What changed (2):** the AC said a human value is "never overwritten" and I asserted
+  byte-identity to prove it. Both passed under the mutant, because nothing writes these
+  fields back — the assertion was vacuous. The protection lives at SCORE time, not write
+  time. Rewrote the case to assert what bites (human 0.9 vs estimate 0.2 must score 4);
+  it now dies under mutation.
+- **Triggered:** the mutation itself needed correcting too — it disabled the reporting guard
+  but not the scoring guard, so the case that matters survived and the run refused with
+  MUTATION FAILED. Stickiness lives in two places; "sticky off" has to mean both.
+- **Left open, honestly:** the remaining 9-of-14 cluster at 0.4 all match `'assumption'`.
+  They are largely sibling tasks from two batches so the similarity is plausible, but
+  `'assumption'` is a weak signal and deserves review once real override telemetry exists
+  to calibrate against.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -353,3 +378,15 @@ python3 -c "import re,sys; t=open('.tasks/templates/inception.md').read(); sys.e
 
 ### 2026-09-26T08:46:57Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-272707a2
+- **Timestamp:** 2026-09-26T08:55:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-26T08:55:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
