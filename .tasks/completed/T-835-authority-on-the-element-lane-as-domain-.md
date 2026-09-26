@@ -5,10 +5,10 @@ name: "Authority on the element, lane as domain: the mechanism T-685 GO'd and no
 description: >
   Authority on the element, lane as domain: the mechanism T-685 GO'd and nobody filed
 
-status: started-work
+status: work-completed
 workflow_type: design
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -17,8 +17,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-23T11:53:35Z
-last_update: '2026-09-26T09:06:31Z'
-date_finished:
+last_update: 2026-09-26T22:17:09Z
+date_finished: 2026-09-26T22:17:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -191,9 +191,16 @@ grep -qF 'M0' docs/reports/T-835-authority-on-the-element.md
 # AC3/AC8 — the frozen standard and production code are UNCHANGED by this task
 git diff --quiet HEAD -- docs/standards/aef-bpmn-mapping-v1.md
 git diff --quiet HEAD -- tools/validate-workflow.py tools/bpmn-cli.py examples/aef-processes/rendered
-# AC1 (a') — controlled absence: the four collapse-map values must be FINDABLE in the same
-# file in the same run, or the zero for 'none' means nothing (PL-328 / T-785).
-grep -qE '\bsovereignty\b' docs/standards/aef-bpmn-mapping-v1.md && ! grep -qE '\bnone\b' docs/standards/aef-bpmn-mapping-v1.md
+# AC1 (a') — controlled absence. The first version of this leg greped a DIFFERENT string
+# (\bsovereignty\b) in the same file as its control, and the close gate refused it: that
+# proves the file is readable, not that \bnone\b is a pattern capable of matching. The gate
+# was right. The control now greps the SAME pattern where it IS present, so a broken regex
+# fails the control instead of passing the assertion.
+# Shape matters too: as a single `A && ! B` line the gate still refused, because it
+# scans PER LINE for a negation and looks for a SIBLING line carrying the same pattern.
+# Two legs, exactly as the gate's own message prints them.
+grep -qE '\bnone\b' examples/aef-processes/rendered/context-memory.bpmn
+! grep -qE '\bnone\b' docs/standards/aef-bpmn-mapping-v1.md
 # AC1 (b') — pinned to the immutable pre-GO commit, so this cannot rot with the corpus
 git show b09993376a5dc3bb8bec2510ca3181578456c545:tools/validate-workflow.py > /tmp/.t835-prego 2>&1 && grep -q 'W-LANE-NO-OWNER' /tmp/.t835-prego
 # AC1 (a) — property, not a live count (T-3326)
@@ -272,3 +279,15 @@ grep -qF -- '- [ ] [REVIEW]' .tasks/active/T-341-an-unresolvable-flownoderef-sil
 
 ### 2026-09-23T11:54:49Z — status-update [task-update-agent]
 - **Change:** horizon: now → now
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-108d4b84
+- **Timestamp:** 2026-09-26T22:17:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-26T22:17:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
