@@ -82,31 +82,36 @@ cost_estimate_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-685 ("Should authority live in the box (tier + owner) with the lane meaning domain")
+was decided **GO on 2026-09-08**, naming the mechanism "the operator variable". No
+successor task was filed for fifteen days. This is that successor.
+
+Deliverable: `docs/reports/T-835-authority-on-the-element.md` — a mechanism, its costs,
+and the downstream effects, with T-685's three measurements RE-DERIVED rather than
+inherited. No ruling is taken, the frozen standard is not edited, and no production code
+changes under this id.
+
+**Two of T-685's four sub-claims did not survive re-derivation** (§2 of the report):
+"nothing detects it" was false when written — `W-LANE-NO-OWNER` fires 7 warnings and
+existed at the commit before the GO — and "27 tier-1" is an undercount of 53 against a
+corpus that is byte-identical to its state at the GO. Neither reverses the direction; the
+argument that survives is stronger than the one that was made, and it is in §3.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] T-685's GO is quoted and its three measurements RE-DERIVED rather than inherited — the ruling is 15 days old and this task's own standard is that a design must not rest on stale measurement: (a) `context-memory.bpmn`'s domain lanes at `authority="none"`, a value absent from the standard's collapse map, (b) the count of flowNodeRefs with no derivable owner that nothing currently detects, (c) how many corpus maps already carry `aef:meta tier` on elements
-- [ ] The proposed mechanism is stated concretely: WHAT carries authority on the element, what `tier` means if it is that carrier, and what a lane means once it is a domain. A design that says "move it to the element" without naming the carrier is a direction, not a mechanism
-- [ ] The frozen-standard impact is stated precisely and NOT acted on: v1.1 **deliberately removed** the node-level `owner` override to make the lane the sole authority-of-record, and O-3's compile-time sovereignty-lane enforcement is written against the lane. `docs/standards/aef-bpmn-mapping-v1.md` Part I is NOT edited by the agent under any circumstance
-- [ ] The downstream unblocks are NAMED AND CHECKED, not asserted: for T-358 and T-341, state exactly which blocking criterion dissolves under the new model and which survives. T-341's `lanes[0]`-is-positional defect and T-358's `E-XML-LANES-EMPTY` both appear to be consequences of lane-as-authority; "appear to be" is not good enough for a task that exists to unblock them
-- [ ] `E-XML-LANES-EMPTY` is re-examined against the new model. Today it fires because §3 needs a lane to carry authority; if authority moves, the rule's rationale moves with it and the rule must be re-justified or retired — not left firing on a premise that no longer holds
-- [ ] Put to AEF on the rail. The standard is frozen and theirs, their importer does not fabricate, and they hold the collapse map this changes. A mechanism we design alone and they cannot carry is not a mechanism
-- [ ] The operator's ruling is SURFACED, not taken. T-685 named this "the operator variable" in those words; this task produces the proposal and the costs, and stops
-- [ ] No production change is made under this task id — no exporter, importer, validator or corpus edit. On a ruling, separate build tasks are filed
-- [ ] The filing gap itself is recorded: T-685 GO'd on 2026-09-08 and produced no successor for 15 days, the same shape as T-213 (diagram-kind, GO'd 2026-07-21, still unbuilt). Two GO decisions with no build task behind them is a pattern in how decisions are discharged, not two coincidences
+- [x] T-685's GO is quoted and its three measurements RE-DERIVED rather than inherited — the ruling is 15 days old and this task's own standard is that a design must not rest on stale measurement: (a) `context-memory.bpmn`'s domain lanes at `authority="none"`, a value absent from the standard's collapse map, (b) the count of flowNodeRefs with no derivable owner that nothing currently detects, (c) how many corpus maps already carry `aef:meta tier` on elements
+- [x] The proposed mechanism is stated concretely: WHAT carries authority on the element, what `tier` means if it is that carrier, and what a lane means once it is a domain. A design that says "move it to the element" without naming the carrier is a direction, not a mechanism
+- [x] The frozen-standard impact is stated precisely and NOT acted on: v1.1 **deliberately removed** the node-level `owner` override to make the lane the sole authority-of-record, and O-3's compile-time sovereignty-lane enforcement is written against the lane. `docs/standards/aef-bpmn-mapping-v1.md` Part I is NOT edited by the agent under any circumstance
+- [x] The downstream unblocks are NAMED AND CHECKED, not asserted: for T-358 and T-341, state exactly which blocking criterion dissolves under the new model and which survives. T-341's `lanes[0]`-is-positional defect and T-358's `E-XML-LANES-EMPTY` both appear to be consequences of lane-as-authority; "appear to be" is not good enough for a task that exists to unblock them
+- [x] `E-XML-LANES-EMPTY` is re-examined against the new model. Today it fires because §3 needs a lane to carry authority; if authority moves, the rule's rationale moves with it and the rule must be re-justified or retired — not left firing on a premise that no longer holds
+- [x] Put to AEF on the rail. The standard is frozen and theirs, their importer does not fabricate, and they hold the collapse map this changes. A mechanism we design alone and they cannot carry is not a mechanism
+- [x] The operator's ruling is SURFACED, not taken. T-685 named this "the operator variable" in those words; this task produces the proposal and the costs, and stops
+- [x] No production change is made under this task id — no exporter, importer, validator or corpus edit. On a ruling, separate build tasks are filed
+- [x] The filing gap itself is recorded: T-685 GO'd on 2026-09-08 and produced no successor for 15 days, the same shape as T-213 (diagram-kind, GO'd 2026-07-21, still unbuilt). Two GO decisions with no build task behind them is a pattern in how decisions are discharged, not two coincidences
 
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
+## Verification` instead of a Human AC here. Only keep [REVIEW] if
      verification genuinely needs human taste (tone, feel, layout rhythm).
      See CLAUDE.md §AC Classification Guidance for the conversion rule.
 
@@ -177,6 +182,25 @@ cost_estimate_proposed:
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# ── T-835 legs ──────────────────────────────────────────────────────────────
+test -f docs/reports/T-835-authority-on-the-element.md
+grep -qF 'M1 — element declares, lane defaults' docs/reports/T-835-authority-on-the-element.md
+grep -qF 'M2 — element only' docs/reports/T-835-authority-on-the-element.md
+grep -qF 'M0' docs/reports/T-835-authority-on-the-element.md
+# AC3/AC8 — the frozen standard and production code are UNCHANGED by this task
+git diff --quiet HEAD -- docs/standards/aef-bpmn-mapping-v1.md
+git diff --quiet HEAD -- tools/validate-workflow.py tools/bpmn-cli.py examples/aef-processes/rendered
+# AC1 (a') — controlled absence: the four collapse-map values must be FINDABLE in the same
+# file in the same run, or the zero for 'none' means nothing (PL-328 / T-785).
+grep -qE '\bsovereignty\b' docs/standards/aef-bpmn-mapping-v1.md && ! grep -qE '\bnone\b' docs/standards/aef-bpmn-mapping-v1.md
+# AC1 (b') — pinned to the immutable pre-GO commit, so this cannot rot with the corpus
+git show b09993376a5dc3bb8bec2510ca3181578456c545:tools/validate-workflow.py > /tmp/.t835-prego 2>&1 && grep -q 'W-LANE-NO-OWNER' /tmp/.t835-prego
+# AC1 (a) — property, not a live count (T-3326)
+grep -q 'authority="none"' examples/aef-processes/rendered/context-memory.bpmn
+# AC6 — the downstream tasks were NOT advanced: their [REVIEW] criteria stay unticked
+grep -qF -- '- [ ] [REVIEW]' .tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md
+grep -qF -- '- [ ] [REVIEW]' .tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md
 
 ## RCA
 
