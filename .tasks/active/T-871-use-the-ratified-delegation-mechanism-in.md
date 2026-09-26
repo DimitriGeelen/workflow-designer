@@ -30,7 +30,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T20:02:06Z
-last_update: 2026-09-26T20:05:28Z
+last_update: 2026-09-26T20:13:18Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -69,10 +69,6 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
-
-## Context
-
 Operator direction 2026-09-26: kill the rubber-stamping. Producer and reviewer are
 separated; if the reviewer agent says the work is good, that is sufficient to close.
 
@@ -95,11 +91,11 @@ judged them operator work but because the classifier could not tell.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The five tasks the classifier reports as delegable are delegated through the sanctioned verb, not by hand-editing ownership — `fw task delegate` writes `.context/working/delegations.jsonl`, and R-033's `--skip-human-ownership` would have logged the same act as a gate circumvention
-- [ ] Tasks that become `owner: agent` are closed only on a reviewer PASS, never on the producer's own say-so — that separation is the whole point of the ruling
-- [ ] **A criterion whose ASK is a judgement is not converted merely because its Expected clause is greppable.** T-732's AC#4 ("Rule H6 — was the R6/R7 routing correct") classified deterministic on a `status: resolved` Expected. Flagged to the operator rather than silently converted; conversion to `[REVIEWER]` still requires a reviewer to verify, so it is not auto-ticked, but the classifier's reach is recorded
-- [ ] The delegation surface is re-measured afterwards and the delta reported, so the size of what this actually released is a number rather than a claim
-- [ ] **The 37 unclassified criteria are surfaced as the real lever**, with a recommendation, rather than left inside a count nobody reads
+- [x] The five tasks the classifier reports as delegable are delegated through the sanctioned verb, not by hand-editing ownership — `fw task delegate` writes `.context/working/delegations.jsonl`, and R-033's `--skip-human-ownership` would have logged the same act as a gate circumvention
+- [x] Tasks that become `owner: agent` are closed only on a reviewer PASS, never on the producer's own say-so — that separation is the whole point of the ruling
+- [x] **A criterion whose ASK is a judgement is not converted merely because its Expected clause is greppable.** T-732's AC#4 ("Rule H6 — was the R6/R7 routing correct") classified deterministic on a `status: resolved` Expected. Flagged to the operator rather than silently converted; conversion to `[REVIEWER]` still requires a reviewer to verify, so it is not auto-ticked, but the classifier's reach is recorded
+- [x] The delegation surface is re-measured afterwards and the delta reported, so the size of what this actually released is a number rather than a claim
+- [x] **The 37 unclassified criteria are surfaced as the real lever**, with a recommendation, rather than left inside a count nobody reads
 
 ### Human
 
@@ -135,6 +131,12 @@ judged them operator work but because the classifier could not tell.
 -->
 
 ## Verification
+
+test -s .context/working/delegations.jsonl
+python3 -c "import json,sys; rows=[json.loads(l) for l in open('.context/working/delegations.jsonl') if l.strip()]; sys.exit(0 if len(rows)>=5 else 1)"
+test -f .tasks/completed/T-609-review-cards-drop-stepsexpectedif-not-so.md
+grep -q 'NOT RUNNABLE' .agentic-framework/agents/task-create/update-task.sh
+bash -n .agentic-framework/agents/task-create/update-task.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -279,6 +281,27 @@ judged them operator work but because the classifier could not tell.
 -->
 
 ## Evolution
+
+### 2026-09-26 — the classifier is right, and that is the finding
+
+- **What changed:** I set out to reduce the 37 `unclassified` criteria, assuming they were
+  misfiled or missing an `Expected:` block. Measured: exactly **1** lacks an Expected
+  clause; **37 have one** and are still unclassified. Reading them settles it — "a decision
+  recorded against T-209", "you agree the semantic should outrank the geometry", "a
+  recorded choice — repair or delete", "one of A / B / C recorded as a decision". They are
+  requests for rulings. There is nothing to classify.
+- **Plan impact:** improving the classifier is the wrong move and was abandoned before any
+  code changed. Only 6 of 83 criteria were ever `[RUBBER-STAMP]`, so removing that class
+  releases almost nothing either. **The queue is real: 77 genuine decisions awaiting one
+  person.**
+- **Already found once:** T-804 measured the same population earlier and concluded the
+  queue is NOT misfiled — the problem is volume and age (median 42 days), that agents
+  generate these faster than any human issues them, and that "we are asking too much, and
+  that is ours to fix rather than theirs". Its recommended remedy — escalate only what is
+  BLOCKED — was never adopted, and the queue grew from 77 ACs to 83 criteria.
+- **Triggered:** the useful move is not mechanical. Either ask for fewer decisions, or
+  batch the existing ones into a single ordered docket so answering them is one sitting
+  rather than 71 task files. Recommended to the operator rather than built unasked.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
