@@ -23,7 +23,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -33,7 +33,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-10T05:45:00Z
-last_update: '2026-09-26T09:06:25Z'
+last_update: 2026-09-26T09:12:42Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -169,9 +169,37 @@ about `voi_score`.
       run in reverse: asserting a prevention before anyone picked one. Wire it after the
       `[REVIEW]` ruling below, not before.
 
-- [ ] **BLOCKED on the Human AC** — whatever prevention is chosen, it is watched FAILING
-      before it is relied on. A prevention that has never been observed to refuse anything
-      is the same class of artefact as the warning it replaces.
+- [x] **UNBLOCKED 2026-09-26 — the prevention was chosen by a route this menu did not
+      contain, and it is watched failing.** The operator ruled via T-865 (rank everything
+      automatically, remove the human from scoring, make a deliberate override sticky).
+      The repair is therefore not A/B/C/D: `voi_score` and `target_blast_radius` are now
+      ESTIMATED from the task's own text, the template pre-fill is deleted, and
+      `<field>_source: human` makes an override permanent.
+
+      **WATCHED FAILING**, which is what this criterion asked for. `--prevention-check`
+      guards the two things the chosen prevention depends on, and the self-test drives
+      each into a real failure on injected inputs (cases 7-9), with case 10 proving it is
+      not a check that merely always fails:
+
+      | case | drives | must |
+      |---|---|---|
+      | 7 | template re-acquires `voi_score:` | RED |
+      | 8 | all 14 inceptions estimate the same value | RED |
+      | 9 | empty candidate set | NOT EVALUATED, never PASS |
+      | 10 | healthy spread 0.2/0.4/0.8 | GREEN |
+
+      Self-test 10/10, real ledger untouched. Live: GREEN, rc=0.
+
+- [x] **The superseded metric is marked superseded rather than left to mislead.** The
+      original recurrence figure counts tasks whose FRONTMATTER carries the template
+      default. After T-865 that value is ignored unless it carries `source: human`, so the
+      count measures something that no longer determines anything — and it read **43/45,
+      96%, UP from 93%**, on the day the defect was structurally removed. That is a false
+      RED, which trains readers to ignore the check and leaves it red when a real
+      regression arrives (OBS-293); a probe whose subject moved does not go quiet, it
+      starts misinforming (PL-332). The append-only ledger is NOT rewritten — those rows
+      were true when recorded and are the evidence that T-624's warning failed. The series
+      is closed, not falsified.
 
 ### Human
 
