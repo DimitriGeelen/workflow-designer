@@ -10,7 +10,7 @@ description: >
   and frozen-v1 safe. Re-check the frozen-v1-safe claim rather than inherit it. Does
   NOT widen the enum to cover class/instance — that is arc-005 S2's question.
 
-status: started-work
+status: issues
 workflow_type: build
 owner: agent
 horizon: now
@@ -28,7 +28,7 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:41:33Z
-last_update: 2026-09-26T23:11:05Z
+last_update: 2026-09-26T23:17:44Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -371,3 +371,7 @@ That is a real question — four attributes may have been riding on no guard at 
 round-tripping. Do not treat it as guarded. T-876 (corpus backfill) stays blocked behind this:
 backfilling 24 seam artefacts with an attribute whose persistence nothing checks is the wrong
 order.
+
+### 2026-09-26T23:17:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → issues
+- **Reason:** AC3 unclosable by the existing instrument: the round-trip guard derives its denominator from node-level aef.* accesses, so document-level workflowMeta attributes are outside its scope by construction. Proved by mutation — deleting the writer line still passes. Needs a dedicated workflowMeta round-trip teeth with a mutation control, which must also establish whether uuid/pageWidth/tier_default/title were ever covered by anything.

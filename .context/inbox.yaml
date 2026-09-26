@@ -1984,3 +1984,20 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-401
+  text: "status"
+  captured: 2026-09-26T22:04:46Z
+  context_task: T-737
+  tags: []
+  status: dismissed
+  dismissed_reason: "Not an observation. I typed 'fw note status', which is not a subcommand, and note captured the literal word 'status' as an observation body. Dismissed as an input error by its author, not a judgement on any finding. The near-miss is worth one line: 'fw note <text>' swallows an unrecognised subcommand as content rather than refusing, so every typo of a verb becomes a durable inbox entry. Left as a dismissal record rather than deleted."
+  dismissed_at: 2026-09-26T22:05:11Z
+  promoted_to: null
+- id: OBS-402
+  text: "The round-trip guard _roundtrip-serialization-cdp.mjs covers only the NODE-level aef.* seam — checkDenominator() derives its 36 keys from aef.* dot-accesses, metaKeys and bindFields. Document-level aef:workflowMeta attributes are outside its denominator BY CONSTRUCTION. Measured under T-875 by mutation: deleting the editor's kind writer line entirely still yields exit 0 / pass true over 20 fixtures. The open question this raises is bigger than the attribute that found it: uuid, pageWidth, tier_default, title and description are all workflowMeta attributes and may be riding on no round-trip guard at all. uuid in particular is connector-referenceable identity (T-224) and is pinned cross-agent. Needs a census of what actually guards document-level metadata, then an instrument."
+  captured: 2026-09-26T23:17:53Z
+  context_task: T-875
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
