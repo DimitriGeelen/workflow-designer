@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-609: Review cards drop Steps/Expected/If-not, so the operator sees the AC title and not the decision it asks for
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T20:03:06Z
+# ============================================================================
+
+task_id: T-609
+task_name: "Review cards drop Steps/Expected/If-not, so the operator sees the AC title and not the decision it asks for"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-27T07:01:04Z
+completed: 2026-09-26T20:02:19Z
+duration_days: 30
+updates_count: 2
+first_commit: 2026-08-27T09:09:08+02:00
+last_commit: 2026-08-27T21:39:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the operator's EWCR decision card was blank because the decision had been ticked, not because the renderer dropped it.. attribution bounded — fifth candidate (my own tick script) disproved against the real command; writer question escalated to T-622. complete — attribution escalated to T-622, review cards verified rendering
+
+# Key outcomes
+outcomes:
+  - 'Measured against RENDERED BYTES over HTTP, not the parser and not an HTTP 200:'
+  - 'Cause discriminated rather than assumed: the parser was probed directly and returns'
+  - 'Established that the checkbox state on disk was `- [x]` on three Human ACs across'
+  - 'Established the tick was NOT the operator acting through the review UI: exactly one'
+  - 'Candidates ruled out by reproduction, each reverted-then-rerun: the 30-minute'
+  - 'Scope of the event bounded: only T-597 and T-608 were affected — not a sweep, and'
+  - 'True state restored: the ticks existed only in the working tree, so reverting them'
+  - 'Re-measured after the revert: `/review/T-597` now renders Steps/Expected/If-not for'
+  - 'Attribution **bounded and escalated, not parked**. Two more candidates excluded this'
+  - '[REVIEWER] Did you tick these three Human ACs? This is the one fact the agent cannot establish'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-609-review-cards-drop-stepsexpectedif-not-so.md'
+  - '.tasks/active/T-622-an-unattributed-write-ticked-three-human.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-27T09:09:08'
+    action: 'T-609: the operator''s EWCR decision card was blank because the decision had been ticked, not because the renderer dropped it.'
+  - time: '2026-08-27T21:39:23'
+    action: 'T-609: attribution bounded — fifth candidate (my own tick script) disproved against the real command; writer question escalated to T-622'
+  - time: '2026-08-27T21:39:38'
+    action: 'T-609: complete — attribution escalated to T-622, review cards verified rendering'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 43981 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 43981
+  commits: 3
+  files_changed: 3
+  lines_added: 524
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-609-review-cards-drop-stepsexpectedif-not-so.md
+generated_by: context-agent-hybrid

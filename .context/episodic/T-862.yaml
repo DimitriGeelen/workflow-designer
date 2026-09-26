@@ -72,10 +72,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 14
-  commits: 1
-  files_changed: 3
-  lines_added: 878
-  lines_removed: 2
+  commits: 3
+  files_changed: 7
+  lines_added: 1066
+  lines_removed: 19
+  footprint_refreshed_at: '2026-09-26T00:43:48Z'
+  footprint_refreshed_by_commit: 49d11bbc
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-862-handover-suggested-first-action-is-non-c.md

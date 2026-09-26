@@ -25,7 +25,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T09:00:46Z
-last_update: '2026-09-21T20:24:52Z'
+last_update: 2026-09-26T20:02:19Z
 date_finished: 2026-08-26T12:30:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -212,31 +212,7 @@ Design record: `docs/research/executable-workflow/reflection-designer.md` §5, �
       Aug 2 19:17; `src/aef-workflow-designer.html` is Aug 24 19:48. Every file this task
       wrote is stamped Aug 26 11:14–11:22 and lives under
       `docs/research/executable-workflow/` or is this task file.
-
-### Human
-
-- [ ] [REVIEW] The inventory is a usable negotiating document for AEF, not a restatement
-      of the standard
-  **Steps:**
-  1. `cd /opt/832-Workflow-designer && sed -n '1,80p' docs/research/executable-workflow/designer-contract-inventory.md`
-  2. Read §3 (defaults and inference) and §4 (identity) end to end.
-  3. Ask: could an AEF engineer who has never seen this repo write a runtime contract
-     that does not contradict us, using only this file?
-  **Expected:** Yes — every default, inference and derivation has a stated value, a
-  citation, and a named request if it is unratified.
-  **If not:** Note the specific rule that is still ambiguous; it becomes an added row
-  in §3 rather than a rewrite.
-
-- [ ] [REVIEW] The handoff envelope is safe to send once H2 is answered
-  **Steps:**
-  1. `cd /opt/832-Workflow-designer && cat docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml`
-  2. Confirm `to_project` is still `UNRESOLVED` and that H2 is named as the blocker.
-  3. Confirm the `request:` block asks only for decisions AEF owns.
-  **Expected:** Nothing in the envelope asks the Designer to be an authority, and
-  nothing claims a delivery that did not happen.
-  **If not:** Say which line overclaims; it is edited before any send.
-
-- [ ] [RUBBER-STAMP] Answer H2 — name the AEF counterparty project (0503 authoring/governance
+- [ ] [REVIEWER] Answer H2 — name the AEF counterparty project (0503 authoring/governance
       or 999 intended implementer)
   **You answered this on 2026-08-26**, in session: *"huh its a colaboration of aef and
   workflow designer of course"*. Recorded under T-595 as
@@ -268,6 +244,30 @@ Design record: `docs/research/executable-workflow/reflection-designer.md` §5, �
   *(Trail: T-593 removed a fabricated version of this attribution that had no source;
   T-594 removed the same claim where it survived in prose; T-595 recorded your real answer
   with provenance. The difference is not the wording, it is whether anyone can check it.)*
+
+### Human
+
+- [ ] [REVIEW] The inventory is a usable negotiating document for AEF, not a restatement
+      of the standard
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && sed -n '1,80p' docs/research/executable-workflow/designer-contract-inventory.md`
+  2. Read §3 (defaults and inference) and §4 (identity) end to end.
+  3. Ask: could an AEF engineer who has never seen this repo write a runtime contract
+     that does not contradict us, using only this file?
+  **Expected:** Yes — every default, inference and derivation has a stated value, a
+  citation, and a named request if it is unratified.
+  **If not:** Note the specific rule that is still ambiguous; it becomes an added row
+  in §3 rather than a rewrite.
+
+- [ ] [REVIEW] The handoff envelope is safe to send once H2 is answered
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && cat docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml`
+  2. Confirm `to_project` is still `UNRESOLVED` and that H2 is named as the blocker.
+  3. Confirm the `request:` block asks only for decisions AEF owns.
+  **Expected:** Nothing in the envelope asks the Designer to be an authority, and
+  nothing claims a delivery that did not happen.
+  **If not:** Say which line overclaims; it is edited before any send.
+
 
 ## Recommendation
 
@@ -368,6 +368,7 @@ grep -qE "conditionExpression|capability|secret|actionRef|action_ref|retry|compe
 ! grep -qE "conditionExpression|capability|secret|actionRef|action_ref|retry|compensat" docs/research/executable-workflow/fixtures/ewcr-pilot-human-gate-script-human-gate.bpmn
 # The gap list must be explicit, not a placeholder.
 grep -q "call workflow" docs/research/executable-workflow/cannot-represent-yet.md
+bin/fw reviewer T-590 > /tmp/.fw-reviewer-T-590.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-590.out
 
 ## RCA
 
@@ -626,6 +627,12 @@ repo-relative paths), not evidence about the artifacts. Full block: **18 of 18 g
 
 ### 2026-08-26T09:27:42Z — status-update [task-update-agent]
 - **Change:** tags: +counterparty-named
+
+### 2026-09-26T20:02:19Z — delegate [fw-task-delegate]
+- **Ruling:** D-626 — reviewer-closeable delegation (operator ruling 2026-09-23)
+- **Converted to [REVIEWER] Agent criteria:** AC#3
+- **Left under ### Human (carve-outs):** unclassified: AC#1, AC#2
+- **Close path:** `bin/fw reviewer T-590` PASS auto-ticks the converted criteria (T-1985); the normal close gates do the rest.
 
 ## Reviewer Verdict (v1.5)
 

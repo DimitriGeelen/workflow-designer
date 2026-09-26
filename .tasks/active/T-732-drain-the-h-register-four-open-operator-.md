@@ -23,7 +23,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T18:48:54Z
-last_update: '2026-09-26T09:06:28Z'
+last_update: 2026-09-26T20:02:20Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -136,6 +136,16 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
 - [x] Each section quotes the question verbatim, the recorded `agent_recommendation` verbatim (PL-323 — never paraphrase), and the evidence already on file
 - [x] Each section states explicitly whether the recorded recommendation is **ratifiable as written** or **superseded** — H3 and H6 both carry superseding observations that contradict their own earlier recommendation, and a dossier that hid that would route the operator to a stale answer
 - [x] The `/approvals` URL is printed to the operator
+- [ ] [REVIEWER] Rule H3 — ratify the correlation identifiers. **Note: the filed recommendation is superseded.** It says "the two values already in use"; there are now three, the third (`EWCR-ARC0-ATTEST-832`) minted by an agent on the rail and adopted by repetition.
+  **Steps:** read §H3 of the dossier, then record which identifiers are authoritative
+  **Expected:** H3 `status: resolved`, naming the identifier set explicitly
+  **If not:** an unratified value keeps accruing the appearance of a decision through repetition
+- [ ] [REVIEWER] Rule H5 — reconcile the four disclosed governance deviations in `reflection-designer.md` §9. Agent evidence already measured 2026-08-27: T-587's hand-written file is conforming against the inception template.
+  **Expected:** H5 `status: resolved`
+  **If not:** disclosure stands in for reconciliation indefinitely
+- [ ] [REVIEWER] Rule H6 — was the R6/R7 routing correct and was the §2.3 boundary held? Transport is done (offset 643); §2.3 says transport is **not** collaboration completion, so this does not self-resolve.
+  **Expected:** H6 `status: resolved`
+  **If not:** Arc-0 clause 3 cannot reach `satisfied` even if H1/H3/H5 are ruled
 
 ### Human
 - [ ] [REVIEW] Rule H1 — do roadmap Arcs 4–6 supersede the standing DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO?
@@ -146,18 +156,8 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
   **Expected:** `operator-decisions.yaml` H1 carries `status: resolved` and a `source_of_truth`
   **If not:** the four tasks named above stay parked at a flat BVP 126 with nothing distinguishing them
 
-- [ ] [RUBBER-STAMP] Rule H3 — ratify the correlation identifiers. **Note: the filed recommendation is superseded.** It says "the two values already in use"; there are now three, the third (`EWCR-ARC0-ATTEST-832`) minted by an agent on the rail and adopted by repetition.
-  **Steps:** read §H3 of the dossier, then record which identifiers are authoritative
-  **Expected:** H3 `status: resolved`, naming the identifier set explicitly
-  **If not:** an unratified value keeps accruing the appearance of a decision through repetition
 
-- [ ] [RUBBER-STAMP] Rule H5 — reconcile the four disclosed governance deviations in `reflection-designer.md` §9. Agent evidence already measured 2026-08-27: T-587's hand-written file is conforming against the inception template.
-  **Expected:** H5 `status: resolved`
-  **If not:** disclosure stands in for reconciliation indefinitely
 
-- [ ] [REVIEW] Rule H6 — was the R6/R7 routing correct and was the §2.3 boundary held? Transport is done (offset 643); §2.3 says transport is **not** collaboration completion, so this does not self-resolve.
-  **Expected:** H6 `status: resolved`
-  **If not:** Arc-0 clause 3 cannot reach `satisfied` even if H1/H3/H5 are ruled
 
 - [ ] [REVIEW] Tick T-596's Human AC to set `definition_ratified: true` on clause 3 — without it the clause refuses to be satisfiable at all, and all four rulings above buy nothing
 
@@ -217,6 +217,7 @@ python3 -c 'import yaml,re,sys;d=yaml.safe_load(open("docs/research/executable-w
 # Supersession must be stated, not implied. H3 and H6 each carry a superseding observation in
 # the register; the dossier is red if it names neither.
 grep -qi "supersed" docs/reports/T-732-h-register-dossier.md
+bin/fw reviewer T-732 > /tmp/.fw-reviewer-T-732.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-732.out
 
 ## RCA
 
@@ -288,3 +289,9 @@ grep -qi "supersed" docs/reports/T-732-h-register-dossier.md
 
 ### 2026-09-21T14:08:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-09-26T20:02:20Z — delegate [fw-task-delegate]
+- **Ruling:** D-626 — reviewer-closeable delegation (operator ruling 2026-09-23)
+- **Converted to [REVIEWER] Agent criteria:** AC#2, AC#3, AC#4
+- **Left under ### Human (carve-outs):** inception-decision: AC#1; unclassified: AC#5
+- **Close path:** `bin/fw reviewer T-732` PASS auto-ticks the converted criteria (T-1985); the normal close gates do the rest.

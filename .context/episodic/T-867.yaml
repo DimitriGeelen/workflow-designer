@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-867: S2: the agent drafts the hypothesis, the human corrects it, and the correction is sticky
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T18:12:31Z
+# ============================================================================
+
+task_id: T-867
+task_name: "S2: the agent drafts the hypothesis, the human corrects it, and the correction is sticky"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T12:22:55Z
+completed: 2026-09-26T18:12:20Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  The operator said formulating a hypothesis is difficult; a blank required field would therefore be a gate that blocks rather than helps. So the estimator drafts one from the task's own text, the human edits it, and hypothesis_source: human makes the edit permanent against every later automatic pass. Reuses the sticky-provenance mechanism shipped in T-865 for voi_score and target_blast_radius — same two-state rule, no third 'unknown provenance' state. Every human-vs-draft divergence emits telemetry, because that delta is the only evidence available for improving the drafter.
+
+# Key outcomes
+outcomes:
+  - '`_draft_hypothesis()` produces the canonical three-part form from a task''s own name, description and body — not a blank template echoed back'
+  - '**It never invents a success clause.** When the body offers no candidate observable, the third clause carries an explicit `[NEEDS YOU: ...]` marker naming what is missing, rather than a plausible metric. Proven by fixture: a body with no numbers and no named checks yields the marker, never a fabricated figure'
+  - '**It does propose an observable when the body actually contains one** — a count, a named tool or check, a threshold. Helpful where there is material, honest where there is not. Proven by a fixture whose body carries a real figure'
+  - 'A draft carrying the `[NEEDS YOU]` marker is still REFUSED by S1''s gate. The two halves must agree: the drafter marks the gap, the gate holds the line, and neither pretends the task is ready'
+  - '**`hypothesis_source: human` is sticky** — a human-written hypothesis is never replaced by a draft, proven by asserting the stored text is byte-identical after a drafting pass'
+  - 'The run reports how many hypotheses it drafted and how many human-written ones it left alone, so the protection is observable rather than assumed'
+  - 'Every human-vs-draft divergence emits telemetry carrying both texts, because that delta is the only evidence available for improving the drafter and cannot be reconstructed later'
+  - '`tools/_t867-hypothesis-draft-teeth.sh` covers the above with a `--mutation` mode whose CONTROL SET reports `MUTATION SETUP BROKEN` rather than reading a broken harness as a clean kill'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 349 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:hypothesis-first-inceptions, bvp, hypothesis]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 349
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-867-s2-the-agent-drafts-the-hypothesis-the-h.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-868: S3: support scores cite the hypothesis, so a score becomes an argument that can be wrong
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T18:19:38Z
+# ============================================================================
+
+task_id: T-868
+task_name: "S3: support scores cite the hypothesis, so a score becomes an argument that can be wrong"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T12:23:06Z
+completed: 2026-09-26T18:19:24Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Today the estimator pattern-matches the task body and emits a number. In the source BVP method a support score is an ARGUMENT ABOUT A STATED CLAIM — 'support 5 on Legal/Regulatory' means something only because the hypothesis says what success looks like. Rewire scoring so each driver's support cites the hypothesis clause it reacted to, and the evidence line quotes it. Falls back to body matching while a task has no hypothesis, so the transition is not a cliff. The point is not accuracy: it is that a cited score is CORRECTABLE, and a pattern-matched one cannot be wrong about anything.
+
+# Key outcomes
+outcomes:
+  - 'When a task carries `hypothesis_source: human`, declarative driver signals are matched against the hypothesis text and the evidence line names the clause that matched — `@hypothesis:outcome` or `@hypothesis:signal`, not just the keyword'
+  - '**A machine-drafted hypothesis is NOT cited.** The evidence says it scored from the body, and says why, so the reader can tell a score grounded in a human claim from one that is not. The machine citing its own draft would read as provenance while being none'
+  - 'Where no signal matches the hypothesis but one matches the body, the evidence marks the fallback explicitly rather than silently presenting a body match as a hypothesis match'
+  - 'Scores themselves are unchanged for every task that has no human hypothesis — proven by comparing driver output across the corpus before and after, so this slice cannot quietly re-rank anything'
+  - '`tools/_t868-cited-support-teeth.sh` covers the above with a `--mutation` mode whose CONTROL SET reports `MUTATION SETUP BROKEN` rather than reading a broken harness as a clean kill'
+  - 'The slice boundary is recorded in code: D1-D4 keep their hand-written handlers, and the reason is stated where a future reader will find it rather than in this task alone'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 356 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:hypothesis-first-inceptions, bvp, hypothesis]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 356
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-868-s3-support-scores-cite-the-hypothesis-so.md
+generated_by: context-agent-hybrid

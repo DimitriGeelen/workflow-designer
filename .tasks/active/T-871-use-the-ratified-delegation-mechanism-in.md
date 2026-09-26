@@ -1,25 +1,23 @@
 ---
-id: T-868
-name: "S3: support scores cite the hypothesis, so a score becomes an argument that
-  can be wrong"
+id: T-871
+name: "Use the ratified delegation mechanism instead of leaving 77 criteria in an
+  operator-only queue"
 description: >
-  Today the estimator pattern-matches the task body and emits a number. In the source
-  BVP method a support score is an ARGUMENT ABOUT A STATED CLAIM — 'support 5 on Legal/Regulatory'
-  means something only because the hypothesis says what success looks like. Rewire
-  scoring so each driver's support cites the hypothesis clause it reacted to, and
-  the evidence line quotes it. Falls back to body matching while a task has no hypothesis,
-  so the transition is not a cliff. The point is not accuracy: it is that a cited
-  score is CORRECTABLE, and a pattern-matched one cannot be wrong about anything.
+  D-626/T-3445 shipped fw task delegate: it classifies a human-owned task's open Human
+  criteria, converts deterministic ones to [REVIEWER] Agent criteria verbatim, leaves
+  carve-outs alone, and moves ownership only when nothing remains for the operator.
+  It has not been used. Measured: 83 open Human criteria across 71 active tasks —
+  reviewer-closeable 7, agent-self 2, operator-only 77, and 37 of those are UNCLASSIFIED
+  and default to operator-only rather than being genuinely operator work. Operator
+  direction 2026-09-26: kill the rubber-stamping, producer and reviewer are separated,
+  a reviewer PASS is sufficient to close.
 
-status: work-completed
+status: started-work
 workflow_type: build
 owner: agent
-horizon: null
-tags: [arc:hypothesis-first-inceptions, bvp, hypothesis]
-components:
-  - .agentic-framework/agents/termlink/bvp-estimator/estimator.py
-  - policy/value-drivers.yaml
-  - tools/_t868-cited-support-teeth.sh
+horizon: now
+tags: [governance, delegation]
+components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -31,9 +29,9 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-26T12:23:06Z
-last_update: 2026-09-26T18:19:24Z
-date_finished: 2026-09-26T18:19:24Z
+created: 2026-09-26T20:02:06Z
+last_update: 2026-09-26T20:02:16Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -44,32 +42,30 @@ date_finished: 2026-09-26T18:19:24Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed: []
-cost_estimate_proposed:
-  - ts: '2026-09-26T12:23:30Z'
+bvp_scores_proposed:
+  - ts: '2026-09-26T20:02:16Z'
     estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      blast_radius: 3
-      tier: 2
-      effort: 8
-    rationale: blast_radius=3 (3-components); tier=2 (workflow:build); effort=8 
-      (lines=269,acs=4)
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
     rubric_sha: e4a00f38e801
-bvp_scores:
-  D1: 4
-  D2: 4
-  D3: 3
-  D4: 2
-  F-RECALL: 2
-  F2: 0
-  F4: 0
-  F3: 0
-  F1: 1
-confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
-confirmed_at: '2026-09-26T12:23:49Z'
 ---
 
-# T-868: S3: support scores cite the hypothesis, so a score becomes an argument that can be wrong
+# T-871: Use the ratified delegation mechanism instead of leaving 77 criteria in an operator-only queue
 
 ## Context
 
@@ -77,35 +73,35 @@ confirmed_at: '2026-09-26T12:23:49Z'
 
 ## Context
 
-arc-004 slice 3. In the source BVP method a support score is an **argument about a
-stated claim**: "support 5 on Legal/Regulatory" means something only because the
-hypothesis says what success looks like. Ours pattern-matches the task body and emits a
-number, so it can rank but cannot be wrong.
+Operator direction 2026-09-26: kill the rubber-stamping. Producer and reviewer are
+separated; if the reviewer agent says the work is good, that is sufficient to close.
 
-**The design problem this slice had to settle first.** After S2, most hypotheses in the
-corpus are machine DRAFTS. If scores cite those, the machine is citing itself — a layer
-of indirection that *reads* as grounded in a claim while the claim was also machine-made.
-That is worse than an honest pattern-match, because it borrows authority it has not
-earned, and a reader cannot tell the difference from the evidence line.
+**The mechanism already exists and is already ratified.** D-626 / T-3445 shipped
+`fw task delegate`: it classifies a human-owned task's open Human criteria, converts the
+deterministic ones to `[REVIEWER]` Agent criteria keeping Steps/Expected/If-not verbatim,
+leaves every carve-out alone, and moves ownership only when nothing remains for the
+operator to answer. It had never been run.
 
-So: **citation counts only when `hypothesis_source: human`.** Otherwise the evidence says
-plainly that it scored from the body and why. That also creates the right incentive —
-confirm your hypothesis and your scores become arguable.
+**Measured before acting.** 83 open Human criteria across 71 active tasks:
+reviewer-closeable 7, agent-self 2, **operator-only 77**. By class: unclassified 37,
+inception-decision 15, sovereignty-field 9, deterministic 7, taste 7, tier0-or-bypass 5,
+render-surface 4, agent-self 2.
 
-**Slice boundary, stated rather than discovered later:** this applies to the DECLARATIVE
-drivers (F1/F3/F4 — 27 of 63 weight, the yardstick axes). D1-D4 have hand-written
-handlers whose rubrics are judgement over prose, not signal matching; rewiring those is a
-separate and larger change and is deliberately not in this slice.
+**So the bottleneck is not policy, it is classification.** Only 6 of 83 criteria are
+`[RUBBER-STAMP]` — removing that class alone would have unblocked almost nothing. The
+real number is the **37 unclassified**, which default to operator-only not because anyone
+judged them operator work but because the classifier could not tell.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] When a task carries `hypothesis_source: human`, declarative driver signals are matched against the hypothesis text and the evidence line names the clause that matched — `@hypothesis:outcome` or `@hypothesis:signal`, not just the keyword
-- [x] **A machine-drafted hypothesis is NOT cited.** The evidence says it scored from the body, and says why, so the reader can tell a score grounded in a human claim from one that is not. The machine citing its own draft would read as provenance while being none
-- [x] Where no signal matches the hypothesis but one matches the body, the evidence marks the fallback explicitly rather than silently presenting a body match as a hypothesis match
-- [x] Scores themselves are unchanged for every task that has no human hypothesis — proven by comparing driver output across the corpus before and after, so this slice cannot quietly re-rank anything
-- [x] `tools/_t868-cited-support-teeth.sh` covers the above with a `--mutation` mode whose CONTROL SET reports `MUTATION SETUP BROKEN` rather than reading a broken harness as a clean kill
-- [x] The slice boundary is recorded in code: D1-D4 keep their hand-written handlers, and the reason is stated where a future reader will find it rather than in this task alone
+- [ ] The five tasks the classifier reports as delegable are delegated through the sanctioned verb, not by hand-editing ownership — `fw task delegate` writes `.context/working/delegations.jsonl`, and R-033's `--skip-human-ownership` would have logged the same act as a gate circumvention
+- [ ] Tasks that become `owner: agent` are closed only on a reviewer PASS, never on the producer's own say-so — that separation is the whole point of the ruling
+- [ ] **A criterion whose ASK is a judgement is not converted merely because its Expected clause is greppable.** T-732's AC#4 ("Rule H6 — was the R6/R7 routing correct") classified deterministic on a `status: resolved` Expected. Flagged to the operator rather than silently converted; conversion to `[REVIEWER]` still requires a reviewer to verify, so it is not auto-ticked, but the classifier's reach is recorded
+- [ ] The delegation surface is re-measured afterwards and the delta reported, so the size of what this actually released is a number rather than a claim
+- [ ] **The 37 unclassified criteria are surfaced as the real lever**, with a recommendation, rather than left inside a count nobody reads
+
+### Human
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -139,13 +135,6 @@ separate and larger change and is deliberately not in this slice.
 -->
 
 ## Verification
-
-out=$(bash tools/_t868-cited-support-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$' && ! echo "$out" | grep -q '^  FAIL'
-out=$(bash tools/_t868-cited-support-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
-python3 -c "import ast;ast.parse(open('.agentic-framework/agents/termlink/bvp-estimator/estimator.py').read())"
-grep -q 'hyp_human = str(fm.get("hypothesis_source")' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
-grep -q 'unconfirmed DRAFT' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
-grep -q 'D1-D4 keep their hand-written handlers' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -291,28 +280,6 @@ grep -q 'D1-D4 keep their hand-written handlers' .agentic-framework/agents/terml
 
 ## Evolution
 
-### 2026-09-26 — the slice nearly cited the machine to itself
-
-- **What changed:** after S2 most hypotheses in the corpus are machine DRAFTS. The obvious
-  implementation — "cite the hypothesis" — would have had scores cite text the same
-  estimator wrote minutes earlier. The evidence line would read as provenance and be none,
-  and a reader could not tell it from the real thing. That is worse than the honest
-  pattern-match it replaces, because it borrows authority it has not earned.
-- **Plan impact:** citation is gated on `hypothesis_source: human`. An unconfirmed draft is
-  not cited and the evidence says why, which also creates the right incentive: confirm your
-  hypothesis and your scores become arguments about your claim.
-- **Control that mattered most:** a slice claiming to add provenance while quietly
-  re-ranking is the failure nobody would notice, because the numbers would still look
-  plausible. Measured directly — **483 driver evaluations, 0 score differences** between the
-  cited and uncited paths. Citation is purely additive to evidence.
-- **Corpus comparison, reported honestly:** 4 of 6 confirmed tasks show score drift, and
-  none of it is this slice. T-860/T-863 lack F1/F3/F4 in stored scores because they were
-  confirmed before T-864 created those scorers; T-189 moved because T-865's template-strip
-  fix changed what the body matches. Both already shipped and committed.
-- **No classification correction this time** — the mutation disables BOTH reads of
-  `hypothesis_source` from the start, because T-865 shipped a guard living in two functions
-  and disabling one left the case that mattered green. The lesson transferred.
-
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -387,22 +354,10 @@ grep -q 'D1-D4 keep their hand-written handlers' .agentic-framework/agents/terml
 
 ## Updates
 
-### 2026-09-26T12:23:06Z — task-created [task-create-agent]
+### 2026-09-26T20:02:06Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-868-s3-support-scores-cite-the-hypothesis-so.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-871-use-the-ratified-delegation-mechanism-in.md
 - **Context:** Initial task creation
 
-### 2026-09-26T18:15:05Z — status-update [task-update-agent]
+### 2026-09-26T20:02:16Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
-
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-947665f2
-- **Timestamp:** 2026-09-26T18:19:33Z
-- **Catalogue:** v1.3-seed
-- **Overall:** PASS
-- **Needs Human:** no
-- **Findings:** none
-
-### 2026-09-26T18:19:24Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed

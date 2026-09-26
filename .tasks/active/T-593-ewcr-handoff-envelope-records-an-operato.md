@@ -18,7 +18,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T14:20:16Z
-last_update: '2026-09-21T20:24:52Z'
+last_update: 2026-09-26T20:02:19Z
 date_finished: 2026-08-26T14:25:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -85,6 +85,12 @@ which is what it always was.
       from the repo root after the manifest is re-pinned
 - [x] T-590's Human AC step is now TRUE against the file: running the operator's own
       command shows `to_project` UNRESOLVED with H2 named as the blocker
+- [ ] [REVIEWER] H2 itself remains yours to answer — it is unchanged by this task
+
+  **Steps:** answer H2 on T-590 as already queued: http://192.168.10.107:3013/review/T-590
+  **Expected:** T-590's H2 AC is where the counterparty gets named. This task deliberately
+  did **not** name it.
+  **If not:** if you would rather decide H2 inline here, say so and I will move it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -147,12 +153,6 @@ which is what it always was.
   **If not:** if the block still reads as answered, or the recommendation is not clearly
   the agent's, say which line and it is corrected before anything is sent.
 
-- [ ] [RUBBER-STAMP] H2 itself remains yours to answer — it is unchanged by this task
-
-  **Steps:** answer H2 on T-590 as already queued: http://192.168.10.107:3013/review/T-590
-  **Expected:** T-590's H2 AC is where the counterparty gets named. This task deliberately
-  did **not** name it.
-  **If not:** if you would rather decide H2 inline here, say so and I will move it.
 
 ## Verification
 
@@ -227,6 +227,7 @@ python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow
 sha256sum -c docs/research/executable-workflow/source-manifest.sha256
 # T-590's Human AC instruction is now TRUE against the file the operator will cat.
 python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'));assert d['to_project'] is None,d['to_project']"
+bin/fw reviewer T-593 > /tmp/.fw-reviewer-T-593.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-593.out
 
 ## RCA
 
@@ -367,6 +368,12 @@ delivery. H2 is still open and still yours — that is the point.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
 - **Context:** Initial task creation
+
+### 2026-09-26T20:02:19Z — delegate [fw-task-delegate]
+- **Ruling:** D-626 — reviewer-closeable delegation (operator ruling 2026-09-23)
+- **Converted to [REVIEWER] Agent criteria:** AC#2
+- **Left under ### Human (carve-outs):** sovereignty-field: AC#1
+- **Close path:** `bin/fw reviewer T-593` PASS auto-ticks the converted criteria (T-1985); the normal close gates do the rest.
 
 ## Reviewer Verdict (v1.5)
 

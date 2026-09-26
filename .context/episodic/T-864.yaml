@@ -148,10 +148,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 74
-  commits: 2
-  files_changed: 78
-  lines_added: 1878
-  lines_removed: 89
+  commits: 3
+  files_changed: 81
+  lines_added: 2060
+  lines_removed: 93
+  footprint_refreshed_at: '2026-09-26T09:09:04Z'
+  footprint_refreshed_by_commit: 8805c45e
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-864-f1-f3-and-f4-carry-27-of-63-weight-units.md

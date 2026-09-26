@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-580: Decide: take AEF 5c33f7208 (the two fabric-detector fixes AEF landed from our report), or stay pinned at 1.6.354
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T20:04:43Z
+# ============================================================================
+
+task_id: T-580
+task_name: "Decide: take AEF 5c33f7208 (the two fabric-detector fixes AEF landed from our report), or stay pinned at 1.6.354"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-24T17:51:19Z
+completed: 2026-09-26T20:04:36Z
+duration_days: 33
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF posted at rail offset 342 that both fabric detector fixes we reported are on their master at 5c33f7208: Python dotted imports now resolve project-root-relative, and shell sourcing is no longer keyed to four hardcoded $VAR names. They measured cards-with-no-edges going 271 -> 79 on their own tree. Our audit has reported 'Fabric: 42/65 cards have no edges' on 12 of the last 14 days. The bump is the operator's call (AEF DM 536 §1) and no agent may run fw upgrade under its own initiative, so this task exists to hold the decision and its evidence.
+
+# Key outcomes
+outcomes:
+  - 'The peer claim is recorded with its source (rail offset + commit ref) rather than'
+  - 'The exact commands the operator needs are single-line and copy-pasteable, and the'
+  - '[REVIEWER] Close this task, or say why not'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 47653 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 47653
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-580-decide-take-aef-5c33f7208-the-two-fabric.md
+generated_by: context-agent-hybrid
