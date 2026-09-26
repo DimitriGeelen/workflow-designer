@@ -214,18 +214,148 @@ free_drivers:
     protected: false
     rationale: 'operator directive 2026-08-16: anything improving workflow routing
       / clean workflows'
+    # ── scorer added T-864, operator-directed 2026-09-26 ──────────────────────
+    # Filed 2026-08-16 with weight 9 and a rationale only: no rubric, no scorer.
+    # The estimator therefore emitted `unscored ... not counted` and T-3427 drops
+    # it from the denominator, so this axis has contributed NOTHING to any ranking
+    # since it was created while reading as a live 9-weight driver.
+    #
+    # SIGNAL DESIGN NOTE. The obvious keyword — "workflow" — is useless here: the
+    # repository is a workflow designer and every task body and frontmatter
+    # (`workflow_type:`) contains it, so an L1 on that word scores the entire
+    # corpus and inflates a 9-weight axis to noise. Signals below discriminate on
+    # ROUTING vocabulary (how a token moves between nodes, lanes, participants)
+    # and on the corpus that holds it.
+    polarity: positive
+    rubric:
+      0: No routing or workflow-shape concern touched.
+      1: Mentions routing structure (lane, pool, gateway, sequence flow) incidentally.
+      2: Changes how one workflow routes or renders, single map or single rule.
+      3: Fixes or adds a routing RULE that applies corpus-wide -- validator check,
+        layout rule, lane/pool resolution.
+      4: Closes a routing loop -- unroutable input is detected and refused rather
+        than silently reassigned, or clean-layout is enforced rather than nudged.
+      5: Extends the routing substrate itself -- new node/edge semantics, a new
+        routing dimension, or cross-workflow dependency routing.
+    guardrails: >
+      Score ROUTING UPLIFT, not "this file happens to be a workflow". Editing a
+      map's content is L0-L1; the value is in rules that hold across the corpus.
+    scoring:
+      kind: signals
+      strip_template: true
+      levels:
+        1:
+          keywords: ["lane", "pool", "gateway", "sequence flow", "flownoderef"]
+        2:
+          keywords: ["cleanlayout", "clean layout", "mapmessiness", "routing",
+                     "lane band", "swimlane"]
+          paths: ["examples/aef-processes/*.workflow.yaml",
+                  "examples/app-processes/*"]
+        3:
+          keywords: ["workflow validator", "validator rule", "layout rule",
+                     "lane resolution", "pool resolution", "dialect-relative"]
+        4:
+          keywords: ["silently reassigns", "unresolvable flownoderef",
+                     "refuses to route", "routing gate"]
+        5:
+          keywords: ["workflow fabric", "process-dependency graph",
+                     "new node type", "callactivity", "routing substrate"]
   - id: F3
     name: V_AEF_INTEGRATION
     weight: 9
     protected: false
     rationale: 'operator directive 2026-08-16: anything improving integration into
       AEF'
+    # ── scorer added T-864, operator-directed 2026-09-26 ──────────────────────
+    # SIGNAL DESIGN NOTE. "integration INTO AEF" is the SEAM between this project
+    # and 999-AEF -- the wire, the shared standard, the rendered corpus AEF pins
+    # against. It is NOT maintenance of the vendored .agentic-framework/ tree:
+    # fixing handover.sh is framework upkeep and already scores on D1/D2, and
+    # letting it score here too would double-count the remediation work that
+    # already dominates the queue. So `.agentic-framework/*` is deliberately NOT
+    # a signal, despite being the most obvious path match.
+    polarity: positive
+    rubric:
+      0: No AEF seam touched.
+      1: References AEF or the counterparty without changing the seam.
+      2: Consumes something across the seam (reads a standard, a rendered artifact).
+      3: Changes a seam artifact both sides depend on -- rendered corpus, mapping
+        standard conformance, a posted contract.
+      4: Closes a seam loop -- round-trip proven, or a divergence between the two
+        sides is detected mechanically rather than by inspection.
+      5: Extends the seam itself -- new shared contract, new transport, or a
+        conformance dimension neither side previously had.
+    guardrails: >
+      Score SEAM UPLIFT. Maintaining the vendored framework in-tree is D1/D2 work,
+      not integration; scoring it here double-counts remediation against product.
+    scoring:
+      kind: signals
+      strip_template: true
+      levels:
+        1:
+          keywords: ["999-aef", "aef agent", "counterparty", "framework agent"]
+        2:
+          keywords: ["termlink", "aef-bpmn", "forward-compile", "mapping standard"]
+          paths: ["docs/standards/aef-*.md"]
+        3:
+          keywords: ["rendered corpus", "seam artifact", "producer contract",
+                     "conformance key", "arc-0 exit"]
+          paths: ["examples/aef-processes/rendered/*", "examples/aef-processes/*"]
+        4:
+          keywords: ["round-trip", "reverse discovery", "divergence detect",
+                     "upstream drift", "seam divergence"]
+        5:
+          keywords: ["new shared contract", "seam substrate", "new transport",
+                     "conformance dimension"]
   - id: F1
     name: V_SDLC_ENABLEMENT
     weight: 9
     protected: false
     rationale: 'operator directive 2026-08-16: anything enhancing workflow capability
       to support a software development process built on the workflows'
+    # ── scorer added T-864, operator-directed 2026-09-26 ──────────────────────
+    # SIGNAL DESIGN NOTE. This is the yardstick driver: "iterate from the workflow
+    # to actual working applications". It scores the DESIGNER and the path from a
+    # drawn workflow to something that runs -- authoring surface, compilation,
+    # execution. Deliberately NOT keyed on "workflow" or "task" (universal in this
+    # corpus) nor on `.tasks/*` (every task touches those, which would make the
+    # highest-weighted driver a constant and therefore invisible in the ranking).
+    polarity: positive
+    rubric:
+      0: Nothing touching the authoring-to-running path.
+      1: Mentions the designer or BPMN authoring incidentally.
+      2: Improves the authoring surface -- editor behaviour, import/export,
+        validation feedback a human author sees.
+      3: Adds or repairs a capability an SDLC step depends on -- compile, promote,
+        create, or a producer/consumer contract between them.
+      4: Closes a loop from workflow to running software -- a drawn workflow
+        reaches an executable or deployed artifact, or a break in that chain is
+        detected mechanically.
+      5: Extends the enablement substrate -- a new stage in the workflow-to-app
+        chain, or collaboration/tenancy that lets more than one author drive it.
+    guardrails: >
+      Score PATH-TO-RUNNING-SOFTWARE. Framework governance work is D1/D2/F-RECALL;
+      scoring it here would make the yardstick driver reward everything equally.
+    scoring:
+      kind: signals
+      strip_template: true
+      levels:
+        1:
+          keywords: ["designer", "bpmn", "authoring surface", "workflow designer"]
+        2:
+          keywords: ["import", "export", "editor", "canvas", "palette",
+                     "validation feedback", "ghost card"]
+          paths: ["src/aef-workflow-designer.html", "src/*"]
+        3:
+          keywords: ["compile", "promote", "producer contract", "codegen",
+                     "forward compile", "executable workflow"]
+          paths: ["examples/app-processes/*"]
+        4:
+          keywords: ["workflow to application", "running application",
+                     "deployed artifact", "end-to-end chain"]
+        5:
+          keywords: ["hosting and tenancy", "collaboration and concurrency",
+                     "multi-tenant", "new sdlc stage"]
 auto_promote:
   enabled: false
   bvp_norm_min: 0.85    # only top-band value
