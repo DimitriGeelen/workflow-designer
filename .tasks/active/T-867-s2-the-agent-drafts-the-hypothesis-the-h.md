@@ -11,7 +11,7 @@ description: >
   rule, no third 'unknown provenance' state. Every human-vs-draft divergence emits
   telemetry, because that delta is the only evidence available for improving the drafter.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -31,7 +31,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T12:22:55Z
-last_update: '2026-09-26T12:23:29Z'
+last_update: 2026-09-26T18:04:48Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -74,12 +74,36 @@ confirmed_at: '2026-09-26T12:23:49Z'
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
+## Context
+
+arc-004 slice 2, and the slice that makes slice 1 usable. Measured before starting:
+of 14 active inceptions, ~11 are delivery-shaped and **none carries a hypothesis**. So
+S1's gate, alone, is an obstacle that would block eleven tasks belonging to the person
+who reported that formulating these is hard. S1 without S2 is the worst of the two
+configurations.
+
+**The design constraint that shapes everything here:** the drafter must not fabricate a
+success clause. A plausible invented metric is worse than a blank one — it satisfies the
+gate, reads as considered, and commits the project to a claim nobody made. That is the
+"manufacture a fake claim to pass a gate" failure the research exemption was added to
+avoid, arriving from the other direction.
+
+So the split is: the machine does the mechanical two-thirds it can source from the task's
+own text, and **names the gap** where only judgement will do. A draft with an honest hole
+beats a fluent fabrication, and S1's gate will still refuse the hole — which is correct,
+because the hole is exactly the part that needs a person.
+
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `_draft_hypothesis()` produces the canonical three-part form from a task's own name, description and body — not a blank template echoed back
+- [x] **It never invents a success clause.** When the body offers no candidate observable, the third clause carries an explicit `[NEEDS YOU: ...]` marker naming what is missing, rather than a plausible metric. Proven by fixture: a body with no numbers and no named checks yields the marker, never a fabricated figure
+- [x] **It does propose an observable when the body actually contains one** — a count, a named tool or check, a threshold. Helpful where there is material, honest where there is not. Proven by a fixture whose body carries a real figure
+- [x] A draft carrying the `[NEEDS YOU]` marker is still REFUSED by S1's gate. The two halves must agree: the drafter marks the gap, the gate holds the line, and neither pretends the task is ready
+- [x] **`hypothesis_source: human` is sticky** — a human-written hypothesis is never replaced by a draft, proven by asserting the stored text is byte-identical after a drafting pass
+- [x] The run reports how many hypotheses it drafted and how many human-written ones it left alone, so the protection is observable rather than assumed
+- [x] Every human-vs-draft divergence emits telemetry carrying both texts, because that delta is the only evidence available for improving the drafter and cannot be reconstructed later
+- [x] `tools/_t867-hypothesis-draft-teeth.sh` covers the above with a `--mutation` mode whose CONTROL SET reports `MUTATION SETUP BROKEN` rather than reading a broken harness as a clean kill
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -113,6 +137,14 @@ confirmed_at: '2026-09-26T12:23:49Z'
 -->
 
 ## Verification
+
+out=$(bash tools/_t867-hypothesis-draft-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$' && ! echo "$out" | grep -q '^  FAIL'
+out=$(bash tools/_t867-hypothesis-draft-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK (drafter fabricates'
+out=$(bash tools/_t867-hypothesis-draft-teeth.sh --mutation-fragment 2>&1); echo "$out" | grep -q 'MUTATION OK (trailing-stopword'
+python3 -c "import ast;ast.parse(open('.agentic-framework/agents/termlink/bvp-estimator/estimator.py').read())"
+grep -q 'def _draft_hypothesis' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
+grep -q 'def propose_hypothesis' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
+grep -q '_OBS_TRAILING_STOPWORDS' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -258,6 +290,28 @@ confirmed_at: '2026-09-26T12:23:49Z'
 
 ## Evolution
 
+### 2026-09-26 — the drafter's own regex nearly fabricated what the drafter forbids
+
+- **What changed:** the first extraction returned "80% of the" — a fragment that means
+  nothing but CONTAINS a digit, so S1's gate would have accepted it. I had written the rule
+  "never invent a success clause" and then broken it through a regex rather than through
+  invention. Caught by printing the output across all 14 inceptions, not by reasoning about
+  the code.
+- **Plan impact:** added a trailing-function-word filter and a rule that a surviving
+  candidate must carry a noun-ish tail. Dropping a weak candidate costs the author one
+  sentence; returning it costs the project a claim nobody made. Result across the corpus:
+  7 propose a real observable, 7 honestly mark NEEDS YOU.
+- **Second find, from the mutation:** evidence was emitted ALONGSIDE the signal rather than
+  derived from it, so the fabricate-mutant produced an invented metric while the evidence
+  line still said `signal<-NEEDS-YOU`. An evidence line that can disagree with the thing it
+  describes is a false green with extra steps — the reader trusts it precisely because it
+  looks like provenance. Now derived from the value.
+- **Known limit, stated not hidden:** weak candidates still get through ("2652 inception").
+  They are visibly wrong to a reader and the draft exists to be corrected, so this is left
+  rather than over-tuned. The honest time to tighten it is when override telemetry shows
+  which ones authors actually rewrite.
+- **Triggered:** nothing new. S3 (T-868) is unchanged by this.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -336,3 +390,6 @@ confirmed_at: '2026-09-26T12:23:49Z'
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-867-s2-the-agent-drafts-the-hypothesis-the-h.md
 - **Context:** Initial task creation
+
+### 2026-09-26T18:04:48Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
