@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-09T07:34:59Z
-last_update: '2026-09-21T21:51:30Z'
+last_update: '2026-09-26T09:06:25Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -61,6 +61,23 @@ bvp_scores_proposed:
       (no-signal); F2=0 (no-signal); F4=1 (prose:routing/geometry-incidental); 
       F3=4 (prose:seam-fixture-or-pin); F1=1 
       (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-26T09:06:25Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 3
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 (body:default-change);
+      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0
+      (L0: no signal); F3=3 (L3:keyword=rendered corpus,L3:path=examples/aef-processes/*~examples/aef-processes/rendered);
+      F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
     rubric_sha: e4a00f38e801
 ---
 

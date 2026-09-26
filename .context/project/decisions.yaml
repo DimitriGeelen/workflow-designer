@@ -2474,3 +2474,10 @@ decisions:
     date: 2026-09-24
     task: T-806
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-333
+    decision: "F1/F3/F4 scoring rubrics approved as-is by the operator (2026-09-26, 'go' on option 1). Three judgement calls stand as written: (a) .agentic-framework/* is deliberately EXCLUDED from F3 V_AEF_INTEGRATION, so framework upkeep scores 0 on that 9-weight axis — rationale is that framework work already scores on D1/D2 and counting it as integration would double-count the remediation already crowding out product work; (b) F4 does not key on 'workflow' and F1 does not key on 'task'/.tasks/*, because both are universal in this corpus and a rule matching them turns a 9-weight axis into a constant — the exact trap the VoI estimator fell into the same day; (c) the 0-5 ladder shape (0 untouched, 1 incidental, 3 corpus-wide rule, 5 extends the substrate) was copied from the existing F2 and F-RECALL rubrics rather than invented. Approved on the explicit basis that the rubrics are CHECKABLE rather than known-correct: discrimination is measured (product 2-4, remediation 0-2 across 8 tasks) but correct ORDERING among product tasks is not, and the human overrides that the sticky flag now records are the evidence that will fix it."
+    scope: project
+    date: 2026-09-26
+    task: T-864
+    rationale: "No definition at all is strictly worse than an imperfect one; the override telemetry from T-865 makes this revisable against evidence rather than argument"

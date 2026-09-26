@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:58:42Z
-last_update: '2026-09-21T20:24:53Z'
+last_update: '2026-09-26T09:06:28Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -49,6 +49,22 @@ bvp_scores_proposed:
       (body/components:component-fabric-incidental); F4=1 
       (prose:routing/geometry-incidental); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-26T09:06:28Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 2
+      F2: 1
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); D4=2
+      (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); F2=1 (body/components:component-fabric-incidental);
+      F4=1 (L1:keyword=pool); F3=0 (L0: no signal); F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-21T08:01:03Z'

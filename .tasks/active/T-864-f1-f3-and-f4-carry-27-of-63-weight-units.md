@@ -1,10 +1,19 @@
 ---
 id: T-864
-name: "F1, F3 and F4 carry 27 of 63 weight units and cannot be scored, so every ranking is computed over 57 percent of the model"
+name: "F1, F3 and F4 carry 27 of 63 weight units and cannot be scored, so every ranking
+  is computed over 57 percent of the model"
 description: >
-  Operator-directed 2026-09-26. F1 V_SDLC_ENABLEMENT, F3 V_AEF_INTEGRATION and F4 V_WORKFLOW_ROUTING were added by operator directive 2026-08-16 with weight 9 each, but carry only a rationale: no rubric, no polarity, no handler, no scoring spec. The estimator emits 'unscored ... not counted' for all three and drops them from the denominator (T-3427), so BVP norms are computed over 36 of 63 weight units. The six drivers that DO score are framework-internal quality axes; the three that do not are exactly the yardstick-aligned ones, so the ranking is structurally incapable of seeing product value. Fix: give each a declarative scoring: spec (kind signals, T-3428) plus the rubric: block F2 and F-RECALL already carry.
+  Operator-directed 2026-09-26. F1 V_SDLC_ENABLEMENT, F3 V_AEF_INTEGRATION and F4
+  V_WORKFLOW_ROUTING were added by operator directive 2026-08-16 with weight 9 each,
+  but carry only a rationale: no rubric, no polarity, no handler, no scoring spec.
+  The estimator emits 'unscored ... not counted' for all three and drops them from
+  the denominator (T-3427), so BVP norms are computed over 36 of 63 weight units.
+  The six drivers that DO score are framework-internal quality axes; the three that
+  do not are exactly the yardstick-aligned ones, so the ranking is structurally incapable
+  of seeing product value. Fix: give each a declarative scoring: spec (kind signals,
+  T-3428) plus the rubric: block F2 and F-RECALL already carry.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -24,8 +33,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T07:53:42Z
-last_update: 2026-09-26T07:53:42Z
-date_finished: null
+last_update: 2026-09-26T09:05:30Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -36,6 +45,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-26T09:05:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=2 (L1:keyword=lane,L1:keyword=flownoderef);
+      F3=0 (L0: no signal); F1=2 (L1:keyword=designer,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-864: F1, F3 and F4 carry 27 of 63 weight units and cannot be scored, so every ranking is computed over 57 percent of the model
@@ -52,7 +79,7 @@ date_finished: null
 - [x] The estimator emits real values instead of `unscored ... not counted` — measured: T-358 re-scored to `F4=4 F3=4 F1=3`
 - [x] **The scorers discriminate product work from remediation.** Measured across six tasks: product 2-4, remediation 0-2 (table in Evolution). A scorer firing equally on everything adds weight without signal
 - [x] **The ranking actually moves.** T-358 went 157/0.50 (rank 5) to 175/0.56 (rank 2), above three remediation tasks
-- [ ] Corpus re-scored so every task carries the three axes — NOT DONE, see Evolution
+- [x] Corpus re-scored so every task carries the three axes. 117 tasks processed, 72 written, 45 skipped by the v2-delta rule, 0 errors, 10.68s. Ranking moved substantially: designer/product work now leads (T-309, T-357 at 0.80; T-358 0.56; T-347, T-101 entering the top), while remediation tasks that previously held the top (T-854, T-344) dropped out
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -257,6 +284,21 @@ out=$(.agentic-framework/bin/fw bvp driver --explain F4 T-737 2>&1); echo "$out"
 - **Plan impact:** corpus-wide re-scoring is a real remaining step, deliberately not taken
   at ~294k context. It rewrites the `_proposed` lane of 114+ tasks in one commit and should
   start a session, not end one.
+### 2026-09-26 (later) — the re-score landed, and it surfaced a residual artefact
+
+- **What changed:** operator approved the rubrics as-is, which unblocked the corpus pass.
+  117 tasks, 72 written. The 126/0.40 uniform inception cluster is gone — inceptions now
+  tier at 0.80/0.60/0.40. Product work rose as intended; top 20 is 11 build / 9 inception.
+- **Residual, filed not hidden:** the top three are tied at EXACTLY 0.80, and the tie is
+  structural. The T-2189 inception exception assigns the same value to every driver, so a
+  VoI of 0.8 becomes a flat 4 across all 9 axes = 252/315, which necessarily beats a build
+  task whose varied per-driver scores average lower. Inceptions therefore sit above build
+  work by construction rather than by merit, and they tie with each other in discrete
+  bands. This is not caused by T-864 — it predates it (the old 126 was 2 x 63, the same
+  flat mechanism) — but T-864 made it visible by moving the values off a single point.
+- **Not fixed here:** changing the inception exception is a scoring-model decision, not a
+  missing mechanism, so it is surfaced rather than taken.
+
 - **Triggered:** OBS-397 is unchanged by this. The model can now SEE product value; how much
   bandwidth remediation should get against it is still the operator's call.
 
@@ -338,3 +380,6 @@ out=$(.agentic-framework/bin/fw bvp driver --explain F4 T-737 2>&1); echo "$out"
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-864-f1-f3-and-f4-carry-27-of-63-weight-units.md
 - **Context:** Initial task creation
+
+### 2026-09-26T09:05:30Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

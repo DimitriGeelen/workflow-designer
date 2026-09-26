@@ -18,7 +18,7 @@ tags: [ui, editor, bug, corpus]
 components: []
 related_tasks: [T-101, T-082, T-089, T-083]
 created: 2026-07-05T17:30:00Z
-last_update: 2026-08-23T10:24:08Z
+last_update: '2026-09-26T09:06:18Z'
 date_finished:
 bvp_scores_proposed:
   - ts: '2026-08-16T12:33:25Z'
@@ -52,6 +52,22 @@ bvp_scores_proposed:
     rationale: D1=2 (body:concern-ref); D2=0 (no-signal); D3=0 (no-signal); D4=0
       (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=4 
       (prose:routing-structural); F3=0 (no-signal); F1=0 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-26T09:06:18Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 2
+    rationale: 'D1=2 (body:concern-ref); D2=0 (no-signal); D3=0 (no-signal); D4=0
+      (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=2 (L1:keyword=lane,L1:keyword=gateway);
+      F3=0 (L0: no signal); F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-08-16T13:57:12Z'

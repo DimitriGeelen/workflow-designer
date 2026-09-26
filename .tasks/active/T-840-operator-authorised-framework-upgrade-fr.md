@@ -1,8 +1,21 @@
 ---
 id: T-840
-name: "Operator-authorised framework upgrade from pinned 1.6.354; verify designer and termlink versions"
+name: "Operator-authorised framework upgrade from pinned 1.6.354; verify designer
+  and termlink versions"
 description: >
-  Operator instruction 2026-09-25: 'Can we please upgrade to latest bleeding edge from AEF? Check we have the latest version of Workflow Designer and Termlink.' The bump is the operator's call per AEF's DM 536 section 1 ('The bump is your operator's call, not mine and not yours') and they have now made it - this task records that authorisation as the reason fw upgrade is being run at all. State at start: fw v1.6.354 vendored and pinned 1.6.354; termlink CLI 0.12.13 while live hub sessions report termlink_version 0.11.1766 (CLI/session skew); designer VERSION 0.13.0 with dist/ carrying 0.12.0 and 0.13.0 but vendor/designer/ holding only 0.12.0 and 0.8.0, so the vendored consumer pin is one release behind its own dist - independently found by the T-838 value review round 2. Expected to land AEF's T-3444 (commit d325112a5, CTL-029 narrowing), after which the .vendor-divergence.yaml entry for audit.sh can drop per AEF's own message. NOTE the upgrade rewrites PreToolUse hooks that govern this session, so it is dry-run first and the delta reported before anything is written.
+  Operator instruction 2026-09-25: 'Can we please upgrade to latest bleeding edge
+  from AEF? Check we have the latest version of Workflow Designer and Termlink.' The
+  bump is the operator's call per AEF's DM 536 section 1 ('The bump is your operator's
+  call, not mine and not yours') and they have now made it - this task records that
+  authorisation as the reason fw upgrade is being run at all. State at start: fw v1.6.354
+  vendored and pinned 1.6.354; termlink CLI 0.12.13 while live hub sessions report
+  termlink_version 0.11.1766 (CLI/session skew); designer VERSION 0.13.0 with dist/
+  carrying 0.12.0 and 0.13.0 but vendor/designer/ holding only 0.12.0 and 0.8.0, so
+  the vendored consumer pin is one release behind its own dist - independently found
+  by the T-838 value review round 2. Expected to land AEF's T-3444 (commit d325112a5,
+  CTL-029 narrowing), after which the .vendor-divergence.yaml entry for audit.sh can
+  drop per AEF's own message. NOTE the upgrade rewrites PreToolUse hooks that govern
+  this session, so it is dry-run first and the delta reported before anything is written.
 
 status: started-work
 workflow_type: build
@@ -16,8 +29,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-25T06:37:14Z
-last_update: 2026-09-25T08:06:22Z
-date_finished: null
+last_update: '2026-09-26T09:06:31Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +41,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-26T09:06:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 4
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=2
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 (no-signal);
+      F2=0 (no-signal); F4=0 (L0: no signal); F3=4 (L2:keyword=termlink,L4:keyword=round-trip);
+      F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-840: Operator-authorised framework upgrade from pinned 1.6.354; verify designer and termlink versions

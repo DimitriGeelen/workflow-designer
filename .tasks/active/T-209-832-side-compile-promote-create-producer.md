@@ -26,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-19T15:42:35Z
-last_update: 2026-08-23T10:24:09Z
+last_update: '2026-09-26T09:06:19Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -74,6 +74,23 @@ bvp_scores_proposed:
       (body:env-class-handled); F-RECALL=3 (body:fw-recall-or-memory-link); F2=0
       (no-signal); F4=1 (prose:routing/geometry-incidental); F3=5 
       (prose:seam-contract); F1=0 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-26T09:06:19Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 2
+      D3: 0
+      D4: 2
+      F-RECALL: 3
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=2 (body:telemetry-or-audit-entry);
+      D3=0 (no-signal); D4=2 (body:env-class-handled); F-RECALL=3 (body:fw-recall-or-memory-link);
+      F2=0 (no-signal); F4=2 (L1:keyword=lane,L2:keyword=routing); F3=0 (L0: no signal);
+      F1=3 (L1:keyword=designer,L1:keyword=bpmn)'
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-08-16T13:57:12Z'

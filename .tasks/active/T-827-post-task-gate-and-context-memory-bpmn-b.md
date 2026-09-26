@@ -1,8 +1,22 @@
 ---
 id: T-827
-name: "Post task-gate and context-memory bpmn bytes to xfer-832-bpmn (AEF @1644 Part A)"
+name: "Post task-gate and context-memory bpmn bytes to xfer-832-bpmn (AEF @1644 Part
+  A)"
 description: >
-  AEF is waiting on this to run the compile. Their request at agent-chat-arc @1644 Part A carries the exact command. WHY IT IS STUCK AND WHY THAT IS NOT A DEFECT: both sides' gates work correctly and their correct operation makes a filesystem exchange impossible. AEF's T-559 refuses any Bash argument under our path. They did the sanctioned thing and dispatched a worker INTO our checkout - and OUR gates refused it: G-020 blocked its first read-only Bash because our focus task had placeholder ACs, and our T-559 blocked calling their compiler by absolute path. It stopped cleanly, edited nothing, posted nothing. AEF's conclusion is right: two boundary gates both doing their job make a filesystem-path exchange impossible without one operator weakening a gate, so the exchange belongs on the hub. WHAT BLOCKS IT ON OUR SIDE: base64-encoding a repo file for outbound transmission trips the auto-mode classifier. That is an operator decision about the classifier path, not engineering. NOT a workaround candidate: file_send/file receive --replay is not a delivery mechanism for seam bytes until AEF OBS-108 closes, and PTY inject is the known-lossy path.
+  AEF is waiting on this to run the compile. Their request at agent-chat-arc @1644
+  Part A carries the exact command. WHY IT IS STUCK AND WHY THAT IS NOT A DEFECT:
+  both sides' gates work correctly and their correct operation makes a filesystem
+  exchange impossible. AEF's T-559 refuses any Bash argument under our path. They
+  did the sanctioned thing and dispatched a worker INTO our checkout - and OUR gates
+  refused it: G-020 blocked its first read-only Bash because our focus task had placeholder
+  ACs, and our T-559 blocked calling their compiler by absolute path. It stopped cleanly,
+  edited nothing, posted nothing. AEF's conclusion is right: two boundary gates both
+  doing their job make a filesystem-path exchange impossible without one operator
+  weakening a gate, so the exchange belongs on the hub. WHAT BLOCKS IT ON OUR SIDE:
+  base64-encoding a repo file for outbound transmission trips the auto-mode classifier.
+  That is an operator decision about the classifier path, not engineering. NOT a workaround
+  candidate: file_send/file receive --replay is not a delivery mechanism for seam
+  bytes until AEF OBS-108 closes, and PTY inject is the known-lossy path.
 
 status: captured
 workflow_type: build
@@ -16,8 +30,8 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T19:19:12Z
-last_update: 2026-09-22T19:19:12Z
-date_finished: null
+last_update: '2026-09-26T09:06:30Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +42,23 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-26T09:06:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 (body:default-change);
+      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0
+      (L0: no signal); F3=0 (L0: no signal); F1=3 (L1:keyword=designer,L1:keyword=bpmn)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-827: Post task-gate and context-memory bpmn bytes to xfer-832-bpmn (AEF @1644 Part A)

@@ -27,7 +27,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:36Z
-last_update: '2026-08-16T14:33:03Z'
+last_update: '2026-09-26T09:06:22Z'
 date_finished:
 revisit_at: 2026-09-11
 revisit_evidence_needed: "NOT T-340's ruling — that was my error 2026-08-14. Needs
@@ -79,6 +79,23 @@ bvp_scores_proposed:
       (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
       (no-signal); F2=0 (no-signal); F4=5 (prose:routing-engine); F3=2 
       (prose:seam-namespace); F1=1 (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-26T09:06:22Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 2
+      F3: 2
+      F1: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F2=0 (no-signal); F4=2 (L2:keyword=routing); F3=2 
+      (L2:keyword=aef-bpmn); F1=1 (L1:keyword=designer,L1:keyword=bpmn)
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-08-16T13:57:13Z'

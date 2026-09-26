@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-29T20:09:10Z
-last_update: 2026-09-01T19:38:20Z
+last_update: '2026-09-26T09:06:21Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -54,6 +54,25 @@ bvp_scores_proposed:
     rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
       (no-signal); F-RECALL=2 (no-signal); F2=2 (no-signal); F4=2 (no-signal); 
       F3=2 (no-signal); F1=2 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-26T09:06:21Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 4
+      D4: 4
+      F-RECALL: 4
+      F2: 4
+      F4: 4
+      F3: 4
+      F1: 4
+    rationale: D1=4 (voi:unblocks-or-blocked~'gates'); D2=4 
+      (voi:unblocks-or-blocked~'gates'); D3=4 (voi:unblocks-or-blocked~'gates');
+      D4=4 (voi:unblocks-or-blocked~'gates'); F-RECALL=4 
+      (voi:unblocks-or-blocked~'gates'); F2=4 (voi:unblocks-or-blocked~'gates');
+      F4=4 (voi:unblocks-or-blocked~'gates'); F3=4 
+      (voi:unblocks-or-blocked~'gates'); F1=4 (voi:unblocks-or-blocked~'gates')
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-08-16T13:57:12Z'

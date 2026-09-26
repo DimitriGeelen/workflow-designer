@@ -24,7 +24,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-25T20:29:02Z
-last_update: 2026-09-25T23:11:44Z
+last_update: '2026-09-26T09:06:31Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -51,6 +51,23 @@ bvp_scores_proposed:
       F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=? (unscored (no 
       scorer for F4; not counted)); F3=? (unscored (no scorer for F3; not 
       counted)); F1=? (unscored (no scorer for F1; not counted))
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-26T09:06:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 2
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (L0: no signal); F3=2 (L2:keyword=termlink);
+      F1=1 (L1:keyword=designer)'
     rubric_sha: e4a00f38e801
 ---
 
@@ -369,3 +386,12 @@ bvp_scores_proposed:
 - **Change:** horizon: now → later
 - **Change:** status: started-work → captured (auto-sync)
 - **Reason:** run 4 complete: T-859 closed, 8/8 ACs; stopping at the 75% budget line
+
+### 2026-09-25T23:49:49Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-09-25T23:50:40Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)
+- **Reason:** run 6 complete: T-861 closed; stopping at 78%, inside the 75-85 bounded-work band

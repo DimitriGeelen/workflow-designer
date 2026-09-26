@@ -19,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T16:56:45Z
-last_update: 2026-09-25T22:30:52Z
+last_update: '2026-09-26T09:06:19Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -31,7 +31,27 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed: []
+bvp_scores_proposed:
+  - ts: '2026-09-26T09:06:19Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 1
+      F4: 2
+      F3: 3
+      F1: 3
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F2=1 
+      (body/components:component-fabric-incidental); F4=2 
+      (L1:keyword=lane,L1:keyword=pool); F3=3 
+      (L2:keyword=aef-bpmn,L2:keyword=forward-compile); F1=3 
+      (L1:keyword=designer,L1:keyword=bpmn)
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-08-16T13:57:12Z'
     estimator: bvp-estimator-v1-heuristic

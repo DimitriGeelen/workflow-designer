@@ -20,7 +20,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-09-22T13:14:41Z
-last_update: 2026-09-23T16:58:50Z
+last_update: '2026-09-26T09:06:30Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -58,6 +58,28 @@ bvp_scores_proposed:
     rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
       (no-signal); F-RECALL=2 (no-signal); F2=2 (no-signal); F4=2 (no-signal); 
       F3=2 (no-signal); F1=2 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-26T09:06:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 3
+      D2: 3
+      D3: 3
+      D4: 3
+      F-RECALL: 3
+      F2: 3
+      F4: 3
+      F3: 3
+      F1: 3
+    rationale: D1=3 (voi:decision-with-alternatives~'go/no-go'); D2=3 
+      (voi:decision-with-alternatives~'go/no-go'); D3=3 
+      (voi:decision-with-alternatives~'go/no-go'); D4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F-RECALL=3 
+      (voi:decision-with-alternatives~'go/no-go'); F2=3 
+      (voi:decision-with-alternatives~'go/no-go'); F4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F3=3 
+      (voi:decision-with-alternatives~'go/no-go'); F1=3 
+      (voi:decision-with-alternatives~'go/no-go')
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-23T16:50:15Z'
