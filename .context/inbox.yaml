@@ -1960,3 +1960,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-398
+  text: "The inception scoring exception makes inceptions outrank build work BY CONSTRUCTION, and ties them in discrete bands. Measured 2026-09-26 after T-864's corpus re-score. T-2189's exception assigns ONE value — derived from voi_score — to EVERY driver, so an inception with VoI 0.8 scores a flat 4 on all nine axes: 4 x 63 = 252, /315 = exactly 0.80. A build task is scored per-driver and its varied values average lower, so it essentially cannot reach that. Result: the top three of the live ranking are three inceptions tied at exactly 0.80 (T-309, T-357, T-681), then two tied at 0.60 (T-155, T-811), and the highest build task sits at 0.56. Top 20 is 11 build / 9 inception, so it is not a takeover, but the very top is occupied by construction rather than by merit and the ties are exact rather than coincidental. THIS PREDATES T-864 AND WAS HIDDEN BY IT BEING WORSE: before the re-score every inception scored an identical 126/0.40, which is the same flat mechanism at the grandfathered neutral 2 (2 x 63 = 126). I had recorded that uniform cluster as no-signal noise in OBS-392 rather than as the inception exception doing exactly what it says. Making the values differentiate moved the cluster off a single point and exposed the shape underneath. NOTE ALSO an inconsistency the flat path creates: inceptions receive scores for F1/F3/F4 even when those drivers have no handler, because the exception bypasses the handler table entirely — so before T-864 inceptions were ranked over a 63-weight denominator while build tasks used 36. The two populations were not comparable and the ranking presented them in one list. SOVEREIGN QUESTION, not decided: should the inception exception keep assigning one value across all drivers (simple, and VoI genuinely is the composite for an inception), or should inceptions be scored per-driver like everything else with voi_score as one input among several, or should the two populations be ranked in separate lists rather than interleaved? This is a scoring-model decision, not a missing mechanism, so it is surfaced rather than taken."
+  captured: 2026-09-26T09:08:42Z
+  context_task: null
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

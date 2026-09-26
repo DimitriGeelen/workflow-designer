@@ -1,0 +1,158 @@
+# ============================================================================
+# EPISODIC MEMORY - T-864: F1, F3 and F4 carry 27 of 63 weight units and cannot be scored, so every ranking is computed over 57 percent of the model
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T09:08:26Z
+# ============================================================================
+
+task_id: T-864
+task_name: "F1, F3 and F4 carry 27 of 63 weight units and cannot be scored, so every ranking is computed over 57 percent of the model"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T07:53:42Z
+completed: 2026-09-26T09:08:18Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-26T09:58:36+02:00
+last_commit: 2026-09-26T11:08:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  give F1, F3 and F4 the scorers they never had — the ranking could not see product value, and now it can. rubrics approved, corpus re-scored — product work now leads the ranking, and one residual artefact is named rather than buried
+
+# Key outcomes
+outcomes:
+  - 'F1, F3 and F4 each carry a `scoring:` block of `kind: signals`, and each validates: `fw bvp driver --validate-scoring` reports VALID for all three'
+  - 'Each also carries the `rubric:`, `polarity:` and `guardrails:` blocks that F2 and F-RECALL already have, so a human can read what the machine matches on'
+  - 'The estimator emits real values instead of `unscored ... not counted` — measured: T-358 re-scored to `F4=4 F3=4 F1=3`'
+  - '**The scorers discriminate product work from remediation.** Measured across six tasks: product 2-4, remediation 0-2 (table in Evolution). A scorer firing equally on everything adds weight without signal'
+  - '**The ranking actually moves.** T-358 went 157/0.50 (rank 5) to 175/0.56 (rank 2), above three remediation tasks'
+  - 'Corpus re-scored so every task carries the three axes. 117 tasks processed, 72 written, 45 skipped by the v2-delta rule, 0 errors, 10.68s. Ranking moved substantially: designer/product work now leads (T-309, T-357 at 0.80; T-358 0.56; T-347, T-101 entering the top), while remediation tasks that previously held the top (T-854, T-344) dropped out'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'policy/value-drivers.yaml'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-101-bake-clean-layout-into-the-rendered-corp.md'
+  - '.tasks/active/T-102-mapmessiness-false-positive-branch-stack.md'
+  - '.tasks/active/T-105-baked-verification-gate-gateway-label-collision.md'
+  - '.tasks/active/T-125-vertical-lane-compaction-in-cleanlayout-.md'
+  - '.tasks/active/T-189-iw-9-v11-mapping-standard-delta--collaps.md'
+  - '.tasks/active/T-209-832-side-compile-promote-create-producer.md'
+  - '.tasks/active/T-241-apithumb-graceful-fallback-for-server-si.md'
+  - '.tasks/active/T-246-consumer-facing-release-metadata-changel.md'
+  - '.tasks/active/T-264-save-target-guard-set-id-field-collision.md'
+  - '.tasks/active/T-265-adopt-the-t-145-tail-5-editor-saved-corp.md'
+  - '.tasks/active/T-286-edge-arrowheads-render-above-node-id-bad.md'
+  - '.tasks/active/T-289-mapping-v1-alignment-note-framework-node.md'
+  - '.tasks/active/T-291-document-workflow-review-map-referenced-.md'
+  - '.tasks/active/T-292-document-workflow-future-map-referenced-.md'
+  - '.tasks/active/T-293-endpoint-reconnect-drag-hand-often-fails.md'
+  - '.tasks/active/T-294-port-indicator-pin-click-does-not-regist.md'
+  - '.tasks/active/T-309-surface-workflow-validator-findings-in-t.md'
+  - '.tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md'
+  - '.tasks/active/T-344-fabric-watch-patternsyaml-is-the-untailo.md'
+  - '.tasks/active/T-345-audit-fabric-coverage-check-is-a-broken-.md'
+  - '.tasks/active/T-347-content-inside-an-accepted-element-is-si.md'
+  - '.tasks/active/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md'
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-402-budget-gate-allow-regex-matches-anywhere.md'
+  - '.tasks/active/T-422-check-arc-id-register-the-hook-or-delete.md'
+  - '.tasks/active/T-424-t-357-step-3-retire-aefposition.md'
+  - '.tasks/active/T-426-obs-017-misfire-audit-what-t-420-and-t-4.md'
+  - '.tasks/active/T-439-claudemd-documents-the-context-budget-la.md'
+  - '.tasks/active/T-441-toolsconcerns-schemapy-accounts-for-no-f.md'
+  - '.tasks/active/T-442-t429-zero-leg-probesh-reads-a-non-zero-p.md'
+  - '.tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md'
+  - '.tasks/active/T-554-record-browser-version-viewport-and-dpr-.md'
+  - '.tasks/active/T-564-t-501-build-3-load-time-id-normalisation.md'
+  - '.tasks/active/T-573-emits-panel-field-writes-a-scalar-where-.md'
+  - '.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md'
+  - '.tasks/active/T-580-decide-take-aef-5c33f7208-the-two-fabric.md'
+  - '.tasks/active/T-582-byte-identity-goldens-are-recorded-from-.md'
+  - '.tasks/active/T-583-nothing-enumerates-the-instruments-that-.md'
+  - '.tasks/active/T-599-manual-connector-routing-addremove-waypo.md'
+  - '.tasks/active/T-669-uncontrolled-absence-assertions-rose-78-.md'
+  - '.tasks/active/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - '.tasks/active/T-691-regenerate-the-24-rendered-corpus-maps-s.md'
+  - '.tasks/active/T-695-task-template-boilerplate-is-scored-as-i.md'
+  - '.tasks/active/T-696-a-pre-filled-voiscore-makes-an-unassesse.md'
+  - '.tasks/active/T-700-ra-004-oldest-unshipped-product-change-i.md'
+  - '.tasks/active/T-702-ra-006-34-urgent-observations-still-pend.md'
+  - '.tasks/active/T-703-ra-007-101-observations-pending-for-more.md'
+  - '.tasks/active/T-723-ra-027-fail-d2-human-review-queue-has-12.md'
+  - '.tasks/active/T-729-ra-033-installed-claude-fw-has-drifted-f.md'
+  - '.tasks/active/T-732-drain-the-h-register-four-open-operator-.md'
+  - '.tasks/active/T-737-handoversh-reports-3-urgent-observations.md'
+  - '.tasks/active/T-741-vendored-tree-omits-tools-entirely--5-ve.md'
+  - '.tasks/active/T-745-ra-036-fabric-edge-coverage-regressed---.md'
+  - '.tasks/active/T-752-ra-043-deploy-gate-finds-no-dockerfile-i.md'
+  - '.tasks/active/T-753-ra-044-deploy-gate-finds-no-deploydocker.md'
+  - '.tasks/active/T-754-ra-045-deploy-gate-finds-no-deploytraefi.md'
+  - '.tasks/active/T-756-ra-047-ctl-013-reports-t-093-verificatio.md'
+  - '.tasks/active/T-757-ra-048-arc-002-is-25-of-27-complete-but-.md'
+  - '.tasks/active/T-760-ra-051-regression---inception-t-587-stil.md'
+  - '.tasks/active/T-763-ra-052-the-audit-overwrote-its-own-only-.md'
+  - '.tasks/active/T-764-ra-053-ctl-013-three-task-window-silentl.md'
+  - '.tasks/active/T-769-sq-4-design-recorded-check-exemptions-as.md'
+  - '.tasks/active/T-784-project-value-review-round-1-deleterefac.md'
+  - '.tasks/active/T-785-the-bridge-baseline-is-red-isolate-and-f.md'
+  - '.tasks/active/T-811-thirty-authored-corpus-values-still-unre.md'
+  - '.tasks/active/T-822-usage-histogram-which-editor-capabilitie.md'
+  - '.tasks/active/T-826-emit-the-diagram-kind-marker-the-resolvi.md'
+  - '.tasks/active/T-827-post-task-gate-and-context-memory-bpmn-b.md'
+  - '.tasks/active/T-832-arc-002-membership-audit-ewcr-work-that-.md'
+  - '.tasks/active/T-834-fabric-discards-vendored-path-edges-by-d.md'
+  - '.tasks/active/T-835-authority-on-the-element-lane-as-domain-.md'
+  - '.tasks/active/T-840-operator-authorised-framework-upgrade-fr.md'
+  - '.tasks/active/T-854-orchestrate-the-procasfit-autonomous-man.md'
+  - '.tasks/active/T-863-fw-fabric-register-can-never-assign-a-su.md'
+  - '.tasks/active/T-864-f1-f3-and-f4-carry-27-of-63-weight-units.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-26T09:58:36'
+    action: 'T-864: give F1, F3 and F4 the scorers they never had — the ranking could not see product value, and now it can'
+  - time: '2026-09-26T11:08:12'
+    action: 'T-864: rubrics approved, corpus re-scored — product work now leads the ranking, and one residual artefact is named rather than buried'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 74 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bvp, false-green, arc:arc-003]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 74
+  commits: 2
+  files_changed: 78
+  lines_added: 1878
+  lines_removed: 89
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-864-f1-f3-and-f4-carry-27-of-63-weight-units.md
+generated_by: context-agent-hybrid
