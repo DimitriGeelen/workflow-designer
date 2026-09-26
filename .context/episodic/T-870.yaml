@@ -1,0 +1,98 @@
+# ============================================================================
+# EPISODIC MEMORY - T-870: Backfill hypothesis drafts across the active inceptions, so S2 is used and not merely built
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T19:17:08Z
+# ============================================================================
+
+task_id: T-870
+task_name: "Backfill hypothesis drafts across the active inceptions, so S2 is used and not merely built"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T19:13:47Z
+completed: 2026-09-26T19:16:56Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-26T21:14:26+02:00
+last_commit: 2026-09-26T21:16:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  commit re-score churn before the backfill, so the backfill diff is attributable. backfill ran — 14 inceptions now carry a hypothesis, 7 with an observable and 7 honestly marked NEEDS YOU
+
+# Key outcomes
+outcomes:
+  - 'Every active inception without an existing Hypothesis section receives a draft, each carrying the drafted-by banner that says how to make a correction permanent'
+  - '**No existing prose is overwritten.** Verified by diffing: the only Hypothesis sections that change are ones that were absent or empty. A backfill that silently replaced someone''s wording would be OBS-383 rebuilt in a new place'
+  - '**Nothing outside the Hypothesis section changes.** Verified against `git diff` — the drafter touches one section, and a backfill that quietly reformatted 14 task files while nobody was reading would be far worse than the gap it fills'
+  - 'The split between drafts carrying a real proposed observable and drafts carrying `[NEEDS YOU]` is recorded as a number, so the size of the remaining human input is known rather than guessed'
+  - 'Declared research inceptions, if any, are skipped and reported as skipped rather than silently drafted a claim they do not make'
+  - 'The corpus is re-scored afterwards and the ranking delta is reported — drafts are not human-confirmed, so S3 must NOT cite them and the scores must not move. If they move, the citation gate is leaking'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md'
+  - '.tasks/active/T-184-child-3-reverse-discovery-aef-record---e.md'
+  - '.tasks/active/T-185-child-4-collaboration-and-concurrency-pe.md'
+  - '.tasks/active/T-186-child-5-hosting-and-tenancy-tenant-neutr.md'
+  - '.tasks/active/T-277-ratify-process-level-conformance-key-and.md'
+  - '.tasks/active/T-279-guided-mode-procedural-guardrail-package.md'
+  - '.tasks/active/T-280-workflow-fabric-sd-15-process-dependency.md'
+  - '.tasks/active/T-281-audience-render-lenses-sd-1422-businessl.md'
+  - '.tasks/active/T-282-callactivity-node-type-sd-9-sync-sub-wor.md'
+  - '.tasks/active/T-309-surface-workflow-validator-findings-in-t.md'
+  - '.tasks/active/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md'
+  - '.tasks/active/T-498-scope-the-onboarding-experience-arc-iter.md'
+  - '.tasks/active/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - '.tasks/active/T-696-a-pre-filled-voiscore-makes-an-unassesse.md'
+  - '.tasks/active/T-811-thirty-authored-corpus-values-still-unre.md'
+  - '.tasks/active/T-866-s1-the-hypothesis-section-and-its-form--.md'
+  - '.tasks/active/T-870-backfill-hypothesis-drafts-across-the-ac.md'
+  - '.tasks/completed/T-868-s3-support-scores-cite-the-hypothesis-so.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-26T21:14:26'
+    action: 'T-870: commit re-score churn before the backfill, so the backfill diff is attributable'
+  - time: '2026-09-26T21:16:56'
+    action: 'T-870: backfill ran — 14 inceptions now carry a hypothesis, 7 with an observable and 7 honestly marked NEEDS YOU'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:hypothesis-first-inceptions, bvp, hypothesis]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 18
+  lines_added: 489
+  lines_removed: 23
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-870-backfill-hypothesis-drafts-across-the-ac.md
+generated_by: context-agent-hybrid
