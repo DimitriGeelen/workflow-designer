@@ -17,7 +17,7 @@ description: >
 status: captured
 workflow_type: build
 owner: human
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: [T-357, T-423]
@@ -27,7 +27,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:36Z
-last_update: '2026-09-26T09:06:22Z'
+last_update: 2026-09-26T20:27:47Z
 date_finished:
 revisit_at: 2026-09-11
 revisit_evidence_needed: "NOT T-340's ruling — that was my error 2026-08-14. Needs
@@ -284,3 +284,11 @@ cost_estimate_proposed:
 
 ### 2026-08-14T15:27:30Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
+
+### 2026-09-26T20:27:09Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-09-26T20:27:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → captured
+- **Reason:** reverting my own work-on: T-424 is hard-blocked by its own frontmatter (T-225 scope ruling, v1.1 of the FROZEN two-party standard, spike-3 intent gap, T-423 not landed). I started it before reading it.
