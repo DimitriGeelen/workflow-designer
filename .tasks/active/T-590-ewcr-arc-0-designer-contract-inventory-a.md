@@ -368,7 +368,7 @@ grep -qE "conditionExpression|capability|secret|actionRef|action_ref|retry|compe
 ! grep -qE "conditionExpression|capability|secret|actionRef|action_ref|retry|compensat" docs/research/executable-workflow/fixtures/ewcr-pilot-human-gate-script-human-gate.bpmn
 # The gap list must be explicit, not a placeholder.
 grep -q "call workflow" docs/research/executable-workflow/cannot-represent-yet.md
-bin/fw reviewer T-590 > /tmp/.fw-reviewer-T-590.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-590.out
+.agentic-framework/bin/fw reviewer T-590 > /tmp/.fw-reviewer-T-590.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-590.out
 
 ## RCA
 

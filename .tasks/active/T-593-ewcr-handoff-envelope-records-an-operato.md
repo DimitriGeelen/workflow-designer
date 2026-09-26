@@ -227,7 +227,7 @@ python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow
 sha256sum -c docs/research/executable-workflow/source-manifest.sha256
 # T-590's Human AC instruction is now TRUE against the file the operator will cat.
 python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'));assert d['to_project'] is None,d['to_project']"
-bin/fw reviewer T-593 > /tmp/.fw-reviewer-T-593.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-593.out
+.agentic-framework/bin/fw reviewer T-593 > /tmp/.fw-reviewer-T-593.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-593.out
 
 ## RCA
 

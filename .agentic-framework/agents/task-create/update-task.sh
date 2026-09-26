@@ -1327,10 +1327,38 @@ run_verification_commands() {
             verify_pass=$((verify_pass + 1))
         else
             exit_code=$?
-            echo -e "  ${RED}FAIL${NC}: $display_cmd (exit $exit_code)"
-            head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+            # T-871 / OBS-399: exit 127 is COMMAND NOT FOUND, not a failed check,
+            # and the two were indistinguishable here. A line that cannot run was
+            # reported as "FAIL", so it read as "your work is wrong" when it meant
+            # "this check does not exist" — and nobody chased it.
+            #
+            # Measured when it surfaced: 142 ACTIVE tasks in this corpus carry a
+            # Verification line invoking bare `bin/fw`, which exists in the
+            # framework repo and NOT in a project that vendors the framework at
+            # .agentic-framework/. Those tasks are structurally unclosable: a
+            # reviewer can PASS, every criterion can be ticked, and the gate still
+            # refuses. 659 COMPLETED tasks carry the same line and closed anyway,
+            # which means the gate was bypassed rather than satisfied.
+            #
+            # It still BLOCKS. A check that did not run is not a pass — that is
+            # T-3105's whole point, and downgrading 127 to a warning would convert
+            # a confusing gate into a silent one. What changes is that the message
+            # now names the cause and the fix, because a refusal nobody can act on
+            # is how 801 unrunnable lines accumulated unnoticed.
+            if [ "$exit_code" -eq 127 ]; then
+                echo -e "  ${RED}NOT RUNNABLE${NC}: $display_cmd (exit 127 — command not found)"
+                head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+                echo -e "    ${YELLOW}This is not a failed check — the command does not exist, so nothing"
+                echo -e "    was verified. In a project that VENDORS the framework, \`bin/fw\` is not"
+                echo -e "    on disk; use \`.agentic-framework/bin/fw\` (or whatever \$FRAMEWORK_ROOT/bin/fw"
+                echo -e "    resolves to). Fix the line rather than bypassing the gate.${NC}"
+                verify_failures="${verify_failures}\n  - $display_cmd (exit 127 — COMMAND NOT FOUND, nothing was verified)"
+            else
+                echo -e "  ${RED}FAIL${NC}: $display_cmd (exit $exit_code)"
+                head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+                verify_failures="${verify_failures}\n  - $display_cmd (exit $exit_code)"
+            fi
             verify_fail=$((verify_fail + 1))
-            verify_failures="${verify_failures}\n  - $display_cmd (exit $exit_code)"
         fi
         rm -f /tmp/verify-$$.out
     done <<< "$verify_cmds"

@@ -217,7 +217,7 @@ python3 -c 'import yaml,re,sys;d=yaml.safe_load(open("docs/research/executable-w
 # Supersession must be stated, not implied. H3 and H6 each carry a superseding observation in
 # the register; the dossier is red if it names neither.
 grep -qi "supersed" docs/reports/T-732-h-register-dossier.md
-bin/fw reviewer T-732 > /tmp/.fw-reviewer-T-732.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-732.out
+.agentic-framework/bin/fw reviewer T-732 > /tmp/.fw-reviewer-T-732.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-732.out
 
 ## RCA
 
