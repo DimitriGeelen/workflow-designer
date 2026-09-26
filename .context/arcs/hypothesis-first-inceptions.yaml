@@ -1,0 +1,32 @@
+id: arc-004
+slug: hypothesis-first-inceptions
+name: "Hypothesis-first inceptions: every scored item carries a falsifiable claim, and delivery\
+  \ is measured against it"
+description: "The BVP method this project scores with pairs every value-driver table (Support 0-5\
+  \ x Weight 0-9) with a hypothesis in a fixed three-part form: 'We believe that <change>,\
+  \ we will achieve <outcome>. We will know that we are successful when we see <measurable\
+  \ signal>.' The framework implements the arithmetic and not the epistemics: there\
+  \ is no hypothesis field, no gate requiring one, and nothing that could check one.\
+  \ A support score is therefore a number with no referent \u2014 it can rank, but\
+  \ it cannot be WRONG, because there is no claim for it to be wrong about. This arc\
+  \ adds the missing half: the hypothesis as a first-class, agent-drafted and human-correctable\
+  \ artifact; support scores that cite it; and post-delivery measurement of its success\
+  \ clause, which is the first feedback signal this project would have that teaches\
+  \ the estimator to predict reality rather than to predict the human who overrode\
+  \ it."
+status: in-progress
+anchor_task: 
+headline_mechanic: "A maintainer opening an inception cannot record a GO decision until it carries a\
+  \ hypothesis whose success clause names something observable, and some weeks after\
+  \ a build ships against that hypothesis they can ask the framework whether the predicted\
+  \ signal actually appeared and get a yes or no \u2014 without re-reading the task\
+  \ or trusting anyone's recollection."
+demo_evidence: null
+created: 2026-09-26T12:22:22Z
+closed_at: null
+decision: null
+# T-1918 (arc-006, value-prioritisation): BVP scoring fields. Semantics in
+# docs/reports/T-1915-bvp-inception.md §4 (D7-reframe) and §7 (M2).
+bvp_scores: {}
+scoped_drivers: []           # max 3, weight ≤6 each (M2). Approved by fw arc approve-driver (T-1926).
+proposed_scoped_drivers: []  # uncapped persistence (D7-reframe). Estimator may write here freely.
