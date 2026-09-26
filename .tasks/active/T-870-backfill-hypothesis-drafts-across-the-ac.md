@@ -1,26 +1,23 @@
 ---
-id: T-866
-name: "S1: the Hypothesis section and its form — a fill-in shape that makes a vague
-  hypothesis hard to write"
+id: T-870
+name: "Backfill hypothesis drafts across the active inceptions, so S2 is used and
+  not merely built"
 description: >
-  Add a Hypothesis section to the inception template in the canonical three-part form
-  from the source BVP method: 'We believe that <change>, we will achieve <outcome>.
-  We will know that we are successful when we see <measurable signal>.' The form is
-  the discipline — the operator's own words were that formulating a hypothesis is
-  difficult, which is exactly why a blank page fails and a prompted shape works. Gate:
-  the GO decision verb refuses when the third clause is absent or contains no observable.
-  Scope note: the agent must never invoke that verb (Tier 0), so the gate is implemented
-  and tested against fixtures, and the live exercise is the operator's.
+  S2 shipped a drafter that has never run outside dry-run tests. Running it for real
+  puts a hypothesis into each active inception's file with its drafted-by banner,
+  which is what gives the operator something to correct — and each correction marked
+  hypothesis_source: human switches S3's citation on for that task and becomes the
+  override telemetry S4 will measure against. Additive only: the drafter writes into
+  an absent or empty section and never over existing prose. Expect roughly half to
+  carry a NEEDS YOU success clause; that blocks them at GO, which is not a regression
+  because a task with no hypothesis at all is already blocked.
 
 status: started-work
 workflow_type: build
 owner: agent
 horizon: now
 tags: [arc:hypothesis-first-inceptions, bvp, hypothesis]
-components:
-  - .tasks/templates/inception.md
-  - .agentic-framework/lib/inception.sh
-  - tools/_t866-hypothesis-form-teeth.sh
+components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -32,8 +29,8 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-26T12:22:50Z
-last_update: 2026-09-26T17:12:08Z
+created: 2026-09-26T19:13:47Z
+last_update: 2026-09-26T19:14:11Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -45,74 +42,47 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed: []
-cost_estimate_proposed:
-  - ts: '2026-09-26T12:23:29Z'
+bvp_scores_proposed:
+  - ts: '2026-09-26T19:14:11Z'
     estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      blast_radius: 3
-      tier: 2
-      effort: 8
-    rationale: blast_radius=3 (3-components); tier=2 (workflow:build); effort=8 
-      (lines=269,acs=4)
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
     rubric_sha: e4a00f38e801
-bvp_scores:
-  D1: 4
-  D2: 4
-  D3: 3
-  D4: 2
-  F-RECALL: 2
-  F2: 0
-  F4: 0
-  F3: 0
-  F1: 1
-confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
-confirmed_at: '2026-09-26T12:23:48Z'
 ---
 
-# T-866: S1: the Hypothesis section and its form — a fill-in shape that makes a vague hypothesis hard to write
+# T-870: Backfill hypothesis drafts across the active inceptions, so S2 is used and not merely built
 
 ## Context
 
-arc-004 slice 1. The BVP method pairs every value-driver table with a hypothesis in a
-fixed three-part form; the framework implements the arithmetic and not the hypothesis, so
-a support score has no referent and cannot be wrong about anything.
-
-This slice adds the form and the gate. It does NOT add drafting (S2), citation (S3) or
-realisation measurement (S4).
-
-**Constraint that shapes the deliverable:** the agent must never invoke the inception
-decision verb — Tier 0, and it fires on the phrase in any command text including a grep
-pattern. So the gate is implemented and exercised against fixtures through its audit
-function directly; the live end-to-end exercise is the operator's, and is written as a
-Human AC rather than quietly skipped.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] `.tasks/templates/inception.md` carries a `## Hypothesis` section in the canonical three-part form, written as a fill-in shape rather than prose advice — the shape is the discipline, and a blank required field would block rather than help
-- [x] `audit_inception_hypothesis()` exists in `lib/task-audit.sh` and refuses: a missing or empty section; a section not in the three-part form (naming which clause is absent); and a success clause naming nothing anyone could go and look at
-- [x] **It fires only on GO.** A NO-GO or DEFER commits nobody to delivering value, so demanding a measurable success clause there is bureaucracy. Proven by fixture: the same vague hypothesis passes under `no-go` and `defer`, and is refused under `go`
-- [x] The gate is wired into the inception decision path, ahead of the decision being written
-- [x] **The refusal is actionable, not just correct.** Each refusal names what is missing and shows the form or an example of a checkable clause. T-624's prevention was a correct, emphatic, adjacent warning and the number it tracked did not move in 28 days — a gate that only says "no" is a warning with a worse exit code
-- [x] `tools/_t866-hypothesis-form-teeth.sh` covers the above with a `--mutation` mode whose CONTROL SET reports `MUTATION SETUP BROKEN` rather than reading a broken harness as a clean kill
-- [x] **Research inceptions are exempt, and the exemption is declared at creation rather than reached for at decision time.** Added on operator direction 2026-09-26: "research how X works" produces understanding, not a delivered outcome, and forcing it into "we will achieve <outcome>" would manufacture a fake claim to satisfy a gate — which teaches authors to write fiction and is worse than no gate. `inception_kind: research` in the frontmatter exempts; a decision-time flag deliberately does NOT exist, because a flag reachable at the moment of decision is reached for by an author who wants through
-- [x] **The exemption requires the declared field, not the word.** A body that says "we need to research how the importer handles lanes" is still gated — otherwise the hole is shaped like a common English word. Pinned by its own teeth case
-- [x] **The exemption announces itself when it fires**, so an escape hatch that quietly becomes the default is visible rather than silent. This is why the exemption case is a gate case and not a control: it asserts the message, not just the exit code
-- [x] **The observability check is documented as a proxy, with its own limits stated in the code.** It cannot decide "is this observable"; it decides "does this clause contain anything a person could later look at". It is foolable deliberately and not foolable by the sincere vague clause, which is the failure that actually occurs
+- [ ] Every active inception without an existing Hypothesis section receives a draft, each carrying the drafted-by banner that says how to make a correction permanent
+- [ ] **No existing prose is overwritten.** Verified by diffing: the only Hypothesis sections that change are ones that were absent or empty. A backfill that silently replaced someone's wording would be OBS-383 rebuilt in a new place
+- [ ] **Nothing outside the Hypothesis section changes.** Verified against `git diff` — the drafter touches one section, and a backfill that quietly reformatted 14 task files while nobody was reading would be far worse than the gap it fills
+- [ ] The split between drafts carrying a real proposed observable and drafts carrying `[NEEDS YOU]` is recorded as a number, so the size of the remaining human input is known rather than guessed
+- [ ] Declared research inceptions, if any, are skipped and reported as skipped rather than silently drafted a claim they do not make
+- [ ] The corpus is re-scored afterwards and the ranking delta is reported — drafts are not human-confirmed, so S3 must NOT cite them and the scores must not move. If they move, the citation gate is leaking
 
 ### Human
-- [ ] [REVIEW] **Exercise the gate live on a real inception.**
-      **Steps:**
-      1. Pick any active inception and try to record a GO on it without a hypothesis.
-      2. Add a hypothesis whose success clause is vague ("when the system is better") and try again.
-      3. Add a checkable success clause and try once more.
-      **Expected:** refused at 1 and 2 with a message naming what is missing; accepted at 3.
-      **If not:** paste the message — the agent cannot run this path at all (Tier 0), so this
-      is the only evidence that the wiring works end to end rather than only at the function.
-
-<!-- Template guidance for Human ACs, retained for reference. The live Human AC is above.
-     Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
 
@@ -143,15 +113,6 @@ Human AC rather than quietly skipped.
 -->
 
 ## Verification
-
-out=$(bash tools/_t866-hypothesis-form-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$' && ! echo "$out" | grep -q '^  FAIL'
-out=$(bash tools/_t866-hypothesis-form-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
-bash -n .agentic-framework/lib/task-audit.sh
-bash -n .agentic-framework/lib/inception.sh
-grep -q '^audit_inception_hypothesis()' .agentic-framework/lib/task-audit.sh
-grep -q 'audit_inception_hypothesis "$task_file" "$decision"' .agentic-framework/lib/inception.sh
-grep -q '^## Hypothesis$' .tasks/templates/inception.md
-grep -q 'We will know that we are successful when we see' .tasks/templates/inception.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -371,10 +332,10 @@ grep -q 'We will know that we are successful when we see' .tasks/templates/incep
 
 ## Updates
 
-### 2026-09-26T12:22:50Z — task-created [task-create-agent]
+### 2026-09-26T19:13:47Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-866-s1-the-hypothesis-section-and-its-form--.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-870-backfill-hypothesis-drafts-across-the-ac.md
 - **Context:** Initial task creation
 
-### 2026-09-26T13:48:13Z — status-update [task-update-agent]
+### 2026-09-26T19:14:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
