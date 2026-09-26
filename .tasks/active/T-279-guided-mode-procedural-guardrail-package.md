@@ -207,3 +207,27 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 - **Overall:** UNVERIFIED
 - **Claims:** 0
 - No verifiable claims found in ## Recommendation
+
+## 2026-09-27 — SPLIT PROPOSED (T-874, arc-005). Nothing here is ticked, closed or reassigned.
+
+This task carries THREE Sovereign decisions — **SD-8** (advisory/guided/strict enforcement
+ladder), **SD-10** (instance state home and caged advance) and **SD-11** (humanTouchpoint on
+userTask). That violates this project's own sizing rule ("one inception = one question") and is
+the most likely reason it has sat `captured` since 2026-07-28: there is no single go/no-go that
+answers it.
+
+arc-005 (`process-instances`) proposes the split:
+
+| SD | goes to |
+|----|---------|
+| SD-10 instance identity / binding | **T-878** — new inception, the load-bearing unknown |
+| SD-8 enforcement ladder | **T-879** — new inception, the live half of this task |
+| SD-11 humanTouchpoint | deferred out of arc-005 **explicitly**, so it is deferred rather than forgotten |
+
+**This is a proposal for the operator, not a completed re-parenting.** T-279 remains `captured`,
+`owner: human`, tagged `arc:designer-authoring-surface`, with every criterion untouched. If the
+split is ratified, T-279 is retired or rescoped to SD-11 alone; if it is not, T-878/T-879 are the
+duplicates and should be withdrawn. Recorded here so the relationship is visible from this side
+too, and not only from the new arc's scope document.
+
+Scope: `docs/reports/arc-005-process-instances-scope.md` §3 S2/S3 and §5.
