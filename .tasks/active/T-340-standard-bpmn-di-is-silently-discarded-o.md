@@ -190,6 +190,48 @@ discipline was kept. Nothing above it is blocked any more.
       > `aef:position` only, 10 carry BPMN DI only, 9 carry neither. So the two carriers are
       > still disjoint and scoped (b) still changes zero bytes for existing maps.
       >
+      > ### 2026-09-26 — RE-DERIVED, AND THE COMMAND ABOVE NOW MISLEADS. Read this before deciding.
+      >
+      > Running the command above today prints **`scanned 200 .bpmn, BOTH = 43`**. Taken at
+      > face value that reads as the premise of this whole ruling collapsing. It has not.
+      > The command's `find` has no scope filter, and the corpus has since grown to include
+      > build output and editor snapshots that did not exist when it was written:
+      >
+      > | population | files | BOTH-carrier |
+      > |---|---|---|
+      > | **authored** (excl. `build/`, `.editor-versions/`, `.agentic-framework/`) | 78 | **1** |
+      > | derived | 122 | 42 |
+      >
+      > **The disjointness claim holds where it matters.** The 42 are all downstream of
+      > T-423, which shipped step 2 of T-357 — "emit BPMN DI additively *alongside*
+      > `aef:position`" — so dual-carrier derived files are that task working as designed,
+      > not drift. The single authored exception is
+      > `tests/fixtures/exported/t423-carrier-witness.bpmn`, T-423's own deliberate witness
+      > that both carriers can coexist.
+      >
+      > Scoped re-derivation, which is what the command above should have been:
+      >
+      > ```
+      > cd /opt/832-Workflow-designer && python3 - <<'PY'
+      > import subprocess
+      > EXCL = ("./build/", "./.editor-versions/", "./.agentic-framework/")
+      > files = [f for f in subprocess.run(["find",".","-name","*.bpmn","-not","-path","./.git/*"],
+      >          capture_output=True, text=True).stdout.split() if not f.startswith(EXCL)]
+      > b = [f for f in files
+      >      for t in [open(f, encoding='utf-8', errors='replace').read()]
+      >      if 'aef:position' in t and ('BPMNDiagram' in t or 'bpmndi:' in t)]
+      > print('authored %d .bpmn, BOTH = %d' % (len(files), len(b)))
+      > for f in b: print('   ', f)
+      > PY
+      > ```
+      >
+      > **Why this note exists rather than a silent edit:** this ruling has been open since
+      > 2026-08-10. Anyone opening it today would run the command it supplies, get 43, and
+      > either abandon a sound recommendation or spend an hour working out why. The number
+      > in the text was true when written; the command that reproduces it was never scoped.
+      > Nothing about the recommendation changes — scoped (b) still changes zero bytes for
+      > every authored map.
+      >
       > The `126` in the paragraph above is the **`aef:position`-only count**, not a stale
       > total — the two were conflated in restatement. Both figures are real.
       >
