@@ -2487,12 +2487,51 @@ def declarative_matches(spec: dict, fm: dict, body: str,
     ]).lower()
     cand_paths = _candidate_paths(fm, body_txt)
 
+    # ── T-868 (arc-004 S3): cite the hypothesis, but only a HUMAN one ────────
+    #
+    # In the source BVP method a support score is an argument about a stated
+    # claim. Ours matches the task body and emits a number, so it can rank but
+    # cannot be wrong. Citing the claim is what makes a score correctable.
+    #
+    # CITATION COUNTS ONLY WHEN `hypothesis_source: human`. After S2 most
+    # hypotheses in a corpus are machine DRAFTS, and a score citing a draft is
+    # the machine citing itself — a layer of indirection that READS as grounded
+    # in a claim while the claim was also machine-made. That is worse than an
+    # honest pattern-match, because it borrows authority it has not earned and
+    # the evidence line looks identical either way. So an unconfirmed draft is
+    # not cited, and the evidence says so rather than staying quiet about it.
+    #
+    # SLICE BOUNDARY, recorded here because this is where a future reader looks:
+    # this covers the DECLARATIVE drivers only (F1/F3/F4 — 27 of 63 weight, the
+    # yardstick axes). D1-D4 keep their hand-written handlers, whose rubrics are
+    # judgement over prose rather than signal matching; rewiring those is a
+    # larger change and was deliberately left out of this slice.
+    hyp_human = str(fm.get("hypothesis_source") or "").strip().lower() == "human"
+    hyp_clauses: dict[str, str] = {}
+    if hyp_human:
+        _h = _hypothesis_section(body).lower()
+        if _h:
+            _m = re.search(r"we believe that(.*?)we will achieve(.*?)we will know(.*)",
+                           _h, re.S)
+            if _m:
+                hyp_clauses = {"change": _m.group(1), "outcome": _m.group(2),
+                               "signal": _m.group(3)}
+            else:
+                hyp_clauses = {"hypothesis": _h}
+
+    def _cite(needle: str) -> str:
+        """Which hypothesis clause, if any, carries this signal."""
+        for clause, txt in hyp_clauses.items():
+            if needle in txt:
+                return f"@hypothesis:{clause}"
+        return "@body" if hyp_clauses else ""
+
     result: dict[int, list[str]] = {}
     for lvl, sigs in sorted(_spec_levels(spec).items()):
         matched: list[str] = []
         for kw in (sigs.get("keywords") or []):
             if isinstance(kw, str) and kw.strip() and kw.strip().lower() in hay:
-                matched.append(f"L{lvl}:keyword={kw}")
+                matched.append(f"L{lvl}:keyword={kw}{_cite(kw.strip().lower())}")
         for pat in (sigs.get("paths") or []):
             if not isinstance(pat, str) or not pat.strip():
                 continue
@@ -2526,12 +2565,26 @@ def score_declarative(spec: dict, fm: dict, body: str,
     ranking denominator).
     """
     matches = declarative_matches(spec, fm, body, tags)
+
+    # T-868: say what this score is an argument ABOUT, on every score. Silence
+    # here is what let a body-matched number read as a reasoned one — the reader
+    # had no way to tell whether a claim existed at all.
+    _src = str(fm.get("hypothesis_source") or "").strip().lower()
+    if _src == "human":
+        basis = "basis: human hypothesis (clauses cited below where they matched)"
+    elif _hypothesis_section(body):
+        basis = ("basis: task body — a hypothesis exists but is an unconfirmed DRAFT, "
+                 "so it is not cited; set hypothesis_source: human to make these "
+                 "scores arguments about your claim")
+    else:
+        basis = "basis: task body — no hypothesis, so this score has no claim to be wrong about"
+
     hits = [(lvl, m) for lvl, m in matches.items() if m]
     if not hits:
-        return 0, ["L0: no signal", "→0 (declarative: no level matched)"]
+        return 0, [basis, "L0: no signal", "→0 (declarative: no level matched)"]
     best = max(lvl for lvl, _ in hits)
     ev = [s for _, m in sorted(hits) for s in m]
-    return best, ev + [f"→{best} (declarative: highest matching level)"]
+    return best, [basis] + ev + [f"→{best} (declarative: highest matching level)"]
 
 
 def _load_driver_specs() -> dict[str, dict]:

@@ -11,7 +11,7 @@ description: >
   so the transition is not a cliff. The point is not accuracy: it is that a cited
   score is CORRECTABLE, and a pattern-matched one cannot be wrong about anything.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -32,7 +32,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T12:23:06Z
-last_update: '2026-09-26T12:23:30Z'
+last_update: 2026-09-26T18:15:05Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -75,12 +75,37 @@ confirmed_at: '2026-09-26T12:23:49Z'
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
+## Context
+
+arc-004 slice 3. In the source BVP method a support score is an **argument about a
+stated claim**: "support 5 on Legal/Regulatory" means something only because the
+hypothesis says what success looks like. Ours pattern-matches the task body and emits a
+number, so it can rank but cannot be wrong.
+
+**The design problem this slice had to settle first.** After S2, most hypotheses in the
+corpus are machine DRAFTS. If scores cite those, the machine is citing itself — a layer
+of indirection that *reads* as grounded in a claim while the claim was also machine-made.
+That is worse than an honest pattern-match, because it borrows authority it has not
+earned, and a reader cannot tell the difference from the evidence line.
+
+So: **citation counts only when `hypothesis_source: human`.** Otherwise the evidence says
+plainly that it scored from the body and why. That also creates the right incentive —
+confirm your hypothesis and your scores become arguable.
+
+**Slice boundary, stated rather than discovered later:** this applies to the DECLARATIVE
+drivers (F1/F3/F4 — 27 of 63 weight, the yardstick axes). D1-D4 have hand-written
+handlers whose rubrics are judgement over prose, not signal matching; rewiring those is a
+separate and larger change and is deliberately not in this slice.
+
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] When a task carries `hypothesis_source: human`, declarative driver signals are matched against the hypothesis text and the evidence line names the clause that matched — `@hypothesis:outcome` or `@hypothesis:signal`, not just the keyword
+- [x] **A machine-drafted hypothesis is NOT cited.** The evidence says it scored from the body, and says why, so the reader can tell a score grounded in a human claim from one that is not. The machine citing its own draft would read as provenance while being none
+- [x] Where no signal matches the hypothesis but one matches the body, the evidence marks the fallback explicitly rather than silently presenting a body match as a hypothesis match
+- [x] Scores themselves are unchanged for every task that has no human hypothesis — proven by comparing driver output across the corpus before and after, so this slice cannot quietly re-rank anything
+- [x] `tools/_t868-cited-support-teeth.sh` covers the above with a `--mutation` mode whose CONTROL SET reports `MUTATION SETUP BROKEN` rather than reading a broken harness as a clean kill
+- [x] The slice boundary is recorded in code: D1-D4 keep their hand-written handlers, and the reason is stated where a future reader will find it rather than in this task alone
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -114,6 +139,13 @@ confirmed_at: '2026-09-26T12:23:49Z'
 -->
 
 ## Verification
+
+out=$(bash tools/_t868-cited-support-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$' && ! echo "$out" | grep -q '^  FAIL'
+out=$(bash tools/_t868-cited-support-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
+python3 -c "import ast;ast.parse(open('.agentic-framework/agents/termlink/bvp-estimator/estimator.py').read())"
+grep -q 'hyp_human = str(fm.get("hypothesis_source")' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
+grep -q 'unconfirmed DRAFT' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
+grep -q 'D1-D4 keep their hand-written handlers' .agentic-framework/agents/termlink/bvp-estimator/estimator.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -259,6 +291,28 @@ confirmed_at: '2026-09-26T12:23:49Z'
 
 ## Evolution
 
+### 2026-09-26 — the slice nearly cited the machine to itself
+
+- **What changed:** after S2 most hypotheses in the corpus are machine DRAFTS. The obvious
+  implementation — "cite the hypothesis" — would have had scores cite text the same
+  estimator wrote minutes earlier. The evidence line would read as provenance and be none,
+  and a reader could not tell it from the real thing. That is worse than the honest
+  pattern-match it replaces, because it borrows authority it has not earned.
+- **Plan impact:** citation is gated on `hypothesis_source: human`. An unconfirmed draft is
+  not cited and the evidence says why, which also creates the right incentive: confirm your
+  hypothesis and your scores become arguments about your claim.
+- **Control that mattered most:** a slice claiming to add provenance while quietly
+  re-ranking is the failure nobody would notice, because the numbers would still look
+  plausible. Measured directly — **483 driver evaluations, 0 score differences** between the
+  cited and uncited paths. Citation is purely additive to evidence.
+- **Corpus comparison, reported honestly:** 4 of 6 confirmed tasks show score drift, and
+  none of it is this slice. T-860/T-863 lack F1/F3/F4 in stored scores because they were
+  confirmed before T-864 created those scorers; T-189 moved because T-865's template-strip
+  fix changed what the body matches. Both already shipped and committed.
+- **No classification correction this time** — the mutation disables BOTH reads of
+  `hypothesis_source` from the start, because T-865 shipped a guard living in two functions
+  and disabling one left the case that mattered green. The lesson transferred.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -337,3 +391,6 @@ confirmed_at: '2026-09-26T12:23:49Z'
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-868-s3-support-scores-cite-the-hypothesis-so.md
 - **Context:** Initial task creation
+
+### 2026-09-26T18:15:05Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
