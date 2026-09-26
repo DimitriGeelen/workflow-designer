@@ -2427,3 +2427,9 @@ learnings:
   task: T-669
   date: 2026-09-25
   context: Added via context agent
+- id: PL-344
+  learning: "A mutation control set catches misclassification in the SUITE, not only defects in the subject. T-862's teeth split into carry-cases and guard-cases with two mutation modes, because the dangerous failure of a carry-forward is over-firing (presenting a plan written for another task as this task's next step, wrapped in a banner that reads as authoritative) rather than under-firing. Running --mutation-overfire refused a case I had filed as a guard case: no_predecessor_falls_back cannot die to a guard mutation, because with no predecessor the resolver returns early and the guard is never consulted. The subject was correct; my classification was wrong, and only the control set could tell me which. Generalises: when a mutation leaves a case alive, the first hypothesis should be that the case is in the wrong bucket, not that the code is unprotected."
+  source: P-001
+  task: T-737
+  date: 2026-09-26
+  context: Added via context agent
