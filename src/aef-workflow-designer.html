@@ -10443,6 +10443,10 @@ function buildBpmnXml(s) {
   // T-255: authored page-width floor (pool right-edge drag). Additive-only, same
   // pattern as uuid — absent when unset, so untouched maps export byte-identically.
   if (wm.pageWidth) wmAttrs.push(`pageWidth="${escAttr(wm.pageWidth)}"`);
+  // T-875 (arc-005 S1): diagram-kind marker. Additive-only, same pattern as uuid
+  // and pageWidth — absent when unset, so every map that does not carry it
+  // exports byte-identically and the UNSET default stays genuinely inert.
+  if (wm.kind) wmAttrs.push(`kind="${escAttr(wm.kind)}"`);
   lines.push(`      <aef:workflowMeta ${wmAttrs.join(' ')}/>`);
   lines.push(`    </bpmn:extensionElements>`);
 
@@ -10813,6 +10817,14 @@ function parseBpmnXml(text) {
     description: aefMetaEl?.getAttribute('description') || '',
     tier_default: aefMetaEl?.getAttribute('tier_default') || '2',
     pageWidth: parseInt(aefMetaEl?.getAttribute('pageWidth') || '0', 10) || null, // T-255: authored page-width floor; null = auto-fit
+    // T-875 (arc-005 S1): diagram-kind marker — is this map illustrative
+    // (documentation) or a plan of actionable work (work-plan)? null = UNSET,
+    // which is the default and is legal: T-213 IW-3 kept the marker an explicit
+    // author decision so nothing is silently reclassified. Read AND written
+    // (see the wmAttrs writer) because an attribute the editor imports but does
+    // not emit is dropped on the first save — which would make the marker worse
+    // than absent, since it would survive review and vanish in use.
+    kind: aefMetaEl?.getAttribute('kind') || null,
   };
 
   // ---- lanes ----

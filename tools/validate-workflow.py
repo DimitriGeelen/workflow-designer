@@ -61,6 +61,34 @@ NODE_TYPES = {
 # section 5: lane authority vocabulary
 AUTHORITIES = {"sovereignty", "authority", "initiative", "external", "none"}
 
+# T-875 (arc-005 S1) — the diagram-kind marker AEF proposed as their T-2556 and
+# T-213 GO'd on 2026-07-21 (operator-ratified: T-213's [REVIEW] Human AC is
+# ticked). It answers ONE question: is this map illustrative, or is it a plan of
+# actionable work? Without it nothing in the serialized file distinguishes the
+# two, and AEF's `fw bpmn promote` has minted real owner:human tasks from
+# documentation nodes (their L-504 / T-2548-9).
+#
+# CLOSED enum, per T-213 IW-2 — an open vocabulary invites drift, and a third
+# value (e.g. an instance marker) can be added additively later without moving a
+# pin. ABSENT IS LEGAL AND IS NOT A WARNING, per T-213 IW-3: the default is UNSET
+# so the marker stays an explicit author decision and no map is silently
+# reclassified by its own tooling.
+#
+# Frozen-v1 safety, RE-DERIVED under T-875 rather than inherited from T-213 --
+# and the reason is not the one the phrase "additive" suggests. `aef:workflowMeta`
+# appears ZERO times in docs/standards/aef-bpmn-mapping-v1.md (control: the
+# attributes it does classify appear 1-8 times in the same grep shape). The §1
+# two-class partition enumerates NODE-level attributes; §6's four conformance
+# clauses reach node meta-keys, aef:uid, and presentational no-ops. None of them
+# reaches document-level metadata, so this attribute cannot violate them. The
+# standard simply has no document-level class -- which is a gap in the standard
+# worth reporting to AEF (T-877), not a licence to assume anything else is safe.
+#
+# Module scope, one copy, read by BOTH forms -- same reasoning as AUTHORITIES
+# (T-322): a second copy of a governance vocabulary is how the two forms drift
+# apart on the governance question itself.
+WORKFLOW_KINDS = {"documentation", "work-plan"}
+
 # IW-9 authority collapse (mapping-v1 section 3): lane authority -> task-YAML
 # owner.
 #
@@ -305,6 +333,17 @@ class Validator:
                     "E-TOPLEVEL-MISSING",
                     "<root>",
                     "missing required top-level key '%s'" % key,
+                )
+
+        # T-875: diagram-kind marker, YAML form. Absent is legal (UNSET default).
+        _wm = doc.get("workflowMeta")
+        if isinstance(_wm, dict) and "kind" in _wm:
+            _kind = _wm.get("kind")
+            if _kind not in WORKFLOW_KINDS:
+                self.err(
+                    "E-WORKFLOW-KIND",
+                    "workflowMeta.kind",
+                    "kind '%s' not in %s" % (_kind, sorted(WORKFLOW_KINDS)),
                 )
 
         lanes = self._as_list(doc.get("lanes"))
@@ -1042,6 +1081,18 @@ class XmlValidator:
         # Deliberately does not return: a map with no lanes still has flow
         # nodes, ids and gateways worth validating, and O-3 must still be
         # evaluated (T-199 -- a missing laneSet must not short-circuit it).
+        # T-875: diagram-kind marker, XML form. Reads the same module-scope
+        # WORKFLOW_KINDS the YAML form reads — deliberately not re-listed here
+        # (T-322). Absent is legal: UNSET is the default, not a finding.
+        for _wm_el in process.iter("{%s}workflowMeta" % AEF_NS):
+            _kind = _wm_el.get("kind")
+            if _kind is not None and _kind not in WORKFLOW_KINDS:
+                self.err(
+                    "E-XML-WORKFLOW-KIND",
+                    "<aef:workflowMeta id='%s'>" % (_wm_el.get("id") or "?"),
+                    "kind '%s' not in %s" % (_kind, sorted(WORKFLOW_KINDS)),
+                )
+
         lane_set = process.find("{%s}laneSet" % BPMN_NS)
         declared_lanes = (
             [] if lane_set is None

@@ -1,10 +1,16 @@
 ---
 id: T-875
-name: "aef:workflowMeta kind marker — ship T-213's ratified enum so a map declares whether it is illustrative or actionable"
+name: "aef:workflowMeta kind marker — ship T-213's ratified enum so a map declares
+  whether it is illustrative or actionable"
 description: >
-  arc-005 S1/B1. T-213 GO'd 2026-07-21 and was ratified by the operator (its [REVIEW] Human AC is ticked); 68 days later aef:workflowMeta still carries only version/uuid/title/schemaVersion/id/default and no kind. Ship the enum exactly as T-213 disposed it: closed {documentation, work-plan}, default UNSET so absent/unknown round-trips byte-identical, additive and frozen-v1 safe. Re-check the frozen-v1-safe claim rather than inherit it. Does NOT widen the enum to cover class/instance — that is arc-005 S2's question.
+  arc-005 S1/B1. T-213 GO'd 2026-07-21 and was ratified by the operator (its [REVIEW]
+  Human AC is ticked); 68 days later aef:workflowMeta still carries only version/uuid/title/schemaVersion/id/default
+  and no kind. Ship the enum exactly as T-213 disposed it: closed {documentation,
+  work-plan}, default UNSET so absent/unknown round-trips byte-identical, additive
+  and frozen-v1 safe. Re-check the frozen-v1-safe claim rather than inherit it. Does
+  NOT widen the enum to cover class/instance — that is arc-005 S2's question.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -22,8 +28,8 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:41:33Z
-last_update: 2026-09-26T22:41:33Z
-date_finished: null
+last_update: 2026-09-26T23:11:05Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +40,19 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 0
+  F3: 4
+  F1: 2
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-26T23:10:59Z'
 ---
 
 # T-875: aef:workflowMeta kind marker — ship T-213's ratified enum so a map declares whether it is illustrative or actionable
@@ -45,10 +64,10 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `aef:workflowMeta kind=` validates against a CLOSED enum of exactly `documentation` and `work-plan`; any other value is an error whose message names the allowed set
-- [ ] A map carrying no `kind` validates clean — UNSET is legal and is not a warning (T-213 IW-3: the marker stays an explicit author decision, no silent reclassification)
+- [x] `aef:workflowMeta kind=` validates against a CLOSED enum of exactly `documentation` and `work-plan`; any other value is an error whose message names the allowed set
+- [x] A map carrying no `kind` validates clean — UNSET is legal and is not a warning (T-213 IW-3: the marker stays an explicit author decision, no silent reclassification)
 - [ ] Round-trip: a map with no `kind` is byte-identical through import→export. CONTROL: a map WITH `kind` also round-trips byte-identical, so a dead harness cannot read as a clean pass
-- [ ] T-213's "additive + frozen-v1 safe" claim is RE-DERIVED against `docs/standards/aef-bpmn-mapping-v1.md`, not inherited — cite the Part I clause that makes an additive `aef:workflowMeta` attribute conformant, or report that no such clause exists. The standard is frozen and is NOT edited
+- [x] T-213's "additive + frozen-v1 safe" claim is RE-DERIVED against `docs/standards/aef-bpmn-mapping-v1.md`, not inherited — cite the Part I clause that makes an additive `aef:workflowMeta` attribute conformant, or report that no such clause exists. The standard is frozen and is NOT edited
 - [ ] A conformance case lands in the existing mapping-conformance suite, not in a new parallel harness
 - [ ] **A5 recorded:** does this deliver arc purpose (A1) and project purpose? Answer and reason written in `## Decisions`, and the answer may be **no**
 ### Human
@@ -306,3 +325,49 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-875-aefworkflowmeta-kind-marker--ship-t-213s.md
 - **Context:** Initial task creation
+
+### 2026-09-26T23:11:05Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## 2026-09-27 — PARKED at AC3. The round-trip guard does not cover this attribute.
+
+**Shipped and checked:**
+
+- Module-scope `WORKFLOW_KINDS = {"documentation", "work-plan"}`, read by BOTH forms —
+  one copy, per T-322 (a second copy of a governance vocabulary is how the two forms drift
+  apart on the governance question itself).
+- `E-WORKFLOW-KIND` (YAML) and `E-XML-WORKFLOW-KIND` (XML). Measured on real fixtures:
+  no-kind → exit 0 · `kind="documentation"` → exit 0 · `kind="bogus"` → exit 2,
+  `kind 'bogus' not in ['documentation', 'work-plan']`. Fixtures verified to actually
+  differ first, so the two passes are not vacuous.
+- Editor reader **and** writer (`src/aef-workflow-designer.html`). The writer was the real
+  find: its `wmAttrs` list is fixed and had no `kind`, so an imported marker would have been
+  silently dropped on first save — worse than absent, because it survives review and vanishes
+  in use.
+- **AC4 re-derived with a control.** `aef:workflowMeta` appears ZERO times in the frozen
+  standard (control: `aef:uid` 8, `aef:meta` 7, `aef:position` 1, `aef:io` 1 — same grep
+  shape, same file, same run). T-213's "frozen-v1 safe" holds, but NOT for the reason the
+  word "additive" suggests: §1's two-class partition enumerates NODE-level attributes and
+  §6's four conformance clauses never reach document-level metadata. **The standard has no
+  document-level class at all** — a gap in the standard, and T-877's strongest content.
+
+**Why AC3 is not closed, and it is not a near-miss.**
+
+`tools/_roundtrip-serialization-cdp.mjs` passed with the new kind-carrying fixture
+(`tests/fixtures/aef-bpmn/t875-kind-marker.bpmn`, 20 fixtures, pass: true). **That green was
+vacuous and a mutation proved it.** Deleting the writer line entirely and re-running gave
+`exit=0, pass: true` — the guard does not notice.
+
+Not a broken harness. `checkDenominator()` derives its 36 keys from **`aef.*` accesses** —
+dot accesses, metaKeys, bindFields — i.e. the NODE-level seam. `workflowMeta.kind` is
+`wm.kind`. Document-level metadata is outside its denominator **by construction**, and so are
+`uuid`, `pageWidth`, `tier_default` and `title`. The right guard, the wrong seam.
+
+AC3 therefore needs its own instrument: a workflowMeta round-trip teeth with a mutation
+control, which must also establish whether `kind`'s siblings were ever covered by anything.
+That is a real question — four attributes may have been riding on no guard at all.
+
+**State:** the marker validates and round-trips in the editor; nothing asserts that it keeps
+round-tripping. Do not treat it as guarded. T-876 (corpus backfill) stays blocked behind this:
+backfilling 24 seam artefacts with an attribute whose persistence nothing checks is the wrong
+order.
