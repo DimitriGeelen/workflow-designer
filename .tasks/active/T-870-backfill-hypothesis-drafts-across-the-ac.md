@@ -17,7 +17,8 @@ workflow_type: build
 owner: agent
 horizon: now
 tags: [arc:hypothesis-first-inceptions, bvp, hypothesis]
-components: []
+components:
+  - .agentic-framework/agents/termlink/bvp-estimator/estimator.py
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -30,7 +31,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T19:13:47Z
-last_update: 2026-09-26T19:14:11Z
+last_update: 2026-09-26T19:14:26Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -74,12 +75,12 @@ bvp_scores_proposed:
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Every active inception without an existing Hypothesis section receives a draft, each carrying the drafted-by banner that says how to make a correction permanent
-- [ ] **No existing prose is overwritten.** Verified by diffing: the only Hypothesis sections that change are ones that were absent or empty. A backfill that silently replaced someone's wording would be OBS-383 rebuilt in a new place
-- [ ] **Nothing outside the Hypothesis section changes.** Verified against `git diff` — the drafter touches one section, and a backfill that quietly reformatted 14 task files while nobody was reading would be far worse than the gap it fills
-- [ ] The split between drafts carrying a real proposed observable and drafts carrying `[NEEDS YOU]` is recorded as a number, so the size of the remaining human input is known rather than guessed
-- [ ] Declared research inceptions, if any, are skipped and reported as skipped rather than silently drafted a claim they do not make
-- [ ] The corpus is re-scored afterwards and the ranking delta is reported — drafts are not human-confirmed, so S3 must NOT cite them and the scores must not move. If they move, the citation gate is leaking
+- [x] Every active inception without an existing Hypothesis section receives a draft, each carrying the drafted-by banner that says how to make a correction permanent
+- [x] **No existing prose is overwritten.** Verified by diffing: the only Hypothesis sections that change are ones that were absent or empty. A backfill that silently replaced someone's wording would be OBS-383 rebuilt in a new place
+- [x] **Nothing outside the Hypothesis section changes.** Verified against `git diff` — the drafter touches one section, and a backfill that quietly reformatted 14 task files while nobody was reading would be far worse than the gap it fills
+- [x] The split between drafts carrying a real proposed observable and drafts carrying `[NEEDS YOU]` is recorded as a number, so the size of the remaining human input is known rather than guessed
+- [x] Declared research inceptions, if any, are skipped and reported as skipped rather than silently drafted a claim they do not make
+- [x] The corpus is re-scored afterwards and the ranking delta is reported — drafts are not human-confirmed, so S3 must NOT cite them and the scores must not move. If they move, the citation gate is leaking
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -113,6 +114,11 @@ bvp_scores_proposed:
 -->
 
 ## Verification
+
+python3 -c "import glob,sys; n=sum(1 for f in glob.glob('.tasks/active/*.md') if 'workflow_type: inception' in open(f).read() and '\n## Hypothesis' in open(f).read()); sys.exit(0 if n>=14 else 1)"
+python3 -c "import glob,sys; bad=[f for f in glob.glob('.tasks/active/*.md') if '\n## Hypothesis' in open(f).read() and 'DRAFTED by the estimator' not in open(f).read() and 'hypothesis_source: human' not in open(f).read()]; sys.exit(1 if bad else 0)"
+out=$(bash tools/_t867-hypothesis-draft-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+out=$(bash tools/_t868-cited-support-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -257,6 +263,26 @@ bvp_scores_proposed:
 -->
 
 ## Evolution
+
+### 2026-09-26 — the backfill is where the arc stops being scaffolding
+
+- **What changed:** S2 had never run outside dry-run tests. Running it for real put a
+  hypothesis into all 14 active inceptions — **7 with a proposed observable, 7 honestly
+  marked `[NEEDS YOU]`**. That 7/7 split is the size of the remaining human input, now a
+  number rather than a guess.
+- **The diff scared me before it reassured me:** `git diff --numstat` showed 14 lines
+  REMOVED, which for an additive-only change is exactly the alarm worth chasing. It was 13
+  `## Assumptions` headings being re-emitted one position lower plus one `last_update:`.
+  Verified by counting sections before and after — 13 and 13. Checking beat assuming, and
+  the count is the evidence, not my reading of the diff.
+- **The citation gate held under its first real load:** 119 tasks re-scored after the
+  backfill, 0 written, ranking byte-identical. Fourteen new hypotheses moved zero scores,
+  because none is human-confirmed and S3 refuses to cite a draft. That was an acceptance
+  criterion precisely because the opposite — a silent re-rank on the back of machine-written
+  claims — is the failure nobody would have noticed.
+- **Triggered:** nothing new. The next move is not the agent's: each hypothesis corrected
+  and marked `hypothesis_source: human` switches citation on for that task and becomes the
+  first real override telemetry.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at

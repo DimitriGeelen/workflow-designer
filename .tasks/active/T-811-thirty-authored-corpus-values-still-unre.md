@@ -110,8 +110,15 @@ of one bug; it is **seven distinct groups**, and four of them have no `FIELD_MET
 all. That is the difference between a list edit and a field-definition design, which is what
 makes this an inception rather than a build.
 
-## Assumptions
+## Hypothesis
 
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that thirty authored corpus values still unreachable in the panel (T-810 census residue),
+we will achieve Thirty values that a human authored into the corpus cannot be reached from the designer's.
+We will know that we are successful when we see 0 of 30 empty.
+
+## Assumptions
 - **A-1:** The 30 are authored intent, not import noise. If some are artefacts of the
   renderer rather than a human's authoring, the correct repair is to remove them from the
   corpus, not to make them editable. **Untested — IW-3 tests it.**

@@ -75,8 +75,15 @@ cost_estimate_proposed:
 
 <!-- What problem are we exploring? For whom? Why now? -->
 
-## Assumptions
+## Hypothesis
 
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that scope the onboarding-experience arc iteration: which arcs, whose project, what iteration,
+we will achieve Inception: scope the onboarding-experience arc iteration: which arcs, whose project, what iteration.
+We will know that we are successful when we see 5 tasks.
+
+## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
 
 ## Open Questions

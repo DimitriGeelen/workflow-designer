@@ -116,8 +116,15 @@ to stop doing by eye.
 has the unprefixed `task-lifecycle`/`tier0-escalation`), so anything surfaced here will fire on peer
 content and is therefore a rail conversation, not only a local feature.
 
-## Assumptions
+## Hypothesis
 
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that surface workflow validator findings in the designer,
+we will achieve We wrote a semantic workflow validator and then never showed it to the people who author.
+We will know that we are successful when we see 40% of ERRORs.
+
+## Assumptions
 - **A-1:** The existing rule set is broadly right, so the work is plumbing rather than new
   intelligence. Evidence for: 34/0 suite, rules mirrored across both validator classes. Evidence
   against: the six-way-XOR case shows at least one real smell uncovered — the set is good, not

@@ -119,8 +119,15 @@ is how a proprietary format becomes permanent. The operator asked the question
 directly ("why not just adopt the standard?") and my T-340 option set had no slot
 for it.
 
-## Assumptions
+## Hypothesis
 
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that adopt BPMN DI as the designer geometry and retire aef-position,
+we will achieve The designer stores node geometry in `aef:position`, a proprietary extension, and.
+We will know that we are successful when we see 24 maps.
+
+## Assumptions
 Registered via `fw assumption add`:
 
 - **A-1 (load-bearing, UNVALIDATED):** `aef:position` exists for a recorded reason

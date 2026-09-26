@@ -456,3 +456,11 @@ rather than fixes.
 - **Change:** horizon: now → later
 - **Change:** status: started-work → captured (auto-sync)
 - **Reason:** Inception decision: DEFER — parking task
+
+## Hypothesis
+
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that hierarchical tree grouping for Open-project map browser,
+we will achieve Operator floated (tentative) reorganizing the flat Open-project grid into a hierarchical tree-style grouping.
+We will know that we are successful when we see 0 of 24 rendered files.

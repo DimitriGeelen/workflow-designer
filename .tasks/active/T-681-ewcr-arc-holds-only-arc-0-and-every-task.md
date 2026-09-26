@@ -106,8 +106,15 @@ indefinitely.
 
 Full analysis: `docs/reports/T-681-ewcr-next-arc-inception.md`.
 
-## Assumptions
+## Hypothesis
 
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that eWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs 1-6 have no tasks at all,
+we will achieve `arc-002 ewcr-governed-delivery` held 16 tasks on 2026-09-05 and **all 16 were.
+We will know that we are successful when we see 16 tasks.
+
+## Assumptions
 Registered as IW-1..IW-4 under Open Questions rather than duplicated here; IW-2 is the one that
 can flip the recommendation to NO-GO.
 

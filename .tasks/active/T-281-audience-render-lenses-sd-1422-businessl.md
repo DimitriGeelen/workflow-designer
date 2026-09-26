@@ -79,8 +79,15 @@ cost_estimate_proposed:
 
 <!-- What problem are we exploring? For whom? Why now? -->
 
-## Assumptions
+## Hypothesis
 
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that audience render lenses (SD-14/§2.2): business/logical/technical/pseudocode views,
+we will achieve Inception: decide whether to build audience-filtered lens rendering in the designer (functional/logical/technical + derived pseudocode) per package §2.2/SD-14, including deterministic byte-stable pseudocode output.
+We will know that we are successful when we see [NEEDS YOU: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
+
+## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
 
 ## Open Questions

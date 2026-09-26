@@ -78,8 +78,15 @@ cost_estimate_proposed:
 
 <!-- What problem are we exploring? For whom? Why now? -->
 
-## Assumptions
+## Hypothesis
 
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that child-3: Reverse discovery (AEF record -> editable process map),
+we will achieve arc: designer-authoring-surface child-3.
+We will know that we are successful when we see [NEEDS YOU: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
+
+## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
 
 ## Open Questions

@@ -92,8 +92,15 @@ when AEF pings the T-2652 thread with a GO for in-map declaration** — then the
 ratification of both additive keys (pattern: kind= T-213, uuid T-224, pageWidth T-255 — one key
 into both allowlists, absent = not emitted, untouched maps export byte-identically).
 
-## Assumptions
+## Hypothesis
 
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that ratify process-level conformance key and stateKind carrier convention (AEF T-2652),
+we will achieve AEF's T-2652 inception (rail 268) generalizes their map-conformance rail beyond aef-task-lifecycle.
+We will know that we are successful when we see 2652 inception.
+
+## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
 
 ## Open Questions
