@@ -1,8 +1,15 @@
 ---
 id: T-878
-name: "What is a process instance, where does its identity live, and what binds it to real governed work"
+name: "What is a process instance, where does its identity live, and what binds it
+  to real governed work"
 description: >
-  arc-005 S2/B4. ONE QUESTION: what is an instance here? Must produce the storage home, the identity scheme, whether the binding is authored or derived, and two-way resolution (given T-873 name its template and current node; given a template list its live instances). Tasks stay canonical per T-175 IW-1 — an instance binds to the task graph, it does not become it. Do not file build tasks under this id; on GO they are filed separately and in the same session (this project's measured GO-to-successor decay is 26 of 30).
+  arc-005 S2/B4. ONE QUESTION: what is an instance here? Must produce the storage
+  home, the identity scheme, whether the binding is authored or derived, and two-way
+  resolution (given T-873 name its template and current node; given a template list
+  its live instances). Tasks stay canonical per T-175 IW-1 — an instance binds to
+  the task graph, it does not become it. Do not file build tasks under this id; on
+  GO they are filed separately and in the same session (this project's measured GO-to-successor
+  decay is 26 of 30).
 
 status: captured
 workflow_type: inception
@@ -13,8 +20,8 @@ tags: [arc:process-instances]
 components: []
 related_tasks: []
 created: 2026-09-26T22:42:30Z
-last_update: 2026-09-26T22:42:30Z
-date_finished: null
+last_update: '2026-09-26T23:10:11Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -49,6 +56,29 @@ date_finished: null
 # voi_score — float 0..1. Value of Information: expected value of RESOLVING
 #   this question, independent of build cost. Higher when the answer affects
 #   many tasks or unblocks a strategic decision.
+bvp_scores_proposed:
+  - ts: '2026-09-26T23:10:11Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 1
+      D3: 1
+      D4: 1
+      F-RECALL: 1
+      F2: 1
+      F4: 1
+      F3: 1
+      F1: 1
+    rationale: D1=1 (voi:no-leverage-signal (measured low, not unassessed)); 
+      D2=1 (voi:no-leverage-signal (measured low, not unassessed)); D3=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); D4=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F-RECALL=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F2=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F4=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F3=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F1=1 
+      (voi:no-leverage-signal (measured low, not unassessed))
+    rubric_sha: e4a00f38e801
 ---
 
 # T-878: What is a process instance, where does its identity live, and what binds it to real governed work
@@ -97,9 +127,9 @@ date_finished: null
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that if a process instance carries its own identity and records which template it instantiates,
+we will achieve an answer to "what process is this task following, and which step is it on" that comes from the system rather than from a person who remembers.
+We will know that we are successful when we see a single command, run against at least 3 real task ids drawn from .tasks/active, that returns the template id and the current node id for each — and returns an explicit "no instance" for a task that has none, rather than an empty string or a guess.
 
 ## Assumptions
 

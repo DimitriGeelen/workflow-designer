@@ -1,8 +1,14 @@
 ---
 id: T-879
-name: "Guided mode: split T-279 down to the SD-8 enforcement-ladder question and answer it"
+name: "Guided mode: split T-279 down to the SD-8 enforcement-ladder question and answer
+  it"
 description: >
-  arc-005 S3/B7. The live half of the captured T-279. Question: which rung does this project target and what does guided mode refuse? Ladder is advisory (today, by convention) -> guided (target) -> strict (EXPLICITLY OUT — anything that actually drives execution is arc-002/EWCR). Deliverable is the decision plus the refusal contract; V7's three refusals are the acceptance shape. Depends on the instance-identity answer. On GO file the build tasks in the same session.
+  arc-005 S3/B7. The live half of the captured T-279. Question: which rung does this
+  project target and what does guided mode refuse? Ladder is advisory (today, by convention)
+  -> guided (target) -> strict (EXPLICITLY OUT — anything that actually drives execution
+  is arc-002/EWCR). Deliverable is the decision plus the refusal contract; V7's three
+  refusals are the acceptance shape. Depends on the instance-identity answer. On GO
+  file the build tasks in the same session.
 
 status: captured
 workflow_type: inception
@@ -13,8 +19,8 @@ tags: [arc:process-instances]
 components: []
 related_tasks: []
 created: 2026-09-26T22:42:46Z
-last_update: 2026-09-26T22:42:46Z
-date_finished: null
+last_update: '2026-09-26T23:10:11Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -49,6 +55,29 @@ date_finished: null
 # voi_score — float 0..1. Value of Information: expected value of RESOLVING
 #   this question, independent of build cost. Higher when the answer affects
 #   many tasks or unblocks a strategic decision.
+bvp_scores_proposed:
+  - ts: '2026-09-26T23:10:11Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 3
+      D2: 3
+      D3: 3
+      D4: 3
+      F-RECALL: 3
+      F2: 3
+      F4: 3
+      F3: 3
+      F1: 3
+    rationale: D1=3 (voi:decision-with-alternatives~'go/no-go'); D2=3 
+      (voi:decision-with-alternatives~'go/no-go'); D3=3 
+      (voi:decision-with-alternatives~'go/no-go'); D4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F-RECALL=3 
+      (voi:decision-with-alternatives~'go/no-go'); F2=3 
+      (voi:decision-with-alternatives~'go/no-go'); F4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F3=3 
+      (voi:decision-with-alternatives~'go/no-go'); F1=3 
+      (voi:decision-with-alternatives~'go/no-go')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-879: Guided mode: split T-279 down to the SD-8 enforcement-ladder question and answer it
@@ -97,9 +126,9 @@ date_finished: null
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that if the framework holds instance state and advances it only through a validated transition,
+we will achieve a guided mode in which an illegitimate step is refused at the moment it is attempted instead of being discovered afterwards.
+We will know that we are successful when we see all 3 of the V7 cases — an out-of-order advance, a skipped human gateway, and an unmet input contract — each refused with a non-zero exit code and each leaving a line in the audit log that names which rule refused it.
 
 ## Assumptions
 
