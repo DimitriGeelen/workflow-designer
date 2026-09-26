@@ -2433,3 +2433,21 @@ learnings:
   task: T-737
   date: 2026-09-26
   context: Added via context agent
+- id: PL-345
+  learning: "An evidence string emitted ALONGSIDE the value it describes can contradict it, and that is a false green with extra steps — the reader trusts it precisely because it looks like provenance. Measured 2026-09-26 in the hypothesis drafter: the fabricate-mutation replaced the signal and left the adjacent ev.append() untouched, so the evidence line still read 'signal<-NEEDS-YOU' while the clause carried an invented metric. The fix is structural rather than careful: DERIVE the evidence from the value after the branch, so the two cannot disagree by construction. Generalises to every estimator, audit row and probe that builds a rationale string in parallel with a result — if a one-line edit to the result can leave the rationale intact, the rationale is decoration. Worth a corpus scan wherever a score and its explanation are appended in adjacent statements."
+  source: P-001
+  task: T-737
+  date: 2026-09-26
+  context: Added via context agent
+- id: PL-346
+  learning: "Check an extractor on its DISTRIBUTION, never on one sample. Measured three times on 2026-09-26, same signature each time: a VoI signal keyed on a phrase the inception template ships scored 11 of 14 inceptions identically; four arc-004 slices scored 106/0.34 identically; the hypothesis drafter returned the fragment '80% of the' as a success signal. In every case the single-sample check looked like success — T-155 moved 0.40 to 0.60 and read as a clean win — and only plotting the spread exposed that nothing had been differentiated. UNIFORMITY IS THE SIGNATURE of a scorer with nothing to reason about, and it is invisible one row at a time. Practical rule: after writing or changing any extractor or scoring spec, print the value for the whole population and look at the histogram before believing a single result. A scorer that emits the same number for everything still produces confident output, still passes validation, and ranks nothing."
+  source: P-001
+  task: T-737
+  date: 2026-09-26
+  context: Added via context agent
+- id: PL-347
+  learning: "An exemption must be DECLARED AT CREATION, never reachable at decision time — that distinction is the whole safety property, not a detail of where the flag lives. Operator direction 2026-09-26 on the arc-004 hypothesis gate: not every inception carries a claim, since 'research how X works' produces understanding rather than an outcome, and forcing it into 'we will achieve <outcome>' manufactures fiction to satisfy a gate. True, and the exemption still had to not become the hole that kills the gate. Three properties did that: (a) declared at creation (inception_kind: research) rather than a --skip flag at the decision, because a flag reachable at the moment of refusal is reached for under pressure by an author who wants through, whereas framing research as research happens before anyone knows the hypothesis would be inconvenient; (b) THE FIELD, NOT THE WORD — a body merely saying 'we need to research X' is still gated, or the hole is shaped like a common English word; (c) it ANNOUNCES ITSELF when it fires and is therefore countable, so an escape hatch quietly becoming the default is visible. Generalises to every gate bypass in the framework: ask when it is reached for, whether it can be triggered by prose, and whether anyone would notice it becoming the norm."
+  source: P-001
+  task: T-737
+  date: 2026-09-26
+  context: Added via context agent
