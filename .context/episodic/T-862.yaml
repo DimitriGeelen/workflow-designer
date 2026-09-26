@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-862: Handover Suggested First Action is non-carrying: regeneration overwrites hand-enrichment with a one-line stub
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T00:39:33Z
+# ============================================================================
+
+task_id: T-862
+task_name: "Handover Suggested First Action is non-carrying: regeneration overwrites hand-enrichment with a one-line stub"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T00:24:55Z
+completed: 2026-09-26T00:39:25Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-26T02:39:01+02:00
+last_commit: 2026-09-26T02:39:01+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the handover's only authored section was overwritten every run, and the check that should have caught it could not tell an empty section from a finished one
+
+# Key outcomes
+outcomes:
+  - '`handover.sh` locates the predecessor handover (the file `LATEST.md` pointed at before this run) and extracts its `## Suggested First Action` section'
+  - 'When the focus task is UNCHANGED and the predecessor''s section is richer than the generated one-liner, the predecessor''s content is carried into the new handover instead of being replaced by the stub'
+  - 'Carried content is labelled with its origin session id and the age of the content, so a reader can tell carried-forward from freshly-generated and judge staleness themselves — carrying silently would replace one false-green with another'
+  - 'When the focus task CHANGES between handovers, the section is regenerated and NOT carried: a plan written for a different task must never be presented as this task''s next step'
+  - 'When the predecessor''s section is itself the bare one-line stub, nothing is carried and no provenance label is emitted (no provenance noise on content that has none)'
+  - '`tools/_t862-handover-carry-teeth.sh` exercises all four behaviours above, and its `--mutation` mode reports `MUTATION SETUP BROKEN` when its CONTROL SET goes red rather than reading a broken harness as a clean kill'
+  - 'End-to-end on real files: a regeneration whose predecessor is the enriched `S-2026-0926-0154.md` preserves >4,000 chars in the section, where the unpatched generator preserves 0'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.tasks/active/T-862-handover-suggested-first-action-is-non-c.md'
+  - 'tools/_t862-handover-carry-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-26T02:39:01'
+    action: 'T-862: the handover''s only authored section was overwritten every run, and the check that should have caught it could not tell an empty section from a finished one'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [handover, false-green, arc:arc-003]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 14
+  commits: 1
+  files_changed: 3
+  lines_added: 878
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-862-handover-suggested-first-action-is-non-c.md
+generated_by: context-agent-hybrid

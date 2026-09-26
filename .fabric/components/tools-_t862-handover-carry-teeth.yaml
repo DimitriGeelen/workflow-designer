@@ -1,0 +1,21 @@
+id: tools/_t862-handover-carry-teeth.sh
+name: _t862-handover-carry-teeth
+type: script
+subsystem: unknown
+location: tools/_t862-handover-carry-teeth.sh
+tags: []
+
+purpose: "T-862 — teeth for Suggested First Action carry-forward (OBS-383)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-26
+created_by: unknown

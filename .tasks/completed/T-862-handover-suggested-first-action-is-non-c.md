@@ -8,21 +8,12 @@ description: >
   shelf life of exactly one regeneration. Measured four times on 2026-09-25/26; instance
   four replaced a 71-line/4982-char enriched section with 7 lines, one commit apart.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [handover, false-green, arc:arc-003]
-components:
-  # T-862 note: declared BEFORE work, not resolved from git at completion.
-  # score_blast_radius() reads this field and returns None without it, so a task
-  # that has not been done yet cannot be costed and cannot be placed in a
-  # quadrant. Declaring the forecast here is what makes the task rankable at the
-  # moment the ranking is actually needed. Completion will overwrite this with
-  # what git measured — forecast now, truth later, and the delta is calibration.
-  - .agentic-framework/agents/handover/handover.sh
-  - tools/_t862-handover-carry-teeth.sh
-  - tools/_t509-instrument-sweep.sh
+components: [tests/run-bridge-tests.sh, tools/_t536-status-desync-teeth.py, tools/_t862-handover-carry-teeth.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -35,8 +26,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T00:24:55Z
-last_update: 2026-09-26T00:30:21Z
-date_finished:
+last_update: 2026-09-26T00:39:25Z
+date_finished: 2026-09-26T00:39:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -435,3 +426,15 @@ the reader instead of reading as fresh authorship.
 
 ### 2026-09-26T00:30:21Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b7fab5ba
+- **Timestamp:** 2026-09-26T00:39:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-26T00:39:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
