@@ -1,0 +1,21 @@
+id: tools/_t873-claude-bak-teeth.sh
+name: _t873-claude-bak-teeth
+type: script
+subsystem: unknown
+location: tools/_t873-claude-bak-teeth.sh
+tags: []
+
+purpose: "T-873 — teeth for the CLAUDE.md.bak review-signal check in agents/audit/audit.sh."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-26
+created_by: unknown

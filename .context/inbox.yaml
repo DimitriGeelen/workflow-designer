@@ -1976,3 +1976,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-400
+  text: "fw fabric register REFUSES new files under tools/ with a remedy nobody can follow: 'add a paths: pattern to .fabric/subsystems.yaml' — that file does not exist in this project (.fabric/ holds only components/ and watch-patterns.yaml). Every existing tools/ card carries subsystem: unknown, so they predate the refusal. Net effect: new instruments cannot be registered, fabric drift keeps counting them as unregistered, and the audit's 'N source files have no fabric card' WARN grows for a reason the operator cannot act on. Found while registering tools/_t873-claude-bak-teeth.sh under T-873. Either ship the subsystems.yaml the message assumes, or let register fall back to subsystem: unknown the way the existing cards already do."
+  captured: 2026-09-26T21:42:21Z
+  context_task: T-873
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

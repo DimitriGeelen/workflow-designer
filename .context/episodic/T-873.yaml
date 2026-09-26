@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-873: fw upgrade destroyed the T-675 budget-cache guidance and the G-055 warning that saw it go had nowhere durable to land
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T21:43:26Z
+# ============================================================================
+
+task_id: T-873
+task_name: "fw upgrade destroyed the T-675 budget-cache guidance and the G-055 warning that saw it go had nowhere durable to land"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-26T21:28:54Z
+completed: 2026-09-26T21:43:18Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-26T23:43:07+02:00
+last_commit: 2026-09-26T23:43:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fw upgrade told the truth about destroying 25 lines of governance, and the telling had nowhere to land
+
+# Key outcomes
+outcomes:
+  - 'Every one of the 25 lost lines is classified re-applied or deliberately dropped, and each drop is named with its reason in `## Decisions` — a blanket `git checkout HEAD -- CLAUDE.md` is NOT the fix (see Decisions: one lost line was false and the template corrected it)'
+  - '`CLAUDE.md` again carries the T-675 invariant verbatim — the string "`unknown` is not `ok`" is present'
+  - 'The env-var name in the restored text matches what the code reads: `budget-gate.sh` resolves `fw_config_int "CONTEXT_WINDOW"` with `FW_CONTEXT_WINDOW` as env override, and the prose says both rather than picking one'
+  - '`CLAUDE.md.bak` is removed once reviewed — that removal IS the clear-signal `upgrade.sh` prescribes, and leaving it would leave the new check permanently red (OBS-293)'
+  - '`fw audit` carries a check whose predicate is *`CLAUDE.md.bak` exists* — an upgrade rewrote governance and the review was never acknowledged — reporting the lost-line count as context, not as the predicate (see Decisions: gating on the count is permanently red by construction)'
+  - 'The check names a remedy the reader can actually run to completion (PL-337): review the diff, re-apply, `rm CLAUDE.md.bak`'
+  - 'That check distinguishes three states and says which: no `.bak` (nothing pending), `.bak` with differing lines (review outstanding, count named), `.bak` byte-identical (review done or no-op, just not cleared)'
+  - 'A teeth instrument proves the check bites, with a control set that goes red when the harness is broken rather than reading a broken harness as a clean kill'
+  - 'The framework-general half of the lost text is offered upstream to AEF, so the template stops destroying it on every consumer'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-26 — the 25 lost lines, classified'
+    chose: 're-apply 24, deliberately drop 1, merge 2 facts from the template.'
+    rationale: 'measured before restoring. The dropped line is `` 1. Check ... following `zzz-default.md` template `` — and `ls .tasks/templates/` holds `default.md`, `inception.md`, `path-c-deep-dive.md`. **There is no `zzz-default.md`.** HEAD''s line was false and the framework template corrected it, so restoring it would reintroduce an instruction pointing at a file that does not exist.'
+    alternatives_rejected: ['`git checkout HEAD -- CLAUDE.md`. It was the obvious one-command fix, it would have restored all 25 lines, and it would have been wrong — a blanket revert cannot tell a regression from a correction, and this diff contained one of each. - **Also merged in from the template, because both are true:** `budget-gate.sh:102-107` reads `fw_config_int "CONTEXT_WINDOW"` with `FW_CONTEXT_WINDOW` as the env override. The old text named only the config key, the template named only the env var. The restored text names both and cites the line.']
+  - decision: '2026-09-26 — the check asserts the review, not the content'
+    chose: 'the audit predicate is *does `CLAUDE.md.bak` exist*, with the lost-line count reported as context. Not *were lines lost*.'
+    rationale: 'after this restore, 6 lines still show as "absent" — and every one is a rewording whose substance is present, not a loss. A line-level diff cannot distinguish reworded from lost, so a check gated on the count would sit red forever with no action that clears it. That is OBS-293 (a permanently red check trains readers to ignore it), built in on purpose.'
+    alternatives_rejected: ['WARN on lost-line count > 0. Rejected precisely because it looks stricter. A signal nobody can clear is weaker than one they can, and the check would have been red on this very task after the fix was correct and complete. - **Consequence, stated:** the check cannot tell whether the review was done *well*. It can only tell whether it was acknowledged. That is the honest limit of what a file''s existence can witness, and it is still strictly more than the zero readers it has today.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - 'CLAUDE.md'
+  - '.tasks/active/T-873-fw-upgrade-destroyed-the-t-675-budget-ca.md'
+  - 'tools/_t873-claude-bak-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-26T23:43:07'
+    action: 'T-873: fw upgrade told the truth about destroying 25 lines of governance, and the telling had nowhere to land'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 14
+  commits: 1
+  files_changed: 4
+  lines_added: 592
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-873-fw-upgrade-destroyed-the-t-675-budget-ca.md
+generated_by: context-agent-hybrid

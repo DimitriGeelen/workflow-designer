@@ -2451,3 +2451,9 @@ learnings:
   task: T-737
   date: 2026-09-26
   context: Added via context agent
+- id: PL-348
+  learning: "A warning printed to stdout in a session that then ends is indistinguishable from no warning. If a mechanism already leaves a DURABLE artefact behind when it warns (a .bak, a lock, a queue file), make a standing check read that artefact — the artefact is the signal, the echo was only its first announcement. fw upgrade destroyed 25 lines of CLAUDE.md governance including the T-675 budget-cache rule, warned correctly, left CLAUDE.md.bak as evidence, and nothing under agents/ or lib/ ever read it; the degraded file was loaded as the agent's own instructions for a day. Corollary for the check you then write: gate on whether the review was ACKNOWLEDGED (does the artefact still exist), not on whether content was lost (a line diff cannot tell a rewording from a deletion, so that check is permanently red and teaches readers to ignore it)."
+  source: P-001
+  task: T-873
+  date: 2026-09-26
+  context: Added via context agent
