@@ -12,7 +12,7 @@ description: >
   Scope note: the agent must never invoke that verb (Tier 0), so the gate is implemented
   and tested against fixtures, and the live exercise is the operator's.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -33,7 +33,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T12:22:50Z
-last_update: '2026-09-26T12:23:29Z'
+last_update: 2026-09-26T13:48:13Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -74,17 +74,42 @@ confirmed_at: '2026-09-26T12:23:48Z'
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+arc-004 slice 1. The BVP method pairs every value-driver table with a hypothesis in a
+fixed three-part form; the framework implements the arithmetic and not the hypothesis, so
+a support score has no referent and cannot be wrong about anything.
+
+This slice adds the form and the gate. It does NOT add drafting (S2), citation (S3) or
+realisation measurement (S4).
+
+**Constraint that shapes the deliverable:** the agent must never invoke the inception
+decision verb — Tier 0, and it fires on the phrase in any command text including a grep
+pattern. So the gate is implemented and exercised against fixtures through its audit
+function directly; the live end-to-end exercise is the operator's, and is written as a
+Human AC rather than quietly skipped.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `.tasks/templates/inception.md` carries a `## Hypothesis` section in the canonical three-part form, written as a fill-in shape rather than prose advice — the shape is the discipline, and a blank required field would block rather than help
+- [x] `audit_inception_hypothesis()` exists in `lib/task-audit.sh` and refuses: a missing or empty section; a section not in the three-part form (naming which clause is absent); and a success clause naming nothing anyone could go and look at
+- [x] **It fires only on GO.** A NO-GO or DEFER commits nobody to delivering value, so demanding a measurable success clause there is bureaucracy. Proven by fixture: the same vague hypothesis passes under `no-go` and `defer`, and is refused under `go`
+- [x] The gate is wired into the inception decision path, ahead of the decision being written
+- [x] **The refusal is actionable, not just correct.** Each refusal names what is missing and shows the form or an example of a checkable clause. T-624's prevention was a correct, emphatic, adjacent warning and the number it tracked did not move in 28 days — a gate that only says "no" is a warning with a worse exit code
+- [x] `tools/_t866-hypothesis-form-teeth.sh` covers the above with a `--mutation` mode whose CONTROL SET reports `MUTATION SETUP BROKEN` rather than reading a broken harness as a clean kill
+- [x] **The observability check is documented as a proxy, with its own limits stated in the code.** It cannot decide "is this observable"; it decides "does this clause contain anything a person could later look at". It is foolable deliberately and not foolable by the sincere vague clause, which is the failure that actually occurs
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+- [ ] [REVIEW] **Exercise the gate live on a real inception.**
+      **Steps:**
+      1. Pick any active inception and try to record a GO on it without a hypothesis.
+      2. Add a hypothesis whose success clause is vague ("when the system is better") and try again.
+      3. Add a checkable success clause and try once more.
+      **Expected:** refused at 1 and 2 with a message naming what is missing; accepted at 3.
+      **If not:** paste the message — the agent cannot run this path at all (Tier 0), so this
+      is the only evidence that the wiring works end to end rather than only at the function.
+
+<!-- Template guidance for Human ACs, retained for reference. The live Human AC is above.
+     Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
 
@@ -115,6 +140,15 @@ confirmed_at: '2026-09-26T12:23:48Z'
 -->
 
 ## Verification
+
+out=$(bash tools/_t866-hypothesis-form-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$' && ! echo "$out" | grep -q '^  FAIL'
+out=$(bash tools/_t866-hypothesis-form-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
+bash -n .agentic-framework/lib/task-audit.sh
+bash -n .agentic-framework/lib/inception.sh
+grep -q '^audit_inception_hypothesis()' .agentic-framework/lib/task-audit.sh
+grep -q 'audit_inception_hypothesis "$task_file" "$decision"' .agentic-framework/lib/inception.sh
+grep -q '^## Hypothesis$' .tasks/templates/inception.md
+grep -q 'We will know that we are successful when we see' .tasks/templates/inception.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -338,3 +372,6 @@ confirmed_at: '2026-09-26T12:23:48Z'
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-866-s1-the-hypothesis-section-and-its-form--.md
 - **Context:** Initial task creation
+
+### 2026-09-26T13:48:13Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

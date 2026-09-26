@@ -55,6 +55,36 @@ date_finished: null
 
 <!-- What problem are we exploring? For whom? Why now? -->
 
+## Hypothesis
+
+<!-- REQUIRED before a GO decision (T-866, arc-004). Fill the three blanks below and
+     delete this comment. Keep the three phrases — the gate looks for them.
+
+     This is the form the BVP scoring method expects. Every support score in this
+     task's value-driver table is an ARGUMENT ABOUT THIS SENTENCE: "support 5 on
+     Reliability" means something only once the sentence says what success looks
+     like. Without it a score can rank but cannot be wrong, because there is no
+     claim for it to be wrong about.
+
+     THE THIRD CLAUSE IS THE ONE THAT BITES. It has to be checkable by someone who
+     was not in the room and who reads this in three months. A number, a count, a
+     threshold, a named state.
+
+       no  — "...when the system is better"
+       no  — "...when the team is more productive"
+       yes — "...when 5 consecutive fire-suppression tests pass at every equipped site"
+       yes — "...when fw audit reports 0 failures for 3 consecutive nightly runs"
+       yes — "...when the importer no longer fabricates a lane for input that has none"
+
+     Writing it is genuinely hard. You are not expected to start from blank: the
+     estimator drafts one from this task's own text, and you correct it. Your
+     correction is sticky — set `hypothesis_source: human` in the frontmatter and no
+     automatic pass will ever overwrite it. -->
+
+We believe that <change>,
+we will achieve <outcome>.
+We will know that we are successful when we see <measurable signal>.
+
 ## Assumptions
 
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->

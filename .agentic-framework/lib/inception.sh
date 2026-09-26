@@ -538,6 +538,38 @@ do_inception_decide() {
         exit 1
     fi
 
+    # Gate: require a ## Hypothesis in the three-part form, with a success clause
+    # naming something checkable (T-866, arc-004). Fires on GO only — a NO-GO or
+    # DEFER takes on no claim, so demanding a measurable signal there is
+    # bureaucracy. Placed AFTER the Recommendation gate deliberately: the
+    # recommendation is what the human reads, the hypothesis is what the project
+    # will later be measured against, and failing the cheaper/closer one first
+    # keeps the refusals in the order an author can act on them.
+    # Fail CLOSED if the audit lib never loaded. Its sourcing above is inside an
+    # `if [ -f ... ]`, so a missing lib would otherwise reach this line as a bare
+    # "command not found" and — depending on shell settings — let the decision
+    # through. A gate whose absence is indistinguishable from a pass is the exact
+    # defect this arc is built around.
+    if ! command -v audit_inception_hypothesis >/dev/null 2>&1; then
+        echo -e "${RED}ERROR: hypothesis gate unavailable (lib/task-audit.sh did not load)${NC}" >&2
+        echo -e "Refusing the decision rather than recording one the gate never checked." >&2
+        exit 1
+    fi
+    if ! audit_inception_hypothesis "$task_file" "$decision"; then
+        echo "" >&2
+        echo -e "${RED}ERROR: ## Hypothesis required before a GO decision${NC}" >&2
+        echo "" >&2
+        echo -e "A GO is the moment this project takes on a claim. Every support score in" >&2
+        echo -e "this task's value-driver table is an argument about that claim — without it," >&2
+        echo -e "the scores can rank but cannot be wrong, because there is nothing for them" >&2
+        echo -e "to be wrong about." >&2
+        echo "" >&2
+        echo -e "The estimator can draft one from this task's own text; correct it and set" >&2
+        echo -e "  hypothesis_source: human" >&2
+        echo -e "in the frontmatter to make your wording permanent." >&2
+        exit 1
+    fi
+
     local timestamp
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     local decision_upper

@@ -161,3 +161,103 @@ audit_inception_recommendation() {
     fi
     return 1
 }
+
+# ── T-866 (arc-004): the Hypothesis gate ─────────────────────────────────────
+#
+# The BVP method this project scores with pairs every value-driver table with a
+# hypothesis in a fixed three-part form:
+#
+#   "We believe that <change>, we will achieve <outcome>.
+#    We will know that we are successful when we see <measurable signal>."
+#
+# The framework implemented Support x Weight and not the hypothesis, so a support
+# score has had no referent: it can rank, but it cannot be WRONG, because there is
+# no claim for it to be wrong about. This gate is the first half of fixing that.
+#
+# WHY IT FIRES ONLY ON GO. A NO-GO or DEFER commits nobody to delivering value, so
+# demanding a measurable success clause there would be bureaucracy. GO is the
+# moment the project takes on a claim, and the only moment at which refusing costs
+# less than the thing being prevented.
+#
+# THE THIRD CLAUSE IS CHECKED WITH A PROXY, AND IT IS AN HONEST ONE. "Names
+# something observable" cannot be decided mechanically. What CAN be decided is
+# whether the clause contains anything a person could later go and look at — a
+# number, a count, a named state. So: does the success clause carry a digit, or one
+# of a short list of concrete-observation markers?
+#
+# That proxy is foolable by someone determined ("we will know when we see 1 happy
+# user"). It is NOT foolable by the failure that actually occurs, which is the
+# sincere vague clause: "when the system is better", "when the team is more
+# productive", "when this feels right". Every one of those is refused. T-624 is the
+# design constraint here — it chose a warning as its prevention, the warning was
+# correct and adjacent to the field, and the number did not move in 28 days. A gate
+# that refuses the common case beats a comment that refuses nothing.
+audit_inception_hypothesis() {
+    local task_file="${1:-}"
+    local decision="${2:-go}"
+
+    if [ -z "$task_file" ] || [ ! -f "$task_file" ]; then
+        echo "audit_inception_hypothesis: missing or unreadable file: ${task_file}" >&2
+        return 2
+    fi
+
+    case "$(printf '%s' "$decision" | tr '[:upper:]' '[:lower:]')" in
+        go) ;;
+        *) return 0 ;;
+    esac
+
+    # Same extraction shape as audit_inception_recommendation (T-1528): stop at any
+    # H2-or-deeper heading, so a later section quoting the word cannot leak in.
+    local section stripped
+    section=$(awk '
+        /^## Hypothesis[[:space:]]*$/ { in_h=1; next }
+        in_h && /^#{2,} / { exit }
+        in_h { print }
+    ' "$task_file")
+
+    stripped=$(printf '%s\n' "$section" | awk '
+        /<!--/ { in_c=1 }
+        !in_c { print }
+        /-->/ { in_c=0 }
+    ' | sed 's/[[:space:]]*$//' | grep -v '^[[:space:]]*$')
+
+    if [ -z "$stripped" ]; then
+        echo "HYPOTHESIS: missing or empty. A GO records that this project believes" >&2
+        echo "  something. Say what, in the form the scoring method expects:" >&2
+        echo "    We believe that <change>," >&2
+        echo "    we will achieve <outcome>." >&2
+        echo "    We will know that we are successful when we see <measurable signal>." >&2
+        return 1
+    fi
+
+    local lower
+    lower=$(printf '%s' "$stripped" | tr '[:upper:]' '[:lower:]')
+
+    local missing=""
+    printf '%s' "$lower" | grep -q 'we believe that' || missing="$missing 'We believe that'"
+    printf '%s' "$lower" | grep -q 'we will achieve' || missing="$missing 'we will achieve'"
+    printf '%s' "$lower" | grep -q 'we will know'    || missing="$missing 'We will know'"
+    if [ -n "$missing" ]; then
+        echo "HYPOTHESIS: not in the three-part form — missing:$missing" >&2
+        echo "  The form is not decoration. Each clause answers a different question:" >&2
+        echo "  what changes, what that buys, and how anyone would later tell if it worked." >&2
+        return 1
+    fi
+
+    local success
+    success=$(printf '%s' "$lower" | sed -n 's/.*we will know\(.*\)/\1/p')
+
+    if printf '%s' "$success" | grep -qE '[0-9]'; then
+        return 0
+    fi
+    if printf '%s' "$success" | grep -qE 'exit code|returns|reports|refuses|no longer|zero |none of|every |each |passes|fails'; then
+        return 0
+    fi
+
+    echo "HYPOTHESIS: the success clause names nothing anyone could go and look at." >&2
+    echo "  Found: ...we will know${success}" >&2
+    echo "  A success clause has to be checkable by someone who was not in the room." >&2
+    echo "  'the system is better' cannot be checked; '5 consecutive tests pass per site'" >&2
+    echo "  can. Give it a count, a threshold, a named state, or an observable outcome." >&2
+    return 1
+}
