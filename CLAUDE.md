@@ -19,7 +19,6 @@ plus Claude Code-specific integration notes.
 ## Project-Specific Rules
 
 <!-- Add any project-specific rules that agents must follow -->
-
 ## Core Principle
 
 **Nothing gets done without a task.** This is enforced structurally by the framework, not by agent discipline.
@@ -155,7 +154,7 @@ Captured → Started Work ↔ Issues → Work Completed
 ## Working with Tasks
 
 When starting work (**BEFORE reading code, editing files, or invoking skills**):
-1. Check for existing task or create new one following `zzz-default.md` template
+1. Check for existing task or create new one following `default.md` template
 2. Set status to `started-work`
 3. Set focus: `fw context focus T-XXX`
 4. THEN proceed with implementation (skills, code changes, etc.)
@@ -466,10 +465,12 @@ Each component has a YAML card in `.fabric/components/` with: id, name, type, su
 
 ### Work Proposal Rule
 - **Before proposing the next unit of work, check context budget** (`checkpoint.sh status`)
-- **The percentages below are the rule. The absolute token counts are not.** `CONTEXT_WINDOW`
-  is configurable (`fw config get CONTEXT_WINDOW`, default 300000), so any absolute number
-  written here is a derived illustration that goes stale the moment the window changes —
-  which is exactly what happened (T-614).
+- **The percentages below are the rule. The absolute token counts are not.** The cap is
+  `CONTEXT_WINDOW` (`fw config get CONTEXT_WINDOW`, default 300000), overridable for one
+  run via the `FW_CONTEXT_WINDOW` env var — `budget-gate.sh:107` resolves it as
+  `fw_config_int "CONTEXT_WINDOW" 300000`. Any absolute number written here is a derived
+  illustration that goes stale the moment the window changes — which is exactly what
+  happened (T-614).
 - **Read the level, do not recompute it — but read it through the safe read.**
   `.agentic-framework/agents/context/checkpoint.sh budget` reports the gate's own verdict
   as `level`. If `level` and your arithmetic disagree, `level` wins: it is produced by the
@@ -483,6 +484,7 @@ Each component has a YAML card in `.fabric/components/` with: id, name, type, su
   tokens. Both writers now stamp `"measured": false` and `checkpoint.sh budget` refuses an
   unmeasured, stale, or foreign-session cache, reporting `level: unknown` plus the reason.
   **`unknown` is not `ok`** — it means measure before deciding, via `checkpoint.sh status`.
+  Hit again live on 2026-09-26 (T-873), which is why this paragraph is worth its length.
 - Below 75%: proceed normally
 - 75–85% (`warn`): propose only small, bounded tasks; commit first
 - 85–95% (`urgent`): propose only wrap-up actions (commit, learnings, handover)
@@ -493,7 +495,10 @@ Each component has a YAML card in `.fabric/components/` with: id, name, type, su
 ### Automated Monitoring (Claude Code)
 - **Primary enforcement:** A PreToolUse hook runs `budget-gate.sh` which reads **actual token usage** from the session JSONL transcript and **blocks** Write/Edit/Bash at critical level (exit code 2)
 - **Fallback:** A PostToolUse hook runs `checkpoint.sh` for warnings and auto-handover (T-136)
-- Escalation ladder, as percentages of `CONTEXT_WINDOW` (the form the gate computes): **75%** ok→warn (note), **85%** warn→urgent (warning), **95%** urgent→critical (**BLOCK**). At the 300K default: 225K / 255K / 285K.
+- Escalation ladder, as percentages of `CONTEXT_WINDOW` — the form the gate computes;
+  source of truth is `agents/context/budget-gate.sh:107-112`: **75%** ok→warn (note),
+  **85%** warn→urgent (warning), **95%** urgent→critical (**BLOCK**). At the 300K
+  default: 225K / 255K / 285K.
 - At critical, allowed: git commit/add, fw handover/task, reading files, Write/Edit to `.context/` `.tasks/` `.claude/` (wrap-up paths). Blocked: Write/Edit to source files, general Bash
 - Status cached in `.context/working/.budget-status` (JSON: level, tokens, timestamp)
 - Check current usage: `./agents/context/checkpoint.sh status`
