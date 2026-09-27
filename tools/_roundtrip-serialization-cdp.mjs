@@ -143,6 +143,64 @@ const STRUCTKEYS = ['emits', 'compensates', 'aggregation', 'multiInstance', 'tim
 // while the projection body skipped it as undefined — a green that cannot go red. It is projected
 // structurally by structOf() instead.
 
+// ── T-886: the DOCUMENT-level seam, which was outside every denominator above ────────────────
+//
+// Everything above this line is about the NODE-level aef.* seam. checkDenominator() derives its
+// keys from inside aefExtensionXml(), so the process-level <aef:workflowMeta .../> attributes were
+// never in its denominator BY CONSTRUCTION — not omitted, structurally unreachable. The old
+// document-level projection was a hand-typed list of FOUR (id, tier_default, version, title)
+// while the emitter writes TEN, and nothing compared the two.
+//
+// Measured by mutation under T-885 (the census this task is the repair for): with the attribute
+// suppressed in the writer, uuid, description and kind each left every guard green. uuid is the
+// finding — T-224 connector-referenceable identity, what off-page links resolve against, and
+// byte-pinned cross-agent by AEF in offpage-seam.bpmn and s4-exemplar.bpmn. Stop emitting it and
+// link resolution breaks on both sides of the seam with no test in this repository saying so.
+//
+// So the same two-part discipline the node level already earned is applied here: the DENOMINATOR
+// is derived from the emitter, and every derived attribute must be either compared or excluded
+// with a reason. WMSPEC is still a list someone typed — what makes it honest is that
+// checkWmDenominator() fails when it disagrees with the emitter, so the next attribute added to
+// the writer (T-889's aef:meta authority work is the immediate one) cannot enter unnoticed.
+const WMSPEC = ['id', 'version', 'schemaVersion', 'uuid', 'title', 'description', 'tier_default', 'pageWidth', 'kind'];
+// EXCLUSIONS ARE DATA AND CARRY A REASON — same contract as EXCLUDED above.
+const WM_EXCLUDED = {
+  source: 'WRITE-ONLY (T-885 census): the emitter writes source="..." (src:10441) and no reader anywhere reads it back, so a round-trip comparison is not a weak check but a structurally impossible one — the value cannot survive a parse that never parses it. It is a latent silent-drop, harmless today only because no map in the corpus authors it. Whether to stop emitting it or to read it back is a product question about a seam AEF byte-pins, filed as T-898 rather than decided inside a test harness.',
+};
+// The emitter anchor. A line range would slide off its subject, which is the same failure this
+// check exists to catch one level up; the wmAttrs array literal is the named thing.
+const WM_EMITTER_ANCHOR = 'const wmAttrs = [';
+const WM_EMITTER_END = '<aef:workflowMeta ';
+function deriveWmKeys() {
+  const srcAll = readFileSync(SRC_HTML, 'utf8');
+  const a = srcAll.indexOf(WM_EMITTER_ANCHOR);
+  if (a < 0) throw new Error(`wm-denominator: "${WM_EMITTER_ANCHOR}" not found in ${SRC_HTML} — the anchor moved, fix the anchor rather than the expectation`);
+  const b = srcAll.indexOf(WM_EMITTER_END, a);
+  if (b < 0) throw new Error(`wm-denominator: no ${WM_EMITTER_END} emission after the wmAttrs literal — the carrier changed`);
+  const body = srcAll.slice(a, b);
+  // Every NAME="${...}" the emitter can push onto wmAttrs, whether unconditionally in the literal
+  // or behind an `if (wm.x)` guard below it. Reading the emitted ATTRIBUTE name rather than the
+  // model property is deliberate: the attribute is what lands on the wire and what a reader parses.
+  const keys = [...body.matchAll(/([A-Za-z_][A-Za-z0-9_]*)="\$\{/g)].map(m => m[1]);
+  return [...new Set(keys)];
+}
+function checkWmDenominator() {
+  const derived = deriveWmKeys();
+  const compared = new Set(WMSPEC);
+  const problems = [];
+  for (const [name, reason] of Object.entries(WM_EXCLUDED))
+    if (!reason || !reason.trim()) problems.push(`wm exclusion "${name}" has no reason — an exclusion without a reason is an absence wearing a decision's clothes`);
+  for (const name of Object.keys(WM_EXCLUDED))
+    if (compared.has(name)) problems.push(`"${name}" is both in WMSPEC and in WM_EXCLUDED — one of the two is wrong`);
+  const orphans = derived.filter(k => !compared.has(k) && !(k in WM_EXCLUDED)).sort();
+  if (orphans.length) problems.push(`${orphans.length} emitter-written aef:workflowMeta attribute(s) in NEITHER WMSPEC nor WM_EXCLUDED: ${orphans.join(', ')} — add to WMSPEC to compare it, or to WM_EXCLUDED with a reason`);
+  // Dead coverage reads as real coverage: a WMSPEC entry the emitter does not write can never
+  // go red, so it inflates the fraction while guarding nothing.
+  const specNotWritten = WMSPEC.filter(k => !derived.includes(k)).sort();
+  if (specNotWritten.length) problems.push(`WMSPEC contains attribute(s) the emitter does not write: ${specNotWritten.join(', ')} — dead coverage reads as real coverage`);
+  return { problems, derived: derived.sort(), derivedTotal: derived.length, compared: [...compared].sort(), excluded: Object.keys(WM_EXCLUDED).sort(), orphans };
+}
+
 // ── T-490: the denominator is DERIVED, not asserted ─────────────────────────────────────────
 // KEYSPEC above is a list I typed by reading the emitter. So was AEF's `_KNOWN_EXT`; so were the
 // two METAKEYS copies T-488 found already divergent by five keys (OBS-045). A hand-typed list can
@@ -405,6 +463,68 @@ const PREFLIGHT_EXPR = `(function(){
     return { perturbable:true, results:results };
   }catch(e){ return {perturbable:false,reason:'exception: '+(e&&e.message||e)}; }
 })()`;
+
+// T-886: the DOCUMENT-level self-test. Same question as the node-level one above, asked of the
+// aef:workflowMeta attributes: with this attribute perturbed in its own wire carrier, does the
+// projection move? A key in WMSPEC is a CLAIM of coverage; only a value that varies is EVIDENCE
+// (PL-175), and T-885 proved the difference the expensive way — it predicted tier_default BARE
+// and uuid COVERED, and both were backwards. Reading the projection is not a substitute for
+// mutating it.
+//
+// Mutation is anchored INSIDE the aef:workflowMeta element, never document-wide. id=, version=
+// and title= all match a bpmn: element long before they match this one, and an off-target
+// mutation that lands somewhere real reports BLIND while the guard is innocent — measured on the
+// node-level probe, 18 of 18 fixtures. (No backticks in this comment: it lives inside a JS
+// template literal and a backtick kills the harness before it evaluates. Broken that way three
+// times already.)
+const WM_PREFLIGHT_EXPR = `(function(){
+  var text = window.__FIXTURE__;
+  var WMSPEC = ${JSON.stringify(WMSPEC)};
+  var MARK='__DRIFT__';
+  function wmProj(m){
+    if(!m) return null;
+    var o={}, s=m.workflowMeta||{};
+    WMSPEC.forEach(function(k){ var v=s[k]; o[k]=(v==null||v==='')?null:String(v); });
+    return JSON.stringify(o);
+  }
+  function wmValue(m,k){
+    if(!m) return null;
+    var v=(m.workflowMeta||{})[k];
+    return (v==null||v==='')?null:String(v);
+  }
+  // Replace attr=" inside the aef:workflowMeta element only, returning null when this document
+  // does not carry the attribute at all. Absent is NOT-PRESENT and is not a pass.
+  function inWorkflowMeta(xml,attr){
+    var rx=new RegExp('<aef:workflowMeta\\\\s[^>]*>','g'),m;
+    while((m=rx.exec(xml))!==null){
+      var re=new RegExp('(\\\\s'+attr+'=")([^"]*)(")');
+      if(re.test(m[0])) return xml.slice(0,m.index)+m[0].replace(re,'$1'+MARK+'$3')+xml.slice(m.index+m[0].length);
+    }
+    return null;
+  }
+  try{
+    var m1=parseBpmnXml(text);
+    if(!m1) return {perturbable:false,reason:'parse1-null'};
+    var p1=wmProj(m1);
+    var results=[];
+    for(var i=0;i<WMSPEC.length;i++){
+      var k=WMSPEC[i];
+      var mut=inWorkflowMeta(text,k);
+      if(mut===null){ results.push({key:k,verdict:'NOT-PRESENT'}); continue; }
+      if(mut===text){ results.push({key:k,verdict:'NOT-PRESENT'}); continue; }
+      var m2=parseBpmnXml(mut);
+      if(!m2){ results.push({key:k,verdict:'LIVE',moved:['<parse broke>']}); continue; }
+      if(wmProj(m2)===p1){ results.push({key:k,verdict:'BLIND'}); continue; }
+      // Attribute the movement to the key it was aimed at. A mutation that moves SOME other
+      // attribute is DRIFT-ELSEWHERE, not coverage of this one — the same distinction the
+      // node-level probe needs for the eventbind trio.
+      var moved=[];
+      for(var j=0;j<WMSPEC.length;j++) if(wmValue(m1,WMSPEC[j])!==wmValue(m2,WMSPEC[j])) moved.push(WMSPEC[j]);
+      results.push({key:k,verdict:(moved.indexOf(k)>=0?'LIVE':'DRIFT-ELSEWHERE'),moved:moved});
+    }
+    return {perturbable:true,results:results};
+  }catch(e){ return {perturbable:false,reason:'exception: '+(e&&e.message||e)}; }
+})()`;
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof refreshDisplayIds==='function'&&_appReady===true)`).catch(() => false); if (ok) return; if (Date.now() - t0 > 20000) throw new Error('editor not ready'); await sleep(150); } }
 
 // The round-trip, executed inside the editor for one fixture (text pre-set as window.__FIXTURE__).
@@ -415,6 +535,9 @@ const ROUNDTRIP_EXPR = `(function(){
   // copies this replaces had already diverged by five keys without anything noticing.
   var METAKEYS = ${JSON.stringify(METAKEYS)};
   var STRUCTKEYS = ${JSON.stringify(STRUCTKEYS)};
+  // T-886: the document-level set, interpolated from the same WMSPEC that checkWmDenominator()
+  // checks against the emitter. This replaced a hand-typed four-key object literal.
+  var WMSPEC = ${JSON.stringify(WMSPEC)};
   // Key-order-independent. projEqual compares JSON.stringify output, so without canon() a
   // pure attribute-order difference would read as semantic drift.
   function canon(v){
@@ -455,9 +578,13 @@ const ROUNDTRIP_EXPR = `(function(){
     }).sort(function(a,b){ return a.uid<b.uid?-1:a.uid>b.uid?1:0; });
     var lanes = (m.lanes||[]).map(function(l){ return { id:l.id, authority:l.authority, abbr:(l.abbr||null) }; })
       .sort(function(a,b){ return a.id<b.id?-1:a.id>b.id?1:0; });
-    return { nodes:nodes, edges:edges, lanes:lanes,
-             wm:{ id:m.workflowMeta.id, tier_default:(m.workflowMeta.tier_default||null),
-                  version:(m.workflowMeta.version||null), title:(m.workflowMeta.title||null) } };
+    // T-886: WMSPEC-driven, so an attribute cannot be in the emitter and absent from the
+    // comparison without checkWmDenominator() failing first. Absent and empty-string both
+    // normalise to null: the emitter only writes these when truthy, so "" and missing are the
+    // same wire state and must not compare unequal to each other.
+    var wm = {}; var wmSrc = m.workflowMeta || {};
+    WMSPEC.forEach(function(k){ var v = wmSrc[k]; wm[k] = (v==null || v==='') ? null : String(v); });
+    return { nodes:nodes, edges:edges, lanes:lanes, wm:wm };
   }
   try{
     var m1 = parseBpmnXml(text);
@@ -536,6 +663,21 @@ async function main() {
       pass: false, denominator_failed: true,
       error: 'the emitter projects keys this guard does not cover — "N/N" would be a claim about the list, not about the seam',
       denominator: DENOM,
+    }, null, 2) + '\n');
+    process.exitCode = 2; return;
+  }
+  // T-886: the same check for the DOCUMENT level, and for the same reason — a coverage number
+  // published next to an incomplete denominator is worse than none, because it is the number a
+  // reader quotes. Static, so it costs no browser and fails before one is spent.
+  let WMDENOM;
+  try { WMDENOM = checkWmDenominator(); }
+  catch (e) { process.stdout.write(JSON.stringify({ pass: false, wm_denominator_failed: true, error: 'wm-denominator derivation threw: ' + (e && e.message || e) }, null, 2) + '\n'); process.exitCode = 2; return; }
+  if (WMDENOM.problems.length) {
+    process.stdout.write(JSON.stringify({
+      pass: false, wm_denominator_failed: true,
+      error: 'the emitter writes aef:workflowMeta attribute(s) this guard neither compares nor excludes — the T-885 census defect, reappearing',
+      wm_denominator: WMDENOM,
+      wm_summary: `wm-denominator: ${WMDENOM.orphans.length} unclassified`,
     }, null, 2) + '\n');
     process.exitCode = 2; return;
   }
@@ -631,6 +773,52 @@ async function main() {
           : selftest.blind.length ? 'a projected key survived mutation of its own wire carrier without moving the projection — that key is unguarded'
           : 'no projected key could be exercised — the self-test proved nothing',
         selftest,
+      }, null, 2) + '\n');
+      process.exitCode = 2; return;
+    }
+
+    // ── T-886: document-level self-test, aggregated over the corpus ───────────────────────────
+    // Per-fixture would be dishonest here for the same reason it was at the node level: uuid is
+    // carried by exactly 1 of 20 fixtures and kind by 1, so a per-document verdict cannot tell
+    // "this document does not set uuid" from "uuid is unguarded".
+    const wmPerKey = new Map(WMSPEC.map(k => [k, { key: k, LIVE: 0, BLIND: 0, ELSEWHERE: 0, absent: 0, witnesses: [] }]));
+    const wmTest = { fixtures_exercised: 0, unperturbable: [] };
+    for (const name of fixtures) {
+      const text = readFileSync(join(FIXturesDir, name), 'utf8');
+      await ev(cmd, `window.__FIXTURE__ = ${JSON.stringify(text)};`);
+      const r = await ev(cmd, WM_PREFLIGHT_EXPR);
+      if (!r || !r.perturbable) { wmTest.unperturbable.push({ fixture: name, reason: r && r.reason }); continue; }
+      wmTest.fixtures_exercised++;
+      for (const res of r.results) {
+        const agg = wmPerKey.get(res.key); if (!agg) continue;
+        if (res.verdict === 'LIVE') { agg.LIVE++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
+        else if (res.verdict === 'BLIND') { agg.BLIND++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
+        else if (res.verdict === 'DRIFT-ELSEWHERE') { agg.ELSEWHERE++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
+        else agg.absent++;
+      }
+    }
+    const wmKeys = [...wmPerKey.values()];
+    wmTest.live = wmKeys.filter(k => k.LIVE > 0).map(k => k.key);
+    wmTest.blind = wmKeys.filter(k => k.BLIND > 0).map(k => ({ key: k.key, docs: k.BLIND, witnesses: k.witnesses }));
+    wmTest.drift_elsewhere = wmKeys.filter(k => k.ELSEWHERE > 0).map(k => ({ key: k.key, docs: k.ELSEWHERE }));
+    // NEVER-PRESENT is reported and is NOT counted as covered. pageWidth is the known case: no
+    // fixture authors it, so nothing about it was measured. Per T-3105 that is not a pass, and
+    // this project's grammar is that NOT EVALUATED is not PASSED.
+    wmTest.never_present = wmKeys.filter(k => k.LIVE === 0 && k.BLIND === 0 && k.ELSEWHERE === 0).map(k => k.key);
+    wmTest.excluded = WMDENOM.excluded.map(k => ({ key: k, reason: WM_EXCLUDED[k] }));
+    wmTest.wm_denominator = WMDENOM;
+    wmTest.exercised_fraction = `${wmTest.live.length}/${WMDENOM.derivedTotal}`;
+    wmTest.summary = `wm-denominator: ${WMDENOM.orphans.length} unclassified / ${WMDENOM.derivedTotal} written / ${wmTest.live.length} LIVE / ${wmTest.blind.length} BLIND / ${wmTest.never_present.length} NEVER-PRESENT / ${wmTest.excluded.length} EXCLUDED over ${wmTest.fixtures_exercised} fixtures`;
+    verdict.wm_selftest = wmTest;
+    // A compared attribute that survives mutation of its own carrier is unguarded — the exact
+    // T-885 finding, and the state this task exists to make reachable instead of invisible.
+    if (wmTest.blind.length || wmTest.live.length === 0) {
+      process.stdout.write(JSON.stringify({
+        pass: false, wm_selftest_failed: true,
+        error: wmTest.blind.length
+          ? 'an aef:workflowMeta attribute survived mutation of its own carrier without moving the projection — that attribute is unguarded (the T-885 census defect)'
+          : 'no aef:workflowMeta attribute could be exercised — the document-level self-test proved nothing',
+        wm_selftest: wmTest,
       }, null, 2) + '\n');
       process.exitCode = 2; return;
     }

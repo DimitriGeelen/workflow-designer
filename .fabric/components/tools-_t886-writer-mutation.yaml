@@ -1,0 +1,21 @@
+id: tools/_t886-writer-mutation.py
+name: _t886-writer-mutation
+type: script
+subsystem: unknown
+location: tools/_t886-writer-mutation.py
+tags: []
+
+purpose: "_t886-writer-mutation — prove the document-level round-trip guard has TEETH."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown
