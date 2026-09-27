@@ -15,6 +15,8 @@
           <aef:laneMeta abbr="H" authority="sovereignty" height="160"/>
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>Sub_inception</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Start_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_1</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:laneSet id="LS_B">

@@ -1,10 +1,24 @@
 ---
 id: T-909
-name: "Two T-889 order fixtures carry orphan nodes, so promoting W-XML-NODE-UNASSIGNED to an error would flip them invalid"
+name: "Two T-889 order fixtures carry orphan nodes, so promoting W-XML-NODE-UNASSIGNED
+  to an error would flip them invalid"
 description: >
-  Filed by T-891 under its own AC5, which requires the blast radius of a new error to be MEASURED and any corpus migration filed separately rather than smuggled in. MEASURED: 24 orphan flow nodes across 9 fixtures; authored corpus (examples/aef-processes/rendered, 24 files, 306 flow nodes) has ZERO, so the product corpus AEF pins is unaffected. Of the 9 fixtures, 7 are ALREADY exit=2 (invalid), so an added error changes no verdict. Only tests/fixtures/t889-authority/order-A.bpmn and order-B.bpmn sit at exit=1 (warnings only) and would flip to invalid. So the true blast radius is TWO FIXTURES, not 24 nodes. Those two are round 2's own fixtures proving authority does not depend on laneSet declaration order, and they carry orphans incidentally rather than deliberately. Deliverable: add the missing flowNodeRefs so each fixture models order-independence WITHOUT also modelling orphanhood, keeping both properties separately testable; then W-XML-NODE-UNASSIGNED can be promoted to an error without turning the suite red. Asserted by tools/_t889-authority-on-the-element-teeth.sh, so that instrument must stay green across the change.
+  Filed by T-891 under its own AC5, which requires the blast radius of a new error
+  to be MEASURED and any corpus migration filed separately rather than smuggled in.
+  MEASURED: 24 orphan flow nodes across 9 fixtures; authored corpus (examples/aef-processes/rendered,
+  24 files, 306 flow nodes) has ZERO, so the product corpus AEF pins is unaffected.
+  Of the 9 fixtures, 7 are ALREADY exit=2 (invalid), so an added error changes no
+  verdict. Only tests/fixtures/t889-authority/order-A.bpmn and order-B.bpmn sit at
+  exit=1 (warnings only) and would flip to invalid. So the true blast radius is TWO
+  FIXTURES, not 24 nodes. Those two are round 2's own fixtures proving authority does
+  not depend on laneSet declaration order, and they carry orphans incidentally rather
+  than deliberately. Deliverable: add the missing flowNodeRefs so each fixture models
+  order-independence WITHOUT also modelling orphanhood, keeping both properties separately
+  testable; then W-XML-NODE-UNASSIGNED can be promoted to an error without turning
+  the suite red. Asserted by tools/_t889-authority-on-the-element-teeth.sh, so that
+  instrument must stay green across the change.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -22,8 +36,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T19:20:47Z
-last_update: 2026-09-27T19:20:47Z
-date_finished: null
+last_update: 2026-09-27T20:22:59Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +48,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-27T20:22:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-909: Two T-889 order fixtures carry orphan nodes, so promoting W-XML-NODE-UNASSIGNED to an error would flip them invalid
@@ -46,8 +81,12 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `order-A.bpmn` and `order-B.bpmn` carry a `flowNodeRef` for every flow node, so each models order-independence **without also** modelling orphanhood. Two properties, separately testable — a fixture that accidentally carries a second defect cannot distinguish which one a failure is about
+- [x] Both still model what they exist to model: the two files differ ONLY in laneSet declaration order, verified by diffing them and confirming the difference is the lane order and nothing else
+- [x] **`tools/_t889-authority-on-the-element-teeth.sh` stays green** — it asserts on these two fixtures, so a change to them that breaks it would trade one defect for another. Run before and after
+- [x] The orphan census over `tests/fixtures/**` drops by exactly 4 (2 per file), measured not assumed — any other number means I changed something I did not intend
+- [x] **Neither fixture becomes valid-with-warnings by accident**: both were `exit=1` before and their exit codes are recorded after, so the change is understood rather than merely green
+- [x] This unblocks T-891 AC3/AC4 but does NOT do them — promoting `W-XML-NODE-UNASSIGNED` to an error is T-891's, and one lock at a time
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -304,3 +343,32 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-909-two-t-889-order-fixtures-carry-orphan-no.md
 - **Context:** Initial task creation
+
+### 2026-09-27T20:22:59Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## 2026-09-27 — 6/6. Both fixtures now model one property each.
+
+`Start_1` and `End_1` were the two orphans in each file — claimed now by the **first-declared
+lane**, which differs between A and B and is therefore the very property the pair exists to
+exercise.
+
+| | before | after |
+|---|---|---|
+| `order-A.bpmn` | exit 1 | **exit 0** |
+| `order-B.bpmn` | exit 1 | **exit 0** |
+| fixture orphan census | 24 | **20** — exactly −4, as predicted |
+| `_t889-authority-on-the-element-teeth.sh` | exit 0 | **exit 0**, 0 lines mentioning fail |
+
+Better than the AC asked for: both went to **fully clean**, not merely warning-free. That means
+T-891's promotion of `W-XML-NODE-UNASSIGNED` to an error can now ship without turning anything
+red — which was the whole point of filing this separately.
+
+**The order-only property is verified, not assumed.** Diffing the two files gives 12 differing
+lines; 4 are not about lanes, and all four are the `laneSet` **ids swapping position** — which
+*is* the lane-order difference. So the pair still differs only in lane ordering, and it no longer
+carries orphanhood as an accidental second variable. A fixture with two defects cannot tell you
+which one a failure is about.
+
+**Not done here:** promoting `W-XML-NODE-UNASSIGNED`. That is T-891 AC3, now unblocked. One lock
+at a time.
