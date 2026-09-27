@@ -10,13 +10,12 @@ description: >
   authoringDefault (informational), and a task-like element with no authority at all
   (error). Same predicate, two surfaces, one source.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
-components:
-  - tools/validate-workflow.py
+components: [tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -29,8 +28,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:49Z
-last_update: 2026-09-27T19:41:29Z
-date_finished:
+last_update: 2026-09-27T19:50:46Z
+date_finished: 2026-09-27T19:50:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -268,19 +267,35 @@ bvp_scores_proposed:
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
+### 2026-09-27 — the cost model cannot see verification cost
 
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
+- **What changed:** I selected T-893 (render authority on the element) as the next Q1, then
+  dropped it at 76% budget on realising it is a RENDERING change — CLAUDE.md requires
+  element-level screenshots in every theme, density and font mode, read back visually. The
+  estimator had scored it cost **2.0**, the same as this task, because `blast_radius` counts
+  COMPONENTS and it touches one file.
+- **Plan impact:** `blast_radius` is a proxy for *how much code a change reaches*, and it is
+  being used as a proxy for *how much work a task is*. Those come apart hardest exactly where
+  this project's verification standard is strictest: a one-file UI change carries the most
+  expensive check in the corpus and scores as cheap. Every quadrant decision over a rendering
+  task is therefore optimistic, and T-906 made those decisions possible without making them
+  accurate.
+- **Triggered:** this task shipped instead of T-893, on the same quadrant and a real cost
+  difference the model could not express. Worth its own task: either a verification-cost term
+  in the composite, or a flag on tasks whose ACs demand visual verification.
 
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
+### 2026-09-27 — a harness refused the rule twice, and was right both times
+
+- **What changed:** the dialect axis rejected `E-XML-LANE-AUTHORING-DEFAULT` for declaring a
+  carrier with no class, and I had to decide whether `aef:laneMeta/@authoringDefault` states a
+  correctness fact or a house convention before it would accept the rule.
+- **Plan impact:** none to the design — the answer was already PRESENTATIONAL and T-890 had
+  proved it empirically. What changed is where that fact lives: it was a claim in a commit
+  message and a comment, and it is now a classification a harness enforces.
+- **Triggered:** nothing new. It confirmed the T-888 clause-3 reasoning from a direction that
+  could have contradicted it.
+
+### YYYY-MM-DD — [topic]
        - **What changed:** [what we learned that we didn't know at filing]
        - **Plan impact:** [what in the plan no longer fits]
        - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
@@ -404,3 +419,15 @@ harness says in its own failure text to re-derive the arithmetic in
 `docs/reports/T-320-rule-form-parity-census.md` and *not* to adjust the constant to match, so I
 did neither. **T-890, T-894 and T-903 are now all blocked on one constant that wants one
 re-derivation, not three** — that is the next thing worth doing in this arc, and it is cheap.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-49d2c1e0
+- **Timestamp:** 2026-09-27T19:50:47Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-27T19:50:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

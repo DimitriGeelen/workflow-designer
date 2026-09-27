@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-894: The authority mismatch check lives in the validator too, not only the editor
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T19:50:53Z
+# ============================================================================
+
+task_id: T-894
+task_name: "The authority mismatch check lives in the validator too, not only the editor"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T10:41:49Z
+completed: 2026-09-27T19:50:46Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-27T21:49:42+02:00
+last_commit: 2026-09-27T21:49:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the mismatch check lives where CI can see it — and the dialect harness caught an omission of mine before it shipped
+
+# Key outcomes
+outcomes:
+  - '**`W-XML-AUTHORITY-DEFAULT-MISMATCH`**: an element whose `aef:meta authority` differs from its lane''s `authoringDefault` is reported, naming both values. A *finding*, not an error — differing is a legitimate authorial choice made visible, which is T-888 clause 4''s whole point'
+  - '**The three states are distinguishable, and conflating the last two is the defect to avoid.** Matches the default → NO finding (the common case must not shout). Differs → this warning. Lane declares no default → also no finding, because there is nothing to differ from'
+  - '**Controls in both directions.** A map where element and default agree emits nothing; a map where they differ emits exactly one finding naming the element and both values. Fixtures verified to actually differ before either verdict is trusted'
+  - 'Registered in both parity registries with a reason, classified GAP or PAIRED — same discipline as `E-XML-LANE-AUTHORING-DEFAULT` and `E-XML-META-AUTHORITY` before it'
+  - '**The authored corpus stays green**, measured not assumed: the 24 maps emit zero new findings, because none of them carries an `authoringDefault` yet. A check that turns the product corpus red on arrival is not shippable'
+  - 'The editor half is NOT built here — that is T-893, and it needs visual verification this task deliberately does not attempt. This task is the CI half, and the reason it is separate is that a highlight existing only in the editor fires only when a human happens to open that diagram'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-894-the-authority-mismatch-check-lives-in-th.md'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T21:49:42'
+    action: 'T-894: the mismatch check lives where CI can see it — and the dialect harness caught an omission of mine before it shipped'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 548 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 548
+  commits: 1
+  files_changed: 4
+  lines_added: 115
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-894-the-authority-mismatch-check-lives-in-th.md
+generated_by: context-agent-hybrid
