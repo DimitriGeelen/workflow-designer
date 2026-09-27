@@ -7403,6 +7403,15 @@ EOF
         # Pairs with TermLink T-1636 (inbox.queued emitter, hub-side).
         exec python3 "$FW_LIB_DIR/peer.py" "$@"
         ;;
+    external)
+        # 832 T-887: external-consult — the UNCORRELATED counterpart to `peer`.
+        # `peer` and `sidecar` consult the TermLink mesh, where every responder
+        # is a Claude sharing one cohort identity, so a peer consult cannot
+        # catch a failure mode the lineage shares. This asks differently-trained
+        # models for the STRONGEST OBJECTION, and records it as a named,
+        # rescannable artifact. Local G-008 divergence pending upstream.
+        exec python3 "$FW_LIB_DIR/external_consult.py" "$@"
+        ;;
     sidecar)
         # T-3406 / arc-011 peer-consult sidecar: send a consult to a peer
         # agent and read consults addressed to this one. Wraps the outbox

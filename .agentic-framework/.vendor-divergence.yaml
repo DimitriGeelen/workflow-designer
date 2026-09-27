@@ -57,6 +57,32 @@ baseline_note: >-
 
 entries:
 
+  - path: .agentic-framework/lib/external_consult.py
+    kind: added
+    task: T-887
+    upstream: fix
+    reason: >-
+      NEW VERB, operator-directed 2026-09-27: `fw external` — consult differently-trained
+      models for the strongest objection. The UNCORRELATED counterpart to `fw peer`, which
+      long-polls the TermLink mesh where every responder is a Claude sharing one cohort
+      identity and therefore one set of failure modes. Registered here because `fw upgrade`
+      overwrites this tree and would delete it silently — the T-873 class, where an upgrade
+      destroyed 25 lines of CLAUDE.md governance and the warning went nowhere durable.
+      Proven on first run: 3 of 5 models answered substantively and one raised an objection
+      the authoring agent had not made (that lane-as-authority is VISUALLY AUDITABLE and
+      element-authority demotes the diagram from governance artifact to compiler input).
+      Sent to AEF for structural incorporation. Classified `fix` because that is the
+      taxonomy value for local work upstream does not have — the checker refused `propose`
+      and was right to: an unrecognised value is not a classification. Note for the reader
+      that this ADDS a verb rather than repairing one, so it is AEF's to accept or decline.
+  - path: .agentic-framework/bin/fw
+    kind: content
+    task: T-887
+    upstream: fix
+    reason: >-
+      One dispatch case for the `external` verb, in the same shape as its `peer` and
+      `sidecar` siblings (single exec into lib/, no logic in the shell). Pairs with
+      lib/external_consult.py above.
   - path: .agentic-framework/agents/observe/observe.sh
     kind: content
     task: T-557

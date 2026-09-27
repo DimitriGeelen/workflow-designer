@@ -1,0 +1,144 @@
+{
+  "name": "m2-lane-authority",
+  "created": "2026-09-27T08:34:10Z",
+  "brief_path": "docs/reports/consult-m2-lane-authority-brief.md",
+  "brief_sha256": "e744eebf0821e51a6983437848effa88179b0903025711245ede0408e1cb1e27",
+  "prompt_sent": "You are being consulted as an outside reviewer. The author has already decided they\nlike this proposal, which is exactly why your agreement is worth very little to them.\n\nDo NOT validate it. Give your STRONGEST OBJECTION.\n\nSpecifically:\n1. What is the best argument AGAINST this proposal?\n2. What would have to be true for it to be the wrong choice?\n3. What has the author probably not considered?\n4. If you think the proposal is right, say so in one line \u2014 then still give the\n   strongest objection you can construct, and say what evidence would settle it.\n\nBe concrete and technical. Brevity over hedging. If you need information you have\nnot been given, name exactly what is missing rather than assuming it.\n\n\n--- THE PROPOSAL UNDER REVIEW ---\n\n# Proposal under review: move authority from the swimlane to the element\n\n## Context\n\nWe maintain a BPMN-based process modelling tool and a mapping standard that compiles BPMN\ndiagrams to and from a task/governance graph. Diagrams model organisational processes; a\ncompiler reads them and produces governed work items.\n\nEvery flow node in a diagram has an **authority** \u2014 who acts on that step. The vocabulary is\nfour values: `sovereignty` (a human must decide), `authority` (the framework enforces),\n`initiative` (an agent may act), `external` (outside party).\n\n**Today authority is a property of the swimlane.** A lane carries\n`<aef:laneMeta authority=\"sovereignty\"/>`, and a node's owner is derived by finding which\nlane's `<bpmn:flowNodeRef>` list contains that node's id. The standard (frozen at v1.1) states\nit explicitly: *\"a node's owner MUST be its lane \u2014 there is no node-level owner override. The\nLane is the sole authority-of-record.\"* An earlier version had a node-level override and it was\n**deliberately removed** to make the lane the single source.\n\nThere is a separate, orthogonal attribute already on elements: `<aef:meta tier=\"0..3\"/>`,\nan enforcement tier (0 = needs human approval, 3 = pre-approved). 198 elements carry `aef:meta`\ntoday. Tier is *not* authority \u2014 a tier-0 action is typically agent-initiated and\nhuman-approved, i.e. `initiative` + tier 0 on the same element.\n\n## The proposal (call it M2)\n\nMove authority onto the element:\n\n```xml\n<!-- today -->\n<bpmn:lane id=\"human\" name=\"Human \u00b7 Sovereignty\">\n  <aef:laneMeta abbr=\"hum\" authority=\"sovereignty\" height=\"88\"/>\n  <bpmn:flowNodeRef>hum_1_human</bpmn:flowNodeRef>\n</bpmn:lane>\n<bpmn:userTask id=\"hum_1_human\" name=\"Human checks\">\n  <aef:meta tier=\"0\"/>\n</bpmn:userTask>\n\n<!-- M2 -->\n<bpmn:lane id=\"human\" name=\"Human\">\n  <aef:laneMeta abbr=\"hum\" height=\"88\"/>            <!-- no authority -->\n  <bpmn:flowNodeRef>hum_1_human</bpmn:flowNodeRef>\n</bpmn:lane>\n<bpmn:userTask id=\"hum_1_human\" name=\"Human checks\">\n  <aef:meta tier=\"0\" authority=\"sovereignty\"/>\n</bpmn:userTask>\n```\n\nThe lane becomes a **domain** \u2014 a grouping for layout and reading \u2014 and stops deciding anything.\n\nA cheaper variant (**M1**) keeps lane authority as a *fallback default* used only when the\nelement does not declare one. No migration; but it re-introduces the node-level override the\nstandard deliberately removed.\n\n## Why we want it\n\n1. **Positional authority cannot survive execution.** We intend to instantiate a template and\n   walk instances of it, gating each step by who acts. Today \"who acts\" depends on which lane\n   box a node was drawn in, and for imported third-party files on **laneSet serialisation\n   order** \u2014 the first lane wins. Gating execution on diagram layout is untenable.\n2. **A measured defect.** An unresolvable `flowNodeRef` currently reassigns the orphaned node to\n   whichever lane is first in document order. That defect disappears under M2 rather than being\n   patched.\n3. **One of our 24 corpus diagrams is already built the M2 way.** Its three lanes are\n   *Working Memory*, *Project Memory*, *Episodic Memory* \u2014 genuine domains, not authorities \u2014\n   so its author had to write `authority=\"none\"` three times, a value that is not in the\n   four-value vocabulary and appears nowhere in the standard. The schema forced a lie.\n4. **Tenant portability.** Lanes-as-authority bakes in one actor model (human/framework/agent).\n   A second tenant with different actors cannot reuse the templates. Domains are portable.\n\n## Measured costs\n\n- **24 of 24** diagrams carry lane authority \u2014 **67 lane values** total (23 `authority`,\n  23 `initiative`, 15 `sovereignty`, 3 `external`, 3 `none`).\n- **306 `flowNodeRef`s** across the corpus. Under M2 each element needs its own authority value:\n  67 values become up to 306. **~4.5\u00d7 more places to omit or get wrong.**\n- **Lane naming is overwhelmingly authority-shaped**: \"Framework \u00b7 Authority\" \u00d722,\n  \"Agent \u00b7 Initiative\" \u00d721, \"Human \u00b7 Sovereignty\" \u00d715. Only 3 lanes in the whole corpus are\n  named as domains. So 23 of 24 diagrams were *drawn* on the lane-as-authority model; under M2\n  their lanes retain no meaning beyond visual grouping.\n- A compile-time rule requiring a human-decision step to sit in a human lane must be rewritten\n  against the element (3 implementation sites on our side).\n- **The standard is frozen and owned by a counterparty**, not by us. We proposed this to them\n  and have had no reply. A decision on our side does not bind them.\n- Separately measured this week: document-level metadata attributes in our serialisation have\n  **no round-trip guard** \u2014 we proved by mutation that an identity attribute can be dropped from\n  the writer with every test still passing. So the seam we would migrate 306 governance values\n  into has a known coverage hole.\n\n## The questions we want answered\n\n1. **Is element-level authority the right model**, or is there a substantive argument for the\n   lane remaining the authority-of-record that we have dismissed too quickly? The standard's\n   authors deliberately removed the node-level override \u2014 what might they have been protecting\n   that we are about to reintroduce?\n2. **Is \"rule M2 as the direction, implement M1's mechanism first\" sound sequencing, or a\n   fudge?** M1 delivers the execution property with zero migration and is forward-compatible;\n   it also re-introduces the override the standard removed, so we would be non-conformant in a\n   way we intend to fix later. Is \"non-conformant on purpose, temporarily\" a defensible\n   engineering position here, or the beginning of a permanent divergence?\n3. **Is 67 \u2192 306 values the wrong trade?** Redundancy at 306 sites is real. Is there a third\n   design we have not considered \u2014 for example authority derived from element *type* plus a\n   sparse override, or a declared lane-to-authority binding that is explicit rather than\n   positional \u2014 that gets the non-positional property without the 4.5\u00d7 duplication?\n4. **Sequencing against the coverage hole:** we know document-level attributes are unguarded.\n   Should the guard come first, or is migrating first and guarding after acceptable?\n5. **What are we not seeing?** We have been inside this problem for weeks and one of us\n   generated the trace from proposal to project goals, which is exactly the kind of reasoning\n   that convinces its author.\n",
+  "panel": [
+    "openai/gpt-4o",
+    "google/gemini-2.5-pro",
+    "x-ai/grok-2-1212",
+    "deepseek/deepseek-r1",
+    "qwen/qwen-2.5-72b-instruct"
+  ],
+  "responses": [
+    {
+      "model": "openai/gpt-4o",
+      "asked_at": "2026-09-27T08:30:34Z",
+      "ok": true,
+      "answer": "**1. Best argument against the proposal:**  \nThe strongest argument against moving authority from the swimlane to the element (M2) is the significant increase in complexity and redundancy in the process definitions. By moving authority to the element level, you increase the potential for errors and inconsistencies, as each of the 306 flow nodes now needs an explicitly defined authority. This increases the risk of misconfiguration and complicates both maintenance and validation, as these authorities were previously managed in a centralized manner within swimlanes.\n\n**2. What would have to be true for it to be the wrong choice:**  \nM2 would be the wrong choice if the drawbacks of higher redundancy and potential for misconfiguration outweigh the benefits of decoupling authority from diagram layout. If the frequency and impact of errors from incorrectly specified node-level authorities outweigh the perceived benefits of execution-stage actor decoupling, then M2 is misguided.\n\n**3. What the author probably hasn't considered:**  \nThe proposal may not have fully considered the impact on the usability and practicality of the process modeling tool from the perspective of the end user. Users accustomed to the current model may struggle with the sudden increase in detail required in their diagrams. Additionally, there may be unconsidered downstream effects on processes that rely on the simplicity of swimlane-based authority.\n\n**4. If you think the proposal is right:**  \nThe proposal to move authority to the element seems conceptually sound to avoid layout dependency. However, a key objection is that it complicates the process considerably and risks divergence from standards compliance.\n\n**Evidence that would settle it:**  \nAn empirical study or controlled experiment that quantifies the error rate and maintenance burden when authority is node-level compared to lane-level could empirically determine whether the benefits of M2 (decoupling authority from layout) outweigh the costs (increased complexity and error potential). Additionally, a successful negotiation or revision from the standard's counterparty to include node-level authority as an accepted approach would alleviate compliance concerns.",
+      "reported_model": "openai/gpt-4o",
+      "usage": {
+        "prompt_tokens": 1743,
+        "completion_tokens": 399,
+        "total_tokens": 2142,
+        "cost": 0.0083475,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.0083475,
+          "upstream_inference_prompt_cost": 0.0043575,
+          "upstream_inference_completions_cost": 0.00399
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "google/gemini-2.5-pro",
+      "asked_at": "2026-09-27T08:30:39Z",
+      "ok": true,
+      "answer": "Here is the strongest objection to the proposal.\n\n### 1. What is the best argument AGAINST this proposal?\n\nThis proposal fundamentally misunderstands the purpose of a BPMN diagram in a regulated or process-driven environment. It demotes the diagram from a **primary governance artifact** to mere compiler input.\n\nThe standard's authors made the lane the \"sole authority-of-record\" for a reason: it makes governance explicit, visible, and easy to audit. A non-technical stakeholder or auditor can see, at a glance, that every action within the \"Human\" lane requires human sovereignty. This is a powerful feature for clarity and compliance, not a bug.\n\nProposal M2 destroys this property. It trades high-level, declarative, and visually verifiable governance for low-level, imperative, and hidden implementation detail. By moving authority to 306 individual XML attributes, you are not just increasing data entry; you are making the governance model impossible to audit visually. You are optimizing for the compiler at the direct expense of the human, which is the exact opposite of what a process model is for.\n\nThe \"unresolvable `flowNodeRef`\" is a compiler bug. The \"positional authority\" is a serialization weakness. You are proposing to permanently degrade the semantic integrity of the modeling standard to patch implementation flaws in your toolchain.\n\n### 2. What would have to be true for it to be the wrong choice?\n\nThis proposal is the wrong choice if the primary audience for these diagrams includes anyone other than the compiler.\n\nIf process owners, compliance officers, business analysts, or external auditors ever look at these diagrams to understand or approve a process, M2 is wrong. For these users, the visual semantics are paramount. A lane labeled \"Framework \u00b7 Authority\" is a binding statement. M2 turns that binding statement into a non-binding, frequently-violated comment. If an `authority=\"sovereignty\"` node can exist in a \"System\" lane, the diagram is no longer a trustworthy document; it's a source of lies. The visual model and the execution model will have diverged.\n\n### 3. What has the author probably not considered?\n\nThe author has not considered the **socio-technical cost of decoupling visual representation from executable policy**.\n\nThey have measured the cost of data migration (67 \u2192 306) but not the new class of errors this change enables. What prevents an analyst from placing a node with `authority=\"initiative\"` in a lane named \"Framework\" for layout convenience? Nothing. The compiler will accept it, but the visual model will be deeply misleading. The previous design made this error impossible.\n\nThe author sees the standard's constraint as a technical limitation. They have not considered that it is a **deliberate governance guardrail**, designed to force discipline and clarity onto the process designer. Removing it because one diagram's author misused the `authority` attribute for domains is a massive overcorrection that damages the integrity of the other 23 diagrams.\n\n### 4. If you think the proposal is right...\n\nThe goal of decoupling execution from diagram layout is correct.\n\nHowever, the proposed implementation (M2) is a catastrophic solution. It solves a technical problem by creating a far more severe governance and auditability problem. The core objection is that you are sacrificing the diagram's integrity as a human-readable policy document.\n\n**Evidence to settle it:**\n\nYou are missing the single most important piece of information: **the recorded rationale from the standard's authors for deliberately removing the node-level override.** You must acquire this from your counterparty. Their answer will determine whether the constraint is a legacy mistake or a critical, intentional feature.\n\nIf you cannot get that, run this experiment:\n1.  Take one of your existing diagrams.\n2.  Create an M2 version of it, but introduce one subtle \"mistake\": place one `sovereignty` task inside the \"Framework\" lane.\n3.  Show both diagrams to a business user or process owner (not a developer) and ask them: \"Based on this drawing, find the step that is automated but actually requires a human to sign off.\"\n\nIf they can't find it easily in the M2 version, your proposal is wrong. You will have proven that M2 makes the model less auditable, not more robust.",
+      "reported_model": "google/gemini-2.5-pro",
+      "usage": {
+        "prompt_tokens": 1832,
+        "completion_tokens": 3032,
+        "total_tokens": 4864,
+        "cost": 0.03261,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.03261,
+          "upstream_inference_prompt_cost": 0.00229,
+          "upstream_inference_completions_cost": 0.03032
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 2126,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "x-ai/grok-2-1212",
+      "asked_at": "2026-09-27T08:32:48Z",
+      "ok": false,
+      "error": "HTTP 404",
+      "detail": "{\"error\":{\"message\":\"No endpoints found for x-ai/grok-2-1212.\",\"code\":404},\"user_id\":\"user_2vgycT9dClAbn1NU8oBRHbpvNgY\"}"
+    },
+    {
+      "model": "deepseek/deepseek-r1",
+      "asked_at": "2026-09-27T08:32:48Z",
+      "ok": true,
+      "answer": null,
+      "reported_model": "deepseek/deepseek-r1",
+      "usage": {
+        "prompt_tokens": 1764,
+        "completion_tokens": 1618,
+        "total_tokens": 3382,
+        "cost": 0.0052798,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.0052798,
+          "upstream_inference_prompt_cost": 0.0012348,
+          "upstream_inference_completions_cost": 0.004045
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 1832,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "asked_at": "2026-09-27T08:33:54Z",
+      "ok": true,
+      "answer": "### Strongest Objection to the Proposal\n\n1. **Best Argument AGAINST the Proposal:**\n   - **Complexity and Redundancy:** Moving authority to the element introduces significant redundancy (306 values instead of 67). This increases the likelihood of errors and inconsistency, especially in large, complex diagrams. The lane-based model ensures a single source of truth for authority, which simplifies maintenance and reduces the cognitive load on modelers.\n\n2. **What Would Have to Be True for It to Be the Wrong Choice:**\n   - **High Error Rate in Element-Level Authority:** If the rate of errors and inconsistencies in element-level authority assignments is significantly higher than in lane-based assignments, it would be the wrong choice. The current model ensures consistency by centralizing authority in lanes, which is less prone to human error.\n\n3. **What the Author Probably Hasn't Considered:**\n   - **Impact on Collaboration and Version Control:** In a collaborative environment, having authority at the element level could lead to frequent conflicts and version control issues. Multiple authors might inadvertently change authority values, leading to inconsistencies and the need for extensive merging and conflict resolution.\n   - **Performance and Scalability:** The increased number of authority values (306 vs. 67) could impact performance, especially in large diagrams. The parser and compiler would need to process more attributes, potentially slowing down operations and increasing memory usage.\n   - **User Experience:** The lane-based model is more intuitive for users who are accustomed to the current system. Moving authority to elements could confuse users and require significant retraining and documentation updates.\n\n4. **If You Think the Proposal is Right, Say So in One Line \u2014 Then Still Give the Strongest Objection You Can Construct, and Say What Evidence Would Settle It:**\n   - **Proposal is Right:** Element-level authority is necessary for flexibility and to support dynamic execution environments.\n   - **Strongest Objection:** The increased redundancy and potential for errors in element-level authority could outweigh the benefits of flexibility, especially in large, complex diagrams.\n   - **Evidence to Settle It:** Conduct a pilot study where the proposal is implemented in a subset of diagrams. Measure the error rate, user satisfaction, and performance impact. If the error rate and performance degradation are acceptable, the proposal can be justified. If not, it would be a strong indicator to reconsider the change.\n\n### Additional Considerations\n\n- **Hybrid Model:** Consider a hybrid model where authority can be specified at both the lane and element level, with lane authority as a fallback. This would provide the flexibility of element-level authority while reducing the risk of redundancy and errors.\n- **Automated Validation:** Implement automated validation checks to ensure that element-level authority values are consistent and correct. This can help mitigate the risk of human error.\n- **User Feedback:** Gather user feedback on the proposed model. User experience should be a key factor in the decision-making process.\n- **Incremental Implementation:** Consider implementing the change incrementally, allowing for gradual migration and continuous improvement based on real-world usage and feedback.",
+      "reported_model": "qwen/qwen-2.5-72b-instruct",
+      "usage": {
+        "prompt_tokens": 1785,
+        "completion_tokens": 624,
+        "total_tokens": 2409,
+        "cost": 0.0008922,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.0008922,
+          "upstream_inference_prompt_cost": 0.0006426,
+          "upstream_inference_completions_cost": 0.0002496
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
+    }
+  ],
+  "changed_decision": null
+}
