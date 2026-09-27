@@ -124,7 +124,11 @@ def ask_one(key: str, model: str, prompt: str, timeout: int) -> dict:
         headers={
             "Authorization": "Bearer %s" % key,
             "Content-Type": "application/json",
-            "X-Title": "AEF external-consult",
+            # Deliberately generic. The first run sent "AEF external-consult",
+            # which leaked a name the brief had been written to keep out — an
+            # inconsistency between what the author redacted and what the
+            # transport announced. A header is part of the disclosure surface.
+            "X-Title": "external-consult",
         },
     )
     started = _utc()
