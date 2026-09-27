@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-888: Record the lane-partition / element-authority ruling and file its build tasks
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T10:43:36Z
+# ============================================================================
+
+task_id: T-888
+task_name: "Record the lane-partition / element-authority ruling and file its build tasks"
+workflow_type: design
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T10:40:09Z
+completed: 2026-09-27T10:43:30Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-27T12:43:29+02:00
+last_commit: 2026-09-27T12:43:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the ruling — a lane is a partition, the element carries authority, and every objection is answered by a clause rather than overridden
+
+# Key outcomes
+outcomes:
+  - 'The ruling is recorded as a document, with each of its four clauses stated and the objection each one answers named — `docs/reports/T-888-authority-ruling.md`'
+  - 'All five surviving objections from four rounds of external review are answered by a named clause, not overridden or ignored'
+  - 'The evidence trail is cited and durable: four consult artifacts under `.context/consults/`, model ids and prompts recorded'
+  - 'Build tasks filed with `arc_id:` set (T-1849 — the tag alone is deprecated), sequenced, and the contingent ones marked `later` with their gate stated'
+  - 'The migration is sequenced BEHIND the round-trip guard T-886, because T-885 proved by mutation that the seam it writes into is unguarded'
+  - 'T-341 and T-358 are annotated from their own side with what dissolves and what survives, and their `[REVIEW]` criteria are verified untouched'
+  - 'What this ruling does NOT change is stated: arc-005 proceeds independently, Part I is not edited, neither downstream task is closed'
+  - 'Provenance recorded honestly — the surviving design is the operator''s, and every agent contribution to it was killed by external review'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-888-authority-ruling.md'
+  - '.tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md'
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-888-record-the-lane-partition--element-autho.md'
+  - '.tasks/active/T-889-aefmeta-authority-on-the-element--the-si.md'
+  - '.tasks/active/T-890-aeflanemeta-authoringdefault--presentati.md'
+  - '.tasks/active/T-891-unresolvable-flownoderef-becomes-a-hard-.md'
+  - '.tasks/active/T-892-lane-configuration-in-the-editor-set-a-l.md'
+  - '.tasks/active/T-893-render-authority-on-the-element-and-indi.md'
+  - '.tasks/active/T-894-the-authority-mismatch-check-lives-in-th.md'
+  - '.tasks/active/T-895-migrate-67-lane-authority-values-onto-el.md'
+  - '.tasks/active/T-896-put-the-authority-ruling-to-aef-one-sema.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T12:43:29'
+    action: 'T-888: the ruling — a lane is a partition, the element carries authority, and every objection is answered by a clause rather than overridden'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 12
+  lines_added: 2943
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-888-record-the-lane-partition--element-autho.md
+generated_by: context-agent-hybrid
