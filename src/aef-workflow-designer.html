@@ -11031,8 +11031,25 @@ function parseBpmnXml(text) {
         y = b.y;
       }
 
-      // Lane membership: look up which laneSet entry references this displayId
-      let laneId = lanes[0]?.id;
+      // Lane membership: look up which laneSet entry references this displayId.
+      //
+      // T-891: the initialiser used to be `lanes[0]?.id`, so a node that NO
+      // flowNodeRef claims silently inherited the FIRST-DECLARED lane's identity —
+      // and under lane-as-authority (frozen standard §3, "the Lane is the sole
+      // authority-of-record") that meant WHO OWNS A NODE was decided by laneSet
+      // declaration order. For an imported third-party file that is the order their
+      // exporter happened to serialise in. This project treats lane reordering
+      // elsewhere as a zero-semantic repair; it was not.
+      //
+      // Now: null when unclaimed. An absent lane is absent, not the first one.
+      // Downstream reads must handle null rather than receive a guess — which is
+      // the whole point, per the T-888 ruling (authority on the element) and
+      // W-XML-NODE-UNASSIGNED, which has been warning about exactly these nodes
+      // all along while the editor quietly assigned them anyway.
+      //
+      // This REMOVES a guess. It does not install a replacement: what the default
+      // should be is T-341's open [REVIEW] criterion and the operator's call.
+      let laneId = null;
       for (const laneEl of byBpmn(proc, 'lane')) {
         const refs = byBpmn(laneEl, 'flowNodeRef').map(r => r.textContent?.trim());
         if (refs.includes(displayId)) { laneId = laneEl.getAttribute('id'); break; }

@@ -1,25 +1,17 @@
 ---
-id: T-891
-name: "Unresolvable flowNodeRef becomes a hard validation error instead of inheriting
-  a lane by document order"
+id: T-909
+name: "Two T-889 order fixtures carry orphan nodes, so promoting W-XML-NODE-UNASSIGNED to an error would flip them invalid"
 description: >
-  T-888 ruling, and the fix T-341 has been blocked on. An unresolvable or absent flowNodeRef
-  currently lets an orphan inherit authority from whichever lane comes first in document
-  order — that IS the entire positional-authority defect, and it is the only part
-  of it that ever existed: for a node that is in a lane, authority is deterministic.
-  Make it an error, never lanes[0]. Correct under every variant of the ruling, so
-  it is not gated on the schema work. Does NOT close T-341 — that task's [REVIEW]
-  criterion is the operator's and is untouched.
+  Filed by T-891 under its own AC5, which requires the blast radius of a new error to be MEASURED and any corpus migration filed separately rather than smuggled in. MEASURED: 24 orphan flow nodes across 9 fixtures; authored corpus (examples/aef-processes/rendered, 24 files, 306 flow nodes) has ZERO, so the product corpus AEF pins is unaffected. Of the 9 fixtures, 7 are ALREADY exit=2 (invalid), so an added error changes no verdict. Only tests/fixtures/t889-authority/order-A.bpmn and order-B.bpmn sit at exit=1 (warnings only) and would flip to invalid. So the true blast radius is TWO FIXTURES, not 24 nodes. Those two are round 2's own fixtures proving authority does not depend on laneSet declaration order, and they carry orphans incidentally rather than deliberately. Deliverable: add the missing flowNodeRefs so each fixture models order-independence WITHOUT also modelling orphanhood, keeping both properties separately testable; then W-XML-NODE-UNASSIGNED can be promoted to an error without turning the suite red. Asserted by tools/_t889-authority-on-the-element-teeth.sh, so that instrument must stay green across the change.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
 horizon: now
 tags: [arc:designer-authoring-surface]
-components:
-  - tools/validate-workflow.py
+components: []
 related_tasks: []
-arc_id: designer-authoring-surface
+# arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
@@ -29,9 +21,9 @@ arc_id: designer-authoring-surface
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-27T10:41:24Z
-last_update: 2026-09-27T19:05:09Z
-date_finished:
+created: 2026-09-27T19:20:47Z
+last_update: 2026-09-27T19:20:47Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -42,99 +34,20 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-cost_estimate_proposed:
-  - ts: '2026-09-27T15:47:09Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      blast_radius: 1
-      tier: 2
-      effort: 8
-    rationale: blast_radius=1 (single-component); tier=2 (workflow:build); 
-      effort=8 (lines=275,acs=4)
-    rubric_sha: e4a00f38e801
-bvp_scores_proposed:
-  - ts: '2026-09-27T15:47:41Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 4
-      F3: 0
-      F1: 1
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=4 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
-      task body — no hypothesis, so this score has no claim to be wrong about,L0:
-      no signal); F1=1 (basis: task body — no hypothesis, so this score has no claim
-      to be wrong about,L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-891: Unresolvable flowNodeRef becomes a hard validation error instead of inheriting a lane by document order
+# T-909: Two T-889 order fixtures carry orphan nodes, so promoting W-XML-NODE-UNASSIGNED to an error would flip them invalid
 
 ## Context
 
-**The defect site, located rather than assumed** (round 4): the positional inheritance is in the
-EDITOR's importer, `src/aef-workflow-designer.html:11035` —
-
-```js
-let laneId = lanes[0]?.id;                      // then overwritten if some flowNodeRef matches
-```
-
-so a flow node that **no `flowNodeRef` references** silently acquires the identity of whichever
-lane is declared FIRST. T-341's probe (`tools/_t341-orphan-lane-probe.mjs`) exists precisely to
-discriminate this from the semantic reading ("orphans go to the human lane") and is the instrument
-this task turns from red to green.
-
-**What the validator already does, measured by reading both forms — the two halves are not
-symmetric, and only one of them is a gap:**
-
-| condition | XML form | YAML form |
-|---|---|---|
-| lane reference present but DANGLING | errors — `flowNodeRef '%s' does not resolve to a flow-node bpmn:id` (`tools/validate-workflow.py:1119`) | errors — `E-NODE-LANE` (:436) |
-| node in NO lane at all | **silent.** `node_authority.get(nid)` → `None`, read as authority-absent (:1720) | **silent.** `E-NODE-LANE` is guarded on `"lane" in node` (:436), so an ABSENT lane key is never checked |
-
-So "unresolvable" is already an error in both forms. The live gap is **absent** — a node no lane
-claims — and it is silent in both forms while the editor fills it in positionally. That asymmetry
-is the actual scope of this task, and it is narrower than the title suggests.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] **The editor stops deciding lane membership by declaration order.** The `lanes[0]?.id`
-      fallback at `src/aef-workflow-designer.html:11035` is gone: a flow node that no
-      `flowNodeRef` references imports with NO lane, rather than silently acquiring the
-      first-declared lane's identity. WHO owns a node must not be decided by a reordering this
-      project treats elsewhere as a "zero-semantic repair".
-- [x] **The probe's verdict moves, and the probe is shown able to detect the OLD behaviour.**
-      `tools/_t341-orphan-lane-probe.mjs` reports POSITIONAL on the pre-fix tree and
-      no-inheritance on the fixed tree. Both runs recorded. A green on the fixed tree alone
-      proves nothing — a probe that cannot see the defect returns the same green for
-      "fixed" and "broken" (PL-354: test the discriminator against a mutant of the mechanism
-      it claims to exclude).
-- [ ] **A flow node in no lane becomes a hard validation error in the XML form**, naming the node
-      id and stating that authority-of-record is absent. Registered in BOTH parity registries
-      (`tests/test_rule_dialect_axis.py`, `tests/test_rule_form_parity.py`) the way T-889's
-      `E-XML-META-AUTHORITY` was — an unregistered rule is the T-317 omission this project keeps
-      re-finding.
-- [ ] **The YAML form's absent-lane hole is closed OR declared a GAP explicitly, not silently.**
-      `E-NODE-LANE` is guarded on `"lane" in node`, so an absent key is unchecked. Whichever way
-      this goes it is recorded in the parity registry with a reason — T-889 set the precedent by
-      classifying its counterpart GAP rather than asserting a PAIRED rule that did not exist
-      (filed as T-902).
-- [x] **The blast radius of the new error is MEASURED before it ships, not assumed.** A census
-      over every corpus `*.bpmn` counts flow nodes in laneSet-bearing processes that no
-      `flowNodeRef` claims. If the count is non-zero the corpus migration is filed as its own
-      task rather than smuggled in here (one task = one deliverable), and this task does not
-      turn the corpus red without that task existing.
-- [x] **Does NOT close T-341.** T-341's `[REVIEW]` criterion — what the default-lane POLICY should
-      be — is the operator's and stays untouched. This task removes a guess; it does not install
-      a replacement guess.
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -295,22 +208,6 @@ is the actual scope of this task, and it is narrower than the title suggests.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# ── T-891 legs ──────────────────────────────────────────────────────────────
-# the positional guess is gone from the importer
-! grep -qF 'let laneId = lanes[0]?.id;' src/aef-workflow-designer.html
-# CONTROL on that absence: the surrounding mechanism still exists, so the negation is not
-# passing because the code moved or the file is unreadable (PL-328)
-grep -qF 'let laneId = null;' src/aef-workflow-designer.html
-grep -qF "for (const laneEl of byBpmn(proc, 'lane'))" src/aef-workflow-designer.html
-# the probe runs and reports no first-lane inheritance on the fixed tree
-timeout 300 node tools/_t341-orphan-lane-probe.mjs > /tmp/.t891-probe 2>&1; grep -q 'landed in the FIRST declared lane: 0/' /tmp/.t891-probe
-# the AUTHORED corpus carries zero orphans — the promotion in T-909 cannot turn the product red
-python3 -c "import glob,xml.etree.ElementTree as ET,sys; B='http://www.omg.org/spec/BPMN/20100524/MODEL'; F={'task','userTask','serviceTask','scriptTask','startEvent','endEvent','exclusiveGateway','parallelGateway','inclusiveGateway','intermediateCatchEvent','intermediateThrowEvent','boundaryEvent','subProcess','callActivity'}; n=0; [n:=n+1 for f in glob.glob('examples/aef-processes/rendered/*.bpmn') for p in ET.parse(f).getroot().iter('{%s}process'%B) if (ls:=p.find('{%s}laneSet'%B)) is not None for e in p if e.tag.split('}')[-1] in F and e.get('id') not in {x.text.strip() for x in ls.iter('{%s}flowNodeRef'%B) if x.text}]; sys.exit(0 if n==0 else 1)"
-# T-341's operator criterion is untouched — this task removed a guess, it did not rule
-grep -qF -- '- [ ] [REVIEW]' .tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md
-# the promotion is parked behind a filed task, not forgotten
-test -f "$(ls .tasks/active/T-909-*.md 2>/dev/null | head -1)"
-
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -403,67 +300,7 @@ test -f "$(ls .tasks/active/T-909-*.md 2>/dev/null | head -1)"
 
 ## Updates
 
-### 2026-09-27T10:41:24Z — task-created [task-create-agent]
+### 2026-09-27T19:20:47Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-891-unresolvable-flownoderef-becomes-a-hard-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-909-two-t-889-order-fixtures-carry-orphan-no.md
 - **Context:** Initial task creation
-
-## 2026-09-27 — `components:` populated (T-906)
-
-Basis: **inferred from the stated deliverable: the task IS "the validator errors on an unresolvable flowNodeRef", which names the validator as surely as a path would**
-
-Populated so `fw bvp` can compute a `blast_radius` and therefore a quadrant. Empty `components:` made `estimate-cost` refuse the radius — correctly, since unmeasured is not zero — while printing `[wrote]` and exiting 0, so the refusal read as a success and two procAsFit rounds concluded the cost axis did not exist.
-
-### 2026-09-27T16:04:27Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-
-## 2026-09-27 — the guess is removed; the promotion is PARKED behind the task AC5 required
-
-**AC1 done.** `src/aef-workflow-designer.html:11035` initialised every node's lane to
-`lanes[0]?.id` and only overwrote it if some `flowNodeRef` claimed the node. So an orphan
-silently inherited the FIRST-DECLARED lane — and under the frozen standard's §3
-("the Lane is the sole authority-of-record") that meant **who owns a node was decided by
-laneSet serialisation order**, which for an imported third-party file is whatever their
-exporter happened to emit. Now `null`: an absent lane is absent, not the first one.
-
-**AC2 done, both runs recorded — and this is the part that makes AC1 believable:**
-
-| tree | probe verdict |
-|---|---|
-| pre-fix (`lanes[0]?.id` restored, revert asserted) | **`VERDICT: POSITIONAL`** — *"the orphan destination is DECLARATION ORDER, not sovereignty"* |
-| fixed | `landed=null` on all 24 maps, **`landed in the FIRST declared lane: 0/24`** |
-
-The probe can see the defect, so its post-fix reading is not a vacuous green.
-
-**AC5 done, and the number is far smaller than it first looked.** Census over every corpus
-`*.bpmn`:
-
-| scope | files | flow nodes | orphans |
-|---|---|---|---|
-| **authored** (`examples/aef-processes/rendered`) | 24 | 306 | **0** |
-| fixtures | 47 | 387 | 24 across 9 files |
-
-The authored corpus — the one AEF byte-pins — is clean, so a promoted error cannot turn the
-product red. And of the 9 fixtures, **7 are already `exit=2`**, so an added error changes no
-verdict. Only `order-A.bpmn` and `order-B.bpmn` sit at `exit=1` and would flip. **True blast
-radius: two fixtures, not 24 nodes.** Filed as **T-909** rather than smuggled in here.
-
-**AC3 and AC4 PARKED, deliberately.** AC3 turned out to be a *promotion*, not a new rule:
-`W-XML-NODE-UNASSIGNED` already exists and has been warning on exactly these nodes all along
-while the editor assigned them anyway. Promoting it is one line — and doing it before T-909
-would turn two fixtures red, which AC5 explicitly forbids ("this task does not turn the corpus
-red without that task existing"). One lock at a time.
-
-**AC6 honoured:** T-341's `[REVIEW]` criterion is untouched. This removes a guess; it installs
-no replacement. What the default *should* be is the operator's.
-
-### Two measurement errors of my own, recorded
-
-1. **I read `exit=0` off nine fixtures that all exit non-zero.** My loop was
-   `printf '%s exit=%s' "$(basename $f)" "$?"` — the command substitution runs *before* `$?`
-   expands and resets it to 0. Every verdict in that first table was my own shell, not the
-   validator. Caught by re-running one file bare.
-2. **OBS-415 filed:** the probe returns `INDETERMINATE` on the *fixed* tree, because with the
-   orphan in no lane it cannot locate its victim and withholds judgement — so the one
-   instrument proving this defect is fixed reports success in the vocabulary of failure. Its
-   rows are right; its verdict line has no category for the correct outcome.

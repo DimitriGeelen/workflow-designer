@@ -2095,3 +2095,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-415
+  text: "The T-341 orphan-lane probe has NO VERDICT CATEGORY for the correct outcome. tools/_t341-orphan-lane-probe.mjs returns VERDICT: POSITIONAL on the pre-fix tree (right) and VERDICT: INDETERMINATE on the FIXED tree — because once an orphan lands in no lane at all, the probe cannot find its victim uid in any output lane and withholds judgement with 'identity unresolvable'. Its own rows carry the answer plainly (landed=null on all 24, 'landed in the FIRST declared lane: 0/24'), so the data is right and the verdict line is wrong. Measured under T-891 by running the probe against both trees. Why it matters beyond this task: INDETERMINATE reads to a future reader as 'the probe could not tell', which is indistinguishable from a broken probe — so the one instrument that proves this defect is fixed reports its success in the vocabulary of a failure. A probe needs a third category (NO-INHERITANCE / CLEAN) distinct from both POSITIONAL and INDETERMINATE, or the next agent re-opens a closed defect. Same family as OBS-408 where a crash rendered as an empty answer, except here a correct fix renders as an inconclusive one."
+  captured: 2026-09-27T19:21:06Z
+  context_task: T-891
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
