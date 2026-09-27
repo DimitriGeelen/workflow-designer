@@ -11,7 +11,7 @@ description: >
   GO they are filed separately and in the same session (this project's measured GO-to-successor
   decay is 26 of 30).
 
-status: captured
+status: started-work
 workflow_type: inception
 owner: agent
 horizon: now
@@ -20,7 +20,7 @@ tags: [arc:process-instances]
 components: []
 related_tasks: []
 created: 2026-09-26T22:42:30Z
-last_update: '2026-09-26T23:10:11Z'
+last_update: 2026-09-26T23:57:46Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -85,7 +85,11 @@ bvp_scores_proposed:
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+When we say `T-873` is an instance of `task-lifecycle`, what object is that, where does it
+live, and what makes the claim true? SD-10 raised it in July 2026 and it was never decided —
+`DISPOSITION-2026-07-28.md` records "no binding, no instance files, no gated setter". Project
+goals G3 and G4 both sit behind the answer. Full artifact:
+`docs/reports/T-878-process-instance-identity.md`.
 
 ## Hypothesis
 
@@ -153,6 +157,44 @@ We will know that we are successful when we see a single command, run against at
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 
+- **IW-1: Does anything in the tree ALREADY bind a real entity to a process template?**
+  confidence: 3
+  disposition: answered
+  rationale: No. Three candidates checked, all negative: the designer registry binds workflow refs to workflows (off-page connectors), no task field points at a map (workflow_type is a category), and update-task.sh:249 is guarded on .context/designer/projects/aef-task-lifecycle/meta.json which is ABSENT — control: sibling audit-process/meta.json exists, so the path shape is right and the name is wrong. That hint has never executed here. See docs/reports/T-878-process-instance-identity.md F1.Asked first and deliberately, because a yes collapses most of this inception. SD-10 says
+  "no binding, no instance files, no gated setter" — but that was written 2026-07-28 and the
+  designer registry (`web/designer_registry.py`, `fw bpmn claim`) binds a ghost uuid to a live
+  project, which is binding-shaped. Whether that is an instance binding or a different thing
+  wearing similar clothes is the first thing to measure.
+
+- **IW-2: Where does instance state live?**
+  confidence: 3
+  disposition: answered
+  rationale: State beside the entity it describes, not in a parallel store. Only the non-derivable half (current node) needs recording at all. A parallel store is a join to keep in sync, and the corpus already has one whose naming drifted out of alignment (F1).Candidates: a file per instance under `.context/`; a single registry keyed by entity id;
+  or derived on demand from state the task system already holds. Derived is cheapest and
+  needs no new writer — it is only available if the current node can be computed rather than
+  recorded.
+
+- **IW-3: What is the instance identity — minted, or an existing identifier?**
+  confidence: 3
+  disposition: answered
+  rationale: Existing identifier, not minted. T-873 is already stable, unique, human-legible and referenced corpus-wide; a minted uuid would be a second id for one object and a join to drift. Assumption A2 came back FALSE.Minting a uuid is the obvious move and may be the wrong one: `T-873` is already a stable,
+  unique, human-legible identifier that the whole corpus references. A second id for the same
+  thing is a join to maintain and a thing to drift.
+
+- **IW-4: Is the binding authored or derived?**
+  confidence: 3
+  disposition: answered
+  rationale: Both, split by half. Template is DERIVABLE from workflow_type (closed set, one template per entity kind). Node position is NOT: task-lifecycle has 15 lane-prefixed node ids against ~5 task statuses with no mapping table in the tree, so it must be recorded. F2/F3.Authored means someone writes "T-873 instantiates task-lifecycle" and it can be wrong or
+  absent. Derived means the system infers it from what the task already is — which is only
+  possible if `workflow_type` (or similar) maps onto a template deterministically.
+
+- **IW-5: What does resolution return for an entity with no instance?**
+  confidence: 3
+  disposition: answered
+  rationale: An explicit "no instance", and THREE states not two — no instance / template known, node unknown / fully resolved. The middle state is the common case for every task predating the mechanism, and collapsing it into either neighbour is how the call site starts guessing.Named as its own question because it is where this class of feature usually rots: an empty
+  string, a null, or a guess are all indistinguishable from "not modelled" at the call site.
+  The hypothesis commits to an explicit "no instance", and that has to survive design.
+
 ## Exploration Plan
 
 <!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
@@ -175,7 +217,7 @@ We will know that we are successful when we see a single command, run against at
 <!-- @auto-tick-on-decide -->
 - [ ] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested — A1 HELD (and more strongly than stated), A2 FALSE (no minting needed), A3 HALF FALSE (template derivable, node not). Two of three inverted; artifact: docs/reports/T-878-process-instance-identity.md §2
 <!-- @auto-tick-on-decide -->
 - [ ] Recommendation written with rationale
 
@@ -213,9 +255,19 @@ We will know that we are successful when we see a single command, run against at
 
 ## Recommendation
 
-**Recommendation:** GO
+**Recommendation:** GO — on the REDUCED scope the findings identify, not the scope this was filed with.
 
-**Rationale:** GO on opening the question; the mechanism is unresolved and it is the load-bearing unknown of arc-005. SD-10 was raised in the July 2026 process-layer package and never decided — DISPOSITION-2026-07-28 records it verbatim as 'no binding, no instance files, no gated setter' — and nothing has been built since. The status quo is not neutral: the class side already exists (24 corpus maps modelling AEF's own process types, a rich aef: step vocabulary) while the instance side has exactly one hairline, update-task.sh:249 naming the enforcing node tl_archive when a task-lifecycle gate trips. Project goals G3 and G4 both sit behind this and cannot be scoped until it is answered. Bounded: the deliverable is a decision plus a design, no production change. A NO-GO is a real and acceptable outcome — if instances cannot be bound without hand-maintenance then G3/G4 collapse and this is documentation tooling, which docs/832-project-purpose-and-goals.md already names as a stop condition.
+**Rationale:** Two of three assumptions came back FALSE, both in the cheap direction. (A2) No new identifier is needed: `T-873` is already stable, unique, human-legible and referenced corpus-wide, and minting a uuid beside it would be a second id for one object. (A3) Half the binding needs no authoring at all — "which template" is derivable from `workflow_type`, a closed set with one template per entity kind. What genuinely remains is ONE new thing: a recorded current-node per entity, and it is needed because `task-lifecycle` carries 15 lane-prefixed node ids (`frw_1_task`, `agt_1_write`, `hum_1_human`, …) against roughly five task statuses, with no mapping table anywhere in the tree. Position cannot be computed; it has to be recorded.
+
+That is materially smaller than SD-10's framing of "instance files, identity scheme, gated setter", and smaller than what arc-005's scope assumed when it filed T-880 and T-881. Those two should be REWRITTEN against this finding rather than adapted — their own bodies already say a different design means rewrite, not adapt.
+
+WHAT A NO-GO WOULD HAVE LOOKED LIKE, so the GO is not reflexive: had the node ids corresponded to task statuses, resolution would have been a query over data the task system already holds, no instance object would have been needed, and the honest answer would have been NO-GO on building anything. I checked for that first. It is not there.
+
+**Evidence:**
+- Three binding candidates checked, all negative. The designer registry binds workflow refs to workflows (off-page connectors), not entities to templates; no task frontmatter field points at a map.
+- `update-task.sh:249` — the one hairline I had cited twice as existing — is guarded on `.context/designer/projects/aef-task-lifecycle/meta.json`, which is ABSENT. Positive control: sibling `audit-process/meta.json` exists, so the path shape is right and only the name is wrong. That hint has never executed in this project, and SD-10's "no binding" is therefore more completely true than I represented it.
+- 15 map node ids vs ~5 task statuses, no mapping table in the tree.
+- `workflow_type` is a closed set and the corpus holds a template per entity kind.
 
 ## Decisions
 
@@ -236,3 +288,6 @@ We will know that we are successful when we see a single command, run against at
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-09-26T23:57:46Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

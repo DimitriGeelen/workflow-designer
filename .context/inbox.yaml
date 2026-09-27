@@ -2001,3 +2001,10 @@ observations:
   status: promoted
   promoted_to: task
   urgent: true
+- id: OBS-403
+  text: "update-task.sh:249 prints 'Map: aef-task-lifecycle node tl_archive enforces this' to point a tripping agent at the process picture — but it is guarded on .context/designer/projects/aef-task-lifecycle/meta.json and that file does not exist in this project. The store holds six projects and none carries that name. Positive control: the sibling audit-process/meta.json DOES exist, so the path shape is correct and only the project name is wrong. Net effect: the read-value wiring T-2624 added has never fired here. It is not misinforming anyone — it is silently printing nothing, which is why nobody noticed. Either the store project should be created under that name, or the guard should name the project that actually holds the task-lifecycle map. Found while measuring T-878 IW-1, where I had twice cited this line as evidence that an instance-to-template hairline already existed."
+  captured: 2026-09-27T00:01:46Z
+  context_task: T-878
+  tags: []
+  status: pending
+  promoted_to: null
