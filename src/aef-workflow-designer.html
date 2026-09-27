@@ -10489,7 +10489,10 @@ function buildBpmnXml(s) {
   for (const lane of lanesToEmit) {
     lines.push(`      <bpmn:lane id="${escAttr(lane.id)}" name="${escAttr(lane.name)}">`);
     lines.push(`        <bpmn:extensionElements>`);
-    lines.push(`          <aef:laneMeta abbr="${escAttr(lane.abbr || '')}" authority="${escAttr(lane.authority)}" height="${lane.height || 130}"/>`);
+    // T-890: additive, same shape as uuid/pageWidth/kind — absent when unset, so a map
+    // that declares no authoring default exports byte-identically.
+    const _ad = lane.authoringDefault ? ` authoringDefault="${escAttr(lane.authoringDefault)}"` : '';
+    lines.push(`          <aef:laneMeta abbr="${escAttr(lane.abbr || '')}" authority="${escAttr(lane.authority)}"${_ad} height="${lane.height || 130}"/>`);
     lines.push(`        </bpmn:extensionElements>`);
     for (const n of s.nodes.filter(x => x.lane === lane.id)) {
       lines.push(`        <bpmn:flowNodeRef>${escText(displayIdOf(n))}</bpmn:flowNodeRef>`);
@@ -10871,6 +10874,13 @@ function parseBpmnXml(text) {
         name: laneEl.getAttribute('name') || laneEl.getAttribute('id') || 'lane',
         abbr: laneMeta?.getAttribute('abbr') || deriveLaneAbbr(laneEl.getAttribute('name') || laneEl.getAttribute('id') || 'lane'),
         authority: laneMeta?.getAttribute('authority') || 'none',
+        // T-890 (T-888 ruling clause 3): PRESENTATIONAL authoring default. Pre-fills the
+        // authority of elements newly created in this lane; never read by the compiler.
+        // null = the lane declares no default — deliberately no 'none' sentinel, since
+        // authority="none" is the value that caused the original defect. Read AND written
+        // (see the laneMeta emitter) because an attribute imported but not emitted is
+        // dropped on first save: worse than absent, as it survives review and vanishes in use.
+        authoringDefault: laneMeta?.getAttribute('authoringDefault') || null,
         height: parseInt(laneMeta?.getAttribute('height') || '130', 10),
       });
     }

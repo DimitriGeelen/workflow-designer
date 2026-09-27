@@ -209,6 +209,13 @@ PARITY = {
     # harness is here to catch. Owner: T-902.
     "E-XML-META-AUTHORITY": (GAP, "aef:meta/@authority expressible on the YAML form via "
                                   "META_KEYS; no YAML rule gates the element value (T-889)"),
+    # T-890: GAP, not PAIRED, and the reason is the point — the YAML form has no
+    # laneMeta authoringDefault at all, so asserting a counterpart would be the T-317
+    # failure this harness exists to catch. T-889 set this precedent by classifying its
+    # own counterpart GAP rather than inventing one (filed as T-902). Same choice here.
+    "E-XML-LANE-AUTHORING-DEFAULT": (GAP, "aef:laneMeta/@authoringDefault has no YAML-form "
+                                          "counterpart; presentational, pre-fills new "
+                                          "elements only, never compiled (T-890/T-888 cl.3)"),
     "E-XML-ABBR-DUP":       (PAIRED, "E-ABBR-DUP (T-816)"),
     "E-XML-FLOW-DANGLING":  (PAIRED, "E-EDGE-DANGLING"),
     "E-XML-GW-OUTGOING":    (PAIRED, "E-GW-OUTGOING"),

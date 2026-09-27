@@ -238,6 +238,11 @@ RULE_CARRIERS = {
     # carries a value outside AUTHORITIES. Different CARRIER (aef:meta, not aef:laneMeta),
     # which is the whole content of clause 2: the fact moved homes.
     "E-XML-META-AUTHORITY":     (("aef:meta/@authority",), CONSTRAINS),
+    # T-890 (T-888 clause 3): the lane's AUTHORING DEFAULT. Same CONSTRAINS polarity —
+    # it refuses a value outside AUTHORITIES — but a different carrier again, and
+    # deliberately a PRESENTATIONAL one. It pre-fills new elements and is never read by
+    # the compiler, so it constrains the vocabulary without carrying the fact.
+    "E-XML-LANE-AUTHORING-DEFAULT": (("aef:laneMeta/@authoringDefault",), CONSTRAINS),
     # T-816: same carrier and same polarity as the YAML-form E-ABBR-DUP above — the pair
     # must agree on the axis, or the two forms would classify one fact two ways. Declared
     # rather than hand-classified: classify() computes the class from the carrier map, so

@@ -1672,6 +1672,32 @@ class XmlValidator:
                     "authority '%s' not in %s"
                     % (authority, sorted(AUTHORITIES)),
                 )
+            # T-890 (T-888 ruling clause 3): the lane's AUTHORING DEFAULT.
+            #
+            # PRESENTATIONAL, and that classification is the whole design. It pre-fills
+            # the authority of elements newly created in this lane and is NEVER read by
+            # the compiler — frozen standard §1: "a change to a presentational attribute
+            # alone MUST be a no-op for the task graph". So it cannot become a second
+            # stored claim about authority, which is precisely the objection that killed
+            # the two designs before this one: a generator that can be overridden is
+            # another fact plus a reconciliation policy, not a view.
+            #
+            # Same AUTHORITIES set as the element rule above and the lane rule beside it.
+            # Not re-listed (T-322) — a second copy of a governance vocabulary is how two
+            # forms drift on the governance question itself.
+            #
+            # ABSENT IS LEGAL AND SILENT. No `none` sentinel, deliberately: authority="none"
+            # is the value an author was forced to invent when the schema demanded an
+            # authority for a domain lane, and reintroducing it one level up would rebuild
+            # the same trap.
+            lane_default = lm.get("authoringDefault") if lm is not None else None
+            if lane_default is not None and lane_default not in AUTHORITIES:
+                self.err(
+                    "E-XML-LANE-AUTHORING-DEFAULT",
+                    "lane '%s'" % (lane.get("id") or "?"),
+                    "authoringDefault '%s' not in %s"
+                    % (lane_default, sorted(AUTHORITIES)),
+                )
             for ref_el in lane.findall("{%s}flowNodeRef" % BPMN_NS):
                 ref = (ref_el.text or "").strip()
                 if ref:

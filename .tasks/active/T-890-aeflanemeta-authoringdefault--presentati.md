@@ -12,7 +12,7 @@ description: >
   because authority='none' was the exact value that caused the original defect. Never
   re-stamps existing elements.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -33,7 +33,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:20Z
-last_update: '2026-09-27T15:47:40Z'
+last_update: 2026-09-27T19:25:00Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -88,8 +88,13 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `aef:laneMeta authoringDefault` validates against the same `AUTHORITIES` set element authority uses — one module-scope vocabulary read by both forms, never a second copy (T-322: a duplicated governance vocabulary is how two forms drift on the governance question itself)
+- [x] **Absent is legal and silent.** A lane with no `authoringDefault` produces no finding. T-888 clause 3 keeps the default an explicit author decision, and there is deliberately no `none` sentinel — `authority="none"` is the exact value that caused the original defect
+- [x] **THE LOAD-BEARING CONTROL: changing `authoringDefault` on a map leaves the task graph BYTE-IDENTICAL.** It is presentational per the frozen standard §1, where "a change to a presentational attribute alone MUST be a no-op for the task graph". Proved by compiling a map with and without it and diffing the output, not by reading the code
+- [x] A control proves that comparison can fail: the same diff over a SEMANTIC change shows a difference, so byte-identity is not passing because the comparison is inert
+- [x] Editor reads AND writes it — an attribute imported but never emitted is dropped on first save, which is worse than absent because it survives review and vanishes in use (the T-875 finding)
+- [ ] Round-trip guarded: T-886's derived denominator classifies it, so the guard goes red if the emitter stops writing it. Demonstrated by suppressing the writer and observing red
+- [x] Registered in both parity registries the way `E-XML-META-AUTHORITY` was, classified GAP or PAIRED with a reason — an unregistered rule is the T-317 omission this project keeps re-finding
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -352,3 +357,53 @@ bvp_scores_proposed:
 Basis: **inferred: same class of change as T-889 (an aef: attribute + validator rule + editor read/write + guard classification), whose real diff is the evidence for what that class touches here**
 
 Populated so `fw bvp` can compute a `blast_radius` and therefore a quadrant. Empty `components:` made `estimate-cost` refuse the radius — correctly, since unmeasured is not zero — while printing `[wrote]` and exiting 0, so the refusal read as a success and two procAsFit rounds concluded the cost axis did not exist.
+
+### 2026-09-27T19:25:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## 2026-09-27 — 6/7. PARKED: the round-trip guard does not cover `aef:laneMeta` at all.
+
+**Shipped.** `E-XML-LANE-AUTHORING-DEFAULT` reads the same module-scope `AUTHORITIES` set the
+element rule and the lane-authority rule read — one vocabulary, three readers, no copy (T-322).
+Editor reads *and* writes the attribute, additive so a map without it exports byte-identically.
+
+**Measured, with fixtures verified to actually differ (`applied=0/1/1`):**
+
+| map | verdict |
+|---|---|
+| no `authoringDefault` | exit 0, silent — absent is legal, no `none` sentinel |
+| `authoringDefault="sovereignty"` | exit 0, clean |
+| `authoringDefault="overlord"` | **exit 2**, `authoringDefault 'overlord' not in [...]` |
+
+**The presentational claim is proved, and its control can fail.** Compiling a map with and
+without the attribute produced **byte-identical validator output** (filename normalised, since
+the only raw difference was the path in the verdict line). The control: the same comparison over
+a *semantic* change — `aef:meta authority="overlord"` — **differs**, emitting
+`E-XML-META-AUTHORITY`. So the identity result is not an inert comparison passing.
+
+**AC6 FAILS, and it is not a near miss.** I suppressed the editor's `authoringDefault` writer
+entirely and the round-trip guard still reported `pass: true`, exit 0. Not a broken harness:
+T-886's derived denominator covers **`aef:workflowMeta`** ("10 written"), and this attribute
+lives on **`aef:laneMeta`** — outside its scope by construction, exactly as node-level `aef.*`
+was outside it before T-886.
+
+**The consequence is larger than this attribute, and it is why this is parked rather than
+closed:** every `aef:laneMeta` attribute can be dropped from the emitter in silence — `abbr`,
+`height`, and **`authority`**, which is the frozen standard's authority-of-record under §3.
+T-886 generalised the denominator so "the next attribute cannot enter unclassified"; that
+guarantee stops at the element boundary. Filed as **OBS-416**.
+
+**AC7 done, and the suite is red for reasons that predate me.** Registered in both registries as
+`GAP` with a reason — not `PAIRED`, because the YAML form has no counterpart and asserting one
+would be the T-317 failure the harness exists to catch (T-889 set that precedent). Measured
+before and after: **baseline 4 failures, gap count 11 vs expected 10 — already failing.** With
+my change: 3 failures, 12 vs 10. My classification *removed* one failure (my own rule was
+unclassified) and opened one legitimate new gap. The other two are `E-WORKFLOW-KIND` /
+`E-XML-WORKFLOW-KIND`, unclassified since T-875 and already owned by **T-903**. The count
+constant needs re-deriving in `docs/reports/T-320-rule-form-parity-census.md`, and the harness
+says in its own failure text not to adjust it to match — so I did not.
+
+### One error of mine
+A verification command hung for 300s because I used `$S` before assigning it, so `sed` read from
+stdin and blocked forever. Killed and redone. Cheap, but it is the third time this session that a
+shell-evaluation-order mistake produced a wrong or absent measurement rather than an error.

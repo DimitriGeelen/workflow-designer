@@ -2103,3 +2103,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-416
+  text: "The round-trip guard covers aef:workflowMeta but NOT aef:laneMeta — the same coverage gap T-885 measured for document-level metadata, one element over. Measured under T-890 by mutation: suppressed the editor's authoringDefault writer entirely and _roundtrip-serialization-cdp.mjs still reported pass:true, exit 0, with 'wm-denominator: 0 unclassified / 10 written'. The 10 are workflowMeta attributes; laneMeta's are outside the denominator by construction, exactly as node-level aef.* was outside it before T-886. So every aef:laneMeta attribute — abbr, authority, height, and now authoringDefault — can be dropped from the emitter in silence. authority is the serious one: it is the frozen standard's authority-of-record under §3, and nothing asserts the editor keeps emitting it. T-886 generalised the workflowMeta denominator so 'the next attribute cannot enter unclassified'; that guarantee stops at the element boundary. Needs the same derived-denominator treatment for laneMeta, and the fix should ask whether the guard wants one denominator per aef: element or one that walks them all."
+  captured: 2026-09-27T19:37:11Z
+  context_task: T-890
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
