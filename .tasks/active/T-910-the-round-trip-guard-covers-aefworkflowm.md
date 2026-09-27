@@ -17,7 +17,7 @@ name: "The round-trip guard covers aef:workflowMeta but NOT aef:laneMeta — the
 description: >
   Promoted from observation OBS-416
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -37,7 +37,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T21:24:40Z
-last_update: '2026-09-27T21:26:11Z'
+last_update: 2026-09-27T22:08:43Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -106,12 +106,12 @@ because that session hit the framework's `urgent` budget threshold, not because 
 undecided. `authority` is the frozen standard's authority-of-record under §3 and nothing asserts
 the editor keeps emitting it.
 
-- [ ] A derived denominator covers `aef:laneMeta` the way T-886's covers `aef:workflowMeta` — derived **from the emitter**, so the next laneMeta attribute cannot enter unclassified. Copying a hand-written list would rebuild the defect one element over
-- [ ] **Proved by mutation, per attribute.** Suppress each of `authority`, `abbr`, `height`, `authoringDefault` in the writer and the guard goes red **naming the attribute**. Measured under T-890: suppressing `authoringDefault` today leaves it `pass: true`, so the current state is a confirmed false green, not a suspicion
-- [ ] Every mutation is **asserted applied** before its result is scored — an unapplied mutation reads identically to a survival, which this corpus has hit twice
-- [ ] `authority` is called out separately in the result whatever it shows: it is the §3 authority-of-record, and its silent loss is a seam-integrity defect rather than a cosmetic one
-- [ ] The control set runs first and reports **MUTATION SETUP BROKEN** rather than scoring kills through a broken harness
-- [ ] Decide and record whether the guard wants **one denominator per `aef:` element or one that walks them all** — T-886 solved `workflowMeta`, this solves `laneMeta`, and a third element would otherwise arrive with the same gap. If the answer is "walk them all", say so and file it rather than building the third special case
+- [x] A derived denominator covers `aef:laneMeta` the way T-886's covers `aef:workflowMeta` — derived **from the emitter**, so the next laneMeta attribute cannot enter unclassified. Copying a hand-written list would rebuild the defect one element over
+- [x] **Proved by mutation, per attribute.** Suppress each of `authority`, `abbr`, `height`, `authoringDefault` in the writer and the guard goes red **naming the attribute**. Measured under T-890: suppressing `authoringDefault` today leaves it `pass: true`, so the current state is a confirmed false green, not a suspicion
+- [x] Every mutation is **asserted applied** before its result is scored — an unapplied mutation reads identically to a survival, which this corpus has hit twice
+- [x] `authority` is called out separately in the result whatever it shows: it is the §3 authority-of-record, and its silent loss is a seam-integrity defect rather than a cosmetic one
+- [x] The control set runs first and reports **MUTATION SETUP BROKEN** rather than scoring kills through a broken harness
+- [x] Decide and record whether the guard wants **one denominator per `aef:` element or one that walks them all** — T-886 solved `workflowMeta`, this solves `laneMeta`, and a third element would otherwise arrive with the same gap. If the answer is "walk them all", say so and file it rather than building the third special case
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -145,6 +145,30 @@ the editor keeps emitting it.
 -->
 
 ## Verification
+
+# The laneMeta denominator, derived from the emitter. Static, no browser, ~1s.
+timeout 120 node tools/_roundtrip-serialization-cdp.mjs --denominators-only > /tmp/.t910a.out 2>&1 && grep -q '"pass": true' /tmp/.t910a.out
+# All four laneMeta attributes are derived FROM THE EMITTER, and none is unclassified.
+grep -q 'laneMeta 4 attributes derived, 0 unclassified' /tmp/.t910a.out
+# The full harness is green, and the lane leg proves all four LIVE with nothing unmeasured.
+timeout 300 node tools/_roundtrip-serialization-cdp.mjs > /tmp/.t910b.out 2>&1 && grep -q '4 LIVE / 0 BLIND' /tmp/.t910b.out
+# NEVER-PRESENT is zero: authoringDefault now has a fixture, so nothing is scored as passed-but-unmeasured (T-3105).
+grep -q '0 NEVER-PRESENT' /tmp/.t910b.out
+# authority is reported separately and is LIVE — the v1 §3 authority-of-record (AC4).
+grep -q 'authority=LIVE' /tmp/.t910b.out
+# The fixture authors authoringDefault on exactly one of its two laneMeta elements, so BOTH the
+# present and the absent branch of an optional attribute are exercised. Counted on the laneMeta
+# lines only: the file's header comment also contains the string, and grepping the whole file
+# counted 2 and failed a check that was describing the right property with the wrong denominator.
+test "$(grep -c '<aef:laneMeta' tests/fixtures/aef-bpmn/t910-lane-authoring-default.bpmn)" -eq 2
+test "$(grep '<aef:laneMeta' tests/fixtures/aef-bpmn/t910-lane-authoring-default.bpmn | grep -c 'authoringDefault=')" -eq 1
+# Teeth: 10 cases, every mutation asserted applied, control set first. Mutates tracked source and
+# restores it — the script verifies the restore against a sha256 and exits 91 if it cannot.
+timeout 580 bash tools/_t910-lanemeta-teeth.sh > /tmp/.t910c.out 2>&1 && grep -q '^FAIL: 0' /tmp/.t910c.out
+# Control sibling (PL-328): the teeth run must actually report passes, or 'FAIL: 0' is vacuous.
+grep -qE '^PASS: [1-9][0-9]+' /tmp/.t910c.out
+# And the teeth must leave the mutated source byte-identical.
+git diff --quiet src/aef-workflow-designer.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -290,6 +314,42 @@ the editor keeps emitting it.
 
 ## Evolution
 
+### 2026-09-28 — the gap was narrower than filed, and the first repair accused an innocent guard
+- **What changed:** the task was filed on the belief that all four `aef:laneMeta` attributes were
+  silently droppable. Measured: **two** were (`height`, `authoringDefault`) and **two**
+  (`authority`, `abbr`) were incidentally compared by a hand-typed `{id, authority, abbr}` lanes
+  projection. `authority` — the §3 authority-of-record — was on the safe side of that split **by
+  accident, not by guarantee**: nothing derived it, nothing asserted it, and one edit to a literal
+  would have moved it. That is the finding, and it is worse than the one filed, not better.
+- **Plan impact:** the repair is not only "add a denominator" but "make the projection
+  LMSPEC-driven", because the denominator alone would have left the projection hand-typed.
+- **Triggered:** OBS-419 (the AC6 ruling).
+
+### 2026-09-28 — the first version of the new leg reported a false BLIND
+- **What changed:** the lane self-test, copied in shape from the workflowMeta one, reported
+  `height` BLIND on one fixture. It was not blind — `growUnderDeclaredLanes()` rewrites an
+  under-declared lane height on import, so the authored 260 never reaches the model to be
+  perturbed. The leg written to catch false greens produced a **false red** on its first run.
+- **Plan impact:** added NOT-EXERCISABLE as a fourth verdict; the lane leg now keeps four unproven
+  states apart (NEVER-PRESENT / NOT-EXERCISABLE / MUTATION-NOT-APPLIED / BLIND) where the first
+  draft kept two.
+- **Triggered:** OBS-418 — while chasing this I found the inherited reporting names the wrong
+  fixtures: `witnesses` is pooled across verdicts at the node and workflowMeta levels, so the
+  BLIND finding printed two fixtures where the key was LIVE. Fixed at the lane level only; the
+  other two are OBS-418 rather than a silent rewrite of guards this task is not about.
+
+### 2026-09-28 — case 8 proved the derivation could point at the wrong element
+- **What changed:** the teeth instrument's unresolvable-carrier case went red for the **wrong
+  reason**. `${lane.extra ? … }` resolved its leading identifier to the `for (const lane of
+  lanesToEmit)` LOOP VARIABLE, then scanned from the loop head and pulled `id` and `name` off the
+  sibling `<bpmn:lane>` into `aef:laneMeta`'s denominator (derivedTotal 6, orphans `id`, `name`).
+  It happened to fail only because those two were not in `LMSPEC`; against a list that contained
+  them it would have gone **green over a denominator describing a different element**.
+- **Plan impact:** resolution is now restricted BY POLICY to two carrier shapes — a bare local and
+  `ident.join(…)` — and must resolve to a real assignment, never a `for…of` binding.
+- **Triggered:** nothing new; the teeth case that caught it is case 8 and it now passes for the
+  right reason.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -313,6 +373,42 @@ the editor keeps emitting it.
 -->
 
 ## Recommendation
+
+**Recommendation:** GO — close it. All six Agent acceptance criteria are ticked and every one is
+backed by a command in `## Verification` that was rehearsed under the gate's own shell semantics
+(`set -o pipefail`, no errexit) and passes. The task carries **no Human acceptance criteria**; the
+only thing standing between it and `work-completed` is `owner: human`, which `fw note promote` set
+by default (G-027) and which an agent may not change.
+
+**Rationale:** the confirmed false green is gone and its absence is proven by breaking it, not by
+observing a pass. Suppressing each of the four `aef:laneMeta` attributes in the writer now turns
+the harness red and names the attribute — the same mutation that under T-890 left it `pass: true,
+exit 0`. `authority`, the v1 §3 authority-of-record, is LIVE on all 21 fixtures and is reported by
+name rather than averaged into a fraction.
+
+**Evidence:**
+- `lm-denominator: 0 unclassified / 4 written / 4 LIVE / 0 BLIND / 0 NOT-APPLIED /
+  0 NOT-EXERCISABLE / 0 NEVER-PRESENT / 0 EXCLUDED over 21 fixtures; authority=LIVE`
+- `tools/_t910-lanemeta-teeth.sh` — **40 assertions, 0 failures**, 10 cases: a control set that
+  requires the clean run to be green *and* the failure strings to be absent from it (PL-328), the
+  four writer suppressions, two denominator-evasion cases, an unresolvable-carrier case, anchor
+  rot, and a deliberately broken mutator that must report `MUTATION SETUP BROKEN` rather than
+  score kills. Every mutation asserts its replacement count and re-hashes the file.
+- The instrument mutates tracked source and restores it; the restore is verified against a
+  sha256 and the script exits 91 rather than leaving a mutant behind. `git diff --quiet
+  src/aef-workflow-designer.html` is a verification line for exactly that.
+- Three defects found on the way, none of them silently absorbed: **OBS-418** (the node and
+  workflowMeta legs name the wrong fixtures in a BLIND finding), **OBS-419** (the AC6 ruling and
+  its 23-element census), **OBS-420** (`fw fabric register` refuses and writes the card anyway).
+
+**What is NOT claimed:** `@height` is proven on 20 of 21 fixtures and is NOT-EXERCISABLE on
+`lane-capacity-large-spill.bpmn`, because `growUnderDeclaredLanes()` rewrites 260 to 591 on import.
+That is reported as its own state rather than counted as coverage, and rather than being written
+off as a blind guard.
+
+**The one operator action:** `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-910 --owner agent`
+— then the close runs itself. This is the third task this session that `fw note promote` has left
+in a state an agent cannot finish; that pattern is G-027 and is worth a decision of its own.
 
 <!-- T-2945: same shape as inception.md's block — the gate that reads it
      (audit_inception_recommendation, lib/task-audit.sh:117) is shared, so the
@@ -343,6 +439,35 @@ the editor keeps emitting it.
 
 ## Decisions
 
+### 2026-09-28 — one shared derivation, not a registry that walks every aef: element (AC6)
+- **Chose:** generalise into ONE shared `deriveEmittedAttrs()` / `checkElementDenominator()` pair,
+  used by both `aef:workflowMeta` and `aef:laneMeta`. Not a third special case, and not a registry
+  that walks every `aef:` element.
+- **Why:** the emitter writes **23 distinct `aef:` element names**, and **21 of them are
+  NODE-level**, already inside `checkDenominator()`'s scope via `aefExtensionXml()`. A
+  "register every `aef:` element" check would begin life with 21 entries needing blanket
+  exclusions — the permanently-red rail OBS-293 names, which trains readers to ignore it. Only
+  **two** container-level elements exist, and they now share one derivation, so a third arrives by
+  adding data rather than by writing a third checker.
+- **Rejected:** (a) a second hand-written derivation — that is the T-322 defect, a list checked
+  only by its author re-reading the same source, which is the exact omission being repaired;
+  (b) a full `aef:`-element registry — see above; the revisit trigger is a third *container-level*
+  element, not a third element of any kind.
+- **Recorded as OBS-419** so the next container element does not re-derive this.
+
+### 2026-09-28 — @height stays compared, and NOT-EXERCISABLE is a fourth state
+- **Chose:** keep `height` in the compared set; add **NOT-EXERCISABLE** as a distinct verdict,
+  derived by comparing the *authored* wire value against the *parsed* value.
+- **Why:** `height` came back BLIND on exactly one fixture. The cause is `growUnderDeclaredLanes()`,
+  a deliberate import repair with its own guard (`tools/_t315-lane-grow-on-import-cdp.mjs`):
+  `lane-capacity-large-spill.bpmn` authors `height="260"` and parses as **591**. Scoring that as
+  BLIND blames the projection for a repair working as designed. It is `height` being *unreachable
+  by the probe on that document*, which is a different fact with a different remedy.
+- **Rejected:** (a) excluding `height` — it is genuinely live on the other 20 fixtures, and
+  excluding it would have made the emitter free to drop it in silence again; (b) teaching the
+  guard the repair's own arithmetic — that duplicates a rule in two places (T-322). Comparing
+  authored against parsed is general: the next transform-on-import classifies itself.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -368,3 +493,6 @@ the editor keeps emitting it.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-910-the-round-trip-guard-covers-aefworkflowm.md
 - **Context:** Initial task creation
+
+### 2026-09-27T22:08:43Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

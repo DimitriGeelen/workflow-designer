@@ -1,0 +1,21 @@
+id: tools/_t910-lanemeta-teeth.sh
+name: _t910-lanemeta-teeth
+type: script
+subsystem: instruments
+location: tools/_t910-lanemeta-teeth.sh
+tags: []
+
+purpose: "_t910-lanemeta-teeth.sh — prove the aef:laneMeta denominator and self-test added by T-910 actually BITE, by breaking them on purpose and requiring each break to be reported."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

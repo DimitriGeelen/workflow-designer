@@ -2118,3 +2118,24 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-418
+  text: "The node-level and workflowMeta-level self-tests in tools/_roundtrip-serialization-cdp.mjs pool 'witnesses' across ALL verdicts, so a BLIND finding is printed next to fixture names where that key was LIVE. Measured under T-910: the lane-level leg (copied from the same shape) reported height BLIND in 1 of 20 and named arc-lifecycle.bpmn and bare-catch-event.bpmn, both of which were LIVE; the actual blind document was lane-capacity-large-spill.bpmn. A finding that names the wrong evidence sends the reader to open a file where nothing is wrong, and the natural conclusion is that the finding is noise. T-910 fixed this at the LANE level only (per-verdict witness lists plus value_before/value_after on BLIND) and deliberately did not rewrite the two guards it was not about. The same change is wanted for selftest.blind (line ~791) and wmTest.blind (line ~855)."
+  captured: 2026-09-27T22:31:28Z
+  context_task: T-910
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-419
+  text: "T-910 AC6 answer, recorded so the NEXT container-level aef: element does not re-derive it. The question was whether the round-trip guard wants one denominator per aef: element or one that walks them all. ANSWER: one shared derivation (built under T-910 as deriveEmittedAttrs/checkElementDenominator, now serving both workflowMeta and laneMeta), and NOT a registry that walks every aef: element. Evidence: the emitter writes 23 distinct aef: element names, of which 21 are NODE-level and already inside checkDenominator()'s scope via aefExtensionXml(). A 'register every aef: element' check would therefore start life with 21 entries needing blanket exclusions, which is the permanently-red check OBS-293 names: a rail nobody can act on trains readers to ignore it. Only TWO container-level elements exist (process-level workflowMeta, lane-level laneMeta) and they now share one derivation, so a third arrives by adding data rather than by writing a third checker. The trigger to revisit is a THIRD container-level aef: element appearing in the emitter, not a third aef: element of any kind."
+  captured: 2026-09-27T22:31:37Z
+  context_task: T-910
+  tags: [decision]
+  status: pending
+  promoted_to: null
+- id: OBS-420
+  text: "fw fabric register REFUSES and writes the card anyway. Measured under T-910: 'fw fabric register tests/fixtures/aef-bpmn/t910-lane-authoring-default.bpmn' printed 'REFUSED: ... describes itself nowhere — write a header comment' and nevertheless created .fabric/components/tests-fixtures-aef-bpmn-t910-lane-authoring-default.yaml with type: script (for a BPMN data file), subsystem: fixtures and purpose: 'TODO: describe what this component does'. Two harms, one class. First, the refusal is not a refusal: a reader who trusts the message believes nothing was written. Second, what it writes is an under-populated card pointing at a path that .fabric/watch-patterns.yaml EXPLICITLY EXCLUDES ('tests/fixtures/** .bpmn/.xml/.yaml fixtures are DATA, not code'), so a single refused call increments BOTH standing audit WARNs at once — 'N under-populated card(s)' (127) and 'N card(s) point at files no watch pattern covers' (11). Same shape as OBS-414, where estimate-cost prints [wrote] and exits 0 having written no blast_radius: the verb's report and the verb's effect disagree, and the report is the half people read. Card deleted by hand under T-910."
+  captured: 2026-09-27T22:33:49Z
+  context_task: T-910
+  tags: [bug]
+  status: pending
+  promoted_to: null

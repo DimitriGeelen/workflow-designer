@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_t910-lane-authoring-default"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-910: the ONE fixture in the corpus that authors aef:laneMeta/@authoringDefault.
+
+       Before it, the lane-level self-test reported authoringDefault NEVER-PRESENT over all
+       twenty fixtures — nothing carried it, so nothing measured it, and per T-3105 that is NOT
+       EVALUATED rather than PASSED. It is also the precise attribute T-890 proved droppable:
+       with the editor's writer suppressed entirely, the round-trip harness still returned
+       pass:true, exit 0.
+
+       Two lanes deliberately, because the attribute is OPTIONAL and both states have to be
+       exercised by something:
+         agent      DECLARES authoringDefault="initiative"  — the present branch
+         human      declares none                           — the absent branch, which must
+                                                              round-trip as absent and must not
+                                                              acquire a 'none' sentinel
+
+       T-888 clause 3: authoringDefault is PRESENTATIONAL. It pre-fills the authority of
+       elements newly created in the lane and is never read by the compiler. The element's own
+       authority remains the single semantic fact, which is why agt_1_request below carries no
+       node-level authority override and derives from its lane exactly as every other fixture.
+
+       Lane heights are 160 with content at y=120/y=300, copied from t875-kind-marker.bpmn
+       rather than invented: an UNDER-declared height is rewritten on import by
+       growUnderDeclaredLanes(), and a lane whose authored value the parser replaces makes every
+       attribute on it NOT-EXERCISABLE — which is what lane-capacity-large-spill.bpmn does to
+       @height, and would silently have cost this fixture the measurement it exists to make. -->
+
+  <bpmn:collaboration id="Collaboration_t910-lane-authoring-default">
+    <bpmn:participant id="Pool_t910_lane_authoring_default" name="t910-lane-authoring-default" processRef="Process_t910-lane-authoring-default"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_t910-lane-authoring-default" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta kind="documentation" id="t910-lane-authoring-default" version="1" schemaVersion="2" title="lane authoring default (T-890 / T-888 clause 3)" tier_default="1"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" authoringDefault="initiative" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_1_request</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_outcome</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_1_ratify</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="agt_1_request" name="draft prepared">
+      <bpmn:extensionElements>
+        <aef:uid value="n_request"/>
+        <aef:position x="180.0" y="120.0"/>
+        <aef:meta triggeredBy="an element is created in a lane that declares an authoring default"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="hum_1_ratify" name="ratify the authority">
+      <bpmn:extensionElements>
+        <aef:uid value="n_ratify"/>
+        <aef:position x="340.0" y="300.0"/>
+        <aef:meta tier="1" note="the authoring default pre-fills; ratification is still the element's own authority, which is the only fact the compiler reads (T-888 clause 2)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="agt_2_outcome" name="authority recorded">
+      <bpmn:extensionElements>
+        <aef:uid value="n_outcome"/>
+        <aef:position x="560.0" y="120.0"/>
+        <aef:meta terminalKind="success" state="recorded"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_request" targetRef="hum_1_ratify">
+      <bpmn:extensionElements>
+        <aef:uid value="e_1"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="hum_1_ratify" targetRef="agt_2_outcome">
+      <bpmn:extensionElements>
+        <aef:uid value="e_2"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

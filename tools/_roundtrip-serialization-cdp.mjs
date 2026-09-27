@@ -175,35 +175,125 @@ const WM_EXCLUDED = {
 // The emitter anchor. A line range would slide off its subject, which is the same failure this
 // check exists to catch one level up; the wmAttrs array literal is the named thing.
 const WM_EMITTER_ANCHOR = 'const wmAttrs = [';
-const WM_EMITTER_END = '<aef:workflowMeta ';
-function deriveWmKeys() {
+const WM_TAG = '<aef:workflowMeta ';
+const WM_SCAN_TO = '</bpmn:extensionElements>';
+
+// ── T-910: the same gap one element over, and the generalisation that answers it ─────────────
+//
+// T-886 closed the aef:workflowMeta hole with a derived denominator. That guarantee stops at the
+// ELEMENT boundary: checkWmDenominator() anchored on `const wmAttrs = [`, so aef:laneMeta's
+// attributes were outside it BY CONSTRUCTION — exactly as workflowMeta's were outside
+// checkDenominator(). Measured under T-890 by mutation: suppressing the editor's authoringDefault
+// writer entirely still left this harness pass:true, exit 0, reporting
+// "wm-denominator: 0 unclassified / 10 written". The 10 were workflowMeta's.
+//
+// Of the four laneMeta attributes, two (authority, abbr) were incidentally compared by a
+// hand-typed lanes projection and two (height, authoringDefault) were droppable from the emitter
+// in silence — and nothing in the harness distinguished the two cases, because there was no
+// denominator to state it against. `authority` being on the lucky side of that split was an
+// accident, not a guarantee: it is §3's authority-of-record and nothing asserted it.
+//
+// WHY THIS IS SHARED RATHER THAN COPIED: a second hand-written derivation is the T-322 defect
+// (one module-scope vocabulary, never a second copy) and would rebuild the original omission one
+// element over — a list checked only by its author re-reading the same source.
+//
+// WHY IT READS THE EMISSION RATHER THAN A REGION: the region that holds the lane emission also
+// holds `<bpmn:lane id="${...}" name="${...}">`. Hoovering attribute-looking text out of it would
+// put another element's attributes in this element's denominator — coverage theatre inside the
+// check written to prevent coverage theatre. So this reads the ELEMENT'S OWN EMISSION, and for
+// each `${...}` in it that is not itself an inline attribute value, RESOLVES the local supplying
+// it and reads what that local accumulates before the emission. An interpolation it cannot
+// resolve THROWS rather than being skipped: an attribute arriving through a carrier this function
+// does not understand must stop the run, because the alternative is a denominator that is
+// silently short — which is the whole defect being repaired.
+const ATTR_RX = /([A-Za-z_][A-Za-z0-9_]*)="\$\{/g;
+function deriveEmittedAttrs({ label, tag, scanFrom, scanTo }) {
   const srcAll = readFileSync(SRC_HTML, 'utf8');
-  const a = srcAll.indexOf(WM_EMITTER_ANCHOR);
-  if (a < 0) throw new Error(`wm-denominator: "${WM_EMITTER_ANCHOR}" not found in ${SRC_HTML} — the anchor moved, fix the anchor rather than the expectation`);
-  const b = srcAll.indexOf(WM_EMITTER_END, a);
-  if (b < 0) throw new Error(`wm-denominator: no ${WM_EMITTER_END} emission after the wmAttrs literal — the carrier changed`);
-  const body = srcAll.slice(a, b);
-  // Every NAME="${...}" the emitter can push onto wmAttrs, whether unconditionally in the literal
-  // or behind an `if (wm.x)` guard below it. Reading the emitted ATTRIBUTE name rather than the
-  // model property is deliberate: the attribute is what lands on the wire and what a reader parses.
-  const keys = [...body.matchAll(/([A-Za-z_][A-Za-z0-9_]*)="\$\{/g)].map(m => m[1]);
-  return [...new Set(keys)];
+  const a = srcAll.indexOf(scanFrom);
+  if (a < 0) throw new Error(`${label}: "${scanFrom}" not found in ${SRC_HTML} — the anchor moved, fix the anchor rather than the expectation`);
+  const z = srcAll.indexOf(scanTo, a);
+  if (z < 0) throw new Error(`${label}: no "${scanTo}" after "${scanFrom}" — the carrier changed`);
+  const region = srcAll.slice(a, z);
+  const e = region.indexOf(tag);
+  if (e < 0) throw new Error(`${label}: no ${tag} emission between the anchors — the carrier changed`);
+  if (region.indexOf(tag, e + 1) >= 0) throw new Error(`${label}: more than one ${tag} emission between the anchors — this derivation reads exactly one and would silently cover only the first`);
+  const eol = region.indexOf('\n', e);
+  const emission = region.slice(e, eol < 0 ? region.length : eol);
+  const attrs = [];
+  const unresolved = [];
+  for (const m of emission.matchAll(ATTR_RX)) attrs.push(m[1]);
+  for (const m of emission.matchAll(/\$\{([^}]*)\}/g)) {
+    // An inline attribute value — already counted above. Recognised by the `NAME="` immediately
+    // preceding the interpolation rather than by guessing at the expression's shape.
+    if (/[A-Za-z_][A-Za-z0-9_]*="$/.test(emission.slice(0, m.index))) continue;
+    // Only two carrier shapes resolve: a bare local (`${_ad}`) and a joined accumulator
+    // (`${wmAttrs.join(' ')}`). ANY other expression is unresolvable BY POLICY, not by accident.
+    //
+    // This used to take the leading identifier of whatever the interpolation was, which let
+    // `${lane.extra ? ... : ...}` resolve its base to the `for (const lane of lanesToEmit)` LOOP
+    // VARIABLE — and then scan from the loop head to the emission, hoovering `id` and `name` off
+    // the sibling <bpmn:lane> element into aef:laneMeta's denominator. Measured: derivedTotal 6,
+    // orphans id+name. It happened to go red, but only because those two were not in LMSPEC; the
+    // same off-target resolution against a list that did contain them would have gone GREEN over
+    // a denominator describing the wrong element. Caught by case 8 of _t910-lanemeta-teeth.sh.
+    const expr = m[1].trim();
+    const base = /^[A-Za-z_][A-Za-z0-9_]*$/.test(expr)
+      ? expr
+      : (expr.match(/^([A-Za-z_][A-Za-z0-9_]*)\.join\([^()]*\)$/) || [])[1];
+    // And it must resolve to a real ASSIGNMENT. `for (const x of ...)` binds x without assigning
+    // a fragment to it, so accepting it is what let the loop variable through above.
+    const decl = base ? region.search(new RegExp(`(?:^|[;{\\n])\\s*(?:const|let|var)\\s+${base}\\s*=`)) : -1;
+    if (decl < 0 || decl > e) { unresolved.push(expr); continue; }
+    for (const a2 of region.slice(decl, e).matchAll(ATTR_RX)) attrs.push(a2[1]);
+  }
+  if (unresolved.length) throw new Error(`${label}: ${unresolved.length} interpolation(s) in the ${tag} emission this derivation cannot resolve to a local declared before it: ${unresolved.join(' | ')} — an attribute arriving through an unrecognised carrier stops the run rather than going missing from the denominator`);
+  return [...new Set(attrs)];
+}
+// The contract every element-level denominator holds: derived-from-the-emitter, and every derived
+// attribute either compared or excluded WITH A REASON. Shared so the two levels cannot drift, and
+// so a third arrives by adding data rather than by writing a third checker.
+function checkElementDenominator({ label, elementName, tag, scanFrom, scanTo, spec, excluded }) {
+  const derived = deriveEmittedAttrs({ label, tag, scanFrom, scanTo });
+  const compared = new Set(spec);
+  const problems = [];
+  for (const [name, reason] of Object.entries(excluded))
+    if (!reason || !reason.trim()) problems.push(`${label} exclusion "${name}" has no reason — an exclusion without a reason is an absence wearing a decision's clothes`);
+  for (const name of Object.keys(excluded))
+    if (compared.has(name)) problems.push(`"${name}" is both compared and excluded in ${label} — one of the two is wrong`);
+  const orphans = derived.filter(k => !compared.has(k) && !(k in excluded)).sort();
+  if (orphans.length) problems.push(`${orphans.length} emitter-written ${elementName} attribute(s) NEITHER compared NOR excluded: ${orphans.join(', ')} — add it to the compared list, or to the exclusion map with a reason`);
+  // Dead coverage reads as real coverage: a compared entry the emitter does not write can never
+  // go red, so it inflates the fraction while guarding nothing.
+  const specNotWritten = spec.filter(k => !derived.includes(k)).sort();
+  if (specNotWritten.length) problems.push(`${label} compares ${elementName} attribute(s) the emitter does not write: ${specNotWritten.join(', ')} — dead coverage reads as real coverage`);
+  return { problems, derived: derived.sort(), derivedTotal: derived.length, compared: [...compared].sort(), excluded: Object.keys(excluded).sort(), orphans };
 }
 function checkWmDenominator() {
-  const derived = deriveWmKeys();
-  const compared = new Set(WMSPEC);
-  const problems = [];
-  for (const [name, reason] of Object.entries(WM_EXCLUDED))
-    if (!reason || !reason.trim()) problems.push(`wm exclusion "${name}" has no reason — an exclusion without a reason is an absence wearing a decision's clothes`);
-  for (const name of Object.keys(WM_EXCLUDED))
-    if (compared.has(name)) problems.push(`"${name}" is both in WMSPEC and in WM_EXCLUDED — one of the two is wrong`);
-  const orphans = derived.filter(k => !compared.has(k) && !(k in WM_EXCLUDED)).sort();
-  if (orphans.length) problems.push(`${orphans.length} emitter-written aef:workflowMeta attribute(s) in NEITHER WMSPEC nor WM_EXCLUDED: ${orphans.join(', ')} — add to WMSPEC to compare it, or to WM_EXCLUDED with a reason`);
-  // Dead coverage reads as real coverage: a WMSPEC entry the emitter does not write can never
-  // go red, so it inflates the fraction while guarding nothing.
-  const specNotWritten = WMSPEC.filter(k => !derived.includes(k)).sort();
-  if (specNotWritten.length) problems.push(`WMSPEC contains attribute(s) the emitter does not write: ${specNotWritten.join(', ')} — dead coverage reads as real coverage`);
-  return { problems, derived: derived.sort(), derivedTotal: derived.length, compared: [...compared].sort(), excluded: Object.keys(WM_EXCLUDED).sort(), orphans };
+  return checkElementDenominator({
+    label: 'wm-denominator', elementName: 'aef:workflowMeta',
+    tag: WM_TAG, scanFrom: WM_EMITTER_ANCHOR, scanTo: WM_SCAN_TO,
+    spec: WMSPEC, excluded: WM_EXCLUDED,
+  });
+}
+
+// ── T-910: aef:laneMeta, the LANE-level seam ─────────────────────────────────────────────────
+// Emitted at src:10495 inside the lane loop. authoringDefault (T-890) arrives through the local
+// `_ad` rather than inline, which is precisely the carrier shape deriveEmittedAttrs() resolves —
+// and precisely the one a naive line-scan of the emission alone would miss.
+const LMSPEC = ['abbr', 'authority', 'authoringDefault', 'height'];
+// EXCLUSIONS ARE DATA AND CARRY A REASON — same contract as WM_EXCLUDED and EXCLUDED above.
+// Empty today: all four laneMeta attributes are read back by the parser (src:10875-10884), so all
+// four are round-trip comparable and none has an honest reason to sit outside the comparison.
+const LM_EXCLUDED = {};
+const LM_EMITTER_ANCHOR = 'const lanesToEmit =';
+const LM_TAG = '<aef:laneMeta ';
+const LM_SCAN_TO = '</bpmn:laneSet>';
+function checkLmDenominator() {
+  return checkElementDenominator({
+    label: 'lm-denominator', elementName: 'aef:laneMeta',
+    tag: LM_TAG, scanFrom: LM_EMITTER_ANCHOR, scanTo: LM_SCAN_TO,
+    spec: LMSPEC, excluded: LM_EXCLUDED,
+  });
 }
 
 // ── T-490: the denominator is DERIVED, not asserted ─────────────────────────────────────────
@@ -578,6 +668,120 @@ const WM_PREFLIGHT_EXPR = `(function(){
     return {perturbable:true,results:results};
   }catch(e){ return {perturbable:false,reason:'exception: '+(e&&e.message||e)}; }
 })()`;
+// ── T-910: the LANE-level self-test ──────────────────────────────────────────────────────────
+// Same question the document-level one asks, of aef:laneMeta: with this attribute perturbed in
+// its own wire carrier, does the lane projection move? A key in LMSPEC is a CLAIM of coverage;
+// only a value that varies is EVIDENCE (PL-175).
+//
+// Mutation is anchored INSIDE the aef:laneMeta element, never document-wide. height= and abbr=
+// match other elements in a full BPMN document long before they match this one, and an off-target
+// mutation that lands somewhere real reports BLIND while the guard is innocent — measured on the
+// node-level probe, 18 of 18 fixtures.
+//
+// CONTROLS RUN BEFORE ANY VERDICT IS SCORED. This corpus has twice scored an unapplied mutation
+// as a survival: a mutant that never applied and a mutant that survived are byte-identical in
+// their result, and only an assertion that the mark actually landed tells them apart. So each
+// mutation is checked for the mark before its result counts, and the pair of controls below runs
+// first — if the mutator cannot distinguish an attribute that is present from one that is not,
+// every kill and every survival below is noise and the honest output is MUTATION SETUP BROKEN,
+// not a score.
+// (No backticks in this comment: it lives inside a JS template literal and a backtick kills the
+// harness before it evaluates.)
+const LM_PREFLIGHT_EXPR = `(function(){
+  var text = window.__FIXTURE__;
+  var LMSPEC = ${JSON.stringify(LMSPEC)};
+  var MARK='__DRIFT__';
+  function lmProj(m){
+    if(!m) return null;
+    return JSON.stringify((m.lanes||[]).map(function(l){
+      var o={id:l.id};
+      LMSPEC.forEach(function(k){ var v=l[k]; o[k]=(v==null||v==='')?null:String(v); });
+      return o;
+    }).sort(function(a,b){ return a.id<b.id?-1:a.id>b.id?1:0; }));
+  }
+  // Per-attribute across ALL lanes, so movement can be attributed to the attribute it was aimed
+  // at rather than to the document having changed somehow.
+  function lmValue(m,k){
+    if(!m) return null;
+    return JSON.stringify((m.lanes||[]).map(function(l){
+      var v=l[k]; return [l.id,(v==null||v==='')?null:String(v)];
+    }).sort(function(a,b){ return a[0]<b[0]?-1:a[0]>b[0]?1:0; }));
+  }
+  // Returns the mutated document AND what the wire authored, plus the lane it belongs to, so the
+  // caller can check the parser actually reads the attribute through before scoring a survival.
+  function inLaneMeta(xml,attr){
+    var rx=new RegExp('<aef:laneMeta\\\\s[^>]*>','g'),m;
+    while((m=rx.exec(xml))!==null){
+      var re=new RegExp('(\\\\s'+attr+'=")([^"]*)(")');
+      if(re.test(m[0])){
+        var authored=m[0].match(re)[2];
+        // The enclosing lane is the last <bpmn:lane ...> opened before this laneMeta.
+        var before=xml.slice(0,m.index);
+        var li=before.lastIndexOf('<bpmn:lane ');
+        var laneId=null;
+        if(li>=0){ var idm=before.slice(li).match(/id="([^"]*)"/); if(idm) laneId=idm[1]; }
+        return { xml: xml.slice(0,m.index)+m[0].replace(re,'$1'+MARK+'$3')+xml.slice(m.index+m[0].length),
+                 authored: authored, laneId: laneId };
+      }
+    }
+    return null;
+  }
+  try{
+    var m1=parseBpmnXml(text);
+    if(!m1) return {perturbable:false,reason:'parse1-null'};
+    if(!(m1.lanes||[]).length) return {perturbable:false,reason:'no-lanes'};
+    // CONTROL SET, before any scoring.
+    // negative: an attribute no laneMeta carries must come back null. If it comes back mutated,
+    //           inLaneMeta is matching something it was not aimed at.
+    // positive: a known-present attribute must come back carrying the mark. If it does not, the
+    //           mutator is a no-op and every SURVIVED below would be a no-op misread as evidence.
+    var ctlNeg=inLaneMeta(text,'__t910_absent__');
+    var ctlPos=inLaneMeta(text,'authority');
+    var controls={
+      negative_absent_attr_expected_NULL: (ctlNeg===null)?'NULL':'MUTATED',
+      positive_authority_expected_MARKED: (ctlPos!==null && ctlPos.xml!==text && ctlPos.xml.indexOf(MARK)>=0)?'MARKED':'NOT-MARKED'
+    };
+    controls.held = controls.negative_absent_attr_expected_NULL==='NULL'
+                 && controls.positive_authority_expected_MARKED==='MARKED';
+    if(!controls.held) return {perturbable:false,reason:'MUTATION SETUP BROKEN',controls:controls};
+    var p1=lmProj(m1);
+    var results=[];
+    for(var i=0;i<LMSPEC.length;i++){
+      var k=LMSPEC[i];
+      var hit=inLaneMeta(text,k);
+      if(hit===null){ results.push({key:k,verdict:'NOT-PRESENT'}); continue; }
+      // ASSERT THE MUTATION APPLIED before scoring it. An unapplied mutation reads identically
+      // to a survival; without this line the two are indistinguishable.
+      if(hit.xml===text || hit.xml.indexOf(MARK)<0){ results.push({key:k,verdict:'MUTATION-NOT-APPLIED'}); continue; }
+      // NOT-EXERCISABLE, distinct from BLIND. If the parser already does not carry the AUTHORED
+      // value through to the model, then perturbing the wire cannot move the projection and a
+      // survival says nothing about the guard. parseBpmnXml runs deliberate repairs on import —
+      // growUnderDeclaredLanes() rewrites an under-declared lane height (src:11350ish), so
+      // lane-capacity-large-spill.bpmn authors height="260" and parses as 591. Scoring that as
+      // BLIND blames the guard for a repair working exactly as designed, and sends the reader to
+      // fix a projection that is innocent. Derived by COMPARING authored against parsed rather
+      // than by naming the repair, so the next transform on import classifies itself.
+      var lane1=(m1.lanes||[]).filter(function(l){ return l.id===hit.laneId; })[0];
+      var parsedNow=lane1?((lane1[k]==null||lane1[k]==='')?null:String(lane1[k])):null;
+      if(lane1 && parsedNow!==String(hit.authored)){
+        results.push({key:k,verdict:'NOT-EXERCISABLE',lane:hit.laneId,authored:hit.authored,parsed:parsedNow,
+          reason:'the parser does not carry the authored value through — it is transformed on import, so mutating the wire cannot move the projection and a survival would be meaningless'});
+        continue;
+      }
+      var m2=parseBpmnXml(hit.xml);
+      if(!m2){ results.push({key:k,verdict:'LIVE',moved:['<parse broke>']}); continue; }
+      // A BLIND verdict carries the before/after the parser actually saw. Without it the reader
+      // has to re-derive by hand what the projection failed to notice, which is how a real
+      // finding gets written off as harness noise.
+      if(lmProj(m2)===p1){ results.push({key:k,verdict:'BLIND',value_before:lmValue(m1,k),value_after:lmValue(m2,k)}); continue; }
+      var moved=[];
+      for(var j=0;j<LMSPEC.length;j++) if(lmValue(m1,LMSPEC[j])!==lmValue(m2,LMSPEC[j])) moved.push(LMSPEC[j]);
+      results.push({key:k,verdict:(moved.indexOf(k)>=0?'LIVE':'DRIFT-ELSEWHERE'),moved:moved});
+    }
+    return {perturbable:true,controls:controls,results:results};
+  }catch(e){ return {perturbable:false,reason:'exception: '+(e&&e.message||e)}; }
+})()`;
+
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof refreshDisplayIds==='function'&&_appReady===true)`).catch(() => false); if (ok) return; if (Date.now() - t0 > 20000) throw new Error('editor not ready'); await sleep(150); } }
 
 // The round-trip, executed inside the editor for one fixture (text pre-set as window.__FIXTURE__).
@@ -591,6 +795,8 @@ const ROUNDTRIP_EXPR = `(function(){
   // T-886: the document-level set, interpolated from the same WMSPEC that checkWmDenominator()
   // checks against the emitter. This replaced a hand-typed four-key object literal.
   var WMSPEC = ${JSON.stringify(WMSPEC)};
+  // T-910: the lane-level set, on the same contract via checkLmDenominator().
+  var LMSPEC = ${JSON.stringify(LMSPEC)};
   // Key-order-independent. projEqual compares JSON.stringify output, so without canon() a
   // pure attribute-order difference would read as semantic drift.
   function canon(v){
@@ -629,8 +835,17 @@ const ROUNDTRIP_EXPR = `(function(){
       return { uid:(e.uid==null?'':e.uid), src:uidOf[e.source]||e.source, tgt:uidOf[e.target]||e.target,
                name:(e.name||null), condition:(e.condition||null) };
     }).sort(function(a,b){ return a.uid<b.uid?-1:a.uid>b.uid?1:0; });
-    var lanes = (m.lanes||[]).map(function(l){ return { id:l.id, authority:l.authority, abbr:(l.abbr||null) }; })
-      .sort(function(a,b){ return a.id<b.id?-1:a.id>b.id?1:0; });
+    // T-910: LMSPEC-driven, so an aef:laneMeta attribute cannot be in the emitter and absent from
+    // the comparison without checkLmDenominator() failing first. This was a hand-typed
+    // {id, authority, abbr}: height and authoringDefault were outside it, so suppressing either
+    // in the writer left the whole harness pass:true — measured under T-890 for authoringDefault.
+    // Absent and empty-string both normalise to null, matching the wm rule: the emitter omits
+    // authoringDefault when falsy, so "" and missing are the same wire state.
+    var lanes = (m.lanes||[]).map(function(l){
+      var o={id:l.id};
+      LMSPEC.forEach(function(k){ var v=l[k]; o[k]=(v==null||v==='')?null:String(v); });
+      return o;
+    }).sort(function(a,b){ return a.id<b.id?-1:a.id>b.id?1:0; });
     // T-886: WMSPEC-driven, so an attribute cannot be in the emitter and absent from the
     // comparison without checkWmDenominator() failing first. Absent and empty-string both
     // normalise to null: the emitter only writes these when truthy, so "" and missing are the
@@ -733,6 +948,34 @@ async function main() {
       wm_summary: `wm-denominator: ${WMDENOM.orphans.length} unclassified`,
     }, null, 2) + '\n');
     process.exitCode = 2; return;
+  }
+  // T-910: and the LANE level. Same reason, one element over.
+  let LMDENOM;
+  try { LMDENOM = checkLmDenominator(); }
+  catch (e) { process.stdout.write(JSON.stringify({ pass: false, lm_denominator_failed: true, error: 'lm-denominator derivation threw: ' + (e && e.message || e) }, null, 2) + '\n'); process.exitCode = 2; return; }
+  if (LMDENOM.problems.length) {
+    process.stdout.write(JSON.stringify({
+      pass: false, lm_denominator_failed: true,
+      error: 'the emitter writes aef:laneMeta attribute(s) this guard neither compares nor excludes — the T-885 census defect, reappearing one element over',
+      lm_denominator: LMDENOM,
+      lm_summary: `lm-denominator: ${LMDENOM.orphans.length} unclassified`,
+    }, null, 2) + '\n');
+    process.exitCode = 2; return;
+  }
+
+  // T-910: the three denominators are pure static reads of the emitter and cost no browser.
+  // --denominators-only runs just them, so the derived-denominator contract is checkable in a
+  // second rather than behind a headless Chrome the caller may not be able to spend. The full run
+  // is unchanged and still runs all three first.
+  if (process.argv.includes('--denominators-only')) {
+    process.stdout.write(JSON.stringify({
+      pass: true, denominators_only: true,
+      denominator: { derivedTotal: DENOM.derivedTotal, orphans: DENOM.orphans },
+      wm_denominator: { derivedTotal: WMDENOM.derivedTotal, derived: WMDENOM.derived, orphans: WMDENOM.orphans },
+      lm_denominator: { derivedTotal: LMDENOM.derivedTotal, derived: LMDENOM.derived, orphans: LMDENOM.orphans },
+      summary: `node ${DENOM.derivedTotal} / workflowMeta ${WMDENOM.derivedTotal} / laneMeta ${LMDENOM.derivedTotal} attributes derived, 0 unclassified`,
+    }, null, 2) + '\n');
+    process.exitCode = 0; return;
   }
 
   const doc = mkdtempSync(join(tmpdir(), 'rt-doc-'));
@@ -872,6 +1115,93 @@ async function main() {
           ? 'an aef:workflowMeta attribute survived mutation of its own carrier without moving the projection — that attribute is unguarded (the T-885 census defect)'
           : 'no aef:workflowMeta attribute could be exercised — the document-level self-test proved nothing',
         wm_selftest: wmTest,
+      }, null, 2) + '\n');
+      process.exitCode = 2; return;
+    }
+
+    // ── T-910: lane-level self-test, aggregated over the corpus ───────────────────────────────
+    // Per-fixture would be dishonest for the same reason it is at the two levels above:
+    // authoringDefault is carried by very few fixtures, so a per-document verdict cannot tell
+    // "this document sets no authoring default" from "authoringDefault is unguarded".
+    // T-910: witnesses are kept PER VERDICT, not pooled. The wm and node levels share one
+    // `witnesses` list across every verdict, so a BLIND finding is reported alongside fixture
+    // names that were LIVE — which sends the reader to open the wrong document. Hit on the first
+    // run of this leg: height came back BLIND on 1 of 20 and the two names printed next to it
+    // were both fixtures where it was live. Filed for the other two levels rather than changed
+    // here, so this task does not quietly rewrite guards it is not about.
+    const lmPerKey = new Map(LMSPEC.map(k => [k, { key: k, LIVE: 0, BLIND: 0, ELSEWHERE: 0, absent: 0, not_applied: 0, unexercisable: 0, unexercisable_detail: null, w: { LIVE: [], BLIND: [], ELSEWHERE: [], NOT_APPLIED: [], NOT_EXERCISABLE: [] } }]));
+    const lmTest = { fixtures_exercised: 0, unperturbable: [], setup_broken: [] };
+    for (const name of fixtures) {
+      const text = readFileSync(join(FIXturesDir, name), 'utf8');
+      await ev(cmd, `window.__FIXTURE__ = ${JSON.stringify(text)};`);
+      const r = await ev(cmd, LM_PREFLIGHT_EXPR);
+      // The control set is the first thing scored, and a broken mutator is reported as broken
+      // rather than being allowed to contribute survivals to a coverage number.
+      if (r && r.reason === 'MUTATION SETUP BROKEN') { lmTest.setup_broken.push({ fixture: name, controls: r.controls }); continue; }
+      if (!r || !r.perturbable) { lmTest.unperturbable.push({ fixture: name, reason: r && r.reason }); continue; }
+      lmTest.fixtures_exercised++;
+      for (const res of r.results) {
+        const agg = lmPerKey.get(res.key); if (!agg) continue;
+        if (res.verdict === 'LIVE') { agg.LIVE++; if (agg.w.LIVE.length < 3) agg.w.LIVE.push(name); }
+        else if (res.verdict === 'BLIND') { agg.BLIND++; if (agg.w.BLIND.length < 3) agg.w.BLIND.push({ fixture: name, value_before: res.value_before, value_after: res.value_after }); }
+        else if (res.verdict === 'DRIFT-ELSEWHERE') { agg.ELSEWHERE++; if (agg.w.ELSEWHERE.length < 3) agg.w.ELSEWHERE.push(name); }
+        else if (res.verdict === 'MUTATION-NOT-APPLIED') { agg.not_applied++; if (agg.w.NOT_APPLIED.length < 3) agg.w.NOT_APPLIED.push(name); }
+        else if (res.verdict === 'NOT-EXERCISABLE') { agg.unexercisable++; agg.unexercisable_detail = agg.unexercisable_detail || { reason: res.reason, lane: res.lane, authored: res.authored, parsed: res.parsed }; if (agg.w.NOT_EXERCISABLE.length < 3) agg.w.NOT_EXERCISABLE.push(name); }
+        else agg.absent++;
+      }
+    }
+    const lmKeys = [...lmPerKey.values()];
+    lmTest.live = lmKeys.filter(k => k.LIVE > 0).map(k => k.key);
+    lmTest.blind = lmKeys.filter(k => k.BLIND > 0).map(k => ({ key: k.key, docs: k.BLIND, blind_in: k.w.BLIND, also_live_in: k.w.LIVE }));
+    lmTest.drift_elsewhere = lmKeys.filter(k => k.ELSEWHERE > 0).map(k => ({ key: k.key, docs: k.ELSEWHERE }));
+    // A mutation that never applied is NOT a survival and NOT an absence — it is a broken probe,
+    // and it is kept as its own state so it can never be read as either.
+    lmTest.mutation_not_applied = lmKeys.filter(k => k.not_applied > 0).map(k => ({ key: k.key, docs: k.not_applied, not_applied_in: k.w.NOT_APPLIED }));
+    // NEVER-PRESENT is reported and is NOT counted as covered — per T-3105, NOT EVALUATED is not
+    // PASSED.
+    // Four distinct unproven states, kept apart because they have four different remedies:
+    //   NEVER-PRESENT    no fixture carries the attribute        -> author a fixture that sets it
+    //   NOT-EXERCISABLE  carried, but transformed on import      -> the probe cannot reach it; say so
+    //   NOT-APPLIED      the mutation never landed               -> the HARNESS is broken
+    //   BLIND            mutated, read through, did not move     -> the GUARD is at fault
+    // Collapsing any pair sends the reader to the wrong repair. The first version of this leg
+    // collapsed the middle two into BLIND and accused an innocent projection.
+    lmTest.not_exercisable = lmKeys.filter(k => k.LIVE === 0 && k.BLIND === 0 && k.ELSEWHERE === 0 && k.not_applied === 0 && k.unexercisable > 0)
+      .map(k => ({ key: k.key, docs: k.unexercisable, in_fixtures: k.w.NOT_EXERCISABLE, detail: k.unexercisable_detail }));
+    // An attribute LIVE somewhere and merely unexercisable elsewhere is proven; it is the ones
+    // proven NOWHERE that are reported unproven.
+    lmTest.partially_exercisable = lmKeys.filter(k => k.LIVE > 0 && k.unexercisable > 0)
+      .map(k => ({ key: k.key, live_docs: k.LIVE, unexercisable_docs: k.unexercisable, in_fixtures: k.w.NOT_EXERCISABLE, detail: k.unexercisable_detail }));
+    lmTest.never_present = lmKeys.filter(k => k.LIVE === 0 && k.BLIND === 0 && k.ELSEWHERE === 0 && k.not_applied === 0 && k.unexercisable === 0).map(k => k.key);
+    lmTest.excluded = LMDENOM.excluded.map(k => ({ key: k, reason: LM_EXCLUDED[k] }));
+    lmTest.lm_denominator = LMDENOM;
+    lmTest.exercised_fraction = `${lmTest.live.length}/${LMDENOM.derivedTotal}`;
+    // T-910 AC4: authority is called out separately WHATEVER IT SHOWS. It is the
+    // authority-of-record under §3 of docs/standards/aef-bpmn-mapping-v1.md, so its state is a
+    // seam-integrity fact a reader must be able to see without decoding a fraction — and it sat
+    // on the lucky side of a hand-typed projection by accident, not by guarantee.
+    {
+      const a = lmPerKey.get('authority');
+      lmTest.authority = {
+        attribute: 'aef:laneMeta/@authority',
+        state: a.BLIND > 0 ? 'BLIND' : a.not_applied > 0 ? 'MUTATION-NOT-APPLIED' : a.LIVE > 0 ? 'LIVE' : a.ELSEWHERE > 0 ? 'DRIFT-ELSEWHERE' : a.unexercisable > 0 ? 'NOT-EXERCISABLE' : 'NEVER-PRESENT',
+        live_docs: a.LIVE, blind_docs: a.BLIND, elsewhere_docs: a.ELSEWHERE, not_applied_docs: a.not_applied,
+        why_reported_separately: 'v1 §3 authority-of-record. Silent loss here is a seam-integrity defect, not a cosmetic one, so it is stated outright rather than averaged into a coverage fraction.',
+      };
+    }
+    lmTest.summary = `lm-denominator: ${LMDENOM.orphans.length} unclassified / ${LMDENOM.derivedTotal} written / ${lmTest.live.length} LIVE / ${lmTest.blind.length} BLIND / ${lmTest.mutation_not_applied.length} NOT-APPLIED / ${lmTest.not_exercisable.length} NOT-EXERCISABLE / ${lmTest.never_present.length} NEVER-PRESENT / ${lmTest.excluded.length} EXCLUDED over ${lmTest.fixtures_exercised} fixtures; authority=${lmTest.authority.state}`;
+    verdict.lm_selftest = lmTest;
+    if (lmTest.setup_broken.length || lmTest.mutation_not_applied.length || lmTest.blind.length || lmTest.live.length === 0) {
+      process.stdout.write(JSON.stringify({
+        pass: false, lm_selftest_failed: true,
+        error: lmTest.setup_broken.length
+          ? `MUTATION SETUP BROKEN — the lane-level mutator failed its own controls on ${lmTest.setup_broken.length} fixture(s); no kill or survival below is evidence of anything`
+          : lmTest.mutation_not_applied.length
+          ? 'MUTATION SETUP BROKEN — a lane-level mutation did not apply, and an unapplied mutation is indistinguishable from a survival'
+          : lmTest.blind.length
+          ? 'an aef:laneMeta attribute survived mutation of its own carrier without moving the projection — that attribute is unguarded (the T-885 census defect, one element over)'
+          : 'no aef:laneMeta attribute could be exercised — the lane-level self-test proved nothing',
+        lm_selftest: lmTest,
       }, null, 2) + '\n');
       process.exitCode = 2; return;
     }
