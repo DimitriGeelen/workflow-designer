@@ -11,17 +11,17 @@ description: >
   GO they are filed separately and in the same session (this project's measured GO-to-successor
   decay is 26 of 30).
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: agent
-horizon: now
+horizon: null
 arc_id: process-instances
 tags: [arc:process-instances]
 components: []
 related_tasks: []
 created: 2026-09-26T22:42:30Z
-last_update: 2026-09-27T00:02:07Z
-date_finished:
+last_update: 2026-09-27T22:44:54Z
+date_finished: 2026-09-27T22:44:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -215,15 +215,15 @@ We will know that we are successful when we see a single command, run against at
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
 - [x] Assumptions tested — A1 HELD (and more strongly than stated), A2 FALSE (no minting needed), A3 HALF FALSE (template derivable, node not). Two of three inverted; artifact: docs/reports/T-878-process-instance-identity.md §2
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -282,7 +282,23 @@ WHAT A NO-GO WOULD HAVE LOOKED LIKE, so the GO is not reflexive: had the node id
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO — on the REDUCED scope the findings identify, not the scope this was filed with.
+
+Rationale: Two of three assumptions came back FALSE, both in the cheap direction. (A2) No new identifier is needed: `T-873` is already stable, unique, human-legible and referenced corpus-wide, and minting a uuid beside it would be a second id for one object. (A3) Half the binding needs no authoring at all — "which template" is derivable from `workflow_type`, a closed set with one template per entity kind. What genuinely remains is ONE new thing: a recorded current-node per entity, and it is needed because `task-lifecycle` carries 15 lane-prefixed node ids (`frw_1_task`, `agt_1_write`, `hum_1_human`, …) against roughly five task statuses, with no mapping table anywhere in the tree. Position cannot be computed; it has to be recorded.
+
+That is materially smaller than SD-10's framing of "instance files, identity scheme, gated setter", and smaller than what arc-005's scope assumed when it filed T-880 and T-881. Those two should be REWRITTEN against this finding rather than adapted — their own bodies already say a different design means rewrite, not adapt.
+
+WHAT A NO-GO WOULD HAVE LOOKED LIKE, so the GO is not reflexive: had the node ids corresponded to task statuses, resolution would have been a query over data the task system already holds, no instance object would have been needed, and the honest answer would have been NO-GO on building anything. I checked for that first. It is not there.
+
+Evidence:
+- Three binding candidates checked, all negative. The designer registry binds workflow refs to workflows (off-page connectors), not entities to templates; no task frontmatter field points at a map.
+- `update-task.sh:249` — the one hairline I had cited twice as existing — is guarded on `.context/designer/projects/aef-task-lifecycle/meta.json`, which is ABSENT. Positive control: sibling `audit-process/meta.json` exists, so the path shape is right and only the name is wrong. That hint has never executed in this project, and SD-10's "no binding" is therefore more completely true than I represented it.
+- 15 map node ids vs ~5 task statuses, no mapping table in the tree.
+- `workflow_type` is a closed set and the corpus holds a template per entity kind.
+
+**Date**: 2026-09-27T22:44:53Z
 
 ## Updates
 
@@ -291,3 +307,55 @@ WHAT A NO-GO WOULD HAVE LOOKED LIKE, so the GO is not reflexive: had the node id
 
 ### 2026-09-26T23:57:46Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-09-27T22:44:53Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO — on the REDUCED scope the findings identify, not the scope this was filed with.
+
+Rationale: Two of three assumptions came back FALSE, both in the cheap direction. (A2) No new identifier is needed: `T-873` is already stable, unique, human-legible and referenced corpus-wide, and minting a uuid beside it would be a second id for one object. (A3) Half the binding needs no authoring at all — "which template" is derivable from `workflow_type`, a closed set with one template per entity kind. What genuinely remains is ONE new thing: a recorded current-node per entity, and it is needed because `task-lifecycle` carries 15 lane-prefixed node ids (`frw_1_task`, `agt_1_write`, `hum_1_human`, …) against roughly five task statuses, with no mapping table anywhere in the tree. Position cannot be computed; it has to be recorded.
+
+That is materially smaller than SD-10's framing of "instance files, identity scheme, gated setter", and smaller than what arc-005's scope assumed when it filed T-880 and T-881. Those two should be REWRITTEN against this finding rather than adapted — their own bodies already say a different design means rewrite, not adapt.
+
+WHAT A NO-GO WOULD HAVE LOOKED LIKE, so the GO is not reflexive: had the node ids corresponded to task statuses, resolution would have been a query over data the task system already holds, no instance object would have been needed, and the honest answer would have been NO-GO on building anything. I checked for that first. It is not there.
+
+Evidence:
+- Three binding candidates checked, all negative. The designer registry binds workflow refs to workflows (off-page connectors), not entities to templates; no task frontmatter field points at a map.
+- `update-task.sh:249` — the one hairline I had cited twice as existing — is guarded on `.context/designer/projects/aef-task-lifecycle/meta.json`, which is ABSENT. Positive control: sibling `audit-process/meta.json` exists, so the path shape is right and only the name is wrong. That hint has never executed in this project, and SD-10's "no binding" is therefore more completely true than I represented it.
+- 15 map node ids vs ~5 task statuses, no mapping table in the tree.
+- `workflow_type` is a closed set and the corpus holds a template per entity kind.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c7c14f97
+- **Timestamp:** 2026-09-27T22:44:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-5
+     - evidence: `IW-5 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-0d9d3ee9
+- **Timestamp:** 2026-09-27T22:44:55Z
+- **Overall:** CONTRADICTED
+- **Claims:** 5
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-873` | task | ✓ pass |
+| `.context/designer/projects/aef-task-lifecycle/meta.json` | file | ✗ fail — file not found at PROJECT_ROOT |
+| `audit-process/meta.json` | file | ✗ fail — file not found at PROJECT_ROOT |
+| `T-880` | task | ✓ pass |
+| `T-881` | task | ✓ pass |
+
+### 2026-09-27T22:44:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
