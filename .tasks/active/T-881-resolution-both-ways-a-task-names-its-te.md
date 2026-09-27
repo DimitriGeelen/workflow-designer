@@ -7,7 +7,7 @@ description: >
 status: captured
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: [arc:process-instances]
 components: []
 related_tasks: []
@@ -22,7 +22,7 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:43:15Z
-last_update: 2026-09-26T22:43:15Z
+last_update: 2026-09-27T22:49:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,14 +40,49 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Rewritten 2026-09-28 against T-878's GO, not adapted to it** — as T-881's own body reserved.
+
+Filed as "resolution both ways: given `T-873` name its template and node; given a template list
+its live instances". T-878's findings shrink the forward direction to almost nothing and leave the
+reverse direction as the real work:
+
+- **Forward** (`T-873` → template + node): the template is **derived** from `workflow_type`
+  (A3 FALSE) and the node is **read** from what T-880 records. No lookup table, no join, no new
+  identity to resolve through (A2 FALSE). This is a read and a derivation.
+- **Reverse** (template → live instances): this is a **query over the task corpus** — every entity
+  whose derived template is this one, with its recorded node. There is no index to maintain
+  because there is no instance file to index; the corpus is the index.
+
+**Depends on T-880.** There is nothing to resolve to until a current node is recorded. Resolution
+built first would have to invent the thing it resolves.
+
+**The two states that must not collapse.** A template with no live instances and a template that
+does not exist are different answers, and so are an entity with no recorded node and an entity
+whose `workflow_type` has no template at all. Per T-3105 this project's grammar is that NOT
+EVALUATED is not PASSED; an empty list that cannot distinguish "nothing matched" from "nothing was
+asked" is the same false-silence defect the arc exists to remove.
+
+**Template of record:** `examples/aef-processes/rendered/<id>.bpmn`, the AEF-pinned seam artefact.
+Not `.editor-versions/<id>/vN.bpmn` (an editor snapshot) and not
+`examples/aef-processes/<id>.workflow.yaml`, whose node ids are a **different set** — the YAML
+carries `c_sovereignty`/`c_acceptance`/… where the rendered BPMN carries the 15 `frw_*`/`agt_*`/
+`hum_*` ids. Resolving against the wrong one returns node ids that do not exist in the artefact
+AEF pins.
+
+**Unblocked by:** T-878 GO (2026-09-27). Arc slice S2 / manifest item B6.
+
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+### Agent
+- [ ] **Forward resolution:** given a governed entity id, the answer names its template file and its recorded current node. The template is derived from `workflow_type`; nothing is read from an authored binding field
+- [ ] **Reverse resolution:** given a template, the answer lists every live entity bound to it with each one's recorded node — computed over the task corpus, with no instance index to maintain
+- [ ] **Four states are distinguishable, not collapsed:** template exists with live instances · template exists with none · `workflow_type` maps to no template · entity has a template but no recorded node. Each is named in the output; none renders as a bare empty list
+- [ ] Resolution targets `examples/aef-processes/rendered/<id>.bpmn` and a leg **proves it is not the YAML**: a node id valid in the rendered artefact and absent from the YAML resolves, and the converse (`c_sovereignty`) does not
+- [ ] **Round-trip agreement:** for every entity the reverse query returns under a template, forward resolution on that entity returns the same template. A disagreement is a hard failure, not a warning
+- [ ] **Controls before scoring:** the reverse query is exercised against a template with a known non-zero instance count AND one with a known zero, so an empty result is proven to be a measurement rather than a broken query (PL-328 — an absence assertion needs a sibling proving the pattern is findable)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -304,3 +339,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-881-resolution-both-ways-a-task-names-its-te.md
 - **Context:** Initial task creation
+
+### 2026-09-27T22:49:06Z — status-update [task-update-agent]
+- **Change:** horizon: later → now

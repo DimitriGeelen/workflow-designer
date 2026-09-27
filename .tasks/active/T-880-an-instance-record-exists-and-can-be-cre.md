@@ -7,7 +7,7 @@ description: >
 status: captured
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: [arc:process-instances]
 components: []
 related_tasks: []
@@ -22,7 +22,7 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:43:11Z
-last_update: 2026-09-26T22:43:11Z
+last_update: 2026-09-27T22:49:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,14 +40,59 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Rewritten 2026-09-28 against T-878's GO, not adapted to it** — T-880's own body reserved that:
+a different design means rewrite. T-878 measured three assumptions and **two came back FALSE, both
+in the cheap direction**, so what this task delivers is materially smaller than what it was filed
+with.
+
+| assumption | verdict | consequence for this task |
+|---|---|---|
+| A2 — an instance needs a new identifier | **FALSE** | `T-873` is already stable, unique, human-legible and referenced corpus-wide. Minting a uuid beside it would be a second id for one object. **The entity IS the instance.** No instance file, no identity scheme. |
+| A3 — the template binding must be authored | **FALSE** | "which template" is DERIVABLE from `workflow_type`, a closed set with one template per entity kind. **Nothing to author.** |
+| A1 — position can be computed from existing state | **FALSE** | The one thing that survives. |
+
+**So this task delivers ONE new thing: a recorded current node per governed entity.**
+
+**Why it must be recorded rather than computed** — re-measured under T-910's session rather than
+inherited from the inception's prose:
+
+- `examples/aef-processes/rendered/task-lifecycle.bpmn` carries **15 lane-prefixed flow nodes**
+  (`frw_1_task`, `agt_1_write`, `hum_1_human`, `frw_2_build`, … — 1 start, 1 end, 2 serviceTask,
+  1 userTask, 6 scriptTask, 4 exclusiveGateway).
+- `update-task.sh`'s transition dispatch knows **3** statuses (`started-work`, `issues`,
+  `work-completed`), ~5 counting `captured` and `partial-complete`.
+- **There is no mapping table anywhere in the tree.** 15 into 5 does not divide, and nothing
+  records which of the 15 an entity is on. Position is not derivable; it has to be written down.
+
+**The template of record is `examples/aef-processes/rendered/<id>.bpmn`** — the AEF-pinned seam
+artefact, not the editor snapshot and not the corpus YAML. This matters and was nearly a trap:
+`examples/aef-processes/task-lifecycle.workflow.yaml` carries **zero** lane-prefixed node ids (its
+ids are `c_sovereignty`, `c_acceptance`, …), while `.editor-versions/task-lifecycle/v3.bpmn` and
+the rendered BPMN both carry the same 15. A current-node value pointing into the YAML would refer
+to nodes that do not exist in the pinned artefact.
+
+**A live defect this sits on top of.** `update-task.sh:249` guards on
+`.context/designer/projects/aef-task-lifecycle/meta.json`, which **does not exist** — the
+directory holds `audit-process/`, `t101-review-task-lifecycle/` and five others, but no
+`aef-task-lifecycle/`. Positive control: `audit-process/meta.json` IS present, so the path shape
+is right and only the name is wrong. That hint has therefore **never executed in this project**,
+which makes T-878's "no binding exists" more completely true than the inception first represented
+it. It is the natural hook point for this work and must be resolved rather than built beside.
+
+**Unblocked by:** T-878 GO (2026-09-27). Arc slice S2 / manifest item B5.
+
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+### Agent
+- [ ] A governed entity can carry a **recorded current node**, and the value is constrained to node ids that exist in its bound template. An arbitrary string is refused, naming the template it was checked against
+- [ ] The **template binding is DERIVED from `workflow_type`**, never authored — proving A3. The derivation names the file it resolved to, and resolves to `examples/aef-processes/rendered/<id>.bpmn` (the AEF-pinned artefact), not the editor snapshot and not the corpus YAML
+- [ ] **No new identifier is minted** — proving A2. The entity's existing id is the instance identity. A grep for a new uuid/instance-id field in the delivered surface returns nothing
+- [ ] `workflow_type` values with **no template** are a distinct, named state from entities that have a template and no recorded position. NOT EVALUATED is not PASSED (T-3105); the two must not collapse into one silent absence
+- [ ] The dead hint at `update-task.sh:249` is **resolved, not bypassed**: either repointed at a path that exists or removed with a reason. A verification leg proves the chosen branch — if repointed, that the guard now fires; if removed, that no caller depends on it
+- [ ] **Proved by mutation, with a control set that runs first.** Feed a node id absent from the template and the setter refuses naming it; feed a valid one and it is recorded. Every mutation is asserted applied before its result is scored, and a broken harness reports `MUTATION SETUP BROKEN` rather than scoring kills
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -304,3 +349,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-880-an-instance-record-exists-and-can-be-cre.md
 - **Context:** Initial task creation
+
+### 2026-09-27T22:49:06Z — status-update [task-update-agent]
+- **Change:** horizon: later → now

@@ -17,7 +17,7 @@ horizon: null
 arc_id: process-instances
 tags: [arc:process-instances]
 components: []
-related_tasks: []
+related_tasks: [T-882, T-883, T-279]
 created: 2026-09-26T22:42:46Z
 last_update: 2026-09-27T22:45:10Z
 date_finished: 2026-09-27T22:45:10Z
