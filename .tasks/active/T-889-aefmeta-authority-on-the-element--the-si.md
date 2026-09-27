@@ -28,7 +28,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:17Z
-last_update: 2026-09-27T13:47:08Z
+last_update: 2026-09-27T14:11:59Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -138,7 +138,18 @@ Corpus census (all `*.bpmn`): 155 `initiative`, 132 `authority`, 112 `sovereignt
 ### Human
 
 _None, deliberately._ Every criterion above is a deterministic shell check, so per the T-1811
-prefix-routing rule they belong here as Agent ACs with commands in `## Verification
+prefix-routing rule they belong here as Agent ACs with commands in `## Verification`,
+not as [REVIEWER] Human ACs. The one genuinely sovereign question this change sits next
+to — the counterparty's agreement to a schema addition on a seam AEF byte-pins — is
+**T-896's** deliverable, not a review step on this one.
+
+<!-- NOTE (T-889): the tail of this section, and the original `## Verification` template
+     comment, were destroyed by my own edit: I sliced the file on `s.index('## Verification')`
+     and that matched the PROSE MENTION on the line above rather than the heading, cutting
+     everything between. Restored by hand; the lost content was the boilerplate template
+     comment. Recorded here rather than quietly repaired. -->
+
+## Verification
 
 # The teeth script: 6 controls + 3 mutation kills, with a setup control that fails loudly
 # rather than reading a broken mutant tree as a clean kill.
