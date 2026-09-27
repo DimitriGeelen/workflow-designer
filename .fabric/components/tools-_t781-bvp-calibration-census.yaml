@@ -1,0 +1,21 @@
+id: tools/_t781-bvp-calibration-census.py
+name: _t781-bvp-calibration-census
+type: script
+subsystem: instruments
+location: tools/_t781-bvp-calibration-census.py
+tags: []
+
+purpose: "T-781 RCA: measure the estimator's output over the whole population."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

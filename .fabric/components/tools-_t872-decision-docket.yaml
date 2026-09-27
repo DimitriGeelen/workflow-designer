@@ -1,0 +1,21 @@
+id: tools/_t872-decision-docket.py
+name: _t872-decision-docket
+type: script
+subsystem: instruments
+location: tools/_t872-decision-docket.py
+tags: []
+
+purpose: "T-872 — generate one ordered docket of every open operator decision."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

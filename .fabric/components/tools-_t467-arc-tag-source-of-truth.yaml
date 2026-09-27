@@ -1,20 +1,12 @@
 id: tools/_t467-arc-tag-source-of-truth.py
 name: _t467-arc-tag-source-of-truth
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t467-arc-tag-source-of-truth.py
 tags: []
-
-purpose: "TODO: describe what this component does"
-
-depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
-
-depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
-
+purpose: 'T-467: `fw arc tag` must write the source-of-truth field, not the deprecated one.'
+depends_on: []
+depended_by: []
 last_verified: 2026-09-05
 created_by: unknown
+purpose_source: docstring

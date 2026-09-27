@@ -1,0 +1,21 @@
+id: tools/_t848-realization-check.py
+name: _t848-realization-check
+type: script
+subsystem: instruments
+location: tools/_t848-realization-check.py
+tags: []
+
+purpose: "T-848 — report on the realization ledger: what was predicted, what was observed."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

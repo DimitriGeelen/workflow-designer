@@ -1,0 +1,21 @@
+id: tools/hooks/fix-absence-hook-path.py
+name: fix-absence-hook-path
+type: script
+subsystem: enforcement-hooks
+location: tools/hooks/fix-absence-hook-path.py
+tags: []
+
+purpose: "T-857 — repair the ONE hook entry whose path Claude Code cannot resolve."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

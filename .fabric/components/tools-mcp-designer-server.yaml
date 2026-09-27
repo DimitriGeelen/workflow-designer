@@ -1,0 +1,21 @@
+id: tools/mcp-designer-server.py
+name: mcp-designer-server
+type: script
+subsystem: seam-tooling
+location: tools/mcp-designer-server.py
+tags: []
+
+purpose: "AEF Workflow Designer — MCP server (local stdio, zero dependencies)."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

@@ -1,0 +1,148 @@
+# Component-fabric subsystem taxonomy (832 T-908)
+#
+# WHAT THIS IS AND WHY IT APPEARED LATE. `fw fabric register` has always refused a file
+# whose path matches no rule here — "no subsystem rule matches — add a paths: pattern to
+# .fabric/subsystems.yaml" (agents/fabric/lib/register.sh:352). This file did not exist.
+# So registration refused EVERY new file, drift could only grow, and the audit reported
+# 32 unregistered sources / 36 `unknown` subsystems / 84 zero-edge cards of 415 for weeks
+# with a remedy naming a file nobody could edit. The refusal was correct; the target was
+# missing.
+#
+# HOW IT IS READ (agents/fabric/lib/describe.py):
+#   load_subsystem_rules() flattens this to [(pattern, id)] sorted LONGEST PATTERN FIRST,
+#   so specificity wins regardless of the order written here.
+#   derive_subsystem() then applies `fnmatch.fnmatch(relative_path, pattern)` and takes
+#   the FIRST match. Note fnmatch's `*` CROSSES `/` — `tools/*.sh` matches
+#   `tools/hooks/x.sh` — which is why the hook rules below are spelled long enough to
+#   outrank the generic tools rules by length.
+#
+# DERIVED, NOT INVENTED. Every id below either already appears on committed cards or
+# names a directory that exists. Card census at authoring time:
+#   instruments 280 · unknown 36 · ewcr-arc-0 28 · tests 25 · verification 21
+#   verification-probes 7 · conformance 6 · release 4 · instrumentation 4 · scripts 3
+#   tools 2 · bpmn-export 1
+# Location census: tools/ 352 · tests/ 54 · scripts/ 4 · docs/ 2 · .context/ 2 · src/ 1
+#
+# ON THE INCOHERENT VOCABULARY, recorded rather than silently tidied: `instruments`,
+# `instrumentation`, `verification` and `verification-probes` are four names for
+# overlapping ideas, and `tools` names the directory rather than a subsystem. This file
+# keeps **instruments** — it carries 280 of 417 cards and is the honest description of
+# what this corpus mostly is — and routes new registrations there. The other three are
+# NOT rewritten on existing cards: those are committed records, a rename would churn
+# 32 of them for no measured gain, and `.context/audits/**` teaches that a committed
+# record is not a thing to rewrite. They remain as legacy synonyms and the discrepancy
+# stays visible.
+
+subsystems:
+  # ── The product itself ────────────────────────────────────────────────────
+  - id: designer
+    paths:
+      - "src/*"
+      - "src/aef-workflow-designer.html"
+
+  # ── The BPMN/task-YAML seam: validator, bridge, CLI ───────────────────────
+  # Named separately from `instruments` because these are CONSUMED by AEF across the
+  # seam, not run to check ourselves. A change here is a contract change.
+  - id: seam-tooling
+    paths:
+      - "tools/validate-workflow.py"
+      - "tools/yaml-to-bpmn.py"
+      - "tools/bpmn-cli.py"
+      - "tools/mcp-designer-server.py"
+      - "tools/bake-clean-layout.py"
+      - "tools/check-lane-bands.py"
+
+  # ── Browser-driven harnesses ──────────────────────────────────────────────
+  # Their own id because they carry an operational dependency nothing else does: a
+  # headless chromium. When chromium is absent these SKIP, and a skip that reads as a
+  # pass is the defect class this project hunts — so they are worth counting apart.
+  - id: browser-harness
+    paths:
+      - "tools/*-cdp.mjs"
+      - "tools/_cdp-attach.mjs"
+
+  # ── Hooks: installed into the enforcement path ────────────────────────────
+  # Deliberately longer than the generic tools/* rules so it outranks them by length
+  # under the longest-pattern-first sort (fnmatch `*` crosses `/`).
+  - id: enforcement-hooks
+    paths:
+      - "tools/hooks/*"
+      - "tools/hooks/*.sh"
+      - "tools/hooks/*.py"
+
+  # ── Task-scoped verification instruments — the bulk of this corpus ────────
+  # teeth, controls, probes, censuses, gates: everything written to make one claim
+  # checkable. 280 committed cards already say `instruments`.
+  - id: instruments
+    paths:
+      - "tools/_*"
+      - "tools/_*.sh"
+      - "tools/_*.py"
+      - "tools/_*.mjs"
+      - "tools/*-teeth.sh"
+      - "tools/*-controls.sh"
+      - "tools/*-census.py"
+      - "tools/*-probe.py"
+      - "tools/*-probe.sh"
+      - "tools/*-verify.py"
+      - "tools/*-tests.sh"
+      - "tools/*-gate.py"
+      - "tools/census-dead-legs.py"
+      - "tools/check-vacuous-verification.py"
+      - "tools/verification-hygiene.py"
+      - "tools/tracked-secret-artifacts.py"
+      - "tools/concerns-schema.py"
+      - "tools/operator-actions.sh"
+      - "tools/*"
+
+  # ── Test suites and their fixtures ────────────────────────────────────────
+  - id: fixtures
+    paths:
+      - "tests/fixtures/*"
+      - "tests/goldens/*"
+      - "tests/data/*"
+  - id: tests
+    paths:
+      - "tests/*"
+      - "tests/*.py"
+      - "tests/*.sh"
+      - "tests/*.bats"
+      - "tests/unit/*"
+      - "tests/governance/*"
+
+  # ── Operational surfaces ──────────────────────────────────────────────────
+  - id: scripts
+    paths:
+      - "scripts/*"
+  - id: cli
+    paths:
+      - "bin/*"
+
+  # ── Records: docs, context fabric, the fabric's own config ────────────────
+  # Registered rather than excluded: a card pointing at a record is how blast-radius
+  # learns that a change to a standard has downstream readers.
+  - id: standards
+    paths:
+      - "docs/standards/*"
+  - id: reports
+    paths:
+      - "docs/reports/*"
+      - "docs/plans/*"
+      - "docs/proposals/*"
+      - "docs/research/*"
+  - id: docs
+    paths:
+      - "docs/*"
+  - id: context-fabric
+    paths:
+      - ".context/*"
+      - ".fabric/*"
+      - ".fabric/watch-patterns.yaml"
+      - ".fabric/subsystems.yaml"
+  - id: tasks
+    paths:
+      - ".tasks/*"
+      - ".tasks/templates/*"
+  - id: policy
+    paths:
+      - "policy/*"

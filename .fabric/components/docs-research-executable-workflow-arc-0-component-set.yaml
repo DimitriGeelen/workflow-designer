@@ -1,7 +1,7 @@
 id: docs/research/executable-workflow/arc-0-component-set.txt
 name: arc-0-component-set
 type: script
-subsystem: unknown
+subsystem: reports
 location: docs/research/executable-workflow/arc-0-component-set.txt
 tags: []
 purpose: 'TODO: describe what this component does'

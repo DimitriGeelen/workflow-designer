@@ -1,0 +1,21 @@
+id: tools/_t889-authority-on-the-element-teeth.sh
+name: _t889-authority-on-the-element-teeth
+type: script
+subsystem: instruments
+location: tools/_t889-authority-on-the-element-teeth.sh
+tags: []
+
+purpose: "_t889-authority-on-the-element-teeth.sh — prove the T-889 controls can actually FAIL."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

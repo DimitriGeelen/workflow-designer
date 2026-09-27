@@ -1,10 +1,10 @@
 id: tools/_t696-voi-recurrence.py
 name: _t696-voi-recurrence
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t696-voi-recurrence.py
 tags: []
-purpose: 'TODO: describe what this component does'
+purpose: T-696 — measure the RECURRENCE, not the state.
 depends_on:
 - target: tools/_t624-voi-provenance.py
   type: calls
@@ -12,3 +12,4 @@ depended_by: []
 last_verified: 2026-09-19
 created_by: unknown
 last_enriched: '2026-09-21'
+purpose_source: docstring

@@ -1,0 +1,21 @@
+id: tools/_t821-swallowed-failure-census.py
+name: _t821-swallowed-failure-census
+type: script
+subsystem: instruments
+location: tools/_t821-swallowed-failure-census.py
+tags: []
+
+purpose: "_t821-swallowed-failure-census.py — every swallowed failure in src/ is instrumented or explicitly excused, and nothing is merely forgotten."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

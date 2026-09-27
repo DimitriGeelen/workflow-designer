@@ -1,20 +1,12 @@
 id: tools/_t774-create-task-substitution-probe.sh
 name: _t774-create-task-substitution-probe
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t774-create-task-substitution-probe.sh
 tags: []
-
-purpose: "TODO: describe what this component does"
-
-depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
-
-depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
-
+purpose: T-774 (OBS-363) — does create-task.sh survive a task name that contains its own frontmatter keys?
+depends_on: []
+depended_by: []
 last_verified: 2026-09-21
 created_by: unknown
+purpose_source: header-comment

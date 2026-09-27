@@ -1,7 +1,7 @@
 id: .context/inbox.yaml
 name: inbox
 type: config
-subsystem: unknown
+subsystem: context-fabric
 location: .context/inbox.yaml
 tags: []
 purpose: 'TODO: describe what this component does'

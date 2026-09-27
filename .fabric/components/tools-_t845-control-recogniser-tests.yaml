@@ -1,0 +1,21 @@
+id: tools/_t845-control-recogniser-tests.sh
+name: _t845-control-recogniser-tests
+type: script
+subsystem: instruments
+location: tools/_t845-control-recogniser-tests.sh
+tags: []
+
+purpose: "T-845 — tests for _t560's control RECOGNISER (control_level / control_reason)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

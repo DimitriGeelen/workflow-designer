@@ -1,20 +1,12 @@
 id: tools/_t767-ownership-correspondence.sh
 name: _t767-ownership-correspondence
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t767-ownership-correspondence.sh
 tags: []
-
-purpose: "TODO: describe what this component does"
-
-depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
-
-depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
-
+purpose: T-767 — ownership must follow the presence of a real Human acceptance criterion.
+depends_on: []
+depended_by: []
 last_verified: 2026-09-21
 created_by: unknown
+purpose_source: header-comment

@@ -1,20 +1,12 @@
 id: tools/_t684-mutation-control.py
 name: _t684-mutation-control
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t684-mutation-control.py
 tags: []
-
-purpose: "TODO: describe what this component does"
-
-depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
-
-depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
-
+purpose: _t684-mutation-control.py — mutation control for the /api/save containment fence.
+depends_on: []
+depended_by: []
 last_verified: 2026-09-07
 created_by: unknown
+purpose_source: docstring

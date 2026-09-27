@@ -1,0 +1,21 @@
+id: tools/_t784-endpoint-resolution-census.py
+name: _t784-endpoint-resolution-census
+type: script
+subsystem: instruments
+location: tools/_t784-endpoint-resolution-census.py
+tags: []
+
+purpose: "T-784: do the workflows the Designer authors reach anything that runs?"
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

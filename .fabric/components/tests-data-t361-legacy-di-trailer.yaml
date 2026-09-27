@@ -1,10 +1,11 @@
 id: tests/data/t361-legacy-di-trailer.txt
 name: t361-legacy-di-trailer
 type: script
-subsystem: unknown
+subsystem: fixtures
 location: tests/data/t361-legacy-di-trailer.txt
 tags: []
-purpose: 'TODO: describe what this component does'
+purpose: 'T-361 legacy ledger: .bpmn documents exported BEFORE the trailer repair. Each carries the false tail ''AEF generates
+  it from node coordinates''.'
 depends_on: []
 depended_by:
 - target: tests/test_emitted_comment_claims.py
@@ -18,3 +19,4 @@ depended_by:
 last_verified: 2026-09-21
 created_by: unknown
 last_enriched: '2026-09-21'
+purpose_source: header-comment

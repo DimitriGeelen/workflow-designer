@@ -1,0 +1,21 @@
+id: tools/hooks/install-absence-hook.py
+name: install-absence-hook
+type: script
+subsystem: enforcement-hooks
+location: tools/hooks/install-absence-hook.py
+tags: []
+
+purpose: "T-847 — register the T-843 write-time absence advisory in .claude/settings.json."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

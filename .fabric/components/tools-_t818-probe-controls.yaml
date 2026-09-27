@@ -1,20 +1,13 @@
 id: tools/_t818-probe-controls.sh
 name: _t818-probe-controls
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t818-probe-controls.sh
 tags: []
-
-purpose: "TODO: describe what this component does"
-
-depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
-
-depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
-
+purpose: _t818-probe-controls.sh — do the two newly-wired probes actually fail when their subject breaks, and do they say
+  COULD-NOT-MEASURE when their STIMULUS breaks?
+depends_on: []
+depended_by: []
 last_verified: 2026-09-22
 created_by: unknown
+purpose_source: header-comment

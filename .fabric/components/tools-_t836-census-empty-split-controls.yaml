@@ -1,20 +1,12 @@
 id: tools/_t836-census-empty-split-controls.sh
 name: _t836-census-empty-split-controls
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_t836-census-empty-split-controls.sh
 tags: []
-
-purpose: "TODO: describe what this component does"
-
-depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
-
-depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
-
+purpose: T-836 controls — prove the CARRIER-SHAPE split measures rather than merely prints.
+depends_on: []
+depended_by: []
 last_verified: 2026-09-23
 created_by: unknown
+purpose_source: header-comment

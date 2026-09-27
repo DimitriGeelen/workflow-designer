@@ -1,7 +1,7 @@
 id: tests/fixtures/invalid/E-XML-NODE-TYPE.xml
 name: E-XML-NODE-TYPE
 type: script
-subsystem: unknown
+subsystem: fixtures
 location: tests/fixtures/invalid/E-XML-NODE-TYPE.xml
 tags: []
 purpose: 'TODO: describe what this component does'

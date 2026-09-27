@@ -1,0 +1,21 @@
+id: tools/_t783-human-ac-queue-extract.py
+name: _t783-human-ac-queue-extract
+type: script
+subsystem: instruments
+location: tools/_t783-human-ac-queue-extract.py
+tags: []
+
+purpose: "T-783: enumerate every unchecked Human AC in the live queue, from the TASK FILES."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

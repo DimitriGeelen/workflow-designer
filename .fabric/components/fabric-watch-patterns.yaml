@@ -1,10 +1,10 @@
 id: .fabric/watch-patterns.yaml
 name: watch-patterns
 type: config
-subsystem: unknown
+subsystem: context-fabric
 location: .fabric/watch-patterns.yaml
 tags: []
-purpose: 'TODO: describe what this component does'
+purpose: Fabric watch patterns — the source files the coverage checks range over.
 depends_on: []
 depended_by:
 - target: tools/_t524-fabric-validate-teeth.py
@@ -22,3 +22,4 @@ depended_by:
 last_verified: 2026-09-21
 created_by: unknown
 last_enriched: '2026-09-21'
+purpose_source: header-comment

@@ -1,0 +1,21 @@
+id: tools/_t867-hypothesis-draft-teeth.sh
+name: _t867-hypothesis-draft-teeth
+type: script
+subsystem: instruments
+location: tools/_t867-hypothesis-draft-teeth.sh
+tags: []
+
+purpose: "T-867 (arc-004) — teeth for hypothesis drafting."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

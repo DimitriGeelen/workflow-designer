@@ -1,0 +1,21 @@
+id: tools/_t821-census-controls.sh
+name: _t821-census-controls
+type: script
+subsystem: instruments
+location: tools/_t821-census-controls.sh
+tags: []
+
+purpose: "_t821-census-controls.sh — does the swallowed-failure census actually discriminate?"
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

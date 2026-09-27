@@ -1,0 +1,21 @@
+id: tools/_t830-correlation-gate.py
+name: _t830-correlation-gate
+type: script
+subsystem: instruments
+location: tools/_t830-correlation-gate.py
+tags: []
+
+purpose: "_t830-correlation-gate.py — correlations are assigned, derived, and resolve."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

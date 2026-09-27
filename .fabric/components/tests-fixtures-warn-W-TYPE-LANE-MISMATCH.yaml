@@ -1,7 +1,7 @@
 id: tests/fixtures/warn/W-TYPE-LANE-MISMATCH.xml
 name: W-TYPE-LANE-MISMATCH
 type: script
-subsystem: unknown
+subsystem: fixtures
 location: tests/fixtures/warn/W-TYPE-LANE-MISMATCH.xml
 tags: []
 purpose: 'TODO: describe what this component does'

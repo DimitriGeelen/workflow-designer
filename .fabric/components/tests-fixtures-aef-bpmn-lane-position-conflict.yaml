@@ -1,7 +1,7 @@
 id: tests/fixtures/aef-bpmn/lane-position-conflict.bpmn
 name: lane-position-conflict
 type: script
-subsystem: unknown
+subsystem: fixtures
 location: tests/fixtures/aef-bpmn/lane-position-conflict.bpmn
 tags: []
 purpose: 'TODO: describe what this component does'

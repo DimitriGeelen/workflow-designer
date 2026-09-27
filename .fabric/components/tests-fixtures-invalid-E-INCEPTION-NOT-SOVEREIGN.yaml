@@ -1,7 +1,7 @@
 id: tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.xml
 name: E-INCEPTION-NOT-SOVEREIGN
 type: script
-subsystem: unknown
+subsystem: fixtures
 location: tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.xml
 tags: []
 purpose: 'TODO: describe what this component does'

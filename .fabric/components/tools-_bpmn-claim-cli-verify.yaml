@@ -1,10 +1,10 @@
 id: tools/_bpmn-claim-cli-verify.py
 name: _bpmn-claim-cli-verify
 type: script
-subsystem: unknown
+subsystem: instruments
 location: tools/_bpmn-claim-cli-verify.py
 tags: []
-purpose: 'TODO: describe what this component does'
+purpose: _bpmn-claim-cli-verify.py — T-230 / S4b end-to-end guard for `fw bpmn claim`.
 depends_on:
 - target: tools/bpmn-cli.py
   type: calls
@@ -12,3 +12,4 @@ depended_by: []
 last_verified: 2026-07-22
 created_by: unknown
 last_enriched: '2026-08-01'
+purpose_source: docstring

@@ -1,0 +1,21 @@
+id: tools/_t843-absence-gate-integration.sh
+name: _t843-absence-gate-integration
+type: script
+subsystem: instruments
+location: tools/_t843-absence-gate-integration.sh
+tags: []
+
+purpose: "T-843 — integration probe for check_verification_uncontrolled_absence."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

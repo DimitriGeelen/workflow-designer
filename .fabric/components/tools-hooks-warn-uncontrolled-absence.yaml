@@ -1,0 +1,21 @@
+id: tools/hooks/warn-uncontrolled-absence.sh
+name: warn-uncontrolled-absence
+type: script
+subsystem: enforcement-hooks
+location: tools/hooks/warn-uncontrolled-absence.sh
+tags: []
+
+purpose: "T-843 Route 3 — WRITE-TIME advisory for uncontrolled absence assertions."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

@@ -1,0 +1,21 @@
+id: tools/_t830-correlation-gate-controls.sh
+name: _t830-correlation-gate-controls
+type: script
+subsystem: instruments
+location: tools/_t830-correlation-gate-controls.sh
+tags: []
+
+purpose: "_t830-correlation-gate-controls.sh — does the correlation gate actually discriminate?"
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-27
+created_by: unknown

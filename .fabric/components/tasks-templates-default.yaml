@@ -1,10 +1,10 @@
 id: .tasks/templates/default.md
 name: default
 type: script
-subsystem: unknown
+subsystem: tasks
 location: .tasks/templates/default.md
 tags: []
-purpose: 'TODO: describe what this component does'
+purpose: ' [ ] [First criterion] - [ ] [Second criterion]'
 depends_on: []
 depended_by:
 - target: tools/_t525-fabric-coverage-teeth.py
@@ -16,3 +16,4 @@ depended_by:
 last_verified: 2026-09-21
 created_by: unknown
 last_enriched: '2026-09-21'
+purpose_source: markdown
