@@ -1933,9 +1933,9 @@ const AEF_FIELDS = {
   // that can carry an implementation and therefore have code, tests and a fabric card to
   // point at. Both sit ABOVE `note` per the ordering rule stated above: they are
   // structured fields, and `note` stays last.
-  serviceTask:  ['horizon', 'workflowType', 'tier', 'determinism', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'fabricRef', 'links', 'note'],
-  userTask:     ['horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'decisionOutputs', 'fabricRef', 'links', 'note'],
-  scriptTask:   ['horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'fabricRef', 'links', 'note'],
+  serviceTask:  ['authority', 'horizon', 'workflowType', 'tier', 'determinism', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'fabricRef', 'links', 'note'],
+  userTask:     ['authority', 'horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'decisionOutputs', 'fabricRef', 'links', 'note'],
+  scriptTask:   ['authority', 'horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'fabricRef', 'links', 'note'],
   // T-810 (value review F-11): `decisionOutputs` is the THIRD authored-but-unshowable field
   // found here, after T-566 (305 values) and T-618 (215). The corpus carries
   // <aef:decisionOutputs> on exclusiveGateway 17 times and on userTask 6; the panel offered
@@ -1963,7 +1963,7 @@ const AEF_FIELDS = {
   eventError:   ['errorStatus', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
   eventTimer:   ['timerSpec', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
   eventMessage: ['busTopic', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
-  subProcess:   ['horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'scopeOf', 'fabricRef', 'links', 'note'],
+  subProcess:   ['authority', 'horizon', 'workflowType', 'tier', 'determinism', 'endpoint', 'contextReads', 'artifactsWrites', 'sideEffect', 'scopeOf', 'fabricRef', 'links', 'note'],
 };
 
 // T-308 (T-244 GO, path b): neutral presentation for a BARE catch event.
@@ -2038,6 +2038,21 @@ const FIELD_META = {
   // agent-vs-code, it is whether the result can be checked without re-running the step,
   // and a human decision is the third case. It is why this is a select of the corpus's
   // three values and not a boolean.
+  // T-889 (T-888 ruling clause 2): THE ELEMENT CARRIES ITS AUTHORITY — one field, one
+  // home, the single semantic fact. This select is the editor's authority WRITER: before
+  // it existed nothing in the editor ever assigned node.aef.authority, so the key could
+  // only ever arrive from the source document and leave again by T-570 carriage. That is
+  // the discriminator AC 1 names — carriage re-emits, it cannot originate.
+  //
+  // `options` spreads the module-scope AUTHORITIES (src:1671) rather than re-typing the
+  // five values. A second copy of a governance vocabulary is how the one-form-only family
+  // reproduces itself one level down; the validator refuses to re-list it for exactly this
+  // reason (tools/validate-workflow.py, T-322/T-329) and so does this.
+  //
+  // `none` is offered because AUTHORITIES still holds it. The ruling retires it, but the
+  // retirement has its own blast radius across both forms and is T-901, not a quiet
+  // omission here.
+  authority:      { label: 'Authority',       hint: "the element's own governance authority (T-888 clause 2)", special: 'select', options: ['', ...AUTHORITIES] },
   determinism:    { label: 'Determinism',     hint: 'deterministic | stochastic | human', special: 'select', options: ['', 'deterministic', 'stochastic', 'human'] },
   // Prose, deliberately. It records WHAT the step already did to the world, and a runtime
   // that wants to know "may I retry this?" cannot infer that from `determinism`:
@@ -10033,7 +10048,11 @@ function aefExtensionXml(node) {
     'horizon', 'workflowType', 'owner',
     // T-889 (T-888 ruling clause 2): the element carries its authority. First-class,
     // not T-570 carriage — carriage can only re-emit a key node.aef already holds, and
-    // before this task nothing in the editor ever WROTE node.aef.authority, so the value
+    // before this task nothing in the editor ever WROTE the key onto a node, so the value
+    // (NB: this comment deliberately avoids spelling the dotted accessor for `authority`.
+    //  deriveProjectedKeys() regexes the raw function TEXT including comments, so a prose
+    //  mention would enter the projected set and mask the very mutant that proves this key
+    //  is guarded — measured in T-889, filed as T-904.)
     // could only ever have come from the source document. With a writer (setNodeAuthority)
     // the key is authored here, which is the outcome carriage cannot produce.
     'authority'];

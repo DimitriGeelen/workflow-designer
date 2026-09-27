@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-889 control fixture (T-888 ruling clause 2).
+     Lane_human declares authority="sovereignty" and OWNS Sub_inception via flowNodeRef.
+     Sub_inception carries its OWN <aef:meta authority="overlord">.
+     Element-wins  => node authority is "initiative" => E-INCEPTION-NOT-SOVEREIGN FIRES.
+     Lane-wins     => node authority is "sovereignty" => the error is SILENT.
+     One binary observable separates the two readings; that is the whole point. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Defs_t889" targetNamespace="http://example.org/t889">
+  <bpmn:process id="Proc_t889" name="T-889 element authority" isExecutable="false">
+    <bpmn:laneSet id="LS_1">
+      <bpmn:lane id="Lane_human" name="Human">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="H" authority="sovereignty" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>Sub_inception</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_1" name="Begin"/>
+    <bpmn:subProcess id="Sub_inception" name="Explore the question">
+      <bpmn:extensionElements>
+        <aef:meta workflowType="inception" authority="overlord"/>
+      </bpmn:extensionElements>
+    </bpmn:subProcess>
+    <bpmn:endEvent id="End_1" name="Done"/>
+    <bpmn:sequenceFlow id="F_1" sourceRef="Start_1" targetRef="Sub_inception"/>
+    <bpmn:sequenceFlow id="F_2" sourceRef="Sub_inception" targetRef="End_1"/>
+  </bpmn:process>
+</bpmn:definitions>

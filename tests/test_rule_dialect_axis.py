@@ -126,6 +126,11 @@ CARRIER_CLASS = {
     # an inception's go/no-go boundary MUST sit in a sovereignty lane. Not in
     # §1's enumeration (see UNRATIFIED below) but normatively mandated in §3.
     "aef:laneMeta/@authority":  SEMANTIC_MUST,
+    # T-889 (T-888 ruling clause 2): the element's own authority. SEMANTIC_MUST for the
+    # same reason the lane carrier is -- it is a governance fact the compiler reads, not
+    # a presentational hint. Under clause 2 this is now THE semantic carrier and the lane
+    # one is being demoted; both are listed while the corpus migration (T-895) is pending.
+    "aef:meta/@authority":      SEMANTIC_MUST,
 
     # -- semantic, conformant to omit --------------------------------------
     # mapping-v1 §5 defines the branch condition carrier as the EDGE LABEL;
@@ -228,6 +233,11 @@ RULE_CARRIERS = {
     # UNIVERSAL for the same reason. A different class here would mean the two
     # forms agree on the verdict while disagreeing on what kind of claim it is.
     "E-XML-AUTHORITY":          (("aef:laneMeta/@authority",), CONSTRAINS),
+    # T-889 (T-888 ruling clause 2): the ELEMENT-level counterpart. Same polarity as the
+    # lane rule above and for the same reason -- it fires when the carrier is PRESENT but
+    # carries a value outside AUTHORITIES. Different CARRIER (aef:meta, not aef:laneMeta),
+    # which is the whole content of clause 2: the fact moved homes.
+    "E-XML-META-AUTHORITY":     (("aef:meta/@authority",), CONSTRAINS),
     # T-816: same carrier and same polarity as the YAML-form E-ABBR-DUP above — the pair
     # must agree on the axis, or the two forms would classify one fact two ways. Declared
     # rather than hand-classified: classify() computes the class from the carrier map, so

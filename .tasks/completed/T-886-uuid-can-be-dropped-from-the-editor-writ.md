@@ -17,12 +17,12 @@ description: >
   builds it should mutate rather than read: two of three predictions made from reading
   the harness were inverted by measurement.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:process-instances]
-components: []
+components: [tools/_roundtrip-serialization-cdp.mjs, tools/_t886-writer-mutation.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -35,8 +35,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T23:46:38Z
-last_update: 2026-09-27T11:35:15Z
-date_finished:
+last_update: 2026-09-27T11:59:36Z
+date_finished: 2026-09-27T11:59:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -470,3 +470,15 @@ attribute T-889 is about to add, turns the guard red naming it. Plus
 
 ### 2026-09-27T11:35:15Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a9eda0ae
+- **Timestamp:** 2026-09-27T11:59:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-27T11:59:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

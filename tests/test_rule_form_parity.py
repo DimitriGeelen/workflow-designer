@@ -200,6 +200,15 @@ PARITY = {
     "E-XML-LANEREF-DANGLING": (PAIRED, "E-NODE-LANE"),
     "E-XML-LANES-EMPTY":    (PAIRED, "E-LANES-EMPTY"),
     "E-XML-AUTHORITY":      (PAIRED, "E-AUTHORITY"),
+    # T-889: classified GAP rather than PAIRED, deliberately. E-AUTHORITY is the YAML
+    # form's LANE vocabulary gate; this is the XML form's ELEMENT gate, and they are not
+    # the same rule wearing two ids. The YAML form CAN express element authority -- it is
+    # in the bridge's META_KEYS (tools/yaml-to-bpmn.py:56), so a step's aef bag may carry
+    # it -- and no YAML rule gates that value. Calling this PAIRED to silence the harness
+    # would assert a counterpart that does not exist, which is the exact T-317 failure the
+    # harness is here to catch. Owner: T-902.
+    "E-XML-META-AUTHORITY": (GAP, "aef:meta/@authority expressible on the YAML form via "
+                                  "META_KEYS; no YAML rule gates the element value (T-889)"),
     "E-XML-ABBR-DUP":       (PAIRED, "E-ABBR-DUP (T-816)"),
     "E-XML-FLOW-DANGLING":  (PAIRED, "E-EDGE-DANGLING"),
     "E-XML-GW-OUTGOING":    (PAIRED, "E-GW-OUTGOING"),

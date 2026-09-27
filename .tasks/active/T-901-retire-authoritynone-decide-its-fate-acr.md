@@ -1,24 +1,17 @@
 ---
-id: T-876
-name: "Backfill kind=documentation across the 24 corpus maps, with a control proving
-  an unmarked map still round-trips byte-identical"
+id: T-901
+name: "Retire authority=none: decide its fate across BOTH forms, or record why it stays"
 description: >
-  arc-005 S1/B2. The 24 maps in examples/aef-processes/rendered are classes — they
-  describe how AEF's processes work, they are not plans of work. Mark them kind=documentation.
-  THE CONTROL IS THE POINT: a map left unmarked must still round-trip byte-identical,
-  which is what proves the UNSET default is inert. V3/G-002 round-trip identity is
-  a delivered, guarded property and this slice is the most likely thing in arc-005
-  to break it. examples/aef-processes/rendered is also a seam artefact AEF pins against,
-  so the backfill is a seam change and is sequenced after B1 ships the schema.
+  T-888 ruling clause 2 retires authority=none. AUTHORITIES (tools/validate-workflow.py:62) still holds five values including none, and the corpus carries 18 laneMeta authority=none (measured T-889, all 201 *.bpmn; the T-889 task body said 15 — that census was stale). T-889 deliberately did NOT remove none from AUTHORITIES and introduced it on no element: the retirement has its own blast radius across BOTH forms (XML lane gate :390, XML element gate added by T-889, YAML form via T-322, plus AUTHORITY_OWNER/AUTHORITY_NO_OWNER_DERIVABLE partitions at :100-108 which T-331 made a TOTAL partition of AUTHORITIES — so dropping a value breaks a totality invariant, not a one-line delete). Filed rather than smuggled into T-889: one task = one deliverable.
 
 status: captured
 workflow_type: build
 owner: agent
 horizon: now
-tags: [arc:process-instances]
+tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
-arc_id: process-instances
+# arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
@@ -28,9 +21,9 @@ arc_id: process-instances
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-26T22:41:45Z
-last_update: '2026-09-26T23:10:10Z'
-date_finished:
+created: 2026-09-27T13:53:21Z
+last_update: 2026-09-27T13:53:21Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -41,30 +34,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-09-26T23:10:10Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 4
-      F1: 1
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=4 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L3:path=examples/aef-processes/*~examples/aef-processes/rendered);
-      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-876: Backfill kind=documentation across the 24 corpus maps, with a control proving an unmarked map still round-trips byte-identical
+# T-901: Retire authority=none: decide its fate across BOTH forms, or record why it stays
 
 ## Context
 
@@ -73,12 +45,10 @@ bvp_scores_proposed:
 ## Acceptance Criteria
 
 ### Agent
-- [ ] All 24 maps in `examples/aef-processes/rendered/` carry `kind="documentation"` — they describe how AEF's processes work; none of them is a plan of work
-- [ ] CONTROL, and this is the load-bearing criterion: a copy of one map with `kind` stripped still round-trips byte-identical, proving the UNSET default is inert rather than merely untested
-- [ ] `tools/validate-workflow.py` reports 0 errors across all 24 after the backfill
-- [ ] The corpus is a seam artefact AEF pins against: the change is announced on the rail **with** the commit, not discovered by them afterwards
-- [ ] Sequenced after T-875 ships the schema — a backfill against an unshipped attribute is a corpus edit with no validator behind it
-- [ ] **A5 recorded:** yes/no with reason in `## Decisions`
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
+
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -330,7 +300,7 @@ bvp_scores_proposed:
 
 ## Updates
 
-### 2026-09-26T22:41:45Z — task-created [task-create-agent]
+### 2026-09-27T13:53:21Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-876-backfill-kinddocumentation-across-the-24.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-901-retire-authoritynone-decide-its-fate-acr.md
 - **Context:** Initial task creation

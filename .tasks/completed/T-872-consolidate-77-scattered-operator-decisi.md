@@ -11,10 +11,10 @@ description: >
   what each unblocks — so the queue can be worked in a sitting instead of a scavenger
   hunt. It does not reduce the count; it changes what the count costs.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [governance, delegation]
 components:
   - tools/_t872-decision-docket.py
@@ -31,8 +31,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T20:50:24Z
-last_update: 2026-09-26T20:50:45Z
-date_finished:
+last_update: 2026-09-26T20:54:02Z
+date_finished: 2026-09-26T20:54:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -356,3 +356,15 @@ grep -q 'does \*\*not\*\* reduce the backlog' docs/reports/operator-decision-doc
 
 ### 2026-09-26T20:50:45Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1df4a6b8
+- **Timestamp:** 2026-09-26T20:54:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-26T20:54:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

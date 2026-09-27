@@ -1,24 +1,17 @@
 ---
-id: T-876
-name: "Backfill kind=documentation across the 24 corpus maps, with a control proving
-  an unmarked map still round-trips byte-identical"
+id: T-904
+name: "The round-trip guard's denominator reads COMMENTS as code: a comment mentioning aef.foo counts as a projection"
 description: >
-  arc-005 S1/B2. The 24 maps in examples/aef-processes/rendered are classes — they
-  describe how AEF's processes work, they are not plans of work. Mark them kind=documentation.
-  THE CONTROL IS THE POINT: a map left unmarked must still round-trip byte-identical,
-  which is what proves the UNSET default is inert. V3/G-002 round-trip identity is
-  a delivered, guarded property and this slice is the most likely thing in arc-005
-  to break it. examples/aef-processes/rendered is also a seam artefact AEF pins against,
-  so the backfill is a seam change and is sequenced after B1 ships the schema.
+  deriveProjectedKeys() in tools/_roundtrip-serialization-cdp.mjs builds its 'dot' set by regexing the RAW TEXT of the projection function body (/aef\.([A-Za-z_][A-Za-z0-9_]*)/g at :246) - comments included. Consequence, measured live during T-889: dropping 'authority' from the emitter's metaKeys left the guard GREEN, because a PROSE COMMENT three lines above said 'node.aef.authority'. Removing only that comment text (changing nothing executable) turned the same mutant RED with the correct message 'KEYSPEC contains key(s) the emitter does not project: authority'. Two directions of harm: (1) FALSE GREEN - a key deleted from the emitter stays 'covered' as long as any comment names it, which is how T-889's own mutation leg was neutralised by T-889's own comment; (2) FALSE RED - a comment mentioning aef.somethingNotEmitted makes it an orphan demanding KEYSPEC classification for a key nothing projects. This is the T-886 derivation, which exists precisely so the list cannot drift from the emitter - and it can be moved by text that the engine never runs. Fix direction: strip comments from the function body before matching (or parse rather than regex), then re-run the T-889 teeth M1 leg, which is the ready-made control.
 
 status: captured
 workflow_type: build
 owner: agent
 horizon: now
-tags: [arc:process-instances]
+tags: [arc:designer-authoring-surface, false-green]
 components: []
 related_tasks: []
-arc_id: process-instances
+# arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
@@ -28,9 +21,9 @@ arc_id: process-instances
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-26T22:41:45Z
-last_update: '2026-09-26T23:10:10Z'
-date_finished:
+created: 2026-09-27T14:09:54Z
+last_update: 2026-09-27T14:09:54Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -41,30 +34,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-09-26T23:10:10Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 4
-      F1: 1
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=4 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L3:path=examples/aef-processes/*~examples/aef-processes/rendered);
-      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-876: Backfill kind=documentation across the 24 corpus maps, with a control proving an unmarked map still round-trips byte-identical
+# T-904: The round-trip guard's denominator reads COMMENTS as code: a comment mentioning aef.foo counts as a projection
 
 ## Context
 
@@ -73,12 +45,10 @@ bvp_scores_proposed:
 ## Acceptance Criteria
 
 ### Agent
-- [ ] All 24 maps in `examples/aef-processes/rendered/` carry `kind="documentation"` — they describe how AEF's processes work; none of them is a plan of work
-- [ ] CONTROL, and this is the load-bearing criterion: a copy of one map with `kind` stripped still round-trips byte-identical, proving the UNSET default is inert rather than merely untested
-- [ ] `tools/validate-workflow.py` reports 0 errors across all 24 after the backfill
-- [ ] The corpus is a seam artefact AEF pins against: the change is announced on the rail **with** the commit, not discovered by them afterwards
-- [ ] Sequenced after T-875 ships the schema — a backfill against an unshipped attribute is a corpus edit with no validator behind it
-- [ ] **A5 recorded:** yes/no with reason in `## Decisions`
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
+
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -330,7 +300,7 @@ bvp_scores_proposed:
 
 ## Updates
 
-### 2026-09-26T22:41:45Z — task-created [task-create-agent]
+### 2026-09-27T14:09:54Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-876-backfill-kinddocumentation-across-the-24.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-904-the-round-trip-guards-denominator-reads-.md
 - **Context:** Initial task creation

@@ -1726,10 +1726,13 @@ class XmlValidator:
                     self.err(
                         "E-INCEPTION-NOT-SOVEREIGN",
                         "subProcess '%s'" % nid,
-                        'inception (workflowType="inception") must be in a '
-                        "sovereignty (human) lane; its lane authority is %s "
-                        "(O-3, mapping-v1 §7)"
-                        % ("absent" if authority is None else "'%s'" % authority),
+                        'inception (workflowType="inception") must carry '
+                        "sovereignty authority; its authority is %s "
+                        "(source: %s) (O-3, mapping-v1 §7, T-888 clause 2)"
+                        % (
+                            "absent" if authority is None else "'%s'" % authority,
+                            "the element" if elem_authority is not None else "its lane",
+                        ),
                     )
             # O-1: task-type should agree with lane authority (lane wins)
             if local in TYPE_PERFORMER and authority is not None:

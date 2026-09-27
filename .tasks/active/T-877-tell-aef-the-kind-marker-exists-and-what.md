@@ -2,7 +2,12 @@
 id: T-877
 name: "Tell AEF the kind marker exists and what their promote path can now read"
 description: >
-  arc-005 S1/B3. AEF proposed this marker (their T-2556, rail offsets 87-125) and owns the promote path that carries the defect: fw bpmn promote mints real owner: agenthuman tasks from illustrative nodes (their L-504 / T-2548-9). We can ship the marker; we cannot make them read it. STATE THAT RATHER THAN CLAIM THE DEFECT CLOSED — B3 delivers a notice, and the defect closes only when AEF acts on it. Rail post, no code.
+  arc-005 S1/B3. AEF proposed this marker (their T-2556, rail offsets 87-125) and
+  owns the promote path that carries the defect: fw bpmn promote mints real owner:
+  agenthuman tasks from illustrative nodes (their L-504 / T-2548-9). We can ship the
+  marker; we cannot make them read it. STATE THAT RATHER THAN CLAIM THE DEFECT CLOSED
+  — B3 delivers a notice, and the defect closes only when AEF acts on it. Rail post,
+  no code.
 
 status: captured
 workflow_type: build
@@ -22,8 +27,8 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:41:56Z
-last_update: 2026-09-26T22:41:56Z
-date_finished: null
+last_update: '2026-09-26T23:10:10Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +39,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-26T23:10:10Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 4
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=4 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-877: Tell AEF the kind marker exists and what their promote path can now read
