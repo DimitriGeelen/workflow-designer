@@ -11,7 +11,7 @@ description: >
   it is not gated on the schema work. Does NOT close T-341 — that task's [REVIEW]
   criterion is the operator's and is untouched.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -30,7 +30,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:24Z
-last_update: '2026-09-27T15:47:41Z'
+last_update: 2026-09-27T16:04:27Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -79,14 +79,62 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**The defect site, located rather than assumed** (round 4): the positional inheritance is in the
+EDITOR's importer, `src/aef-workflow-designer.html:11035` —
+
+```js
+let laneId = lanes[0]?.id;                      // then overwritten if some flowNodeRef matches
+```
+
+so a flow node that **no `flowNodeRef` references** silently acquires the identity of whichever
+lane is declared FIRST. T-341's probe (`tools/_t341-orphan-lane-probe.mjs`) exists precisely to
+discriminate this from the semantic reading ("orphans go to the human lane") and is the instrument
+this task turns from red to green.
+
+**What the validator already does, measured by reading both forms — the two halves are not
+symmetric, and only one of them is a gap:**
+
+| condition | XML form | YAML form |
+|---|---|---|
+| lane reference present but DANGLING | errors — `flowNodeRef '%s' does not resolve to a flow-node bpmn:id` (`tools/validate-workflow.py:1119`) | errors — `E-NODE-LANE` (:436) |
+| node in NO lane at all | **silent.** `node_authority.get(nid)` → `None`, read as authority-absent (:1720) | **silent.** `E-NODE-LANE` is guarded on `"lane" in node` (:436), so an ABSENT lane key is never checked |
+
+So "unresolvable" is already an error in both forms. The live gap is **absent** — a node no lane
+claims — and it is silent in both forms while the editor fills it in positionally. That asymmetry
+is the actual scope of this task, and it is narrower than the title suggests.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **The editor stops deciding lane membership by declaration order.** The `lanes[0]?.id`
+      fallback at `src/aef-workflow-designer.html:11035` is gone: a flow node that no
+      `flowNodeRef` references imports with NO lane, rather than silently acquiring the
+      first-declared lane's identity. WHO owns a node must not be decided by a reordering this
+      project treats elsewhere as a "zero-semantic repair".
+- [ ] **The probe's verdict moves, and the probe is shown able to detect the OLD behaviour.**
+      `tools/_t341-orphan-lane-probe.mjs` reports POSITIONAL on the pre-fix tree and
+      no-inheritance on the fixed tree. Both runs recorded. A green on the fixed tree alone
+      proves nothing — a probe that cannot see the defect returns the same green for
+      "fixed" and "broken" (PL-354: test the discriminator against a mutant of the mechanism
+      it claims to exclude).
+- [ ] **A flow node in no lane becomes a hard validation error in the XML form**, naming the node
+      id and stating that authority-of-record is absent. Registered in BOTH parity registries
+      (`tests/test_rule_dialect_axis.py`, `tests/test_rule_form_parity.py`) the way T-889's
+      `E-XML-META-AUTHORITY` was — an unregistered rule is the T-317 omission this project keeps
+      re-finding.
+- [ ] **The YAML form's absent-lane hole is closed OR declared a GAP explicitly, not silently.**
+      `E-NODE-LANE` is guarded on `"lane" in node`, so an absent key is unchecked. Whichever way
+      this goes it is recorded in the parity registry with a reason — T-889 set the precedent by
+      classifying its counterpart GAP rather than asserting a PAIRED rule that did not exist
+      (filed as T-902).
+- [ ] **The blast radius of the new error is MEASURED before it ships, not assumed.** A census
+      over every corpus `*.bpmn` counts flow nodes in laneSet-bearing processes that no
+      `flowNodeRef` claims. If the count is non-zero the corpus migration is filed as its own
+      task rather than smuggled in here (one task = one deliverable), and this task does not
+      turn the corpus red without that task existing.
+- [ ] **Does NOT close T-341.** T-341's `[REVIEW]` criterion — what the default-lane POLICY should
+      be — is the operator's and stays untouched. This task removes a guess; it does not install
+      a replacement guess.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -349,3 +397,6 @@ bvp_scores_proposed:
 Basis: **inferred from the stated deliverable: the task IS "the validator errors on an unresolvable flowNodeRef", which names the validator as surely as a path would**
 
 Populated so `fw bvp` can compute a `blast_radius` and therefore a quadrant. Empty `components:` made `estimate-cost` refuse the radius — correctly, since unmeasured is not zero — while printing `[wrote]` and exiting 0, so the refusal read as a success and two procAsFit rounds concluded the cost axis did not exist.
+
+### 2026-09-27T16:04:27Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
