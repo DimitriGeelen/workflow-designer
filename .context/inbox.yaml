@@ -2050,3 +2050,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-409
+  text: "BVP estimator returns an IDENTICAL D1-D4 vector (4/4/3/2) for all six T-888-ruling stub tasks T-889..T-894, and it is the same vector round 1 got for T-886 (7 tasks total). Measured 2026-09-27 via 'bvp-estimator.sh one --dry-run --json' with PROJECT_ROOT set. The tasks differ materially in scope (schema attribute / presentational attribute+control / hard validation error / editor UI / rendering / validator check) yet receive the same constitutional score; only free drivers F1/F3/F4 vary. Consequence: for stub tasks BVP does not merely lack a referent (arc-004's framing) - it cannot RANK, because the discriminating half is constant and ordering falls to the least-weighted project-local drivers. Evidence the estimator is reading shared template/description idiom rather than task content: T-889's evidence cites 'body:structural-gate' and 'body:fw-audit-or-doctor' although T-889's body is placeholder ACs only. Directly relevant to arc-004 S3 (support scores cite the hypothesis) and to the mandate's 'select by BVP quadrant' instruction, which is unexecutable over a degenerate vector."
+  captured: 2026-09-27T13:01:12Z
+  context_task: T-897
+  tags: [bvp]
+  status: pending
+  promoted_to: null

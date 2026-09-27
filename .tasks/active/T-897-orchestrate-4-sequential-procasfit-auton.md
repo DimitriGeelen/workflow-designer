@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:47:28Z
-last_update: 2026-09-27T10:47:28Z
+last_update: 2026-09-27T10:48:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -50,14 +50,14 @@ Operator-directed 2026-09-27: run the procAsFit mandate **over TermLink**, four 
 sequentially, each fed the previous round's result — and *"do not execute the prompts yourself
 outside this sequence."* So this task orchestrates; it does not do the selected work.
 
-- [ ] Feasibility is **measured, not assumed**, before any round is dispatched: hub running, `claude` present, and a print-mode worker proved able to write in this repo — recorded with the evidence, because a worker that hangs on its first write would report as dispatched and produce nothing
-- [ ] The mandate is delivered from a **file**, not embedded in argv or injected over a PTY — PTY inject is the known-lossy path and is not a delivery mechanism
+- [x] Feasibility is **measured, not assumed**, before any round is dispatched: hub running, `claude` present, and a print-mode worker proved able to write in this repo — recorded with the evidence, because a worker that hangs on its first write would report as dispatched and produce nothing
+- [x] The mandate is delivered from a **file**, not embedded in argv or injected over a PTY — PTY inject is the known-lossy path and is not a delivery mechanism
 - [ ] Each round runs as a TermLink-spawned session the hub can name, and the run record is posted to a TermLink channel so it survives a context reset (mandate §TermLink)
-- [ ] Rounds are **serialized**, never concurrent: every round writes the same repository, and the mandate's own rule is to serialize anything touching shared state
-- [ ] Round N+1's prompt carries round N's handback verbatim; the chaining is checkable from the prompt files, not from my summary of them
-- [ ] Each round's handback is reported to the operator **between** rounds, so a Sovereign question raised in round 1 can be answered before round 4 acts on it — a 4-round chain with nobody reading it can only accumulate them
-- [ ] A round that produces no handback, or whose worker exits non-zero, is reported as a **failed round** — not skipped, and not counted as a quiet success
-- [ ] I make no repository edits of my own while a round is in flight, and that is asserted rather than intended
+- [x] Rounds are **serialized**, never concurrent: every round writes the same repository, and the mandate's own rule is to serialize anything touching shared state
+- [x] Round N+1's prompt carries round N's handback verbatim; the chaining is checkable from the prompt files, not from my summary of them
+- [x] Each round's handback is reported to the operator **between** rounds, so a Sovereign question raised in round 1 can be answered before round 4 acts on it — a 4-round chain with nobody reading it can only accumulate them
+- [x] A round that produces no handback, or whose worker exits non-zero, is reported as a **failed round** — not skipped, and not counted as a quiet success
+- [x] I make no repository edits of my own while a round is in flight, and that is asserted rather than intended
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -314,3 +314,41 @@ outside this sequence."* So this task orchestrates; it does not do the selected 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-897-orchestrate-4-sequential-procasfit-auton.md
 - **Context:** Initial task creation
+
+## 2026-09-27 — PARKED. Round 1 complete (rc=0), round 2 refused by the account weekly limit.
+
+**Round 1: WORKER_RC=0**, five commits, stopped on its own context bound with nothing parked
+mid-flight. Delivered T-886 — the document-level round-trip guard whose absence the T-888 ruling
+had named as the reason the authority migration was sequenced last. Denominator now DERIVED from
+the emitter, proved against `authority=` (T-889's own attribute): the guard goes red naming it, in
+2 seconds. T-875 and the T-889/T-890/T-895 package are unblocked as a result.
+
+**Round 2: WORKER_RC=1** — `You've hit your weekly limit · resets Sep 29, 4am (Europe/Berlin)`.
+2,848 bytes of output, all startup noise plus that line. Zero commits, no tasks touched, no
+handback. The worker was verified running (child pid 2530360) and was refused at the model, not at
+the transport. **Rounds 3 and 4 not dispatched** — retrying inside the same quota window fails
+identically, and three attempts at the same wall is context burned rather than progress.
+
+**Resumable without rework.** `.context/working/procasfit/round2-prompt.md` is built and verified
+(15,115 chars, round 1's handback verbatim, assertions that each section appears exactly once).
+Dispatch it unchanged after the reset; rounds 3 and 4 chain from it.
+
+### Three dispatch failures, and what each one taught
+
+| attempt | what the tool said | what was true |
+|---|---|---|
+| `termlink_spawn` #1 | `{ok:true, status:"ready"}` | **nothing ran.** Display-name collision: the "ready" belonged to a session registered 62.6h earlier in another project (pid 475426, cwd `/opt/termlink`). Filed OBS-405. |
+| `termlink_spawn` #2 | `{ok:true, status:"timeout"}` | nothing ran, honestly reported |
+| direct launch, round 2 | worker verified alive | refused at the model by quota |
+
+**Every one was caught by the acceptance criterion rather than by judgement** — "a round that
+produces no handback is reported as a FAILED round, not skipped". Written before the first dispatch.
+Each time the tooling's own signal was misleading or absent and the artefact was the truth, which is
+the same lesson round 1 recorded internally as PL-349.
+
+**One defect of my own, caught before it shipped:** round 2's prompt first built to 92,818 bytes for
+a 9KB handback plus a 4.6KB mandate. Python implicit string concatenation — `"...text\n\n" "=" * 78`
+concatenates the adjacent literals FIRST, so `* 78` multiplied the entire preamble into 78 copies.
+A prompt 6x too long would have read as a plausible instruction set; only checking the byte count
+against what the inputs could account for caught it. Rebuilt with explicit joins plus three
+single-copy assertions and a length bound.
