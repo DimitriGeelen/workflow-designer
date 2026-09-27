@@ -1621,6 +1621,10 @@ class XmlValidator:
         )
         # flow-node id -> its lane's authority
         node_authority = {}
+        # T-894: the lane's authoringDefault and id, per node it claims. Populated in the
+        # same lane walk as node_authority; read by the per-element pass below.
+        node_lane_default = {}
+        node_lane_id = {}
         # T-816: abbr uniqueness, on the form the designer actually authors.
         #
         # The YAML path has checked this since the beginning (E-ABBR-DUP, §2). The XML path
@@ -1702,6 +1706,12 @@ class XmlValidator:
                 ref = (ref_el.text or "").strip()
                 if ref:
                     node_authority[ref] = authority
+                    # T-894 (T-888 clause 4, CI half): remember which lane default this
+                    # node inherits, so the per-element walk below can compare the two.
+                    # Collected in the SAME pass as authority — the lanes are already in
+                    # hand and lm already resolved.
+                    node_lane_default[ref] = lane_default
+                    node_lane_id[ref] = lane.get("id") or "?"
         for child in list(process):
             local = self._local(child.tag)
             nid = child.get("id")
@@ -1739,6 +1749,33 @@ class XmlValidator:
                     "node '%s'" % nid,
                     "authority '%s' not in %s"
                     % (elem_authority, sorted(AUTHORITIES)),
+                )
+            # T-894 (T-888 clause 4, CI half): the element declares an authority AND its
+            # lane declares an authoring default, and they disagree.
+            #
+            # A WARNING, not an error. Differing is a LEGITIMATE authorial choice — the
+            # default pre-fills, it does not bind — and clause 4's point is that the choice
+            # be VISIBLE rather than silent. Three states, and conflating the last two is
+            # the defect this is written to avoid:
+            #   element == default          -> nothing. The common case must not shout.
+            #   element != default          -> this finding, naming both values.
+            #   lane declares no default    -> nothing. There is nothing to differ from.
+            #
+            # It lives here and not only in the editor because a highlight drawn in the
+            # editor fires only when a human happens to open that diagram. This project's
+            # most-repeated defect is a guard nobody runs.
+            _lane_default = node_lane_default.get(nid)
+            if (
+                elem_authority is not None
+                and _lane_default is not None
+                and elem_authority != _lane_default
+            ):
+                self.warn(
+                    "W-XML-AUTHORITY-DEFAULT-MISMATCH",
+                    "node '%s'" % nid,
+                    "authority '%s' differs from lane '%s' authoringDefault '%s' "
+                    "(legitimate override — recorded, not refused)"
+                    % (elem_authority, node_lane_id.get(nid, "?"), _lane_default),
                 )
             authority = (
                 elem_authority

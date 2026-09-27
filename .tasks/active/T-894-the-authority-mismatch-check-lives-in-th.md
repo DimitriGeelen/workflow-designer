@@ -10,7 +10,7 @@ description: >
   authoringDefault (informational), and a task-like element with no authority at all
   (error). Same predicate, two surfaces, one source.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -29,7 +29,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:49Z
-last_update: '2026-09-27T15:47:41Z'
+last_update: 2026-09-27T19:41:29Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -84,8 +84,12 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **`W-XML-AUTHORITY-DEFAULT-MISMATCH`**: an element whose `aef:meta authority` differs from its lane's `authoringDefault` is reported, naming both values. A *finding*, not an error — differing is a legitimate authorial choice made visible, which is T-888 clause 4's whole point
+- [x] **The three states are distinguishable, and conflating the last two is the defect to avoid.** Matches the default → NO finding (the common case must not shout). Differs → this warning. Lane declares no default → also no finding, because there is nothing to differ from
+- [x] **Controls in both directions.** A map where element and default agree emits nothing; a map where they differ emits exactly one finding naming the element and both values. Fixtures verified to actually differ before either verdict is trusted
+- [x] Registered in both parity registries with a reason, classified GAP or PAIRED — same discipline as `E-XML-LANE-AUTHORING-DEFAULT` and `E-XML-META-AUTHORITY` before it
+- [x] **The authored corpus stays green**, measured not assumed: the 24 maps emit zero new findings, because none of them carries an `authoringDefault` yet. A check that turns the product corpus red on arrival is not shippable
+- [x] The editor half is NOT built here — that is T-893, and it needs visual verification this task deliberately does not attempt. This task is the CI half, and the reason it is separate is that a highlight existing only in the editor fires only when a human happens to open that diagram
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -348,3 +352,55 @@ bvp_scores_proposed:
 Basis: **inferred from the stated deliverable: the same predicate as T-893 emitted by the validator**
 
 Populated so `fw bvp` can compute a `blast_radius` and therefore a quadrant. Empty `components:` made `estimate-cost` refuse the radius — correctly, since unmeasured is not zero — while printing `[wrote]` and exiting 0, so the refusal read as a success and two procAsFit rounds concluded the cost axis did not exist.
+
+### 2026-09-27T19:41:29Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## 2026-09-27 — 6/6. Shipped, and the harness caught an omission of mine on the way.
+
+`W-XML-AUTHORITY-DEFAULT-MISMATCH` reports an element whose authority differs from its lane's
+`authoringDefault`, naming the element, both values and the lane:
+
+```
+W-XML-AUTHORITY-DEFAULT-MISMATCH] node 'hum_1_human': authority 'initiative' differs from
+lane 'human' authoringDefault 'sovereignty' (legitimate override — recorded, not refused)
+```
+
+**A WARNING, not an error, deliberately.** The default pre-fills; it does not bind. Clause 4
+wants the choice VISIBLE, not refused.
+
+**Four states measured, on fixtures verified to actually differ before any verdict was trusted:**
+
+| fixture | default | element authority | findings |
+|---|---|---|---|
+| agree | sovereignty | sovereignty | **0** — the common case does not shout |
+| differ | sovereignty | initiative | **1** |
+| no default | — | initiative | **0** — nothing to differ from |
+| no element authority | sovereignty | — | **0** — inherits, no conflict |
+
+**Authored corpus: 0 new findings across all 24 maps**, measured by running the validator over
+each. A check that turns the product corpus red on arrival is not shippable, and this one does
+not.
+
+### The harness caught a real omission of mine
+
+The dialect axis refused the rule twice before accepting it: first because
+`E-XML-LANE-AUTHORING-DEFAULT` declared a carrier with **no class in `CARRIER_CLASS`** — *"until
+it does, nothing knows whether surfacing it to an author states a correctness fact or a house
+convention"*. Classed `PRESENTATIONAL`, which is not a convenience: frozen standard §1 makes a
+presentational attribute a no-op for the task graph, and that is structurally what stops
+`authoringDefault` becoming a second stored claim about authority. T-890 proved it empirically
+(byte-identical output with and without, while a semantic change differs); this records the same
+fact where the harness can enforce it.
+
+**Both my rules are now clean in the dialect axis.** Its 2 remaining failures are
+`E-WORKFLOW-KIND` / `E-XML-WORKFLOW-KIND`, unclassified since T-875 and owned by **T-903**.
+
+### One shared blocker, and it now holds three tasks
+
+`EXPECTED_GAPS = 10` in the form-parity registry. Measured: **baseline 11 vs 10 — already
+failing before I touched it.** T-890 added one legitimate gap (12), T-894 a second (13). The
+harness says in its own failure text to re-derive the arithmetic in
+`docs/reports/T-320-rule-form-parity-census.md` and *not* to adjust the constant to match, so I
+did neither. **T-890, T-894 and T-903 are now all blocked on one constant that wants one
+re-derivation, not three** — that is the next thing worth doing in this arc, and it is cheap.

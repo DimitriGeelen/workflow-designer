@@ -131,6 +131,13 @@ CARRIER_CLASS = {
     # a presentational hint. Under clause 2 this is now THE semantic carrier and the lane
     # one is being demoted; both are listed while the corpus migration (T-895) is pending.
     "aef:meta/@authority":      SEMANTIC_MUST,
+    # T-890/T-894 (T-888 clause 3): the lane's AUTHORING DEFAULT. PRESENTATIONAL, and
+    # that classification is the design rather than a convenience — frozen standard §1
+    # says "a change to a presentational attribute alone MUST be a no-op for the task
+    # graph", which is structurally what stops this becoming a SECOND stored claim about
+    # authority. Proved under T-890: validator output is byte-identical with and without
+    # it, while the same comparison over a semantic change differs.
+    "aef:laneMeta/@authoringDefault": PRESENTATIONAL,
 
     # -- semantic, conformant to omit --------------------------------------
     # mapping-v1 §5 defines the branch condition carrier as the EDGE LABEL;
@@ -243,6 +250,11 @@ RULE_CARRIERS = {
     # deliberately a PRESENTATIONAL one. It pre-fills new elements and is never read by
     # the compiler, so it constrains the vocabulary without carrying the fact.
     "E-XML-LANE-AUTHORING-DEFAULT": (("aef:laneMeta/@authoringDefault",), CONSTRAINS),
+    # T-894 (T-888 clause 4, CI half): reports an element authority that DIFFERS from its
+    # lane default. Two carriers, because the finding is about their RELATION — which is
+    # why it is a WARN: differing is a legitimate override, and clause 4 wants it visible
+    # rather than refused.
+    "W-XML-AUTHORITY-DEFAULT-MISMATCH": (("aef:meta/@authority", "aef:laneMeta/@authoringDefault"), CONSTRAINS),
     # T-816: same carrier and same polarity as the YAML-form E-ABBR-DUP above — the pair
     # must agree on the axis, or the two forms would classify one fact two ways. Declared
     # rather than hand-classified: classify() computes the class from the carrier map, so

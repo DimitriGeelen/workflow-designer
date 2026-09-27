@@ -213,6 +213,12 @@ PARITY = {
     # laneMeta authoringDefault at all, so asserting a counterpart would be the T-317
     # failure this harness exists to catch. T-889 set this precedent by classifying its
     # own counterpart GAP rather than inventing one (filed as T-902). Same choice here.
+    # T-894: GAP. The YAML form has neither carrier — no laneMeta authoringDefault and no
+    # element-level authority gate — so a PAIRED claim would assert two counterparts that do
+    # not exist. Same precedent as E-XML-META-AUTHORITY (T-889/T-902).
+    "W-XML-AUTHORITY-DEFAULT-MISMATCH": (GAP, "neither carrier exists on the YAML form; "
+                                              "the relation cannot be expressed there "
+                                              "(T-894)"),
     "E-XML-LANE-AUTHORING-DEFAULT": (GAP, "aef:laneMeta/@authoringDefault has no YAML-form "
                                           "counterpart; presentational, pre-fills new "
                                           "elements only, never compiled (T-890/T-888 cl.3)"),
