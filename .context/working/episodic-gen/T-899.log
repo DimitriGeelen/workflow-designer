@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-27T12:19:29Z ===
+task_id: T-899
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-899.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: P-011 closed T-886 in 22 seconds over a block that takes twelve minutes: confirm whether the verification gate ran zero commands
+  Duration: 0 days (16 min)
+  Updates: 1
+  Commits: 1
+  Lines: +424 -0 across 4 files
+  Outcomes: 6 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-899-p-011-closed-t-886-in-22-seconds-over-a-.md
+--- exit code: 0 ---

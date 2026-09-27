@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-26T00:39:32Z ===
+task_id: T-862
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-862.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Handover Suggested First Action is non-carrying: regeneration overwrites hand-enrichment with a one-line stub
+  Duration: 0 days (14 min)
+  Updates: 2
+  Commits: 1
+  Lines: +878 -2 across 3 files
+  Outcomes: 7 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-862-handover-suggested-first-action-is-non-c.md
+--- exit code: 0 ---

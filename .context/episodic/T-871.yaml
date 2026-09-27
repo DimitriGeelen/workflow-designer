@@ -1,0 +1,101 @@
+# ============================================================================
+# EPISODIC MEMORY - T-871: Use the ratified delegation mechanism instead of leaving 77 criteria in an operator-only queue
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-26T20:25:22Z
+# ============================================================================
+
+task_id: T-871
+task_name: "Use the ratified delegation mechanism instead of leaving 77 criteria in an operator-only queue"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T20:02:06Z
+completed: 2026-09-26T20:25:15Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-26T22:05:27+02:00
+last_commit: 2026-09-26T22:25:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  used the delegation mechanism that was already ratified and never run — and found why 142 tasks cannot close. correct OBS-399 — I counted comments as defects, and said 142 when it was 3. work-completed 5/5 — the classifier is correct, and there is no rubber-stamping left to kill
+
+# Key outcomes
+outcomes:
+  - 'The five tasks the classifier reports as delegable are delegated through the sanctioned verb, not by hand-editing ownership — `fw task delegate` writes `.context/working/delegations.jsonl`, and R-033''s `--skip-human-ownership` would have logged the same act as a gate circumvention'
+  - 'Tasks that become `owner: agent` are closed only on a reviewer PASS, never on the producer''s own say-so — that separation is the whole point of the ruling'
+  - '**A criterion whose ASK is a judgement is not converted merely because its Expected clause is greppable.** T-732''s AC#4 ("Rule H6 — was the R6/R7 routing correct") classified deterministic on a `status: resolved` Expected. Flagged to the operator rather than silently converted; conversion to `[REVIEWER]` still requires a reviewer to verify, so it is not auto-ticked, but the classifier''s reach is recorded'
+  - 'The delegation surface is re-measured afterwards and the delta reported, so the size of what this actually released is a number rather than a claim'
+  - '**The 37 unclassified criteria are surfaced as the real lever**, with a recommendation, rather than left inside a count nobody reads'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.context/episodic/T-580.yaml'
+  - '.context/episodic/T-609.yaml'
+  - '.context/episodic/T-861.yaml'
+  - '.context/episodic/T-862.yaml'
+  - '.context/episodic/T-864.yaml'
+  - '.context/episodic/T-865.yaml'
+  - '.context/episodic/T-867.yaml'
+  - '.context/episodic/T-868.yaml'
+  - '.context/inbox.yaml'
+  - '.context/working/delegations.jsonl'
+  - '.tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md'
+  - '.tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md'
+  - '.tasks/active/T-732-drain-the-h-register-four-open-operator-.md'
+  - '.tasks/active/T-737-handoversh-reports-3-urgent-observations.md'
+  - '.tasks/active/T-871-use-the-ratified-delegation-mechanism-in.md'
+  - '.tasks/completed/T-580-decide-take-aef-5c33f7208-the-two-fabric.md'
+  - '.tasks/completed/T-609-review-cards-drop-stepsexpectedif-not-so.md'
+  - '.tasks/completed/T-867-s2-the-agent-drafts-the-hypothesis-the-h.md'
+  - '.tasks/completed/T-868-s3-support-scores-cite-the-hypothesis-so.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-26T22:05:27'
+    action: 'T-871: used the delegation mechanism that was already ratified and never run — and found why 142 tasks cannot close'
+  - time: '2026-09-26T22:13:17'
+    action: 'T-871: correct OBS-399 — I counted comments as defects, and said 142 when it was 3'
+  - time: '2026-09-26T22:25:14'
+    action: 'T-871: work-completed 5/5 — the classifier is correct, and there is no rubber-stamping left to kill'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 23 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [governance, delegation]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 23
+  commits: 3
+  files_changed: 19
+  lines_added: 971
+  lines_removed: 144
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-871-use-the-ratified-delegation-mechanism-in.md
+generated_by: context-agent-hybrid

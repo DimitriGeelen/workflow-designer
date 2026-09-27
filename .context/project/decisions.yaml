@@ -2481,3 +2481,17 @@ decisions:
     date: 2026-09-26
     task: T-864
     rationale: "No definition at all is strictly worse than an imperfect one; the override telemetry from T-865 makes this revisable against evidence rather than argument"
+
+  - id: PD-334
+    decision: "re-apply 24, deliberately drop 1, merge 2 facts from the template."
+    scope: project
+    date: 2026-09-26
+    task: T-873
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-335
+    decision: "the audit predicate is *does `CLAUDE.md.bak` exist*, with the lost-line count"
+    scope: project
+    date: 2026-09-26
+    task: T-873
+    rationale: "Auto-captured from task file on completion"

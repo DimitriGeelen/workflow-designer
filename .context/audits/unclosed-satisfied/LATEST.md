@@ -26,7 +26,7 @@ alone (CLAUDE.md Human Task Completion Rule).
 Rows with an empty `## Verification` block need that scrutiny most —
 nothing mechanical would gate their close.
 
-## Qualifying tasks (10)
+## Qualifying tasks (12)
 
 | Task | Status | Workflow | Name | Agent ACs | Verification cmds? |
 |------|--------|----------|------|----------:|--------------------|
@@ -40,4 +40,6 @@ nothing mechanical would gate their close.
 | T-681 | started-work | inception | EWCR arc holds only Arc-0 and every task in it is cl... | 3 | yes |
 | T-708 | started-work | build | RA-012: CTL-029 two stuck partial-complete tasks T-0... | 3 | yes |
 | T-723 | started-work | build | RA-027: FAIL D2 human review queue has 12 tasks wait... | 3 | yes |
+| T-885 | started-work | build | The round-trip guard _roundtrip-serialization-cdp.mj... | 6 | **no** |
+| T-906 | started-work | build | Backfill components: on the 40 tasks with no measura... | 6 | **no** |
 

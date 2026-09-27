@@ -2487,3 +2487,9 @@ learnings:
   task: T-904
   date: 2026-09-27
   context: Added via context agent
+- id: PL-354
+  learning: "A discriminator can be invalidated by the very change it was written to certify. T-889 AC 1 proved first-class-vs-carriage by 'an export carriage cannot produce', valid only while nothing in the editor WROTE the key — which is exactly what the task added. Once a writer exists, carriage derives from the model at export time and emits a byte-identical attribute; measured by deleting the key from metaKeys and watching all 5 legs stay green. Test a discriminator against a mutant of the mechanism it claims to EXCLUDE, not only against the feature it claims to show."
+  source: P-011
+  task: T-889
+  date: 2026-09-27
+  context: Added via context agent

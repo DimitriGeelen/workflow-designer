@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-26T19:17:08Z ===
+task_id: T-870
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-870.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Backfill hypothesis drafts across the active inceptions, so S2 is used and not merely built
+  Duration: 0 days (3 min)
+  Updates: 2
+  Commits: 2
+  Lines: +489 -23 across 18 files
+  Outcomes: 6 AC checked
+  Artifacts: 18 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-870-backfill-hypothesis-drafts-across-the-ac.md
+--- exit code: 0 ---

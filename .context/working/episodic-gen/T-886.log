@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-27T11:59:57Z ===
+task_id: T-886
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-886.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: uuid can be dropped from the editor writer and every guard stays green — three workflowMeta attributes are bare
+  Duration: 1 days (732 min)
+  Updates: 2
+  Commits: 1
+  Lines: +759 -15 across 5 files
+  Outcomes: 9 AC checked
+  Artifacts: 5 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-886-uuid-can-be-dropped-from-the-editor-writ.md
+--- exit code: 0 ---

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-26T22:17:14Z ===
+task_id: T-835
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-835.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Authority on the element, lane as domain: the mechanism T-685 GO'd and nobody filed
+  Duration: 3 days (4943 min)
+  Updates: 2
+  Commits: 2
+  Lines: +609 -20 across 4 files
+  Outcomes: 9 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-835-authority-on-the-element-lane-as-domain-.md
+--- exit code: 0 ---

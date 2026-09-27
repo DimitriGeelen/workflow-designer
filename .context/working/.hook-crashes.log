@@ -15,3 +15,4 @@
 [2026-09-04T22:30:00Z] CRASH: checkpoint exit=1
 [2026-09-05T05:00:20Z] CRASH: checkpoint exit=1
 [2026-09-05T06:01:51Z] CRASH: checkpoint exit=1
+2026-09-27T13:42:16Z missing-hook budget-status script=/opt/832-Workflow-designer/.agentic-framework/agents/context/budget-status.sh

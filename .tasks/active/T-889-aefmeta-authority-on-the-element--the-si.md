@@ -33,7 +33,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:17Z
-last_update: '2026-09-27T15:47:09Z'
+last_update: 2026-09-27T15:53:08Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -112,16 +112,45 @@ Corpus census (all `*.bpmn`): 155 `initiative`, 132 `authority`, 112 `sovereignt
       carried, so subset-parity with the bridge would pass either way. The proof is therefore an
       export that emits `aef:meta authority=` for a node whose source document carried **no**
       authority attribute at all — an outcome carriage cannot produce.
-      **NOT TICKED — and the half that is done is not the half this AC asks for.** Both
-      static halves hold and are checked by the teeth script: `metaKeys` is 20 → 21 (leg C5)
-      and the panel now offers the writer via `AEF_FIELDS` on the four task-like types
-      (leg C6). What is NOT done is the AC's actual proof: driving the editor in a browser
-      to set authority on a node loaded from an authority-free document, exporting, and
-      observing the attribute. That needs CDP plumbing (the harness's `SRC_HTML` is not
-      overridable and its sidecar must be up) which this round did not have budget to
-      build. Per the run's auditability rule, an assertion without the check that
-      demonstrates it is an open criterion, so this box stays empty rather than being
-      argued closed from the two static halves.
+      **STILL NOT TICKED — but the reason changed, and the new reason is a defect in THIS AC.**
+      Round 4 built the browser proof the previous rounds lacked
+      (`tools/_t889-authority-first-class-cdp.mjs`, 5/5 legs) and in doing so MEASURED that
+      the discriminator this AC names does not exist.
+
+      *What is now proven* (and was never demonstrated before): the editor AUTHORS
+      element-level authority. From `s4-exemplar.bpmn` — which carries 0 element-level
+      `aef:meta authority=` and 3 LANE-level ones — selecting a serviceTask, setting the real
+      rendered panel `<select>` to `external` and dispatching its own `change` listener yields
+      an export carrying `authority="external"` on that element (`agt_2_prepare`). It is a
+      DIFFERENTIAL, not a green: the same document through the same emitter with NO panel
+      interaction exports 0 element-level authority (leg L2). `external` is carried by no lane
+      in the document — the node's own lane is `initiative` — so the value is neither inherited
+      nor the `none` import default (leg L4). Leg L5 is the setup control: it requires the panel
+      to have actually rendered an Authority `<select>` and the write to have gone through its
+      `change` handler, so a model poke cannot be read as a panel proof.
+
+      *Why that does not close this AC.* The AC asserts the export is "an outcome carriage
+      cannot produce". **That premise is false, and it is false BECAUSE this task added a
+      writer.** Carriage derives from `node.aef` AT EXPORT TIME, not from the source document:
+      `scalarHandled = new Set([...metaKeys, ...])` (src:10096), so deleting `authority` from
+      `metaKeys` drops it out of the skip set, `carriedKeys` picks it up, and `<aef:meta>` emits
+      a BYTE-IDENTICAL attribute. Measured: with `'authority'` deleted from the `metaKeys`
+      literal, all 5 legs of the new script stayed GREEN. "Carriage can only re-emit a key the
+      source document already carried" was true only while nothing in the editor wrote the key —
+      which is the very condition this task removed.
+
+      *Where the discrimination actually lives.* The same mutant IS killed — by AC 4's
+      instrument, not this one. `tools/_roundtrip-serialization-cdp.mjs` exits 2 naming the key:
+      `KEYSPEC contains key(s) the emitter does not project: authority — dead coverage reads as
+      real coverage`. So first-class-vs-carriage is observable in the DERIVED DENOMINATOR, and
+      is not observable in the exported artifact at all. (Ordering cannot separate them either:
+      `authority` is last in `metaKeys` and carried keys sort after all of them, so for every
+      key the corpus actually carries the two orderings coincide.)
+
+      This box stays empty rather than being ticked against a substituted proof. Deciding
+      whether an AC's named proof may be replaced by a different one is a scope judgement on
+      the criterion, not a measurement — producer-not-judge. See the Sovereign question in
+      `## Decisions`.
 - [x] **The element value is validated against the module-scope `AUTHORITIES`, listed exactly
       once.** A node carrying `<aef:meta authority="overlord">` becomes a validation error naming
       the allowed set. `AUTHORITIES` is reused from module scope, not re-listed — a second copy of
@@ -171,6 +200,11 @@ to — the counterparty's agreement to a schema addition on a seam AEF byte-pins
 timeout 900 bash tools/_t889-authority-on-the-element-teeth.sh --mutation > /tmp/.t889teeth.out 2>&1 && grep -q "all legs passed" /tmp/.t889teeth.out
 # The round-trip guard is green on the real tree (denominator clean, all fixtures ok).
 timeout 300 node tools/_roundtrip-serialization-cdp.mjs > /tmp/.t889rt.out 2>&1 && python3 -c "import json,sys; d=json.load(open('/tmp/.t889rt.out')); sys.exit(0 if d.get('pass') else 1)"
+# AC 1's browser proof: the editor AUTHORS element-level authority on a document that
+# carried none. Differential — L2 (no panel interaction) vs L3 (panel interaction) on the
+# SAME document through the SAME emitter. Does NOT discriminate first-class from carriage;
+# that is the round-trip guard's denominator above. See the AC 1 note.
+timeout 300 node tools/_t889-authority-first-class-cdp.mjs > /tmp/.t889ac1.out 2>&1 && grep -q "5/5 legs passed" /tmp/.t889ac1.out
 # The new rule is registered in BOTH parity registries. Scoped to this rule deliberately:
 # the suites themselves are red for E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND, which are
 # T-875's and are filed as T-903 — pinning the whole suite here would block on another
@@ -279,6 +313,32 @@ test "$(grep -c "^const AUTHORITIES = \[" src/aef-workflow-designer.html)" = "1"
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-09-27 — SOVEREIGN QUESTION: AC 1 names a proof that cannot exist. Yours to rule.
+
+- **Measured, not argued:** deleting `'authority'` from the editor's `metaKeys` literal leaves
+  every leg of `tools/_t889-authority-first-class-cdp.mjs` GREEN, because
+  `scalarHandled = new Set([...metaKeys, ...])` (src:10096) means the key falls into T-570
+  `carriedKeys` and `<aef:meta>` emits a byte-identical attribute. The SAME mutant is killed by
+  `tools/_roundtrip-serialization-cdp.mjs` (exit 2, `KEYSPEC contains key(s) the emitter does not
+  project: authority`). So the exported artifact cannot distinguish first-class from carriage;
+  the derived denominator can.
+- **The question:** AC 1 asserts its proof is "an export ... carriage cannot produce". That is
+  false once the editor has a writer — which is what this task added. Do you want to
+  1. **Split AC 1** into the two claims that ARE separately checkable — (a) the editor authors
+     element-level authority on a document that carried none (PROVEN, 5/5, the new script), and
+     (b) the key is first-class rather than carriage (PROVEN by the denominator mutant, which is
+     AC 4's already-ticked instrument) — and close T-889; or
+  2. **Leave AC 1 as written and unmet**, treating the unprovable discriminator as a standing
+     defect in the criterion; or
+  3. Something else.
+- **Not decided here.** Substituting a different proof for the one an AC names is a scope
+  judgement on the criterion, not a measurement. Under producer-not-judge the agent that
+  produced the work does not get to rule that its substitute is equivalent. Recorded and parked.
+- **What this cost:** the AC was open for two prior rounds under the diagnosis "needs CDP
+  plumbing". The plumbing was never the blocker — the harness already serves a COPY of the
+  designer from a temp docroot, so a standalone driver overrides nothing. The blocker was a
+  false premise nobody had tested.
 
 ## Decision
 

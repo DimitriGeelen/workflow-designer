@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-26T09:08:26Z ===
+task_id: T-864
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-864.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: F1, F3 and F4 carry 27 of 63 weight units and cannot be scored, so every ranking is computed over 57 percent of the model
+  Duration: 0 days (74 min)
+  Updates: 2
+  Commits: 2
+  Lines: +1878 -89 across 78 files
+  Outcomes: 6 AC checked
+  Artifacts: 78 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-864-f1-f3-and-f4-carry-27-of-63-weight-units.md
+--- exit code: 0 ---

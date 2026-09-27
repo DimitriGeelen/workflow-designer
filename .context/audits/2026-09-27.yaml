@@ -1,0 +1,58 @@
+# Audit Results - 2026-09-27-1721
+timestamp: 2026-09-27T15:21:22Z
+sections: "compliance"
+summary:
+  pass: 4
+  warn: 14
+  fail: 0
+findings:
+  - level: WARN
+    check: "Task T-9003-inflight.md missing Updates section"
+    mitigation: "Fix missing Updates section in T-9003-inflight.md"
+  - level: PASS
+    check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
+  - level: WARN
+    check: "CTL-028: T-9002 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed)"
+    mitigation: "Fix: bin/fw task update T-9002 --status work-completed — the normal close runs the AC and verification gates and usually passes (832 measured 3 of 4 real drifted tasks closing clean two weeks stale). If a gate legitimately fails, fix the work or re-open it. Only as a last resort: add --force, which BYPASSES those gates and logs a Tier-2 entry. Do not hand-edit frontmatter — that is the git-mv bypass (L-390) this control detects."
+  - level: PASS
+    check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009) — examined 2 completed task(s)"
+  - level: WARN
+    check: "CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-041 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-101 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-102 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-102 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-105 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-105 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-293 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-293 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-309 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-309 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-357 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-357 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-681 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-681 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-708 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-708 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-723 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-723 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-866 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-866 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-885 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-885 --status work-completed"
+  - level: INFO
+    check: "CTL-029: 3 of the above are unclosable-misfiled (owner:human, no Human criteria, all Agent ACs ticked) — see: bin/fw review-queue"
+  - level: PASS
+    check: "CTL-012: All completed tasks have checked ACs — examined 2 completed task(s)"
