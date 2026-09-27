@@ -2493,3 +2493,9 @@ learnings:
   task: T-889
   date: 2026-09-27
   context: Added via context agent
+- id: PL-355
+  learning: "A failure mode you have RECORDED is not a failure mode you have STOPPED making. Measured this session: the $?-after-command-substitution bug occurred THREE times — printf '%s exit=%s' \"$(basename $f)\" \"$?\" evaluates the command substitution first, resetting $? to 0, so every exit code read that way is a lie that looks like a measurement. The second occurrence was hours after writing the first into a commit message; the THIRD was after writing it into the very task file I was working in, within the hour. Remembering harder does not work. The fix is structural: never put $? in an argument list. Capture it on its own line immediately after the command (rc=$?) and use the variable. Same shape as the other measurement errors this session — reading a timeout ceiling as an observed duration (PL-349), treating non-zero exit as failure when warnings exit 1, and an unanchored grep matching six legitimate lines. Every one produced a WRONG OR ABSENT measurement rather than an error, which is why none of them announced itself."
+  source: P-001
+  task: T-897
+  date: 2026-09-27
+  context: Added via context agent

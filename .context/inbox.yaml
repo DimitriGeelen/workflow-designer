@@ -2111,3 +2111,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-417
+  text: "The close gate refused T-891 FOUR TIMES and every refusal was a real defect in the verification, not friction. Worth reading as a set because they are four different ways a leg can be wrong while looking right: (1) an uncontrolled absence — a negated grep with nothing proving the pattern could match; (2) a leg anchored to .tasks/active/T-909 that went RED WHEN T-909 SUCCEEDED and moved to completed/ — a leg that fails on its dependency succeeding is worse than no leg, because the red says nothing about the task it guards; (3) 'ls glob-a glob-b | head' returning exit 2 under pipefail because one glob legitimately matched nothing — the empty glob was the CORRECT state; (4) a missing RCA on a bug-class task. Pattern across all four: each would have passed or failed for a reason unrelated to the thing being verified. Suggest a short note in the task template's Verification block: legs that reference another task's file must anchor across active/ AND completed/, and prefer find over ls for existence checks because ls's exit code is about globs, not about files."
+  captured: 2026-09-27T21:19:30Z
+  context_task: T-897
+  tags: []
+  status: pending
+  promoted_to: null
