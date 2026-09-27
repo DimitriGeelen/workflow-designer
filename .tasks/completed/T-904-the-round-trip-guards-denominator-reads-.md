@@ -19,14 +19,12 @@ description: >
   from the function body before matching (or parse rather than regex), then re-run
   the T-889 teeth M1 leg, which is the ready-made control.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface, false-green]
-components: [tools/_roundtrip-serialization-cdp.mjs, 
-      src/aef-workflow-designer.html, 
-      tools/_t904-denominator-comment-blindness-teeth.sh]
+components: [src/aef-workflow-designer.html, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/_roundtrip-serialization-cdp.mjs, tools/_t904-denominator-comment-blindness-teeth.sh, tools/validate-workflow.py]
 related_tasks: [T-886, T-889, T-905]
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -39,8 +37,8 @@ related_tasks: [T-886, T-889, T-905]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T14:09:54Z
-last_update: '2026-09-27T14:39:38Z'
-date_finished:
+last_update: 2026-09-27T15:16:48Z
+date_finished: 2026-09-27T15:16:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -118,9 +116,11 @@ cost_estimate_proposed:
 ## Context
 
 Fix landed in `deriveProjectedKeys()`: a quote-aware `stripJsComments()` runs before every regex
-in the derivation, at both call sites (the `aefExtensionXml` body slice and the whole-file
-`EVENT_BINDING_FIELD` read). The anchor and the column-0 close are still located on RAW lines —
-a comment cannot fake either — so only the matching is stripped, and line count is preserved.
+in the derivation, at both call sites — the `aefExtensionXml` body slice (stripped wholesale, it
+is pure JS) and the `EVENT_BINDING_FIELD` read (stripped **per line**, requiring exactly one
+surviving declaration; see `## Evolution` for why the whole-file form was wrong). The anchor and
+the column-0 close are still located on RAW lines — a comment cannot fake either — so only the
+matching is stripped, and line count is preserved.
 
 **Quote-aware rather than `/\/\/.*$/`, deliberately.** Measured: today no string literal in the
 function body contains `//` (0 occurrences), so a naive strip would be *accidentally* correct and
@@ -348,16 +348,25 @@ grep -q "const body = stripJsComments(html.slice" tools/_roundtrip-serialization
 # read silently takes the first regex match, which is what a commented-out copy would give.
 grep -q ".map(l => stripJsComments(l))" tools/_roundtrip-serialization-cdp.mjs
 grep -q "expected exactly 1 live EVENT_BINDING_FIELD declaration" tools/_roundtrip-serialization-cdp.mjs
-! grep -q "stripJsComments(readFileSync(SRC_HTML, 'utf8'))" tools/_roundtrip-serialization-cdp.mjs
+# The absence of the whole-file form is asserted POSITIVELY, not by negation. Two `! grep` legs
+# stood here and the T-560 absence census refused the close: nothing established that either
+# pattern could have matched, so a typo in the pattern and a satisfied assertion produce the
+# identical green. Correct refusal. The positive legs above pin the narrow read (the per-line map
+# AND the exactly-one-survivor guard, which is the load-bearing half), and teeth C3 proves the
+# narrow read returns the live values while recording that a whole-file strip IS destructive.
+# That is strictly stronger evidence than "the old string is gone".
 # T-907: prose must stay OUT of the metaKeys array literal — an apostrophe inside it reads as a
 # key to the parity checker. This asserts the parity checker itself is green.
 python3 tests/test_editor_bridge_meta_parity.py
 
-# AC5: the T-889 workaround comment is retired, and the accessor it was avoiding is
-# now spelled in prose — which is exactly the fixture AC2's mutation leg runs against.
-# No pipes (L-387): grep's own status is the verdict.
-! grep -q "deliberately avoids spelling the dotted accessor" src/aef-workflow-designer.html
+# AC5: the accessor the T-889 workaround comment refused to spell is now spelled in prose —
+# which is exactly the fixture AC2's mutation leg runs against. Asserted positively for the
+# T-560 reason above: what matters is that the accessor IS named and the leg STILL bites (teeth
+# D1), not that a particular old sentence is gone. No pipes (L-387): grep's status is the verdict.
 grep -q "node.aef.authority could only ever have come from the source document" src/aef-workflow-designer.html
+# T-907 guard rail: the explanation for keeping prose OUT of the metaKeys literal must stay with
+# the code, or the next author re-adds an apostrophe and the parity checker blames the bridge.
+grep -q "THIS COMMENT SITS OUTSIDE THE metaKeys LITERAL DELIBERATELY" src/aef-workflow-designer.html
 
 ## RCA
 
@@ -484,3 +493,15 @@ grep -q "node.aef.authority could only ever have come from the source document" 
 
 ### 2026-09-27T14:20:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-396f1cf4
+- **Timestamp:** 2026-09-27T15:17:02Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-27T15:16:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
