@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T08:27:40Z
-last_update: 2026-09-27T08:27:40Z
+last_update: 2026-09-27T08:36:47Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -51,15 +51,15 @@ TermLink for permanent inclusion. Normally a new CLI route would be an inception
 pickup rules (G-020); the operator's direction is the authorization, and it is recorded here
 rather than assumed.
 
-- [ ] `fw external` dispatches from `bin/fw` in the same shape as its sibling `peer` / `sidecar` verbs — one `exec python3 "$FW_LIB_DIR/<module>" "$@"` case, no logic in the shell
-- [ ] Credential resolution is an ORDERED search that NAMES WHAT IT CHECKED when it fails: `OPENROUTER_API_KEY` in the environment, then `~/.litellm-openrouter.env`. A missing key must refuse loudly — never proceed with an empty panel, because "nobody answered" and "we never asked" would otherwise render identically
-- [ ] The prompt asks each model for its **strongest objection**, not for validation. Verifiable: the sent text contains an explicit instruction to argue against the proposal, and the consult record stores the exact prompt sent
-- [ ] A consult is a NAMED artifact recording, per response: model id, timestamp, the prompt sent, and the answer. Re-runnable by name (`rescan`) so the same question can be re-asked against changed models and diffed
-- [ ] `--dry-run` prints the panel and the prompt and sends nothing, so the brief can be reviewed before any content leaves the machine
-- [ ] The key is never printed, never logged, and never written into the repository — verified by grepping the produced artifact for the key prefix and finding nothing
-- [ ] The new file is registered in `.agentic-framework/.vendor-divergence.yaml` with `upstream: fix`, because `fw upgrade` overwrites this tree — the T-873 lesson, where an upgrade silently destroyed 25 lines of governance
-- [ ] Proven by a real run, not a mock: the M2 lane-authority question is sent to a panel of at least 3 differently-trained models and their answers land in the artifact
-- [ ] Sent to AEF via TermLink for structural incorporation, with the implementation and the evidence it ran — a spec alone is weaker than a spec that has already worked once
+- [x] `fw external` dispatches from `bin/fw` in the same shape as its sibling `peer` / `sidecar` verbs — one `exec python3 "$FW_LIB_DIR/<module>" "$@"` case, no logic in the shell
+- [x] Credential resolution is an ORDERED search that NAMES WHAT IT CHECKED when it fails: `OPENROUTER_API_KEY` in the environment, then `~/.litellm-openrouter.env`. A missing key must refuse loudly — never proceed with an empty panel, because "nobody answered" and "we never asked" would otherwise render identically
+- [x] The prompt asks each model for its **strongest objection**, not for validation. Verifiable: the sent text contains an explicit instruction to argue against the proposal, and the consult record stores the exact prompt sent
+- [x] A consult is a NAMED artifact recording, per response: model id, timestamp, the prompt sent, and the answer. Re-runnable by name (`rescan`) so the same question can be re-asked against changed models and diffed
+- [x] `--dry-run` prints the panel and the prompt and sends nothing, so the brief can be reviewed before any content leaves the machine
+- [x] The key is never printed, never logged, and never written into the repository — verified by grepping the produced artifact for the key prefix and finding nothing
+- [x] The new file is registered in `.agentic-framework/.vendor-divergence.yaml` with `upstream: fix`, because `fw upgrade` overwrites this tree — the T-873 lesson, where an upgrade silently destroyed 25 lines of governance
+- [x] Proven by a real run, not a mock: the M2 lane-authority question is sent to a panel of at least 3 differently-trained models and their answers land in the artifact
+- [x] Sent to AEF via TermLink for structural incorporation, with the implementation and the evidence it ran — a spec alone is weaker than a spec that has already worked once
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -219,6 +219,17 @@ rather than assumed.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# ── T-887 legs ──────────────────────────────────────────────────────────────
+bash -n .agentic-framework/bin/fw
+python3 -c "import ast;ast.parse(open('.agentic-framework/lib/external_consult.py').read())"
+grep -qF 'STRONGEST OBJECTION' .agentic-framework/lib/external_consult.py
+grep -qF 'EMPTY_ANSWER' .agentic-framework/lib/external_consult.py
+grep -qF 'external_consult.py' .agentic-framework/.vendor-divergence.yaml
+# the real run landed >=3 substantive answers (empty bodies do not count, which is the point)
+python3 -c "import json,sys; r=json.load(open('.context/consults/m2-lane-authority.json')); n=sum(1 for x in r['responses'] if x['ok'] and (x.get('answer') or '').strip()); sys.exit(0 if n>=3 else 1)"
+# the refusal path names what it checked, and sends nothing
+env -u OPENROUTER_API_KEY HOME=/nonexistent .agentic-framework/bin/fw external scan _probe --brief docs/reports/consult-m2-lane-authority-brief.md > /tmp/.t887 2>&1; grep -q 'REFUSED: no OpenRouter key found' /tmp/.t887
 
 ## RCA
 
