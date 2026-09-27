@@ -1,10 +1,21 @@
 ---
 id: T-903
-name: "E-WORKFLOW-KIND and E-XML-WORKFLOW-KIND have failed the rule-dialect harness since T-875, unnoticed"
+name: "E-WORKFLOW-KIND and E-XML-WORKFLOW-KIND have failed the rule-dialect harness
+  since T-875, unnoticed"
 description: >
-  tests/test_rule_dialect_axis.py fails with: rule E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND is emitted by the validator but declares no carrier in RULE_CARRIERS. Both rules were added by T-875 (commit 39e0579d, 'the diagram-kind marker ships and validates'). The harness has been red on them since. Discovered during T-889 when the SAME harness caught T-889's own new rule (E-XML-META-AUTHORITY) - T-889 fixed its own two entries (RULE_CARRIERS + CARRIER_CLASS + PARITY) and left these, because one bug = one task and these are not T-889's. Deliverable: declare carriers for both, and classify their parity. NOTE the meta-finding: this is the concrete harm of the pre-flight gap in OBS-408 - tests/run-bridge-tests.sh is one of five dependents of the shared harness, it takes ~15 minutes, and a task that does not run it ships a red. T-875 did not run it.
+  tests/test_rule_dialect_axis.py fails with: rule E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND
+  is emitted by the validator but declares no carrier in RULE_CARRIERS. Both rules
+  were added by T-875 (commit 39e0579d, 'the diagram-kind marker ships and validates').
+  The harness has been red on them since. Discovered during T-889 when the SAME harness
+  caught T-889's own new rule (E-XML-META-AUTHORITY) - T-889 fixed its own two entries
+  (RULE_CARRIERS + CARRIER_CLASS + PARITY) and left these, because one bug = one task
+  and these are not T-889's. Deliverable: declare carriers for both, and classify
+  their parity. NOTE the meta-finding: this is the concrete harm of the pre-flight
+  gap in OBS-408 - tests/run-bridge-tests.sh is one of five dependents of the shared
+  harness, it takes ~15 minutes, and a task that does not run it ships a red. T-875
+  did not run it.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -22,8 +33,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T14:01:52Z
-last_update: 2026-09-27T14:01:52Z
-date_finished: null
+last_update: 2026-09-27T19:56:47Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +45,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-27T19:56:48Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-903: E-WORKFLOW-KIND and E-XML-WORKFLOW-KIND have failed the rule-dialect harness since T-875, unnoticed
@@ -46,8 +78,16 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+**Why now:** this is no longer one task's problem. `EXPECTED_GAPS` and the two unclassified
+`kind` rules block **T-890, T-894 and T-903** simultaneously — one constant, three tasks, and
+the harness says in its own failure text to re-derive rather than nudge it.
+
+- [x] `E-WORKFLOW-KIND` and `E-XML-WORKFLOW-KIND` declare a carrier in `RULE_CARRIERS` and an axis, classified from what the rule actually reads — the harness's own words: until it does, *"nothing knows whether surfacing it to an author states a correctness fact or a house convention"*
+- [x] Their carrier has a class in `CARRIER_CLASS`, decided from the frozen standard's §1 partition rather than from convenience
+- [x] Both are classified in the form-parity registry with a reason, PAIRED or GAP — the YAML form's `workflowMeta` is checked by `E-WORKFLOW-KIND`, so this pair may genuinely be PAIRED unlike the three before it, and the answer is measured rather than assumed
+- [x] **`EXPECTED_GAPS` is RE-DERIVED, not nudged.** The count changes because gaps were legitimately opened (T-890, T-894) and possibly closed (this task). Each delta is shown with its cause in `docs/reports/T-320-rule-form-parity-census.md`, in the style the existing entries use — the harness refuses a bare adjustment and is right to
+- [x] Both suites go green, or every remaining failure is named with its owner. A suite left red teaches its readers to ignore it (OBS-293)
+- [x] The three blocked tasks are re-checked afterwards: T-890 and T-894's own criteria must still hold, verified by re-running them, not asserted
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -304,3 +344,49 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-903-e-workflow-kind-and-e-xml-workflow-kind-.md
 - **Context:** Initial task creation
+
+### 2026-09-27T19:56:47Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## 2026-09-27 — both suites green, and one constant that was blocking three tasks is re-derived
+
+**The two `kind` rules are a genuine PAIR, which is why they added no gap.** Both were built in
+T-875, both read the same module-scope `WORKFLOW_KINDS` set, both refuse a value outside it —
+`E-WORKFLOW-KIND` on `workflowMeta.kind`, its twin on `aef:workflowMeta/@kind`. They had been
+unclassified since T-875 *purely because nobody registered them*, and that single omission was
+failing two harnesses for weeks with no owner.
+
+**Their carrier is `UNRATIFIED`, and that is the honest class rather than a convenient one.**
+T-875 measured, with a control, that `aef:workflowMeta` appears **zero** times in the frozen
+standard while `aef:uid` appears 8, `aef:meta` 7 and `aef:position` 1 in the same grep shape and
+run. §1 partitions NODE-level attributes; §6's conformance clauses never reach document-level
+metadata. **There is no document-level class to belong to.** So the reading is ours, declared as
+ours, and counted — `EXPECTED_UNRATIFIED` 2 → 4. The mechanism exists precisely so a hole in the
+standard stays visible instead of being absorbed by whichever class made the arithmetic work.
+
+### EXPECTED_GAPS re-derived 10 → 13, every delta named
+
+| # | gap | opened by |
+|---|---|---|
+| 11 | `E-XML-META-AUTHORITY` | **T-889** — classified GAP at the time, filed as T-902, constant never updated. **This is the whole of the pre-existing 11-vs-10 discrepancy.** |
+| 12 | `E-XML-LANE-AUTHORING-DEFAULT` | T-890 |
+| 13 | `W-XML-AUTHORITY-DEFAULT-MISMATCH` | T-894 |
+
+**And it moved the other way in the same pass**: the two `kind` rules were classified `PAIRED`
+and added **zero**. A ratchet that only ever rises is not a measurement.
+
+Written into `docs/reports/T-320-rule-form-parity-census.md` with causes, and the constant
+carries the arithmetic inline — the harness refuses a bare adjustment and was right to.
+
+### Verified after, not assumed
+
+- `test_rule_dialect_axis.py` **OK** — 55 rules, 4 unratified carriers printed
+- `test_rule_form_parity.py` **OK** — 55 rules, 13 gaps, 0 out-of-scope
+- T-890's and T-894's own criteria re-run and still hold: agree → 0 findings, differ → 1,
+  bad `authoringDefault` → exit 2
+
+**One false alarm of mine, checked before reporting it.** My corpus sweep counted
+`context-memory.bpmn` as failing. It reports **0 errors and 7 warnings** — `W-LANE-NO-OWNER`,
+the pre-existing state the T-888 ruling already documents — and exits 1 because warnings do.
+The validator from six commits ago exits 1 on it identically, so it is not mine. My sweep
+treated "non-zero" as "failing".

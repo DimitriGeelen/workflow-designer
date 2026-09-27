@@ -222,6 +222,13 @@ PARITY = {
     "E-XML-LANE-AUTHORING-DEFAULT": (GAP, "aef:laneMeta/@authoringDefault has no YAML-form "
                                           "counterpart; presentational, pre-fills new "
                                           "elements only, never compiled (T-890/T-888 cl.3)"),
+    # T-903: a genuine PAIR, unlike the three GAPs above it — the diagram-kind marker was
+    # built on BOTH forms in T-875 (E-WORKFLOW-KIND reads workflowMeta.kind, its XML twin
+    # reads aef:workflowMeta/@kind), both enforcing the same closed enum from the same
+    # module-scope WORKFLOW_KINDS set. Unclassified since T-875 purely because nobody
+    # registered them; classifying adds NO gap.
+    "E-WORKFLOW-KIND":      (PAIRED, "E-XML-WORKFLOW-KIND (T-875/T-903)"),
+    "E-XML-WORKFLOW-KIND":  (PAIRED, "E-WORKFLOW-KIND (T-875/T-903)"),
     "E-XML-ABBR-DUP":       (PAIRED, "E-ABBR-DUP (T-816)"),
     "E-XML-FLOW-DANGLING":  (PAIRED, "E-EDGE-DANGLING"),
     "E-XML-GW-OUTGOING":    (PAIRED, "E-GW-OUTGOING"),
@@ -293,7 +300,15 @@ OUT_OF_SCOPE_PROBES = {}
 # and the id count (11 -> 10) fall by exactly one. Closed first of the remaining gaps
 # because it had the highest carrier count in the table (96/96 bpmn) and because parity
 # is a T-309 prerequisite: the editor surface would show the XML rule set.
-EXPECTED_GAPS = 10
+# T-903 (2026-09-27): 10 -> 13, RE-DERIVED with each delta named in the census, not nudged.
+# +1 T-889 E-XML-META-AUTHORITY (opened and classified at the time, constant never updated —
+#    this is the pre-existing 11-vs-10 discrepancy, owner T-902)
+# +1 T-890 E-XML-LANE-AUTHORING-DEFAULT (no YAML counterpart; presentational)
+# +1 T-894 W-XML-AUTHORITY-DEFAULT-MISMATCH (neither carrier on the YAML form)
+# +0 T-903 E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND — classified PAIRED, so counted the other
+#    way in the same pass and adding nothing. The ratchet moves in both directions or it is
+#    not a measurement.
+EXPECTED_GAPS = 13
 
 
 # --------------------------------------------------------------------------

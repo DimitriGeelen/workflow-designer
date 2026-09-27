@@ -158,6 +158,15 @@ CARRIER_CLASS = {
     # -- UNRATIFIED: §1 places these in neither class -----------------------
     "aef:laneMeta/@height":     PRESENTATION,      # UNRATIFIED
     "aef:laneMeta/@abbr":       SEMANTIC_OPTIONAL,  # UNRATIFIED
+    # T-903: the diagram-kind marker (T-213/T-875), both forms. SEMANTIC_MUST because a
+    # compiler MUST read it — its whole purpose is to stop `fw bpmn promote` minting real
+    # owner:human tasks from illustrative nodes, a defect AEF measured live (their L-504).
+    # UNRATIFIED because T-875 measured that `aef:workflowMeta` appears ZERO times in the
+    # frozen standard: §1's two-class partition enumerates NODE-level attributes and §6's
+    # conformance clauses never reach document-level metadata. The standard has no
+    # document-level class at all, so this reading is ours and is declared as such.
+    "workflowMeta.kind":            SEMANTIC_MUST,  # UNRATIFIED
+    "aef:workflowMeta/@kind":       SEMANTIC_MUST,  # UNRATIFIED
 }
 
 # Carriers whose class above is this file's reading rather than the standard's
@@ -169,8 +178,17 @@ UNRATIFIED_CARRIERS = {
                             "as layout because the forward compile never reads it",
     "aef:laneMeta/@abbr":   "§1 lists neither; read as governance-bearing because "
                             "it is an identity key the compile surfaces",
+    # T-903: measured under T-875 with a control — `aef:workflowMeta` appears 0 times in
+    # the standard while aef:uid appears 8, aef:meta 7, aef:position 1 in the same grep
+    # shape and run. §1 partitions NODE-level attributes; there is no document-level
+    # class to belong to. Read SEMANTIC_MUST because the forward compile must honour it.
+    "workflowMeta.kind":      "§1 has no document-level class at all; read as "
+                              "governance-bearing because promote must not mint tasks "
+                              "from a map marked documentation (T-213/T-875)",
+    "aef:workflowMeta/@kind": "§1 has no document-level class at all; XML-form twin of "
+                              "workflowMeta.kind, same reading (T-213/T-875)",
 }
-EXPECTED_UNRATIFIED = 2
+EXPECTED_UNRATIFIED = 4
 
 
 # --------------------------------------------------------------------------
@@ -249,6 +267,10 @@ RULE_CARRIERS = {
     # it refuses a value outside AUTHORITIES — but a different carrier again, and
     # deliberately a PRESENTATIONAL one. It pre-fills new elements and is never read by
     # the compiler, so it constrains the vocabulary without carrying the fact.
+    # T-903: the diagram-kind marker refuses a value outside {documentation, work-plan}
+    # on both forms — same predicate, two carriers, so a genuine PAIR rather than a gap.
+    "E-WORKFLOW-KIND":          (("workflowMeta.kind",), CONSTRAINS),
+    "E-XML-WORKFLOW-KIND":      (("aef:workflowMeta/@kind",), CONSTRAINS),
     "E-XML-LANE-AUTHORING-DEFAULT": (("aef:laneMeta/@authoringDefault",), CONSTRAINS),
     # T-894 (T-888 clause 4, CI half): reports an element authority that DIFFERS from its
     # lane default. Two carriers, because the finding is about their RELATION — which is

@@ -282,3 +282,31 @@ The classification table is not a document that goes stale — it is enforced by
    gone. AEF is checking their own tolerances for the same shape.)
 5. Unevaluable is red: if either validator class cannot be located, or yields zero
    rules, the guard raises rather than passing quiet.
+
+---
+
+## 2026-09-27 — EXPECTED_GAPS re-derived, 10 → 13 (T-903)
+
+Re-derived rather than nudged, per the harness's own refusal text. **Three gaps opened since
+the constant was last set, each by a task that added a real XML-form rule with no YAML-form
+counterpart. None is a regression.** The count was already wrong before the two most recent:
+
+| # | gap | opened by | why no counterpart exists |
+|---|---|---|---|
+| 11 | `E-XML-META-AUTHORITY` | **T-889** | `aef:meta/@authority` is expressible on the YAML form via `META_KEYS`, but no YAML rule gates the element value. Filed as **T-902** at the time — the gap was recorded and classified, and the constant was simply never re-derived to match. That is the whole of the pre-existing discrepancy. |
+| 12 | `E-XML-LANE-AUTHORING-DEFAULT` | **T-890** | The YAML form has no `laneMeta authoringDefault` at all. Presentational (frozen standard §1) — pre-fills new elements, never compiled. |
+| 13 | `W-XML-AUTHORITY-DEFAULT-MISMATCH` | **T-894** | Neither carrier exists on the YAML form, so the *relation* between them cannot be expressed there. |
+
+**Why these are GAP and not PAIRED**, consistently across all three: asserting a counterpart
+that does not exist is the T-317 failure the harness is built to catch. T-889 set the precedent
+by classifying its own rule GAP rather than inventing a pair, and T-890/T-894 followed it.
+
+**Counted the other way for the same run**, so this is not a one-directional ratchet:
+`E-WORKFLOW-KIND` and `E-XML-WORKFLOW-KIND` were classified this session and added **zero**
+gaps — they are a genuine `PAIRED`, both forms built together in T-875 and both reading the
+same module-scope `WORKFLOW_KINDS` set. They had been unclassified since T-875 purely because
+nobody registered them, which is why two suites were failing without anyone owning it.
+
+**One constant was blocking three tasks.** T-890 and T-894 were parked on it and T-903 existed
+for it. Re-deriving once clears all three, which is the argument for re-derivation over three
+separate nudges.
