@@ -2008,3 +2008,11 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-404
+  text: "BPMN allows multiple lane partitions per process — laneSet is 0..* on Process, precisely so one process can be partitioned more than one way — and BOTH our readers take only the first, silently. The editor collects every laneSet (byBpmn(proc,'laneSet')) and then iterates laneSets[0] only, at src/aef-workflow-designer.html:10832-10834; the validator uses process.find('{BPMN}laneSet'), a singular find, at tools/validate-workflow.py:1096. A third-party file declaring two partitions loses one without a word, and on save we would write back the survivor as though it were the whole document. This is the same defect shape as T-603, which found processes[0] silently discarding every later bpmn:process in a real Bizagi fixture — the sibling was fixed, this one was not. No corpus file carries more than one laneSet today, so nothing here exercises it. Found while testing the operator's view-perspective idea: if a lane partition is a VIEW (authority view, architectural-domain view, business-domain view), multiple laneSets are the natural carrier and our tooling cannot currently hold them."
+  captured: 2026-09-27T09:25:51Z
+  context_task: T-874
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

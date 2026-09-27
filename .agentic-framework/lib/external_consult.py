@@ -57,10 +57,12 @@ API_URL = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_PANEL = [
     "openai/gpt-4o",
     "google/gemini-2.5-pro",
-    # 404 on the first real run as "x-ai/grok-2-1212" — provider model ids move,
-    # which is itself an argument for `rescan`: a panel is a claim about what
-    # exists today, not a constant.
-    "x-ai/grok-3",
+    # Twice 404'd on guessed ids ("x-ai/grok-2-1212", then "x-ai/grok-3") before
+    # anyone thought to ASK the provider. Verified against GET /api/v1/models,
+    # which is the only way to know a panel is real. Provider ids move, so this
+    # list is a claim about a date and not a constant — which is precisely the
+    # argument for `rescan`.
+    "x-ai/grok-4.7",
     "deepseek/deepseek-chat",
     "qwen/qwen-2.5-72b-instruct",
 ]
