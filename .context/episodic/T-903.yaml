@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-903: E-WORKFLOW-KIND and E-XML-WORKFLOW-KIND have failed the rule-dialect harness since T-875, unnoticed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T20:01:49Z
+# ============================================================================
+
+task_id: T-903
+task_name: "E-WORKFLOW-KIND and E-XML-WORKFLOW-KIND have failed the rule-dialect harness since T-875, unnoticed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T14:01:52Z
+completed: 2026-09-27T20:01:42Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-27T22:00:29+02:00
+last_commit: 2026-09-27T22:00:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  one unregistered pair was failing two harnesses for weeks, and the constant it broke was blocking three tasks
+
+# Key outcomes
+outcomes:
+  - '`E-WORKFLOW-KIND` and `E-XML-WORKFLOW-KIND` declare a carrier in `RULE_CARRIERS` and an axis, classified from what the rule actually reads — the harness''s own words: until it does, *"nothing knows whether surfacing it to an author states a correctness fact or a house convention"*'
+  - 'Their carrier has a class in `CARRIER_CLASS`, decided from the frozen standard''s §1 partition rather than from convenience'
+  - 'Both are classified in the form-parity registry with a reason, PAIRED or GAP — the YAML form''s `workflowMeta` is checked by `E-WORKFLOW-KIND`, so this pair may genuinely be PAIRED unlike the three before it, and the answer is measured rather than assumed'
+  - '**`EXPECTED_GAPS` is RE-DERIVED, not nudged.** The count changes because gaps were legitimately opened (T-890, T-894) and possibly closed (this task). Each delta is shown with its cause in `docs/reports/T-320-rule-form-parity-census.md`, in the style the existing entries use — the harness refuses a bare adjustment and is right to'
+  - 'Both suites go green, or every remaining failure is named with its owner. A suite left red teaches its readers to ignore it (OBS-293)'
+  - 'The three blocked tasks are re-checked afterwards: T-890 and T-894''s own criteria must still hold, verified by re-running them, not asserted'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-320-rule-form-parity-census.md'
+  - '.tasks/active/T-903-e-workflow-kind-and-e-xml-workflow-kind-.md'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T22:00:29'
+    action: 'T-903: one unregistered pair was failing two harnesses for weeks, and the constant it broke was blocking three tasks'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 359 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface, false-green]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 359
+  commits: 1
+  files_changed: 4
+  lines_added: 161
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-903-e-workflow-kind-and-e-xml-workflow-kind-.md
+generated_by: context-agent-hybrid

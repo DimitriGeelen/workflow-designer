@@ -15,12 +15,12 @@ description: >
   harness, it takes ~15 minutes, and a task that does not run it ships a red. T-875
   did not run it.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface, false-green]
-components: []
+components: [src/aef-workflow-designer.html, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/_t889-authority-on-the-element-teeth.sh, tools/validate-workflow.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -33,8 +33,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T14:01:52Z
-last_update: 2026-09-27T19:56:47Z
-date_finished:
+last_update: 2026-09-27T20:01:42Z
+date_finished: 2026-09-27T20:01:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -266,19 +266,30 @@ the harness says in its own failure text to re-derive rather than nudge it.
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
+### 2026-09-27 — the task was filed as two unregistered rules; it was one constant holding three tasks
 
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
+- **What changed:** T-903 was filed as "two rules fail the dialect harness". By the time it was
+  worked, T-890 and T-894 had each opened a legitimate parity gap and were parked on the same
+  `EXPECTED_GAPS` constant. The task's real scope was not two registrations — it was one
+  re-derivation that three tasks were queued behind.
+- **Plan impact:** the ACs were rewritten before execution to say so. Doing the two
+  registrations alone would have left the constant red and all three tasks still blocked, which
+  would have read as progress while changing nothing.
+- **Triggered:** nothing new. It closed T-890's and T-894's shared blocker as a side effect of
+  being scoped correctly.
 
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
+### 2026-09-27 — the pre-existing discrepancy had an owner all along
+
+- **What changed:** the 11-vs-10 gap count predates every task in this run. Re-deriving found
+  the cause: T-889 opened `E-XML-META-AUTHORITY`, classified it GAP correctly, filed T-902 for
+  it — and never updated the constant. The gap was recorded; only the arithmetic was not.
+- **Plan impact:** none to the design. It does mean the harness's ratchet has been red since
+  T-889 and nothing escalated it, so the ratchet was being read as noise rather than signal —
+  which is the failure mode the ratchet exists to prevent.
+- **Triggered:** worth watching whether a harness that stays red across several tasks gets an
+  owner automatically. Three tasks tripped over this one before anyone re-derived it.
+
+### YYYY-MM-DD — [topic]
        - **What changed:** [what we learned that we didn't know at filing]
        - **Plan impact:** [what in the plan no longer fits]
        - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
@@ -390,3 +401,15 @@ carries the arithmetic inline — the harness refuses a bare adjustment and was 
 the pre-existing state the T-888 ruling already documents — and exits 1 because warnings do.
 The validator from six commits ago exits 1 on it identically, so it is not mine. My sweep
 treated "non-zero" as "failing".
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-43f75304
+- **Timestamp:** 2026-09-27T20:01:43Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-27T20:01:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
