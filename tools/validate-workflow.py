@@ -1681,12 +1681,46 @@ class XmlValidator:
             nid = child.get("id")
             if nid is None:
                 continue
-            authority = node_authority.get(nid)
+            # T-889 (T-888 ruling clause 2): THE ELEMENT CARRIES ITS AUTHORITY.
+            # One field, one home, read DIRECTLY off the node -- never by scanning lane
+            # membership, never resolved by document order. The lane walk above still
+            # runs because clause 4's mismatch indicator (T-894) needs the lane's value
+            # to compare against, and because a node with no authority of its own must
+            # still resolve to something while the corpus migration (T-895) is pending.
+            # But when the element states its authority, that value WINS -- which is the
+            # whole of clause 2, and the reason node_authority is a fallback here rather
+            # than the source.
+            #
+            # Measured before the switch, because "element wins" is only safe if we know
+            # what it changes: across all 94 *.bpmn / 2130 nodes in this repo, element-level
+            # <aef:meta authority=> occurs ZERO times -- all 500 authority attributes are on
+            # <aef:laneMeta>. So this re-ordering is a no-op on today's corpus and only
+            # takes effect as T-895 migrates values onto elements. The task's own context
+            # said the bridge "has been emitting element-level aef:meta authority= all
+            # along"; `authority` is indeed in its META_KEYS (yaml-to-bpmn.py:56), but no
+            # source step carries the key, so that is a CAPABILITY and not a behaviour.
+            meta = child.find(
+                "{%s}extensionElements/{%s}meta" % (BPMN_NS, AEF_NS)
+            )
+            elem_authority = meta.get("authority") if meta is not None else None
+            # The §5 vocabulary gate on the element, mirroring the lane gate at :1668.
+            # AUTHORITIES is the module-scope set (T-322) -- reused, deliberately NOT
+            # re-listed: a second copy of the vocabulary is how the one-form-only family
+            # reproduces itself one level down (T-322/T-329 reasoning).
+            if elem_authority is not None and elem_authority not in AUTHORITIES:
+                self.err(
+                    "E-XML-META-AUTHORITY",
+                    "node '%s'" % nid,
+                    "authority '%s' not in %s"
+                    % (elem_authority, sorted(AUTHORITIES)),
+                )
+            authority = (
+                elem_authority
+                if elem_authority is not None
+                else node_authority.get(nid)
+            )
             # O-3: an inception's boundary MUST be sovereignty(human)-laned
             if local == "subProcess":
-                meta = child.find(
-                    "{%s}extensionElements/{%s}meta" % (BPMN_NS, AEF_NS)
-                )
                 wft = meta.get("workflowType") if meta is not None else None
                 if wft == "inception" and authority != "sovereignty":
                     self.err(

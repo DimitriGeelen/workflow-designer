@@ -10030,7 +10030,13 @@ function aefExtensionXml(node) {
     'external', 'exitCode', 'autoTrigger', 'trigger', 'gatewayKind', 'gate',
     'scopeOf',
     // T-177: task-governance scalars — horizon / workflow_type / owner.
-    'horizon', 'workflowType', 'owner'];
+    'horizon', 'workflowType', 'owner',
+    // T-889 (T-888 ruling clause 2): the element carries its authority. First-class,
+    // not T-570 carriage — carriage can only re-emit a key node.aef already holds, and
+    // before this task nothing in the editor ever WROTE node.aef.authority, so the value
+    // could only ever have come from the source document. With a writer (setNodeAuthority)
+    // the key is authored here, which is the outcome carriage cannot produce.
+    'authority'];
 
   // T-570: CARRIAGE. Import reads EVERY <aef:meta> attribute into node.aef (:10255,
   // unconditional). Export emitted only the whitelist above. A key present in a source

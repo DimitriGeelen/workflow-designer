@@ -106,6 +106,11 @@ const KEYSPEC = [
   { k: 'gatewayKind',     shape: 'metaattr'    }, { k: 'gate',           shape: 'metaattr' },
   { k: 'scopeOf',         shape: 'metaattr'    }, { k: 'horizon',        shape: 'metaattr' },
   { k: 'workflowType',    shape: 'metaattr'    }, { k: 'owner',          shape: 'metaattr' },
+  // T-889 (T-888 ruling clause 2): the element's authority. Same metaattr carrier as the rest
+  // of <aef:meta>; it is here because the emitter now projects it, and this entry was added
+  // AFTER the guard went red naming it (orphan: authority, exit 2) — the derivation caught it,
+  // it was not remembered.
+  { k: 'authority',       shape: 'metaattr'    },
   // T-204 typed-event binding fields. Ride <aef:eventDef binding="V"/>.
   { k: 'errorStatus',     shape: 'eventbind'   }, { k: 'timerSpec',      shape: 'eventbind' },
   { k: 'busTopic',        shape: 'eventbind'   },
