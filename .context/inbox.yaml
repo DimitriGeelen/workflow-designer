@@ -2034,3 +2034,19 @@ observations:
   dismissed_at: 2026-09-27T12:07:33Z
   promoted_to: null
   urgent: true
+- id: OBS-407
+  text: "fw verify-queue found 3 of 5 sampled tasks RED, and all three are partial-complete tasks sitting in the operator review queue: T-308 (1/11 failing, t308-export-byte-identity drifted != 0), T-310 (2/8, same byte-identity leg plus validate-workflow.py on lane-position-conflict.bpmn rc=1), T-325 (5/11, test_rule_dialect_axis.py rc=1 and four greps over its output). T-286 timed out on 1/4 (not counted red). Observed 2026-09-27 from a single rotation pass -- the queue holds 72 tasks and checks 5 per run, so this is a 7 percent sample and the true red count is unmeasured. Why it matters: these tasks are presented to the operator as agent-verified and awaiting only a human AC, while their own recorded verification does not currently pass. A GO recommendation resting on a red block is a recommendation resting on nothing. Not investigated and not touched under this run: they are other tasks' work, the failures look pre-existing rather than caused by T-886 (which changed only tools/_roundtrip-serialization-cdp.mjs and added a new tool), and confirming causality needs a git-bisect none of these tasks asked for. Suggested next step: one rotation sweep to completion to get the real red count before anyone reads the review queue as a list of finished work."
+  captured: 2026-09-27T12:23:58Z
+  context_task: null
+  tags: [review-queue]
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-408
+  text: "fw fabric deps and fw fabric impact disagree about the same component, and impact is the one that is wrong. Measured 2026-09-27 on tools/_roundtrip-serialization-cdp.mjs: 'fw fabric deps' prints five dependents (reads<-aef-workflow-designer; calls<-run-bridge-tests, test_roundtrip_serialization, gallery-serve, _t591-roundtrip-teeth) while 'fw fabric impact' on the identical path prints its header and an EMPTY chain. Why this is the dangerous direction: CLAUDE.md tells the agent to run 'fw fabric impact' and 'fw fabric blast-radius' BEFORE modifying a file, to learn what a change can break. An empty impact chain reads as 'nothing depends on this, change it freely' -- which is the exact opposite of the truth for a shared test harness with two dependents that parse its JSON output. This is the zero-population blindness class already registered as G-034: an instrument reporting success having examined nothing. Here it is worse than a vacuous pass because the empty result is actively reassuring. Found while verifying T-886 under T-900; deps was the command that revealed the real dependents, and had I used impact alone I would have concluded there was nothing to check. Not fixed under this run: it is fabric tooling, not this task's subject, and the fix needs to establish whether impact reads a different edge direction or a different card field than deps does."
+  captured: 2026-09-27T12:27:03Z
+  context_task: T-900
+  tags: [fabric]
+  status: pending
+  promoted_to: null
+  urgent: true
