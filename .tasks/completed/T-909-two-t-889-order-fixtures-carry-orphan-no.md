@@ -18,12 +18,12 @@ description: >
   the suite red. Asserted by tools/_t889-authority-on-the-element-teeth.sh, so that
   instrument must stay green across the change.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -36,8 +36,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T19:20:47Z
-last_update: 2026-09-27T20:26:19Z
-date_finished:
+last_update: 2026-09-27T20:34:40Z
+date_finished: 2026-09-27T20:34:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -253,12 +253,18 @@ grep -qF '<bpmn:flowNodeRef>End_1</bpmn:flowNodeRef>' tests/fixtures/t889-author
 # both fixtures validate fully clean, not merely warning-free
 python3 tools/validate-workflow.py tests/fixtures/t889-authority/order-A.bpmn > /tmp/.t909a 2>&1
 python3 tools/validate-workflow.py tests/fixtures/t889-authority/order-B.bpmn > /tmp/.t909b 2>&1
-# the instrument that asserts on these two fixtures stays green
-timeout 300 bash tools/_t889-authority-on-the-element-teeth.sh > /tmp/.t909t 2>&1 && ! grep -qiE '^\s*FAIL' /tmp/.t909t
-# CONTROL on that negation: the same grep pattern IS findable in a file that carries a FAIL line
-grep -qiE '^\s*FAIL' /tmp/.t891-probe || grep -rqiE '^\s*FAIL' /tmp/claude-0/ 2>/dev/null
-# the pair still differs only in lane ordering — every differing line mentions a lane construct
-test "$(diff tests/fixtures/t889-authority/order-A.bpmn tests/fixtures/t889-authority/order-B.bpmn | grep -E '^[<>]' | grep -cvE 'lane id|flowNodeRef|laneMeta|laneSet|</bpmn:lane>')" -eq 0
+# The instrument that asserts on these two fixtures stays green. Asserted POSITIVELY on its
+# own summary line rather than as an absence — "0 failed" is a fact the suite states, whereas
+# "no FAIL lines" is a negation whose pattern could be typo'd into a permanent pass. The
+# absence gate refused the negated form and was right to (PL-328).
+timeout 300 bash tools/_t889-authority-on-the-element-teeth.sh > /tmp/.t909t 2>&1
+grep -qF 'control set passed' /tmp/.t909t
+# The pair still differs ONLY in lane ordering. Asserted POSITIVELY — every differing line
+# matches a lane construct — rather than as "zero non-lane lines", because the negated form
+# passes identically when the diff is empty, when the paths are wrong, or when the pattern is
+# typo'd. Here the two counts must be EQUAL AND NON-ZERO, so an empty or broken diff fails.
+test "$(diff tests/fixtures/t889-authority/order-A.bpmn tests/fixtures/t889-authority/order-B.bpmn | grep -cE '^[<>]')" -gt 0
+test "$(diff tests/fixtures/t889-authority/order-A.bpmn tests/fixtures/t889-authority/order-B.bpmn | grep -E '^[<>]' | grep -cE 'lane id|flowNodeRef|laneMeta|laneSet|</bpmn:lane>')" -eq "$(diff tests/fixtures/t889-authority/order-A.bpmn tests/fixtures/t889-authority/order-B.bpmn | grep -cE '^[<>]')"
 
 ## RCA
 
@@ -278,19 +284,32 @@ test "$(diff tests/fixtures/t889-authority/order-A.bpmn tests/fixtures/t889-auth
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
+### 2026-09-27 — the absence gate refused two of my legs, and both rewrites are better
 
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
+- **What changed:** I wrote two legs as negations — "no FAIL lines in the teeth output" and
+  "zero non-lane lines in the diff". The close gate refused both: an absence assertion with
+  nothing proving the search could have succeeded passes identically when the pattern is
+  typo'd, the file is missing, or the diff is empty.
+- **Plan impact:** both became positive claims. The teeth leg now greps the suite's **own
+  verdict string** (`control set passed`) rather than the absence of failure — and I had to
+  run the suite to learn what it actually prints, having first guessed `0 failed`, which it
+  does not say. The diff leg now asserts lane-lines **equals** total-lines **and** total > 0,
+  so an empty or broken diff fails where the negated form would have passed.
+- **Triggered:** nothing new. It is PL-328 enforced at the gate instead of remembered, and it
+  caught me twice in one task.
 
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
+### 2026-09-27 — the fixtures went further than the AC required
+
+- **What changed:** the AC asked that the fixtures stop carrying orphans so a promoted error
+  would not flip them invalid. They went from `exit=1` to `exit=0` — fully clean, not merely
+  warning-free.
+- **Plan impact:** T-891 AC3 is now unblocked more cleanly than planned; the promotion cannot
+  turn these red at all, rather than turning them from one non-zero state to another.
+- **Triggered:** nothing. Worth noting only because "blast radius: two fixtures" turned out to
+  overstate the risk once measured properly, which is the second time in this arc that a
+  measured radius was smaller than the filed one.
+
+### YYYY-MM-DD — [topic]
        - **What changed:** [what we learned that we didn't know at filing]
        - **Plan impact:** [what in the plan no longer fits]
        - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
@@ -385,3 +404,15 @@ which one a failure is about.
 
 **Not done here:** promoting `W-XML-NODE-UNASSIGNED`. That is T-891 AC3, now unblocked. One lock
 at a time.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-02302666
+- **Timestamp:** 2026-09-27T20:34:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-27T20:34:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

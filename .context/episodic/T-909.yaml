@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-909: Two T-889 order fixtures carry orphan nodes, so promoting W-XML-NODE-UNASSIGNED to an error would flip them invalid
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T20:34:48Z
+# ============================================================================
+
+task_id: T-909
+task_name: "Two T-889 order fixtures carry orphan nodes, so promoting W-XML-NODE-UNASSIGNED to an error would flip them invalid"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T19:20:47Z
+completed: 2026-09-27T20:34:40Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-27T22:26:16+02:00
+last_commit: 2026-09-27T22:26:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the two order fixtures now model one property each, and both went fully clean rather than merely warning-free. verification legs, including a control on the teeth-failure negation — an absence assertion over a suite's output needs a sibling proving the FAIL pattern is findable somewhere, or a typo'd pattern reads as a clean run (PL-328).
+
+# Key outcomes
+outcomes:
+  - '`order-A.bpmn` and `order-B.bpmn` carry a `flowNodeRef` for every flow node, so each models order-independence **without also** modelling orphanhood. Two properties, separately testable — a fixture that accidentally carries a second defect cannot distinguish which one a failure is about'
+  - 'Both still model what they exist to model: the two files differ ONLY in laneSet declaration order, verified by diffing them and confirming the difference is the lane order and nothing else'
+  - '**`tools/_t889-authority-on-the-element-teeth.sh` stays green** — it asserts on these two fixtures, so a change to them that breaks it would trade one defect for another. Run before and after'
+  - 'The orphan census over `tests/fixtures/**` drops by exactly 4 (2 per file), measured not assumed — any other number means I changed something I did not intend'
+  - '**Neither fixture becomes valid-with-warnings by accident**: both were `exit=1` before and their exit codes are recorded after, so the change is understood rather than merely green'
+  - 'This unblocks T-891 AC3/AC4 but does NOT do them — promoting `W-XML-NODE-UNASSIGNED` to an error is T-891''s, and one lock at a time'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the two order fixtures now model one property each, and both went fully clean rather than merely warning-free'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-909-two-t-889-order-fixtures-carry-orphan-no.md'
+  - 'tests/fixtures/t889-authority/order-A.bpmn'
+  - 'tests/fixtures/t889-authority/order-B.bpmn'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T22:26:16'
+    action: 'T-909: the two order fixtures now model one property each, and both went fully clean rather than merely warning-free'
+  - time: '2026-09-27T22:26:58'
+    action: 'T-909: verification legs, including a control on the teeth-failure negation — an absence assertion over a suite''s output needs a sibling proving the FAIL pattern is findable somewhere, or a typo''d pattern reads as a clean run (PL-328).'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 73 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 73
+  commits: 2
+  files_changed: 3
+  lines_added: 94
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-909-two-t-889-order-fixtures-carry-orphan-no.md
+generated_by: context-agent-hybrid
