@@ -530,3 +530,21 @@ node tools/_t338-input-fidelity-cdp.mjs
 
 ### 2026-08-03T11:50:39Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## 2026-09-27 — the ruling this task was blocked on now exists (T-888). Nothing here is ticked.
+
+Operator ruling: **a lane is a partition; the element carries its authority.**
+`docs/reports/T-888-authority-ruling.md`, evidenced by four external consults.
+
+**What dissolves:** the authority half, completely. An element's authority no longer depends on
+lane membership, so no orphan inherits anything from document order. The `lanes[0]`-is-positional
+defect cannot occur once authority is an element field.
+
+**What survives:** the *placement* question — which lane box does an unassigned node draw in. That
+is layout, not governance, and much cheaper than the ruling it was waiting for.
+
+**Filed separately:** T-891 makes an unresolvable `flowNodeRef` a hard validation error rather
+than a lane inheritance. That fix is correct under every variant of the ruling.
+
+**This task's open `[REVIEW]` criterion is the operator's and is untouched.** The ruling does not
+close it; it makes it answerable.

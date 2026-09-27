@@ -897,3 +897,22 @@ an instance in the corpus.
 
 Also re-run today, unchanged: `11/11 third-party fixtures still lose content` and the
 fabrication live at `lanes in=0 out=3` across the affected rows.
+
+## 2026-09-27 — the T-835 hold is discharged, and the ruling changes the question (T-888)
+
+This task was HELD behind T-835 (recorded 2026-09-23). T-835 reported, four external consults
+followed, and the operator has ruled: **a lane is a partition; the element carries its authority.**
+`docs/reports/T-888-authority-ruling.md`.
+
+**What dissolves:** option A's *invalidity*. Under clause 1 a third-party file with no lanes
+declares no partition — nothing is absent, so nothing needs fabricating, and
+`E-XML-LANES-EMPTY`'s objection to A is gone. (That rule is separately wrong in both directions:
+measured under T-835 it rejects a fine lane-less document AND passes `context-memory.bpmn`, the
+one file with 12 unowned nodes, because that file has lanes.)
+
+**What survives, and is now the whole of this task's choice:** the **participant/pool** half. The
+measured defect is `lanes 0→3` *and* `participants 0→1`. A pool is not a lane, and nothing in the
+ruling says anything about fabricating a participant.
+
+**This task's open `[REVIEW]` criterion is the operator's and is untouched.** The choice is
+narrower than when it was written — it is now about the pool, not the lanes.
