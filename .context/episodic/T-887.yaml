@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-887: fw external-consult: ask differently-trained models for the strongest objection, as a named rescannable artifact
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T08:38:07Z
+# ============================================================================
+
+task_id: T-887
+task_name: "fw external-consult: ask differently-trained models for the strongest objection, as a named rescannable artifact"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T08:27:40Z
+completed: 2026-09-27T08:38:00Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-27T10:36:42+02:00
+last_commit: 2026-09-27T10:37:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fw external — and on its first real run an outside model made the argument I never made. 9/9 and sent to AEF at framework:pickup offset 200 — with the empty-answer guard called out explicitly, because a reasoning model that emits nothing will do it to them too. Verification legs include the refusal path (HOME redirected, must name what it checked and send nothing) and a leg asserting >=3 SUBSTANTIVE answers, where empty bodies do not count — the leg encodes the defect the first run exposed rather than trusting the fix.
+
+# Key outcomes
+outcomes:
+  - '`fw external` dispatches from `bin/fw` in the same shape as its sibling `peer` / `sidecar` verbs — one `exec python3 "$FW_LIB_DIR/<module>" "$@"` case, no logic in the shell'
+  - 'Credential resolution is an ORDERED search that NAMES WHAT IT CHECKED when it fails: `OPENROUTER_API_KEY` in the environment, then `~/.litellm-openrouter.env`. A missing key must refuse loudly — never proceed with an empty panel, because "nobody answered" and "we never asked" would otherwise render identically'
+  - 'The prompt asks each model for its **strongest objection**, not for validation. Verifiable: the sent text contains an explicit instruction to argue against the proposal, and the consult record stores the exact prompt sent'
+  - 'A consult is a NAMED artifact recording, per response: model id, timestamp, the prompt sent, and the answer. Re-runnable by name (`rescan`) so the same question can be re-asked against changed models and diffed'
+  - '`--dry-run` prints the panel and the prompt and sends nothing, so the brief can be reviewed before any content leaves the machine'
+  - 'The key is never printed, never logged, and never written into the repository — verified by grepping the produced artifact for the key prefix and finding nothing'
+  - 'The new file is registered in `.agentic-framework/.vendor-divergence.yaml` with `upstream: fix`, because `fw upgrade` overwrites this tree — the T-873 lesson, where an upgrade silently destroyed 25 lines of governance'
+  - 'Proven by a real run, not a mock: the M2 lane-authority question is sent to a panel of at least 3 differently-trained models and their answers land in the artifact'
+  - 'Sent to AEF via TermLink for structural incorporation, with the implementation and the evidence it ran — a spec alone is weaker than a spec that has already worked once'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '9/9 and sent to AEF at framework:pickup offset 200 — with the empty-answer guard called out explicitly, because a reasoning model that emits nothing will do it to them too. Verification legs include the refusal path (HOME redirected, must name what it checked and send nothing) and a leg asserting >=3 SUBSTANTIVE answers, where empty bodies do not count — the leg encodes the defect the first run exposed rather than trusting the fix.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/lib/external_consult.py'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/consults/m2-lane-authority.json'
+  - 'docs/reports/consult-m2-lane-authority-brief.md'
+  - '.tasks/active/T-887-fw-external-consult-ask-differently-trai.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T10:36:42'
+    action: 'T-887: fw external — and on its first real run an outside model made the argument I never made'
+  - time: '2026-09-27T10:37:59'
+    action: 'T-887: 9/9 and sent to AEF at framework:pickup offset 200 — with the empty-answer guard called out explicitly, because a reasoning model that emits nothing will do it to them too. Verification legs include the refusal path (HOME redirected, must name what it checked and send nothing) and a leg asserting >=3 SUBSTANTIVE answers, where empty bodies do not count — the leg encodes the defect the first run exposed rather than trusting the fix.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 10
+  commits: 2
+  files_changed: 6
+  lines_added: 940
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-887-fw-external-consult-ask-differently-trai.md
+generated_by: context-agent-hybrid
