@@ -2463,3 +2463,27 @@ learnings:
   task: T-899
   date: 2026-09-27
   context: Added via context agent
+- id: PL-350
+  learning: "A static derivation that regexes SOURCE TEXT counts comments as code. T-886's denominator derives the guard's key set by matching /aef\\.(\\w+)/ over the raw body of the emitter function, so a PROSE COMMENT naming a dotted accessor enters the derived set. Measured in T-889: deleting a key from the emitter left the guard green because a comment three lines above mentioned it; removing only the comment text turned the same mutant red. The failure is bidirectional (false green for a deleted key, false red for a key only ever mentioned) and it defeats the derivation's whole purpose, which is that the list cannot drift from the code. If a check derives from source, it must derive from CODE - strip comments or parse. Corollary for authors: a mutation leg can be silenced by the comment you wrote to explain it."
+  source: P-001
+  task: T-889
+  date: 2026-09-27
+  context: Added via context agent
+- id: PL-351
+  learning: "A derivation that regexes SOURCE TEXT to prove coverage must strip comments first, or prose moves the verdict. T-886 made the round-trip guard derive its key denominator FROM the emitter so the list could not drift from the code; because it regexed raw text, a comment naming node.aef.authority kept a DELETED key 'covered' (false green) and a comment naming an unemitted key demanded classification for it (false red). Both measured. The framework had already learned this exact class in T-302 for TASK files (PL-060: strip HTML comments before grepping ACs) — it recurred on SOURCE files four hundred tasks later, which makes it a class to check for, not an incident. The generalisation: whenever a check derives its own denominator by pattern-matching text, ask what in that text the engine never executes. Strip it quote-aware, not with a bare regex: a naive //-strip is only ACCIDENTALLY correct until someone writes a URL in a string literal."
+  source: P-001
+  task: T-904
+  date: 2026-09-27
+  context: Added via context agent
+- id: PL-352
+  learning: "The BVP cost axis is not missing — it is gated on components:, and 'fw bvp' says so in its own output. Two autonomous rounds in a row reported that quadrant selection was impossible on the goal-bearing arc because every open task showed 'QUAD -'. The count was right (40/124, 32%). The attribution was not: 'fw bvp estimate-cost' exists, and on components:[] it honestly writes blast_radius=? with rationale 'no-components-UNMEASURED-not-zero' — it refuses to claim zero, which is correct G-034 behaviour, but it still prints '[wrote]' and exits 0, so it READS like a success. The composite then cannot compute and the quadrant vanishes. Measured: T-904 with components:[] gave no cost; the same task with three component paths gave blast_radius=3, composite 3.20, quadrant hv-lc. The fix per task is one frontmatter line. 'fw bvp --include-proposed' prints a NOTE naming both the cause and the ticket (T-3068) above the table — both rounds read the table and not the NOTE. Lesson beyond BVP: when a tool reports a gap, read the whole output before concluding the capability is absent."
+  source: P-001
+  task: T-904
+  date: 2026-09-27
+  context: Added via context agent
+- id: PL-353
+  learning: "Comparing the VALUE a check derives is not enough to prove the derivation is sound — compare the SIZE of what it consumed too. Fixing the round-trip guard's comment blindness (T-904), I applied a JS comment-stripper to a whole HTML file to locate one const. The derived values came back byte-identical to the live literal, the guard was green, the mutation teeth passed 9/9. The strip had silently destroyed 61% of the file (1,013,174 -> 393,293 bytes): CSS /* */ blocks and apostrophes in prose desync a JS quote scanner. The const survived only because it happened to sit outside the mangled regions. An IDENTICAL value comparison said the transformation was safe; the byte count said it was luck. When a check preprocesses its input, assert on the input's shape (size, line count, a known landmark's survival) and not only on the answer that comes out the other end — otherwise a preprocessing step that works by accident is indistinguishable from one that works by design, and the distinction only surfaces when the accident stops holding."
+  source: P-001
+  task: T-904
+  date: 2026-09-27
+  context: Added via context agent

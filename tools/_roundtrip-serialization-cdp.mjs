@@ -239,6 +239,38 @@ const COMPUTED_SOURCES = {
   key:       'metaKeys',
   bindField: 'EVENT_BINDING_FIELD', // typed-event binding field, chosen by node type
 };
+// T-904: THE DERIVATION MATCHES CODE, NOT PROSE. Every regex below runs over comment-stripped
+// text. Before this, deriveProjectedKeys() regexed the RAW function body, so a comment naming
+// `node.aef.foo` entered the projected set exactly as an executable access would. Measured in
+// T-889: deleting `authority` from metaKeys left this guard GREEN because a prose comment three
+// lines above mentioned the accessor; deleting only that comment text — changing nothing the
+// engine runs — turned the identical mutant RED. Both directions were live: FALSE GREEN for a
+// key deleted from the emitter but still named in a comment, FALSE RED for a key only ever
+// mentioned. The whole point of deriving FROM the emitter (T-886) is that the list cannot drift
+// from the code; a derivation movable by text the engine never executes does not have that
+// property. Quote-aware rather than a bare /\/\/.*$/ strip: today no string literal in the body
+// contains "//" (measured, 0 occurrences), so a naive strip would be ACCIDENTALLY correct and
+// would silently truncate real code the first time someone writes a URL in a string.
+function stripJsComments(src) {
+  let out = '', i = 0, q = null;         // q = the open quote char, or null outside a string
+  while (i < src.length) {
+    const c = src[i], d = src[i + 1];
+    if (q) {
+      if (c === '\\') { out += c + (d ?? ''); i += 2; continue; }   // escape: copy the pair whole
+      if (c === q) q = null;
+      out += c; i++; continue;
+    }
+    if (c === '"' || c === "'" || c === '`') { q = c; out += c; i++; continue; }
+    if (c === '/' && d === '/') { while (i < src.length && src[i] !== '\n') i++; continue; }
+    if (c === '/' && d === '*') {
+      i += 2;
+      while (i < src.length && !(src[i] === '*' && src[i + 1] === '/')) i++;
+      i += 2; continue;
+    }
+    out += c; i++;
+  }
+  return out;
+}
 function deriveProjectedKeys() {
   const html = readFileSync(SRC_HTML, 'utf8').split('\n');
   const start = html.findIndex(l => l.startsWith(`function ${PROJECTION_FN}(`));
@@ -246,7 +278,9 @@ function deriveProjectedKeys() {
   let end = -1;
   for (let i = start + 1; i < html.length; i++) if (html[i] === '}') { end = i; break; }
   if (end < 0) throw new Error(`denominator: no column-0 close for ${PROJECTION_FN}`);
-  const body = html.slice(start, end + 1).join('\n');
+  // The anchor and the column-0 close are located on RAW lines (a comment cannot fake either),
+  // then the slice is stripped once and every match below runs on the stripped text.
+  const body = stripJsComments(html.slice(start, end + 1).join('\n'));
 
   const dot = new Set([...body.matchAll(/aef\.([A-Za-z_][A-Za-z0-9_]*)/g)].map(m => m[1]));
   const computed = new Set([...body.matchAll(/aef\[([A-Za-z_][A-Za-z0-9_]*)\]/g)].map(m => m[1]));
@@ -257,8 +291,22 @@ function deriveProjectedKeys() {
   const metaKeys = [...mk[1].matchAll(/'([A-Za-z_][A-Za-z0-9_]*)'/g)].map(m => m[1]);
 
   // EVENT_BINDING_FIELD lives just above the function; its VALUES are projected keys.
-  const ebf = /const EVENT_BINDING_FIELD\s*=\s*\{([^}]*)\}/.exec(readFileSync(SRC_HTML, 'utf8'));
-  if (!ebf) throw new Error('denominator: EVENT_BINDING_FIELD not found');
+  // Stripped too — a commented-out EVENT_BINDING_FIELD literal must not read as the live one,
+  // which is the same defect one declaration over. But stripped PER LINE, not whole-file.
+  // T-904 measured why: SRC_HTML is an HTML document, and stripJsComments is a JS stripper.
+  // Running it over the whole file took it from 1,013,174 to 393,293 bytes — it ate 61% of the
+  // document, because CSS `/* */` blocks and apostrophes in prose desync a JS quote scanner.
+  // The bindFields happened to survive that, which is luck, not correctness. This declaration is
+  // a single-line literal, so stripping candidate lines individually is both sufficient and
+  // safe. Requiring exactly ONE surviving declaration is the real check: a commented-out copy
+  // strips to nothing and drops out, and anything ambiguous (zero, or a second live one, or the
+  // literal going multi-line) fails loud instead of silently picking the first match.
+  const ebfLines = readFileSync(SRC_HTML, 'utf8').split('\n')
+    .map(l => stripJsComments(l))
+    .filter(l => /const EVENT_BINDING_FIELD\s*=/.test(l));
+  if (ebfLines.length !== 1) throw new Error(`denominator: expected exactly 1 live EVENT_BINDING_FIELD declaration, found ${ebfLines.length} — if the literal went multi-line, widen this read deliberately rather than loosening the count`);
+  const ebf = /const EVENT_BINDING_FIELD\s*=\s*\{([^}]*)\}/.exec(ebfLines[0]);
+  if (!ebf) throw new Error('denominator: EVENT_BINDING_FIELD found but its object literal did not parse');
   const bindFields = [...ebf[1].matchAll(/:\s*'([A-Za-z_][A-Za-z0-9_]*)'/g)].map(m => m[1]);
 
   return { dot, computed, metaKeys, bindFields };

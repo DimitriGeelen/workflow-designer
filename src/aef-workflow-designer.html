@@ -10048,14 +10048,22 @@ function aefExtensionXml(node) {
     'horizon', 'workflowType', 'owner',
     // T-889 (T-888 ruling clause 2): the element carries its authority. First-class,
     // not T-570 carriage — carriage can only re-emit a key node.aef already holds, and
-    // before this task nothing in the editor ever WROTE the key onto a node, so the value
-    // (NB: this comment deliberately avoids spelling the dotted accessor for `authority`.
-    //  deriveProjectedKeys() regexes the raw function TEXT including comments, so a prose
-    //  mention would enter the projected set and mask the very mutant that proves this key
-    //  is guarded — measured in T-889, filed as T-904.)
-    // could only ever have come from the source document. With a writer (setNodeAuthority)
-    // the key is authored here, which is the outcome carriage cannot produce.
+    // before this task nothing in the editor ever WROTE the key onto a node, so the value of
+    // node.aef.authority could only ever have come from the source document. With a writer
+    // (setNodeAuthority) the key is authored here, which is the outcome carriage cannot produce.
     'authority'];
+  // T-904: the sentence above spells node.aef.authority on purpose. Until T-904 the round-trip
+  // guard derived its denominator by regexing this function INCLUDING COMMENTS, so naming the
+  // accessor in prose masked the mutation leg that proves the key is guarded — T-889 had to write
+  // AROUND that defect with a comment explaining why it could not say the word. The denominator
+  // now strips comments, so prose is free to name what it describes, and the leg still bites.
+  //
+  // THIS COMMENT SITS OUTSIDE THE metaKeys LITERAL DELIBERATELY. Placed inside it, an apostrophe
+  // in ordinary English prose (guard-apostrophe-s) pairs with the next one and the parity checker
+  // in tests/test_editor_bridge_meta_parity.py — which scans the literal for quoted strings, also
+  // without stripping comments — reads the intervening sentence as a KEY NAME and reports a
+  // parity break against the bridge. Measured during T-904, filed as T-907: the defect this task
+  // fixed in the round-trip guard exists in the parity checker too. Keep prose out of the array.
 
   // T-570: CARRIAGE. Import reads EVERY <aef:meta> attribute into node.aef (:10255,
   // unconditional). Export emitted only the whitelist above. A key present in a source

@@ -2057,3 +2057,25 @@ observations:
   tags: [bvp]
   status: pending
   promoted_to: null
+- id: OBS-410
+  text: "MCP fw server is rooted at a DIFFERENT project than the session: mcp__fw__version reports Project /005-Yellowtwig/001-theSpiceFactory/002-Azure-DevOps fw v1.6.768, while .agentic-framework/bin/fw reports /opt/832-Workflow-designer fw v1.7.68. The MCP toolset exposes agent-authority WRITE verbs (work_on, task_update, note, context_focus, context_add_learning, assumption_add). An agent reaching for mcp__fw__work_on here would create/mutate task state in an unrelated project, silently and with no gate objecting - the call succeeds. Measured live this session: mcp__fw__task_show T-889 returned 'Task T-889 not found' while .tasks/active/T-889-*.md exists locally, which is how the cross-rooting was detected. A not-found is the BENIGN direction; a write is not."
+  captured: 2026-09-27T13:42:38Z
+  context_task: T-889
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-411
+  text: "OBS-408 confirmed a THIRD time, independently (round 1 filed it, round 2 confirmed, this is round 3). Measured on tools/_roundtrip-serialization-cdp.mjs: 'fw fabric deps' prints 5 dependents (run-bridge-tests, test_roundtrip_serialization, gallery-serve, _t591-roundtrip-teeth, aef-workflow-designer); 'fw fabric impact' on the SAME path prints a 2-line bare header with no chain and exits 1. Three independent rounds, three identical results — this is not intermittent. The danger is unchanged and specific: CLAUDE.md sends the agent to 'fw fabric impact' BEFORE modifying a file, and an empty impact chain does not read as 'I examined nothing', it reads as 'nothing depends on this, change it freely'. The non-zero exit is invisible to an agent reading output rather than checking $?. Round 1's unverified commit to this exact shared harness is the recorded harm. Suggest this stops being an observation and becomes a task: three confirmations across three sessions is a pattern, not a report."
+  captured: 2026-09-27T14:43:39Z
+  context_task: T-904
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-412
+  text: "OBS-394 (check-active-task blocks pure READS not on the allowlist) hit 3x in the FIRST FIFTEEN MINUTES of round 3, all three during TASK SELECTION — before any task could legitimately exist. Blocked forms this round: (1) a 'for f in .tasks/active/T-90*.md; do head' loop; (2) a 'grep -l ... | while read f' pipeline; (3) 'python3 -c' reading task frontmatter. All three write nothing. Rounds 1 and 2 each recorded the same gate on different forms (VAR= prefix, xargs, 'fw task show' vs 'fw arc list'). The structural point is sharper than 'the allowlist is incomplete': the mandate requires selecting a task by BVP quadrant BEFORE starting one, but reading the ranking inputs is gated on having started one. Three consecutive autonomous rounds have independently worked around the same circularity, each burning turns on rephrasing. The cheap fix is not a bigger allowlist - it is making the SELECTION reads unconditionally safe (a read-only 'fw bvp'/'fw task list' path that does not require focus), so the gate stops standing between the agent and the decision the gate's own framework asks for."
+  captured: 2026-09-27T14:43:49Z
+  context_task: T-904
+  tags: [process]
+  status: pending
+  promoted_to: null

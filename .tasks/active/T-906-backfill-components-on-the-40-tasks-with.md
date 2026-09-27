@@ -1,33 +1,16 @@
 ---
-id: T-904
-name: "The round-trip guard's denominator reads COMMENTS as code: a comment mentioning
-  aef.foo counts as a projection"
+id: T-906
+name: "Backfill components: on the 40 tasks with no measurable cost, so BVP quadrant selection works on the goal-bearing arc"
 description: >
-  deriveProjectedKeys() in tools/_roundtrip-serialization-cdp.mjs builds its 'dot'
-  set by regexing the RAW TEXT of the projection function body (/aef\.([A-Za-z_][A-Za-z0-9_]*)/g
-  at :246) - comments included. Consequence, measured live during T-889: dropping
-  'authority' from the emitter's metaKeys left the guard GREEN, because a PROSE COMMENT
-  three lines above said 'node.aef.authority'. Removing only that comment text (changing
-  nothing executable) turned the same mutant RED with the correct message 'KEYSPEC
-  contains key(s) the emitter does not project: authority'. Two directions of harm:
-  (1) FALSE GREEN - a key deleted from the emitter stays 'covered' as long as any
-  comment names it, which is how T-889's own mutation leg was neutralised by T-889's
-  own comment; (2) FALSE RED - a comment mentioning aef.somethingNotEmitted makes
-  it an orphan demanding KEYSPEC classification for a key nothing projects. This is
-  the T-886 derivation, which exists precisely so the list cannot drift from the emitter
-  - and it can be moved by text that the engine never runs. Fix direction: strip comments
-  from the function body before matching (or parse rather than regex), then re-run
-  the T-889 teeth M1 leg, which is the ready-made control.
+  Three autonomous rounds have now been told to 'select by BVP quadrant' and none could, on arc-001. Root cause measured under T-904, and it is NOT a missing capability: 'fw bvp estimate-cost' exists and works. The cost composite is 0.6*blast_radius + 0.3*tier + 0.1*effort, and blast_radius is derived from the task's components: frontmatter. With components:[] the estimator writes blast_radius=? with the rationale 'no-components-UNMEASURED-not-zero' - it correctly REFUSES to claim zero (G-034 behaviour, right call) - but it still prints '[wrote]' and exits 0, so the refusal reads like a success. No composite means COST and QUAD render as '-' and the task drops out of every quadrant filter. Measured on T-904: components:[] -> no cost; the same task with three component paths -> blast_radius=3, composite 3.20, quadrant hv-lc (which is what made T-904's own Q1 selection checkable rather than asserted). Scale: 'fw bvp --include-proposed' reports 40/124 tasks (32%) with no known cost, and prints a NOTE naming the cause and ticket T-3068 directly above the table. Deliverable: populate components: on the 40, then re-run 'fw bvp estimate-cost' so the quadrant axis exists for them. NOT a mechanical sweep to be batched blindly - components: feeds blast_radius, so a wrong path understates or overstates cost, and cost is half of every quadrant decision downstream. Prefer deriving each task's components from its actual diff or its Verification block, and leave genuinely unscoped tasks unpopulated rather than guessing. Consider also whether estimate-cost should exit non-zero (or print a warning) when it cannot measure blast_radius, so the refusal stops reading as a write.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
 horizon: now
-tags: [arc:designer-authoring-surface, false-green]
-components: [tools/_roundtrip-serialization-cdp.mjs, 
-      src/aef-workflow-designer.html, 
-      tools/_t904-denominator-comment-blindness-teeth.sh]
-related_tasks: [T-886, T-889, T-905]
+tags: [arc:designer-authoring-surface, bvp]
+components: []
+related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
@@ -38,9 +21,9 @@ related_tasks: [T-886, T-889, T-905]
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-27T14:09:54Z
-last_update: '2026-09-27T14:39:38Z'
-date_finished:
+created: 2026-09-27T14:47:22Z
+last_update: 2026-09-27T14:47:22Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,121 +34,20 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-09-27T14:20:56Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 4
-      F1: 1
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=4 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
-      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
-  - ts: '2026-09-27T14:37:51Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 4
-      F1: 2
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=4 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
-      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
-cost_estimate_proposed:
-  - ts: '2026-09-27T14:38:01Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      blast_radius:
-      tier: 2
-      effort: 8
-    rationale: blast_radius=? (no-components-UNMEASURED-not-zero); tier=2 
-      (workflow:build); effort=8 (lines=289,acs=7)
-    rubric_sha: e4a00f38e801
-  - ts: '2026-09-27T14:39:38Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      blast_radius: 3
-      tier: 2
-      effort: 8
-    rationale: blast_radius=3 (3-components); tier=2 (workflow:build); effort=8 
-      (lines=289,acs=7)
-    rubric_sha: e4a00f38e801
 ---
 
-# T-904: The round-trip guard's denominator reads COMMENTS as code: a comment mentioning aef.foo counts as a projection
+# T-906: Backfill components: on the 40 tasks with no measurable cost, so BVP quadrant selection works on the goal-bearing arc
 
 ## Context
 
-Fix landed in `deriveProjectedKeys()`: a quote-aware `stripJsComments()` runs before every regex
-in the derivation, at both call sites (the `aefExtensionXml` body slice and the whole-file
-`EVENT_BINDING_FIELD` read). The anchor and the column-0 close are still located on RAW lines —
-a comment cannot fake either — so only the matching is stripped, and line count is preserved.
-
-**Quote-aware rather than `/\/\/.*$/`, deliberately.** Measured: today no string literal in the
-function body contains `//` (0 occurrences), so a naive strip would be *accidentally* correct and
-would silently truncate real code the first time someone wrote a URL in a string. C2 covers
-strings, escaped quotes, template literals, block comments and newline preservation.
-
-**What stripping removed from the derived set, measured:** exactly two identifiers entered `dot`
-via comments only — `authority` and `emits`. Neither loses coverage. `authority` is still
-projected via `metaKeys` (21 keys), and `emits` is in `EXCLUDED` (STRUCTURED, T-483) so it was
-never counted toward the verdict. The guard is green on clean source (C1, rc=0). AC4's "if
-stripping reveals a key KEYSPEC only covered via a comment" branch therefore did not fire — stated
-because the branch was real, not because it was rhetorical.
-
-**Two findings surfaced and were filed rather than absorbed:**
-- **T-905** — chasing why `emits` was comment-only showed the structured keys are emitted through
-  the *computed* access `aef[key]`, and `COMPUTED_SOURCES` misdescribes what all three of its
-  declared variables iterate. Separate mechanism, separate task (one bug = one task).
-- The **BVP cost axis** was reported by two prior rounds as non-existent for this arc. It is gated
-  on `components:`. Measured on this task: `components: []` → `blast_radius=?`, no composite,
-  `QUAD -`; three component paths → `blast_radius=3`, composite **3.20**, quadrant **hv-lc**. See
-  PL-352; the ranker's own output NOTE names the cause and ticket T-3068.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] AC1 — `deriveProjectedKeys()` matches against COMMENT-FREE source text. Both JS comment
-      forms found inside `aefExtensionXml` are stripped before any `aef.` / `aef[` / `metaKeys`
-      regex runs. Checked by a probe that reports the derived `dot` set from raw vs stripped body
-      and names every identifier that entered the set via a comment ONLY.
-- [x] AC2 — FALSE GREEN killed. With a comment inside `aefExtensionXml` that DOES spell the
-      dotted accessor `node.aef.authority`, deleting `authority` from the emitter's `metaKeys`
-      still turns the guard RED naming `authority`. This is the T-889 M1 mutation leg run against
-      the comment that previously masked it — before the fix this exact pair is GREEN.
-- [x] AC3 — FALSE RED killed. A comment inside `aefExtensionXml` mentioning `aef.` followed by an
-      identifier that nothing in the emitter projects does NOT make the guard red, and does NOT
-      appear in the orphan/`specNotProjected` lists.
-- [x] AC4 — No regression: the guard is GREEN on unmutated source after the fix, and the T-889
-      teeth script passes in full (all legs + controls, including C4). If stripping comments
-      removes a key that KEYSPEC only ever "covered" via a comment, the guard goes red — that is
-      a real finding to be recorded and filed, NOT absorbed by loosening the fix.
-- [x] AC5 — The T-889 workaround comment at `src/aef-workflow-designer.html:10052-10055` (which
-      exists solely to avoid spelling the accessor and cites T-904 as the reason) is removed, and
-      its removal is itself the AC2 fixture — i.e. the accessor is spelled in prose and the
-      mutation leg still bites. A load-bearing comment is retired by the fix, not left in place.
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -326,39 +208,6 @@ because the branch was real, not because it was rhetorical.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# ── T-904 ─────────────────────────────────────────────────────────────────────
-# The differential teeth: C1 unmutated-copy-clean (the guard is green on clean
-# source), C2 stripper-handles-literals (6 cases), D1 false-green-killed,
-# D2 false-red-killed. Each D leg runs the SAME mutant twice — shipped guard vs
-# a mechanically un-stripped copy — and FAILS if the two agree, so a vacuous
-# differential cannot read as a kill. Covers AC1, AC2, AC3.
-bash tools/_t904-denominator-comment-blindness-teeth.sh
-
-# AC4 regression: the T-889 control+mutation set, run against the fixed guard AND
-# the comment that now spells the accessor. 9 legs including C4 (the control on
-# the order control). Before T-904 the M1 leg was GREEN with this comment present.
-bash tools/_t889-authority-on-the-element-teeth.sh --mutation
-
-# AC1 structural: both derivation reads go through the stripper. Two separate call
-# sites — the function-body slice and the whole-file EVENT_BINDING_FIELD read.
-grep -q "const body = stripJsComments(html.slice" tools/_roundtrip-serialization-cdp.mjs
-# The EVENT_BINDING_FIELD read is stripped PER LINE and requires exactly one survivor. It is NOT
-# a whole-file strip: that form ate 61% of the HTML (see ## Evolution) and this line asserted it
-# until the gate caught the staleness. The `!= 1` guard is the load-bearing half — without it the
-# read silently takes the first regex match, which is what a commented-out copy would give.
-grep -q ".map(l => stripJsComments(l))" tools/_roundtrip-serialization-cdp.mjs
-grep -q "expected exactly 1 live EVENT_BINDING_FIELD declaration" tools/_roundtrip-serialization-cdp.mjs
-! grep -q "stripJsComments(readFileSync(SRC_HTML, 'utf8'))" tools/_roundtrip-serialization-cdp.mjs
-# T-907: prose must stay OUT of the metaKeys array literal — an apostrophe inside it reads as a
-# key to the parity checker. This asserts the parity checker itself is green.
-python3 tests/test_editor_bridge_meta_parity.py
-
-# AC5: the T-889 workaround comment is retired, and the accessor it was avoiding is
-# now spelled in prose — which is exactly the fixture AC2's mutation leg runs against.
-# No pipes (L-387): grep's own status is the verdict.
-! grep -q "deliberately avoids spelling the dotted accessor" src/aef-workflow-designer.html
-grep -q "node.aef.authority could only ever have come from the source document" src/aef-workflow-designer.html
-
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -376,32 +225,6 @@ grep -q "node.aef.authority could only ever have come from the source document" 
 -->
 
 ## Evolution
-
-### 2026-09-27 — my own fix reintroduced the class it was fixing, one level over
-
-- **What changed:** The first cut applied `stripJsComments()` to the WHOLE of `SRC_HTML` to find
-  `EVENT_BINDING_FIELD`. `SRC_HTML` is an HTML document; `stripJsComments` is a JS stripper.
-  Measured: it took the file from **1,013,174 to 393,293 bytes — 61% eaten**, because CSS `/* */`
-  blocks and apostrophes in prose desync a JS quote scanner. The derived `bindFields` came back
-  `["errorStatus","timerSpec","busTopic"]`, identical to the live literal — so every check was
-  green and the guard passed. It was **luck, not correctness**: the declaration happened to sit
-  outside the mangled regions. Had it not, `bindFields` would have come back short, those keys
-  would have shown as `specNotProjected`, and the guard would have gone red for a reason having
-  nothing to do with the emitter.
-- **Why it is worth writing down:** the whole point of this task is that a check can be *green for
-  a reason unrelated to the thing it claims to check*. I wrote a fix whose green was exactly that.
-  It was caught by asking "does the value survive?" rather than "is the suite green?" — the only
-  question that separates the two. The byte count is what exposed it; the value comparison alone
-  said IDENTICAL and would have let it ship.
-- **Plan impact:** the `EVENT_BINDING_FIELD` read is now narrow — strip candidate LINES, then
-  require **exactly one** surviving declaration. That is strictly stronger than the original
-  whole-file read: a commented-out copy strips to nothing and drops out, and zero / two / a
-  multi-line literal all fail loud instead of silently taking the first regex match. The
-  function-body slice is unchanged (pure JS, correct to strip wholesale).
-- **Triggered:** teeth control **C3 bindfields-read-is-narrow**, which pins both properties — the
-  narrow read equals the live literal, AND a whole-file strip is measurably destructive — so the
-  wrong approach cannot be reintroduced as an apparently-harmless simplification. C3 also prints a
-  NOTE if a whole-file strip ever stops being destructive, rather than passing on a stale premise.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -477,10 +300,7 @@ grep -q "node.aef.authority could only ever have come from the source document" 
 
 ## Updates
 
-### 2026-09-27T14:09:54Z — task-created [task-create-agent]
+### 2026-09-27T14:47:22Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-904-the-round-trip-guards-denominator-reads-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-906-backfill-components-on-the-40-tasks-with.md
 - **Context:** Initial task creation
-
-### 2026-09-27T14:20:55Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
