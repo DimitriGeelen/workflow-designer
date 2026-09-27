@@ -36,7 +36,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T19:20:47Z
-last_update: 2026-09-27T20:22:59Z
+last_update: 2026-09-27T20:26:19Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -246,6 +246,19 @@ bvp_scores_proposed:
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# ── T-909 legs ──────────────────────────────────────────────────────────────
+grep -qF '<bpmn:flowNodeRef>Start_1</bpmn:flowNodeRef>' tests/fixtures/t889-authority/order-A.bpmn
+grep -qF '<bpmn:flowNodeRef>End_1</bpmn:flowNodeRef>' tests/fixtures/t889-authority/order-B.bpmn
+# both fixtures validate fully clean, not merely warning-free
+python3 tools/validate-workflow.py tests/fixtures/t889-authority/order-A.bpmn > /tmp/.t909a 2>&1
+python3 tools/validate-workflow.py tests/fixtures/t889-authority/order-B.bpmn > /tmp/.t909b 2>&1
+# the instrument that asserts on these two fixtures stays green
+timeout 300 bash tools/_t889-authority-on-the-element-teeth.sh > /tmp/.t909t 2>&1 && ! grep -qiE '^\s*FAIL' /tmp/.t909t
+# CONTROL on that negation: the same grep pattern IS findable in a file that carries a FAIL line
+grep -qiE '^\s*FAIL' /tmp/.t891-probe || grep -rqiE '^\s*FAIL' /tmp/claude-0/ 2>/dev/null
+# the pair still differs only in lane ordering — every differing line mentions a lane construct
+test "$(diff tests/fixtures/t889-authority/order-A.bpmn tests/fixtures/t889-authority/order-B.bpmn | grep -E '^[<>]' | grep -cvE 'lane id|flowNodeRef|laneMeta|laneSet|</bpmn:lane>')" -eq 0
 
 ## RCA
 
