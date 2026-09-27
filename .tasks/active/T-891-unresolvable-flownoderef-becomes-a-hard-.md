@@ -30,7 +30,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:24Z
-last_update: 2026-09-27T19:05:09Z
+last_update: 2026-09-27T20:36:30Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -72,6 +72,27 @@ bvp_scores_proposed:
       task body — no hypothesis, so this score has no claim to be wrong about,L0:
       no signal); F1=1 (basis: task body — no hypothesis, so this score has no claim
       to be wrong about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-27T20:36:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 1
+      F4: 5
+      F3: 3
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=1 (body/components:component-fabric-incidental);
+      F4=5 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=lane); F3=3 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L3:path=examples/aef-processes/*~examples/aef-processes/rendered);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
     rubric_sha: e4a00f38e801
 ---
 
@@ -117,12 +138,12 @@ is the actual scope of this task, and it is narrower than the title suggests.
       proves nothing — a probe that cannot see the defect returns the same green for
       "fixed" and "broken" (PL-354: test the discriminator against a mutant of the mechanism
       it claims to exclude).
-- [ ] **A flow node in no lane becomes a hard validation error in the XML form**, naming the node
+- [x] **A flow node in no lane becomes a hard validation error in the XML form**, naming the node
       id and stating that authority-of-record is absent. Registered in BOTH parity registries
       (`tests/test_rule_dialect_axis.py`, `tests/test_rule_form_parity.py`) the way T-889's
       `E-XML-META-AUTHORITY` was — an unregistered rule is the T-317 omission this project keeps
       re-finding.
-- [ ] **The YAML form's absent-lane hole is closed OR declared a GAP explicitly, not silently.**
+- [x] **The YAML form's absent-lane hole is closed OR declared a GAP explicitly, not silently.**
       `E-NODE-LANE` is guarded on `"lane" in node`, so an absent key is unchecked. Whichever way
       this goes it is recorded in the parity registry with a reason — T-889 set the precedent by
       classifying its counterpart GAP rather than asserting a PAIRED rule that did not exist
@@ -467,3 +488,44 @@ no replacement. What the default *should* be is the operator's.
    orphan in no lane it cannot locate its victim and withholds judgement — so the one
    instrument proving this defect is fixed reports success in the vocabulary of failure. Its
    rows are right; its verdict line has no category for the correct outcome.
+
+### 2026-09-27T19:22:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → issues
+- **Reason:** AC3 (promote W-XML-NODE-UNASSIGNED to an error) and AC4 (YAML GAP declaration) are blocked on T-909: two T-889 order fixtures carry orphan nodes and would flip from exit=1 to invalid, which T-891's own AC5 forbids doing without that task existing. AC1/AC2/AC5/AC6 are closed and verified by seven rehearsed legs.
+
+### 2026-09-27T20:36:30Z — status-update [task-update-agent]
+- **Change:** status: issues → started-work
+
+## 2026-09-27 (later) — AC3 and AC4 closed. 6/6.
+
+**AC3.** `W-XML-NODE-UNASSIGNED` promoted to **`E-XML-NODE-UNASSIGNED`**. It was a warning for
+as long as the editor silently repaired the state — the importer defaulted an unclaimed node to
+`lanes[0]`, so the warning described something no user ever saw. AC1 removed that repair, which
+turns this into a real hole: under §3 a node in no lane has **no derivable owner**, and warning
+about a missing owner while compiling anyway is the false-green shape this corpus keeps finding.
+
+**Blast radius re-measured before promoting, not after** — and it had changed under me, because
+T-909 landed in between:
+
+| | |
+|---|---|
+| authored corpus (24 maps, 306 nodes) | **0 new errors** |
+| fixtures still carrying orphans | 7, **all already `exit=2`** — verdict unchanged |
+| `order-A` / `order-B` | **`exit=0`**, T-909's repair holds under the promotion |
+
+**AC4 resolves as "no hole", and I checked rather than inherited the claim.** The AC assumed
+`E-NODE-LANE` leaves absent keys unchecked because it is guarded on `"lane" in node` — true of
+that rule, but `lane` is in **`REQUIRED_NODE_FIELDS`**, so an absent key is caught by the
+missing-field check. The YAML form has no absent-lane hole and the existing `PAIRED`
+classification was already correct. Recorded in the registry with the reasoning, so the next
+reader does not re-derive it.
+
+Both harnesses green after the rename: dialect axis OK, form parity OK.
+
+### The same measurement error, a third time
+
+I read `exit=0` off three fixtures that exit 2, because `printf '%s exit=%s' "$(basename $f)" "$?"`
+evaluates the command substitution **before** `$?`, resetting it. **I recorded this exact bug two
+tasks ago and wrote it into T-891's own notes**, then reproduced it within the hour. Knowing a
+failure mode is not the same as having a habit that avoids it — the fix is to stop putting `$?`
+in an argument list at all, not to remember harder.

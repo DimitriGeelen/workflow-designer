@@ -284,7 +284,10 @@ RULE_CARRIERS = {
     "E-XML-ABBR-DUP":           (("aef:laneMeta/@abbr",), CONSTRAINS),
     "E-XML-GW-OUTGOING":        (("sequenceFlow",), STRUCTURAL),
     "W-XML-GW-AMBIGUOUS":       (("conditionExpression",), REQUIRES),
-    "W-XML-NODE-UNASSIGNED":    (("flowNodeRef",), STRUCTURAL),
+    # T-891: promoted WARN -> ERROR and renamed. Same carrier, same axis — what changed is
+    # severity, because the editor no longer silently repairs the state (it used to default
+    # an unclaimed node to lanes[0]).
+    "E-XML-NODE-UNASSIGNED":    (("flowNodeRef",), STRUCTURAL),
     "W-XML-PGW-CONDITION":      (("conditionExpression",), CONSTRAINS),
     "W-XML-PGW-NOOP":           (("sequenceFlow",), STRUCTURAL),
     "W-XML-PGW-UNBALANCED":     (("sequenceFlow",), STRUCTURAL),

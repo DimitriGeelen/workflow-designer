@@ -1162,13 +1162,32 @@ class XmlValidator:
                     % (len(unconditioned), ", ".join(sorted(unconditioned))),
                 )
 
-        # -- unassigned flow nodes (convention, WARN) -----------------------
+        # -- unassigned flow nodes (T-891: promoted WARN -> ERROR) ----------
+        #
+        # This was a warning for as long as the editor quietly repaired it: the importer
+        # initialised every node's lane to `lanes[0]?.id`, so an unassigned node acquired
+        # the FIRST-DECLARED lane's identity and the warning described a state the user
+        # never saw. T-891 removed that guess — an unclaimed node now imports with NO lane
+        # — which makes this a real hole rather than a cosmetic one.
+        #
+        # Under the frozen standard §3 ("the Lane is the sole authority-of-record") a node
+        # in no lane has NO DERIVABLE OWNER, and the T-888 ruling's whole direction is that
+        # authority must not be invented. Warning about a missing owner and then compiling
+        # anyway is exactly the false-green shape this corpus keeps finding.
+        #
+        # BLAST RADIUS MEASURED BEFORE PROMOTING, not after: the authored corpus (24 maps,
+        # 306 flow nodes) has ZERO unassigned nodes, and all seven fixtures that still carry
+        # them were ALREADY exit=2, so this adds an error to files that were invalid anyway
+        # and flips no verdict. The two that would have flipped were repaired first, as
+        # their own task (T-909).
         for node_id in sorted(flow_node_ids):
             if node_id not in assigned:
-                self.warn(
-                    "W-XML-NODE-UNASSIGNED",
+                self.err(
+                    "E-XML-NODE-UNASSIGNED",
                     "node '%s'" % node_id,
-                    "flow node '%s' is not assigned to any lane" % node_id,
+                    "flow node '%s' is in no lane, so it has no authority-of-record "
+                    "(mapping-v1 §3); an owner cannot be derived and must not be invented"
+                    % node_id,
                 )
 
         # -- degrees + adjacency (shared by the checks below) ---------------

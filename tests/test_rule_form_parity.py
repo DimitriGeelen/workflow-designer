@@ -239,8 +239,14 @@ PARITY = {
     "W-XML-PGW-CONDITION":  (PAIRED, "W-PGW-CONDITION"),
     "W-XML-PGW-NOOP":       (PAIRED, "W-PGW-NOOP"),
     "W-XML-PGW-UNBALANCED": (PAIRED, "W-PGW-UNBALANCED"),
-    "W-XML-NODE-UNASSIGNED": (PAIRED, "E-NODE-LANE (lane membership is required "
-                                      "by REQUIRED_NODE_FIELDS on the YAML form)"),
+    # T-891: renamed on promotion to an error. STILL PAIRED, and the pairing was checked
+    # rather than carried over: `lane` is in REQUIRED_NODE_FIELDS, so an ABSENT lane key is
+    # caught by the missing-field check on the YAML form even though E-NODE-LANE itself is
+    # guarded on `"lane" in node`. The YAML form has no absent-lane hole, so this is a real
+    # pair and not a GAP — which is the answer to T-891 AC4.
+    "E-XML-NODE-UNASSIGNED": (PAIRED, "E-NODE-LANE + REQUIRED_NODE_FIELDS (an absent lane "
+                                      "key is a missing-required-field error on the YAML "
+                                      "form; T-891)"),
 
     "E-XML-NODE-TYPE":      (PAIRED, "E-NODE-TYPE; XML_NODE_TYPES is DERIVED "
                                      "from NODE_TYPES via XML_TYPE_MAP plus a "
