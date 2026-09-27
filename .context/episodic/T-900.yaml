@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-900: T-886 changed a shared harness with five registered dependents: measure the two that parse its output rather than reasoning about them
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T12:32:17Z
+# ============================================================================
+
+task_id: T-900
+task_name: "T-886 changed a shared harness with five registered dependents: measure the two that parse its output rather than reasoning about them"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T12:24:04Z
+completed: 2026-09-27T12:31:55Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-27T14:31:32+02:00
+last_commit: 2026-09-27T14:31:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  I committed a change to a shared harness having run one of its five dependents, and the pre-flight check that should have caught it prints an empty result
+
+# Key outcomes
+outcomes:
+  - '`tools/_t591-roundtrip-teeth.sh` passes: 4/4 legs, on the modified harness. This is the leg'
+  - 'The `run-bridge-tests.sh` round-trip leg passes. It consumes the harness by **exit code**'
+  - 'Where a dependent is NOT exercised, it is named as unexercised rather than counted as'
+  - 'Any failure found is attributed by **bisection against the pre-T-886 harness**, not assumed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-900-t-886-changed-a-shared-harness-with-five.md'
+  - '.tasks/completed/T-899-p-011-closed-t-886-in-22-seconds-over-a-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T14:31:32'
+    action: 'T-900: I committed a change to a shared harness having run one of its five dependents, and the pre-flight check that should have caught it prints an empty result'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 3
+  lines_added: 431
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-900-t-886-changed-a-shared-harness-with-five.md
+generated_by: context-agent-hybrid

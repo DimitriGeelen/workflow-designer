@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-899: P-011 closed T-886 in 22 seconds over a block that takes twelve minutes: confirm whether the verification gate ran zero commands
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T12:19:30Z
+# ============================================================================
+
+task_id: T-899
+task_name: "P-011 closed T-886 in 22 seconds over a block that takes twelve minutes: confirm whether the verification gate ran zero commands"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T12:02:25Z
+completed: 2026-09-27T12:19:20Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-27T14:18:53+02:00
+last_commit: 2026-09-27T14:18:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  I filed an URGENT defect against the verification gate, and the defect was mine
+
+# Key outcomes
+outcomes:
+  - 'The extractor is run **as the gate runs it** — `source lib/verification-port.sh` then'
+  - 'The timing claim is established from **recorded timestamps, not recollection**: the interval'
+  - 'The verdict distinguishes the three possible mechanisms, because they have three different'
+  - 'Whichever verdict holds, it is **reproduced a second time** by a route that does not share'
+  - 'If the defect is confirmed, it is registered in `concerns.yaml` as its own gap **before**'
+  - 'T-886''s own verification is restated on the evidence: all six lines were run by hand this'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-899-p-011-closed-t-886-in-22-seconds-over-a-.md'
+  - '.tasks/completed/T-886-uuid-can-be-dropped-from-the-editor-writ.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T14:18:53'
+    action: 'T-899: I filed an URGENT defect against the verification gate, and the defect was mine'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 16 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 16
+  commits: 1
+  files_changed: 4
+  lines_added: 424
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-899-p-011-closed-t-886-in-22-seconds-over-a-.md
+generated_by: context-agent-hybrid

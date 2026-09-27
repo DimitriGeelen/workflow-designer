@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-886: uuid can be dropped from the editor writer and every guard stays green — three workflowMeta attributes are bare
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T11:59:58Z
+# ============================================================================
+
+task_id: T-886
+task_name: "uuid can be dropped from the editor writer and every guard stays green — three workflowMeta attributes are bare"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T23:46:38Z
+completed: 2026-09-27T11:59:36Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-27T13:59:12+02:00
+last_commit: 2026-09-27T13:59:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  uuid, description and kind can no longer be dropped from the editor writer in silence — and the next attribute cannot be either
+
+# Key outcomes
+outcomes:
+  - 'The document-level denominator is **derived from the emitter**, not hand-typed: the guard reads the `wmAttrs` construction out of the editor source and enumerates every `aef:workflowMeta` attribute the editor can write. Proved by adding a throwaway attribute to the emitter and observing the guard go red **because it is unclassified**, then reverting — a hand-maintained list would have stayed green'
+  - 'Every derived attribute is classified **either** COMPARED (present in the round-trip projection) **or** EXCLUDED with a non-empty reason, and an exclusion whose reason is empty is itself a failure — the node-level `EXCLUDED` contract, applied to the document level'
+  - 'The three BARE attributes from the census — `uuid`, `description`, `kind` — are COMPARED, and coverage is established **by mutation, not by reading the projection**: with each one suppressed in the writer the harness exits non-zero, recorded per attribute. This is T-885''s own lesson, which inverted two of its three predictions'
+  - '`schemaVersion` is reported explicitly whatever the result: it is written **unconditionally** and is absent from the four-key projection, making it a fourth bare candidate the census never tested. Measured by the same mutation, not assumed'
+  - 'An attribute that is COMPARED but carried by **no fixture** is reported `NOT EXERCISABLE` and is **not** counted as covered; the guard prints exercised-vs-comparable counts. `pageWidth` is the known case. Per PL-175 a name in a coverage list is a claim, not evidence'
+  - 'Fixture coverage is raised so that `uuid`, `description` and `kind` are each carried by at least one round-trip fixture (`uuid` was carried by exactly 1 of 20), so each comparison is evidence rather than a vacuous pass'
+  - '`source` is EXCLUDED carrying the write-only reason, and the product question — stop emitting it, or read it back — is **filed as its own task and not decided here**'
+  - 'The source tree is left byte-identical to its pre-mutation state: every mutation reverted and the revert **verified with `cmp`**, not assumed'
+  - 'The harness passes on the unmutated tree **both before and after** the change, so no fixture regressed and the new assertions are satisfied by the real corpus'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t886-writer-mutation.yaml'
+  - '.tasks/active/T-886-uuid-can-be-dropped-from-the-editor-writ.md'
+  - '.tasks/active/T-898-aefworkflowmeta-source-is-write-only-the.md'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_t886-writer-mutation.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T13:59:12'
+    action: 'T-886: uuid, description and kind can no longer be dropped from the editor writer in silence — and the next attribute cannot be either'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 732 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:process-instances]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 732
+  commits: 1
+  files_changed: 5
+  lines_added: 759
+  lines_removed: 15
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-886-uuid-can-be-dropped-from-the-editor-writ.md
+generated_by: context-agent-hybrid
