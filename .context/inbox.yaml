@@ -2016,3 +2016,21 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-405
+  text: "termlink_spawn reports ok/status=ready on a DISPLAY-NAME COLLISION, so a dispatch that never ran is indistinguishable from one that did. Measured 2026-09-27 under T-897: spawned name 'procasfit-r1' with a command array; got {ok:true, session_name:'procasfit-r1', status:'ready'}. No command ran — no output file was created, no process existed, no commits appeared. The 'ready' belonged to a PRE-EXISTING session registered 62.6 hours earlier (pid 475426, 'termlink register --name procasfit-r1 --tags task:T-3089', cwd /opt/termlink). The spawn call reported that stranger's health as its own success. Consequence for anything built on this: ok/ready does NOT mean 'your command is running', and fw peer / fw sidecar sit on the same transport, so any orchestration that branches on dispatch success inherits the same false green. Remedies, either would do: refuse a spawn whose display name is already registered, or return the NEW session id and let the caller verify identity rather than name. Caught here only because the orchestration task carried an acceptance criterion requiring a round with no handback to be reported as failed rather than skipped."
+  captured: 2026-09-27T11:21:29Z
+  context_task: T-897
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-406
+  text: "P-011 verification gate may have passed T-886 having run ZERO of its six commands. Measured: last_update from its commit is 11:59:14Z and date_finished is 11:59:36Z, so the gate completed in ~22 seconds. T-886's verification block contains a full 20-fixture browser harness run (60-90s measured) plus tools/_t886-writer-mutation.py, which runs that harness five more times (~5 min measured live this session). Twelve minutes of commands cannot execute in 22 seconds. If the block extracted to empty, update-task.sh:1263 '[ -z verify_cmds ] && return 0' returns GREEN having run nothing -- the documented backward-compatible path for a task with NO Verification section, which is indistinguishable from a task whose section failed to yield commands. That is the G-031 class exactly (PASS and could-not-evaluate sharing an exit code), one level in from the push gate, and T-3232 already hardened the rc=2 branch of this same extractor for the same reason. NOT CONFIRMED YET: the extractor was not run against the file because closing T-886 cleared focus and check-active-task then blocked the read (G-047 shape). Confirm with: source .agentic-framework/lib/verification-port.sh then extract_verification_block on the completed T-886 file and count lines. If it prints 6, the gate skipped a NON-empty block, which is worse than extracting empty. Note the T-886 work itself is independently safe: all six lines were run by hand before the close and all six passed."
+  captured: 2026-09-27T12:02:05Z
+  context_task: null
+  tags: [gate-integrity]
+  status: dismissed
+  dismissed_reason: "WITHDRAWN by measurement under T-899. The premise was mine and it was unmeasured. Measured now: the round-trip harness runs in 2 seconds (not the 60-90s I asserted), tools/_t886-writer-mutation.py in 10 seconds (not ~5 minutes), the suite wrapper in 3. All six of T-886's verification commands total ~15s, which fits the observed 22-second close with room to spare. The extractor also yields 6 commands with rc=0 against the completed file, so the [ -z verify_cmds ] silent-pass branch was never reached either. The gate ran, and it ran everything. HOW THE ERROR HAPPENED, because it is the transferable part: I had wrapped each manual run in timeout 400 / timeout 2000 and then read my own generous timeout values back as if they were observed durations. I never timed anything. So an observation whose entire claim was that a gate reported a pass it had not measured was itself an assertion I had not measured -- the same defect, one level up, committed while naming it."
+  dismissed_at: 2026-09-27T12:07:33Z
+  promoted_to: null
+  urgent: true

@@ -2457,3 +2457,9 @@ learnings:
   task: T-873
   date: 2026-09-26
   context: Added via context agent
+- id: PL-349
+  learning: "A timeout value is not a measurement. If a claim takes the form 'X takes N seconds', N must come from a clock that ran, not from the ceiling you chose when you invoked it. Origin T-899: I wrapped harness runs in timeout 400 and timeout 2000, then read my own ceilings back as observed durations and filed an URGENT observation that the P-011 gate had skipped six verification commands. Measured, the six take 15 seconds and the gate had run all of them. The report's subject was a gate asserting a pass it had not measured; the report was an assertion I had not measured. Cost one line to prevent: start=$(date +%s) ... end=$(date +%s)."
+  source: P-011
+  task: T-899
+  date: 2026-09-27
+  context: Added via context agent
