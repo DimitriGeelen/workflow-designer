@@ -2,14 +2,24 @@
 id: T-893
 name: "Render authority on the element, and indicate mismatch and missing DIFFERENTLY"
 description: >
-  T-888 ruling clause 4 — the clause that answers the strongest objection from four rounds of review ('replaces an architectural guarantee with a lint rule'). Authority is drawn on the node so the picture is honest where the fact lives. THREE states, and conflating the last two is the defect to avoid: matches the lane default -> NO indicator (the common case must not shout); DIFFERS -> subtle marker, a legitimate authorial choice made visible; NO authority at all -> louder marker, because that is not a choice but a hole and a compile error. Follows this project's own grammar: not-evaluated is not passed, missing is not different. Visual verification required per CLAUDE.md — element-level screenshots in every theme and density, read back, not DOM math.
+  T-888 ruling clause 4 — the clause that answers the strongest objection from four
+  rounds of review ('replaces an architectural guarantee with a lint rule'). Authority
+  is drawn on the node so the picture is honest where the fact lives. THREE states,
+  and conflating the last two is the defect to avoid: matches the lane default ->
+  NO indicator (the common case must not shout); DIFFERS -> subtle marker, a legitimate
+  authorial choice made visible; NO authority at all -> louder marker, because that
+  is not a choice but a hole and a compile error. Follows this project's own grammar:
+  not-evaluated is not passed, missing is not different. Visual verification required
+  per CLAUDE.md — element-level screenshots in every theme and density, read back,
+  not DOM math.
 
 status: captured
 workflow_type: build
 owner: agent
 horizon: now
 tags: [arc:designer-authoring-surface]
-components: []
+components:
+  - src/aef-workflow-designer.html
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +32,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:46Z
-last_update: 2026-09-27T10:41:46Z
-date_finished: null
+last_update: '2026-09-27T15:47:41Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +44,37 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-27T15:47:10Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 1
+      tier: 2
+      effort: 8
+    rationale: blast_radius=1 (single-component); tier=2 (workflow:build); 
+      effort=8 (lines=275,acs=4)
+    rubric_sha: e4a00f38e801
+bvp_scores_proposed:
+  - ts: '2026-09-27T15:47:41Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-893: Render authority on the element, and indicate mismatch and missing DIFFERENTLY
@@ -304,3 +345,9 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-893-render-authority-on-the-element-and-indi.md
 - **Context:** Initial task creation
+
+## 2026-09-27 — `components:` populated (T-906)
+
+Basis: **inferred from the stated deliverable: rendering authority on the element is an editor change; the editor is one file in this repo**
+
+Populated so `fw bvp` can compute a `blast_radius` and therefore a quadrant. Empty `components:` made `estimate-cost` refuse the radius — correctly, since unmeasured is not zero — while printing `[wrote]` and exiting 0, so the refusal read as a success and two procAsFit rounds concluded the cost axis did not exist.

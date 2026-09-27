@@ -15,7 +15,12 @@ workflow_type: build
 owner: agent
 horizon: now
 tags: [arc:designer-authoring-surface]
-components: []
+components:
+  - src/aef-workflow-designer.html
+  - tools/validate-workflow.py
+  - tools/_roundtrip-serialization-cdp.mjs
+  - tests/test_rule_dialect_axis.py
+  - tests/test_rule_form_parity.py
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -28,7 +33,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:17Z
-last_update: 2026-09-27T14:14:49Z
+last_update: '2026-09-27T15:47:09Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -60,6 +65,16 @@ bvp_scores_proposed:
       task body — no hypothesis, so this score has no claim to be wrong about,L0:
       no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
       to be wrong about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-09-27T15:47:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 5
+      tier: 2
+      effort: 8
+    rationale: blast_radius=5 (5-components-medium-blast); tier=2 
+      (workflow:build); effort=8 (lines=228,acs=6)
     rubric_sha: e4a00f38e801
 ---
 
@@ -284,3 +299,9 @@ test "$(grep -c "^const AUTHORITIES = \[" src/aef-workflow-designer.html)" = "1"
 
 ### 2026-09-27T13:01:51Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## 2026-09-27 — `components:` populated (T-906)
+
+Basis: **measured from its own commits (a906f337, 71d4943b, f0c84765) via git show --name-only**
+
+Populated so `fw bvp` can compute a `blast_radius` and therefore a quadrant. Empty `components:` made `estimate-cost` refuse the radius — correctly, since unmeasured is not zero — while printing `[wrote]` and exiting 0, so the refusal read as a success and two procAsFit rounds concluded the cost axis did not exist.

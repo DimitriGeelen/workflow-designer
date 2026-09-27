@@ -1,15 +1,23 @@
 ---
 id: T-891
-name: "Unresolvable flowNodeRef becomes a hard validation error instead of inheriting a lane by document order"
+name: "Unresolvable flowNodeRef becomes a hard validation error instead of inheriting
+  a lane by document order"
 description: >
-  T-888 ruling, and the fix T-341 has been blocked on. An unresolvable or absent flowNodeRef currently lets an orphan inherit authority from whichever lane comes first in document order — that IS the entire positional-authority defect, and it is the only part of it that ever existed: for a node that is in a lane, authority is deterministic. Make it an error, never lanes[0]. Correct under every variant of the ruling, so it is not gated on the schema work. Does NOT close T-341 — that task's [REVIEW] criterion is the operator's and is untouched.
+  T-888 ruling, and the fix T-341 has been blocked on. An unresolvable or absent flowNodeRef
+  currently lets an orphan inherit authority from whichever lane comes first in document
+  order — that IS the entire positional-authority defect, and it is the only part
+  of it that ever existed: for a node that is in a lane, authority is deterministic.
+  Make it an error, never lanes[0]. Correct under every variant of the ruling, so
+  it is not gated on the schema work. Does NOT close T-341 — that task's [REVIEW]
+  criterion is the operator's and is untouched.
 
 status: captured
 workflow_type: build
 owner: agent
 horizon: now
 tags: [arc:designer-authoring-surface]
-components: []
+components:
+  - tools/validate-workflow.py
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +30,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:24Z
-last_update: 2026-09-27T10:41:24Z
-date_finished: null
+last_update: '2026-09-27T15:47:41Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +42,37 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+cost_estimate_proposed:
+  - ts: '2026-09-27T15:47:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 1
+      tier: 2
+      effort: 8
+    rationale: blast_radius=1 (single-component); tier=2 (workflow:build); 
+      effort=8 (lines=275,acs=4)
+    rubric_sha: e4a00f38e801
+bvp_scores_proposed:
+  - ts: '2026-09-27T15:47:41Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 4
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=4 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=1 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-891: Unresolvable flowNodeRef becomes a hard validation error instead of inheriting a lane by document order
@@ -304,3 +343,9 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-891-unresolvable-flownoderef-becomes-a-hard-.md
 - **Context:** Initial task creation
+
+## 2026-09-27 — `components:` populated (T-906)
+
+Basis: **inferred from the stated deliverable: the task IS "the validator errors on an unresolvable flowNodeRef", which names the validator as surely as a path would**
+
+Populated so `fw bvp` can compute a `blast_radius` and therefore a quadrant. Empty `components:` made `estimate-cost` refuse the radius — correctly, since unmeasured is not zero — while printing `[wrote]` and exiting 0, so the refusal read as a success and two procAsFit rounds concluded the cost axis did not exist.

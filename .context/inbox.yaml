@@ -2079,3 +2079,19 @@ observations:
   tags: [process]
   status: pending
   promoted_to: null
+- id: OBS-413
+  text: "fw handover PUSHES TO ORIGIN with no flag asking it to. Round 1 recorded that 'fw handover --commit pushed to origin/bleeding-edge as part of its designed flow'. Round 3 measured the stronger fact: plain 'fw handover', WITHOUT --commit, also commits AND pushes (bc9d6ba3..8f88547c -> origin/bleeding-edge, verified with git log origin/bleeding-edge). The push is not gated on --commit at all, so --commit is not the thing to avoid if you want a local handover. Why it matters beyond surprise: pushing is an OUTWARD-FACING, hard-to-reverse action. An agent generating a handover document is doing bookkeeping; it has no reason to expect that the same verb publishes every local commit on the branch to a remote where others can see it. Concretely, this run published round 2's three deliberately-local commits (a906f337, 71d4943b, f0c84765) as a side effect of round 3 writing its own handover - round 2's handback explicitly told the next round those were local and unpushed, and that statement is now false through no action of round 2's. Ask for: either --no-push (and/or push behind an explicit flag), or the verb states in its output BEFORE acting that it will publish. Note this also breaks the 'check before trusting this handback' convention the rounds use to hand off branch state."
+  captured: 2026-09-27T15:20:32Z
+  context_task: T-889
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-414
+  text: "fw bvp estimate-cost prints [wrote] and exits 0 when it wrote NO blast_radius. On components: [] it refuses the radius with rationale 'no-components-UNMEASURED-not-zero' — which is CORRECT G-034 behaviour, unmeasured is not zero — but the refusal is indistinguishable from a success at the call site: same [wrote], same exit 0. Consequence measured across three autonomous procAsFit rounds: two of them concluded 'the cost axis does not exist' and selected work without a quadrant, because arc-001's 17 now-horizon tasks all showed QUAD - while 83 of 124 corpus-wide had one. The blindness was concentrated on the arc carrying the project's only live goal. fw bvp ALSO prints a NOTE naming both the cause and ticket T-3068 directly above the table, and two independent rounds read the table and not the NOTE — a finding about the surface, not about the rounds. Second finding from the same repair: populating components: produces a blast_radius but still no quadrant for an unstarted task, because the ranker needs a VALUE score too; cost alone is not a quadrant, and nothing says so. Remedies: exit non-zero or print a distinguishable REFUSED line when blast_radius could not be measured, and have the ranker say which of the two axes is missing rather than rendering a bare dash for both cases."
+  captured: 2026-09-27T15:48:40Z
+  context_task: T-906
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

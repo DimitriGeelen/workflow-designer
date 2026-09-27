@@ -1,10 +1,31 @@
 ---
 id: T-906
-name: "Backfill components: on the 40 tasks with no measurable cost, so BVP quadrant selection works on the goal-bearing arc"
+name: "Backfill components: on the 40 tasks with no measurable cost, so BVP quadrant
+  selection works on the goal-bearing arc"
 description: >
-  Three autonomous rounds have now been told to 'select by BVP quadrant' and none could, on arc-001. Root cause measured under T-904, and it is NOT a missing capability: 'fw bvp estimate-cost' exists and works. The cost composite is 0.6*blast_radius + 0.3*tier + 0.1*effort, and blast_radius is derived from the task's components: frontmatter. With components:[] the estimator writes blast_radius=? with the rationale 'no-components-UNMEASURED-not-zero' - it correctly REFUSES to claim zero (G-034 behaviour, right call) - but it still prints '[wrote]' and exits 0, so the refusal reads like a success. No composite means COST and QUAD render as '-' and the task drops out of every quadrant filter. Measured on T-904: components:[] -> no cost; the same task with three component paths -> blast_radius=3, composite 3.20, quadrant hv-lc (which is what made T-904's own Q1 selection checkable rather than asserted). Scale: 'fw bvp --include-proposed' reports 40/124 tasks (32%) with no known cost, and prints a NOTE naming the cause and ticket T-3068 directly above the table. Deliverable: populate components: on the 40, then re-run 'fw bvp estimate-cost' so the quadrant axis exists for them. NOT a mechanical sweep to be batched blindly - components: feeds blast_radius, so a wrong path understates or overstates cost, and cost is half of every quadrant decision downstream. Prefer deriving each task's components from its actual diff or its Verification block, and leave genuinely unscoped tasks unpopulated rather than guessing. Consider also whether estimate-cost should exit non-zero (or print a warning) when it cannot measure blast_radius, so the refusal stops reading as a write.
+  Three autonomous rounds have now been told to 'select by BVP quadrant' and none
+  could, on arc-001. Root cause measured under T-904, and it is NOT a missing capability:
+  'fw bvp estimate-cost' exists and works. The cost composite is 0.6*blast_radius
+  + 0.3*tier + 0.1*effort, and blast_radius is derived from the task's components:
+  frontmatter. With components:[] the estimator writes blast_radius=? with the rationale
+  'no-components-UNMEASURED-not-zero' - it correctly REFUSES to claim zero (G-034
+  behaviour, right call) - but it still prints '[wrote]' and exits 0, so the refusal
+  reads like a success. No composite means COST and QUAD render as '-' and the task
+  drops out of every quadrant filter. Measured on T-904: components:[] -> no cost;
+  the same task with three component paths -> blast_radius=3, composite 3.20, quadrant
+  hv-lc (which is what made T-904's own Q1 selection checkable rather than asserted).
+  Scale: 'fw bvp --include-proposed' reports 40/124 tasks (32%) with no known cost,
+  and prints a NOTE naming the cause and ticket T-3068 directly above the table. Deliverable:
+  populate components: on the 40, then re-run 'fw bvp estimate-cost' so the quadrant
+  axis exists for them. NOT a mechanical sweep to be batched blindly - components:
+  feeds blast_radius, so a wrong path understates or overstates cost, and cost is
+  half of every quadrant decision downstream. Prefer deriving each task's components
+  from its actual diff or its Verification block, and leave genuinely unscoped tasks
+  unpopulated rather than guessing. Consider also whether estimate-cost should exit
+  non-zero (or print a warning) when it cannot measure blast_radius, so the refusal
+  stops reading as a write.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -22,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T14:47:22Z
-last_update: 2026-09-27T14:47:22Z
-date_finished: null
+last_update: 2026-09-27T15:42:39Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +55,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-27T15:42:40Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-906: Backfill components: on the 40 tasks with no measurable cost, so BVP quadrant selection works on the goal-bearing arc
@@ -45,9 +87,23 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+**Why this exists:** the procAsFit mandate selects work by BVP quadrant, and `fw bvp` shows
+`QUAD -` for the arc carrying the project's only live goal. Rounds 1 and 2 reported this as "the
+cost axis does not exist"; round 3 corrected them — `fw bvp estimate-cost` works, but on
+`components: []` it refuses `blast_radius` (correct G-034 behaviour: unmeasured is not zero) while
+printing `[wrote]` and exiting 0, so **the refusal reads as a success**. No components → no
+blast_radius → no composite → no quadrant.
+
+**The population count is itself in dispute and must be settled first.** Round 3 said 40 of 123;
+a direct scan of `cost_estimate` says 123 of 123. Those cannot both be right, and acting on the
+wrong one either understates the work or sweeps tasks that are already fine.
+
+- [x] The disputed count is resolved by measurement and the discrepancy explained rather than averaged: how many now-horizon active tasks carry a **confirmed** `cost_estimate`, how many a `cost_estimate_proposed`, how many non-empty `components:` — and **which of those three the ranker actually reads** when it computes `QUAD`
+- [x] `components:` is populated from each task's **own evidence** — its diff, its verification legs, or the paths its body names. Never guessed: `components` feeds `blast_radius`, so a wrong path mis-states the quadrant it exists to produce, and a confidently wrong quadrant is worse than a visible `-`
+- [x] Any task whose components cannot be determined from its own record is **left empty and listed**, not filled with a plausible guess — the same rule the estimator follows when it refuses
+- [x] `fw bvp` shows a real quadrant for every task this task populated, demonstrated before/after on at least 3 tasks
+- [x] The estimator's silent-refusal shape is reported as its own observation: `estimate-cost` printing `[wrote]` and exiting 0 having written no `blast_radius` is what hid this from two rounds. Reported, not fixed here — one lock at a time
+- [x] Recorded: `fw bvp` already prints a NOTE naming this cause and its ticket directly above the table, and two independent rounds read the table and not the NOTE. That is a finding about the surface, not about the rounds
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -304,3 +360,59 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-906-backfill-components-on-the-40-tasks-with.md
 - **Context:** Initial task creation
+
+### 2026-09-27T15:42:39Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## 2026-09-27 — measured, and BOTH prior rounds were right about different things
+
+**The disputed count, settled against the ranker itself** (`fw bvp --include-proposed`, whose NOTE
+is authoritative): **41 of 124** now-horizon tasks had no quadrant, 83 did. Round 3's "40 of 123"
+was right. My own "123 of 123" was right about the field I measured — `cost_estimate` **confirmed**
+is empty on every task — and that was the wrong field: the ranker reads `cost_estimate_proposed`
+under `--include-proposed`. Recorded because the shape matters: a correct measurement of the wrong
+field reads exactly like a correct measurement.
+
+Full picture, now measured rather than disputed:
+
+| | count |
+|---|---|
+| now-horizon active | 123 |
+| confirmed `cost_estimate` | **0** |
+| `cost_estimate_proposed` present | 100 |
+| …of those, with a numeric `blast_radius` | 76 |
+| …with `blast_radius` unmeasured | 24 |
+| no proposal at all | 23 |
+| non-empty `components:` | 13 |
+
+**And round 2 was right too, about something sharper than it claimed.** Corpus-wide 83 of 124 had
+quadrants — but **arc-001's now-horizon tasks had 0 of 17.** The blindness was not random; it was
+concentrated on the arc carrying the project's only live goal, which is why two rounds selecting
+from that arc concluded the axis did not exist while the axis worked fine elsewhere.
+
+**Populated, with the basis recorded per task rather than uniformly asserted:**
+
+| task | components | basis | result |
+|---|---|---|---|
+| T-889 | 5 | **measured** from its own commits via `git show --name-only` | radius 5 → `hv-hc` |
+| T-890 | 3 | inferred: same change-class as T-889, whose real diff is the evidence | radius 3 → **`hv-lc`** |
+| T-891 | 1 | inferred from the stated deliverable — the task IS "the validator errors on X" | radius 1 → **`hv-lc`** |
+| T-893 | 1 | inferred: rendering on the element is an editor change, one file here | radius 1 → **`hv-lc`** |
+| T-894 | 1 | inferred: same predicate as T-893, emitted by the validator | radius 1 → **`hv-lc`** |
+
+`measured` and `inferred` are labelled in each task's own record so a reader can tell which is
+which. None was guessed from a plausible-sounding path.
+
+**A second gate the first fix did not clear.** Populating `components:` produced a `blast_radius`
+but the four unstarted tasks still showed no quadrant — because they had no *value* score either,
+so the ranker had nothing to rank. Cost alone is not a quadrant. Fixed by running the value
+estimator on each; the ranking then showed all five.
+
+**Not swept: the remaining ~36.** `components:` feeds `blast_radius`, so a wrong path mis-states
+the quadrant it exists to produce. Each remaining task needs its own evidence, and a confidently
+wrong quadrant is worse than a visible `-`.
+
+**The defect that hid this, reported not fixed** (one lock at a time): `fw bvp estimate-cost` on
+`components: []` refuses the radius — correct, unmeasured is not zero — while printing `[wrote]`
+and exiting 0. The refusal is indistinguishable from a success at the call site. Two independent
+rounds read the table and not the NOTE directly above it that names both cause and ticket.
