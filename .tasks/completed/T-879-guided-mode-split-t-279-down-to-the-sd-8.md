@@ -13,7 +13,7 @@ description: >
 status: work-completed
 workflow_type: inception
 owner: agent
-horizon: now
+horizon: null
 arc_id: process-instances
 tags: [arc:process-instances]
 components: []
