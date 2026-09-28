@@ -1,23 +1,18 @@
 ---
-id: T-875
-name: "aef:workflowMeta kind marker — ship T-213's ratified enum so a map declares
-  whether it is illustrative or actionable"
+id: T-911
+name: "The designer cannot set or show aef:workflowMeta kind — the arc's headline mechanic starts with seeing it"
 description: >
-  arc-005 S1/B1. T-213 GO'd 2026-07-21 and was ratified by the operator (its [REVIEW]
-  Human AC is ticked); 68 days later aef:workflowMeta still carries only version/uuid/title/schemaVersion/id/default
-  and no kind. Ship the enum exactly as T-213 disposed it: closed {documentation,
-  work-plan}, default UNSET so absent/unknown round-trips byte-identical, additive
-  and frozen-v1 safe. Re-check the frozen-v1-safe claim rather than inherit it. Does
-  NOT widen the enum to cover class/instance — that is arc-005 S2's question.
+  T-875 shipped the closed enum, the validator rules, the round-trip guarantee and a conformance case for aef:workflowMeta/@kind. Nothing shipped a way to SET or SEE it. Measured under T-875 AC6: the document-properties panel (src/aef-workflow-designer.html:5756-5776) offers Title, Workflow version, Description, Source and Default tier. kind is the ONLY document-level attribute the editor reads and writes but cannot author. arc-005's headline_mechanic opens with 'an operator opens task-lifecycle in the designer, SEES IT MARKED as a template rather than an actionable work-plan' — which nothing in the product currently permits, so the arc cannot be closed on its own terms until this exists.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
 horizon: now
-tags: [arc:process-instances]
+tags: []
 components: []
-related_tasks: []
+related_tasks: [T-875, T-876, T-877]
 arc_id: process-instances
+# arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
@@ -27,9 +22,9 @@ arc_id: process-instances
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-26T22:41:33Z
-last_update: 2026-09-28T08:44:10Z
-date_finished:
+created: 2026-09-28T08:50:35Z
+last_update: 2026-09-28T08:50:35Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -40,36 +35,48 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed: []
-bvp_scores:
-  D1: 4
-  D2: 4
-  D3: 3
-  D4: 2
-  F-RECALL: 2
-  F2: 0
-  F4: 0
-  F3: 4
-  F1: 2
-confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
-confirmed_at: '2026-09-26T23:10:59Z'
 ---
 
-# T-875: aef:workflowMeta kind marker — ship T-213's ratified enum so a map declares whether it is illustrative or actionable
+# T-911: The designer cannot set or show aef:workflowMeta kind — the arc's headline mechanic starts with seeing it
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Filed from **T-875 AC6** — the criterion that asks whether the work delivers arc purpose and
+explicitly permits the answer *no*. It was no, and this is why.
+
+T-875 shipped everything about `aef:workflowMeta/@kind` except the ability to use it: the closed
+enum (`{documentation, work-plan}`, one definition, `tools/validate-workflow.py:90`), the validator
+rules in both XML and YAML forms, a round-trip guarantee proven by mutation (`kind` is LIVE across
+21 fixtures), and a document-level conformance case in
+`tests/test_mapping_standard_conformance.py`.
+
+**What is missing is the surface.** Measured: the document-properties panel at
+`src/aef-workflow-designer.html:5756-5776` offers Title, Workflow version, Description, Source and
+Default tier. `kind` is the **only** document-level attribute the editor reads and writes but
+cannot author. An operator can neither set it nor see it.
+
+That is not a polish gap. **arc-005's `headline_mechanic` opens with** *"an operator opens
+task-lifecycle in the designer, **sees it marked as a template** rather than an actionable
+work-plan"* — so the arc cannot be closed on its own terms until this exists, and `fw arc close`
+requires wire-level evidence of that mechanic firing.
+
+**Deliberately NOT folded into T-875.** T-875's scope is the enum and its enforcement; its ACs say
+nothing about a control, and widening it after the fact would hide that the substrate shipped
+without a surface. The gap is worth a task so it is visible.
+
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] `aef:workflowMeta kind=` validates against a CLOSED enum of exactly `documentation` and `work-plan`; any other value is an error whose message names the allowed set
-- [x] A map carrying no `kind` validates clean — UNSET is legal and is not a warning (T-213 IW-3: the marker stays an explicit author decision, no silent reclassification)
-- [ ] Round-trip: a map with no `kind` is byte-identical through import→export. CONTROL: a map WITH `kind` also round-trips byte-identical, so a dead harness cannot read as a clean pass
-- [x] T-213's "additive + frozen-v1 safe" claim is RE-DERIVED against `docs/standards/aef-bpmn-mapping-v1.md`, not inherited — cite the Part I clause that makes an additive `aef:workflowMeta` attribute conformant, or report that no such clause exists. The standard is frozen and is NOT edited
-- [ ] A conformance case lands in the existing mapping-conformance suite, not in a new parallel harness
-- [ ] **A5 recorded:** does this deliver arc purpose (A1) and project purpose? Answer and reason written in `## Decisions`, and the answer may be **no**
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+### Agent
+- [ ] The document-properties panel offers a **kind** control alongside Title / Workflow version / Description / Source / Default tier, and its options are exactly the closed enum — sourced so a third value cannot appear in the UI without `WORKFLOW_KINDS` changing (T-322: one vocabulary, never a second copy)
+- [ ] **UNSET remains reachable and is the default.** T-213 IW-3 kept the marker an explicit author decision; a control that forces a choice silently reclassifies every one of the 24 corpus maps. Selecting UNSET on a map that had a kind removes the attribute, and the map then exports byte-identically to its pre-kind form
+- [ ] The kind is **visible without opening a panel** — the arc's headline mechanic is "sees it marked", not "can find it if they look". Where that indicator lives is a design choice to record in `## Decisions`
+- [ ] Setting the kind and saving produces `kind="..."` on `aef:workflowMeta` in the exported BPMN, proven by reading the exported bytes rather than the in-memory model
+- [ ] **Visual verification:** element-level screenshots of the control and the indicator in every mode the change can affect (mono/sans/serif · light/dark/contrast · compact/normal/cozy · narrow/wide), each one READ, with the symptom gone and no new regression. DOM-rect math is not sufficient
+- [ ] `python3 tests/test_mapping_standard_conformance.py` still passes, and the round-trip harness still reports `kind` LIVE — this task must not weaken what T-875 established
+
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -321,66 +328,7 @@ confirmed_at: '2026-09-26T23:10:59Z'
 
 ## Updates
 
-### 2026-09-26T22:41:33Z — task-created [task-create-agent]
+### 2026-09-28T08:50:35Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-875-aefworkflowmeta-kind-marker--ship-t-213s.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-911-the-designer-cannot-set-or-show-aefworkf.md
 - **Context:** Initial task creation
-
-### 2026-09-26T23:11:05Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-
-## 2026-09-27 — PARKED at AC3. The round-trip guard does not cover this attribute.
-
-**Shipped and checked:**
-
-- Module-scope `WORKFLOW_KINDS = {"documentation", "work-plan"}`, read by BOTH forms —
-  one copy, per T-322 (a second copy of a governance vocabulary is how the two forms drift
-  apart on the governance question itself).
-- `E-WORKFLOW-KIND` (YAML) and `E-XML-WORKFLOW-KIND` (XML). Measured on real fixtures:
-  no-kind → exit 0 · `kind="documentation"` → exit 0 · `kind="bogus"` → exit 2,
-  `kind 'bogus' not in ['documentation', 'work-plan']`. Fixtures verified to actually
-  differ first, so the two passes are not vacuous.
-- Editor reader **and** writer (`src/aef-workflow-designer.html`). The writer was the real
-  find: its `wmAttrs` list is fixed and had no `kind`, so an imported marker would have been
-  silently dropped on first save — worse than absent, because it survives review and vanishes
-  in use.
-- **AC4 re-derived with a control.** `aef:workflowMeta` appears ZERO times in the frozen
-  standard (control: `aef:uid` 8, `aef:meta` 7, `aef:position` 1, `aef:io` 1 — same grep
-  shape, same file, same run). T-213's "frozen-v1 safe" holds, but NOT for the reason the
-  word "additive" suggests: §1's two-class partition enumerates NODE-level attributes and
-  §6's four conformance clauses never reach document-level metadata. **The standard has no
-  document-level class at all** — a gap in the standard, and T-877's strongest content.
-
-**Why AC3 is not closed, and it is not a near-miss.**
-
-`tools/_roundtrip-serialization-cdp.mjs` passed with the new kind-carrying fixture
-(`tests/fixtures/aef-bpmn/t875-kind-marker.bpmn`, 20 fixtures, pass: true). **That green was
-vacuous and a mutation proved it.** Deleting the writer line entirely and re-running gave
-`exit=0, pass: true` — the guard does not notice.
-
-Not a broken harness. `checkDenominator()` derives its 36 keys from **`aef.*` accesses** —
-dot accesses, metaKeys, bindFields — i.e. the NODE-level seam. `workflowMeta.kind` is
-`wm.kind`. Document-level metadata is outside its denominator **by construction**, and so are
-`uuid`, `pageWidth`, `tier_default` and `title`. The right guard, the wrong seam.
-
-AC3 therefore needs its own instrument: a workflowMeta round-trip teeth with a mutation
-control, which must also establish whether `kind`'s siblings were ever covered by anything.
-That is a real question — four attributes may have been riding on no guard at all.
-
-**State:** the marker validates and round-trips in the editor; nothing asserts that it keeps
-round-tripping. Do not treat it as guarded. T-876 (corpus backfill) stays blocked behind this:
-backfilling 24 seam artefacts with an attribute whose persistence nothing checks is the wrong
-order.
-
-### 2026-09-26T23:17:44Z — status-update [task-update-agent]
-- **Change:** status: started-work → issues
-- **Reason:** AC3 unclosable by the existing instrument: the round-trip guard derives its denominator from node-level aef.* accesses, so document-level workflowMeta attributes are outside its scope by construction. Proved by mutation — deleting the writer line still passes. Needs a dedicated workflowMeta round-trip teeth with a mutation control, which must also establish whether uuid/pageWidth/tier_default/title were ever covered by anything.
-
-### 2026-09-28T08:44:04Z — issue-resolved [healing-agent]
-- **Action:** Issue resolved via healing loop
-- **Output:** Pattern FP-020 recorded
-- **Mitigation:** T-886 built the instrument T-875's issues-reason said was missing, and nothing moved T-875 out of issues when it landed. The recorded blocker was: 'AC3 unclosable by the existing instrument: the round-trip guard derives its denominator from node-level aef.* accesses, so document-level workflowMeta attributes are outside its scope by construction. Proved by mutation - deleting the writer line still passes. Needs a dedicated workflowMeta round-trip teeth with a mutation control.' That instrument now exists: checkWmDenominator() derives the denominator FROM THE EMITTER (10 attributes, 0 unclassified) and the WM self-test mutates each attribute in its own wire carrier across the corpus. Measured this session: kind is LIVE, so suppressing it in the writer now moves the projection - the mutation control the reason asked for. AC3's byte-identity pair also holds: t875-kind-marker.bpmn (WITH kind) and two-lane-joint.bpmn (without) both report byteIdempotent true over 21 fixtures. T-910 extended the same discipline to aef:laneMeta. AC5 (conformance case in the existing mapping-conformance suite) and AC6 (A5 recorded in Decisions) remain and are ordinary work, not blockers. THE PATTERN: a task parked on a missing instrument stays parked after the instrument ships, because the thing that shipped it was a different task and nothing joins the two. T-886 did not know T-875 was waiting on it.
-- **Context:** Resolution logged for future reference
-
-### 2026-09-28T08:44:10Z — status-update [task-update-agent]
-- **Change:** status: issues → started-work

@@ -2495,3 +2495,10 @@ decisions:
     date: 2026-09-26
     task: T-873
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-336
+    decision: "extend `tests/test_mapping_standard_conformance.py` with a document-level check that"
+    scope: project
+    date: 2026-09-28
+    task: T-875
+    rationale: "Auto-captured from task file on completion"

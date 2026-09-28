@@ -52,6 +52,100 @@ RE_FENCE = re.compile(
     re.DOTALL,
 )
 
+# ── T-875 (arc-005 S1): the DOCUMENT level, which this suite could not reach ──────────────────
+#
+# Everything above is about NODE-level aef:meta keys. T-875's own finding, re-derived against the
+# standard rather than inherited from T-213's claim: §1's two-class partition enumerates NODE-level
+# attributes and §6's four conformance clauses never reach document-level metadata. THE STANDARD
+# HAS NO DOCUMENT-LEVEL CLASS AT ALL. So `aef:workflowMeta/@kind` cannot be added to a frozen
+# fence — there is no fence to add it to, and Part I is frozen and is not edited here.
+#
+# What IS assertable, and is asserted below:
+#
+#   (1) A TRIPWIRE ON THE STANDARD. Exactly one conformance fence exists today. If a
+#       document-level fence ever appears, this test FAILS and says to wire it in — rather than
+#       the fence sitting in the standard unenforced, which is the drift this whole suite exists
+#       to prevent, one level up. It is a currently-true assertion, not a permanent red
+#       (OBS-293): it fires exactly when the situation it describes changes.
+#
+#   (2) THE ENUM HAS ONE HOME. `kind` is a CLOSED set, and a closed set with two copies is the
+#       T-322 defect — the two copies diverge and neither is wrong on its own terms. Asserted to
+#       be defined exactly once across the tree.
+#
+#   (3) THE EDITOR BOTH READS AND WRITES IT. An attribute imported but not emitted is dropped on
+#       the first save, which is worse than absent because it survives review and vanishes in use
+#       — the editor's own comment at the read site says so. Import-only is therefore a failure,
+#       not a partial pass.
+VALIDATOR = "tools/validate-workflow.py"
+RE_ANY_FENCE = re.compile(r"```conformance-([a-z0-9-]+)", re.M)
+EXPECTED_FENCES = {"governance-meta-keys"}
+RE_KIND_ENUM = re.compile(r"^WORKFLOW_KINDS\s*=\s*\{([^}]*)\}", re.M)
+EXPECTED_KINDS = {"documentation", "work-plan"}
+# Anchored on aefMetaEl, NOT on getAttribute('kind') alone. The editor calls getAttribute('kind')
+# three times and TWO of them are on eventDefEl — a different element entirely. A check matching
+# those would stay green with workflowMeta/@kind removed, which is precisely the false green this
+# case exists to close.
+RE_EDITOR_KIND_READ = re.compile(r"aefMetaEl\?\.getAttribute\('kind'\)")
+RE_EDITOR_KIND_WRITE = re.compile(r"kind=\"\$\{escAttr\(wm\.kind\)\}\"")
+
+
+def standard_fences(text):
+    """Every ```conformance-<name> fence the standard declares."""
+    return set(RE_ANY_FENCE.findall(text))
+
+
+def kind_enum_definitions(validator_text):
+    """The WORKFLOW_KINDS definitions found. A list, so a SECOND copy is visible."""
+    out = []
+    for body in RE_KIND_ENUM.findall(validator_text):
+        out.append({v.strip().strip("\"'") for v in body.split(",") if v.strip()})
+    return out
+
+
+def check_document_kind(standard_text, validator_text, editor_text):
+    """Return a list of problem strings; empty means conformant."""
+    problems = []
+
+    fences = standard_fences(standard_text)
+    unexpected = sorted(fences - EXPECTED_FENCES)
+    if unexpected:
+        problems.append(
+            "the standard declares conformance fence(s) this suite does not enforce: %s — a fence "
+            "in the standard that no test reads is exactly the standard/implementation drift this "
+            "suite exists to prevent. Wire it in here rather than leaving it unenforced."
+            % ", ".join(unexpected))
+    missing_fences = sorted(EXPECTED_FENCES - fences)
+    if missing_fences:
+        problems.append(
+            "expected conformance fence(s) absent from the standard: %s" % ", ".join(missing_fences))
+
+    defs = kind_enum_definitions(validator_text)
+    if not defs:
+        problems.append(
+            "no WORKFLOW_KINDS definition found in %s — the closed enum for "
+            "aef:workflowMeta/@kind is the subject of this check; its absence is a FAILURE, not a "
+            "skip" % VALIDATOR)
+    elif len(defs) > 1:
+        problems.append(
+            "WORKFLOW_KINDS is defined %d times in %s — a closed set with two copies is the T-322 "
+            "defect: the copies diverge and neither is wrong on its own terms"
+            % (len(defs), VALIDATOR))
+    elif defs[0] != EXPECTED_KINDS:
+        problems.append(
+            "WORKFLOW_KINDS is %s, expected %s — T-213's ratified enum is closed; changing it is a "
+            "contract change, not an edit" % (sorted(defs[0]), sorted(EXPECTED_KINDS)))
+
+    if not RE_EDITOR_KIND_READ.search(editor_text):
+        problems.append(
+            "the editor does not read aef:workflowMeta/@kind off aefMetaEl (%s)" % EDITOR)
+    if not RE_EDITOR_KIND_WRITE.search(editor_text):
+        problems.append(
+            "the editor does not WRITE aef:workflowMeta/@kind (%s) — an attribute imported but not "
+            "emitted is dropped on the first save, which is worse than absent because it survives "
+            "review and vanishes in use" % EDITOR)
+
+    return problems
+
 
 def frozen_meta_keys(text):
     """Extract the frozen governance-meta-key list from the standard, or None."""
@@ -82,6 +176,44 @@ def _selftest():
     assert me == ["ghost"] and mb == ["ghost"], "selftest: drift not flagged: %r %r" % (me, mb)
     me, mb = check(["horizon"], ["horizon"], ["horizon"])
     assert me == [] and mb == [], "selftest: conformant wrongly flagged"
+
+    # ── T-875 document-level controls ─────────────────────────────────────────────────────────
+    # Each check gets BOTH legs: a conformant input that must produce no problem, and a broken
+    # input that must produce one. A check exercised only on good input cannot be shown to fail,
+    # and a check that cannot fail is not a check (PL-328).
+    good_std = "```conformance-governance-meta-keys\nhorizon\n```"
+    good_val = 'WORKFLOW_KINDS = {"documentation", "work-plan"}\n'
+    good_ed = ("kind: aefMetaEl?.getAttribute('kind') || null,\n"
+               'wmAttrs.push(`kind="${escAttr(wm.kind)}"`);\n')
+    assert check_document_kind(good_std, good_val, good_ed) == [], \
+        "selftest: conformant document-level input flagged: %r" % check_document_kind(good_std, good_val, good_ed)
+
+    # An unenforced new fence in the standard must be caught.
+    p = check_document_kind(good_std + "\n```conformance-document-meta-attributes\nkind\n```",
+                            good_val, good_ed)
+    assert any("does not enforce" in x for x in p), "selftest: new fence not flagged: %r" % p
+    # The expected fence going missing must be caught.
+    p = check_document_kind("no fences at all", good_val, good_ed)
+    assert any("absent from the standard" in x for x in p), "selftest: missing fence not flagged: %r" % p
+    # A SECOND copy of the closed enum must be caught (T-322).
+    p = check_document_kind(good_std, good_val + good_val, good_ed)
+    assert any("defined 2 times" in x for x in p), "selftest: duplicate enum not flagged: %r" % p
+    # The enum having no definition at all must be caught.
+    p = check_document_kind(good_std, "nothing here", good_ed)
+    assert any("no WORKFLOW_KINDS definition" in x for x in p), "selftest: absent enum not flagged: %r" % p
+    # A widened enum must be caught — the set is closed.
+    p = check_document_kind(good_std, 'WORKFLOW_KINDS = {"documentation", "work-plan", "sketch"}\n',
+                            good_ed)
+    assert any("expected" in x and "sketch" in x for x in p), "selftest: widened enum not flagged: %r" % p
+    # IMPORT-ONLY must be caught: reads kind, never writes it.
+    p = check_document_kind(good_std, good_val, "kind: aefMetaEl?.getAttribute('kind') || null,\n")
+    assert any("does not WRITE" in x for x in p), "selftest: import-only not flagged: %r" % p
+    # And the eventDefEl decoy must NOT satisfy the read leg — this is the false green the
+    # aefMetaEl anchor exists to prevent, so it is asserted rather than assumed.
+    p = check_document_kind(good_std, good_val,
+                            "const kind = eventDefEl.getAttribute('kind') || '';\n"
+                            'wmAttrs.push(`kind="${escAttr(wm.kind)}"`);\n')
+    assert any("does not read" in x for x in p), "selftest: eventDefEl decoy satisfied the read leg: %r" % p
 
 
 def main():
@@ -119,8 +251,26 @@ def main():
                          "or bump the standard version if the contract changed.\n")
         return 1
 
+    # T-875: the document level. Reported separately from the node-level result because the two
+    # rest on different guarantees — the node level on a frozen fence in the standard, the
+    # document level on the standard having no such fence and the implementations agreeing
+    # directly. Collapsing them into one OK line would let a reader believe the standard covers
+    # `kind`, which it does not.
+    doc_problems = check_document_kind(
+        _read(STANDARD), _read(VALIDATOR), _read(EDITOR))
+    if doc_problems:
+        sys.stderr.write("DOCUMENT-LEVEL CONFORMANCE (T-875, aef:workflowMeta/@kind):\n")
+        for p in doc_problems:
+            sys.stderr.write("  - %s\n" % p)
+        return 1
+
     print("OK: all %d frozen governance meta-keys [%s] present in both editor metaKeys and bridge META_KEYS"
           % (len(frozen), ", ".join(frozen)))
+    print("OK: document-level aef:workflowMeta/@kind — closed enum %s defined once in %s, "
+          "read AND written by the editor. NOTE: the standard has NO document-level conformance "
+          "class (T-875 finding); this is enforced implementation-to-implementation, and a new "
+          "conformance fence in the standard will fail this check until it is wired in."
+          % (sorted(EXPECTED_KINDS), VALIDATOR))
     return 0
 
 
