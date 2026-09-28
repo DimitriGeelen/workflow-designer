@@ -22,3 +22,6 @@ PATH=/usr/local/bin:/usr/bin:/bin
 
 # Cron audit file retention (daily)
 0 9 * * * root cd "/opt/832-Workflow-designer" && python3 -c "import os,datetime; cutoff=str(datetime.date.today()-datetime.timedelta(days=7)); d='.context/audits/cron'; [os.remove(os.path.join(d,f)) for f in os.listdir(d) if f.endswith('.yaml') and len(f)>=15 and f[4]=='-' and f[:10]<cutoff]" 2>&1 | logger -t agentic-cron
+
+# Bridge-suite staleness and redness (daily)
+0 6 * * * root cd "/opt/832-Workflow-designer" && flock -n /var/lock/agentic-cron-bridge-suite-age-832.lock -c 'python3 tools/_t813-suite-age.py' 2>&1 | logger -t agentic-cron

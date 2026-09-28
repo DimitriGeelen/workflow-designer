@@ -58,3 +58,12 @@ jobs:
     origin_task: T-001
     status: active
     description: "Prunes cron audit files older than 7 days."
+
+  - id: bridge-suite-age-daily
+    name: "Bridge-suite staleness and redness (daily)"
+    schedule: "0 6 * * *"
+    command: "flock -n /var/lock/agentic-cron-bridge-suite-age-832.lock -c 'python3 tools/_t813-suite-age.py'"
+    source_file: agentic-audit.crontab
+    origin_task: T-917
+    status: active
+    description: "Reports how old the bridge suite's last run is and how long it has been red, from tests/.run-history.tsv. Exits 3 when there is NO history, which is the F-03 condition and is deliberately not reported as zero failures. Reads only; it does not run the suite. T-917 chose the MONITOR over the suite itself: the suite takes 650-1045s, spawns a browser per CDP probe, has been red for all 12 recorded runs, gets SIGTERMed near 600s, and has twice exited 0 while reporting 9 failures (OBS-430). Scheduling that would manufacture either a permanently-red rail or a false green; scheduling this surfaces the same fact in milliseconds, deterministically."

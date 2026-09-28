@@ -2608,3 +2608,19 @@ observations:
   tags: [verification]
   status: pending
   promoted_to: null
+- id: OBS-429
+  text: "The bridge suite's run history contains runs that EXITED 0 WHILE REPORTING FAILURES. Measured 2026-09-29 from tests/.run-history.tsv, which T-813 made append-only: two consecutive runs on 2026-09-27 (12:16:46 and 12:19:51) recorded '71 passed, 9 failed, exit 0'. The suite's last line is [ \"$fail\" -eq 0 ], which cannot return 0 with fail=9, so the script did not reach it. Both anomalous runs did ~80 legs in ~200s where a complete run does ~151 legs in 650-1045s, and the 12:19 run shares its commit (d43b09a0) with a 12:22 run that did 121/30 in 703s — SAME TREE, one-third the suite, opposite exit code. So the suite can terminate early, mid-way, and report SUCCESS. No arg handling, no filter, no 'exit 0' literal anywhere in the file; the mechanism is unidentified. WHY THIS MATTERS MORE THAN THE FAILURE COUNT: any caller gating on the exit code — which is what a scheduled job does — would have read those two runs as a clean pass over 9 failures and 71 of 151 legs. It is the false-green class in the suite that exists to prevent false greens. Also recorded from the same history, and separately actionable: the suite has been RED for all 12 recorded runs (7, 10, 9, 21, 9, 9, 30, 29, 14, 31, 32, 28 failures) since recording began 2026-09-22, and three runs died on SIGTERM (exit 143) at 600s, 558s and 687s, so something kills it around the 10-minute mark. Blocks T-917: scheduling a suite whose exit code does not track its failures institutionalises the false green rather than surfacing it."
+  captured: 2026-09-28T22:12:45Z
+  context_task: T-917
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-430
+  text: "The bridge suite run history contains runs that EXITED 0 WHILE REPORTING FAILURES. Measured 2026-09-29 from tests/.run-history.tsv: two consecutive runs on 2026-09-27 recorded 71 passed, 9 failed, exit 0. The suite's last line tests fail-equals-zero, which cannot return 0 with 9 failures, so the script did not reach it. Both anomalous runs did about 80 legs in about 200s where a complete run does about 151 legs in 650-1045s, and one shares its commit d43b09a0 with a run that did 121/30 in 703s. SAME TREE, one-third the suite, opposite exit code. So the suite can terminate early and report SUCCESS. No arg handling, no filter, no bare exit-zero anywhere in the file; the mechanism is unidentified. WHY THIS MATTERS MORE THAN THE FAILURE COUNT: any caller gating on the exit code, which is what a scheduled job does, would have read those runs as a clean pass over 9 failures and 71 of 151 legs. It is the false-green class, inside the suite that exists to prevent false greens. Separately actionable from the same history: the suite has been RED for all 12 recorded runs since recording began 2026-09-22, failure counts 7, 10, 9, 21, 9, 9, 30, 29, 14, 31, 32, 28; and three runs died on SIGTERM at 600s, 558s and 687s, so something kills it near the ten-minute mark. Blocks T-917: scheduling a suite whose exit code does not track its failures institutionalises the false green rather than surfacing it."
+  captured: 2026-09-28T22:12:55Z
+  context_task: T-917
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
