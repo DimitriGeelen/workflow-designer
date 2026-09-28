@@ -1,9 +1,8 @@
 ---
-id: T-920
-observation: OBS-309
-name: "Focus-drift gate (T-1730) matches the COMMAND TEXT, not the paths being acted on. 'git add .tasks/active/T-589-x.md' is blocked under focus T-588; 'git add -u .tasks' stages the identical file and is allowed. Same class as the week's other findings: the check inspects a proxy for the action rather than the action. Also a real catch-22 sits behind it — after 'fw task update --status work-completed', P-002 blocks ALL Bash while focus is the completed task, and focus-drift blocks committing that task's files from any other focus, so the state the completion command itself wrote cannot be committed by either route."
+id: T-921
+name: "Drift extraction: strip quoted payloads EXCEPT for shell-invoking forms, with the counter-examples T-920 measured"
 description: >
-  Promoted from observation OBS-309
+  T-920 proved the documented residual is live (a quoted payload containing a command shape trips the extractor) AND that the naive remedy the code names is unsafe here. Applying the existing quote-stripped view to _fw_extract_drift_target removes the false positive but also loses real executions inside shell payloads. The refined shape: strip quoted segments only when the outer command is not a shell-invoking form. Counter-examples and the measurement are in T-920.
 
 status: captured
 workflow_type: build
@@ -11,7 +10,7 @@ owner: agent
 horizon: now
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-920]
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
@@ -22,8 +21,8 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-28T13:27:55Z
-last_update: 2026-09-28T13:27:55Z
+created: 2026-09-28T21:32:53Z
+last_update: 2026-09-28T21:32:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -37,7 +36,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-920: Focus-drift gate (T-1730) matches the COMMAND TEXT, not the paths being acted on. 'git add .tasks/active/T-589-x.md' is blocked under focus T-588; 'git add -u .tasks' stages the identical file and is allowed. Same class as the week's other findings: the check inspects a proxy for the action rather than the action. Also a real catch-22 sits behind it — after 'fw task update --status work-completed', P-002 blocks ALL Bash while focus is the completed task, and focus-drift blocks committing that task's files from any other focus, so the state the completion command itself wrote cannot be committed by either route.
+# T-921: Drift extraction: strip quoted payloads EXCEPT for shell-invoking forms, with the counter-examples T-920 measured
 
 ## Context
 
@@ -301,7 +300,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-09-28T13:27:55Z — task-created [task-create-agent]
+### 2026-09-28T21:32:53Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-920-focus-drift-gate-t-1730-matches-the-comm.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-921-drift-extraction-strip-quoted-payloads-e.md
 - **Context:** Initial task creation
