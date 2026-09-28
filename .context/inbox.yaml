@@ -406,7 +406,11 @@ observations:
   context_task: T-436
   tags:
   - tooling
-  status: pending
+  status: resolved
+  resolved_carrier: "T-436"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-436, which is work-completed, and the thread lives in .context/episodic/T-436.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:36Z
   promoted_to: null
 - id: OBS-032
   text: add
@@ -445,7 +449,11 @@ observations:
   context_task: T-440
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-440"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-440, which is work-completed, and the thread lives in .context/episodic/T-440.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:36Z
   promoted_to: null
 - id: OBS-035
   text: add
@@ -481,7 +489,11 @@ observations:
   captured: 2026-08-12 19:45:35+00:00
   context_task: T-466
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-466"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-466, which is work-completed, and the thread lives in .context/episodic/T-466.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:36Z
   promoted_to: null
 - id: OBS-038
   text: 'Vendored Human-AC tick guard (.agentic-framework/agents/context/check-human-ac-tick.py, v1.6.354)
@@ -495,7 +507,11 @@ observations:
   context_task: T-476
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-476"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-476, which is work-completed, and the thread lives in .context/episodic/T-476.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:36Z
   promoted_to: null
 - id: OBS-039
   text: 'Frozen standard docs/standards/aef-bpmn-mapping-v1.md §1 lists aef:endpoint under the PRESENTATIONAL
@@ -513,7 +529,11 @@ observations:
   context_task: T-477
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-477"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-477, which is work-completed, and the thread lives in .context/episodic/T-477.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:36Z
   promoted_to: null
 - id: OBS-040
   text: 'T-361 corrected DI_TRAILER in src/ but did not correct the ALREADY-GENERATED corpus: 24 of 24
@@ -527,7 +547,11 @@ observations:
   context_task: T-478
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-478"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-478, which is work-completed, and the thread lives in .context/episodic/T-478.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:37Z
   promoted_to: null
 - id: OBS-041
   text: 'aef:endpoint is unguarded on the seam: tools/_roundtrip-serialization-cdp.mjs is our only true
@@ -555,7 +579,11 @@ observations:
   context_task: T-479
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-479"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-479, which is work-completed, and the thread lives in .context/episodic/T-479.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:37Z
   promoted_to: null
 - id: OBS-043
   text: 'P-011 verification gate silently REWRITES executable commands: update-task.sh:978-983 strips
@@ -573,7 +601,11 @@ observations:
   context_task: T-481
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-481"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-481, which is work-completed, and the thread lives in .context/episodic/T-481.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:37Z
   promoted_to: null
 - id: OBS-044
   text: add
@@ -597,7 +629,11 @@ observations:
   context_task: T-482
   tags:
   - verification
-  status: pending
+  status: resolved
+  resolved_carrier: "T-482"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-482, which is work-completed, and the thread lives in .context/episodic/T-482.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:37Z
   promoted_to: null
 - id: OBS-046
   text: 'Our editor SILENTLY DROPS all extension content it does not know, measured behaviourally across
@@ -614,7 +650,11 @@ observations:
   context_task: T-485
   tags:
   - seam
-  status: pending
+  status: resolved
+  resolved_carrier: "T-485"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-485, which is work-completed, and the thread lives in .context/episodic/T-485.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:37Z
   promoted_to: null
 - id: OBS-047
   text: 'fw inception decide does not validate that the target task is workflow_type: inception. Run against
@@ -626,7 +666,11 @@ observations:
   captured: 2026-08-13 08:20:40+00:00
   context_task: T-487
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-487"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-487, which is work-completed, and the thread lives in .context/episodic/T-487.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:38Z
   promoted_to: null
 - id: OBS-048
   text: 'The editor-seam semantic fixed point projects 34 keys but only 26 have ever been proven to detect
@@ -641,7 +685,11 @@ observations:
   context_task: T-488
   tags:
   - verification
-  status: pending
+  status: resolved
+  resolved_carrier: "T-488"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-488, which is work-completed, and the thread lives in .context/episodic/T-488.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:38Z
   promoted_to: null
 - id: OBS-049
   text: 'AEF''s OBS-NNN identifiers are NOT stable and must not be treated as durable citations on the
@@ -676,7 +724,11 @@ observations:
   context_task: T-487
   tags:
   - seam
-  status: pending
+  status: resolved
+  resolved_carrier: "T-487"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-487, which is work-completed, and the thread lives in .context/episodic/T-487.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:38Z
   promoted_to: null
 - id: OBS-240
   text: 'next_id() in .agentic-framework/agents/observe/observe.sh:36-43 greps ''OBS-[0-9]+'' over the
@@ -695,7 +747,11 @@ observations:
   context_task: T-487
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-487"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-487, which is work-completed, and the thread lives in .context/episodic/T-487.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:38Z
   promoted_to: null
 - id: OBS-241
   text: add
@@ -717,7 +773,11 @@ observations:
   captured: 2026-08-13 11:48:35+00:00
   context_task: T-490
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-490"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-490, which is work-completed, and the thread lives in .context/episodic/T-490.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:38Z
   promoted_to: null
 - id: OBS-243
   text: 'fw note swallows extra positional arguments silently. ''fw note add "real text"'' captured the
@@ -730,7 +790,11 @@ observations:
   captured: 2026-08-13 11:48:50+00:00
   context_task: T-490
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-490"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-490, which is work-completed, and the thread lives in .context/episodic/T-490.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:39Z
   promoted_to: null
 - id: OBS-244
   text: 'tools/_t258-annotation-seam-cdp.mjs regenerates the TRACKED artefact .playwright-mcp/t258-annotation-badges.png
@@ -749,7 +813,11 @@ observations:
   context_task: T-458
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-458"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-458, which is work-completed, and the thread lives in .context/episodic/T-458.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:39Z
   promoted_to: null
 - id: OBS-245
   text: 'fw git commit stamps last_update AFTER the commit it belongs in. agents/git/lib/commit.sh:113-118
@@ -762,7 +830,11 @@ observations:
   context_task: T-458
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-458"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-458, which is work-completed, and the thread lives in .context/episodic/T-458.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:39Z
   promoted_to: null
 - id: OBS-246
   text: 'A pending Tier 0 approval is deleted after 2 hours with no log, no notification and no record.
@@ -778,7 +850,11 @@ observations:
   context_task: T-504
   tags:
   - bug
-  status: pending
+  status: resolved
+  resolved_carrier: "T-504"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-504, which is work-completed, and the thread lives in .context/episodic/T-504.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:39Z
   promoted_to: null
 - id: OBS-247
   text: 'This project and the AEF project sign termlink envelopes with the SAME ed25519 key, so the sender
@@ -804,7 +880,11 @@ observations:
   tags:
   - bug
   - seam
-  status: pending
+  status: resolved
+  resolved_carrier: "T-507"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-507, which is work-completed, and the thread lives in .context/episodic/T-507.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:39Z
   promoted_to: null
 - id: OBS-248
   text: 'SHARED-PRINCIPAL IDENTITY COLLAPSE NOW HAS CONCRETE EVIDENCE, not just a fingerprint match. Checking
@@ -886,14 +966,22 @@ observations:
   captured: 2026-08-15T09:32:29Z
   context_task: T-514
   tags: [standards]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-514"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-514, which is work-completed, and the thread lives in .context/episodic/T-514.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:40Z
   promoted_to: null
 - id: OBS-253
   text: "The framework's own vendoring step silently destroys consumer-side state, and it is upstream of at least three of email-archive's open concerns. Evidence in our tree: T-276's post-vendor repair commit reads 'restore exec bits demoted by old do_vendor copy (5 files) + chmod secret-scan', and 8 of the 28 paths that diverge from our vendor baseline are mode-only (100644 vs 100755) with byte-identical content. A re-vendor demotes them again and no content diff can see it. Same mechanism dropped .secret-scan-patterns entirely, which is precisely the file email-archive keeps re-pinging about (rail 11889) — they observe mode 644 upstream and they are right; ours is 755 only because we chmod'd it by hand. The mode-only class is now guarded locally by tools/_t517-vendor-divergence.py, but that is OUR detection of THEIR defect: every other consumer is still blind, and the 16 local fixes this manifest declares are exactly what the next fw upgrade would erase. Reported to framework-agent at rail 11893 ask 2. Needs an upstream fix (vendoring manifest with modes, or an integrity check on fw doctor) — not something we can close from here."
   captured: 2026-08-15T10:16:34Z
   context_task: T-517
   tags: [framework]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-517"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-517, which is work-completed, and the thread lives in .context/episodic/T-517.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:31Z
   promoted_to: null
   urgent: true
 - id: OBS-254
@@ -901,14 +989,22 @@ observations:
   captured: 2026-08-15T11:00:34Z
   context_task: T-517
   tags: [framework]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-517"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-517, which is work-completed, and the thread lives in .context/episodic/T-517.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:40Z
   promoted_to: null
 - id: OBS-255
   text: "OBS-250 localised: the bridge suite's non-determinism is tools/_t358-teeth.py case 5, and the tell has been invisible by construction. Measured standalone, outside the suite: two consecutive runs with no input change gave rc=0 then rc=1. The flaky leg is 'defaultLanes() first lane no longer asserts sovereignty', whose subject is a CDP browser probe (_t358-lane-provenance-cdp.mjs). Failure mode is NOT 'the mutation went undetected' — it is 'went red, but not for the predicted reason (wanted sovereignty)'. So the reason-asserting form I strengthened these legs to (the PL-206 refinement captured yesterday: assert the control went red FOR THE NAMED REASON) is working exactly as intended and is what surfaced this; a bare rc-only assertion would have passed every time and hidden it. HYPOTHESIS, not measured: a CDP harness failure (launch race, port, timeout) kills the mutated run before it reaches the assertion, and a harness death is being reported as a mutation-detection failure. That is PL-205's class one level up — refusal is not distinguishable from a real red. DIAGNOSTIC GAP THAT MADE THIS EXPENSIVE: the leg prints 'not for the predicted reason (wanted X)' but never prints what the reason ACTUALLY was, so every past occurrence was uninvestigable from its own output. Remedy shape, for whoever takes it: give the probe a REFUSE exit distinct from a failing assertion, have the teeth abstain rather than FAIL on it, and print the observed reason alongside the wanted one. Cost of not fixing: the suite reports 86-88 passed at random, which trains readers to re-run until green — the reflex a ratchet exists to prevent. Found while running the suite for T-519; unrelated to that change (the flake is in the lane-provenance importer probe, T-519 touches only the vendored-framework manifest)."
   captured: 2026-08-15T11:51:28Z
   context_task: T-519
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-519"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-519, which is work-completed, and the thread lives in .context/episodic/T-519.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:40Z
   promoted_to: null
 - id: OBS-256
   text: "THE BRIDGE SUITE HAS NO SCHEDULED CALLER. 94 legs, the standing evidence that the AEF seam is intact, and nothing runs it: no cron, no git hook, no CI. Measured 2026-08-15 by searching the whole tree for 'run-bridge-tests' — every hit is prose or episodic memory. Subtract an agent choosing to type the command and it does not execute. Surfaced by AEF's question at rail 11919 ('subtract the tests, and is anything left calling it?'), asked about their own subsystem; the same question turned on my tree gives a worse answer than theirs, because their subsystem at least had health checks executing against it. THIS COMPOUNDS WITH TWO PROPERTIES ALREADY RECORDED AND NOT ACTED ON. (1) The suite is not deterministic under repetition — four consecutive runs on an unchanged tree gave 79/2, 80/1, then 82/0 twice, and the differing leg was never identified by name. (2) It launches a browser per CDP probe and gains a probe roughly every task, so cost grows one browser launch per task; wall-clock went 103s to 168s when 24 instruments were wired in T-509. Unrun plus non-deterministic plus growing interact specifically: with no scheduled baseline, the first person to run it after a gap cannot separate a real red from the flake, and the cheapest reading of a lone red is 'flake' — the dangerous direction. NOT FIXED HERE and deliberately not started: installing a scheduled caller means /etc/cron.d, which is outside the project boundary and therefore an operator action, and the honest fix may be to make the suite cheap and deterministic FIRST rather than to schedule something that will be dismissed. Needs an operator decision on which comes first. — CORRECTED 2026-08-15 by T-526, and the correction matters more than the original. (a) THIS OBSERVATION WAS FACTUALLY WRONG when filed: the claim that the differing leg 'was never identified by name' was true of OBS-250 (08:59Z) but had ceased to be true at 11:51Z, when OBS-255 localised the flake to _t358-teeth.py case 5 — seven hours before this entry asserted the question was still open. The same false claim was carried to AEF at rail 11924 and corrected to them at rail 11929. The cause is structural, not careless: this inbox has no cross-referencing, so nothing links entries on the same subject and nothing flags a new entry that reopens a resolved one; both read as 'pending' and the contradiction is invisible, with OBS-250 and OBS-255 four entries apart in the same file. (b) The 168s cost figure is STALE BY ROUGHLY 2x: measured 305-315s, mean 309s, across five runs. (c) Measured determinism is worse than 'a flake': 2 of 5 runs red on TWO DIFFERENT legs, neither reproducing, red rate 40% and per-leg reproducibility zero. (d) The blocking sub-defect is now named — 66 report FAIL calls against 4 show_output calls, so 62 legs discard the evidence of their own failure, and 6 of the 10 CDP legs (all of them AEF-seam conformance probes) redirect to /dev/null. Both failures in the measurement were uninvestigable from their own output. Whether the non-determinism is instrument-side or subject-side CANNOT be answered until that is fixed, which is why it is the prerequisite rather than the flake itself."
@@ -935,7 +1031,11 @@ observations:
   captured: 2026-08-15T20:41:53Z
   context_task: T-529
   tags: [governance]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-529"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-529, which is work-completed, and the thread lives in .context/episodic/T-529.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:40Z
   promoted_to: null
 
 - id: OBS-259
@@ -943,7 +1043,11 @@ observations:
   captured: 2026-08-15T21:05:00Z
   context_task: T-527
   tags: [testing]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-527"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-527, which is work-completed, and the thread lives in .context/episodic/T-527.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:31Z
   promoted_to: null
   urgent: true
 - id: OBS-260
@@ -951,7 +1055,11 @@ observations:
   captured: 2026-08-16T08:51:51Z
   context_task: T-535
   tags: [audit]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-535"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-535, which is work-completed, and the thread lives in .context/episodic/T-535.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:40Z
   promoted_to: null
 - id: OBS-261
   text: "termlink_agent_chat_arc_recent reports ok:true / exit_code:0 / total_posts:5 over a source that does not contain the agent-chat-arc topic — three independent causes measured under T-537 (default filter_msg_type='chat' excludes every 'note' post; 30s default timeout insufficient for this 4-hub fleet; and the hub-merge path does not read the topic channel_post writes to, proven by an absent post strictly NEWER than every returned row). Consequence already paid: two substantive replies to AEF went unread and they re-asked three answered questions. Operator decision needed: carry upstream to the termlink owner, or record that both projects standardise on channel_* with an explicit topic and treat chat_arc_recent as unusable for this rail."
@@ -973,21 +1081,33 @@ observations:
   captured: 2026-08-16T15:51:00Z
   context_task: T-543
   tags: [security]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-543"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-543, which is work-completed, and the thread lives in .context/episodic/T-543.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:40Z
   promoted_to: null
 - id: OBS-264
   text: "_t523-nesting-teeth.py legs 7-8 failed once with drift_keys=[] measured node={} at rc=1 and have never reproduced: 0 in 33 recorded observations (30 standalone arm-A runs plus 3 full-suite runs), a 95% upper bound of roughly 9% per run by the rule of three, which cannot distinguish a fixed probe from one failing 1 run in 20. NOT explained by T-543's timeout mechanism — that accounts for _t509 only (rc=124 against a 90s cap); _t523 exits 1 in 7.25s against a 600s ceiling, three orders of magnitude of headroom. The failure mode matters more than the rate: an empty measured node is the arm seeing NOTHING rather than seeing the wrong thing, which is precisely the distinction the arm exists to make, so on any run where it happens the arm certifies on nothing while reporting green. AEF depends on this arm for three published maps (T-528). Registered as a standing risk rather than a task because there is no actionable step until it recurs; if it does, the record and the bound are here."
   captured: 2026-08-16T18:00:48Z
   context_task: T-543
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-543"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-543, which is work-completed, and the thread lives in .context/episodic/T-543.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:41Z
   promoted_to: null
 - id: OBS-265
   text: "SECOND instrument in the standalone-green / sweep-red class: _t366-uid-shape-teeth.py exited 2 (abstained) inside the full _t509 sweep run of 2026-08-16, and exits 0 on three consecutive standalone runs immediately afterwards - including one run reproducing the sweep's exact invocation (timeout 90 python3 tools/... with stdout and stderr discarded). Not caused by T-549: the sweep runs its population sorted, so _t366 executes BEFORE _t509, _t525 and _t549, and none of the files that task touched can have run first. The first instance is the _t523 empty-measured-node failure already registered, whose rate T-543 bounded at roughly 9 percent per run and left explicitly unexplained. Two distinct instruments now show the same shape - green alone, not green in company - which makes it a property of running the suite rather than a property of either probe, and the escalation ladder says a class hit twice is tooling not technique. What makes it matter rather than merely annoy: both failures render as an ABSTENTION or an empty node, so the arm certifies nothing while the run still reports no regression, and the sweep's exit 3 correctly refuses to call that a green. Worth a task that reproduces under the suite rather than against either probe: candidate mechanisms are cross-probe interference through shared on-disk state, git index or lock contention, and resource pressure late in a 182s sequential run."
   captured: 2026-08-16T18:49:00Z
   context_task: T-549
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-549"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-549, which is work-completed, and the thread lives in .context/episodic/T-549.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:32Z
   promoted_to: null
   urgent: true
 - id: OBS-266
@@ -995,7 +1115,11 @@ observations:
   captured: 2026-08-16T19:00:49Z
   context_task: T-549
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-549"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-549, which is work-completed, and the thread lives in .context/episodic/T-549.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:41Z
   promoted_to: null
 - id: OBS-267
   text: "Completing a task BEFORE committing its work makes the commit unreachable without a Tier 2 bypass, and the gate says so itself: 'NOT AVAILABLE - T-549 is completed, and fw context focus accepts active tasks only (T-381) ... This is the normal path for a follow-up commit on a task that has already closed.' Sequence that produces it, hit twice today: run fw task update --status work-completed, which moves the file to completed/ and clears focus; then discover the deliverable is still uncommitted; then find that no non-bypass path exists to commit it under its own task id, because focus cannot be set to a completed task and any other focus trips the focus-drift gate on the commit message. Reopening with --status started-work is blocked too - the no-active-task hook refuses every Bash call including the fw command that would reopen it, so the state is self-locking. Consequences are two and both were observed today rather than reasoned about: the earlier instance is why T-543's completion metadata sat uncommitted on master while its content was committed, and an agent operating under a no-bypass instruction simply cannot land its own finished work. Candidate remedies, none chosen here because this is a framework-behaviour change and not mine to make: let fw context focus accept a task completed within the current session; or have the completion step refuse when the task's own files are dirty, which turns a self-locking end state into an ordinary pre-flight error; or exempt a commit whose staged paths are exactly the completed task's own files. The middle one is the cheapest and fails in the safe direction."
@@ -1009,7 +1133,11 @@ observations:
   captured: 2026-08-16T19:31:45Z
   context_task: T-550
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-550"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-550, which is work-completed, and the thread lives in .context/episodic/T-550.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:41Z
   promoted_to: null
 - id: OBS-269
   text: "_t523-nesting-teeth.py REPRODUCED under the full bridge suite at 2026-08-16 ~19:45 with rc=1, and passed 9/9 standalone in 7.32s immediately afterwards. This is the first direct reproduction since T-543 bounded the rate, and it changes that table's numerator from 0 to at least 1. T-543 recorded 0 reproductions in 33 observations with a rule-of-three 95 percent upper bound near 9 percent per run, and stated in the same breath that the bound could not distinguish a fixed probe from one failing about 1 run in 20, and that run 2's five failures were logged as a count rather than a list so the true figure might already be 1 in 34. That caveat is now the better reading of the evidence. It also settles the question T-543 left open: _t523 is NOT fixed, and its green standalone runs were never evidence that it was. Three instruments now show the identical signature of green alone and not green in company - _t523, _t366-uid-shape-teeth.py, and leg 2 of _t344-watch-set-denominator.sh - which is a property of running the suite rather than of any one probe. THE DIAGNOSTIC GAP IS NOW THE BINDING CONSTRAINT AND IT IS CHEAP TO CLOSE. The sweep runs each probe as 'timeout N runner tools/X > /dev/null 2>&1', so on every reproduction the only surviving evidence is an integer. I have now watched this class fail three times and hold zero bytes of output from any of them, while the same probes print nine named legs when run by hand. Capturing each probe's stdout and stderr to a per-probe file and printing it for any non-zero rc would have turned tonight's rc=1 into a named failing leg, and costs a redirect and a few lines. Recommended as the next instrument-reliability task, ahead of any attempt to fix the flakiness itself, because right now a fix could not be distinguished from the roughly 90 percent of runs that pass anyway."
@@ -1024,7 +1152,11 @@ observations:
   captured: 2026-08-16T20:36:13Z
   context_task: T-551
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-551"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-551, which is work-completed, and the thread lives in .context/episodic/T-551.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:32Z
   promoted_to: null
   urgent: true
 - id: OBS-271
@@ -1032,14 +1164,22 @@ observations:
   captured: 2026-08-16T20:36:24Z
   context_task: T-551
   tags: [process]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-551"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-551, which is work-completed, and the thread lives in .context/episodic/T-551.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:41Z
   promoted_to: null
 - id: OBS-272
   text: "An instrument gave two different readings of the SAME tree four days apart, and the tree cannot explain the difference. tools/bake-clean-layout.py --check reported all 24 maps at moved=0 on 2026-08-13 (recorded in T-448's diagnosis and in a code comment); today it reports audit-process at moved=5 and error-escalation-ladder at moved=9, deterministically across seven consecutive runs. examples/ has no commits since before T-448 was filed, the driver tools/_clean-layout-cdp.mjs has not changed since T-300, and a git worktree checked out at c6b02d7c - the very commit whose message records the 24/24 moved=0 reading - reproduces today's answer, not its own. So the five src commits that landed since are ruled out as the cause. Two explanations remain and I cannot separate them: the 2026-08-13 reading was simply wrong and unnoticed, or the metric depends on something outside the repository. The second is not far-fetched - moved is computed by running the real editor headless in Chrome via CDP, so viewport, font metrics, device pixel ratio and browser version are all inputs that no commit records, and the earlier reading came from a different session on a machine that has since had other work on it. The filing of 2026-08-12 said 22 of 24 at moved=0, which agrees with today and disagrees with the middle reading, so the outlier is the one in the middle and it is mine. WHY THIS MATTERS BEYOND THE ONE NUMBER: the same headless driver produces the BYTES that a re-bake would commit to the corpus, so if its output is environment-dependent then the corpus is too, and two operators baking on two machines would produce two different corpora while both gates report a fixpoint. Not established, and deliberately not asserted - what is established is that a metric this gate reported for four days changed with nothing in the repo changing. Cheap next step before anyone wires this gate or runs the re-bake: capture the driver's browser version, viewport and DPR alongside its results, so the next disagreement is diagnosable rather than a second mystery. Related but distinct from T-448's fixed defect, which was the VERDICT reading that counter; this observation is about the counter itself."
   captured: 2026-08-16T22:33:41Z
   context_task: T-448
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-448"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-448, which is work-completed, and the thread lives in .context/episodic/T-448.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:32Z
   promoted_to: null
   urgent: true
 - id: OBS-273
@@ -1047,7 +1187,11 @@ observations:
   captured: 2026-08-16T22:36:36Z
   context_task: T-448
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-448"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-448, which is work-completed, and the thread lives in .context/episodic/T-448.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:32Z
   promoted_to: null
   urgent: true
 - id: OBS-274
@@ -1063,7 +1207,11 @@ observations:
   captured: 2026-08-17T07:35:40Z
   context_task: T-556
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:32Z
   promoted_to: null
   urgent: true
 - id: OBS-276
@@ -1071,21 +1219,33 @@ observations:
   captured: 2026-08-17T07:35:46Z
   context_task: T-556
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:41Z
   promoted_to: null
 - id: OBS-277
   text: "termlink_agent_recent documents a metadata field it does not return. Docstring promises (offset, ts, sender_id, msg_type, payload_b64, metadata, signature); the actual record is (artifact_ref, msg_type, offset, payload_b64, sender_id, topic, ts) — no metadata, no signature. Measured 2026-08-17. Consequence: the two readers on this topic are exact complements — recent has payload without metadata, envelope has metadata without payload — so neither alone can answer 'who said what', and a caller trusting the docstring concludes attribution is unreadable. I drew exactly that wrong conclusion before checking the other reader."
   captured: 2026-08-17T07:35:52Z
   context_task: T-556
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:42Z
   promoted_to: null
 - id: OBS-278
   text: "The termlink fleet hub census is unstable and reports ok:true regardless of how much of the fleet it failed to reach. Measured 2026-08-17: across five consecutive termlink_agent_chat_arc_recent calls hubs_failed was 1, 2, 1, 3, 2 — laptop-141 never reachable ('network'), both ring20-* hubs intermittently timing out. Every call returned ok:true. A 'who is here' or 'has anyone replied' answer computed while a hub is unreachable is rendered identically to one computed over the whole fleet; the shortfall appears only as a summary field a caller must know to read. Default timeout_secs=30 is also insufficient: two calls failed outright, timeout_secs=110 succeeded."
   captured: 2026-08-17T07:36:00Z
   context_task: T-556
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:32Z
   promoted_to: null
   urgent: true
 - id: OBS-279
@@ -1093,7 +1253,11 @@ observations:
   captured: 2026-08-17T07:58:11Z
   context_task: T-556
   tags: [integration]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:33Z
   promoted_to: null
   urgent: true
 - id: OBS-280
@@ -1101,7 +1265,11 @@ observations:
   captured: 2026-08-17T08:04:37Z
   context_task: T-556
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:33Z
   promoted_to: null
   urgent: true
 - id: OBS-281
@@ -1109,14 +1277,22 @@ observations:
   captured: 2026-08-17T08:04:45Z
   context_task: T-556
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:42Z
   promoted_to: null
 - id: OBS-282
   text: "Injected prose into a peer PTY without first checking what was attached to it, and it was a root bash prompt rather than an agent. Measured 2026-08-17: all seven 'live AEF sessions' are FINISHED dispatch workers (/tmp/tl-dispatch/<name>/run.sh, 'Worker <name> finished (exit: 0)') sitting at idle root shells in /opt/999-Agentic-Engineering-Framework. termlink state:ready plus a recent heartbeat means the SESSION is registered and alive — it does not mean work is in progress or that an agent is attending. capabilities were data_plane+stream with roles:[] and no agent.listen handler, which was already visible and which I read as 'no typed-request path' rather than as 'nothing is listening at all'. The message was executed as a shell command and rejected with 'bash: syntax error near unexpected token' — harmless only because bash hit an open paren early. Free prose in a root shell is a command-execution risk: backticks, dollar-paren, semicolons or redirects in the text would have run. termlink_output costs one call and would have answered this BEFORE the injection instead of after. Corollary: there is currently no agent-to-agent delivery path to AEF on this mesh — its attended sessions are not registered with termlink, only its dispatched workers are."
   captured: 2026-08-17T09:55:18Z
   context_task: T-556
   tags: [process]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:33Z
   promoted_to: null
   urgent: true
 - id: OBS-283
@@ -1124,14 +1300,22 @@ observations:
   captured: 2026-08-17T11:54:42Z
   context_task: T-556
   tags: [integration]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:42Z
   promoted_to: null
 - id: OBS-284
   text: "I re-derived by expensive measurement what our own repo already documented, then violated the same document. docs/aef-designer-integration-protocol.md sections 'Cross-agent coordination channel' and 'Discovery caveat' already state (a) that all local sessions share one identity fingerprint so dms/search may return empty even when posts exist — which is OBS-274, recorded weeks before I measured it — and (b) that PTY inject is the KNOWN-LOSSY path, explicitly 'not a delivery mechanism', with a recorded 2026-07-10 incident where AEF's IW-1 question was lost exactly that way. I spent two sessions measuring (a) and then did (b). Consequences for what I reported: 'AEF has never replied' is WRONG — task records cite a two-way rail at offsets 27, 34, 61, 78, 82-83, 88/89, 139, 149 and 166, including AEF independently re-verifying our S4a UI end-to-end and reporting back. My census was of agent-chat-arc, whose oldest envelope is 2026-08-16T14:17 with retention 1000 and only 41 messages, so that topic is about a day old and is NOT where the relationship lives; 'across the whole history of the rail' was the whole history of a one-day-old topic. The durable path per our own protocol is file_send for artifacts plus a threaded post carrying thread=T-XXX, retrieved BY THREAD ID rather than by sender. Rule that follows: read the project's own integration docs BEFORE instrumenting a question about that integration."
   captured: 2026-08-17T12:03:04Z
   context_task: T-556
   tags: [process]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:33Z
   promoted_to: null
   urgent: true
 - id: OBS-285
@@ -1146,21 +1330,33 @@ observations:
   captured: 2026-08-17T12:40:46Z
   context_task: T-556
   tags: [observation]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:42Z
   promoted_to: null
 - id: OBS-287
   text: "fw note swallows an unrecognised first argument as the observation TEXT and reports success. 'fw note add \"<900 chars>\"' printed 'OBS-285 captured: add' - the subcommand word became the whole observation and the real payload was discarded silently. No error, no warning, exit 0. The verb has real subcommands (list, count, triage, promote, dismiss) so 'add' is a plausible guess, and every other fw verb in this framework IS subcommand-shaped (fw task create, fw context add-learning, fw bvp driver --add), which makes the bare-text form the exception rather than the rule. Cost: a junk inbox entry that had to be dismissed, and - had I not read the output - a finding I believed was filed and was not. This is the week's shape in the observation capture path itself: a tool reporting success while doing nothing with the thing it was given, where the failure renders as a normal captured-confirmation line. Fix candidates, in increasing cost: reject a first argument matching a known-subcommand-shaped word (no spaces, under ~12 chars) with 'did you mean fw note \"text\"?'; or warn when the captured text is shorter than a threshold; or accept 'add' as an alias. Sibling of OBS-275 (filter_sender ok:true over a broken filter) and of AEF's own L-602."
   captured: 2026-08-17T12:40:57Z
   context_task: T-556
   tags: [tooling]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:43Z
   promoted_to: null
 - id: OBS-288
   text: "RE-FILING OBS-274, WHICH WAS NEVER RECORDED. The inbox row OBS-274 contains the literal text 'add' - captured 2026-08-17T05:48:39Z, status pending, urgent true. The payload was discarded by the same 'fw note add' misfire as OBS-285 (see OBS-287). Every citation of OBS-274 since - in T-556's Context, in three commit messages, in the handovers, and in what I reported to the operator - has pointed at a row containing one word. THE CONTENT, restated: the rail sender fingerprint is HOST-WIDE. termlink identity lives in /root/.termlink and every project on this machine signs with d1993c2c3ec44c94, so termlink_agent_chat_arc_recent - which resolves sender as metadata.agent_id then metadata._from then sender_id, and surfaces none of metadata.from_project - collapses every host-local project into one indistinguishable sender. 'Has AEF replied' is therefore unanswerable by sender and must be keyed on metadata.from_project, enumerated by offset. Amendments since: from_project is SELF-ASSERTED metadata, attributable but NOT authenticated (OBS-286), so even the corrected method answers 'who claims to have posted'; and reading BY THREAD is unsound too, because a peer's reply is filed under the REPLIER's focus task (PL-254). The write path was always correct - _t420's gate requires from_project on our posts. THE COMPOUNDING IS THE POINT: a finding about tools that report success while doing nothing was itself lost to a tool reporting success while doing nothing, and it then sat PENDING and URGENT for nine hours, rendering in every audit and handover as one of three urgent observations awaiting triage. The count was right, the row was empty. That is this week's shape twice over, in the register that exists to catch it."
   captured: 2026-08-17T14:08:07Z
   context_task: T-556
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:33Z
   promoted_to: null
   urgent: true
 - id: OBS-289
@@ -1168,14 +1364,22 @@ observations:
   captured: 2026-08-17T14:09:30Z
   context_task: T-556
   tags: [tooling]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-556"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-556, which is work-completed, and the thread lives in .context/episodic/T-556.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:43Z
   promoted_to: null
 - id: OBS-290
   text: "fw note capture returns 1 on success when no task context resolves. observe.sh do_capture ended with '[ -n \"$task\" ] && echo -e \"  context: $task\"' as its LAST statement, so an empty $task made the function return 1 - and under set -euo pipefail the script exited 1 with the observation row already written. A successful capture reporting failure, the exact mirror of OBS-287 (a failed capture reporting success). Invisible in this project because focus.yaml is essentially always set, so $task was never empty here; surfaced only by running the capture path against an isolated PROJECT_ROOT while building T-557's test, where the test's own leg 4 went red on a capture that had in fact worked. Fixed in the same commit as T-557's guard because the test cannot assert anything about exit codes while one of them lies, and the fix is one if-block plus an explicit return 0. Filed separately because the root cause is different: T-557's bug loses the payload, this one loses the truth of the verdict. Worth a population sweep - the trailing-'[ test ] && echo' idiom as the last statement of a function is a general shape and this tree has many shell functions."
   captured: 2026-08-17T14:19:05Z
   context_task: T-557
   tags: [tooling]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-557"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-557, which is work-completed, and the thread lives in .context/episodic/T-557.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:43Z
   promoted_to: null
 - id: OBS-291
   text: "A [REVIEW] AC can point at a proposal document that has stopped tracking the task, and nothing detects it. T-189's Human AC step 1 tells the operator to read docs/reports/T-189-iw9-authority-collapse-delta.md. That file was last edited 2026-07-12 (11e2826a). Four further v1.1 items were recorded in the TASK on 2026-08-02 and after, and none is in the document - including two that bear on the delta's own sections: our AUTHORITY_OWNER maps authority to agent while AEF's T-2717 maps it to no owner (a live peer disagreement on the exact axis IW-9 collapses, which the proposal states as settled), and authority: none has no collapse map while examples/aef-processes/context-memory.workflow.yaml lanes by MEMORY TYPE giving 7 task nodes with no derivable owner - a shipped counter-example to the proposal's premise that Lane means who-performs by construction. So a sign-off would have ruled on the July proposal while believing it ruled on the current one. The Agent ACs are all ticked and all were TRUE WHEN WRITTEN - AC2 says the proposal specifies exact before-to-after changes, and it did, on 2026-07-12. PL-142 instance at the seam between a task and its own referenced artifact. THE STRUCTURAL GAP: nothing checks that a document referenced by a [REVIEW] AC is not older than the task content it is supposed to represent. Cheap detector shape - for every task with an unchecked [REVIEW] AC whose Steps name a repo path, compare that path's last-commit date against the task file's, and warn when the task is newer by more than N days. Would have fired on T-189 five weeks ago. Fixed in place for T-189 with a currency section; the population-wide check is unbuilt and is a sibling of T-555."
@@ -1189,7 +1393,11 @@ observations:
   captured: 2026-08-19T23:46:37Z
   context_task: T-558
   tags: [tooling]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-558"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-558, which is work-completed, and the thread lives in .context/episodic/T-558.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:34Z
   promoted_to: null
   urgent: true
 - id: OBS-293
@@ -1197,14 +1405,22 @@ observations:
   captured: 2026-08-20T00:15:12Z
   context_task: T-558
   tags: [tooling]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-558"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-558, which is work-completed, and the thread lives in .context/episodic/T-558.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:43Z
   promoted_to: null
 - id: OBS-294
   text: "A DECISION GATE CAN BE FED TWO ARTIFACTS THAT DISAGREE ON THE DECISION, AND NOTHING COMPARES THEM. T-501 carried Recommendation: DEFER in the task and Recommendation: GO in docs/reports/T-501-map-id-remediation-proposal.md, both written 2026-08-14, neither citing the other. The Human AC sends the operator to 'fw task review T-501', which renders the TASK's field, while the report sits open beside it saying the opposite — so which answer the operator approved would have depended on which pane they read. Sibling of OBS-291 (stale document behind an unchecked [REVIEW] AC) but a distinct and cheaper check: OBS-291 compares DATES, this compares the DECISION FIELD ITSELF. DETECTOR SHAPE: for each active task with an unchecked decision-bearing AC, if docs/reports/T-<id>-*.md exists and contains a line matching '^\\*\\*Recommendation:', compare its verdict token (GO|NO-GO|DEFER) against the task's ## Recommendation verdict token and warn on disagreement. Decidable from two greps, no dates, no judgement. It would have fired on T-501 for six days. Not built here; T-501 is an inception and building a completion-gate check is its own task."
   captured: 2026-08-20T00:52:30Z
   context_task: T-501
   tags: [governance]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-501"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-501, which is work-completed, and the thread lives in .context/episodic/T-501.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:34Z
   promoted_to: null
   urgent: true
 - id: OBS-295
@@ -1212,21 +1428,33 @@ observations:
   captured: 2026-08-20T00:52:47Z
   context_task: T-501
   tags: [design]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-501"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-501, which is work-completed, and the thread lives in .context/episodic/T-501.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:44Z
   promoted_to: null
 - id: OBS-296
   text: "OBS-294'S DETECTOR WAS MEASURED BEFORE BEING BUILT, AND THE MEASUREMENT CHANGED THE ANSWER TWICE. Ran the proposed task-vs-report verdict comparison across all active tasks. TEN active tasks have a docs/reports/T-<id>-*.md companion. FIRST RUN: 0 disagreements — and it reported 'report states no verdict' for T-501, the file whose GO started this. The task writes '**Recommendation:** GO' and the report writes '**Recommendation: GO**' with the colon INSIDE the bold; my pattern required the first form. A detector blind to one of the two spellings its own motivating case uses, reporting CLEAN. Fifth instance of the week's shape this session and the first one inside an instrument I had written ten minutes earlier to detect that shape. SECOND RUN, pattern widened to '\\*{0,2}Recommendation\\b[:\\*\\s]*': T-501 now resolves report=GO task=GO (aligned, because I repaired it today), and the real coverage becomes visible — NINE OF TEN companion reports contain NO recommendation line at all. They are analyses, not proposals, so the comparison abstains on 90 percent of the population it can see. THE DETECTOR IS STILL WORTH BUILDING BUT THE CASE IS THINNER THAN OBS-294 STATES: one instance, caught after six days, over a population where nine of ten cases are unjudgeable. Whoever builds it must (a) accept both spellings and assert BOTH in a fixture, (b) count and REPORT abstentions rather than folding them into a clean verdict — a 9/10 abstention rate rendered as '0 disagreements' is the same failure as OBS-293's abstain-counted-as-pass, and (c) not treat a missing verdict as agreement. Recorded here rather than by editing OBS-294, which is evidence of what was believed at filing time."
   captured: 2026-08-20T01:12:34Z
   context_task: T-501
   tags: [governance]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-501"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-501, which is work-completed, and the thread lives in .context/episodic/T-501.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:44Z
   promoted_to: null
 - id: OBS-297
   text: "SECOND QUOTING FAILURE IN ONE SESSION, SAME SHAPE, DIFFERENT MECHANISM — VERIFICATION LEGS WRITTEN INTO TASK FILES ARE eval'd AND SILENTLY MIS-MATCH. T-501 leg 2 used '\\[' in a BRE grep, which matched nothing while the count it guards is 3; T-301 leg 4 used a double-quoted pattern containing ${encodeURIComponent(id)}, which the shell expanded to empty before grep ever saw it. Both were caught only because I RAN the extracted legs through the same 'if ( eval \"$cmd\" )' loop update-task.sh:1018 uses, rather than trusting that a grep I had run interactively would survive being pasted into a task file. THE FAILURE DIRECTION MATTERS AND DIFFERS BY LEG SHAPE: a bare 'grep -q PATTERN file' that mis-quotes goes RED (loud, caught immediately, as both of these did). But 'test N -eq \"$(grep -c ...)\"' with a mis-quoted pattern returns 0 and the test compares against zero — and a leg asserting 'test 0 -eq' would then PASS on a broken pattern. So the same defect is loud for existence legs and SILENT for count legs, and count legs are exactly where it is tempting to write a complex pattern. DETECTOR SHAPE, decidable and cheap: for every ## Verification line containing grep, if the pattern is double-quoted AND contains an unescaped $ or a backslash-bracket, warn — those are the two forms that change meaning between an interactive shell and eval. Would have fired on both legs today. NOT BUILT; it is a completion-gate change and its own task. Sibling of OBS-292 (task Verification blocks that name a suite without running it): both are about the gap between what a Verification line SAYS it checks and what it EXECUTES."
   captured: 2026-08-20T01:17:17Z
   context_task: T-301
   tags: [tooling]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-301"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-301, which is work-completed, and the thread lives in .context/episodic/T-301.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:34Z
   promoted_to: null
   urgent: true
 - id: OBS-298
@@ -1234,7 +1462,11 @@ observations:
   captured: 2026-08-20T06:53:27Z
   context_task: T-501
   tags: [finding]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-501"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-501, which is work-completed, and the thread lives in .context/episodic/T-501.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:34Z
   promoted_to: null
   urgent: true
 - id: OBS-299
@@ -1242,7 +1474,11 @@ observations:
   captured: 2026-08-20T06:54:41Z
   context_task: T-301
   tags: [framework-defect]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-301"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-301, which is work-completed, and the thread lives in .context/episodic/T-301.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:34Z
   promoted_to: null
   urgent: true
 - id: OBS-300
@@ -1250,7 +1486,11 @@ observations:
   captured: 2026-08-20T06:59:11Z
   context_task: T-560
   tags: [framework-defect]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-560"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-560, which is work-completed, and the thread lives in .context/episodic/T-560.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:35Z
   promoted_to: null
   urgent: true
 - id: OBS-301
@@ -1258,7 +1498,11 @@ observations:
   captured: 2026-08-20T07:12:21Z
   context_task: T-560
   tags: [framework-defect]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-560"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-560, which is work-completed, and the thread lives in .context/episodic/T-560.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:35Z
   promoted_to: null
   urgent: true
 - id: OBS-302
@@ -1266,7 +1510,11 @@ observations:
   captured: 2026-08-20T08:07:02Z
   context_task: T-499
   tags: [framework-defect]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-499"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-499, which is work-completed, and the thread lives in .context/episodic/T-499.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:35Z
   promoted_to: null
   urgent: true
 - id: OBS-303
@@ -1274,7 +1522,11 @@ observations:
   captured: 2026-08-20T09:58:32Z
   context_task: T-562
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-562"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-562, which is work-completed, and the thread lives in .context/episodic/T-562.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:35Z
   promoted_to: null
   urgent: true
 - id: OBS-304
@@ -1282,14 +1534,22 @@ observations:
   captured: 2026-08-20T12:54:19Z
   context_task: T-567
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-567"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-567, which is work-completed, and the thread lives in .context/episodic/T-567.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:44Z
   promoted_to: null
 - id: OBS-305
   text: "web/shared.py:650 _auto_link_files gates on (PROJECT_ROOT / path).exists(), and in a CONSUMER project PROJECT_ROOT is the .agentic-framework/ directory, not the project root. So every artefact path a consumer project writes — docs/reports/*, docs/standards/*, .tasks/* — resolves against the wrong root, fails the existence gate, and is silently left as plain text on every Markdown surface in Watchtower (/review, /tasks, /approvals, /inception, and now /fabric via T-569). MEASURED: render_markdown_safe('Bare: docs/standards/aef-bpmn-mapping-v1.md and ref T-568 here') returns the T-568 ref as an anchor and the EXISTING docs/standards path as plain text, from this project where that file is present at the real root. Same class the audit already watches as 'No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)' but INVERTED — a project-owned asset resolved against the framework root rather than the reverse — which is why the existing check does not catch it. fabric.py:18-21 already carries the compensating idiom (if basename(PROJECT_ROOT)=='.agentic-framework': use dirname) and is the model for the fix; T-1722's docstring says 'existence-gated' which reads as deliberate, so nothing about the line looks wrong in review. This is ALSO the deeper form of 001-CashWeb's second finding (agent-chat-arc T-064): they reported that a consumer project has no nav seam and asked for markdown rendering of the card purpose; even with T-569 shipped, bare artefact paths from a consumer project still will not link. CORRECTION OWED — I told them on-thread that docs/reports/* in a purpose would become clickable with no markdown syntax; that is true in AEF's own tree and false in theirs and ours. Explicit markdown link syntax DOES work, which is the workaround until this is fixed."
   captured: 2026-08-20T13:25:14Z
   context_task: T-569
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-569"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-569, which is work-completed, and the thread lives in .context/episodic/T-569.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:35Z
   promoted_to: null
   urgent: true
 - id: OBS-306
@@ -1304,14 +1564,22 @@ observations:
   captured: 2026-08-24T19:32:18Z
   context_task: T-581
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-581"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-581, which is work-completed, and the thread lives in .context/episodic/T-581.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:44Z
   promoted_to: null
 - id: OBS-308
   text: "fw gaps renders ONLY status: watching, and its header under-reports the rest. Measured in our register: 40 concerns, 36 rendered as rows, and those 36 are exactly the 36 watching. G-002 and G-009 (resolved) and G-010 and G-012 (prevention-in-place) appear nowhere in the output. The header prints '36 watching, 0 resolved' while two entries are resolved, so even the field it claims to summarise is wrong. A register entry filed in a status the CLI does not render is invisible and its omission is invisible too. Corroborates a peer report on the rail (999-AEF, distribution watching 13 / open 7 / resolved 30 / others, with the 7 open rendering nowhere); our numbers differ but the class is identical. Not patching vendored code under agent initiative."
   captured: 2026-08-25T09:28:16Z
   context_task: T-585
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-585"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-585, which is work-completed, and the thread lives in .context/episodic/T-585.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:44Z
   promoted_to: null
 - id: OBS-309
   text: "Focus-drift gate (T-1730) matches the COMMAND TEXT, not the paths being acted on. 'git add .tasks/active/T-589-x.md' is blocked under focus T-588; 'git add -u .tasks' stages the identical file and is allowed. Same class as the week's other findings: the check inspects a proxy for the action rather than the action. Also a real catch-22 sits behind it — after 'fw task update --status work-completed', P-002 blocks ALL Bash while focus is the completed task, and focus-drift blocks committing that task's files from any other focus, so the state the completion command itself wrote cannot be committed by either route."
@@ -1359,21 +1627,33 @@ observations:
   captured: 2026-08-26T20:18:00Z
   context_task: T-604
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-604"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-604, which is work-completed, and the thread lives in .context/episodic/T-604.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:45Z
   promoted_to: null
 - id: OBS-316
   text: "A repro harness that is not faithful to the real call sequence produces a FALSE NEGATIVE, and that is the exact mirror of an unfaithful poison arm's false positive. Measured under T-604: a standalone probe reproducing the driver's Chromium spawn sequence line-for-line reported NOT REPRODUCED across 26 spawns, quiet and under 2x CPU load, because it killed each browser before starting the next. The real failure needs the SECOND browser of a self-test, spawned during the first's lifetime. Had I trusted the clean repro I would have discarded a correct hypothesis and gone on to fix the timeouts instead. Same root cause as 010-termlink's pycache finding and their duplicated-classifier finding: the test and its subject have to be the same object, and 'the same object' includes the SEQUENCE it runs in, not just the bytes it runs on."
   captured: 2026-08-26T20:18:00Z
   context_task: T-604
   tags: [learning]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-604"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-604, which is work-completed, and the thread lives in .context/episodic/T-604.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:45Z
   promoted_to: null
 - id: OBS-317
   text: "A fix that IMPROVES fidelity has no mechanism telling it which baselines it just invalidated. T-602 fixed bpmn:documentation round-trip; tools/_t338-input-fidelity-cdp.mjs encoded the old broken behaviour as its expectation and went RED on master, and nobody noticed until a driver-health sweep two tasks later. From inside T-602 this was invisible: the census is not in T-602's ## Verification block, so no gate ran it, its own verifier was green, and the handover had nothing to report. The census's refusal to auto-absorb an improvement is CORRECT and must stay — a guard that silently accepts a verdict moving in the good direction will also silently accept it moving back — but the refusal is only useful if it reaches someone. Candidate remedies, none built: (a) a cheap cross-driver health sweep at completion that runs every driver naming a changed source file and reports reds the task did not cause, (b) baselines declaring which behaviour they pin so a fix touching that behaviour can name its own dependants, (c) at minimum, a handover line listing drivers red on master that the session did not make red. Reconciled once under T-605; the NEXT fidelity improvement will redden something the same way."
   captured: 2026-08-26T20:32:00Z
   context_task: T-605
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-605"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-605, which is work-completed, and the thread lives in .context/episodic/T-605.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:45Z
   promoted_to: null
 - id: OBS-320
   text: "MEASURED, and it is worse than the ticket says. The focus-drift gate's mutation pattern does not fire for the invocation form this project MANDATES. Its regex anchors on '(^|[[:space:]])(bin/)?fw' (check-active-task.sh, drift block ~line 300), so the leading char before 'fw' must be start-of-string or whitespace. CLAUDE.md requires '.agentic-framework/bin/fw ...' — there the char before 'bin/fw' is '/', and the alternation has no branch for a longer path prefix. Discriminating probe, four payloads fed to the real hook via stdin (scratchpad/probe-{a,b,c,d}.json), CLAUDECODE=1, focus T-575: bare 'fw task update T-NNN' exits 2 with FOCUS-DRIFT; the SAME command written '.agentic-framework/bin/fw task update T-NNN' exits 0, silent. Bare form and path form differ only in the prefix. This is DISTINCT from T-392's finding (safe-list early-return at ~line 96 shadowing the gate at ~line 300) and compounds with it: pattern 2 ('fw context add-* --task T-NNN') is unreachable BOTH ways. Note the safe-list comment added by T-390 asserts 'The --task T-XXX argument still attributes the entry, so traceability is unaffected' — that sentence is the defect stated as a reassurance. Why I nearly recorded the wrong thing: my first probe pair showed a=0 and b=0 and I was one step from concluding 'safe-list shadows everything'; only the bare-form control (c/d) separated two independent causes with identical symptoms. Caveat kept deliberately: pattern 3 (git commit 'T-NNN:') DOES fire on the path form — it matched my own commit this session — because it anchors on the message, not on fw. So the gate is partially live, which is exactly why nobody noticed. Fix must address both anchors, and needs a control leg per pattern or a single fix will look like it covered all three."
@@ -1411,14 +1691,22 @@ observations:
   captured: 2026-08-27T07:08:57Z
   context_task: T-609
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-609"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-609, which is work-completed, and the thread lives in .context/episodic/T-609.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:45Z
   promoted_to: null
 - id: OBS-322
   text: "CLAUDE.md's PREFERRED verification form 'cmd > /tmp/.out 2>&1 && grep -q PAT /tmp/.out', check-vacuous-verification.py's remediation advice, and check-dispatch.sh's '/tmp/fw-agent-*.md' all recommend a FIXED path in shared /tmp. Reader-safe (T-633 leg 1: '>' truncates before the command runs), but as root they silently take that path from every other project on this host — measured: 3 projects share this machine (999-AEF @788, 577 @789, us). Changing the documented idiom touches every existing Verification block, so it needs a wider decision than T-633's scope."
   captured: 2026-08-29T16:00:58Z
   context_task: T-633
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-633"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-633, which is work-completed, and the thread lives in .context/episodic/T-633.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:45Z
   promoted_to: null
 - id: OBS-323
   text: "tools/_t630-p011-stdin-swallow.sh models the runner with two pinned text shapes and BOTH end in 'exit 1' while the live guard uses 'return 1' (T-634) — and its leg 3 fixture (a whitespace-only line) cannot produce an unreconciled count against the real gate, because the extractor strips blank lines before wc -l. So the reconciliation guard T-630 added is not exercised against the live gate by its own prober; T-634 exercises the shared exit path behaviourally, which covers it, but T-630's leg 3 is a green leg measuring a scenario the gate cannot reach. Rewrite it to drive the real update-task.sh like _t634 does."
@@ -1432,49 +1720,77 @@ observations:
   captured: 2026-08-29T22:47:26Z
   context_task: T-636
   tags: [census]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-636"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-636, which is work-completed, and the thread lives in .context/episodic/T-636.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:46Z
   promoted_to: null
 - id: OBS-325
   text: "The active-task hook allows any command CONTAINING 'git commit' with no active task, so a session can checkpoint completed work (commit-msg still enforces the task ref). It matches the string, not the first clause, so a compound command led by a commit carries its second clause past the gate whole: 'fw git commit -m x; rm -rf y' is allowed with focus null. Measured through the real hook, and confirmed pre-existing — an exemption-free mutant of the classifier allows it identically, so this is not caused by the prose-verb exemption. Tier 0 is a separate hook and still sees the second clause, so it is a hole in one layer rather than an open door. One bug, one task: recorded, not fixed."
   captured: 2026-08-29T22:47:36Z
   context_task: T-636
   tags: [gate]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-636"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-636, which is work-completed, and the thread lives in .context/episodic/T-636.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:46Z
   promoted_to: null
 - id: OBS-326
   text: "Third member of the same family, found while probing the other two: the focus-drift gate reads task-id-shaped tokens out of QUOTED TEST FIXTURES. A probe whose argument contained a task-id-shaped string was blocked for drifting toward a task that does not exist. Same shape as the prose-verb veto just fixed and as the shared-tmp census before it: a character-level scan over the whole command text, standing in for shell structure, so an argument that only MENTIONS a thing is treated as an action on it. The general remedy is the one already applied twice — judge the stripped string, not the raw one — but the drift gate needs its own measurement first, because unlike the write veto its conservative direction has never been argued."
   captured: 2026-08-29T22:47:44Z
   context_task: T-636
   tags: [gate]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-636"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-636, which is work-completed, and the thread lives in .context/episodic/T-636.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:46Z
   promoted_to: null
 - id: OBS-327
   text: "The Bash safe-list admits curl and wget unconditionally, which violates the admission rule the list states for itself. That rule, written into the T-632 block: admit only verbs that cannot write a file WITHOUT a shell redirect, because a redirect is already caught upstream. It excludes awk (unrestricted print > file) and uniq (second operand is an output file) on exactly that basis. But curl -o FILE and wget -O FILE write a file with no redirect, and has_bash_write_pattern does not flag either, so both are admitted with NO ACTIVE TASK: measured, curl -o /tmp/f http://x returns SAFE and no-write. Same class as the two verbs the list deliberately kept out; found while composing the T-638 clause predicate, which correctly admits them and must not be the place this is fixed."
   captured: 2026-08-30T08:39:05Z
   context_task: T-638
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-638"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-638, which is work-completed, and the thread lives in .context/episodic/T-638.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:46Z
   promoted_to: null
 - id: OBS-328
   text: "T-639's mutation prober self-invalidates on its own task's completion, and the reason generalises to every hook prober here. It pins sandbox focus to a REAL task id (T-639); completing T-639 moved the file out of active/ and the hook's stale-focus check turned the prober red for a reason unrelated to what it measures. Two further findings while trying to fix it: (1) fw_reanchor_from_hook_stdin only re-anchors PROJECT_ROOT to the stdin cwd when that directory looks like a repo, so WITHOUT a .git marker the hook silently reads the REAL focus.yaml and the sandbox is ignored entirely — every leg then reports on live session state while looking like a clean measurement, which is a false-green generator for any hook prober; (2) once re-anchored, task EXISTENCE also resolves against the sandbox, so a fixture task file is required too. CORRECTED BY T-641 on two points. The marker is NOT .git: fw_reanchor_from_cwd (.agentic-framework/lib/paths.sh:98) walks up looking for .framework.yaml or a .tasks/ directory, and finds neither in a scratchpad sandbox. And the blast radius is NOT every hook prober: measured across the 14 files that build a focus.yaml sandbox, exactly one (_t639) lacked a marker. The rest either carry .tasks/ already or (t404-gate-e2e.sh) deliberately mutate real focus under a restore trap. The working shape is a .tasks/ marker plus a fixture task file plus a SYNTHETIC focus id, and the durable fix is that the prober now asserts the sandbox is in effect by inversion — sandbox focus allowed AND live focus blocked — so it can never again pass while inert. _t639 is 17/17 and no longer varies with the operator's focus."
   captured: 2026-08-30T10:10:56Z
   context_task: T-640
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-640"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-640, which is work-completed, and the thread lives in .context/episodic/T-640.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:46Z
   promoted_to: null
 - id: OBS-329
   text: "The review queue has no representation for a principled ABSTAIN. extract_recommendation accepts KEEP-OPEN|NO-GO|CLOSE|GO|DEFER (shared.py:791); ABSTAIN falls through to '?', which the operator reads as 'the agent has not done its part'. Both live uses are deliberate refusals to choose among options that are the operator's to choose (T-358: 'the choice among A B C AB no-repair is yours'; T-341 likewise). That is arguably the most honest position an agent can hold on a sovereignty-gated choice, and it is the one position the surface renders as silence. Remapping onto DEFER was rejected: DEFER says decide later, ABSTAIN says decide now without me, and the wrong token in the operator's own decision surface is worse than an unreadable one. Fix direction is a vocabulary addition plus a display state, not a content change in the tasks."
   captured: 2026-08-30T10:59:02Z
   context_task: T-642
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-642"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-642, which is work-completed, and the thread lives in .context/episodic/T-642.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:47Z
   promoted_to: null
 - id: OBS-330
   text: "The /timeline HTMX fragment is 13.3 MB. Measured 2026-08-31: GET /timeline with HX-Request returns 13,341,738 bytes, and that is the payload swapped into the DOM on every navigation to the Timeline tab. It renders correctly, so nothing complains. Two consequences worth someone deciding about: (1) any test or probe that fetches this route pays ~2-4s and a large parse, which is a slice of the web suite's 3-minute runtime; (2) the page inlines every session narrative in full rather than paginating or truncating, so the size grows monotonically with project history and there is no point at which it stops. Not a defect and not this task's to fix - surfaced from T-645 because a 13 MB HTMX swap is worth knowing about before it becomes 30."
   captured: 2026-08-31T11:46:10Z
   context_task: T-645
   tags: [perf]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-645"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-645, which is work-completed, and the thread lives in .context/episodic/T-645.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:47Z
   promoted_to: null
 - id: OBS-331
   text: "The completion path suggests a command the completion path then forbids. On 'fw task update T-XXX --status work-completed' for a bug-class task, update-task.sh prints a LEARNING PROMPT: 'Consider: fw fix-learned T-XXX ...'. But completion leaves focus null, and with focus null check-active-task.sh refuses fw fix-learned with 'BLOCKED: No active task'. Measured 2026-08-31 immediately after completing T-649: the prompt printed, the suggested command was refused. Same family as G-047 (the state completion leaves behind forbids ordinary follow-up work), but a distinct instance because this one is the tool contradicting its OWN advice one line later, which no cadence rule can avoid - unlike the commit case, there is no earlier moment at which the agent could have run fix-learned, because the prompt is what tells you to. Fix is probably either (a) capture the learning inline during the same transition, or (b) exempt fw fix-learned/fw context add-learning from the null-focus block the way git commit is exempted by T-2054."
@@ -1527,7 +1843,11 @@ observations:
   captured: 2026-09-08T21:41:34Z
   context_task: T-690
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-690"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-690, which is work-completed, and the thread lives in .context/episodic/T-690.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:47Z
   promoted_to: null
 - id: OBS-338
   text: "Every CDP test leg silently depends on node >= 21 with nothing pinning it. /usr/bin/node is v18.19.1 and has no global WebSocket, so tools/_cdp-attach.mjs dies with 'ERROR: WebSocket is not defined'. Measured 2026-09-09: T-423 P-011 verification reported 14/17 with legs 9, 13, 14 red; the same three pass 17/17 when ~/.nvm/versions/node/v22.22.1/bin is first on PATH. No .nvmrc, no package.json engines field, no check in tests/run-bridge-tests.sh. Consequence: whether the whole CDP surface (10+ suite legs plus several P-011 blocks) reports pass or fail depends on which node the invoking shell resolves - and the failure message names WebSocket, not the node version, so it reads as a broken probe rather than a broken toolchain. Suggested fix: have _cdp-attach.mjs refuse with exit 2 and a version-naming message when globalThis.WebSocket is undefined, so an environment fault reports as REFUSED rather than as a red subject."
@@ -1541,14 +1861,22 @@ observations:
   captured: 2026-09-10T05:44:15Z
   context_task: T-694
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-694"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-694, which is work-completed, and the thread lives in .context/episodic/T-694.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:47Z
   promoted_to: null
 - id: OBS-340
   text: "T-694 measured: 12 of 13 active inception tasks carry the task template's pre-filled voi_score 0.5 with its explanatory comment still attached. The estimator maps that to int(round(0.5*5)) = 2 under banker's rounding, and maps an ABSENT voi_score to 2 as well via the grandfathered path (estimator.py:2441-2450). So the state 'nobody assessed this' and the state 'an operator judged it exactly mid' are indistinguishable in the output, and all 12 score 2 on every driver, composite 126/0.40, quadrant hv-lc. Under a work-Q1-first selection rule those 12 unexamined inceptions outrank every measured high-value build task in the project. Neither voi_score nor target_blast_radius has a _proposed: lane, so the estimator is structurally unable to assess the one task type whose purpose is deciding what to build. Report: docs/reports/T-694-bvp-distinguishability.md"
   captured: 2026-09-10T05:44:22Z
   context_task: T-694
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-694"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-694, which is work-completed, and the thread lives in .context/episodic/T-694.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:35Z
   promoted_to: null
   urgent: true
 - id: OBS-341
@@ -1605,14 +1933,22 @@ observations:
   captured: 2026-09-16T13:56:49Z
   context_task: T-704
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-704"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-704, which is work-completed, and the thread lives in .context/episodic/T-704.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:47Z
   promoted_to: null
 - id: OBS-349
   text: "F-AUDIT-SCOPE-01 (T-707 / RA-011, 2026-09-16): the audit's inception-research check searches docs/reports/ ONLY, so any inception that filed its research anywhere else is reported as having none. Confirmed false positive: T-587 warns 'no research artifact in docs/reports/' while docs/research/executable-workflow/reflection-designer.md exists at 19876 bytes dated 2026-08-25, alongside operating-digest.md, designer-contract-inventory.md and questions-and-dispositions.md. T-587's own Human AC names that exact file in its Steps - 'Read docs/research/executable-workflow/reflection-designer.md' - so the check reports missing the very document the acceptance criterion instructs the reviewer to open. T-250 is likely affected identically; its research also lives under docs/research/executable-workflow/. Consequence: the check cannot distinguish 'no research was done' from 'research was filed in a different directory', and its mitigation text ('Save research findings: docs/reports/T-XXX-*.md') instructs the reader to create a duplicate of a document that already exists. RA-011 was closed as a FALSE POSITIVE on the operator's explicit ruling, not on agent judgement. The check defect itself is NOT fixed and is NOT filed as an arc-003 task - doing so would break the arc's 35-in/35-out reconciliation without a ruling. Surfaced for a scope decision."
   captured: 2026-09-16T14:55:47Z
   context_task: T-707
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-707"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-707, which is work-completed, and the thread lives in .context/episodic/T-707.yaml. Resolved rather than dismissed because dismissed means 'not actionable' and would record a judgement nobody made about work that was in fact done. The carrier was validated before this was written."
+  resolved_at: 2026-09-28T13:20:47Z
   promoted_to: null
 - id: OBS-350
   text: "RA-010 (T-706 / T-250) CHECKED 2026-09-16 under the OBS-349 protocol: GENUINE, not a false positive, and a third distinct shape. T-250's task file names no research document of its own (grep for docs/reports|research|plans in the task: zero hits). The three docs that mention T-250 - docs/aef-designer-integration-protocol.md:127, docs/research/executable-workflow/questions-and-dispositions.md:92, reflection-designer.md:65 - all cite it as a DECIDED OUTCOME ('Ratified T-250 GO, shape A, operator decision 2026-07-27, rail 216'), not as its research trail. Contrast T-587, whose artifact was named INSIDE its own Human AC steps, which is what made RA-011 a false positive. Downstream documents citing a decision are not that decision's research. TWO COUNTERPOINTS that must not be lost: (1) T-250's evidence WAS recorded - Recommendation Evidence block 1012 chars filled, Problem Statement 738, Open Questions 1198 - unlike T-015 (no referent) and T-103 (empty Evidence). The reasoning exists, in the task file rather than docs/, which is where the check looks. (2) 'operator decision 2026-07-27' is recorded explicitly in the integration protocol, so T-250's Human [REVIEW] tick likely reflects a REAL operator decision despite the task carrying the same four @auto-tick-on-decide markers. That is a counterpoint to OBS-348 for T-250 specifically and a reason NOT to treat the auto-tick finding as uniform across T-015, T-103 and T-250. Disposition NOT decided: reconstruct, or rule that evidence-in-the-task-file satisfies C-001. Sovereign question."
@@ -1712,7 +2048,11 @@ observations:
   captured: 2026-09-21T10:39:20Z
   context_task: T-766
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-766"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-766, which is work-completed, and the thread lives in .context/episodic/T-766.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:38Z
   promoted_to: null
   urgent: true
 - id: OBS-364
@@ -1720,7 +2060,11 @@ observations:
   captured: 2026-09-21T14:20:04Z
   context_task: T-774
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-774"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-774, which is work-completed, and the thread lives in .context/episodic/T-774.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:39Z
   promoted_to: null
   urgent: true
 - id: OBS-365
@@ -1728,7 +2072,11 @@ observations:
   captured: 2026-09-21T14:20:12Z
   context_task: T-774
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-774"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-774, which is work-completed, and the thread lives in .context/episodic/T-774.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:39Z
   promoted_to: null
   urgent: true
 - id: OBS-366
@@ -1736,7 +2084,11 @@ observations:
   captured: 2026-09-21T15:16:02Z
   context_task: T-777
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-777"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-777, which is work-completed, and the thread lives in .context/episodic/T-777.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:39Z
   promoted_to: null
   urgent: true
 - id: OBS-367
@@ -1744,7 +2096,11 @@ observations:
   captured: 2026-09-21T15:16:11Z
   context_task: T-777
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-777"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-777, which is work-completed, and the thread lives in .context/episodic/T-777.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:39Z
   promoted_to: null
   urgent: true
 - id: OBS-368
@@ -1752,7 +2108,11 @@ observations:
   captured: 2026-09-21T15:48:12Z
   context_task: T-748
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-748"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-748, which is work-completed, and the thread lives in .context/episodic/T-748.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:39Z
   promoted_to: null
   urgent: true
 - id: OBS-369
@@ -1882,7 +2242,11 @@ observations:
   captured: 2026-09-25T20:10:59Z
   context_task: T-853
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-853"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-853, which is work-completed, and the thread lives in .context/episodic/T-853.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:40Z
   promoted_to: null
   urgent: true
 - id: OBS-387
@@ -1898,7 +2262,11 @@ observations:
   captured: 2026-09-25T20:58:53Z
   context_task: T-855
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-855"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-855, which is work-completed, and the thread lives in .context/episodic/T-855.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:40Z
   promoted_to: null
   urgent: true
 - id: OBS-389
@@ -1906,7 +2274,11 @@ observations:
   captured: 2026-09-25T21:47:32Z
   context_task: T-857
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-857"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-857, which is work-completed, and the thread lives in .context/episodic/T-857.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:40Z
   promoted_to: null
   urgent: true
 - id: OBS-390
@@ -1986,7 +2358,11 @@ observations:
   captured: 2026-09-26T20:05:00Z
   context_task: T-871
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-871"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-871, which is work-completed, and the thread lives in .context/episodic/T-871.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:40Z
   promoted_to: null
   urgent: true
 - id: OBS-400
@@ -1994,7 +2370,11 @@ observations:
   captured: 2026-09-26T21:42:21Z
   context_task: T-873
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-873"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-873, which is work-completed, and the thread lives in .context/episodic/T-873.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:40Z
   promoted_to: null
   urgent: true
 - id: OBS-401
@@ -2060,7 +2440,11 @@ observations:
   captured: 2026-09-27T12:27:03Z
   context_task: T-900
   tags: [fabric]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-900"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-900, which is work-completed, and the thread lives in .context/episodic/T-900.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:41Z
   promoted_to: null
   urgent: true
 - id: OBS-409
@@ -2113,7 +2497,11 @@ observations:
   captured: 2026-09-27T19:21:06Z
   context_task: T-891
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-891"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-891, which is work-completed, and the thread lives in .context/episodic/T-891.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:41Z
   promoted_to: null
   urgent: true
 - id: OBS-416
@@ -2165,7 +2553,11 @@ observations:
   captured: 2026-09-28T10:49:42Z
   context_task: T-910
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-910"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Bulk disposition under T-915, operator-authorised 2026-09-28 ('We solved them in bulk.'). Classified carried-by-completed-task by tools/_t703-inbox-residue.py: the work shipped under T-910, which is work-completed, and the thread lives in .context/episodic/T-910.yaml. This item is in the SECOND pass: the first pass drained from the >7-day report and these were under 7 days old, so the age cutoff \u2014 not the evidence \u2014 had excluded them. Carrier validated before writing."
+  resolved_at: 2026-09-28T13:22:41Z
   promoted_to: null
   urgent: true
 - id: OBS-423
@@ -2194,6 +2586,13 @@ observations:
 - id: OBS-426
   text: "DELETING A TASK FILE RECYCLES ITS ID, so the git record ends up with two different tasks under one number. Did it to myself 2026-09-28 within ten minutes. T-914 was created as a T-912 control fixture, proved that 'fw note promote --owner human' still honours the flag, and was deleted as the fixture it was. The very next 'fw task create' allocated T-914 AGAIN — because generate_id (create-task.sh:251-263) globs .tasks/active/T-*.md and .tasks/completed/T-*.md and takes max+1, so an id is only reserved for as long as its FILE exists. Commit 8d82f9f6 now says 'T-914 was deleted before its observation was disposed of', and T-914 is simultaneously the live census task for the urgent-observation cohort. Anyone reading that commit and then opening T-914 gets a different task than the one described, with nothing signalling the substitution. THE REAL LESSON IS NARROWER THAN 'IDS SHOULD BE MONOTONIC': deleting a task file is not a safe cleanup operation and I should not have done it. A fixture task should be completed or dismissed through the verbs, leaving the id spent, exactly as a fixture OBSERVATION is dismissed rather than deleted — which this project already knows, since the eleven dismissed observation husks in the inbox are deliberately kept as evidence. The asymmetry is that the inbox has a dismiss verb and the task system has no 'retire this, it was never real' path, so the only way to unmake a task is rm, and rm is what recycles the id. Either give generate_id a high-water mark that survives deletion (a counter file, or scan git history for ever-used ids), or give the task system a disposal verb so nobody needs rm. Note FW_ID_QUARANTINE_GAP exists at :252, suggesting id-gap handling was already thought about from a different angle."
   captured: 2026-09-28T11:49:27Z
+  context_task: T-737
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-427
+  text: "The operator-facing translator can filter a refusal down to nothing and the fallback then reports 'Unknown error', which is indistinguishable from 'the subprocess said nothing at all'. Two different diagnoses, one string. web/shared.py:1318 operator_facing_stderr() drops every line matching 8 patterns (--skip-*, FW_*=1, 'Options:', numbered option lines, 'logged Tier-2', '=== Task Update ===', '^Task:|^File:', the sovereignty warning) and strips the result. A gate refusal composed only of those lines translates to the empty string. web/blueprints/inception.py:647-648 then does: _operator_facing_stderr(...)[:300] or 'Unknown error from fw inception decide' — so the operator is told nothing was said, when in fact something was said and this function discarded it. The T-3280 intent is right (gate messages are written FOR AGENTS and name their own Tier-2 bypasses; showing a human 'use --skip-x' normalises bypass for what is usually an authoring gap). The failure is the fallback, not the filtering: when the input was NON-EMPTY and the output is empty, that is a KNOWN state and should say so — 'the gate refused with a message written for agents; the reason is in the server log' — rather than collapsing into the same string used for 'no output at all'. Same shape as OBS-423 (a Tier-2 bypass logged with an empty reason) and as the T-3105 grammar this project already holds: NOT EVALUATED is not PASSED, and SUPPRESSED is not UNKNOWN. Surfaced 2026-09-28 by an operator hitting it on T-3532, a task in another project's id space; our vendored copy carries the identical code, so the defect is ours to fix too under G-008. Note the comment at inception.py:642 confirms the real reason survives server-side via logging.error — so the information exists and only the operator is denied it."
+  captured: 2026-09-28T12:52:22Z
   context_task: T-737
   tags: [bug]
   status: pending
