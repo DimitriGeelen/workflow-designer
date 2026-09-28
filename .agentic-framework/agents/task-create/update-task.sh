@@ -80,8 +80,24 @@ _print_move_next_hint() {
 }
 
 # Gate bypass audit log (T-1142)
+# T-913: an UNEXPLAINED bypass is recorded distinguishably, rather than as an empty string.
+#
+# The reason field was never unreachable — this function has always read $REASON, which `--reason`
+# / `-r` sets at the arg parser. What it could not do is tell an unexplained bypass from an
+# explained one whose reason happened to be blank: both wrote `reason: ''`. So did a logging
+# failure, and so would a tool that never supported reasons at all. Four different facts, one row.
+#
+# That matters because mandatory logging is what makes Tier 2 a sanctioned mechanism instead of a
+# hole. This ledger already carries a 2026-08-08 entry that exists precisely to document an
+# UNAUTHORISED bypass — with a full reason, because a human typed it by hand. The automated path
+# produced the weaker record. Measured on the T-910 close earlier today: `reason: ''`.
+#
+# Deliberately NOT a refusal. Making an unexplained bypass fail changes blocking behaviour on
+# eighteen call sites including env-var paths that automation uses; that is its own task.
+# $3 is an explicit reason for call sites that have one in hand — two of them currently smuggle it
+# into the `caller` argument (check_render_surface_human_ac, check_task_pair_acd).
 log_gate_bypass() {
-    local flag="$1" caller="${2:-manual}"
+    local flag="$1" caller="${2:-manual}" explicit="${3:-}"
     local log_file="$PROJECT_ROOT/.context/working/.gate-bypass-log.yaml"
     local timestamp
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -93,12 +109,28 @@ log_gate_bypass() {
     local _esc_task="${TASK_ID//\'/\'\'}"
     local _esc_flag="${flag//\'/\'\'}"
     local _esc_caller="${caller//\'/\'\'}"
-    local _esc_reason="${REASON//\'/\'\'}"
+    # T-913: explicit argument wins, then the --reason global, then the marker. The marker is a
+    # VALUE, not an absence, so `grep -c UNEXPLAINED` answers "how many bypasses were taken
+    # without an explanation" — a question an empty string cannot be asked.
+    local _reason_raw="${explicit:-$REASON}"
+    local _explained=1
+    if [ -z "${_reason_raw//[[:space:]]/}" ]; then
+        _reason_raw="UNEXPLAINED — no reason given; pass --reason \"why\" to record one"
+        _explained=0
+    fi
+    local _esc_reason="${_reason_raw//\'/\'\'}"
     echo "- timestamp: '$_esc_ts'" >> "$log_file"
     echo "  task: '$_esc_task'" >> "$log_file"
     echo "  flag: '$_esc_flag'" >> "$log_file"
     echo "  caller: '$_esc_caller'" >> "$log_file"
-    echo "  reason: '${_esc_reason:-}'" >> "$log_file"
+    echo "  reason: '$_esc_reason'" >> "$log_file"
+    echo "  explained: $([ "$_explained" -eq 1 ] && echo true || echo false)" >> "$log_file"
+    # Told at the moment of bypassing, not only discovered later by a reader of the ledger.
+    if [ "$_explained" -eq 0 ]; then
+        echo -e "${YELLOW}NOTE: bypass $flag recorded WITHOUT a reason.${NC}" >&2
+        echo "      The ledger now says UNEXPLAINED for this row. Re-run with --reason \"why\"" >&2
+        echo "      to record one; a bypass worth taking is a bypass worth explaining." >&2
+    fi
 }
 
 # Human Sovereignty Gate (R-033/T-198)
@@ -554,7 +586,7 @@ check_render_surface_human_ac() {
         *)
             if [ "$SKIP_RENDER_REVIEW" = true ]; then
                 echo -e "${YELLOW}WARNING: render-surface task without [REVIEW] Human AC (--skip-render-review bypass)${NC}"
-                log_gate_bypass "--skip-render-review" "check_render_surface_human_ac: $SKIP_RENDER_REVIEW_REASON"
+                log_gate_bypass "--skip-render-review" "check_render_surface_human_ac" "$SKIP_RENDER_REVIEW_REASON"
                 return 0
             fi
             local matched
@@ -985,7 +1017,7 @@ PYRELATED
     # Missing detected
     if [ -n "$SCOPE_REDUCTION_ACK" ]; then
         echo -e "${YELLOW}WARNING: Task-pair §ACD: missing deliverables (--scope-reduction-acknowledged bypass)${NC}"
-        log_gate_bypass "--scope-reduction-acknowledged" "check_task_pair_acd: $SCOPE_REDUCTION_ACK"
+        log_gate_bypass "--scope-reduction-acknowledged" "check_task_pair_acd" "$SCOPE_REDUCTION_ACK"
         return 0
     fi
 

@@ -1,14 +1,34 @@
 ---
 id: T-913
 observation: OBS-423
-name: "A Tier-2 bypass is logged with an EMPTY reason, because the logger takes no reason argument. Measured 2026-09-28: closing T-910 with --skip-sovereignty appended this to .context/working/.gate-bypass-log.yaml — timestamp 2026-09-28T10:49:48Z, task T-910, flag --skip-sovereignty, caller check_human_sovereignty, reason: ''. The call site is log_gate_bypass '--skip-sovereignty' 'check_human_sovereignty' (update-task.sh:112), two positional args, no third for a reason and no --reason flag anywhere on the verb. So the field exists in the record shape and can never be filled by the path that writes it. WHY THIS MATTERS RATHER THAN BEING COSMETIC: mandatory logging is what makes Tier 2 a sanctioned mechanism instead of a hole. A record that says a gate was bypassed but not why cannot distinguish an AUTHORISED bypass from an unauthorised one — and the same ledger already carries a 2026-08-08 entry that exists precisely to document an unauthorised bypass ('No authorization was sought or given. Recorded per Tier-2 mandatory logging.'), with a full reason, because a human wrote that one by hand. The automated path produces the weaker record. THE AUTHORISATION FOR THIS ONE, since the ledger cannot hold it — operator, verbatim, 2026-09-28: 'This is a Zero Human ACs review task. You should not even ask me.' T-910 carried 0/0 Human ACs and 6/6 Agent ACs with verification 10/10; the sovereignty gate fired on the owner field with no human criterion behind it. Remedy: give log_gate_bypass a reason parameter and have the --skip-* flags accept --reason, refusing the bypass when none is supplied — a bypass worth taking is a bypass worth explaining. Sibling of OBS-421/OBS-422."
+name: "A Tier-2 bypass is logged with an EMPTY reason, because the logger takes no
+  reason argument. Measured 2026-09-28: closing T-910 with --skip-sovereignty appended
+  this to .context/working/.gate-bypass-log.yaml — timestamp 2026-09-28T10:49:48Z,
+  task T-910, flag --skip-sovereignty, caller check_human_sovereignty, reason: ''.
+  The call site is log_gate_bypass '--skip-sovereignty' 'check_human_sovereignty'
+  (update-task.sh:112), two positional args, no third for a reason and no --reason
+  flag anywhere on the verb. So the field exists in the record shape and can never
+  be filled by the path that writes it. WHY THIS MATTERS RATHER THAN BEING COSMETIC:
+  mandatory logging is what makes Tier 2 a sanctioned mechanism instead of a hole.
+  A record that says a gate was bypassed but not why cannot distinguish an AUTHORISED
+  bypass from an unauthorised one — and the same ledger already carries a 2026-08-08
+  entry that exists precisely to document an unauthorised bypass ('No authorization
+  was sought or given. Recorded per Tier-2 mandatory logging.'), with a full reason,
+  because a human wrote that one by hand. The automated path produces the weaker record.
+  THE AUTHORISATION FOR THIS ONE, since the ledger cannot hold it — operator, verbatim,
+  2026-09-28: 'This is a Zero Human ACs review task. You should not even ask me.'
+  T-910 carried 0/0 Human ACs and 6/6 Agent ACs with verification 10/10; the sovereignty
+  gate fired on the owner field with no human criterion behind it. Remedy: give log_gate_bypass
+  a reason parameter and have the --skip-* flags accept --reason, refusing the bypass
+  when none is supplied — a bypass worth taking is a bypass worth explaining. Sibling
+  of OBS-421/OBS-422."
 description: >
   Promoted from observation OBS-423
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -23,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-28T11:31:03Z
-last_update: 2026-09-28T11:31:03Z
-date_finished: null
+last_update: 2026-09-28T22:07:56Z
+date_finished: 2026-09-28T22:07:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -35,6 +55,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-28T22:04:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-913: A Tier-2 bypass is logged with an EMPTY reason, because the logger takes no reason argument. Measured 2026-09-28: closing T-910 with --skip-sovereignty appended this to .context/working/.gate-bypass-log.yaml — timestamp 2026-09-28T10:49:48Z, task T-910, flag --skip-sovereignty, caller check_human_sovereignty, reason: ''. The call site is log_gate_bypass '--skip-sovereignty' 'check_human_sovereignty' (update-task.sh:112), two positional args, no third for a reason and no --reason flag anywhere on the verb. So the field exists in the record shape and can never be filled by the path that writes it. WHY THIS MATTERS RATHER THAN BEING COSMETIC: mandatory logging is what makes Tier 2 a sanctioned mechanism instead of a hole. A record that says a gate was bypassed but not why cannot distinguish an AUTHORISED bypass from an unauthorised one — and the same ledger already carries a 2026-08-08 entry that exists precisely to document an unauthorised bypass ('No authorization was sought or given. Recorded per Tier-2 mandatory logging.'), with a full reason, because a human wrote that one by hand. The automated path produces the weaker record. THE AUTHORISATION FOR THIS ONE, since the ledger cannot hold it — operator, verbatim, 2026-09-28: 'This is a Zero Human ACs review task. You should not even ask me.' T-910 carried 0/0 Human ACs and 6/6 Agent ACs with verification 10/10; the sovereignty gate fired on the owner field with no human criterion behind it. Remedy: give log_gate_bypass a reason parameter and have the --skip-* flags accept --reason, refusing the bypass when none is supplied — a bypass worth taking is a bypass worth explaining. Sibling of OBS-421/OBS-422.
@@ -47,8 +88,24 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+
+**OBS-423 is partly wrong and this task corrects it.** It claimed `log_gate_bypass` "takes no reason
+argument, so the field can never be filled by the path that writes it". True of its *parameters*,
+false of its *behaviour*: it reads the global `$REASON` at `update-task.sh:96`, and `--reason` /
+`-r` sets that global at `:1478`. The capability has been there all along.
+
+**The real defect is narrower and worse:** a bypass may be taken without explaining it, and the
+resulting record is **byte-identical to an explained one that happened to have an empty reason**.
+The T-910 entry from earlier today reads `reason: ''` — indistinguishable from a logging failure,
+from a tool that never supported reasons, and from a deliberate blank.
+
+- [x] An unexplained bypass is recorded **distinguishably** — a named marker in the `reason` field, not an empty string. The audit question "how many bypasses were taken without explanation?" must be answerable by reading the ledger
+- [x] The marker **names the remedy**: a reader of the record, and the operator at the moment of bypassing, both learn that `--reason` is what fills it
+- [x] A bypass **with** a reason is unchanged — the reason is written verbatim, and the YAML single-quote escaping at `:88-96` still holds for apostrophes in operator text
+- [x] Call sites that currently **smuggle a reason into the `caller` argument** (`:557`, `:988`) have a proper channel — an explicit reason parameter — without changing what they log today
+- [x] **Non-blocking.** This records and warns; it does not refuse. Making an unexplained bypass *fail* changes blocking behaviour on eighteen call sites including env-var paths used by automation, and that deserves its own task and fresh judgement rather than being folded in at the end of a long session
+- [x] **Proved by exercising the real logger**, not by reading it: run it with and without a reason and assert the ledger rows differ in the stated way. Append-only ledger — the test writes to a scratch copy, never to `.context/working/.gate-bypass-log.yaml`
+- [x] Control set first, and every mutation asserted applied: a logger that fails to source writes nothing, which would read as "no unexplained bypasses found"
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -82,6 +139,24 @@ date_finished: null
 -->
 
 ## Verification
+
+# The teeth, with the real ledger's hash pinned BEFORE the run so the unchanged-check is a
+# measurement rather than a comparison of the file with itself.
+LEDGER_SHA=$(sha256sum .context/working/.gate-bypass-log.yaml | cut -d' ' -f1) timeout 300 bash tools/_t913-bypass-reason-teeth.sh > /tmp/.t913.out 2>&1 && grep -q '^FAIL: 0' /tmp/.t913.out
+# CONTROL (PL-328): 'FAIL: 0' is also what a suite that ran nothing prints.
+grep -qE '^PASS: 1[0-9]$' /tmp/.t913.out
+# CONTROL, stronger: the mutation must have been SCORED, not skipped as setup-broken.
+grep -q 'REGRESSES to the empty string without the marker' /tmp/.t913.out
+# And the ledger-unchanged leg must have EVALUATED, not reported NOT EVALUATED.
+grep -q "the project's own bypass ledger is unchanged" /tmp/.t913.out
+# The marker and the explained flag exist in the logger itself.
+grep -q 'UNEXPLAINED — no reason given' .agentic-framework/agents/task-create/update-task.sh
+grep -q 'explained: \$(\[ "\$_explained" -eq 1 \]' .agentic-framework/agents/task-create/update-task.sh
+# The two call sites that smuggled a reason through the caller argument now use the 3rd parameter.
+test "$(grep -c 'log_gate_bypass "--skip-render-review" "check_render_surface_human_ac" "\$SKIP_RENDER_REVIEW_REASON"' .agentic-framework/agents/task-create/update-task.sh)" -eq 1
+test "$(grep -c 'log_gate_bypass "--scope-reduction-acknowledged" "check_task_pair_acd" "\$SCOPE_REDUCTION_ACK"' .agentic-framework/agents/task-create/update-task.sh)" -eq 1
+# A syntactically broken update-task.sh breaks every task transition in the project.
+bash -n .agentic-framework/agents/task-create/update-task.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -227,6 +302,37 @@ date_finished: null
 
 ## Evolution
 
+### 2026-09-29 — OBS-423 was partly wrong, and reading the code before building found it
+- **What changed:** OBS-423 (mine, filed hours earlier) claimed `log_gate_bypass` *"takes no reason
+  argument, so the field can never be filled by the path that writes it"*. It reads the global
+  `$REASON` at `:96`, and `--reason`/`-r` sets it at `:1478`. **The capability was always there.**
+  I had inferred the absence from the call signature without reading the body — the same shape as
+  OBS-421, where I inferred the completion path from the reassignment gate's error text.
+- **Plan impact:** the fix got smaller and better aimed. Not *"add a reason parameter"* but *"make
+  an unexplained bypass distinguishable from an explained one"* — which is the defect the T-910 row
+  actually demonstrates, and which no amount of adding parameters would have fixed.
+- **Triggered:** nothing filed; the correction lives in this task's ACs so a reader of OBS-423
+  meets it.
+
+### 2026-09-29 — scoped deliberately short of a refusal
+- **What changed:** nothing; this is the decision. Making an unexplained bypass **fail** is the
+  stronger fix and it changes blocking behaviour on **eighteen** call sites, several of them
+  env-var paths that automation uses.
+- **Plan impact:** this ships the recording half — marker, `explained:` flag, and a warning at the
+  moment of bypassing. The refusal half is not folded in at the end of a long session after a day
+  of gate work; it wants fresh judgement and its own teeth.
+- **Triggered:** nothing filed yet — whether to refuse is a governance call, not an implementation
+  one, and it is the operator's.
+
+### 2026-09-29 — a tautology in a parameter default
+- **What changed:** the "real ledger unchanged" leg read
+  `${LEDGER_SHA:-$(sha256sum "$real" …)}` — so when the caller did not pin the hash first, it
+  compared the file **to itself** and could not fail. It passed, which is how I noticed nothing.
+- **Plan impact:** it now reports **NOT EVALUATED** when unpinned, and the verification block pins
+  the hash before invoking the suite. A default that supplies the expected value is not a default,
+  it is a way of deleting the assertion.
+- **Triggered:** nothing new — T-3105, in a place I did not expect to find it.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -305,3 +411,24 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-913-a-tier-2-bypass-is-logged-with-an-empty-.md
 - **Context:** Initial task creation
+
+### 2026-09-28T22:04:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-79a7dd1b
+- **Timestamp:** 2026-09-28T22:07:58Z
+- **Catalogue:** v1.3-seed
+- **Overall:** FAIL
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **skip-as-pass** (severe, deterministic) @ Verification:line 14
+     - evidence: `test "$(grep -c 'log_gate_bypass "--skip-render-review" "check_render_surface_human_ac" "\$SKIP_RENDER_REVIEW_REASON"' .agentic-framework/agents/task-create/update-task.sh)" -eq 1`
+
+### 2026-09-28T22:07:56Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** T-913 closing: the recording half of the bypass-reason fix. This close needs no bypass, so no ledger row is expected from it.
