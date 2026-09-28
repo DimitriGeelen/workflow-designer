@@ -31,7 +31,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T23:43:01Z
-last_update: 2026-09-26T23:47:05Z
+last_update: 2026-09-28T23:16:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -122,6 +122,16 @@ mutation caught.
 
 ## Verification
 
+# The census's findings were filed and built: T-886 (workflowMeta denominator) and T-910 (laneMeta) are closed tasks.
+ls .tasks/completed/T-886-*.md .tasks/completed/T-910-*.md
+# The repair the census asked for exists and is static-checkable without a browser: every emitter-written
+# workflowMeta and laneMeta attribute is compared or excluded with a reason (property, not a live count).
+node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q '"denominators_only": true'
+node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -qE '"summary": ".* 0 unclassified"'
+# uuid — the census's one seam-integrity finding — is in the compared set, not merely mentioned.
+grep -qE "^const WMSPEC = \[.*'uuid'" tools/_roundtrip-serialization-cdp.mjs
+# The write-only attribute the census found (source=) is excluded WITH a reason that names the census.
+grep -qE "^  source: 'WRITE-ONLY \(T-885 census\)" tools/_roundtrip-serialization-cdp.mjs
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -266,27 +276,15 @@ mutation caught.
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
+### 2026-09-26 — the census found the finding it was shaped for, and one it was not
+- **What changed:** Filed to answer "what guards document-level aef:workflowMeta attributes" — the answer was nothing: uuid, description and kind could each be dropped from the writer with every guard green (commit 90a8f47c). The unplanned finding was `source=`: written by the emitter and read back by nothing, so a round-trip comparison of it is structurally impossible, not merely missing. That became the first entry in WM_EXCLUDED with a reason, and the shape "write-only attribute" became T-898's inception.
+- **Plan impact:** Scope fence held — this task built no guard. T-886 built the workflowMeta denominator on this evidence; T-910 later generalised it to laneMeta after T-890 measured the identical gap one element over.
+- **Triggered:** T-886 (repair), T-898 (write-only source=), and by lineage T-910.
 
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — closing under procAsFit round 1
+- **What changed:** Nothing in the deliverable. All six ACs were ticked on 2026-09-26; the task then sat at started-work with an empty Verification and Evolution for three days — the G-027 shape, third instance this round (T-866, T-906, this).
+- **Plan impact:** Verification pins properties the census's downstream repairs must keep true (both denominators static-checkable and clean; uuid compared; source= excluded with the census named), rather than re-running the destructive mutation census, which the task's own AC required to leave the tree byte-identical.
+- **Triggered:** Nothing filed.
 
 ## Recommendation
 
