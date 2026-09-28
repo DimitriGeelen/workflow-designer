@@ -12,15 +12,12 @@ description: >
   Scope note: the agent must never invoke that verb (Tier 0), so the gate is implemented
   and tested against fixtures, and the live exercise is the operator's.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [arc:hypothesis-first-inceptions, bvp, hypothesis]
-components:
-  - .tasks/templates/inception.md
-  - .agentic-framework/lib/inception.sh
-  - tools/_t866-hypothesis-form-teeth.sh
+components: [tools/_t866-hypothesis-form-teeth.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -33,8 +30,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T12:22:50Z
-last_update: 2026-09-26T17:12:08Z
-date_finished:
+last_update: 2026-09-28T22:52:32Z
+date_finished: 2026-09-28T22:52:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -297,56 +294,25 @@ grep -q 'We will know that we are successful when we see' .tasks/templates/incep
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
+### 2026-09-26 — the exemption arrived after filing, and it had to be a field
+- **What changed:** At filing the gate was "GO requires a checkable success clause", full stop. Operator direction the same day: research inceptions produce understanding, not an outcome, and forcing them into "we will achieve <outcome>" manufactures fiction to satisfy a gate. The exemption was added (`inception_kind: research`), and the design choice that it must be DECLARED AT CREATION rather than reachable at decision time became its own AC and its own teeth case (PL-347).
+- **Plan impact:** Three ACs added beyond the original four; the mutation set grew from 4 to 7 kill cases so the exemption's word-vs-field boundary is pinned, not assumed.
+- **Triggered:** No sub-task. T-874 later found that the CREATION gate (`--recommendation`/`--rationale`, T-679) and this DECISION gate disagree about what a complete inception is — a seam surfaced by the operator, not the agent (see Recommendation evidence).
 
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — verification re-run before partial-complete (procAsFit round 1)
+- **What changed:** Nothing in the deliverable. The task sat at started-work for three days with every Agent AC ticked and both required blocks empty — the G-027 shape (verified, one gated transition from done, invisible to every check). This entry and the Recommendation are that transition.
+- **Plan impact:** None. Verification block re-run 2026-09-29: 8/8 pass; teeth PASS 10 / FAIL 0; mutation OK (3 controls green, 7 refusals red).
+- **Triggered:** Nothing filed. Observation for the handback: an arc-tagged task with all Agent ACs ticked and an empty `## Evolution` is exactly what G-027 describes and nothing surfaces it.
 
 ## Recommendation
 
-<!-- T-2945: same shape as inception.md's block — the gate that reads it
-     (audit_inception_recommendation, lib/task-audit.sh:117) is shared, so the
-     shape is copied rather than reinvented.
-
-     REQUIRED once this task reaches partial-complete: Agent ACs done, at least
-     one `### Human` AC still unticked. `lib/review.sh:205-211` (T-2421) BLOCKS
-     `fw task review` emission for build/refactor/test/decommission tasks in that
-     state with no substantive block here — the operator would otherwise open
-     /review/<id> to a blank Recommendation card and be asked to approve a form.
-
-     Not required while every Human AC is ticked or the task has none: the gate
-     only fires on the partial-complete transition. It is here from the start so
-     you write it while you still have the evidence, not when the gate refuses.
-
-     Format (the parser wants the `**Recommendation:**` line at the start of a
-     line; a leading `-` or `*` bullet is also accepted):
-     **Recommendation:** GO / NO-GO / DEFER
-     **Rationale:** Why (cite evidence — what shipped, what was proven, what remains)
-     **Evidence:**
-     - Finding 1
-     - Finding 2
-
-     DEFER is for evidence gaps, not confidence gaps (CLAUDE.md §Presenting Work
-     for Human Review). If the artefact is complete and you still don't want to
-     commit, that is a calibration failure — recommend GO or NO-GO.
--->
+**Recommendation:** GO
+**Rationale:** The gate is built, wired ahead of the decision write, covered by a teeth suite with a mutation control set, and — the part the Human AC asks for — it has already refused the operator live, twice, and was right both times. What remains unobserved is step 3 of the Human AC (a checkable clause being ACCEPTED end-to-end through the operator's own path), because T-878 and T-879 still await their decisions.
+**Evidence:**
+- Verification block 8/8 on 2026-09-29 (`fw task verify T-866`): teeth PASS 10 / FAIL 0; `--mutation` reports MUTATION OK with 3 controls green and 7 refusal cases red.
+- Live refusal, steps 1–2 of the Human AC, observed by the operator not the agent: commit 39e5158d (T-874, 2026-09-27) records that T-878 and T-879 went out carrying the literal placeholder `<measurable signal>` and the operator "hit the refusal twice in a row trying to record decisions in Watchtower". The refusal message named what was missing; the agent then wrote both hypotheses and verified them with `audit_inception_hypothesis` directly (exit 0 on both).
+- Step 3 (acceptance) is NOT yet evidenced: neither T-878 nor T-879 has a recorded decision as of 2026-09-29 (`fw inception status`). The first GO recorded on either is the closing evidence; the operator need not construct a synthetic case.
+- Seam found by the live exercise, not fixed here: `fw task create --type inception` enforces recommendation/rationale at filing (T-679) but not the hypothesis, so the creation gate and this decision gate disagree about what a complete inception is. Filed as a finding in the procAsFit round-1 handback rather than silently widened into this task.
 
 ## Decisions
 
@@ -378,3 +344,15 @@ grep -q 'We will know that we are successful when we see' .tasks/templates/incep
 
 ### 2026-09-26T13:48:13Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a5046ca9
+- **Timestamp:** 2026-09-28T22:52:33Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-28T22:52:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
