@@ -1,15 +1,37 @@
 ---
 id: T-905
-name: "The round-trip guard's COMPUTED_SOURCES declares key:'metaKeys' but 'key' iterates structList/structDict — the declaration names a source it does not iterate"
+name: "The round-trip guard's COMPUTED_SOURCES declares key:'metaKeys' but 'key' iterates
+  structList/structDict — the declaration names a source it does not iterate"
 description: >
-  COMPUTED_SOURCES in tools/_roundtrip-serialization-cdp.mjs (:237-241) exists so that a computed access aef[<var>] must NAME THE LIST IT ITERATES - the guard's own comment says 'so a new computed access cannot enter the emitter unnoticed by reading as a variable'. It declares three entries: k->metaKeys, key->metaKeys, bindField->EVENT_BINDING_FIELD. Measured under T-904: inside aefExtensionXml, 'key' does NOT iterate metaKeys. It iterates the STRUCTURED literals - structList (src:10177, 'const structList = { emits: [...], compensates: [...] }'), and the structDict/itemlist loops at src:10180/10200 use the same variable name. metaKeys is iterated by 'k'. So key->metaKeys is a MISDECLARATION: the mechanism that is supposed to pin a computed access to its source names the wrong source, and the guard cannot notice, because it only checks that a declaration EXISTS for each computed variable - never that the named source is the one actually iterated. Consequence: the structured-key literals (structList/structDict/itemlist) are read by NO derivation at all. Every structured key is in EXCLUDED (STRUCTURED, T-483) so the verdict is unaffected TODAY - but an exclusion is supposed to be a decision, and these keys are reaching it by accident rather than by classification. Corroborating datum from T-904's measurement: 'emits' entered the derived dot-set ONLY via a comment (i.e. via the very defect T-904 fixed); after stripping comments 'emits' appears in NO part of the derivation. Fix direction: have COMPUTED_SOURCES name the real source AND verify the named source literal exists in the emitter and contains the key, so a misdeclaration cannot survive. Filed separately from T-904 per one bug = one task: T-904's deliverable is comment-stripping, this is a distinct defect in a different mechanism of the same guard.
+  COMPUTED_SOURCES in tools/_roundtrip-serialization-cdp.mjs (:237-241) exists so
+  that a computed access aef[<var>] must NAME THE LIST IT ITERATES - the guard's own
+  comment says 'so a new computed access cannot enter the emitter unnoticed by reading
+  as a variable'. It declares three entries: k->metaKeys, key->metaKeys, bindField->EVENT_BINDING_FIELD.
+  Measured under T-904: inside aefExtensionXml, 'key' does NOT iterate metaKeys. It
+  iterates the STRUCTURED literals - structList (src:10177, 'const structList = {
+  emits: [...], compensates: [...] }'), and the structDict/itemlist loops at src:10180/10200
+  use the same variable name. metaKeys is iterated by 'k'. So key->metaKeys is a MISDECLARATION:
+  the mechanism that is supposed to pin a computed access to its source names the
+  wrong source, and the guard cannot notice, because it only checks that a declaration
+  EXISTS for each computed variable - never that the named source is the one actually
+  iterated. Consequence: the structured-key literals (structList/structDict/itemlist)
+  are read by NO derivation at all. Every structured key is in EXCLUDED (STRUCTURED,
+  T-483) so the verdict is unaffected TODAY - but an exclusion is supposed to be a
+  decision, and these keys are reaching it by accident rather than by classification.
+  Corroborating datum from T-904's measurement: 'emits' entered the derived dot-set
+  ONLY via a comment (i.e. via the very defect T-904 fixed); after stripping comments
+  'emits' appears in NO part of the derivation. Fix direction: have COMPUTED_SOURCES
+  name the real source AND verify the named source literal exists in the emitter and
+  contains the key, so a misdeclaration cannot survive. Filed separately from T-904
+  per one bug = one task: T-904's deliverable is comment-stripping, this is a distinct
+  defect in a different mechanism of the same guard.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface, false-green]
-components: []
+components: [src/aef-workflow-designer.html, tools/_roundtrip-serialization-cdp.mjs, tools/_t904-denominator-comment-blindness-teeth.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T14:34:45Z
-last_update: 2026-09-27T14:34:45Z
-date_finished: null
+last_update: 2026-09-28T23:32:17Z
+date_finished: 2026-09-28T23:32:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +56,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 0
+  F3: 4
+  F1: 2
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-28T23:28:43Z'
+cost_estimate_proposed:
+  - ts: '2026-09-28T23:31:47Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 3
+      tier: 2
+      effort: 8
+    rationale: blast_radius=3 (2-components); tier=2 (workflow:build); effort=8 
+      (lines=293,acs=8)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-905: The round-trip guard's COMPUTED_SOURCES declares key:'metaKeys' but 'key' iterates structList/structDict — the declaration names a source it does not iterate
@@ -79,8 +124,12 @@ the named source literal exists in the emitter and that the iterated keys come f
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **A misdeclaration fails.** `checkDenominator()` derives, from the comment-stripped body of `aefExtensionXml`, the actual binding source(s) of every computed variable `aef[<var>]` (`for (const v of|in EXPR)`, `EXPR.filter(v =>`, `EXPR.map(v =>`, `const v = EXPR`) and compares them to the declaration in `COMPUTED_SOURCES`. A declared source the variable is not bound from, or a binding source the declaration omits, is a `problems` entry naming the variable, the declared source and the actual one — no longer indistinguishable from a correct declaration
+- [x] **A declared source must exist.** Each declared source string is found verbatim in the stripped body (or, for module-scope literals such as `EVENT_BINDING_FIELD`, in the file); a declaration naming a literal that is not there fails on its own, before the binding comparison
+- [x] **The three live declarations are corrected to what the code iterates**, per the table in Context: `k` ranges over the node's own key bag (`Object.keys(aef)` / `aefKeys` / `carriedKeys`) as well as `metaKeys`; `key` over `structList`, `structItemList` and an inline array literal, never `metaKeys`; `bindField` from `EVENT_BINDING_FIELD`. Open-set sources (the document bag) are declared as such and reported in the output as open, so the denominator states what it cannot enumerate instead of implying it did
+- [x] **Keys reachable only through `key` are classified by derivation, not by accident:** the object-literal keys of `structList` / `structItemList` and the elements of the inline array become part of the derived projection, so each must be in `KEYSPEC` or carry a reasoned `EXCLUDED` entry — the guard's own rule that "an exclusion must cost a sentence" now applies to them
+- [x] **Proved by mutation with controls first**, in `--denominators-only` mode (no browser), each mutant applied to a temp copy of the GUARD and never to `src/`: (a) misdeclare `key` back to `'metaKeys'` → red naming `key`; (b) omit one binding source from `k`'s declaration → red naming `k` and the omitted source; (c) declare a source literal that does not exist → red before any binding comparison. Each mutant is asserted applied before it is scored, and a broken control set reports `MUTATION SETUP BROKEN`
+- [x] The full guard's static section still passes on the unmutated tree (`--denominators-only` exit 0), and the summary line carries the computed-source verdict alongside the three denominators
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -115,6 +164,15 @@ the named source literal exists in the emitter and that the iterated keys come f
 
 ## Verification
 
+# Teeth: controls first, then three guard-copy mutants (misdeclare key; omit a k source; declare a nonexistent literal).
+out=$(bash tools/_t905-computed-sources-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+# The static section is green on the unmutated tree and the summary carries the computed-source verdict.
+node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q 'computed sources 3 verified'
+# The mechanism is wired into checkDenominator (property, not prose).
+grep -q 'const cs = checkComputedSources(body, srcAllForCs, computed);' tools/_roundtrip-serialization-cdp.mjs
+# The table now declares `key` as a LIST of kinded sources (positive fact, no negation): the old scalar form cannot coexist with it.
+grep -qE "^  key: \[" tools/_roundtrip-serialization-cdp.mjs
+node --check tools/_roundtrip-serialization-cdp.mjs
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -243,43 +301,17 @@ the named source literal exists in the emitter and that the iterated keys come f
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
-
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
-
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Symptom:** `COMPUTED_SOURCES` declared `key: 'metaKeys'` while `key` iterated `structList`, an inline array and `structItemList`; `k: 'metaKeys'` while `k` ranged over the node's whole key bag. The guard was green.
+**Root cause:** `checkDenominator()` verified only that a declaration existed for each computed variable, never that the named source was the one iterated or that it existed at all.
+**Why structurally allowed:** The declaration was prose in code form — a string nothing compared against the program. The structured literals were reached by no derivation, so their keys sat in `EXCLUDED` by accident and the guard's "an exclusion must cost a sentence" rule never applied to them.
+**Prevention:** `deriveBindingSources()` reads every binding site of the variable from the stripped body and the declaration must match it both ways; every declared source must exist where its kind says; object/inline sources contribute their keys to the projection so they are classified by derivation; the bag is reported as an open set rather than implied enumerated. Pinned by three mutants in `tools/_t905-computed-sources-teeth.sh`.
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
-
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — the declaration became a claim the code can refute
+- **What changed:** The table's VALUES changed shape from a name to a list of kinded sources, because the three variables draw from four different kinds of thing and only two of those contribute enumerable keys. The bag (`Object.keys(aef)` / `aefKeys` / `carriedKeys`) is the load-bearing case from Context: it cannot be derived from the emitter, and pretending otherwise is the false green in a new coat. It is reported as `openSources` — "k <- carriedKeys" — so the summary now says what the denominator cannot see.
+- **Plan impact:** `derivedTotal` stayed 37 exactly as Context predicted: every key the structured literals contribute was already in `EXCLUDED`, so the verdict did not move; what moved is that those keys now reach exclusion by derivation. Two parser corrections during build, both caught by the guard going red on the unmutated tree rather than by me: a chained `.map(k =>` beginning on the next line, and a spread element's `...` being read as part of the identifier.
+- **Triggered:** Nothing filed. One mutant's teeth grep initially failed on JSON-escaped quotes while the guard itself had gone red correctly — the harness, not the subject.
 
 ## Recommendation
 
@@ -337,3 +369,23 @@ the named source literal exists in the emitter and that the iterated keys come f
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-905-the-round-trip-guards-computedsources-de.md
 - **Context:** Initial task creation
+
+### 2026-09-28T23:26:56Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-338ac6dc
+- **Timestamp:** 2026-09-28T23:32:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 4
+     - evidence: `node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q 'computed sources 3 verified'`
+
+### 2026-09-28T23:32:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

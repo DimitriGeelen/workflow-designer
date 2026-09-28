@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-905: The round-trip guard's COMPUTED_SOURCES declares key:'metaKeys' but 'key' iterates structList/structDict — the declaration names a source it does not iterate
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T23:32:34Z
+# ============================================================================
+
+task_id: T-905
+task_name: "The round-trip guard's COMPUTED_SOURCES declares key:'metaKeys' but 'key' iterates structList/structDict — the declaration names a source it does not iterate"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T14:34:45Z
+completed: 2026-09-28T23:32:17Z
+duration_days: 1
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  COMPUTED_SOURCES in tools/_roundtrip-serialization-cdp.mjs (:237-241) exists so that a computed access aef[<var>] must NAME THE LIST IT ITERATES - the guard's own comment says 'so a new computed access cannot enter the emitter unnoticed by reading as a variable'. It declares three entries: k->metaKeys, key->metaKeys, bindField->EVENT_BINDING_FIELD. Measured under T-904: inside aefExtensionXml, 'key' does NOT iterate metaKeys. It iterates the STRUCTURED literals - structList (src:10177, 'const structList = { emits: [...], compensates: [...] }'), and the structDict/itemlist loops at src:10180/10200 use the same variable name. metaKeys is iterated by 'k'. So key->metaKeys is a MISDECLARATION: the mechanism that is supposed to pin a computed access to its source names the wrong source, and the guard cannot notice, because it only checks that a declaration EXISTS for each computed variable - never that the named source is the one actually iterated. Consequence: the structured-key literals (structList/structDict/itemlist) are read by NO derivation at all. Every structured key is in EXCLUDED (STRUCTURED, T-483) so the verdict is unaffected TODAY - but an exclusion is supposed to be a decision, and these keys are reaching it by accident rather than by classification. Corroborating datum from T-904's measurement: 'emits' entered the derived dot-set ONLY via a comment (i.e. via the very defect T-904 fixed); after stripping comments 'emits' appears in NO part of the derivation. Fix direction: have COMPUTED_SOURCES name the real source AND verify the named source literal exists in the emitter and contains the key, so a misdeclaration cannot survive. Filed separately from T-904 per one bug = one task: T-904's deliverable is comment-stripping, this is a distinct defect in a different mechanism of the same guard.
+
+# Key outcomes
+outcomes:
+  - '**A misdeclaration fails.** `checkDenominator()` derives, from the comment-stripped body of `aefExtensionXml`, the actual binding source(s) of every computed variable `aef[<var>]` (`for (const v of|in EXPR)`, `EXPR.filter(v =>`, `EXPR.map(v =>`, `const v = EXPR`) and compares them to the declaration in `COMPUTED_SOURCES`. A declared source the variable is not bound from, or a binding source the declaration omits, is a `problems` entry naming the variable, the declared source and the actual one — no longer indistinguishable from a correct declaration'
+  - '**A declared source must exist.** Each declared source string is found verbatim in the stripped body (or, for module-scope literals such as `EVENT_BINDING_FIELD`, in the file); a declaration naming a literal that is not there fails on its own, before the binding comparison'
+  - '**The three live declarations are corrected to what the code iterates**, per the table in Context: `k` ranges over the node''s own key bag (`Object.keys(aef)` / `aefKeys` / `carriedKeys`) as well as `metaKeys`; `key` over `structList`, `structItemList` and an inline array literal, never `metaKeys`; `bindField` from `EVENT_BINDING_FIELD`. Open-set sources (the document bag) are declared as such and reported in the output as open, so the denominator states what it cannot enumerate instead of implying it did'
+  - '**Keys reachable only through `key` are classified by derivation, not by accident:** the object-literal keys of `structList` / `structItemList` and the elements of the inline array become part of the derived projection, so each must be in `KEYSPEC` or carry a reasoned `EXCLUDED` entry — the guard''s own rule that "an exclusion must cost a sentence" now applies to them'
+  - '**Proved by mutation with controls first**, in `--denominators-only` mode (no browser), each mutant applied to a temp copy of the GUARD and never to `src/`: (a) misdeclare `key` back to `''metaKeys''` → red naming `key`; (b) omit one binding source from `k`''s declaration → red naming `k` and the omitted source; (c) declare a source literal that does not exist → red before any binding comparison. Each mutant is asserted applied before it is scored, and a broken control set reports `MUTATION SETUP BROKEN`'
+  - 'The full guard''s static section still passes on the unmutated tree (`--denominators-only` exit 0), and the summary line carries the computed-source verdict alongside the three denominators'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 1977 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface, false-green]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1977
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-905-the-round-trip-guards-computedsources-de.md
+generated_by: context-agent-hybrid

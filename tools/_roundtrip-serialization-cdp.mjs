@@ -324,11 +324,141 @@ const EXCLUDED = {
 };
 // Computed accesses — aef[<var>] — cannot be read as literal keys. Each must name the source it
 // iterates, so a new computed access cannot enter the emitter unnoticed by reading as a variable.
+//
+// T-905: THE DECLARATION IS VERIFIED, NOT TRUSTED. Until T-905 this table was `k: 'metaKeys',
+// key: 'metaKeys', bindField: 'EVENT_BINDING_FIELD'` and checkDenominator() only asked whether an
+// entry EXISTED for each computed variable. Measured under T-904: `key` never iterates metaKeys —
+// it walks structList, an inline array and structItemList — and `k` ranges over the node's whole
+// key bag (Object.keys(aef) / aefKeys / carriedKeys), of which metaKeys is one filtered slice. A
+// misdeclaration was indistinguishable from a correct one, which is the false-green shape this
+// guard exists to remove. Now deriveBindingSources() reads, from the stripped body, every site
+// that BINDS the variable (for-of/in, .filter/.map callbacks, const =) and the declaration below
+// must match that set exactly, and every declared source must exist where it says it lives.
+//
+// Source kinds, because they contribute to the projection differently:
+//   literal — an array literal in the body whose string elements are projected keys (metaKeys)
+//   object  — an object literal in the body whose KEYS are projected keys (structList, structItemList)
+//   inline  — an inline array literal iterated directly; its elements are projected keys
+//   bag     — the node's own key bag: an OPEN set that comes from the document (T-570 carriage).
+//             It cannot be enumerated from the emitter; it is REPORTED as open rather than implied
+//             enumerated, which is the honest form of "derived FROM the emitter" for that range.
+//   module  — a module-scope literal above the function (EVENT_BINDING_FIELD), handled by bindFields
 const COMPUTED_SOURCES = {
-  k:         'metaKeys',            // metaAttrs .map over the metaKeys literal
-  key:       'metaKeys',
-  bindField: 'EVENT_BINDING_FIELD', // typed-event binding field, chosen by node type
+  k: [
+    { bag: 'Object.keys(aef)' },   // aefKeys = Object.keys(aef).filter(k => ...)
+    { bag: 'aefKeys' },            // carriedKeys = aefKeys.filter(k => ...)
+    { literal: 'metaKeys' },       // metaKeys.filter(k => aefKeys.includes(k))
+    { bag: 'carriedKeys' },        // [...metaKeys.filter(...), ...carriedKeys].map(k => ...)
+  ],
+  key: [
+    { object: 'structList' },                                  // for (const key in structList)
+    { inline: "['aggregation', 'multiInstance', 'timer']" },   // for (const key of [...])
+    { object: 'structItemList' },                              // for (const key in structItemList)
+  ],
+  bindField: [
+    { module: 'EVENT_BINDING_FIELD' },                         // const bindField = EVENT_BINDING_FIELD[node.type]
+  ],
 };
+const SOURCE_KINDS = ['literal', 'object', 'inline', 'bag', 'module'];
+function sourceName(decl) { const kind = SOURCE_KINDS.find(k => k in decl); return kind ? { kind, name: decl[kind] } : null; }
+
+// Walk backwards from index i (just before a `.filter(`/`.map(` dot) over one balanced receiver
+// expression: an identifier chain, optionally ending in a balanced (...) / [...] group.
+function receiverBefore(body, i) {
+  let j = i - 1;
+  while (j >= 0 && /\s/.test(body[j])) j--;   // a chained .map( may start on the next line
+  const closeOf = { ')': '(', ']': '[' };
+  while (j >= 0) {
+    const c = body[j];
+    if (c === ')' || c === ']') {           // balanced group — skip to its opener
+      let depth = 0;
+      for (; j >= 0; j--) {
+        if (body[j] === c) depth++;
+        else if (body[j] === closeOf[c]) { depth--; if (depth === 0) break; }
+      }
+      j--; continue;
+    }
+    if (/[A-Za-z0-9_.$]/.test(c)) { j--; continue; }
+    break;
+  }
+  return body.slice(j + 1, i).trim().replace(/^\.\.\./, '');   // a spread element's head, not the dots
+}
+// Reduce a binding expression to the source NAMES it draws from, in the vocabulary of the table.
+function sourceNamesOf(expr) {
+  expr = expr.trim();
+  if (expr.startsWith('[') && expr.includes('...')) {       // spread array: each element's head
+    const inner = expr.slice(1, -1);
+    const parts = []; let depth = 0, cur = '';
+    for (const c of inner) {
+      if (c === ',' && depth === 0) { parts.push(cur); cur = ''; continue; }
+      if ('([{'.includes(c)) depth++; if (')]}'.includes(c)) depth--;
+      cur += c;
+    }
+    parts.push(cur);
+    return parts.flatMap(p => sourceNamesOf(p.trim().replace(/^\.\.\./, '')));
+  }
+  if (expr.startsWith('[')) return [expr.replace(/\s+/g, ' ')];   // inline literal, verbatim
+  if (/^Object\.keys\(aef\)/.test(expr)) return ['Object.keys(aef)'];
+  const head = /^([A-Za-z_$][\w$]*)/.exec(expr);
+  return head ? [head[1]] : [expr];
+}
+function deriveBindingSources(body, v) {
+  const found = new Set();
+  const esc = v.replace(/[$]/g, '\\$&');
+  for (const m of body.matchAll(new RegExp(`for\\s*\\(\\s*(?:const|let|var)\\s+${esc}\\s+(?:of|in)\\s+([^)]+)\\)`, 'g')))
+    for (const n of sourceNamesOf(m[1])) found.add(n);
+  for (const m of body.matchAll(new RegExp(`\\.(?:filter|map|forEach|some|every|find|flatMap)\\(\\s*${esc}\\s*=>`, 'g')))
+    for (const n of sourceNamesOf(receiverBefore(body, m.index))) found.add(n);
+  for (const m of body.matchAll(new RegExp(`(?:const|let|var)\\s+${esc}\\s*=\\s*([^;\\n]+)`, 'g')))
+    for (const n of sourceNamesOf(m[1])) found.add(n);
+  return found;
+}
+// Keys an OBJECT or INLINE source contributes to the projection: object-literal keys, or array elements.
+function keysOfSource(body, srcAll, decl) {
+  const { kind, name } = sourceName(decl);
+  if (kind === 'object') {
+    const m = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\};`).exec(body);
+    if (!m) return null;
+    return [...m[1].matchAll(/(?:^|[,{\s])([A-Za-z_][A-Za-z0-9_]*)\s*:/g)].map(x => x[1]);
+  }
+  if (kind === 'inline') return [...name.matchAll(/'([A-Za-z_][A-Za-z0-9_]*)'/g)].map(x => x[1]);
+  return [];
+}
+// Existence: where each declared source must be found, verbatim.
+function sourceExists(body, srcAll, decl) {
+  const { kind, name } = sourceName(decl);
+  if (kind === 'bag') return name === 'Object.keys(aef)' ? body.includes('Object.keys(aef)') : new RegExp(`const\\s+${name}\\s*=`).test(body);
+  if (kind === 'literal' || kind === 'object') return new RegExp(`const\\s+${name}\\s*=`).test(body);
+  if (kind === 'inline') return body.replace(/\s+/g, ' ').includes(name);
+  if (kind === 'module') return new RegExp(`const\\s+${name}\\s*=`).test(srcAll);
+  return false;
+}
+function checkComputedSources(body, srcAll, computed) {
+  const problems = [], report = {};
+  for (const v of computed) {
+    const decls = COMPUTED_SOURCES[v];
+    if (!decls) { problems.push(`aef[${v}] is a computed access with no declared source — add it to COMPUTED_SOURCES naming the list it iterates`); continue; }
+    const declared = [], open = [], contributed = [];
+    for (const d of decls) {
+      const sn = sourceName(d);
+      if (!sn) { problems.push(`COMPUTED_SOURCES.${v}: a declaration has no recognised kind (${SOURCE_KINDS.join('|')})`); continue; }
+      declared.push(sn.name);
+      if (!sourceExists(body, srcAll, d)) { problems.push(`COMPUTED_SOURCES.${v} declares ${sn.kind} source "${sn.name}" which does not exist in the emitter — the declaration names something that is not there`); continue; }
+      if (sn.kind === 'bag') open.push(sn.name);
+      const ks = keysOfSource(body, srcAll, d);
+      if (ks === null) problems.push(`COMPUTED_SOURCES.${v}: ${sn.kind} source "${sn.name}" exists but its literal did not parse`);
+      else contributed.push(...ks);
+    }
+    const actual = deriveBindingSources(body, v);
+    const undeclared = [...actual].filter(n => !declared.includes(n)).sort();
+    const notBound = declared.filter(n => !actual.has(n)).sort();
+    if (undeclared.length) problems.push(`aef[${v}] is bound from ${undeclared.join(', ')} which COMPUTED_SOURCES.${v} does not declare — the declaration is narrower than the code`);
+    if (notBound.length) problems.push(`COMPUTED_SOURCES.${v} declares ${notBound.join(', ')} but the emitter never binds ${v} from it — the declaration names a source it does not iterate`);
+    report[v] = { declared, actual: [...actual].sort(), open, contributed };
+  }
+  for (const v of Object.keys(COMPUTED_SOURCES)) if (!computed.has(v)) problems.push(`COMPUTED_SOURCES.${v} is declared but aef[${v}] no longer appears in the emitter — dead declaration`);
+  return { problems, report };
+}
 // T-904: THE DERIVATION MATCHES CODE, NOT PROSE. Every regex below runs over comment-stripped
 // text. Before this, deriveProjectedKeys() regexed the RAW function body, so a comment naming
 // `node.aef.foo` entered the projected set exactly as an executable access would. Measured in
@@ -399,16 +529,20 @@ function deriveProjectedKeys() {
   if (!ebf) throw new Error('denominator: EVENT_BINDING_FIELD found but its object literal did not parse');
   const bindFields = [...ebf[1].matchAll(/:\s*'([A-Za-z_][A-Za-z0-9_]*)'/g)].map(m => m[1]);
 
-  return { dot, computed, metaKeys, bindFields };
+  return { dot, computed, metaKeys, bindFields, body };
 }
 // hostRef / interrupting are NOT aef.* accesses — they ride native bpmn:boundaryEvent attributes
 // emitted in buildBpmnXml (src:9643). Assert the mechanism still exists, so if the emitter stops
 // writing them the denominator notices instead of the pair quietly becoming NEVER-PRESENT.
 const NATIVE_KEYS = { hostRef: 'attachedToRef="', interrupting: 'cancelActivity="' };
 function checkDenominator() {
-  const { dot, computed, metaKeys, bindFields } = deriveProjectedKeys();
+  const { dot, computed, metaKeys, bindFields, body } = deriveProjectedKeys();
   const covered = new Set(METAKEYS);
   const problems = [];
+  const srcAllForCs = readFileSync(SRC_HTML, 'utf8');
+  // T-905: verified computed-source declarations; their object/inline sources join the projection.
+  const cs = checkComputedSources(body, srcAllForCs, computed);
+  problems.push(...cs.problems);
 
   for (const [name, reason] of Object.entries(EXCLUDED))
     if (!reason || !reason.trim()) problems.push(`exclusion "${name}" has no reason — an exclusion without a reason is an absence wearing a decision's clothes`);
@@ -416,10 +550,8 @@ function checkDenominator() {
     if (covered.has(name)) problems.push(`"${name}" is both in KEYSPEC and in EXCLUDED — one of the two is wrong`);
 
   const projected = new Set([...dot, ...metaKeys, ...bindFields]);
-  for (const v of computed) {
-    if (!COMPUTED_SOURCES[v]) { problems.push(`aef[${v}] is a computed access with no declared source — add it to COMPUTED_SOURCES naming the list it iterates`); continue; }
-    projected.delete(v); // the variable itself is not a key
-  }
+  for (const r of Object.values(cs.report)) for (const k of r.contributed) projected.add(k);
+  for (const v of computed) projected.delete(v); // the variable itself is not a key
   for (const v of Object.keys(COMPUTED_SOURCES)) projected.delete(v);
 
   const orphans = [...projected].filter(k => !covered.has(k) && !(k in EXCLUDED)).sort();
@@ -437,7 +569,8 @@ function checkDenominator() {
   const specNotProjected = [...covered].filter(k => !total.has(k)).sort();
   if (specNotProjected.length) problems.push(`KEYSPEC contains key(s) the emitter does not project: ${specNotProjected.join(', ')} — dead coverage reads as real coverage`);
 
-  return { problems, derivedTotal: total.size, missingFromSpec, orphans, specSize: covered.size };
+  const openSources = Object.entries(cs.report).flatMap(([v, r]) => r.open.map(n => `${v} <- ${n}`));
+  return { problems, derivedTotal: total.size, missingFromSpec, orphans, specSize: covered.size, computedSources: cs.report, openSources };
 }
 
 // Self-test: perturb EVERY projected key in its own wire form and confirm the projection
@@ -970,10 +1103,10 @@ async function main() {
   if (process.argv.includes('--denominators-only')) {
     process.stdout.write(JSON.stringify({
       pass: true, denominators_only: true,
-      denominator: { derivedTotal: DENOM.derivedTotal, orphans: DENOM.orphans },
+      denominator: { derivedTotal: DENOM.derivedTotal, orphans: DENOM.orphans, computedSources: DENOM.computedSources, openSources: DENOM.openSources },
       wm_denominator: { derivedTotal: WMDENOM.derivedTotal, derived: WMDENOM.derived, orphans: WMDENOM.orphans },
       lm_denominator: { derivedTotal: LMDENOM.derivedTotal, derived: LMDENOM.derived, orphans: LMDENOM.orphans },
-      summary: `node ${DENOM.derivedTotal} / workflowMeta ${WMDENOM.derivedTotal} / laneMeta ${LMDENOM.derivedTotal} attributes derived, 0 unclassified`,
+      summary: `node ${DENOM.derivedTotal} / workflowMeta ${WMDENOM.derivedTotal} / laneMeta ${LMDENOM.derivedTotal} attributes derived, 0 unclassified; computed sources ${Object.keys(DENOM.computedSources).length} verified, ${DENOM.openSources.length} open`,
     }, null, 2) + '\n');
     process.exitCode = 0; return;
   }
