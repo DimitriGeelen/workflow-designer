@@ -299,15 +299,27 @@ do_count() {
 do_promote() {
     local obs_id=""
     local task_type="build"
+    # T-912: the default is `agent`, and the default is the whole change. It was `human`,
+    # hardcoded with no way to say otherwise, so every promotion produced a task an agent could
+    # not close — and the evidence is that almost none of them had a human criterion to justify
+    # it. T-910 (from OBS-416) closed with 0/0 Human ACs, 6/6 Agent ACs and verification 10/10,
+    # after three operator attempts and a --skip-sovereignty bypass, because the sovereignty gate
+    # fires on the OWNER FIELD rather than on any unchecked human criterion. T-885 is the same
+    # shape and still open. Human ownership is still available and still honoured; it is now a
+    # choice someone makes rather than one the tool makes for them.
+    local task_owner="agent"
     while [ $# -gt 0 ]; do
         case "$1" in
             --type|-t) task_type="$2"; shift 2 ;;
+            --owner|-o) task_owner="$2"; shift 2 ;;
             -h|--help)
-                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>]"
+                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--owner <agent|human>]"
+                echo "  --owner defaults to 'agent'. Use --owner human when the task genuinely needs"
+                echo "  human judgement, and give it a Human acceptance criterion saying what to judge."
                 return 0 ;;
             -*)
                 echo -e "${RED}Unknown flag: $1${NC}" >&2
-                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>]" >&2
+                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--owner <agent|human>]" >&2
                 return 1 ;;
             *)
                 if [ -z "$obs_id" ]; then obs_id="$1"; else
@@ -336,18 +348,65 @@ do_promote() {
     echo -e "${YELLOW}Promoting $obs_id to task (type: $task_type)...${NC}"
     echo ""
 
-    # Create task
-    PROJECT_ROOT="$PROJECT_ROOT" "$FRAMEWORK_ROOT/agents/task-create/create-task.sh" \
+    # Create task. The output is CAPTURED so the created id can be read back, then re-printed in
+    # full — swallowing it would trade one silent record for another.
+    local create_out create_rc=0
+    create_out=$(PROJECT_ROOT="$PROJECT_ROOT" "$FRAMEWORK_ROOT/agents/task-create/create-task.sh" \
         --name "$text" \
         --description "Promoted from observation $obs_id" \
         --type "$task_type" \
-        --owner human
+        --owner "$task_owner" 2>&1) || create_rc=$?
+    printf '%s\n' "$create_out"
+    if [ "$create_rc" -ne 0 ]; then
+        echo -e "${RED}promote: task creation failed (rc=$create_rc)${NC}" >&2
+        echo "  $obs_id is left PENDING — an observation marked promoted with no task behind it" >&2
+        echo "  is worse than one still in the queue." >&2
+        return 1
+    fi
 
-    # Mark as promoted
-    _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: promoted/;s/promoted_to: null/promoted_to: task/}" "$INBOX_FILE"
+    # T-912: read the REAL task id. This used to write the literal string 'task' into
+    # promoted_to, so the field existed and was filled with a constant — measured across all six
+    # previously-promoted observations, `promoted_to: 'task'` in 6 of 6, never an id. context_task
+    # is not a substitute: it records the task in FOCUS AT CAPTURE TIME, so OBS-416 became T-910
+    # and its record says T-890. The result was that nothing linked an observation to the task it
+    # turned into (OBS-257).
+    local new_id
+    new_id=$(printf '%s\n' "$create_out" | sed -n 's/^ID:[[:space:]]*\(T-[0-9][0-9]*\).*/\1/p' | head -1)
+    if [ -z "$new_id" ]; then
+        echo -e "${RED}promote: could not read the created task id from create-task.sh output${NC}" >&2
+        echo "  $obs_id is left PENDING. Writing a placeholder here is what this change removes;" >&2
+        echo "  doing it again on the failure path would reintroduce the defect with better manners." >&2
+        return 1
+    fi
+
+    # The REVERSE link, in a field a query can read. The description already says "Promoted from
+    # observation OBS-NNN", but that is prose, and prose is not an index.
+    local task_file
+    task_file=$(printf '%s\n' "$create_out" | sed -n 's/^File:[[:space:]]*\(.*[^[:space:]]\)[[:space:]]*$/\1/p' | head -1)
+    if [ -n "$task_file" ] && [ -f "$task_file" ]; then
+        OBS_ID="$obs_id" TASK_FILE="$task_file" python3 - <<'PY' || echo "  (warning: could not add the observation backlink to $task_file)" >&2
+import os, sys
+f, obs = os.environ['TASK_FILE'], os.environ['OBS_ID']
+lines = open(f, encoding='utf-8').read().split('\n')
+# Idempotent: a backlink already present is left alone rather than duplicated.
+if any(ln.startswith('observation:') for ln in lines):
+    sys.exit(0)
+for i, ln in enumerate(lines):
+    if ln.startswith('id: '):
+        lines.insert(i + 1, 'observation: %s' % obs)
+        break
+else:
+    sys.exit(1)   # no id: line — say so rather than writing the field somewhere arbitrary
+open(f, 'w', encoding='utf-8').write('\n'.join(lines))
+PY
+    fi
+
+    # Mark as promoted, with the id rather than a constant.
+    _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: promoted/;s/promoted_to: null/promoted_to: $new_id/}" "$INBOX_FILE"
 
     echo ""
-    echo -e "${GREEN}$obs_id promoted to task${NC}"
+    echo -e "${GREEN}$obs_id promoted to $new_id${NC} (owner: $task_owner)"
+    echo "  $obs_id.promoted_to → $new_id, and $new_id.observation → $obs_id"
 }
 
 do_dismiss() {

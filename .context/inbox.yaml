@@ -258,7 +258,7 @@ observations:
   context_task: T-402
   tags: []
   status: promoted
-  promoted_to: task
+  promoted_to: T-439
 - id: OBS-021
   text: 'validation_method is inert across the ENTIRE assumption register: 20 of 20 rows read TBD, including
     all four that were disposed with real evidence. The field has never steered a single disposition —
@@ -292,7 +292,7 @@ observations:
   context_task: T-429
   tags: []
   status: promoted
-  promoted_to: task
+  promoted_to: T-440
 - id: OBS-024
   text: 'fw note has no unknown-subcommand error: ''fw note add "real text"'' captures the literal string
     ''add'' as the observation and silently discards the argument that follows. The inbox then holds a
@@ -377,7 +377,7 @@ observations:
   tags:
   - bug
   status: promoted
-  promoted_to: task
+  promoted_to: T-441
 - id: OBS-030
   text: _t429-zero-leg-probe.sh reads a non-zero PROCESS EXIT as GUARDED, which is only sound while the
     suite is otherwise green — on a suite carrying any real failure it reports GUARDED for a file with
@@ -391,7 +391,7 @@ observations:
   tags:
   - tooling
   status: promoted
-  promoted_to: task
+  promoted_to: T-442
 - id: OBS-031
   text: 'fw note promote uses the ENTIRE observation body as the new task''s name field, and sets description
     to the one-line stub ''Promoted from observation OBS-NNN'' — so the paragraph lands where a title
@@ -1999,7 +1999,7 @@ observations:
   context_task: T-875
   tags: []
   status: promoted
-  promoted_to: task
+  promoted_to: T-885
   urgent: true
 - id: OBS-403
   text: "update-task.sh:249 prints 'Map: aef-task-lifecycle node tl_archive enforces this' to point a tripping agent at the process picture — but it is guarded on .context/designer/projects/aef-task-lifecycle/meta.json and that file does not exist in this project. The store holds six projects and none carries that name. Positive control: the sibling audit-process/meta.json DOES exist, so the path shape is correct and only the project name is wrong. Net effect: the read-value wiring T-2624 added has never fired here. It is not misinforming anyone — it is silently printing nothing, which is why nobody noticed. Either the store project should be created under that name, or the guard should name the project that actually holds the task-lifecycle map. Found while measuring T-878 IW-1, where I had twice cited this line as evidence that an instance-to-template hairline already existed."
@@ -2109,7 +2109,7 @@ observations:
   context_task: T-890
   tags: []
   status: promoted
-  promoted_to: task
+  promoted_to: T-910
   urgent: true
 - id: OBS-417
   text: "The close gate refused T-891 FOUR TIMES and every refusal was a real defect in the verification, not friction. Worth reading as a set because they are four different ways a leg can be wrong while looking right: (1) an uncontrolled absence — a negated grep with nothing proving the pattern could match; (2) a leg anchored to .tasks/active/T-909 that went RED WHEN T-909 SUCCEEDED and moved to completed/ — a leg that fails on its dependency succeeding is worse than no leg, because the red says nothing about the task it guards; (3) 'ls glob-a glob-b | head' returning exit 2 under pipefail because one glob legitimately matched nothing — the empty glob was the CORRECT state; (4) a missing RCA on a bug-class task. Pattern across all four: each would have passed or failed for a reason unrelated to the thing being verified. Suggest a short note in the task template's Verification block: legs that reference another task's file must anchor across active/ AND completed/, and prefer find over ls for existence checks because ls's exit code is about globs, not about files."
@@ -2160,6 +2160,21 @@ observations:
   captured: 2026-09-28T10:51:02Z
   context_task: T-737
   tags: [bug]
+  status: promoted
+  promoted_to: T-913
+  urgent: true
+- id: OBS-424
+  text: "T-912 CONTROL FIXTURE — disposable. Created only to prove that 'fw note promote --owner human' still honours the flag after the default changed to agent. Dismissed immediately after the assertion; if this is still pending, the T-912 control did not finish cleaning up."
+  captured: 2026-09-28T11:31:44Z
+  context_task: T-912
+  tags: []
+  status: dismissed
+  promoted_to: null
+  dismissed_reason: "T-912 control fixture, purpose served. It proved that 'fw note promote --owner human' still honours the flag after the default changed to agent: T-914 was created owner: human. The fixture task was then removed. NOTE THE ORDER ERROR, kept here because it is the evidence for a real gap: the task was deleted BEFORE the observation was disposed of, so promoted_to briefly pointed at a task that no longer existed, and 'fw note dismiss' refused because the record was no longer pending. Nothing in the tooling detects a promoted_to that does not resolve."
+- id: OBS-425
+  text: "Nothing detects a promoted_to that does not resolve, and nothing detects an observation whose task was deleted. Found under T-912 by doing it: a control fixture (OBS-424) was promoted to T-914, the fixture task was removed, and the inbox was left holding promoted_to: T-914 against a task that no longer existed. No check anywhere reports that. Worse, the queue then has no legal exit: 'fw note dismiss' refuses a record that is not pending ('OBS-424 is not pending (status: promoted) — not dismissing'), which is correct on its own terms, so an observation whose task vanishes is stuck in 'promoted' forever, pointing at nothing, and only a hand edit can fix it. THIS IS NOT HYPOTHETICAL FOR THE DRAIN. 182 pending observations are about to be triaged. Every promotion now creates a real forward link (T-912), which is the improvement — but a link that can silently dangle is a weaker record than no link at all, because a reader trusts it. The six pre-T-912 promotions are a separate instance of the same blindness from the other end: their promoted_to says the literal string 'task', so they dangle by construction and nothing reports that either. WANTED: an audit leg that resolves every non-null promoted_to against .tasks/ and reports the ones that do not, plus a disposition path for an observation whose task is gone. Sibling of OBS-257 (the inbox has no cross-referencing, 43 days old) and the direct complement to T-912, which builds the link this would verify."
+  captured: 2026-09-28T11:32:43Z
+  context_task: T-912
+  tags: [bug]
   status: pending
   promoted_to: null
-  urgent: true
