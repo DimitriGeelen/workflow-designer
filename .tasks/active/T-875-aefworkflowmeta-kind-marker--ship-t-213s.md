@@ -10,7 +10,7 @@ description: >
   and frozen-v1 safe. Re-check the frozen-v1-safe claim rather than inherit it. Does
   NOT widen the enum to cover class/instance — that is arc-005 S2's question.
 
-status: issues
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -28,7 +28,7 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:41:33Z
-last_update: 2026-09-26T23:18:09Z
+last_update: 2026-09-28T08:44:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -375,3 +375,12 @@ order.
 ### 2026-09-26T23:17:44Z — status-update [task-update-agent]
 - **Change:** status: started-work → issues
 - **Reason:** AC3 unclosable by the existing instrument: the round-trip guard derives its denominator from node-level aef.* accesses, so document-level workflowMeta attributes are outside its scope by construction. Proved by mutation — deleting the writer line still passes. Needs a dedicated workflowMeta round-trip teeth with a mutation control, which must also establish whether uuid/pageWidth/tier_default/title were ever covered by anything.
+
+### 2026-09-28T08:44:04Z — issue-resolved [healing-agent]
+- **Action:** Issue resolved via healing loop
+- **Output:** Pattern FP-020 recorded
+- **Mitigation:** T-886 built the instrument T-875's issues-reason said was missing, and nothing moved T-875 out of issues when it landed. The recorded blocker was: 'AC3 unclosable by the existing instrument: the round-trip guard derives its denominator from node-level aef.* accesses, so document-level workflowMeta attributes are outside its scope by construction. Proved by mutation - deleting the writer line still passes. Needs a dedicated workflowMeta round-trip teeth with a mutation control.' That instrument now exists: checkWmDenominator() derives the denominator FROM THE EMITTER (10 attributes, 0 unclassified) and the WM self-test mutates each attribute in its own wire carrier across the corpus. Measured this session: kind is LIVE, so suppressing it in the writer now moves the projection - the mutation control the reason asked for. AC3's byte-identity pair also holds: t875-kind-marker.bpmn (WITH kind) and two-lane-joint.bpmn (without) both report byteIdempotent true over 21 fixtures. T-910 extended the same discipline to aef:laneMeta. AC5 (conformance case in the existing mapping-conformance suite) and AC6 (A5 recorded in Decisions) remain and are ordinary work, not blockers. THE PATTERN: a task parked on a missing instrument stays parked after the instrument ships, because the thing that shipped it was a different task and nothing joins the two. T-886 did not know T-875 was waiting on it.
+- **Context:** Resolution logged for future reference
+
+### 2026-09-28T08:44:10Z — status-update [task-update-agent]
+- **Change:** status: issues → started-work

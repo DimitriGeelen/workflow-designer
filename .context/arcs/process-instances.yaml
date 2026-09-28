@@ -9,7 +9,7 @@ description: "Class and instance for processes. A workflow is modelled once as a
   \ Revives the still-open half of the July 2026 process-layer package: SD-8 enforcement\
   \ ladder, SD-10 instance state and caged advance, and success criterion V7 \u2014\
   \ all marked STILL OPEN in DISPOSITION-2026-07-28.md and none started since."
-status: draft
+status: in-progress
 anchor_task: 
 headline_mechanic: "An operator opens task-lifecycle in the designer, sees it marked as a template rather\
   \ than an actionable work-plan, creates an instance of it bound to a real task number,\
