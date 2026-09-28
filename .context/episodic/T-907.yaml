@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-907: tests/test_editor_bridge_meta_parity.py reads COMMENTS as keys: an apostrophe in prose inside the metaKeys literal becomes a parity break
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T23:15:03Z
+# ============================================================================
+
+task_id: T-907
+task_name: "tests/test_editor_bridge_meta_parity.py reads COMMENTS as keys: an apostrophe in prose inside the metaKeys literal becomes a parity break"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T15:04:06Z
+completed: 2026-09-28T23:14:54Z
+duration_days: 1
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Same defect class as T-904, different instrument. The editor-bridge parity checker extracts the editor's metaKeys by regexing the array literal in src/aef-workflow-designer.html for quoted strings, WITHOUT stripping comments. The metaKeys literal legitimately contains comments between its elements (T-177 and T-889 both annotate their additions inline). Consequence measured live during T-904: a comment added inside the literal containing two ordinary English apostrophes (guard-apostrophe-s ... T-904-apostrophe-s) had the two apostrophes pair as a quoted string, and the checker reported the intervening SENTENCE as an editor key the bridge drops - 'aef:meta PARITY BREAK - editor writes these keys into aef:meta but the bridge META_KEYS drops them: - s denominator regexed comments as code, so this sentence would have masked the ...'. The suite reported it as [FAIL] 'bridge META_KEYS drops a scalar key the editor writes to aef:meta', which is an accurate symptom pointing at an innocent subject: the editor drops nothing and the bridge lacks nothing. The failure was introduced by a COMMENT, and the remedy the tool suggests ('Fix: add the key(s) to META_KEYS in tools/yaml-to-bpmn.py') would have written a sentence fragment into the bridge's key list. T-904 worked around it by moving its comment outside the literal and left a comment saying why - that is mitigation, not prevention: the next author annotating a key inline will hit it again, and the suggested fix is actively wrong. Deliverable: strip comments from the literal region before extracting keys (T-904 added a reusable quote-aware stripJsComments to tools/_roundtrip-serialization-cdp.mjs; this checker is Python so it needs its own or a shared one), and add a leg that plants an apostrophe-bearing comment inside the literal and requires the checker to stay GREEN. Note the family: PL-060 (T-302, strip HTML comments before grepping task files), T-578 (bridge-suite leg 'No tool is reachable only through a JavaScript comment'), T-904 (round-trip denominator), and now this. Four instruments, one class - worth asking whether a shared helper or a lint should exist rather than a fourth bespoke fix.
+
+# Key outcomes
+outcomes:
+  - '`editor_meta_keys()` in `tests/test_editor_bridge_meta_parity.py` strips `//` line comments and `/* */` block comments from the literal region BEFORE extracting quoted strings, and the strip is quote-aware: a `//` inside a real string literal does not start a comment, and an apostrophe inside a comment cannot open a string'
+  - '**The defect is reproduced before it is fixed, as a control that must go RED on the pre-fix extractor:** plant a comment with two ordinary apostrophes inside a copy of the live literal and show the unfixed function returns the intervening sentence as a key. That reproduction is the mutation leg''s kill case, not a one-off'
+  - 'Self-test pins BOTH directions: a comment containing a quoted word (`// ''emits'' would go here`) yields no key, AND the real keys on either side of an apostrophe-bearing comment are extracted exactly (same list, same order) as from the comment-free literal'
+  - '**The live literal agrees with a JavaScript engine''s reading of it:** a leg extracts the `metaKeys` literal text from `src/aef-workflow-designer.html`, evaluates it with `node`, and requires the Python extractor''s list to be identical — so the extractor is checked against the parser that actually runs the code, not against its own regex'
+  - 'A teeth script with `--mutation` (disabling the comment strip) reports the planted-comment case RED and the controls GREEN, and prints `MUTATION SETUP BROKEN` rather than scoring kills if a control dies under the mutant'
+  - 'The parity checker still exits 0 on the live editor and bridge after the change (no key was lost by the strip), stated as a leg with its own control (the key count is greater than zero)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 1930 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface, false-green]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1930
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-907-teststesteditorbridgemetaparitypy-reads-.md
+generated_by: context-agent-hybrid

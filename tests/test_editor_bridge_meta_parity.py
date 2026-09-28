@@ -85,8 +85,47 @@ def _strip_line_comments(text):
     return "\n".join(line.split("#", 1)[0] for line in text.splitlines())
 
 
+def _strip_js_comments(text):
+    """Quote-aware removal of `//` line comments and `/* */` block comments (T-907).
+
+    Why quote-aware rather than a bare regex: the literal is JavaScript, so a `//`
+    inside a string is not a comment, and — the defect this fixes — an apostrophe
+    inside a COMMENT is not a string delimiter. Before this, `editor_meta_keys()`
+    ran RE_STR over the raw literal, so two ordinary English apostrophes in an
+    inline annotation paired up and the sentence between them was reported as a
+    key the bridge drops. The remedy the checker then printed ("add the key(s) to
+    META_KEYS") would have written prose into the bridge's key list.
+    Same class as T-904's stripJsComments in the round-trip guard; Python here.
+    """
+    out = []
+    i, n = 0, len(text)
+    quote = None
+    while i < n:
+        c = text[i]
+        if quote:
+            out.append(c)
+            if c == "\\" and i + 1 < n:
+                out.append(text[i + 1]); i += 2; continue
+            if c == quote:
+                quote = None
+            i += 1; continue
+        if c in ("'", '"', "`"):
+            quote = c; out.append(c); i += 1; continue
+        if text.startswith("//", i):
+            j = text.find("\n", i)
+            i = n if j < 0 else j; continue      # keep the newline itself
+        if text.startswith("/*", i):
+            j = text.find("*/", i + 2)
+            i = n if j < 0 else j + 2; continue
+        out.append(c); i += 1
+    return "".join(out)
+
+
 def editor_meta_keys(text):
-    m = RE_EDITOR_METAKEYS.search(text)
+    # Strip comments BEFORE the literal is located: a `]` inside a comment would
+    # otherwise truncate the `[^\]]*` match, and quoted words inside comments
+    # would otherwise be read as keys. T-907-STRIP (teeth mutation anchor)
+    m = RE_EDITOR_METAKEYS.search(_strip_js_comments(text))
     if not m:
         return None
     return [s for s in RE_STR.findall(m.group(1))]
@@ -111,6 +150,16 @@ def _selftest():
     """Prove the detector flags a bridge whitelist missing an editor key —
     i.e. it would have caught the T-060 bug (pre-fix bridge lacked `emits`)."""
     editor = "const metaKeys = ['tier', 'agentType', 'emits'];"
+    # T-907: comments inside the literal are not keys, in both directions.
+    planted = ("const metaKeys = ['tier',\n"
+               "  // T-889's addition, after T-904's fix — two apostrophes in prose\n"
+               "  'agentType', // 'emits' would go here\n"
+               "  /* block ']' with a bracket and a 'quoted' word */\n"
+               "  'emits'];")
+    assert editor_meta_keys(planted) == ["tier", "agentType", "emits"], \
+        "self-test: comments inside the metaKeys literal must not become keys: %r" % editor_meta_keys(planted)
+    assert editor_meta_keys("const metaKeys = ['a//b', 'c'];") == ["a//b", "c"], \
+        "self-test: a // inside a real string is not a comment"
     ekeys = editor_meta_keys(editor)
     assert ekeys == ["tier", "agentType", "emits"], "self-test: editor extraction wrong: %r" % ekeys
 

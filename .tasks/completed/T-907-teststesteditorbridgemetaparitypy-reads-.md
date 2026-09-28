@@ -1,15 +1,41 @@
 ---
 id: T-907
-name: "tests/test_editor_bridge_meta_parity.py reads COMMENTS as keys: an apostrophe in prose inside the metaKeys literal becomes a parity break"
+name: "tests/test_editor_bridge_meta_parity.py reads COMMENTS as keys: an apostrophe
+  in prose inside the metaKeys literal becomes a parity break"
 description: >
-  Same defect class as T-904, different instrument. The editor-bridge parity checker extracts the editor's metaKeys by regexing the array literal in src/aef-workflow-designer.html for quoted strings, WITHOUT stripping comments. The metaKeys literal legitimately contains comments between its elements (T-177 and T-889 both annotate their additions inline). Consequence measured live during T-904: a comment added inside the literal containing two ordinary English apostrophes (guard-apostrophe-s ... T-904-apostrophe-s) had the two apostrophes pair as a quoted string, and the checker reported the intervening SENTENCE as an editor key the bridge drops - 'aef:meta PARITY BREAK - editor writes these keys into aef:meta but the bridge META_KEYS drops them: - s denominator regexed comments as code, so this sentence would have masked the ...'. The suite reported it as [FAIL] 'bridge META_KEYS drops a scalar key the editor writes to aef:meta', which is an accurate symptom pointing at an innocent subject: the editor drops nothing and the bridge lacks nothing. The failure was introduced by a COMMENT, and the remedy the tool suggests ('Fix: add the key(s) to META_KEYS in tools/yaml-to-bpmn.py') would have written a sentence fragment into the bridge's key list. T-904 worked around it by moving its comment outside the literal and left a comment saying why - that is mitigation, not prevention: the next author annotating a key inline will hit it again, and the suggested fix is actively wrong. Deliverable: strip comments from the literal region before extracting keys (T-904 added a reusable quote-aware stripJsComments to tools/_roundtrip-serialization-cdp.mjs; this checker is Python so it needs its own or a shared one), and add a leg that plants an apostrophe-bearing comment inside the literal and requires the checker to stay GREEN. Note the family: PL-060 (T-302, strip HTML comments before grepping task files), T-578 (bridge-suite leg 'No tool is reachable only through a JavaScript comment'), T-904 (round-trip denominator), and now this. Four instruments, one class - worth asking whether a shared helper or a lint should exist rather than a fourth bespoke fix.
+  Same defect class as T-904, different instrument. The editor-bridge parity checker
+  extracts the editor's metaKeys by regexing the array literal in src/aef-workflow-designer.html
+  for quoted strings, WITHOUT stripping comments. The metaKeys literal legitimately
+  contains comments between its elements (T-177 and T-889 both annotate their additions
+  inline). Consequence measured live during T-904: a comment added inside the literal
+  containing two ordinary English apostrophes (guard-apostrophe-s ... T-904-apostrophe-s)
+  had the two apostrophes pair as a quoted string, and the checker reported the intervening
+  SENTENCE as an editor key the bridge drops - 'aef:meta PARITY BREAK - editor writes
+  these keys into aef:meta but the bridge META_KEYS drops them: - s denominator regexed
+  comments as code, so this sentence would have masked the ...'. The suite reported
+  it as [FAIL] 'bridge META_KEYS drops a scalar key the editor writes to aef:meta',
+  which is an accurate symptom pointing at an innocent subject: the editor drops nothing
+  and the bridge lacks nothing. The failure was introduced by a COMMENT, and the remedy
+  the tool suggests ('Fix: add the key(s) to META_KEYS in tools/yaml-to-bpmn.py')
+  would have written a sentence fragment into the bridge's key list. T-904 worked
+  around it by moving its comment outside the literal and left a comment saying why
+  - that is mitigation, not prevention: the next author annotating a key inline will
+  hit it again, and the suggested fix is actively wrong. Deliverable: strip comments
+  from the literal region before extracting keys (T-904 added a reusable quote-aware
+  stripJsComments to tools/_roundtrip-serialization-cdp.mjs; this checker is Python
+  so it needs its own or a shared one), and add a leg that plants an apostrophe-bearing
+  comment inside the literal and requires the checker to stay GREEN. Note the family:
+  PL-060 (T-302, strip HTML comments before grepping task files), T-578 (bridge-suite
+  leg 'No tool is reachable only through a JavaScript comment'), T-904 (round-trip
+  denominator), and now this. Four instruments, one class - worth asking whether a
+  shared helper or a lint should exist rather than a fourth bespoke fix.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface, false-green]
-components: []
+components: [src/aef-workflow-designer.html, tools/_roundtrip-serialization-cdp.mjs, tools/_t904-denominator-comment-blindness-teeth.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T15:04:06Z
-last_update: 2026-09-27T15:04:06Z
-date_finished: null
+last_update: 2026-09-28T23:14:54Z
+date_finished: 2026-09-28T23:14:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +60,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 0
+  F3: 4
+  F1: 2
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-28T23:12:58Z'
+cost_estimate_proposed:
+  - ts: '2026-09-28T23:14:33Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 3
+      tier: 2
+      effort: 8
+    rationale: blast_radius=3 (2-components); tier=2 (workflow:build); effort=8 
+      (lines=267,acs=8)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-907: tests/test_editor_bridge_meta_parity.py reads COMMENTS as keys: an apostrophe in prose inside the metaKeys literal becomes a parity break
@@ -46,8 +95,12 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `editor_meta_keys()` in `tests/test_editor_bridge_meta_parity.py` strips `//` line comments and `/* */` block comments from the literal region BEFORE extracting quoted strings, and the strip is quote-aware: a `//` inside a real string literal does not start a comment, and an apostrophe inside a comment cannot open a string
+- [x] **The defect is reproduced before it is fixed, as a control that must go RED on the pre-fix extractor:** plant a comment with two ordinary apostrophes inside a copy of the live literal and show the unfixed function returns the intervening sentence as a key. That reproduction is the mutation leg's kill case, not a one-off
+- [x] Self-test pins BOTH directions: a comment containing a quoted word (`// 'emits' would go here`) yields no key, AND the real keys on either side of an apostrophe-bearing comment are extracted exactly (same list, same order) as from the comment-free literal
+- [x] **The live literal agrees with a JavaScript engine's reading of it:** a leg extracts the `metaKeys` literal text from `src/aef-workflow-designer.html`, evaluates it with `node`, and requires the Python extractor's list to be identical — so the extractor is checked against the parser that actually runs the code, not against its own regex
+- [x] A teeth script with `--mutation` (disabling the comment strip) reports the planted-comment case RED and the controls GREEN, and prints `MUTATION SETUP BROKEN` rather than scoring kills if a control dies under the mutant
+- [x] The parity checker still exits 0 on the live editor and bridge after the change (no key was lost by the strip), stated as a leg with its own control (the key count is greater than zero)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -82,6 +135,14 @@ date_finished: null
 
 ## Verification
 
+# The checker itself, whose self-test now carries the T-907 cases in both directions.
+python3 tests/test_editor_bridge_meta_parity.py
+# Teeth: controls (engine agreement, // inside a string) then the comment cases; --mutation restores the pre-fix extractor.
+out=$(bash tools/_t907-parity-comment-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+out=$(bash tools/_t907-parity-comment-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
+# The strip is wired at the call site (anchor the teeth depend on), and it is quote-aware by construction.
+grep -q 'RE_EDITOR_METAKEYS.search(_strip_js_comments(text))' tests/test_editor_bridge_meta_parity.py
+grep -q '^def _strip_js_comments' tests/test_editor_bridge_meta_parity.py
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -210,43 +271,17 @@ date_finished: null
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
-
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
-
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Symptom:** A comment added inside the editor's `metaKeys` literal containing two ordinary English apostrophes made `tests/test_editor_bridge_meta_parity.py` report the sentence between them as a key the bridge drops, with a printed remedy that would have written that sentence into the bridge's `META_KEYS`.
+**Root cause:** `editor_meta_keys()` ran the quoted-string regex over the RAW literal. The bridge side had a `#`-comment strip; the editor side had none, so JavaScript comments were read as code.
+**Why structurally allowed:** The checker's self-test covered only the bridge's comment case. Nothing compared the Python extraction with a JavaScript engine's reading of the same literal, so a regex that disagreed with the language it was parsing had no referee. T-904 had already found and fixed the identical class in the round-trip guard and, unable to fix it here, wrote around it by moving prose out of the array — mitigation that left the mechanism intact for the next author.
+**Prevention:** (1) quote-aware `_strip_js_comments` at the call site; (2) the self-test now asserts both directions in-file, so the checker refuses to run green on its own pre-fix extractor; (3) `tools/_t907-parity-comment-teeth.sh` pins the planted-comment case and, in `--mutation`, proves the pre-fix extractor is caught; (4) an engine-agreement control: the Python list must equal `node`'s evaluation of the live literal, which is the check the other three instruments in this class (PL-060, T-578, T-904) do not have.
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
-
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — the mutant corrected a classification, again
+- **What changed:** The defect was latent, not live: T-904 had moved its prose out of the literal, so the checker passed on the tree as found. The pre-fix reproduction (a planted comment with two apostrophes → a 22nd "key" reading `s addition, after T-904`) is now the mutation kill case rather than a story in a task description. The strip is a character walk with quote state, not a regex, because the two failure directions are opposite: a `//` inside a real string must survive, an apostrophe inside a comment must not open a string.
+- **Plan impact:** `checker_green_with_keys` was filed as a control and died under the mutant — because the checker's own self-test now asserts the comment cases, so the whole checker goes red when the strip is removed. Reclassified as a gate case with the reason in the script; the in-file self-test is the first line of defence and the teeth the second. Fourth instrument in this project with the same comment-as-code class (PL-060, T-578, T-904, this) — the description's question about a shared helper or lint is left open, not answered here.
+- **Triggered:** Nothing filed. The engine-agreement control (python list == node's evaluation of the same literal) is the check the other three instruments in the class do not have; worth carrying to them if the class is ever consolidated.
 
 ## Recommendation
 
@@ -304,3 +339,23 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-907-teststesteditorbridgemetaparitypy-reads-.md
 - **Context:** Initial task creation
+
+### 2026-09-28T23:11:59Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3eacefdf
+- **Timestamp:** 2026-09-28T23:14:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — **The live literal agrees with a JavaScript engine's reading of it:** a leg extracts the `metaKeys` literal text from `src/aef-workflow-designer.html`, evaluates it with `node`, and requires the Pytho
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=src/aef-workflow-designer.html in: **The live literal agrees with a JavaScript engine's reading of it:** a leg extracts the `metaKeys` literal text from `src/aef-workflow-designer.html``
+
+### 2026-09-28T23:14:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
