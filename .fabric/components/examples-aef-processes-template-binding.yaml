@@ -1,0 +1,21 @@
+id: examples/aef-processes/template-binding.yaml
+name: template-binding
+type: config
+subsystem: unknown
+location: examples/aef-processes/template-binding.yaml
+tags: []
+
+purpose: "T-880 (arc-005 S2) — which template a governed entity instantiates, DERIVED from its workflow_type. Never authored per entity (T-878 F3 / IW-4): workflow_type is a closed set and the corpus holds a template per entity kind."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-28
+created_by: unknown
