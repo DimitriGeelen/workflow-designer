@@ -2502,3 +2502,31 @@ decisions:
     date: 2026-09-28
     task: T-875
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-337
+    decision: "a badge in the existing `canvas-overlay` status strip, beside \"Mode: select\", rendered"
+    scope: project
+    date: 2026-09-28
+    task: T-911
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-338
+    decision: "render `documentation · illustrative` / `work-plan · actionable` — the value verbatim,"
+    scope: project
+    date: 2026-09-28
+    task: T-911
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-339
+    decision: "`wm.kind = v || null` in the select callback."
+    scope: project
+    date: 2026-09-28
+    task: T-911
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-340
+    decision: "write `tools/_t911-kind-badge-verify-cdp.mjs` rather than screenshot through the MCP"
+    scope: project
+    date: 2026-09-28
+    task: T-911
+    rationale: "Auto-captured from task file on completion"

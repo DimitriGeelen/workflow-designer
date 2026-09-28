@@ -490,6 +490,24 @@ font-family: 'Outfit';
     pointer-events: none;
   }
   .canvas-overlay .status-mode { color: var(--accent); }
+  /* T-911: the aef:workflowMeta/@kind marker, shown on the canvas rather than only in the
+     properties panel. arc-005's headline mechanic is that an operator "SEES IT MARKED as a
+     template rather than an actionable work-plan" — behind a panel disclosure that is "can find
+     it if they look", which is a different claim. Rendered only when the marker is SET: UNSET is
+     legal and inert (T-213 IW-3), so an empty badge on the 24 maps that declare nothing would be
+     chrome for a non-event. Colour comes from the theme tokens, never a literal, so the badge
+     follows light/dark/contrast with the rest of the overlay. */
+  .canvas-overlay .status-kind {
+    color: var(--text-dim);
+    border: 1px solid var(--border, currentColor);
+    border-radius: 3px;
+    padding: 0 4px;
+    margin-left: 8px;
+    font-size: 10px;
+    letter-spacing: .02em;
+    white-space: nowrap;
+  }
+  .canvas-overlay .status-kind[data-kind="work-plan"] { color: var(--accent); }
 
   .clean-nudge {
     position: absolute;
@@ -1459,7 +1477,7 @@ font-family: 'Outfit';
         <g id="g-preview"></g>
       </svg>
       <div class="canvas-overlay" id="status">
-        Mode: <span class="status-mode" id="status-mode">select</span><span id="status-selection"></span>
+        Mode: <span class="status-mode" id="status-mode">select</span><span id="status-selection"></span><span class="status-kind" id="status-kind" hidden></span>
       </div>
       <!-- T-310: shown when the imported map drew nodes outside their DECLARED lane
            and they were moved back into it. Reuses the clean-nudge chrome so advisory
@@ -2866,6 +2884,7 @@ function renderAll() {
   renderProperties();
   syncCanvasSize();
   updateStatus();
+  updateKindBadge();    // T-911: the diagram-kind marker, refreshed with every full render
   scheduleAutosave();   // T-126/G-005: persist the live document so a reload/navigation can't lose work
   // T-258 (T-250 GO): re-handshake per render. renderNodes() just rebuilt the SVG
   // wholesale, wiping any annotation badges — the ratified contract is that the
@@ -3048,6 +3067,37 @@ function renameActiveWorkflow(newId) {
   return true;
 }
 
+// T-911: the diagram-kind badge. DELIBERATELY NOT folded into updateStatus() — that function has
+// several early returns (the endpoint-drag hint takes priority and returns), so a marker appended
+// after them would vanish mid-drag and reappear after, which reads as a bug in the marker rather
+// than as a property of the status line.
+//
+// The badge prints the ENUM VALUE VERBATIM. It is tempting to render `documentation` as "template",
+// since that is the word arc-005's headline mechanic uses — and that would be a second vocabulary
+// for one closed set, the T-322 defect, where the UI and the wire disagree about what a map is
+// called. The enum is the name; the parenthetical explains it.
+const KIND_GLOSS = { 'documentation': 'illustrative', 'work-plan': 'actionable' };
+function updateKindBadge() {
+  const el = $('status-kind');
+  if (!el) return;
+  const k = (state && state.workflowMeta && state.workflowMeta.kind) || null;
+  if (!k) {
+    // UNSET is legal and is not a warning (T-213 IW-3). Nothing to see, so nothing is shown.
+    el.hidden = true;
+    el.removeAttribute('data-kind');
+    el.textContent = '';
+    return;
+  }
+  el.hidden = false;
+  el.setAttribute('data-kind', k);
+  const gloss = KIND_GLOSS[k];
+  el.textContent = gloss ? `${k} · ${gloss}` : k;
+  // An out-of-enum value reaching here means the validator let it through; say so rather than
+  // rendering it as if it were legal.
+  el.title = gloss
+    ? `aef:workflowMeta/@kind — this map is marked ${k} (${gloss})`
+    : `aef:workflowMeta/@kind is "${k}", which is not in the ratified enum {documentation, work-plan}`;
+}
 function updateStatus() {
   const sel = $('status-selection');
   if (!sel) return;
@@ -5773,6 +5823,26 @@ function renderProperties() {
     sMeta.appendChild(field('Default tier', wm.tier_default || '2', v => {
       wm.tier_default = v;
     }, { mono: true, hint: '0–3 · applies to nodes without explicit tier' }));
+    // T-911: the diagram-kind marker. T-875 shipped the closed enum, the validator rules in both
+    // forms, the round-trip guarantee and a conformance case — and no way to set it, which made
+    // `kind` the only document-level attribute the editor read and wrote but could not author.
+    //
+    // The leading '' is UNSET and is the house convention for an optional select (see the
+    // `authority` field, T-888 clause 2). It is load-bearing here, not cosmetic: T-213 IW-3 kept
+    // the marker an EXPLICIT author decision, so a control without a way back to unset would
+    // silently reclassify every map an operator merely opened and glanced at. Writing null rather
+    // than '' matters for the same reason — the emitter only writes the attribute when truthy, so
+    // null exports byte-identically to a map that never had one.
+    sMeta.appendChild(selectField('Kind', wm.kind || '', ['', 'documentation', 'work-plan'], v => {
+      wm.kind = v || null;
+      updateKindBadge();
+      // Hint kept SHORT on purpose. The first version read "unset · documentation = illustrative ·
+      // work-plan = actionable" and the screenshot showed it wrapping mid-value, as "work-" /
+      // "plan = actionable" — rendering an enum value as a broken word, in the one control whose
+      // job is to present that enum. Invisible to DOM-rect math; only the rendered image showed
+      // it. Three words in option order, so each still maps to the entry beside it, and the full
+      // gloss lives on the canvas badge where there is room for it.
+    }, 'unset · illustrative · actionable'));
     props.appendChild(sMeta);
 
     // Recently-opened section — quick view of all loaded workflows (T-159: operator

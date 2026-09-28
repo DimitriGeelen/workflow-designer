@@ -1,15 +1,24 @@
 ---
 id: T-911
-name: "The designer cannot set or show aef:workflowMeta kind — the arc's headline mechanic starts with seeing it"
+name: "The designer cannot set or show aef:workflowMeta kind — the arc's headline
+  mechanic starts with seeing it"
 description: >
-  T-875 shipped the closed enum, the validator rules, the round-trip guarantee and a conformance case for aef:workflowMeta/@kind. Nothing shipped a way to SET or SEE it. Measured under T-875 AC6: the document-properties panel (src/aef-workflow-designer.html:5756-5776) offers Title, Workflow version, Description, Source and Default tier. kind is the ONLY document-level attribute the editor reads and writes but cannot author. arc-005's headline_mechanic opens with 'an operator opens task-lifecycle in the designer, SEES IT MARKED as a template rather than an actionable work-plan' — which nothing in the product currently permits, so the arc cannot be closed on its own terms until this exists.
+  T-875 shipped the closed enum, the validator rules, the round-trip guarantee and
+  a conformance case for aef:workflowMeta/@kind. Nothing shipped a way to SET or SEE
+  it. Measured under T-875 AC6: the document-properties panel (src/aef-workflow-designer.html:5756-5776)
+  offers Title, Workflow version, Description, Source and Default tier. kind is the
+  ONLY document-level attribute the editor reads and writes but cannot author. arc-005's
+  headline_mechanic opens with 'an operator opens task-lifecycle in the designer,
+  SEES IT MARKED as a template rather than an actionable work-plan' — which nothing
+  in the product currently permits, so the arc cannot be closed on its own terms until
+  this exists.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_mapping_standard_conformance.py]
 related_tasks: [T-875, T-876, T-877]
 arc_id: process-instances
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -23,8 +32,8 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-28T08:50:35Z
-last_update: 2026-09-28T08:50:35Z
-date_finished: null
+last_update: 2026-09-28T09:28:35Z
+date_finished: 2026-09-28T09:28:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -35,6 +44,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-28T09:00:34Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 3
+      F3: 4
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=3 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L3:keyword=validator rule); F3=4
+      (basis: task body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-911: The designer cannot set or show aef:workflowMeta kind — the arc's headline mechanic starts with seeing it
@@ -70,12 +100,22 @@ without a surface. The gap is worth a task so it is visible.
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 ### Agent
-- [ ] The document-properties panel offers a **kind** control alongside Title / Workflow version / Description / Source / Default tier, and its options are exactly the closed enum — sourced so a third value cannot appear in the UI without `WORKFLOW_KINDS` changing (T-322: one vocabulary, never a second copy)
-- [ ] **UNSET remains reachable and is the default.** T-213 IW-3 kept the marker an explicit author decision; a control that forces a choice silently reclassifies every one of the 24 corpus maps. Selecting UNSET on a map that had a kind removes the attribute, and the map then exports byte-identically to its pre-kind form
-- [ ] The kind is **visible without opening a panel** — the arc's headline mechanic is "sees it marked", not "can find it if they look". Where that indicator lives is a design choice to record in `## Decisions`
-- [ ] Setting the kind and saving produces `kind="..."` on `aef:workflowMeta` in the exported BPMN, proven by reading the exported bytes rather than the in-memory model
-- [ ] **Visual verification:** element-level screenshots of the control and the indicator in every mode the change can affect (mono/sans/serif · light/dark/contrast · compact/normal/cozy · narrow/wide), each one READ, with the symptom gone and no new regression. DOM-rect math is not sufficient
-- [ ] `python3 tests/test_mapping_standard_conformance.py` still passes, and the round-trip harness still reports `kind` LIVE — this task must not weaken what T-875 established
+- [x] The document-properties panel offers a **kind** control alongside Title / Workflow version / Description / Source / Default tier, and its options are exactly the closed enum — sourced so a third value cannot appear in the UI without `WORKFLOW_KINDS` changing (T-322: one vocabulary, never a second copy)
+- [x] **UNSET remains reachable and is the default.** T-213 IW-3 kept the marker an explicit author decision; a control that forces a choice silently reclassifies every one of the 24 corpus maps. Selecting UNSET on a map that had a kind removes the attribute, and the map then exports byte-identically to its pre-kind form
+- [x] The kind is **visible without opening a panel** — the arc's headline mechanic is "sees it marked", not "can find it if they look". Where that indicator lives is a design choice to record in `## Decisions`
+- [x] Setting the kind and saving produces `kind="..."` on `aef:workflowMeta` in the exported BPMN, proven by reading the exported bytes rather than the in-memory model
+- [x] **Visual verification:** element-level screenshots of the control and the indicator in every mode the change can affect, each one READ, with no new visual regression. DOM-rect math is not sufficient.
+      **The mode list was corrected against the product on 2026-09-28** — it was first written from
+      CLAUDE.md's general guidance (mono/sans/serif · light/dark/contrast · compact/normal/cozy),
+      and **none of those modes exist in this designer**: one `:root` token block, zero
+      `prefers-color-scheme`, zero `data-theme`, zero `cozy`; "density" here is a snap-THRESHOLD
+      multiplier for layout whose own comment says it "never re-spaced rows nor grew lanes"; and
+      "serif" appears only inside font fallback stacks. Screenshotting nine identical renders would
+      have been coverage theatre. The modes that DO affect this change:
+      - badge state **unset** (hidden), **documentation**, **work-plan** (different colour rule)
+      - **narrow and wide** viewport — the overlay is absolutely positioned, so a long badge can collide
+      - the **panel control** with its three options visible
+- [x] `python3 tests/test_mapping_standard_conformance.py` still passes, and the round-trip harness still reports `kind` LIVE — this task must not weaken what T-875 established
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -108,7 +148,43 @@ without a surface. The gap is worth a task so it is visible.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Visual Verification
+
+Captured by `tools/_t911-kind-badge-verify-cdp.mjs` into `.playwright-mcp/`, at deviceScaleFactor 2,
+and **each one read**. The instrument exists because the MCP screenshot tool writes outside every
+path this session can read, so the images would have been taken and never looked at — which is the
+failure the rule is about, not a workaround for it.
+
+| shot | what it shows |
+|---|---|
+| `t911-badge-documentation.png` | `documentation · illustrative`, dim, bordered |
+| `t911-badge-work-plan.png` | `work-plan · actionable` in accent — visibly different weight, which is the right semantics: the actionable one should catch the eye |
+| `t911-badge-unset.png` | no badge at all. UNSET is legal and inert (T-213 IW-3), so there is nothing to show |
+| `t911-badge-narrow-640.png` | badge intact at 640px, inside the viewport, no collision with the mode text |
+| `t911-panel-kind-select.png` | the Kind control in the WORKFLOW section, below Default tier |
+
+**What reading them caught, and DOM-rect math could not.** The first render of the panel wrapped the
+hint mid-value — `work-` on one line, `plan = actionable` on the next — so a closed-enum value was
+displayed as a broken word, in the one control whose entire job is to present that enum. Every DOM
+assertion passed on that render. The hint is now three words in option order and sits on one line,
+matching the rhythm of its siblings; re-shot and re-read to confirm.
+
 ## Verification
+
+# The control and the badge, driven through the REAL select with change events, plus the
+# screenshots. 11 assertions including a control that the map opens UNSET.
+timeout 300 node tools/_t911-kind-badge-verify-cdp.mjs > /tmp/.t911v.out 2>&1 && python3 -c "import json;d=json.load(open('/tmp/.t911v.out'));assert d['pass'] is True;assert len(d['steps'])==11 and all(s['pass'] for s in d['steps']);assert all(x['captured'] for x in d['shots'])"
+# Control (PL-328): the instrument must actually report steps, or 'pass: true' is vacuous.
+grep -q '"step"' /tmp/.t911v.out
+# The badge is wired into the render path and into the select's own callback (3 call sites).
+test "$(grep -c 'updateKindBadge()' src/aef-workflow-designer.html)" -eq 3
+# The enum offered by the UI comes from one place and matches the validator's closed set.
+grep -q "\['', 'documentation', 'work-plan'\]" src/aef-workflow-designer.html
+# T-875 must not be weakened: conformance still passes and kind is still LIVE.
+python3 tests/test_mapping_standard_conformance.py > /tmp/.t911c.out 2>&1 && grep -q 'document-level aef:workflowMeta/@kind' /tmp/.t911c.out
+timeout 300 node tools/_roundtrip-serialization-cdp.mjs > /tmp/.t911r.out 2>&1 && python3 -c "import json,sys;d=json.load(open('/tmp/.t911r.out'));sys.exit(0 if 'kind' in d['wm_selftest']['live'] else 1)"
+# T-910's laneMeta teeth must still be 40/0 — this change touches the same emitter file.
+timeout 580 bash tools/_t910-lanemeta-teeth.sh > /tmp/.t911t.out 2>&1 && grep -q '^FAIL: 0' /tmp/.t911t.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -254,6 +330,39 @@ without a surface. The gap is worth a task so it is visible.
 
 ## Evolution
 
+### 2026-09-28 — an acceptance criterion named modes this product does not have
+- **What changed:** AC5 was written from CLAUDE.md's general visual-verification guidance —
+  mono/sans/serif · light/dark/contrast · compact/normal/cozy · narrow/wide. Checked against the
+  product before shooting anything: **none of those modes exist here.** One `:root` token block,
+  zero `prefers-color-scheme`, zero `data-theme`, zero `cozy`; "density" is a snap-THRESHOLD
+  multiplier whose own comment says it never re-spaced rows nor grew lanes; "serif" appears only
+  inside font fallback stacks.
+- **Plan impact:** nine identical renders would have been coverage theatre — a screenshot count
+  standing in for a measurement. AC5 was CORRECTED IN PLACE, with the reason recorded, to the modes
+  that do change this pixel: three badge states, and narrow vs wide.
+- **Triggered:** nothing filed. The general guidance is right for products that have those modes;
+  the error was mine, copying a checklist into an AC without checking it against the subject.
+
+### 2026-09-28 — the instrument's first run passed three steps vacuously
+- **What changed:** the run found no Kind select (wrong container id — `#props`, the real one is
+  `#properties`), so every "set" step failed. But three steps still **PASSED**: "kind is null",
+  "badge hidden", "exports byte-identically". They assert an ABSENCE, and the absence was already
+  true because nothing had ever been set.
+- **Plan impact:** those legs are now gated on a proven prior set and report
+  `NOT EVALUATED — no prior set to revert (T-3105)` when the precondition does not hold. This was
+  the session's own thesis biting the instrument written to enforce it: a mechanism producing
+  confident output with nothing to be wrong about.
+- **Triggered:** nothing new — it is PL-328 and T-3105, both already registered.
+
+### 2026-09-28 — reading the screenshot found what every assertion missed
+- **What changed:** with 11/11 DOM assertions green, the panel image showed the hint wrapping
+  mid-value: `work-` / `plan = actionable`. A closed-enum value rendered as a broken word, in the
+  control whose job is to present that enum.
+- **Plan impact:** hint shortened to three words in option order, re-shot and re-read.
+- **Triggered:** nothing filed; it is the standing rule ("Did I look at a rendered screenshot?")
+  earning its place. Worth noting that the defect was in text this task authored, not in inherited
+  layout — the render is where it became visible.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -307,6 +416,49 @@ without a surface. The gap is worth a task so it is visible.
 
 ## Decisions
 
+### 2026-09-28 — where the marker is visible: the canvas overlay, not the panel
+- **Chose:** a badge in the existing `canvas-overlay` status strip, beside "Mode: select", rendered
+  only when `kind` is SET.
+- **Why:** arc-005's headline mechanic is *"sees it marked"*. Behind a panel disclosure that is
+  "can find it if they look", which is a different claim and would not close the arc. The overlay
+  is already persistent, already themed, and already the place the editor states what mode it is
+  in — the map's kind is the same class of fact.
+- **Rejected:** (a) a panel-only field — fails the mechanic; (b) showing a badge when UNSET — T-213
+  IW-3 kept the marker an explicit author decision, so an "unset" chip on all 24 maps that declare
+  nothing would be chrome for a non-event, and would read as a nag toward setting it;
+  (c) folding it into `updateStatus()` — that function has early returns (the endpoint-drag hint
+  takes priority and returns), so the marker would vanish mid-drag and reappear after, which reads
+  as a bug in the marker rather than a property of the status line.
+
+### 2026-09-28 — the badge prints the enum value, not a synonym
+- **Chose:** render `documentation · illustrative` / `work-plan · actionable` — the value verbatim,
+  with a gloss.
+- **Why:** the tempting alternative is to render `documentation` as **"template"**, since that is
+  the word arc-005's own headline mechanic uses. That would put a second vocabulary on one closed
+  set — the T-322 defect — where the UI and the wire disagree about what a map is called, and a
+  reader comparing a screenshot to a BPMN file would find two different words for one value.
+- **Rejected:** a UI-only synonym. The enum is the name; the gloss explains it.
+
+### 2026-09-28 — UNSET writes `null`, not `''`
+- **Chose:** `wm.kind = v || null` in the select callback.
+- **Why:** the emitter writes the attribute only when truthy, so `null` exports byte-identically to
+  a map that never carried one. `''` would be falsy too and would work by luck; `null` matches what
+  the parser produces for an absent attribute, so the value a user sets and the value an import
+  produces are the same object. Asserted directly — the instrument checks `kind === null`, not
+  merely falsy, and compares the exported bytes against the pre-set export.
+
+### 2026-09-28 — the verification instrument, and why it had to exist
+- **Chose:** write `tools/_t911-kind-badge-verify-cdp.mjs` rather than screenshot through the MCP
+  browser tool.
+- **Why:** the MCP tool wrote its PNG to a path outside every directory this session may read
+  (T-559 blocks the Bash side; the Read tool found nothing there either). The screenshots would
+  have been *taken and never looked at* — which is precisely the failure the visual-verification
+  rule exists to prevent, so routing around it would have defeated the rule rather than satisfied
+  it. The CDP instrument is also the house pattern (a dozen `tools/_*-verify-cdp.mjs` siblings) and
+  it drives the REAL select with a dispatched `change` event, so an unwired control fails.
+- **Rejected:** asserting DOM state only. It would have passed on the render whose hint was broken
+  across a line — which is the one defect this task's visual pass actually found.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -332,3 +484,18 @@ without a surface. The gap is worth a task so it is visible.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-911-the-designer-cannot-set-or-show-aefworkf.md
 - **Context:** Initial task creation
+
+### 2026-09-28T09:00:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f886a64e
+- **Timestamp:** 2026-09-28T09:28:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-28T09:28:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
