@@ -9,12 +9,12 @@ description: >
   — B3 delivers a notice, and the defect closes only when AEF acts on it. Rail post,
   no code.
 
-status: captured
+status: work-completed
 workflow_type: build
-owner:
-horizon: now
+owner: agent
+horizon: null
 tags: [arc:process-instances]
-components: []
+components: [src/aef-workflow-designer.html, tools/validate-workflow.py]
 related_tasks: []
 arc_id: process-instances
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -27,8 +27,8 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:41:56Z
-last_update: '2026-09-26T23:10:10Z'
-date_finished:
+last_update: 2026-09-28T21:18:30Z
+date_finished: 2026-09-28T21:18:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -66,16 +66,40 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+arc-005 slice S1, manifest item B3: *"Seam notice to AEF: the marker exists, here is its shape,
+their promote path is theirs to change. Rail post, no code."*
+
+T-875 shipped `aef:workflowMeta/@kind` and T-911 made it settable and visible in the designer.
+Both touch a seam AEF pins against, so they get told before the corpus changes under them —
+**T-876 (backfill across the 24 maps) is deliberately sequenced after this.**
+
+**Three facts the notice has to carry, and the third is the one they cannot get from our tree:**
+
+1. The attribute: closed enum `{documentation, work-plan}`, UNSET legal and the default
+   (T-213 IW-3 — an explicit author decision, never a silent reclassification).
+2. Today **0 of 24** corpus maps declare it. The marker exists; the corpus has not moved yet.
+3. **`kind` is not a unique attribute name in our vocabulary.** `aef:timer/@kind` already exists
+   and carries values like `cron`. A promote path matching `kind=` without qualifying the element
+   would read a timer's kind as a document kind. Found while writing this notice, by a loose grep
+   of my own that reported "1 of 24 maps declare kind" — it was `revisit-due-scan.bpmn`'s
+   `<aef:timer kind="cron" …>`. The wrong answer arrived first and looked plausible.
+
+**Not asking them to change anything.** Their promote path is theirs. This is a seam notice, not a
+request.
+
+## Rail record
+
+**Posted:** `framework:pickup` offset **226**, 2026-09-28.
+**Retrievable by content:** search `framework:pickup` for `kind\` IS NOT A UNIQUE ATTRIBUTE NAME` — 1 hit, offset 226.
 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Rail post to `framework:pickup` carrying: the marker's shape, its closed enum, the UNSET default, and the round-trip guarantee with the control that proves it
-- [ ] The post states explicitly that **the defect closes when AEF's promote path reads the marker, not when we post** — B3 delivers a notice, not a fix
-- [ ] The post attributes the marker to AEF's own proposal (their T-2556, rail offsets 87–125) rather than presenting it as ours
-- [ ] The returned offset is recorded in this task, so the claim "we told them" is checkable and not a memory
-- [ ] **A5 recorded:** yes/no with reason in `## Decisions`
+- [x] Rail post to `framework:pickup` carrying: the marker's shape, its closed enum, the UNSET default, and the round-trip guarantee with the control that proves it
+- [x] The post states explicitly that **the defect closes when AEF's promote path reads the marker, not when we post** — B3 delivers a notice, not a fix
+- [x] The post attributes the marker to AEF's own proposal (their T-2556, rail offsets 87–125) rather than presenting it as ours
+- [x] The returned offset is recorded in this task, so the claim "we told them" is checkable and not a memory
+- [x] **A5 recorded:** yes/no with reason in `## Decisions`
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -108,6 +132,27 @@ bvp_scores_proposed:
 -->
 
 ## Verification
+
+# The rail offset is RECORDED here, so "we told them" is checkable rather than remembered.
+# (The previous version of this leg greped the task file for its own id — a tautology that
+#  could not fail, written into the task whose whole subject is checkable claims.)
+grep -qE '^\*\*Posted:\*\* `framework:pickup` offset \*\*[0-9]+\*\*' .tasks/active/T-877-tell-aef-the-kind-marker-exists-and-what.md
+# The three facts the notice had to carry are stated in this task, so a reader can check the claim
+# against the corpus without fetching the rail.
+grep -q 'ZERO OF OUR 24 CORPUS MAPS' .tasks/active/T-877-tell-aef-the-kind-marker-exists-and-what.md || grep -q '0 of 24' .tasks/active/T-877-tell-aef-the-kind-marker-exists-and-what.md
+# Fact 1 re-derived from the corpus rather than quoted: no map declares aef:workflowMeta/@kind.
+# CONTROL for the absence leg below (PL-328): the SAME pattern must be findable somewhere, or a
+# typo in it satisfies the zero-count over the corpus. The aef:timer leg further down is a
+# different string and controls a different claim — it does not cover this one.
+grep -qE '<aef:workflowMeta[^>]*kind=' tests/fixtures/aef-bpmn/t875-kind-marker.bpmn
+test "$(grep -l '<aef:workflowMeta[^>]*kind=' examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 0
+# Fact 2: the element-ambiguity is real — aef:timer/@kind exists in the corpus. CONTROL for the
+# absence leg above: proves `kind=` IS findable, so that leg cannot pass on a typo'd pattern.
+grep -q '<aef:timer[^>]*kind=' examples/aef-processes/rendered/revisit-due-scan.bpmn
+# The enum is closed and defined exactly once, as the notice states.
+test "$(grep -c '^WORKFLOW_KINDS = ' tools/validate-workflow.py)" -eq 1
+# The round-trip guarantee the notice cites is still true.
+timeout 300 node tools/_roundtrip-serialization-cdp.mjs > /tmp/.t877.out 2>&1 && python3 -c "import json,sys;d=json.load(open('/tmp/.t877.out'));sys.exit(0 if 'kind' in d['wm_selftest']['live'] else 1)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -253,6 +298,39 @@ bvp_scores_proposed:
 
 ## Evolution
 
+### 2026-09-28 — a loose grep gave me the wrong answer first, and it became the notice's best content
+- **What changed:** checking how many corpus maps declare the marker, my grep reported **1 of 24**
+  and named `revisit-due-scan.bpmn`. The hit was `<aef:timer kind="cron" …>` — a *different
+  element*. The true answer is **0 of 24**.
+- **Plan impact:** none to the deliverable, but it became point 2 of the notice, and it is the item
+  AEF could not have derived from our tree: **`kind` is not a unique attribute name in our
+  vocabulary**, so a promote path matching `kind=` without qualifying the element reads a timer's
+  kind as a document kind. The mistake is more useful to them than the correct number, so the
+  notice carries both.
+- **Triggered:** nothing filed — the corpus is correct; only my query was wrong.
+
+### 2026-09-28 — the notice found a contradiction between their plan and ours, and T-876 is now held
+- **What changed:** reading T-2556 to attribute the proposal correctly (AC3) surfaced its own
+  closing line: *"AEF would re-mark the 5 corpus diagrams kind=documentation via normal editor
+  saves after ratification — no bulk rewrite."* Our arc-005 has **T-876** filed as a **24-map bulk
+  backfill by us**. Different actor, different population, on artifacts AEF **byte-pins**.
+- **Plan impact:** T-876 is held pending their answer, and the notice asks the question outright.
+  I had recommended T-877 before T-876 on sequencing grounds — tell them before moving their seam —
+  and the reason turned out to be stronger than the one I gave: the two plans disagree, and running
+  ours would have silently resolved a conflict in our own favour on a pinned interface.
+- **Triggered:** nothing new; T-876 stays `captured` with the reason recorded in `## Decisions`.
+
+### 2026-09-28 — two of my own verification legs were the defects this project hunts
+- **What changed:** the first leg I wrote greped the T-877 task file for the string `T-877` — a
+  tautology that cannot fail, in the task whose entire subject is making a claim checkable. Then
+  the close gate refused the next version: my absence leg asserted `<aef:workflowMeta…kind=` is
+  absent from the corpus while its "control" greped `<aef:timer…kind=` — a **different string**,
+  so a typo in the absence pattern would have passed unnoticed.
+- **Plan impact:** both replaced. The offset leg now asserts the recorded offset matches a shape;
+  the absence leg now has a same-string control against `t875-kind-marker.bpmn`.
+- **Triggered:** nothing filed — PL-328 and the close gate already encode it. Recorded because both
+  were written *today*, by me, hours after committing a fix for the identical class in T-915.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -306,6 +384,31 @@ bvp_scores_proposed:
 
 ## Decisions
 
+### 2026-09-28 — A5: does this deliver arc purpose and project purpose? **Yes, and it is the cheapest item in the arc.**
+
+arc-005 S1 exists so a map can declare whether it is illustrative or actionable. T-875 built the
+declaration, T-911 made it usable, and **this is the only part that reaches the consumer** — the
+marker's whole purpose is to be read by AEF's promote path, and until they know it exists it is a
+field nobody reads. The defect is theirs and live (their L-504 / T-2548-2549: documentation nodes
+promoted into the task gate as real `owner:human` tasks), so a signal we never announce closes
+nothing.
+
+Project purpose: **G3** (an instance knows its class). The marker is that distinction at document
+level, and a distinction the other side cannot see is not one.
+
+**No code, by design** — arc-005 filed B3 as "rail post, no code", and it stayed that way.
+
+### 2026-09-28 — T-876 is HELD, and this notice is why
+- **Chose:** hold T-876 (backfill `kind` across 24 corpus maps) pending AEF's answer.
+- **Why:** their T-2556 proposal says *"AEF would re-mark the 5 corpus diagrams kind=documentation
+  via normal editor saves after ratification — no bulk rewrite."* Our T-876 is filed as a 24-map
+  bulk backfill. Those are different operations, on artifacts **AEF byte-pins**, differing in both
+  actor and population (5 by them vs 24 by us). Discovered by reading their proposal while writing
+  the notice, not by reading our own task title.
+- **Rejected:** running T-876 as filed. Moving a pinned seam on a guess about which of two
+  conflicting plans is current is the one thing worth not doing, and the cost of asking is one
+  paragraph in a notice that was being written anyway.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -331,3 +434,26 @@ bvp_scores_proposed:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-877-tell-aef-the-kind-marker-exists-and-what.md
 - **Context:** Initial task creation
+
+### 2026-09-28T21:14:30Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-09-28T21:17:29Z — status-update [task-update-agent]
+- **Change:** owner:  → agent
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-73be9362
+- **Timestamp:** 2026-09-28T21:18:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 7
+     - evidence: `grep -q 'ZERO OF OUR 24 CORPUS MAPS' .tasks/active/T-877-tell-aef-the-kind-marker-exists-and-what.md || grep -q '0 of 24' .tasks/active/T-877-tell-aef-the-kind-marker-exists-and-what.md`
+
+### 2026-09-28T21:18:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -2544,3 +2544,10 @@ decisions:
     date: 2026-09-28
     task: T-910
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-343
+    decision: "hold T-876 (backfill `kind` across 24 corpus maps) pending AEF's answer."
+    scope: project
+    date: 2026-09-28
+    task: T-877
+    rationale: "Auto-captured from task file on completion"
