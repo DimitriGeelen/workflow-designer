@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-906: Backfill components: on the 40 tasks with no measurable cost, so BVP quadrant selection works on the goal-bearing arc
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T22:57:31Z
+# ============================================================================
+
+task_id: T-906
+task_name: "Backfill components: on the 40 tasks with no measurable cost, so BVP quadrant selection works on the goal-bearing arc"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T14:47:22Z
+completed: 2026-09-28T22:57:18Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-27T17:48:58+02:00
+last_commit: 2026-09-27T17:48:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the quadrant axis works now on the arc that carries the goal — and both prior rounds were right about different things
+
+# Key outcomes
+outcomes:
+  - 'The disputed count is resolved by measurement and the discrepancy explained rather than averaged: how many now-horizon active tasks carry a **confirmed** `cost_estimate`, how many a `cost_estimate_proposed`, how many non-empty `components:` — and **which of those three the ranker actually reads** when it computes `QUAD`'
+  - '`components:` is populated from each task''s **own evidence** — its diff, its verification legs, or the paths its body names. Never guessed: `components` feeds `blast_radius`, so a wrong path mis-states the quadrant it exists to produce, and a confidently wrong quadrant is worse than a visible `-`'
+  - 'Any task whose components cannot be determined from its own record is **left empty and listed**, not filled with a plausible guess — the same rule the estimator follows when it refuses'
+  - '`fw bvp` shows a real quadrant for every task this task populated, demonstrated before/after on at least 3 tasks'
+  - 'The estimator''s silent-refusal shape is reported as its own observation: `estimate-cost` printing `[wrote]` and exiting 0 having written no `blast_radius` is what hid this from two rounds. Reported, not fixed here — one lock at a time'
+  - 'Recorded: `fw bvp` already prints a NOTE naming this cause and its ticket directly above the table, and two independent rounds read the table and not the NOTE. That is a finding about the surface, not about the rounds'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-889-aefmeta-authority-on-the-element--the-si.md'
+  - '.tasks/active/T-890-aeflanemeta-authoringdefault--presentati.md'
+  - '.tasks/active/T-891-unresolvable-flownoderef-becomes-a-hard-.md'
+  - '.tasks/active/T-893-render-authority-on-the-element-and-indi.md'
+  - '.tasks/active/T-894-the-authority-mismatch-check-lives-in-th.md'
+  - '.tasks/active/T-906-backfill-components-on-the-40-tasks-with.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T17:48:58'
+    action: 'T-906: the quadrant axis works now on the arc that carries the goal — and both prior rounds were right about different things'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1929 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface, bvp]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1929
+  commits: 1
+  files_changed: 7
+  lines_added: 362
+  lines_removed: 29
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-906-backfill-components-on-the-40-tasks-with.md
+generated_by: context-agent-hybrid
