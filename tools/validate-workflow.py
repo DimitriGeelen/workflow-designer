@@ -368,6 +368,36 @@ class Validator:
         self._check_reachability(nodes, edges)
         self._check_required_inputs(nodes, edges)
         self._check_iw9_authority(lanes, nodes)
+        self._check_meta_authority(nodes)
+
+    # -- element authority vocabulary (T-902; twin of E-XML-META-AUTHORITY) --
+
+    def _check_meta_authority(self, nodes):
+        """E-META-AUTHORITY: a node's own ``aef.authority`` must be in AUTHORITIES.
+
+        The YAML twin of ``XmlValidator``'s ``E-XML-META-AUTHORITY`` (T-889). The
+        carrier existed on this form all along -- ``authority`` is in the bridge's
+        META_KEYS (yaml-to-bpmn.py) and six corpus maps carry it on nodes today --
+        but nothing gated the value, so T-889 classified its rule GAP and filed
+        T-902 rather than assert a counterpart that did not exist. This is the
+        counterpart. AUTHORITIES is the module-scope set, REUSED (T-322): a second
+        copy of the vocabulary is how the one-form-only family reproduces itself.
+        Absent is silent; present-and-valid is silent; only an out-of-vocabulary
+        value fires. T-902-GATE (teeth mutation anchor)
+        """
+        for node in nodes:
+            if not isinstance(node, dict):
+                continue
+            aef = node.get("aef")
+            if not isinstance(aef, dict) or "authority" not in aef:
+                continue
+            value = aef["authority"]
+            if value not in AUTHORITIES:
+                self.err(
+                    "E-META-AUTHORITY",
+                    "node '%s'" % node.get("uid"),
+                    "authority '%s' not in %s" % (value, sorted(AUTHORITIES)),
+                )
 
     # -- lanes (section 5, section 2) --------------------------------------
 

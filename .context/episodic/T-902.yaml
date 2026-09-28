@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-902: YAML form has no element-level authority gate — the GAP T-889 declared rather than papered over
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T23:38:11Z
+# ============================================================================
+
+task_id: T-902
+task_name: "YAML form has no element-level authority gate — the GAP T-889 declared rather than papered over"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T14:01:28Z
+completed: 2026-09-28T23:37:58Z
+duration_days: 1
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-889 added E-XML-META-AUTHORITY (element-level authority vocabulary gate) to the XML form only, and classified it GAP in tests/test_rule_form_parity.py PARITY rather than PAIRED. The YAML form CAN express element authority: 'authority' is in the bridge's META_KEYS (tools/yaml-to-bpmn.py:56), so a step's aef bag may carry it, and no YAML rule gates that value against AUTHORITIES. Calling it PAIRED to silence the harness would assert a counterpart that does not exist - the exact T-317 one-form-only failure the harness catches. Deliverable: either add the YAML-form element gate (making the pair PAIRED) or record why the YAML form is out of scope for element authority. Do not close by reclassifying the entry.
+
+# Key outcomes
+outcomes:
+  - '`tools/validate-workflow.py` gains `E-META-AUTHORITY` on the YAML form: a node whose `aef.authority` is present and not in the module-scope `AUTHORITIES` set is an ERROR naming the node uid and the value, mirroring `E-XML-META-AUTHORITY` — the set is REUSED, not re-listed (T-322: one vocabulary, never a second copy)'
+  - '**Absent is silent, present-and-valid is silent:** a node with no `aef.authority`, and a node with `aef.authority: sovereignty`, produce no finding; only an out-of-vocabulary value fires. Pinned by fixtures in both directions, the silent ones first as controls'
+  - '**The population the gap covered is measured, not assumed:** the corpus YAML maps that carry node-level `aef.authority` today are enumerated by the teeth (count > 0, proving the carrier is in use) and every one validates clean under the new rule — so the gate lands on real data without a false red'
+  - '`tests/test_rule_form_parity.py` reclassifies `E-XML-META-AUTHORITY` from GAP to PAIRED with `E-META-AUTHORITY`, and `EXPECTED_GAPS` moves 13 → 12 with the delta named in the file''s own ledger comment and re-derived in `docs/reports/T-320-rule-form-parity-census.md`, as the harness''s failure text instructs — not nudged'
+  - '`tests/test_rule_dialect_axis.py` registers `E-META-AUTHORITY` with carrier `aef.authority` and polarity CONSTRAINS, matching its XML twin; both parity suites are green after the change'
+  - '`tools/_t902-yaml-meta-authority-teeth.sh`: controls first, then the firing case, with a `--mutation` mode that removes the gate from a COPY of the validator and requires the firing case to go red while every control stays green, reporting `MUTATION SETUP BROKEN` if a control dies under the mutant'
+  - '**Scope fence recorded:** T-889''s clause-2 "element wins" reading in the XML IW-9 check has no YAML twin either (`_check_iw9_authority` reads the lane only, `validate-workflow.py:896`); that is a second gap, filed as an observation and NOT built here — one bug, one task'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2016 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2016
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-902-yaml-form-has-no-element-level-authority.md
+generated_by: context-agent-hybrid

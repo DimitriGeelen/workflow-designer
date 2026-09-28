@@ -310,3 +310,19 @@ nobody registered them, which is why two suites were failing without anyone owni
 **One constant was blocking three tasks.** T-890 and T-894 were parked on it and T-903 existed
 for it. Re-deriving once clears all three, which is the argument for re-derivation over three
 separate nudges.
+
+## 2026-09-29 — EXPECTED_GAPS re-derived, 13 → 12 (T-902)
+
+Re-derived, not nudged. **One gap closed, by building the counterpart it named.**
+
+| # | gap | closed by | how |
+|---|---|---|---|
+| 11 | `E-XML-META-AUTHORITY` | **T-902** | The YAML form now has `E-META-AUTHORITY`: a node's own `aef.authority` gated against the same module-scope `AUTHORITIES` set (reused, not re-listed — T-322). Absent silent, valid silent, out-of-vocabulary ERROR naming the uid. Six corpus maps already carry the key on nodes and all validate clean under it. Classified PAIRED in both registries. |
+
+Gaps #12 (`E-XML-LANE-AUTHORING-DEFAULT`, T-890) and #13 (`W-XML-AUTHORITY-DEFAULT-MISMATCH`, T-894)
+are untouched: the YAML form still has no `laneMeta authoringDefault` carrier, so neither can be
+paired without inventing one. **What this does not close:** T-889's clause-2 "element wins"
+reading in the XML IW-9 check has no YAML twin — `_check_iw9_authority` reads the lane only.
+That is a second gap of a different kind (a relation, not a vocabulary), filed as an
+observation under T-902 and not built there.
+

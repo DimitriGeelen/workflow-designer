@@ -1,15 +1,24 @@
 ---
 id: T-902
-name: "YAML form has no element-level authority gate — the GAP T-889 declared rather than papered over"
+name: "YAML form has no element-level authority gate — the GAP T-889 declared rather
+  than papered over"
 description: >
-  T-889 added E-XML-META-AUTHORITY (element-level authority vocabulary gate) to the XML form only, and classified it GAP in tests/test_rule_form_parity.py PARITY rather than PAIRED. The YAML form CAN express element authority: 'authority' is in the bridge's META_KEYS (tools/yaml-to-bpmn.py:56), so a step's aef bag may carry it, and no YAML rule gates that value against AUTHORITIES. Calling it PAIRED to silence the harness would assert a counterpart that does not exist - the exact T-317 one-form-only failure the harness catches. Deliverable: either add the YAML-form element gate (making the pair PAIRED) or record why the YAML form is out of scope for element authority. Do not close by reclassifying the entry.
+  T-889 added E-XML-META-AUTHORITY (element-level authority vocabulary gate) to the
+  XML form only, and classified it GAP in tests/test_rule_form_parity.py PARITY rather
+  than PAIRED. The YAML form CAN express element authority: 'authority' is in the
+  bridge's META_KEYS (tools/yaml-to-bpmn.py:56), so a step's aef bag may carry it,
+  and no YAML rule gates that value against AUTHORITIES. Calling it PAIRED to silence
+  the harness would assert a counterpart that does not exist - the exact T-317 one-form-only
+  failure the harness catches. Deliverable: either add the YAML-form element gate
+  (making the pair PAIRED) or record why the YAML form is out of scope for element
+  authority. Do not close by reclassifying the entry.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/_t534-d2-queue-tier-teeth.py, tools/_t889-authority-on-the-element-teeth.sh, tools/validate-workflow.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +31,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T14:01:28Z
-last_update: 2026-09-27T14:01:28Z
-date_finished: null
+last_update: 2026-09-28T23:37:58Z
+date_finished: 2026-09-28T23:37:58Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +43,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 1
+  F3: 0
+  F1: 1
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-28T23:35:28Z'
+cost_estimate_proposed:
+  - ts: '2026-09-28T23:37:36Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 5
+      tier: 2
+      effort: 8
+    rationale: blast_radius=5 (5-components-medium-blast); tier=2 
+      (workflow:build); effort=8 (lines=263,acs=9)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-902: YAML form has no element-level authority gate — the GAP T-889 declared rather than papered over
@@ -46,8 +78,13 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `tools/validate-workflow.py` gains `E-META-AUTHORITY` on the YAML form: a node whose `aef.authority` is present and not in the module-scope `AUTHORITIES` set is an ERROR naming the node uid and the value, mirroring `E-XML-META-AUTHORITY` — the set is REUSED, not re-listed (T-322: one vocabulary, never a second copy)
+- [x] **Absent is silent, present-and-valid is silent:** a node with no `aef.authority`, and a node with `aef.authority: sovereignty`, produce no finding; only an out-of-vocabulary value fires. Pinned by fixtures in both directions, the silent ones first as controls
+- [x] **The population the gap covered is measured, not assumed:** the corpus YAML maps that carry node-level `aef.authority` today are enumerated by the teeth (count > 0, proving the carrier is in use) and every one validates clean under the new rule — so the gate lands on real data without a false red
+- [x] `tests/test_rule_form_parity.py` reclassifies `E-XML-META-AUTHORITY` from GAP to PAIRED with `E-META-AUTHORITY`, and `EXPECTED_GAPS` moves 13 → 12 with the delta named in the file's own ledger comment and re-derived in `docs/reports/T-320-rule-form-parity-census.md`, as the harness's failure text instructs — not nudged
+- [x] `tests/test_rule_dialect_axis.py` registers `E-META-AUTHORITY` with carrier `aef.authority` and polarity CONSTRAINS, matching its XML twin; both parity suites are green after the change
+- [x] `tools/_t902-yaml-meta-authority-teeth.sh`: controls first, then the firing case, with a `--mutation` mode that removes the gate from a COPY of the validator and requires the firing case to go red while every control stays green, reporting `MUTATION SETUP BROKEN` if a control dies under the mutant
+- [x] **Scope fence recorded:** T-889's clause-2 "element wins" reading in the XML IW-9 check has no YAML twin either (`_check_iw9_authority` reads the lane only, `validate-workflow.py:896`); that is a second gap, filed as an observation and NOT built here — one bug, one task
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -82,6 +119,18 @@ date_finished: null
 
 ## Verification
 
+# Teeth: controls (absent silent, valid silent, corpus population clean, vocabulary reused) then the gate; --mutation removes the gate from a copy.
+out=$(bash tools/_t902-yaml-meta-authority-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+out=$(bash tools/_t902-yaml-meta-authority-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
+# Both parity registries agree with the code: the pair is PAIRED, the gap count re-derived, the carrier classed.
+python3 -m pytest tests/test_rule_form_parity.py tests/test_rule_dialect_axis.py -q
+grep -q '"E-XML-META-AUTHORITY": (PAIRED, "E-META-AUTHORITY")' tests/test_rule_form_parity.py
+grep -q '^EXPECTED_GAPS = 12$' tests/test_rule_form_parity.py
+grep -q '"E-META-AUTHORITY":         (("aef:meta/@authority",), CONSTRAINS)' tests/test_rule_dialect_axis.py
+# The census carries the re-derivation, dated and naming the closed gap.
+grep -q '^## 2026-09-29 — EXPECTED_GAPS re-derived, 13 → 12 (T-902)' docs/reports/T-320-rule-form-parity-census.md
+# The rule is wired into the YAML dispatch and its body reuses the module-scope set (property, not prose).
+grep -q '^        self._check_meta_authority(nodes)$' tools/validate-workflow.py
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -210,43 +259,17 @@ date_finished: null
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
-
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
-
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Symptom:** The XML form gated a node's own authority value (`E-XML-META-AUTHORITY`, T-889); the YAML form, which carries the same fact as `aef.authority` on six corpus maps today, gated nothing — the registry said GAP and was right.
+**Root cause:** T-889 built one side and, correctly, refused to assert a twin that did not exist. The twin was never built.
+**Why structurally allowed:** The parity harness detects a MISclassified pair, not an unbuilt one — a GAP with a reason is a valid state indefinitely. Nothing ages a declared gap.
+**Prevention:** The twin now exists and is PAIRED, so the harness holds both forms to the same vocabulary from here on; the census ledger records the close with its arithmetic. The remaining relation-shaped gap (element-wins in the YAML IW-9 check) is filed as its own observation so it cannot hide behind this close.
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
-
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — the carrier was in use, not merely expressible
+- **What changed:** The task's premise was "the YAML form CAN express element authority". Measured: six of the corpus YAML maps already DO — `arc-lifecycle`, `promotion-pipeline`, `task-lifecycle`, `healing-loop`, `inception-review`, `tier0-escalation` carry `aef.authority` on nodes — so the gap was live on real data, and the first control in the teeth is that all six validate clean under the new rule (they do).
+- **Plan impact:** One correction from the dialect-axis harness: it names carriers by their STANDARD path whichever form reads them (the YAML `E-AUTHORITY` is registered against `aef:laneMeta/@authority`), so the twin is registered against `aef:meta/@authority`, not `aef.authority`. The harness refused the wrong spelling on the first run, which is the harness working.
+- **Triggered:** Observation filed: `_check_iw9_authority` on the YAML form reads the lane only (`validate-workflow.py:896`), so T-889's clause-2 "element wins" has no YAML twin. A relation-shaped gap, not a vocabulary one; not built here.
 
 ## Recommendation
 
@@ -304,3 +327,18 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-902-yaml-form-has-no-element-level-authority.md
 - **Context:** Initial task creation
+
+### 2026-09-28T23:35:25Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-19e4c220
+- **Timestamp:** 2026-09-28T23:38:05Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-28T23:37:58Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -207,8 +207,10 @@ PARITY = {
     # it -- and no YAML rule gates that value. Calling this PAIRED to silence the harness
     # would assert a counterpart that does not exist, which is the exact T-317 failure the
     # harness is here to catch. Owner: T-902.
-    "E-XML-META-AUTHORITY": (GAP, "aef:meta/@authority expressible on the YAML form via "
-                                  "META_KEYS; no YAML rule gates the element value (T-889)"),
+    # T-902: PAIRED. The YAML counterpart now exists (E-META-AUTHORITY, same module-scope
+    # AUTHORITIES set, same absent-is-silent semantics), so the classification T-889 refused
+    # to assert can be asserted. Gap #11 of the T-903 ledger closes here: 13 -> 12.
+    "E-XML-META-AUTHORITY": (PAIRED, "E-META-AUTHORITY"),
     # T-890: GAP, not PAIRED, and the reason is the point — the YAML form has no
     # laneMeta authoringDefault at all, so asserting a counterpart would be the T-317
     # failure this harness exists to catch. T-889 set this precedent by classifying its
@@ -314,7 +316,9 @@ OUT_OF_SCOPE_PROBES = {}
 # +0 T-903 E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND — classified PAIRED, so counted the other
 #    way in the same pass and adding nothing. The ratchet moves in both directions or it is
 #    not a measurement.
-EXPECTED_GAPS = 13
+# T-902 (2026-09-29): 13 -> 12, re-derived in the census (docs/reports/T-320-rule-form-parity-census.md).
+# -1 T-902 E-XML-META-AUTHORITY — the YAML twin E-META-AUTHORITY was built, so gap #11 closes.
+EXPECTED_GAPS = 12
 
 
 # --------------------------------------------------------------------------

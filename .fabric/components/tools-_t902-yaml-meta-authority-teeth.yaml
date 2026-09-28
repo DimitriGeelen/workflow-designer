@@ -1,0 +1,21 @@
+id: tools/_t902-yaml-meta-authority-teeth.sh
+name: _t902-yaml-meta-authority-teeth
+type: script
+subsystem: instruments
+location: tools/_t902-yaml-meta-authority-teeth.sh
+tags: []
+
+purpose: "T-902 (arc-001) — teeth for E-META-AUTHORITY, the YAML twin of E-XML-META-AUTHORITY."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-28
+created_by: unknown

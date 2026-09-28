@@ -263,6 +263,11 @@ RULE_CARRIERS = {
     # carries a value outside AUTHORITIES. Different CARRIER (aef:meta, not aef:laneMeta),
     # which is the whole content of clause 2: the fact moved homes.
     "E-XML-META-AUTHORITY":     (("aef:meta/@authority",), CONSTRAINS),
+    # T-902: the YAML twin. Same polarity, same vocabulary, and the SAME carrier in this
+    # table's vocabulary: carriers are named by their standard path whichever form reads
+    # them (E-AUTHORITY above names aef:laneMeta/@authority from the YAML side too). The
+    # YAML spelling is a node's own aef.authority, which the bridge projects onto it.
+    "E-META-AUTHORITY":         (("aef:meta/@authority",), CONSTRAINS),
     # T-890 (T-888 clause 3): the lane's AUTHORING DEFAULT. Same CONSTRAINS polarity —
     # it refuses a value outside AUTHORITIES — but a different carrier again, and
     # deliberately a PRESENTATIONAL one. It pre-fills new elements and is never read by
