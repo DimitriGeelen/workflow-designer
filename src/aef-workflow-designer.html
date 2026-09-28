@@ -631,6 +631,12 @@ font-family: 'Outfit';
   svg[data-lsize="l"] .lane-label { font-size: 11.5px; }
   .node-io-badge { fill: var(--text-dim); font-family: var(--mono); font-size: 8px; pointer-events: none; }
   .node-id-badge { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
+  /* T-893 (T-888 clause 4): authority marker on the element. Two classes for two states that
+     must read DIFFERENTLY — a differing authority is a choice (faint, like the id badge), a
+     missing one is a hole (the orange token, the same one AUTHORITY_LABEL_COLOR uses for
+     external). Tokens, never literals, so the marker follows the theme. */
+  .node-authority-badge   { fill: var(--text-faint); font-family: var(--mono); font-size: 8px; pointer-events: none; letter-spacing: 0.02em; }
+  .node-authority-missing { fill: var(--orange);     font-family: var(--mono); font-size: 8px; pointer-events: none; font-weight: 600; }
   /* T-355: the real tag of a foreign (out-of-allowlist) flow node, drawn above the shape.
      Mono because it is a literal from the source document, not prose; --text-dim rather
      than --text-faint so it stays legible — this is the one mark that says what the
@@ -1701,6 +1707,35 @@ const AUTHORITY_LABEL_COLOR = {
   external:    'var(--orange)',
   none:        'var(--text-faint)',
 };
+
+// T-893 (T-888 ruling clause 4): the authority marker's THREE states, decided in one place.
+// The picture is honest where the fact lives — on the element — and the three states must
+// not collapse into two:
+//   'none'    the element's own authority matches its lane's authoring default, OR it has an
+//             authority and the lane declares no default (nothing to differ from — T-894's
+//             grammar). The common case must not shout.
+//   'differs' the element has its own authority and it is not the lane's default: a legitimate
+//             authorial choice, made VISIBLE rather than silent (subtle marker).
+//   'missing' the element has no authority and its lane offers no default: not a choice but a
+//             hole, and a compile error — the louder marker.
+// Pure, so tests/t893-authority-marker-state.test.mjs runs it without a browser. It reads; it
+// never writes — the default never stamps (clause 3), it only changes what is flagged.
+function authorityMarkerState(own, laneDefault) {
+  const has = v => v != null && v !== '';
+  if (has(own)) return has(laneDefault) && own !== laneDefault ? 'differs' : 'none';
+  return has(laneDefault) ? 'none' : 'missing';
+}
+const AUTHORITY_ABBR = { sovereignty: 'sov', authority: 'aut', initiative: 'ini', external: 'ext', none: 'none' };
+// The lane's EFFECTIVE default while T-895's migration is pending: authoringDefault when the
+// lane declares one, else the lane's legacy authority-of-record (clause 2 is demoting it, but
+// today it is where the fact lives on all 24 corpus maps), and nothing for the retired 'none'
+// sentinel — which is exactly the lane whose elements carry no authority anywhere, so their
+// marker reads 'missing' truthfully. Decision recorded on T-893.
+function effectiveLaneDefault(lane) {
+  if (!lane) return null;
+  if (lane.authoringDefault) return lane.authoringDefault;
+  return lane.authority && lane.authority !== 'none' ? lane.authority : null;
+}
 
 // Default lanes for a new workflow — mirror AEF's three-role authority model.
 function defaultLanes() {
@@ -3552,6 +3587,18 @@ function renderNodes() {
       const cbW = cbTxt.length * 6 + 8;
       g.appendChild(el('rect', { x: n.x + 3, y: n.y + def.h - 15, width: cbW, height: 12, rx: 2, fill: 'var(--purple-soft)', stroke: 'var(--purple)', 'stroke-width': '0.5' }));
       g.appendChild(el('text', { x: n.x + 3 + cbW / 2, y: n.y + def.h - 6, class: 'node-io-badge', 'text-anchor': 'middle' }, [text(cbTxt)]));
+    }
+    // T-893: authority marker on the element (clause 4). Top-left of the bounding box, above
+    // the shape so it is clear of the I/O badge (top-right) and the constituent badge
+    // (bottom-left). Reads n.aef.authority and the lane's authoringDefault; writes nothing.
+    {
+      const lane = findLane(n.lane);
+      const mstate = authorityMarkerState(n.aef?.authority, effectiveLaneDefault(lane));
+      if (mstate === 'differs') {
+        g.appendChild(el('text', { x: n.x + 2, y: n.y - 3, class: 'node-authority-badge', 'data-authority-marker': 'differs' }, [text('◆ ' + (AUTHORITY_ABBR[n.aef.authority] || n.aef.authority))]));
+      } else if (mstate === 'missing') {
+        g.appendChild(el('text', { x: n.x + 2, y: n.y - 3, class: 'node-authority-missing', 'data-authority-marker': 'missing' }, [text('⚠ no authority')]));
+      }
     }
     gNodes.appendChild(g);
   }

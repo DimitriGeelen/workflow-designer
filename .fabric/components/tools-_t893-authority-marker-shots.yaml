@@ -1,0 +1,21 @@
+id: tools/_t893-authority-marker-shots.mjs
+name: _t893-authority-marker-shots
+type: script
+subsystem: instruments
+location: tools/_t893-authority-marker-shots.mjs
+tags: []
+
+purpose: "TODO: describe what this component does"
+purpose_source: none
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-28
+created_by: unknown

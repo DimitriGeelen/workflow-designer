@@ -13,13 +13,12 @@ description: >
   per CLAUDE.md — element-level screenshots in every theme and density, read back,
   not DOM math.
 
-status: captured
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [arc:designer-authoring-surface]
-components:
-  - src/aef-workflow-designer.html
+components: [tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -32,8 +31,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:46Z
-last_update: '2026-09-27T15:47:41Z'
-date_finished:
+last_update: 2026-09-28T23:45:31Z
+date_finished: 2026-09-28T23:45:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -54,27 +53,28 @@ cost_estimate_proposed:
     rationale: blast_radius=1 (single-component); tier=2 (workflow:build); 
       effort=8 (lines=275,acs=4)
     rubric_sha: e4a00f38e801
-bvp_scores_proposed:
-  - ts: '2026-09-27T15:47:41Z'
+  - ts: '2026-09-28T23:45:19Z'
     estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 1
-      F3: 0
-      F1: 3
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
-      task body — no hypothesis, so this score has no claim to be wrong about,L0:
-      no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
-      to be wrong about,L1:keyword=designer)'
+    cost_estimate:
+      blast_radius: 5
+      tier: 2
+      effort: 8
+    rationale: blast_radius=5 (4-components-medium-blast); tier=2 
+      (workflow:build); effort=8 (lines=246,acs=6)
     rubric_sha: e4a00f38e801
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 1
+  F3: 0
+  F1: 3
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-28T23:40:53Z'
 ---
 
 # T-893: Render authority on the element, and indicate mismatch and missing DIFFERENTLY
@@ -87,42 +87,50 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **One pure function decides the state:** `authorityMarkerState(own, laneDefault)` in `src/aef-workflow-designer.html` returns exactly one of `'none' | 'differs' | 'missing'`, with the three states from T-888 clause 4 and nothing else: own present and equal to the lane default → `none`; own present and different from a present default → `differs`; neither own nor default → `missing`. Own present with no default → `none` (there is nothing to differ from — the same three-state grammar the validator's `W-XML-AUTHORITY-DEFAULT-MISMATCH` uses, T-894). Pinned by a node-run unit test that slices the function out of the HTML, so it runs without a browser
+- [x] `renderNodes()` draws a marker per state: nothing for `none`; a subtle marker (class `node-authority-badge`, faint text, the element's own authority abbreviated) for `differs`; a louder marker (class `node-authority-missing`, the `--orange` token, never a literal colour) for `missing`. Colours come from theme tokens
+- [x] **The default never writes (T-888 clause 3):** rendering a marker mutates no node — a leg serialises the document before and after a render with lane defaults set and requires byte-identical output
+- [x] **Visual verification per CLAUDE.md, not DOM math:** element-level Playwright screenshots of a node in each of the three states, in every label-size mode the app has (`s` / `m` / `l`, its only visual modes — there is a single theme), READ back, and referenced in a `## Visual Verification` section of this task. Nine screenshots minimum, each one named
+- [x] The existing designer suites that touch node rendering stay green (`tools/_t889-authority-on-the-element-teeth.sh` static legs and the round-trip guard's `--denominators-only`), because the marker adds no emitted key and no new `aef.*` access
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+- [ ] [REVIEW] **The two markers read as different KINDS of thing, and the common case is silent.**
+      **Steps:**
+      1. `cd /opt/832-Workflow-designer && node tools/_t893-authority-marker-shots.mjs` (isolated headless Chromium; writes 9 PNGs to `docs/reports/t893-shots/`)
+      2. Open `docs/reports/t893-shots/differs-m.png`, `missing-m.png`, `none-m.png` side by side.
+      **Expected:** `none-m` shows no marker; `differs-m` shows a faint mono "◆ ini" above the node that reads as an annotation, not an alarm; `missing-m` shows an orange "⚠ no authority" that reads as a defect. The agent's reading of the nine shots is in `## Visual Verification` below; the judgment this AC asks for is whether the subtle/loud contrast is RIGHT, which is taste, not geometry.
+      **If not:** name which of the two markers is mis-pitched (too loud / too quiet) and whether the marker's position (top-left, above the shape) collides with incoming edge labels on your maps — `missing-m.png` shows an edge label sitting just above it on task-lifecycle.
 
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+## Visual Verification
 
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
+Element-level screenshots taken by `tools/_t893-authority-marker-shots.mjs` in an isolated headless
+Chromium (the shared Playwright MCP browser was in use by another session — G-006 — so the project's
+own CDP plumbing was used instead), on a task-lifecycle fixture with the agent lane set to the retired
+`none` sentinel and `frw_4_enter` given its own `authority="initiative"`. All nine READ back on 2026-09-29:
 
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+| state | s | m | l | what I saw |
+|---|---|---|---|---|
+| none | `docs/reports/t893-shots/none-s.png` | `none-m.png` | `none-l.png` | no marker at any size; the node reads exactly as before (I/O badge, id badge only) |
+| differs | `differs-s.png` | `differs-m.png` | `differs-l.png` | faint mono "◆ ini" above the top-left corner, same weight as the id badge; legible at `s`, unchanged by label size (the marker is 8px at every size, as designed) |
+| missing | `missing-s.png` | `missing-m.png` | `missing-l.png` | orange "⚠ no authority" above the top-left corner, clearly louder than the differs marker; on this fixture an incoming edge label ("resume after healing…") sits just above it — close but not overlapping, flagged for the Human AC |
+
+No regression seen on the nodes themselves in any mode: labels, I/O badge (`1→0`) and id badges render as before.
 
 ## Verification
 
+# The pure state function, sliced from the editor and run without a browser (13 cases incl. the exact three-state partition).
+node tests/t893-authority-marker-state.test.mjs | grep -qE '^PASS [0-9]+ / FAIL 0$'
+# The render is wired to it and to the effective-default helper (property, not prose).
+grep -q 'const mstate = authorityMarkerState(n.aef?.authority, effectiveLaneDefault(lane));' src/aef-workflow-designer.html
+# Both marker classes exist and take their colour from tokens — control first (PL-328): the token pattern hits where tokens are defined.
+grep -q '^\s*--orange: ' src/aef-workflow-designer.html
+grep -qE '\.node-authority-missing \{ fill: var\(--orange\)' src/aef-workflow-designer.html
+grep -qE '\.node-authority-badge +\{ fill: var\(--text-faint\)' src/aef-workflow-designer.html
+# Isolated-Chromium driver: marker counts per state x size match the fixture, buildBpmnXml unchanged by rendering (clause 3), 9 PNGs written.
+timeout 120 node tools/_t893-authority-marker-shots.mjs | grep -q '^L2 PASS'
+test "$(ls docs/reports/t893-shots/*.png | wc -l)" -eq 9
+# The marker adds no emitted key and no new aef.* access inside the emitter: the static guard is unchanged.
+node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q 'computed sources 3 verified'
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -267,67 +275,27 @@ bvp_scores_proposed:
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
-
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — the cheap-by-radius, expensive-by-verification task, done
+- **What changed:** The three states are decided by one pure function and pinned by a browserless test; the render draws two classes. What the build ADDED to the ruling's text is the migration-period reading of "the lane's default" (Decisions) — without it the marker would have shouted on the whole corpus on day one, which is the exact failure T-624 taught (a warning that fires everywhere is dismissed everywhere).
+- **Plan impact:** The visual verification standard was met without the shared Playwright browser, which was in use (G-006); the project's own isolated-Chromium CDP plumbing produced the nine element-level shots and two byte-level legs. The abandonment note from T-897 stands as a calibration finding: `blast_radius=1` scored this cheap, and the verification was most of the cost.
+- **Triggered:** Nothing filed. T-892 (lane config UI for authoringDefault) will make the `differs` state reachable by authoring rather than only by import.
 
 ## Recommendation
 
-<!-- T-2945: same shape as inception.md's block — the gate that reads it
-     (audit_inception_recommendation, lib/task-audit.sh:117) is shared, so the
-     shape is copied rather than reinvented.
-
-     REQUIRED once this task reaches partial-complete: Agent ACs done, at least
-     one `### Human` AC still unticked. `lib/review.sh:205-211` (T-2421) BLOCKS
-     `fw task review` emission for build/refactor/test/decommission tasks in that
-     state with no substantive block here — the operator would otherwise open
-     /review/<id> to a blank Recommendation card and be asked to approve a form.
-
-     Not required while every Human AC is ticked or the task has none: the gate
-     only fires on the partial-complete transition. It is here from the start so
-     you write it while you still have the evidence, not when the gate refuses.
-
-     Format (the parser wants the `**Recommendation:**` line at the start of a
-     line; a leading `-` or `*` bullet is also accepted):
-     **Recommendation:** GO / NO-GO / DEFER
-     **Rationale:** Why (cite evidence — what shipped, what was proven, what remains)
-     **Evidence:**
-     - Finding 1
-     - Finding 2
-
-     DEFER is for evidence gaps, not confidence gaps (CLAUDE.md §Presenting Work
-     for Human Review). If the artefact is complete and you still don't want to
-     commit, that is a calibration failure — recommend GO or NO-GO.
--->
+**Recommendation:** GO
+**Rationale:** All five Agent ACs are verified by legs that run without human judgment; the one Human AC is genuine taste (is the subtle/loud contrast right, is the position clear of edge labels on real maps) and is stated with the nine shots to look at.
+**Evidence:**
+- `tests/t893-authority-marker-state.test.mjs`: 13/13, including the exact-partition case.
+- `tools/_t893-authority-marker-shots.mjs`: L1 counts (differs=1, missing=3 agent-lane nodes) identical across s/m/l; L2 buildBpmnXml byte-identical before/after render (23,321 bytes).
+- Nine screenshots read back; table in `## Visual Verification`.
+- Static guard unchanged: `computed sources 3 verified`.
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-09-29 — what counts as the lane's default while T-895 is pending
+- **Chose:** the effective default is `lane.authoringDefault` when declared, else the lane's legacy `authority` unless it is the retired `none` sentinel (`effectiveLaneDefault`).
+- **Why:** today no corpus map declares an authoring default and no element carries its own authority, so the literal clause-4 rule ("no authority → louder marker") would flag every node on all 24 maps. The lane's `authority` IS where the fact lives until T-895 migrates it; reading it as the default keeps the marker truthful on the current corpus and makes the retired `none` lanes — whose elements genuinely carry no authority anywhere — the only place the louder marker fires.
+- **Rejected:** authoringDefault-only (the pure clause-4 reading): correct after migration, a corpus-wide false alarm before it. Treating `none` as a default: it is the value T-888 retired precisely because it hid this hole.
 
 ## Decision
 
@@ -351,3 +319,32 @@ bvp_scores_proposed:
 Basis: **inferred from the stated deliverable: rendering authority on the element is an editor change; the editor is one file in this repo**
 
 Populated so `fw bvp` can compute a `blast_radius` and therefore a quadrant. Empty `components:` made `estimate-cost` refuse the radius — correctly, since unmeasured is not zero — while printing `[wrote]` and exiting 0, so the refusal read as a success and two procAsFit rounds concluded the cost axis did not exist.
+
+### 2026-09-27T19:41:04Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-842cbfcf
+- **Timestamp:** 2026-09-28T23:45:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 4
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — The existing designer suites that touch node rendering stay green (`tools/_t889-authority-on-the-element-teeth.sh` static legs and the round-trip guard's `--denominators-only`), because the marker add
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t889-authority-on-the-element-teeth.sh in: The existing designer suites that touch node rendering stay green (`tools/_t889-authority-on-the-element-teeth.sh` static legs and the round-trip guar`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 2
+     - evidence: `node tests/t893-authority-marker-state.test.mjs | grep -qE '^PASS [0-9]+ / FAIL 0$'`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 10
+     - evidence: `timeout 120 node tools/_t893-authority-marker-shots.mjs | grep -q '^L2 PASS'`
+  3. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 13
+     - evidence: `node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q 'computed sources 3 verified'`
+
+### 2026-09-28T23:45:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
