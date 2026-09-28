@@ -923,7 +923,11 @@ observations:
   captured: 2026-08-15T19:51:36Z
   context_task: T-526
   tags: [governance]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-526"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Carried by T-526 (work-completed); the thread lives in .context/episodic/T-526.yaml. Partially superseded by T-912 on 2026-09-28, which made promote write the real task id into promoted_to and add a reverse observation: field to the task \u2014 so observation-to-task cross-referencing now exists in both directions. The remaining half of OBS-257 (nothing flags a NEW observation duplicating an older one) is not built and is carried forward in the T-914 census findings."
+  resolved_at: 2026-09-28T11:53:20Z
   promoted_to: null
   urgent: true
 - id: OBS-258
@@ -1346,6 +1350,9 @@ observations:
   context_task: T-575
   tags: [bug]
   status: resolved
+  resolved_carrier: "T-604"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Backfilled under T-914. Its own text says 'RESOLVED under T-604'; T-604 is work-completed. Set by hand before fw note resolve existed, so the status was recorded without a carrier — the defect the verb removes."
   promoted_to: T-604
 - id: OBS-315
   text: "T-602 fixed bpmn:documentation round-trip and left the input-fidelity census stale: tools/_t338-input-fidelity-cdp.mjs expects 'documentation' to be CONTENT-DROPPED and now measures CONTENT-PRESERVED, so the driver is RED in the tree as of today. This is the census working exactly as designed — its own failure text says 'CONTENT-PRESERVED where DROPPED was expected is good news the guard must not absorb — update EXPECTED_CONTENT deliberately'. The tripwire refuses to absorb an improvement silently, which is right, but it means a landed fix left a red driver behind and nobody reconciled the baseline. Deliberate baseline update needed, as its own instructions demand. Kept out of T-604 because merging a baseline change into an attach-race sweep would hide both."
@@ -1388,6 +1395,9 @@ observations:
   context_task: T-575
   tags: [bug]
   status: resolved
+  resolved_carrier: "T-606"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Backfilled under T-914. T-606 (renderer output escaped at the template layer) carries the thread; still active. Set by hand before fw note resolve existed, so the status was recorded without a carrier — the defect the verb removes."
   promoted_to: T-606
 - id: OBS-314
   text: "contentRightEdge() encloses the right-most node BOX, not its label, so the pool border can be drawn tighter than the content it contains. Measured under T-601: a below-label centred on the right-most node overhangs the pool border with no better candidate available (right is further out, left collides with the previous node), so the placement pass correctly keeps it and the overhang stands. This is a pool SIZING defect, not a placement defect. Fix belongs in contentRightEdge() (and probably poolHeight() for the same reason at the floor): size the pool to the rendered label extents, not the node boxes. Kept out of T-601 deliberately — merging it would have hidden it behind a placement fix."
@@ -1472,6 +1482,9 @@ observations:
   context_task: null
   tags: [framework]
   status: resolved
+  resolved_carrier: "T-650"
+  resolved_carrier_kind: "task"
+  resolved_reason: "Backfilled under T-914. T-650 (the completion path suggests a command it then forbids) carries it; work-completed. Set by hand before fw note resolve existed, so the status was recorded without a carrier — the defect the verb removes."
   promoted_to: T-650
 - id: OBS-332
   text: "P-011 verification lines that invoke 'fw audit' hang. update-task.sh:1272 runs each verification command as (unset ...; eval \"$_close_locks_cmd\"; cd \"$PROJECT_ROOT\" && eval \"$cmd\") - the close-locks call exists because the subshell inherits the task update's lock FDs. A full 'fw audit' from inside there contends with the transition that invoked it: measured 2026-08-31 under T-651, the first invocation returned and an immediate second one hung until a 5-minute timeout killed it. The gate reported it as a plain verification FAIL, which reads as 'your check is wrong' rather than 'your check did not finish' - the same missing-third-outcome shape as OBS-329 (a surface that cannot distinguish no-verdict from unparseable-verdict). Two things worth separating: (a) advise against whole-audit invocations in P-011 since it makes one task's completion depend on every unrelated warning in the tree, and (b) the gate should distinguish a command that FAILED from one that TIMED OUT or was killed."
@@ -2175,6 +2188,13 @@ observations:
   text: "Nothing detects a promoted_to that does not resolve, and nothing detects an observation whose task was deleted. Found under T-912 by doing it: a control fixture (OBS-424) was promoted to T-914, the fixture task was removed, and the inbox was left holding promoted_to: T-914 against a task that no longer existed. No check anywhere reports that. Worse, the queue then has no legal exit: 'fw note dismiss' refuses a record that is not pending ('OBS-424 is not pending (status: promoted) — not dismissing'), which is correct on its own terms, so an observation whose task vanishes is stuck in 'promoted' forever, pointing at nothing, and only a hand edit can fix it. THIS IS NOT HYPOTHETICAL FOR THE DRAIN. 182 pending observations are about to be triaged. Every promotion now creates a real forward link (T-912), which is the improvement — but a link that can silently dangle is a weaker record than no link at all, because a reader trusts it. The six pre-T-912 promotions are a separate instance of the same blindness from the other end: their promoted_to says the literal string 'task', so they dangle by construction and nothing reports that either. WANTED: an audit leg that resolves every non-null promoted_to against .tasks/ and reports the ones that do not, plus a disposition path for an observation whose task is gone. Sibling of OBS-257 (the inbox has no cross-referencing, 43 days old) and the direct complement to T-912, which builds the link this would verify."
   captured: 2026-09-28T11:32:43Z
   context_task: T-912
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-426
+  text: "DELETING A TASK FILE RECYCLES ITS ID, so the git record ends up with two different tasks under one number. Did it to myself 2026-09-28 within ten minutes. T-914 was created as a T-912 control fixture, proved that 'fw note promote --owner human' still honours the flag, and was deleted as the fixture it was. The very next 'fw task create' allocated T-914 AGAIN — because generate_id (create-task.sh:251-263) globs .tasks/active/T-*.md and .tasks/completed/T-*.md and takes max+1, so an id is only reserved for as long as its FILE exists. Commit 8d82f9f6 now says 'T-914 was deleted before its observation was disposed of', and T-914 is simultaneously the live census task for the urgent-observation cohort. Anyone reading that commit and then opening T-914 gets a different task than the one described, with nothing signalling the substitution. THE REAL LESSON IS NARROWER THAN 'IDS SHOULD BE MONOTONIC': deleting a task file is not a safe cleanup operation and I should not have done it. A fixture task should be completed or dismissed through the verbs, leaving the id spent, exactly as a fixture OBSERVATION is dismissed rather than deleted — which this project already knows, since the eleven dismissed observation husks in the inbox are deliberately kept as evidence. The asymmetry is that the inbox has a dismiss verb and the task system has no 'retire this, it was never real' path, so the only way to unmake a task is rm, and rm is what recycles the id. Either give generate_id a high-water mark that survives deletion (a counter file, or scan git history for ever-used ids), or give the task system a disposal verb so nobody needs rm. Note FW_ID_QUARANTINE_GAP exists at :252, suggesting id-gap handling was already thought about from a different angle."
+  captured: 2026-09-28T11:49:27Z
+  context_task: T-737
   tags: [bug]
   status: pending
   promoted_to: null
