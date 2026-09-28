@@ -2,14 +2,24 @@
 id: T-880
 name: "An instance record exists and can be created against a template"
 description: >
-  arc-005 S2/B5. CONTINGENT on T-878 (instance-identity inception) returning GO. If T-878 returns NO-GO, or returns a design different from whatever anyone assumed here, this task is DELETED OR REWRITTEN — not adapted. It carries no design of its own on purpose: naming the storage home or identity scheme here would pre-commit the very thing T-878 exists to decide.
+  arc-005 S2/B5. CONTINGENT on T-878 (instance-identity inception) returning GO. If
+  T-878 returns NO-GO, or returns a design different from whatever anyone assumed
+  here, this task is DELETED OR REWRITTEN — not adapted. It carries no design of its
+  own on purpose: naming the storage home or identity scheme here would pre-commit
+  the very thing T-878 exists to decide.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_6_run
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:process-instances]
-components: []
+components:
+  - tools/instance-node.py
+  - tools/_t880-instance-node-teeth.sh
+  - examples/aef-processes/template-binding.yaml
+  - .agentic-framework/agents/task-create/update-task.sh
+  - tools/README.md
 related_tasks: []
 arc_id: process-instances
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +32,8 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:43:11Z
-last_update: 2026-09-27T22:49:06Z
-date_finished: null
+last_update: 2026-09-28T23:05:29Z
+date_finished: 2026-09-28T23:05:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +44,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 2
+  F3: 3
+  F1: 2
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-28T22:59:00Z'
+cost_estimate_proposed:
+  - ts: '2026-09-28T23:04:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 5
+      tier: 2
+      effort: 8
+    rationale: blast_radius=5 (5-components-medium-blast); tier=2 
+      (workflow:build); effort=8 (lines=315,acs=8)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-880: An instance record exists and can be created against a template
@@ -87,12 +120,12 @@ it. It is the natural hook point for this work and must be resolved rather than 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 ### Agent
-- [ ] A governed entity can carry a **recorded current node**, and the value is constrained to node ids that exist in its bound template. An arbitrary string is refused, naming the template it was checked against
-- [ ] The **template binding is DERIVED from `workflow_type`**, never authored — proving A3. The derivation names the file it resolved to, and resolves to `examples/aef-processes/rendered/<id>.bpmn` (the AEF-pinned artefact), not the editor snapshot and not the corpus YAML
-- [ ] **No new identifier is minted** — proving A2. The entity's existing id is the instance identity. A grep for a new uuid/instance-id field in the delivered surface returns nothing
-- [ ] `workflow_type` values with **no template** are a distinct, named state from entities that have a template and no recorded position. NOT EVALUATED is not PASSED (T-3105); the two must not collapse into one silent absence
-- [ ] The dead hint at `update-task.sh:249` is **resolved, not bypassed**: either repointed at a path that exists or removed with a reason. A verification leg proves the chosen branch — if repointed, that the guard now fires; if removed, that no caller depends on it
-- [ ] **Proved by mutation, with a control set that runs first.** Feed a node id absent from the template and the setter refuses naming it; feed a valid one and it is recorded. Every mutation is asserted applied before its result is scored, and a broken harness reports `MUTATION SETUP BROKEN` rather than scoring kills
+- [x] A governed entity can carry a **recorded current node**, and the value is constrained to node ids that exist in its bound template. An arbitrary string is refused, naming the template it was checked against
+- [x] The **template binding is DERIVED from `workflow_type`**, never authored — proving A3. The derivation names the file it resolved to, and resolves to `examples/aef-processes/rendered/<id>.bpmn` (the AEF-pinned artefact), not the editor snapshot and not the corpus YAML
+- [x] **No new identifier is minted** — proving A2. The entity's existing id is the instance identity. A grep for a new uuid/instance-id field in the delivered surface returns nothing
+- [x] `workflow_type` values with **no template** are a distinct, named state from entities that have a template and no recorded position. NOT EVALUATED is not PASSED (T-3105); the two must not collapse into one silent absence
+- [x] The dead hint at `update-task.sh:249` is **resolved, not bypassed**: either repointed at a path that exists or removed with a reason. A verification leg proves the chosen branch — if repointed, that the guard now fires; if removed, that no caller depends on it
+- [x] **Proved by mutation, with a control set that runs first.** Feed a node id absent from the template and the setter refuses naming it; feed a valid one and it is recorded. Every mutation is asserted applied before its result is scored, and a broken harness reports `MUTATION SETUP BROKEN` rather than scoring kills
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -127,6 +160,20 @@ it. It is the natural hook point for this work and must be resolved rather than 
 
 ## Verification
 
+# T-880 teeth: controls first, then refusals. Property-pinned, no live corpus counts (T-3326).
+out=$(bash tools/_t880-instance-node-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+out=$(bash tools/_t880-instance-node-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
+# The derivation resolves to the AEF-pinned rendered artefact, not the YAML and not the editor snapshot.
+python3 tools/instance-node.py bind build | grep -q '^examples/aef-processes/rendered/task-lifecycle.bpmn$'
+# NO-TEMPLATE is its own state and its own exit code (3), distinct from NO-POSITION (0) and NO-ENTITY (2).
+python3 tools/instance-node.py bind not-a-workflow-type; test $? -eq 3
+# No new identifier field in the delivered surface (comments and docstring excluded — the prose names IW-3 on purpose).
+# Control first (PL-328): the SAME pattern must hit where an identifier field really is written.
+grep -qE "(uuid|instance_id|instanceId)['\":=]" examples/aef-processes/rendered/task-lifecycle.bpmn
+! grep -vE '^\s*#' tools/instance-node.py | grep -qE "(uuid|instance_id|instanceId)['\":=]"
+# The repointed hint guards on a file that exists and names a node that is in it.
+test -f examples/aef-processes/rendered/task-lifecycle.bpmn && grep -q 'id="frw_7_all"' examples/aef-processes/rendered/task-lifecycle.bpmn && grep -q 'task-lifecycle node frw_7_all' .agentic-framework/agents/task-create/update-task.sh
+bash -n .agentic-framework/agents/task-create/update-task.sh
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -271,27 +318,10 @@ it. It is the natural hook point for this work and must be resolved rather than 
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
-
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — built on the reduced scope, and the reduction held
+- **What changed:** Nothing in T-878's F3 needed revisiting: the template half derived cleanly from `workflow_type` through a seven-row table, and the recorded half is one frontmatter line. What the build ADDED to the design is the inception case: an inception instantiates two templates (T-878 F3), so the binding is a list and a node is valid if it is in any bound template, with the reader naming which one it matched. A fourth reader state appeared that IW-5's three did not name: `NODE <id> STALE` — recorded, and no longer in any bound template because the artefact was re-rendered under it. Reported with exit 1 rather than folded into NO-POSITION.
+- **Plan impact:** None to scope. The dead hint (update-task.sh) was REPOINTED, not removed: it now guards on the rendered artefact and names `frw_7_all` ("All gates pass?"), which is the gateway the AC refusal actually is. Proved live once on a throwaway fixture (rc=1, "Map: task-lifecycle node frw_7_all…" on stderr); the standing pin is static (path exists, node id is in it) because a dynamic leg would have to write into `.tasks/active/` on every verification run and left a `.context/locks/` file behind even in the one-off.
+- **Triggered:** Nothing filed. The mutation run caught one classification of mine: `stale_recorded_node_reported` exercises the reader, which the mutant does not touch, so it belongs with the controls — the same correction T-866's suite records four times.
 
 ## Recommendation
 
@@ -352,3 +382,25 @@ it. It is the natural hook point for this work and must be resolved rather than 
 
 ### 2026-09-27T22:49:06Z — status-update [task-update-agent]
 - **Change:** horizon: later → now
+
+### 2026-09-28T22:58:48Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fab716b8
+- **Timestamp:** 2026-09-28T23:05:33Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 5
+     - evidence: `python3 tools/instance-node.py bind build | grep -q '^examples/aef-processes/rendered/task-lifecycle.bpmn$'`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 11
+     - evidence: `! grep -vE '^\s*#' tools/instance-node.py | grep -qE "(uuid|instance_id|instanceId)['\":=]"`
+
+### 2026-09-28T23:05:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

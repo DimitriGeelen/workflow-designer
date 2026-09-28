@@ -1,0 +1,21 @@
+# T-880 (arc-005 S2) — which template a governed entity instantiates, DERIVED from
+# its workflow_type. Never authored per entity (T-878 F3 / IW-4): workflow_type is a
+# closed set and the corpus holds a template per entity kind.
+#
+# Values are template ids; the template of record is
+#   examples/aef-processes/rendered/<id>.bpmn   (the AEF-pinned seam artefact)
+# NOT the editor snapshot and NOT ../<id>.workflow.yaml — the YAML carries different
+# node ids (c_sovereignty, …) and a position recorded against it would point at nodes
+# the pinned artefact does not have (T-880 context).
+#
+# Every task instantiates task-lifecycle; an inception ADDITIONALLY instantiates
+# inception-lifecycle (T-878 F3). A workflow_type absent from this table is the
+# NO-TEMPLATE state — distinct from "template known, no position recorded".
+bindings:
+  build:         [task-lifecycle]
+  test:          [task-lifecycle]
+  refactor:      [task-lifecycle]
+  design:        [task-lifecycle]
+  specification: [task-lifecycle]
+  decommission:  [task-lifecycle]
+  inception:     [task-lifecycle, inception-lifecycle]

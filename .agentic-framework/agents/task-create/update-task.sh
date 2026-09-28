@@ -276,10 +276,15 @@ check_acceptance_criteria() {
             echo "Options:" >&2
             echo "  1. Check the criteria in the task file, then retry" >&2
             echo "  2. Use --skip-acceptance-criteria to bypass (logged)" >&2
-            # T-2624 read-value wiring: this gate IS the tl_archive edge of the
-            # task-lifecycle map — point the tripping agent at the process picture.
-            if [ -f "$PROJECT_ROOT/.context/designer/projects/aef-task-lifecycle/meta.json" ]; then
-                echo "Map: aef-task-lifecycle node tl_archive enforces this — bin/fw corpus explain aef-task-lifecycle" >&2
+            # T-2624 read-value wiring, repointed under T-880: this gate IS the
+            # frw_7_all gateway ("All gates pass?") of the task-lifecycle template.
+            # The original guard tested .context/designer/projects/aef-task-lifecycle/meta.json
+            # (never existed here) and named node tl_archive (not in any rendered
+            # template), so it had never executed in this project (T-878 F1). It now
+            # guards on the AEF-pinned artefact and names a node that is in it;
+            # tools/_t880-instance-node-teeth.sh pins both facts.
+            if [ -f "$PROJECT_ROOT/examples/aef-processes/rendered/task-lifecycle.bpmn" ]; then
+                echo "Map: task-lifecycle node frw_7_all (All gates pass?) refuses this — examples/aef-processes/rendered/task-lifecycle.bpmn; position: python3 tools/instance-node.py get $TASK_ID" >&2
             fi
             exit 1
         fi

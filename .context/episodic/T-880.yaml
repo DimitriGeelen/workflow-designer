@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-880: An instance record exists and can be created against a template
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T23:05:40Z
+# ============================================================================
+
+task_id: T-880
+task_name: "An instance record exists and can be created against a template"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T22:43:11Z
+completed: 2026-09-28T23:05:29Z
+duration_days: 2
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  arc-005 S2/B5. CONTINGENT on T-878 (instance-identity inception) returning GO. If T-878 returns NO-GO, or returns a design different from whatever anyone assumed here, this task is DELETED OR REWRITTEN — not adapted. It carries no design of its own on purpose: naming the storage home or identity scheme here would pre-commit the very thing T-878 exists to decide.
+
+# Key outcomes
+outcomes:
+  - 'A governed entity can carry a **recorded current node**, and the value is constrained to node ids that exist in its bound template. An arbitrary string is refused, naming the template it was checked against'
+  - 'The **template binding is DERIVED from `workflow_type`**, never authored — proving A3. The derivation names the file it resolved to, and resolves to `examples/aef-processes/rendered/<id>.bpmn` (the AEF-pinned artefact), not the editor snapshot and not the corpus YAML'
+  - '**No new identifier is minted** — proving A2. The entity''s existing id is the instance identity. A grep for a new uuid/instance-id field in the delivered surface returns nothing'
+  - '`workflow_type` values with **no template** are a distinct, named state from entities that have a template and no recorded position. NOT EVALUATED is not PASSED (T-3105); the two must not collapse into one silent absence'
+  - 'The dead hint at `update-task.sh:249` is **resolved, not bypassed**: either repointed at a path that exists or removed with a reason. A verification leg proves the chosen branch — if repointed, that the guard now fires; if removed, that no caller depends on it'
+  - '**Proved by mutation, with a control set that runs first.** Feed a node id absent from the template and the setter refuses naming it; feed a valid one and it is recorded. Every mutation is asserted applied before its result is scored, and a broken harness reports `MUTATION SETUP BROKEN` rather than scoring kills'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2902 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:process-instances]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2902
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-880-an-instance-record-exists-and-can-be-cre.md
+generated_by: context-agent-hybrid
