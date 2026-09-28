@@ -1,0 +1,21 @@
+id: tools/instance-node.py
+name: instance-node
+type: script
+subsystem: instruments
+location: tools/instance-node.py
+tags: []
+
+purpose: "instance-node.py — a governed entity's position on its process template (T-880, arc-005 S2)."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-28
+created_by: unknown

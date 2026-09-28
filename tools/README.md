@@ -156,3 +156,16 @@ Exit codes: `0` ok (NODE / NO-POSITION / recorded) · `1` REFUSED or STALE · `2
 `3` NO-TEMPLATE. Templates of record are `examples/aef-processes/rendered/<id>.bpmn`
 (the AEF-pinned artefact), never the canonical YAML, whose node ids differ.
 Teeth: `tools/_t880-instance-node-teeth.sh [--mutation]`.
+
+Resolution both ways (T-881):
+
+```bash
+python3 tools/instance-node.py resolve   T-873           # TEMPLATE <file> per bound template, then NODE|NO-POSITION
+python3 tools/instance-node.py instances task-lifecycle # INSTANCES <t> <n> (examined <m> live entities) + one line per entity
+python3 tools/instance-node.py roundtrip                # ROUNDTRIP-OK|ROUNDTRIP-FAIL per template (exit 1 on any disagreement)
+```
+
+`instances` is computed over the live task corpus (`.tasks/active`) with no index to
+maintain, and never prints a bare empty list: `NO-INSTANCES` states the population examined,
+`TEMPLATE-UNKNOWN` is a template with no rendered artefact. Teeth:
+`tools/_t881-resolution-teeth.sh [--mutation]`.

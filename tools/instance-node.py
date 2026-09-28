@@ -22,13 +22,26 @@ Usage:
   instance-node.py get   <T-XXX>                    one of the four states above
   instance-node.py set   <T-XXX> <node-id>          record; REFUSED if the node is not in the
                                                     entity's bound template(s), naming them
+  instance-node.py resolve <T-XXX>                  forward resolution (T-881): TEMPLATE <file> per bound
+                                                    template, then NODE <id> <template> | NO-POSITION
+  instance-node.py instances <template-id>          reverse resolution (T-881): every LIVE entity bound
+                                                    to the template with its node — computed over the
+                                                    task corpus, no index. States, never a bare empty
+                                                    list: INSTANCES <t> <n> (examined <m>) ·
+                                                    NO-INSTANCES <t> (examined <m>) ·
+                                                    TEMPLATE-UNKNOWN <t>
+  instance-node.py roundtrip [template-id ...]      for every entity the reverse query returns, forward
+                                                    resolution must name the same template; any
+                                                    disagreement is ROUNDTRIP-FAIL (exit 1)
 Options:
   --root DIR         project root (default: parent of tools/)
-  --tasks-dir DIR    where to find T-*.md (default: <root>/.tasks/active and completed)
+  --tasks-dir DIR    where to find T-*.md (default: <root>/.tasks/active and completed);
+                     LIVE entities for instances/roundtrip are the FIRST dir given (default .tasks/active)
   --binding FILE     derivation table (default: <root>/examples/aef-processes/template-binding.yaml)
   --rendered-dir DIR template artefacts (default: <root>/examples/aef-processes/rendered)
 
-Exit codes: 0 ok (NODE / NO-POSITION / recorded) · 1 REFUSED · 2 NO-ENTITY · 3 NO-TEMPLATE
+Exit codes: 0 ok (NODE / NO-POSITION / recorded / INSTANCES / NO-INSTANCES / ROUNDTRIP-OK)
+            1 REFUSED / STALE / ROUNDTRIP-FAIL · 2 NO-ENTITY · 3 NO-TEMPLATE / TEMPLATE-UNKNOWN
 """
 import argparse
 import glob
@@ -200,6 +213,98 @@ def cmd_set(a, table):
     return 0
 
 
+def cmd_resolve(a, table):
+    """Forward resolution (T-881): name the template FILE(s) and the recorded node."""
+    path = find_task(a.tasks_dirs, a.task)
+    if not path:
+        print(f"NO-ENTITY {a.task}")
+        return 2
+    fields, _, _ = frontmatter(open(path, encoding="utf-8").read())
+    wt, tpls = bound_templates(fields, table)
+    if not tpls:
+        print(f"NO-TEMPLATE {wt or '(none)'} (workflow_type not in {os.path.relpath(a.binding, a.root)})")
+        return 3
+    for t in tpls:
+        print(f"TEMPLATE {os.path.relpath(template_file(a.rendered_dir, t), a.root)}")
+    return cmd_get(a, table)
+
+
+def _live_entities(a):
+    """Every T-*.md in the LIVE dir (first tasks dir). Returns [(id, path, fields)]."""
+    out = []
+    for f in sorted(glob.glob(os.path.join(a.tasks_dirs[0], "T-*.md"))):
+        fields, _, _ = frontmatter(open(f, encoding="utf-8").read())
+        tid = fields.get("id", "").strip().strip("'\"") or os.path.basename(f).split("-fixture")[0]
+        m = re.match(r"^(T-\d+)", os.path.basename(f))
+        out.append((m.group(1) if m else tid, f, fields))
+    return out
+
+
+def _reverse(a, table, template):
+    """Reverse resolution core. Returns (state, rows, examined) where rows is
+    [(id, status_word, node)] and state in {INSTANCES, NO-INSTANCES, TEMPLATE-UNKNOWN}."""
+    tfile = template_file(a.rendered_dir, template)
+    if not os.path.isfile(tfile):
+        return "TEMPLATE-UNKNOWN", [], 0
+    nodes = set(template_nodes(tfile))
+    rows = []
+    entities = _live_entities(a)
+    for tid, f, fields in entities:
+        wt, tpls = bound_templates(fields, table)
+        # MUTATION-ANCHOR binding-filter (teeth disable the membership test here)
+        if not tpls or template not in tpls:
+            continue
+        node = fields.get("current_node", "").strip().strip("'\"")
+        if not node:
+            rows.append((tid, "NO-POSITION", ""))
+        elif node in nodes:
+            rows.append((tid, "NODE", node))
+        else:
+            rows.append((tid, "STALE", node))
+    state = "INSTANCES" if rows else "NO-INSTANCES"
+    return state, rows, len(entities)
+
+
+def cmd_instances(a, table):
+    state, rows, examined = _reverse(a, table, a.template)
+    if state == "TEMPLATE-UNKNOWN":
+        print(f"TEMPLATE-UNKNOWN {a.template} (no {os.path.relpath(a.rendered_dir, a.root)}/{a.template}.bpmn)")
+        return 3
+    bound_kinds = [k for k, v in table.items() if a.template in v]
+    if state == "NO-INSTANCES":
+        note = "" if bound_kinds else " — no workflow_type binds to it"
+        print(f"NO-INSTANCES {a.template} (examined {examined} live entities{note})")
+        return 0
+    print(f"INSTANCES {a.template} {len(rows)} (examined {examined} live entities)")
+    for tid, word, node in rows:
+        print(f"  {tid} {word} {node}".rstrip())
+    return 0
+
+
+def cmd_roundtrip(a, table):
+    templates = a.templates or sorted({t for v in table.values() for t in v})
+    bad = 0
+    for template in templates:
+        state, rows, examined = _reverse(a, table, template)
+        if state == "TEMPLATE-UNKNOWN":
+            print(f"TEMPLATE-UNKNOWN {template}")
+            bad += 1
+            continue
+        disagree = []
+        for tid, _, _ in rows:
+            path = find_task(a.tasks_dirs, tid)
+            fields, _, _ = frontmatter(open(path, encoding="utf-8").read())
+            _, tpls = bound_templates(fields, table)
+            if not tpls or template not in tpls:
+                disagree.append(tid)
+        if disagree:
+            print(f"ROUNDTRIP-FAIL {template}: reverse listed {', '.join(disagree)} but forward resolution does not bind them to it")
+            bad += 1
+        else:
+            print(f"ROUNDTRIP-OK {template} {len(rows)} (examined {examined} live entities)")
+    return 1 if bad else 0
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     default_root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -212,6 +317,9 @@ def main(argv=None):
     s = sub.add_parser("nodes"); s.add_argument("template"); s.set_defaults(fn=cmd_nodes)
     s = sub.add_parser("get"); s.add_argument("task"); s.set_defaults(fn=cmd_get)
     s = sub.add_parser("set"); s.add_argument("task"); s.add_argument("node"); s.set_defaults(fn=cmd_set)
+    s = sub.add_parser("resolve"); s.add_argument("task"); s.set_defaults(fn=cmd_resolve)
+    s = sub.add_parser("instances"); s.add_argument("template"); s.set_defaults(fn=cmd_instances)
+    s = sub.add_parser("roundtrip"); s.add_argument("templates", nargs="*"); s.set_defaults(fn=cmd_roundtrip)
     a = p.parse_args(argv)
     a.root = os.path.abspath(a.root)
     a.binding = a.binding or os.path.join(a.root, "examples", "aef-processes", "template-binding.yaml")

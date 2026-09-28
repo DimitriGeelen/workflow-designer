@@ -1,15 +1,21 @@
 ---
 id: T-881
-name: "Resolution both ways: a task names its template and node; a template lists its live instances"
+name: "Resolution both ways: a task names its template and node; a template lists
+  its live instances"
 description: >
-  arc-005 S2/B6. CONTINGENT on T-878 GO. This is the capability that makes G3 observable — an operator asks 'what process is T-873 following' and the system answers instead of a human who remembers. Shape only; mechanism is T-878's to decide.
+  arc-005 S2/B6. CONTINGENT on T-878 GO. This is the capability that makes G3 observable
+  — an operator asks 'what process is T-873 following' and the system answers instead
+  of a human who remembers. Shape only; mechanism is T-878's to decide.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:process-instances]
-components: []
+components:
+  - tools/instance-node.py
+  - tools/_t881-resolution-teeth.sh
+  - tools/README.md
 related_tasks: []
 arc_id: process-instances
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +28,8 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:43:15Z
-last_update: 2026-09-27T22:49:06Z
-date_finished: null
+last_update: 2026-09-28T23:10:01Z
+date_finished: 2026-09-28T23:10:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +40,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 0
+  F3: 4
+  F1: 2
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-28T23:07:09Z'
+cost_estimate_proposed:
+  - ts: '2026-09-28T23:09:51Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 3
+      tier: 2
+      effort: 8
+    rationale: blast_radius=3 (3-components); tier=2 (workflow:build); effort=8 
+      (lines=306,acs=8)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-881: Resolution both ways: a task names its template and node; a template lists its live instances
@@ -77,12 +106,12 @@ AEF pins.
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 ### Agent
-- [ ] **Forward resolution:** given a governed entity id, the answer names its template file and its recorded current node. The template is derived from `workflow_type`; nothing is read from an authored binding field
-- [ ] **Reverse resolution:** given a template, the answer lists every live entity bound to it with each one's recorded node — computed over the task corpus, with no instance index to maintain
-- [ ] **Four states are distinguishable, not collapsed:** template exists with live instances · template exists with none · `workflow_type` maps to no template · entity has a template but no recorded node. Each is named in the output; none renders as a bare empty list
-- [ ] Resolution targets `examples/aef-processes/rendered/<id>.bpmn` and a leg **proves it is not the YAML**: a node id valid in the rendered artefact and absent from the YAML resolves, and the converse (`c_sovereignty`) does not
-- [ ] **Round-trip agreement:** for every entity the reverse query returns under a template, forward resolution on that entity returns the same template. A disagreement is a hard failure, not a warning
-- [ ] **Controls before scoring:** the reverse query is exercised against a template with a known non-zero instance count AND one with a known zero, so an empty result is proven to be a measurement rather than a broken query (PL-328 — an absence assertion needs a sibling proving the pattern is findable)
+- [x] **Forward resolution:** given a governed entity id, the answer names its template file and its recorded current node. The template is derived from `workflow_type`; nothing is read from an authored binding field
+- [x] **Reverse resolution:** given a template, the answer lists every live entity bound to it with each one's recorded node — computed over the task corpus, with no instance index to maintain
+- [x] **Four states are distinguishable, not collapsed:** template exists with live instances · template exists with none · `workflow_type` maps to no template · entity has a template but no recorded node. Each is named in the output; none renders as a bare empty list
+- [x] Resolution targets `examples/aef-processes/rendered/<id>.bpmn` and a leg **proves it is not the YAML**: a node id valid in the rendered artefact and absent from the YAML resolves, and the converse (`c_sovereignty`) does not
+- [x] **Round-trip agreement:** for every entity the reverse query returns under a template, forward resolution on that entity returns the same template. A disagreement is a hard failure, not a warning
+- [x] **Controls before scoring:** the reverse query is exercised against a template with a known non-zero instance count AND one with a known zero, so an empty result is proven to be a measurement rather than a broken query (PL-328 — an absence assertion needs a sibling proving the pattern is findable)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -117,6 +146,19 @@ AEF pins.
 
 ## Verification
 
+# T-881 teeth: controls first, then the binding-filter cases; --mutation disables the filter.
+out=$(bash tools/_t881-resolution-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+out=$(bash tools/_t881-resolution-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
+# T-880's suite still green — this task extended the same file.
+out=$(bash tools/_t880-instance-node-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+# Reverse resolution over the LIVE corpus is a measurement: it states the population it examined (PL-084), never a bare list.
+python3 tools/instance-node.py instances task-lifecycle | head -1 | grep -qE '^(INSTANCES|NO-INSTANCES) task-lifecycle .*\(examined [0-9]+ live entities'
+# Round-trip agreement holds over the live corpus for every bound template.
+python3 tools/instance-node.py roundtrip
+# Rendered artefact, not the YAML — control then assertion (PL-328): the YAML id is findable where it lives, and absent from the node list.
+grep -q 'c_sovereignty' examples/aef-processes/task-lifecycle.workflow.yaml
+! python3 tools/instance-node.py nodes task-lifecycle | grep -qx 'c_sovereignty'
+python3 tools/instance-node.py nodes task-lifecycle | grep -qx 'frw_3_start'
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -261,27 +303,10 @@ AEF pins.
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
-
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — the reverse direction was the work, and the mutant proved it
+- **What changed:** Forward resolution cost one function: T-880's `get` already knew the node, `resolve` adds the template FILE lines. The reverse query is where the design moved: "live" had to be defined (the first tasks dir, `.tasks/active` by default — completed entities are not instances anyone is watching), and the output had to state the population examined so that `NO-INSTANCES … (examined 178 live entities)` is a measurement (PL-084) rather than an empty list. A rendered template no `workflow_type` binds to (audit-process) reports NO-INSTANCES with that reason, distinct from TEMPLATE-UNKNOWN for a template with no rendered artefact.
+- **Plan impact:** None to scope. Measured on the live corpus at close: task-lifecycle 178 instances, inception-lifecycle 15, every one NO-POSITION — which is T-878 IW-5's prediction ("the middle state will be the common case for every task that predates the mechanism") confirmed rather than assumed.
+- **Triggered:** Nothing filed. Fabric cards registered for the T-880/T-881 files under this task because T-880 closed before `fw fabric register` could run under it (the task gate refuses a post-close write, correctly); recorded here so the attribution is not mistaken for T-881's deliverable.
 
 ## Recommendation
 
@@ -342,3 +367,27 @@ AEF pins.
 
 ### 2026-09-27T22:49:06Z — status-update [task-update-agent]
 - **Change:** horizon: later → now
+
+### 2026-09-28T23:07:06Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-90f741d1
+- **Timestamp:** 2026-09-28T23:10:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 7
+     - evidence: `python3 tools/instance-node.py instances task-lifecycle | head -1 | grep -qE '^(INSTANCES|NO-INSTANCES) task-lifecycle .*\(examined [0-9]+ live entities'`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 12
+     - evidence: `! python3 tools/instance-node.py nodes task-lifecycle | grep -qx 'c_sovereignty'`
+  3. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 13
+     - evidence: `python3 tools/instance-node.py nodes task-lifecycle | grep -qx 'frw_3_start'`
+
+### 2026-09-28T23:10:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

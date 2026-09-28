@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-881: Resolution both ways: a task names its template and node; a template lists its live instances
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T23:10:13Z
+# ============================================================================
+
+task_id: T-881
+task_name: "Resolution both ways: a task names its template and node; a template lists its live instances"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T22:43:15Z
+completed: 2026-09-28T23:10:01Z
+duration_days: 2
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  arc-005 S2/B6. CONTINGENT on T-878 GO. This is the capability that makes G3 observable — an operator asks 'what process is T-873 following' and the system answers instead of a human who remembers. Shape only; mechanism is T-878's to decide.
+
+# Key outcomes
+outcomes:
+  - '**Forward resolution:** given a governed entity id, the answer names its template file and its recorded current node. The template is derived from `workflow_type`; nothing is read from an authored binding field'
+  - '**Reverse resolution:** given a template, the answer lists every live entity bound to it with each one''s recorded node — computed over the task corpus, with no instance index to maintain'
+  - '**Four states are distinguishable, not collapsed:** template exists with live instances · template exists with none · `workflow_type` maps to no template · entity has a template but no recorded node. Each is named in the output; none renders as a bare empty list'
+  - 'Resolution targets `examples/aef-processes/rendered/<id>.bpmn` and a leg **proves it is not the YAML**: a node id valid in the rendered artefact and absent from the YAML resolves, and the converse (`c_sovereignty`) does not'
+  - '**Round-trip agreement:** for every entity the reverse query returns under a template, forward resolution on that entity returns the same template. A disagreement is a hard failure, not a warning'
+  - '**Controls before scoring:** the reverse query is exercised against a template with a known non-zero instance count AND one with a known zero, so an empty result is proven to be a measurement rather than a broken query (PL-328 — an absence assertion needs a sibling proving the pattern is findable)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2906 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:process-instances]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2906
+  commits: 1
+  files_changed: 4
+  lines_added: 98
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-881-resolution-both-ways-a-task-names-its-te.md
+generated_by: context-agent-hybrid
