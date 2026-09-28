@@ -2624,3 +2624,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-431
+  text: "_t451's own printed LIMIT paragraph claims a blind spot it no longer has. tools/_t451-unwired-guard-census.py:519 prints '.mjs/.js are read whole too — JavaScript comments were never stripped'. Measured 2026-09-29: :271-286 strip_prose dispatches js/mjs/cjs to _strip_cstyle, and the main path calls strip_prose at :356. So _t451 DOES strip JS. The claim is stale, and it is not a comment — it is OUTPUT, printed to whoever runs the census, inside the LIMIT paragraph whose entire job is to enumerate blind spots so a clean run cannot imply coverage it does not have. A limit paragraph that overstates its own blindness is the mirror of the defect it exists to prevent: it makes readers discount a verdict that is better than advertised. Consequence beyond the wrong sentence: tools/_t578-js-comment-edge-census.py was built partly on this claim and repeated it twice in its own comments and once in its FAIL output (corrected under T-918). NOT FIXED HERE because changing a census's printed output can move a committed baseline or a ratchet, and that deserves its own check rather than a drive-by edit at the end of another task."
+  captured: 2026-09-28T22:35:56Z
+  context_task: T-918
+  tags: [doc-drift]
+  status: pending
+  promoted_to: null

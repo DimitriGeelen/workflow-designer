@@ -1,14 +1,30 @@
 ---
 id: T-918
 observation: OBS-306
-name: "T-578's census inflates its own code-edge bucket the way AEF's baseline did, and I published the number before checking. tools/_t578-js-comment-edge-census.py strips JS comments before deciding a JS reference is a code edge, but for .sh and .py it does a bare substring match with NO comment stripping at all (lines 194-202, the trailing else) - even though the instrument it audits, _t451, DOES strip both via tokenize/ast and a word-aware hash. Consequence, direction certain and size UNMEASURED: a tool referenced only inside a Python docstring or a shell comment is counted as having an EXECUTABLE-CODE edge. So 127 with-a-code-edge is inflated and 110 prose-only is a floor for a second reason I had not named - I called it a floor only for the JS regex-vs-division ambiguity. Same shape as AEF's own correction at rail 315 ('we built the baseline with the same shape of shortcut the bug is made of: a pattern that looks like it measures the relationship and actually measures a spelling'), and they asked me directly to check mine before trusting it. Checked, from source, not from memory. Not fixed under T-578: the ACs are closed and the fix changes what the number means, which is the ordering PD-253 just argued for. Needs its own task and a re-measurement using _t451's existing strippers rather than a second hand-written one."
+name: "T-578's census inflates its own code-edge bucket the way AEF's baseline did,
+  and I published the number before checking. tools/_t578-js-comment-edge-census.py
+  strips JS comments before deciding a JS reference is a code edge, but for .sh and
+  .py it does a bare substring match with NO comment stripping at all (lines 194-202,
+  the trailing else) - even though the instrument it audits, _t451, DOES strip both
+  via tokenize/ast and a word-aware hash. Consequence, direction certain and size
+  UNMEASURED: a tool referenced only inside a Python docstring or a shell comment
+  is counted as having an EXECUTABLE-CODE edge. So 127 with-a-code-edge is inflated
+  and 110 prose-only is a floor for a second reason I had not named - I called it
+  a floor only for the JS regex-vs-division ambiguity. Same shape as AEF's own correction
+  at rail 315 ('we built the baseline with the same shape of shortcut the bug is made
+  of: a pattern that looks like it measures the relationship and actually measures
+  a spelling'), and they asked me directly to check mine before trusting it. Checked,
+  from source, not from memory. Not fixed under T-578: the ACs are closed and the
+  fix changes what the number means, which is the ordering PD-253 just argued for.
+  Needs its own task and a re-measurement using _t451's existing strippers rather
+  than a second hand-written one."
 description: >
   Promoted from observation OBS-306
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -23,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-28T13:27:46Z
-last_update: 2026-09-28T13:27:46Z
-date_finished: null
+last_update: 2026-09-28T22:39:41Z
+date_finished: 2026-09-28T22:39:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -35,6 +51,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-28T22:29:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-918: T-578's census inflates its own code-edge bucket the way AEF's baseline did, and I published the number before checking. tools/_t578-js-comment-edge-census.py strips JS comments before deciding a JS reference is a code edge, but for .sh and .py it does a bare substring match with NO comment stripping at all (lines 194-202, the trailing else) - even though the instrument it audits, _t451, DOES strip both via tokenize/ast and a word-aware hash. Consequence, direction certain and size UNMEASURED: a tool referenced only inside a Python docstring or a shell comment is counted as having an EXECUTABLE-CODE edge. So 127 with-a-code-edge is inflated and 110 prose-only is a floor for a second reason I had not named - I called it a floor only for the JS regex-vs-division ambiguity. Same shape as AEF's own correction at rail 315 ('we built the baseline with the same shape of shortcut the bug is made of: a pattern that looks like it measures the relationship and actually measures a spelling'), and they asked me directly to check mine before trusting it. Checked, from source, not from memory. Not fixed under T-578: the ACs are closed and the fix changes what the number means, which is the ordering PD-253 just argued for. Needs its own task and a re-measurement using _t451's existing strippers rather than a second hand-written one.
@@ -47,8 +84,29 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+
+**The defect, confirmed at `tools/_t578-js-comment-edge-census.py:192-203`:** `stripped` is computed
+`if is_js` only. The trailing `else:` — which covers `.sh`, `.py`, `.yaml`, `.bats`, `.toml` — does
+a bare `"tools/" + name in t` substring match with **no comment stripping at all**. So a tool
+referenced only inside a Python docstring or a shell comment is counted as having an
+**EXECUTABLE-CODE edge**. Direction certain, size unmeasured: `have at least one EXECUTABLE-CODE
+edge` is inflated and `PROSE-ONLY — the real number` is a floor.
+
+**And the fix already exists in this tree.** `tools/_t451-unwired-guard-census.py` has
+`strip_prose(path, text)` — a documented dispatcher that strips Python comments via `tokenize` and
+bare string statements via `ast`, shell via `_strip_hash`, and C-style via `_strip_cstyle`, blanking
+with spaces so offsets compose. Writing a second stripper here is the T-322 defect.
+
+**One stale premise found while reading:** `_t578`'s own comments assert *"_t451 does not strip
+JS"* (`:234`, `:246`). `_t451` dispatches `js/mjs/cjs` to `_strip_cstyle`. That claim has expired
+and it is part of `_t578`'s stated reason for existing.
+
+- [x] The non-JS branch **strips prose before deciding code-vs-prose**, using `_t451`'s existing `strip_prose` rather than a second implementation — and the import is by file path, since the module name is not a legal identifier
+- [x] **`_t451` importing cleanly is verified, not assumed.** If importing it executes a census, that is a side effect this tool must not inherit; establish it before depending on it
+- [x] **The before/after numbers are both reported.** "Inflated" is a direction; this task turns it into a magnitude. The count that moves is the evidence, and a fix that moves nothing means the defect was not where it was thought to be
+- [x] A **parse failure is not silently treated as "no references"** — `_t451` returns `None` on unparseable Python for exactly that reason, and the caller must not collapse it into an empty result
+- [x] **The stale `_t451 does not strip JS` claims are corrected**, not left contradicting the tree
+- [x] Proved by **fixture, not by the corpus number alone**: a `.py` file whose only reference is in a docstring, and a `.sh` file whose only reference is in a `#` comment, must both be classified PROSE-ONLY — and a genuine call in each must still be classified CODE. Without the second half this is a fix that could be achieved by returning nothing
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -82,6 +140,33 @@ date_finished: null
 -->
 
 ## Verification
+
+# The census still runs and reports its two counts.
+python3 tools/_t578-js-comment-edge-census.py > /tmp/.t918.out 2>&1; grep -q 'PROSE-ONLY' /tmp/.t918.out
+# The stripper LOADED. Without this the counts are the pre-fix numbers wearing the post-fix label,
+# which is the exact failure the tool's own subject is about.
+grep -q 'PROSE STRIPPING UNAVAILABLE' /tmp/.t918.out && exit 1 || true
+# CONTROL for that negation (PL-328): the same string must be findable where it IS emitted.
+grep -q 'PROSE STRIPPING UNAVAILABLE' tools/_t578-js-comment-edge-census.py
+# No file fell back to the unstripped path in the live corpus.
+grep -q 'could not be stripped' /tmp/.t918.out && exit 1 || true
+grep -q 'could not be stripped' tools/_t578-js-comment-edge-census.py
+# The fix is the SHARED stripper, not a second copy (T-322).
+grep -q 'STRIP_PROSE = _load_strip_prose()' tools/_t578-js-comment-edge-census.py
+grep -q "getattr(mod, \"strip_prose\", None)" tools/_t578-js-comment-edge-census.py
+# _t451 really does export it — the dependency is checked, not assumed.
+grep -q '^def strip_prose' tools/_t451-unwired-guard-census.py
+# Fixture teeth: two trees, differential, 6 assertions including the load-bearing CALL tree.
+timeout 300 bash tools/_t918-prose-edge-teeth.sh > /tmp/.t918t.out 2>&1 && grep -q '^FAIL: 0' /tmp/.t918t.out
+grep -qE '^PASS: [1-9]' /tmp/.t918t.out
+grep -q 'never a real call' /tmp/.t918t.out
+# The stale claim is RETRACTED. Asserted POSITIVELY, on the corrected sentence the tool now
+# prints. The first version of this leg greped for the absence of 'does not strip JS' and
+# failed at the gate — because the retraction QUOTES the phrase it retracts. A grep cannot
+# tell an assertion from a quotation of one, which is the same shape as every other
+# 'mention is not invocation' finding in this corpus.
+grep -q '_t451 strips JS since T-495 but' tools/_t578-js-comment-edge-census.py
+grep -q 'T-918 CORRECTION' tools/_t578-js-comment-edge-census.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -227,6 +312,43 @@ date_finished: null
 
 ## Evolution
 
+### 2026-09-29 — the magnitude, which the observation could only call "inflated"
+- **What changed:** OBS-306 established the direction and said the size was UNMEASURED. Measured:
+  **code-edge 175 → 144, prose-only 219 → 250.** Thirty-one of 175 claimed executable-code edges —
+  **18%** — were comments or docstrings.
+- **Plan impact:** none; this is what the task was for. Worth stating as a number because
+  "inflated" is not actionable and "31 tools are wired by a sentence" is.
+
+### 2026-09-29 — the fix was an import, not an implementation
+- **What changed:** `_t451` already had `strip_prose()` — Python via `tokenize`+`ast`, shell via a
+  quote-aware `#` stripper, C-style for JS, blanking with spaces so offsets compose. Writing a
+  second stripper in `_t578` would have been the T-322 defect, and it would have been the copy that
+  drifts, because `_t578` is not where anyone looks for stripping semantics.
+- **Plan impact:** import by path (the module name is not a legal identifier), with import-safety
+  established first rather than assumed — `_t451` guards its entry point and its only top-level
+  expression is its docstring.
+- **Triggered:** nothing; but the unavailable-stripper path **announces** that its numbers are
+  pre-fix rather than silently producing them, because a count produced without the stripper is
+  the old count wearing the new label.
+
+### 2026-09-29 — my teeth were wrong twice, in opposite directions
+- **What changed:** first version asserted on **tool names**; the census reports **counts**. Second
+  version asserted a delta of exactly 2 and measured 3 — because `_t578`'s own new comment names
+  `_t451` in prose, so `_t451` itself moves when stripping is on.
+- **Plan impact:** rewritten as a **difference of deltas** across two trees (prose fixtures vs call
+  fixtures), which cancels the shared census-copy noise exactly. The CALL tree is the load-bearing
+  half: a stripper that ate everything passes the prose tree and fails that one.
+- **Triggered:** nothing. Both errors were caught by the suite failing, which is the suite working.
+
+### 2026-09-29 — a third stale claim, left for its own task
+- **What changed:** `_t451:519` **prints** *".mjs/.js are read whole too — JavaScript comments were
+  never stripped"*, while `:271-286` dispatches JS to its C-style stripper and `:356` calls it.
+  That is not a comment — it is the LIMIT paragraph, output to whoever runs the census, and it
+  overstates its own blindness.
+- **Plan impact:** the two copies of that claim inside `_t578` are corrected here. `_t451:519` is
+  **not** touched: changing a census's printed output can move a committed baseline or a ratchet.
+- **Triggered:** **OBS-431**.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -305,3 +427,18 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-918-t-578s-census-inflates-its-own-code-edge.md
 - **Context:** Initial task creation
+
+### 2026-09-28T22:29:35Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-85469a6d
+- **Timestamp:** 2026-09-28T22:40:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-28T22:39:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

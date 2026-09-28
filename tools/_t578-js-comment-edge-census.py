@@ -38,6 +38,7 @@ file is not a file with no references.
 Exit 0 always: this is a census, not a gate. Its output is a number to act on.
 """
 
+import importlib.util
 import os
 import re
 import sys
@@ -46,6 +47,53 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 
 SKIP_DIRS = {".git", "node_modules", ".agentic-framework", ".editor-versions"}
+
+
+# ── T-918: borrow _t451's stripper rather than growing a second one ──────────────────────────
+#
+# THE DEFECT THIS CLOSES. `stripped` below was computed `if is_js` only, and the trailing `else`
+# — covering .sh, .py, .yaml, .bats, .toml — did a bare substring match with NO comment stripping.
+# A tool referenced only inside a Python docstring or a shell `#` comment was therefore counted as
+# having an EXECUTABLE-CODE edge. This census exists to say that a prose mention is not a call;
+# it was making that mistake itself, for every language except the one it was named after.
+#
+# WHY IMPORT RATHER THAN REIMPLEMENT. _t451 already strips Python comments with `tokenize` and
+# bare string statements with `ast`, shell with a hash stripper, and C-style for js/mjs/cjs —
+# blanking with spaces so offsets compose. A second stripper here would be the T-322 defect (one
+# module-scope vocabulary, never a second copy), and it would be the copy that drifts, because
+# this file is the one nobody reads for stripping semantics.
+#
+# The import is by PATH because `_t451-unwired-guard-census` is not a legal module identifier.
+# Verified before depending on it: _t451 guards its entry point with `if __name__ == "__main__"`
+# and its only top-level expression is its docstring, so importing runs no census.
+#
+# THE JS PATH IS LEFT ALONE, deliberately. strip_js() below returns (text, uncertain) and this
+# tool's whole subject is JS comment edges; swapping it for a stripper that does not report
+# uncertainty would quietly drop the signal the tool was built to carry.
+_T451_PATH = os.path.join(REPO, "tools", "_t451-unwired-guard-census.py")
+
+
+def _load_strip_prose():
+    """_t451's strip_prose, or None if it cannot be loaded.
+
+    None is NOT silently treated as "nothing to strip" by the caller — that would restore
+    exactly the defect this closes, with the added insult of doing it invisibly.
+    """
+    try:
+        spec = importlib.util.spec_from_file_location("_t451_census_t918", _T451_PATH)
+        if spec is None or spec.loader is None:
+            return None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return getattr(mod, "strip_prose", None)
+    except Exception:
+        return None
+
+
+STRIP_PROSE = _load_strip_prose()
+
+# Files the stripper could not handle — reported, never silently folded into the counts.
+UNSTRIPPED = set()
 
 
 def strip_js(text):
@@ -191,6 +239,11 @@ def main():
             continue
         is_js = p.endswith((".mjs", ".js"))
         stripped = strip_js(t)[0] if is_js else None
+        # T-918: strip prose for the NON-JS code files too. Computed once per file, like
+        # `stripped`, rather than per candidate name.
+        code_body = None
+        if not is_js and not p.endswith(PROSE_EXT):
+            code_body = STRIP_PROSE(rel, t) if STRIP_PROSE else None
         for name in tools:
             if "tools/" + name not in t or rel == "tools/" + name:
                 continue
@@ -198,7 +251,15 @@ def main():
                 prose_ref.setdefault(name, set()).add(rel)
             elif is_js:
                 (code_ref if "tools/" + name in stripped else prose_ref).setdefault(name, set()).add(rel)
+            elif code_body is not None:
+                (code_ref if "tools/" + name in code_body else prose_ref).setdefault(name, set()).add(rel)
             else:
+                # Stripper unavailable or the file could not be parsed. Counting it as a CODE
+                # edge is the pre-T-918 behaviour and is the LOOSE direction — it can only
+                # inflate the code count, never hide a prose-only tool. The alternative
+                # (treating an unstripped file as prose) would manufacture orphans out of a
+                # parser limit. Loud rather than silent: tallied and reported below.
+                UNSTRIPPED.add(rel)
                 code_ref.setdefault(name, set()).add(rel)
 
     referenced = set(code_ref) | set(prose_ref)
@@ -208,6 +269,18 @@ def main():
     print(f"  referenced anywhere outside themselves    {len(referenced)}")
     print(f"  have at least one EXECUTABLE-CODE edge    {len(code_ref)}")
     print(f"  PROSE-ONLY — no code edge anywhere        {len(prose_only)}   <- the real number")
+    # T-918: the strip status is part of the number, not a footnote. A count produced with the
+    # stripper unavailable is the pre-fix count wearing the post-fix label.
+    if STRIP_PROSE is None:
+        print("  !! PROSE STRIPPING UNAVAILABLE — _t451 strip_prose could not be loaded.")
+        print("     The two counts above are the PRE-T-918 numbers: every .sh/.py/.yaml mention")
+        print("     counts as a code edge, including comments and docstrings. NOT a measurement.")
+    elif UNSTRIPPED:
+        print(f"  !! {len(UNSTRIPPED)} file(s) could not be stripped and were counted as CODE edges")
+        for r in sorted(UNSTRIPPED)[:5]:
+            print(f"       {r}")
+        print("     Loose direction by choice: this can inflate the code count, never hide a")
+        print("     prose-only tool. Unparseable is not the same as unreferenced.")
     where = {}
     for n in prose_only:
         for f in prose_ref[n]:
@@ -231,8 +304,16 @@ def main():
     # The claim worth watching is the narrow one this census actually established: NO tool in
     # this tree is reachable only through a JavaScript comment. That is a real property with a
     # real failure mode — if it goes non-zero, some live guard's WIRED verdict rests on prose
-    # that a reword would silently delete, and _t451 (which still does not strip JS) would not
-    # notice. The large number, 110 prose-only, is deliberately NOT gated on: it is the subject
+    # that a reword would silently delete.
+    #
+    # T-918 CORRECTION: this used to read "and _t451 (which still does not strip JS) would not
+    # notice". That expired. _t451:271-286 dispatches js/mjs/cjs to its C-style stripper and
+    # its main path calls it (:356), so _t451 DOES strip JS now. Its own printed LIMIT
+    # paragraph (:519) still says otherwise — filed rather than edited here, because changing
+    # another instrument's output can move a committed baseline and deserves its own check.
+    # What remains true, and is why this census still earns its place: _t451 strips JS with a
+    # C-style stripper and reports no uncertainty, where this tool tracks and REPORTS the
+    # files whose stripping is uncertain. The large number, 110 prose-only, is deliberately NOT gated on: it is the subject
     # of an open decision about what the ratchet should count, and pinning it here would decide
     # that question by side effect, in the direction this task exists to argue against.
     if not js_all:
@@ -243,8 +324,9 @@ def main():
         return 2
     if hard:
         print(f"\nFAIL — {len(hard)} tool(s) reachable ONLY through a JavaScript comment. Reword")
-        print("the comment and a live guard reports unwired; _t451 does not strip JS and will")
-        print("not notice:")
+        print("the comment and a live guard reports unwired. _t451 strips JS since T-495 but")
+        print("reports no uncertainty about it, so a file it mis-stripped looks identical to")
+        print("one it read exactly:")
         for name, _, _ in hard:
             print("    " + name)
         return 1
