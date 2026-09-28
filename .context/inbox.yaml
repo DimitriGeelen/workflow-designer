@@ -2601,3 +2601,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-428
+  text: "T-921 live check: this observation body quotes the shape 'fw task update T-910 --status work-completed' as prose. Before T-921 that literal tripped the focus-drift gate and the note could not be filed under a different focus — it happened three times on 2026-09-28, once while probing the gate itself. If this record exists, the fix works on the surface that reported it."
+  captured: 2026-09-28T21:54:07Z
+  context_task: T-921
+  tags: [verification]
+  status: pending
+  promoted_to: null

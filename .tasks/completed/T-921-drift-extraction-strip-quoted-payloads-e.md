@@ -1,13 +1,19 @@
 ---
 id: T-921
-name: "Drift extraction: strip quoted payloads EXCEPT for shell-invoking forms, with the counter-examples T-920 measured"
+name: "Drift extraction: strip quoted payloads EXCEPT for shell-invoking forms, with
+  the counter-examples T-920 measured"
 description: >
-  T-920 proved the documented residual is live (a quoted payload containing a command shape trips the extractor) AND that the naive remedy the code names is unsafe here. Applying the existing quote-stripped view to _fw_extract_drift_target removes the false positive but also loses real executions inside shell payloads. The refined shape: strip quoted segments only when the outer command is not a shell-invoking form. Counter-examples and the measurement are in T-920.
+  T-920 proved the documented residual is live (a quoted payload containing a command
+  shape trips the extractor) AND that the naive remedy the code names is unsafe here.
+  Applying the existing quote-stripped view to _fw_extract_drift_target removes the
+  false positive but also loses real executions inside shell payloads. The refined
+  shape: strip quoted segments only when the outer command is not a shell-invoking
+  form. Counter-examples and the measurement are in T-920.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: [T-920]
@@ -22,8 +28,8 @@ related_tasks: [T-920]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-28T21:32:53Z
-last_update: 2026-09-28T21:32:53Z
-date_finished: null
+last_update: 2026-09-28T21:54:52Z
+date_finished: 2026-09-28T21:54:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +40,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-09-28T21:50:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-921: Drift extraction: strip quoted payloads EXCEPT for shell-invoking forms, with the counter-examples T-920 measured
@@ -46,8 +73,27 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+
+**This changes an enforcement gate's blocking behaviour, so the standard is higher than usual: the
+fix is refused unless every shape that blocks today still blocks.**
+
+The design comes from T-920's measurements, not from reasoning about the code:
+
+| shape | today | naive strip | wanted |
+|---|---|---|---|
+| a note whose payload quotes a command (**data**) | `T-910` — false positive | none ✓ | **none** |
+| `bash -c "echo hi; <verb> T-910 …"` (**executes**) | `T-910` ✓ | none ✗ | **`T-910`** |
+| `bash -c "cd /x && <verb> T-910"` (**executes**) | `T-910` ✓ | none ✗ | **`T-910`** |
+| unquoted, the real invocation | `T-910` | `T-910` | **`T-910`** |
+
+- [x] Quoted segments are stripped **only when the command is not shell-invoking**. A command that passes a quoted string to something that will EXECUTE it (`bash -c`, `sh -c`, `eval`, `ssh`, `find -exec`, `python3 -c`, …) keeps today's raw-text behaviour — over-matching there is the safe direction and is deliberately preserved
+- [x] **All four rows of the table above are asserted**, each as its own case. The two `bash -c` rows are the ones that distinguish this fix from the naive one; without them a green suite proves nothing
+- [x] **The detector fails toward NOT STRIPPING.** An unrecognised or ambiguous shape keeps raw matching — same argument the existing quote-stripper makes for its own direction, applied with the inversion T-920 measured
+- [x] **No shape that blocks today stops blocking.** Proven by running a corpus of currently-matching commands through both the old and new extractor and asserting the new one is a superset on the shell-invoking class and differs ONLY on quoted-data shapes
+- [x] **Control set runs first and reports SETUP BROKEN rather than scoring:** an extractor that fails to source returns empty for every input and would read as "all false positives fixed". The controls must distinguish that from a working fix
+- [x] Every mutation in the teeth is **asserted applied** before its result is scored
+- [x] The three residual-limit comments at `:118-133` and `:145-147` are **updated, not left contradicting the code** — they currently say this is "not fixable with bash regex", which stops being true for the data case
+- [x] `bash -n` passes and the hook still runs: a syntactically valid hook that throws at runtime blocks every tool call in the project
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -81,6 +127,26 @@ date_finished: null
 -->
 
 ## Verification
+
+# The teeth: 21 assertions, two mutations each asserted applied, control set first.
+timeout 300 bash tools/_t921-drift-extraction-teeth.sh > /tmp/.t921.out 2>&1 && grep -q '^FAIL: 0' /tmp/.t921.out
+# CONTROL for the line above (PL-328): 'FAIL: 0' is also what a suite that ran nothing prints.
+grep -qE '^PASS: 2[0-9]$' /tmp/.t921.out
+# CONTROL, stronger: the two mutations must have been SCORED, not skipped as setup-broken.
+grep -q 'REGRESSES to empty without the guard' /tmp/.t921.out
+grep -q 'REGRESSES to T-910 without the stripper' /tmp/.t921.out
+# The suite must not have silently stopped at its own setup check.
+grep -q 'extractor is LIVE' /tmp/.t921.out
+# The guard the fix rests on exists and is a function, not a comment.
+grep -q '^_fw_cmd_executes_quoted() {' .agentic-framework/agents/context/check-active-task.sh
+# Pattern 3 reads the INVOCATION from the stripped view and the ID from raw — the regression the
+# teeth caught on their first run. Both halves must be present.
+grep -q 'if \[\[ "$stripped" =~ (^|\[\[:space:\]\])git\[\[:space:\]\]+commit \]\]' .agentic-framework/agents/context/check-active-task.sh
+grep -q '\[\[ "$raw" =~ .*--message' .agentic-framework/agents/context/check-active-task.sh
+# The residual comment no longer contradicts the code it sits above.
+grep -q 'RESIDUAL — CLOSED BY T-921' .agentic-framework/agents/context/check-active-task.sh
+# A syntactically valid hook that throws at runtime blocks every tool call in the project.
+bash -n .agentic-framework/agents/context/check-active-task.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -226,6 +292,49 @@ date_finished: null
 
 ## Evolution
 
+### 2026-09-28 — the regression leg caught a real regression on its first run
+- **What changed:** the AC demanding *"no shape that blocks today stops blocking"* went red
+  immediately: `git commit -m "T-910: subject"` extracted `T-910` before my change and **nothing
+  after it**. Stripping quotes destroyed pattern 3's target, because a commit message's id lives
+  **inside** the quotes by design — unlike patterns 1 and 2, whose target is an *invocation* and
+  lives outside them.
+- **Plan impact:** the fix split. Patterns 1/2 match the stripped view; pattern 3 requires the
+  `git commit` **invocation** to be visible in the stripped view and then reads the **id** from the
+  raw text. That is better than either extreme: stripped-only loses every real commit, raw-only
+  keeps the T-2833 residual.
+- **Triggered:** nothing filed. Had I written the suite without that leg — and it is the leg that
+  is pure overhead when everything works — I would have shipped a gate that silently stopped
+  seeing every task-attributed commit in the project.
+
+### 2026-09-28 — one of my two "failures" was my own wrong expectation, and checking mattered
+- **What changed:** `eval "<verb> T-910"` came back empty and I had listed it as a
+  must-still-block. Measured against the **pre-change** extractor: empty there too. Pattern 1
+  anchors on whitespace-or-start and the character before the verb is a quote — the same
+  pre-existing gap T-920 found for `bash -c "<verb> …"` with no leading space.
+- **Plan impact:** the row was removed and the reason recorded in the suite, because listing it
+  would assert a guarantee this gate has never made. The distinction that mattered: *a regression
+  is a thing that used to work.* Two rows failed identically and only one was mine.
+- **Triggered:** nothing; the gap is documented in the suite where the next author will meet it.
+
+### 2026-09-28 — a mutation that applied and changed nothing
+- **What changed:** MUTANT B first prefixed the stripper with `: ;`. It applied, the bytes moved,
+  the count assertion passed — and the pipeline still ran and still assigned, so the DATA row did
+  not regress and the suite reported the stripper as not load-bearing. The mutation was a no-op
+  wearing a successful replacement.
+- **Plan impact:** retargeted to redirect the assignment to a dead variable, so `stripped` keeps
+  its raw initial value. **The byte-moved assertion is not enough on its own** — it proves the file
+  changed, not that the change reached the behaviour. What caught it was the regression
+  expectation being explicit about direction.
+- **Triggered:** nothing new; it is the same class as the `${var//pat/rep}` no-op from this
+  morning's T-910, one layer up.
+
+### 2026-09-28 — proven on the surface that reported it
+- **What changed:** filed **OBS-428** through `fw note` with a payload quoting the exact trigger
+  string, under a different focus. It was accepted. The same shape was refused three times earlier
+  today, once while probing the gate itself.
+- **Plan impact:** none — it is the end-to-end proof the unit tests cannot give, on the live hook
+  rather than an extracted copy.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -304,3 +413,18 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-921-drift-extraction-strip-quoted-payloads-e.md
 - **Context:** Initial task creation
+
+### 2026-09-28T21:50:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bb23b8a4
+- **Timestamp:** 2026-09-28T21:54:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-28T21:54:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

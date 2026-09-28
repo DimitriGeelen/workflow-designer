@@ -100,8 +100,63 @@ FOCUS_FILE=$(_resolve_focus_file)   # T-3038: re-resolve, PROJECT_ROOT just move
 #
 # Kept as ONE definition on purpose: the gate below consumes this result rather
 # than re-deriving it, so the two call sites cannot drift apart.
+# T-921: does this command hand a QUOTED STRING to something that will EXECUTE it?
+#
+# The distinction the whole fix rests on. `fw note "… fw task update T-9 …"` quotes a command as
+# DATA — prose about a command. `bash -c "… fw task update T-9 …"` quotes it as CODE. Both look
+# identical to a regex that cannot see quote nesting, which is why the residual below was recorded
+# as unfixable; they are not identical to a regex that first asks what the OUTER command is.
+#
+# FAILS TOWARD NOT STRIPPING. Anything matched here keeps today's raw-text behaviour, including its
+# over-matching. That direction is deliberate and is the inverse of the argument at :236: there,
+# stripping could only fail toward blocking; HERE stripping removes targets and therefore removes
+# blocks, so the conservative default is to strip nothing (T-920 measured both directions).
+_fw_cmd_executes_quoted() {
+    local c="$1"
+    # -c / -e command-string forms: bash, sh, zsh, dash, ksh, python, perl, ruby, node.
+    # Flag clusters are allowed (`bash -lc`, `python3 -Sc`).
+    [[ "$c" =~ (^|[[:space:]]|/)(ba|z|da|k)?sh[[:space:]]+-[a-zA-Z]*c([[:space:]]|$) ]] && return 0
+    [[ "$c" =~ (^|[[:space:]]|/)(python[0-9.]*|perl|ruby|node)[[:space:]]+-[a-zA-Z]*[ce]([[:space:]]|$) ]] && return 0
+    # eval / ssh / su take a command string; find -exec and xargs run one.
+    [[ "$c" =~ (^|[[:space:]])(eval|ssh|su)([[:space:]]|$) ]] && return 0
+    [[ "$c" =~ (^|[[:space:]])-exec([[:space:]]|$) ]] && return 0
+    [[ "$c" =~ (^|[[:space:]])xargs([[:space:]]|$) ]] && return 0
+    # watch runs its argument repeatedly.
+    [[ "$c" =~ (^|[[:space:]])watch([[:space:]]|$) ]] && return 0
+    return 1
+}
+
 _fw_extract_drift_target() {
     local c="$1"
+    # T-921: match on a QUOTE-STRIPPED view when the quoted text is data rather than code.
+    #
+    # This is the same stripper the bootstrap branch at :248 uses, applied to the call site whose
+    # own comments (below) record the hazard as "not fixable with bash regex". It is fixable — not
+    # by teaching the regex about quotes, but by asking first whether the quotes contain a program.
+    #
+    # Measured before and after (T-920), all four shapes:
+    #   fw note "… <verb> T-910 …"              T-910 -> none      the false positive, removed
+    #   bash -c "echo hi; <verb> T-910"         T-910 -> T-910     preserved by the guard above
+    #   bash -c "cd /x && <verb> T-910"         T-910 -> T-910     preserved by the guard above
+    #   <verb> T-910 --status work-completed    T-910 -> T-910     unquoted, untouched
+    #
+    # An unbalanced quote leaves the text unchanged by the sed, so it falls back to raw matching —
+    # the blocking direction, same as every other failure mode here.
+    # PATTERN 3 IS DIFFERENT AND MUST NOT BE STRIPPED. Patterns 1 and 2 match an INVOCATION, which
+    # lives outside quotes; pattern 3 matches a COMMIT MESSAGE, whose id lives INSIDE them by
+    # design. Stripping for all three removed `git commit -m "T-NNN: …"` entirely — caught by the
+    # regression leg in tools/_t921-drift-extraction-teeth.sh, which asserts every shape that
+    # blocked before still blocks. It went red on the first run and it was right.
+    #
+    # So pattern 3 keeps the raw text, and gets the quote-awareness a different way: the `git
+    # commit` INVOCATION must be visible in the STRIPPED view before the id is read from the raw
+    # one. A document quoting a worked example has no git commit outside its quotes and no longer
+    # matches; a real commit has one and still does.
+    local raw="$c" stripped="$c"
+    if ! _fw_cmd_executes_quoted "$c"; then
+        stripped=$(printf '%s' "$c" | sed "s/'[^']*'//g; s/\"[^\"]*\"//g")
+    fi
+    c="$stripped"
     # Pattern 1: fw task update T-NNNN (mutation)
     if [[ "$c" =~ (^|[[:space:]])(bin/)?fw[[:space:]]+task[[:space:]]+update[[:space:]]+(T-[0-9]+) ]]; then
         printf '%s' "${BASH_REMATCH[3]}"; return 0
@@ -119,15 +174,25 @@ _fw_extract_drift_target() {
     # way: I measured only `fw context add-*` shapes WITHOUT a --task flag, which
     # cannot trip pattern 2 at all. Corrected on the rail.
     #
-    # RESIDUAL, unfixed and not fixable with bash regex — identical to the one T-2833
-    # documented for pattern 3: a command whose QUOTED PAYLOAD contains a literal
-    # `fw context add-learning ... --task T-N` still matches, because the regex cannot
-    # see quote nesting. That is how this was hit live (a probe script listing example
-    # invocations as test strings). The T-1890 bypass mechanisms cover it, but it means
-    # rail posts and doc writes quoting real commands can still trip. Severity revised
-    # UP from "low" per 832 rail 478 §4: for agents whose medium is prose-containing-
-    # commands this is not an edge case — it blocked them on a rail post and mis-parsed
-    # a task name in two consecutive sessions.
+    # RESIDUAL — CLOSED BY T-921 for the data case; the history is kept because it explains
+    # why the fix is shaped the way it is.
+    #
+    # WAS: "unfixed and not fixable with bash regex — a command whose QUOTED PAYLOAD contains a
+    # literal `fw context add-learning ... --task T-N` still matches, because the regex cannot see
+    # quote nesting." Hit live (a probe script listing example invocations as test strings), and
+    # severity revised UP from "low" per 832 rail 478 §4: for agents whose medium is
+    # prose-containing-commands this is not an edge case — it blocked them on a rail post and
+    # mis-parsed a task name in two consecutive sessions.
+    #
+    # NOW: patterns 1 and 2 match the STRIPPED view (see the head of this function), so a quoted
+    # payload no longer matches. The regex still cannot see quote nesting — that part was true and
+    # remains true. What changed is that it no longer has to: the OUTER command is asked first
+    # whether the quotes hold a program.
+    #
+    # STILL OPEN, deliberately: a shell-invoking command (`bash -c`, `eval`, `ssh`, `find -exec`,
+    # `xargs`, `watch`) keeps raw matching, so a worked example quoted INSIDE one of those still
+    # trips. That is the safe direction — over-blocking — and narrowing it would need a real
+    # parser, not a better regex.
     if [[ "$c" =~ (^|[[:space:]])(bin/)?fw[[:space:]]+context[[:space:]]+add-[a-z-]+[^|\;\&]*--task[[:space:]=]+(T-[0-9]+) ]]; then
         printf '%s' "${BASH_REMATCH[3]}"; return 0
     fi
@@ -145,8 +210,12 @@ _fw_extract_drift_target() {
     # Known residual limit, not fixed here: a doc-write whose payload
     # literally contains a working `git commit -m "T-N: ..."` example still
     # matches, since bash regex cannot see quote-nesting. See T-2833.
-    if [[ "$c" =~ (^|[[:space:]])git[[:space:]]+commit ]] && \
-       [[ "$c" =~ (^|[[:space:]])(-[a-zA-Z]*m[a-zA-Z]*|--message)(=|[[:space:]]+)[\'\"]?(T-[0-9]+): ]]; then
+    # T-921: the INVOCATION must be visible in the stripped view (so a quoted worked example does
+    # not match), but the ID is read from the RAW text (because a commit message is quoted by
+    # design). Both halves are required — dropping either one reintroduces a defect this task
+    # measured: stripped-only loses every real commit, raw-only keeps the T-2833 residual.
+    if [[ "$stripped" =~ (^|[[:space:]])git[[:space:]]+commit ]] && \
+       [[ "$raw" =~ (^|[[:space:]])(-[a-zA-Z]*m[a-zA-Z]*|--message)(=|[[:space:]]+)[\'\"]?(T-[0-9]+): ]]; then
         printf '%s' "${BASH_REMATCH[4]}"; return 0
     fi
     return 0
