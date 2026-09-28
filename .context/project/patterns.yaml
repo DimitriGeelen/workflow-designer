@@ -156,6 +156,13 @@ failure_patterns:
     date_learned: 2026-09-28
     mitigation: "T-886 built the instrument T-875's issues-reason said was missing, and nothing moved T-875 out of issues when it landed. The recorded blocker was: 'AC3 unclosable by the existing instrument: the round-trip guard derives its denominator from node-level aef.* accesses, so document-level workflowMeta attributes are outside its scope by construction. Proved by mutation - deleting the writer line still passes. Needs a dedicated workflowMeta round-trip teeth with a mutation control.' That instrument now exists: checkWmDenominator() derives the denominator FROM THE EMITTER (10 attributes, 0 unclassified) and the WM self-test mutates each attribute in its own wire carrier across the corpus. Measured this session: kind is LIVE, so suppressing it in the writer now moves the projection - the mutation control the reason asked for. AC3's byte-identity pair also holds: t875-kind-marker.bpmn (WITH kind) and two-lane-joint.bpmn (without) both report byteIdempotent true over 21 fixtures. T-910 extended the same discipline to aef:laneMeta. AC5 (conformance case in the existing mapping-conformance suite) and AC6 (A5 recorded in Decisions) remain and are ordinary work, not blockers. THE PATTERN: a task parked on a missing instrument stays parked after the instrument ships, because the thing that shipped it was a different task and nothing joins the two. T-886 did not know T-875 was waiting on it."
 
+  - id: FP-021
+    pattern: "element-boundary-denominator-blindness"
+    description: "Issue resolved in T-890"
+    learned_from: T-890
+    date_learned: 2026-09-28
+    mitigation: "Blocker was the guard's element-boundary blindness (OBS-416); T-910 added the laneMeta derived denominator. AC6 demonstrated by tools/_t890-lanemeta-guard-teeth.sh: writer suppressed on live src, suppression proven, guard exit 2 naming authoringDefault, tree restored byte-identical."
+
 success_patterns:
   - id: SP-001
     pattern: "Phased implementation"

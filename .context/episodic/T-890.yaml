@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-890: aef:laneMeta authoringDefault — PRESENTATIONAL, and a control proving the compiler cannot read it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T23:25:05Z
+# ============================================================================
+
+task_id: T-890
+task_name: "aef:laneMeta authoringDefault — PRESENTATIONAL, and a control proving the compiler cannot read it"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T10:41:20Z
+completed: 2026-09-28T23:24:55Z
+duration_days: 1
+updates_count: 1
+first_commit: 2026-09-27T21:40:20+02:00
+last_commit: 2026-09-27T21:40:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the lane's authoring default ships PRESENTATIONAL and proved so — and the guard that should protect it does not cover laneMeta at all
+
+# Key outcomes
+outcomes:
+  - '`aef:laneMeta authoringDefault` validates against the same `AUTHORITIES` set element authority uses — one module-scope vocabulary read by both forms, never a second copy (T-322: a duplicated governance vocabulary is how two forms drift on the governance question itself)'
+  - '**Absent is legal and silent.** A lane with no `authoringDefault` produces no finding. T-888 clause 3 keeps the default an explicit author decision, and there is deliberately no `none` sentinel — `authority="none"` is the exact value that caused the original defect'
+  - '**THE LOAD-BEARING CONTROL: changing `authoringDefault` on a map leaves the task graph BYTE-IDENTICAL.** It is presentational per the frozen standard §1, where "a change to a presentational attribute alone MUST be a no-op for the task graph". Proved by compiling a map with and without it and diffing the output, not by reading the code'
+  - 'A control proves that comparison can fail: the same diff over a SEMANTIC change shows a difference, so byte-identity is not passing because the comparison is inert'
+  - 'Editor reads AND writes it — an attribute imported but never emitted is dropped on first save, which is worse than absent because it survives review and vanishes in use (the T-875 finding)'
+  - 'Round-trip guarded: T-886''s derived denominator classifies it, so the guard goes red if the emitter stops writing it. Demonstrated by suppressing the writer and observing red'
+  - 'Registered in both parity registries the way `E-XML-META-AUTHORITY` was, classified GAP or PAIRED with a reason — an unregistered rule is the T-317 omission this project keeps re-finding'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-890-aeflanemeta-authoringdefault--presentati.md'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T21:40:20'
+    action: 'T-890: the lane''s authoring default ships PRESENTATIONAL and proved so — and the guard that should protect it does not cover laneMeta at all'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2203 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2203
+  commits: 1
+  files_changed: 6
+  lines_added: 116
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-890-aeflanemeta-authoringdefault--presentati.md
+generated_by: context-agent-hybrid

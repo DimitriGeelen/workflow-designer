@@ -2506,3 +2506,10 @@ learnings:
   task: T-875
   date: 2026-09-28
   context: "Resolved issue in T-875"
+
+- id: L-003
+  learning: "Blocker was the guard's element-boundary blindness (OBS-416); T-910 added the laneMeta derived denominator. AC6 demonstrated by tools/_t890-lanemeta-guard-teeth.sh: writer suppressed on live src, suppression proven, guard exit 2 naming authoringDefault, tree restored byte-identical."
+  source: healing-loop
+  task: T-890
+  date: 2026-09-28
+  context: "Resolved issue in T-890"

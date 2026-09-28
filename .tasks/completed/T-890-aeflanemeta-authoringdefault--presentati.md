@@ -12,15 +12,12 @@ description: >
   because authority='none' was the exact value that caused the original defect. Never
   re-stamps existing elements.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
-components:
-  - tools/validate-workflow.py
-  - src/aef-workflow-designer.html
-  - tools/_roundtrip-serialization-cdp.mjs
+components: [src/aef-workflow-designer.html, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/_roundtrip-serialization-cdp.mjs, tools/_t886-writer-mutation.py, tools/_t910-lanemeta-teeth.sh, tools/validate-workflow.py]
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -33,8 +30,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:20Z
-last_update: 2026-09-27T19:25:00Z
-date_finished:
+last_update: 2026-09-28T23:24:55Z
+date_finished: 2026-09-28T23:24:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -76,6 +73,26 @@ bvp_scores_proposed:
       no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
       to be wrong about,L1:keyword=designer)'
     rubric_sha: e4a00f38e801
+  - ts: '2026-09-28T23:18:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 3
+      F3: 4
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=3 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=4 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-890: aef:laneMeta authoringDefault — PRESENTATIONAL, and a control proving the compiler cannot read it
@@ -93,7 +110,7 @@ bvp_scores_proposed:
 - [x] **THE LOAD-BEARING CONTROL: changing `authoringDefault` on a map leaves the task graph BYTE-IDENTICAL.** It is presentational per the frozen standard §1, where "a change to a presentational attribute alone MUST be a no-op for the task graph". Proved by compiling a map with and without it and diffing the output, not by reading the code
 - [x] A control proves that comparison can fail: the same diff over a SEMANTIC change shows a difference, so byte-identity is not passing because the comparison is inert
 - [x] Editor reads AND writes it — an attribute imported but never emitted is dropped on first save, which is worse than absent because it survives review and vanishes in use (the T-875 finding)
-- [ ] Round-trip guarded: T-886's derived denominator classifies it, so the guard goes red if the emitter stops writing it. Demonstrated by suppressing the writer and observing red
+- [x] Round-trip guarded: T-886's derived denominator classifies it, so the guard goes red if the emitter stops writing it. Demonstrated by suppressing the writer and observing red
 - [x] Registered in both parity registries the way `E-XML-META-AUTHORITY` was, classified GAP or PAIRED with a reason — an unregistered rule is the T-317 omission this project keeps re-finding
 
 ### Human
@@ -129,6 +146,15 @@ bvp_scores_proposed:
 
 ## Verification
 
+# AC6 — the guard goes RED when the authoringDefault writer is suppressed, named, and the tree is restored byte-identical.
+out=$(bash tools/_t890-lanemeta-guard-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+# AC1 — one vocabulary: an unknown authoringDefault is refused by the validator and named; a known one passes (control first).
+t=$(mktemp -t t890.XXXXXX.bpmn); sed 's/<aef:laneMeta /<aef:laneMeta authoringDefault="sovereignty" /' examples/aef-processes/rendered/task-lifecycle.bpmn > "$t"; python3 tools/validate-workflow.py "$t" >/dev/null 2>&1; rc=$?; rm -f "$t"; test $rc -eq 0
+t=$(mktemp -t t890.XXXXXX.bpmn); sed 's/<aef:laneMeta /<aef:laneMeta authoringDefault="overlord" /' examples/aef-processes/rendered/task-lifecycle.bpmn > "$t"; out=$(python3 tools/validate-workflow.py "$t" 2>&1); rc=$?; rm -f "$t"; test $rc -eq 2 && echo "$out" | grep -q "overlord"
+# AC7 — registered in both parity registries, and the suites that read them are green.
+python3 -m pytest tests/test_rule_form_parity.py tests/test_rule_dialect_axis.py -q
+# Static: the laneMeta denominator names the attribute (property, not a count).
+node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q '"authoringDefault"'
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -273,27 +299,15 @@ bvp_scores_proposed:
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
+### 2026-09-27 — AC6 failed honestly, and the failure was bigger than the attribute
+- **What changed:** Six ACs closed the same day; the seventh (round-trip guarded) FAILED by mutation: suppressing the writer left the guard green because T-886's denominator stopped at the element boundary. Parked at `issues` rather than closed around it, with OBS-416 naming the class: every aef:laneMeta attribute — including §3's authority-of-record — was droppable in silence.
+- **Plan impact:** The repair was not this task's to build (one lock at a time); T-910 built the laneMeta denominator.
+- **Triggered:** OBS-416 → T-910.
 
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — the blocker is gone, and the demonstration is now a standing guard
+- **What changed:** T-910's `checkLmDenominator` makes the same mutation go red in `--denominators-only` mode, exit 2, with the dead-coverage finding naming `authoringDefault`. `tools/_t890-lanemeta-guard-teeth.sh` performs the suppression on the live source (the guard reads a fixed path, so a copy would test a copy), proves it applied before scoring, and restores the tree on an EXIT trap verified by `cmp`. The parity suites that were "red for reasons that predate me" on 2026-09-27 are green now — T-903 registered the pair that was failing them.
+- **Plan impact:** None. AC6 ticked on the teeth's evidence, not on the narrative.
+- **Triggered:** Nothing filed.
 
 ## Recommendation
 
@@ -407,3 +421,39 @@ says in its own failure text not to adjust it to match — so I did not.
 A verification command hung for 300s because I used `$S` before assigning it, so `sed` read from
 stdin and blocked forever. Killed and redone. Cheap, but it is the third time this session that a
 shell-evaluation-order mistake produced a wrong or absent measurement rather than an error.
+
+### 2026-09-27T19:40:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → issues
+- **Reason:** AC6 unmet: the round-trip guard covers aef:workflowMeta, not aef:laneMeta, so suppressing the writer leaves it green (proved by mutation). OBS-416 filed — every laneMeta attribute including authority is unguarded. 6/7 ACs closed and verified.
+
+### 2026-09-28T23:18:09Z — status-update [task-update-agent]
+- **Change:** status: issues → started-work
+
+### 2026-09-28T23:24:55Z — issue-resolved [healing-agent]
+- **Action:** Issue resolved via healing loop
+- **Output:** Pattern FP-021 recorded
+- **Mitigation:** Blocker was the guard's element-boundary blindness (OBS-416); T-910 added the laneMeta derived denominator. AC6 demonstrated by tools/_t890-lanemeta-guard-teeth.sh: writer suppressed on live src, suppression proven, guard exit 2 naming authoringDefault, tree restored byte-identical.
+- **Context:** Resolution logged for future reference
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-dc76f30b
+- **Timestamp:** 2026-09-28T23:24:58Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** yes
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 5
+     - evidence: `t=$(mktemp -t t890.XXXXXX.bpmn); sed 's/<aef:laneMeta /<aef:laneMeta authoringDefault="overlord" /' examples/aef-processes/rendered/task-lifecycle.bpmn > "$t"; out=$(python3 tools/validate-workflow.py`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 9
+     - evidence: `node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q '"authoringDefault"'`
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -f`
+
+### 2026-09-28T23:24:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
