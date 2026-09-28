@@ -2,14 +2,21 @@
 id: T-892
 name: "Lane configuration in the editor: set a lane's authoring default"
 description: >
-  T-888 ruling clause 3, UI half. The lane config panel gains an authority default selector. Setting it pre-fills NEW elements created in that lane and re-renders indicators on existing ones — it must NEVER write to an existing element. That distinction is what survived external review where a stamping design did not: the default re-renders, it never re-stamps.
+  T-888 ruling clause 3, UI half. The lane config panel gains an authority default
+  selector. Setting it pre-fills NEW elements created in that lane and re-renders
+  indicators on existing ones — it must NEVER write to an existing element. That distinction
+  is what survived external review where a stamping design did not: the default re-renders,
+  it never re-stamps.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
-components: []
+components:
+  - src/aef-workflow-designer.html
+  - tools/_t892-lane-default-cdp.mjs
+  - docs/reports/t892-shots
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +29,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:42Z
-last_update: 2026-09-27T10:41:42Z
-date_finished: null
+last_update: 2026-09-28T23:49:11Z
+date_finished: 2026-09-28T23:49:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +41,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 1
+  F3: 0
+  F1: 2
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-28T23:47:34Z'
+cost_estimate_proposed:
+  - ts: '2026-09-28T23:49:05Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 3
+      tier: 2
+      effort: 8
+    rationale: blast_radius=3 (3-components); tier=2 (workflow:build); effort=8 
+      (lines=281,acs=8)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-892: Lane configuration in the editor: set a lane's authoring default
@@ -46,8 +76,12 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The lane properties panel offers an **Authoring default** `<select>` whose options are `''` (no default) plus the `AUTHORITIES` values except the retired `none` sentinel — the module-scope set is REUSED, filtered, never re-listed (T-322). Writing through the select's own change listener sets `lane.authoringDefault` (`null` for `''`) and re-renders; proven by driving the REAL panel in an isolated headless Chromium, not by poking the model
+- [x] **The default never re-stamps (T-888 clause 3):** after setting a lane's default through the panel, every EXISTING node's `aef` bag is byte-identical to before (JSON of `state.nodes.map(n => n.aef)` compared), and `buildBpmnXml` differs from before ONLY by the `authoringDefault="…"` attribute on that lane's `<aef:laneMeta>` — a control asserts the diff is non-empty and confined
+- [x] **It pre-fills NEW elements only:** `createNodeAt` in a lane with a default gives the new node `aef.authority` equal to the default; in a lane with no default the new node's `aef` bag carries no `authority` key (control), so the pre-fill cannot be mistaken for a global stamp
+- [x] **Existing markers re-render, not re-write:** on the T-893 fixture, setting the framework lane's default to `initiative` turns `frw_4_enter`'s `differs` marker off (its own `initiative` now matches) and turns the other framework nodes' state from `none` to `none` (they inherit) — marker counts before/after are asserted, and no node's `aef` changed (the leg above)
+- [x] **Visual verification per CLAUDE.md:** element-level screenshots, read back and referenced in `## Visual Verification`, of (a) the panel's Authoring default field as rendered, (b) `frw_4_enter` before and after the default is set (marker present → absent). The panel is unaffected by label size; the node markers' size matrix is T-893's and is not re-taken
+- [x] The static guard is unchanged (`--denominators-only` still reports `computed sources 3 verified`, laneMeta 4 derived): the emitter already writes `authoringDefault` (T-890) and this task adds no emitter access
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -80,8 +114,30 @@ date_finished: null
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Visual Verification
+
+Taken by `tools/_t892-lane-default-cdp.mjs` in an isolated headless Chromium on the T-893 fixture, READ back 2026-09-29:
+
+| shot | file | what I saw |
+|---|---|---|
+| panel field | `docs/reports/t892-shots/panel-field.png` | "Authoring default" label with the hint "· pre-fills NEW elements · re-renders markers · never re-stamps", and the select showing `initiative` after the write — the stored value survives a re-render of the panel |
+| node before | `docs/reports/t892-shots/node-before.png` | `frw_4_enter` with the faint "◆ ini" marker (its own `initiative` differs from the lane's legacy `authority` default) |
+| node after | `docs/reports/t892-shots/node-after.png` | same node, no marker, once the lane's authoring default is `initiative`; the node's own bag was not touched (L3) — the marker went away because the DEFAULT moved, which is clause 3's whole point |
+
+The panel is not affected by label size; the marker size matrix is T-893's.
+
 ## Verification
 
+# Isolated-Chromium driver through the REAL panel: L1 options, L2 write, L3 never re-stamps (aef bags identical, export diff confined to the lane's laneMeta), L4 pre-fills new elements only, L5 markers re-render.
+timeout 120 node tools/_t892-lane-default-cdp.mjs | grep -q '^5/5 legs passed'
+test "$(ls docs/reports/t892-shots/*.png | wc -l)" -eq 3
+# The select reuses the module-scope vocabulary, filtered — never a second list (property, not prose).
+grep -qF "selectField('Authoring default', lane.authoringDefault || '', ['', ...AUTHORITIES.filter(a => a !== 'none')]" src/aef-workflow-designer.html
+# Creation-time pre-fill is the only write path the default has (one site).
+test "$(grep -c 'node.aef.authority = ln.authoringDefault' src/aef-workflow-designer.html)" -eq 1
+# T-893's state test and the static guard are unchanged by this task.
+node tests/t893-authority-marker-state.test.mjs | grep -qE '^PASS [0-9]+ / FAIL 0$'
+node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q 'laneMeta 4 attributes derived'
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -226,27 +282,10 @@ date_finished: null
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
-
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — the UI half, on T-893's rendering
+- **What changed:** Nothing in the design; the ruling's clause 3 mapped onto two code sites — a select in the lane panel and one line in `createNodeAt`. The load-bearing leg is L3: the export diff after setting the default is exactly two lines, both the framework lane's `<aef:laneMeta>`, and every node's `aef` bag is byte-identical. That is the "re-renders, never re-stamps" property stated as bytes.
+- **Plan impact:** None. The driver reuses T-893's fixture so the `differs` marker's disappearance is an observed count (1 → 0) rather than a claim.
+- **Triggered:** Nothing filed.
 
 ## Recommendation
 
@@ -304,3 +343,27 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-892-lane-configuration-in-the-editor-set-a-l.md
 - **Context:** Initial task creation
+
+### 2026-09-28T23:47:16Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1cd948f2
+- **Timestamp:** 2026-09-28T23:49:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 2
+     - evidence: `timeout 120 node tools/_t892-lane-default-cdp.mjs | grep -q '^5/5 legs passed'`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 9
+     - evidence: `node tests/t893-authority-marker-state.test.mjs | grep -qE '^PASS [0-9]+ / FAIL 0$'`
+  3. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 10
+     - evidence: `node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q 'laneMeta 4 attributes derived'`
+
+### 2026-09-28T23:49:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-892: Lane configuration in the editor: set a lane's authoring default
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T23:49:20Z
+# ============================================================================
+
+task_id: T-892
+task_name: "Lane configuration in the editor: set a lane's authoring default"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T10:41:42Z
+completed: 2026-09-28T23:49:11Z
+duration_days: 1
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-888 ruling clause 3, UI half. The lane config panel gains an authority default selector. Setting it pre-fills NEW elements created in that lane and re-renders indicators on existing ones — it must NEVER write to an existing element. That distinction is what survived external review where a stamping design did not: the default re-renders, it never re-stamps.
+
+# Key outcomes
+outcomes:
+  - 'The lane properties panel offers an **Authoring default** `<select>` whose options are `''''` (no default) plus the `AUTHORITIES` values except the retired `none` sentinel — the module-scope set is REUSED, filtered, never re-listed (T-322). Writing through the select''s own change listener sets `lane.authoringDefault` (`null` for `''''`) and re-renders; proven by driving the REAL panel in an isolated headless Chromium, not by poking the model'
+  - '**The default never re-stamps (T-888 clause 3):** after setting a lane''s default through the panel, every EXISTING node''s `aef` bag is byte-identical to before (JSON of `state.nodes.map(n => n.aef)` compared), and `buildBpmnXml` differs from before ONLY by the `authoringDefault="…"` attribute on that lane''s `<aef:laneMeta>` — a control asserts the diff is non-empty and confined'
+  - '**It pre-fills NEW elements only:** `createNodeAt` in a lane with a default gives the new node `aef.authority` equal to the default; in a lane with no default the new node''s `aef` bag carries no `authority` key (control), so the pre-fill cannot be mistaken for a global stamp'
+  - '**Existing markers re-render, not re-write:** on the T-893 fixture, setting the framework lane''s default to `initiative` turns `frw_4_enter`''s `differs` marker off (its own `initiative` now matches) and turns the other framework nodes'' state from `none` to `none` (they inherit) — marker counts before/after are asserted, and no node''s `aef` changed (the leg above)'
+  - '**Visual verification per CLAUDE.md:** element-level screenshots, read back and referenced in `## Visual Verification`, of (a) the panel''s Authoring default field as rendered, (b) `frw_4_enter` before and after the default is set (marker present → absent). The panel is unaffected by label size; the node markers'' size matrix is T-893''s and is not re-taken'
+  - 'The static guard is unchanged (`--denominators-only` still reports `computed sources 3 verified`, laneMeta 4 derived): the emitter already writes `authoringDefault` (T-890) and this task adds no emitter access'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2227 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2227
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-892-lane-configuration-in-the-editor-set-a-l.md
+generated_by: context-agent-hybrid

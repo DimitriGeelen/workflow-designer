@@ -6085,6 +6085,15 @@ function renderProperties() {
       lane.authority = v;
       renderAll();
     }, 'tints background · drives D1 validation'));
+    // T-892 (T-888 ruling clause 3, UI half): the lane's AUTHORING DEFAULT. Presentational:
+    // it pre-fills the authority of elements CREATED in this lane (createNodeAt) and changes
+    // which existing elements the T-893 marker flags — it never writes to an existing element.
+    // The default re-renders, it never re-stamps; that distinction is what survived review.
+    // Options are AUTHORITIES minus the retired 'none' sentinel (clause 2), reused not re-listed.
+    sBpmn.appendChild(selectField('Authoring default', lane.authoringDefault || '', ['', ...AUTHORITIES.filter(a => a !== 'none')], v => {
+      lane.authoringDefault = v || null;
+      renderAll();
+    }, 'pre-fills NEW elements · re-renders markers · never re-stamps'));
 
     // Height — small numeric stepper
     const heightWrap = document.createElement('div');
@@ -8815,6 +8824,9 @@ function createNodeAt(type, x, y) {
     y: y - def.h / 2,
     aef: {},
   };
+  // T-892 (T-888 clause 3): a lane's authoring default pre-fills the NEW element's own
+  // authority — at creation only. Existing elements are never touched by the default.
+  { const ln = findLane(lane); if (ln && ln.authoringDefault) node.aef.authority = ln.authoringDefault; }
   state.nodes.push(node);
   // T-308: dropping a handoff from the palette IS the declaration of intent. Record
   // it in session state so the node keeps its handoff UI — and stays bindable —
