@@ -17,14 +17,12 @@ name: "The round-trip guard covers aef:workflowMeta but NOT aef:laneMeta — the
 description: >
   Promoted from observation OBS-416
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: human
-horizon: now
+horizon: null
 tags: []
-components:
-  - tools/_roundtrip-serialization-cdp.mjs
-  - src/aef-workflow-designer.html
+components: [src/aef-workflow-designer.html, tools/_roundtrip-serialization-cdp.mjs, tools/_t910-lanemeta-teeth.sh]
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -37,8 +35,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T21:24:40Z
-last_update: 2026-09-27T22:08:43Z
-date_finished:
+last_update: 2026-09-28T10:49:48Z
+date_finished: 2026-09-28T10:49:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -496,3 +494,15 @@ in a state an agent cannot finish; that pattern is G-027 and is worth a decision
 
 ### 2026-09-27T22:08:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0dd484eb
+- **Timestamp:** 2026-09-28T10:50:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-28T10:49:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

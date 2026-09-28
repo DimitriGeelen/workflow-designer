@@ -2530,3 +2530,17 @@ decisions:
     date: 2026-09-28
     task: T-911
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-341
+    decision: "generalise into ONE shared `deriveEmittedAttrs()` / `checkElementDenominator()` pair,"
+    scope: project
+    date: 2026-09-28
+    task: T-910
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-342
+    decision: "keep `height` in the compared set; add **NOT-EXERCISABLE** as a distinct verdict,"
+    scope: project
+    date: 2026-09-28
+    task: T-910
+    rationale: "Auto-captured from task file on completion"
