@@ -127,7 +127,12 @@ PD-343 · **6.** T-358 `A·B·C·AB·no repair` · **7.** T-341 / T-353 / T-901.
 
 ## 7. Gates that refused me, and what I did instead
 
-**None refused.** No `--force`, no `--skip-*`, no bypass. One non-gate failure: `bin/fw` does
+**One refusal, at the handback commit:** `check-active-task` FOCUS-DRIFT (T-1730). My line was
+`fw context focus T-922 …; git add … && fw git commit -m "T-922: …"`. The gate checks the whole
+line before running any of it, so it saw focus still on T-826 against a T-922 target. I ran
+`fw context focus T-922` alone, then the commit (`bc9a3c04`). I did not take the offered Tier 2
+`FW_SWITCH_FOCUS=1`. This is the same lesson as round 3's bootstrap-exemption refusal: run the
+focus verb bare. No `--force`, no `--skip-*`, no bypass. One non-gate failure: `bin/fw` does
 not exist at the repo root (CLAUDE.md §Copy-Pasteable Commands prescribes it). The binary
 is at `.agentic-framework/bin/fw`, and `fw` on PATH resolves to `/root/.local/bin/fw`. I used
 `fw`. The same discrepancy affects every copy-pasteable command CLAUDE.md tells agents to hand
