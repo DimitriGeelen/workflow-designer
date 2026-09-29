@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T17:51:40Z
-last_update: 2026-09-29T17:53:51Z
+last_update: 2026-09-29T17:57:01Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -301,6 +301,49 @@ date_finished: null
 -->
 
 ## Decisions
+
+### 2026-09-29 — the queue is not friction. It is 47 unmade decisions, and a reviewer can take ONE.
+
+The premise of this task was that `[REVIEW]` is self-justifying the way `owner: human` was: the
+prefix declares "genuine human judgement, never convertible" and no predicate tests whether the
+criterion actually requires judgement. The prefix distribution looked damning — **81 of the 82 open
+Human criteria are `[REVIEW]`**, and `_carve_out` maps that straight to `taste` on the prefix alone.
+
+So I measured what is behind the prefix. Twice wrongly first, which is why the third number is worth
+trusting.
+
+- **Attempt 1** tested `scan()`'s `text` field. It is truncated to 110 characters, so I was matching
+  criterion TITLES and got 0 deterministic candidates. Wrong field.
+- **Attempt 2** read the full bodies and found 21 "candidates". Reading them stopped me: they are
+  *"Decide whether the six orphans should be killed"*, *"May five OMG schema files be vendored"*,
+  *"Whether to take the vendor bump now"*, *"Rule on the drain path"*. My regex had matched shell
+  commands in their **Steps** blocks — which tell the operator how to LOOK at evidence — and
+  concluded the verdict was mechanical. It would have handed 21 sovereign decisions to a reviewer.
+  That is exactly the relocated authority PD-302 forbids, produced by me in one regex.
+- **Attempt 3** tests what CLAUDE.md actually specifies: the **Expected** clause, not the Steps.
+
+| what the criterion actually asks | count |
+|---|---|
+| **asks the operator to DECIDE** (decide / ruling / approve / whether to / go-no-go) | **47** |
+| prose Expected clause — judgement | 32 |
+| **mechanical Expected clause — honestly delegable** | **1** (T-596) |
+| no Expected clause | 1 |
+
+**A reviewer can take one of eighty-one.** The operator's queue is not clogged with mis-prefixed
+deterministic criteria. It is a backlog of decisions nobody has made — 47 of them, each asking for a
+ruling. `[REVIEW]` is the CORRECT prefix for 79 of the 81, so the self-justification concern that
+opened this task does not survive contact with the data.
+
+**Consequence.** This task's premise is refuted and the ownership widening it proposed would move
+almost nothing: after T-931 removed 45 stale claims, what remains is real. The queue shrinks by
+DECIDING, or by deciding a question does not need answering — not by reclassifying. The one genuine
+conversion (T-596) is a single `fw task delegate` call and is not worth a mechanism.
+
+**Also a finding against the audit's own advice.** `check_delegation_surface`'s mitigation reads: "if
+nothing is delegable, the criteria are written [REVIEW] where they should be [REVIEWER]". Here that
+diagnosis is wrong — nothing is delegable because 47 criteria ask for rulings. The mitigation names a
+cause it did not measure, and an operator following it would go looking for mis-prefixed criteria
+that are not there. Worth sending upstream.
 
 ### 2026-09-29 — CORRECTION: the denominator gap was MY scope error. The real divergence is 3 criteria.
 
