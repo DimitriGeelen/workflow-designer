@@ -40,6 +40,13 @@ Usage:
   instance-node.py advance <T-XXX> <node-id>        MOVE along a sequenceFlow of the template of record;
                                                     from NO-POSITION only onto a startEvent;
                                                     REFUSED-TRANSITION otherwise (exit 1)
+  instance-node.py walk  <T-XXX> <node-id>          the FRAMEWORK's verb (T-923): shortest path over the
+                                                    template of record's flows, taken one validated hop
+                                                    at a time and printed as HOP a -> b; from NO-POSITION
+                                                    it starts at the startEvent of the template that
+                                                    contains the target (printed as START <id>); no path
+                                                    → REFUSED-TRANSITION, nothing written; already there
+                                                    → exit 0, nothing written
   instance-node.py resolve <T-XXX>                  forward resolution (T-881): TEMPLATE <file> per bound
                                                     template, then NODE <id> <template> | NO-POSITION
   instance-node.py instances <template-id>          reverse resolution (T-881): every LIVE entity bound
@@ -275,6 +282,18 @@ def cmd_set(a, table):
 
 def cmd_advance(a, table):
     """Move along a sequenceFlow of the template of record (T-882). The refusal is the deliverable."""
+    def announce(prev, node, tpl, path):
+        print(f"NODE {node} {tpl} (advanced from {prev}, recorded in {os.path.relpath(path, a.root)})")
+    return _advance_core(a, table, a.node, announce)
+
+
+def _advance_core(a, table, node, announce, prefer=None):
+    """One validated hop. Shared by advance and walk so a walk cannot take a hop advance would refuse.
+
+    Template of record: the bound template(s) containing the current node. Two bound templates may
+    share a node id (an inception binds both lifecycles and both carry a start-work script task), so
+    every candidate is consulted and the hop is legal if ANY of them carries the flow; `prefer` (the
+    template a walk is on) is consulted first so a walk never changes template mid-route."""
     path = find_task(a.tasks_dirs, a.task)
     if not path:
         print(f"NO-ENTITY {a.task}")
@@ -292,34 +311,118 @@ def cmd_advance(a, table):
         # An instance starts at the start. Placing a legacy entity mid-flow is `set`'s job.
         starts = {t: template_start_events(template_file(a.rendered_dir, t)) for t in tpls}
         for t, ids in starts.items():
-            if a.node in ids:
-                _write_node(path, text, fm_start, fm_end, a.node)
-                print(f"NODE {a.node} {t} (advanced from NO-POSITION, recorded in {os.path.relpath(path, a.root)})")
+            if node in ids:
+                _write_node(path, text, fm_start, fm_end, node)
+                announce("NO-POSITION", node, t, path)
                 return 0
         legal = "; ".join(f"{', '.join(ids)} in {os.path.relpath(template_file(a.rendered_dir, t), a.root)}"
                           for t, ids in starts.items())
         return refuse("REFUSED-TRANSITION", a.task,
-                      f"no position recorded and '{a.node}' is not a startEvent — an instance starts at the start; "
+                      f"no position recorded and '{node}' is not a startEvent — an instance starts at the start; "
                       f"legal first hop: {legal} (to place a pre-existing entity mid-flow use: set {a.task} <node>)")
-    of_record = None
-    for t in tpls:
-        if current in template_nodes(template_file(a.rendered_dir, t)):
-            of_record = t
-            break
-    if of_record is None:
+    candidates = [t for t in tpls if current in template_nodes(template_file(a.rendered_dir, t))]
+    if prefer in candidates:
+        candidates.remove(prefer)
+        candidates.insert(0, prefer)
+    if not candidates:
         return refuse("REFUSED-TRANSITION", a.task,
                       f"recorded position '{current}' is STALE — not in {', '.join(tpls)}; nothing to advance from")
-    tfile = template_file(a.rendered_dir, of_record)
-    succ = template_flows(tfile).get(current, [])
-    # MUTATION-ANCHOR successor-check (teeth disable the flow test here)
-    if a.node in succ:
-        _write_node(path, text, fm_start, fm_end, a.node)
-        print(f"NODE {a.node} {of_record} (advanced from {current}, recorded in {os.path.relpath(path, a.root)})")
-        return 0
-    legal = ", ".join(succ) if succ else "(none — an end event has no outgoing flow)"
+    legal_by_tpl = []
+    for of_record in candidates:
+        tfile = template_file(a.rendered_dir, of_record)
+        succ = template_flows(tfile).get(current, [])
+        # MUTATION-ANCHOR successor-check (teeth disable the flow test here)
+        if node in succ:
+            _write_node(path, text, fm_start, fm_end, node)
+            announce(current, node, of_record, path)
+            return 0
+        legal_by_tpl.append((os.path.relpath(tfile, a.root), succ))
+    detail = "; ".join(f"legal successor(s) of {current} in {f}: " + (", ".join(succ) if succ else "(none — an end event has no outgoing flow)")
+                       for f, succ in legal_by_tpl)
     return refuse("REFUSED-TRANSITION", a.task,
-                  f"{current} -> {a.node} is not a sequenceFlow of {os.path.relpath(tfile, a.root)}; "
-                  f"legal successor(s) of {current}: {legal}")
+                  f"{current} -> {node} is not a sequenceFlow of {legal_by_tpl[0][0]}; {detail}")
+
+
+def _shortest_path(flows, src, dst):
+    """BFS over sequenceFlows; returns [src, ..., dst] or None. src == dst returns [src]."""
+    if src == dst:
+        return [src]
+    prev = {src: None}
+    queue = [src]
+    while queue:
+        cur = queue.pop(0)
+        for nxt in flows.get(cur, []):
+            if nxt in prev:
+                continue
+            prev[nxt] = cur
+            if nxt == dst:
+                out = [dst]
+                while prev[out[-1]] is not None:
+                    out.append(prev[out[-1]])
+                return list(reversed(out))
+            queue.append(nxt)
+    return None
+
+
+def cmd_walk(a, table):
+    """The framework's verb (T-923): reach a target node by the shortest legal path, one validated hop at a time."""
+    path = find_task(a.tasks_dirs, a.task)
+    if not path:
+        print(f"NO-ENTITY {a.task}")
+        return 2
+    fields, fm_start, _ = frontmatter(open(path, encoding="utf-8").read())
+    if fm_start < 0:
+        return refuse("REFUSED", a.task, "no frontmatter block")
+    wt, tpls = bound_templates(fields, table)
+    if not tpls:
+        print(f"NO-TEMPLATE {wt or '(none)'}: nothing to walk against")
+        return 3
+    current = fields.get("current_node", "").strip().strip("'\"")
+    target = a.node
+    if current:
+        of_record = next((t for t in tpls if current in template_nodes(template_file(a.rendered_dir, t))), None)
+        if of_record is None:
+            return refuse("REFUSED-TRANSITION", a.task,
+                          f"recorded position '{current}' is STALE — not in {', '.join(tpls)}; nothing to walk from")
+        tfile = template_file(a.rendered_dir, of_record)
+        if target not in template_nodes(tfile):
+            return refuse("REFUSED-TRANSITION", a.task,
+                          f"'{target}' is not a node of the template of record {os.path.relpath(tfile, a.root)}")
+        route = _shortest_path(template_flows(tfile), current, target)
+        if route is None:
+            return refuse("REFUSED-TRANSITION", a.task,
+                          f"no path from {current} to {target} in {os.path.relpath(tfile, a.root)}")
+        if len(route) == 1:
+            print(f"NODE {target} {of_record} (already there, nothing written)")
+            return 0
+        hops = route[1:]
+    else:
+        # An instance starts at the start — of the template that contains the target.
+        of_record = next((t for t in tpls if target in template_nodes(template_file(a.rendered_dir, t))), None)
+        if of_record is None:
+            return refuse("REFUSED-TRANSITION", a.task,
+                          f"'{target}' is not a node of any bound template ({', '.join(tpls)})")
+        tfile = template_file(a.rendered_dir, of_record)
+        flows = template_flows(tfile)
+        best = None
+        for start in template_start_events(tfile):
+            r = _shortest_path(flows, start, target)
+            if r is not None and (best is None or len(r) < len(best)):
+                best = r
+        if best is None:
+            return refuse("REFUSED-TRANSITION", a.task,
+                          f"no path from any startEvent to {target} in {os.path.relpath(tfile, a.root)}")
+        hops = best
+
+    def announce(prev, node, tpl, _path):
+        print(f"START {node}" if prev == "NO-POSITION" else f"HOP {prev} -> {node}")
+
+    for hop in hops:
+        rc = _advance_core(a, table, hop, announce, prefer=of_record)
+        if rc != 0:
+            return rc
+    print(f"NODE {target} {of_record} (walked {len(hops)} hop(s), recorded in {os.path.relpath(path, a.root)})")
+    return 0
 
 
 def cmd_resolve(a, table):
@@ -427,6 +530,7 @@ def main(argv=None):
     s = sub.add_parser("get"); s.add_argument("task"); s.set_defaults(fn=cmd_get)
     s = sub.add_parser("set"); s.add_argument("task"); s.add_argument("node"); s.set_defaults(fn=cmd_set)
     s = sub.add_parser("advance"); s.add_argument("task"); s.add_argument("node"); s.set_defaults(fn=cmd_advance)
+    s = sub.add_parser("walk"); s.add_argument("task"); s.add_argument("node"); s.set_defaults(fn=cmd_walk)
     s = sub.add_parser("resolve"); s.add_argument("task"); s.set_defaults(fn=cmd_resolve)
     s = sub.add_parser("instances"); s.add_argument("template"); s.set_defaults(fn=cmd_instances)
     s = sub.add_parser("roundtrip"); s.add_argument("templates", nargs="*"); s.set_defaults(fn=cmd_roundtrip)

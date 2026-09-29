@@ -127,7 +127,7 @@ g_out_of_order_refused_unchanged() {
 g_refusal_names_current_target_file_successors() {
     local out; out=$(run advance T-9971 frw_10_finalize)
     [[ "$out" == REFUSED-TRANSITION\ T-9971:* ]] && [[ "$out" == *frw_3_start*frw_10_finalize* ]] \
-        && [[ "$out" == *"$TPL"* ]] && [[ "$out" == *"successor(s) of frw_3_start: agt_2_perform"* ]] \
+        && [[ "$out" == *"$TPL"* ]] && [[ "$out" == *"successor(s) of frw_3_start in $TPL: agt_2_perform"* ]] \
         && ok refusal_names_current_target_file_successors || bad refusal_names_current_target_file_successors "out=$out"
 }
 g_backwards_refused() {
@@ -168,7 +168,7 @@ src=open(sys.argv[1]).read()
 anchor='# MUTATION-ANCHOR successor-check'
 i=src.find(anchor)
 if i<0: sys.exit("mutation anchor not found")
-probe='if a.node in succ:'
+probe='if node in succ:'
 j=src.find(probe, i)
 if j<0: sys.exit("successor test not found after anchor")
 open(sys.argv[2],'w').write(src[:j]+'if True:  # MUTANT: successor test disabled'+src[j+len(probe):])

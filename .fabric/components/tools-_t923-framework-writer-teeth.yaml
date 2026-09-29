@@ -1,0 +1,21 @@
+id: tools/_t923-framework-writer-teeth.sh
+name: _t923-framework-writer-teeth
+type: script
+subsystem: instruments
+location: tools/_t923-framework-writer-teeth.sh
+tags: []
+
+purpose: "T-923 (arc-005) — teeth for \"the framework is the writer\"."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-29
+created_by: unknown

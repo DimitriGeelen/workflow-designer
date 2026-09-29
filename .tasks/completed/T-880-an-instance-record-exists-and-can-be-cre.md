@@ -10,7 +10,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-current_node: frw_6_run
+current_node: frw_11_task
 owner: agent
 horizon: null
 tags: [arc:process-instances]

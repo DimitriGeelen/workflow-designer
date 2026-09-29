@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-923: The framework is the writer: update-task.sh transitions advance the instance node they ARE, through the T-882 guard
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-29T06:59:51Z
+# ============================================================================
+
+task_id: T-923
+task_name: "The framework is the writer: update-task.sh transitions advance the instance node they ARE, through the T-882 guard"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-29T00:03:16Z
+completed: 2026-09-29T06:59:29Z
+duration_days: 0
+updates_count: 5
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  OBS-433 (T-880) and T-882's close. A recorded current_node goes stale at the next status transition because the agent is the writer and the framework is the mover. T-882 delivered the guarded advance; nothing calls it yet, so 193 live entities stay NO-POSITION and the one recorded node (T-880, frw_6_run in completed/) is wrong by four hops. Scope: update-task.sh's own transitions call 'instance-node.py advance' for the node they are — captured→started-work is frw_3_start, gate battery is frw_6_run, refusal at frw_7_all, partial-complete is frw_8_partial, finalize is frw_10_finalize then frw_11_task — and a refusal from the guard is surfaced, not swallowed. Open design question for the ACs: an entity at NO-POSITION cannot advance mid-flow by construction (T-882), so the first framework-driven move must either place (set) from NO-POSITION or walk the prefix from frw_1_task; choose and pin it. Sequenced with T-883 (refusals land in the audit log).
+
+# Key outcomes
+outcomes:
+  - '**`walk` takes the shortest legal path and shows every hop.** A fixture on `frw_3_start` walked to `frw_4_enter` exits 0, prints `HOP frw_3_start -> agt_2_perform`, `HOP agt_2_perform -> frw_5_outcome`, `HOP frw_5_outcome -> frw_4_enter` in that order, and the record reads `frw_4_enter` exactly once.'
+  - '**`walk` refuses when no path exists and writes nothing.** A fixture on `frw_11_task` walked to `frw_4_enter` exits 1 with `REFUSED-TRANSITION` naming the template file; the record still reads `frw_11_task`.'
+  - '**`walk` from NO-POSITION starts at the start.** A fixture with no position walked to `frw_3_start` prints hops beginning `HOP frw_1_task -> frw_2_build` and lands on `frw_3_start`; an inception fixture walked to `hum_2_decision` starts at `frw_1_inception` (the template containing the target).'
+  - '**`walk` is idempotent and legitimacy is read from the artefact.** Walking to the node already recorded exits 0 and does not rewrite the file. With a temporary rendered dir whose `task-lifecycle.bpmn` lacks the `frw_2_build -> frw_3_start` flow, the NO-POSITION walk to `frw_3_start` is `REFUSED-TRANSITION` (no path), while the same walk against the real artefact succeeds — the control that proves the refusal came from the artefact, not the tool.'
+  - '**The transition table names real nodes.** `fw_instance_node_for_transition` returns `frw_3_start` for captured→started-work, `agt_2_perform` for issues→started-work, `frw_4_enter` for →issues, `frw_8_partial` for →work-completed partial, `frw_11_task` for →work-completed, and the empty string for started-work→captured; every non-empty value is an `id=` in `examples/aef-processes/rendered/task-lifecycle.bpmn`.'
+  - '**`fw_instance_walk` never fails the caller, and never hides a refusal.** Returns 0 in all four cases; on success stdout carries `position:` lines; on a refused walk stderr carries `WARNING:` and the tool''s `REFUSED-TRANSITION` text and the record is unchanged; on NO-TEMPLATE it prints nothing; with the tool path absent it prints nothing and touches nothing.'
+  - '**`update-task.sh` is wired at every named point and still parses.** It sources `lib/instance-position.sh` guarded with `|| true`; `fw_instance_walk` appears at ≥ 7 call sites (status write, battery start, P-010 refusal, P-011 refusal, partial, finalize fresh, finalize re-check); `bash -n` passes; the T-880 static pin (path exists, `frw_7_all` named) still holds.'
+  - '**Teeth.** `tools/_t923-framework-writer-teeth.sh` pins all of the above against `mktemp` fixtures and a temporary rendered dir; `PASS n / FAIL 0`.'
+  - '**Live: this task''s own record is written by the framework.** Driven `started-work → issues → started-work` before close, `get T-923` reads `NODE frw_4_enter` then `NODE agt_2_perform` (each output pasted in `## Updates`); at close the framework walks it to `frw_11_task` in `completed/` (visible in the commit, not in P-011 — verification runs before the move).'
+  - '**Live: the one stale record is corrected through the guard.** `walk T-880 frw_11_task` prints `HOP frw_6_run -> frw_7_all`, `-> frw_9_human`, `-> frw_10_finalize`, `-> frw_11_task` and `get T-880` reads `NODE frw_11_task task-lifecycle`; output pasted in `## Updates`, diff in the commit. Not in P-011 (PL-285: a leg pinned to a live task id invalidates itself).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-29 — the framework''s verb is a walk, the agent''s is a hop'
+    chose: 'a separate `walk` verb for the framework (shortest path over the artefact''s flows, every hop printed and each taken through the same core as `advance`), `advance` unchanged for a single hop; a refused walk is a `WARNING` and never fails the status change.'
+    rationale: 'the framework knows its target node, not the agent-lane nodes in between; PD-345 rejected multi-hop *advance* because it hides which hop was validated — `walk` prints each one, so the objection does not apply. Status remains governed by `status-transitions.yaml`; the map records position. Making the map refuse a STATUS change is the `strict` rung SD-8 keeps out of scope, and it would also turn every legacy entity''s first transition into a failure.'
+    alternatives_rejected: ['(a) `set` (placement) from NO-POSITION at the target node — cheaper, but the record would then say nothing about how the entity got there, and 193 entities would carry a position with no history; (b) a hop table in bash per transition — a successor table outside the artefact, the thing T-882 refused to have in the tool; (c) refusing the status change on a refused walk — `strict`, out of scope, and wrong for the legacy corpus.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 416 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:process-instances]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 416
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-923-the-framework-is-the-writer-update-tasks.md
+generated_by: context-agent-hybrid

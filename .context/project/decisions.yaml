@@ -2565,3 +2565,10 @@ decisions:
     date: 2026-09-29
     task: T-882
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-346
+    decision: "a separate `walk` verb for the framework (shortest path over the artefact's flows, every hop printed and each taken through the same core as `advance`), `advance` unchanged for a single hop; a refused walk is a `WARNING` and never fails the status change."
+    scope: project
+    date: 2026-09-29
+    task: T-923
+    rationale: "Auto-captured from task file on completion"
