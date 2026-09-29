@@ -3998,3 +3998,59 @@ concerns:
     for all three T-841 specs including the two that rank nothing. Until a check reports level
     distribution and modal share over a corpus, a worthless spec is indistinguishable from a
     working one at the moment it ships. Both sent to AEF.
+
+- id: G-081
+  type: gap
+  status: watching
+  severity: high
+  title: >
+    A ruling that discharges a recorded blocker fires nothing: T-785 sat in `issues` for 7 days
+    after the operator ruling it named as its blocker had already been made
+  detected: 2026-09-29
+  origin_task: T-785
+  context: >
+    Both halves were in the register and correctly filed. T-785 moved to `issues` on
+    2026-09-21T22:40 with the blocker named verbatim in its status-update reason: "Blocked by
+    T-353's open operator ruling: the repair requires adding sibling control legs to T-778's
+    Verification block, and T-778 is in .tasks/completed/. Whether an agent may edit Verification
+    blocks there is exactly what T-353 asks." The operator ruled the next day: PD-308
+    (2026-09-22, T-802) — NARROW YES, an agent may APPEND a sibling control leg to a Verification
+    block inside .tasks/completed/, additive only, logged Tier 2.
+
+    Nothing joined them. The task stayed `issues`, and the bridge baseline it was opened to
+    repair stayed red, for seven days.
+
+    THIS IS NOT G-030 OR G-046, and the difference is the point. Those two are about a blocker
+    being INVISIBLE — a decision filed as prose, or as an Agent AC, that no review surface can
+    see. Here the blocker was visible and correctly shaped, the ruling was made, recorded with
+    full rationale, and machine-readable in decisions.yaml. The missing edge is the BACK-LINK:
+    a decision lands, and nothing asks which tasks recorded themselves as waiting on it.
+
+    Sharpest detail: `fw healing diagnose T-785` PRINTS PD-308 under "Related knowledge". The
+    proximity is computed and rendered to the agent, and it still says nothing about
+    discharging the blocker — so the surface that exists to diagnose a blocked task showed the
+    unblocking ruling as trivia beside it.
+  evidence: >
+    MEASURED 2026-09-29. Blocked 2026-09-21T22:40 (T-785 status-update reason names T-353).
+    Ruling PD-308 dated 2026-09-22 in .context/project/decisions.yaml. Interval: 7 days.
+    During that interval the census ratchet was red (baseline 74, current 75), so no change to
+    tests/fixtures/aef-bpmn — 832's contractual reference corpus for AEF's Child-2 forward
+    bridge — could be shown safe. `fw healing diagnose T-785` on 2026-09-29 printed PD-308 in
+    its related-knowledge block while classifying the failure as "dependency" with generic
+    recovery advice. Population unmeasured: how many other tasks in `issues` name a blocker
+    that has since been ruled is exactly the census this entry asks for.
+  decision_trigger: >
+    A check reports, for every task in status `issues` (and every unticked AC that names a
+    pending ruling), whether the decision it names has since been recorded — by id (PD-NNN,
+    T-NNN, SQ-N) parsed from the blocker text and looked up in decisions.yaml — and surfaces
+    the discharged ones. Mutation-checked in both directions: a task whose named decision is
+    still open must NOT be reported, or the check reports every blocked task and is switched
+    off. Closing because T-785 was unblocked is NOT closure: that is mitigation of one
+    instance, and the gap is that nothing connects a landed ruling to what was waiting on it.
+    First step is the census — how many tasks currently in `issues` name a blocker already
+    ruled?
+  sovereignty_note: >
+    Whether a discharged blocker should AUTO-transition the task out of `issues`, or only be
+    reported, is not decided here. Auto-transition would move a task's status on the strength
+    of a text match, which is the agent deciding rather than proposing. Surfaced, not taken.
+  related_tasks: ['T-785', 'T-353', 'T-802', 'T-669']
