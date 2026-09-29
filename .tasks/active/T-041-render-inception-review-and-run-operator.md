@@ -6,7 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: human
+owner: agent
 horizon: later
 tags: []
 components: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T07:58:13Z
-last_update: '2026-09-26T09:06:18Z'
+last_update: 2026-09-29T17:23:01Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -303,3 +303,6 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 fai
 ### 2026-08-23T10:23:54Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: preserved at started-work (T-1589 shipping evidence)
+
+### 2026-09-29T17:23:01Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

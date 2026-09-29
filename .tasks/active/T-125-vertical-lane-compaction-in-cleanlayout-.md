@@ -10,7 +10,7 @@ description: >
 
 status: captured
 workflow_type: build
-owner: human
+owner: agent
 horizon: later
 tags: []
 components: []
@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T09:06:43Z
-last_update: '2026-09-26T09:06:18Z'
+last_update: 2026-09-29T17:23:02Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -332,3 +332,6 @@ bash tests/check-corpus-geometry.sh
 ### 2026-08-23T10:24:08Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: started-work → captured (auto-sync)
+
+### 2026-09-29T17:23:02Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

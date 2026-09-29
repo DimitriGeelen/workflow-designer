@@ -16,7 +16,7 @@ description: >
 status: started-work
 workflow_type: build
 current_node: frw_6_run
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -32,7 +32,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T23:43:01Z
-last_update: 2026-09-28T23:16:10Z
+last_update: 2026-09-29T17:23:05Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -438,3 +438,6 @@ and the same will be true of whoever writes the instrument next.
 
 This task builds no guard, by its own scope fence. Three bare attributes, one unexercisable and
 one write-only branch are filed as the follow-up.
+
+### 2026-09-29T17:23:05Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

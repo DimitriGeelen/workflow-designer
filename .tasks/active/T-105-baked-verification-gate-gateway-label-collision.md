@@ -12,13 +12,13 @@ description: >
   label footprint).
 status: started-work
 workflow_type: build
-owner: human
+owner: agent
 horizon: later
 tags: [ui, editor, bug, corpus]
 components: []
 related_tasks: [T-101, T-082, T-089, T-083]
 created: 2026-07-05T17:30:00Z
-last_update: '2026-09-26T09:06:18Z'
+last_update: 2026-09-29T17:23:02Z
 date_finished:
 bvp_scores_proposed:
   - ts: '2026-08-16T12:33:25Z'
@@ -268,3 +268,6 @@ treat "re-bake" as fixing T-105.
 ### 2026-08-23T10:24:08Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: preserved at started-work (T-1589 shipping evidence)
+
+### 2026-09-29T17:23:02Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

@@ -8,14 +8,14 @@ description: >
 
 status: started-work
 workflow_type: inception
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
 related_tasks: []
 arc_id: ewcr-governed-delivery
 created: 2026-09-05T14:17:12Z
-last_update: '2026-09-26T09:06:25Z'
+last_update: 2026-09-29T17:23:04Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -353,3 +353,6 @@ Rationale:
 GO, scoped to Arc 2's Designer-owned half ONLY: prove the browser/editor cannot reach execution, secret, or ledger authority. Of the six undecomposed arcs, five have a Designer column depending on an AEF artefact that does not exist yet (Arc 1 registry/ledger, Arc 3 action catalogue, Arc 5 prompt/context envelope, Arc 6 router; Arc 4 needs the projection API, and its one independent slice - diagram-to-Fabric navigation - already shipped as T-611). Arc 2's Designer column is the exception: it is a falsifiable claim about OUR OWN code, provable today with nothing from the counterparty. It is also the only one whose value survives an Arc-0 that never exits, because an isolation proof is evidence the operator can act on regardless of whether AEF attests. Recommending AGAINST opening Arcs 1/3/5/6 now: decomposing work whose inputs are counterparty-blocked manufactures a backlog that measures as progress and cannot move.
 
 Evidence:
+
+### 2026-09-29T17:23:04Z — status-update [task-update-agent]
+- **Change:** owner: human → agent
