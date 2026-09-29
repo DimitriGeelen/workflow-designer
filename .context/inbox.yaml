@@ -2631,3 +2631,45 @@ observations:
   tags: [doc-drift]
   status: pending
   promoted_to: null
+- id: OBS-432
+  text: "P-011 verification runner is killed by a leg containing 'exit 1': fw task verify T-906 ran leg [2] (a for-loop with '|| exit 1'), printed nothing for it, printed no leg [3] and no 'Verification: n/3' summary, and returned as if done. The runner evals legs in its own shell, so a leg's exit is the runner's exit — a verification block can terminate the gate before the failing leg is reported, and a block whose FIRST leg exits 0 via 'exit 0' would read as a pass with the rest unrun. Reproduced 2026-09-29 under procAsFit round 1; fixed at the leg (subshell) not at the runner — one lock at a time."
+  captured: 2026-09-28T22:56:55Z
+  context_task: T-906
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-433
+  text: "A recorded current_node does not advance when the lifecycle it models advances. T-880 recorded frw_6_run on itself while open; fw task update --status work-completed moved it to completed/ (node frw_10_finalize then frw_11_task in task-lifecycle.bpmn) and the record still says frw_6_run — and the task gate correctly refused the agent's post-close edit. So every position recorded by hand is stale from the next status transition onward, and 'get' cannot tell 'stale by status' from 'current' because the transition is not in the template's vocabulary of the record. This is T-882's scope (advance validates against the template): the natural hook is update-task.sh's own transitions writing the node they ARE (frw_3_start, frw_8_partial, frw_10_finalize, frw_11_task), which would make the framework the writer and the agent a reader."
+  captured: 2026-09-28T23:06:47Z
+  context_task: T-880
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-434
+  text: "fw healing resolve T-XXX --mitigation '...' is documented (CLAUDE.md, healing.sh usage) as a two-argument verb but then PROMPTS interactively for a 'short name for this failure pattern' with no flag to supply it. Run from a non-interactive agent shell it blocked for 321s until killed (T-890, 2026-09-29). With stdin closed it prints the prompt and exits 0 having recorded nothing — an exit-0 no-op. Needs a --name flag (or derive a default from --mitigation) and a non-zero exit when the name cannot be read."
+  captured: 2026-09-28T23:25:24Z
+  context_task: T-890
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-435
+  text: "fw fabric register examples/aef-processes/template-binding.yaml printed 'REFUSED: no subsystem rule matches — add a paths: pattern to .fabric/subsystems.yaml' and exited — and ALSO wrote .fabric/components/examples-aef-processes-template-binding.yaml with subsystem: unknown. A refusal that leaves the artefact it refused is the T-3129-style exit-0-no-op inverted: the caller reads REFUSED and moves on, the tree carries a card the refusal said it would not create, and fabric drift will later report the file as registered. Either refuse and write nothing, or write and say so. (T-863 covers the subsystem-assignment side; this is the write-on-refuse side.) Measured 2026-09-29 under T-881."
+  captured: 2026-09-28T23:26:55Z
+  context_task: T-881
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-436
+  text: "YAML-form IW-9 check reads the LANE only: _check_iw9_authority (tools/validate-workflow.py:896) computes authority = lane_authority.get(node.lane) and never consults the node's own aef.authority, while the XML form's twin applies T-889 clause 2 'element wins' (elem_authority if present else lane). Consequence: a YAML node with aef.authority: initiative in a sovereignty lane passes O-3/O-1 on the YAML side by its lane and would be judged by its element on the XML side after the bridge projects it — the two forms disagree about the same map. This is a RELATION gap (which carrier is authority-of-record), distinct from the vocabulary gap T-902 closed. Not built under T-902 (one bug, one task); needs its own task once T-895 migrates values onto elements, because today only 6 corpus maps carry the key on nodes and all sit in lanes that agree."
+  captured: 2026-09-28T23:37:52Z
+  context_task: T-902
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-437
+  text: "check-active-task keys its 'workable status' test on the FOCUSED task, not on the file being written: with focus on T-882 (started-work), 'python3 tools/instance-node.py advance T-880 frw_7_all' rewrote current_node in .tasks/completed/T-880-*.md and nothing refused it (2026-09-29, restored from HEAD by hand, diff was one line). In procAsFit round 1 the same tool's 'set T-880 …' WAS refused — because focus was T-880 itself, whose status was work-completed (check-active-task.sh:852-871). So a completed task's record is protected only while it is the focus; under any other task's focus any script write lands. Two consequences: (1) the post-close protection of completed/ records is an accident of focus, not a property of the path; (2) instance-node.py has no --dry-run, so 'what would advance do' cannot be asked without doing it — T-884 (designer shows position) will want a read-only 'next' or 'successors' verb anyway."
+  captured: 2026-09-29T00:04:00Z
+  context_task: T-882
+  tags: []
+  status: pending
+  promoted_to: null

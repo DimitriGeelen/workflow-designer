@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-882: Advance validates against the template and refuses an illegitimate transition
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-29T00:04:37Z
+# ============================================================================
+
+task_id: T-882
+task_name: "Advance validates against the template and refuses an illegitimate transition"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-26T22:43:18Z
+completed: 2026-09-29T00:04:19Z
+duration_days: 3
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  arc-005 S3/B8. CONTINGENT on T-878 AND T-879 GO. The refusal is the deliverable, not the advance — an advance that only ever succeeds demonstrates no guard.
+
+# Key outcomes
+outcomes:
+  - '**A legal transition is recorded.** A fixture standing on `frw_3_start` advances to `agt_2_perform` with exit 0; `current_node:` reads `agt_2_perform` afterwards and appears exactly once in the frontmatter.'
+  - '**An out-of-order advance is refused and changes nothing.** The same fixture advancing to `frw_10_finalize` exits 1 with a line beginning `REFUSED-TRANSITION` that names the current node, the target, the template file (`examples/aef-processes/rendered/task-lifecycle.bpmn`) and the legal successor(s); the frontmatter still reads `frw_3_start`.'
+  - '**Backwards and past-the-end are refused for the same reason.** `agt_2_perform → frw_3_start` (no such flow) and `frw_11_task → anything` (end event, no outgoing flow) both exit 1 with `REFUSED-TRANSITION`; the end-event refusal says the successor set is empty.'
+  - '**An exclusive gateway admits either branch and nothing else.** From `frw_5_outcome`, `frw_4_enter` and `agt_3_request` are each legal (exit 0), and `frw_6_run` — two hops away — is refused.'
+  - '**From NO-POSITION an instance starts at the start.** `advance` onto `frw_1_task` from no recorded position exits 0; `advance` onto `frw_3_start` from no recorded position exits 1 and the refusal names `frw_1_task`.'
+  - '**`set` is placement, and placement is one-shot.** `set` onto a mid-flow node from NO-POSITION still succeeds (the backfill path); `set` on an entity that already has a position exits 1 with `REFUSED-PLACED` and the record is unchanged — so no verb in the tool moves a recorded position except along a flow. T-880''s control `set_replaces_not_duplicates` is rewritten to this contract (recorded in Evolution) and T-880''s and T-881''s suites are green under it, including their mutation runs.'
+  - '**An inception moves within one template.** An inception fixture on `hum_1_record` advances to `hum_2_decision` (inception-lifecycle) with exit 0; from `hum_2_decision` to `frw_10_finalize` (a real node, in task-lifecycle) is `REFUSED-TRANSITION`.'
+  - '**Legitimacy is read from the artefact, not from the tool.** Control first (PL-328): the pattern for a lane-prefixed node id hits in the rendered artefact; the same pattern hits NOWHERE in the tool''s non-comment, non-docstring code. And the mutation run below proves the successor check is the thing doing the refusing.'
+  - '**Teeth.** `tools/_t882-advance-teeth.sh` runs the controls first, then the gate cases, and `--mutation` disables the successor check at a named anchor: every control must stay green (else `MUTATION SETUP BROKEN`) and every refusal case must go red (else `MUTATION FAILED`).'
+  - '**The live corpus is not moved by this task.** `roundtrip` reports `ROUNDTRIP-OK` for both bound templates after the change, and the task''s diff writes no `current_node:` line under `.tasks/` (fixtures live under `mktemp`).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '(untitled)'
+    chose: '`set` is placement-only (first position; `REFUSED-PLACED` thereafter) and `advance` is the only mover, single hop, along the artefact''s `sequenceFlow`s; from NO-POSITION `advance` lands only on a `startEvent`.'
+    rationale: 'the refusal is the deliverable; a mover with a free setter beside it refuses nothing. Single hop keeps every transition validated and keeps the surface one verb. The start rule is what "an instance starts at the start" means; the placement path exists because 193 live entities are mid-life with nothing recorded (T-878 IW-5), and re-deriving their prefix is not this task''s problem.'
+    alternatives_rejected: ['(a) `set --force` / `--reset` for re-placement — a logged bypass on the very guard being introduced, before anything even calls it; if a real need appears it comes with its own task and its own audit line (T-883''s domain). (b) Multi-hop `advance A..B` with path search — hides which hop was validated and invites "advance to the end". (c) Token semantics for parallel/inclusive gateways — no bound template has one; documented as a stated limitation instead of speculative code.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2961 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:process-instances]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2961
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-882-advance-validates-against-the-template-a.md
+generated_by: context-agent-hybrid

@@ -16,12 +16,30 @@ States, kept distinct on purpose (T-878 IW-5; NOT EVALUATED is not PASSED):
   NO-TEMPLATE <type>        workflow_type maps to no template — a different absence
   NO-ENTITY <id>            no task file for that id
 
+Moving (T-882, arc-005 S3). A recorded position moves ONLY along a sequenceFlow the
+template of record carries — read from the artefact, never from a table in this file:
+  REFUSED-TRANSITION        `advance` asked for a hop the template has no flow for
+                            (out of order, backwards, past an end event, across
+                            templates, or a first hop that is not onto a startEvent).
+                            Names current, target, template file and legal successors.
+  REFUSED-PLACED            `set` on an entity that already has a position. `set` is
+                            PLACEMENT — one shot, for entities that predate this
+                            mechanism — not a move. Without this refusal `set` would be
+                            a bypass beside `advance` and the guard would be decoration.
+Every exclusiveGateway in the bound templates branches on its outgoing flows, so any
+ONE outgoing flow is a legal hop. No token semantics for parallel/inclusive gateways:
+a sequenceFlow is treated as a legal single-token transition, nothing more.
+
 Usage:
   instance-node.py bind  <workflow_type>            resolved template file(s), or NO-TEMPLATE
   instance-node.py nodes <template-id>              node ids in the rendered artefact
   instance-node.py get   <T-XXX>                    one of the four states above
-  instance-node.py set   <T-XXX> <node-id>          record; REFUSED if the node is not in the
-                                                    entity's bound template(s), naming them
+  instance-node.py set   <T-XXX> <node-id>          PLACE (first position only); REFUSED if the node
+                                                    is not in the entity's bound template(s), naming
+                                                    them; REFUSED-PLACED if a position is recorded
+  instance-node.py advance <T-XXX> <node-id>        MOVE along a sequenceFlow of the template of record;
+                                                    from NO-POSITION only onto a startEvent;
+                                                    REFUSED-TRANSITION otherwise (exit 1)
   instance-node.py resolve <T-XXX>                  forward resolution (T-881): TEMPLATE <file> per bound
                                                     template, then NODE <id> <template> | NO-POSITION
   instance-node.py instances <template-id>          reverse resolution (T-881): every LIVE entity bound
@@ -40,8 +58,9 @@ Options:
   --binding FILE     derivation table (default: <root>/examples/aef-processes/template-binding.yaml)
   --rendered-dir DIR template artefacts (default: <root>/examples/aef-processes/rendered)
 
-Exit codes: 0 ok (NODE / NO-POSITION / recorded / INSTANCES / NO-INSTANCES / ROUNDTRIP-OK)
-            1 REFUSED / STALE / ROUNDTRIP-FAIL · 2 NO-ENTITY · 3 NO-TEMPLATE / TEMPLATE-UNKNOWN
+Exit codes: 0 ok (NODE / NO-POSITION / recorded / advanced / INSTANCES / NO-INSTANCES / ROUNDTRIP-OK)
+            1 REFUSED / REFUSED-PLACED / REFUSED-TRANSITION / STALE / ROUNDTRIP-FAIL
+            2 NO-ENTITY · 3 NO-TEMPLATE / TEMPLATE-UNKNOWN
 """
 import argparse
 import glob
@@ -98,6 +117,54 @@ def template_nodes(path):
         if tag in FLOW_NODE_TAGS and el.get("id"):
             ids.append(el.get("id"))
     return ids
+
+
+def _bpmn_iter(path, wanted):
+    if not os.path.isfile(path):
+        sys.exit(f"template artefact not found: {path}")
+    for el in ET.parse(path).getroot().iter():
+        if not isinstance(el.tag, str) or not el.tag.startswith("{" + BPMN_NS + "}"):
+            continue
+        if el.tag.split("}", 1)[1] == wanted:
+            yield el
+
+
+def template_flows(path):
+    """source node id -> [target node ids], read from the artefact's sequenceFlow elements.
+    This is the ONLY source of legitimacy for a move (T-882): no successor table lives here."""
+    flows = {}
+    for el in _bpmn_iter(path, "sequenceFlow"):
+        src, tgt = el.get("sourceRef"), el.get("targetRef")
+        if src and tgt:
+            flows.setdefault(src, []).append(tgt)
+    return flows
+
+
+def template_start_events(path):
+    return [el.get("id") for el in _bpmn_iter(path, "startEvent") if el.get("id")]
+
+
+def refuse(kind, task, detail):
+    """Single emission path for every refusal, so the audit-log landing (T-883) has one hook."""
+    print(f"{kind} {task}: {detail}")
+    return 1
+
+
+def _write_node(path, text, fm_start, fm_end, node):
+    lines = text.split("\n")
+    new_line = f"current_node: {node}"
+    for i in range(fm_start + 1, fm_end):
+        if re.match(r"^current_node:", lines[i]):
+            lines[i] = new_line
+            break
+    else:
+        for i in range(fm_start + 1, fm_end):
+            if re.match(r"^workflow_type:", lines[i]):
+                lines.insert(i + 1, new_line)
+                break
+        else:
+            lines.insert(fm_end, new_line)
+    open(path, "w", encoding="utf-8").write("\n".join(lines))
 
 
 def find_task(tasks_dirs, task_id):
@@ -182,6 +249,12 @@ def cmd_set(a, table):
     if not tpls:
         print(f"NO-TEMPLATE {wt or '(none)'}: nothing to record a position against")
         return 3
+    placed = fields.get("current_node", "").strip().strip("'\"")
+    if placed:
+        # T-882: set is placement, and placement is one-shot. A recorded position moves
+        # only along a flow (advance); a setter that re-placed freely would be a bypass.
+        return refuse("REFUSED-PLACED", a.task,
+                      f"position already recorded ({placed}); move it with: advance {a.task} <node>")
     checked = []
     valid_in = None
     for t in tpls:
@@ -195,22 +268,58 @@ def cmd_set(a, table):
         print(f"REFUSED {a.task}: node '{a.node}' is not in the bound template(s) checked: "
               f"{', '.join(checked)}")
         return 1
-    lines = text.split("\n")
-    new_line = f"current_node: {a.node}"
-    for i in range(fm_start + 1, fm_end):
-        if re.match(r"^current_node:", lines[i]):
-            lines[i] = new_line
-            break
-    else:
-        for i in range(fm_start + 1, fm_end):
-            if re.match(r"^workflow_type:", lines[i]):
-                lines.insert(i + 1, new_line)
-                break
-        else:
-            lines.insert(fm_end, new_line)
-    open(path, "w", encoding="utf-8").write("\n".join(lines))
+    _write_node(path, text, fm_start, fm_end, a.node)
     print(f"NODE {a.node} {valid_in} (recorded in {os.path.relpath(path, a.root)})")
     return 0
+
+
+def cmd_advance(a, table):
+    """Move along a sequenceFlow of the template of record (T-882). The refusal is the deliverable."""
+    path = find_task(a.tasks_dirs, a.task)
+    if not path:
+        print(f"NO-ENTITY {a.task}")
+        return 2
+    text = open(path, encoding="utf-8").read()
+    fields, fm_start, fm_end = frontmatter(text)
+    if fm_start < 0:
+        return refuse("REFUSED", a.task, "no frontmatter block")
+    wt, tpls = bound_templates(fields, table)
+    if not tpls:
+        print(f"NO-TEMPLATE {wt or '(none)'}: nothing to advance against")
+        return 3
+    current = fields.get("current_node", "").strip().strip("'\"")
+    if not current:
+        # An instance starts at the start. Placing a legacy entity mid-flow is `set`'s job.
+        starts = {t: template_start_events(template_file(a.rendered_dir, t)) for t in tpls}
+        for t, ids in starts.items():
+            if a.node in ids:
+                _write_node(path, text, fm_start, fm_end, a.node)
+                print(f"NODE {a.node} {t} (advanced from NO-POSITION, recorded in {os.path.relpath(path, a.root)})")
+                return 0
+        legal = "; ".join(f"{', '.join(ids)} in {os.path.relpath(template_file(a.rendered_dir, t), a.root)}"
+                          for t, ids in starts.items())
+        return refuse("REFUSED-TRANSITION", a.task,
+                      f"no position recorded and '{a.node}' is not a startEvent — an instance starts at the start; "
+                      f"legal first hop: {legal} (to place a pre-existing entity mid-flow use: set {a.task} <node>)")
+    of_record = None
+    for t in tpls:
+        if current in template_nodes(template_file(a.rendered_dir, t)):
+            of_record = t
+            break
+    if of_record is None:
+        return refuse("REFUSED-TRANSITION", a.task,
+                      f"recorded position '{current}' is STALE — not in {', '.join(tpls)}; nothing to advance from")
+    tfile = template_file(a.rendered_dir, of_record)
+    succ = template_flows(tfile).get(current, [])
+    # MUTATION-ANCHOR successor-check (teeth disable the flow test here)
+    if a.node in succ:
+        _write_node(path, text, fm_start, fm_end, a.node)
+        print(f"NODE {a.node} {of_record} (advanced from {current}, recorded in {os.path.relpath(path, a.root)})")
+        return 0
+    legal = ", ".join(succ) if succ else "(none — an end event has no outgoing flow)"
+    return refuse("REFUSED-TRANSITION", a.task,
+                  f"{current} -> {a.node} is not a sequenceFlow of {os.path.relpath(tfile, a.root)}; "
+                  f"legal successor(s) of {current}: {legal}")
 
 
 def cmd_resolve(a, table):
@@ -317,6 +426,7 @@ def main(argv=None):
     s = sub.add_parser("nodes"); s.add_argument("template"); s.set_defaults(fn=cmd_nodes)
     s = sub.add_parser("get"); s.add_argument("task"); s.set_defaults(fn=cmd_get)
     s = sub.add_parser("set"); s.add_argument("task"); s.add_argument("node"); s.set_defaults(fn=cmd_set)
+    s = sub.add_parser("advance"); s.add_argument("task"); s.add_argument("node"); s.set_defaults(fn=cmd_advance)
     s = sub.add_parser("resolve"); s.add_argument("task"); s.set_defaults(fn=cmd_resolve)
     s = sub.add_parser("instances"); s.add_argument("template"); s.set_defaults(fn=cmd_instances)
     s = sub.add_parser("roundtrip"); s.add_argument("templates", nargs="*"); s.set_defaults(fn=cmd_roundtrip)

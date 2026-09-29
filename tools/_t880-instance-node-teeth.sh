@@ -55,11 +55,14 @@ c_valid_node_recorded() {
         && [ "$(run get T-9981)" = "NODE frw_3_start task-lifecycle" ] \
         && ok valid_node_recorded || bad valid_node_recorded "rc=$rc out=$out"
 }
-c_set_replaces_not_duplicates() {
-    run set T-9984 frw_2_build >/dev/null
+c_set_is_placement_one_shot() {
+    # T-882 rewrote this control. It used to pin `set` REPLACING a recorded node (frw_11_task -> frw_2_build,
+    # an end event hopping back to a gateway) — which is exactly the illegitimate transition S3 exists to
+    # refuse. Now: set on a placed entity is REFUSED-PLACED, and the record is unchanged — still one line.
+    local out; out=$(run set T-9984 frw_2_build); local rc=$?
     local n; n=$(grep -c '^current_node:' "$FIX/T-9984-fixture.md")
-    [ "$n" = 1 ] && grep -q '^current_node: frw_2_build$' "$FIX/T-9984-fixture.md" \
-        && ok set_replaces_not_duplicates || bad set_replaces_not_duplicates "current_node lines=$n"
+    [ $rc -eq 1 ] && [[ "$out" == REFUSED-PLACED* ]] && [ "$n" = 1 ] && grep -q '^current_node: frw_11_task$' "$FIX/T-9984-fixture.md" \
+        && ok set_is_placement_one_shot || bad set_is_placement_one_shot "rc=$rc current_node lines=$n out=$out"
 }
 c_no_position_distinct() {
     local out; out=$(run get T-9982); local rc=$?
@@ -118,7 +121,7 @@ c_ac_gate_hint_points_at_existing_node() {
     [ -n "$path" ] && [ -f "$ROOT/$path" ] && [ -n "$node" ] && grep -q "id=\"$node\"" "$ROOT/$path" \
         && ok ac_gate_hint_points_at_existing_node || bad ac_gate_hint_points_at_existing_node "path=$path node=$node"
 }
-CONTROL_CASES="c_valid_node_recorded c_set_replaces_not_duplicates c_no_position_distinct c_no_template_distinct c_no_entity_distinct c_set_on_no_template_records_nothing c_bind_names_rendered_artefact c_bind_is_not_the_yaml c_inception_binds_both c_inception_accepts_inception_node c_no_new_identifier c_ac_gate_hint_points_at_existing_node"
+CONTROL_CASES="c_valid_node_recorded c_set_is_placement_one_shot c_no_position_distinct c_no_template_distinct c_no_entity_distinct c_set_on_no_template_records_nothing c_bind_names_rendered_artefact c_bind_is_not_the_yaml c_inception_binds_both c_inception_accepts_inception_node c_no_new_identifier c_ac_gate_hint_points_at_existing_node"
 
 # ── gate cases (must go red under the mutant) ────────────────────────────────
 g_arbitrary_string_refused() {

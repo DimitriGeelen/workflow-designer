@@ -2,15 +2,16 @@
 id: T-882
 name: "Advance validates against the template and refuses an illegitimate transition"
 description: >
-  arc-005 S3/B8. CONTINGENT on T-878 AND T-879 GO. The refusal is the deliverable, not the advance — an advance that only ever succeeds demonstrates no guard.
+  arc-005 S3/B8. CONTINGENT on T-878 AND T-879 GO. The refusal is the deliverable,
+  not the advance — an advance that only ever succeeds demonstrates no guard.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: later
+horizon: null
 tags: [arc:process-instances]
-components: []
-related_tasks: []
+components: [examples/aef-processes/template-binding.yaml, tools/instance-node.py, tools/_t880-instance-node-teeth.sh]
+related_tasks: [T-880, T-881, T-878, T-879]
 arc_id: process-instances
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
@@ -22,8 +23,8 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:43:18Z
-last_update: 2026-09-26T22:43:18Z
-date_finished: null
+last_update: 2026-09-29T00:04:19Z
+date_finished: 2026-09-29T00:04:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,53 +35,87 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+cost_estimate_proposed:
+  - ts: '2026-09-28T23:58:47Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius: 3
+      tier: 2
+      effort: 8
+    rationale: blast_radius=3 (3-components); tier=2 (workflow:build); effort=8 
+      (lines=287,acs=10)
+    rubric_sha: e4a00f38e801
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 2
+  F3: 4
+  F1: 3
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-28T23:58:47Z'
 ---
 
 # T-882: Advance validates against the template and refuses an illegitimate transition
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**arc-005 S3 / manifest item B8. Unblocked by T-878 GO and T-879 GO (both 2026-09-27); S2 closed 2026-09-29 (T-880 records a node, T-881 resolves both ways).** This slice adds the one thing G4 ("execution is observable and guarded") needs first: a move that the template can refuse.
+
+**What exists.** `tools/instance-node.py set <T-XXX> <node>` writes `current_node:` into the entity's frontmatter and refuses a node that is not in the entity's bound template(s) — membership only. It knows nothing about ORDER: `set T-9984 frw_2_build` on an entity standing on `frw_11_task` (the end event) succeeds today, and T-880's own suite pins that as a control. The template of record, `examples/aef-processes/rendered/task-lifecycle.bpmn`, carries 15 flow nodes and **18 `sequenceFlow`s**; nothing reads the flows.
+
+**What this task delivers: a verb that moves a position ONLY along a flow the template carries, and refuses everything else.**
+
+- `advance <T-XXX> <node>` — legal iff the bound template that contains the entity's current node has a `sequenceFlow` from current → target. Otherwise `REFUSED-TRANSITION`, exit 1, naming the current node, the target, the template FILE and the legal successors. Single hop: an entity three nodes behind advances three times, each validated.
+- **From NO-POSITION an instance starts at the start:** `advance` onto the template's `startEvent` is legal; onto any other node is refused, naming the start event.
+- **`set` becomes placement-only.** From NO-POSITION it still places anywhere — that is the backfill path for the 178+15 live entities that predate this mechanism (T-878 IW-5, measured under T-881). On an entity that already has a position it is `REFUSED-PLACED`: "position already recorded; move it with advance". This is what makes the guard real — without it, `set` is a bypass beside `advance` and the refusal is decoration.
+- Gateways: every `exclusiveGateway` in both bound templates branches on outgoing flows, so any ONE outgoing flow is a legal transition and the other branch is not "skipped", it is not taken. No token semantics for `parallelGateway`/`inclusiveGateway` (present only in `harvest-pipeline` and `audit-process`, which nothing binds to); the tool treats a sequenceFlow as a legal single-token transition and its docstring says so.
+- Legitimacy is READ from the artefact's `sequenceFlow` elements — no successor table is written into the tool. If the artefact is re-rendered with a different flow, the answer changes with it.
+
+**Explicitly not here (one task = one deliverable).**
+- *Audit-log landing* of the refusal — T-883. The refusal is emitted through a single `refuse()` path so T-883 has one hook, not four.
+- *The skipped human gateway* (V7 leg 2): `frw_9_human → frw_10_finalize` is a legal flow BY STRUCTURE; whether it was legitimate depends on the gateway's condition (human-owned with unchecked Human ACs), which is task state, not template structure. T-882 guards structure. The condition evaluator belongs with T-883's second leg.
+- *Making the framework the writer* (OBS-433): `update-task.sh`'s own transitions calling `advance` for the node they ARE (`frw_3_start`, `frw_8_partial`, `frw_10_finalize`, `frw_11_task`). Filed as its own task at close; until then the live corpus's 193 NO-POSITION records are untouched by this task.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **A legal transition is recorded.** A fixture standing on `frw_3_start` advances to `agt_2_perform` with exit 0; `current_node:` reads `agt_2_perform` afterwards and appears exactly once in the frontmatter.
+- [x] **An out-of-order advance is refused and changes nothing.** The same fixture advancing to `frw_10_finalize` exits 1 with a line beginning `REFUSED-TRANSITION` that names the current node, the target, the template file (`examples/aef-processes/rendered/task-lifecycle.bpmn`) and the legal successor(s); the frontmatter still reads `frw_3_start`.
+- [x] **Backwards and past-the-end are refused for the same reason.** `agt_2_perform → frw_3_start` (no such flow) and `frw_11_task → anything` (end event, no outgoing flow) both exit 1 with `REFUSED-TRANSITION`; the end-event refusal says the successor set is empty.
+- [x] **An exclusive gateway admits either branch and nothing else.** From `frw_5_outcome`, `frw_4_enter` and `agt_3_request` are each legal (exit 0), and `frw_6_run` — two hops away — is refused.
+- [x] **From NO-POSITION an instance starts at the start.** `advance` onto `frw_1_task` from no recorded position exits 0; `advance` onto `frw_3_start` from no recorded position exits 1 and the refusal names `frw_1_task`.
+- [x] **`set` is placement, and placement is one-shot.** `set` onto a mid-flow node from NO-POSITION still succeeds (the backfill path); `set` on an entity that already has a position exits 1 with `REFUSED-PLACED` and the record is unchanged — so no verb in the tool moves a recorded position except along a flow. T-880's control `set_replaces_not_duplicates` is rewritten to this contract (recorded in Evolution) and T-880's and T-881's suites are green under it, including their mutation runs.
+- [x] **An inception moves within one template.** An inception fixture on `hum_1_record` advances to `hum_2_decision` (inception-lifecycle) with exit 0; from `hum_2_decision` to `frw_10_finalize` (a real node, in task-lifecycle) is `REFUSED-TRANSITION`.
+- [x] **Legitimacy is read from the artefact, not from the tool.** Control first (PL-328): the pattern for a lane-prefixed node id hits in the rendered artefact; the same pattern hits NOWHERE in the tool's non-comment, non-docstring code. And the mutation run below proves the successor check is the thing doing the refusing.
+- [x] **Teeth.** `tools/_t882-advance-teeth.sh` runs the controls first, then the gate cases, and `--mutation` disables the successor check at a named anchor: every control must stay green (else `MUTATION SETUP BROKEN`) and every refusal case must go red (else `MUTATION FAILED`).
+- [x] **The live corpus is not moved by this task.** `roundtrip` reports `ROUNDTRIP-OK` for both bound templates after the change, and the task's diff writes no `current_node:` line under `.tasks/` (fixtures live under `mktemp`).
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+_None._ Every criterion is a deterministic shell check (T-1811 prefix-routing rule); the one human-visible half of this slice — seeing the refusal on the map — is T-884's deliverable.
 
 ## Verification
+
+# T-882 teeth: controls first, gate cases, then the mutation run must kill every refusal. Property-pinned, no live counts (T-3326).
+out=$(bash tools/_t882-advance-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+out=$(bash tools/_t882-advance-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
+# The S2 suites stay green under the new set contract, mutation runs included.
+out=$(bash tools/_t880-instance-node-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+out=$(bash tools/_t880-instance-node-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
+out=$(bash tools/_t881-resolution-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL 0$'
+out=$(bash tools/_t881-resolution-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'MUTATION OK'
+# Legitimacy comes from the artefact. Control first (PL-328): the node-id pattern hits in the artefact...
+grep -qE 'id="(frw|agt|hum)_[0-9]+_[a-z]+"' examples/aef-processes/rendered/task-lifecycle.bpmn
+# ...and nowhere in the tool's code once comments and the module docstring are stripped.
+out=$(python3 -c "import ast,sys;t=ast.parse(open('tools/instance-node.py').read());t.body=[n for n in t.body if not (isinstance(n,ast.Expr) and isinstance(getattr(n,'value',None),ast.Constant))];print(ast.unparse(t))"); ! echo "$out" | grep -qE '\b(frw|agt|hum)_[0-9]+_[a-z]+\b'
+# The live corpus was not moved: both bound templates still round-trip.
+out=$(python3 tools/instance-node.py roundtrip 2>&1); echo "$out" | grep -q '^ROUNDTRIP-OK task-lifecycle' && echo "$out" | grep -q '^ROUNDTRIP-OK inception-lifecycle' && ! echo "$out" | grep -q 'ROUNDTRIP-FAIL'
+python3 -m py_compile tools/instance-node.py
+bash -n tools/_t882-advance-teeth.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -248,6 +283,12 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-09-29 — the guard needed `set` to give something up
+- **What changed:** The design as filed was "add a verb that validates". Building it showed that an `advance` beside an order-blind `set` is decoration: any hop `advance` refuses, `set` performs. So `set` lost re-placement — it is now one-shot placement for the entities that predate the mechanism, and `REFUSED-PLACED` afterwards. That broke a T-880 control (`set_replaces_not_duplicates` pinned frw_11_task → frw_2_build, an end event hopping back to a gateway — precisely the transition S3 exists to refuse); the control was rewritten to the new contract, not deleted, and T-880's mutation run is still a kill. Second thing learned: the template's exclusive gateways make "either branch" trivially right, but the V7 *skipped human gateway* is not a structural question at all — `frw_9_human → frw_10_finalize` is a legal flow; whether it was legitimate is a condition on task state. T-882 guards structure only, and says so.
+- **Plan impact:** T-883's second leg needs a condition evaluator (human-owned + unchecked Human ACs at `frw_9_human`), not just a log line — that is more than "land the refusal in the audit log" and should be scoped as such. T-884 gets `template_flows()` for free (it will want successors to draw the refused edge).
+- **Triggered:** Filed the framework-as-writer task (OBS-433's fix) so the guard is exercised by the transitions that actually move entities; until then every live record is either NO-POSITION or stale. **One error of mine, recorded:** while demonstrating the refusal live on T-880 I also ran the *legal* hop (`frw_6_run → frw_7_all`) intending a dry look — the tool has no dry-run and it wrote into `.tasks/completed/`. Confirmed the diff was that one line and restored the file from HEAD. AC 10 held at close because of the revert, not because I was careful; the gate that refused the same class of write in round 1 (`check-active-task`) did not fire on a python-driven write under a different focus, and that is filed as an observation rather than relied on.
+
+
 ## Recommendation
 
 <!-- T-2945: same shape as inception.md's block — the gate that reads it
@@ -288,6 +329,11 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+- **Chose:** `set` is placement-only (first position; `REFUSED-PLACED` thereafter) and `advance` is the only mover, single hop, along the artefact's `sequenceFlow`s; from NO-POSITION `advance` lands only on a `startEvent`.
+- **Why:** the refusal is the deliverable; a mover with a free setter beside it refuses nothing. Single hop keeps every transition validated and keeps the surface one verb. The start rule is what "an instance starts at the start" means; the placement path exists because 193 live entities are mid-life with nothing recorded (T-878 IW-5), and re-deriving their prefix is not this task's problem.
+- **Rejected:** (a) `set --force` / `--reset` for re-placement — a logged bypass on the very guard being introduced, before anything even calls it; if a real need appears it comes with its own task and its own audit line (T-883's domain). (b) Multi-hop `advance A..B` with path search — hides which hop was validated and invites "advance to the end". (c) Token semantics for parallel/inclusive gateways — no bound template has one; documented as a stated limitation instead of speculative code.
+
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -304,3 +350,27 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-882-advance-validates-against-the-template-a.md
 - **Context:** Initial task creation
+
+### 2026-09-28T23:57:18Z — status-update [task-update-agent]
+- **Change:** horizon: later → now
+- **Reason:** T-874 filed this 'CONTINGENT on T-878 AND T-879 GO'; both are recorded GO (T-878 2026-09-27, T-879 2026-09-27) and S2 (T-880, T-881) closed 2026-09-29. The contingency the horizon encoded is met — procAsFit round 2 selection: G4 via arc-005 S3.
+
+### 2026-09-28T23:58:13Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5ad21a82
+- **Timestamp:** 2026-09-29T00:04:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 12
+     - evidence: `out=$(python3 -c "import ast,sys;t=ast.parse(open('tools/instance-node.py').read());t.body=[n for n in t.body if not (isinstance(n,ast.Expr) and isinstance(getattr(n,'value',None),ast.Constant))];prin`
+
+### 2026-09-29T00:04:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

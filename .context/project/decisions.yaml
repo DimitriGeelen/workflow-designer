@@ -2551,3 +2551,17 @@ decisions:
     date: 2026-09-28
     task: T-877
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-344
+    decision: "the effective default is `lane.authoringDefault` when declared, else the lane's legacy `authority` unless it is the retired `none` sentinel (`effectiveLaneDefault`)."
+    scope: project
+    date: 2026-09-28
+    task: T-893
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-345
+    decision: "`set` is placement-only (first position; `REFUSED-PLACED` thereafter) and `advance` is the only mover, single hop, along the artefact's `sequenceFlow`s; from NO-POSITION `advance` lands only on a `startEvent`."
+    scope: project
+    date: 2026-09-29
+    task: T-882
+    rationale: "Auto-captured from task file on completion"
