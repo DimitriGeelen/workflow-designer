@@ -17,3 +17,28 @@ tests/__pycache__/
 # `.context/working/.gitignore` also lists it. That file is the natural home, but it
 # only governs its own directory — it cannot reach the vendored copy. Both, on purpose.
 .fw-secret-key
+
+# T-938: Watchtower's API-key store. SECOND INSTANCE OF THE T-410 CLASS ABOVE, same
+# component, same project, three months later — which is why this block is worded as a
+# pattern rather than a path.
+#
+# web/secrets_store.py (T-378) writes Fernet-encrypted API keys to
+# .context/secrets/api-keys.enc INSIDE the consuming project's repo, and the framework
+# never ignored that path. In this tree the file was TRACKED, committed in 973813ea
+# (2026-09-27) and pushed to origin/bleeding-edge before anyone looked.
+#
+# ENCRYPTED IS NOT SAFE HERE, and this is the part that made it survive. The Fernet key
+# is derived from /etc/machine-id, which is world-readable and routinely logged or
+# copied, so the encryption protects the file only while it stays on this machine. In a
+# pushed repo it is a usable key to anyone holding both. 055-agentic-fleet-cockpit put it
+# best when they found the same gap (framework:pickup @229): "the encryption makes the
+# file look safe to commit, which makes that mistake more likely, not less."
+#
+# No leading slash, same reasoning as .fw-secret-key: the store exists once per
+# PROJECT_ROOT and this tree holds two roots, ours and the vendored framework's.
+#
+# T-410 fixed one key path and not the mechanism that writes secrets into a repo nobody
+# ignored. This entry is the same local fix; the mechanism fix is AEF's and is filed with
+# them, because a .gitignore line here leaves every other consumer exposed (PL-214).
+.context/secrets/
+*.enc
