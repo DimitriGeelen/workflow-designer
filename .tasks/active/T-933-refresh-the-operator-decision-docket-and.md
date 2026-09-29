@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T18:54:39Z
-last_update: 2026-09-29T18:54:39Z
+last_update: 2026-09-29T18:58:18Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -114,6 +114,17 @@ grep -q '_t770-delegation-boundary.py` (the path that REPORTS)' docs/reports/ope
 # The kind classifier reads the Expected clause, not the whole body — the distinction that stopped
 # 21 sovereign rulings being offered to a reviewer.
 grep -q 'DERIVED FROM THE `Expected:` CLAUSE, NOT THE STEPS' tools/_t872-decision-docket.py
+# The classifier NEVER overrides delegation.py: an intrinsic class cannot be called CHECKABLE.
+grep -q 'INTRINSIC_CLASSES' tools/_t872-decision-docket.py
+grep -q 'MECHANICAL_RE.search(expected) and not intrinsic' tools/_t872-decision-docket.py
+# The kind table is self-checking: it iterates the notes and asserts the counts sum to the total,
+# after a fifth kind was added to the classifier and not to a hand-typed print list, silently
+# dropping 4 items from a table that still claimed 79 above it.
+grep -q 'for k in KIND_NOTE:' tools/_t872-decision-docket.py
+# ONE COMMAND PER LINE — the gate splits on newlines, so a multi-line python -c becomes seven broken
+# lines, six of which "fail". Empty `rows` exits 1 rather than summing to zero and matching a zero
+# total: a table that is missing entirely must not read as a table that agrees.
+python3 -c "import re,io,sys; s=io.open('docs/reports/operator-decision-docket.md',encoding='utf-8').read(); t=int(re.search(r'\*\*(\d+) open decisions\*\*',s).group(1)); r=[int(m) for m in re.findall(r'^\| \`[A-Z]+\` \| (\d+) \|',s,re.M)]; sys.exit(0 if r and sum(r)==t else 1)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

@@ -160,6 +160,27 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
 
 
 - [ ] [REVIEW] Tick T-596's Human AC to set `definition_ratified: true` on clause 3 — without it the clause refuses to be satisfiable at all, and all four rulings above buy nothing
+  **Steps:**
+  1. Do T-596's Human AC first — it is the substance, this criterion is its consequence:
+     `cd /opt/832-Workflow-designer && cat docs/research/executable-workflow/operator-decisions.yaml`
+     and read the `H1` and `H3` entries. The agent recorded both as **open**; T-596's AC asks you to
+     confirm that reading is right, or say it is wrong.
+  2. Tick T-596's Human AC in `.tasks/active/T-596-*.md` (`- [ ]` → `- [x]`). Only you may tick it.
+  3. Then set `definition_ratified: true` on `clause-3` in
+     `docs/research/executable-workflow/arc-0-exit-clauses.yaml`, and delete its
+     `ratification_pending:` block. **The agent is forbidden from writing these fields** — moving
+     `definition_ratified`, `attestation:` or `blocks_arc_0_exit:` in that file is not delegated, so
+     step 3 is yours by construction and not by preference.
+  **Expected:** `clause-3` carries `definition_ratified: true` with no `ratification_pending:` key,
+  and T-596's Human AC reads `- [x]`. Check with:
+  `cd /opt/832-Workflow-designer && python3 -c "import yaml;c=[x for x in yaml.safe_load(open('docs/research/executable-workflow/arc-0-exit-clauses.yaml'))['clauses'] if x['id']=='clause-3'][0];print(c['definition_ratified'], 'ratification_pending' in c)"`
+  → prints `True False`.
+  **If not:** `clause-3` keeps `blocks_arc_0_exit: true` alongside `definition_ratified: false`, which
+  means **all six H-questions can be answered and Arc-0 still cannot exit.** The four rulings above
+  would buy nothing, which is what this criterion is warning about. Note the link is the register's own
+  wording, not a mechanism: `ratification_pending` states "it becomes ratified when the operator ticks
+  T-596's Human AC, not before". Nothing enforces that chain, so if you disagree that ticking T-596
+  should ratify clause-3, say so and the register's wording is what needs changing — not this task.
 
 ## Verification
 

@@ -16,10 +16,9 @@ reconstructing each context. Ordered by what each one releases.
 
 | kind | count | what answering involves |
 |---|---|---|
-| `RULING` | 48 | take a position — nothing can be looked up to settle it |
-| `REVIEW` | 28 | look at something and judge it |
-| `CHECKABLE` | 2 | **mechanically checkable — should not be on this docket**; convert per item with `fw task delegate` |
-| `UNSPECIFIED` | 1 | the criterion does not say what answering it looks like — that is the first thing to fix |
+| `RULING` | 51 | take a position — nothing can be looked up to settle it |
+| `ACT` | 4 | do something only you may do — a scanner can confirm it afterwards, not perform it |
+| `REVIEW` | 24 | look at something and judge it |
 
 The dominant kind is what makes this backlog what it is. Rulings cannot be delegated to a
 reviewer, converted by a classifier, or discharged by running anything — someone has to take
@@ -93,7 +92,7 @@ Reconciling against one encoding and printing "counts agree" would assert an agr
 
 ## 8. T-596 — Arc-0 exit gate is uncheckable: the operator decisions it depends on have no register an
 *ewcr-governed-delivery **[product arc]** · class: `inception-decision` — a go/no-go on an exploration — nothing else can settle it · unblock score 17*
-*wants: `CHECKABLE` — **mechanically checkable — should not be on this docket**; convert per item with `fw task delegate`*
+*wants: `RULING` — take a position — nothing can be looked up to settle it*
 
 **Asks:** [REVIEW] Confirm the register reads H1 and H3 correctly as **open**, not as already answered
 
@@ -269,7 +268,7 @@ Reconciling against one encoding and printing "counts agree" would assert an agr
 
 ## 30. T-732 — Drain the H-register: four open operator rulings are the only Arc-0 exit path on our sid
 *ewcr-governed-delivery **[product arc]** · class: `inception-decision` — a go/no-go on an exploration — nothing else can settle it · unblock score 7*
-*wants: `REVIEW` — look at something and judge it*
+*wants: `RULING` — take a position — nothing can be looked up to settle it*
 
 **Asks:** [REVIEW] Rule H1 — do roadmap Arcs 4–6 supersede the standing DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO?
 
@@ -277,11 +276,11 @@ Reconciling against one encoding and printing "counts agree" would assert an agr
 
 ## 31. T-732 — Drain the H-register: four open operator rulings are the only Arc-0 exit path on our sid
 *ewcr-governed-delivery **[product arc]** · class: `unclassified` — asks for a ruling; no deterministic signal to delegate on · unblock score 7*
-*wants: `UNSPECIFIED` — the criterion does not say what answering it looks like — that is the first thing to fix*
+*wants: `ACT` — do something only you may do — a scanner can confirm it afterwards, not perform it*
 
 **Asks:** [REVIEW] Tick T-596's Human AC to set `definition_ratified: true` on clause 3 — without it the clause refuses to be satisfiable at all, and all four rulings above buy nothing
 
-**Expected:** *(none stated — the criterion does not say what answering it looks like)*
+**Expected:** `clause-3` carries `definition_ratified: true` with no `ratification_pending:` key, and T-596's Human AC reads `- [x]`. Check with: `cd /opt/832-Workflow-designer && python3 -c "import yaml;c=[x for x in yaml.safe_load(open('docs/research/executable-workflow/arc-0-exit-clauses.yaml'))['clauses'] if x['id']=='clause-3'][0];print(c['definition_ratified'], 'ratification_pending' in c)"` → prints `True False`.
 
 ## 32. T-893 — Render authority on the element, and indicate mismatch and missing DIFFERENTLY
 *designer-authoring-surface **[product arc]** · class: `taste` — genuine judgement — tone, feel, wording · unblock score 7*
@@ -357,7 +356,7 @@ Reconciling against one encoding and printing "counts agree" would assert an agr
 
 ## 41. T-671 — Component Fabric does not meet the Arc-0 fence for the EWCR scope
 *ewcr-governed-delivery **[product arc]** · class: `unclassified` — asks for a ruling; no deterministic signal to delegate on · unblock score 5*
-*wants: `REVIEW` — look at something and judge it*
+*wants: `ACT` — do something only you may do — a scanner can confirm it afterwards, not perform it*
 
 **Asks:** [REVIEW] The Arc-0 component set is the right scope
 
@@ -405,7 +404,7 @@ Reconciling against one encoding and printing "counts agree" would assert an agr
 
 ## 47. T-432 — Full fw audit reports 60 FAIL across non-structure sections - never assessed
 *no arc · class: `unclassified` — asks for a ruling; no deterministic signal to delegate on · unblock score 4*
-*wants: `REVIEW` — look at something and judge it*
+*wants: `ACT` — do something only you may do — a scanner can confirm it afterwards, not perform it*
 
 **Asks:** [REVIEW] Whether the push gate should keep running `--sections structure` only
 
@@ -421,7 +420,7 @@ Reconciling against one encoding and printing "counts agree" would assert an agr
 
 ## 49. T-586 — kill worktree isolation and pin no-background-install as policy
 *no arc · class: `tier0-or-bypass` — the tier the operator owns by definition · unblock score 4*
-*wants: `CHECKABLE` — **mechanically checkable — should not be on this docket**; convert per item with `fw task delegate`*
+*wants: `ACT` — do something only you may do — a scanner can confirm it afterwards, not perform it*
 
 **Asks:** [RUBBER-STAMP] Apply the worktree deny rules to `.claude/settings.json`
 
@@ -565,7 +564,7 @@ Reconciling against one encoding and printing "counts agree" would assert an agr
 
 ## 67. T-643 — review-queue renders CLOSE and KEEP-OPEN as unparseable though the library returns them
 *no arc · class: `inception-decision` — a go/no-go on an exploration — nothing else can settle it · unblock score 2*
-*wants: `REVIEW` — look at something and judge it*
+*wants: `RULING` — take a position — nothing can be looked up to settle it*
 
 **Asks:** [REVIEW] The two new verdict colours read correctly in your terminal.
 
