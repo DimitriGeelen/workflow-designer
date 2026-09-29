@@ -2745,3 +2745,11 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-448
+  text: "OBS-201 class (python source executed as shell) has fired three more times since T-391 swept it on 2026-08-08, and the evidence is 37MB of unintended SCREEN CAPTURES at the repository root. Files, all untracked: '0' (0 bytes, 2026-09-23), 'importlib.util' (7,962,637 bytes, 2026-09-25), 'yaml,glob,sys' (28,916,814 bytes, 2026-09-28). Each begins with the PostScript header '%!PS-Adobe-3.0' and '%%Creator: (ImageMagick)', with %%Title set to the filename. So a python3 -c command containing a bare 'import' had that word resolved by the shell to ImageMagick's import(1), which captured the screen and wrote PostScript named after the following token. T-391 closed the sweep and nothing prevents the next occurrence. That is the G-019 shape: cleaning up the mess was mitigation, prevention would be import(1) not being reachable as a bare word. NOT DELETED, for two reasons: they are the only evidence the class is still live, and they are screen captures whose contents I have not examined past the PostScript header and will not. Whatever was on screen at those three moments is the operator's to review or destroy. T-571 (never git add -A) is what has kept them out of the index for six days."
+  captured: 2026-09-29T20:09:21Z
+  context_task: T-737
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
