@@ -128,7 +128,14 @@ ls .tasks/completed/T-886-*.md .tasks/completed/T-910-*.md
 # The repair the census asked for exists and is static-checkable without a browser: every emitter-written
 # workflowMeta and laneMeta attribute is compared or excluded with a reason (property, not a live count).
 node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q '"denominators_only": true'
-node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -qE '"summary": ".* 0 unclassified"'
+# ANCHOR REPAIR (2026-09-29). This line used to end the pattern at `0 unclassified"` — a closing
+# quote, i.e. anchored to the END of the summary string. T-905 (78a25279, 01:32Z) appended
+# "; computed sources N verified, M open" to that same summary FIFTEEN MINUTES after this line was
+# written (d328aff6, 01:17Z), and the line went red while the property it checks stayed true. It sat
+# red for ten hours because nothing re-runs a parked task's verification. Exactly the mutable-anchor
+# rot this block warns about above (T-3326). Now pins the INVARIANT and nothing about what follows.
+# The [^0-9] guard is load-bearing: a bare `0 unclassified` would also match "10 unclassified".
+node tools/_roundtrip-serialization-cdp.mjs --denominators-only > .context/working/.t885-denoms.out 2>&1 && grep -qE '[^0-9]0 unclassified' .context/working/.t885-denoms.out
 # uuid — the census's one seam-integrity finding — is in the compared set, not merely mentioned.
 grep -qE "^const WMSPEC = \[.*'uuid'" tools/_roundtrip-serialization-cdp.mjs
 # The write-only attribute the census found (source=) is excluded WITH a reason that names the census.
@@ -315,6 +322,42 @@ grep -qE "^  source: 'WRITE-ONLY \(T-885 census\)" tools/_roundtrip-serializatio
      for Human Review). If the artefact is complete and you still don't want to
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
+
+**Recommendation:** GO — close as work-completed.
+
+**Rationale:** The deliverable is a CENSUS, and it answered its question on 2026-09-26: nothing
+guarded document-level `aef:workflowMeta`. All six Agent ACs were ticked that day. Its scope fence
+("this task builds no guard") held, and the repairs it asked for were filed and are now CLOSED —
+T-886 (workflowMeta denominator) and T-910 (laneMeta). Nothing about the census is outstanding.
+There are no `### Human` acceptance criteria: the only two checkbox lines under that heading are the
+template's own [REVIEW]/[REVIEWER] examples, inside the HTML comment. So this task is not waiting on
+a verification step the operator owes — it is waiting only on the R-033 sovereignty gate, because
+`owner: human` and an agent may not complete a human-owned task. That is the whole of the block.
+
+**Evidence:**
+- Census result: `uuid`, `description` and `kind` each deletable from the editor's writer with every
+  guard green across 20 fixtures (commit `90a8f47c`). `uuid` reported separately per AC 4 — it is
+  connector-referenceable identity (T-224), pinned cross-agent, so its silent loss is a
+  seam-integrity defect and not a cosmetic one.
+- Unplanned finding: `source=` is emitter-written and read back by nothing, making a round-trip
+  comparison structurally impossible rather than merely absent. Became T-898; carried in the guard
+  as WM_EXCLUDED with a reason naming this census.
+- Downstream repairs exist and are static-checkable without a browser: both denominators derive
+  clean (`node 37 / workflowMeta 10 / laneMeta 4 attributes derived, 0 unclassified`), `uuid` is in
+  the compared set, `source=` excluded with its reason.
+- Verification: 5/5 PASS under gate semantics (`set -o pipefail`, no errexit), re-run 2026-09-29.
+
+**One caveat the operator should see before approving.** This block's `0 unclassified` line was RED
+until minutes ago, and not for a real failure. It was written at `d328aff6` (01:17Z) anchored to the
+END of the summary string; T-905 (`78a25279`, 01:32Z) appended `; computed sources N verified, M
+open` to that same string fifteen minutes later, in the same session. The property stayed true and
+the check stopped measuring it, for ten hours, because nothing re-runs a parked task's verification.
+The anchor is repaired and the repair is proven both ways — it accepts the live output and rejects
+`3 unclassified`, `10 unclassified` and `40 unclassified`. Flagged rather than quietly fixed because
+a green that was red an hour ago is worth one sentence of the approver's attention.
+
+**Not in scope of this close:** `computed sources 3 verified, 3 open` in the same summary is T-905's
+loose end, not this census's. Folding it in here would re-open a scope fence that deliberately held.
 
 ## Decisions
 
