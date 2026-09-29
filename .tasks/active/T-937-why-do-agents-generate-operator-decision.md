@@ -15,7 +15,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-09-29T21:44:42Z
-last_update: 2026-09-29T21:45:34Z
+last_update: 2026-09-29T21:47:42Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -122,9 +122,31 @@ bvp_scores_proposed:
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that a material share of the operator's 51 open rulings are escalations of questions a
+prior ruling in `decisions.yaml` already covers — so the agent is asking for decisions that have
+been made,
+we will achieve a lower operator decision load by naming that class and stopping the escalation,
+rather than by answering the backlog faster.
+We will know that we are successful when we see, over a random sample of 15 of the 51 read one by
+one against `decisions.yaml`, **at least 4 that a named existing ruling would have settled** — each
+recorded as `IW-2 hit: <criterion> -> <ruling id>` in the research artifact so the mapping is
+checkable by someone who was not in the room.
+
+<!-- THE FALSIFICATION IS THE POINT, and it is deliberately reachable. 3 or fewer hits out of 15
+     means escalation discipline is NOT the defect: the 51 are genuinely the operator's, no
+     agent-side fix exists, and the honest deliverable is a statement of the real decision load plus
+     a NO-GO. I expect that outcome to be at least as likely as the hypothesis holding — two attempts
+     this week to find an agent-side fix for this queue already failed (T-932 refuted on measurement,
+     T-933's delegation refused by the verb twice), and T-872 reached the same conclusion on
+     2026-09-26 from different evidence: "they are requests for rulings, and delegation.py is right
+     to leave them human."
+
+     4/15 is the threshold rather than a proportion invented to be easy: below that, a "class" would
+     be two or three individual cases, and naming a class from three instances is how a rule gets
+     written that immediately over-fires. 15 is the sample size a 60-minute manual read supports —
+     and the read must be manual, because today's regex attempts at exactly this question produced 21
+     false positives by matching the Steps block instead of the verdict. -->
+
 
 ## Assumptions
 
