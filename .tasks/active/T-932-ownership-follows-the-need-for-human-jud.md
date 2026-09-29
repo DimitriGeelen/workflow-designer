@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T17:51:40Z
-last_update: 2026-09-29T17:51:40Z
+last_update: 2026-09-29T17:53:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -302,7 +302,46 @@ date_finished: null
 
 ## Decisions
 
-### 2026-09-29 — STOP: the two encodings of the delegation boundary do not agree, and I nearly built on the wrong one
+### 2026-09-29 — CORRECTION: the denominator gap was MY scope error. The real divergence is 3 criteria.
+
+Written after building the instrument the entry below asked for
+(`tools/_t932-boundary-agreement.sh`). It contradicts that entry's central claim, and it was sent to
+AEF before I had it — corrected at inbox offset 13.
+
+**Scope-fair, the two encodings agree exactly on the denominator: 82 and 82.**
+
+| bucket | A: `fw reviewer surface` | B: `_t770`, Human-section only | delta |
+|---|---|---|---|
+| REVIEWER-CLOSEABLE | 1 | 0 | -1 |
+| AGENT-SELF | 2 | 0 | -2 |
+| OPERATOR-ONLY | 79 | 82 | +3 |
+| **TOTAL** | **82** | **82** | **0** |
+
+What I reported below — and to AEF — as "a gap of roughly 54 criteria in how many open Human criteria
+the corpus contains" was me comparing A's Human-section-only count against B's total across BOTH
+sections. B classifies 323 further Agent-section rows that A never examines. That is a scope
+difference I introduced by not filtering, reported as a defect in someone else's code.
+
+The `unclassified 37` vs `0` difference is likewise mostly VOCABULARY: A reports a class taxonomy
+that includes "unclassified", B reports rule names and has no such rule. On this evidence it is not
+37 misclassified criteria.
+
+**What survives, stated precisely.** The two encodings agree on WHAT to look at and differ on 3
+verdicts: B classifies 3 criteria as OPERATOR-ONLY that A treats as delegable. B is the stricter one,
+so the divergence costs the operator friction rather than leaking authority — the safe direction, but
+still a divergence nothing was comparing. G-052 remains real and still needs a normative answer.
+**"Severity medium is understated" is NOT supported** and is withdrawn.
+
+**Why this happened, since it is the session's own theme.** I built the instrument to check someone
+else's two encodings against each other, and shipped a claim from an eyeballed side-by-side before
+the instrument existed. The instrument immediately refuted me. That is the argument for the
+instrument, made at my expense.
+
+### 2026-09-29 — SUPERSEDED IN ITS CENTRAL CLAIM: "the two encodings do not agree on the denominator"
+<!-- Kept rather than deleted: the reasoning that stopped the build was sound and the stop was
+     correct. Only the magnitude was wrong, and wrong in the direction that made the finding look
+     more impressive. See the correction above. -->
+
 
 I opened this task on the number `fw reviewer surface` reports: `unclassified 37`, the largest
 operator-only bucket, against only 8 `taste`. That framed the work as "triage 37 unclassified
