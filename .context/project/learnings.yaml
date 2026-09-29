@@ -2513,3 +2513,33 @@ learnings:
   task: T-890
   date: 2026-09-28
   context: "Resolved issue in T-890"
+- id: PL-356
+  learning: "A check that measures LOCATION while reporting on SUBSTANCE is a distinct, recurring defect class — and it showed up twice in one day. C-001's research-artifact check tested whether a file sat in docs/reports/ and reported it as whether the thinking was preserved (100% false positives on its live set, T-919). The delegation boundary's owner-human carve-out tested a frontmatter field and reported it as whether human judgement was required (45 of 112 stale, T-931). The tell in both: the check's PASS sentence makes a claim its predicate cannot support. When reviewing any check, read its pass message as a promise and ask what the code actually inspected."
+  source: P-001
+  task: T-919
+  date: 2026-09-29
+  context: Added via context agent
+- id: PL-357
+  learning: "bash -n PASSES a syntax error inside a command substitution, because the substitution body is parsed lazily. A heredoc with '|| true' after the terminator inside $(...) linted clean and failed at run time with 'syntax error near unexpected token ||' — and it was only noticed because the audit printed the error beside a check that had silently not run. A lint that goes green on broken code is the same defect class as an audit check that passes over something it never looked at. Do not treat 'bash -n OK' as evidence that a script with command substitutions works; execute the path."
+  source: P-001
+  task: T-931
+  date: 2026-09-29
+  context: Added via context agent
+- id: PL-358
+  learning: "A verification line anchored to the END of a mutable output string rots within minutes, and nothing re-runs a parked task's verification to tell you. T-885's leg grepped '0 unclassified\"' with the closing quote; T-905 appended '; computed sources N verified' to that same summary FIFTEEN MINUTES later in the same session. The property stayed true, the check stopped measuring it, and it sat red for ten hours. Pin the invariant and assert nothing about what follows it — and when a check is written against another component's output, assume that output will grow."
+  source: P-001
+  task: T-885
+  date: 2026-09-29
+  context: Added via context agent
+- id: PL-359
+  learning: "A test fixture must not be an artefact of the run it guards. The procAsFit orchestrator's selftest used $DIR/round3.out as its POSITIVE control for quota-refusal detection; the re-run overwrote that file with a successful round's output, and the suite went 5/5 PASS to 3/5 FAIL with the detector code untouched. The positive control had silently become a second negative one. It failed loudly only by luck — output containing the word 'limit' would have flipped it green instead. Pin fixtures as immutable copies and assert them by hash inside the suite, so fixture drift fails by name rather than by verdict flip."
+  source: P-001
+  task: T-922
+  date: 2026-09-29
+  context: Added via context agent
+- id: PL-360
+  learning: "Improving a criterion's verifiability can flip a classifier's verdict on it, and the flip can be wrong. Writing T-732's missing Expected clause ('prints True False') immediately made the docket classify that item as mechanically delegable — the OUTCOME became checkable, so the heuristic called the ACT delegable. The act had not changed: it still asks the operator to tick a Human AC and write a field the agent is forbidden to touch. Verifiable outcome and undelegable act are independent properties. Any 'can this be automated' predicate needs both, and must never outrank the authoritative classifier (PD-302)."
+  source: P-001
+  task: T-933
+  date: 2026-09-29
+  context: Added via context agent
