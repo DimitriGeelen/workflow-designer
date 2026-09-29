@@ -24,6 +24,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from task_satisfaction import analyse_text  # noqa: E402
 
+# T-919: same reasoning, same lib/ — the C-001 "was the thinking preserved" predicate has exactly one
+# definition and both scanners import it. On ImportError the fallback returns False, which restores the
+# old location-only behaviour: a missing predicate must never read as "every inception is covered".
+try:
+    from research_preserved import research_preserved_in_task  # noqa: E402
+except ImportError:
+    def research_preserved_in_task(_content):
+        return False
+
 _FRAMEWORK_ROOT = Path(__file__).resolve().parents[2]
 
 # T-3073: cheap Python pre-filter for "this inception looks like it carries a
@@ -254,6 +263,20 @@ def scan_active_tasks(tasks_dir, reports_dir):
                         artifact_name = rb
                         break
 
+                # T-919 (operator ruling 2026-09-16, OBS-351): "the task file counts." This scan's
+                # only test above is the FILENAME — narrower even than the completed scan, which at
+                # least also looked for the string "docs/reports/" in the body. Neither asks whether
+                # the thinking was preserved, which is what C-001 is about: "conversations are
+                # ephemeral, files are permanent", and a task file is a file.
+                #
+                # Predicate IMPORTED from lib/research_preserved.py, never restated here. A second
+                # copy of this rule in a second scanner is how the delegation boundary ended up
+                # encoded twice and disagreeing (G-052, measured 2026-09-29).
+                in_task_record = False
+                if not has_artifact and research_preserved_in_task(content):
+                    has_artifact = True
+                    in_task_record = True
+
                 if not has_artifact:
                     research_issues.append({"id": task_id, "type": "missing", "reason": reason})
                     c001_missing += 1
@@ -261,8 +284,15 @@ def scan_active_tasks(tasks_dir, reports_dir):
                         c001_missing_started += 1
                     else:
                         c001_missing_recommendation += 1
-                else:
-                    # Check if referenced in task
+                elif not in_task_record:
+                    # Check if referenced in task.
+                    #
+                    # SKIPPED when the record IS the task file. The first version of the T-919 fix did
+                    # not skip it, and the unreferenced branch then fired on every task it had just
+                    # cleared: `"docs/reports/" not in content` is trivially true when the artifact is
+                    # the task itself, so T-280 went from "no research artifact" to "has artifact but
+                    # task doesn't reference it" — a false positive of a NEW shape, which is worse than
+                    # the one being fixed. A task cannot fail to reference itself.
                     if "docs/reports/" not in content:
                         research_issues.append({"id": task_id, "type": "unreferenced", "reason": reason, "artifact": artifact_name})
 

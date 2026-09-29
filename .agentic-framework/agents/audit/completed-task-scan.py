@@ -56,6 +56,18 @@ import sys
 MISSING_DECIDE_CUTOFF = "2026-06-13"
 
 
+# T-919: the predicate lives in lib/research_preserved.py and is IMPORTED, not copied. A second copy
+# of "was the thinking preserved" in the sibling scanner would start exactly the drift that left the
+# delegation boundary encoded twice and disagreeing (G-052, measured 2026-09-29).
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__)))), "lib"))
+try:
+    from research_preserved import research_preserved_in_task
+except ImportError:      # predicate unavailable -> fall back to the location-only behaviour rather
+    def research_preserved_in_task(_content):   # than silently claiming every inception is covered
+        return False
+
+
 def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
     completed_dir = os.path.join(tasks_dir, "completed")
     if not os.path.isdir(completed_dir):
@@ -167,6 +179,23 @@ def scan_completed_tasks(tasks_dir, episodic_dir, reports_dir):
                             has_artifact = True
                 except (OSError, IOError):
                     pass
+
+            # T-919 (operator ruling 2026-09-16, OBS-351): "the task file counts."
+            #
+            # The three tests above all measure LOCATION — a filename in docs/reports/, the string
+            # "docs/reports/" in the body, an episodic reference. None asks the question C-001
+            # actually poses: was the thinking preserved? C-001's own words are "conversations are
+            # ephemeral, files are permanent", and a task file is a file. So an inception whose
+            # reasoning is recorded in its own committed task file satisfies C-001, and the check as
+            # written could not express that.
+            #
+            # MEASURED, not assumed. Of the three tasks this check flagged on 2026-09-29 — T-250,
+            # T-587, T-879 — every one carried substantive exploratory prose in-task: T-250 a 738-char
+            # Problem Statement and 1198-char Open Questions; T-587 680/569/515/413 across Problem
+            # Statement, Exploration Plan, Technical Constraints and Scope Fence; T-879 a 513-char
+            # Hypothesis. The whole output set was false positives under the ruling.
+            if not has_artifact and research_preserved_in_task(content):
+                has_artifact = True
 
             if not has_artifact:
                 missing_research.append(task_id)
