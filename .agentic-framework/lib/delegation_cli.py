@@ -327,7 +327,19 @@ def cmd_delegate(args) -> int:
     remaining_human = len(refused)
     owner = str(meta.get("owner") or "")
     new_owner = owner
-    if converted and remaining_human == 0:
+    # T-931 (operator ruling 2026-09-29). This used to read `if converted and remaining_human == 0`,
+    # which made ownership follow the criteria ONLY when this invocation had something to convert.
+    # A task with no open Human criteria at all has `converted == []`, so it fell through and kept
+    # `owner: human` forever — the verb reported "0 open Human criteria ... owner: human (unchanged)"
+    # and could not see the class it is the surface for. Measured on 832: 45 of 112 human-owned
+    # tasks had no open Human criterion behind the field, 10 of them with every Human criterion
+    # already TICKED by the operator.
+    #
+    # The condition is now the RULING itself: `owner: human` is a sovereignty claim only while a
+    # Human criterion is open. Whether this run converted anything is irrelevant to whether the
+    # field is still true. Refused criteria still count as open (remaining_human > 0), so a task
+    # with anything genuinely human left keeps its owner exactly as before.
+    if owner == "human" and remaining_human == 0:
         new_owner = "agent"
 
     record = {

@@ -144,6 +144,69 @@ ok "ok() reports PASS for a zero verdict (it is not stuck on FAIL)" \
    "$([ "$c3" = "PASS" ] && echo 0 || echo 1)" "ok() returned '$c3'"
 echo
 
+# ── THE CORRECTOR MUST NEVER RUN UNATTENDED ──────────────────────────────────────────────────
+# Asserted, not promised. The sweep WRITES to a sovereignty-protected field across the whole
+# corpus; on a timer, a wrong predicate would strip real claims with nobody watching and the first
+# symptom would be a task closing that the operator wanted to see. The detector (audit.sh
+# check_stale_ownership) is the half that belongs on cron — it can only over-report.
+#
+# This leg is worth more than the comment above it precisely because the comment cannot fail.
+echo "UNATTENDED-EXECUTION"
+
+SWEEP_NAME="_t931-ownership-sweep.sh"
+hits=""
+
+# Deployed crontabs: the project's own cron.d entry, the root crontab, and the cron directories.
+for c in /etc/cron.d/* /etc/crontab; do
+    [ -r "$c" ] || continue
+    grep -l -F "$SWEEP_NAME" "$c" 2>/dev/null && hits="$hits $c"
+done
+if crontab -l >/dev/null 2>&1; then
+    crontab -l 2>/dev/null | grep -qF "$SWEEP_NAME" && hits="$hits user-crontab"
+fi
+ok "the corrector appears in no deployed crontab" \
+   "$([ -z "$hits" ] && echo 0 || echo 1)" \
+   "found in:$hits — a timer on this script is the failure mode the design exists to prevent"
+
+# Hook configuration: Claude Code settings and the framework's own hook registry.
+hhits=""
+for h in .claude/settings.json .claude/settings.local.json .agentic-framework/.context/hooks.yaml; do
+    [ -r "$h" ] || continue
+    grep -qF "$SWEEP_NAME" "$h" 2>/dev/null && hhits="$hhits $h"
+done
+ok "the corrector appears in no hook configuration" \
+   "$([ -z "$hhits" ] && echo 0 || echo 1)" \
+   "found in:$hhits"
+
+# CONTROL: the grep must be able to find the name, or both legs above pass by failing to look.
+# A scan that matches nothing reports identically to a scan that found nothing wrong.
+ok "the scan can find the name at all (control)" \
+   "$(grep -qF "$SWEEP_NAME" "tools/$SWEEP_NAME" && echo 0 || echo 1)" \
+   "grep -F '$SWEEP_NAME' does not match the script's own path — the two legs above asserted nothing"
+
+# And the corrector must still refuse to WRITE without --apply, or "not on cron" protects nothing.
+#
+# The first version of this leg grepped the default run's output for "DRY RUN" and went red the
+# moment the corpus was clean — the sweep exits early on an empty candidate set and never prints it.
+# That is a mutable-corpus anchor (T-3326): the check moved because the DATA changed, not the code,
+# which is the same rot that took T-885's verification line red for ten hours. The claim below is
+# behavioural and holds whatever the corpus contains: a default invocation appends no line to the
+# reversion ledger, because every sanctioned write puts one there.
+LEDGER=".context/audits/ownership-reversions.jsonl"
+before=0; [ -f "$LEDGER" ] && before="$(wc -l < "$LEDGER")"
+bash "tools/$SWEEP_NAME" >/dev/null 2>&1
+after=0; [ -f "$LEDGER" ] && after="$(wc -l < "$LEDGER")"
+ok "the corrector writes nothing without --apply (ledger $before -> $after)" \
+   "$([ "$before" -eq "$after" ] && echo 0 || echo 1)" \
+   "a default invocation appended $((after - before)) reversion line(s) — --apply is not gating the write"
+
+# CONTROL for that leg: the ledger must be the thing a real write actually touches, or comparing
+# its line count proves nothing. Assert the sweep's write path goes through the verb that logs.
+ok "the ledger is on the write path (control): the sweep calls 'task update --owner', never frontmatter" \
+   "$(grep -q 'task update .*--owner agent' "tools/$SWEEP_NAME" && ! grep -qE "sed -i|_sed_i|owner: agent\"? *>" "tools/$SWEEP_NAME" && echo 0 || echo 1)" \
+   "either the sweep stopped using the verb, or it grew a direct frontmatter write that bypasses the gate and the ledger"
+echo
+
 echo "=== SUMMARY ==="
 echo "PASS: $PASS"
 echo "FAIL: $FAIL"

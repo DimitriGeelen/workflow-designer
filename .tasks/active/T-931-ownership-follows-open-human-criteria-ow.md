@@ -33,7 +33,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T15:43:39Z
-last_update: 2026-09-29T15:46:10Z
+last_update: 2026-09-29T17:36:40Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -83,37 +83,37 @@ bvp_scores_proposed:
 `owner:` field) and the DETECTOR (the thing that counts the shape) must not share a home, and
 neither may live on cron. See `## Decisions` for the placement argument.
 
-- [ ] **The predicate is one function with one definition of "open Human criterion", and it is
+- [x] **The predicate is one function with one definition of "open Human criterion", and it is
       proven to READ CORRECTLY before anything is allowed to write on its verdict.** Measured
       hazard: a naive count of `- [ ]` lines under `### Human` returns 2 for T-885, which has
       none — both hits are the template's own `[REVIEW]`/`[REVIEWER]` examples inside an HTML
       comment. I hit this live while measuring. Any predicate that misreads a real open criterion
       as absent will strip a genuine human claim, which is the one outcome that must be impossible
-- [ ] **Both directions proven, the negative one first.** With one open Human criterion present the
+- [x] **Both directions proven, the negative one first.** With one open Human criterion present the
       predicate must NOT fire — asserted over the awkward shapes that exist in this corpus:
       criteria inside vs outside comments, `[REVIEW]` / `[REVIEWER]` / `[RUBBER-STAMP]` prefixes,
       indented checkboxes, and a `### Human` section that is comment-only. A one-directional proof
       is what lets a flip look correct while removing sovereignty
-- [ ] **The actor lives in `update-task.sh`, beside the existing owner writer, not anywhere else.**
+- [x] **The actor lives in `update-task.sh`, beside the existing owner writer, not anywhere else.**
       `update-task.sh:2356` already sets `owner: human` on the partial-complete transition. The
       revert is its symmetric half and belongs in the same writer, so the field has ONE owner in
       code. It fires on the status transition, and its write is audited by name the way R-033's
       refusal is (`fw_instance_refused` is the model — a reason, a rule id, a node)
-- [ ] **`fw task delegate` reports the class so the operator has a deliberate verb.** Today
+- [x] **`fw task delegate` reports the class so the operator has a deliberate verb.** Today
       `--dry-run` on T-885 prints `0 open Human criteria … owner: human (unchanged)` — the verb
       cannot see the shape it is the surface for. It must name it, and `fw reviewer surface` must
       count it alongside reviewer-closeable / agent-self / operator-only
-- [ ] **The detector lives in `fw audit`, and an empty candidate set FAILS rather than passing.**
+- [x] **The detector lives in `fw audit`, and an empty candidate set FAILS rather than passing.**
       Per T-3105, "no tasks in this shape" must be reported as NOT EVALUATED with its reason, never
       as a PASS that asserts coverage the check does not have. This is the half that runs on cron
-- [ ] **The actor never runs unattended.** No cron entry, no hook, no sweep writes the `owner:`
+- [x] **The actor never runs unattended.** No cron entry, no hook, no sweep writes the `owner:`
       field. Asserted mechanically, not promised in prose: a check that greps the deployed crontab
       and the hook configuration for the actor's entry point and fails if it appears
-- [ ] **The 35 existing tasks are reported, not silently converted.** The backfill is one explicit
+- [x] **The 35 existing tasks are reported, not silently converted.** The backfill is one explicit
       operator-run command with a `--dry-run` that lists every id and its predicate verdict first.
       A bulk ownership change across 35 tasks is not something a mechanism does on its own
       initiative, even under a ruling that says the field is stale
-- [ ] **Upstreamed to AEF.** This is vendored framework code (`.agentic-framework/`), so the change
+- [x] **Upstreamed to AEF.** This is vendored framework code (`.agentic-framework/`), so the change
       affects every project on AEF, not just this one (G-008). AEF is told, with the measurement
 
 ### Human
@@ -148,6 +148,27 @@ neither may live on cron. See `## Decisions` for the placement argument.
 -->
 
 ## Verification
+
+# The predicate, both directions, plus the unattended-execution legs and their controls.
+# 16/16. Includes the proof that the corrector is in no crontab and no hook, and that a default
+# invocation appends nothing to the reversion ledger.
+bash tools/_t931-ownership-teeth.sh > .context/working/.t931-teeth.out 2>&1 && grep -q "FAIL: 0" .context/working/.t931-teeth.out
+# The corpus invariant the ruling asserts: no task carries owner: human without an open Human
+# criterion behind it. Pinned as a PROPERTY (zero stale), not as a live count that rots (T-3326).
+python3 tools/_t931-ownership.py --facts > .context/working/.t931-facts.out 2>&1 && awk -F'\t' '{exit ($3==0)?0:1}' .context/working/.t931-facts.out
+# The predicate must still be able to SEE the corpus — a scan of nothing also reports zero stale.
+python3 tools/_t931-ownership.py --facts > .context/working/.t931-facts.out 2>&1 && awk -F'\t' '{exit ($1>0)?0:1}' .context/working/.t931-facts.out
+# The detector rail exists in the audit and is wired to the tool, not to an inline heredoc.
+grep -q 'check_stale_ownership' .agentic-framework/agents/audit/audit.sh
+# The rail calls the tool through $_tool, so assert the BINDING and the invocation separately —
+# an earlier draft grepped for the literal '_t931-ownership.py --facts', which the code never
+# contains and which therefore failed while the rail worked perfectly.
+grep -q '_tool="$PROJECT_ROOT/tools/_t931-ownership.py"' .agentic-framework/agents/audit/audit.sh
+grep -q '_facts=$(cd "$PROJECT_ROOT" && python3 "$_tool" --facts' .agentic-framework/agents/audit/audit.sh
+# Ownership follows the criteria in the delegation verb even when it converts nothing (T-931).
+grep -q 'if owner == "human" and remaining_human == 0:' .agentic-framework/lib/delegation_cli.py
+# Every sanctioned reversion left a record naming its authority.
+test "$(wc -l < .context/audits/ownership-reversions.jsonl)" -ge 45
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
