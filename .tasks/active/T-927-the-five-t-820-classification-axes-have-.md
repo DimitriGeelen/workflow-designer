@@ -1,8 +1,26 @@
 ---
 id: T-927
-name: "The five T-820 classification axes have no per-rule mode, so no instrument can answer 'does MY new rule satisfy them'"
+name: "The five T-820 classification axes have no per-rule mode, so no instrument
+  can answer 'does MY new rule satisfy them'"
 description: >
-  T-826 needed to answer, for two rules only, whether they satisfied the five axes -- and found no instrument that could. tools/_t820-rule-axes.sh is whole-suite: it reads no positional argument, and T-826 proved by control that a real rule, a different real rule and a rule id that does not exist all produce byte-identical output. T-826 fixed the HAZARD (the runner now refuses an argument with exit 2 rather than returning a verdict about other people's rules) but not the WANT. The want is real and recurring: when 4 of 5 axes are red for rules belonging to four other tasks (OBS-440), an author adding a rule cannot tell their own failure from the standing baseline, so the only options are to fix five other tasks' rules or to skip the check -- and skipping is what T-816 did. WHAT WOULD CLOSE IT: each of the five axis files gains a rule-scoped mode (argv rule id -> exit 0/1 for THAT rule alone, with unrelated failures reported as context and not as its verdict), and _t820-rule-axes.sh gains the filter and stops refusing. THE CONTROL IS THE POINT, as it was for T-826: a per-rule mode that returns 0 for a rule that does not satisfy an axis is worse than no mode at all, so each mode needs a leg proving it goes red on a rule that IS failing. tools/_t826-kind-rule-axes-teeth.sh is the worked pattern at task scope -- it greps the axis output for its own two rule ids and carries a control leg proving the grep can fail by pointing it at a rule that is still red.
+  T-826 needed to answer, for two rules only, whether they satisfied the five axes
+  -- and found no instrument that could. tools/_t820-rule-axes.sh is whole-suite:
+  it reads no positional argument, and T-826 proved by control that a real rule, a
+  different real rule and a rule id that does not exist all produce byte-identical
+  output. T-826 fixed the HAZARD (the runner now refuses an argument with exit 2 rather
+  than returning a verdict about other people's rules) but not the WANT. The want
+  is real and recurring: when 4 of 5 axes are red for rules belonging to four other
+  tasks (OBS-440), an author adding a rule cannot tell their own failure from the
+  standing baseline, so the only options are to fix five other tasks' rules or to
+  skip the check -- and skipping is what T-816 did. WHAT WOULD CLOSE IT: each of the
+  five axis files gains a rule-scoped mode (argv rule id -> exit 0/1 for THAT rule
+  alone, with unrelated failures reported as context and not as its verdict), and
+  _t820-rule-axes.sh gains the filter and stops refusing. THE CONTROL IS THE POINT,
+  as it was for T-826: a per-rule mode that returns 0 for a rule that does not satisfy
+  an axis is worse than no mode at all, so each mode needs a leg proving it goes red
+  on a rule that IS failing. tools/_t826-kind-rule-axes-teeth.sh is the worked pattern
+  at task scope -- it greps the axis output for its own two rule ids and carries a
+  control leg proving the grep can fail by pointing it at a rule that is still red.
 
 status: captured
 workflow_type: build
@@ -22,8 +40,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T08:00:37Z
-last_update: 2026-09-29T08:00:37Z
-date_finished: null
+last_update: '2026-09-29T08:35:04Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +52,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+cost_estimate_proposed:
+  - ts: '2026-09-29T08:35:04Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius:
+      tier: 2
+      effort: 8
+    rationale: blast_radius=? (no-components-UNMEASURED-not-zero); tier=2 
+      (workflow:build); effort=8 (lines=269,acs=4)
+    rubric_sha: e4a00f38e801
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 0
+  F3: 0
+  F1: 1
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-29T08:35:04Z'
 ---
 
 # T-927: The five T-820 classification axes have no per-rule mode, so no instrument can answer 'does MY new rule satisfy them'

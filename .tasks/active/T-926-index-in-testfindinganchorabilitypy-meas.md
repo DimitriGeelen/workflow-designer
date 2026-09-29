@@ -1,8 +1,29 @@
 ---
 id: T-926
-name: "_index() in test_finding_anchorability.py measures any id-bearing element as a flow node, so aef extension elements are scored gutter-able"
+name: "_index() in test_finding_anchorability.py measures any id-bearing element as
+  a flow node, so aef extension elements are scored gutter-able"
 description: >
-  MEASURED under T-826. tests/test_finding_anchorability.py:214 _index() is documented 'id -> kind, for everything the canvas can draw'. Its else-branch is a catch-all: every element carrying an id that is not sequenceFlow/lane/process/collaboration/participant/laneSet/definitions becomes 'node'. aef:workflowMeta carries an id (id='task-lifecycle' in all 24 rendered maps), so E-XML-WORKFLOW-KIND's location string resolves to 'node' and would pass ACCEPTS['NODE'] — claiming the canvas can draw a gutter marker on a DOCUMENT-LEVEL metadata finding, and feeding the ERROR-side anchorability figure in docs/reports/T-309-validator-surfacing.md a false gutter-able row. T-826 refused to take that green: it added a DOC-META class that pins the observation WITH the reason and stays out of GUTTERABLE. THE FIX IS NOT ONE LINE, WHICH IS WHY IT IS ITS OWN TASK: making _index classify the aef namespace as 'document' was tried in a throwaway probe and moved a SECOND rule — E-XML-ID-DUP, declared VALUE, then observed ['document','node'] — because a duplicated id can be carried by an extension element too. So the repair has to decide what VALUE means when one of the carriers is not on the canvas, which is a real classification question and not a typo. SECOND, SEPARABLE DEFECT IN THE SAME FILE: bpmn_documents() walks tests/fixtures for '.bpmn' only, so all eleven tests/fixtures/invalid/E-XML-*.xml fixtures are invisible to this axis — the population is scoped to 'files that happened to have the right extension', which is the exact defect this file's own docstring records one level up. T-826 worked around it by naming its fixture .bpmn rather than .xml like its ten siblings; that inconsistency is a symptom to remove here, not a convention to spread.
+  MEASURED under T-826. tests/test_finding_anchorability.py:214 _index() is documented
+  'id -> kind, for everything the canvas can draw'. Its else-branch is a catch-all:
+  every element carrying an id that is not sequenceFlow/lane/process/collaboration/participant/laneSet/definitions
+  becomes 'node'. aef:workflowMeta carries an id (id='task-lifecycle' in all 24 rendered
+  maps), so E-XML-WORKFLOW-KIND's location string resolves to 'node' and would pass
+  ACCEPTS['NODE'] — claiming the canvas can draw a gutter marker on a DOCUMENT-LEVEL
+  metadata finding, and feeding the ERROR-side anchorability figure in docs/reports/T-309-validator-surfacing.md
+  a false gutter-able row. T-826 refused to take that green: it added a DOC-META class
+  that pins the observation WITH the reason and stays out of GUTTERABLE. THE FIX IS
+  NOT ONE LINE, WHICH IS WHY IT IS ITS OWN TASK: making _index classify the aef namespace
+  as 'document' was tried in a throwaway probe and moved a SECOND rule — E-XML-ID-DUP,
+  declared VALUE, then observed ['document','node'] — because a duplicated id can
+  be carried by an extension element too. So the repair has to decide what VALUE means
+  when one of the carriers is not on the canvas, which is a real classification question
+  and not a typo. SECOND, SEPARABLE DEFECT IN THE SAME FILE: bpmn_documents() walks
+  tests/fixtures for '.bpmn' only, so all eleven tests/fixtures/invalid/E-XML-*.xml
+  fixtures are invisible to this axis — the population is scoped to 'files that happened
+  to have the right extension', which is the exact defect this file's own docstring
+  records one level up. T-826 worked around it by naming its fixture .bpmn rather
+  than .xml like its ten siblings; that inconsistency is a symptom to remove here,
+  not a convention to spread.
 
 status: captured
 workflow_type: build
@@ -22,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T07:57:33Z
-last_update: 2026-09-29T07:57:33Z
-date_finished: null
+last_update: '2026-09-29T08:35:03Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +55,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+cost_estimate_proposed:
+  - ts: '2026-09-29T08:35:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius:
+      tier: 2
+      effort: 8
+    rationale: blast_radius=? (no-components-UNMEASURED-not-zero); tier=2 
+      (workflow:build); effort=8 (lines=269,acs=4)
+    rubric_sha: e4a00f38e801
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 1
+  F3: 0
+  F1: 2
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-29T08:35:04Z'
 ---
 
 # T-926: _index() in test_finding_anchorability.py measures any id-bearing element as a flow node, so aef extension elements are scored gutter-able

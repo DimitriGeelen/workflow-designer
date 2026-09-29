@@ -1,8 +1,28 @@
 ---
 id: T-925
-name: "tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no cross-form rule on any of its ten attributes can ever be compared"
+name: "tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no
+  cross-form rule on any of its ten attributes can ever be compared"
 description: >
-  MEASURED under T-826, not read: a YAML document carrying workflowMeta.kind='overlord' fires E-WORKFLOW-KIND on the YAML form; bridged through tools/yaml-to-bpmn.py the output contains ZERO 'workflowMeta' occurrences (grep -c) and the XML form is silent. grep -n 'aef:workflowMeta' tools/yaml-to-bpmn.py returns nothing: emit() reads meta = workflow.get('workflowMeta') at :141 and uses it ONLY for wid/process_id derivation. So all ten document-level attributes the designer emits (id, uuid, version, schemaVersion, title, description, source, tier_default, pageWidth, kind) are LOST across the bridge. WHY IT MATTERS BEYOND kind: tests/test_harness_cross_form_agreement.py compares the two validator forms by driving YAML fixtures THROUGH this bridge, so a document-level rule can never be compared on a bridged document. The bridged doc is clean because the carrier was ERASED, not because the value became legal — and that harness's own docstring forbids inferring BRIDGE_REPAIRED from 'XML said nothing': 'Inferring it is how a real hole gets absorbed as a repair.' T-826 declares E-WORKFLOW-KIND a KNOWN disagreement citing THIS task rather than absorbing it. SAME CLASS AS T-885, one instrument over: T-885 found document-level workflowMeta outside the round-trip guard's denominator BY CONSTRUCTION; this is document-level workflowMeta outside the BRIDGE's output entirely. NOT IN SCOPE HERE: whether the bridge SHOULD emit workflowMeta is a seam question (the corpus is pinned by AEF and 24/24 rendered maps are bridge-produced, so emitting it changes bytes AEF pins against) — that is the first thing this task must settle, before any code.
+  MEASURED under T-826, not read: a YAML document carrying workflowMeta.kind='overlord'
+  fires E-WORKFLOW-KIND on the YAML form; bridged through tools/yaml-to-bpmn.py the
+  output contains ZERO 'workflowMeta' occurrences (grep -c) and the XML form is silent.
+  grep -n 'aef:workflowMeta' tools/yaml-to-bpmn.py returns nothing: emit() reads meta
+  = workflow.get('workflowMeta') at :141 and uses it ONLY for wid/process_id derivation.
+  So all ten document-level attributes the designer emits (id, uuid, version, schemaVersion,
+  title, description, source, tier_default, pageWidth, kind) are LOST across the bridge.
+  WHY IT MATTERS BEYOND kind: tests/test_harness_cross_form_agreement.py compares
+  the two validator forms by driving YAML fixtures THROUGH this bridge, so a document-level
+  rule can never be compared on a bridged document. The bridged doc is clean because
+  the carrier was ERASED, not because the value became legal — and that harness's
+  own docstring forbids inferring BRIDGE_REPAIRED from 'XML said nothing': 'Inferring
+  it is how a real hole gets absorbed as a repair.' T-826 declares E-WORKFLOW-KIND
+  a KNOWN disagreement citing THIS task rather than absorbing it. SAME CLASS AS T-885,
+  one instrument over: T-885 found document-level workflowMeta outside the round-trip
+  guard's denominator BY CONSTRUCTION; this is document-level workflowMeta outside
+  the BRIDGE's output entirely. NOT IN SCOPE HERE: whether the bridge SHOULD emit
+  workflowMeta is a seam question (the corpus is pinned by AEF and 24/24 rendered
+  maps are bridge-produced, so emitting it changes bytes AEF pins against) — that
+  is the first thing this task must settle, before any code.
 
 status: captured
 workflow_type: build
@@ -22,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T07:57:12Z
-last_update: 2026-09-29T07:57:12Z
-date_finished: null
+last_update: '2026-09-29T08:35:02Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +54,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+cost_estimate_proposed:
+  - ts: '2026-09-29T08:35:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius:
+      tier: 2
+      effort: 8
+    rationale: blast_radius=? (no-components-UNMEASURED-not-zero); tier=2 
+      (workflow:build); effort=8 (lines=269,acs=4)
+    rubric_sha: e4a00f38e801
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 0
+  F3: 4
+  F1: 1
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-29T08:35:03Z'
 ---
 
 # T-925: tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no cross-form rule on any of its ten attributes can ever be compared

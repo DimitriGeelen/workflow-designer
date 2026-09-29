@@ -1,8 +1,25 @@
 ---
 id: T-928
-name: "C-003 inception research checkpoint has never fired: checkpoint.sh reads task_id: from a focus file that only has current_task:"
+name: "C-003 inception research checkpoint has never fired: checkpoint.sh reads task_id:
+  from a focus file that only has current_task:"
 description: >
-  MEASURED under T-573. .agentic-framework/agents/context/checkpoint.sh:499 reads the focused task as: grep '^task_id:' $FOCUS_FILE. .context/working/focus.yaml contains 'current_task:' and has ZERO lines matching '^task_id:' (grep -c: 1 and 0 respectively). So focus_task is ALWAYS empty, the enclosing 'if [ -n $focus_task ]' never runs, and the whole C-003 / T-194 Research Capture Checkpoint -- the every-20-tool-calls nudge that an inception task has no research artifact in docs/reports/ -- has never fired for any task. THE SHAPE IS THE PROJECT'S OWN FAVOURITE: a guard that cannot find its subject is indistinguishable from a guard reporting all-clear. It emits to stderr only on the unhappy path, so its silence reads as compliance, and C-003 is a rule CLAUDE.md states as mandatory for inception work ('the thinking trail IS the artifact'). WHAT WOULD CLOSE IT: read 'current_task:' (or have lib/focus.sh expose one accessor both writers and readers use -- T-322's rule, and note PL-197 'Two readers of one state file, and the PUBLIC accessor is the unverified one'), plus a leg that drives the checkpoint with a real inception task focused and NO artifact present and requires the NOTE to appear -- and a control with an artifact present requiring silence. Without both arms the repair is unfalsifiable in the direction that matters.
+  MEASURED under T-573. .agentic-framework/agents/context/checkpoint.sh:499 reads
+  the focused task as: grep '^task_id:' $FOCUS_FILE. .context/working/focus.yaml contains
+  'current_task:' and has ZERO lines matching '^task_id:' (grep -c: 1 and 0 respectively).
+  So focus_task is ALWAYS empty, the enclosing 'if [ -n $focus_task ]' never runs,
+  and the whole C-003 / T-194 Research Capture Checkpoint -- the every-20-tool-calls
+  nudge that an inception task has no research artifact in docs/reports/ -- has never
+  fired for any task. THE SHAPE IS THE PROJECT'S OWN FAVOURITE: a guard that cannot
+  find its subject is indistinguishable from a guard reporting all-clear. It emits
+  to stderr only on the unhappy path, so its silence reads as compliance, and C-003
+  is a rule CLAUDE.md states as mandatory for inception work ('the thinking trail
+  IS the artifact'). WHAT WOULD CLOSE IT: read 'current_task:' (or have lib/focus.sh
+  expose one accessor both writers and readers use -- T-322's rule, and note PL-197
+  'Two readers of one state file, and the PUBLIC accessor is the unverified one'),
+  plus a leg that drives the checkpoint with a real inception task focused and NO
+  artifact present and requires the NOTE to appear -- and a control with an artifact
+  present requiring silence. Without both arms the repair is unfalsifiable in the
+  direction that matters.
 
 status: captured
 workflow_type: build
@@ -22,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T08:26:56Z
-last_update: 2026-09-29T08:26:56Z
-date_finished: null
+last_update: '2026-09-29T08:35:05Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +51,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+cost_estimate_proposed:
+  - ts: '2026-09-29T08:35:05Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius:
+      tier: 2
+      effort: 8
+    rationale: blast_radius=? (no-components-UNMEASURED-not-zero); tier=2 
+      (workflow:build); effort=8 (lines=269,acs=4)
+    rubric_sha: e4a00f38e801
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 0
+  F3: 0
+  F1: 1
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-29T08:35:05Z'
 ---
 
 # T-928: C-003 inception research checkpoint has never fired: checkpoint.sh reads task_id: from a focus file that only has current_task:

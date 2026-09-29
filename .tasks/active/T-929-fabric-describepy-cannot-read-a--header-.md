@@ -1,8 +1,35 @@
 ---
 id: T-929
-name: "fabric describe.py cannot read a // header past a shebang, so every executable .mjs registers with no purpose (OBS-435/441 root cause)"
+name: "fabric describe.py cannot read a // header past a shebang, so every executable
+  .mjs registers with no purpose (OBS-435/441 root cause)"
 description: >
-  ROOT CAUSE of OBS-435 and OBS-441, found under T-573 after three wrong hypotheses (comment syntax, file extension, git-tracked-ness) were each disproven by measurement. .agentic-framework/agents/fabric/lib/describe.py:214-222 -- the '// run' branch of _from_block_comment() iterates src.splitlines() from line ONE: it skips leading BLANK lines ('if not line and not body: continue') but any non-blank line that does not start with // hits 'break'. An executable .mjs begins '#!/usr/bin/env node', so body is empty and the function returns nothing, and register.sh:294 refuses with 'describes itself nowhere' -- about a file whose line 2 is a 25-line self-describing banner. THE SIBLING BRANCH ALREADY GETS THIS RIGHT: _from_hash_header()'s own docstring says 'First # comment block at the top of the file (after any shebang)', which is why .sh files resolve. The same omission hits the XML path from the other side: the /* */ and <!-- --> branches test stripped.startswith(opener), so a .bpmn beginning '<?xml version=...?>' before its <!-- --> banner also fails (measured: my E-XML-WORKFLOW-KIND.bpmn card is purpose_source: none). EVIDENCE. Of the JS-family cards on disk, ALL 9 with purpose_source: none carry a shebang and 0 without a shebang are unresolved; the other 76 shebang-bearing files have NO purpose_source key at all, i.e. they predate the field and their cards were written before this code path existed -- so they are not counter-evidence, they are unmeasured. WHY IT MATTERS MORE THAN A COSMETIC MESSAGE: register.sh creates the card ANYWAY, populated with 'TODO: describe what this component does', and prints REFUSED. So the register gains a row that says nothing while telling the operator the author wrote nothing -- and the commit hook keeps asking for cards, so this recurs on every new browser harness. Five sightings across rounds 2 and 3 of this run. FIX: skip a leading shebang (and a leading XML declaration) before scanning for a banner, in ONE place both branches use. THE CONTROL IS THE POINT: a leg that registers a fixture .mjs WITH a shebang and requires purpose_source == header-comment, plus a leg with a shebang and NO banner requiring the refusal to still fire -- otherwise the fix is unfalsifiable in the direction that matters.
+  ROOT CAUSE of OBS-435 and OBS-441, found under T-573 after three wrong hypotheses
+  (comment syntax, file extension, git-tracked-ness) were each disproven by measurement.
+  .agentic-framework/agents/fabric/lib/describe.py:214-222 -- the '// run' branch
+  of _from_block_comment() iterates src.splitlines() from line ONE: it skips leading
+  BLANK lines ('if not line and not body: continue') but any non-blank line that does
+  not start with // hits 'break'. An executable .mjs begins '#!/usr/bin/env node',
+  so body is empty and the function returns nothing, and register.sh:294 refuses with
+  'describes itself nowhere' -- about a file whose line 2 is a 25-line self-describing
+  banner. THE SIBLING BRANCH ALREADY GETS THIS RIGHT: _from_hash_header()'s own docstring
+  says 'First # comment block at the top of the file (after any shebang)', which is
+  why .sh files resolve. The same omission hits the XML path from the other side:
+  the /* */ and <!-- --> branches test stripped.startswith(opener), so a .bpmn beginning
+  '<?xml version=...?>' before its <!-- --> banner also fails (measured: my E-XML-WORKFLOW-KIND.bpmn
+  card is purpose_source: none). EVIDENCE. Of the JS-family cards on disk, ALL 9 with
+  purpose_source: none carry a shebang and 0 without a shebang are unresolved; the
+  other 76 shebang-bearing files have NO purpose_source key at all, i.e. they predate
+  the field and their cards were written before this code path existed -- so they
+  are not counter-evidence, they are unmeasured. WHY IT MATTERS MORE THAN A COSMETIC
+  MESSAGE: register.sh creates the card ANYWAY, populated with 'TODO: describe what
+  this component does', and prints REFUSED. So the register gains a row that says
+  nothing while telling the operator the author wrote nothing -- and the commit hook
+  keeps asking for cards, so this recurs on every new browser harness. Five sightings
+  across rounds 2 and 3 of this run. FIX: skip a leading shebang (and a leading XML
+  declaration) before scanning for a banner, in ONE place both branches use. THE CONTROL
+  IS THE POINT: a leg that registers a fixture .mjs WITH a shebang and requires purpose_source
+  == header-comment, plus a leg with a shebang and NO banner requiring the refusal
+  to still fire -- otherwise the fix is unfalsifiable in the direction that matters.
 
 status: captured
 workflow_type: build
@@ -22,8 +49,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T08:31:32Z
-last_update: 2026-09-29T08:31:32Z
-date_finished: null
+last_update: '2026-09-29T08:35:06Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +61,29 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed: []
+cost_estimate_proposed:
+  - ts: '2026-09-29T08:35:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      blast_radius:
+      tier: 2
+      effort: 8
+    rationale: blast_radius=? (no-components-UNMEASURED-not-zero); tier=2 
+      (workflow:build); effort=8 (lines=269,acs=4)
+    rubric_sha: e4a00f38e801
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 0
+  F3: 0
+  F1: 1
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-29T08:35:06Z'
 ---
 
 # T-929: fabric describe.py cannot read a // header past a shebang, so every executable .mjs registers with no purpose (OBS-435/441 root cause)
