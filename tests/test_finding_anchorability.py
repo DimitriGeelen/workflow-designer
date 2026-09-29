@@ -66,6 +66,17 @@ NS = {
 #              uid, which a dangling targetRef never becomes. Resolving against
 #              the DOCUMENT scores this gutter-able and is wrong -- the document
 #              is not the canvas.
+#   DOC-META   the finding names a DOCUMENT-LEVEL metadata element
+#              (<aef:workflowMeta>). Unlike DOC an id IS interpolated -- but the
+#              id belongs to the WORKFLOW, not to anything the canvas draws, so
+#              there is no marker position and the class is NOT gutter-able.
+#
+#              READ THE ACCEPTS ENTRY BELOW BEFORE TRUSTING THIS ONE. The
+#              observation is {"node"}, and that is _index()'s catch-all
+#              misreading an extension element, not evidence of gutter-ability.
+#              Declaring this rule NODE would have PASSED and been a lie: it
+#              would have added a false gutter-able row to the ERROR-side figure
+#              in docs/reports/T-309-validator-surfacing.md. Registered as T-926.
 #   VALUE      a DUPLICATED id: resolves to >=2 elements, so "the" anchor does
 #              not exist; for UID-DUP the value is an aef:uid, not a bpmn id,
 #              so a second index would be needed to find the carriers at all.
@@ -101,6 +112,12 @@ ANCHOR = {
     "E-INCEPTION-NOT-SOVEREIGN": "NODE",
     "W-TYPE-LANE-MISMATCH":      "NODE",
     "W-LANE-NO-OWNER":           "NODE",
+    # T-826 (arc-005 S1 residue). T-875 shipped this rule and T-903 classified it
+    # on the dialect axis only; it reached this table unclassified, which is a hard
+    # failure here and was. Witnessed by tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn
+    # -- named .bpmn, not .xml like its ten siblings, because bpmn_documents() walks
+    # for ".bpmn" alone and an .xml fixture is invisible to this axis (T-926).
+    "E-XML-WORKFLOW-KIND":       "DOC-META",
 }
 
 GUTTERABLE = {"NODE", "LANE"}
@@ -132,6 +149,17 @@ ACCEPTS = {
     # MULTIPLICITY below. Kind alone would agree with the documents for a reason
     # that does not test the claim, which is what separates VALUE from NODE.
     "VALUE":     lambda seen: seen <= {"node", "edge", "lane"},
+    # T-826. PINNED to the artefact, deliberately, and this is the one entry in
+    # this table that asserts something it calls WRONG. <aef:workflowMeta> carries
+    # an id, and _index()'s else-branch turns every id-bearing element into a
+    # "node" -- so a document-level metadata finding resolves to {"node"} on both
+    # the fixture and all 24 rendered maps. Accepting {"node"} here is NOT a claim
+    # that the canvas can point at it: DOC-META is absent from GUTTERABLE below,
+    # which is where the substantive claim lives. The pin is tight (== not <=) on
+    # purpose: when T-926 repairs _index this leg FAILS, and a failure that says
+    # "the table stopped describing the tree" is the correct outcome -- it forces
+    # the class to be re-read rather than letting the repair slide past.
+    "DOC-META":  lambda seen: seen == {"node"},
 }
 
 # Classes whose claim is about HOW MANY elements carry the named id, not what

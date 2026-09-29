@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-826 (arc-005 S1 residue). aef:workflowMeta/@kind is 'overlord', outside
+     T-213's CLOSED enum {documentation, work-plan}
+     (tools/validate-workflow.py:90, read by BOTH forms per T-322).
+
+     HAND-AUTHORED, AND THAT IS THE FINDING, NOT A SHORTCUT. Every other
+     E-XML-* fixture here could in principle come from tools/yaml-to-bpmn.py.
+     This one cannot: the bridge emits ZERO <aef:workflowMeta> elements, so a
+     YAML document carrying a bogus kind bridges to a BPMN document that does
+     not carry the defect at all. Measured, not read: the YAML form fires
+     E-WORKFLOW-KIND on such a document, `grep -c workflowMeta` on the bridged
+     output is 0, and the XML form is silent. The carrier is dropped, not
+     repaired — see the KNOWN_DISAGREEMENTS note in
+     tests/test_harness_cross_form_agreement.py and its cited task.
+
+     ABSENT IS NOT THE DEFECT (T-213 IW-3 via T-875): a document with no kind
+     is legal and inert, which is why the stimulus is a bogus value. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_t" name="t">
+
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="t" version="1" schemaVersion="2" kind="overlord"/>
+    </bpmn:extensionElements>
+
+    <bpmn:laneSet id="LaneSet_t">
+      <bpmn:lane id="framework" name="Framework">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_a" name="Start">
+      <bpmn:extensionElements>
+        <aef:uid value="n_a"/>
+        <aef:position x="100" y="100"/>
+      </bpmn:extensionElements>
+    </bpmn:startEvent>
+
+  </bpmn:process>
+</bpmn:definitions>

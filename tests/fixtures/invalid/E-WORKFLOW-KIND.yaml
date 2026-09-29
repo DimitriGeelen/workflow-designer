@@ -1,0 +1,22 @@
+# T-826 (arc-005 S1 residue). workflowMeta.kind is 'overlord', outside T-213's
+# CLOSED enum {documentation, work-plan} (tools/validate-workflow.py:90).
+#
+# WHY THIS FILE EXISTS AND NOT A THROWAWAY MUTATION. T-875 shipped the rule and
+# no document in the tree had ever been seen to fire it — tests/test_check_pass_
+# reachability.py named E-WORKFLOW-KIND among six rules that "fire on NO corpus
+# document and NO fixture". Its own remedy is explicit: "add a fixture, or declare
+# it here with the reason. A control probe that mutates a throwaway copy does not
+# satisfy this, and should not: the witness has to outlive the run that made it."
+#
+# ABSENT IS NOT THE DEFECT. Per T-213 IW-3, re-derived under T-875, a map with no
+# kind at all is LEGAL and not a warning — the UNSET default is inert. So the
+# stimulus here is a BOGUS value, never a missing one. The inert-absence half of
+# the claim is the corpus's job (24/24 carry no kind and validate clean), not
+# this fixture's.
+workflowMeta: {id: t, version: 1, schemaVersion: 2, kind: overlord}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: framework, name: Framework, abbr: frw, authority: authority, height: 130}
+nodes:
+  - {uid: n_a, type: startEvent, name: Start, lane: framework, x: 100, y: 100}
+edges: []

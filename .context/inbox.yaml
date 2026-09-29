@@ -2687,3 +2687,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-440
+  text: "The five T-820 classification axes are 4/5 RED, and the red names rules from four tasks that closed green: E-META-AUTHORITY (T-902) unclassified in PARITY and unwitnessed; E-XML-META-AUTHORITY, E-XML-LANE-AUTHORING-DEFAULT (T-890), W-XML-AUTHORITY-DEFAULT-MISMATCH (T-894) unclassified in ANCHOR and unwitnessed; W-XML-NODE-UNASSIGNED stale in ANCHOR after T-909 promoted it to E-XML-NODE-UNASSIGNED; and a NEW cross-form DISAGREEMENT on E-NODE-LANE (yaml fires, xml silent, reporting E-XML-NODE-UNASSIGNED) that test_rule_form_parity.py reports green because both forms merely NAME it. Found under T-826 while closing its AC5 for the two kind rules only. Each belongs to its originating task, not to T-826 (one bug = one task)."
+  captured: 2026-09-29T07:56:32Z
+  context_task: T-826
+  tags: []
+  status: pending
+  promoted_to: null

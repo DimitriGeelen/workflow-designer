@@ -53,6 +53,38 @@ set -uo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# T-826. THIS RUNNER IS WHOLE-SUITE AND HAS NO PER-RULE MODE. It never read $1,
+# and the docstring above ("put it in that task's ## Verification") invites a
+# caller to pass the rule it just added and read the verdict as being ABOUT that
+# rule. It is not. Measured under T-826 by control: `_t820-rule-axes.sh
+# E-WORKFLOW-KIND`, `... E-TOPLEVEL-MISSING` and `... E-NOT-A-REAL-RULE` produced
+# BYTE-IDENTICAL output -- a rule id that does not exist scored the same as one
+# that does. So when the five suites are green this runner hands any caller a
+# green earned by OTHER PEOPLE'S rules, and when they are red (4/5 are, today) it
+# hands them a red they did not cause. Silently. That is the T-816 defect this
+# file exists to prevent, wearing this file as a costume.
+#
+# Refusing is the fix rather than implementing a filter: a per-rule verdict means
+# each of the five suites growing a rule-scoped mode, which is real work and is
+# T-927. Until then the honest answer to "does MY rule satisfy the axes" is a
+# task-local teeth script that greps this runner's failure lines for its own rule
+# id and carries a control proving that grep can fail -- see
+# tools/_t826-kind-rule-axes-teeth.sh for the pattern.
+if [ "$#" -gt 0 ]; then
+    cat >&2 <<REFUSAL
+REFUSED: $(basename "$0") takes no arguments; it got $# ("$1").
+  This runner is WHOLE-SUITE. It runs five axis files over EVERY validator rule
+  and reports their exit codes. It has never filtered by rule, so a verdict read
+  as being about "$1" is a verdict about the whole tree -- green because of other
+  rules, or red because of them.
+  Run it with no arguments for the suite verdict. For a per-rule answer, write a
+  rule-scoped check that names your rule and carries a control proving it can
+  fail; tools/_t826-kind-rule-axes-teeth.sh is the worked example. Per-rule modes
+  in the five suites themselves are T-927.
+REFUSAL
+    exit 2
+fi
+
 AXES=(
   "form parity:tests/test_rule_form_parity.py"
   "dialect axis:tests/test_rule_dialect_axis.py"

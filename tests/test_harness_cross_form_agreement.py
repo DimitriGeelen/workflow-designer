@@ -108,6 +108,11 @@ PAIRS = {
     "W-PGW-UNBALANCED":     {"W-XML-PGW-UNBALANCED"},
     "W-TYPE-LANE-MISMATCH": {"W-TYPE-LANE-MISMATCH"},
     "W-LANE-NO-OWNER": {"W-LANE-NO-OWNER"},                     # T-331
+    # T-826 (arc-005 S1 residue). T-875 shipped both forms of the diagram-kind
+    # rule and PARITY calls the pair PAIRED; this table never learned it, so the
+    # AC2 drift guard was failing -- and until it did, "the two forms agree on
+    # kind" was a claim no comparison had ever made.
+    "E-WORKFLOW-KIND":      {"E-XML-WORKFLOW-KIND"},
 }
 
 # AC4: untestable in PRINCIPLE -- no cross-form document exists to compare.
@@ -130,9 +135,19 @@ EXPECTED_UNTESTABLE = 1
 #                          so XML silence is still correct, but the author's
 #                          underspecification is now invisible on the BPMN form
 #                          and the YAML form is the only place it can be seen.
-# Both belong in this class; the distinction is recorded because only the second
-# kind loses information, and a future decision to stop defaulting would move
-# those two entries into KNOWN_DISAGREEMENTS rather than out of the harness.
+#   repair-by-ERASURE   -- the CARRIER itself is not emitted, so the defect
+#                          cannot reach the BPMN form because the author's datum
+#                          does not either (E-WORKFLOW-KIND, T-826). This is the
+#                          WORST of the three and the name of the class is wrong
+#                          for it: nothing was repaired. It is filed here only
+#                          because this harness offers no third verdict -- its
+#                          DISAGREE branch demands a CARRIES-probe that reports
+#                          the bridged bytes still carry the defect, and these
+#                          bytes carry nothing at all. Registered as T-925.
+# All three belong in this class; the distinction is recorded because only the
+# second and third kinds lose information, and a future decision to stop
+# defaulting would move those two entries into KNOWN_DISAGREEMENTS rather than
+# out of the harness.
 BRIDGE_REPAIRED = {
     "E-TOPLEVEL-MISSING": "RECOVERY: yaml-to-bpmn.py synthesises <bpmn:process "
                           "id=\"Pool_t\" name=\"t\"> from workflowMeta.id when "
@@ -151,8 +166,27 @@ BRIDGE_REPAIRED = {
                           "T-312 unpositioned SENTINEL, so the map degrades into "
                           "the honest-degradation path the geometry rule already "
                           "skips. That holds for 2 of this rule's 6 carriers",
+    "E-WORKFLOW-KIND":    "ERASURE, WHICH IS NOT A REPAIR (T-826, registered as "
+                          "T-925): yaml-to-bpmn.py emits NO <aef:workflowMeta> "
+                          "element at all -- it reads workflowMeta only to "
+                          "derive wid/process_id (:141) -- so a document "
+                          "carrying kind=\"overlord\" bridges to BPMN with 0 "
+                          "occurrences of workflowMeta and the XML form is "
+                          "silent because the author's datum is GONE, not "
+                          "because it became legal. MEASURED: yaml form fires "
+                          "E-WORKFLOW-KIND, `grep -c workflowMeta` on the "
+                          "bridged output is 0. Filed here rather than in "
+                          "KNOWN_DISAGREEMENTS only because that class demands a "
+                          "CARRIES-probe over bridged bytes that carry nothing. "
+                          "The XML rule itself is NOT unexercised -- it is "
+                          "witnessed by the hand-authored "
+                          "tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn, "
+                          "which is the only fixture here the bridge cannot "
+                          "produce. If T-925 makes the bridge emit workflowMeta, "
+                          "the staleness check below FIRES and this entry must "
+                          "be re-read rather than edited",
 }
-EXPECTED_REPAIRED = 3
+EXPECTED_REPAIRED = 4
 
 # T-332. A BRIDGE_REPAIRED entry is declared per RULE ID, but a rule can fire on
 # several carriers with different repair characters. Both entries above were
