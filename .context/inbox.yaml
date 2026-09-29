@@ -2694,3 +2694,18 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-441
+  text: "OBS-435 recurrence with a SHARPER diagnosis (4th sighting): 'fw fabric register' REFUSED tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn for 'describes itself nowhere' while the file opens with a 15-line XML comment doing exactly that. Round 2 saw the same refusal on three .py/.js files carrying '// T-884 —' headers. The pattern across four sightings is that the self-description detector recognises some comment syntaxes and not others — an XML '<!-- ... -->' block at the top of a .bpmn is invisible to it. It also creates the card ANYWAY and then prints REFUSED, so the refusal is advisory and the card is unpopulated ('Purpose:' empty), which is the worst combination: the register gains a row that says nothing and the operator gets a message that says the author wrote nothing."
+  captured: 2026-09-29T08:09:00Z
+  context_task: T-826
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-442
+  text: "_t560 ratchet is RED on a leg this session did not write: .tasks/active/T-826:304 adds an uncontrolled absence assertion, test -z \"$(git log --since=2026-07-21 --oneline -- docs/standards/aef-bpmn-mapping-v1.md)\". Measured 2026-09-29: census green at 10:01 (baseline 74, current 74, rc=0) and red at 10:09 (74/75); T-826's file mtime 10:08:43, size 28094 -> 28887, so a CONCURRENT session was mid-write. NOT EDITED BY T-785 and deliberately not re-filed as a task in another session's lane, because T-826 is active, in-flight, and owned elsewhere. Its own close is gated by the same census (T-843), so the framework will put this in front of its owner. Class: the test-z / no-grep-pattern shape T-669 costed as '48 BLOCKED, PATTERN credit impossible, only a same-line existence guard works' — and T-826 is in .tasks/active/, so unlike the archived population its owner may add that guard directly, no PD-308 needed. Second-order point worth more than the leg: this is the concurrency mode nothing accounts for — a corpus-wide ratchet gates every task's close, so any session can red every other session's gate with one leg, and the blocked sessions have no way to tell an own-regression from someone else's."
+  captured: 2026-09-29T08:12:01Z
+  context_task: T-785
+  tags: [concurrency]
+  status: pending
+  promoted_to: null
+  urgent: true

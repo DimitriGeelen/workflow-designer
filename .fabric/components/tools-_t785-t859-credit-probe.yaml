@@ -1,0 +1,21 @@
+id: tools/_t785-t859-credit-probe.py
+name: _t785-t859-credit-probe
+type: script
+subsystem: instruments
+location: tools/_t785-t859-credit-probe.py
+tags: []
+
+purpose: "T-785 — does the census CREDIT the one leg this task repaired?"
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-29
+created_by: unknown

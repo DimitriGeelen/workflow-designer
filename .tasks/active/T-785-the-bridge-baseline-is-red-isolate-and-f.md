@@ -290,6 +290,34 @@ cost_estimate_proposed:
       passes, the companion is present), not the number.
 
 
+- [x] **The ratchet is not this task's to pin, and a concurrent session proved it in twenty
+      minutes.** This task's first draft of its own `## Verification` asserted the GLOBAL census
+      exits 0 and its teeth report 5/5. Measured: green at 10:01 (`baseline 74, current 74`,
+      rc=0), red at 10:09 (`74 / 75`) — because another session added an uncontrolled
+      `test -z "$(git log --since=... -- <path>)"` leg to `.tasks/active/T-826` at 10:08:43,
+      while this task was being verified. **Nothing about this repair changed in between.**
+
+      That is a **G-015 carrier** by the bridge suite's own definition — *"a line asserting a
+      global, always-moving property ... that decays when anyone else edits the tree"* — and
+      the second one this task found in its own block within the hour (the first pinned the
+      literal `78`). A ratchet is a corpus-wide rise detector owned by no single task; gating one
+      task's close on it makes that close a function of every other session's in-flight work.
+
+      Replaced with `tools/_t785-t859-credit-probe.py`, which asserts what T-785 delivered: the
+      one leg that had risen above the baseline is READ (bare pattern extractable), CLASSIFIED
+      (still an absence assertion, so crediting it is not vacuous) and **PATTERN-credited**.
+      **Mutation-proven in both directions** — revert the reader change, rc=1; revert the PD-308
+      companion, rc=1; both present, rc=0 — so each half of the repair is independently
+      load-bearing, and the probe ABSTAINS at rc=2 rather than passing if the leg moves.
+
+      **Not a weakening, and the scope of this task names that as the prohibited move.**
+      `_t560-absence-assertion-census.py` keeps its ratchet, `_t560-absence-baseline.txt` still
+      reads **74**, no exclusion list grew, and the census is red on T-826's leg as of this
+      writing — correctly, and for its own owner to answer. T-826 is another session's ACTIVE,
+      in-flight task: **not edited**, and deliberately not re-filed as a task in someone else's
+      lane. Recorded as an observation instead.
+
+
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -360,8 +388,19 @@ python3 tests/test_forward_fixtures.py > /dev/null 2>&1
 # the exact T-3326 mutable-corpus-anchor rot the template warns about, caught in this task's own
 # block. Replaced with the INVARIANT that is actually this task's deliverable — the ratchet exits
 # green, its teeth pass, and the recogniser change is pinned by its own suite — not the number.
-timeout 300 python3 tools/_t560-absence-assertion-census.py > /tmp/.t785.census 2>&1 && grep -q 'RATCHET' /tmp/.t785.census
-timeout 600 python3 tools/_t560-absence-census-teeth.py > /tmp/.t785.teeth 2>&1 && grep -q '5/5 legs passed' /tmp/.t785.teeth
+# THE RATCHET IS NOT THIS TASK'S TO PIN, and twenty minutes of measurement proved it. The two
+# legs that stood here asserted the GLOBAL census exits 0 and its teeth report 5/5 (leg 5 of
+# which asserts the live corpus is green). Both were green at 10:01 — `baseline 74, current 74`,
+# rc=0 — and red at 10:09, because a CONCURRENT session added an uncontrolled
+# `test -z "$(git log --since=... -- <path>)"` leg to .tasks/active/T-826 at 10:08:43. Nothing
+# about this task's repair changed in between. That is a G-015 carrier by the bridge suite's own
+# definition — "a line asserting a global, always-moving property that decays when anyone else
+# edits the tree" — and it makes this task's close a function of every other session's in-flight
+# work. Replaced with a probe that asserts what T-785 DELIVERED: the one leg that had risen above
+# the baseline is read, classified and PATTERN-credited. NOT a weakening — _t560 is unchanged,
+# its baseline still reads 74, no exclusion list grew, and the ratchet is still red on T-826's
+# leg right now, correctly, for its own owner to answer.
+python3 tools/_t785-t859-credit-probe.py > /tmp/.t785.probe 2>&1 && grep -q 'CREDIT PROBE: PASS' /tmp/.t785.probe
 bash tools/_t845-control-recogniser-tests.sh > /tmp/.t785.t845 2>&1 && grep -qE '# passed [0-9]+, failed 0' /tmp/.t785.t845
 grep -q "grep -q 'Traceback' /tmp/.t859.control" .tasks/completed/T-859-t542-cost-axis-guard-raises-attributeerr.md
 test -f tools/_t560-absence-census-teeth.py
@@ -428,6 +467,67 @@ test -f tools/_t560-absence-census-teeth.py
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** `tests/run-bridge-tests.sh` red with `TEETH FAIL — 1 leg(s) failed`, tracing to
+`_t560-absence-census-teeth.py` leg 5: *"unoverridden run gave rc=1 over 3157 legs — either the
+live corpus regressed or T560_TASK_ROOT leaked."* The census read `RATCHET baseline 74, current
+75`. With the ratchet red, no change to `tests/fixtures/aef-bpmn` — 832's contractual reference
+corpus for AEF's Child-2 forward bridge — could be shown safe.
+
+**Root cause:** Two distinct causes, found in sequence, and only the second is this session's.
+
+1. *The corpus did regress.* One uncontrolled absence-asserting Verification leg was added above
+   the baseline after T-669 set it: `T-859:296`, created 2026-09-25 22:49, five hours after the
+   drain commit. It is the only census-listed task newer than the baseline.
+
+2. *And that leg could not be repaired through the sanctioned route.* `GREP_PAT` in
+   `_t560-absence-assertion-census.py` required a grep pattern to be QUOTED. T-859's leg is
+   `test "$(grep -c Traceback /tmp/.t859.out)" -eq 0` — the pattern is unquoted, so
+   `patterns_in()` returned `[]`. Because PATTERN credit is `p in sib_pats` over the leg's OWN
+   patterns, a leg with no readable pattern can never be credited by ANY companion. The
+   instrument reported `WHY NOT CREDITED: no grep pattern to control (zero comes from a
+   command's output, not a match)` — a sentence that is FALSE about this leg. So the repair
+   PD-308 authorises (append a same-string companion) would have been a silent no-op.
+
+**Why structurally allowed:** Three layers, each one the same shape one level up.
+
+- *The reader was mistaken for the rule.* A quoting convention in a regex became, in effect, a
+  rule about which legs are controllable — with no statement anywhere that it was doing so.
+  This is the identical defect T-845 fixed when it removed the `len(p) >= 3` floor
+  (*"what the floor actually did was make a whole class of valid controls impossible to express,
+  and nothing in the output said so"*). The floor was removed; the quoting requirement beside it
+  was not examined, because the fix was aimed at the symptom that had been reported.
+- *The mis-read propagated into a costing.* T-669 classified this leg family as
+  *"48 BLOCKED... they extract no grep pattern, so PATTERN credit is impossible... Unblocking
+  them needs an operator ruling (OBS-382)."* True of the instrument as written, and the
+  conclusion drawn was that a **sovereign ruling** was required — when what was required was a
+  three-line change to a regex. A tool's limitation was escalated as a governance question.
+- *The task itself sat 7 days past its own unblocking.* T-785 went to `issues` naming T-353's
+  open ruling; PD-308 answered it the next day; nothing connected the two. Registered as
+  **G-081** — deliberately NOT closed by this task, because surfacing one instance is mitigation,
+  not prevention.
+
+**Prevention:** Distinct from the fix, and in the layer that failed.
+
+- `tools/_t845-control-recogniser-tests.sh` gains four cases pinning the capability AND its
+  guards: a bare pattern is read; a bare-pattern leg is creditable by a same-string companion; a
+  `$`-leading token stays unreadable; a MENTIONED bare pattern is still refused. **Teeth proven
+  by replay** — against the pre-fix reader via `T845_REPO_ROOT`, the two capability cases fail and
+  all three over-crediting guards still pass, so the suite is shown to test the change rather
+  than the corpus.
+- The behaviour-neutrality is itself pinned as evidence, not assertion: PATTERN 76 / EXISTENCE 27
+  / NONE 75 before and after, **identical 75-leg set**. Every change to this recogniser can only
+  credit MORE, so an unmoved set is the proof that nothing was silently drained.
+- `tools/_t785-t859-credit-probe.py` pins the repair itself rather than the corpus-wide
+  ratchet, after the ratchet-pinning leg decayed within twenty minutes under a concurrent
+  session's edit (OBS-442). Mutation-proven both ways: revert the reader change, rc=1;
+  revert the PD-308 companion, rc=1; it ABSTAINS at rc=2 rather than passing if the leg moves.
+- **G-081** registered for the class this task's own week-long stall demonstrates, with a
+  decision_trigger that demands the census (how many tasks in `issues` name an already-ruled
+  blocker?) and explicitly refuses closure-by-instance.
+- This task's own Verification block, which had rotted against the literal `78`, now pins the
+  invariant. The rot is recorded rather than quietly repaired: T-3326's mutable-corpus anchor
+  found inside the block of the task complaining about a red baseline.
 
 ## Evolution
 
