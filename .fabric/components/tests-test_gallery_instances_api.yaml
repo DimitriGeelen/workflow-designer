@@ -1,0 +1,21 @@
+id: tests/test_gallery_instances_api.py
+name: test_gallery_instances_api
+type: script
+subsystem: tests
+location: tests/test_gallery_instances_api.py
+tags: []
+
+purpose: "T-884 (arc-005 S4): GET /api/instances?template=<id> on tools/gallery-serve.py."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-29
+created_by: unknown

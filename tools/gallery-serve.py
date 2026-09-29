@@ -29,6 +29,8 @@ API:
   GET  /api/versions?id=<id>       -> index.json  ([] if none)
   GET  /api/version?id=<id>&v=<n>  -> that version's BPMN (text/xml)
   GET  /api/thumb?id=<id>&v=<n>    -> that version's PNG
+  GET  /api/instances?template=<id> -> tools/instance-node.py snapshot <id> (T-884): where every
+                                      live instance of that template is, plus their audit-log refusals
   POST /api/save  {id, bpmn, png?, note?, promote?} -> {ok:true, v, ts, corpus:bool}
 
 Usage: gallery-serve.py [PORT] [--docroot DIR] [--repo DIR] [--bind ADDR] [--allow-new-corpus]
@@ -39,6 +41,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import threading
@@ -640,6 +643,27 @@ class Handler(SimpleHTTPRequestHandler):
                     return self._json(404, {'ok': False, 'error': 'no thumbnail'})
             with open(p, 'rb') as f:
                 return self._bytes(200, f.read(), 'image/png')
+        if route == '/api/instances':
+            # T-884 (arc-005 S4): the designer's read of instance state. The tool is the one
+            # reader of the corpus + audit log; this route only runs it. 400 on an id the
+            # ID_RE would not admit (no traversal), 404 when the tool says TEMPLATE-UNKNOWN.
+            tpl = (q.get('template') or [''])[0]
+            if not self._valid_id(tpl):
+                return self._json(400, {'ok': False, 'error': 'invalid template'})
+            tool = os.path.join(REPO, 'tools', 'instance-node.py')
+            if not os.path.exists(tool):
+                return self._json(404, {'ok': False, 'error': 'instance tool absent in this repo'})
+            try:
+                p = subprocess.run([sys.executable, tool, '--root', REPO, 'snapshot', tpl],
+                                   capture_output=True, text=True, timeout=60)
+            except Exception as e:  # noqa: BLE001 — a broken tool is a 500, never a hang
+                return self._json(500, {'ok': False, 'error': 'instance tool failed: %s' % e})
+            if p.returncode == 3:
+                return self._json(404, {'ok': False, 'error': 'unknown template', 'detail': p.stdout.strip()})
+            if p.returncode != 0:
+                return self._json(500, {'ok': False, 'error': 'instance tool exit %d' % p.returncode,
+                                        'detail': (p.stdout + p.stderr).strip()[-2000:]})
+            return self._bytes(200, p.stdout.encode('utf-8'), 'application/json')
         return self._json(404, {'ok': False, 'error': 'unknown endpoint'})
 
     # ---- POST ----
@@ -828,7 +852,7 @@ def main():
     sys.stderr.write("gallery-serve (write-capable) docroot=%s repo=%s\n" % (DOCROOT, REPO))
     sys.stderr.write("Local:  http://localhost:%d/\n" % PORT)
     sys.stderr.write("LAN:    http://%s:%d/\n" % (ip, PORT))
-    sys.stderr.write("API:    /api/health /api/list /api/save /api/delete /api/versions /api/version /api/thumb\n")
+    sys.stderr.write("API:    /api/health /api/list /api/save /api/delete /api/versions /api/version /api/thumb /api/instances\n")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

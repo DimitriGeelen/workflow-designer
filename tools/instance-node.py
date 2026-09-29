@@ -67,6 +67,13 @@ Usage:
   instance-node.py refusals [T-XXX]                 read the audit log back: one REFUSAL <ts> <task>
                                                     <case> <rule> <node>[ -> <target>] per line, or
                                                     NO-REFUSALS [<task>] — a state, never a bare empty list
+  instance-node.py snapshot <template-id>           the DESIGNER's read (T-884, arc-005 S4): one JSON
+                                                    document {template, generated, state, examined,
+                                                    instances:[{task,state,node,status,owner}],
+                                                    refusals:[audit lines of those tasks]} — the reverse
+                                                    resolution (T-881) plus the audit log (T-883), computed
+                                                    over the corpus, no index. state is INSTANCES or
+                                                    NO-INSTANCES; TEMPLATE-UNKNOWN exits 3
 
 Audit log (T-883, arc-005 S3/B9 — V7: "each refused and each lands in the audit log").
 Every refusal this tool emits (REFUSED / REFUSED-PLACED / REFUSED-TRANSITION) appends ONE
@@ -552,11 +559,11 @@ def _reverse(a, table, template):
             continue
         node = fields.get("current_node", "").strip().strip("'\"")
         if not node:
-            rows.append((tid, "NO-POSITION", ""))
+            rows.append((tid, "NO-POSITION", "", fields))
         elif node in nodes:
-            rows.append((tid, "NODE", node))
+            rows.append((tid, "NODE", node, fields))
         else:
-            rows.append((tid, "STALE", node))
+            rows.append((tid, "STALE", node, fields))
     state = "INSTANCES" if rows else "NO-INSTANCES"
     return state, rows, len(entities)
 
@@ -572,7 +579,7 @@ def cmd_instances(a, table):
         print(f"NO-INSTANCES {a.template} (examined {examined} live entities{note})")
         return 0
     print(f"INSTANCES {a.template} {len(rows)} (examined {examined} live entities)")
-    for tid, word, node in rows:
+    for tid, word, node, _f in rows:
         print(f"  {tid} {word} {node}".rstrip())
     return 0
 
@@ -587,7 +594,7 @@ def cmd_roundtrip(a, table):
             bad += 1
             continue
         disagree = []
-        for tid, _, _ in rows:
+        for tid, _w, _n, _f in rows:
             path = find_task(a.tasks_dirs, tid)
             fields, _, _ = frontmatter(open(path, encoding="utf-8").read())
             _, tpls = bound_templates(fields, table)
@@ -623,8 +630,8 @@ def cmd_refused(a, table):
     return 0
 
 
-def cmd_refusals(a, table):
-    """Read the audit log back as states: REFUSAL lines, or NO-REFUSALS."""
+def _read_refusals(task=None):
+    """Every parseable audit line, optionally for one task. Unparseable lines are said out loud and skipped."""
     rows = []
     if AUDIT_LOG and os.path.isfile(AUDIT_LOG):
         for line in open(AUDIT_LOG, encoding="utf-8"):
@@ -636,9 +643,32 @@ def cmd_refusals(a, table):
             except ValueError:
                 print(f"WARNING: unparseable audit line skipped: {line[:80]}", file=sys.stderr)
                 continue
-            if a.task and r.get("task") != a.task:
+            if task and r.get("task") != task:
                 continue
             rows.append(r)
+    return rows
+
+
+def cmd_snapshot(a, table):
+    """The designer's read (T-884): instances of one template plus their refusals, as one JSON document."""
+    state, rows, examined = _reverse(a, table, a.template)
+    if state == "TEMPLATE-UNKNOWN":
+        print(f"TEMPLATE-UNKNOWN {a.template} (no {os.path.relpath(a.rendered_dir, a.root)}/{a.template}.bpmn)")
+        return 3
+    clean = lambda v: (v or "").strip().strip("'\"")
+    instances = [{"task": tid, "state": word, "node": node,
+                  "status": clean(f.get("status")), "owner": clean(f.get("owner"))}
+                 for tid, word, node, f in rows]
+    tasks = {i["task"] for i in instances}
+    doc = {"template": a.template, "generated": _now(), "state": state, "examined": examined,
+           "instances": instances, "refusals": [r for r in _read_refusals() if r.get("task") in tasks]}
+    print(json.dumps(doc, ensure_ascii=False))
+    return 0
+
+
+def cmd_refusals(a, table):
+    """Read the audit log back as states: REFUSAL lines, or NO-REFUSALS."""
+    rows = _read_refusals(a.task or None)
     if not rows:
         print(f"NO-REFUSALS {a.task}".rstrip())
         return 0
@@ -671,6 +701,7 @@ def main(argv=None):
     s.add_argument("--target", default=""); s.add_argument("--detail", default=""); s.add_argument("--actor", default="cli")
     s.set_defaults(fn=cmd_refused)
     s = sub.add_parser("refusals"); s.add_argument("task", nargs="?", default=""); s.set_defaults(fn=cmd_refusals)
+    s = sub.add_parser("snapshot"); s.add_argument("template"); s.set_defaults(fn=cmd_snapshot)
     a = p.parse_args(argv)
     a.root = os.path.abspath(a.root)
     a.binding = a.binding or os.path.join(a.root, "examples", "aef-processes", "template-binding.yaml")

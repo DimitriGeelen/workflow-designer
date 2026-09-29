@@ -637,6 +637,22 @@ font-family: 'Outfit';
      external). Tokens, never literals, so the marker follows the theme. */
   .node-authority-badge   { fill: var(--text-faint); font-family: var(--mono); font-size: 8px; pointer-events: none; letter-spacing: 0.02em; }
   .node-authority-missing { fill: var(--orange);     font-family: var(--mono); font-size: 8px; pointer-events: none; font-weight: 600; }
+  /* T-884 (arc-005 S4): instance overlay — where a governed entity IS on this template. Four
+     states drawn on the element, none written to the model: current (accent halo + "● T-XXX"),
+     done (faint halo + "✓", a DERIVED path — see the picker's title), refused (red halo +
+     "⛔ <rule>", the node a refusal fired on) and refused-target (red dashed halo, the node
+     the refused hop pointed at). Tokens, never literals. */
+  .node-instance-halo { fill: none; stroke: var(--accent); stroke-width: 2px; pointer-events: none; }
+  .node[data-instance="done"] .node-instance-halo { stroke: var(--green); stroke-width: 1px; opacity: .8; }
+  .node[data-instance="refused"] .node-instance-halo { stroke: var(--red); stroke-width: 2px; }
+  .node[data-instance="refused-target"] .node-instance-halo { stroke: var(--red); stroke-width: 1px; stroke-dasharray: 4 3; }
+  .node-instance-badge { fill: var(--accent); font-family: var(--mono); font-size: 8px; font-weight: 600; pointer-events: none; }
+  .node[data-instance="done"] .node-instance-badge { fill: var(--green); font-weight: 500; }
+  .node-instance-refused-badge { fill: var(--red); font-family: var(--mono); font-size: 8px; font-weight: 600; pointer-events: none; }
+  /* The badge sits above the top-right corner, where incoming edges cross; a surface-coloured pill
+     under the text keeps it legible over an edge line (read in the T-884 screenshots, not measured). */
+  .node-instance-pill { fill: var(--surface); stroke: var(--border-strong); stroke-width: .5px; pointer-events: none; }
+  #instancePicker { margin-left: 8px; font-size: 12px; max-width: 260px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 1px 4px; }
   /* T-355: the real tag of a foreign (out-of-allowlist) flow node, drawn above the shape.
      Mono because it is a literal from the source document, not prose; --text-dim rather
      than --text-faint so it stays legible — this is the one mark that says what the
@@ -1225,6 +1241,12 @@ font-family: 'Outfit';
            badge; contract version stays editable in the properties "Workflow version" field). -->
       <!-- T-157: currently-loaded saved-version (snapshot) badge — hidden for new/unsaved maps -->
       <span id="map-saved-version" title="Currently-loaded saved version (snapshot). Click 🕘 Versions to browse." style="display:none;margin-left:8px;padding:1px 7px;border-radius:10px;background:rgba(122,184,255,.14);color:#7ab8ff;border:1px solid rgba(122,184,255,.35);font-size:12px;font-weight:600"></span>
+      <!-- T-884 (arc-005 S4): instance overlay picker. Lists the loaded template's live instances
+           from /api/instances (tools/instance-node.py snapshot) and draws where the chosen one is:
+           current node, DERIVED completed path, and the node a refusal fired on with its rule.
+           Present even when the API is absent — then it says so — because a picker that vanishes
+           cannot tell "no instances" from "no server". Writes nothing to the model. -->
+      <select id="instancePicker" title="Instance overlay (T-884): where a governed entity is on this template. ● current node · ✓ completed path (DERIVED: the shortest flow path from the start, not a recorded history) · ⛔ the node a refusal fired on, with the rule that refused it (from .context/audits/instance-refusals.jsonl). Reads /api/instances; writes nothing."><option value="">instances: loading…</option></select>
     </div>
     <div class="actions">
       <!-- T-245 view-chrome controls: per-panel hide/show (persisted in aefViewPrefs)
@@ -1735,6 +1757,56 @@ function effectiveLaneDefault(lane) {
   if (!lane) return null;
   if (lane.authoringDefault) return lane.authoringDefault;
   return lane.authority && lane.authority !== 'none' ? lane.authority : null;
+}
+
+// T-884 (arc-005 S4): the instance overlay state, decided in one pure function so
+// tests/t884-instance-overlay-state.test.mjs runs it without a browser. Inputs are plain data:
+// the template's node ids, its sequenceFlows as {source: [targets]}, its startEvent ids, one
+// instance {task, state, node} from `instance-node.py snapshot`, and that snapshot's refusal
+// lines. Output: {current, done, refused}. `done` is DERIVED — the shortest flow path from a
+// startEvent to the current node, excluding it (the prefix `walk` takes from NO-POSITION);
+// a loop the instance actually took is not recorded anywhere (T-878) and so is not drawn.
+// `refused` is the LATEST audit line for this task whose node is on this template, with its
+// rule and — when the refused hop named one and it is on this template — its target. Reads;
+// never writes.
+function instanceOverlayState(nodeIds, flows, startIds, instance, refusals) {
+  const ids = new Set(nodeIds || []);
+  const out = { current: null, done: [], refused: null };
+  if (!instance) return out;
+  if (instance.state === 'NODE' && ids.has(instance.node)) {
+    out.current = instance.node;
+    let best = null;
+    for (const s of (startIds || [])) {
+      if (!ids.has(s)) continue;
+      const prev = new Map([[s, null]]);
+      const queue = [s];
+      let found = s === instance.node;
+      while (queue.length && !found) {
+        const cur = queue.shift();
+        for (const nxt of ((flows && flows[cur]) || [])) {
+          if (prev.has(nxt)) continue;
+          prev.set(nxt, cur);
+          if (nxt === instance.node) { found = true; break; }
+          queue.push(nxt);
+        }
+      }
+      if (!found) continue;
+      const path = [];
+      for (let x = instance.node; x != null; x = prev.get(x)) path.push(x);
+      path.reverse();
+      if (best === null || path.length < best.length) best = path;
+    }
+    if (best) out.done = best.slice(0, -1);
+  }
+  if (Array.isArray(refusals)) {
+    for (let i = refusals.length - 1; i >= 0; i--) {
+      const r = refusals[i];
+      if (!r || r.task !== instance.task || !ids.has(r.node)) continue;
+      out.refused = { node: r.node, rule: r.rule || '?', target: r.target && ids.has(r.target) ? r.target : null };
+      break;
+    }
+  }
+  return out;
 }
 
 // Default lanes for a new workflow — mirror AEF's three-role authority model.
@@ -3598,6 +3670,33 @@ function renderNodes() {
         g.appendChild(el('text', { x: n.x + 2, y: n.y - 3, class: 'node-authority-badge', 'data-authority-marker': 'differs' }, [text('◆ ' + (AUTHORITY_ABBR[n.aef.authority] || n.aef.authority))]));
       } else if (mstate === 'missing') {
         g.appendChild(el('text', { x: n.x + 2, y: n.y - 3, class: 'node-authority-missing', 'data-authority-marker': 'missing' }, [text('⚠ no authority')]));
+      }
+    }
+    // T-884: instance overlay. A halo around the bounding box and a badge above its top-RIGHT
+    // corner (the T-893 marker owns the top-left). data-instance on the group is what the driver
+    // counts; the model is not touched. A node that is both current and the refusal's node keeps
+    // data-instance="current" and draws both badges — the refusal is never hidden by progress.
+    {
+      const ov = instanceView.overlay;
+      if (ov) {
+        const did = displayIdOf(n);
+        const isRefused = !!(ov.refused && ov.refused.node === did);
+        const istate = did === ov.current ? 'current' : isRefused ? 'refused'
+          : (ov.refused && ov.refused.target === did) ? 'refused-target' : ov.done.includes(did) ? 'done' : null;
+        if (istate) {
+          g.setAttribute('data-instance', istate);
+          g.appendChild(el('rect', { x: n.x - 4, y: n.y - 4, width: def.w + 8, height: def.h + 8, rx: 8, class: 'node-instance-halo' }));
+          const bx = n.x + def.w + 2, by = n.y - 6;
+          const pill = (cls, txt, y, key) => {   // pill first, text on top: legible over a crossing edge
+            const w = Math.round(txt.length * 5.1 + 8);
+            g.appendChild(el('rect', { x: bx - w, y: y - 8.5, width: w, height: 11.5, rx: 3, class: 'node-instance-pill', 'data-instance-pill': key }));
+            g.appendChild(el('text', { x: bx - 4, y: y, class: cls, 'text-anchor': 'end', 'data-instance-badge': key }, [text(txt)]));
+          };
+          if (istate === 'current') pill('node-instance-badge', '● ' + instanceView.selected, by, 'current');
+          else if (istate === 'done') pill('node-instance-badge', '✓', by, 'done');
+          else if (istate === 'refused-target') pill('node-instance-refused-badge', '✗ refused target', by, 'refused-target');
+          if (isRefused) pill('node-instance-refused-badge', '⛔ ' + ov.refused.rule, istate === 'current' ? by - 13 : by, 'refused');
+        }
       }
     }
     gNodes.appendChild(g);
@@ -9061,6 +9160,73 @@ function resolveWorkflowRef(n) {
 function effectiveJumpTarget(n) {
   return resolveWorkflowRef(n) || ((n && n.aef && n.aef.targetWorkflow || '').trim());
 }
+// ── T-884 (arc-005 S4): instance overlay — runtime half ──────────────────────
+// `instanceView` is VIEW state, never document state: nothing in it is exported or autosaved.
+// available: null (not asked yet) | true | false (endpoint absent — static hosting, 404, error).
+let instanceView = { available: null, template: null, instances: [], refusals: [], selected: null, pending: null, notFound: false, overlay: null };
+async function loadInstanceSnapshot() {
+  const tpl = (state && state.workflowMeta && state.workflowMeta.id) || null;
+  instanceView.template = tpl;
+  instanceView.instances = []; instanceView.refusals = [];
+  if (tpl) {
+    try {
+      const r = await fetch('/api/instances?template=' + encodeURIComponent(tpl), { cache: 'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      if (!d || !Array.isArray(d.instances)) throw new Error('not a snapshot');
+      instanceView.available = true;
+      instanceView.instances = d.instances;
+      instanceView.refusals = Array.isArray(d.refusals) ? d.refusals : [];
+    } catch (e) {
+      instanceView.available = false;   // additive overlay: absence is a state, never a fault
+    }
+  }
+  const want = instanceView.pending != null ? instanceView.pending : instanceView.selected;
+  instanceView.pending = null;
+  selectInstance(want);
+}
+function selectInstance(task) {
+  // Without the endpoint there is nothing to select against: "unavailable" is the state, and a
+  // requested id is unknowable rather than "not found" (which would claim the corpus was read).
+  if (instanceView.available !== true) task = null;
+  instanceView.selected = task || null;
+  instanceView.notFound = !!task && !instanceView.instances.some(i => i.task === task);
+  computeInstanceOverlay();
+  renderInstancePicker();
+  if (state) renderNodes();
+}
+function computeInstanceOverlay() {
+  const inst = instanceView.selected ? instanceView.instances.find(i => i.task === instanceView.selected) : null;
+  if (!inst || !state) { instanceView.overlay = null; return; }
+  const idOf = new Map(state.nodes.map(n => [n.uid, displayIdOf(n)]));
+  const nodeIds = state.nodes.map(n => displayIdOf(n));
+  const flows = {};
+  for (const e of state.edges) {
+    const src = idOf.get(e.source), tgt = idOf.get(e.target);
+    if (src && tgt) (flows[src] = flows[src] || []).push(tgt);
+  }
+  const startIds = state.nodes.filter(n => n.type === 'startEvent').map(n => displayIdOf(n));
+  instanceView.overlay = instanceOverlayState(nodeIds, flows, startIds, inst, instanceView.refusals);
+}
+function renderInstancePicker() {
+  const sel = $('instancePicker');
+  if (!sel) return;
+  sel.innerHTML = '';
+  const opt = (value, label, selected) => { const o = document.createElement('option'); o.value = value; o.textContent = label; if (selected) o.selected = true; sel.appendChild(o); };
+  const v = instanceView;
+  if (v.available === false) opt('', 'instances: unavailable', !v.selected);
+  else if (v.available === null) opt('', 'instances: loading…', !v.selected);
+  else if (!v.instances.length) opt('', 'instances: none for ' + (v.template || 'this map'), !v.selected);
+  else opt('', 'instance: none (' + v.instances.length + ' on ' + (v.template || 'this map') + ')', !v.selected);
+  // Positioned instances first (they are what the overlay can draw), then STALE, then the
+  // NO-POSITION majority — the corpus predates the mechanism, so most entities have no node.
+  const rank = { NODE: 0, STALE: 1 };
+  const ordered = v.instances.slice().sort((a, b) => ((rank[a.state] ?? 2) - (rank[b.state] ?? 2)) || a.task.localeCompare(b.task, undefined, { numeric: true }));
+  for (const i of ordered) opt(i.task, i.task + ' · ' + (i.state === 'NODE' ? i.node : i.state) + (i.status ? ' · ' + i.status : ''), v.selected === i.task);
+  if (v.notFound) opt(v.selected, 'instance not found: ' + v.selected, true);
+  sel.disabled = v.available !== true && !v.notFound;
+}
+
 async function detectSaveApi() {
   try {
     const r = await fetch('/api/health', { cache: 'no-store' });
@@ -9560,6 +9726,7 @@ async function openProjectMap(m) {
     adoptImportedXml(text, { replace: true, userImport: true });
     // T-157: reflect the loaded snapshot (or clear for a rendered baseline).
     setLoadedSavedVersion(ot.kind === 'version' ? ot.v : null);
+    loadInstanceSnapshot();   // T-884: the overlay follows the loaded template
   } catch (e) {
     aefRecordFault('map-open', e);
     alert('Could not open “' + m.id + '”: ' + (e && e.message || e));
@@ -10072,16 +10239,19 @@ $('btn-load').onclick = () => {
 // Only useful when served over HTTP (fetch of file:// paths is blocked by browsers).
 (async () => {
   const src = new URLSearchParams(location.search).get('load');
-  if (!src) return;
+  // T-884: ?instance=T-XXX pre-selects an instance once the map (and its snapshot) is in.
+  instanceView.pending = new URLSearchParams(location.search).get('instance');
+  if (!src) { loadInstanceSnapshot(); return; }
   try {
     const res = await fetch(src);
     if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${src}`);
     // B1: if autoLoadStored() already restored newer autosaved edits for THIS same
     // deep-link, don't let the fetched file overwrite them. The synchronous Init tail
     // (which runs autoLoadStored) always completes before this await resolves.
-    if (typeof _suppressDeepLink !== 'undefined' && _suppressDeepLink) return;
+    if (typeof _suppressDeepLink !== 'undefined' && _suppressDeepLink) { loadInstanceSnapshot(); return; }
     adoptImportedXml(await res.text(), { userImport: true });
     _loadSrcKey = activeKey;   // T-234: remember which map identity this ?load adopted
+    loadInstanceSnapshot();    // T-884: the overlay follows the loaded template
   } catch (e) {
     aefRecordFault('deeplink-load', e);
     console.error('Deep-link load failed:', e);
@@ -10089,6 +10259,7 @@ $('btn-load').onclick = () => {
   }
 })();
 $('btn-new-workflow').onclick = () => { createNewWorkflow(); };
+$('instancePicker').onchange = e => selectInstance(e.target.value || null);   // T-884
 $('btn-save-project').onclick = saveToProject;
 $('btn-versions').onclick = openVersionsModal;
 $('btn-open-project').onclick = openProjectModal;   // T-144 (moved to brand area in T-154)

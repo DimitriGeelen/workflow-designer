@@ -2579,3 +2579,10 @@ decisions:
     date: 2026-09-29
     task: T-883
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-348
+    decision: "(a) \"completed nodes\" = the shortest sequenceFlow path from a startEvent to the current node, computed in the designer from the loaded template — labelled DERIVED in the picker's title; (b) one `snapshot` verb on the tool, served by the project's own `gallery-serve.py` at `/api/instances?template=`, fetched by the designer with graceful absence; (c) the overlay lives in `instanceView` (view state), never in `state`, so export and autosave cannot carry it."
+    scope: project
+    date: 2026-09-29
+    task: T-884
+    rationale: "Auto-captured from task file on completion"
