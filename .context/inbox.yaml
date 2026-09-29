@@ -2731,3 +2731,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-446
+  text: "CORRECTION to OBS-441: its diagnosis ('the self-description detector recognises some comment syntaxes and not others -- an XML comment block is invisible to it') was WRONG. Measured under T-573: the detector handles // runs and <!-- --> banners fine; what it does not do is SKIP A LEADING SHEBANG OR XML DECLARATION before looking for them (describe.py:204-222). The sibling # branch skips the shebang explicitly, which is why .sh files resolve and executable .mjs files do not. Root cause filed as T-929 with the fix and the two control legs it needs. Keeping the wrong diagnosis on the record rather than deleting it: it was arrived at from two sightings and was the kind of plausible-by-extension guess that three further measurements (comment syntax, file extension, git-tracked-ness) each refuted."
+  captured: 2026-09-29T08:31:43Z
+  context_task: T-573
+  tags: []
+  status: pending
+  promoted_to: null

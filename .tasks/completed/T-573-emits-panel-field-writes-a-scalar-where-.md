@@ -24,21 +24,21 @@ description: >
   pins the preservation and leg 'structured-untouched' pins that an ARRAY still takes
   its own channel.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug, designer, round-trip]
-components: [src/aef-workflow-designer.html]
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_editor_bridge_structured_parity.py, tools/_roundtrip-serialization-cdp.mjs, tools/_t570-meta-carriage-cdp.mjs, tools/_t570-meta-carriage-teeth.py, tools/_t573-emits-panel-shape-cdp.mjs, tools/_t573-one-vocabulary-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T17:06:34Z
-last_update: 2026-09-29T08:13:04Z
-date_finished:
+last_update: 2026-09-29T08:32:30Z
+date_finished: 2026-09-29T08:32:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -285,19 +285,56 @@ usual light/dark/contrast matrix.
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** an author typed an event name into the inspector's Emits box, saved, and the
+document came back carrying `<aef:meta emits="event:x"/>` — never the ratified
+`<aef:emits><aef:emit value="event:x"/></aef:emits>` that `tools/yaml-to-bpmn.py` and
+`tests/test_editor_bridge_structured_parity.py` agree on. Before T-570 the same keystrokes
+produced nothing at all: the value was simply gone.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** `FIELD_META.emits` had no `special` handler, so it took the generic
+`field()` path whose callback is `v => { n.aef[f] = v; }` — a STRING. `buildBpmnXml`'s
+structured emitter fires on `Array.isArray(aef.emits)`. Two pieces of code held the same
+concept in two incompatible **shapes**, and the reason they could is that neither read the
+other: the wrapper/item/attribute triple that defines the structured channel was written out
+**twice** (once in the emitter, once in the import reader) and the panel read **neither**. A
+third reader with a fourth opinion was the only possible outcome — and it is exactly the
+T-322 defect ("one module-scope vocabulary, never a second copy") that the codebase has
+already paid for in T-886 and T-910 on the round-trip denominator.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** the guard that existed — `test_editor_bridge_structured_parity.py`
+— asserted that the editor's **two** copies each agree with the bridge. That property was
+**true the whole time the defect was live.** It compared the two serialiser copies and had no
+opinion about any other writer of `n.aef.emits`, so the panel was outside its denominator BY
+CONSTRUCTION. This is the same shape as T-885's finding one instrument over (document-level
+`workflowMeta` outside the round-trip denominator by construction) and as T-570's
+(`metaKeys` and the import loop asymmetric with nothing holding them in correspondence).
+Two copies agreeing is a weaker claim than one copy existing, and the gap between those two
+claims is precisely where this bug lived.
+
+Secondary: T-570 **reduced the symptom without closing the defect**, and did so knowingly —
+its shape-derived carriage rescued the string as a meta attribute and its comment records
+that the two channels are "disjoint by construction". That was correct and it made the
+remaining defect quieter: the data stopped disappearing, so nothing hurt enough to force the
+shape question. A fix that removes the pain of a defect postpones the defect.
+
+**Prevention:**
+1. The vocabulary is now **one** module-scope `STRUCT_LIST_KEYS`, and
+   `test_editor_bridge_structured_parity.py` no longer compares two copies — it asserts there
+   is **exactly one**. `0` copies (renamed/removed) reads as BLINDNESS, not health. So the
+   class of defect (a new reader with its own opinion) now has something to fail against
+   instead of something to agree with.
+2. `tools/_t573-one-vocabulary-teeth.py` gives that assertion teeth against **5 mutants**,
+   including the rename-reads-as-blind arm — because a count check that cannot go wrong is
+   not a check.
+3. `tools/_t573-emits-panel-shape-cdp.mjs` drives the **rendered input element** and reads the
+   exported XML, with `reproduce-string-write` as its control arm. A probe that called the
+   handler directly would pass on a build where the field never renders — the F-11 defect
+   (an authored value nobody can reach) one level up, which is the defect this task is a
+   special case of.
+4. Learning to carry forward: **when adding a reader of a shared shape, the question is not
+   "does my reader agree" but "how many readers are there".** Both guards that refused this
+   change (see `## Decisions`) refused because their denominators were scoped to the writers
+   that existed when they were written.
 
 ## Evolution
 
@@ -415,3 +452,15 @@ Recorded because "I updated two guards" is the sentence that should always attra
 ### 2026-09-29T08:13:04Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f9d956df
+- **Timestamp:** 2026-09-29T08:32:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-29T08:32:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

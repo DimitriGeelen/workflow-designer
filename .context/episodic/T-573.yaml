@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-573: Emits panel field writes a scalar where the structured exporter requires an array
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-29T08:32:52Z
+# ============================================================================
+
+task_id: T-573
+task_name: "Emits panel field writes a scalar where the structured exporter requires an array"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-20T17:06:34Z
+completed: 2026-09-29T08:32:30Z
+duration_days: 40
+updates_count: 2
+first_commit: 2026-09-29T10:30:07+02:00
+last_commit: 2026-09-29T10:30:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the Emits panel authors the RATIFIED shape — one module-scope vocabulary for the structured-list keys, a content-equality guard so a brushed field moves no bytes, and two guards that refused the change before they described it
+
+# Key outcomes
+outcomes:
+  - '**The ratified structured shape is REACHABLE from the panel.** Typing into the Emits'
+  - '**A scalar that ARRIVED in the document and was NOT touched still round-trips as a'
+  - '**A no-op edit writes nothing.** If the parsed input is content-equal to what is'
+  - '**Clearing the field removes the key rather than storing an empty value.** An empty'
+  - '**ONE module-scope vocabulary for the structured-list keys, read by all three sites.**'
+  - '**No corpus bytes move.** All 24 rendered maps still round-trip byte-identically, and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: 'PD (T-573) — parse comma-separated in the panel, rather than build a structured sub-editor'
+  - decision: 'PD (T-573) — the shape follows CONTENT, and a content-equal edit writes nothing'
+  - decision: 'PD (T-573) — two guards refused this change first; both were told the truth, not silenced'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'docs/reports/t573-shots/emits-field-array-joined.png'
+  - 'docs/reports/t573-shots/emits-field-three-typed.png'
+  - '.fabric/components/tests-fixtures-invalid-E-XML-WORKFLOW-KIND.yaml'
+  - '.fabric/components/tools-_t573-emits-panel-shape-cdp.yaml'
+  - '.fabric/components/tools-_t573-one-vocabulary-teeth.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-573-emits-panel-field-writes-a-scalar-where-.md'
+  - '.tasks/active/T-928-c-003-inception-research-checkpoint-has-.md'
+  - 'tests/test_editor_bridge_structured_parity.py'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_t573-emits-panel-shape-cdp.mjs'
+  - 'tools/_t573-one-vocabulary-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-29T10:30:07'
+    action: 'T-573: the Emits panel authors the RATIFIED shape — one module-scope vocabulary for the structured-list keys, a content-equality guard so a brushed field moves no bytes, and two guards that refused the change before they described it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 57085 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, designer, round-trip]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 57085
+  commits: 1
+  files_changed: 13
+  lines_added: 1083
+  lines_removed: 66
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-573-emits-panel-field-writes-a-scalar-where-.md
+generated_by: context-agent-hybrid
