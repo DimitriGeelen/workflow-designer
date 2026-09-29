@@ -23,9 +23,9 @@ description: >
   it, that is a question for AEF, not an edit. Check T-213's disposition for the agreed
   value vocabulary before choosing one.
 
-status: started-work
+status: issues
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_4_enter
 owner: agent
 horizon: now
 tags: []
@@ -36,7 +36,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-22T19:18:37Z
-last_update: 2026-09-29T07:46:19Z
+last_update: 2026-09-29T08:09:08Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -452,3 +452,7 @@ still reports 7/0. The want it does not satisfy is filed as **T-927**.
 
 ### 2026-09-29T07:46:19Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-09-29T08:09:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → issues
+- **Reason:** Round 3 closed ACs 1, 5 and 7 with re-runnable evidence (teeth 15/15, fw task verify 8/8, commit c0584cc5). CANNOT COMPLETE, two reasons, neither mine to decide: (a) AC4 is T-876 verbatim and T-876 is held by PD-343, decisions.yaml:2549, pending AEF's answer; (b) AC6's first clause demands a map with NO kind fail the validator, which T-213 IW-3 as re-derived under T-875 forbids, and AC1 of this same task requires that disposition be used verbatim. AC6 was NOT rewritten to something passable. ACs 2, 3 and 8 were delivered by T-886, T-911 and T-877 and are annotated with what is proven and what would close them. Findings filed as T-925, T-926, T-927, OBS-440, OBS-441.
