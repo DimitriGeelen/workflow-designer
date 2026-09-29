@@ -1,0 +1,21 @@
+id: tools/_t931-ownership-sweep.sh
+name: _t931-ownership-sweep
+type: script
+subsystem: instruments
+location: tools/_t931-ownership-sweep.sh
+tags: []
+
+purpose: "_t931-ownership-sweep.sh — the second layer: detect a stale `owner: human` and correct it."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-29
+created_by: unknown

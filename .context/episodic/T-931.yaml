@@ -1,0 +1,157 @@
+# ============================================================================
+# EPISODIC MEMORY - T-931: Ownership follows open Human criteria: owner reverts to agent when none are open, and the shape is counted so it cannot silently accumulate
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-29T17:50:38Z
+# ============================================================================
+
+task_id: T-931
+task_name: "Ownership follows open Human criteria: owner reverts to agent when none are open, and the shape is counted so it cannot silently accumulate"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-29T15:43:39Z
+completed: 2026-09-29T17:50:27Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-09-29T17:46:10+02:00
+last_commit: 2026-09-29T19:43:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  ownership should follow the criteria — and the predicate's likely failure is silence, not a bad write. the ownership predicate, proven negative-first — and the number I gave the operator was wrong and low. ownership reverts through the R-033 gate, not around it — and every unreachable verdict holds the claim. cleanup, 13 of 45 — the stale claims came off the tasks that had nothing left to judge. cleanup complete — 45 of 45, and the operator's queue goes from 112 to 67. the detector — the half check_delegation_surface cannot see, and bash -n went green on it while it was broken. the delegation verb can finally see the class it is the surface for — and the sweep is proven unable to run on a timer
+
+# Key outcomes
+outcomes:
+  - '**The predicate is one function with one definition of "open Human criterion", and it is'
+  - '**Both directions proven, the negative one first.** With one open Human criterion present the'
+  - '**The actor lives in `update-task.sh`, beside the existing owner writer, not anywhere else.**'
+  - '**`fw task delegate` reports the class so the operator has a deliberate verb.** Today'
+  - '**The detector lives in `fw audit`, and an empty candidate set FAILS rather than passing.**'
+  - '**The actor never runs unattended.** No cron entry, no hook, no sweep writes the `owner:`'
+  - '**The 35 existing tasks are reported, not silently converted.** The backfill is one explicit'
+  - '**Upstreamed to AEF.** This is vendored framework code (`.agentic-framework/`), so the change'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'ownership reverts through the R-033 gate, not around it — and every unreachable verdict holds the claim'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-29 — where the two shapes live'
+    chose: 'ACTOR in `update-task.sh` beside `:2356` (+ the class surfaced in `fw task delegate`); DETECTOR in `fw audit`, which is what cron already runs. Cron runs the detector and NEVER the actor.'
+    rationale: 'the `owner:` field should have exactly one writer in code. `:2356` already sets `owner: human` on the partial-complete transition — precisely when a Human criterion becomes open. The revert is the same rule read backwards, so it belongs in the same function, fires on the same transition, and is audited the same way. Splitting it into a second writer elsewhere is how two mechanisms end up disagreeing about who owns a task. `fw task delegate` is the operator''s ratified delegation surface (D-626) and already has `--dry-run`; it should be able to SEE the class it is the surface for, which today it cannot. - **Rejected — the actor on cron.** This is the important rejection. An unattended sweep that strips `owner: human` across the corpus is the single most dangerous placement available: if the predicate is wrong, sovereignty is removed from N tasks with nobody watching, and the first symptom is a task closing that the operator wanted to see. Attended-only is not caution, it is the property that makes the ruling safe to implement. A detector on cron has the opposite risk profile — it can only over-report. - **Rejected — a PreToolUse/PostToolUse hook.** Fires on unrelated tool calls, so the write would be triggered by activity that has nothing to do with the task''s criteria changing. Also B-005 blocks the agent from writing `.claude/settings.json`, and a side door around that is not on the table. - **Rejected — the actor inside `fw audit`.** An audit that repairs what it measures can no longer report honestly on it: the next run reads clean because the previous run wrote. Measure and mutate stay separate.'
+  - decision: '2026-09-29 — CORRECTION: the parser is fine, and the real mechanism is the unticked filter'
+  - decision: '2026-09-29 — the predicate is the whole risk, and its likely failure is silence'
+    chose: 'prove the predicate READS correctly before letting it write, negative direction first.'
+    rationale: 'measured across active tasks — **160 carry a `### Human` section, and for 126 of them stripping HTML comments changes the count.** T-885 is the clean example: a naive count of `- [ ]` under `### Human` returns 2, and both hits are the template''s own `[REVIEW]`/`[REVIEWER]` examples inside a comment. The task has zero real criteria. The direction of that error is what makes it insidious. The naive count is too HIGH, and those phantom criteria are unchecked, so a naive predicate concludes "a Human criterion is open" and declines to flip. The mechanism would then sit inert over 126 tasks while reporting nothing wrong — a false silence, not a false write. The dangerous direction (missing a REAL open criterion and flipping anyway) needs its own proof and does not follow from the same test. - **Rejected — reusing an existing extractor without re-proving it.** `lib/section-extract.sh` already does anchored first-wins AC extraction (T-3148) and is the right thing to build on, but "it is already used elsewhere" is not evidence that it handles the comment-only `### Human` section. That gets its own control leg. Skip for tasks with no meaningful choices. Format:'
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not] -->']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/task-ownership.sh'
+  - '.context/audits/ownership-reversions.jsonl'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-101-bake-clean-layout-into-the-rendered-corp.md'
+  - '.tasks/active/T-102-mapmessiness-false-positive-branch-stack.md'
+  - '.tasks/active/T-105-baked-verification-gate-gateway-label-collision.md'
+  - '.tasks/active/T-125-vertical-lane-compaction-in-cleanlayout-.md'
+  - '.tasks/active/T-264-save-target-guard-set-id-field-collision.md'
+  - '.tasks/active/T-265-adopt-the-t-145-tail-5-editor-saved-corp.md'
+  - '.tasks/active/T-289-mapping-v1-alignment-note-framework-node.md'
+  - '.tasks/active/T-291-document-workflow-review-map-referenced-.md'
+  - '.tasks/active/T-292-document-workflow-future-map-referenced-.md'
+  - '.tasks/active/T-293-endpoint-reconnect-drag-hand-often-fails.md'
+  - '.tasks/active/T-309-surface-workflow-validator-findings-in-t.md'
+  - '.tasks/active/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md'
+  - '.tasks/active/T-424-t-357-step-3-retire-aefposition.md'
+  - '.tasks/active/T-439-claudemd-documents-the-context-budget-la.md'
+  - '.tasks/active/T-441-toolsconcerns-schemapy-accounts-for-no-f.md'
+  - '.tasks/active/T-442-t429-zero-leg-probesh-reads-a-non-zero-p.md'
+  - '.tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md'
+  - '.tasks/active/T-599-manual-connector-routing-addremove-waypo.md'
+  - '.tasks/active/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - '.tasks/active/T-691-regenerate-the-24-rendered-corpus-maps-s.md'
+  - '.tasks/active/T-700-ra-004-oldest-unshipped-product-change-i.md'
+  - '.tasks/active/T-708-ra-012-ctl-029-two-stuck-partial-complet.md'
+  - '.tasks/active/T-709-ra-013-ctl-029-t-041-has-all-agent-acs-t.md'
+  - '.tasks/active/T-710-ra-014-ctl-029-t-101-has-all-agent-acs-t.md'
+  - '.tasks/active/T-711-ra-015-ctl-029-t-102-has-all-agent-acs-t.md'
+  - '.tasks/active/T-712-ra-016-ctl-029-t-105-has-all-agent-acs-t.md'
+  - '.tasks/active/T-713-ra-017-ctl-029-t-189-has-all-agent-acs-t.md'
+  - '.tasks/active/T-714-ra-018-ctl-029-t-209-has-all-agent-acs-t.md'
+  - '.tasks/active/T-715-ra-019-ctl-029-t-286-has-all-agent-acs-t.md'
+  - '.tasks/active/T-716-ra-020-ctl-029-t-293-has-all-agent-acs-t.md'
+  - '.tasks/active/T-717-ra-021-ctl-029-t-309-has-all-agent-acs-t.md'
+  - '.tasks/active/T-718-ra-022-ctl-029-t-344-has-all-agent-acs-t.md'
+  - '.tasks/active/T-719-ra-023-ctl-029-t-345-has-all-agent-acs-t.md'
+  - '.tasks/active/T-720-ra-024-ctl-029-t-357-has-all-agent-acs-t.md'
+  - '.tasks/active/T-721-ra-025-ctl-029-t-402-has-all-agent-acs-t.md'
+  - '.tasks/active/T-722-ra-026-ctl-029-t-681-has-all-agent-acs-t.md'
+  - '.tasks/active/T-723-ra-027-fail-d2-human-review-queue-has-12.md'
+  - '.tasks/active/T-724-ra-028-d5-task-lifecycle-reports-10-cycl.md'
+  - '.tasks/active/T-725-ra-029-d13-inception-limbo---3-tasks-hav.md'
+  - '.tasks/active/T-728-ra-032-arc-001-is-26-of-32-complete-but-.md'
+  - '.tasks/active/T-729-ra-033-installed-claude-fw-has-drifted-f.md'
+  - '.tasks/active/T-731-ra-035-task-debt---52-tasks-with-no-upda.md'
+  - '.tasks/active/T-737-handoversh-reports-3-urgent-observations.md'
+  - '.tasks/active/T-885-the-round-trip-guard-roundtrip-serializa.md'
+  - '.tasks/active/T-931-ownership-follows-open-human-criteria-ow.md'
+  - 'tools/_t931-ownership.py'
+  - 'tools/_t931-ownership-sweep.sh'
+  - 'tools/_t931-ownership-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-29T17:46:10'
+    action: 'T-931: ownership should follow the criteria — and the predicate''s likely failure is silence, not a bad write'
+  - time: '2026-09-29T19:08:41'
+    action: 'T-931: the ownership predicate, proven negative-first — and the number I gave the operator was wrong and low'
+  - time: '2026-09-29T19:22:36'
+    action: 'T-931: ownership reverts through the R-033 gate, not around it — and every unreachable verdict holds the claim'
+  - time: '2026-09-29T19:24:39'
+    action: 'T-931: cleanup, 13 of 45 — the stale claims came off the tasks that had nothing left to judge'
+  - time: '2026-09-29T19:32:06'
+    action: 'T-931: cleanup complete — 45 of 45, and the operator''s queue goes from 112 to 67'
+  - time: '2026-09-29T19:36:38'
+    action: 'T-931: the detector — the half check_delegation_surface cannot see, and bash -n went green on it while it was broken'
+  - time: '2026-09-29T19:43:08'
+    action: 'T-931: the delegation verb can finally see the class it is the surface for — and the sweep is proven unable to run on a timer'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 126 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 126
+  commits: 7
+  files_changed: 54
+  lines_added: 1445
+  lines_removed: 104
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-931-ownership-follows-open-human-criteria-ow.md
+generated_by: context-agent-hybrid

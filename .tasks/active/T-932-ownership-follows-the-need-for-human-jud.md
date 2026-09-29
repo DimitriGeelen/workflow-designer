@@ -1,22 +1,11 @@
 ---
-id: T-931
-name: "Ownership follows open Human criteria: owner reverts to agent when none are
-  open, and the shape is counted so it cannot silently accumulate"
+id: T-932
+name: "Ownership follows the need for human judgement, not the filing: owner stays human only while an open criterion has an INTRINSIC operator-only reason"
 description: >
-  Operator ruling 2026-09-29. owner: agent human is a sovereignty claim only while
-  a Human acceptance criterion is actually open. R-033 makes the field sticky forever,
-  and fw task delegate (D-626) converts CRITERIA and never touches the owner field,
-  so a task created the framework's own documented way (--owner human, per lib/init.sh:926
-  and lib/setup.sh:421/481) with no Human criteria becomes permanently operator-only
-  with nothing for the delegation mechanism to grip. Measured: 112 active tasks are
-  owner: human, 35 of those have zero real Human criteria, and 3 of those have every
-  Agent AC ticked too (T-708, T-723, T-885) - a rubber-stamp queue with nothing to
-  judge. The audit has been reporting the aggregate for days as 'the D-626 delegation
-  reaches nothing'. Ownership must follow the criteria automatically.
+  Operator ruling 2026-09-29, extending T-931. T-931 reverted owner: agenthuman when no Human criterion was open. That is too narrow. Ownership must also revert when every open Human criterion could be settled by an external reviewer at acceptable risk - PD-302's delegation applied to the ownership field, not just to criteria. A criterion is only the operator's for an INTRINSIC reason (taste, inception-decision, sovereignty-field, tier0-or-bypass, release-surface, render-surface, act-in-the-world). 'Filed under ### Human' is a filing fact, not a judgement requirement, and neither is 'unclassified' - the delegation surface reports 37 unclassified open Human criteria against only 8 taste, so the largest operator-only bucket is the one the predicate could not bucket. Absence of classification defaulting to the operator is the same defect as absence of an open criterion defaulting to the operator, one level down.
 
 status: started-work
 workflow_type: build
-current_node: frw_3_start
 owner:
 horizon: now
 tags: []
@@ -32,9 +21,9 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-29T15:43:39Z
-last_update: 2026-09-29T17:36:40Z
-date_finished:
+created: 2026-09-29T17:51:40Z
+last_update: 2026-09-29T17:51:40Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -45,30 +34,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-09-29T15:44:32Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 1
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
-      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-931: Ownership follows open Human criteria: owner reverts to agent when none are open, and the shape is counted so it cannot silently accumulate
+# T-932: Ownership follows the need for human judgement, not the filing: owner stays human only while an open criterion has an INTRINSIC operator-only reason
 
 ## Context
 
@@ -78,43 +46,31 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-
-**The two shapes go in different places on purpose.** The ACTOR (the thing that writes the
-`owner:` field) and the DETECTOR (the thing that counts the shape) must not share a home, and
-neither may live on cron. See `## Decisions` for the placement argument.
-
-- [x] **The predicate is one function with one definition of "open Human criterion", and it is
-      proven to READ CORRECTLY before anything is allowed to write on its verdict.** Measured
-      hazard: a naive count of `- [ ]` lines under `### Human` returns 2 for T-885, which has
-      none — both hits are the template's own `[REVIEW]`/`[REVIEWER]` examples inside an HTML
-      comment. I hit this live while measuring. Any predicate that misreads a real open criterion
-      as absent will strip a genuine human claim, which is the one outcome that must be impossible
-- [x] **Both directions proven, the negative one first.** With one open Human criterion present the
-      predicate must NOT fire — asserted over the awkward shapes that exist in this corpus:
-      criteria inside vs outside comments, `[REVIEW]` / `[REVIEWER]` / `[RUBBER-STAMP]` prefixes,
-      indented checkboxes, and a `### Human` section that is comment-only. A one-directional proof
-      is what lets a flip look correct while removing sovereignty
-- [x] **The actor lives in `update-task.sh`, beside the existing owner writer, not anywhere else.**
-      `update-task.sh:2356` already sets `owner: human` on the partial-complete transition. The
-      revert is its symmetric half and belongs in the same writer, so the field has ONE owner in
-      code. It fires on the status transition, and its write is audited by name the way R-033's
-      refusal is (`fw_instance_refused` is the model — a reason, a rule id, a node)
-- [x] **`fw task delegate` reports the class so the operator has a deliberate verb.** Today
-      `--dry-run` on T-885 prints `0 open Human criteria … owner: human (unchanged)` — the verb
-      cannot see the shape it is the surface for. It must name it, and `fw reviewer surface` must
-      count it alongside reviewer-closeable / agent-self / operator-only
-- [x] **The detector lives in `fw audit`, and an empty candidate set FAILS rather than passing.**
-      Per T-3105, "no tasks in this shape" must be reported as NOT EVALUATED with its reason, never
-      as a PASS that asserts coverage the check does not have. This is the half that runs on cron
-- [x] **The actor never runs unattended.** No cron entry, no hook, no sweep writes the `owner:`
-      field. Asserted mechanically, not promised in prose: a check that greps the deployed crontab
-      and the hook configuration for the actor's entry point and fails if it appears
-- [x] **The 35 existing tasks are reported, not silently converted.** The backfill is one explicit
-      operator-run command with a `--dry-run` that lists every id and its predicate verdict first.
-      A bulk ownership change across 35 tasks is not something a mechanism does on its own
-      initiative, even under a ruling that says the field is stale
-- [x] **Upstreamed to AEF.** This is vendored framework code (`.agentic-framework/`), so the change
-      affects every project on AEF, not just this one (G-008). AEF is told, with the measurement
+- [ ] **The predicate distinguishes an INTRINSIC operator reason from a filing fact.** A criterion
+      is the operator's because of what it IS — `taste`, `inception-decision`, `sovereignty-field`,
+      `tier0-or-bypass`, `release-surface`, `render-surface`, `act-in-the-world`. It is NOT the
+      operator's merely because it sits under `### Human` (`human-section`) or because the classifier
+      could not bucket it (`unclassified`). Absence of classification defaulting to the operator is
+      the same defect as absence of an open criterion defaulting to the operator — one level down
+- [ ] **`owner: human` survives only while at least one open criterion has an intrinsic reason.**
+      OWNER-STALE widens accordingly, and T-931's rule becomes the degenerate case of this one
+- [ ] **Both directions, negative first, over the real reason vocabulary.** A task with one open
+      `taste` / `inception-decision` / `sovereignty-field` / `tier0-or-bypass` / `release-surface` /
+      `render-surface` criterion must HOLD ownership — asserted PER REASON, not once generically,
+      because each is a separate carve-out a refactor could drop without touching the others
+- [ ] **The `unclassified` criteria are triaged, not bulk-converted.** `unclassified` is the LARGEST
+      operator-only bucket (37) against only 8 `taste`, so the delegation surface's own numbers say
+      the PREDICATE, not the corpus, is what keeps the operator's queue full. Each gets a reason or
+      is named as needing one. A bulk reclassification would be the relocated authority PD-302
+      forbids — the agent deciding case by case what counts as low risk
+- [ ] **Nothing converts a `### Human` criterion's own classification here.** AEF decision 113: the
+      reviewer NEVER ticks a `### Human` AC and the original classification is inviolable. This task
+      moves OWNERSHIP; converting a criterion stays with `fw task delegate`, per item. If the two
+      ever disagree, that is a finding, not something to merge
+- [ ] **The audit detector counts the new shape,** and an empty candidate set reads NOT EVALUATED
+      rather than PASS (T-3105)
+- [ ] **T-931's 16 teeth still pass unchanged.** Widening the rule must not weaken the leg that
+      proves a live claim is never read as stale
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -148,27 +104,6 @@ neither may live on cron. See `## Decisions` for the placement argument.
 -->
 
 ## Verification
-
-# The predicate, both directions, plus the unattended-execution legs and their controls.
-# 16/16. Includes the proof that the corrector is in no crontab and no hook, and that a default
-# invocation appends nothing to the reversion ledger.
-bash tools/_t931-ownership-teeth.sh > .context/working/.t931-teeth.out 2>&1 && grep -q "FAIL: 0" .context/working/.t931-teeth.out
-# The corpus invariant the ruling asserts: no task carries owner: human without an open Human
-# criterion behind it. Pinned as a PROPERTY (zero stale), not as a live count that rots (T-3326).
-python3 tools/_t931-ownership.py --facts > .context/working/.t931-facts.out 2>&1 && awk -F'\t' '{exit ($3==0)?0:1}' .context/working/.t931-facts.out
-# The predicate must still be able to SEE the corpus — a scan of nothing also reports zero stale.
-python3 tools/_t931-ownership.py --facts > .context/working/.t931-facts.out 2>&1 && awk -F'\t' '{exit ($1>0)?0:1}' .context/working/.t931-facts.out
-# The detector rail exists in the audit and is wired to the tool, not to an inline heredoc.
-grep -q 'check_stale_ownership' .agentic-framework/agents/audit/audit.sh
-# The rail calls the tool through $_tool, so assert the BINDING and the invocation separately —
-# an earlier draft grepped for the literal '_t931-ownership.py --facts', which the code never
-# contains and which therefore failed while the rail worked perfectly.
-grep -q '_tool="$PROJECT_ROOT/tools/_t931-ownership.py"' .agentic-framework/agents/audit/audit.sh
-grep -q '_facts=$(cd "$PROJECT_ROOT" && python3 "$_tool" --facts' .agentic-framework/agents/audit/audit.sh
-# Ownership follows the criteria in the delegation verb even when it converts nothing (T-931).
-grep -q 'if owner == "human" and remaining_human == 0:' .agentic-framework/lib/delegation_cli.py
-# Every sanctioned reversion left a record naming its authority.
-test "$(wc -l < .context/audits/ownership-reversions.jsonl)" -ge 45
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -367,106 +302,44 @@ test "$(wc -l < .context/audits/ownership-reversions.jsonl)" -ge 45
 
 ## Decisions
 
-### 2026-09-29 — where the two shapes live
+### 2026-09-29 — STOP: the two encodings of the delegation boundary do not agree, and I nearly built on the wrong one
 
-- **Chose:** ACTOR in `update-task.sh` beside `:2356` (+ the class surfaced in `fw task delegate`);
-  DETECTOR in `fw audit`, which is what cron already runs. Cron runs the detector and NEVER the actor.
-- **Why:** the `owner:` field should have exactly one writer in code. `:2356` already sets
-  `owner: human` on the partial-complete transition — precisely when a Human criterion becomes open.
-  The revert is the same rule read backwards, so it belongs in the same function, fires on the same
-  transition, and is audited the same way. Splitting it into a second writer elsewhere is how two
-  mechanisms end up disagreeing about who owns a task. `fw task delegate` is the operator's ratified
-  delegation surface (D-626) and already has `--dry-run`; it should be able to SEE the class it is
-  the surface for, which today it cannot.
-- **Rejected — the actor on cron.** This is the important rejection. An unattended sweep that
-  strips `owner: human` across the corpus is the single most dangerous placement available: if the
-  predicate is wrong, sovereignty is removed from N tasks with nobody watching, and the first
-  symptom is a task closing that the operator wanted to see. Attended-only is not caution, it is the
-  property that makes the ruling safe to implement. A detector on cron has the opposite risk profile
-  — it can only over-report.
-- **Rejected — a PreToolUse/PostToolUse hook.** Fires on unrelated tool calls, so the write would be
-  triggered by activity that has nothing to do with the task's criteria changing. Also B-005 blocks
-  the agent from writing `.claude/settings.json`, and a side door around that is not on the table.
-- **Rejected — the actor inside `fw audit`.** An audit that repairs what it measures can no longer
-  report honestly on it: the next run reads clean because the previous run wrote. Measure and
-  mutate stay separate.
+I opened this task on the number `fw reviewer surface` reports: `unclassified 37`, the largest
+operator-only bucket, against only 8 `taste`. That framed the work as "triage 37 unclassified
+criteria". Then I ran the other encoding over the same tree in the same minute:
 
-### 2026-09-29 — CORRECTION: the parser is fine, and the real mechanism is the unticked filter
+| | `fw reviewer surface` (A) | `tools/_t770-delegation-boundary.py` (B) |
+|---|---|---|
+| operator-only | 79 | 136 |
+| reviewer-closeable | 1 | 0 |
+| agent-self | 2 | 269 |
+| `taste` | 8 | **81** |
+| `unclassified` | **37** | **0** — B has no such rule |
+| `sovereignty-field` | 9 | 0 |
+| `render-surface` | 4 | 0 |
+| `owner-human` | not reported | 14 |
 
-The entry below this one was written before I ran the framework's own parser, and its central
-number is wrong about the thing that matters. Recorded rather than edited away, because the
-correction is the finding.
+**They do not agree on the denominator, let alone the buckets.** A reports 82 open Human criteria
+across 72 active tasks (79+1+2). B classifies 136 unticked Human-section criteria as operator-only
+alone. That is a gap of ~54 criteria in how many open Human criteria the corpus even contains.
 
-- **What I claimed:** 160 tasks carry a `### Human` section and 126 would be misread, because a
-  naive count of `- [ ]` under `### Human` returns 2 for T-885 (both the template's `[REVIEW]` /
-  `[REVIEWER]` examples inside an HTML comment).
-- **What is true:** that describes the throwaway regex I measured with (`^\s*-\s*\[.\]`), NOT the
-  production predicate. `tools/_t770-delegation-boundary.py` uses `AC_RE = ^- \[([ xX])\]` —
-  anchored at column 0, no leading whitespace. The template examples are indented, so they never
-  match. Run against T-885 it returns exactly the right answer: **6 Agent ACs, all ticked, 0 Human
-  ACs.** The comment hazard is real for anyone writing a new scanner and is NOT a defect in this one.
-- **Why it matters:** I nearly specified comment-stripping repair for a parser that does not need
-  it, while missing the mechanism that actually hides these tasks.
+This is G-052 — "the boundary is encoded twice, in the scanner that enforces it and the predicate
+that reports it, and nothing checks the two against each other" — measured rather than anticipated.
+It is registered at severity **medium**. On this evidence that is understated: the operator's queue
+size, which of it is delegable, and whether `unclassified` is the dominant bucket or does not exist
+all depend on which encoding you ask.
 
-- **THE REAL MECHANISM (measured).** `_t770` line 354: `if args.unticked_only or not args.task:
-  rows = [r for r in rows if not r["ticked"]]`. A corpus-wide scan silently drops every TICKED
-  criterion. T-885, T-708 and T-723 each classify as `OPERATOR-ONLY / owner-human` when scanned
-  individually — but every one of their criteria is ticked, so the corpus view emits zero rows for
-  them. That is why all three are absent from all 406 rows.
-  The surface is therefore answering "which OPEN criteria could be delegated", which is a fair
-  question, while nobody anywhere asks "which tasks are blocked with nothing left open". That second
-  set IS the rubber-stamp queue, and it is unmeasurable by construction. `fw reviewer surface`
-  prints `OK` over it.
-- **Consequence for this task:** drop the comment-stripping work. Build instead (a) the `owner-human`
-  carve-out change, (b) a corpus view that can see a fully-ticked blocked task, (c) the actor,
-  (d) the detector. The negative-direction proof is still required — it is just proving something
-  different from what the entry below assumed.
+**Consequence for this task.** The AC about triaging 37 `unclassified` criteria is suspended: that
+bucket may be an artefact of one encoding. Nothing here gets built on either set of numbers until
+the two are reconciled, because a rule tuned to A's buckets would be wrong under B and there is
+currently no way to know which is right. G-052's close condition already specifies the instrument —
+a test that runs both over the same tree and asserts they agree, listed in a `## Verification` block.
+That test is now the blocking prerequisite, not a follow-up.
 
-- **THE NUMBERS I GAVE THE OPERATOR WERE ALSO WRONG, AND LOW.** Measured by the real predicate
-  (`tools/_t931-ownership.py`, 11/11 teeth) over 176 active tasks:
-
-  | | |
-  |---|---|
-  | `owner: human` | 112 |
-  | OWNER-JUSTIFIED — at least one OPEN Human criterion, a live claim | 67 |
-  | **OWNER-STALE** — no open Human criterion | **45** |
-  | …no Human criteria ever written | 35 |
-  | …every Human criterion ticked (so the human already judged) | 10 |
-  | **rubber-stamp queue** — stale AND every Agent AC ticked | **13** |
-
-  I told the operator "35 and 3". The 3 was wrong because my naive regex counted the template's
-  commented examples as open Human criteria, hiding all ten tasks whose Human ACs the human had
-  ALREADY TICKED. Those are the worst cases in the set: the judgement was exercised, and the task
-  stayed shut anyway.
-
-- **THE AUDIT HAS BEEN REPORTING THE SYMPTOM FOR WEEKS.** 10 of the 13 — T-041, T-101, T-102,
-  T-105, T-293, T-309, T-357, T-681, T-708, T-723 — are CTL-029 items ("has all Agent ACs ticked
-  but status='started-work' — completable, not closed"), several recurring 6 times in the 14-day
-  trend. CTL-029 sees the symptom and prescribes closing the task; it cannot say WHY the task will
-  not close, because the blocker is a frontmatter field and no check reads it. The detector this
-  task adds is the missing half of a control that has been firing, correctly and uselessly, for a
-  month.
-
-### 2026-09-29 — the predicate is the whole risk, and its likely failure is silence
-<!-- SUPERSEDED IN PART by the correction above: the 126-task figure describes my measuring regex,
-     not tools/_t770-delegation-boundary.py. The reasoning about proving the negative direction
-     first still holds and is why the error surfaced before anything was written. -->
-
-
-- **Chose:** prove the predicate READS correctly before letting it write, negative direction first.
-- **Why:** measured across active tasks — **160 carry a `### Human` section, and for 126 of them
-  stripping HTML comments changes the count.** T-885 is the clean example: a naive count of `- [ ]`
-  under `### Human` returns 2, and both hits are the template's own `[REVIEW]`/`[REVIEWER]` examples
-  inside a comment. The task has zero real criteria.
-  The direction of that error is what makes it insidious. The naive count is too HIGH, and those
-  phantom criteria are unchecked, so a naive predicate concludes "a Human criterion is open" and
-  declines to flip. The mechanism would then sit inert over 126 tasks while reporting nothing wrong
-  — a false silence, not a false write. The dangerous direction (missing a REAL open criterion and
-  flipping anyway) needs its own proof and does not follow from the same test.
-- **Rejected — reusing an existing extractor without re-proving it.** `lib/section-extract.sh`
-  already does anchored first-wins AC extraction (T-3148) and is the right thing to build on, but
-  "it is already used elsewhere" is not evidence that it handles the comment-only `### Human`
-  section. That gets its own control leg.
+Not resolved here, and stated rather than guessed: some of the divergence may be legitimate scope
+difference (A may filter task states or criterion shapes that B does not). I have not established
+that, and I am not going to assume it in the direction that makes my numbers look consistent.
+<!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
      ### [date] — [topic]
@@ -487,10 +360,7 @@ correction is the finding.
 
 ## Updates
 
-### 2026-09-29T15:43:39Z — task-created [task-create-agent]
+### 2026-09-29T17:51:40Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-931-ownership-follows-open-human-criteria-ow.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-932-ownership-follows-the-need-for-human-jud.md
 - **Context:** Initial task creation
-
-### 2026-09-29T15:44:31Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
