@@ -2717,3 +2717,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-444
+  text: "CORRECTION to commit 1d59c35d (T-785 close), which states '_t560-absence-census-teeth.py 5/5'. True when measured at ~09:55; FALSE as of 10:20. Leg 5 asserts the LIVE corpus is green, and the corpus is not: census reads baseline 74 current 75, and the single leg above the last-green set is .tasks/active/T-826:304, now COMMITTED by another session as c0584cc5. Teeth legs 1-4 still PASS; only leg 5, the globally-coupled one, is red. WHAT DOES STILL HOLD, measured 10:20: T-859:296 is PATTERN-credited and no longer appears in the census (T-785's actual repair); _t785-t859-credit-probe.py rc=0; _t845 16/16; _t400 10/10; _t560-absence-baseline.txt still reads 74, never raised. So T-785's deliverable is intact and the red is entirely T-826's leg. This is the SAME structural point as OBS-442/OBS-443 arriving a third time: a claim about a corpus-wide instrument has a shelf life measured in minutes when other sessions are writing, and a commit message cannot be amended to track it. Any future task that pins a global ratchet in its own Verification or its own close message will hit this again."
+  captured: 2026-09-29T08:17:40Z
+  context_task: T-669
+  tags: [concurrency]
+  status: pending
+  promoted_to: null
