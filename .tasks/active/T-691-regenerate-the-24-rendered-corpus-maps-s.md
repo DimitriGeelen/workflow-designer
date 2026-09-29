@@ -10,7 +10,7 @@ description: >
 
 status: captured
 workflow_type: build
-owner: human
+owner: agent
 horizon: later
 tags: []
 components: []
@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-09T07:34:59Z
-last_update: '2026-09-26T09:06:25Z'
+last_update: 2026-09-29T17:31:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -271,3 +271,6 @@ defect nobody is fixing today. The residual is 24 stale files, not a live regres
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-691-regenerate-the-24-rendered-corpus-maps-s.md
 - **Context:** Initial task creation
+
+### 2026-09-29T17:31:16Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

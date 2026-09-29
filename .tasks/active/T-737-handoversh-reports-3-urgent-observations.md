@@ -11,7 +11,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: [bug, tooling, vendored]
 components: []
@@ -21,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T09:15:18Z
-last_update: 2026-09-27T15:19:35Z
+last_update: 2026-09-29T17:31:23Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -231,3 +231,6 @@ grep -q 'handover' .agentic-framework/.vendor-divergence.yaml
 
 ### 2026-09-21T20:45:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-09-29T17:31:23Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

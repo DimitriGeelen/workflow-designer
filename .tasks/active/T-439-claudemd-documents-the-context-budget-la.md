@@ -14,7 +14,7 @@ description: >
 
 status: captured
 workflow_type: build
-owner: human
+owner: agent
 horizon: next
 tags: []
 components: []
@@ -24,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:14Z
-last_update: '2026-09-26T09:06:22Z'
+last_update: 2026-09-29T17:31:14Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -271,3 +271,6 @@ cost_estimate_proposed:
 
 ### 2026-08-11T22:03:02Z — status-update [task-update-agent]
 - **Change:** horizon: now → next
+
+### 2026-09-29T17:31:14Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

@@ -8,7 +8,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: [arc-003, audit-remediation, RA-004]
 components: []
@@ -19,7 +19,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:03Z
-last_update: '2026-09-26T09:06:25Z'
+last_update: 2026-09-29T17:31:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -287,3 +287,6 @@ test "$(sha256sum dist/aef-workflow-designer-0.12.0.html | awk '{print $1}')" = 
 
 ### 2026-09-20T17:00:01Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-09-29T17:31:16Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

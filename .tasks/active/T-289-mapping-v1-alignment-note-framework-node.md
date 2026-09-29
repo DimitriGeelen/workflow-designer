@@ -12,7 +12,7 @@ description: >
 
 status: captured
 workflow_type: specification
-owner: human
+owner: agent
 horizon: later
 tags: []
 components: []
@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T18:12:30Z
-last_update: '2026-09-26T09:06:20Z'
+last_update: 2026-09-29T17:31:13Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -240,3 +240,6 @@ cost_estimate_proposed:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-289-mapping-v1-alignment-note-framework-node.md
 - **Context:** Initial task creation
+
+### 2026-09-29T17:31:13Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

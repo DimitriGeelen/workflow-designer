@@ -9,7 +9,7 @@ description: >
 
 status: captured
 workflow_type: build
-owner: human
+owner: agent
 horizon: later
 tags: []
 components: []
@@ -19,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T20:02:13Z
-last_update: '2026-09-26T09:06:20Z'
+last_update: 2026-09-29T17:31:14Z
 date_finished:
 revisit_at: 2026-08-28
 revisit_evidence_needed: "same decision as T-291 for the 'future-map' ghost (uuid-pinned,
@@ -242,3 +242,6 @@ Provenance note (T-290): this ghost ('future-map', uuid-pinned) is SYNTHETIC —
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-292-document-workflow-future-map-referenced-.md
 - **Context:** Initial task creation
+
+### 2026-09-29T17:31:14Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

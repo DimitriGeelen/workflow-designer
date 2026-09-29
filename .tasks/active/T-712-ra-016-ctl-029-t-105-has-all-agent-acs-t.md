@@ -7,7 +7,7 @@ description: >
 
 status: captured
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: [arc-003, audit-remediation, RA-016]
 components: []
@@ -18,7 +18,7 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:35Z
-last_update: '2026-09-16T13:30:52Z'
+last_update: 2026-09-29T17:31:18Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -241,3 +241,6 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-712-ra-016-ctl-029-t-105-has-all-agent-acs-t.md
 - **Context:** Initial task creation
+
+### 2026-09-29T17:31:18Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

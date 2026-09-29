@@ -12,7 +12,7 @@ description: >
 
 status: captured
 workflow_type: build
-owner: human
+owner: agent
 horizon: next
 tags: []
 components: []
@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:20Z
-last_update: '2026-09-26T09:06:23Z'
+last_update: 2026-09-29T17:31:15Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -285,3 +285,6 @@ Evidence as of 2026-08-12:
 
 **This task is `owner: human` and is left untouched — no AC ticked, no status changed.**
 The note is here so whoever triages it can see the work is done and by which tasks.
+
+### 2026-09-29T17:31:15Z — status-update [task-update-agent]
+- **Change:** owner: human → agent

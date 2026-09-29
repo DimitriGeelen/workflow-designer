@@ -12,7 +12,7 @@ description: >
 
 status: captured
 workflow_type: design
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T17:22:12Z
-last_update: '2026-09-26T09:06:24Z'
+last_update: 2026-09-29T17:31:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -283,3 +283,6 @@ opinions about, and getting any of them wrong makes the feature actively harmful
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-599-manual-connector-routing-addremove-waypo.md
 - **Context:** Initial task creation
+
+### 2026-09-29T17:31:16Z — status-update [task-update-agent]
+- **Change:** owner: human → agent
