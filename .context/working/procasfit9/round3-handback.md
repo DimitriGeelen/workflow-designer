@@ -444,3 +444,53 @@ which `fw context focus` printed at me twice today, is exactly this: *"A ruling 
 invisible to every instrument that looks for rulings."* Not filed as a new task — it is PL-145's
 territory and arguably T-901/T-353's queue — but it is why a selection pass cannot be automated
 from the register as it stands, and why every candidate in §5 had to be opened by hand.
+
+---
+
+## 12. LATE CORRECTION — a concurrent session was writing this repo throughout
+
+Found in the final state check, *after* §§1–11 were written. Two of this handback's claims were
+already stale when I wrote them, and the cause explains a third finding.
+
+**A second Claude session worked the same working tree for the whole round.** Its commits
+interleave with mine (same git author — a parallel session on this machine):
+
+```
+09:50  1aec93b0  T-785: G-081 — a ruling that discharges a recorded blocker fires nothing
+10:08  c0584cc5  T-826: … (MINE)
+10:12  69bf4659  T-785: the ratchet is not this task's to pin, and a concurrent session proved it in twenty minutes
+10:14  7bd5bb5c  T-785: a leg that is green by hand and red under the gate — SIGPIPE
+10:16  1d59c35d  T-785: close — both named instruments green
+10:17  3e22ca0f  T-669: OBS-444 — the close claim about _t560 teeth had a 25-minute shelf life
+```
+
+**What this corrects:**
+
+1. **T-785 is CLOSED, not parked.** §1 records that I parked it back to `issues` at 07:40Z
+   because its last AC was blocked on T-353's ruling. That was correct on the evidence I had —
+   and the other session then worked the blocker and closed the task at 10:16. It now sits in
+   `.tasks/completed/` at `work-completed`. **My park stood for about 35 minutes.** Note their
+   commit subject: *"the ratchet is not this task's to pin"* — i.e. they resolved it by
+   narrowing scope, not by obtaining the T-353 ruling, which is a route I did not consider.
+2. **T-669 is being actively worked.** §5 lists it as `lv-hc`, out on its score and blocked by
+   the same T-353 ruling. The score is still what the scorer says, but "blocked" is wrong: the
+   other session is in it and has already produced OBS-444 from it. The next round must not
+   pick up T-669.
+3. **F8 / OBS-445 is RESOLVED, and it was the one hypothesis I flagged as not-eliminated.**
+   The focus drift to **T-669** happened in exactly the window that session was committing
+   T-669 work. So there is no phantom writer: **`focus.yaml` is session-global with no
+   ownership check.** Two sessions in one worktree share one `current_task`, so each silently
+   re-points the other's `check-active-task` gate. Filed as **OBS-447** and **T-930**, scored.
+   The fix pattern is already ratified one module over: T-675 taught `checkpoint.sh budget` to
+   refuse a **foreign-session** cache and report `unknown` *with the reason*, on the principle
+   that *"unknown is not ok"*. `focus.yaml` already carries a `focus_session` field that
+   nothing reads.
+
+**The lesson, which is the reason this section exists rather than a quiet edit:** I ran a whole
+round's selection pass against a register another process was mutating, and treated every read
+as a snapshot of settled state. The dispatch note even warned me — *"Re-read git log yourself —
+this snapshot is already aging"* — and I re-read it at the start and not again until the end.
+**For an autonomous round in a shared worktree, `git log` is not a census you take once.** A
+cheap mitigation for the next round: re-read `git log --oneline` before each unit's selection,
+not just at session start, and treat any commit you did not make as a reason to re-check the
+candidate you were about to open.

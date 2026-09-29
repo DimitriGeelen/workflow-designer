@@ -2738,3 +2738,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-447
+  text: "OBS-445 RESOLVED (focus.yaml drift): the cause is a CONCURRENT SESSION on the same repo, which was the one hypothesis I listed as not-eliminated. Confirmed by timeline rather than by inference: git log shows another session committing T-785 work at 09:50, 10:12, 10:14, 10:16 and T-669 work at 10:17, interleaved with my own T-826 commit at 10:08 — and the T-669 focus value I observed appeared in exactly that window. One of their own commit subjects even reads 'a concurrent session proved it in twenty minutes'. SO THE DEFECT IS NOT A PHANTOM WRITER, IT IS THAT focus.yaml IS SESSION-GLOBAL WITH NO OWNERSHIP: two sessions in one working tree share one current_task, so each silently re-points the other's check-active-task gate. The file HAS a focus_session field (mine read S-2026-0929-0740) and nothing checks it — the same shape as the budget-status cache before T-675 taught it to refuse a foreign session. THE FIX ALREADY EXISTS ONE MODULE OVER: checkpoint.sh budget refuses an unmeasured, stale or FOREIGN-SESSION cache and reports level unknown plus the reason. focus.sh should do the same: a focus written by another session is not mine to obey, and 'unknown' is not 'ok'. Filing as its own task is worth it because the failure is silent and mis-attributes writes."
+  captured: 2026-09-29T08:39:04Z
+  context_task: T-922
+  tags: []
+  status: pending
+  promoted_to: null
