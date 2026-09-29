@@ -3241,6 +3241,23 @@ check_dead_negation_lint
 # one it examined (same family as the invariant-suite rewording above).
 check_unit_suite_report() {
     local _report="${FW_UNIT_SUITE_REPORT:-$CONTEXT_DIR/audits/unit-suite/LATEST.yaml}"
+
+    # T-934: skip where there is nothing to run. unit-suite.sh resolves its corpus as
+    # FW_UNIT_SUITE_DIR, else <framework>/tests/unit — and a vendored consumer has no tests/unit at
+    # all, so the report can NEVER be produced and this WARN can never be cleared. It appeared 4 times
+    # in 832's 14-day trend with a mitigation ("run agents/audit/unit-suite.sh") that does nothing
+    # there. check_invariant_suite and the dead-negation lint two hundred lines up already INFO-skip on
+    # exactly this grounds; T-3302 added this check without adopting the idiom.
+    #
+    # THE PREDICATE IS "IS THERE A SUITE", NOT "AM I THE FRAMEWORK REPO". Skipping on repo identity
+    # alone would excuse a consumer that vendors tests/unit and never runs them — which is the very
+    # blindness T-3302 was written to end. A present suite with no report still WARNs.
+    local _suite_dir="${FW_UNIT_SUITE_DIR:-$FRAMEWORK_ROOT/tests/unit}"
+    if [ ! -d "$_suite_dir" ] && [ ! -f "$_report" ]; then
+        info "Unit suite (tests/unit) skipped — framework-repo property; no suite at $_suite_dir to run"
+        return 0
+    fi
+
     if [ ! -f "$_report" ]; then
         warn "Unit suite (tests/unit) NOT CHECKED — no report at .context/audits/unit-suite/LATEST.yaml (T-3302)" \
              "The nightly unit-suite runner has not produced a report; tests/unit reds are invisible until it does" \
