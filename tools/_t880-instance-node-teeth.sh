@@ -22,6 +22,8 @@ cd "$ROOT" || { echo "REFUSING: cannot cd to $ROOT"; exit 2; }
 SUBJECT="${SUBJECT:-$ROOT/tools/instance-node.py}"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/t880.XXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
+# T-883: every refusal is audited; a fixture refusal must not land in the live log.
+export FW_INSTANCE_REFUSAL_LOG="$WORK/refusals.jsonl"
 
 PASS=0; FAIL=0
 ok()  { PASS=$((PASS+1)); printf '  PASS  %s\n' "$1"; }

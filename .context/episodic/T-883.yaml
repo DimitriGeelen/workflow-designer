@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-883: The three V7 refusals each land in the audit log
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-29T07:17:40Z
+# ============================================================================
+
+task_id: T-883
+task_name: "The three V7 refusals each land in the audit log"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-26T22:43:22Z
+completed: 2026-09-29T07:17:04Z
+duration_days: 3
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  arc-005 S3/B9. CONTINGENT on T-879 GO. V7 verbatim from the July package: an out-of-order advance, a skipped human gateway, and an unmet input contract are EACH refused and EACH land in the audit log. Three legs, three controls — a refusal nobody can see afterwards is the same class of defect as no refusal.
+
+# Key outcomes
+outcomes:
+  - '**One writer, one log.** Every refusal `refuse()` emits appends exactly one line to the log; the line parses as JSON with keys `ts task case rule kind node target template detail actor`; the stdout refusal line and the exit code are unchanged (T-880/T-881/T-882/T-923 suites stay green, T-882 mutation still OK).'
+  - '**Leg 1 — out-of-order advance is refused and audited.** A fixture on `frw_3_start` advanced to `frw_10_finalize` exits 1, the record still reads `frw_3_start`, and one line is appended with `case=out-of-order-advance`, `rule=template-flow`, `node=frw_3_start`, `target=frw_10_finalize`, `template` naming `task-lifecycle.bpmn`. **Control:** the same fixture advanced to `agt_2_perform` (legal) exits 0 and appends nothing.'
+  - '**Leg 2 — skipped human gateway is audited by the framework.** `fw_instance_refused T skipped-human-gateway R-033 frw_9_human "…"` returns 0 and appends one line with those four values and `actor=framework`; `update-task.sh`''s R-033 refusal branch calls it (pinned: the call sits between the `Sovereignty gate (R-033)` message and its `exit 1`) and the `--skip-sovereignty` branch does not. **Control:** `fw_instance_refused` with an empty case appends nothing and returns 0.'
+  - '**Leg 3 — unmet input contract is audited by the framework.** The P-010 and P-011 refusal branches call `fw_instance_refused "$TASK_ID" unmet-input-contract P-010|P-011 frw_7_all …` before their `exit 1` (pinned by grep); the `--skip-acceptance-criteria` / `--skip-verification` branches do not.'
+  - '**Every line names its rule, and the log reads back as states.** `refusals` prints one `REFUSAL <ts> <task> <case> <rule> <node>[ -> <target>]` per line (filtered by task when given) and `NO-REFUSALS` (with the task id when given) when there are none; a line whose `rule` is empty cannot be written (the writer refuses it with `WARNING:` and writes nothing).'
+  - '**Never fails, never hides.** With the log path pointing into a directory that does not exist and cannot be created (a file in the way), `advance` still exits 1 with its `REFUSED-TRANSITION` stdout line and prints `WARNING: audit line not written` on stderr; `fw_instance_refused` returns 0 in that case too; with the tool absent it prints nothing and returns 0.'
+  - '**Log location and override.** Default is `<root>/.context/audits/instance-refusals.jsonl`; `--log FILE` and `FW_INSTANCE_REFUSAL_LOG` override it (flag wins); the teeth never touch the real log (they run with a `mktemp` file and assert the real log''s line count is unchanged across the run).'
+  - '**No node id enters the tool''s code.** T-882 AC 8''s control still passes: the lane-prefixed id pattern hits in the artefact and nowhere in the tool''s non-docstring code — the `refused`/`refusals` verbs carry node ids as arguments only.'
+  - '**Teeth + mutation.** `tools/_t883-refusal-audit-teeth.sh` pins all of the above on `mktemp` fixtures: `PASS n / FAIL 0`; `--mutation` disables the writer at `MUTATION-ANCHOR refusal-audit` and every "line appended" case goes red while every control stays green (`MUTATION OK`).'
+  - '**Live: three lines, three rules, on real tasks.** (1) `advance T-883 frw_10_finalize` refused → `out-of-order-advance / template-flow`; (2) `fw task update T-885 --status work-completed` refused → `skipped-human-gateway / R-033`; (3) `fw task update T-883 --status work-completed` with ACs unchecked refused → `unmet-input-contract / P-010`; `refusals` lists all three; outputs pasted in `## Updates`, the three lines in the commit. **Control:** this task''s own eventual close appends no line (visible in the commit, not in P-011 — PL-285).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-29 — where the audit log lives and what "the three V7 cases" are in this corpus'
+    chose: '`.context/audits/instance-refusals.jsonl`, one JSON line per refusal, written only by `tools/instance-node.py` (the framework''s gates reach it through a `refused` verb); the three V7 cases mapped onto rules that already refuse — `template-flow` (T-882) for out-of-order, `R-033` at `frw_9_human` for the skipped human gateway, `P-010`/`P-011` at `frw_7_all` for the unmet input contract.'
+    rationale: 'the framework already keeps append-only audit records under `.context/audits/*.jsonl` (arc-abandon, arc-bypass, arc-scoped-*), so a refusal log beside them is discoverable by the same habit; one serialiser means one shape to read (T-884 will read it). The rule names are the ones the gates already print, so the line "names which rule refused it" (T-879) without inventing a vocabulary. `frw_9_human` is the only human gateway the template has; `frw_7_all` is the node the P-010 hint already names (T-880).'
+    alternatives_rejected: ['(a) a separate per-instance history file (`.context/working/workflow-instances/<task>.yaml`, the July SD-10 shape) — T-878 decided position lives in the entity''s own frontmatter and no instance file exists; a refusal log is an audit stream, not instance state; (b) writing the line from bash in `update-task.sh` — a second serialiser, and the tool would no longer be the one writer; (c) G-020 as the "unmet input contract" — it is one, but it fires in a PreToolUse hook, not in a transition, so it is named as a follow-up rather than half-wired.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3393 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:process-instances]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3393
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-883-the-three-v7-refusals-each-land-in-the-a.md
+generated_by: context-agent-hybrid

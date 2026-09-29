@@ -58,19 +58,43 @@ Usage:
   instance-node.py roundtrip [template-id ...]      for every entity the reverse query returns, forward
                                                     resolution must name the same template; any
                                                     disagreement is ROUNDTRIP-FAIL (exit 1)
+  instance-node.py refused <T-XXX> --case C --rule R --node N [--target T] [--detail D] [--actor A]
+                                                    the FRAMEWORK's verb (T-883): record a refusal this
+                                                    tool did not make itself (a gate in update-task.sh
+                                                    refusing a transition) in the same audit log, same
+                                                    shape, same single writer. REFUSAL-RECORDED, exit 0;
+                                                    an empty --case/--rule is refused (WARNING, exit 1)
+  instance-node.py refusals [T-XXX]                 read the audit log back: one REFUSAL <ts> <task>
+                                                    <case> <rule> <node>[ -> <target>] per line, or
+                                                    NO-REFUSALS [<task>] — a state, never a bare empty list
+
+Audit log (T-883, arc-005 S3/B9 — V7: "each refused and each lands in the audit log").
+Every refusal this tool emits (REFUSED / REFUSED-PLACED / REFUSED-TRANSITION) appends ONE
+JSON line to <root>/.context/audits/instance-refusals.jsonl — beside the framework's other
+append-only audit records (arc-abandon.jsonl, arc-bypass.jsonl, ...). Keys:
+  ts task case rule kind node target template detail actor
+`case` is the V7 case (out-of-order-advance · skipped-human-gateway · unmet-input-contract,
+plus the tool's own re-placement / stale-position / unknown-node / malformed-entity), `rule`
+names WHICH rule refused (template-flow, R-033, P-010, P-011, placement-one-shot, ...).
+A line that names no rule cannot be written. A failed write never changes the refusal:
+the stdout line and exit code stand and a WARNING on stderr says the line was not written.
 Options:
   --root DIR         project root (default: parent of tools/)
   --tasks-dir DIR    where to find T-*.md (default: <root>/.tasks/active and completed);
                      LIVE entities for instances/roundtrip are the FIRST dir given (default .tasks/active)
   --binding FILE     derivation table (default: <root>/examples/aef-processes/template-binding.yaml)
   --rendered-dir DIR template artefacts (default: <root>/examples/aef-processes/rendered)
+  --log FILE         audit log (default: $FW_INSTANCE_REFUSAL_LOG, else
+                     <root>/.context/audits/instance-refusals.jsonl); the flag wins over the env
 
 Exit codes: 0 ok (NODE / NO-POSITION / recorded / advanced / INSTANCES / NO-INSTANCES / ROUNDTRIP-OK)
             1 REFUSED / REFUSED-PLACED / REFUSED-TRANSITION / STALE / ROUNDTRIP-FAIL
             2 NO-ENTITY · 3 NO-TEMPLATE / TEMPLATE-UNKNOWN
 """
 import argparse
+import datetime
 import glob
+import json
 import os
 import re
 import sys
@@ -151,9 +175,60 @@ def template_start_events(path):
     return [el.get("id") for el in _bpmn_iter(path, "startEvent") if el.get("id")]
 
 
-def refuse(kind, task, detail):
-    """Single emission path for every refusal, so the audit-log landing (T-883) has one hook."""
+AUDIT_LOG = None  # resolved in main(): --log, else $FW_INSTANCE_REFUSAL_LOG, else <root>/.context/audits/instance-refusals.jsonl
+
+# What each refusal kind is, when the caller does not say more precisely.
+_DEFAULT_CASE = {
+    "REFUSED-TRANSITION": ("out-of-order-advance", "template-flow"),
+    "REFUSED-PLACED": ("re-placement", "placement-one-shot"),
+    "REFUSED": ("malformed-entity", "frontmatter"),
+}
+
+
+def _now():
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _append_line(path, row):
+    """The one place a byte reaches the audit log. Raises OSError; the caller decides what that means."""
+    d = os.path.dirname(path)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row, ensure_ascii=False, sort_keys=False) + "\n")
+    return True
+
+
+def _audit_append(row, path=None):
+    """Append one refusal line. Returns True if written. Never raises: a refusal that cannot be
+    audited is still a refusal, and the caller's exit code must not change because a directory
+    was unwritable — but the failure is said out loud, never swallowed."""
+    path = path or AUDIT_LOG
+    if not row.get("case") or not row.get("rule"):
+        print(f"WARNING: audit line not written for {row.get('task', '?')}: a refusal must name its case and rule "
+              f"(case={row.get('case')!r} rule={row.get('rule')!r})", file=sys.stderr)
+        return False
+    if not path:
+        print(f"WARNING: audit line not written for {row.get('task', '?')}: no audit log path", file=sys.stderr)
+        return False
+    try:
+        # MUTATION-ANCHOR refusal-audit (teeth disable the append here)
+        written = _append_line(path, row)
+    except OSError as e:
+        print(f"WARNING: audit line not written for {row.get('task', '?')} to {path}: {e}", file=sys.stderr)
+        return False
+    return written
+
+
+def refuse(kind, task, detail, case=None, rule=None, node="", target="", template="", actor="cli"):
+    """Single emission path for every refusal: the stdout line, exit 1, and ONE audit-log line (T-883)."""
     print(f"{kind} {task}: {detail}")
+    dcase, drule = _DEFAULT_CASE.get(kind, ("refusal", kind.lower()))
+    _audit_append({
+        "ts": _now(), "task": task, "case": case or dcase, "rule": rule or drule, "kind": kind,
+        "node": node or "", "target": target or "", "template": template or "", "detail": detail,
+        "actor": actor,
+    })
     return 1
 
 
@@ -261,7 +336,8 @@ def cmd_set(a, table):
         # T-882: set is placement, and placement is one-shot. A recorded position moves
         # only along a flow (advance); a setter that re-placed freely would be a bypass.
         return refuse("REFUSED-PLACED", a.task,
-                      f"position already recorded ({placed}); move it with: advance {a.task} <node>")
+                      f"position already recorded ({placed}); move it with: advance {a.task} <node>",
+                      node=placed, target=a.node, template=",".join(tpls))
     checked = []
     valid_in = None
     for t in tpls:
@@ -272,9 +348,9 @@ def cmd_set(a, table):
             valid_in = t
             break
     if valid_in is None:
-        print(f"REFUSED {a.task}: node '{a.node}' is not in the bound template(s) checked: "
-              f"{', '.join(checked)}")
-        return 1
+        return refuse("REFUSED", a.task,
+                      f"node '{a.node}' is not in the bound template(s) checked: {', '.join(checked)}",
+                      case="unknown-node", rule="template-membership", target=a.node, template=",".join(checked))
     _write_node(path, text, fm_start, fm_end, a.node)
     print(f"NODE {a.node} {valid_in} (recorded in {os.path.relpath(path, a.root)})")
     return 0
@@ -319,14 +395,16 @@ def _advance_core(a, table, node, announce, prefer=None):
                           for t, ids in starts.items())
         return refuse("REFUSED-TRANSITION", a.task,
                       f"no position recorded and '{node}' is not a startEvent — an instance starts at the start; "
-                      f"legal first hop: {legal} (to place a pre-existing entity mid-flow use: set {a.task} <node>)")
+                      f"legal first hop: {legal} (to place a pre-existing entity mid-flow use: set {a.task} <node>)",
+                      node="NO-POSITION", target=node, template=",".join(tpls))
     candidates = [t for t in tpls if current in template_nodes(template_file(a.rendered_dir, t))]
     if prefer in candidates:
         candidates.remove(prefer)
         candidates.insert(0, prefer)
     if not candidates:
         return refuse("REFUSED-TRANSITION", a.task,
-                      f"recorded position '{current}' is STALE — not in {', '.join(tpls)}; nothing to advance from")
+                      f"recorded position '{current}' is STALE — not in {', '.join(tpls)}; nothing to advance from",
+                      case="stale-position", rule="template-membership", node=current, target=node, template=",".join(tpls))
     legal_by_tpl = []
     for of_record in candidates:
         tfile = template_file(a.rendered_dir, of_record)
@@ -340,7 +418,8 @@ def _advance_core(a, table, node, announce, prefer=None):
     detail = "; ".join(f"legal successor(s) of {current} in {f}: " + (", ".join(succ) if succ else "(none — an end event has no outgoing flow)")
                        for f, succ in legal_by_tpl)
     return refuse("REFUSED-TRANSITION", a.task,
-                  f"{current} -> {node} is not a sequenceFlow of {legal_by_tpl[0][0]}; {detail}")
+                  f"{current} -> {node} is not a sequenceFlow of {legal_by_tpl[0][0]}; {detail}",
+                  node=current, target=node, template=legal_by_tpl[0][0])
 
 
 def _shortest_path(flows, src, dst):
@@ -383,15 +462,18 @@ def cmd_walk(a, table):
         of_record = next((t for t in tpls if current in template_nodes(template_file(a.rendered_dir, t))), None)
         if of_record is None:
             return refuse("REFUSED-TRANSITION", a.task,
-                          f"recorded position '{current}' is STALE — not in {', '.join(tpls)}; nothing to walk from")
+                          f"recorded position '{current}' is STALE — not in {', '.join(tpls)}; nothing to walk from",
+                          case="stale-position", rule="template-membership", node=current, target=target, template=",".join(tpls))
         tfile = template_file(a.rendered_dir, of_record)
         if target not in template_nodes(tfile):
             return refuse("REFUSED-TRANSITION", a.task,
-                          f"'{target}' is not a node of the template of record {os.path.relpath(tfile, a.root)}")
+                          f"'{target}' is not a node of the template of record {os.path.relpath(tfile, a.root)}",
+                          node=current, target=target, template=os.path.relpath(tfile, a.root))
         route = _shortest_path(template_flows(tfile), current, target)
         if route is None:
             return refuse("REFUSED-TRANSITION", a.task,
-                          f"no path from {current} to {target} in {os.path.relpath(tfile, a.root)}")
+                          f"no path from {current} to {target} in {os.path.relpath(tfile, a.root)}",
+                          node=current, target=target, template=os.path.relpath(tfile, a.root))
         if len(route) == 1:
             print(f"NODE {target} {of_record} (already there, nothing written)")
             return 0
@@ -401,7 +483,8 @@ def cmd_walk(a, table):
         of_record = next((t for t in tpls if target in template_nodes(template_file(a.rendered_dir, t))), None)
         if of_record is None:
             return refuse("REFUSED-TRANSITION", a.task,
-                          f"'{target}' is not a node of any bound template ({', '.join(tpls)})")
+                          f"'{target}' is not a node of any bound template ({', '.join(tpls)})",
+                          node="NO-POSITION", target=target, template=",".join(tpls))
         tfile = template_file(a.rendered_dir, of_record)
         flows = template_flows(tfile)
         best = None
@@ -411,7 +494,8 @@ def cmd_walk(a, table):
                 best = r
         if best is None:
             return refuse("REFUSED-TRANSITION", a.task,
-                          f"no path from any startEvent to {target} in {os.path.relpath(tfile, a.root)}")
+                          f"no path from any startEvent to {target} in {os.path.relpath(tfile, a.root)}",
+                          node="NO-POSITION", target=target, template=os.path.relpath(tfile, a.root))
         hops = best
 
     def announce(prev, node, tpl, _path):
@@ -517,6 +601,53 @@ def cmd_roundtrip(a, table):
     return 1 if bad else 0
 
 
+def cmd_refused(a, table):
+    """The framework's verb (T-883): a gate outside this tool refused a transition; record it here, same writer."""
+    if not a.case or not a.rule:
+        print(f"WARNING: audit line not written for {a.task}: a refusal must name its case and rule "
+              f"(case={a.case!r} rule={a.rule!r})", file=sys.stderr)
+        return 1
+    template = ""
+    path = find_task(a.tasks_dirs, a.task)
+    if path:
+        fields, _, _ = frontmatter(open(path, encoding="utf-8").read())
+        _, tpls = bound_templates(fields, table)
+        template = ",".join(tpls or [])
+    row = {"ts": _now(), "task": a.task, "case": a.case, "rule": a.rule, "kind": "REFUSED-BY-GATE",
+           "node": a.node or "", "target": a.target or "", "template": template, "detail": a.detail or "",
+           "actor": a.actor}
+    written = _audit_append(row)
+    tgt = f" -> {a.target}" if a.target else ""
+    print(f"REFUSAL-RECORDED {a.task} {a.case} {a.rule} {a.node}{tgt}" if written
+          else f"REFUSAL-NOT-RECORDED {a.task} {a.case} {a.rule} {a.node}{tgt}")
+    return 0
+
+
+def cmd_refusals(a, table):
+    """Read the audit log back as states: REFUSAL lines, or NO-REFUSALS."""
+    rows = []
+    if AUDIT_LOG and os.path.isfile(AUDIT_LOG):
+        for line in open(AUDIT_LOG, encoding="utf-8"):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                r = json.loads(line)
+            except ValueError:
+                print(f"WARNING: unparseable audit line skipped: {line[:80]}", file=sys.stderr)
+                continue
+            if a.task and r.get("task") != a.task:
+                continue
+            rows.append(r)
+    if not rows:
+        print(f"NO-REFUSALS {a.task}".rstrip())
+        return 0
+    for r in rows:
+        tgt = f" -> {r['target']}" if r.get("target") else ""
+        print(f"REFUSAL {r.get('ts', '?')} {r.get('task', '?')} {r.get('case', '?')} {r.get('rule', '?')} {r.get('node', '')}{tgt}".rstrip())
+    return 0
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     default_root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -524,6 +655,7 @@ def main(argv=None):
     p.add_argument("--tasks-dir", action="append", default=None)
     p.add_argument("--binding", default=None)
     p.add_argument("--rendered-dir", default=None)
+    p.add_argument("--log", default=None)
     sub = p.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("bind"); s.add_argument("workflow_type"); s.set_defaults(fn=cmd_bind)
     s = sub.add_parser("nodes"); s.add_argument("template"); s.set_defaults(fn=cmd_nodes)
@@ -534,11 +666,18 @@ def main(argv=None):
     s = sub.add_parser("resolve"); s.add_argument("task"); s.set_defaults(fn=cmd_resolve)
     s = sub.add_parser("instances"); s.add_argument("template"); s.set_defaults(fn=cmd_instances)
     s = sub.add_parser("roundtrip"); s.add_argument("templates", nargs="*"); s.set_defaults(fn=cmd_roundtrip)
+    s = sub.add_parser("refused"); s.add_argument("task")
+    s.add_argument("--case", default=""); s.add_argument("--rule", default=""); s.add_argument("--node", default="")
+    s.add_argument("--target", default=""); s.add_argument("--detail", default=""); s.add_argument("--actor", default="cli")
+    s.set_defaults(fn=cmd_refused)
+    s = sub.add_parser("refusals"); s.add_argument("task", nargs="?", default=""); s.set_defaults(fn=cmd_refusals)
     a = p.parse_args(argv)
     a.root = os.path.abspath(a.root)
     a.binding = a.binding or os.path.join(a.root, "examples", "aef-processes", "template-binding.yaml")
     a.rendered_dir = a.rendered_dir or os.path.join(a.root, "examples", "aef-processes", "rendered")
     a.tasks_dirs = a.tasks_dir or [os.path.join(a.root, ".tasks", "active"), os.path.join(a.root, ".tasks", "completed")]
+    global AUDIT_LOG
+    AUDIT_LOG = a.log or os.environ.get("FW_INSTANCE_REFUSAL_LOG") or os.path.join(a.root, ".context", "audits", "instance-refusals.jsonl")
     table = load_binding(a.binding)
     return a.fn(a, table)
 

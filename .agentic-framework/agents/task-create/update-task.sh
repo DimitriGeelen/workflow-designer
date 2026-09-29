@@ -34,6 +34,8 @@ source "$FRAMEWORK_ROOT/lib/section-extract.sh"
 # T-923 (arc-005): the framework records which node of the task-lifecycle template it IS, through the T-882 guard.
 source "$FRAMEWORK_ROOT/lib/instance-position.sh" 2>/dev/null || true
 command -v fw_instance_walk >/dev/null 2>&1 || fw_instance_walk() { return 0; }
+# T-883 (arc-005): a gate refusing a transition lands in the instance audit log (V7).
+command -v fw_instance_refused >/dev/null 2>&1 || fw_instance_refused() { return 0; }
 command -v fw_instance_node_for_transition >/dev/null 2>&1 || fw_instance_node_for_transition() { echo ""; }
 
 # === Extracted gate functions (T-415) ===
@@ -149,6 +151,9 @@ check_human_sovereignty() {
         else
             echo -e "${RED}ERROR: Cannot complete human-owned task${NC}" >&2
             echo "Sovereignty gate (R-033): owner is human." >&2
+            # T-883: V7 "skipped human gateway" — the template's frw_9_human gateway
+            # ("Human-owned with unchecked Human ACs?") refused the agent's finalize; audited.
+            fw_instance_refused "$TASK_ID" skipped-human-gateway R-033 frw_9_human "owner is human; agent attempted work-completed" "$PROJECT_ROOT"
             echo "The human must review and approve via Watchtower:" >&2
             # T-1156: Show Watchtower review link instead of bare commands (PL-007)
             source "$FRAMEWORK_ROOT/lib/review.sh" 2>/dev/null
@@ -290,6 +295,8 @@ check_acceptance_criteria() {
             if [ -f "$PROJECT_ROOT/examples/aef-processes/rendered/task-lifecycle.bpmn" ]; then
                 echo "Map: task-lifecycle node frw_7_all (All gates pass?) refuses this — examples/aef-processes/rendered/task-lifecycle.bpmn; position: python3 tools/instance-node.py get $TASK_ID" >&2
             fi
+            # T-883: V7 "unmet input contract" — the completion gate's input is checked ACs; audited.
+            fw_instance_refused "$TASK_ID" unmet-input-contract P-010 frw_7_all "$ac_unchecked/$ac_total $ac_label unchecked" "$PROJECT_ROOT"
             # T-923: the refusal is a real transition — frw_7_all back to agt_2_perform.
             fw_instance_walk "$TASK_ID" agt_2_perform "$PROJECT_ROOT"
             exit 1
@@ -1466,6 +1473,8 @@ run_verification_commands() {
             echo "  1. Fix the issues and retry" >&2
             echo "  2. Update ## Verification commands if they are wrong" >&2
             echo "  3. Use --skip-verification to bypass (logged)" >&2
+            # T-883: V7 "unmet input contract" — the completion gate's input is green verification; audited.
+            fw_instance_refused "$TASK_ID" unmet-input-contract P-011 frw_7_all "$verify_fail/$verify_total verification(s) failed" "$PROJECT_ROOT"
             # T-923: P-011 is frw_7_all refusing — back to agt_2_perform.
             fw_instance_walk "$TASK_ID" agt_2_perform "$PROJECT_ROOT"
             exit 1

@@ -16,6 +16,8 @@ UPD="$ROOT/.agentic-framework/agents/task-create/update-task.sh"
 TPL="examples/aef-processes/rendered/task-lifecycle.bpmn"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/t923.XXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
+# T-883: every refusal is audited; a fixture refusal must not land in the live log.
+export FW_INSTANCE_REFUSAL_LOG="$WORK/refusals.jsonl"
 
 PASS=0; FAIL=0
 ok()  { PASS=$((PASS+1)); printf '  PASS  %s\n' "$1"; }

@@ -2572,3 +2572,10 @@ decisions:
     date: 2026-09-29
     task: T-923
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-347
+    decision: "`.context/audits/instance-refusals.jsonl`, one JSON line per refusal, written only by `tools/instance-node.py` (the framework's gates reach it through a `refused` verb); the three V7 cases mapped onto rules that already refuse — `template-flow` (T-882) for out-of-order, `R-033` at `frw_9_human` for the skipped human gateway, `P-010`/`P-011` at `frw_7_all` for the unmet input contract."
+    scope: project
+    date: 2026-09-29
+    task: T-883
+    rationale: "Auto-captured from task file on completion"
