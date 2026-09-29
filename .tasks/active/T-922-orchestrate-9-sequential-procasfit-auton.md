@@ -27,7 +27,7 @@ related_tasks: [T-897]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-28T22:45:51Z
-last_update: 2026-09-29T07:01:20Z
+last_update: 2026-09-29T08:51:49Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -87,12 +87,12 @@ truthfully — including rounds that produced nothing.
 | a worker was "verified alive" and then **refused at the model by quota** | alive is not running; only the artefact closes a round |
 
 - [ ] **Feasibility measured before dispatch, not assumed** — `claude` present, hub up, and a print-mode worker proven able to WRITE in this repo. Recorded with its evidence, because a worker that cannot write reports as dispatched and produces nothing
-- [ ] Nine rounds run **in order**, each prompt containing the mandate **verbatim** plus the previous round's handback and nothing else. Verbatim is asserted by hash against the stored mandate, not by eye
-- [ ] **Every prompt's byte count is bounded and asserted** before dispatch, against the sum of its inputs. The 92,818-byte prompt read as a plausible instruction set; only the arithmetic caught it
-- [ ] **A round that produces no handback is a FAILED round** — recorded as such, never skipped and never counted as a quiet success. The next round is still fed the last *real* handback, and the substitution is recorded
-- [ ] **The orchestrator does not execute the mandate.** It builds prompts, dispatches, collects artefacts. Any work on project tasks in this run is the workers'; if the orchestrator does a unit of work itself, that is a finding against this task
-- [ ] The run record is **on TermLink**, so it survives a context reset (mandate §TermLink), with producer attribution in metadata
-- [ ] A **final report** states, per round: dispatched or not, handback produced or not, and what it claimed — with the failed rounds named rather than averaged into a success count
+- [x] Nine rounds run **in order**, each prompt containing the mandate **verbatim** plus the previous round's handback and nothing else. Verbatim is asserted by hash against the stored mandate, not by eye
+- [x] **Every prompt's byte count is bounded and asserted** before dispatch, against the sum of its inputs. The 92,818-byte prompt read as a plausible instruction set; only the arithmetic caught it
+- [x] **A round that produces no handback is a FAILED round** — recorded as such, never skipped and never counted as a quiet success. The next round is still fed the last *real* handback, and the substitution is recorded
+- [x] **The orchestrator does not execute the mandate.** It builds prompts, dispatches, collects artefacts. Any work on project tasks in this run is the workers'; if the orchestrator does a unit of work itself, that is a finding against this task
+- [x] The run record is **on TermLink**, so it survives a context reset (mandate §TermLink), with producer attribution in metadata
+- [x] A **final report** states, per round: dispatched or not, handback produced or not, and what it claimed — with the failed rounds named rather than averaged into a success count
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

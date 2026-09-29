@@ -69,7 +69,9 @@ say() { printf '%s\n' "$*"; }
 # prompt bigger than its inputs. An off-by-an-unmeasured-amount check is the defect, not the guard.
 blen() { printf '%s' "${1-}" | wc -c; }
 logrow() {  # round exit secs prompt_bytes handback_bytes verdict
-    printf '%d\t%s\t%s\t%s\t%d\t%d\t%s\n' "$1" "$(date -u +%FT%TZ)" "$2" "$3" "$4" "$5" "$6" >> "$LOG"
+    # DISPATCHED_AT is set immediately before the model call. It is NOT re-read here: stamping the
+    # clock at write time recorded the round's END under a column named for its start (r8 F2).
+    printf '%d\t%s\t%s\t%s\t%d\t%d\t%s\n' "$1" "${DISPATCHED_AT:-unknown}" "$2" "$3" "$4" "$5" "$6" >> "$LOG"
 }
 
 # The handback a round is fed. Falls back to the last REAL one, and says so.
@@ -127,7 +129,7 @@ inherited_state_note() {
               ':!.editor-versions' ':!.context/working' ':!.context/locks' ':!.context/episodic' \
               2>/dev/null | head -20)"
     started="$(cd "$REPO" && grep -l '^status: started-work' .tasks/active/*.md 2>/dev/null \
-              | xargs -r -n1 basename 2>/dev/null | sed 's/-.*//' | tr '\n' ' ')"
+              | xargs -r -n1 basename 2>/dev/null | sed -E 's/^(T-[0-9]+).*/\1/' | tr '\n' ' ')"
     [ -z "$dirty" ] && [ -z "$started" ] && return 1
     printf 'STATE YOU INHERIT, observed at dispatch time (git + the task register, not a claim about who left it). An earlier round of this run was cut off by a quota refusal after closing a task and opening another, so some of this may be a half-finished unit. Census it before selecting new work: finish or park what is open through the proper verb rather than leaving it uncommitted. Re-read git log yourself — this snapshot is already aging.\n\nTasks at started-work: %s\n\nUncommitted paths (first 20, housekeeping excluded):\n%s\n' \
         "${started:-none}" "${dirty:-none}"
@@ -140,13 +142,22 @@ inherited_state_note() {
 if [ "${1:-}" = "selftest" ]; then
     P=0; F=0
     t() { if [ "$2" -eq 0 ]; then echo "  PASS  $1"; P=$((P+1)); else echo "  FAIL  $1"; F=$((F+1)); fi; }
-    echo "=== orchestrator self-test (fixtures: this run's own artefacts) ==="
-    REF="$DIR/round3.out"; GOOD="$DIR/round1.out"
-    [ -s "$REF" ] || { echo "SETUP BROKEN: no $REF to test against"; exit 1; }
-    [ -s "$GOOD" ] || { echo "SETUP BROKEN: no $GOOD control"; exit 1; }
+    # FIXTURES ARE PINNED, NOT LIVE. They used to be $DIR/round3.out and $DIR/round1.out — the
+    # run's OWN artefacts. Round 3 of the second launch then overwrote round3.out with a SUCCESSFUL
+    # round's output, and this suite went 5/5 -> 3/5 with the detector code untouched. The positive
+    # control had silently become a second negative one. Had the overwrite happened to contain a
+    # matching string it would have gone the other way: a green light from a fixture nobody pinned.
+    # Both fixtures are now immutable copies, asserted by hash, so drift fails loudly and by name.
+    REF="$REPO/tools/fixtures/t922-quota-refusal.out"
+    GOOD="$REPO/tools/fixtures/t922-clean-round.out"
+    REF_SHA=e721d019e8ab07bdc3a3154a0ac85ecf   # md5 of the real 2026-09-29 00:17Z session-limit refusal
+    [ -s "$REF" ]  || { echo "SETUP BROKEN: no pinned refusal fixture at $REF"; exit 1; }
+    [ -s "$GOOD" ] || { echo "SETUP BROKEN: no pinned clean-round fixture at $GOOD"; exit 1; }
+    got="$(md5sum "$REF" | cut -d' ' -f1)"
+    t "the refusal fixture is the pinned bytes (md5 ${got:0:8})" "$([ "$got" = "$REF_SHA" ] && echo 0 || echo 1)"
 
-    is_quota_refusal "$REF";  t "FIRES on the real quota refusal (round3.out)" $?
-    is_quota_refusal "$GOOD"; t "does NOT fire on a real successful round's output (round1.out)" $([ $? -ne 0 ] && echo 0 || echo 1)
+    is_quota_refusal "$REF";  t "FIRES on the real quota refusal (pinned fixture)" $?
+    is_quota_refusal "$GOOD"; t "does NOT fire on a real successful round's output (pinned)" $([ $? -ne 0 ] && echo 0 || echo 1)
     printf 'all done, no problems\n' > "$DIR/.selftest-clean.tmp"
     is_quota_refusal "$DIR/.selftest-clean.tmp"; t "does NOT fire on ordinary output" $([ $? -ne 0 ] && echo 0 || echo 1)
     rm -f "$DIR/.selftest-clean.tmp"
@@ -240,7 +251,7 @@ for (( R = 1; R <= ROUNDS; R++ )); do
     WAITS=0
     while : ; do
         say "round $R/$ROUNDS: dispatching ($PB bytes; feed=$(basename "${FEED:-none}")$([ -n "$PRED_NOTE" ] && echo '; +predecessor-note')$([ "$WAITS" -gt 0 ] && echo "; post-quota attempt $((WAITS+1))"))"
-        START=$(date +%s)
+        START=$(date +%s); DISPATCHED_AT="$(date -u +%FT%TZ)"
         timeout "$TIMEOUT_SECS" claude -p "$(cat "$PROMPT")" > "$OUT" 2>&1
         RC=$?
         SECS=$(( $(date +%s) - START ))
