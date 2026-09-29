@@ -135,6 +135,19 @@ SELF_SUFFICIENT = ("privkey", "private-key", "priv-key")
 SECRECY_WORDS = ("secret", "credential", "password", "passwd")
 CREDENTIAL_NOUNS = ("key", "token", "cred", "passwd", "password", "pass", "pw")
 
+# T-938 — DIRECTORY names that announce a secret STORE, used only for the directory half of the
+# cross-path pair below. A whole-part list rather than substring matching, and deliberately short.
+#
+# `creds/` is the case that motivated it: `cred` is a credential NOUN, not a secrecy word, so
+# `creds/api-keys.dat` had a noun on both halves and no announcement — it went unflagged while being
+# as obvious a secret store as `secrets/`. `vault` and `private` are here for the same reason.
+#
+# NOT included: `keys`. A `keys/` directory holds SSH public keys as often as private ones, and the
+# noun half already covers a filename that names key material. Adding it would flag every
+# `keys/*.pub` companion, which is the false-positive class this scanner exists to stay out of.
+SECRET_DIR_WORDS = frozenset({"secret", "secrets", "credential", "credentials",
+                              "cred", "creds", "vault", "private"})
+
 
 def _norm(name):
     """Lowercase, with separators flattened so `fw_secret_key` == `fw-secret-key`."""
@@ -161,6 +174,31 @@ def classify(path):
         return None, None
     if announced_pair(name):
         return "ANNOUNCED", "filename pairs a secrecy word with a credential noun"
+
+    # T-938: THE DIRECTORY ANNOUNCES TOO, and ignoring it is what let the second leak through.
+    #
+    # Everything above judges `os.path.basename(path)`. `.context/secrets/api-keys.enc` therefore
+    # reduced to `api-keys.enc`, which carries a credential noun and no secrecy word, so no pair
+    # could form — while the directory it sat in was literally called `secrets`. The file was tracked
+    # and public for three days.
+    #
+    # Pairing across the WHOLE path fixes it and generalises: a credential noun in the filename plus
+    # a secrecy word anywhere in its parents is the same announcement, split over a slash.
+    #
+    # Scoped to that combination on purpose, rather than running announced_pair over the flat path.
+    # A blanket path match would flag `docs/reports/secret-scanning-guide.md` and every sibling of it
+    # the moment a directory contains a secrecy word — the false-positive class this scanner's own
+    # docstring is about. The noun must be in the FILENAME; the directory may only supply the
+    # secrecy half.
+    parent = os.path.dirname(path)
+    if parent:
+        parent_flat = _norm(parent)
+        announcing_dir = bool(_spans(parent_flat, SECRECY_WORDS, whole_part_only=False)) or \
+            any(part in SECRET_DIR_WORDS for part in parent_flat.replace("/", "-").split("-"))
+        if announcing_dir and _spans(_norm(name), CREDENTIAL_NOUNS, whole_part_only=True):
+            return ("ANNOUNCED",
+                    "credential noun in the filename, secret-store directory in its path")
+
     return None, None
 
 
@@ -174,7 +212,19 @@ def _spans(flat, words, whole_part_only):
     if whole_part_only:
         pos = 0
         for part in flat.split("-"):
-            if part and part in words:
+            # T-938: a trailing `s` is stripped before comparing, so `keys` matches the noun `key`.
+            #
+            # WHY THIS WAS MISSING, AND WHAT IT COST. `api-keys.enc` — Watchtower's API-key store,
+            # written by web/secrets_store.py — sat TRACKED and pushed to a PUBLIC GitHub mirror for
+            # three days. `keys` is not a whole part equal to `key`, so the noun half found nothing,
+            # the pair could not form, and this scanner returned (None, None) on the one filename it
+            # most obviously should have caught. The plural is the ordinary way to name a store of
+            # several credentials; singular-only matching excluded the common case.
+            #
+            # Deliberately only a trailing `s`, not a stemmer: `pass`/`passes` and `cred`/`creds` are
+            # the real forms, and anything cleverer starts matching `passenger` again — which is the
+            # false positive whole_part_only exists to prevent.
+            if part and (part in words or (part.endswith("s") and part[:-1] in words)):
                 out.append((pos, pos + len(part)))
             pos += len(part) + 1
         return out

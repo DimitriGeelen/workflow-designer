@@ -3900,6 +3900,79 @@ check_stray_captures() {
 }
 check_stray_captures
 
+# T-938 — a secret-bearing path that git can see. THIS FAILS, it does not WARN.
+#
+# SECOND INSTANCE OF THE SAME CLASS IN THIS PROJECT. T-410: Watchtower's session signing key
+# (.fw-secret-key) was tracked from 2b9c8ffa for TWO MONTHS, pushed to origin and mirrored to GitHub.
+# T-938: Watchtower's API-key store (.context/secrets/api-keys.enc, written by web/secrets_store.py)
+# was tracked, committed 973813ea, pushed to origin/bleeding-edge, three days before anyone looked.
+# Same component, same project, three months apart. T-410 fixed one path and not the mechanism that
+# writes secrets into a repository nobody ignored, and the second instance is the receipt (G-019).
+#
+# WHY FAIL AND NOT WARN, which is the only interesting decision here. This report currently carries
+# ten warnings. A committed credential added as an eleventh is a line the operator has been trained to
+# scroll past — that is precisely how the last one survived three days and the one before it two
+# months. The severity has to match the consequence: a push makes the exposure irreversible, and
+# `fw handover` pushes. Everything else in this file can wait for a triage pass; this cannot.
+#
+# It never reads a secret. Tracked-ness and ignored-ness are git metadata; the file's contents are
+# never opened, and for this task the operator ruled against rotation, which makes the file's
+# continued confidentiality the entire mitigation.
+check_secret_paths_visible_to_git() {
+    command -v git >/dev/null 2>&1 || return 0
+    (cd "$PROJECT_ROOT" && git rev-parse --git-dir >/dev/null 2>&1) || return 0
+
+    # ONE ENCODING OF "IS THIS NAME KEY MATERIAL". tools/tracked-secret-artifacts.py already owns that
+    # judgement — DEFINITIVE suffixes and names, dotenv, and the secrecy-word x credential-noun pair
+    # at disjoint spans — with an allowlist and a census mode. An earlier draft of this rail carried
+    # its own five-pattern list, which would have drifted from the tool within a week; the delegation
+    # boundary in this same corpus is encoded twice and was measured disagreeing (G-052). So the rail
+    # CALLS the tool for the tracked question and adds only the axis the tool does not have.
+    #
+    # WHY THE RAIL EXISTS AT ALL IF THE TOOL DOES THE JUDGING: the tool was written in August (T-410)
+    # and NOTHING EVER RAN IT. Not the audit, not a hook, not cron. `.context/secrets/api-keys.enc`
+    # was tracked and public for three days while a scanner built to prevent exactly that sat on disk
+    # uninvoked — and its rule would have missed the file anyway (basename-only, singular nouns; both
+    # fixed under T-938). An instrument nobody calls is not a control.
+    local _tracked="" _unignored="" _f
+    local _tool="$PROJECT_ROOT/tools/tracked-secret-artifacts.py"
+    if [ -f "$_tool" ] && command -v python3 >/dev/null 2>&1; then
+        if ! _tracked="$(cd "$PROJECT_ROOT" && python3 "$_tool" 2>&1)"; then
+            # Non-zero exit means it found tracked key material. Its own report names the files.
+            _tracked="$(printf '%s' "$_tracked" | grep -vE '^tracked-secret scan ok' | head -6 | tr '\n' ' ')"
+        else
+            _tracked=""
+        fi
+    fi
+
+    # THE AXIS THE TOOL DOES NOT HAVE: present on disk but not ignored. Not yet leaked, but one broad
+    # `git add` from it — and `fw handover` stages .context/. This is the near-miss state, so it warns
+    # rather than fails.
+    local _pats=(".context/secrets" "api-keys.enc" ".fw-secret-key" ".litellm" "credentials.json")
+    local _p
+    for _p in "${_pats[@]}"; do
+        while IFS= read -r _f; do
+            [ -n "$_f" ] || continue
+            (cd "$PROJECT_ROOT" && git check-ignore -q "$_f" 2>/dev/null) || _unignored="$_unignored $_f"
+        done < <(cd "$PROJECT_ROOT" && find . -path ./.git -prune -o -name "*${_p}*" -print 2>/dev/null | head -5)
+    done
+
+    _unignored="$(printf '%s' "$_unignored" | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' ')"
+
+    if [ -n "$_tracked" ]; then
+        fail "SECRET TRACKED BY GIT: $_tracked" \
+             "In the index, therefore in history and probably already pushed. Encrypted is not safe when the key derives from /etc/machine-id (world-readable): the encryption protects the file only while it stays on this machine, and makes it LOOK safe to commit. Second instance of this class here — T-410 was the session signing key, two months, mirrored to GitHub." \
+             "git rm --cached the path, add a PATTERN (not a path) to .gitignore, then decide about history — a rewrite plus force-push is Tier 0 and the operator's. Rotate unless the operator rules otherwise."
+    elif [ -n "$_unignored" ]; then
+        warn "Secret-bearing path on disk but NOT gitignored: $_unignored" \
+             "Not yet tracked, so nothing has leaked — but one broad 'git add' makes it the case above, and handover commits stage .context/" \
+             "Add a pattern covering it to .gitignore, then verify with: git check-ignore -v <path>"
+    else
+        pass "No secret-bearing path is tracked or unignored — tracked-ness judged by tools/tracked-secret-artifacts.py over the whole index, ignored-ness over ${#_pats[@]} on-disk pattern(s)"
+    fi
+}
+check_secret_paths_visible_to_git
+
 # T-3262 (G-099). `fw doctor` (bin/fw:2390+) already compares the
 # continuous-run wrapper ledger against the turn-driver state and WARNs when
 # they disagree — but doctor is pull-only, and it was THIS daily cron that
