@@ -294,6 +294,11 @@ by this run's mandate and is the operator's in any case.
 # which is precisely the state this task repaired.
 timeout 300 python3 tools/_t542-cost-blast-radius-teeth.py > /tmp/.t859.out 2>&1; test "$?" -eq 1
 test "$(grep -c Traceback /tmp/.t859.out)" -eq 0
+# COMPANION CONTROL appended by T-785 under PD-308 (additive only, Tier 2 logged). The leg
+# above asserts a Traceback is ABSENT; on its own a broken pattern and a clean run are the
+# same green. This line proves the search could have found one: it makes a real Python
+# traceback and greps the SAME STRING over it. Nothing above was altered.
+python3 -c 'raise RuntimeError("t859 control")' > /tmp/.t859.control 2>&1 || true; grep -q 'Traceback' /tmp/.t859.control
 grep -q 'AttributeError' /tmp/.t859.out && exit 1 || true
 
 # It reports findings about its subject rather than dying before it can look. Three legs fail

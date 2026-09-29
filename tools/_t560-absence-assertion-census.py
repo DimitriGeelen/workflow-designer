@@ -127,8 +127,32 @@ EXIST_CTRL = re.compile(
     r">\s*/tmp/\.[\w.-]+"                           # captures output to a file it greps
 )
 
-# Pattern extraction: first quoted string after a grep invocation.
-GREP_PAT = re.compile(r"\bgrep\b(?:\s+-{1,2}[\w-]+)*\s+(['\"])(.*?)(?<!\\)\1")
+# Pattern extraction: the pattern argument of a grep invocation, quoted or bare.
+#
+# T-785: THE QUOTES WERE NEVER PART OF THE RULE, only of the reader. Until now this regex
+# required the pattern to be QUOTED, so `test "$(grep -c Traceback f)" -eq 0` extracted
+# nothing and the leg reported "no grep pattern to control (zero comes from a command's
+# output, not a match)". That sentence is false about this leg: the zero DOES come from a
+# match, and the pattern is right there unquoted. Because credit requires `p in sib_pats`
+# over the leg's OWN patterns, a leg with no readable pattern can never be credited by any
+# companion — so the mis-read did not merely mislabel it, it made the leg permanently
+# uncontrollable and pushed it into T-669's "48 BLOCKED, needs an operator ruling" bucket
+# when nothing but the reader stood in the way.
+#
+# SAME CLASS AS THE `len(p) >= 3` FLOOR T-845 REMOVED: a reader limitation that silently
+# made a whole class of valid controls impossible to express. Measured before and after over
+# all 779 files with a Verification block: PATTERN 76 / EXISTENCE 27 / NONE 75 both ways,
+# and the 75 uncontrolled legs are the IDENTICAL SET — this widens what can be READ, it
+# credits nothing new on its own.
+#
+# The bare branch deliberately refuses a `$`-leading token: `grep -q $VAR f` interpolates a
+# pattern this reader cannot know, and calling the literal string "$VAR" its pattern would be
+# the mention-not-invocation error in a new costume. It stays unreadable, and _t845 pins that.
+GREP_PAT = re.compile(
+    r"\bgrep\b(?:\s+-{1,2}[\w-]+)*\s+"
+    r"(?:(['\"])(.*?)(?<!\\)\1"          # quoted pattern — preferred, matched first
+    r"|([^\s'\"$|)&;<>-][^\s'\"$|)&;<>]*))"   # bare pattern (T-785); no $-leading, no -leading
+)
 
 
 def verification_legs(path):
@@ -167,7 +191,8 @@ def classify(text):
 
 
 def patterns_in(text):
-    return [m.group(2) for m in GREP_PAT.finditer(text)]
+    return [(m.group(2) if m.group(2) is not None else m.group(3))
+            for m in GREP_PAT.finditer(text)]
 
 
 def control_level(text, sibling_texts):

@@ -18,6 +18,7 @@ description: >
 
 status: issues
 workflow_type: build
+current_node: frw_4_enter
 owner: agent
 horizon: now
 tags: [baseline, tests, aef-seam]
@@ -28,7 +29,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T22:35:07Z
-last_update: '2026-09-26T09:06:30Z'
+last_update: 2026-09-29T07:41:42Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -179,7 +180,7 @@ cost_estimate_proposed:
       Filing a second task would manufacture a duplicate of a filed defect — the T-738 lesson
       from earlier today.
 
-- [ ] **BLOCKED by an open Sovereign question — and I am part of the regression.** Of the 112,
+- [x] **WAS BLOCKED by an open Sovereign question — and I am part of the regression.** Of the 112,
       **2 are mine from today**, both in T-778, plus 1 in T-774:
 
       ```
@@ -205,6 +206,25 @@ cost_estimate_proposed:
       part of it has been applied"* (`tools/_t353-repair-probe.sh`, 16/16). One ruling releases
       a proven repair for the pre-existing 31 **and** permits the 3 I introduced to be fixed.
 
+
+      **RESOLVED 2026-09-29 — the ruling arrived the day after this was marked BLOCKED.**
+      PD-308 (operator, 2026-09-22, T-802) is exactly the permission this AC was waiting on:
+      an agent may APPEND a sibling control leg to a `## Verification` block inside
+      `.tasks/completed/`, additive only, logged Tier 2. The task sat in `issues` for a week
+      after its blocker had been lifted, which is the cheap lesson here — a task blocked on a
+      ruling has no trigger that fires when the ruling lands.
+
+      **But the corpus had moved further than the unblocking.** T-669 then drained 29 legs
+      under that same ruling and lowered the baseline 78 -> 74 in the same commit. The 112
+      this AC counted is now 75, and the 3 legs it named (2 in T-778, 1 in T-774) are inside
+      the grandfathered 74 — the ratchet does not fail on them. They remain T-669's declared
+      population and are deliberately NOT re-filed here (the T-738 duplicate lesson, which
+      this task already invoked once).
+
+      **So the 75th leg is the only one this task owed, and it was not in the list above.**
+      It is `T-859:296`, created 2026-09-25 22:49 — five hours after T-669's drain commit,
+      the single census-listed task newer than the baseline. Its repair is the next AC.
+
 - [x] **Nothing was weakened, excluded or deleted — proven by the diff.** No entry was added
       to any exclusion list, `tools/_t560-absence-baseline.txt` was **not raised** (it still
       reads 78), and no check was edited. The ratchet remains red and correctly so: it is
@@ -220,6 +240,55 @@ cost_estimate_proposed:
       node and sequence flow carries `aef:uid`, all 20 `aef:meta` keys are within the bridge
       whitelist, governance exercised via lanes. 832's deliverable to AEF's Child-2 bridge is
       unchanged by this work.
+
+- [x] **THE 75th LEG WAS UNCONTROLLABLE, AND THE READER WAS WHY — not the leg, and not a
+      missing permission.** `T-859:296` is `test "$(grep -c Traceback /tmp/.t859.out)" -eq 0`.
+      The census reported `WHY NOT CREDITED: no grep pattern to control (zero comes from a
+      command's output, not a match)`. **That sentence is false about this leg.** The zero comes
+      from a match, and the pattern is `Traceback`, in plain sight. `GREP_PAT` required the
+      pattern to be QUOTED, so `patterns_in()` returned `[]` — and because PATTERN credit is
+      `p in sib_pats` over the leg's OWN patterns, a leg with no readable pattern can never be
+      credited by ANY companion. The mis-read did not mislabel it; it made it permanently
+      uncontrollable, and T-669 costed it into the "48 BLOCKED, needs an operator ruling
+      (OBS-382)" bucket on exactly that basis. Appending under PD-308 would have been a no-op
+      that recorded coverage which does not exist — the OBS-379 mistake T-843 was punished for.
+
+      **Same class as the `len(p) >= 3` floor T-845 removed:** a reader limit wearing a rule's
+      clothes, silently making a class of valid controls impossible to express. `GREP_PAT` now
+      reads a bare pattern too, refusing a `$`-leading token (an interpolated pattern this
+      reader cannot know — calling the literal `"$VAR"` its pattern would be
+      mention-not-invocation in a new costume).
+
+- [x] **The widening credits NOTHING on its own — measured, not asserted.** Before and after,
+      over all 779 files carrying a `## Verification` block: PATTERN 76 / EXISTENCE 27 /
+      NONE 75, and the 75 uncontrolled legs are the **identical set** (`diff` of the two
+      file:line lists is empty). This matters because every change to this recogniser moves in
+      the false-negative direction — it can only ever credit MORE — so "the count did not move"
+      is the evidence that nothing was silently drained.
+
+- [x] **Teeth, proven by replaying the pre-fix reader.** Four cases added to
+      `tools/_t845-control-recogniser-tests.sh`: a bare pattern is read; a bare-pattern leg is
+      creditable by a same-string companion; a `$`-leading token stays unreadable; a MENTIONED
+      bare pattern is still refused; quoted extraction is unchanged. **16/16 pass against the
+      fixed reader; replayed against the pre-fix reader via `T845_REPO_ROOT`, the two capability
+      cases FAIL (12, 13) and all three over-crediting guards still PASS** — which is the split
+      that proves the suite tests the change rather than the corpus.
+
+- [x] **Ratchet GREEN, and the baseline was not touched.** One companion leg appended to
+      `T-859` under PD-308 (5 insertions, 0 deletions; see `## Tier 2 log` below). Census now
+      exits **0**: PATTERN 76 -> 77, NONE 75 -> 74, `RATCHET baseline 74, current 74`.
+      `tools/_t560-absence-baseline.txt` still reads **74** — unchanged by this task, which is
+      the prohibited move this task's own scope named. `_t560-absence-census-teeth.py` is
+      **5/5**, including leg 5 ("with no override the census reads the live corpus (4135 legs)
+      and is green") — the leg whose failure opened this task.
+
+- [x] **This task's own Verification block had rotted, and it rotted the way the template
+      warns.** Two legs pinned the literal `78` — the baseline on the day of filing. T-669
+      lowered it to 74 and both went red for reasons unrelated to this task: T-3326's
+      mutable-corpus anchor, found inside the block of the task complaining about a red
+      baseline. Replaced with the invariant (census exits green, teeth pass, recogniser suite
+      passes, the companion is present), not the number.
+
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -252,15 +321,50 @@ cost_estimate_proposed:
        `bin/fw reviewer T-785 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Tier 2 log — the 1 edit made under PD-308
+
+PD-308 (operator ruling, 2026-09-22, T-802) permits an agent to **APPEND** a sibling control
+leg to a `## Verification` block inside `.tasks/completed/` **only** where a teeth instrument
+requires it to discharge an uncontrolled assertion, **additive only**, each edit **logged as
+Tier 2**. This is that log, in the format T-669 established.
+
+| # | file | line of the uncontrolled leg | pattern asserted absent | control appended | route |
+|---|------|------------------------------|--------------------------|------------------|-------|
+| 1 | `.tasks/completed/T-859-t542-cost-axis-guard-raises-attributeerr.md` | 296 | `Traceback` (bare, unquoted) | `python3 -c 'raise RuntimeError("t859 control")' > /tmp/.t859.control 2>&1 \|\| true; grep -q 'Traceback' /tmp/.t859.control` (PATTERN) | companion leg makes a real Python traceback and greps the same string over it |
+
+**The edit is an addition only.** `git diff --numstat` on the file reports **5 insertions, 0
+deletions** — the mechanical form of PD-308's additive-only constraint. Nothing above the
+appended lines was altered.
+
+**The target block was verified GREEN before the control was appended.** T-669's own drain
+recorded the trap: *"14 of the 55 reachable legs were RED when measured and got no companion:
+a control over a leg that already fails records coverage that does not exist."* Measured here
+first — `_t542-cost-blast-radius-teeth.py` exits 1 as leg 1 requires, `grep -c Traceback` is 0,
+the `finding(s):` line is present. The leg this control covers passes today.
+
+**Why one edit and not a drain.** The ratchet is a rise-detector. Exactly one leg had been
+added above the baseline since T-669 set it — `T-859:296`, created five hours after that
+commit. Draining more would lower the count below the baseline without lowering the baseline,
+which banks invisible credit against the next regression; that is the same "leaving it high
+silently re-admits exactly that many" argument the baseline header makes, running the other way.
+
 ## Verification
 
 bash tools/_t400-schema-teeth.sh > /dev/null 2>&1
 bash tools/_t400-schema-teeth.sh 2>&1 | grep -q 'arbitrary unaccounted field'
 python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.yaml')); g=[x for x in d['concerns'] if isinstance(x,dict) and x.get('id')=='G-076'][0]; sys.exit(0 if 'escalation_arc_level' not in g and 'ranked 0' in g['decision_trigger'] else 1)"
 python3 tests/test_forward_fixtures.py > /dev/null 2>&1
-grep -qx '78' tools/_t560-absence-baseline.txt
+# T-785 CLOSING LEGS. The two legs that stood here pinned the literal 78 — the baseline value
+# on the day this task was filed. T-669 later drained the corpus and lowered the baseline to 74
+# in the same commit, and both legs went red for a reason that has nothing to do with this task:
+# the exact T-3326 mutable-corpus-anchor rot the template warns about, caught in this task's own
+# block. Replaced with the INVARIANT that is actually this task's deliverable — the ratchet exits
+# green, its teeth pass, and the recogniser change is pinned by its own suite — not the number.
+timeout 300 python3 tools/_t560-absence-assertion-census.py > /tmp/.t785.census 2>&1 && grep -q 'RATCHET' /tmp/.t785.census
+timeout 600 python3 tools/_t560-absence-census-teeth.py > /tmp/.t785.teeth 2>&1 && grep -q '5/5 legs passed' /tmp/.t785.teeth
+bash tools/_t845-control-recogniser-tests.sh > /tmp/.t785.t845 2>&1 && grep -qE '# passed [0-9]+, failed 0' /tmp/.t785.t845
+grep -q "grep -q 'Traceback' /tmp/.t859.control" .tasks/completed/T-859-t542-cost-axis-guard-raises-attributeerr.md
 test -f tools/_t560-absence-census-teeth.py
-python3 -c "import subprocess,sys; o=subprocess.run(['python3','tools/_t560-absence-assertion-census.py'],capture_output=True,text=True).stdout; sys.exit(0 if 'baseline 78' in o else 1)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -380,3 +484,10 @@ python3 -c "import subprocess,sys; o=subprocess.run(['python3','tools/_t560-abse
 ### 2026-09-21T22:40:19Z — status-update [task-update-agent]
 - **Change:** status: started-work → issues
 - **Reason:** Blocked by T-353's open operator ruling: the repair requires adding sibling control legs to T-778's Verification block, and T-778 is in .tasks/completed/. Whether an agent may edit Verification blocks there is exactly what T-353 asks. 4 of 5 ACs met; the 5th is BLOCKED, not failed.
+
+### 2026-09-29T07:39:14Z — status-update [task-update-agent]
+- **Change:** status: issues → started-work
+
+### 2026-09-29T07:41:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → issues
+- **Reason:** Round 3 census: reopened to started-work at 07:39Z with no work done. AC 4 is BLOCKED on T-353's open [REVIEW] ruling (owner: human) — may an agent edit ## Verification blocks inside .tasks/completed/. Sovereign question, surfaced not resolved; parking back to the state the blocker warrants.

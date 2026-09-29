@@ -83,6 +83,44 @@ else:
     ok("unreadable-pattern leg carries a reason: %r" % r2) if r2 and str(r2).strip() \
         else bad("control_reason returned nothing for an unreadable leg")
 
+# ── FIX 4 (T-785): a BARE, unquoted grep pattern must be readable ─────────────
+# The leg that forced this is real and archived: T-859:296
+#   test "$(grep -c Traceback /tmp/.t859.out)" -eq 0
+# Under the quoted-only reader it extracted NO pattern, so `p in sib_pats` had nothing to
+# range over and NO companion leg could ever credit it — it was not merely mislabelled, it
+# was uncontrollable, and T-669 costed it into the "48 BLOCKED, needs an operator ruling"
+# bucket on that basis. Same shape as the len(p)>=3 floor above: a reader limit masquerading
+# as a rule. The direction of risk is unchanged and so are the guards below.
+BARE = 'test "$(grep -c Traceback /tmp/.t859.out)" -eq 0'
+
+pats = c.patterns_in(BARE)
+ok("a bare grep pattern is read: %r" % pats) if "Traceback" in pats \
+    else bad("bare pattern not read, got %r — the leg stays uncontrollable" % pats)
+
+got = lvl(BARE, ["grep -q 'Traceback' /tmp/.t859.control"])
+ok("a bare-pattern leg is creditable by a same-string companion") if got == "PATTERN" \
+    else bad("bare-pattern leg gave %s, expected PATTERN" % got)
+
+# GUARD A — a $-leading token is NOT a literal pattern. `grep -q $VAR f` interpolates
+# something this reader cannot know; calling the string "$VAR" its pattern would be the
+# mention-not-invocation error in a new costume, and would let two unrelated legs that both
+# happen to write $VAR credit each other.
+pats = c.patterns_in("! grep -q $UNQUOTED f")
+ok("a $-leading bare token is still unreadable") if not pats \
+    else bad("$-leading token was read as pattern %r — over-crediting risk" % pats)
+
+# GUARD B — the same-string rule must still carry the whole weight for bare patterns:
+# a sibling that MENTIONS Traceback without grepping it must NOT credit.
+got = lvl(BARE, ["python3 -c \"print('Traceback is mentioned here but never grepped')\""])
+ok("a MENTIONED bare pattern is still refused") if got == "NONE" \
+    else bad("mention credited as %s — the same-string rule was lost for bare patterns" % got)
+
+# GUARD C — quoted extraction is unchanged, and the quoted branch still wins when both
+# could match, so a quoted pattern never degrades into its filename.
+pats = c.patterns_in("! grep -q 'LONGPATTERN' /tmp/some.file")
+ok("quoted extraction unchanged: %r" % pats) if pats == ["LONGPATTERN"] \
+    else bad("quoted extraction changed to %r" % pats)
+
 print("\n# passed %d, failed %d" % (P, F))
 sys.exit(1 if F else 0)
 PY
