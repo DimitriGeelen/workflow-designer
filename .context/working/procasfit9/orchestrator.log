@@ -1,0 +1,37 @@
+=== procAsFit orchestration: 9 rounds ===
+mandate: .context/working/procasfit9/mandate.md (4657 bytes, sha 0a790d8efe0e)
+
+round 1/9: dispatching (4872 bytes; feed=none)
+round 1: exit=0 3831s handback=12514B -> OK
+round 2/9: dispatching (17436 bytes; feed=round1-handback.md)
+round 2: exit=1 1571s handback=0B -> FAILED-NO-HANDBACK
+round 3/9: dispatching (17642 bytes; feed=round1-handback.md)
+round 3: exit=1 4s handback=0B -> FAILED-NO-HANDBACK
+round 4/9: dispatching (17642 bytes; feed=round1-handback.md)
+round 4: exit=1 5s handback=0B -> FAILED-NO-HANDBACK
+round 5/9: dispatching (17642 bytes; feed=round1-handback.md)
+round 5: exit=1 5s handback=0B -> FAILED-NO-HANDBACK
+round 6/9: dispatching (17642 bytes; feed=round1-handback.md)
+round 6: exit=1 4s handback=0B -> FAILED-NO-HANDBACK
+round 7/9: dispatching (17642 bytes; feed=round1-handback.md)
+round 7: exit=1 4s handback=0B -> FAILED-NO-HANDBACK
+round 8/9: dispatching (17642 bytes; feed=round1-handback.md)
+round 8: exit=1 5s handback=0B -> FAILED-NO-HANDBACK
+round 9/9: dispatching (17642 bytes; feed=round1-handback.md)
+round 9: exit=1 5s handback=0B -> FAILED-NO-HANDBACK
+
+=== RUN LOG ===
+round	dispatched_at	exit	secs	prompt_bytes	handback_bytes	verdict
+1	2026-09-28T22:47:48Z	0	3831	4872	12514	OK
+2	2026-09-28T23:51:39Z	1	1571	17436	0	FAILED-NO-HANDBACK
+3	2026-09-29T00:17:50Z	1	4	17642	0	FAILED-NO-HANDBACK
+4	2026-09-29T00:17:54Z	1	5	17642	0	FAILED-NO-HANDBACK
+5	2026-09-29T00:17:59Z	1	5	17642	0	FAILED-NO-HANDBACK
+6	2026-09-29T00:18:04Z	1	4	17642	0	FAILED-NO-HANDBACK
+7	2026-09-29T00:18:09Z	1	4	17642	0	FAILED-NO-HANDBACK
+8	2026-09-29T00:18:13Z	1	5	17642	0	FAILED-NO-HANDBACK
+9	2026-09-29T00:18:18Z	1	5	17642	0	FAILED-NO-HANDBACK
+
+rounds with a real handback: 1
+rounds that did not:         8
+NOTE: the failed rounds are listed above by verdict. They are not skipped rounds.

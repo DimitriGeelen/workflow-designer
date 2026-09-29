@@ -2673,3 +2673,17 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-438
+  text: "procAsFit orchestrator burned 7 rounds against a known wall in 33 seconds. Round 2 hit 'You've hit your session limit · resets 3:10am' 26 min in; rounds 3-9 were then dispatched anyway and each died in 4-5s — all seven .out files BYTE-IDENTICAL (md5 e721d019), i.e. one refusal repeated, not seven failures. The verdict column read FAILED-NO-HANDBACK eight times, which is true and useless: it cannot distinguish 'this round tried and failed' from 'this round never ran'. The mandate's own clause (three attempts at the same wall is context burned, not progress) was violated by the orchestrator, not a worker. Fixed in tools/_procasfit-orchestrate.sh: quota refusal is detected on the worker's own output, gets its own verdict (QUOTA-WAIT-n / QUOTA-EXHAUSTED-RUN-STOPPED), and either waits to the parsed reset and retries the SAME round or stops the run leaving remaining rounds undispatched. Detector proven both directions by selftest: fires on the real refusal, does not fire on a real successful round's output."
+  captured: 2026-09-29T06:56:17Z
+  context_task: T-922
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-439
+  text: "A handback written only at the end is a handback that may never be written. procAsFit round 2 closed T-882 (commit 162afe3b) and opened T-923 with ~25 lines of real implementation plus a new lib and teeth script, then died on a quota refusal with handback_bytes=0. The work is in the tree but was invisible to the run record and to every subsequent round, which were therefore fed round 1's handback and told round 2 produced nothing — a true statement about the artefact and a false picture of the state. The orchestrator prompt now requires the handback skeleton be written BEFORE work starts and filled as it goes, and every round's prompt now carries an observed inherited-state census (started-work tasks + uncommitted paths) so an interrupted unit is picked up rather than re-selected around. Same class as OBS-405: the artefact is the only evidence, so the artefact must exist early."
+  captured: 2026-09-29T06:56:27Z
+  context_task: T-922
+  tags: [bug]
+  status: pending
+  promoted_to: null
