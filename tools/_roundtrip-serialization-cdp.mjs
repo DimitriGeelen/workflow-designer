@@ -328,7 +328,7 @@ const EXCLUDED = {
 // T-905: THE DECLARATION IS VERIFIED, NOT TRUSTED. Until T-905 this table was `k: 'metaKeys',
 // key: 'metaKeys', bindField: 'EVENT_BINDING_FIELD'` and checkDenominator() only asked whether an
 // entry EXISTED for each computed variable. Measured under T-904: `key` never iterates metaKeys —
-// it walks structList, an inline array and structItemList — and `k` ranges over the node's whole
+// it walks STRUCT_LIST_KEYS, an inline array and structItemList — and `k` ranges over the node's whole
 // key bag (Object.keys(aef) / aefKeys / carriedKeys), of which metaKeys is one filtered slice. A
 // misdeclaration was indistinguishable from a correct one, which is the false-green shape this
 // guard exists to remove. Now deriveBindingSources() reads, from the stripped body, every site
@@ -337,12 +337,22 @@ const EXCLUDED = {
 //
 // Source kinds, because they contribute to the projection differently:
 //   literal — an array literal in the body whose string elements are projected keys (metaKeys)
-//   object  — an object literal in the body whose KEYS are projected keys (structList, structItemList)
+//   object  — an object literal in the body whose KEYS are projected keys (STRUCT_LIST_KEYS, structItemList)
 //   inline  — an inline array literal iterated directly; its elements are projected keys
 //   bag     — the node's own key bag: an OPEN set that comes from the document (T-570 carriage).
 //             It cannot be enumerated from the emitter; it is REPORTED as open rather than implied
 //             enumerated, which is the honest form of "derived FROM the emitter" for that range.
 //   module  — a module-scope literal above the function (EVENT_BINDING_FIELD), handled by bindFields
+//   moduleObject — T-573: a module-scope OBJECT whose KEYS are projected keys
+//             (STRUCT_LIST_KEYS). `object` resolves inside the emitter body only, so a shared
+//             vocabulary hoisted OUT of the body reads as "does not exist in the emitter" — which
+//             is what happened, correctly, when T-573 moved STRUCT_LIST_KEYS to module scope so the
+//             properties panel could read it instead of becoming a third copy (T-322).
+//             Still DERIVED FROM CODE, which is this guard's whole point: the keys are read out of
+//             the constant the emitter names, never from a hand-maintained list. A new kind rather
+//             than widening `object` to search module scope: `object` asserts body-locality, and
+//             silently relaxing it would let a genuinely absent literal resolve against any
+//             same-named thing elsewhere in a 12k-line file.
 const COMPUTED_SOURCES = {
   k: [
     { bag: 'Object.keys(aef)' },   // aefKeys = Object.keys(aef).filter(k => ...)
@@ -351,7 +361,13 @@ const COMPUTED_SOURCES = {
     { bag: 'carriedKeys' },        // [...metaKeys.filter(...), ...carriedKeys].map(k => ...)
   ],
   key: [
-    { object: 'structList' },                                  // for (const key in structList)
+    // T-573: was `structList`, an object literal inside the emitter. The triple it held was
+    // written out twice in the editor and the properties panel needed a third reader, so it
+    // was hoisted to one module-scope STRUCT_LIST_KEYS (T-322). This declaration is updated
+    // rather than the code being reverted: T-905 built this check precisely so a rename could
+    // not slip past, and it did not — the guard refused with "declares object source
+    // 'structList' which does not exist in the emitter" before this line changed.
+    { moduleObject: 'STRUCT_LIST_KEYS' },                       // for (const key in STRUCT_LIST_KEYS)
     { inline: "['aggregation', 'multiInstance', 'timer']" },   // for (const key of [...])
     { object: 'structItemList' },                              // for (const key in structItemList)
   ],
@@ -359,7 +375,7 @@ const COMPUTED_SOURCES = {
     { module: 'EVENT_BINDING_FIELD' },                         // const bindField = EVENT_BINDING_FIELD[node.type]
   ],
 };
-const SOURCE_KINDS = ['literal', 'object', 'inline', 'bag', 'module'];
+const SOURCE_KINDS = ['literal', 'object', 'inline', 'bag', 'module', 'moduleObject'];
 function sourceName(decl) { const kind = SOURCE_KINDS.find(k => k in decl); return kind ? { kind, name: decl[kind] } : null; }
 
 // Walk backwards from index i (just before a `.filter(`/`.map(` dot) over one balanced receiver
@@ -416,8 +432,10 @@ function deriveBindingSources(body, v) {
 // Keys an OBJECT or INLINE source contributes to the projection: object-literal keys, or array elements.
 function keysOfSource(body, srcAll, decl) {
   const { kind, name } = sourceName(decl);
-  if (kind === 'object') {
-    const m = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\};`).exec(body);
+  if (kind === 'object' || kind === 'moduleObject') {
+    // T-573: `object` looks in the emitter body; `moduleObject` looks at the whole module.
+    const where = kind === 'moduleObject' ? srcAll : body;
+    const m = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\};`).exec(where);
     if (!m) return null;
     return [...m[1].matchAll(/(?:^|[,{\s])([A-Za-z_][A-Za-z0-9_]*)\s*:/g)].map(x => x[1]);
   }
@@ -430,7 +448,7 @@ function sourceExists(body, srcAll, decl) {
   if (kind === 'bag') return name === 'Object.keys(aef)' ? body.includes('Object.keys(aef)') : new RegExp(`const\\s+${name}\\s*=`).test(body);
   if (kind === 'literal' || kind === 'object') return new RegExp(`const\\s+${name}\\s*=`).test(body);
   if (kind === 'inline') return body.replace(/\s+/g, ' ').includes(name);
-  if (kind === 'module') return new RegExp(`const\\s+${name}\\s*=`).test(srcAll);
+  if (kind === 'module' || kind === 'moduleObject') return new RegExp(`const\\s+${name}\\s*=`).test(srcAll);
   return false;
 }
 function checkComputedSources(body, srcAll, computed) {

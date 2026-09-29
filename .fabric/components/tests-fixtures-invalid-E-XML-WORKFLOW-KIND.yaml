@@ -1,0 +1,21 @@
+id: tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn
+name: E-XML-WORKFLOW-KIND
+type: script
+subsystem: fixtures
+location: tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn
+tags: []
+
+purpose: "TODO: describe what this component does"
+purpose_source: none
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-29
+created_by: unknown

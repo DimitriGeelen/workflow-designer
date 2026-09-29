@@ -24,10 +24,11 @@ description: >
   pins the preservation and leg 'structured-untouched' pins that an ARRAY still takes
   its own channel.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bug, designer, round-trip]
 components: [src/aef-workflow-designer.html]
 related_tasks: []
@@ -36,7 +37,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T17:06:34Z
-last_update: '2026-09-26T09:06:23Z'
+last_update: 2026-09-29T08:13:04Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -48,40 +49,7 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-09-10T05:36:30Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 0
-      D3: 2
-      D4: 2
-      F-RECALL: 0
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 1
-    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
-      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
-      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
-      (prose:process-enablement-incidental)
-    rubric_sha: e4a00f38e801
-  - ts: '2026-09-26T09:06:23Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 0
-      D3: 2
-      D4: 2
-      F-RECALL: 0
-      F2: 0
-      F4: 0
-      F3: 4
-      F1: 2
-    rationale: 'D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 (body:default-change);
-      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0
-      (L0: no signal); F3=4 (L4:keyword=round-trip); F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
-    rubric_sha: e4a00f38e801
+bvp_scores_proposed: []
 cost_estimate_proposed:
   - ts: '2026-09-21T20:24:51Z'
     estimator: bvp-estimator-v1-heuristic
@@ -100,6 +68,18 @@ cost_estimate_proposed:
     rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=7 
       (no-signal)
     rubric_sha: e4a00f38e801
+bvp_scores:
+  D1: 4
+  D2: 0
+  D3: 2
+  D4: 2
+  F-RECALL: 0
+  F2: 0
+  F4: 0
+  F3: 4
+  F1: 2
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-29T08:12:59Z'
 ---
 
 # T-573: Emits panel field writes a scalar where the structured exporter requires an array
@@ -112,8 +92,71 @@ cost_estimate_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **The ratified structured shape is REACHABLE from the panel.** Typing into the Emits
+      box produces `<aef:emits><aef:emit value="..."/></aef:emits>` on export — the form
+      `tools/yaml-to-bpmn.py` and `tests/test_editor_bridge_structured_parity.py` agree on —
+      not `<aef:meta emits="..."/>`. Input is parsed comma-separated, matching the hint
+      convention `contextReads`/`artifactsWrites` already use and the `join(', ')` the dict
+      emitter already round-trips. Proven in the page by CDP, reading the exported XML —
+      not by reading the handler.
+
+- [x] **A scalar that ARRIVED in the document and was NOT touched still round-trips as a
+      scalar.** This is T-242's ruling against silent migration (made for `targetWorkflow`)
+      applied here: promoting a shape on load rewrites bytes the author did not touch.
+      `tools/_t570-meta-carriage-cdp.mjs` leg `scalar-emits-survives` must stay green, and
+      leg `structured-untouched` must stay green with it — the two channels are disjoint by
+      construction (T-570's shape-derived skip set) and this task must not couple them.
+
+- [x] **A no-op edit writes nothing.** If the parsed input is content-equal to what is
+      already stored, the stored value is left ALONE — including its shape. The guard is
+      about content, not about guessing intent: without it a stray keystroke in a
+      scalar-arrived field silently promotes the shape and moves bytes. Proven by a leg that
+      types the identical value into a scalar field and asserts the export is unchanged.
+
+- [x] **Clearing the field removes the key rather than storing an empty value.** An empty
+      parse yields no key at all, so neither emitter has to decide what `emits=""` or
+      `emits: []` means. Proven by a leg that clears a populated field and asserts no
+      `emits` survives in either channel.
+
+- [x] **ONE module-scope vocabulary for the structured-list keys, read by all three sites.**
+      The `emits`/`compensates` wrapper-item-attribute triple is currently written out twice
+      (export at src:10485, import at src:11465) and the panel would have been a third. Hoist
+      it to one module-scope constant all three read — T-322's rule, the same reasoning
+      T-886/T-910 used for the derived denominator. Proven by a grep asserting the triple
+      literal occurs exactly ONCE, with a control proving the grep can count.
+
+- [x] **No corpus bytes move.** All 24 rendered maps still round-trip byte-identically, and
+      `tests/test_editor_bridge_structured_parity.py` is green. A panel change that moved
+      corpus bytes would be the opposite defect.
+
+
+**EVIDENCE, per criterion.** `tools/_t573-emits-panel-shape-cdp.mjs` **8/8** — it drives the
+REAL input element (found by its rendered label, `.value` set, a real `input` event
+dispatched) and reads the exported XML, because calling the callback directly would pass on a
+build where the field never renders at all, which is the F-11 defect one level up.
+· AC1 `panel-authors-structured` + `single-value-promotes` (one event with no comma still
+  reaches the ratified form — it is not reserved for lists).
+· **The control arm for AC1 is `reproduce-string-write`**: it reproduces the pre-fix
+  assignment `n.aef.emits = v` in the page and requires NO `<aef:emits>` to appear. Without it
+  a fixture that arrived structured would report the same green (T-560).
+· AC2 `untouched-channels-stay-disjoint` (scalar node: meta=true structured=false; structured
+  node: meta=false structured=true; two exports byte-identical) **plus
+  `tools/_t570-meta-carriage-cdp.mjs` 8/8**, its `scalar-emits-survives` and
+  `structured-untouched` legs unchanged.
+· AC3 `noop-edit-moves-no-bytes` — retyping the identical scalar left the export
+  byte-identical and the shape a scalar.
+· AC4 `clear-deletes-key` — no `<aef:emits>`, no meta attribute, key absent.
+· AC5 `tools/_t573-one-vocabulary-teeth.py` **5/5 against mutants**: a second export-style
+  copy caught, a second import-style copy caught, the constant RENAMED reported as BLINDNESS
+  rather than health, and a dropped key caught as a bridge disagreement (which proves leg 1's
+  green is about agreement, not merely about the count).
+· AC6 `tools/_t308-export-byte-identity-cdp.mjs` **24 maps / 24 identical**,
+  `tests/test_editor_bridge_structured_parity.py` green, `tools/_roundtrip-serialization-cdp.mjs`
+  `pass: true`.
+
+**TWO GUARDS HAD TO BE UPDATED, AND BOTH REFUSED ME FIRST — which is the system working.**
+Neither was edited to go green; each was refused, diagnosed, and then told the truth about the
+new code, with a control proving it can still bite. See `## Decisions`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -195,6 +238,51 @@ cost_estimate_proposed:
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+
+# T-573. The CDP harnesses are slow (each spawns a sidecar + headless Chromium); that is the
+# price of proving a PANEL behaviour in the page rather than by reading the handler.
+#
+# 1. The panel authors the ratified shape — 8 legs, one of them the pre-fix control arm.
+node tools/_t573-emits-panel-shape-cdp.mjs
+#
+# 2. The "exactly one structured-list vocabulary" check, against 5 mutants. Includes the
+#    rename-reads-as-blind leg: a guard that cannot find its subject must not report health.
+python3 tools/_t573-one-vocabulary-teeth.py
+#
+# 3. Editor/bridge parity on structured keys, now including the copy COUNT.
+python3 tests/test_editor_bridge_structured_parity.py
+#
+# 4. T-570's carriage must be untouched: the scalar channel and the structured channel are
+#    disjoint by construction and this task must not have coupled them.
+node tools/_t570-meta-carriage-cdp.mjs
+#
+# 5. No corpus bytes move: 24 maps, 24 identical.
+node tools/_t308-export-byte-identity-cdp.mjs
+#
+# 6. The derived-denominator guard passes with the new moduleObject source kind.
+node tools/_roundtrip-serialization-cdp.mjs
+#
+# 7. The triple literal exists in exactly ONE place. Pinned as an invariant (1), and the
+#    grep is the same one test_editor_bridge_structured_parity.py counts with.
+python3 -c "import sys; t=open('src/aef-workflow-designer.html').read(); n=t.count(\"['emits', 'emit', 'value']\"); print('triple literal copies:', n); sys.exit(0 if n==1 else 1)"
+
+## Visual Verification
+
+The panel change is visible to an author in two ways — the hint now names the separator (it is
+load-bearing: it is what produces the list) and a document-supplied ARRAY has to render as
+something editable rather than `[object Object]` or blank. DOM values were checked AND the
+rendered output was read, per CLAUDE.md §Visual Verification.
+
+The designer has exactly ONE visual mode: `grep -oE "data-theme|prefers-color-scheme|\.theme-[a-z]+|toggleTheme"` over
+`src/aef-workflow-designer.html` returns nothing — no theme attribute, no media query, no
+toggle. So two element screenshots cover every mode this change can affect, rather than the
+usual light/dark/contrast matrix.
+
+| shot | state | read back |
+|---|---|---|
+| `docs/reports/t573-shots/emits-field-array-joined.png` | a document-supplied `<aef:emits>` array of two | label `Emits`, hint `· event name(s) · comma-separated`, value `event:one, event:two` — legible, not truncated, no overlap |
+| `docs/reports/t573-shots/emits-field-three-typed.png` | three events typed by hand | value `event:alpha, event:beta, event:gamma` renders in full; stored as `["event:alpha","event:beta","event:gamma"]` |
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -246,6 +334,67 @@ cost_estimate_proposed:
      - **Rejected:** [alternatives and why not]
 -->
 
+
+### PD (T-573) — parse comma-separated in the panel, rather than build a structured sub-editor
+
+T-573 named two routes and asked for a deliberate choice. Chosen: **the field parses its
+input into a list.** Reasons, in order of weight:
+1. `contextReads` and `artifactsWrites` already carry the hint `paths · comma-separated`, so
+   the separator is this panel's existing convention for many-valued text; a bespoke
+   sub-editor for one key would be a second convention for the same question.
+2. The dict emitter already round-trips lists through `join(', ')`, so the separator is
+   already load-bearing in the serialiser — the panel now agrees with it instead of differing.
+3. It is reversible. A structured sub-editor can be added later over the same stored shape;
+   the stored shape is the contract and it is now correct.
+
+Rejected: a structured sub-editor now. It is more UI for a key carried by **1 of 823** corpus
+`aef:meta` values, and it would have delayed the shape fix behind a widget.
+
+### PD (T-573) — the shape follows CONTENT, and a content-equal edit writes nothing
+
+T-242 ruled against silent migration for `targetWorkflow`: promoting a shape on load rewrites
+bytes the author did not touch. The obvious reading — "only migrate when the author edits" —
+is not implementable honestly, because `field()`'s non-deferred path fires on every `input`
+event, so "the author edited" and "the author brushed the field" are the same signal.
+
+So the guard decides by **content**, not intent (`structListUnchanged`): a scalar `'a'` and an
+array `['a']` are content-equal, and a write whose parse is content-equal to what is stored is
+dropped, shape included. A real change writes the ratified array. This needs no guess about
+what the author meant, and it is what leg `noop-edit-moves-no-bytes` pins.
+
+Clearing DELETES the key rather than storing `''` or `[]`, so neither emitter ever has to
+decide what an empty `emits` means.
+
+### PD (T-573) — two guards refused this change first; both were told the truth, not silenced
+
+Recorded because "I updated two guards" is the sentence that should always attract suspicion.
+
+1. **`tests/test_editor_bridge_structured_parity.py`** failed with `SELFTEST FAIL: editor
+   extraction returned empty`. Its premise was that the editor holds the triple TWICE and each
+   copy is compared to the bridge. The hoist collapsed them to one, so its regex found nothing
+   — and its selftest correctly refused to report vacuous parity. Rather than restore its
+   pattern, the check was made **stronger**: it now reads the single `STRUCT_LIST_KEYS` and
+   asserts the editor holds **exactly one** copy. Two copies agreeing was always the weaker
+   property — it was satisfied for as long as the panel wrote an incompatible third shape,
+   which is this task's whole defect. `0` copies (constant renamed) now reads as BLINDNESS,
+   not health. Proven by 5 mutants in `tools/_t573-one-vocabulary-teeth.py`.
+
+2. **`tools/_roundtrip-serialization-cdp.mjs`** went `pass: true` → `pass: false` with
+   *"COMPUTED_SOURCES.key declares object source `structList` which does not exist in the
+   emitter"*, then, after the name was updated, with the same complaint about
+   `STRUCT_LIST_KEYS` — because its `object` kind resolves **inside the emitter body** and the
+   constant is now at module scope. **This is T-905's guard behaving exactly as designed** (it
+   was built so a misdeclaration could not be mistaken for a correct one), and it was a real
+   regression I introduced, caught by the instrument rather than by me.
+   Fixed by adding a `moduleObject` source kind — a module-scope object whose KEYS are
+   projected keys — resolved from the whole module. A NEW kind rather than widening `object`
+   to search module scope: `object` asserts body-locality, and relaxing it would let a
+   genuinely absent literal resolve against any same-named thing in a 12k-line file.
+   **Control run, because widening a guard's resolution is how guards get defanged:** the
+   declaration was pointed at `STRUCT_LIST_KEYS_NOT_A_THING`, and the guard refused on all
+   three of its checks (`does not exist in the emitter` / `the declaration is narrower than
+   the code` / `names a source it does not iterate`). Restored and verified clean.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -262,3 +411,7 @@ cost_estimate_proposed:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-573-emits-panel-field-writes-a-scalar-where-.md
 - **Context:** Initial task creation
+
+### 2026-09-29T08:13:04Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

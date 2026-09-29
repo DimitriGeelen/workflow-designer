@@ -2724,3 +2724,10 @@ observations:
   tags: [concurrency]
   status: pending
   promoted_to: null
+- id: OBS-445
+  text: "UNDIAGNOSED, ESCALATED AFTER THREE HYPOTHESES (T-573 round 3): .context/working/focus.yaml's current_task changes WITHOUT a focus verb being run, and the drift silently re-points the check-active-task gate at a task the session is not working on -- so a write can be attributed to the wrong task, or blocked as 'No active task' mid-unit. TWO OBSERVATIONS THIS ROUND: (1) after 'fw work-on T-573' set focus=T-573, a few read-only Bash calls later a write was refused with 'BLOCKED: No active task' and focus.yaml held current_task: null; (2) later, after implementation work under focus=T-573, focus.yaml held current_task: T-669 -- a task this session only ever READ (fw bvp T-669 and file greps), never started. ELIMINATED: 'fw bvp T-XXX' does not do it (set focus T-573, ran fw bvp T-826, focus unchanged); no crontab entry references this project; checkpoint.sh only READS focus.yaml (and reads the wrong key -- filed separately as T-928). NOT eliminated: stop-guard.sh / subagent-stop.sh / post-compact-resume.sh, or a concurrent session on the same repo (other sessions did commit to bleeding-edge during round 2). WHAT A REPRODUCTION NEEDS: an inotify watch on focus.yaml recording the writing PID, since the value alone does not name its author."
+  captured: 2026-09-29T08:27:10Z
+  context_task: T-573
+  tags: []
+  status: pending
+  promoted_to: null

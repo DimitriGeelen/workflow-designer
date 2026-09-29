@@ -45,18 +45,30 @@ def bridge_structured():
 
 
 def editor_structured():
-    """(export_list, import_list, [dict_sets]) parsed from the editor's T-063 blocks."""
+    """(list_keys, copies, [dict_sets]) from the editor's T-063 / T-573 blocks.
+
+    T-573 CHANGED WHAT THIS MEASURES, AND THE CHANGE MAKES IT STRONGER. Until then the
+    editor held the emits/compensates triple TWICE — once in buildBpmnXml's `structList`
+    and once in the import reader's inline array — and this function extracted both so
+    `check()` could compare each against the bridge. Two copies agreeing is a weaker
+    property than one copy existing: it was satisfied while a THIRD reader (the properties
+    panel) wrote an incompatible shape, which is exactly the defect T-573 exists to fix.
+
+    So the triple now lives once, at module scope, as `STRUCT_LIST_KEYS`, and this reports
+    HOW MANY copies exist. `check()` fails on anything but one — a re-introduced second
+    copy is now a failure rather than something to compare.
+    """
     text = open(EDITOR, encoding="utf-8").read()
-    # export: const structList = { emits: ['emit','value'], compensates: [...] };
-    m = re.search(r"structList\s*=\s*\{(.*?)\}", text, re.S)
-    export_list = set(re.findall(r"(\w+):\s*\[", m.group(1))) if m else set()
-    # import: for (const [key, item, attr] of [['emits','emit','value'], ...]) {
-    m = re.search(r"for \(const \[key, item, attr\] of \[(.*?)\]\s*\)\s*\{", text, re.S)
-    import_list = set(re.findall(r"\['([A-Za-z]+)'", m.group(1))) if m else set()
+    m = re.search(r"const STRUCT_LIST_KEYS\s*=\s*\{(.*?)\n\};", text, re.S)
+    list_keys = set(re.findall(r"(\w+):\s*\[", m.group(1))) if m else set()
+    # The two shapes the hoist removed. Either reappearing means a second vocabulary.
+    copies = 1 if m else 0
+    copies += len(re.findall(r"structList\s*=\s*\{", text))
+    copies += len(re.findall(r"for \(const \[key, item, attr\] of \[\[", text))
     # dict-valued: every `for (const key of ['aggregation', ...])` (export + import)
     dict_sets = [set(re.findall(r"'([A-Za-z]+)'", body))
                  for body in re.findall(r"for \(const key of \[([^\]]+)\]\)", text)]
-    return export_list, import_list, dict_sets
+    return list_keys, copies, dict_sets
 
 
 def bridge_itemlist():
@@ -93,13 +105,18 @@ def editor_itemlist():
 def check():
     fails = []
     b_list, b_dict = bridge_structured()
-    e_export, e_import, e_dicts = editor_structured()
+    e_list, e_copies, e_dicts = editor_structured()
     if not b_list or not b_dict:
         return ["could not extract bridge STRUCTURED_LIST_KEYS/STRUCTURED_DICT_KEYS — scan pattern wrong?"]
-    if e_export != b_list:
-        fails.append("editor EXPORT list-keys %s != bridge STRUCTURED_LIST_KEYS %s" % (sorted(e_export), sorted(b_list)))
-    if e_import != b_list:
-        fails.append("editor IMPORT list-keys %s != bridge STRUCTURED_LIST_KEYS %s" % (sorted(e_import), sorted(b_list)))
+    if e_list != b_list:
+        fails.append("editor STRUCT_LIST_KEYS %s != bridge STRUCTURED_LIST_KEYS %s" % (sorted(e_list), sorted(b_list)))
+    # T-573: exactly one copy. 0 = the constant was renamed or removed and this guard went
+    # blind; >1 = a second vocabulary is back, which is the T-322 defect and the reason the
+    # panel could disagree with the exporter for as long as it did.
+    if e_copies != 1:
+        fails.append("editor holds %d cop(ies) of the structured-list vocabulary, expected exactly 1 "
+                     "(0 = STRUCT_LIST_KEYS gone/renamed and this check is blind; "
+                     ">1 = a second vocabulary is back, T-322)" % e_copies)
     if not e_dicts:
         fails.append("no `for (const key of [...])` dict-loops found in editor — import/export drifted?")
     for i, ds in enumerate(e_dicts):
@@ -123,8 +140,9 @@ def _selftest():
     b_list, b_dict = bridge_structured()
     assert b_list == {"emits", "compensates"}, "bridge list-keys drifted: %s" % sorted(b_list)
     assert b_dict == {"aggregation", "multiInstance", "timer"}, "bridge dict-keys drifted: %s" % sorted(b_dict)
-    e_export, e_import, e_dicts = editor_structured()
-    assert e_export and e_import and e_dicts, "editor extraction returned empty — patterns wrong?"
+    e_list, e_copies, e_dicts = editor_structured()
+    assert e_list and e_dicts, "editor extraction returned empty — patterns wrong?"
+    assert e_copies == 1, "editor structured-list vocabulary copies = %d, expected 1" % e_copies
     b_item = bridge_itemlist()
     assert b_item == {"constituents": ("constituents", "constituent", ("id", "name", "ref"))}, \
         "bridge itemlist-keys drifted: %s" % b_item

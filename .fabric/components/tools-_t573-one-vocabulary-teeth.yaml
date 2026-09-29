@@ -1,0 +1,21 @@
+id: tools/_t573-one-vocabulary-teeth.py
+name: _t573-one-vocabulary-teeth
+type: script
+subsystem: instruments
+location: tools/_t573-one-vocabulary-teeth.py
+tags: []
+
+purpose: "_t573-one-vocabulary-teeth.py — the \"exactly one structured-list vocabulary\" check has teeth."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-29
+created_by: unknown
