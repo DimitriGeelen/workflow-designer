@@ -280,3 +280,39 @@ assumptions:
   linked_task: T-788
   created: '2026-09-22'
   resolved_date: null
+- id: A-023
+  statement: The production rate of operator criteria exceeds the rate at which they
+    are answered, over a 90-day window
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-937
+  created: '2026-09-29'
+  resolved_date: null
+- id: A-024
+  statement: A material share of the 51 open rulings could have been settled by the
+    agent under a ruling that already exists in decisions.yaml
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-937
+  created: '2026-09-29'
+  resolved_date: null
+- id: A-025
+  statement: The backlog concentrates in a few task shapes rather than spreading evenly
+    across workflow_type, arc and originating family
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-937
+  created: '2026-09-29'
+  resolved_date: null
+- id: A-026
+  statement: Age of an unanswered criterion indicates neglect rather than correct
+    prioritisation
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-937
+  created: '2026-09-29'
+  resolved_date: null
