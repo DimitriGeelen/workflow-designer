@@ -47,6 +47,45 @@ import delegation as d  # noqa: E402
 PRODUCT_ARCS = {"designer-authoring-surface", "ewcr-governed-delivery",
                 "arc-001", "arc-002"}
 
+# T-933: what KIND of answer the item wants. The `class:` above says why the item is the operator's;
+# this says what answering it involves, which is a different question and the one that decides whether
+# a sitting can batch it. A ruling needs a position taken; a review needs something looked at; a
+# checkable item needs neither and should not be here at all.
+#
+# DERIVED FROM THE `Expected:` CLAUSE, NOT THE STEPS. An earlier attempt at this classification (under
+# T-932) tested the criterion's whole body and flagged 21 items as mechanically delegable — including
+# "May five OMG schema files be vendored" and "Whether to take the vendor bump now". Their STEPS
+# contain grep commands, because that is how the operator is told to look at the evidence. The verdict
+# is sovereign. That regex would have handed 21 rulings to a reviewer, which is precisely the
+# relocated authority PD-302 forbids. The Expected clause is what CLAUDE.md specifies and the only
+# field that speaks to the verdict.
+RULING_RE = re.compile(
+    r"\b(decide|decision|ruling|rule on|approve|approval|choose|whether to|go/no-go|"
+    r"sign off|accept|you agree|recorded against)\b", re.I)
+MECHANICAL_RE = re.compile(
+    r"exit(s)? (code )?[0-9]|\bPASS\b|\bFAIL\b|returns 0|non-zero|status [0-9]{3}|"
+    r"no findings|\b[0-9]+/[0-9]+\b|prints |contains ", re.I)
+
+KIND_NOTE = {
+    "RULING":      "take a position — nothing can be looked up to settle it",
+    "REVIEW":      "look at something and judge it",
+    "CHECKABLE":   "**mechanically checkable — should not be on this docket**; convert per item with `fw task delegate`",
+    "UNSPECIFIED": "the criterion does not say what answering it looks like — that is the first thing to fix",
+}
+
+
+def answer_kind(title, expected):
+    """What answering this involves. Order matters: a ruling dressed in a mechanical Expected clause
+    is still a ruling, so the ruling test runs first and wins."""
+    if RULING_RE.search(title) or RULING_RE.search(expected or ""):
+        return "RULING"
+    if not (expected or "").strip():
+        return "UNSPECIFIED"
+    if MECHANICAL_RE.search(expected):
+        return "CHECKABLE"
+    return "REVIEW"
+
+
 CLASS_NOTE = {
     "inception-decision": "a go/no-go on an exploration — nothing else can settle it",
     "sovereignty-field":  "writes a field whose whole point is that a human set it",
@@ -109,12 +148,30 @@ def main():
                 "expected": " ".join((c.expected or "").split()),
                 "score": unblock_score(tid, tasks, arcs),
                 "name": " ".join(str(fm.get("name") or "").split()),
+                "kind": answer_kind(" ".join(c.title.split()),
+                                    " ".join((c.expected or "").split())),
             })
 
     entries.sort(key=lambda e: (-e["score"], e["task"]))
     from pathlib import Path
     surface = d.surface_scan(Path(ROOT))
     reported = surface.get("by_delegation", {}).get(d.OPERATOR_ONLY, "?")
+
+    # The SECOND encoding. Read through a subprocess rather than imported, because it is a separate
+    # implementation and the point is to compare it, not to share code with it. A failure to read it
+    # leaves b_oo None and the docket SAYS so — never silently reports agreement it did not check.
+    b_oo = None
+    try:
+        import json as _json
+        import subprocess as _sp
+        _r = _sp.run([sys.executable, os.path.join(ROOT, "tools", "_t770-delegation-boundary.py"),
+                      "--json"], capture_output=True, text=True, timeout=120, cwd=ROOT)
+        if _r.returncode == 0 and _r.stdout.strip():
+            _rows = _json.loads(_r.stdout)
+            b_oo = sum(1 for r in _rows
+                       if r.get("section") == "Human" and r.get("bucket") == "OPERATOR-ONLY")
+    except Exception:
+        b_oo = None
 
     print("# Operator decision docket\n")
     print("**Generated** — do not hand-edit. Regenerate with:\n")
@@ -124,10 +181,38 @@ def main():
     print("This does **not** reduce the backlog — the count is unchanged. It removes the")
     print("gathering cost: answering these otherwise means opening ~69 task files and")
     print("reconstructing each context. Ordered by what each one releases.\n")
-    print("Reconciliation against `fw reviewer surface`: "
-          f"docket {len(entries)}, surface reports operator-only {reported}. "
-          + ("Counts agree.\n" if str(reported) == str(len(entries))
-             else "**Counts differ — investigate before trusting either.**\n"))
+    # What kind of answer each item wants — the number that decides whether a sitting can batch them.
+    from collections import Counter
+    kc = Counter(e["kind"] for e in entries)
+    print("**What these actually ask for**\n")
+    print("| kind | count | what answering involves |")
+    print("|---|---|---|")
+    for k in ("RULING", "REVIEW", "CHECKABLE", "UNSPECIFIED"):
+        if kc[k]:
+            print(f"| `{k}` | {kc[k]} | {KIND_NOTE[k]} |")
+    print()
+    print("The dominant kind is what makes this backlog what it is. Rulings cannot be delegated to a")
+    print("reviewer, converted by a classifier, or discharged by running anything — someone has to take")
+    print("a position. Measured twice independently (T-872 on 2026-09-26, T-932 on 2026-09-29) with the")
+    print("same result, the second time after wrongly assuming the opposite.\n")
+
+    print("**Reconciliation, against BOTH encodings of the boundary**\n")
+    print(f"- `fw reviewer surface` (the path that ENFORCES) reports operator-only {reported}; "
+          f"this docket lists {len(entries)}. "
+          + ("Counts agree." if str(reported) == str(len(entries))
+             else "**Counts differ — investigate before trusting either.**"))
+    if b_oo is None:
+        print("- `tools/_t770-delegation-boundary.py` (the path that REPORTS) could not be read, so its"
+              " agreement is UNKNOWN — not assumed. Run `bash tools/_t932-boundary-agreement.sh`.")
+    else:
+        print(f"- `tools/_t770-delegation-boundary.py` (the path that REPORTS) classifies {b_oo} open"
+              " Human criteria as operator-only"
+              + (". Both encodings agree." if b_oo == len(entries) else
+                 f", i.e. {abs(b_oo - len(entries))} more than this docket lists. The two encodings of"
+                 " one ruling disagree (G-052); this docket follows the enforcing path and does not"
+                 " pick a winner. `bash tools/_t932-boundary-agreement.sh` for the breakdown."))
+    print("\nReconciling against one encoding and printing \"counts agree\" would assert an agreement"
+          " nobody checked — which is what this docket did until 2026-09-29.\n")
     print("---\n")
 
     for i, e in enumerate(entries, 1):
@@ -135,7 +220,8 @@ def main():
         flag = " **[product arc]**" if e["arcs"] & PRODUCT_ARCS else ""
         print(f"## {i}. {e['task']} — {e['name'][:88]}")
         print(f"*{arcs}{flag} · class: `{e['cls']}` — {CLASS_NOTE.get(e['cls'], '')} "
-              f"· unblock score {e['score']}*\n")
+              f"· unblock score {e['score']}*")
+        print(f"*wants: `{e['kind']}` — {KIND_NOTE[e['kind']]}*\n")
         print(f"**Asks:** {e['title']}\n")
         if e["expected"]:
             print(f"**Expected:** {e['expected']}\n")

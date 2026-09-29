@@ -1,13 +1,13 @@
 ---
-id: T-932
-name: "Ownership follows the need for human judgement, not the filing: owner stays human only while an open criterion has an INTRINSIC operator-only reason"
+id: T-933
+name: "Refresh the operator decision docket and reconcile it against both delegation encodings"
 description: >
-  Operator ruling 2026-09-29, extending T-931. T-931 reverted owner: agenthuman when no Human criterion was open. That is too narrow. Ownership must also revert when every open Human criterion could be settled by an external reviewer at acceptable risk - PD-302's delegation applied to the ownership field, not just to criteria. A criterion is only the operator's for an INTRINSIC reason (taste, inception-decision, sovereignty-field, tier0-or-bypass, release-surface, render-surface, act-in-the-world). 'Filed under ### Human' is a filing fact, not a judgement requirement, and neither is 'unclassified' - the delegation surface reports 37 unclassified open Human criteria against only 8 taste, so the largest operator-only bucket is the one the predicate could not bucket. Absence of classification defaulting to the operator is the same defect as absence of an open criterion defaulting to the operator, one level down.
+  The operator asked for the open decisions in one ordered docket answerable in a sitting. tools/_t872-decision-docket.py already generates docs/reports/operator-decision-docket.md and reconciles its count against fw reviewer surface; the committed copy is from 2026-09-26 with 77 items and is stale after T-931 swept 45 stale ownership claims and several tasks closed. Regenerate rather than build a second docket (one vocabulary, T-322). Reconcile against BOTH encodings now that tools/_t932-boundary-agreement.sh exists and shows they differ on 3 verdicts, so a docket reconciling against only one is asserting agreement it has not checked. Also carry the T-932 measurement: 47 of the 81 open Human criteria ask for a ruling, 32 are prose judgement, 1 is mechanically delegable - the docket should say which kind each item is, because a decision and a review need different things from the reader.
 
-status: captured
+status: started-work
 workflow_type: build
-owner:
-horizon: later
+owner: agent
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -21,8 +21,8 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-29T17:51:40Z
-last_update: 2026-09-29T18:54:29Z
+created: 2026-09-29T18:54:39Z
+last_update: 2026-09-29T18:54:39Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -36,7 +36,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-932: Ownership follows the need for human judgement, not the filing: owner stays human only while an open criterion has an INTRINSIC operator-only reason
+# T-933: Refresh the operator decision docket and reconcile it against both delegation encodings
 
 ## Context
 
@@ -46,31 +46,24 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The predicate distinguishes an INTRINSIC operator reason from a filing fact.** A criterion
-      is the operator's because of what it IS — `taste`, `inception-decision`, `sovereignty-field`,
-      `tier0-or-bypass`, `release-surface`, `render-surface`, `act-in-the-world`. It is NOT the
-      operator's merely because it sits under `### Human` (`human-section`) or because the classifier
-      could not bucket it (`unclassified`). Absence of classification defaulting to the operator is
-      the same defect as absence of an open criterion defaulting to the operator — one level down
-- [ ] **`owner: human` survives only while at least one open criterion has an intrinsic reason.**
-      OWNER-STALE widens accordingly, and T-931's rule becomes the degenerate case of this one
-- [ ] **Both directions, negative first, over the real reason vocabulary.** A task with one open
-      `taste` / `inception-decision` / `sovereignty-field` / `tier0-or-bypass` / `release-surface` /
-      `render-surface` criterion must HOLD ownership — asserted PER REASON, not once generically,
-      because each is a separate carve-out a refactor could drop without touching the others
-- [ ] **The `unclassified` criteria are triaged, not bulk-converted.** `unclassified` is the LARGEST
-      operator-only bucket (37) against only 8 `taste`, so the delegation surface's own numbers say
-      the PREDICATE, not the corpus, is what keeps the operator's queue full. Each gets a reason or
-      is named as needing one. A bulk reclassification would be the relocated authority PD-302
-      forbids — the agent deciding case by case what counts as low risk
-- [ ] **Nothing converts a `### Human` criterion's own classification here.** AEF decision 113: the
-      reviewer NEVER ticks a `### Human` AC and the original classification is inviolable. This task
-      moves OWNERSHIP; converting a criterion stays with `fw task delegate`, per item. If the two
-      ever disagree, that is a finding, not something to merge
-- [ ] **The audit detector counts the new shape,** and an empty candidate set reads NOT EVALUATED
-      rather than PASS (T-3105)
-- [ ] **T-931's 16 teeth still pass unchanged.** Widening the rule must not weaken the leg that
-      proves a live claim is never read as stale
+- [x] **Regenerated, not rebuilt.** `tools/_t872-decision-docket.py` already exists and already
+      reconciles its count against `fw reviewer surface`. A second docket generator would be a second
+      vocabulary for the same thing (T-322), and the two would drift exactly as the delegation
+      boundary's two encodings did
+- [x] **Each item says what KIND of answer it wants.** 47 of the 81 open Human criteria ask for a
+      ruling, 32 state a prose Expected clause, 1 is mechanically checkable (T-596). A ruling and a
+      review need different things from the reader — a docket that presents them identically makes
+      the reader re-derive the distinction 81 times, which is the gathering cost this artefact exists
+      to remove
+- [x] **Reconciled against BOTH encodings.** The committed docket reconciles against
+      `fw reviewer surface` alone. `tools/_t932-boundary-agreement.sh` now shows the two encodings
+      differ on 3 verdicts, so reconciling against one and reporting "counts agree" asserts an
+      agreement that was never checked. Where they disagree the docket says so rather than picking one
+- [x] **The count is stated as unchanged.** The committed docket already says it "does **not** reduce
+      the backlog". That sentence stays and stays true: this removes gathering cost, not decisions.
+      Any wording implying progress is a false green about the operator's own workload
+- [x] **Generated-file discipline holds:** the artefact says do-not-hand-edit and names the command
+      that regenerates it, and the committed bytes match a fresh run (asserted, not assumed)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -104,6 +97,23 @@ date_finished: null
 -->
 
 ## Verification
+
+# The artefact exists and is the generated one, not a hand-kept summary.
+test -s docs/reports/operator-decision-docket.md
+grep -q 'do not hand-edit' docs/reports/operator-decision-docket.md
+# The sentence that must never become a claim of progress.
+grep -q 'does \*\*not\*\* reduce the backlog' docs/reports/operator-decision-docket.md
+# Committed bytes match a fresh run — a generated file that has drifted from its generator is a
+# hand-kept summary wearing a "generated" label.
+python3 tools/_t872-decision-docket.py > .context/working/.t933-fresh.md 2>&1 && cmp -s .context/working/.t933-fresh.md docs/reports/operator-decision-docket.md
+# Each item states what KIND of answer it wants, for every item — not for most of them.
+test "$(grep -c '^\*wants: ' docs/reports/operator-decision-docket.md)" -eq "$(grep -cE '^## [0-9]+\. T-' docs/reports/operator-decision-docket.md)"
+# Both encodings are named in the reconciliation, so "counts agree" cannot be said of one alone.
+grep -q 'against BOTH encodings' docs/reports/operator-decision-docket.md
+grep -q '_t770-delegation-boundary.py` (the path that REPORTS)' docs/reports/operator-decision-docket.md
+# The kind classifier reads the Expected clause, not the whole body — the distinction that stopped
+# 21 sovereign rulings being offered to a reviewer.
+grep -q 'DERIVED FROM THE `Expected:` CLAUSE, NOT THE STEPS' tools/_t872-decision-docket.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -302,125 +312,6 @@ date_finished: null
 
 ## Decisions
 
-### 2026-09-29 — the queue is not friction. It is 47 unmade decisions, and a reviewer can take ONE.
-
-The premise of this task was that `[REVIEW]` is self-justifying the way `owner: human` was: the
-prefix declares "genuine human judgement, never convertible" and no predicate tests whether the
-criterion actually requires judgement. The prefix distribution looked damning — **81 of the 82 open
-Human criteria are `[REVIEW]`**, and `_carve_out` maps that straight to `taste` on the prefix alone.
-
-So I measured what is behind the prefix. Twice wrongly first, which is why the third number is worth
-trusting.
-
-- **Attempt 1** tested `scan()`'s `text` field. It is truncated to 110 characters, so I was matching
-  criterion TITLES and got 0 deterministic candidates. Wrong field.
-- **Attempt 2** read the full bodies and found 21 "candidates". Reading them stopped me: they are
-  *"Decide whether the six orphans should be killed"*, *"May five OMG schema files be vendored"*,
-  *"Whether to take the vendor bump now"*, *"Rule on the drain path"*. My regex had matched shell
-  commands in their **Steps** blocks — which tell the operator how to LOOK at evidence — and
-  concluded the verdict was mechanical. It would have handed 21 sovereign decisions to a reviewer.
-  That is exactly the relocated authority PD-302 forbids, produced by me in one regex.
-- **Attempt 3** tests what CLAUDE.md actually specifies: the **Expected** clause, not the Steps.
-
-| what the criterion actually asks | count |
-|---|---|
-| **asks the operator to DECIDE** (decide / ruling / approve / whether to / go-no-go) | **47** |
-| prose Expected clause — judgement | 32 |
-| **mechanical Expected clause — honestly delegable** | **1** (T-596) |
-| no Expected clause | 1 |
-
-**A reviewer can take one of eighty-one.** The operator's queue is not clogged with mis-prefixed
-deterministic criteria. It is a backlog of decisions nobody has made — 47 of them, each asking for a
-ruling. `[REVIEW]` is the CORRECT prefix for 79 of the 81, so the self-justification concern that
-opened this task does not survive contact with the data.
-
-**Consequence.** This task's premise is refuted and the ownership widening it proposed would move
-almost nothing: after T-931 removed 45 stale claims, what remains is real. The queue shrinks by
-DECIDING, or by deciding a question does not need answering — not by reclassifying. The one genuine
-conversion (T-596) is a single `fw task delegate` call and is not worth a mechanism.
-
-**Also a finding against the audit's own advice.** `check_delegation_surface`'s mitigation reads: "if
-nothing is delegable, the criteria are written [REVIEW] where they should be [REVIEWER]". Here that
-diagnosis is wrong — nothing is delegable because 47 criteria ask for rulings. The mitigation names a
-cause it did not measure, and an operator following it would go looking for mis-prefixed criteria
-that are not there. Worth sending upstream.
-
-### 2026-09-29 — CORRECTION: the denominator gap was MY scope error. The real divergence is 3 criteria.
-
-Written after building the instrument the entry below asked for
-(`tools/_t932-boundary-agreement.sh`). It contradicts that entry's central claim, and it was sent to
-AEF before I had it — corrected at inbox offset 13.
-
-**Scope-fair, the two encodings agree exactly on the denominator: 82 and 82.**
-
-| bucket | A: `fw reviewer surface` | B: `_t770`, Human-section only | delta |
-|---|---|---|---|
-| REVIEWER-CLOSEABLE | 1 | 0 | -1 |
-| AGENT-SELF | 2 | 0 | -2 |
-| OPERATOR-ONLY | 79 | 82 | +3 |
-| **TOTAL** | **82** | **82** | **0** |
-
-What I reported below — and to AEF — as "a gap of roughly 54 criteria in how many open Human criteria
-the corpus contains" was me comparing A's Human-section-only count against B's total across BOTH
-sections. B classifies 323 further Agent-section rows that A never examines. That is a scope
-difference I introduced by not filtering, reported as a defect in someone else's code.
-
-The `unclassified 37` vs `0` difference is likewise mostly VOCABULARY: A reports a class taxonomy
-that includes "unclassified", B reports rule names and has no such rule. On this evidence it is not
-37 misclassified criteria.
-
-**What survives, stated precisely.** The two encodings agree on WHAT to look at and differ on 3
-verdicts: B classifies 3 criteria as OPERATOR-ONLY that A treats as delegable. B is the stricter one,
-so the divergence costs the operator friction rather than leaking authority — the safe direction, but
-still a divergence nothing was comparing. G-052 remains real and still needs a normative answer.
-**"Severity medium is understated" is NOT supported** and is withdrawn.
-
-**Why this happened, since it is the session's own theme.** I built the instrument to check someone
-else's two encodings against each other, and shipped a claim from an eyeballed side-by-side before
-the instrument existed. The instrument immediately refuted me. That is the argument for the
-instrument, made at my expense.
-
-### 2026-09-29 — SUPERSEDED IN ITS CENTRAL CLAIM: "the two encodings do not agree on the denominator"
-<!-- Kept rather than deleted: the reasoning that stopped the build was sound and the stop was
-     correct. Only the magnitude was wrong, and wrong in the direction that made the finding look
-     more impressive. See the correction above. -->
-
-
-I opened this task on the number `fw reviewer surface` reports: `unclassified 37`, the largest
-operator-only bucket, against only 8 `taste`. That framed the work as "triage 37 unclassified
-criteria". Then I ran the other encoding over the same tree in the same minute:
-
-| | `fw reviewer surface` (A) | `tools/_t770-delegation-boundary.py` (B) |
-|---|---|---|
-| operator-only | 79 | 136 |
-| reviewer-closeable | 1 | 0 |
-| agent-self | 2 | 269 |
-| `taste` | 8 | **81** |
-| `unclassified` | **37** | **0** — B has no such rule |
-| `sovereignty-field` | 9 | 0 |
-| `render-surface` | 4 | 0 |
-| `owner-human` | not reported | 14 |
-
-**They do not agree on the denominator, let alone the buckets.** A reports 82 open Human criteria
-across 72 active tasks (79+1+2). B classifies 136 unticked Human-section criteria as operator-only
-alone. That is a gap of ~54 criteria in how many open Human criteria the corpus even contains.
-
-This is G-052 — "the boundary is encoded twice, in the scanner that enforces it and the predicate
-that reports it, and nothing checks the two against each other" — measured rather than anticipated.
-It is registered at severity **medium**. On this evidence that is understated: the operator's queue
-size, which of it is delegable, and whether `unclassified` is the dominant bucket or does not exist
-all depend on which encoding you ask.
-
-**Consequence for this task.** The AC about triaging 37 `unclassified` criteria is suspended: that
-bucket may be an artefact of one encoding. Nothing here gets built on either set of numbers until
-the two are reconciled, because a rule tuned to A's buckets would be wrong under B and there is
-currently no way to know which is right. G-052's close condition already specifies the instrument —
-a test that runs both over the same tree and asserts they agree, listed in a `## Verification` block.
-That test is now the blocking prerequisite, not a follow-up.
-
-Not resolved here, and stated rather than guessed: some of the divergence may be legitimate scope
-difference (A may filter task states or criterion shapes that B does not). I have not established
-that, and I am not going to assume it in the direction that makes my numbers look consistent.
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -442,12 +333,7 @@ that, and I am not going to assume it in the direction that makes my numbers loo
 
 ## Updates
 
-### 2026-09-29T17:51:40Z — task-created [task-create-agent]
+### 2026-09-29T18:54:39Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-932-ownership-follows-the-need-for-human-jud.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-933-refresh-the-operator-decision-docket-and.md
 - **Context:** Initial task creation
-
-### 2026-09-29T18:54:29Z — status-update [task-update-agent]
-- **Change:** horizon: now → later
-- **Change:** status: started-work → captured (auto-sync)
-- **Reason:** Premise refuted by measurement before implementation: [REVIEW] is the correct prefix for 79 of 81 open Human criteria, and the widening this task proposed would convert exactly one (T-596). The finding is the deliverable; the mechanism is not worth building. Parked rather than closed because the ACs describe a defect that does not exist — rewriting them to fit the data would be re-scoping, not completion.
