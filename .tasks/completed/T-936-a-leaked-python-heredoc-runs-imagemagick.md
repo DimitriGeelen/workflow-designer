@@ -4,12 +4,13 @@ name: "A leaked python heredoc runs ImageMagick import and screenshots the deskt
 description: >
   OBS-448. Three times in six days (2026-09-23, 09-25, 09-28) a python3 heredoc body leaked to the shell and its first line - import yaml,glob,sys / import importlib.util - was resolved to ImageMagick import(1), which captured the screen and wrote 37MB of PostScript to the repo root. Exit 0, no error, filenames that read as typos. Nothing in the framework noticed for six days; the only thing keeping it out of the git index was T-571's never-git-add-A convention. T-391 swept this class on 2026-08-08 and closed - that was mitigation, and three recurrences say prevention never existed (G-019). Operator ruling: build the detector (C) and author the gate (B); removing import(1) from PATH (A) stays the operator's. Scope fence: this task does NOT modify .claude/settings.json - B-005 blocks the agent structurally and there is no settings.local.json side door. The hook is authored and the enable command is handed over.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t936-capture-scan-teeth.sh, tools/_t936-stray-capture-scan.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T21:02:08Z
-last_update: 2026-09-29T21:07:53Z
-date_finished: null
+last_update: 2026-09-29T21:16:17Z
+date_finished: 2026-09-29T21:16:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -362,3 +363,24 @@ bash -c '! grep -q "check-bare-import" .claude/settings.json 2>/dev/null'
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-936-a-leaked-python-heredoc-runs-imagemagick.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-dde98af0
+- **Timestamp:** 2026-09-29T21:17:05Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** yes
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 13
+     - evidence: `bash -c 'f=.context/working/.zz-t936-probe; printf "%%!PS-Adobe-3.0\n%%%%Creator: (ImageMagick)\n%%%%HiResBoundingBox: 0 0 3440 1383\n" > "$f"; head -c 512 /dev/zero | tr "\0" X >> "$f"; .agentic-fram`
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -f`
+
+### 2026-09-29T21:16:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

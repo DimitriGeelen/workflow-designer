@@ -4,12 +4,13 @@ name: "Refresh the operator decision docket and reconcile it against both delega
 description: >
   The operator asked for the open decisions in one ordered docket answerable in a sitting. tools/_t872-decision-docket.py already generates docs/reports/operator-decision-docket.md and reconciles its count against fw reviewer surface; the committed copy is from 2026-09-26 with 77 items and is stale after T-931 swept 45 stale ownership claims and several tasks closed. Regenerate rather than build a second docket (one vocabulary, T-322). Reconcile against BOTH encodings now that tools/_t932-boundary-agreement.sh exists and shows they differ on 3 verdicts, so a docket reconciling against only one is asserting agreement it has not checked. Also carry the T-932 measurement: 47 of the 81 open Human criteria ask for a ruling, 32 are prose judgement, 1 is mechanically delegable - the docket should say which kind each item is, because a decision and a review need different things from the reader.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t872-decision-docket.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T18:54:39Z
-last_update: 2026-09-29T18:58:18Z
-date_finished: null
+last_update: 2026-09-29T19:51:10Z
+date_finished: 2026-09-29T19:51:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -348,3 +349,15 @@ python3 -c "import re,io,sys; s=io.open('docs/reports/operator-decision-docket.m
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-933-refresh-the-operator-decision-docket-and.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-42f35e74
+- **Timestamp:** 2026-09-29T19:51:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-29T19:51:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

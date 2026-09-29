@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-919: OBS-351 subject (T-706 / RA-010, 2026-09-16): operator ruling - 'the task file counts'. C-001 says conversations are ephemeral, files are permanent; a task file IS a file. T-250 recorded 1012 chars of Evidence, 738 chars Problem Statement and 1198 chars Open Questions in its own task file, all durable and committed, and the audit reports it as having no research artifact because the check looks only in docs/reports/. CONSEQUENCE BROADER THAN T-250: RA-011 was a false positive on a DIRECTORY mismatch (artifact in docs/research/ not docs/reports/). RA-010 is a false positive for a larger reason - the check tests LOCATION, not whether the thinking was preserved at all. Under this ruling any inception whose reasoning is recorded in its own task file satisfies C-001 and must not be warned about, and the check as written cannot express that. Two of the four findings this check produced (RA-010, RA-011) were false positives; the other two (RA-008 T-015, RA-009 T-103) were genuine. A check with a 50 percent false-positive rate on its own output set. NOT FIXED - whether the check should be scoped to read task files, retired, or replaced by a content check is a scope decision and is surfaced, not taken.
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-29T20:00:49Z
+# ============================================================================
+
+task_id: T-919
+task_name: "OBS-351 subject (T-706 / RA-010, 2026-09-16): operator ruling - 'the task file counts'. C-001 says conversations are ephemeral, files are permanent; a task file IS a file. T-250 recorded 1012 chars of Evidence, 738 chars Problem Statement and 1198 chars Open Questions in its own task file, all durable and committed, and the audit reports it as having no research artifact because the check looks only in docs/reports/. CONSEQUENCE BROADER THAN T-250: RA-011 was a false positive on a DIRECTORY mismatch (artifact in docs/research/ not docs/reports/). RA-010 is a false positive for a larger reason - the check tests LOCATION, not whether the thinking was preserved at all. Under this ruling any inception whose reasoning is recorded in its own task file satisfies C-001 and must not be warned about, and the check as written cannot express that. Two of the four findings this check produced (RA-010, RA-011) were false positives; the other two (RA-008 T-015, RA-009 T-103) were genuine. A check with a 50 percent false-positive rate on its own output set. NOT FIXED - whether the check should be scoped to read task files, retired, or replaced by a content check is a scope decision and is surfaced, not taken."
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T13:27:51Z
+completed: 2026-09-29T20:00:36Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-29T21:59:52+02:00
+last_commit: 2026-09-29T21:59:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  C-001 asked where the thinking lives, not whether it survived — and its whole live output set was false positives
+
+# Key outcomes
+outcomes:
+  - '**The check asks whether the thinking was PRESERVED, not where it lives.** A fourth test is'
+  - '**Validated against the four LABELLED cases this check has already produced,** because a'
+  - '**"Substantive" is a measured predicate, not a vibe.** Template comments, `[TODO]`, placeholder'
+  - '**Both directions proven.** An inception whose reasoning was NOT preserved anywhere must still'
+  - '**The empty-set case still FAILS rather than passing.** `pass_over` already guards the'
+  - '**The false-positive rate is stated after the change,** over the same population, so the claim'
+  - '**Vendored-framework discipline:** the change is in `.agentic-framework/`, so it affects every'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/lib/research_preserved.py'
+  - '.tasks/active/T-919-obs-351-subject-t-706--ra-010-2026-09-16.md'
+  - '.tasks/completed/T-933-refresh-the-operator-decision-docket-and.md'
+  - 'tools/_t919-c001-content-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-29T21:59:52'
+    action: 'T-919: C-001 asked where the thinking lives, not whether it survived — and its whole live output set was false positives'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1832 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1832
+  commits: 1
+  files_changed: 6
+  lines_added: 388
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-919-obs-351-subject-t-706--ra-010-2026-09-16.md
+generated_by: context-agent-hybrid

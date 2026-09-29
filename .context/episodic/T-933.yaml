@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-933: Refresh the operator decision docket and reconcile it against both delegation encodings
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-29T19:51:27Z
+# ============================================================================
+
+task_id: T-933
+task_name: "Refresh the operator decision docket and reconcile it against both delegation encodings"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-29T18:54:39Z
+completed: 2026-09-29T19:51:10Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-29T20:58:16+02:00
+last_commit: 2026-09-29T21:36:34+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the docket now says what each item WANTS — 48 rulings, 28 reviews, 2 that should not be there. nothing on the docket is delegable — the verb refused both items I offered it, and it was right twice
+
+# Key outcomes
+outcomes:
+  - '**Regenerated, not rebuilt.** `tools/_t872-decision-docket.py` already exists and already'
+  - '**Each item says what KIND of answer it wants.** 47 of the 81 open Human criteria ask for a'
+  - '**Reconciled against BOTH encodings.** The committed docket reconciles against'
+  - '**The count is stated as unchanged.** The committed docket already says it "does **not** reduce'
+  - '**Generated-file discipline holds:** the artefact says do-not-hand-edit and names the command'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/operator-decision-docket.md'
+  - '.tasks/active/T-732-drain-the-h-register-four-open-operator-.md'
+  - '.tasks/active/T-932-ownership-follows-the-need-for-human-jud.md'
+  - '.tasks/active/T-933-refresh-the-operator-decision-docket-and.md'
+  - 'tools/_t872-decision-docket.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-29T20:58:16'
+    action: 'T-933: the docket now says what each item WANTS — 48 rulings, 28 reviews, 2 that should not be there'
+  - time: '2026-09-29T21:36:34'
+    action: 'T-933: nothing on the docket is delegable — the verb refused both items I offered it, and it was right twice'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 56 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 56
+  commits: 2
+  files_changed: 5
+  lines_added: 733
+  lines_removed: 109
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-933-refresh-the-operator-decision-docket-and.md
+generated_by: context-agent-hybrid

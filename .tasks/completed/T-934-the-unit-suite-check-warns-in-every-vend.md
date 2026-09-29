@@ -4,10 +4,11 @@ name: "The unit-suite check WARNs in every vendored consumer about a report it c
 description: >
   check_unit_suite_report (audit.sh:3242) WARNs 'Unit suite (tests/unit) NOT CHECKED' whenever .context/audits/unit-suite/LATEST.yaml is absent. In a vendored consumer there is no tests/unit at all - unit-suite.sh defaults SUITE_DIR to FRAMEWORK_ROOT/tests/unit, which in 832 is .agentic-framework/tests/unit and does not exist - so the report can never be produced and the WARN can never be cleared. It has appeared 4 times in the 14-day trend. The sibling checks in the same file already have the idiom: check_invariant_suite and the dead-negation lint both call _t3443_project_is_framework_root and INFO-skip with 'framework-repo property; PROJECT_ROOT is not the framework repo'. T-3302 added this check without adopting it. Same defect family as everything else measured today: a check firing where it cannot possibly be satisfied, and a mitigation the operator cannot act on.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T20:01:35Z
-last_update: 2026-09-29T20:01:35Z
-date_finished: null
+last_update: 2026-09-29T20:06:36Z
+date_finished: 2026-09-29T20:06:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -329,3 +330,28 @@ bash -c '! .agentic-framework/agents/audit/audit.sh --section structure 2>&1 | g
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-934-the-unit-suite-check-warns-in-every-vend.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f7a87597
+- **Timestamp:** 2026-09-29T20:07:37Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** yes
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 11
+     - evidence: `bash -c 'd=$(mktemp -d); mkdir -p "$d/unit"; touch "$d/unit/t.bats"; FW_UNIT_SUITE_DIR="$d/unit" FW_UNIT_SUITE_REPORT="$d/none.yaml" .agentic-framework/agents/audit/audit.sh --section structure 2>&1 |`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 12
+     - evidence: `bash -c 'd=$(mktemp -d); FW_UNIT_SUITE_DIR="$d/absent" FW_UNIT_SUITE_REPORT="$d/none.yaml" .agentic-framework/agents/audit/audit.sh --section structure 2>&1 | grep -q "^\[INFO\] Unit suite (tests/unit`
+  3. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 14
+     - evidence: `bash -c '! .agentic-framework/agents/audit/audit.sh --section structure 2>&1 | grep -qE "^\[PASS\].*Unit suite"'`
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -rf`
+
+### 2026-09-29T20:06:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
