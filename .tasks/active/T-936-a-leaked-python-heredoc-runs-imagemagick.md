@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T21:02:08Z
-last_update: 2026-09-29T21:02:08Z
+last_update: 2026-09-29T21:07:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -50,32 +50,32 @@ date_finished: null
 (exit 0), the filename reads as a typo, and nothing looked. A check that would have caught this on day
 one is worth more than one that argues about whether it can be prevented.
 
-- [ ] **The detector finds a screen capture by its CONTENT, not its name.** `%!PS-Adobe` and
+- [x] **The detector finds a screen capture by its CONTENT, not its name.** `%!PS-Adobe` and
       `%%Creator: (ImageMagick)` in the first bytes. Matching on filename or extension would have
       missed all three: they were called `0`, `importlib.util` and `yaml,glob,sys` with no extension
       at all. A name-based check is the location-not-content defect this corpus measured twice today
-- [ ] **It reports SIZE and CANVAS, so the operator can judge exposure without opening the file.**
+- [x] **It reports SIZE and CANVAS, so the operator can judge exposure without opening the file.**
       A 3440×1383 capture is a whole desktop; 1431×915 is one window. That difference decides how
       urgently someone looks, and it is readable from the PostScript header alone
-- [ ] **It never opens, renders or describes the image.** These are pictures of the operator's screen.
+- [x] **It never opens, renders or describes the image.** These are pictures of the operator's screen.
       The header is text and bounded; the raster is not the agent's to read. Asserted by what the code
       does, not promised in a comment
-- [ ] **Both directions, on fixtures:** a PostScript capture at the root fires it; an ordinary
+- [x] **Both directions, on fixtures:** a PostScript capture at the root fires it; an ordinary
       untracked file, and a legitimate `.ps`/`.eps` under `docs/`, do not. Empty candidate set reads
       NOT EVALUATED, never PASS (T-3105)
 
 **B — the gate.** Authored, not enabled.
 
-- [ ] **A PreToolUse hook script refuses a Bash command whose first word is `import`,** and its block
+- [x] **A PreToolUse hook script refuses a Bash command whose first word is `import`,** and its block
       message names both the cause (a leaked heredoc) and the real remedy, so the operator is not left
       guessing what to do differently
-- [ ] **Its coverage limit is stated in the script itself.** The hook sees what the harness hands it;
+- [x] **Its coverage limit is stated in the script itself.** The hook sees what the harness hands it;
       a heredoc body leaking inside an already-running `bash -c` is NOT re-scanned. Claiming full
       coverage would be worse than the gap — proven by testing which half it catches, not asserted
-- [ ] **This task does NOT write `.claude/settings.json`.** B-005 blocks the agent structurally and
+- [x] **This task does NOT write `.claude/settings.json`.** B-005 blocks the agent structurally and
       there is no `settings.local.json` side door. The `fw hook-enable` command is handed to the
       operator, and the task is complete without it having been run
-- [ ] **Upstreamed to AEF (G-008)** — the idiom that leaks is the framework's own, so the gate is too
+- [x] **Upstreamed to AEF (G-008)** — the idiom that leaks is the framework's own, so the gate is too
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -109,6 +109,36 @@ one is worth more than one that argues about whether it can be prevented.
 -->
 
 ## Verification
+
+# The detector, both directions plus controls. 12/12. Fixtures, not the live tree — the live tree is
+# clean now and a leg pinned to it would assert nothing (T-3326).
+bash tools/_t936-capture-scan-teeth.sh > .context/working/.t936-teeth.out 2>&1 && grep -q "FAIL: 0" .context/working/.t936-teeth.out
+# Content, not name: the magic and the creator are both required, so a legitimate .ps is not flagged.
+grep -q 'PS_MAGIC = b"%!PS-Adobe"' tools/_t936-stray-capture-scan.py
+grep -q 'CAPTURE_CREATORS' tools/_t936-stray-capture-scan.py
+# The privacy cap is in the code, not in a comment — the raster is never loaded.
+grep -q 'fh.read(HEADER_BYTES)' tools/_t936-stray-capture-scan.py
+# The audit rail exists, calls the tool, and has a NOT-EVALUATED branch rather than a silent pass.
+grep -q 'check_stray_captures' .agentic-framework/agents/audit/audit.sh
+grep -q 'Stray screen captures — NOT EVALUATED' .agentic-framework/agents/audit/audit.sh
+# The rail fires on a planted capture and passes on a clean tree. One command per line.
+bash -c 'f=.context/working/.zz-t936-probe; printf "%%!PS-Adobe-3.0\n%%%%Creator: (ImageMagick)\n%%%%HiResBoundingBox: 0 0 3440 1383\n" > "$f"; head -c 512 /dev/zero | tr "\0" X >> "$f"; .agentic-framework/agents/audit/audit.sh --section structure 2>&1 | grep -q "^\[WARN\] Stray screen capture"; rc=$?; rm -f "$f"; exit $rc'
+# Two traps in one line, both hit before this wording survived.
+#   1. `audit.sh | grep -q` exits 141 under the gate's pipefail: grep matches early and closes stdin
+#      while the audit is still writing (L-387). Hence redirect-then-grep.
+#   2. `audit.sh > f && grep` then failed anyway, because audit.sh EXITS 1 whenever any warning exists
+#      anywhere in the report. Chaining on its exit code gates this assertion on eleven unrelated
+#      warnings. The audit's status is not the claim; the presence of the PASS line is.
+# `;` is deliberate: the gate judges the LAST command, and the grep is the assertion (T-3203 shape A).
+.agentic-framework/agents/audit/audit.sh --section structure > .context/working/.t936-audit.out 2>&1; grep -q "^\[PASS\] No stray screen captures" .context/working/.t936-audit.out
+# The gate blocks a bare first-token import and does NOT block a legitimate heredoc body — the false
+# positive that made its first version unusable.
+bash -c 'printf "%s" "import yaml,glob,sys" | python3 -c "import sys,json; print(json.dumps({\"tool_input\":{\"command\":sys.stdin.read()}}))" | bash .agentic-framework/agents/context/check-bare-import.sh >/dev/null 2>&1; [ $? -eq 2 ]'
+bash -c 'printf "python3 - <<PY\nimport re,io\nPY\n" | python3 -c "import sys,json; print(json.dumps({\"tool_input\":{\"command\":sys.stdin.read()}}))" | bash .agentic-framework/agents/context/check-bare-import.sh >/dev/null 2>&1; [ $? -eq 0 ]'
+# The gate states its coverage limit rather than implying protection it does not give.
+grep -q 'catches ZERO' .agentic-framework/agents/context/check-bare-import.sh
+# This task did NOT enable the hook: B-005 blocks it and the enable command is the operator's.
+bash -c '! grep -q "check-bare-import" .claude/settings.json 2>/dev/null'
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
