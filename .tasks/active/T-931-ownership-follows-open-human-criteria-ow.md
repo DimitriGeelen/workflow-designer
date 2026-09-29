@@ -33,7 +33,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T15:43:39Z
-last_update: 2026-09-29T15:44:31Z
+last_update: 2026-09-29T15:46:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -370,7 +370,67 @@ neither may live on cron. See `## Decisions` for the placement argument.
   report honestly on it: the next run reads clean because the previous run wrote. Measure and
   mutate stay separate.
 
+### 2026-09-29 — CORRECTION: the parser is fine, and the real mechanism is the unticked filter
+
+The entry below this one was written before I ran the framework's own parser, and its central
+number is wrong about the thing that matters. Recorded rather than edited away, because the
+correction is the finding.
+
+- **What I claimed:** 160 tasks carry a `### Human` section and 126 would be misread, because a
+  naive count of `- [ ]` under `### Human` returns 2 for T-885 (both the template's `[REVIEW]` /
+  `[REVIEWER]` examples inside an HTML comment).
+- **What is true:** that describes the throwaway regex I measured with (`^\s*-\s*\[.\]`), NOT the
+  production predicate. `tools/_t770-delegation-boundary.py` uses `AC_RE = ^- \[([ xX])\]` —
+  anchored at column 0, no leading whitespace. The template examples are indented, so they never
+  match. Run against T-885 it returns exactly the right answer: **6 Agent ACs, all ticked, 0 Human
+  ACs.** The comment hazard is real for anyone writing a new scanner and is NOT a defect in this one.
+- **Why it matters:** I nearly specified comment-stripping repair for a parser that does not need
+  it, while missing the mechanism that actually hides these tasks.
+
+- **THE REAL MECHANISM (measured).** `_t770` line 354: `if args.unticked_only or not args.task:
+  rows = [r for r in rows if not r["ticked"]]`. A corpus-wide scan silently drops every TICKED
+  criterion. T-885, T-708 and T-723 each classify as `OPERATOR-ONLY / owner-human` when scanned
+  individually — but every one of their criteria is ticked, so the corpus view emits zero rows for
+  them. That is why all three are absent from all 406 rows.
+  The surface is therefore answering "which OPEN criteria could be delegated", which is a fair
+  question, while nobody anywhere asks "which tasks are blocked with nothing left open". That second
+  set IS the rubber-stamp queue, and it is unmeasurable by construction. `fw reviewer surface`
+  prints `OK` over it.
+- **Consequence for this task:** drop the comment-stripping work. Build instead (a) the `owner-human`
+  carve-out change, (b) a corpus view that can see a fully-ticked blocked task, (c) the actor,
+  (d) the detector. The negative-direction proof is still required — it is just proving something
+  different from what the entry below assumed.
+
+- **THE NUMBERS I GAVE THE OPERATOR WERE ALSO WRONG, AND LOW.** Measured by the real predicate
+  (`tools/_t931-ownership.py`, 11/11 teeth) over 176 active tasks:
+
+  | | |
+  |---|---|
+  | `owner: human` | 112 |
+  | OWNER-JUSTIFIED — at least one OPEN Human criterion, a live claim | 67 |
+  | **OWNER-STALE** — no open Human criterion | **45** |
+  | …no Human criteria ever written | 35 |
+  | …every Human criterion ticked (so the human already judged) | 10 |
+  | **rubber-stamp queue** — stale AND every Agent AC ticked | **13** |
+
+  I told the operator "35 and 3". The 3 was wrong because my naive regex counted the template's
+  commented examples as open Human criteria, hiding all ten tasks whose Human ACs the human had
+  ALREADY TICKED. Those are the worst cases in the set: the judgement was exercised, and the task
+  stayed shut anyway.
+
+- **THE AUDIT HAS BEEN REPORTING THE SYMPTOM FOR WEEKS.** 10 of the 13 — T-041, T-101, T-102,
+  T-105, T-293, T-309, T-357, T-681, T-708, T-723 — are CTL-029 items ("has all Agent ACs ticked
+  but status='started-work' — completable, not closed"), several recurring 6 times in the 14-day
+  trend. CTL-029 sees the symptom and prescribes closing the task; it cannot say WHY the task will
+  not close, because the blocker is a frontmatter field and no check reads it. The detector this
+  task adds is the missing half of a control that has been firing, correctly and uselessly, for a
+  month.
+
 ### 2026-09-29 — the predicate is the whole risk, and its likely failure is silence
+<!-- SUPERSEDED IN PART by the correction above: the 126-task figure describes my measuring regex,
+     not tools/_t770-delegation-boundary.py. The reasoning about proving the negative direction
+     first still holds and is why the error surfaced before anything was written. -->
+
 
 - **Chose:** prove the predicate READS correctly before letting it write, negative direction first.
 - **Why:** measured across active tasks — **160 carry a `### Human` section, and for 126 of them
