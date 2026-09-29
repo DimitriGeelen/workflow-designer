@@ -11,13 +11,12 @@ description: >
   it is not gated on the schema work. Does NOT close T-341 — that task's [REVIEW]
   criterion is the operator's and is untouched.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
-components:
-  - tools/validate-workflow.py
+components: [src/aef-workflow-designer.html, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -30,8 +29,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:24Z
-last_update: 2026-09-27T20:36:30Z
-date_finished:
+last_update: 2026-09-27T20:40:47Z
+date_finished: 2026-09-27T20:40:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -317,10 +316,10 @@ is the actual scope of this task, and it is narrower than the title suggests.
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 # ── T-891 legs ──────────────────────────────────────────────────────────────
-# the positional guess is gone from the importer
-! grep -qF 'let laneId = lanes[0]?.id;' src/aef-workflow-designer.html
-# CONTROL on that absence: the surrounding mechanism still exists, so the negation is not
-# passing because the code moved or the file is unreadable (PL-328)
+# The positional guess is gone from the importer. Asserted POSITIVELY — `let laneId = null;`
+# IS that initialiser line, so its presence excludes the old `lanes[0]?.id` form without a
+# negation. The close gate refused the negated version and was right: nothing established that
+# the pattern could have matched, so a typo would have read as a clean absence (PL-328).
 grep -qF 'let laneId = null;' src/aef-workflow-designer.html
 grep -qF "for (const laneEl of byBpmn(proc, 'lane'))" src/aef-workflow-designer.html
 # the probe runs and reports no first-lane inheritance on the fixed tree
@@ -329,40 +328,77 @@ timeout 300 node tools/_t341-orphan-lane-probe.mjs > /tmp/.t891-probe 2>&1; grep
 python3 -c "import glob,xml.etree.ElementTree as ET,sys; B='http://www.omg.org/spec/BPMN/20100524/MODEL'; F={'task','userTask','serviceTask','scriptTask','startEvent','endEvent','exclusiveGateway','parallelGateway','inclusiveGateway','intermediateCatchEvent','intermediateThrowEvent','boundaryEvent','subProcess','callActivity'}; n=0; [n:=n+1 for f in glob.glob('examples/aef-processes/rendered/*.bpmn') for p in ET.parse(f).getroot().iter('{%s}process'%B) if (ls:=p.find('{%s}laneSet'%B)) is not None for e in p if e.tag.split('}')[-1] in F and e.get('id') not in {x.text.strip() for x in ls.iter('{%s}flowNodeRef'%B) if x.text}]; sys.exit(0 if n==0 else 1)"
 # T-341's operator criterion is untouched — this task removed a guess, it did not rule
 grep -qF -- '- [ ] [REVIEW]' .tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md
-# the promotion is parked behind a filed task, not forgotten
-test -f "$(ls .tasks/active/T-909-*.md 2>/dev/null | head -1)"
+# T-909 (the fixture repair this promotion waited on) exists and is DONE. Anchored to the id
+# across BOTH directories: the original leg looked only in .tasks/active/ and went red within
+# the hour when T-909 closed and moved to completed/ — a leg that fails on its dependency
+# SUCCEEDING is worse than no leg, because the red says nothing about this task.
+# `find`, not `ls`: ls exits 2 on a non-matching glob and pipefail propagates it, so the
+# ls form went red for the glob that was SUPPOSED to be empty. Second rot in one leg.
+find .tasks -maxdepth 2 -name 'T-909-*.md' > /tmp/.t891-909 2>&1 && grep -q 'T-909' /tmp/.t891-909
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** an imported flow node that no `flowNodeRef` claimed silently acquired the
+first-declared lane's identity. Under the frozen standard §3 the lane is the sole
+authority-of-record, so **who owns a node was decided by laneSet serialisation order** — for a
+third-party file, by whatever their exporter happened to emit.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** `src/aef-workflow-designer.html` initialised `let laneId = lanes[0]?.id` and
+overwrote it only on a match. The fallback was a *guess wearing the shape of a default*.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** the validator did warn — `W-XML-NODE-UNASSIGNED` existed the whole
+time — but the editor repaired the state before anyone saw it, so the warning described a
+condition that never reached a user. A warning whose subject is silently fixed upstream is
+indistinguishable from a warning nobody needs. Elsewhere this project treats lane reordering as a
+"zero-semantic repair"; those two beliefs could not both be true and nothing forced the
+contradiction into the open.
+
+**Prevention:** the warning is now an **error** (`E-XML-NODE-UNASSIGNED`), so the state cannot
+pass CI rather than merely being mentioned. Distinct from the fix: AC1 removed the guess, this
+makes its absence enforced. The probe `tools/_t341-orphan-lane-probe.mjs` was also shown able to
+detect the OLD behaviour (`VERDICT: POSITIONAL` on the reverted tree), so a future regression
+returns a different verdict rather than the same green.
+
+**Not prevented, and named so it is not assumed:** what the default-lane *policy* should be is
+T-341's open `[REVIEW]` criterion and the operator's. This task removed a guess; it installed no
+replacement.
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
+### 2026-09-27 — the blast radius had changed under me between the two halves
 
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
+- **What changed:** AC5 measured 24 orphans across 9 fixtures and concluded the true radius was
+  two files. By the time AC3 shipped, T-909 had repaired those two, so the radius was seven
+  already-invalid fixtures and zero verdict changes.
+- **Plan impact:** none to the design, but I re-measured rather than reusing the AC5 number.
+  Measuring the old figure would have been measuring a world that no longer existed — and it
+  would have *understated* how safe the promotion was.
+- **Triggered:** nothing new. It is an argument for measuring at the moment of the change rather
+  than at the moment of filing.
 
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
+### 2026-09-27 — AC4 assumed a hole that was not there
+
+- **What changed:** AC4 asserted the YAML form leaves absent lane keys unchecked because
+  `E-NODE-LANE` is guarded on `"lane" in node`. True of that rule — but `lane` is in
+  `REQUIRED_NODE_FIELDS`, so an absent key is caught by the missing-field check.
+- **Plan impact:** the AC resolved as "no hole" rather than as a declared GAP, and the existing
+  `PAIRED` classification was already correct. I wrote the reasoning into the registry so the
+  next reader does not re-derive it.
+- **Triggered:** nothing. Worth recording that an AC written by an earlier round was wrong in the
+  *safe* direction, and only checking found that out.
+
+### 2026-09-27 — three legs of mine rotted or misread within the hour
+
+- **What changed:** the close gate refused this task four times: an uncontrolled absence, a leg
+  pointing at `.tasks/active/T-909` that went red when T-909 *succeeded* and moved to
+  `completed/`, an `ls` glob returning 2 under pipefail, and a missing RCA.
+- **Plan impact:** a leg that fails on its dependency succeeding is worse than no leg, because
+  the red says nothing about this task. Re-anchored across both directories with `find`.
+- **Triggered:** the `$?`-after-command-substitution error recurred a **third** time in the same
+  session, having been written into this task's own notes. Knowing a failure mode is not a habit
+  that avoids it; the fix is to stop putting `$?` in an argument list at all.
+
+### YYYY-MM-DD — [topic]
        - **What changed:** [what we learned that we didn't know at filing]
        - **Plan impact:** [what in the plan no longer fits]
        - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
@@ -529,3 +565,15 @@ evaluates the command substitution **before** `$?`, resetting it. **I recorded t
 tasks ago and wrote it into T-891's own notes**, then reproduced it within the hour. Knowing a
 failure mode is not the same as having a habit that avoids it — the fix is to stop putting `$?`
 in an argument list at all, not to remember harder.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b2e6fcdc
+- **Timestamp:** 2026-09-27T20:40:49Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-27T20:40:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -4,10 +4,10 @@ name: "Component fabric: ship the subsystem taxonomy that register demands, and 
 description: >
   Component fabric: ship the subsystem taxonomy that register demands, and stop impact reporting an empty chain as a safe answer
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +22,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T16:09:44Z
-last_update: 2026-09-27T16:09:44Z
-date_finished: null
+last_update: 2026-09-27T19:04:16Z
+date_finished: 2026-09-27T19:04:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -428,3 +428,22 @@ regression. Said plainly here so nobody has to discover it from the audit.
 The edge backfill is deliberately NOT in this task: it is only worth doing now that registration
 works, and only from real evidence — a card with invented edges is worse than one with none, the
 same reasoning that governed the `components:` work in T-906.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cacbaeb4
+- **Timestamp:** 2026-09-27T19:04:24Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 146
+     - evidence: `grep -qE '^" 2>/dev/null' .agentic-framework/agents/fabric/lib/ui.sh || grep -rqE '^" 2>/dev/null' .agentic-framework/agents/`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 150
+     - evidence: `.agentic-framework/bin/fw fabric drift > /tmp/.t908-drift 2>&1 && grep -A1 'Unregistered components:' /tmp/.t908-drift | grep -q '(none)'`
+
+### 2026-09-27T19:04:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

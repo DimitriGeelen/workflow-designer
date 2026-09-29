@@ -25,12 +25,12 @@ description: >
   non-zero (or print a warning) when it cannot measure blast_radius, so the refusal
   stops reading as a write.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface, bvp]
-components: []
+components: [src/aef-workflow-designer.html, tools/_roundtrip-serialization-cdp.mjs, tools/_t904-denominator-comment-blindness-teeth.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T14:47:22Z
-last_update: 2026-09-27T15:48:59Z
-date_finished:
+last_update: 2026-09-28T22:57:18Z
+date_finished: 2026-09-28T22:57:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -55,26 +55,28 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-09-27T15:42:40Z'
+bvp_scores_proposed: []
+bvp_scores:
+  D1: 4
+  D2: 4
+  D3: 3
+  D4: 2
+  F-RECALL: 2
+  F2: 0
+  F4: 0
+  F3: 0
+  F1: 2
+confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
+confirmed_at: '2026-09-28T22:56:08Z'
+cost_estimate_proposed:
+  - ts: '2026-09-28T22:56:08Z'
     estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 1
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
-      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L1:keyword=designer)'
+    cost_estimate:
+      blast_radius: 5
+      tier: 2
+      effort: 8
+    rationale: blast_radius=5 (6-components-medium-blast); tier=2 
+      (workflow:build); effort=8 (lines=333,acs=8)
     rubric_sha: e4a00f38e801
 ---
 
@@ -138,6 +140,12 @@ wrong one either understates the work or sweeps tasks that are already fine.
 
 ## Verification
 
+# Property, not live count (T-3326): a task this work populated shows a real quadrant.
+.agentic-framework/bin/fw bvp --include-proposed 2>&1 | grep -E '^T-893 ' | grep -qE 'hv-|lv-'
+# The five populated tasks carry a non-empty components: list, whichever directory they are in now.
+( for t in T-889 T-890 T-891 T-893 T-894; do f=$(ls .tasks/*/$t-*.md | head -1); grep -qE '^components: \[[^]]+\]' "$f" || grep -A1 '^components:$' "$f" | grep -q '^  - ' || exit 1; done )
+# The observation this task filed exists somewhere the inbox can still see it.
+grep -rq 'OBS-414' .context/inbox.yaml .context/ 2>/dev/null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -282,27 +290,15 @@ wrong one either understates the work or sweeps tasks that are already fine.
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
+### 2026-09-27 — three rounds disagreed about one number, and all three were right
+- **What changed:** Filed as "40 tasks with no measurable cost". Measured: 41 of 124 now-horizon tasks had no quadrant corpus-wide, but arc-001 had 0 of 17 — the blindness was concentrated on the goal-bearing arc, which is why rounds selecting from it concluded the axis did not exist. And the confirmed `cost_estimate` field is empty on EVERY task; the ranker reads `cost_estimate_proposed` under --include-proposed. A correct measurement of the wrong field reads exactly like a correct measurement.
+- **Plan impact:** The mechanical sweep of 40 was dropped. Five tasks populated with the basis labelled per task (T-889 measured from its commits; T-890/891/893/894 inferred and each says from what). The remaining ~36 are deliberately left at a visible dash rather than a confident guess, because components feeds blast_radius and a wrong path mis-states the quadrant it exists to produce.
+- **Triggered:** OBS-414 filed (estimate-cost prints [wrote], exits 0, writes no blast_radius — the refusal reads as a success). Reported, not fixed: one lock at a time. Second finding: cost alone is not a quadrant; four unstarted tasks got a blast_radius and still showed a dash because they had no value score, and the table renders one dash for both causes.
 
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
-
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
-
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+### 2026-09-29 — closing under procAsFit round 1
+- **What changed:** The task was itself in the state it fixed: `components: []`, no confirmed score, no cost, no quadrant. Populated from its own commit (`git show --name-only 92fb678d`), scored through `fw bvp estimate` / `estimate-cost`, and given a Verification block that pins the property (a populated arc-001 task shows a quadrant) rather than a live count (T-3326).
+- **Plan impact:** None to the deliverable. The close was owed since 2026-09-27; G-027 describes exactly why nothing surfaced it.
+- **Triggered:** Nothing filed.
 
 ## Recommendation
 
@@ -416,3 +412,22 @@ wrong quadrant is worse than a visible `-`.
 `components: []` refuses the radius — correct, unmeasured is not zero — while printing `[wrote]`
 and exiting 0. The refusal is indistinguishable from a success at the call site. Two independent
 rounds read the table and not the NOTE directly above it that names both cause and ticket.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-be085b30
+- **Timestamp:** 2026-09-28T22:57:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 2
+     - evidence: `.agentic-framework/bin/fw bvp --include-proposed 2>&1 | grep -E '^T-893 ' | grep -qE 'hv-|lv-'`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 4
+     - evidence: `( for t in T-889 T-890 T-891 T-893 T-894; do f=$(ls .tasks/*/$t-*.md | head -1); grep -qE '^components: \[[^]]+\]' "$f" || grep -A1 '^components:$' "$f" | grep -q '^  - ' || exit 1; done )`
+
+### 2026-09-28T22:57:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
