@@ -123,6 +123,11 @@ def main():
                     help="only OWNER-STALE rows — the set the ruling applies to")
     ap.add_argument("--ready-only", action="store_true",
                     help="OWNER-STALE rows whose Agent ACs are also all ticked: the rubber-stamp queue")
+    ap.add_argument("--facts", action="store_true",
+                    help="one TSV line for the audit rail: scanned, human-owned, stale, ready, names. "
+                         "Mirrors `lib.delegation_cli surface --facts` so the audit needs no heredoc "
+                         "of its own — a heredoc inside $(...) is a syntax error `bash -n` does not "
+                         "catch, because the substitution body is parsed lazily (hit live here).")
     args = ap.parse_args()
 
     tid = (args.task or "").strip()
@@ -136,6 +141,16 @@ def main():
         return 2
 
     rows = scan(paths)
+
+    if args.facts:
+        stale = [r for r in rows if r["verdict"] == OWNER_STALE]
+        ready = [r for r in stale if r["agent_total"] > 0
+                 and r["agent_ticked"] == r["agent_total"]]
+        human = [r for r in rows if r["verdict"] != NOT_HUMAN_OWNED]
+        print("%d\t%d\t%d\t%d\t%s" % (len(rows), len(human), len(stale), len(ready),
+                                      ", ".join(r["task"] for r in stale[:8])))
+        return 0
+
     if args.ready_only:
         rows = [r for r in rows if r["verdict"] == OWNER_STALE
                 and r["agent_total"] > 0 and r["agent_ticked"] == r["agent_total"]]

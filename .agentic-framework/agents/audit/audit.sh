@@ -3777,6 +3777,69 @@ check_delegation_surface() {
 }
 check_delegation_surface
 
+# T-931 — stale ownership. The half check_delegation_surface above CANNOT see.
+#
+# That rail measures OPEN Human criteria and buckets them. A task whose criteria are all ticked —
+# or which never had a Human criterion at all — contributes nothing to it, because there is nothing
+# open to classify. So a task can be 100% blocked on `owner: human` and the delegation surface
+# reports a clean PASS over it. That is not a flaw in that rail; it answers a different question.
+# Nobody was asking this one.
+#
+# Measured on 832 the day this was written: 112 active tasks carried `owner: human` and 45 of them
+# had no open Human criterion behind the field. Ten had every Human criterion TICKED — the operator
+# had already exercised the judgement and the task stayed shut anyway. Thirteen had every Agent
+# criterion ticked too, and ten of those thirteen had been reported by CTL-029 as "completable, not
+# closed" for a month. CTL-029 reads checkboxes; it cannot say why a completable task will not
+# close, because the cause is a frontmatter field no check read.
+#
+# Operator ruling 2026-09-29: `owner: human` is a sovereignty claim only while a Human criterion is
+# actually open. This rail is the DETECTOR half of that ruling and runs on cron. The CORRECTOR
+# (tools/_t931-ownership-sweep.sh) is attended and must never run unattended — a wrong predicate
+# sweeping the corpus would strip real claims with nobody watching. A detector can only over-report.
+check_stale_ownership() {
+    [ -d "$PROJECT_ROOT/.tasks/active" ] || return 0
+    local _tool="$PROJECT_ROOT/tools/_t931-ownership.py"
+    if [ ! -f "$_tool" ]; then
+        return 0   # predicate not vendored here; silent rather than noisy on other projects
+    fi
+
+    # The facts line comes from the tool, exactly as check_delegation_surface above takes its own
+    # from `lib.delegation_cli surface --facts`. An earlier draft inlined the python as a heredoc
+    # inside this command substitution: `bash -n` passed the whole file and it blew up at run time
+    # with "syntax error near unexpected token `||`", because a substitution body is parsed lazily.
+    # A lint that goes green on broken code is the same false green this rail exists to remove.
+    local _facts
+    _facts=$(cd "$PROJECT_ROOT" && python3 "$_tool" --facts 2>/dev/null || true)
+
+    # T-3105: an unreadable or empty result must NOT render as a clean bill of health. "no stale
+    # ownership" and "the predicate never ran" are different facts that look identical in a PASS.
+    if [ -z "$_facts" ]; then
+        warn "Stale task ownership — NOT EVALUATED: the ownership predicate produced no result" \
+             "The check ran and measured nothing. A PASS here would assert coverage it does not have (T-3105)." \
+             "Run by hand: cd $PROJECT_ROOT && python3 tools/_t931-ownership.py | tail -2"
+        return 0
+    fi
+
+    local _scanned _human _stale _ready _names
+    IFS=$'\t' read -r _scanned _human _stale _ready _names <<< "$_facts"
+
+    if [ "${_scanned:-0}" -eq 0 ]; then
+        warn "Stale task ownership — NOT EVALUATED: candidate set empty (0 active task file(s))" \
+             "The scan walked no tasks, so the T-931 rail asserted nothing this run" \
+             "Confirm .tasks/active is really empty and not a mis-scoped glob"
+        return 0
+    fi
+
+    if [ "${_stale:-0}" -gt 0 ]; then
+        warn "Stale task ownership: $_stale of $_human human-owned task(s) have no open Human criterion" \
+             "owner: human is a sovereignty claim only while a Human criterion is open (T-931). ${_ready} of these also have every Agent criterion ticked — those are blocked on a signature with nothing to sign. First few: $_names" \
+             "Review: cd $PROJECT_ROOT && bash tools/_t931-ownership-sweep.sh   (dry run; add --apply to correct)"
+    else
+        pass "Task ownership: all $_human human-owned task(s) have an open Human criterion behind the field — examined $_scanned active task file(s)"
+    fi
+}
+check_stale_ownership
+
 # T-3262 (G-099). `fw doctor` (bin/fw:2390+) already compares the
 # continuous-run wrapper ledger against the turn-driver state and WARNs when
 # they disagree — but doctor is pull-only, and it was THIS daily cron that
