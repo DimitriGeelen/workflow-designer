@@ -1,0 +1,103 @@
+# ============================================================================
+# EPISODIC MEMORY - T-785: The bridge baseline is red: isolate and fix the TEETH regression blocking verification of the AEF reference corpus
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-29T08:15:06Z
+# ============================================================================
+
+task_id: T-785
+task_name: "The bridge baseline is red: isolate and fix the TEETH regression blocking verification of the AEF reference corpus"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T22:35:07Z
+completed: 2026-09-29T08:14:54Z
+duration_days: 8
+updates_count: 4
+first_commit: 2026-09-22T00:40:13+02:00
+last_commit: 2026-09-29T10:14:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  baseline regression isolated — the T-560 ratchet is red at 112 vs 78, and I added 2 of them. second regressed instrument fixed — _t400 schema teeth now 10/10, and 2 of its 7 findings were mine. the 75th leg was uncontrollable because the reader could not see its pattern, not because the permission was missing. G-081 — a ruling that discharges a recorded blocker fires nothing, and T-785 is the seven-day proof. the ratchet is not this task's to pin, and a concurrent session proved it in twenty minutes. a leg that is green by hand and red under the gate — SIGPIPE, and my own by-hand verification could not see it
+
+# Key outcomes
+outcomes:
+  - '**Named: `_t560-absence-census-teeth.py`, rc=1, leg 5.** Legs 1–4 PASS'
+  - '**SECOND INSTRUMENT FIXED: `_t400-schema-teeth.sh` now 10/10, rc=0.** Its failing leg'
+  - '**Root cause, and the evidence chooses between the two readings.** Leg 5 offers "the'
+  - '**WAS BLOCKED by an open Sovereign question — and I am part of the regression.** Of the 112,'
+  - '**Nothing was weakened, excluded or deleted — proven by the diff.** No entry was added'
+  - '**Contractual corpus unaffected — re-verified after the investigation.**'
+  - '**THE 75th LEG WAS UNCONTROLLABLE, AND THE READER WAS WHY — not the leg, and not a'
+  - '**The widening credits NOTHING on its own — measured, not asserted.** Before and after,'
+  - '**Teeth, proven by replaying the pre-fix reader.** Four cases added to'
+  - '**Ratchet GREEN, and the baseline was not touched.** One companion leg appended to'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'second regressed instrument fixed — _t400 schema teeth now 10/10, and 2 of its 7 findings were mine'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.fabric/components/tools-_t785-t859-credit-probe.yaml'
+  - '.tasks/active/T-785-the-bridge-baseline-is-red-isolate-and-f.md'
+  - '.tasks/completed/T-859-t542-cost-axis-guard-raises-attributeerr.md'
+  - 'tools/concerns-schema.py'
+  - 'tools/_t560-absence-assertion-census.py'
+  - 'tools/_t785-t859-credit-probe.py'
+  - 'tools/_t845-control-recogniser-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-22T00:40:13'
+    action: 'T-785: baseline regression isolated — the T-560 ratchet is red at 112 vs 78, and I added 2 of them'
+  - time: '2026-09-22T00:49:09'
+    action: 'T-785: second regressed instrument fixed — _t400 schema teeth now 10/10, and 2 of its 7 findings were mine'
+  - time: '2026-09-29T09:48:32'
+    action: 'T-785: the 75th leg was uncontrollable because the reader could not see its pattern, not because the permission was missing'
+  - time: '2026-09-29T09:50:46'
+    action: 'T-785: G-081 — a ruling that discharges a recorded blocker fires nothing, and T-785 is the seven-day proof'
+  - time: '2026-09-29T10:12:37'
+    action: 'T-785: the ratchet is not this task''s to pin, and a concurrent session proved it in twenty minutes'
+  - time: '2026-09-29T10:14:39'
+    action: 'T-785: a leg that is green by hand and red under the gate — SIGPIPE, and my own by-hand verification could not see it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 10659 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [baseline, tests, aef-seam]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 10659
+  commits: 6
+  files_changed: 10
+  lines_added: 882
+  lines_removed: 55
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-785-the-bridge-baseline-is-red-isolate-and-f.md
+generated_by: context-agent-hybrid

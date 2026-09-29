@@ -16,21 +16,21 @@ description: >
   - the ground rule is that lines removed is not success and a check is never weakened
   to look cleaner.
 
-status: issues
+status: work-completed
 workflow_type: build
-current_node: agt_2_perform
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: [baseline, tests, aef-seam]
-components: []
+components: [tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn, tests/test_finding_anchorability.py, tests/test_harness_cross_form_agreement.py, tools/concerns-schema.py, tools/_t560-absence-assertion-census.py, tools/_t785-t859-credit-probe.py, tools/_t820-rule-axes.sh, tools/_t826-kind-rule-axes-teeth.sh, tools/_t845-control-recogniser-tests.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T22:35:07Z
-last_update: 2026-09-29T08:12:40Z
-date_finished:
+last_update: 2026-09-29T08:14:54Z
+date_finished: 2026-09-29T08:14:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -601,3 +601,20 @@ corpus for AEF's Child-2 forward bridge — could be shown safe.
 ### 2026-09-29T07:41:42Z — status-update [task-update-agent]
 - **Change:** status: started-work → issues
 - **Reason:** Round 3 census: reopened to started-work at 07:39Z with no work done. AC 4 is BLOCKED on T-353's open [REVIEW] ruling (owner: human) — may an agent edit ## Verification blocks inside .tasks/completed/. Sovereign question, surfaced not resolved; parking back to the state the blocker warrants.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4aec57b9
+- **Timestamp:** 2026-09-29T08:14:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 14
+     - evidence: `python3 tests/test_forward_fixtures.py > /dev/null 2>&1`
+
+### 2026-09-29T08:14:54Z — status-update [task-update-agent]
+- **Change:** status: issues → work-completed
