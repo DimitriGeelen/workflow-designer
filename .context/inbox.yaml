@@ -2709,3 +2709,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-443
+  text: "Two concurrent sessions share ONE .context/working/focus.yaml, and the PreToolUse task gate reads it — so a second session can block the first's edits and mis-attribute them. Measured 2026-09-29 10:13:05: session S-2026-0929-0740 set current_task to T-573 while this session (working T-785) was mid-verification; the very next Bash write was refused with 'BLOCKED: Task T-573 is a build task with placeholder/missing ACs (G-020)'. The refusal named a task this session never touched, and the remedies it offered (edit T-573's ACs, change its type, shelve it) would all have been THIS session editing ANOTHER session's task to unblock itself — the gate actively recommends the wrong action under contention. Reclaiming focus fixes it for one side and breaks it for the other; there is no non-thrashing move available to either. Related OBS-442 (same concurrency blind spot, via the corpus-wide _t560 ratchet). Class: single-slot global session state in a multi-session project. Not fixed, not scoped here, surfaced."
+  captured: 2026-09-29T08:14:23Z
+  context_task: T-785
+  tags: [concurrency]
+  status: pending
+  promoted_to: null
+  urgent: true

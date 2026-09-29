@@ -18,7 +18,7 @@ description: >
 
 status: issues
 workflow_type: build
-current_node: frw_4_enter
+current_node: agt_2_perform
 owner: agent
 horizon: now
 tags: [baseline, tests, aef-seam]
@@ -29,7 +29,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T22:35:07Z
-last_update: 2026-09-29T07:50:47Z
+last_update: 2026-09-29T08:12:40Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -378,8 +378,18 @@ silently re-admits exactly that many" argument the baseline header makes, runnin
 
 ## Verification
 
-bash tools/_t400-schema-teeth.sh > /dev/null 2>&1
-bash tools/_t400-schema-teeth.sh 2>&1 | grep -q 'arbitrary unaccounted field'
+# L-387 / SIGPIPE, CAUGHT BY THE GATE AND NOT BY HAND. These two lines were one:
+#   bash tools/_t400-schema-teeth.sh 2>&1 | grep -q 'arbitrary unaccounted field'
+# It passes in an interactive shell and FAILS under P-011 at exit 141 (128+13, SIGPIPE):
+# `grep -q` exits at its first match, closes the pipe, the producer is killed writing to it,
+# and the gate runs each leg under `-o pipefail`, so the pipeline reports the producer's death.
+# A leg that is green by hand and red under the gate is worse than one that is simply red —
+# it was verified by hand in this very task, twice, and reported as passing both times.
+# Rewritten to the form the template documents as THE DEFAULT: redirect once, then grep the
+# file. Line 1 asserts the teeth pass (rc=0); line 2 asserts the negative-control message is
+# really in that output, so line 2 cannot go green against a run that never emitted it.
+bash tools/_t400-schema-teeth.sh > /tmp/.t785.t400 2>&1
+grep -q 'arbitrary unaccounted field' /tmp/.t785.t400
 python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.yaml')); g=[x for x in d['concerns'] if isinstance(x,dict) and x.get('id')=='G-076'][0]; sys.exit(0 if 'escalation_arc_level' not in g and 'ranked 0' in g['decision_trigger'] else 1)"
 python3 tests/test_forward_fixtures.py > /dev/null 2>&1
 # T-785 CLOSING LEGS. The two legs that stood here pinned the literal 78 — the baseline value
