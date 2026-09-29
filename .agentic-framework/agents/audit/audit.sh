@@ -3857,6 +3857,49 @@ check_stale_ownership() {
 }
 check_stale_ownership
 
+# T-936 (OBS-448) — accidental screen captures written into the tree.
+#
+# FOUR TIMES IN SEVEN DAYS. A `python3 - <<'PY'` heredoc body, or a broken multi-line `python3 -c "`,
+# leaks to the shell and its first line — `import yaml,glob,sys`, `import importlib.util`, `import
+# re,io` — resolves not to Python but to ImageMagick's import(1), which CAPTURES THE SCREEN and writes
+# PostScript named after the following token. Exit 0, no error, the expected output still appears. 37MB
+# sat at the repository root for six days. The fourth was created by the agent itself while writing the
+# observation about the other three, and this check found it ninety minutes later on its first run.
+#
+# T-391 swept this class on 2026-08-08 and closed. That was mitigation; four recurrences say prevention
+# never existed (G-019). Prevention is the operator's — removing import(1) from PATH, or enabling the
+# PreToolUse gate this task authored. DETECTION is what belongs here, and six days of invisibility is
+# the part that actually cost something.
+#
+# The rail never opens the raster. These are images of the operator's screen; the tool reads a capped
+# PostScript header and reports size and canvas so exposure can be judged without anyone paging through
+# a desktop. Cron runs this; nothing here deletes anything.
+check_stray_captures() {
+    local _tool="$PROJECT_ROOT/tools/_t936-stray-capture-scan.py"
+    [ -f "$_tool" ] || return 0     # not vendored here; silent rather than noisy elsewhere
+
+    local _facts
+    _facts=$(cd "$PROJECT_ROOT" && python3 "$_tool" --facts 2>/dev/null || true)
+    if [ -z "$_facts" ]; then
+        warn "Stray screen captures — NOT EVALUATED: the capture scan produced no result" \
+             "The check ran and measured nothing. A PASS here would assert coverage it does not have (T-3105)." \
+             "Run by hand: cd $PROJECT_ROOT && python3 tools/_t936-stray-capture-scan.py"
+        return 0
+    fi
+
+    local _n _bytes _canvas _paths
+    IFS=$'\t' read -r _n _bytes _canvas _paths <<< "$_facts"
+
+    if [ "${_n:-0}" -gt 0 ]; then
+        warn "Stray screen capture(s) in the tree: $_n, $(( _bytes / 1048576 ))MB, largest canvas $_canvas" \
+             "ImageMagick import(1) ran instead of python — a heredoc or quoted -c block leaked to the shell (OBS-448). These are images of the operator's SCREEN: $_paths" \
+             "Look at them or delete them — that is the operator's call, not the agent's. Prevention: enable the bare-import gate (see T-936) or remove import(1) from PATH"
+    else
+        pass "No stray screen captures — scanned the repository root and working directories by PostScript header, not by filename (all four known cases had none)"
+    fi
+}
+check_stray_captures
+
 # T-3262 (G-099). `fw doctor` (bin/fw:2390+) already compares the
 # continuous-run wrapper ledger against the turn-driver state and WARNs when
 # they disagree — but doctor is pull-only, and it was THIS daily cron that
