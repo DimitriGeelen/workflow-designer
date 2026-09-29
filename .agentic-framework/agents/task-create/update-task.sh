@@ -33,6 +33,13 @@ source "$FRAMEWORK_ROOT/lib/render_surface.sh" 2>/dev/null || true
 source "$FRAMEWORK_ROOT/lib/section-extract.sh"
 # T-923 (arc-005): the framework records which node of the task-lifecycle template it IS, through the T-882 guard.
 source "$FRAMEWORK_ROOT/lib/instance-position.sh" 2>/dev/null || true
+source "$FRAMEWORK_ROOT/lib/task-ownership.sh" 2>/dev/null || true
+# T-931: if that source failed, the ownership predicate is UNAVAILABLE, which must read as "not
+# stale" so R-033 keeps holding. Declared explicitly rather than relying on a missing function
+# returning 127 — an undefined function happens to fail closed here, but only by accident, and a
+# noisy "command not found" on every owner change is not a safety mechanism.
+declare -F fw_ownership_is_stale >/dev/null 2>&1 || fw_ownership_is_stale() { return 1; }
+declare -F log_ownership_reversion >/dev/null 2>&1 || log_ownership_reversion() { return 0; }
 command -v fw_instance_walk >/dev/null 2>&1 || fw_instance_walk() { return 0; }
 # T-883 (arc-005): a gate refusing a transition lands in the instance audit log (V7).
 command -v fw_instance_refused >/dev/null 2>&1 || fw_instance_refused() { return 0; }
@@ -2156,13 +2163,33 @@ if [ -n "$NEW_OWNER" ]; then
     OLD_OWNER=$({ grep "^owner:" "$TASK_FILE" 2>/dev/null || true; } | head -1 | sed 's/owner:[[:space:]]*//')
     # T-198/R-033: Owner protection — owner: human is sticky
     if [ "$OLD_OWNER" = "human" ] && [ "$NEW_OWNER" != "human" ]; then
-        if [ "$SKIP_HUMAN_OWNERSHIP" = true ]; then
+        # T-931 (operator ruling 2026-09-29): `owner: human` is a sovereignty claim only while a
+        # Human acceptance criterion is actually OPEN. With none open the field asserts a judgement
+        # requirement that does not exist, and reverting it is not a bypass of R-033 — it is R-033
+        # read correctly. THIS IS NOT A SKIP FLAG. It is authorised by a predicate the agent does not
+        # get to argue with (tools/_t931-ownership.py -> OWNER-STALE), and it is refused the moment
+        # one Human criterion is open again.
+        #
+        # Measured before this existed: 112 active tasks owner:human, 45 with nothing human open, 13
+        # of those with every Agent AC ticked as well — including 10 the audit had been reporting as
+        # CTL-029 "completable, not closed" for a month. Ten of the 45 had every Human AC TICKED: the
+        # operator had already judged and the task stayed shut anyway.
+        OWNERSHIP_VERDICT=""
+        if fw_ownership_is_stale "$TASK_FILE"; then OWNERSHIP_VERDICT="OWNER-STALE"; fi
+
+        if [ "$OWNERSHIP_VERDICT" = "OWNER-STALE" ]; then
+            echo -e "${GREEN}R-033 satisfied: no open Human criterion, so owner: human is stale metadata, not a claim (T-931)${NC}"
+            log_ownership_reversion "$TASK_ID" "$OLD_OWNER" "$NEW_OWNER"
+        elif [ "$SKIP_HUMAN_OWNERSHIP" = true ]; then
             echo -e "${YELLOW}WARNING: Overriding human ownership (--skip-human-ownership bypass)${NC}"
             log_gate_bypass "--skip-human-ownership" "owner_change"
         else
             echo -e "${RED}ERROR: Cannot change owner from 'human' — human ownership is protected (R-033)${NC}" >&2
-            echo "Only the human can reassign human-owned tasks." >&2
-            echo "Use --skip-human-ownership to bypass (logged)." >&2
+            echo "At least one Human acceptance criterion is still OPEN, so the field is a live claim." >&2
+            echo "  See which: python3 tools/_t931-ownership.py --task $TASK_ID" >&2
+            echo "Reverting ownership requires that no Human criterion is open (T-931). Either the" >&2
+            echo "human ticks the remaining criteria, or they are converted with 'fw task delegate'." >&2
+            echo "Use --skip-human-ownership to bypass anyway (logged)." >&2
             exit 1
         fi
     fi
