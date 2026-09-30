@@ -2797,3 +2797,18 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-455
+  text: "No gate makes route classification part of shipping a route: _t682-boundary-inventory.py is only ever run by a sweep (audit.sh), so a route added to tools/gallery-serve.py enters the tree unclassified and stays that way for an UNBOUNDED interval. Hit twice by the same author on consecutive days: T-884/GET /api/instances (~26h latency, fixed T-941) and T-955/POST /api/validate (fixed T-958). T-941's own in-file comment warns about exactly this, which is evidence that a comment is not a control. Remedy: run _t682 from a pre-commit or PreToolUse gate when tools/gallery-serve.py is staged, so the omission cannot reach a commit and wait for a sweep. T-958 hardened the DETECTOR (teeth prober wired into run-bridge-tests.sh) and deliberately did not build this gate."
+  captured: 2026-09-30T21:48:42Z
+  context_task: T-958
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-456
+  text: "The T-682 boundary inventory report carries line-numbered evidence (gallery-serve.py:419 write_registry(reg), 19 such lines) that goes STALE silently: the drift check compares route SETS only, so any edit to gallery-serve.py shifts every cited line number while the check stays green. Measured at T-958: all 19 evidence lines had drifted by 26-70 lines since T-955, identical text and identical WRITE/READ/DECL classification, and nothing reported it -- a reader following a citation would land on the wrong line. Regenerating is free (--write); knowing it is needed is not. Consider either asserting the cited line still contains the cited text, or dropping line numbers in favour of a content anchor."
+  captured: 2026-09-30T21:48:51Z
+  context_task: T-958
+  tags: []
+  status: pending
+  promoted_to: null

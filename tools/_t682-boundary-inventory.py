@@ -112,6 +112,35 @@ ROUTE_SEMANTICS = {
     ('POST', '/api/delete'):  ('MOVES sources to .editor-versions/_trash/ AND writes '
                                '.context/designer/registry.yaml',
                                '_within_repo via archive_move (delete path); registry fixed-path'),
+    # T-955 shipped this route and classified it nowhere — the SAME omission T-884 made with
+    # GET /api/instances one day earlier (fixed under T-941, comment above). The drift check
+    # caught it in the session it shipped, which is the instrument working; this row is the
+    # remedy, not a repair.
+    #
+    # 'none' is VERIFIED AGAINST THE CALL GRAPH, and for a POST that is the interesting
+    # direction: the verb predicts a write and the handler performs none, so a verb-derived
+    # inventory would over-report this route's authority and an author reading it would fence
+    # something that needs no fence while trusting the document elsewhere. Frames read:
+    #   _api_validate (gallery-serve.py) -> _load_validator() -> importlib exec_module
+    #                                    -> mod.run_xml(bpmn) -> self._json(...)
+    # It reaches no _save, no write_registry, no corpus path, and derives no path from input.
+    #
+    # The exec_module hop is the part worth checking rather than assuming, because importing
+    # a module RUNS it: a top-level write in validate-workflow.py would be this route's
+    # authority even though nothing in the handler writes. validate-workflow.py holds exactly
+    # two write-ish primitives — a sys.stderr.write in an ImportError branch (stderr, not the
+    # filesystem) and `open(args.file, "r")` (read mode) inside main(), which sits behind
+    # `if __name__ == "__main__"`; exec_module binds __name__ to '_t955_validator', so the CLI
+    # body never runs. Every other module-level statement is a constant table.
+    ('POST', '/api/validate'): ('none — imports tools/validate-workflow.py via importlib and '
+                                'calls run_xml(bpmn) on the REQUEST BODY, returning findings; '
+                                'reaches no write primitive in either module (verified through '
+                                'the exec_module hop, not inferred from the POST verb)',
+                                'n/a (no id and no path derived from input — the document '
+                                'arrives in the body and is never persisted); non-str or blank '
+                                'bpmn -> 400; validator that will not load -> 503, never an '
+                                'empty findings list, so an unavailable validator cannot read '
+                                'as a clean document'),
 }
 
 

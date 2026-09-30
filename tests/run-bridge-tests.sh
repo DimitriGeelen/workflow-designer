@@ -964,6 +964,28 @@ else
 fi
 
 echo
+echo "== The boundary inventory's drift check still bites (T-958) =="
+# T-955 shipped /api/validate and classified it nowhere; the drift check caught it the same
+# session, and T-958 added its ROUTE_SEMANTICS row. This leg exists because that check has
+# TWO independent arms — route-in-server-not-in-report, and route-with-no-semantics-row — and
+# one fix cleared both at once, so a green run cannot say which arm was load-bearing or
+# whether either still works. The prober pops the row (UNCLASSIFIED must fire, naming only
+# that route) and separately removes the dispatch literal from the server source (DOCUMENTED,
+# NOT IN SERVER must fire), against a green control.
+#
+# It is wired HERE, and that is the whole point: T-884's route went unclassified for ~26 hours
+# only because a sweep happened to run, and the same omission left T-884's own test unwired
+# from this file (T-941, T-942, PL-363). An unscheduled check has unbounded latency. A teeth
+# prober with no scheduled reader is the defect it was written to prevent.
+if python3 "$ROOT/tools/_t958-boundary-row-teeth.py" > "$TMP/leg-_t958-boundary.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the editor's authority inventory can no longer detect an unclassified or undocumented route — a route shipped after this point would enter the tree unfenced and nothing would say so (T-958 — run 'python3 tools/_t958-boundary-row-teeth.py'; leg 1 red means the tree has real drift, run 'python3 tools/_t682-boundary-inventory.py' for it, while legs 3-5 red mean the CHECK lost its teeth and is now green for the wrong reason)"
+  show_output "$TMP/leg-_t958-boundary.out" "_t958-boundary-row-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an
 # autoescaped purpose made it unlinkable. Two legs pulling opposite ways: the link must

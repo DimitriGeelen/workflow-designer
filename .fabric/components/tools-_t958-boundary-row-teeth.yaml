@@ -1,0 +1,21 @@
+id: tools/_t958-boundary-row-teeth.py
+name: _t958-boundary-row-teeth
+type: script
+subsystem: instruments
+location: tools/_t958-boundary-row-teeth.py
+tags: []
+
+purpose: "T-958: prove the new ROUTE_SEMANTICS row is what cleared the boundary drift check."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-30
+created_by: unknown
