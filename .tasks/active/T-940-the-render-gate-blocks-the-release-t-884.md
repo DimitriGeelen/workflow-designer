@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T09:25:06Z
-last_update: 2026-09-30T09:25:06Z
+last_update: 2026-09-30T09:36:12Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -61,7 +61,7 @@ date_finished: null
       claim about a test
 - [x] **The whitelist stays scoped.** Its header says "Scoped to EXACTLY these two per spec"; that
       sentence is updated to say three and why, rather than left contradicting the code beneath it
-- [ ] **The release completes afterwards** — this task exists only because step 3 refused, so it is
+- [x] **The release completes afterwards** — this task exists only because step 3 refused, so it is
       finished when `runme.sh` gets past step 3, not when the test passes in isolation
 
 ### Human

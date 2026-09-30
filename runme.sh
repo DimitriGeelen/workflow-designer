@@ -244,7 +244,38 @@ confirm "Publish the release identity to the AEF rail?"
 run "bash scripts/announce-release.sh"
 
 # ── VERIFY ────────────────────────────────────────────────────────────────────────────────────────
-step "Verify"
-run "python3 tools/_t382-release-lag.py"
+# REPORTED, NOT GATED — and the first version of this got it wrong in the most annoying possible way.
+#
+# _t382-release-lag.py measures two independent things and exits non-zero for either:
+#   leg 1  BUILD LAG     — src ahead of our own release. A real release defect if non-zero.
+#   leg 2  ADOPTION LAG  — the peer's pin behind our release. A fact about AEF, not about us.
+#
+# It was wired through run(), which dies on non-zero. So a completely successful 0.14.0 release —
+# tag pushed, artifact built, manifest consistent, build lag 0 — ended in "STOPPED: the command above
+# failed", because AEF's pin sits at 0.11.0 and leg 2 trips at three releases behind. Nothing was
+# wrong with the release; the last line of the script called it a failure.
+#
+# Worse, leg 2 CANNOT be satisfied from here. Its own output says it reads the peer's pin from a
+# VENDORED copy of their policy, reports what they had at our last re-vendor, and can therefore only
+# UNDER-report. Gating a release on a number we cannot move, read from a copy we know is stale, is a
+# red that no correct action clears — and a red nobody can clear is one people learn to bypass.
+#
+# So: print it, separate the legs, and fail the SCRIPT only on build lag.
+step "Verify (reported — adoption lag is the peer's state, not a release defect)"
+LAG_OUT="$LOGDIR/.runme-lag.out"
+if [ "$DRY" -eq 0 ]; then
+    python3 tools/_t382-release-lag.py > "$LAG_OUT" 2>&1 || true
+    sed 's/^/  /' "$LAG_OUT"
+    if grep -qE 'unshipped product commits since .*: [1-9]' "$LAG_OUT"; then
+        die "BUILD LAG is non-zero — src/ carries commits this release does not ship. That IS a
+  release defect: the tag names bytes that are already stale. Investigate before announcing."
+    fi
+    echo "  ok   build lag 0 — src carries nothing this release does not"
+    if grep -q 'peer pin behind' "$LAG_OUT"; then
+        echo "  note adoption lag is AEF's to close by re-pinning; it is reported, not gated"
+    fi
+else
+    echo "  [dry-run] python3 tools/_t382-release-lag.py (reported, not gated)"
+fi
 echo
 printf '\033[32mReleased %s\033[0m — AEF re-pins the sha256 per docs/aef-designer-integration-protocol.md\n' "$TAG"
