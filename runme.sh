@@ -123,15 +123,32 @@ printf '  master  %s -> %s  (%s commits)\n' "$(git rev-parse --short master)" \
 
 # ── 1. FAST-FORWARD MASTER ────────────────────────────────────────────────────────────────────────
 step "1/6  Fast-forward master to bleeding-edge (refspec push, working tree untouched)"
-BEFORE="$(git status --porcelain | wc -l)"
 confirm "Push bleeding-edge to origin/master? (git refuses unless it is a fast-forward)"
+
+# THE GUARD MEASURES TRACKED MODIFICATIONS, NOT THE TOTAL PATH COUNT, and the first version of it
+# was wrong in a way worth recording.
+#
+# It compared `git status --porcelain | wc -l` across the push and died on 836 -> 837. Nothing was
+# wrong: the count includes UNTRACKED paths, and two things add them on their own schedule — the
+# cron audit writes .context/audits/cron/*.yaml every 15 minutes, and this script's own log file is
+# a new untracked path in .context/working/. The count was also captured BEFORE the confirm prompt,
+# so it spanned an open-ended wait for a human. A guard that straddles an interactive pause in a
+# corpus with a writer on a timer will false-positive; it is only a question of when.
+#
+# What the guard actually protects: that nobody changed step 1 from a refspec push to a
+# `git checkout master` sequence, which would drag the .context/audits/cron/ retention churn across
+# the branch switch (T-823's reason for the refspec form, T-571's reason it is not ours to commit).
+# A checkout changes TRACKED files. A refspec push cannot touch them at all. So tracked
+# modifications is the thing to measure, and cron cannot perturb it.
+BEFORE="$(git diff --name-only HEAD | wc -l)"
 run "git push origin bleeding-edge:master"
 run "git branch -f master bleeding-edge"
 if [ "$DRY" -eq 0 ]; then
-    AFTER="$(git status --porcelain | wc -l)"
-    [ "$BEFORE" = "$AFTER" ] || die "the working tree changed during the push ($BEFORE -> $AFTER paths).
-  The refspec form exists precisely so this cannot happen — investigate before continuing."
-    echo "  ok   working tree untouched ($AFTER paths, unchanged)"
+    AFTER="$(git diff --name-only HEAD | wc -l)"
+    [ "$BEFORE" = "$AFTER" ] || die "TRACKED files changed during the push ($BEFORE -> $AFTER modified).
+  A refspec push cannot do that. Something switched branches or wrote to the tree — investigate
+  before continuing; do not re-run until you know what."
+    echo "  ok   tracked files untouched by the push ($AFTER modified, unchanged)"
 fi
 
 # From here master carries src/ changes while VERSION still names the OLD release: "same version,
