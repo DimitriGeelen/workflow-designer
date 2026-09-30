@@ -538,6 +538,14 @@ orphan_legs=(
   "tests/test_designer_owner_derived.py|designer owner-derived guard — an editable owner override reappeared (IW-9)"
   "tests/test_designer_render.py|designer render-check — render, T-177 markers, or inspector dropdowns broke"
   "tests/test_emitted_comment_claims.py|exported bytes carry a claim about an external party, or the emitter duplicates the trailer (T-361)"
+  # T-942 wired both of these. Each was written and left uninvoked, which is the same defect
+  # twice: T-884 shipped test_gallery_instances_api.py with the /api/instances endpoint and never
+  # registered it; T-941 (mine) added test_boundary_inventory_unclassified.py in the same commit
+  # as a learning about instruments nothing runs. The T-316 orphan guard below caught both — it
+  # is the only reason either is here, and the reason it must never be relaxed to make a red run
+  # green.
+  "tests/test_gallery_instances_api.py|the /api/instances endpoint's own contract broke (T-884)"
+  "tests/test_boundary_inventory_unclassified.py|the boundary inventory's unclassified-route check stopped biting, or the real route set went unclassified (T-941)"
 )
 for leg in "${orphan_legs[@]}"; do
   legfile="${leg%%|*}"

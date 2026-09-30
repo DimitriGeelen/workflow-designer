@@ -48,7 +48,11 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = ROOT / "src"
 SRC_FILE = "aef-workflow-designer.html"
 
-CONSOLE_WHITELIST = ("/api/health", "/favicon.ico")
+# T-942: shared with the other two designer console guards. Was a private copy that T-884's
+# /api/instances broke and nobody noticed, because the copy that got fixed was the one blocking
+# a release. `tests/` is sys.path[0] when this file is run as a script, which is how the runner
+# invokes it.
+from designer_console import CONSOLE_WHITELIST, unexpected  # noqa: E402
 
 NS = {
     "bpmn": "http://www.omg.org/spec/BPMN/20100524/MODEL",
@@ -241,9 +245,10 @@ def main():
         failures.append("teeth: blanking a lane authority did NOT trip the guard (authority check is a tautology)")
 
     # (4) console
-    unexpected = [e for e in console_errors if not any(w in e for w in CONSOLE_WHITELIST)]
-    if unexpected:
-        failures.append("unexpected console errors: " + "; ".join(unexpected))
+    # T-942: shared matching rule, not a fourth private comprehension.
+    unexpected_errors = unexpected(console_errors)
+    if unexpected_errors:
+        failures.append("unexpected console errors: " + "; ".join(unexpected_errors))
 
     if failures:
         print(f"FAIL: designer export-contract guard — {len(failures)} issue(s):", file=sys.stderr)

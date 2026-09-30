@@ -48,32 +48,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 
-# Console errors we intentionally tolerate. The designer probes a backend that
-# is absent when served as a static file (same condition as :3001/designer).
-# Documented, non-fatal (T-178). Scoped to EXACTLY these THREE, each with its
-# reason — a bare addition invites a fourth without one, and then this stops
-# being an exception list and becomes a mute button. As of T-176 the web fonts
-# are embedded (base64 woff2) — there is NO CDN font request in 0.3.0+, so a
-# font/CDN error can no longer occur (nor is it whitelisted).
-#
-#   /api/health     the original backend liveness probe (T-178)
-#   /favicon.ico    requested by the browser, not by the designer
-#   /api/instances  T-884's instance-overlay snapshot. ADDED T-940, after this
-#                   gate correctly blocked the 0.14.0 release: T-884 shipped the
-#                   probe and never whitelisted it, and dist/ had not been
-#                   rebuilt since, so nothing surfaced it for weeks.
-#
-#                   The designer's handling is CORRECT and was not changed:
-#                   loadInstanceSnapshot() catches the failure and sets
-#                   instanceView.available = false — "additive overlay: absence
-#                   is a state, never a fault" — and selectInstance() refuses to
-#                   report not-found without the endpoint, rather than claiming
-#                   the corpus was read. The console entry comes from the
-#                   browser's NETWORK layer before any JS runs, so it is
-#                   unavoidable for any optional probe and cannot be caught away.
-#                   Repairing src/ to silence it would have been fixing correct
-#                   code to satisfy a stale test.
-CONSOLE_WHITELIST = ("/api/health", "/favicon.ico", "/api/instances")
+# Console errors we intentionally tolerate, SHARED with the other two designer console guards
+# (T-942). The full list and the reason each entry is unavoidable live in tests/designer_console.py
+# — one definition, because when this was a private copy T-884's /api/instances broke all three
+# and only this one got fixed, since only this one was blocking a release (PL-214).
+# `tests/` is sys.path[0] when this file runs as a script, which is how the runner invokes it.
+from designer_console import CONSOLE_WHITELIST, unexpected  # noqa: E402
 
 # Expected governance dropdown option-sets (order-sensitive signatures).
 # Matched by signature rather than by DOM position so the assertion is robust
@@ -218,10 +198,10 @@ def main():
                         )
 
             # (4) CONSOLE -------------------------------------------------------
-            unexpected = [e for e in console_errors
-                          if not any(w in e for w in CONSOLE_WHITELIST)]
-            if unexpected:
-                failures.append("unexpected console errors: " + "; ".join(unexpected))
+            # T-942: shared matching rule, not a private comprehension.
+            unexpected_errors = unexpected(console_errors)
+            if unexpected_errors:
+                failures.append("unexpected console errors: " + "; ".join(unexpected_errors))
 
             browser.close()
     finally:

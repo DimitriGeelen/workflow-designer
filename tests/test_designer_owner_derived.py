@@ -37,7 +37,11 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = ROOT / "src"
 SRC_FILE = "aef-workflow-designer.html"
 
-CONSOLE_WHITELIST = ("/api/health", "/favicon.ico")
+# T-942: shared with the other two designer console guards. Was a private copy that T-884's
+# /api/instances broke and nobody noticed, because the copy that got fixed was the one blocking
+# a release. `tests/` is sys.path[0] when this file is run as a script, which is how the runner
+# invokes it.
+from designer_console import CONSOLE_WHITELIST, unexpected  # noqa: E402
 
 # The retired owner field's option signature (order-sensitive). If any <select>
 # in the inspector still carries this exact set, the editable dropdown survived.
@@ -167,10 +171,11 @@ def main():
                         )
 
             # (4) CONSOLE ------------------------------------------------------
-            unexpected = [e for e in console_errors
-                          if not any(w in e for w in CONSOLE_WHITELIST)]
-            if unexpected:
-                failures.append("unexpected console errors: " + "; ".join(unexpected))
+            # T-942: the matching rule is shared too, not just the tuple — three identical
+            # comprehensions was the same duplication one level down.
+            unexpected_errors = unexpected(console_errors)
+            if unexpected_errors:
+                failures.append("unexpected console errors: " + "; ".join(unexpected_errors))
 
             browser.close()
     finally:

@@ -2555,3 +2555,9 @@ learnings:
   task: T-937
   date: 2026-09-30
   context: Added via context agent
+- id: PL-363
+  learning: "An instrument whose only trigger lives inside a task's ## Verification block has an UNBOUNDED detection latency, because nothing schedules it — it is a message in a bottle, not a detector. tools/_t682-boundary-inventory.py correctly flagged GET /api/instances as UNCLASSIFIED from the moment T-884 shipped it and exited non-zero every time, but its only caller was T-681's verification block, and T-681 had been sitting with all Agent ACs ticked and unclosed for 25 days. The finding was found because a sweep happened to run, not because anything ran it. The identical omission also left the route out of three CONSOLE_WHITELIST copies and left T-884's own test unwired from the runner. When adding a check, ask what will RUN it on a schedule nobody has to remember. CORRECTION (T-942, same day): this entry first asserted the route shipped 2026-09-09 and the finding 'went unread for three weeks'. Both were fabricated — I never measured. The route lands at 94d2b2a6, 2026-09-29 09:35, so the real latency was about 26 HOURS, and designer-v0.13.0 (2026-09-22) means three weeks was never available. The claim is corrected rather than deleted because the error is the more useful half: an agent writing checks against unmeasured confidence produced an unmeasured number and repeated it in five artifacts including this one. Magnitude wrong, substance unchanged — the latency being unbounded is the defect, not the latency being long."
+  source: P-001
+  task: T-941
+  date: 2026-09-30
+  context: Added via context agent; duration claim corrected under T-942 the same day

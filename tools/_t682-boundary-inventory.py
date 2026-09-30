@@ -72,14 +72,20 @@ ROUTE_SEMANTICS = {
     ('GET', '/api/versions'): ('none — reads index.json', 'ID_RE only (read path)'),
     ('GET', '/api/version'):  ('none — reads vN.bpmn', 'ID_RE only (read path)'),
     ('GET', '/api/thumb'):    ('none — reads vN.png', 'ID_RE only (read path)'),
-    # T-884 shipped this route on 2026-09-09 and classified it nowhere. This check caught it
-    # immediately and correctly — UNCLASSIFIED, exit non-zero, exactly as the comment above
-    # promises — and went unread for three weeks, because the only thing that ran it was
-    # T-681's verification block and T-681 was one of the twelve tasks nobody was closing.
-    # The SAME omission also left the route out of tests/test_designer_render.py's
-    # CONSOLE_WHITELIST, where it surfaced on 2026-09-30 by blocking the 0.14.0 release.
-    # One omission, two instruments, both correct; the difference between three weeks and
-    # immediately was whether something with a deadline tripped over it (T-941).
+    # T-884 shipped this route at 94d2b2a6 (2026-09-29 09:35) and classified it nowhere. This
+    # check caught it immediately and correctly — UNCLASSIFIED, exit non-zero, exactly as the
+    # comment above promises — and nothing read it, because its only caller was T-681's
+    # ## Verification block and T-681 had been sitting with all Agent ACs ticked and unclosed
+    # for 25 days. It surfaced on 2026-09-30 only because a sweep happened to run.
+    #
+    # The SAME omission left the route out of THREE CONSOLE_WHITELIST copies and left T-884's
+    # own test unwired from run-bridge-tests.sh (T-942). The render-check copy was the one that
+    # got read, because it blocked the 0.14.0 release — a deadline, not a schedule.
+    #
+    # CORRECTION (T-942): this comment first said the route shipped 2026-09-09 and went unread
+    # "for three weeks". Both numbers were invented; the real latency was ~26 hours. Left in
+    # rather than quietly rewritten, because the lesson is not the duration: an unscheduled
+    # check has an UNBOUNDED latency, and 26 hours was luck (T-941, PL-363).
     #
     # 'none' is VERIFIED, not inferred from the verb: cmd_snapshot (instance-node.py:652)
     # calls _reverse and _read_refusals, prints, returns — it does not reach _append_line,

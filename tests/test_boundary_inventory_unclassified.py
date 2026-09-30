@@ -9,8 +9,13 @@ dispatch by AST, then requires every derived route to carry a hand-authored
 `ROUTE_SEMANTICS` row. A route with no row is reported UNCLASSIFIED and the check exits
 non-zero — deliberately, so a new route cannot silently inherit a neighbour's fence.
 
-That design worked: it flagged `GET /api/instances` from the day T-884 shipped it. It also
-went unread for three weeks, and the fix for it was *adding a row to the table*. Adding rows
+That design worked: it flagged `GET /api/instances` from the moment T-884 shipped it, and
+nothing read the result — its only caller was one task's `## Verification` block. (An earlier
+version of this docstring said "for three weeks"; measured, the latency was ~26 hours. The
+number was fabricated and is corrected here rather than removed: the defect is that an
+unscheduled check's latency is *unbounded*, so 26 hours was luck. See T-942, PL-363.)
+
+The fix for it was *adding a row to the table*. Adding rows
 is precisely the edit that could quietly turn this detector into a rubber stamp — widen a
 default, wrap the lookup in a `.get()` that invents a benign row, relax the comparison — and
 every such change leaves the check exiting 0 while asserting nothing. A green check and a
