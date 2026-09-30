@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-877: Tell AEF the kind marker exists and what their promote path can now read
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T21:18:41Z
+# ============================================================================
+
+task_id: T-877
+task_name: "Tell AEF the kind marker exists and what their promote path can now read"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-26T22:41:56Z
+completed: 2026-09-28T21:18:30Z
+duration_days: 2
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  arc-005 S1/B3. AEF proposed this marker (their T-2556, rail offsets 87-125) and owns the promote path that carries the defect: fw bpmn promote mints real owner: agenthuman tasks from illustrative nodes (their L-504 / T-2548-9). We can ship the marker; we cannot make them read it. STATE THAT RATHER THAN CLAIM THE DEFECT CLOSED — B3 delivers a notice, and the defect closes only when AEF acts on it. Rail post, no code.
+
+# Key outcomes
+outcomes:
+  - 'Rail post to `framework:pickup` carrying: the marker''s shape, its closed enum, the UNSET default, and the round-trip guarantee with the control that proves it'
+  - 'The post states explicitly that **the defect closes when AEF''s promote path reads the marker, not when we post** — B3 delivers a notice, not a fix'
+  - 'The post attributes the marker to AEF''s own proposal (their T-2556, rail offsets 87–125) rather than presenting it as ours'
+  - 'The returned offset is recorded in this task, so the claim "we told them" is checkable and not a memory'
+  - '**A5 recorded:** yes/no with reason in `## Decisions`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-28 — A5: does this deliver arc purpose and project purpose? **Yes, and it is the cheapest item in the arc.**'
+  - decision: '2026-09-28 — T-876 is HELD, and this notice is why'
+    chose: 'hold T-876 (backfill `kind` across 24 corpus maps) pending AEF''s answer.'
+    rationale: 'their T-2556 proposal says *"AEF would re-mark the 5 corpus diagrams kind=documentation via normal editor saves after ratification — no bulk rewrite."* Our T-876 is filed as a 24-map bulk backfill. Those are different operations, on artifacts **AEF byte-pins**, differing in both actor and population (5 by them vs 24 by us). Discovered by reading their proposal while writing the notice, not by reading our own task title.'
+    alternatives_rejected: ['running T-876 as filed. Moving a pinned seam on a guess about which of two conflicting plans is current is the one thing worth not doing, and the cost of asking is one paragraph in a notice that was being written anyway.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2796 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:process-instances]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2796
+  commits: 1
+  files_changed: 2
+  lines_added: 145
+  lines_removed: 12
+  footprint_refreshed_at: '2026-09-28T21:19:07Z'
+  footprint_refreshed_by_commit: 3e72d2a6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-877-tell-aef-the-kind-marker-exists-and-what.md
+generated_by: context-agent-hybrid

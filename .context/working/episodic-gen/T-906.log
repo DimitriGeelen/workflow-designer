@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-28T22:57:30Z ===
+task_id: T-906
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-906.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Backfill components: on the 40 tasks with no measurable cost, so BVP quadrant selection works on the goal-bearing arc
+  Duration: 1 days (1929 min)
+  Updates: 2
+  Commits: 1
+  Lines: +362 -29 across 7 files
+  Outcomes: 6 AC checked
+  Artifacts: 7 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-906-backfill-components-on-the-40-tasks-with.md
+--- exit code: 0 ---

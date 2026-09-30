@@ -73,10 +73,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 3393
-  commits: 0
-  files_changed: 0
-  lines_added: 0
-  lines_removed: 0
+  commits: 1
+  files_changed: 15
+  lines_added: 1011
+  lines_removed: 323
+  footprint_refreshed_at: '2026-09-29T07:18:04Z'
+  footprint_refreshed_by_commit: a29fa9db
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-883-the-three-v7-refusals-each-land-in-the-a.md

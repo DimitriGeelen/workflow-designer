@@ -1,0 +1,33 @@
+command_hash: f8567c4bcc3382b8345772877d648c2fbc7b22419b9da8313e48bd805faac3d5
+command_preview: git reset --hard origin/bleeding-edge
+origin:
+  ancestry:
+  - bash
+  - fw
+  - sh
+  - claude
+  - claude-fw
+  - bash
+  - su
+  - sudo
+  - sudo
+  - bash
+  - xfce4-terminal
+  - xfce4-session
+  cwd: /opt/832-Workflow-designer
+  kind: agent
+  pid: 599590
+  project_root: /opt/832-Workflow-designer
+  sandbox: false
+  session: S-2026-0929-0844
+  task: T-938
+risk: 'HARD RESET: Permanently discards all uncommitted changes'
+status: consumed
+timestamp: '2026-09-29T23:25:05Z'
+type: tier0
+response:
+  decision: approved
+  feedback: null
+  responded_at: '2026-09-29T23:25:26Z'
+  mechanism: watchtower
+  consumed_at: '2026-09-29T23:25:40Z'

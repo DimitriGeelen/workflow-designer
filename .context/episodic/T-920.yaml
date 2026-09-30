@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-920: Focus-drift gate (T-1730) matches the COMMAND TEXT, not the paths being acted on. 'git add .tasks/active/T-589-x.md' is blocked under focus T-588; 'git add -u .tasks' stages the identical file and is allowed. Same class as the week's other findings: the check inspects a proxy for the action rather than the action. Also a real catch-22 sits behind it — after 'fw task update --status work-completed', P-002 blocks ALL Bash while focus is the completed task, and focus-drift blocks committing that task's files from any other focus, so the state the completion command itself wrote cannot be committed by either route.
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T21:36:45Z
+# ============================================================================
+
+task_id: T-920
+task_name: "Focus-drift gate (T-1730) matches the COMMAND TEXT, not the paths being acted on. 'git add .tasks/active/T-589-x.md' is blocked under focus T-588; 'git add -u .tasks' stages the identical file and is allowed. Same class as the week's other findings: the check inspects a proxy for the action rather than the action. Also a real catch-22 sits behind it — after 'fw task update --status work-completed', P-002 blocks ALL Bash while focus is the completed task, and focus-drift blocks committing that task's files from any other focus, so the state the completion command itself wrote cannot be committed by either route."
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T13:27:55Z
+completed: 2026-09-28T21:36:37Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Promoted from observation OBS-309
+
+# Key outcomes
+outcomes:
+  - '**The claim is reproduced or refuted per shape, against the live extractor** — `git add <path>`, `git add -u`, and the `fw note` shape that blocked this session — with the measured result recorded. A 33-day-old report is a claim about a gate that has been edited since; treating it as current is how a fix lands on code that no longer exists'
+  - '**The `fw note` block is explained.** It matches none of the three documented patterns, so either a fourth extraction path exists or the block came from somewhere else. Naming the actual mechanism is the deliverable here — a fix aimed at the wrong one would be untestable'
+  - 'Each confirmed shape gets **either a fix or a written reason not to fix it**. "Reads a proxy for the action" is a real class, but the residuals at `:118-133` and `:145-147` are already documented as *known and not fixable in bash regex*; adding a fourth pattern with the same blind spot is not progress'
+  - '**The catch-22 is treated as a SEPARATE defect and measured separately:** after `--status work-completed`, does P-002 block Bash under the completed task''s focus, and does drift block committing its files from any other focus? AEF reports the same pair as their **G-047** and their answer is a cadence (*commit before complete*) rather than a code change — so establish whether ours is the same shape before proposing anything'
+  - '**Nothing this task does widens what the gate admits.** Proven by mutation with a control set that runs first: every shape blocked before must still block, and the probe must distinguish "the gate refused" from "the harness never reached the gate"'
+  - 'If the honest outcome is **no code change**, that is a valid completion — recorded with the measurement that justifies it. The observation earns its keep by being resolved, not by producing a commit'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 488 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 488
+  commits: 1
+  files_changed: 2
+  lines_added: 495
+  lines_removed: 10
+  footprint_refreshed_at: '2026-09-28T21:37:15Z'
+  footprint_refreshed_by_commit: c6330841
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-920-focus-drift-gate-t-1730-matches-the-comm.md
+generated_by: context-agent-hybrid

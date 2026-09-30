@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-28T22:08:04Z ===
+task_id: T-913
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-913.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: A Tier-2 bypass is logged with an EMPTY reason, because the logger takes no reason argument. Measured 2026-09-28: closing T-910 with --skip-sovereignty appended this to .context/working/.gate-bypass-log.yaml — timestamp 2026-09-28T10:49:48Z, task T-910, flag --skip-sovereignty, caller check_human_sovereignty, reason: ''. The call site is log_gate_bypass '--skip-sovereignty' 'check_human_sovereignty' (update-task.sh:112), two positional args, no third for a reason and no --reason flag anywhere on the verb. So the field exists in the record shape and can never be filled by the path that writes it. WHY THIS MATTERS RATHER THAN BEING COSMETIC: mandatory logging is what makes Tier 2 a sanctioned mechanism instead of a hole. A record that says a gate was bypassed but not why cannot distinguish an AUTHORISED bypass from an unauthorised one — and the same ledger already carries a 2026-08-08 entry that exists precisely to document an unauthorised bypass ('No authorization was sought or given. Recorded per Tier-2 mandatory logging.'), with a full reason, because a human wrote that one by hand. The automated path produces the weaker record. THE AUTHORISATION FOR THIS ONE, since the ledger cannot hold it — operator, verbatim, 2026-09-28: 'This is a Zero Human ACs review task. You should not even ask me.' T-910 carried 0/0 Human ACs and 6/6 Agent ACs with verification 10/10; the sovereignty gate fired on the owner field with no human criterion behind it. Remedy: give log_gate_bypass a reason parameter and have the --skip-* flags accept --reason, refusing the bypass when none is supplied — a bypass worth taking is a bypass worth explaining. Sibling of OBS-421/OBS-422.
+  Duration: 0 days (636 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 7 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-913-a-tier-2-bypass-is-logged-with-an-empty-.md
+--- exit code: 0 ---

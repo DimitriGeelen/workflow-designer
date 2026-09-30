@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-28T23:32:33Z ===
+task_id: T-905
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-905.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: The round-trip guard's COMPUTED_SOURCES declares key:'metaKeys' but 'key' iterates structList/structDict — the declaration names a source it does not iterate
+  Duration: 1 days (1977 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-905-the-round-trip-guards-computedsources-de.md
+--- exit code: 0 ---

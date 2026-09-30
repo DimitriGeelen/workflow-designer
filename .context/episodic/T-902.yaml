@@ -67,10 +67,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 2016
-  commits: 0
-  files_changed: 0
-  lines_added: 0
-  lines_removed: 0
+  commits: 1
+  files_changed: 9
+  lines_added: 354
+  lines_removed: 47
+  footprint_refreshed_at: '2026-09-28T23:38:31Z'
+  footprint_refreshed_by_commit: 5a0e1b46
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-902-yaml-form-has-no-element-level-authority.md

@@ -1,0 +1,25 @@
+=== T-936 stray capture detector ===
+
+FIRES on what actually happened — real filenames, no extensions
+  PASS  a capture named '0' is found
+  PASS  a capture named 'importlib.util' is found
+  PASS  a capture named 'yaml,glob,sys' is found
+  PASS  a capture named 're,io' is found
+
+REPORTS the canvas, so exposure is judgeable without opening the image
+  PASS  a full-desktop capture reports 3440x1383
+  PASS  a single-window capture reports 1431x915
+
+DOES NOT FIRE on files that are not captures
+  PASS  yaml, shell and random binary -> no finding
+  PASS  PostScript from a non-capture tool (dvips) -> no finding
+
+CONTROLS
+  PASS  content decides, not the name: a capture called 'notes.txt' is still found
+  PASS  name decides nothing: an ordinary file called 'yaml,glob,sys' is NOT found
+  PASS  the read is capped (HEADER_BYTES), so the raster is never loaded
+  PASS  an empty directory exits 0 with an explicit 'no findings' line, not silence
+
+=== SUMMARY ===
+PASS: 12
+FAIL: 0

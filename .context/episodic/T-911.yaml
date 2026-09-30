@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-911: The designer cannot set or show aef:workflowMeta kind — the arc's headline mechanic starts with seeing it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T09:28:59Z
+# ============================================================================
+
+task_id: T-911
+task_name: "The designer cannot set or show aef:workflowMeta kind — the arc's headline mechanic starts with seeing it"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-28T08:50:35Z
+completed: 2026-09-28T09:28:35Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-875 shipped the closed enum, the validator rules, the round-trip guarantee and a conformance case for aef:workflowMeta/@kind. Nothing shipped a way to SET or SEE it. Measured under T-875 AC6: the document-properties panel (src/aef-workflow-designer.html:5756-5776) offers Title, Workflow version, Description, Source and Default tier. kind is the ONLY document-level attribute the editor reads and writes but cannot author. arc-005's headline_mechanic opens with 'an operator opens task-lifecycle in the designer, SEES IT MARKED as a template rather than an actionable work-plan' — which nothing in the product currently permits, so the arc cannot be closed on its own terms until this exists.
+
+# Key outcomes
+outcomes:
+  - 'The document-properties panel offers a **kind** control alongside Title / Workflow version / Description / Source / Default tier, and its options are exactly the closed enum — sourced so a third value cannot appear in the UI without `WORKFLOW_KINDS` changing (T-322: one vocabulary, never a second copy)'
+  - '**UNSET remains reachable and is the default.** T-213 IW-3 kept the marker an explicit author decision; a control that forces a choice silently reclassifies every one of the 24 corpus maps. Selecting UNSET on a map that had a kind removes the attribute, and the map then exports byte-identically to its pre-kind form'
+  - 'The kind is **visible without opening a panel** — the arc''s headline mechanic is "sees it marked", not "can find it if they look". Where that indicator lives is a design choice to record in `## Decisions`'
+  - 'Setting the kind and saving produces `kind="..."` on `aef:workflowMeta` in the exported BPMN, proven by reading the exported bytes rather than the in-memory model'
+  - '**Visual verification:** element-level screenshots of the control and the indicator in every mode the change can affect, each one READ, with no new visual regression. DOM-rect math is not sufficient.'
+  - '`python3 tests/test_mapping_standard_conformance.py` still passes, and the round-trip harness still reports `kind` LIVE — this task must not weaken what T-875 established'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-28 — where the marker is visible: the canvas overlay, not the panel'
+    chose: 'a badge in the existing `canvas-overlay` status strip, beside "Mode: select", rendered only when `kind` is SET.'
+    rationale: 'arc-005''s headline mechanic is *"sees it marked"*. Behind a panel disclosure that is "can find it if they look", which is a different claim and would not close the arc. The overlay is already persistent, already themed, and already the place the editor states what mode it is in — the map''s kind is the same class of fact.'
+    alternatives_rejected: ['(a) a panel-only field — fails the mechanic; (b) showing a badge when UNSET — T-213 IW-3 kept the marker an explicit author decision, so an "unset" chip on all 24 maps that declare nothing would be chrome for a non-event, and would read as a nag toward setting it; (c) folding it into `updateStatus()` — that function has early returns (the endpoint-drag hint takes priority and returns), so the marker would vanish mid-drag and reappear after, which reads as a bug in the marker rather than a property of the status line.']
+  - decision: '2026-09-28 — the badge prints the enum value, not a synonym'
+    chose: 'render `documentation · illustrative` / `work-plan · actionable` — the value verbatim, with a gloss.'
+    rationale: 'the tempting alternative is to render `documentation` as **"template"**, since that is the word arc-005''s own headline mechanic uses. That would put a second vocabulary on one closed set — the T-322 defect — where the UI and the wire disagree about what a map is called, and a reader comparing a screenshot to a BPMN file would find two different words for one value.'
+    alternatives_rejected: ['a UI-only synonym. The enum is the name; the gloss explains it.']
+  - decision: '2026-09-28 — UNSET writes `null`, not `''''`'
+    chose: '`wm.kind = v || null` in the select callback.'
+    rationale: 'the emitter writes the attribute only when truthy, so `null` exports byte-identically to a map that never carried one. `''''` would be falsy too and would work by luck; `null` matches what the parser produces for an absent attribute, so the value a user sets and the value an import produces are the same object. Asserted directly — the instrument checks `kind === null`, not merely falsy, and compares the exported bytes against the pre-set export.'
+  - decision: '2026-09-28 — the verification instrument, and why it had to exist'
+    chose: 'write `tools/_t911-kind-badge-verify-cdp.mjs` rather than screenshot through the MCP browser tool.'
+    rationale: 'the MCP tool wrote its PNG to a path outside every directory this session may read (T-559 blocks the Bash side; the Read tool found nothing there either). The screenshots would have been *taken and never looked at* — which is precisely the failure the visual-verification rule exists to prevent, so routing around it would have defeated the rule rather than satisfied it. The CDP instrument is also the house pattern (a dozen `tools/_*-verify-cdp.mjs` siblings) and it drives the REAL select with a dispatched `change` event, so an unwired control fails.'
+    alternatives_rejected: ['asserting DOM state only. It would have passed on the render whose hint was broken across a line — which is the one defect this task''s visual pass actually found.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 38 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 38
+  commits: 2
+  files_changed: 12
+  lines_added: 1107
+  lines_removed: 23
+  footprint_refreshed_at: '2026-09-28T09:29:51Z'
+  footprint_refreshed_by_commit: 202b546b
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-911-the-designer-cannot-set-or-show-aefworkf.md
+generated_by: context-agent-hybrid

@@ -17,7 +17,7 @@ A completed task qualifies when ALL of:
 
 - completed inceptions: 35
 - with a GO recorded:   33
-- findings:             5
+- findings:             4
 
 These are candidates for triage, not confirmed abandoned decisions:
 some may have shipped work that was simply never linked back. Deciding
@@ -26,7 +26,6 @@ which is which is the judgement this check exists to force.
 ## Findings (most recent first)
 
 - T-301 — .tasks/completed/T-301-store-card-id-vs-workflowmeta-id-seam-ve.md
-- T-263 — .tasks/completed/T-263-save-to-project-target-binding-workflowm.md
 - T-103 — .tasks/completed/T-103-adopt-the-t-101-zero-dependency-cdp-harn.md
 - T-007 — .tasks/completed/T-007-fw-init-seeds-patternsyaml-with-originta.md
 - T-006 — .tasks/completed/T-006-fw-vendor-should-ship-orchestrator-mcp-b.md

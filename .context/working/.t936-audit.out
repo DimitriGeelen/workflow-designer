@@ -1,0 +1,122 @@
+=== AUDIT REPORT ===
+Timestamp: 2026-09-29T23:16:39+02:00
+Project: /opt/832-Workflow-designer
+Sections: structure
+
+=== STRUCTURE CHECKS ===
+[PASS] Tasks directory exists
+[PASS] Tasks/active directory exists
+[PASS] Tasks/completed directory exists
+[PASS] Tasks/templates directory exists
+[PASS] Task template exists
+[PASS] No duplicate task IDs — examined 935 task file(s) across 1 corpus view(s)
+[PASS] All project YAML files parse correctly — examined 14 project YAML file(s)
+[PASS] All arc anchor_task references resolve to existing tasks — examined 2 arc anchor_task reference(s)
+[WARN] All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s))
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: No 'fw corpus explain <id>' reference was found in lib/seeds/tasks — either the seeds stopped routing to maps, or lib/seeds/tasks is absent
+[PASS] All assessed arcs had task commits within 30 days — examined 5 in-progress arc(s) with constituents
+[INFO] free driver F2: retire_when text present, no recognition heuristic — manual review
+[PASS] No inline arc:<slug> tag-only scans outside canonical lib (T-1881) — examined 331 source file(s) under lib/ web/ agents/ bin/ tools/
+[WARN] No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no .py files under web/ or lib/ — the OBS-097 rail asserted nothing this run
+[WARN] No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no files — the L-417 rail asserted nothing this run
+[WARN] Found 26 GO-scope-not-propagated inception(s) of 32 GO-recorded completed inception(s) examined — GO recorded, related_tasks empty, nobody back-references, no unlocks_inception_decision
+       Evidence: T-788, T-685, T-617, T-301, T-263 (+21 more)
+       Mitigation: Triage: per inception either backfill related_tasks: / unlocks_inception_decision:, or file the slices its GO approved. Full list: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; sibling to L-417/T-1975)
+[PASS] Fabric: 480 registered card(s)
+[WARN] Fabric: 149/480 cards have no edges
+       Evidence: Graph coverage below target
+       Mitigation: Run: fw fabric enrich
+[WARN] Fabric drift: 8 source file(s) have no fabric card
+       Evidence: 8 unregistered files matching watch-patterns.yaml
+       Mitigation: Run: fw fabric scan
+[WARN] Fabric: 15 card(s) point at files no watch pattern covers
+       Evidence: The registry already treats these as components; drift checks cannot see them, so coverage is measured over a subset
+       Mitigation: Widen .fabric/watch-patterns.yaml, or remove the cards if they are not components
+[PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
+[PASS] CLAUDE.md: no pending governance-rewrite review — examined 1 CLAUDE.md, no CLAUDE.md.bak alongside it
+[PASS] Watchtower currency: running pid 798028 is newer than every file under web/
+[PASS] Exec-bit parity: every 100755-indexed script is executable on disk — examined 201 indexed-100755 script(s) (*.sh + bin/fw)
+[WARN] Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+[WARN] Branch hygiene: 1 finding(s) — stale branches, worktrees or remote refs
+       Evidence: ahead-unpushed bleeding-edge ahead=34 oldest_days=0 (threshold 20)
+       Mitigation: Cleanup: git branch -d <name> (merged); fw integrate run bleeding-edge (overdue merge-back). Full list: bash -c 'source "/opt/832-Workflow-designer/.agentic-framework/lib/branch-hygiene.sh"; fw_branch_hygiene "/opt/832-Workflow-designer"'
+[PASS] Hook threshold: no hooks failing over threshold
+[INFO] Invariant suite (tests/lint) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Dead-negation lint (tests/) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Unit suite (tests/unit) skipped — framework-repo property; no suite at /opt/832-Workflow-designer/.agentic-framework/tests/unit to run
+[PASS] Designer ghost registry: ghost↔task joins clean
+[PASS] BVP drivers: every active free and arc-scoped driver is scorable (handler or scoring: spec)
+[PASS] Delegation surface: reviewer-closeable 1, agent-self 2, operator-only 79 across 72 active task(s) with open Human criteria
+[PASS] Task ownership: all 67 human-owned task(s) have an open Human criterion behind the field — examined 177 active task file(s)
+[PASS] No stray screen captures — scanned the repository root and working directories by PostScript header, not by filename (all four known cases had none)
+[WARN] Continuous-run wrapper last recorded ARMED but the turn driver is not
+       Evidence: state-unreadable-or-empty
+       Mitigation: fw continuous arm --hours N --iterations N --directive '...' (T-3225). Same drift class as the 74-day and 8-day prior incidents (G-099).
+[WARN] Fabric: 156 under-populated card(s)
+       Evidence: TODO purpose: 18, unknown subsystem: 1, no edges: 149 — e.g. .context/inbox.yaml, .context/project/concerns.yaml, docs/research/executable-workflow/arc-0-component-set.txt
+       Mitigation: Run: bin/fw fabric enrich --describe-only (fills purpose/subsystem from each file's own header; names what it refuses). Zero-edge cards want a look, not a re-run: bin/fw fabric drift
+
+=== SUMMARY ===
+Pass: 25
+Warn: 11
+Fail: 0
+
+=== PRIORITY ACTIONS ===
+     1	Cleanup: git branch -d <name> (merged); fw integrate run bleeding-edge (overdue merge-back). Full list: bash -c 'source "/opt/832-Workflow-designer/.agentic-framework/lib/branch-hygiene.sh"; fw_branch_hygiene "/opt/832-Workflow-designer"'
+     2	Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+     3	fw continuous arm --hours N --iterations N --directive '...' (T-3225). Same drift class as the 74-day and 8-day prior incidents (G-099).
+     4	No 'fw corpus explain <id>' reference was found in lib/seeds/tasks — either the seeds stopped routing to maps, or lib/seeds/tasks is absent
+     5	Run: bin/fw fabric enrich --describe-only (fills purpose/subsystem from each file's own header; names what it refuses). Zero-edge cards want a look, not a re-run: bin/fw fabric drift
+
+=== TREND ANALYSIS ===
+Repeated issues detected in last 14 days (candidates for practice):
+  -      6 CTL-029: T-681 has all Agent ACs ticked but status='started-work' — completable, not closed (6 times)
+  -      6 CTL-029: T-357 has all Agent ACs ticked but status='started-work' — completable, not closed (6 times)
+  -      6 CTL-029: T-309 has all Agent ACs ticked but status='started-work' — completable, not closed (6 times)
+  -      6 CTL-029: T-293 has all Agent ACs ticked but status='started-work' — completable, not closed (6 times)
+  -      6 CTL-029: T-105 has all Agent ACs ticked but status='started-work' — completable, not closed (6 times)
+  -      6 CTL-029: T-102 has all Agent ACs ticked but status='started-work' — completable, not closed (6 times)
+  -      6 CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed (6 times)
+  -      6 CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed (6 times)
+  -      4 Unit suite (tests/unit) NOT CHECKED — no report at .context/audits/unit-suite/LATEST.yaml (T-3302) (4 times)
+  -      4 No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib) (4 times)
+  -      4 No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/) (4 times)
+  -      4 Fabric: 11 card(s) point at files no watch pattern covers (4 times)
+  -      4 CTL-029: T-723 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  -      4 CTL-029: T-708 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  -      4 CTL-029: T-402 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  -      4 CTL-029: T-345 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  -      4 CTL-029: T-344 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  -      4 CTL-029: T-286 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  -      4 CTL-029: T-209 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  -      4 CTL-029: T-189 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  -      4 Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab) (4 times)
+  -      4 Arc 'arc-001': 26/32 tasks completed (0.8125) but arc still in-progress (4 times)
+  -      4 All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s)) (4 times)
+  -      3 Uncommitted changes present (3 times)
+  -      3 Inception task T-587 has no research artifact in docs/reports/ (3 times)
+  -      3 Inception task T-250 has no research artifact in docs/reports/ (3 times)
+  -      3 Human AC actionability: 1 live-queue task(s) ask for something that cannot be executed as written (T-660) (3 times)
+  -      3 Found 26 GO-scope-not-propagated inception(s) of 30 GO-recorded completed inception(s) examined — GO recorded, related_tasks empty, nobody back-references, no unlocks_inception_decision (3 times)
+  -      3 D13: Inception limbo — 3 task(s): A=0/B=3 T-309(B) T-357(B) T-681(B) (3 times)
+  -      3 CTL-029: T-703 has all Agent ACs ticked but status='started-work' — completable, not closed (3 times)
+  -      3 CTL-029: T-702 has all Agent ACs ticked but status='started-work' — completable, not closed (3 times)
+  -      3 Continuous-run loop STOPPED: no-signal (3 times)
+  -      3 Arc 'arc-002': 25/27 tasks completed (0.9259) but arc still in-progress (3 times)
+
+Consider creating a practice to address these recurring issues.
+Run: fw context add-learning "description" --task T-XXX
+
+Audit history: 18 audit(s) in last 14 days + today
+
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-09-29.yaml
+
+AUDIT-SCOPE: fails=0 ref=0 worktree=0
+=== END AUDIT ===

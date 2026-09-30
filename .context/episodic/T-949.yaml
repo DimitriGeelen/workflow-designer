@@ -99,10 +99,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 38
-  commits: 2
-  files_changed: 28
-  lines_added: 1120
-  lines_removed: 47
+  commits: 3
+  files_changed: 37
+  lines_added: 1322
+  lines_removed: 78
+  footprint_refreshed_at: '2026-09-30T17:40:07Z'
+  footprint_refreshed_by_commit: 02d87716
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-949-triage-the-27-go-recorded-inceptions-who.md

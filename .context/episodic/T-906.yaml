@@ -75,10 +75,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1929
-  commits: 1
-  files_changed: 7
-  lines_added: 362
+  commits: 2
+  files_changed: 9
+  lines_added: 447
   lines_removed: 29
+  footprint_refreshed_at: '2026-09-28T22:57:46Z'
+  footprint_refreshed_by_commit: c3da49c8
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-906-backfill-components-on-the-40-tasks-with.md

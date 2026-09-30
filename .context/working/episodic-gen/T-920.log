@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-28T21:36:44Z ===
+task_id: T-920
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-920.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Focus-drift gate (T-1730) matches the COMMAND TEXT, not the paths being acted on. 'git add .tasks/active/T-589-x.md' is blocked under focus T-588; 'git add -u .tasks' stages the identical file and is allowed. Same class as the week's other findings: the check inspects a proxy for the action rather than the action. Also a real catch-22 sits behind it — after 'fw task update --status work-completed', P-002 blocks ALL Bash while focus is the completed task, and focus-drift blocks committing that task's files from any other focus, so the state the completion command itself wrote cannot be committed by either route.
+  Duration: 0 days (488 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-920-focus-drift-gate-t-1730-matches-the-comm.md
+--- exit code: 0 ---

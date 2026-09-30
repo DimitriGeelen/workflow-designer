@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-28T23:38:10Z ===
+task_id: T-902
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-902.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: YAML form has no element-level authority gate — the GAP T-889 declared rather than papered over
+  Duration: 1 days (2016 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 7 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-902-yaml-form-has-no-element-level-authority.md
+--- exit code: 0 ---

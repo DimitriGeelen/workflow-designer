@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-09-29T17:50:37Z ===
+task_id: T-931
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-931.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Ownership follows open Human criteria: owner reverts to agent when none are open, and the shape is counted so it cannot silently accumulate
+  Duration: 0 days (126 min)
+  Updates: 2
+  Commits: 7
+  Lines: +1445 -104 across 54 files
+  Outcomes: 8 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 54 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-931-ownership-follows-open-human-criteria-ow.md
+--- exit code: 0 ---

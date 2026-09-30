@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-921: Drift extraction: strip quoted payloads EXCEPT for shell-invoking forms, with the counter-examples T-920 measured
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T21:54:59Z
+# ============================================================================
+
+task_id: T-921
+task_name: "Drift extraction: strip quoted payloads EXCEPT for shell-invoking forms, with the counter-examples T-920 measured"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T21:32:53Z
+completed: 2026-09-28T21:54:52Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-920 proved the documented residual is live (a quoted payload containing a command shape trips the extractor) AND that the naive remedy the code names is unsafe here. Applying the existing quote-stripped view to _fw_extract_drift_target removes the false positive but also loses real executions inside shell payloads. The refined shape: strip quoted segments only when the outer command is not a shell-invoking form. Counter-examples and the measurement are in T-920.
+
+# Key outcomes
+outcomes:
+  - 'Quoted segments are stripped **only when the command is not shell-invoking**. A command that passes a quoted string to something that will EXECUTE it (`bash -c`, `sh -c`, `eval`, `ssh`, `find -exec`, `python3 -c`, …) keeps today''s raw-text behaviour — over-matching there is the safe direction and is deliberately preserved'
+  - '**All four rows of the table above are asserted**, each as its own case. The two `bash -c` rows are the ones that distinguish this fix from the naive one; without them a green suite proves nothing'
+  - '**The detector fails toward NOT STRIPPING.** An unrecognised or ambiguous shape keeps raw matching — same argument the existing quote-stripper makes for its own direction, applied with the inversion T-920 measured'
+  - '**No shape that blocks today stops blocking.** Proven by running a corpus of currently-matching commands through both the old and new extractor and asserting the new one is a superset on the shell-invoking class and differs ONLY on quoted-data shapes'
+  - '**Control set runs first and reports SETUP BROKEN rather than scoring:** an extractor that fails to source returns empty for every input and would read as "all false positives fixed". The controls must distinguish that from a working fix'
+  - 'Every mutation in the teeth is **asserted applied** before its result is scored'
+  - 'The three residual-limit comments at `:118-133` and `:145-147` are **updated, not left contradicting the code** — they currently say this is "not fixable with bash regex", which stops being true for the data case'
+  - '`bash -n` passes and the hook still runs: a syntactically valid hook that throws at runtime blocks every tool call in the project'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 21
+  commits: 1
+  files_changed: 4
+  lines_added: 375
+  lines_removed: 20
+  footprint_refreshed_at: '2026-09-28T21:56:06Z'
+  footprint_refreshed_by_commit: cc16e163
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-921-drift-extraction-strip-quoted-payloads-e.md
+generated_by: context-agent-hybrid

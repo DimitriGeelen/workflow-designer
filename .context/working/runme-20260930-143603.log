@@ -1,0 +1,20 @@
+=== the three decisions waiting on you ===
+log: /opt/832-Workflow-designer/.context/working/runme-20260930-143603.log
+
+preflight ok — all three open, fw present, T-937 has a written recommendation
+
+────────────────────────────────────────────────────────────────────────
+T-937 — record the inception decision   (agents may never run this verb)
+
+  The question: could a material share of your open rulings have been
+  settled under a ruling that ALREADY exists?
+  The answer:   no. Threshold was 4 of a reproducible 15-sample; the
+                result was 1, arguably 0. So escalation discipline is not
+                why the queue grows, and there is no mechanism to build.
+                T-872 reached the same conclusion on 2026-09-26.
+  Kept either way: ~+4/week net growth (34 open 2026-07-06 -> 84 on
+                09-28), cleared in bursts not FIFO, one week in August at
+                -46. The backlog is UNATTENDED, not unclearable.
+
+  Recommended: no-go
+REFUSED: --t937 must be go, no-go or skip (got 'nonsense')

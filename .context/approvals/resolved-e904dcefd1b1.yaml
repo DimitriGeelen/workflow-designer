@@ -1,0 +1,34 @@
+command_hash: e904dcefd1b1b7b58c7b68b8a7c7bcf836b2cad09aa0067f71b383957fa0758a
+command_preview: set -u; cd /tmp/claude-0/t938-purge/repo && git remote add origin
+  ssh://git@192.168.10.201:6611/workflow-designer 2>/dev/null; git remote -v | head
+  -2; echo; echo "=== attempting the force-push (expec
+origin:
+  ancestry:
+  - bash
+  - fw
+  - sh
+  - claude
+  - claude-fw
+  - bash
+  - su
+  - sudo
+  - sudo
+  - bash
+  - xfce4-terminal
+  - xfce4-session
+  cwd: /opt/832-Workflow-designer
+  kind: agent
+  pid: 152664
+  project_root: /opt/832-Workflow-designer
+  sandbox: false
+  session: S-2026-0929-0844
+  task: T-938
+risk: 'FORCE PUSH: Can overwrite remote commit history'
+status: approved
+timestamp: '2026-09-29T23:11:51Z'
+type: tier0
+response:
+  decision: approved
+  feedback: null
+  responded_at: '2026-09-29T23:12:07Z'
+  mechanism: watchtower

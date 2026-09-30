@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-912: fw note promote produces a task nobody can close and a record that points at nothing
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T11:34:21Z
+# ============================================================================
+
+task_id: T-912
+task_name: "fw note promote produces a task nobody can close and a record that points at nothing"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T11:28:19Z
+completed: 2026-09-28T11:34:11Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Two defects in one 8-line function, both of which multiply by the size of any inbox drain. do_promote (.agentic-framework/agents/observe/observe.sh:339-346) hardcodes --owner human with no override, and its post-promote sed writes the LITERAL string 'task' into promoted_to rather than the created task id. Blocks draining the 182-item inbox: promoting the 71 urgent items would manufacture 71 human-owned tasks that an agent cannot close, each carrying zero Human ACs, plus 71 records that cannot say which task they became.
+
+# Key outcomes
+outcomes:
+  - '`fw note promote` accepts `--owner <owner>` and **defaults to `agent`**. The default is the change that matters: a flag nobody passes fixes nothing, and the 182 pending observations will be promoted by whoever drains them, not by someone remembering a flag'
+  - '`--owner human` remains available and is still honoured — the point is that human ownership becomes a **choice with a reason**, not the silent default'
+  - '`promoted_to` records the **actual created task id** (`T-NNN`), read back from what `create-task.sh` produced rather than assumed. If the id cannot be determined, promote **fails loudly** rather than writing a placeholder — writing `task` again would be the same defect with better intentions'
+  - 'The **reverse link exists too**: the created task names the observation it came from in a field a query can read, not only in prose. `description:` already says "Promoted from observation OBS-NNN"; that is text, and text is not an index'
+  - '**Proved by a real promotion**, not by reading the diff: promote a disposable observation, assert the task is `owner: agent`, assert `promoted_to` equals that task''s id, assert the reverse link resolves. Then clean up the fixture'
+  - '**Control set first**, and it reports `SETUP BROKEN` rather than scoring: a promotion that did not create a task must be distinguishable from one that created a task with the wrong owner. The two look identical in a naive grep of the inbox'
+  - 'The six **already-promoted** observations are either backfilled with their real task ids or left alone with a recorded reason. OBS-416→T-910 and OBS-402→T-875 are known; the older four need looking up or honestly marking unknown. **`unknown` is not `ok`** (T-675)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 853
+  lines_removed: 15
+  footprint_refreshed_at: '2026-09-28T11:34:58Z'
+  footprint_refreshed_by_commit: 8d82f9f6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-912-fw-note-promote-produces-a-task-nobody-c.md
+generated_by: context-agent-hybrid

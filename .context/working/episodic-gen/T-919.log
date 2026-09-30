@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-29T20:00:48Z ===
+task_id: T-919
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-919.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: OBS-351 subject (T-706 / RA-010, 2026-09-16): operator ruling - 'the task file counts'. C-001 says conversations are ephemeral, files are permanent; a task file IS a file. T-250 recorded 1012 chars of Evidence, 738 chars Problem Statement and 1198 chars Open Questions in its own task file, all durable and committed, and the audit reports it as having no research artifact because the check looks only in docs/reports/. CONSEQUENCE BROADER THAN T-250: RA-011 was a false positive on a DIRECTORY mismatch (artifact in docs/research/ not docs/reports/). RA-010 is a false positive for a larger reason - the check tests LOCATION, not whether the thinking was preserved at all. Under this ruling any inception whose reasoning is recorded in its own task file satisfies C-001 and must not be warned about, and the check as written cannot express that. Two of the four findings this check produced (RA-010, RA-011) were false positives; the other two (RA-008 T-015, RA-009 T-103) were genuine. A check with a 50 percent false-positive rate on its own output set. NOT FIXED - whether the check should be scoped to read task files, retired, or replaced by a content check is a scope decision and is surfaced, not taken.
+  Duration: 1 days (1832 min)
+  Updates: 2
+  Commits: 1
+  Lines: +388 -8 across 6 files
+  Outcomes: 7 AC checked
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-919-obs-351-subject-t-706--ra-010-2026-09-16.md
+--- exit code: 0 ---

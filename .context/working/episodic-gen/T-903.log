@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-27T20:01:48Z ===
+task_id: T-903
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-903.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: E-WORKFLOW-KIND and E-XML-WORKFLOW-KIND have failed the rule-dialect harness since T-875, unnoticed
+  Duration: 0 days (359 min)
+  Updates: 2
+  Commits: 1
+  Lines: +161 -10 across 4 files
+  Outcomes: 6 AC checked
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-903-e-workflow-kind-and-e-xml-workflow-kind-.md
+--- exit code: 0 ---

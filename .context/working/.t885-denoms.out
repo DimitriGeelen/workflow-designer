@@ -1,0 +1,93 @@
+{
+  "pass": true,
+  "denominators_only": true,
+  "denominator": {
+    "derivedTotal": 37,
+    "orphans": [],
+    "computedSources": {
+      "k": {
+        "declared": [
+          "Object.keys(aef)",
+          "aefKeys",
+          "metaKeys",
+          "carriedKeys"
+        ],
+        "actual": [
+          "Object.keys(aef)",
+          "aefKeys",
+          "carriedKeys",
+          "metaKeys"
+        ],
+        "open": [
+          "Object.keys(aef)",
+          "aefKeys",
+          "carriedKeys"
+        ],
+        "contributed": []
+      },
+      "bindField": {
+        "declared": [
+          "EVENT_BINDING_FIELD"
+        ],
+        "actual": [
+          "EVENT_BINDING_FIELD"
+        ],
+        "open": [],
+        "contributed": []
+      },
+      "key": {
+        "declared": [
+          "STRUCT_LIST_KEYS",
+          "['aggregation', 'multiInstance', 'timer']",
+          "structItemList"
+        ],
+        "actual": [
+          "STRUCT_LIST_KEYS",
+          "['aggregation', 'multiInstance', 'timer']",
+          "structItemList"
+        ],
+        "open": [],
+        "contributed": [
+          "emits",
+          "compensates",
+          "aggregation",
+          "multiInstance",
+          "timer",
+          "constituents"
+        ]
+      }
+    },
+    "openSources": [
+      "k <- Object.keys(aef)",
+      "k <- aefKeys",
+      "k <- carriedKeys"
+    ]
+  },
+  "wm_denominator": {
+    "derivedTotal": 10,
+    "derived": [
+      "description",
+      "id",
+      "kind",
+      "pageWidth",
+      "schemaVersion",
+      "source",
+      "tier_default",
+      "title",
+      "uuid",
+      "version"
+    ],
+    "orphans": []
+  },
+  "lm_denominator": {
+    "derivedTotal": 4,
+    "derived": [
+      "abbr",
+      "authoringDefault",
+      "authority",
+      "height"
+    ],
+    "orphans": []
+  },
+  "summary": "node 37 / workflowMeta 10 / laneMeta 4 attributes derived, 0 unclassified; computed sources 3 verified, 3 open"
+}

@@ -75,10 +75,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 14
-  commits: 1
-  files_changed: 6
-  lines_added: 805
-  lines_removed: 74
+  commits: 3
+  files_changed: 9
+  lines_added: 923
+  lines_removed: 82
+  footprint_refreshed_at: '2026-09-30T16:06:07Z'
+  footprint_refreshed_by_commit: 680cacce
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-943-p-011-cannot-tell-a-missing-verification.md

@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-264: Save-target guard set: ID-field collision feedback + commit-on-blur + load-source mismatch confirm (T-263 GO)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T17:42:36Z
+# ============================================================================
+
+task_id: T-264
+task_name: "Save-target guard set: ID-field collision feedback + commit-on-blur + load-source mismatch confirm (T-263 GO)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-27T21:23:22Z
+completed: 2026-09-30T17:42:22Z
+duration_days: 65
+updates_count: 2
+first_commit: 2026-07-27T23:29:06+02:00
+last_commit: 2026-07-27T23:46:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  WIP checkpoint at budget gate — field() opts.deferred commit-on-blur/Enter branch + _idRenameNotice declaration landed (both INERT: no caller passes deferred yet, notice unused; zero behavior change, suite unaffected); real ACs written (G-020 clean); full continuation plan in task Context. save-target guard set complete — ID-field collision notice (one-shot, names the id), commit-on-blur/Enter with focus retention (deferred:true, Title stays live), saveToProject load-source mismatch confirm (state-driven: _loadSrcKey===activeKey + _loadSrcStem vs id); 8-leg CDP harness + suite leg (40/40 green), collision notice screenshot READ + published :8834; reviewer PASS; zero seam surface — agent ACs 5/5, partial-complete (human REVIEW: prompt wording). owner agent → human — partial-complete handoff; review at http://192.168.10.107:8834/designer.html (steps in task Human AC), collision-notice screenshot http://192.168.10.107:8834/t264-collision-notice.png
+
+# Key outcomes
+outcomes:
+  - 'Collision feedback: renaming the workflow (props-panel ID field) to an id that'
+  - 'ID-field commit-on-blur/Enter: the workflow ID field no longer commits a rename'
+  - 'Load-source mismatch confirm: when the document was loaded from a ?load/deep-link'
+  - 'Probe harness extended into a regression guard: _t263 legs re-asserted against'
+  - 'Zero seam surface confirmed: no change to aef:* messages, BPMN emit, MANIFEST,'
+  - '[REVIEW] Guard prompts read right (wording + non-naggy feel)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-264-save-target-guard-set-id-field-collision.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t264_save_target_guards.py'
+  - 'tools/_t264-save-target-guards-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-07-27T23:29:06'
+    action: 'T-264: WIP checkpoint at budget gate — field() opts.deferred commit-on-blur/Enter branch + _idRenameNotice declaration landed (both INERT: no caller passes deferred yet, notice unused; zero behavior change, suite unaffected); real ACs written (G-020 clean); full continuation plan in task Context'
+  - time: '2026-07-27T23:46:18'
+    action: 'T-264: save-target guard set complete — ID-field collision notice (one-shot, names the id), commit-on-blur/Enter with focus retention (deferred:true, Title stays live), saveToProject load-source mismatch confirm (state-driven: _loadSrcKey===activeKey + _loadSrcStem vs id); 8-leg CDP harness + suite leg (40/40 green), collision notice screenshot READ + published :8834; reviewer PASS; zero seam surface — agent ACs 5/5, partial-complete (human REVIEW: prompt wording)'
+  - time: '2026-07-27T23:46:58'
+    action: 'T-264: owner agent → human — partial-complete handoff; review at http://192.168.10.107:8834/designer.html (steps in task Human AC), collision-notice screenshot http://192.168.10.107:8834/t264-collision-notice.png'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 93379 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 93379
+  commits: 3
+  files_changed: 5
+  lines_added: 542
+  lines_removed: 26
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-264-save-target-guard-set-id-field-collision.md
+generated_by: context-agent-hybrid

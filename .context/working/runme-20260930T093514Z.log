@@ -1,0 +1,48 @@
+log: /opt/832-Workflow-designer/.context/working/runme-20260930T093514Z.log
+log: /opt/832-Workflow-designer/.context/working/runme-LATEST.log  (symlink to the run above)
+
+[1m── Preflight[0m
+  ok   master is an ancestor of bleeding-edge (true fast-forward)
+  ok   tag designer-v0.14.0 does not exist yet
+  ok   src/ changed since the last tag:  1 file changed, 454 insertions(+), 16 deletions(-)
+
+[1m── Audit gate (warnings are acceptable, failures are not)[0m
+  Pass: 26
+  Warn: 11
+  Fail: 0
+  ok   no audit failures
+
+[1mAbout to release e6e931f5 as designer-v0.14.0[0m
+  master  9f7b6846 -> e6e931f5  (1 commits)
+
+[1m── 1/6  Fast-forward master to bleeding-edge (refspec push, working tree untouched)[0m
+  [dry-run] would ask: Push bleeding-edge to origin/master? (git refuses unless it is a fast-forward)
+  [dry-run] git push origin bleeding-edge:master
+  [dry-run] git branch -f master bleeding-edge
+  note master now serves bytes that do not match released 0.13.0 until step 4 commits
+
+[1m── 2/6  Write VERSION = 0.14.0 (./VERSION and the APP_VERSION literal in src/)[0m
+  current literal: const APP_VERSION = '0.14.0';
+  target:          const APP_VERSION = '0.14.0';
+  skip  both already read 0.14.0 — nothing to write
+
+[1m── 3/6  Build dist/ (deterministic: same source + same VERSION => identical bytes)[0m
+  [dry-run] bash scripts/release-designer.sh
+
+[1m── 4/6  Commit the release (VERSION + dist/ together, so the tag names a complete tree)[0m
+  [dry-run] would ask: Commit the release as '0.14.0'?
+  [dry-run] .agentic-framework/bin/fw git commit -m 'T-174: release designer 0.14.0 — 11 src/ commits since 0.13.0'
+
+[1m── 5/6  Tag HEAD and push the tag (AFTER the commit — a tag on the previous commit looks right and is not)[0m
+  [dry-run] would ask: Tag HEAD as designer-v0.14.0 and push it?
+  [dry-run] git tag -a 'designer-v0.14.0' -m 'designer 0.14.0 (sha256 <computed after build>)'
+  [dry-run] git push origin 'designer-v0.14.0'
+
+[1m── 6/6  Announce on the rail so AEF can answer 'am I current?' (G-024)[0m
+  [dry-run] would ask: Publish the release identity to the AEF rail?
+  [dry-run] bash scripts/announce-release.sh
+
+[1m── Verify[0m
+  [dry-run] python3 tools/_t382-release-lag.py
+
+[32mReleased designer-v0.14.0[0m — AEF re-pins the sha256 per docs/aef-designer-integration-protocol.md

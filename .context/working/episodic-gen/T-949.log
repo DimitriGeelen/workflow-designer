@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-30T17:39:41Z ===
+task_id: T-949
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-949.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Triage the 27 GO-recorded inceptions whose approved work was never filed: which shipped unlinked, which are genuinely undone
+  Duration: 0 days (38 min)
+  Updates: 1
+  Commits: 2
+  Lines: +1120 -47 across 28 files
+  Outcomes: 7 AC checked
+  Artifacts: 28 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-949-triage-the-27-go-recorded-inceptions-who.md
+--- exit code: 0 ---

@@ -1,0 +1,152 @@
+# ============================================================================
+# EPISODIC MEMORY - T-908: Component fabric: ship the subsystem taxonomy that register demands, and stop impact reporting an empty chain as a safe answer
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T19:04:30Z
+# ============================================================================
+
+task_id: T-908
+task_name: "Component fabric: ship the subsystem taxonomy that register demands, and stop impact reporting an empty chain as a safe answer"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T16:09:44Z
+completed: 2026-09-27T19:04:16Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-27T18:24:24+02:00
+last_commit: 2026-09-27T18:24:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fw fabric impact was never returning an empty chain — it was CRASHING, and 2>/dev/null hid it for three rounds
+
+# Key outcomes
+outcomes:
+  - '`.fabric/subsystems.yaml` exists and matches the schema `describe.py:load_subsystem_rules` actually reads — `subsystems: [{id, paths: [glob]}]`, fnmatch, longest pattern wins — verified by that function returning a non-empty rule list, not by my reading of the file'
+  - 'The taxonomy is DERIVED from where files actually live and from the subsystem names cards already use, not invented. The existing vocabulary is incoherent (`instruments` 280, `instrumentation` 4, `verification` 21, `verification-probes` 7 — four names for overlapping ideas) and the task must state which it kept, which it merged, and why'
+  - '`fw fabric register` on a previously-refused file now succeeds AND assigns a real subsystem — demonstrated on a file it refused before, with the before/after both recorded'
+  - 'Every one of the 32 unregistered source files either registers with a real subsystem or is named in this task as deliberately out of scope with its reason. A file silently left unregistered is the state this task exists to end'
+  - '`fw fabric impact` no longer reports an empty chain as a successful-looking answer: either it returns the same edges `deps` does, or it says explicitly that it computed nothing. **An empty impact chain must not read as "nothing depends on this"** — that reassuring-direction blindness caused an unverified commit in procAsFit round 1'
+  - 'A control proves the impact fix bites: a file with KNOWN dependents returns them, and a file with genuinely none is distinguishable from a failure to compute. Both directions, or the fix is unmeasured'
+  - 'The audit''s fabric findings are re-run and the deltas recorded — before/after counts for unregistered files and `unknown` subsystems, from `fw audit`, not from my own arithmetic'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.fabric/components/context-inbox.yaml'
+  - '.fabric/components/context-project-concerns.yaml'
+  - '.fabric/components/docs-reports-T-352-member-scan.yaml'
+  - '.fabric/components/docs-research-executable-workflow-arc-0-component-set.yaml'
+  - '.fabric/components/fabric-watch-patterns.yaml'
+  - '.fabric/components/tasks-templates-default.yaml'
+  - '.fabric/components/tests-data-t361-legacy-di-trailer.yaml'
+  - '.fabric/components/tests-fixtures-aef-bpmn-lane-position-conflict.yaml'
+  - '.fabric/components/tests-fixtures-invalid-E-INCEPTION-NOT-SOVEREIGN.yaml'
+  - '.fabric/components/tests-fixtures-invalid-E-XML-NODE-TYPE.yaml'
+  - '.fabric/components/tests-fixtures-warn-W-TYPE-LANE-MISMATCH.yaml'
+  - '.fabric/components/tools-_bpmn-claim-cli-verify.yaml'
+  - '.fabric/components/tools-hooks-fix-absence-hook-path.yaml'
+  - '.fabric/components/tools-hooks-install-absence-hook.yaml'
+  - '.fabric/components/tools-hooks-warn-uncontrolled-absence.yaml'
+  - '.fabric/components/tools-mcp-designer-server.yaml'
+  - '.fabric/components/tools-operator-actions.yaml'
+  - '.fabric/components/tools-_t467-arc-tag-source-of-truth.yaml'
+  - '.fabric/components/tools-_t680-aef-reachability.yaml'
+  - '.fabric/components/tools-_t682-boundary-inventory.yaml'
+  - '.fabric/components/tools-_t683-save-containment-verify.yaml'
+  - '.fabric/components/tools-_t684-mutation-control.yaml'
+  - '.fabric/components/tools-_t687-hook-function-check.yaml'
+  - '.fabric/components/tools-_t688-divergence-drain-ratchet.yaml'
+  - '.fabric/components/tools-_t694-bvp-distinguishability.yaml'
+  - '.fabric/components/tools-_t696-voi-recurrence.yaml'
+  - '.fabric/components/tools-_t734_absence_guard.yaml'
+  - '.fabric/components/tools-_t738-unrankable-task-census.yaml'
+  - '.fabric/components/tools-_t739-defer-is-not-a-decision.yaml'
+  - '.fabric/components/tools-_t767-ownership-correspondence.yaml'
+  - '.fabric/components/tools-_t774-create-task-substitution-probe.yaml'
+  - '.fabric/components/tools-_t775-create-task-linebreak-probe.yaml'
+  - '.fabric/components/tools-_t776-create-task-placeholder-probe.yaml'
+  - '.fabric/components/tools-_t777-selection-eligibility-census.yaml'
+  - '.fabric/components/tools-_t781-bvp-calibration-census.yaml'
+  - '.fabric/components/tools-_t783-human-ac-queue-extract.yaml'
+  - '.fabric/components/tools-_t784-endpoint-resolution-census.yaml'
+  - '.fabric/components/tools-_t792-mcp-server-probe.yaml'
+  - '.fabric/components/tools-_t818-probe-controls.yaml'
+  - '.fabric/components/tools-_t821-census-controls.yaml'
+  - '.fabric/components/tools-_t821-fault-surface-cdp.yaml'
+  - '.fabric/components/tools-_t821-swallowed-failure-census.yaml'
+  - '.fabric/components/tools-_t830-correlation-gate-controls.yaml'
+  - '.fabric/components/tools-_t830-correlation-gate.yaml'
+  - '.fabric/components/tools-_t833-ctl029-partial-complete-controls.yaml'
+  - '.fabric/components/tools-_t836-census-empty-split-controls.yaml'
+  - '.fabric/components/tools-_t839-commit-exemption-probe.yaml'
+  - '.fabric/components/tools-_t840-commit-checkpoint-regression-probe.yaml'
+  - '.fabric/components/tools-_t841-scoring-spec-controls.yaml'
+  - '.fabric/components/tools-_t842-commit-exemption-spelling-regression.yaml'
+  - '.fabric/components/tools-_t843-absence-gate-integration.yaml'
+  - '.fabric/components/tools-_t843-absence-gate-tests.yaml'
+  - '.fabric/components/tools-_t845-control-recogniser-tests.yaml'
+  - '.fabric/components/tools-_t848-realization-check-tests.yaml'
+  - '.fabric/components/tools-_t848-realization-check.yaml'
+  - '.fabric/components/tools-_t849-budget-zero-token-tests.yaml'
+  - '.fabric/components/tools-_t850-sweep-subset-teeth.yaml'
+  - '.fabric/components/tools-_t856-auto-approval-teeth.yaml'
+  - '.fabric/components/tools-_t861-selfdeclare-teeth.yaml'
+  - '.fabric/components/tools-_t862-handover-carry-teeth.yaml'
+  - '.fabric/components/tools-_t865-sticky-scoring-teeth.yaml'
+  - '.fabric/components/tools-_t866-hypothesis-form-teeth.yaml'
+  - '.fabric/components/tools-_t867-hypothesis-draft-teeth.yaml'
+  - '.fabric/components/tools-_t868-cited-support-teeth.yaml'
+  - '.fabric/components/tools-_t872-decision-docket.yaml'
+  - '.fabric/components/tools-_t873-claude-bak-teeth.yaml'
+  - '.fabric/components/tools-_t886-writer-mutation.yaml'
+  - '.fabric/components/tools-_t889-authority-first-class-cdp.yaml'
+  - '.fabric/components/tools-_t889-authority-on-the-element-teeth.yaml'
+  - '.fabric/components/tools-_t904-denominator-comment-blindness-teeth.yaml'
+  - '.fabric/subsystems.yaml'
+  - '.tasks/active/T-908-component-fabric-ship-the-subsystem-taxo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T18:24:24'
+    action: 'T-908: fw fabric impact was never returning an empty chain — it was CRASHING, and 2>/dev/null hid it for three rounds'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 174 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 174
+  commits: 1
+  files_changed: 73
+  lines_added: 1481
+  lines_removed: 309
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-908-component-fabric-ship-the-subsystem-taxo.md
+generated_by: context-agent-hybrid

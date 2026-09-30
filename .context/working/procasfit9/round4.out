@@ -1,0 +1,29 @@
+Permission allow rule (/root/.claude/settings.json): Bash(grep -rn "init_context\\|init.sh\\|seed_context\\|first_run\\|\\${FRAMEWORK_ROOT}/lib/init.sh\\|source.*init\\.sh" /opt/999-Agentic-Engineering-Framework/agents/task-create/ /opt/999-Agentic-Engineering-Framework/agents/context/) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(grep -n 'source.*compat\\|\\. "$FRAMEWORK_ROOT/lib/compat' agents/audit/audit.sh) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(grep -nB2 "^if.*SECTIONS.*=~.*oe\\|^if.*section.*oe\\|run_oe\\|section_oe" agents/audit/audit.sh) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(ls -la /003-NTB-ATC-Plugin/*.cs /003-NTB-ATC-Plugin/*.csproj /003-NTB-ATC-Plugin/*.json /003-NTB-ATC-Plugin/README.md) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(cp /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/AutoCAD_2023_VDI/*.dvb /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/AutoCAD_2023_VDI/*.xml /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/AutoCAD_2023_VDI/_version.txt /003-NTB-ATC-Plugin/docs/reference/novis/legacy-vba/) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(cp /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/autocad2000/*.lsp /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/autocad2000/*.dcl /003-NTB-ATC-Plugin/docs/reference/novis/legacy-lisp/) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Round 4 stopped without doing any project work: every task worth doing is waiting on a decision from you or is out of scope. No task was started, closed or filed. The handback is at `.context/working/procasfit9/round4-handback.md`.
+
+**What I did:**
+- **Finished round 3's loose end.** Round 3 set T-826 to `issues` through the proper command but never committed the file. It's now committed (`a911daa0`).
+- **Checked the whole ranked board this time.** Round 3 opened the likely candidates by hand. I ran a script over all 123 ranked tasks and filtered to agent-owned tasks not parked for later. That leaves 12 above the value median, and I checked each one against its task file:
+  - **Waiting on you:** T-811, T-358, T-876, T-925, T-889, T-341, T-826.
+  - **Outside the project goals:** T-930, T-928 and T-929 are fixes to the vendored framework copy. T-840 (framework upgrade) is also blocked on a question for you or AEF.
+  - The four highest-scored tasks (T-309, T-357, T-681, T-155), which round 3 never mentioned, are owned by you or parked for later.
+- **One piece of evidence you'd decide on is out of date.** T-811 recommends deferring its panel work, partly because the Emits field held the wrong shape of data. Round 3's T-573 fixed exactly that. I re-ran the count: still 30 values the panel can't edit, 0 empty. So the 5 Emits values may now be a simple fix. The 18 `endpoint` values are unaffected. I didn't change T-811's recommendation; that decision is yours.
+
+**Other findings:**
+- `fw git commit` updates the task's `last_update` field just after committing. So every task commit leaves a one-line uncommitted change. This explains the timestamp-only changes earlier rounds kept inheriting.
+- CLAUDE.md tells agents to hand you commands starting with `bin/fw`, but that file doesn't exist at the repo root. The real one is at `.agentic-framework/bin/fw`.
+- Three claude processes are working in this repo, including one that's been running for 10 hours (probably round 3's concurrent session). No outside commits landed while I worked.
+
+**Gates:** one refusal. The focus-drift check blocked a line that switched focus and committed in the same command. I ran the focus switch on its own first, and recorded the refusal in the handback. No bypasses were used.
+
+**Decision needed:** unless you rule on one of T-811, T-358, T-889, T-826, T-925 or T-876, rounds 5–9 will reach the same result within minutes. Or you can rule on the new question below:
+1. **Are vendored-framework fixes in scope for this run?** If yes, T-930 is the obvious next task: two sessions currently share one focus file in this repo and change each other's focus. If no, it and T-928/T-929 should go to AEF as pickups instead of sitting at the top of the ranking.
+
+To review T-811 with the updated evidence: `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task review T-811`
+
+Commits `a911daa0`, `bc9a3c04` and `26b7ab86` are local and not pushed.

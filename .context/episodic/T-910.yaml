@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-910: The round-trip guard covers aef:workflowMeta but NOT aef:laneMeta — the same coverage gap T-885 measured for document-level metadata, one element over. Measured under T-890 by mutation: suppressed the editor's authoringDefault writer entirely and _roundtrip-serialization-cdp.mjs still reported pass:true, exit 0, with 'wm-denominator: 0 unclassified / 10 written'. The 10 are workflowMeta attributes; laneMeta's are outside the denominator by construction, exactly as node-level aef.* was outside it before T-886. So every aef:laneMeta attribute — abbr, authority, height, and now authoringDefault — can be dropped from the emitter in silence. authority is the serious one: it is the frozen standard's authority-of-record under §3, and nothing asserts the editor keeps emitting it. T-886 generalised the workflowMeta denominator so 'the next attribute cannot enter unclassified'; that guarantee stops at the element boundary. Needs the same derived-denominator treatment for laneMeta, and the fix should ask whether the guard wants one denominator per aef: element or one that walks them all.
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T10:50:14Z
+# ============================================================================
+
+task_id: T-910
+task_name: "The round-trip guard covers aef:workflowMeta but NOT aef:laneMeta — the same coverage gap T-885 measured for document-level metadata, one element over. Measured under T-890 by mutation: suppressed the editor's authoringDefault writer entirely and _roundtrip-serialization-cdp.mjs still reported pass:true, exit 0, with 'wm-denominator: 0 unclassified / 10 written'. The 10 are workflowMeta attributes; laneMeta's are outside the denominator by construction, exactly as node-level aef.* was outside it before T-886. So every aef:laneMeta attribute — abbr, authority, height, and now authoringDefault — can be dropped from the emitter in silence. authority is the serious one: it is the frozen standard's authority-of-record under §3, and nothing asserts the editor keeps emitting it. T-886 generalised the workflowMeta denominator so 'the next attribute cannot enter unclassified'; that guarantee stops at the element boundary. Needs the same derived-denominator treatment for laneMeta, and the fix should ask whether the guard wants one denominator per aef: element or one that walks them all."
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-27T21:24:40Z
+completed: 2026-09-28T10:49:48Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-28T00:35:16+02:00
+last_commit: 2026-09-28T00:35:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  aef:laneMeta gets a derived denominator, and the accident that was protecting @authority is now a guarantee
+
+# Key outcomes
+outcomes:
+  - 'A derived denominator covers `aef:laneMeta` the way T-886''s covers `aef:workflowMeta` — derived **from the emitter**, so the next laneMeta attribute cannot enter unclassified. Copying a hand-written list would rebuild the defect one element over'
+  - '**Proved by mutation, per attribute.** Suppress each of `authority`, `abbr`, `height`, `authoringDefault` in the writer and the guard goes red **naming the attribute**. Measured under T-890: suppressing `authoringDefault` today leaves it `pass: true`, so the current state is a confirmed false green, not a suspicion'
+  - 'Every mutation is **asserted applied** before its result is scored — an unapplied mutation reads identically to a survival, which this corpus has hit twice'
+  - '`authority` is called out separately in the result whatever it shows: it is the §3 authority-of-record, and its silent loss is a seam-integrity defect rather than a cosmetic one'
+  - 'The control set runs first and reports **MUTATION SETUP BROKEN** rather than scoring kills through a broken harness'
+  - 'Decide and record whether the guard wants **one denominator per `aef:` element or one that walks them all** — T-886 solved `workflowMeta`, this solves `laneMeta`, and a third element would otherwise arrive with the same gap. If the answer is "walk them all", say so and file it rather than building the third special case'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-28 — one shared derivation, not a registry that walks every aef: element (AC6)'
+    chose: 'generalise into ONE shared `deriveEmittedAttrs()` / `checkElementDenominator()` pair, used by both `aef:workflowMeta` and `aef:laneMeta`. Not a third special case, and not a registry that walks every `aef:` element.'
+    rationale: 'the emitter writes **23 distinct `aef:` element names**, and **21 of them are NODE-level**, already inside `checkDenominator()`''s scope via `aefExtensionXml()`. A "register every `aef:` element" check would begin life with 21 entries needing blanket exclusions — the permanently-red rail OBS-293 names, which trains readers to ignore it. Only **two** container-level elements exist, and they now share one derivation, so a third arrives by adding data rather than by writing a third checker.'
+    alternatives_rejected: ['(a) a second hand-written derivation — that is the T-322 defect, a list checked only by its author re-reading the same source, which is the exact omission being repaired; (b) a full `aef:`-element registry — see above; the revisit trigger is a third *container-level* element, not a third element of any kind. - **Recorded as OBS-419** so the next container element does not re-derive this.']
+  - decision: '2026-09-28 — @height stays compared, and NOT-EXERCISABLE is a fourth state'
+    chose: 'keep `height` in the compared set; add **NOT-EXERCISABLE** as a distinct verdict, derived by comparing the *authored* wire value against the *parsed* value.'
+    rationale: '`height` came back BLIND on exactly one fixture. The cause is `growUnderDeclaredLanes()`, a deliberate import repair with its own guard (`tools/_t315-lane-grow-on-import-cdp.mjs`): `lane-capacity-large-spill.bpmn` authors `height="260"` and parses as **591**. Scoring that as BLIND blames the projection for a repair working as designed. It is `height` being *unreachable by the probe on that document*, which is a different fact with a different remedy.'
+    alternatives_rejected: ['(a) excluding `height` — it is genuinely live on the other 20 fixtures, and excluding it would have made the emitter free to drop it in silence again; (b) teaching the guard the repair''s own arithmetic — that duplicates a rule in two places (T-322). Comparing authored against parsed is general: the next transform-on-import classifies itself.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.fabric/components/tools-_t910-lanemeta-teeth.yaml'
+  - '.tasks/active/T-910-the-round-trip-guard-covers-aefworkflowm.md'
+  - 'tests/fixtures/aef-bpmn/t910-lane-authoring-default.bpmn'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_t910-lanemeta-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-28T00:35:16'
+    action: 'T-910: aef:laneMeta gets a derived denominator, and the accident that was protecting @authority is now a guarantee'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 805 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 805
+  commits: 2
+  files_changed: 10
+  lines_added: 6542
+  lines_removed: 6002
+  footprint_refreshed_at: '2026-09-28T10:51:25Z'
+  footprint_refreshed_by_commit: 7b9f981a
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-910-the-round-trip-guard-covers-aefworkflowm.md
+generated_by: context-agent-hybrid

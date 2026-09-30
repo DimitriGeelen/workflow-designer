@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-916: Dispose the inbox residue: five orphans and one dangling carrier, each checked against current reality
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T13:30:33Z
+# ============================================================================
+
+task_id: T-916
+task_name: "Dispose the inbox residue: five orphans and one dangling carrier, each checked against current reality"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T13:27:24Z
+completed: 2026-09-28T13:30:17Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  The tail after T-915. Each of the six was checked against the tree rather than dispositioned from its text: one is fixed and resolves to its carrier, four are still true and become tasks, one is the operator's because it concerns cross-project data exposure.
+
+# Key outcomes
+outcomes:
+  - '**Every one of the six checked against the current tree**, with the check named — not dispositioned from the observation''s own text, which describes the world on the day it was written'
+  - 'The one that is fixed **resolves to a carrier verified to be the actual fix**, not to a task whose title merely sounds right'
+  - 'The four still true become tasks and land **`owner: agent`** — the first real-world exercise of T-912'
+  - '**OBS-251 is left pending with its reason stated.** Disposing of it either way would be a judgement about cross-project data exposure that is not mine to make'
+  - 'Residue measured before and after: orphans, dangling, pending, urgent'
+  - '**Nothing dangles afterwards** — every `promoted_to` and every `resolved_carrier` in the whole inbox resolves to a real task file'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 8
+  lines_added: 1674
+  lines_removed: 24
+  footprint_refreshed_at: '2026-09-28T13:31:04Z'
+  footprint_refreshed_by_commit: e61365f5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-916-dispose-the-inbox-residue-five-orphans-a.md
+generated_by: context-agent-hybrid

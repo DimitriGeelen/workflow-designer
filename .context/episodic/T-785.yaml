@@ -93,12 +93,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 10659
-  commits: 7
+  commits: 8
   files_changed: 12
-  lines_added: 1008
-  lines_removed: 61
-  footprint_refreshed_at: '2026-09-29T08:16:54Z'
-  footprint_refreshed_by_commit: 1d59c35d
+  lines_added: 1014
+  lines_removed: 65
+  footprint_refreshed_at: '2026-09-29T08:18:11Z'
+  footprint_refreshed_by_commit: c760d601
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-785-the-bridge-baseline-is-red-isolate-and-f.md

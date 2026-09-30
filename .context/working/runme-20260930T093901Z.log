@@ -1,0 +1,8 @@
+log: /opt/832-Workflow-designer/.context/working/runme-20260930T093901Z.log
+log: /opt/832-Workflow-designer/.context/working/runme-LATEST.log  (symlink to the run above)
+
+[1m── Preflight[0m
+  ok   master is an ancestor of bleeding-edge (true fast-forward)
+
+[31mSTOPPED:[0m tag designer-v0.14.0 already exists. Re-cutting a released version changes bytes under a name someone
+  has already pinned. Pick a new version, or delete the tag deliberately first.

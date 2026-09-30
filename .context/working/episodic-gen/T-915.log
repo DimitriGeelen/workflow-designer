@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-28T13:24:42Z ===
+task_id: T-915
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-915.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Drain the carried-by-completed-task class: bulk-resolve every observation whose work already shipped
+  Duration: 0 days (4 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-915-drain-the-carried-by-completed-task-clas.md
+--- exit code: 0 ---

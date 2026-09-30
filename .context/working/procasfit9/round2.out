@@ -1,0 +1,24 @@
+Permission allow rule (/root/.claude/settings.json): Bash(grep -rn "init_context\\|init.sh\\|seed_context\\|first_run\\|\\${FRAMEWORK_ROOT}/lib/init.sh\\|source.*init\\.sh" /opt/999-Agentic-Engineering-Framework/agents/task-create/ /opt/999-Agentic-Engineering-Framework/agents/context/) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(grep -n 'source.*compat\\|\\. "$FRAMEWORK_ROOT/lib/compat' agents/audit/audit.sh) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(grep -nB2 "^if.*SECTIONS.*=~.*oe\\|^if.*section.*oe\\|run_oe\\|section_oe" agents/audit/audit.sh) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(ls -la /003-NTB-ATC-Plugin/*.cs /003-NTB-ATC-Plugin/*.csproj /003-NTB-ATC-Plugin/*.json /003-NTB-ATC-Plugin/README.md) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(cp /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/AutoCAD_2023_VDI/*.dvb /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/AutoCAD_2023_VDI/*.xml /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/AutoCAD_2023_VDI/_version.txt /003-NTB-ATC-Plugin/docs/reference/novis/legacy-vba/) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Permission allow rule (/root/.claude/settings.json): Bash(cp /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/autocad2000/*.lsp /home/dimitri-mint-dev/Downloads/marfc02/7-autocad-addin/autocad2000/*.dcl /003-NTB-ATC-Plugin/docs/reference/novis/legacy-lisp/) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. Replace that * with the exact value you mean, or only use * after the subcommand.
+Round 2 is complete. The handback is written in full at `.context/working/procasfit9/round2-handback.md` and the stop condition is met.
+
+**What happened this round**
+
+- **T-923 (inherited, half-finished) closed.** The previous round had every AC ticked and evidence pasted but died before the close verb. Verification 13/13, closed through the gate, committed as `7c956b50`. Its own close was the live proof: the framework walked its record from `frw_6_run` to `frw_11_task`.
+- **T-883 closed** (`a29fa9db`). Every refusal now appends one JSON line naming its rule to `.context/audits/instance-refusals.jsonl`. The three V7 cases were proved on real tasks: an out-of-order advance on T-883, the agent's refused close of human-owned T-885 (R-033), and T-883's close with unchecked ACs (P-010). Teeth 18/0 with a mutation run; verification 17/17.
+- **T-884 partial-complete** (`21d72435`). The designer draws where an instance is: current node, derived completed path, and the node a refusal fired on with its rule. Snapshot verb, `/api/instances` on the project server, 17 pure cases, 8 API checks, 6 headless Chromium legs, 17 screenshots read twice, and T-885's real refusal seen through the real server. The one Human AC is the arc's A4 demo, so the human owns it now.
+- **T-924 filed and parked** (G-020 as a fourth audited input contract), committed under T-922 as `bd670aa5`.
+
+**Findings worth reading in the handback**
+
+- Every earlier fixture suite became a forger of live audit lines the moment refusals were audited. Caught by a control, fixed in four suites, pinned so it cannot recur.
+- Six passing DOM legs still hid two badges struck through by edge lines. Only reading the screenshots showed it; the badges now sit on pills.
+- The MCP `fw` server answers with another project's tasks, and G-020's write scanner blocks read-only greps containing `>` while ACs are placeholders.
+
+**Sovereign questions, in order:** review the arc-005 demo via T-884's Human AC and decide the arc close; close T-885; the unchanged T-889, T-876 and T-901 rulings; whether "completed nodes" should ever be a recorded history rather than derived.
+
+Four commits are local and unpushed. `fw handover` was not run because it pushes without a flag.

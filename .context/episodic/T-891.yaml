@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-891: Unresolvable flowNodeRef becomes a hard validation error instead of inheriting a lane by document order
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-27T20:40:56Z
+# ============================================================================
+
+task_id: T-891
+task_name: "Unresolvable flowNodeRef becomes a hard validation error instead of inheriting a lane by document order"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T10:41:24Z
+completed: 2026-09-27T20:40:47Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-27T21:22:54+02:00
+last_commit: 2026-09-27T22:38:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  who owns an orphaned node was decided by laneSet serialisation order — the guess is gone, and the replacement guess is deliberately not installed. the orphan warning becomes an error, now that the editor no longer silently repairs the state it warned about
+
+# Key outcomes
+outcomes:
+  - '**The editor stops deciding lane membership by declaration order.** The `lanes[0]?.id`'
+  - '**The probe''s verdict moves, and the probe is shown able to detect the OLD behaviour.**'
+  - '**A flow node in no lane becomes a hard validation error in the XML form**, naming the node'
+  - '**The YAML form''s absent-lane hole is closed OR declared a GAP explicitly, not silently.**'
+  - '**The blast radius of the new error is MEASURED before it ships, not assumed.** A census'
+  - '**Does NOT close T-341.** T-341''s `[REVIEW]` criterion — what the default-lane POLICY should'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the orphan warning becomes an error, now that the editor no longer silently repairs the state it warned about'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-891-unresolvable-flownoderef-becomes-a-hard-.md'
+  - '.tasks/active/T-909-two-t-889-order-fixtures-carry-orphan-no.md'
+  - '.tasks/completed/T-908-component-fabric-ship-the-subsystem-taxo.md'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T21:22:54'
+    action: 'T-891: who owns an orphaned node was decided by laneSet serialisation order — the guess is gone, and the replacement guess is deliberately not installed'
+  - time: '2026-09-27T22:38:48'
+    action: 'T-891: the orphan warning becomes an error, now that the editor no longer silently repairs the state it warned about'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 599 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 599
+  commits: 2
+  files_changed: 8
+  lines_added: 505
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-891-unresolvable-flownoderef-becomes-a-hard-.md
+generated_by: context-agent-hybrid

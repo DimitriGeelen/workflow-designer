@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-27T22:45:00Z ===
+task_id: T-878
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer/.agentic-framework
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-878.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: What is a process instance, where does its identity live, and what binds it to real governed work
+  Duration: 1 days (1442 min)
+  Updates: 2
+  Commits: 1
+  Lines: +203 -6 across 3 files
+  Outcomes: 4 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-878-what-is-a-process-instance-where-does-it.md
+--- exit code: 0 ---

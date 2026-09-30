@@ -1,0 +1,25 @@
+=== T-919: C-001 measures preservation, not location ===
+
+NEGATIVE — an inception with no preserved thinking must STILL warn
+  PASS  template-only sections + long outcome prose -> WARNS
+  PASS  a FILLED-IN template hypothesis (~320 chars, T-184's real shape) -> WARNS
+
+POSITIVE — an inception whose reasoning IS in its task file goes silent
+  PASS  a real 500-char Hypothesis and nothing else -> SILENT (T-879's shape)
+  PASS  Problem Statement + Open Questions -> SILENT (T-250's shape, sized like it)
+
+CONTROLS
+  PASS  filled template scores below the threshold (242 < 400)
+  PASS  real prose scores above it (803 >= 400)
+  PASS  completed scan IMPORTS the predicate
+  PASS  active scan IMPORTS the predicate
+  PASS  neither scanner carries its own RESEARCH_SECTIONS list
+  PASS  in-task record skips the unreferenced branch (a task cannot fail to cite itself)
+
+For information, not asserted (the live corpus moves):
+  completed inceptions examined: 33
+  still flagged: none
+
+=== SUMMARY ===
+PASS: 10
+FAIL: 0

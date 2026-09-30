@@ -1,0 +1,29 @@
+=== T-931 ownership predicate ===
+
+NEGATIVE — a genuine open Human criterion must HOLD ownership
+  PASS  one plain open Human AC -> OWNER-JUSTIFIED
+  PASS  open [REVIEW] AC -> OWNER-JUSTIFIED
+  PASS  open [RUBBER-STAMP] AC -> OWNER-JUSTIFIED
+  PASS  open [REVIEWER] AC under ### Human -> OWNER-JUSTIFIED (AEF decision 113: the reviewer never ticks a Human AC)
+  PASS  mixed ticked+open -> OWNER-JUSTIFIED (one open is enough)
+
+POSITIVE — no open Human criterion means the field is stale
+  PASS  comment-only ### Human section (T-885's shape) -> OWNER-STALE
+  PASS  every Human AC ticked -> OWNER-STALE
+  PASS  owner: agent -> NOT-HUMAN-OWNED (predicate says nothing about tasks it does not govern)
+
+CONTROLS
+  PASS  the comment trap is real: naive count 3 > column-0 count 1
+  PASS  ok() reports FAIL for a non-zero verdict (the harness can fail)
+  PASS  ok() reports PASS for a zero verdict (it is not stuck on FAIL)
+
+UNATTENDED-EXECUTION
+  PASS  the corrector appears in no deployed crontab
+  PASS  the corrector appears in no hook configuration
+  PASS  the scan can find the name at all (control)
+  PASS  the corrector writes nothing without --apply (ledger 45 -> 45)
+  PASS  the ledger is on the write path (control): the sweep calls 'task update --owner', never frontmatter
+
+=== SUMMARY ===
+PASS: 16
+FAIL: 0

@@ -1,0 +1,42 @@
+# Audit Results - 2026-09-30-0245
+timestamp: 2026-09-30T00:45:01Z
+sections: "oe-fast,oe-research"
+summary:
+  pass: 8
+  warn: 6
+  fail: 0
+findings:
+  - level: WARN
+    check: "C-001: Inception T-184 (recommendation) has no research artifact in docs/reports/"
+    mitigation: "Create docs/reports/T-184-*.md — the thinking trail IS the artifact"
+  - level: WARN
+    check: "C-001: Inception T-185 (recommendation) has no research artifact in docs/reports/"
+    mitigation: "Create docs/reports/T-185-*.md — the thinking trail IS the artifact"
+  - level: WARN
+    check: "C-001: Inception T-186 (recommendation) has no research artifact in docs/reports/"
+    mitigation: "Create docs/reports/T-186-*.md — the thinking trail IS the artifact"
+  - level: WARN
+    check: "C-001: Inception T-277 (recommendation) has artifact but task doesn't reference it"
+    mitigation: "Add artifact reference to ## Updates section of T-277"
+  - level: WARN
+    check: "C-001: Inception T-898 (recommendation) has no research artifact in docs/reports/"
+    mitigation: "Create docs/reports/T-898-*.md — the thinking trail IS the artifact"
+  - level: INFO
+    check: "C-001 population breakdown: 0/5 started-work missing an artefact, 4/11 awaiting-decision missing an artefact"
+  - level: PASS
+    check: "C-002: commit-msg hook has research artifact check"
+  - level: PASS
+    check: "C-002: No research warnings logged (clean or first run)"
+  - level: PASS
+    check: "C-003: Research checkpoint logic present in checkpoint.sh"
+  - level: PASS
+    check: "C-006: All active inceptions have a real Recommendation block — examined 16 active inception(s)"
+  - level: PASS
+    check: "CTL-001: Focus file has active task (T-939)"
+  - level: WARN
+    check: "CTL-003: Budget status file stale (41min old)"
+    mitigation: "Check PreToolUse hook wiring for budget-gate.sh"
+  - level: PASS
+    check: "CTL-004: Tool counter at 1 (last commit: 39 minutes ago)"
+  - level: PASS
+    check: "CTL-018: Budget status valid JSON (level: ok)"

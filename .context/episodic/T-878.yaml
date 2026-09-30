@@ -69,12 +69,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1442
-  commits: 2
+  commits: 3
   files_changed: 5
-  lines_added: 358
-  lines_removed: 14
-  footprint_refreshed_at: '2026-09-27T22:45:02Z'
-  footprint_refreshed_by_commit: e7b2ca6a
+  lines_added: 364
+  lines_removed: 18
+  footprint_refreshed_at: '2026-09-27T22:45:04Z'
+  footprint_refreshed_by_commit: b29a271c
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-878-what-is-a-process-instance-where-does-it.md

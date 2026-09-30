@@ -14,10 +14,26 @@ Measured, **that is not what happened.** Of the 27:
 
 | verdict | n | meaning |
 |---|---:|---|
-| `SHIPPED-UNLINKED` | **22** | the approved work was filed AND delivered; only the `related_tasks:` back-link is missing |
-| `PARTIAL` | 2 | a slice was filed and is still open — the decision propagated, the delivery did not |
+| `SHIPPED-UNLINKED` | **23** | the approved work was filed AND delivered; only the `related_tasks:` back-link is missing |
+| `PARTIAL` | 1 | a slice was filed and is still open — the decision propagated, the delivery did not |
 | `UNDONE` | **1** | genuinely nothing filed against the GO |
 | `SUPERSEDED-UPSTREAM` | 2 | the approved change is framework behaviour, not workflow-design; not this project's to land |
+
+> **CORRECTED 2026-09-30 (T-950), and the original left readable.** This table first read
+> **22 / 2 / 1 / 2**, with **T-263** ruled `PARTIAL` on the stated grounds that its slice
+> T-264 was *"filed 2026-07-27, never started"* — and ranked **#1** on the shortlist for
+> exactly that reason.
+>
+> **It was delivered.** I read T-264's `status: captured` and not its body, whose first line
+> says *"BUILD COMPLETE (2026-07-27): all steps (a)–(g) executed; 8-leg harness green, suite
+> 40/40, screenshot READ."* Re-verified rather than re-read: all three guards present in
+> `src/aef-workflow-designer.html`, suite leg registered, 8-leg CDP harness **rc=0**. T-264
+> is now closed through the gate — 5/5 ACs, 5/5 verification, reviewer PASS.
+>
+> **This is the same defect one level down.** A `status:` field disagreeing with the body,
+> where the field is what every instrument reads — which is exactly what this triage found
+> the audit doing with `related_tasks:`. I trusted the cheap signal over the expensive one
+> while writing the document about not doing that.
 
 **One inception in twenty-seven is genuinely un-acted.** The audit's own report predicted
 this — *"some may have shipped work that was simply never linked back"* — and it was right.
@@ -105,17 +121,21 @@ verdict, but they would have supported any conclusion I wanted, which is the poi
 | T-020 | 2026-07-02 | **13 completed**; T-021 `"First build slice after T-020 GO"` |
 | T-015 | 2026-07-04 | T-091 `"Upstream fix bundle: env-export contamination (T-015 GO)"` |
 | T-002 | 2026-06-05 | T-012 `"First build slice of the T-002 GO"` |
+| **T-263** | 2026-07-27 | **T-264** `"mismatch confirm (T-263 GO)"` — body reads `"BUILD COMPLETE … 8-leg harness green"`; re-verified 2026-09-30 at rc=0 and closed 5/5. **Reclassified from PARTIAL by T-950.** |
 
 Two carry an open tail, which does not change the verdict — the GO propagated:
 **T-038** (T-041, phase P4, `started-work`) and **T-685** (T-341/T-358, both blocked on
 operator rulings, not on filing).
 
-### PARTIAL (2) — the decision propagated, the delivery did not
+### PARTIAL (1) — the decision propagated, the delivery did not
 
-- **T-263** — *Save-to-project target binding.* GO approved *"a small, zero-seam-surface
-  UX-guard build task"* converting a silent overwrite into an informed choice. The slice
-  **was filed**: T-264, `"mismatch confirm (T-263 GO)"` — and is still `captured`. Filed
-  2026-07-27, never started. **This is the one on the list most worth a decision.**
+- ~~**T-263** — *Save-to-project target binding.* The slice **was filed**: T-264, and is
+  still `captured`. Filed 2026-07-27, never started. **This is the one on the list most
+  worth a decision.**~~
+  **WRONG — corrected by T-950.** T-264 was built on 2026-07-27, is green on an 8-leg CDP
+  harness, and was closed 2026-09-30 at 5/5 ACs and 5/5 verification. Only its `status:`
+  field said otherwise. Moved to `SHIPPED-UNLINKED` above. Struck rather than deleted,
+  because the reasoning that produced the wrong verdict is the useful part.
 - **T-103** — *Adopt the T-101 CDP harness as editor-test substrate.* Slice T-105 is
   `started-work`, and separately carries a 72-day lifecycle anomaly in the audit.
 
@@ -173,9 +193,11 @@ so the order below rests on stated grounds instead.
 
 | | inception | BVP | what the GO approved, in one line | why this rank |
 |---|---|---:|---|---|
-| 1 | **T-263** | 126 | Warn when a save would overwrite a different project than the one loaded. | The slice **exists and was never started** — T-264, filed 2026-07-27, still `captured`. Least ambiguity of any item here: someone already decided the shape. |
-| 2 | **T-301** | 126 | Assert the card-id/workflowMeta-id invariant — *"do not chase the symptom."* | Its GO **overturned a prior DEFER**. The operator moved from "not now" to "yes", and nothing followed. The only genuinely un-acted decision of the 27. |
-| 3 | T-103 | 126 | Finish moving editor tests onto the T-101 CDP harness. | Substrate work, no user-visible outcome, and T-105 is already in flight — an open task, not an unfiled one. |
+| 1 | **T-301** | 126 | Assert the card-id/workflowMeta-id invariant — *"do not chase the symptom."* | Its GO **overturned a prior DEFER**. The operator moved from "not now" to "yes", and nothing followed. **The only genuinely un-acted decision of the 27.** |
+| 2 | T-103 | 126 | Finish moving editor tests onto the T-101 CDP harness. | Substrate work, no user-visible outcome, and T-105 is already in flight — an open task, not an unfiled one. |
+| ~~—~~ | ~~T-263~~ | — | ~~Warn when a save would overwrite a different project.~~ | **Not available work.** T-950 found T-264 already delivered and closed it. Removed from the shortlist. |
 
-T-263 and T-301 are **the same seam** — document identity on save — and both are small,
-bounded and user-visible. If anything on this list gets filed, those two are one sitting.
+**The shortlist is one item, not three.** T-263 came off it under T-950, and T-103 is an
+open task rather than an unfiled decision. So the whole of the "27 approved things never
+built" finding reduces to **T-301** — and T-301 is the same seam T-264 just closed
+(document identity on save), which makes it a natural follow-on rather than a cold start.

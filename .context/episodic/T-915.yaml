@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-915: Drain the carried-by-completed-task class: bulk-resolve every observation whose work already shipped
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T13:24:43Z
+# ============================================================================
+
+task_id: T-915
+task_name: "Drain the carried-by-completed-task class: bulk-resolve every observation whose work already shipped"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T13:19:56Z
+completed: 2026-09-28T13:24:29Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Operator authorised bulk disposition 2026-09-28: 'We solved them in bulk.' T-914 shipped fw note resolve --carrier; this applies it to the largest class in the inbox. Each resolution validates its carrier before writing, so a bad row refuses rather than recording a false disposition.
+
+# Key outcomes
+outcomes:
+  - '**Every row pre-validated before any write:** carrier file exists, record still pending, record present in the inbox. A bulk run that discovers a bad row halfway has already written 40 false dispositions'
+  - 'All resolved, **zero failures**, each with its carrier and a reason naming the authorisation — **98** in the end, not 84: a second pass caught 14 the age cutoff of the report I parsed had hidden'
+  - '**Invariant after the run:** every resolved record carries a carrier and every carrier resolves to a real task file — not just the 84, the whole resolved population'
+  - 'The `carried-by-completed-task` class is **empty in BOTH census views** (`--check`, >7 days; `--urgent`, any age) and both committed reports are regenerated so they are not stale the moment this lands'
+  - '**The before/after is stated as measurements**, not as a claim of success: pending, urgent, and pending>7d, each with its prior value'
+  - '**What remains is named, not left implicit** — the classes that did NOT drain and why they are different'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 936
+  lines_removed: 229
+  footprint_refreshed_at: '2026-09-28T13:25:14Z'
+  footprint_refreshed_by_commit: 1ecb0494
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-915-drain-the-carried-by-completed-task-clas.md
+generated_by: context-agent-hybrid

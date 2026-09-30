@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-918: T-578's census inflates its own code-edge bucket the way AEF's baseline did, and I published the number before checking. tools/_t578-js-comment-edge-census.py strips JS comments before deciding a JS reference is a code edge, but for .sh and .py it does a bare substring match with NO comment stripping at all (lines 194-202, the trailing else) - even though the instrument it audits, _t451, DOES strip both via tokenize/ast and a word-aware hash. Consequence, direction certain and size UNMEASURED: a tool referenced only inside a Python docstring or a shell comment is counted as having an EXECUTABLE-CODE edge. So 127 with-a-code-edge is inflated and 110 prose-only is a floor for a second reason I had not named - I called it a floor only for the JS regex-vs-division ambiguity. Same shape as AEF's own correction at rail 315 ('we built the baseline with the same shape of shortcut the bug is made of: a pattern that looks like it measures the relationship and actually measures a spelling'), and they asked me directly to check mine before trusting it. Checked, from source, not from memory. Not fixed under T-578: the ACs are closed and the fix changes what the number means, which is the ordering PD-253 just argued for. Needs its own task and a re-measurement using _t451's existing strippers rather than a second hand-written one.
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T22:40:13Z
+# ============================================================================
+
+task_id: T-918
+task_name: "T-578's census inflates its own code-edge bucket the way AEF's baseline did, and I published the number before checking. tools/_t578-js-comment-edge-census.py strips JS comments before deciding a JS reference is a code edge, but for .sh and .py it does a bare substring match with NO comment stripping at all (lines 194-202, the trailing else) - even though the instrument it audits, _t451, DOES strip both via tokenize/ast and a word-aware hash. Consequence, direction certain and size UNMEASURED: a tool referenced only inside a Python docstring or a shell comment is counted as having an EXECUTABLE-CODE edge. So 127 with-a-code-edge is inflated and 110 prose-only is a floor for a second reason I had not named - I called it a floor only for the JS regex-vs-division ambiguity. Same shape as AEF's own correction at rail 315 ('we built the baseline with the same shape of shortcut the bug is made of: a pattern that looks like it measures the relationship and actually measures a spelling'), and they asked me directly to check mine before trusting it. Checked, from source, not from memory. Not fixed under T-578: the ACs are closed and the fix changes what the number means, which is the ordering PD-253 just argued for. Needs its own task and a re-measurement using _t451's existing strippers rather than a second hand-written one."
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T13:27:46Z
+completed: 2026-09-28T22:39:41Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Promoted from observation OBS-306
+
+# Key outcomes
+outcomes:
+  - 'The non-JS branch **strips prose before deciding code-vs-prose**, using `_t451`''s existing `strip_prose` rather than a second implementation — and the import is by file path, since the module name is not a legal identifier'
+  - '**`_t451` importing cleanly is verified, not assumed.** If importing it executes a census, that is a side effect this tool must not inherit; establish it before depending on it'
+  - '**The before/after numbers are both reported.** "Inflated" is a direction; this task turns it into a magnitude. The count that moves is the evidence, and a fix that moves nothing means the defect was not where it was thought to be'
+  - 'A **parse failure is not silently treated as "no references"** — `_t451` returns `None` on unparseable Python for exactly that reason, and the caller must not collapse it into an empty result'
+  - '**The stale `_t451 does not strip JS` claims are corrected**, not left contradicting the tree'
+  - 'Proved by **fixture, not by the corpus number alone**: a `.py` file whose only reference is in a docstring, and a `.sh` file whose only reference is in a `#` comment, must both be classified PROSE-ONLY — and a genuine call in each must still be classified CODE. Without the second half this is a fix that could be achieved by returning nothing'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 551 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 551
+  commits: 1
+  files_changed: 4
+  lines_added: 393
+  lines_removed: 11
+  footprint_refreshed_at: '2026-09-28T22:40:43Z'
+  footprint_refreshed_by_commit: 5cd61151
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-918-t-578s-census-inflates-its-own-code-edge.md
+generated_by: context-agent-hybrid

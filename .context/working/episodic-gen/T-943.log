@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-30T13:07:50Z ===
+task_id: T-943
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-943.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: P-011 cannot tell a missing Verification heading from a malformed one, and the T-574 probe that would catch it is anchored to a source line that moved
+  Duration: 0 days (14 min)
+  Updates: 1
+  Commits: 1
+  Lines: +805 -74 across 6 files
+  Outcomes: 6 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-943-p-011-cannot-tell-a-missing-verification.md
+--- exit code: 0 ---

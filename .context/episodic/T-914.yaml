@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-914: Census the 33 urgent observations aged 31-90 days: what is already fixed, superseded, duplicated, or still live
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T11:55:06Z
+# ============================================================================
+
+task_id: T-914
+task_name: "Census the 33 urgent observations aged 31-90 days: what is already fixed, superseded, duplicated, or still live"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T11:48:53Z
+completed: 2026-09-28T11:54:55Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  The mid-August urgent cohort. 182 pending observations, 71 urgent, 33 of those aged 31-90 days and clustered in one period of intense instrument work. Before draining, establish what is actually still true: an observation whose defect was fixed weeks ago by a different task is not a backlog item, it is noise that makes the queue look worse than it is and trains readers to ignore the urgent flag. Produces a disposition per item with evidence, not a promotion per item.
+
+# Key outcomes
+outcomes:
+  - 'The existing census is **confirmed current, not assumed** — regenerate `T-702`/`T-703` from `tools/_t703-inbox-residue.py` and record whether the committed reports still match. A census dated 2026-09-20 being quoted on 2026-09-28 is a claim about a queue that has moved'
+  - 'The **`carried-by-completed-task` class is counted from the tool**, not from my reading of it, and the count is stated with the date it was measured'
+  - '`fw note resolve` **exists and records the carrier** — the task id and/or the episodic path where the content lives — writing `status: resolved` plus a carrier field, distinct from `dismissed`'
+  - '**`resolve` refuses without a carrier.** An observation marked resolved with no pointer is the same defect as `promoted_to: task` — a field that exists and says nothing (T-912)'
+  - 'The **carrier is validated, not accepted**: a task id must resolve to a real task file, an episodic path must exist. Refusing an unresolvable carrier is the whole difference between a link and a decoration'
+  - '**The three hand-set `resolved` records (OBS-313, OBS-318, OBS-331) are backfilled** with their carriers or explicitly marked unknown with a reason — `unknown` is not `ok` (T-675)'
+  - '**Proved by a real resolution with a control set that runs first:** resolve one genuinely-carried observation, assert status and carrier; assert a bogus carrier is refused; assert a nonexistent observation is refused and nothing is written. A refusal that silently writes is worse than no refusal'
+  - '**The drain itself is NOT performed under this task.** Shipping the verb and bulk-applying it to 82 records are different deliverables with different risk; the second gets its own task and its own evidence'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 5
+  lines_added: 801
+  lines_removed: 155
+  footprint_refreshed_at: '2026-09-28T11:55:38Z'
+  footprint_refreshed_by_commit: dfdba8ac
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-914-census-the-33-urgent-observations-aged-3.md
+generated_by: context-agent-hybrid

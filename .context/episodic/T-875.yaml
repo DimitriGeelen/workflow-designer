@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-875: aef:workflowMeta kind marker — ship T-213's ratified enum so a map declares whether it is illustrative or actionable
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T08:52:43Z
+# ============================================================================
+
+task_id: T-875
+task_name: "aef:workflowMeta kind marker — ship T-213's ratified enum so a map declares whether it is illustrative or actionable"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-26T22:41:33Z
+completed: 2026-09-28T08:52:32Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-09-27T01:17:32+02:00
+last_commit: 2026-09-27T01:18:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the diagram-kind marker ships and validates — and the guard I reached for to prove it round-trips does not cover it. parked at status issues, and OBS-402 filed — the gap is wider than the attribute that found it
+
+# Key outcomes
+outcomes:
+  - '`aef:workflowMeta kind=` validates against a CLOSED enum of exactly `documentation` and `work-plan`; any other value is an error whose message names the allowed set'
+  - 'A map carrying no `kind` validates clean — UNSET is legal and is not a warning (T-213 IW-3: the marker stays an explicit author decision, no silent reclassification)'
+  - 'Round-trip: a map with no `kind` is byte-identical through import→export. CONTROL: a map WITH `kind` also round-trips byte-identical, so a dead harness cannot read as a clean pass'
+  - 'T-213''s "additive + frozen-v1 safe" claim is RE-DERIVED against `docs/standards/aef-bpmn-mapping-v1.md`, not inherited — cite the Part I clause that makes an additive `aef:workflowMeta` attribute conformant, or report that no such clause exists. The standard is frozen and is NOT edited'
+  - 'A conformance case lands in the existing mapping-conformance suite, not in a new parallel harness'
+  - '**A5 recorded:** does this deliver arc purpose (A1) and project purpose? Answer and reason written in `## Decisions`, and the answer may be **no**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'parked at status issues, and OBS-402 filed — the gap is wider than the attribute that found it'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-28 — A5: does this deliver arc purpose and project purpose? **Partly — and NOT the arc''s headline mechanic.**'
+  - decision: '2026-09-28 — AC5: where a document-level conformance case can honestly live'
+    chose: 'extend `tests/test_mapping_standard_conformance.py` with a document-level check that asserts (1) a **tripwire** — exactly one conformance fence exists in the standard today, and a new one failing this test until it is wired in; (2) the closed enum is defined **exactly once** in the tree; (3) the editor both **reads and writes** `kind`.'
+    rationale: 'the suite''s existing mechanism is "frozen fence in the standard ⊆ editor ∩ bridge", and that mechanism is unavailable here. Re-derived against the standard rather than inherited from T-213''s claim: §1''s two-class partition enumerates NODE-level attributes and §6''s four conformance clauses never reach document-level metadata. **The standard has no document-level class at all.** Part I is frozen and is not edited here, so there is no fence to add `kind` to. What remains assertable is implementation-to-implementation agreement plus a tripwire for the day the standard grows a fence.'
+    alternatives_rejected: ['(a) a new parallel harness — the AC forbids it and it is the wrong instinct anyway; (b) editing the standard to add a document-level fence — frozen, and not an agent''s call; (c) reporting the standard''s silence as a standing failure — that is the permanently-red rail OBS-293 names, which trains readers to ignore it. A tripwire fires on change; a permanent red fires on nothing. - **One trap avoided, asserted rather than assumed:** the editor calls `getAttribute(''kind'')` **three** times and **two** are on `eventDefEl`, a different element. A read check matching those would stay green with `workflowMeta/@kind` removed. The check anchors on `aefMetaEl`, and the self-test carries a decoy case proving the `eventDefEl` form does **not** satisfy it.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-875-aefworkflowmeta-kind-marker--ship-t-213s.md'
+  - 'tests/fixtures/aef-bpmn/t875-kind-marker.bpmn'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T01:17:32'
+    action: 'T-875: the diagram-kind marker ships and validates — and the guard I reached for to prove it round-trips does not cover it'
+  - time: '2026-09-27T01:18:08'
+    action: 'T-875: parked at status issues, and OBS-402 filed — the gap is wider than the attribute that found it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2050 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:process-instances]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2050
+  commits: 3
+  files_changed: 9
+  lines_added: 857
+  lines_removed: 19
+  footprint_refreshed_at: '2026-09-28T08:54:20Z'
+  footprint_refreshed_by_commit: 24edbcb8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-875-aefworkflowmeta-kind-marker--ship-t-213s.md
+generated_by: context-agent-hybrid

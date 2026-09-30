@@ -31,7 +31,12 @@ MAPPING = {
     "T-685": ["T-835"],
     "T-681": ["T-682", "T-683", "T-684", "T-689", "T-738", "T-780", "T-825"],
     "T-617": ["T-618", "T-619"],
-    "T-263": [],   # PARTIAL — slice T-264 filed and never started. Deliberately empty.
+    # T-950 CORRECTION. This read `[]` with the comment "PARTIAL — slice T-264 filed and
+    # never started". T-264 was BUILT on 2026-07-27 (8-leg CDP harness green, re-verified
+    # rc=0 on 2026-09-30) and merely left at status: captured. The triage trusted the
+    # status field over the task body — the same field-vs-reality defect it was written
+    # to document.
+    "T-263": ["T-264"],
     "T-257": ["T-259", "T-261"],
     "T-250": ["T-258", "T-260"],
     "T-249": ["T-251"],

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-30T11:12:40Z ===
+task_id: T-885
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-885.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: The round-trip guard _roundtrip-serialization-cdp.mjs covers only the NODE-level aef.* seam — checkDenominator() derives its 36 keys from aef.* dot-accesses, metaKeys and bindFields. Document-level aef:workflowMeta attributes are outside its denominator BY CONSTRUCTION. Measured under T-875 by mutation: deleting the editor's kind writer line entirely still yields exit 0 / pass true over 20 fixtures. The open question this raises is bigger than the attribute that found it: uuid, pageWidth, tier_default, title and description are all workflowMeta attributes and may be riding on no round-trip guard at all. uuid in particular is connector-referenceable identity (T-224) and is pinned cross-agent. Needs a census of what actually guards document-level metadata, then an instrument.
+  Duration: 4 days (5009 min)
+  Updates: 2
+  Commits: 3
+  Lines: +770 -25 across 3 files
+  Outcomes: 6 AC checked
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-885-the-round-trip-guard-roundtrip-serializa.md
+--- exit code: 0 ---

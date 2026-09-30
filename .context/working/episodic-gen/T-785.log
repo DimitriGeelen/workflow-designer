@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-09-29T08:15:05Z ===
+task_id: T-785
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-785.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: The bridge baseline is red: isolate and fix the TEETH regression blocking verification of the AEF reference corpus
+  Duration: 8 days (10659 min)
+  Updates: 4
+  Commits: 6
+  Lines: +882 -55 across 10 files
+  Outcomes: 10 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 10 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-785-the-bridge-baseline-is-red-isolate-and-f.md
+--- exit code: 0 ---

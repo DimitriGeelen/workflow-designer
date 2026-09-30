@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-30T14:44:17Z ===
+task_id: T-938
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-938.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: An encrypted API key is committed and pushed: .context/secrets/api-keys.enc is tracked, and the framework never gitignored the path
+  Duration: 1 days (952 min)
+  Updates: 1
+  Commits: 4
+  Lines: +520 -15 across 5 files
+  Outcomes: 5 AC checked
+  Artifacts: 5 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-938-an-encrypted-api-key-is-committed-and-pu.md
+--- exit code: 0 ---

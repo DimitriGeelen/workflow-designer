@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-28T23:25:04Z ===
+task_id: T-890
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-890.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: aef:laneMeta authoringDefault — PRESENTATIONAL, and a control proving the compiler cannot read it
+  Duration: 1 days (2203 min)
+  Updates: 1
+  Commits: 1
+  Lines: +116 -5 across 6 files
+  Outcomes: 7 AC checked
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-890-aeflanemeta-authoringdefault--presentati.md
+--- exit code: 0 ---

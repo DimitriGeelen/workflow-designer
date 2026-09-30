@@ -1,0 +1,20 @@
+=== episodic-gen invocation: 2026-09-28T23:10:13Z ===
+task_id: T-881
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-881.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Resolution both ways: a task names its template and node; a template lists its live instances
+  Duration: 2 days (2906 min)
+  Updates: 3
+  Commits: 1
+  Lines: +98 -12 across 4 files
+  Outcomes: 6 AC checked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-881-resolution-both-ways-a-task-names-its-te.md
+--- exit code: 0 ---

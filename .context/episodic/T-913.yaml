@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-913: A Tier-2 bypass is logged with an EMPTY reason, because the logger takes no reason argument. Measured 2026-09-28: closing T-910 with --skip-sovereignty appended this to .context/working/.gate-bypass-log.yaml — timestamp 2026-09-28T10:49:48Z, task T-910, flag --skip-sovereignty, caller check_human_sovereignty, reason: ''. The call site is log_gate_bypass '--skip-sovereignty' 'check_human_sovereignty' (update-task.sh:112), two positional args, no third for a reason and no --reason flag anywhere on the verb. So the field exists in the record shape and can never be filled by the path that writes it. WHY THIS MATTERS RATHER THAN BEING COSMETIC: mandatory logging is what makes Tier 2 a sanctioned mechanism instead of a hole. A record that says a gate was bypassed but not why cannot distinguish an AUTHORISED bypass from an unauthorised one — and the same ledger already carries a 2026-08-08 entry that exists precisely to document an unauthorised bypass ('No authorization was sought or given. Recorded per Tier-2 mandatory logging.'), with a full reason, because a human wrote that one by hand. The automated path produces the weaker record. THE AUTHORISATION FOR THIS ONE, since the ledger cannot hold it — operator, verbatim, 2026-09-28: 'This is a Zero Human ACs review task. You should not even ask me.' T-910 carried 0/0 Human ACs and 6/6 Agent ACs with verification 10/10; the sovereignty gate fired on the owner field with no human criterion behind it. Remedy: give log_gate_bypass a reason parameter and have the --skip-* flags accept --reason, refusing the bypass when none is supplied — a bypass worth taking is a bypass worth explaining. Sibling of OBS-421/OBS-422.
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-28T22:08:04Z
+# ============================================================================
+
+task_id: T-913
+task_name: "A Tier-2 bypass is logged with an EMPTY reason, because the logger takes no reason argument. Measured 2026-09-28: closing T-910 with --skip-sovereignty appended this to .context/working/.gate-bypass-log.yaml — timestamp 2026-09-28T10:49:48Z, task T-910, flag --skip-sovereignty, caller check_human_sovereignty, reason: ''. The call site is log_gate_bypass '--skip-sovereignty' 'check_human_sovereignty' (update-task.sh:112), two positional args, no third for a reason and no --reason flag anywhere on the verb. So the field exists in the record shape and can never be filled by the path that writes it. WHY THIS MATTERS RATHER THAN BEING COSMETIC: mandatory logging is what makes Tier 2 a sanctioned mechanism instead of a hole. A record that says a gate was bypassed but not why cannot distinguish an AUTHORISED bypass from an unauthorised one — and the same ledger already carries a 2026-08-08 entry that exists precisely to document an unauthorised bypass ('No authorization was sought or given. Recorded per Tier-2 mandatory logging.'), with a full reason, because a human wrote that one by hand. The automated path produces the weaker record. THE AUTHORISATION FOR THIS ONE, since the ledger cannot hold it — operator, verbatim, 2026-09-28: 'This is a Zero Human ACs review task. You should not even ask me.' T-910 carried 0/0 Human ACs and 6/6 Agent ACs with verification 10/10; the sovereignty gate fired on the owner field with no human criterion behind it. Remedy: give log_gate_bypass a reason parameter and have the --skip-* flags accept --reason, refusing the bypass when none is supplied — a bypass worth taking is a bypass worth explaining. Sibling of OBS-421/OBS-422."
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T11:31:03Z
+completed: 2026-09-28T22:07:56Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Promoted from observation OBS-423
+
+# Key outcomes
+outcomes:
+  - 'An unexplained bypass is recorded **distinguishably** — a named marker in the `reason` field, not an empty string. The audit question "how many bypasses were taken without explanation?" must be answerable by reading the ledger'
+  - 'The marker **names the remedy**: a reader of the record, and the operator at the moment of bypassing, both learn that `--reason` is what fills it'
+  - 'A bypass **with** a reason is unchanged — the reason is written verbatim, and the YAML single-quote escaping at `:88-96` still holds for apostrophes in operator text'
+  - 'Call sites that currently **smuggle a reason into the `caller` argument** (`:557`, `:988`) have a proper channel — an explicit reason parameter — without changing what they log today'
+  - '**Non-blocking.** This records and warns; it does not refuse. Making an unexplained bypass *fail* changes blocking behaviour on eighteen call sites including env-var paths used by automation, and that deserves its own task and fresh judgement rather than being folded in at the end of a long session'
+  - '**Proved by exercising the real logger**, not by reading it: run it with and without a reason and assert the ledger rows differ in the stated way. Append-only ledger — the test writes to a scratch copy, never to `.context/working/.gate-bypass-log.yaml`'
+  - 'Control set first, and every mutation asserted applied: a logger that fails to source writes nothing, which would read as "no unexplained bypasses found"'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 636 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 636
+  commits: 1
+  files_changed: 3
+  lines_added: 312
+  lines_removed: 12
+  footprint_refreshed_at: '2026-09-28T22:08:32Z'
+  footprint_refreshed_by_commit: 84337aa7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-913-a-tier-2-bypass-is-logged-with-an-empty-.md
+generated_by: context-agent-hybrid

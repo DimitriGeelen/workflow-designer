@@ -5,3 +5,23 @@
 {"ts": "2026-09-25T11:16:22Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 2163887, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
 {"ts": "2026-09-25T11:16:38Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 2163887, "detail": "claude exited without a restart signal", "exit_code": 1}
 {"ts": "2026-09-26T21:49:37Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 999693, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
+{"ts": "2026-09-27T19:01:11Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 999693, "detail": "claude exited without a restart signal", "exit_code": 1}
+{"ts": "2026-09-27T19:01:15Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 999674, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
+{"ts": "2026-09-28T10:47:00Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 718336, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
+{"ts": "2026-09-28T17:03:31Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 718336, "detail": "claude exited without a restart signal", "exit_code": 1}
+{"ts": "2026-09-28T17:03:35Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 718330, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
+{"ts": "2026-09-28T19:00:47Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 718330, "detail": "claude exited without a restart signal", "exit_code": 1}
+{"ts": "2026-09-28T22:29:07Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 1239411, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
+{"ts": "2026-09-29T07:29:32Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 205930, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=0"}
+{"ts": "2026-09-29T09:19:43Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 205930, "detail": "claude exited without a restart signal", "exit_code": 0}
+{"ts": "2026-09-29T09:19:55Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 131826, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=0"}
+{"ts": "2026-09-29T23:19:36Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 1239411, "detail": "claude exited without a restart signal", "exit_code": 1}
+{"ts": "2026-09-29T23:19:40Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 1239398, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
+{"ts": "2026-09-29T23:20:32Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 1239398, "detail": "claude exited without a restart signal", "exit_code": 1}
+{"ts": "2026-09-29T23:21:17Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 397093, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
+{"ts": "2026-09-30T12:53:19Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 397093, "detail": "claude exited without a restart signal", "exit_code": 1}
+{"ts": "2026-09-30T12:53:24Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 397091, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
+{"ts": "2026-09-30T13:35:50Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 397091, "detail": "claude exited without a restart signal", "exit_code": 1}
+{"ts": "2026-09-30T13:36:13Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 4074754, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
+{"ts": "2026-09-30T13:50:14Z", "event": "exit", "reason": "no-signal", "restart_count": 0, "wrapper_pid": 4074754, "detail": "claude exited without a restart signal", "exit_code": 1}
+{"ts": "2026-09-30T13:50:17Z", "event": "start", "reason": "armed", "restart_count": 0, "wrapper_pid": 4074752, "detail": "restart=enabled max_restarts=5 window=3600s armed=no termlink=1"}
