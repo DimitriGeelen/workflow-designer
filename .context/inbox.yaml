@@ -2812,3 +2812,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-457
+  text: "The T-560 absence census floor (74) has been breached by exactly ONE pre-existing leg since 2026-09-25, and it now has a name instead of being an anonymous +1: T-826 line 304, 'test -z $(git log --since=2026-07-21 --oneline -- docs/standards/aef-bpmn-mapping-v1.md)'. Two defects in one line: uncontrolled absence (nothing greps the same pattern where it IS present, T-843) and time-dependence (a fixed --since date accrues commits, so the assertion decays toward false for reasons unrelated to what it claims, PL-365). Measured at T-959: census reads 75 against floor 74, and read 75 at commit cf4e503b too, so this is one of the standing 32 bridge-suite failures and NOT a new regression. Not fixed under T-959 because T-826 is another OPEN task and that line is its own close gate -- editing another task's verification unasked is not the agent's call. Remedy belongs to whoever closes T-826: assert the positive fact (the standard still contains the clause this task depended on) rather than the absence of commits."
+  captured: 2026-09-30T22:19:01Z
+  context_task: T-959
+  tags: []
+  status: pending
+  promoted_to: null

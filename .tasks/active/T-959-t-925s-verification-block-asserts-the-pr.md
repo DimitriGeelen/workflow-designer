@@ -1,8 +1,8 @@
 ---
-id: T-958
-name: "Classify POST /api/validate in the boundary inventory — the drift T-955 introduced"
+id: T-959
+name: "T-925's Verification block asserts the pre-fix world and now fails, blocking the operator's own close"
 description: >
-  Classify POST /api/validate in the boundary inventory — the drift T-955 introduced
+  T-925's Verification block asserts the pre-fix world and now fails, blocking the operator's own close
 
 status: started-work
 workflow_type: build
@@ -21,8 +21,8 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-30T21:43:07Z
-last_update: 2026-09-30T21:43:07Z
+created: 2026-09-30T22:15:00Z
+last_update: 2026-09-30T22:15:00Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -36,36 +36,57 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-958: Classify POST /api/validate in the boundary inventory — the drift T-955 introduced
+# T-959: T-925's Verification block asserts the pre-fix world and now fails, blocking the operator's own close
 
 ## Context
 
-T-955 shipped `POST /api/validate` on `tools/gallery-serve.py` and classified it nowhere, so
-`tools/_t682-boundary-inventory.py` now reports drift on two counts — `IN SERVER, NOT DOCUMENTED`
-and `UNCLASSIFIED (no semantics row)` — and `fw audit` carries the warning. This is the same
-omission T-884 made with `GET /api/instances` (fixed under T-941), by the same author, one day
-later: the route was built and tested and the inventory was not told about it.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
-**The drift check worked.** It caught the route the same session it shipped. This task is the
-remedy, not a repair of the instrument.
+## Context
+
+T-925 is the one task waiting on the operator: its single `[REVIEW]` Human AC is unticked and
+`runme.sh` exists to tick it and close the task. **The close would fail.** P-011 runs T-925's
+`## Verification` block on the `work-completed` transition (PL-161: exactly once, then never
+again), and that block asserts the *pre-fix* world — the bug T-953 has since fixed. So
+`runme.sh` would tick the box, then the gate would refuse, leaving T-925 half-done: box ticked,
+task still open, and an operator holding a script that did half of what it said.
+
+Not a mistake in T-925's ACs. Its own AC said *"If the seam ruling is GO, the emitter lands as
+a separate slice"* — it predicted this. What nobody did was re-read the block after the
+predicted slice landed. The block is a snapshot of slice 1 that the ruling deliberately
+superseded, and a snapshot is the one thing a completion gate must not be.
+
+Found by running the full bridge suite for T-958, not by inspection.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `('POST', '/api/validate')` has a `ROUTE_SEMANTICS` row whose `mutates` value is **verified
-      against the call graph, not inferred from the HTTP verb** — the interesting direction for a
-      POST, since the verb predicts a write and the handler performs none. The row's comment
-      names the specific frames checked (`_api_validate` → `_load_validator` → `run_xml`) and the
-      two write-ish primitives in `validate-workflow.py` that were read and cleared.
-- [ ] The regenerated report `docs/reports/T-682-arc-2-boundary-inventory.md` lists the route, so
-      `parse_report_routes` sees it and the `IN SERVER, NOT DOCUMENTED` arm clears.
-- [ ] `python3 tools/_t682-boundary-inventory.py` exits 0 and prints the all-classified line.
-- [ ] **Falsifiability:** with the new row removed from a COPY of the script, the check still goes
-      red on `/api/validate` — proving the row is what cleared it and the check did not merely
-      stop looking.
-- [ ] `fw audit` no longer reports `Boundary inventory drift`, and the route count in the report
-      rises by exactly 1 (no other route silently gained or lost a classification).
+- [ ] **Every line of T-925's `## Verification` block is measured, with its line number and
+      rc recorded** — not a sample. The sample I took first missed line 189, which also fails.
+- [ ] Each failing line is replaced by an assertion of the **post-T-953 truth**, and the
+      superseded slice-1 claim is left **visible** beside it rather than deleted, so a reader
+      finds out that the state changed and why (the AC predicted it) instead of finding a
+      block that looks like it was always this way.
+- [ ] The two census offenders in the block are fixed at their defect class, not worked around:
+      - line 199 — an **uncontrolled absence assertion** (`! grep` with no companion grepping
+        the same string where it IS present). T-843's rule, and the census counts it.
+      - line 204 — `test -z "$(git diff --stat ...)"`, **true only because the work is
+        committed** (PL-365). A check whose truth depends on when it runs asserts nothing.
+- [ ] `tools/_t560-absence-assertion-census.py` reports **75 or fewer** uncontrolled absence
+      assertions — i.e. my two T-925 additions are drained. 75, not 74: the tree was already
+      at 75 at commit `cf4e503b`, so claiming the floor is a separate pre-existing item and
+      NOT this task's to absorb.
+- [ ] **T-925 can actually close:** every non-comment line of its rewritten block exits 0,
+      rehearsed under the gate's own shell (`bash -c 'set -o pipefail; <line>'`, no `-e`), and
+      reported as a per-line table rather than a summary.
+- [ ] `runme.sh` is re-exercised with `--dry-run` after the change and proven **inert** again
+      (the unticked line still present exactly once, no `.bak` left, task file clean in git) —
+      because the script's whole promise is that its refusal path leaves the tree untouched,
+      and I changed the file it edits.
+- [ ] The bridge-suite ratchet is **re-measured on a quiet tree**, and the 32→33 reading from
+      the T-958 run is explained rather than left as a breach: `verification-hygiene.py` and
+      the T-560 census both scan `.tasks/`, and I was editing task files while the suite ran.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -226,23 +247,30 @@ remedy, not a repair of the instrument.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 #
-# ── T-958 ─────────────────────────────────────────────────────────────────────
-# Each line rehearsed under `bash -c 'set -o pipefail; <line>'` before being
-# written here, per the note above: an interactive shell has no pipefail and is
-# not the gate.
+# ── T-959 ─────────────────────────────────────────────────────────────────────
+# Each line rehearsed under `bash -c 'set -o pipefail; <line>'`. Two were wrong
+# on the first pass and the rehearsal is what said so: `bin/fw` does not exist in
+# this project (rc=127 — it is .agentic-framework/bin/fw here, despite the
+# copy-pasteable-commands rule naming bin/fw), and my first census line pinned the
+# GLOBAL count `current <= 75`, which is precisely the G-015 carrier class
+# verification-hygiene.py ratchets: a line that decays when anyone else edits the
+# tree. Replaced with a local claim — MY file contributes no offender — carrying
+# its own positive control.
 #
-# NO ROUTE-COUNT LINE, deliberately. The 8 -> 9 measurement is one-time evidence
-# and lives in ## Updates; pinning `-eq 9` here would go red the day a tenth
-# route legitimately ships, which is the mutable-anchor trap above. The standing
-# invariant is "the server and the report agree and everything is classified",
-# and line 2 asserts exactly that.
+# Paths are recursive (`grep -r .tasks/`) on purpose: T-925 moves from
+# .tasks/active/ to .tasks/completed/ the moment the operator closes it, and a
+# line anchored to active/ would go red for that reason alone.
 
-grep -q "('POST', '/api/validate')" tools/_t682-boundary-inventory.py
-python3 tools/_t682-boundary-inventory.py > /tmp/.t958-inv.out 2>&1 && grep -q 'server and inventory agree, all classified' /tmp/.t958-inv.out
-grep -qE '^\| POST \| `/api/validate` \|' docs/reports/T-682-arc-2-boundary-inventory.md
-python3 tools/_t958-boundary-row-teeth.py > /tmp/.t958-teeth.out 2>&1 && grep -q 'both drift arms still bite' /tmp/.t958-teeth.out
-grep -q '_t958-boundary-row-teeth.py' tests/run-bridge-tests.sh
-bash -n tests/run-bridge-tests.sh
+.agentic-framework/bin/fw task verify T-925 > /tmp/.t959-v.out 2>&1 && grep -qE '[0-9]+/[0-9]+ passed' /tmp/.t959-v.out && ! grep -q 'FAIL' /tmp/.t959-v.out
+grep -rq 'REWRITTEN BY T-959' .tasks/
+# CONTROLLED absence (T-843): the control is self-contained — the census must have
+# produced offender rows at all, which proves it can find them, before "T-925 is not
+# among them" means anything. Deliberately not controlled against T-826 being broken;
+# that would go red the day someone fixes it.
+python3 tools/_t560-absence-assertion-census.py > /tmp/.t959-c.out 2>&1; test "$(grep -cE '^\.tasks/.*\.md:[0-9]+' /tmp/.t959-c.out)" -gt 0 && ! grep -q 'T-925-toolsyaml' /tmp/.t959-c.out
+# The preflight that would have caught this, now in the script the operator runs.
+grep -q 'task verify T-925' runme.sh
+bash -n runme.sh
 
 ## RCA
 
@@ -260,36 +288,34 @@ bash -n tests/run-bridge-tests.sh
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
-Not gated as bug-class (the title matches none of the trigger words), filled anyway because
-G-019's question has a non-obvious answer here.
+**Symptom:** `runme.sh` — the script handed to the operator to tick T-925's one Human AC and
+close it — would have ticked the box and then been refused by the P-011 gate. Three of T-925's
+thirteen Verification lines were false (189, 194, 198).
 
-**Symptom:** `fw audit` reported `Boundary inventory drift` on two counts for
-`POST /api/validate` — in the server, absent from the report, and carrying no semantics row.
+**Root cause:** the block asserted **the bug**: that `yaml-to-bpmn.py` contains no
+`aef:workflowMeta`, that `customer-refund.bpmn` lacks it, and that the divergence baseline names
+T-925 as a live cause. All three were true when slice 1 closed. The operator then ruled A
+(PD-351) and T-953 shipped the emitter fix, making all three false — which is exactly the
+"separate slice" T-925's own Agent AC said would follow a GO. The task predicted its own
+Verification block's obsolescence and nobody re-read it.
 
-**Root cause:** T-955 built the route, tested it over real HTTP with a teeth leg, wired it into
-`run-bridge-tests.sh`, and never told the authority inventory it existed. Not an oversight in
-the route's implementation — an oversight in what "shipping a route" means.
+**Why structurally allowed:** P-011 runs a Verification block on the `work-completed`
+transition **and at no other time** (PL-161). So between writing the block and closing the task
+there is no moment at which anything executes it. For a task that sits open across a slice
+boundary — precisely the shape T-925 was designed to have — the gate is guaranteed to be stale
+by the time it fires, and nothing says so. The staleness is not detectable by the gate, because
+the gate is the thing that is stale.
 
-**Why structurally allowed — and the honest version is not "the framework was blind":** the
-framework detected this correctly, within the same session, from the rail T-941 had just
-fixed for the identical omission on `GET /api/instances`. What is missing is not a detector
-but a *gate*: route classification is downstream of shipping rather than part of it, so the
-inventory is always one commit behind, and the interval is bounded only by when a sweep
-happens to run. T-884's was ~26 hours by luck (PL-363). Mine was minutes, by the same luck.
-The author who wrote the T-941 comment about this exact failure then reproduced it a day
-later, which is evidence that a comment is not a control.
+**Prevention — and it already existed:** `fw task verify T-XXX` runs the block read-only, on
+demand, any time. I did not run it before handing over a script whose entire job was to trigger
+that gate. It is now the fifth preflight check in `runme.sh`, so the script refuses instead of
+half-completing, and the refusal prints the command that shows which line is red. Proved to bite
+by pointing a copy of the script at T-826, whose block genuinely fails: `FAIL` → `REFUSED` →
+exit 2, tree unchanged.
 
-**Prevention:** `tools/_t958-boundary-row-teeth.py`, wired into `tests/run-bridge-tests.sh`,
-keeps the *detector* honest — it proves both drift arms still bite, so the check cannot go
-green by ceasing to look. That is prevention of a false green, and it is genuinely all this
-task delivers on that front.
-
-**What it does NOT prevent, stated rather than implied:** the next route shipped without a
-row. A real control would refuse the commit — a pre-commit or PreToolUse gate that runs
-`_t682` when `tools/gallery-serve.py` is staged, so the omission cannot reach a commit and
-wait for a sweep. That is a separate deliverable (one task = one deliverable) and is filed as
-an observation rather than quietly folded in here, because folding it in is how a mitigation
-gets recorded as a prevention.
+**The generalisation, stated but not built:** any close script for any task should verify before
+it edits. That is one line in a script today and a candidate rule tomorrow; it is not folded in
+here because one task is one deliverable.
 
 ## Evolution
 
@@ -367,7 +393,7 @@ gets recorded as a prevention.
 
 ## Updates
 
-### 2026-09-30T21:43:07Z — task-created [task-create-agent]
+### 2026-09-30T22:15:00Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-958-classify-post-apivalidate-in-the-boundar.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-959-t-925s-verification-block-asserts-the-pr.md
 - **Context:** Initial task creation

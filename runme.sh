@@ -69,9 +69,28 @@ chk "fw is runnable (the close can actually happen)" \
 chk "the ruling this AC records exists (PD-351)" \
     "grep -q 'T-925 seam ruling' '$PROJ/.context/project/decisions.yaml'"
 
+# T-959: THE CHECK THIS SCRIPT WAS MISSING. Ticking the box is worthless if the close is
+# then refused — you would be left with a ticked criterion and an open task, which is
+# worse than either end state. P-011 runs T-925's ## Verification block on the
+# work-completed transition and at no other time (PL-161), so nothing exercises it until
+# the moment it matters. `fw task verify` runs exactly that block, read-only, right now.
+#
+# This is not hypothetical: on 2026-10-01 three of T-925's thirteen lines were FALSE,
+# because they asserted the BUG (the emitter drops workflowMeta) that the operator's own
+# ruling had since fixed under T-953. The first version of this script would have ticked
+# and then failed. Found by running the full bridge suite, not by reading.
+chk "T-925's own Verification block passes, so the close will not be refused" \
+    "'$PROJ/.agentic-framework/bin/fw' task verify T-925"
+
 if [ "$fail" -ne 0 ]; then
     echo
     echo "REFUSED by a preflight check. Nothing was changed; the tree is as it was."
+    echo
+    echo "If the FAIL was the Verification-block check, see exactly which line is red:"
+    echo "  cd $PROJ && bin/fw task verify T-925"
+    echo "That is a real finding about the tree, not a problem with this script — tell the"
+    echo "agent which line failed and it will fix the assertion or the thing it asserts."
+    echo
     echo "Log: $LOG"
     exit 2
 fi

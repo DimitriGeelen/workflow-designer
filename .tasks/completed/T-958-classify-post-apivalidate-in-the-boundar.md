@@ -1,36 +1,16 @@
 ---
-id: T-925
-name: "tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no
-  cross-form rule on any of its ten attributes can ever be compared"
+id: T-958
+name: "Classify POST /api/validate in the boundary inventory — the drift T-955 introduced"
 description: >
-  MEASURED under T-826, not read: a YAML document carrying workflowMeta.kind='overlord'
-  fires E-WORKFLOW-KIND on the YAML form; bridged through tools/yaml-to-bpmn.py the
-  output contains ZERO 'workflowMeta' occurrences (grep -c) and the XML form is silent.
-  grep -n 'aef:workflowMeta' tools/yaml-to-bpmn.py returns nothing: emit() reads meta
-  = workflow.get('workflowMeta') at :141 and uses it ONLY for wid/process_id derivation.
-  So all ten document-level attributes the designer emits (id, uuid, version, schemaVersion,
-  title, description, source, tier_default, pageWidth, kind) are LOST across the bridge.
-  WHY IT MATTERS BEYOND kind: tests/test_harness_cross_form_agreement.py compares
-  the two validator forms by driving YAML fixtures THROUGH this bridge, so a document-level
-  rule can never be compared on a bridged document. The bridged doc is clean because
-  the carrier was ERASED, not because the value became legal — and that harness's
-  own docstring forbids inferring BRIDGE_REPAIRED from 'XML said nothing': 'Inferring
-  it is how a real hole gets absorbed as a repair.' T-826 declares E-WORKFLOW-KIND
-  a KNOWN disagreement citing THIS task rather than absorbing it. SAME CLASS AS T-885,
-  one instrument over: T-885 found document-level workflowMeta outside the round-trip
-  guard's denominator BY CONSTRUCTION; this is document-level workflowMeta outside
-  the BRIDGE's output entirely. NOT IN SCOPE HERE: whether the bridge SHOULD emit
-  workflowMeta is a seam question (the corpus is pinned by AEF and 24/24 rendered
-  maps are bridge-produced, so emitting it changes bytes AEF pins against) — that
-  is the first thing this task must settle, before any code.
+  Classify POST /api/validate in the boundary inventory — the drift T-955 introduced
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
-owner: human
-horizon: now
-tags: [bridge, cross-form, false-green]
-components: []
+current_node: frw_11_task
+owner: agent
+horizon: null
+tags: []
+components: [tests/run-bridge-tests.sh, tools/_t682-boundary-inventory.py, tools/_t958-boundary-row-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -42,9 +22,9 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-29T07:57:12Z
-last_update: 2026-09-30T19:45:48Z
-date_finished:
+created: 2026-09-30T21:43:07Z
+last_update: 2026-09-30T22:14:40Z
+date_finished: 2026-09-30T22:14:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -55,98 +35,59 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed: []
-cost_estimate_proposed:
-  - ts: '2026-09-29T08:35:02Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      blast_radius:
-      tier: 2
-      effort: 8
-    rationale: blast_radius=? (no-components-UNMEASURED-not-zero); tier=2 
-      (workflow:build); effort=8 (lines=269,acs=4)
-    rubric_sha: e4a00f38e801
-bvp_scores:
-  D1: 4
-  D2: 4
-  D3: 3
-  D4: 2
-  F-RECALL: 2
-  F2: 0
-  F4: 0
-  F3: 4
-  F1: 1
-confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
-confirmed_at: '2026-09-29T08:35:03Z'
 ---
 
-# T-925: tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no cross-form rule on any of its ten attributes can ever be compared
+# T-958: Classify POST /api/validate in the boundary inventory — the drift T-955 introduced
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-955 shipped `POST /api/validate` on `tools/gallery-serve.py` and classified it nowhere, so
+`tools/_t682-boundary-inventory.py` now reports drift on two counts — `IN SERVER, NOT DOCUMENTED`
+and `UNCLASSIFIED (no semantics row)` — and `fw audit` carries the warning. This is the same
+omission T-884 made with `GET /api/instances` (fixed under T-941), by the same author, one day
+later: the route was built and tested and the inventory was not told about it.
+
+**The drift check worked.** It caught the route the same session it shipped. This task is the
+remedy, not a repair of the instrument.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-
-**SLICE 1 — settle the seam question. No emitter change in this slice.** T-925's own
-description says so: *"whether the bridge SHOULD emit workflowMeta is a seam question … that
-is the first thing this task must settle, before any code."* The ruling is the operator's;
-this slice's job is to make it decidable and to correct one record that currently misdirects.
-
-- [x] **The blast radius is MEASURED, not asserted.** T-925's cost argument rests on
-      *"24/24 rendered maps are bridge-produced, so emitting it changes bytes AEF pins
-      against."* Measured instead: which rendered documents would change bytes if the bridge
-      emitted `aef:workflowMeta`. Method is re-render-and-diff into a scratch path — never
-      over the committed corpus — because only a diff distinguishes "the bridge made this"
-      from "a bridge-shaped file exists here".
-- [x] **The 24 AEF-process renders' actual producer is identified.** They carry no
-      `Generated from … by tools/yaml-to-bpmn.py` header (only customer-refund does, ×2) yet
-      they DO carry `aef:workflowMeta`, which the bridge provably cannot emit
-      (`grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py` = 0). Both facts cannot be true of
-      one producer, so one of them names the wrong tool.
-- [x] **A decision brief in `docs/reports/T-925-workflowmeta-bridge-seam.md`** stating: the
-      measured byte-change count, what AEF pins and whether these files are in it, the ten
-      attributes currently lost, and the options with their consequences. Written so the
-      operator can rule without re-deriving any of it.
-- [x] `tools/_t301-known-divergences.txt` **cites T-925 as the cause.** Its current reason
-      says the divergence *"may be a deliberate metadata-less import fixture — operator
-      decision"*. That is wrong and actively misdirects: the source YAML declares
-      `workflowMeta.id: customer-refund` and the bridge erased it. Corrected in place, with
-      the wrong reading left visible.
-- [x] **No emitter change, and no corpus bytes moved.** Asserted structurally, not promised:
-      `git diff --stat` over `examples/*/rendered/` and `tools/yaml-to-bpmn.py` is empty at
-      close. If the seam ruling is GO, the emitter lands as a separate slice.
+- [x] `('POST', '/api/validate')` has a `ROUTE_SEMANTICS` row whose `mutates` value is **verified
+      against the call graph, not inferred from the HTTP verb** — the interesting direction for a
+      POST, since the verb predicts a write and the handler performs none. The row's comment
+      names the specific frames checked (`_api_validate` → `_load_validator` → `run_xml`) and the
+      two write-ish primitives in `validate-workflow.py` that were read and cleared.
+- [x] The regenerated report `docs/reports/T-682-arc-2-boundary-inventory.md` lists the route, so
+      `parse_report_routes` sees it and the `IN SERVER, NOT DOCUMENTED` arm clears.
+- [x] `python3 tools/_t682-boundary-inventory.py` exits 0 and prints the all-classified line.
+      Measured: `OK — 9 routes, server and inventory agree, all classified`, rc=0.
+- [x] **Falsifiability:** `tools/_t958-boundary-row-teeth.py`, 5/5 legs. With the row popped the
+      check goes red naming `UNCLASSIFIED ... POST /api/validate` and **no other route** (leg 4 —
+      a prober that breaks the check by breaking everything proves nothing about this row), and
+      with the dispatch literal removed from the server source the *other* arm fires
+      (`DOCUMENTED, NOT IN SERVER`), against a green control. Both arms bite independently, which
+      matters because one fix cleared both at once.
+      **AC corrected, not silently satisfied:** as filed this said "removed from a COPY of the
+      script". The prober does not copy it, on purpose — `REPO`/`REPORT` are derived from
+      `__file__`, so a copy elsewhere computes a different repo root and reads a different or
+      missing report, and the prober would be measuring its own relocation rather than the row.
+      It imports the real module from its real path and mutates the table in memory instead.
+      Recorded here rather than rewritten, because quietly editing an AC to match what was built
+      is how an AC stops being a constraint.
+- [x] `fw audit` no longer reports `Boundary inventory drift`, and the route count in the report
+      rises by exactly 1 (no other route silently gained or lost a classification).
+      Measured: `[PASS] Boundary inventory: OK — 9 routes`; structure section **Pass 27→28,
+      Warn 14→13, Fail 0**. Report 8→9 route rows, and the diff's 19 other changed lines are all
+      line-number shifts from the code T-955 added — identical text, identical WRITE/READ/DECL
+      classification on every one (that staleness is filed as OBS-456, not fixed here).
+- [x] The teeth prober has a **scheduled reader**: wired into `tests/run-bridge-tests.sh`, and
+      confirmed present and silent (the suite reports only failures) in a full live sweep, not
+      just standalone. Added because T-942's finding was that T-884's own test was left unwired
+      from this same file — a prober with no reader is the defect it was written to prevent.
 
 ### Human
-- [ ] [REVIEW] **Rule the seam question: should `yaml-to-bpmn.py` emit
-      `<aef:workflowMeta>`?** This is a sovereignty call, not a review of my work — T-925
-      deferred itself on this exact question and slice 1 exists only to make it decidable.
-
-  **Steps:**
-  1. Read the brief — it is short and every number in it is measured:
-     `docs/reports/T-925-workflowmeta-bridge-seam.md`
-  2. Run the decision script and pick an option. Recommendation is shown first; `1`/`2`/`3`
-     acts immediately, arrows + Enter also work:
-     `bash /opt/832-Workflow-designer/runme.sh`
-
-  **Expected:** Your choice is recorded as a decision on T-925 and the script prints where.
-  The three options are:
-  - **A — emit all ten attributes** (my recommendation). 1 tracked file changes bytes, no
-    pin is affected, no test is expected to break, and one KNOWN-disagreement entry in
-    `test_harness_cross_form_agreement.py` becomes retireable.
-  - **B — emit `id` only.** Closes the visible symptom, leaves nine attributes destroyed and
-    the cross-form hole intact.
-  - **C — rule the bridge is deliberately lossy.** Then the T-301 divergence is expected
-    behaviour, the baseline entry becomes a permanent accepted limitation, and every
-    document-level validator rule keeps a permanent known-disagreement.
-
-  **If not:** If none of the three fits, the thing to say is which claim in the brief you
-  doubt — the load-bearing one is that the bridge produced **1** of the 25 served renders,
-  not 24, which is what T-925's original deferral assumed.
-
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -178,71 +119,6 @@ this slice's job is to make it decidable and to correct one record that currentl
 -->
 
 ## Verification
-
-# --- T-925 slice 1: the seam question, priced --------------------------------
-# The brief exists and carries the measurement the ruling depends on.
-test -f docs/reports/T-925-workflowmeta-bridge-seam.md
-grep -q 'That premise is false' docs/reports/T-925-workflowmeta-bridge-seam.md
-grep -q 'Pool_task_lifecycle' docs/reports/T-925-workflowmeta-bridge-seam.md
-test "$(grep -rl 'by tools/yaml-to-bpmn.py' examples/ build/ 2>/dev/null | wc -l)" -eq 2
-# The source DID declare the id — the fact that made this a renderer bug rather than an
-# authoring mistake, and the reason the ruling went the way it did. Unchanged by the fix.
-grep -q 'id: customer-refund' examples/app-processes/customer-refund.workflow.yaml
-grep -q 'aef:workflowMeta' examples/aef-processes/rendered/task-lifecycle.bpmn
-
-# --- REWRITTEN BY T-959. SUPERSEDED BY T-953, BY THIS TASK'S OWN PLAN --------
-#
-# Four lines here asserted THE BUG, and P-011 runs this block on the work-completed
-# transition and at no other time (PL-161), so they had to be true at the moment the
-# operator closes the task. Measured 2026-10-01: three of them were FALSE.
-#
-#   line 189  test "$(grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py)" -eq 0       rc=1
-#   line 194  ! grep -q 'aef:workflowMeta' .../rendered/customer-refund.bpmn         rc=1
-#   line 198  grep -q 'CAUSE IS T-925' tools/_t301-known-divergences.txt             rc=1
-#
-# All three were true when slice 1 closed. All three are false now because the operator
-# ruled A (PD-351) and T-953 shipped the emitter fix — which is EXACTLY the "separate
-# slice" the Agent AC above said would follow a GO. The ACs predicted this; what nobody
-# did was re-read the gate afterwards. Left as it was, `runme.sh` would have ticked the
-# Human AC and then been refused by this gate: box ticked, task still open.
-#
-# The superseded form is printed above each replacement rather than deleted. A completion
-# gate that quietly reflows to match the tree stops being a gate, and "the tree changed
-# and here is why" is the part worth keeping.
-#
-# was: test "$(grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py)" -eq 0   (pre-T-953)
-test "$(grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py)" -ge 1
-# was: ! grep -q 'aef:workflowMeta' .../customer-refund.bpmn              (pre-T-953)
-# Now a PRESENCE assertion, which needs no control — and it carries the authored id, not a
-# sanitised fallback, which is the whole substance of the ruling.
-grep -q 'aef:workflowMeta id="customer-refund"' examples/app-processes/rendered/customer-refund.bpmn
-# was: grep -q 'CAUSE IS T-925' tools/_t301-known-divergences.txt         (pre-T-953)
-# The baseline no longer names a live cause because it no longer HAS an entry. Assert the
-# retirement record positively; the stale-entry leg in the invariant is what would catch a
-# silent re-appearance, and it is run two lines below.
-grep -q 'CURRENTLY EMPTY, AND THAT IS THE POINT' tools/_t301-known-divergences.txt
-grep -q 'retired the same day by' tools/_t301-known-divergences.txt
-#
-# was: ! grep -q 'may be a deliberate metadata-less import fixture' <same file>
-# DROPPED, not reworded. It was an UNCONTROLLED absence assertion (T-843): nothing greps
-# that string where it IS present, so it cannot distinguish "the wrong reason is gone"
-# from "my pattern never matched anything". It is also now vacuous — the entry it
-# described was deleted outright, so the check has nothing left to be wrong about. The
-# positive assertions above say the same thing without the blind spot.
-
-# T-301's instruments, which is where the real teeth are: the invariant across all four
-# roots, and its own prober. The invariant's stale-entry leg is what reported the baseline
-# entry had stopped diverging in the first place.
-python3 tools/_t301-id-stem-invariant.py > /tmp/.t925-inv.out 2>&1 && grep -q '0 divergent' /tmp/.t925-inv.out
-bash tools/_t301-invariant-teeth.sh
-# was: test -z "$(git diff --stat -- examples/ tools/yaml-to-bpmn.py)"
-# DROPPED. That is PL-365 — a check whose truth depends on WHEN it runs. `git diff` with no
-# ref compares the working tree to the index, so it goes vacuously true the moment the work
-# is committed, and it passed at close for that reason rather than for its stated one. Its
-# replacement is the time-independent form of what it was reaching for: the committed
-# render is byte-reproducible from its source by the CURRENT emitter, so the bytes and the
-# source cannot drift apart unnoticed.
-python3 tools/yaml-to-bpmn.py examples/app-processes/customer-refund.workflow.yaml --out /tmp/.t925-rr.bpmn && diff -q /tmp/.t925-rr.bpmn examples/app-processes/rendered/customer-refund.bpmn
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -369,6 +245,24 @@ python3 tools/yaml-to-bpmn.py examples/app-processes/customer-refund.workflow.ya
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# ── T-958 ─────────────────────────────────────────────────────────────────────
+# Each line rehearsed under `bash -c 'set -o pipefail; <line>'` before being
+# written here, per the note above: an interactive shell has no pipefail and is
+# not the gate.
+#
+# NO ROUTE-COUNT LINE, deliberately. The 8 -> 9 measurement is one-time evidence
+# and lives in ## Updates; pinning `-eq 9` here would go red the day a tenth
+# route legitimately ships, which is the mutable-anchor trap above. The standing
+# invariant is "the server and the report agree and everything is classified",
+# and line 2 asserts exactly that.
+
+grep -q "('POST', '/api/validate')" tools/_t682-boundary-inventory.py
+python3 tools/_t682-boundary-inventory.py > /tmp/.t958-inv.out 2>&1 && grep -q 'server and inventory agree, all classified' /tmp/.t958-inv.out
+grep -qE '^\| POST \| `/api/validate` \|' docs/reports/T-682-arc-2-boundary-inventory.md
+python3 tools/_t958-boundary-row-teeth.py > /tmp/.t958-teeth.out 2>&1 && grep -q 'both drift arms still bite' /tmp/.t958-teeth.out
+grep -q '_t958-boundary-row-teeth.py' tests/run-bridge-tests.sh
+bash -n tests/run-bridge-tests.sh
 
 ## RCA
 
@@ -385,6 +279,37 @@ python3 tools/yaml-to-bpmn.py examples/app-processes/customer-refund.workflow.ya
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+Not gated as bug-class (the title matches none of the trigger words), filled anyway because
+G-019's question has a non-obvious answer here.
+
+**Symptom:** `fw audit` reported `Boundary inventory drift` on two counts for
+`POST /api/validate` — in the server, absent from the report, and carrying no semantics row.
+
+**Root cause:** T-955 built the route, tested it over real HTTP with a teeth leg, wired it into
+`run-bridge-tests.sh`, and never told the authority inventory it existed. Not an oversight in
+the route's implementation — an oversight in what "shipping a route" means.
+
+**Why structurally allowed — and the honest version is not "the framework was blind":** the
+framework detected this correctly, within the same session, from the rail T-941 had just
+fixed for the identical omission on `GET /api/instances`. What is missing is not a detector
+but a *gate*: route classification is downstream of shipping rather than part of it, so the
+inventory is always one commit behind, and the interval is bounded only by when a sweep
+happens to run. T-884's was ~26 hours by luck (PL-363). Mine was minutes, by the same luck.
+The author who wrote the T-941 comment about this exact failure then reproduced it a day
+later, which is evidence that a comment is not a control.
+
+**Prevention:** `tools/_t958-boundary-row-teeth.py`, wired into `tests/run-bridge-tests.sh`,
+keeps the *detector* honest — it proves both drift arms still bite, so the check cannot go
+green by ceasing to look. That is prevention of a false green, and it is genuinely all this
+task delivers on that front.
+
+**What it does NOT prevent, stated rather than implied:** the next route shipped without a
+row. A real control would refuse the commit — a pre-commit or PreToolUse gate that runs
+`_t682` when `tools/gallery-serve.py` is staged, so the omission cannot reach a commit and
+wait for a sweep. That is a separate deliverable (one task = one deliverable) and is filed as
+an observation rather than quietly folded in here, because folding it in is how a mitigation
+gets recorded as a prevention.
 
 ## Evolution
 
@@ -462,14 +387,19 @@ python3 tools/yaml-to-bpmn.py examples/app-processes/customer-refund.workflow.ya
 
 ## Updates
 
-### 2026-09-29T07:57:12Z — task-created [task-create-agent]
+### 2026-09-30T21:43:07Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-958-classify-post-apivalidate-in-the-boundar.md
 - **Context:** Initial task creation
 
-### 2026-09-30T19:38:41Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
+## Reviewer Verdict (v1.5)
 
-### 2026-09-30T19:45:48Z — status-update [task-update-agent]
-- **Change:** owner: agent → human
-- **Reason:** Slice 1 complete: the seam question is priced and decidable. The ruling is a sovereignty call — see the [REVIEW] Human AC and bash /opt/832-Workflow-designer/runme.sh
+- **Scan ID:** R-38d60d49
+- **Timestamp:** 2026-09-30T22:14:43Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-30T22:14:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
