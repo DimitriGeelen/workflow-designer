@@ -892,6 +892,36 @@ else
   fail=$((fail + 1))
 fi
 
+
+# T-301: card id == derived workflowMeta.id, across every served corpus.
+#
+# Two identities name the same map and only a convention keeps them equal. The store card
+# id is the file stem; the document id is re-derived from the bytes inside parseBpmnXml.
+# openProjectMap fetches by card id, adopts, and DISCARDS it — so one divergence produces
+# both reported symptoms: an empty Versions panel and a save that forks a new project
+# record under the derived id.
+#
+# The editor cannot produce the divergence (every editor write keys the card by
+# workflowMeta.id); the STORE can, and did — t101-review-audit-process was a store-level
+# copy of audit-process whose bytes still said audit-process. So the guard is a corpus
+# walk, which is the whole of T-301's approved scope: an editor-side fix would protect the
+# path that was never the source.
+#
+# The teeth prober runs first and includes the leg the GO asked for by name — a synthesised
+# divergent card that must be caught — plus two legs pinning the derivation chain from
+# src/aef-workflow-designer.html:11210 (authored id used UNSANITIZED; procId before
+# procName). Those matter because the first cut of the checker guessed the aef namespace
+# wrong and reported 127 of 127 documents divergent on a corpus measured at 0%.
+if bash "$ROOT/tools/_t301-invariant-teeth.sh" > "$TMP/leg-_t301-teeth.out" 2>&1 \
+   && python3 "$ROOT/tools/_t301-id-stem-invariant.py" > "$TMP/leg-_t301.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a served document's card id and its derived workflowMeta.id disagree (opening it gives an empty Versions panel and a save forks a new project), or a recorded divergence went stale, or the invariant check stopped biting (T-301/T-951 — run 'bash tools/_t301-invariant-teeth.sh' then 'python3 tools/_t301-id-stem-invariant.py'; a NEW divergence must be fixed or recorded WITH a reason in tools/_t301-known-divergences.txt, never silenced by widening the check; rc=3 means no corpus was found, not that the invariant holds)"
+  show_output "$TMP/leg-_t301-teeth.out" "_t301-invariant-teeth.sh"
+  show_output "$TMP/leg-_t301.out" "_t301-id-stem-invariant.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an

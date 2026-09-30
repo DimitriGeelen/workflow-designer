@@ -1,0 +1,34 @@
+# T-301 — recorded card-id / document-id divergences.
+#
+# Format:  <card id> | <derived document id> | <reason>
+#
+# THIS IS A RATCHET, NOT AN EXEMPTION LIST. Every entry is printed on every run, and an
+# entry that STOPS diverging is reported as a FAILURE (stale) rather than carried quietly.
+# A new divergence not listed here fails the check. Adding a line is a decision that
+# should be visible in a commit, which is why the reason is mandatory.
+#
+# ── customer-refund ──────────────────────────────────────────────────────────────
+# `examples/app-processes/rendered/customer-refund.bpmn` (tracked) and its untracked
+# build copy `build/gallery/rendered/customer-refund.bpmn` declare
+#   <bpmn:process id="Pool_customer_refund" name="customer-refund">
+# and carry NO <aef:workflowMeta> element at all. The derivation chain therefore falls to
+# sanitizeWorkflowId(procId) = "pool_customer_refund", against a stem of "customer-refund".
+#
+# WHY IT IS RECORDED RATHER THAN FIXED. T-301's own write-up (2026-08-20) describes this
+# document as deriving its id from <bpmn:process name> and coming out equal to its stem
+# "by luck". That was true under the chain of the time. T-563 reordered the chain to put
+# procId BEFORE procName, and the luck ran out — so this divergence is LIVE today, and it
+# arrived through a framework-side change to the derivation, not through T-501 as T-301
+# predicted.
+#
+# The obvious fix is to add <aef:workflowMeta id="customer-refund"/> to the document. It is
+# NOT applied here, for two reasons, both of which are the operator's call and not mine:
+#   1. This is the only served document with no aef:workflowMeta. That may be deliberate —
+#      it is the natural fixture for "a third-party BPMN file with no AEF metadata", and
+#      giving it metadata would destroy that property.
+#   2. T-563's notes are explicit that moving bytes on corpus documents is watched by
+#      _t308 and _t358. A byte change here is a seam event, not a tidy-up.
+#
+# So: asserted, named, and put in front of a human. Removing this entry requires either
+# fixing the document or ruling that the invariant does not apply to metadata-less imports.
+customer-refund | pool_customer_refund | No <aef:workflowMeta>; procId is "Pool_customer_refund". Live since T-563 reordered the derivation chain (procId before procName). May be a deliberate metadata-less import fixture — operator decision, see T-951.
