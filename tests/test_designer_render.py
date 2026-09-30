@@ -50,10 +50,30 @@ DIST = ROOT / "dist"
 
 # Console errors we intentionally tolerate. The designer probes a backend that
 # is absent when served as a static file (same condition as :3001/designer).
-# Documented, non-fatal (T-178). Scoped to EXACTLY these two per spec. As of
-# T-176 the web fonts are embedded (base64 woff2) — there is NO CDN font request
-# in 0.3.0+, so a font/CDN error can no longer occur (nor is it whitelisted).
-CONSOLE_WHITELIST = ("/api/health", "/favicon.ico")
+# Documented, non-fatal (T-178). Scoped to EXACTLY these THREE, each with its
+# reason — a bare addition invites a fourth without one, and then this stops
+# being an exception list and becomes a mute button. As of T-176 the web fonts
+# are embedded (base64 woff2) — there is NO CDN font request in 0.3.0+, so a
+# font/CDN error can no longer occur (nor is it whitelisted).
+#
+#   /api/health     the original backend liveness probe (T-178)
+#   /favicon.ico    requested by the browser, not by the designer
+#   /api/instances  T-884's instance-overlay snapshot. ADDED T-940, after this
+#                   gate correctly blocked the 0.14.0 release: T-884 shipped the
+#                   probe and never whitelisted it, and dist/ had not been
+#                   rebuilt since, so nothing surfaced it for weeks.
+#
+#                   The designer's handling is CORRECT and was not changed:
+#                   loadInstanceSnapshot() catches the failure and sets
+#                   instanceView.available = false — "additive overlay: absence
+#                   is a state, never a fault" — and selectInstance() refuses to
+#                   report not-found without the endpoint, rather than claiming
+#                   the corpus was read. The console entry comes from the
+#                   browser's NETWORK layer before any JS runs, so it is
+#                   unavoidable for any optional probe and cannot be caught away.
+#                   Repairing src/ to silence it would have been fixing correct
+#                   code to satisfy a stale test.
+CONSOLE_WHITELIST = ("/api/health", "/favicon.ico", "/api/instances")
 
 # Expected governance dropdown option-sets (order-sensitive signatures).
 # Matched by signature rather than by DOM position so the assertion is robust
