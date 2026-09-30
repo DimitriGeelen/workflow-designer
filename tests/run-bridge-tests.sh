@@ -862,6 +862,36 @@ else
   fail=$((fail + 1))
 fi
 
+# T-949: the GO-scope triage must stay complete as the audit's finding moves.
+#
+# The audit reported 27 "GO recorded, work never filed" inceptions. Measured, 22 were
+# delivered and only missing a related_tasks: back-link, 2 were partial, 2 were upstream's,
+# and exactly ONE was genuinely un-acted. A 27-item warning with one real item in it cannot
+# be read, which is why T-835 had to re-discover one of them by hand 15 days late.
+#
+# The backfill dropped the finding to 5. That number will move again, so this checker does
+# NOT pin 27 (T-3326 — a mutable-corpus anchor rots). It asserts the FORWARD invariant: every
+# inception the audit flags right now carries a verdict in docs/reports/T-949-go-scope-triage.md,
+# from a fixed vocabulary, citing an artifact. A newly-abandoned GO therefore cannot appear in
+# the audit without failing here.
+#
+# Three subjects, deliberately ANDed into one leg because they fail for the same reason:
+#   teeth      — the checker still bites (5 mutation legs + a no-op control)
+#   checker    — every currently-flagged inception carries an evidenced verdict
+#   --verify   — the 22 back-links the backfill wrote are still there. A re-vendor or a
+#                template reset would silently wipe them, and then the finding climbs back.
+if bash "$ROOT/tools/_t949-completeness-teeth.sh" > "$TMP/leg-_t949-teeth.out" 2>&1 \
+   && python3 "$ROOT/tools/_t949-backfill-related-tasks.py" --verify > "$TMP/leg-_t949-links.out" 2>&1 \
+   && python3 "$ROOT/tools/_t949-triage-completeness.py" > "$TMP/leg-_t949.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a GO-recorded inception is flagged by the audit with no verdict in the T-949 triage, or a verdict lost its cited evidence, or the checker itself stopped biting — an abandoned operator decision would again be invisible inside a list of false positives (T-949 — run 'bash tools/_t949-completeness-teeth.sh' then 'python3 tools/_t949-triage-completeness.py'; rc=3 means the audit report is absent, not that the triage is wrong)"
+  show_output "$TMP/leg-_t949-teeth.out" "_t949-completeness-teeth.sh"
+  show_output "$TMP/leg-_t949-links.out" "_t949-backfill-related-tasks.py --verify"
+  show_output "$TMP/leg-_t949.out" "_t949-triage-completeness.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an

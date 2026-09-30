@@ -14,7 +14,7 @@ owner: human
 horizon:
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-192, T-203, T-204]
 created: 2026-07-11T16:56:46Z
 last_update: '2026-08-16T14:33:19Z'
 date_finished:

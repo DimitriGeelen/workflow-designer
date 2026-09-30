@@ -132,13 +132,17 @@ operator rulings, not on filing).
 ### SUPERSEDED-UPSTREAM (2) — not this project's to land
 
 - **T-006** — *`fw vendor` should ship `orchestrator-mcp-baseline.yaml` to consumers.*
+  Only artifact is T-010, which `"added docs/reports/T-006-*.md"` — the research record, not
+  the approved change. T-008 names it as an undecided inception. No delivering slice exists,
+  and none should exist here.
 - **T-007** — *`fw init` seeds `patterns.yaml` with `origin_task` where the template expects
-  `learned_from`.*
+  `learned_from`.* Same shape: T-010 created `T-007-*.md` `"(pointer artifacts to pickup
+  §F2/§F3) to satisfy inception"`. A pointer to an upstream pickup, not a fix.
 
 Both approve a change to **framework behaviour**, not to workflow design. Under the standing
-product-boundary rule these are not ours to build; they land upstream or not at all. T-010
-added their research artifacts, which satisfied the inception-artifact check and is why they
-look partly served. Recorded, not filed.
+product-boundary rule these are not ours to build; they land upstream or not at all. The T-010
+artifacts satisfied the inception-artifact check, which is why they look partly served.
+Recorded, not filed.
 
 ---
 
@@ -158,13 +162,20 @@ look partly served. Recorded, not filed.
 and it is how the operator's docket reached 83 items. The shortlist below is the deliverable;
 filing is the operator's call.
 
-### Shortlist, ranked
+### Shortlist
 
-| | inception | BVP | what the GO approved, in one line |
-|---|---|---:|---|
-| 1 | **T-263** | — | Warn when a save would overwrite a different project than the one loaded. Slice T-264 filed 2026-07-27, never started. |
-| 2 | **T-301** | — | Assert the card-id/workflowMeta-id invariant. GO overturned a prior DEFER; nothing filed since 2026-08-20. |
-| 3 | T-103 | — | Finish moving editor tests onto the T-101 harness (T-105, open 72 days). |
+**BVP does not discriminate here, and saying so is part of the answer.** All three score
+**126 (norm 0.40)**, identically, from `bvp-estimator-v1-heuristic` — proposed, never
+operator-confirmed. Three different questions receiving one number is the gap arc-004 exists
+to close: *"a support score is a number with no referent — it can rank, but it cannot be
+WRONG, because there is no claim for it to be wrong about."* Ranking by it would be theatre,
+so the order below rests on stated grounds instead.
 
-T-263 and T-301 are the same seam — document identity on save — and both are small, bounded
-and user-visible. If any of this list gets filed, those two are one sitting.
+| | inception | BVP | what the GO approved, in one line | why this rank |
+|---|---|---:|---|---|
+| 1 | **T-263** | 126 | Warn when a save would overwrite a different project than the one loaded. | The slice **exists and was never started** — T-264, filed 2026-07-27, still `captured`. Least ambiguity of any item here: someone already decided the shape. |
+| 2 | **T-301** | 126 | Assert the card-id/workflowMeta-id invariant — *"do not chase the symptom."* | Its GO **overturned a prior DEFER**. The operator moved from "not now" to "yes", and nothing followed. The only genuinely un-acted decision of the 27. |
+| 3 | T-103 | 126 | Finish moving editor tests onto the T-101 CDP harness. | Substrate work, no user-visible outcome, and T-105 is already in flight — an open task, not an unfiled one. |
+
+T-263 and T-301 are **the same seam** — document identity on save — and both are small,
+bounded and user-visible. If anything on this list gets filed, those two are one sitting.

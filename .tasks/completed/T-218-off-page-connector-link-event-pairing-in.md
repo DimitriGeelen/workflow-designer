@@ -12,7 +12,7 @@ owner: human
 horizon:
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-219, T-220, T-221, T-224, T-225, T-226, T-227, T-228]
 created: 2026-07-20T20:43:52Z
 last_update: '2026-08-16T14:33:21Z'
 date_finished: 2026-07-21T19:22:56Z

@@ -6,17 +6,18 @@ description: >
   Inception: EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs
   1-6 have no tasks at all
 
-status: started-work
+status: work-completed
 workflow_type: inception
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
-related_tasks: []
+components: [tools/_t682-boundary-inventory.py, tools/_t684-mutation-control.py, tools/_t738-unrankable-task-census.py, tools/_t739-defer-is-not-a-decision.py, tools/_t833-ctl029-partial-complete-controls.sh]
+related_tasks: [T-682, T-683, T-684, T-689, T-738, T-780, T-825]
 arc_id: ewcr-governed-delivery
 created: 2026-09-05T14:17:12Z
-last_update: 2026-09-29T17:23:04Z
-date_finished:
+last_update: 2026-09-30T11:26:42Z
+date_finished: 2026-09-30T11:26:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -356,3 +357,40 @@ Evidence:
 
 ### 2026-09-29T17:23:04Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-60f4439d
+- **Timestamp:** 2026-09-30T11:26:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-a3f52a1b
+- **Timestamp:** 2026-09-30T11:26:45Z
+- **Overall:** CONFIRMED
+- **Claims:** 10
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `tools/_t682-boundary-inventory.py` | file | ✓ pass |
+| `docs/reports/T-682-arc-2-boundary-inventory.md` | file | ✓ pass |
+| `tools/_t684-mutation-control.py` | file | ✓ pass |
+| `.context/designer/registry.yaml` | file | ✓ pass |
+| `T-611` | task | ✓ pass |
+| `T-682` | task | ✓ pass |
+| `T-683` | task | ✓ pass |
+| `T-684` | task | ✓ pass |
+| `T-689` | task | ✓ pass |
+| `T-680` | task | ✓ pass |
+
+### 2026-09-30T11:26:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

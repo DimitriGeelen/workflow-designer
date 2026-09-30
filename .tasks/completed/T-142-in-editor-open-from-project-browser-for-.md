@@ -10,7 +10,7 @@ owner: human
 horizon:
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-143, T-144]
 created: 2026-07-07T18:28:17Z
 last_update: '2026-08-16T14:33:15Z'
 date_finished: 2026-07-08T06:07:02Z

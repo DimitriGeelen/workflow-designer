@@ -10,7 +10,7 @@ owner: human
 horizon: null
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-789, T-794, T-798, T-799, T-800, T-802, T-803]
 created: 2026-09-22T07:40:05Z
 last_update: 2026-09-22T09:06:06Z
 date_finished: 2026-09-22T09:06:06Z

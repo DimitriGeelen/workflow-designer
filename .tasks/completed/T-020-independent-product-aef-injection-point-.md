@@ -10,7 +10,7 @@ owner: human
 horizon:
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-021, T-022, T-023, T-024, T-025, T-026, T-027, T-031, T-032, T-033]
 created: 2026-07-02T20:44:48Z
 last_update: '2026-08-16T14:33:06Z'
 date_finished: 2026-07-02T21:25:02Z

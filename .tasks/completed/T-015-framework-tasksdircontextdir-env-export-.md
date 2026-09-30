@@ -12,7 +12,7 @@ owner: human
 horizon:
 tags: [upstream-framework]
 components: []
-related_tasks: []
+related_tasks: [T-091]
 created: 2026-06-08T23:10:32Z
 last_update: '2026-08-16T14:33:06Z'
 date_finished: 2026-07-04T22:49:09Z

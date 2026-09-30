@@ -12,7 +12,7 @@ owner: human
 horizon:
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-835]
 arc_id: ewcr-governed-delivery
 created: 2026-09-06T16:39:41Z
 last_update: '2026-09-21T20:25:09Z'

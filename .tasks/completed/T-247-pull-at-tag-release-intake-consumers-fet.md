@@ -21,7 +21,7 @@ owner: agent
 horizon:
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-248, T-254]
 created: 2026-07-23T10:06:24Z
 last_update: '2026-08-16T14:33:23Z'
 date_finished: 2026-07-23T11:10:36Z

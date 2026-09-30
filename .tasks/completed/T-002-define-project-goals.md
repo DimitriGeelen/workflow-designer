@@ -11,7 +11,7 @@ owner: human
 horizon:
 tags: [onboarding, inception]
 components: []
-related_tasks: []
+related_tasks: [T-012, T-017, T-018]
 created: 2026-06-04T07:53:20Z
 last_update: '2026-08-16T14:33:05Z'
 date_finished: 2026-06-05T11:11:59Z

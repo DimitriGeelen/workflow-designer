@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T17:01:12Z
-last_update: 2026-09-30T17:01:12Z
+last_update: 2026-09-30T17:06:42Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -63,24 +63,30 @@ parent in prose counts as unpropagated. Distinguishing that from real abandonmen
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/reports/T-949-go-scope-triage.md` carries a verdict for **every** id in the audit's
+- [x] `docs/reports/T-949-go-scope-triage.md` carries a verdict for **every** id in the audit's
       own report, where the denominator is read FROM that report at check time and never
       hand-typed (PL-181). Verdict vocabulary is fixed: `SHIPPED-UNLINKED`, `PARTIAL`,
       `UNDONE`, `SUPERSEDED`.
-- [ ] Every verdict cites at least one concrete artifact — a commit hash, a task id, or a file
+- [x] Every verdict cites at least one concrete artifact — a commit hash, a task id, or a file
       path. A verdict resting only on the inception's title or my reading of its prose is not
       admissible and the completeness checker rejects it.
-- [ ] Each inception ruled `SHIPPED-UNLINKED` has `related_tasks:` backfilled in its own task
+- [x] Each inception ruled `SHIPPED-UNLINKED` has `related_tasks:` backfilled in its own task
       file naming the delivering task(s), so the link that was missing now exists.
-- [ ] Re-running the audit predicate shows the finding count **fall by exactly** the number
+- [x] Re-running the audit predicate shows the finding count **fall by exactly** the number
       ruled `SHIPPED-UNLINKED` — measured by re-running `fw audit`, not asserted. If it does
       not fall by that number, the backfill did not do what I claim and the AC fails.
-- [ ] `tools/_t949-triage-completeness.py` exists, is wired into `tests/run-bridge-tests.sh`,
+- [x] `tools/_t949-triage-completeness.py` exists, is wired into `tests/run-bridge-tests.sh`,
       and FAILS when a verdict is missing, when the vocabulary is violated, or when a verdict
       carries no evidence token — proven by a deliberate negative fixture, not by passing once.
-- [ ] Every `UNDONE` / `PARTIAL` inception appears in a shortlist ranked by its BVP score,
+- [x] Every `UNDONE` / `PARTIAL` inception appears in a shortlist ranked by its BVP score,
       each row naming what the GO approved in one line.
-- [ ] **No new build task is filed by this task.** The shortlist is the deliverable; filing is
+      **Met, but the AC was wrong and the report says so.** All three score an identical
+      126 / 0.40 from the heuristic estimator, so BVP cannot rank them — three different
+      questions, one number. The shortlist records the score, states that it does not
+      discriminate, and ranks on stated grounds instead. Ranking "by BVP" as written
+      would have been theatre, and this is exactly the referent-free score arc-004 exists
+      to fix.
+- [x] **No new build task is filed by this task.** The shortlist is the deliverable; filing is
       the operator's call. (If this AC is ever ticked alongside newly-created build tasks, the
       task lied — the verification checks the task-count delta.)
 
@@ -116,6 +122,35 @@ parent in prose counts as unpropagated. Distinguishing that from real abandonmen
 -->
 
 ## Verification
+
+# --- T-949 -------------------------------------------------------------------
+# The triage document exists and covers every inception the audit flags RIGHT NOW,
+# from a fixed vocabulary, each verdict citing an artifact. Forward-looking on purpose:
+# it does not pin 27, because the finding moves (T-3326).
+python3 tools/_t949-triage-completeness.py
+# The checker BITES: 5 mutation legs plus a no-op control. Two real defects in the
+# checker were found by this prober, not by review — an unrecognised '### ' heading
+# silently inheriting the previous verdict, and evidence scoped to a single line.
+bash tools/_t949-completeness-teeth.sh
+# The 22 back-links the backfill wrote are still present, and the arithmetic closes
+# (22 expected, 22 counted, 0 refused). A re-vendor or template reset would wipe them.
+python3 tools/_t949-backfill-related-tasks.py --verify
+# Re-running the backfill must be a no-op — idempotent, nothing left to change.
+python3 tools/_t949-backfill-related-tasks.py --dry-run > /tmp/.t949-dry.out 2>&1 && grep -q "would change: 0" /tmp/.t949-dry.out
+# All three are wired into the bridge suite, so they are reachable by something other
+# than this one-shot gate (PL-161: a Verification block is a completion gate, not a
+# standing guard; PL-363: registration buys reachability, not detection).
+grep -q '_t949-completeness-teeth.sh' tests/run-bridge-tests.sh
+grep -q '_t949-triage-completeness.py' tests/run-bridge-tests.sh
+grep -q '_t949-backfill-related-tasks.py --verify' tests/run-bridge-tests.sh
+# The suite still parses after the edit.
+bash -n tests/run-bridge-tests.sh
+# The 22 backfilled parents still have valid YAML frontmatter with a NON-EMPTY list.
+# Positive assertion with a guarded denominator, not an absence count (T-843).
+# ONE LINE, deliberately: P-011 executes each line as its own shell command, so the
+# readable multi-line version of this was silently split into fragments. Caught by
+# running it, not by reading it.
+python3 -c "import yaml,glob; ids='T-002 T-015 T-020 T-038 T-068 T-092 T-112 T-142 T-173 T-190 T-201 T-213 T-218 T-244 T-247 T-249 T-250 T-257 T-617 T-681 T-685 T-788'.split(); assert len(ids)==22, len(ids); rt={i: yaml.safe_load(open((glob.glob('.tasks/completed/%s-*.md'%i)+glob.glob('.tasks/active/%s-*.md'%i))[0]).read().split('---')[1]).get('related_tasks') for i in ids}; bad={k:v for k,v in rt.items() if not (isinstance(v,list) and len(v)>0)}; assert not bad, bad; print('%d/%d parents carry a non-empty related_tasks'%(len(rt),len(ids)))"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
