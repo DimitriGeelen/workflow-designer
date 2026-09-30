@@ -2769,3 +2769,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-451
+  text: "fw release status reports 'Latest tag: <none>' while 16 tags exist, because it does not recognise this project's designer-vX.Y.Z tag naming. Reproduced 2026-09-30: the tags designer-v0.13.0 back to designer-v0.7.0 are present and designer-v0.13.0 resolves to a2bb9e52, but the verb reports no tag and 'Commits since: 0'. Consequence: the framework's own release-status surface reads as 'never released' for a project with sixteen releases, and 'Commits since: 0' is the most misleading possible value - it says there is nothing to release when eleven commits have touched src/ since the last tag. Anyone trusting the verb would conclude no release is due. The real mechanism here is scripts/release-designer.sh, which previous releases used. Either the verb should take a tag-pattern config, or it should say 'no tag matching <pattern>' rather than 'none' - naming what it looked for turns a false answer into an answerable one. Same defect family as the rest of 2026-09-29/30: a surface that reports confidently about something it could not see."
+  captured: 2026-09-30T08:46:47Z
+  context_task: T-937
+  tags: [bug]
+  status: pending
+  promoted_to: null
