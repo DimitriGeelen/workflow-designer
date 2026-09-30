@@ -1,0 +1,109 @@
+# ============================================================================
+# EPISODIC MEMORY - T-949: Triage the 27 GO-recorded inceptions whose approved work was never filed: which shipped unlinked, which are genuinely undone
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T17:39:42Z
+# ============================================================================
+
+task_id: T-949
+task_name: "Triage the 27 GO-recorded inceptions whose approved work was never filed: which shipped unlinked, which are genuinely undone"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T17:01:12Z
+completed: 2026-09-30T17:39:32Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T19:06:41+02:00
+last_commit: 2026-09-30T19:39:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the 27 'never filed' GO decisions are 22 delivered, 2 partial, 1 real. 22 back-links restored, and the GO-scope alarm drops from 27 findings to 5 true ones
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/T-949-go-scope-triage.md` carries a verdict for **every** id in the audit''s'
+  - 'Every verdict cites at least one concrete artifact — a commit hash, a task id, or a file'
+  - 'Each inception ruled `SHIPPED-UNLINKED` has `related_tasks:` backfilled in its own task'
+  - 'Re-running the audit predicate shows the finding count **fall by exactly** the number'
+  - '`tools/_t949-triage-completeness.py` exists, is wired into `tests/run-bridge-tests.sh`,'
+  - 'Every `UNDONE` / `PARTIAL` inception appears in a shortlist ranked by its BVP score,'
+  - '**No new build task is filed by this task.** The shortlist is the deliverable; filing is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-949-go-scope-triage.md'
+  - '.tasks/active/T-949-triage-the-27-go-recorded-inceptions-who.md'
+  - '.tasks/completed/T-002-define-project-goals.md'
+  - '.tasks/completed/T-015-framework-tasksdircontextdir-env-export-.md'
+  - '.tasks/completed/T-020-independent-product-aef-injection-point-.md'
+  - '.tasks/completed/T-038-minimal-operator-surface-to-review-and-c.md'
+  - '.tasks/completed/T-068-inception-constituentssubprocess-constru.md'
+  - '.tasks/completed/T-092-routing--layoutalignment-optimisation-su.md'
+  - '.tasks/completed/T-112-obstacle-avoiding-orthogonal-edge-router.md'
+  - '.tasks/completed/T-142-in-editor-open-from-project-browser-for-.md'
+  - '.tasks/completed/T-173-integrate-workflow-designer-into-aef-thi.md'
+  - '.tasks/completed/T-190-iw-12-inception--typed-bpmn-event-palett.md'
+  - '.tasks/completed/T-201-write-out-mode-bpmn-compile-emits-real-t.md'
+  - '.tasks/completed/T-213-disposition-aefworkflowmeta-diagram-kind.md'
+  - '.tasks/completed/T-218-off-page-connector-link-event-pairing-in.md'
+  - '.tasks/completed/T-244-bare-catch-event-rendering-neutral-untyp.md'
+  - '.tasks/completed/T-247-pull-at-tag-release-intake-consumers-fet.md'
+  - '.tasks/completed/T-249-canvas-navigation-for-oversized-workflow.md'
+  - '.tasks/completed/T-250-live-state-annotation-seam-designer-side.md'
+  - '.tasks/completed/T-257-typed-startthrow-eventdef-round-trip-sav.md'
+  - '.tasks/completed/T-617-designer-node-execution-contract-determi.md'
+  - '.tasks/completed/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - '.tasks/completed/T-685-should-authority-live-in-the-box-tier--o.md'
+  - '.tasks/completed/T-788-does-832-build-any-part-of-the-workflow-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t949-backfill-related-tasks.py'
+  - 'tools/_t949-completeness-teeth.sh'
+  - 'tools/_t949-triage-completeness.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T19:06:41'
+    action: 'T-949: the 27 ''never filed'' GO decisions are 22 delivered, 2 partial, 1 real'
+  - time: '2026-09-30T19:39:11'
+    action: 'T-949: 22 back-links restored, and the GO-scope alarm drops from 27 findings to 5 true ones'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 38 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 38
+  commits: 2
+  files_changed: 28
+  lines_added: 1120
+  lines_removed: 47
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-949-triage-the-27-go-recorded-inceptions-who.md
+generated_by: context-agent-hybrid

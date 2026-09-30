@@ -1,0 +1,21 @@
+id: tools/_t949-triage-completeness.py
+name: _t949-triage-completeness
+type: script
+subsystem: instruments
+location: tools/_t949-triage-completeness.py
+tags: []
+
+purpose: "T-949 — the GO-scope triage must stay complete as the audit finding changes."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-30
+created_by: unknown

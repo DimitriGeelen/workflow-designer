@@ -1,0 +1,21 @@
+id: tools/_t949-backfill-related-tasks.py
+name: _t949-backfill-related-tasks
+type: script
+subsystem: instruments
+location: tools/_t949-backfill-related-tasks.py
+tags: []
+
+purpose: "T-949 — backfill related_tasks: on the GO-recorded inceptions whose approved work was delivered but never linked back."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-30
+created_by: unknown

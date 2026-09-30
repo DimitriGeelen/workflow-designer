@@ -2783,3 +2783,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-453
+  text: "fw task update has no --related flag, so the audit's GO-scope-not-propagated check demands a related_tasks: link the CLI provides no supported way to write. Flags available: --status --owner --type --horizon --tags --add-tag --reason --force --happiness and the --skip-* family. Nothing sets related_tasks: or unlocks_inception_decision:. T-949 had to backfill 22 inceptions with a purpose-built script (tools/_t949-backfill-related-tasks.py) because the only sanctioned alternative was 22 hand edits, and shell writes to .tasks/ are blocked by the write scanner by design. This is why the field sat empty on 27 inceptions for up to four months while the work itself was delivered: the convention people actually used was a prose citation in the child task ('First build slice authorised by the T-038 GO'), which is what you can write without tooling. A check that enforces a field the CLI cannot set will always measure tooling absence rather than the behaviour it cares about. Candidate fix: fw task update T-XXX --related T-YYY[,T-ZZZ] --unlocks T-AAA, appending rather than replacing, refusing ids that do not resolve."
+  captured: 2026-09-30T17:39:56Z
+  context_task: null
+  tags: []
+  status: pending
+  promoted_to: null
