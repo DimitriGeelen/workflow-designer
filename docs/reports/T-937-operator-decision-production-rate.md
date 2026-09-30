@@ -173,3 +173,72 @@ quoted onward, and it is an artefact of my method rather than a fact about the c
 The exploration plan said a negative here is a NO-GO for the whole task. It is **not** negative:
 production does materially exceed answering (2.5× growth in twelve weeks). So spike 2 — the
 load-bearing IW-2 read — is warranted, and proceeds.
+
+---
+
+## Spike 2 — IW-2. The hypothesis is FALSIFIED, and the read found a different defect.
+
+### The hypothesis, and its result
+
+> At least **4** of a random sample of 15 will be settleable by a named existing ruling.
+
+**Found: 1, and arguably 0.** Sample of 15 drawn with `random.seed(937)` so it is reproducible and not
+cherry-picked.
+
+The single candidate is **T-733** — *"is a hub whose runtime sits in `/tmp` an acceptable source for
+citations the Arc-0 register treats as evidence?"* — against the standing rule that verification legs
+must never assert over `/tmp` as durable evidence (T-837/T-787). Adjacent, and arguably the same
+principle. But a verification leg asserting over `/tmp` is not the same act as a register citing a
+`/tmp`-resident hub, so calling it settled would be me adjudicating a boundary rather than applying a
+ruling — the relocated authority PD-302 forbids. Counted as 1 with that caveat; 0 under a strict read.
+
+**Either way: below 4. IW-2 answered NO. Escalation discipline is not the defect, and there is no
+agent-side fix of the kind this task was opened to find.** That is the outcome the hypothesis was
+written to make reachable, and T-872 reached the same conclusion from different evidence on 2026-09-26.
+
+### The keyword aid failed, and the failure is instructive
+
+Scoring each criterion's word overlap against all 368 register entries put **PD-308 top for 11 of 15**.
+PD-308 is simply a long entry: the score measured verbosity, not relevance. Recorded because it is the
+third time this week a scoring heuristic over prose produced confident nonsense on this exact question
+— the other two offered 21 sovereign rulings to a reviewer. **A classifier is the wrong instrument for
+"is this already ruled on", and reading fifteen criteria took twenty minutes.**
+
+### What the read found instead: 14% of the queue is the template's own boilerplate
+
+Two of the fifteen were the identical line. Counting across the corpus:
+
+**12 of the 83 open operator criteria are `[REVIEW] Review exploration findings and approve go/no-go
+decision`** — generated verbatim by `.tasks/templates/inception.md:152`, on T-184, T-185, T-186, T-277,
+T-279, T-280, T-281, T-282, T-498, T-811, T-898 and T-937.
+
+Nobody asked those twelve questions. They are a form field, and they **duplicate the verb**: recording
+the go/no-go is what `fw inception decide` does, and the template's other three inception ACs carry
+`@auto-tick-on-decide` markers so the decide verb ticks them. This one does not, so it survives the
+decision it describes.
+
+So the operator's queue contains twelve copies of a question the framework answers with a verb.
+
+### And one sizing violation
+
+**T-742** bundles *"The 12 Sovereign questions in §12"* into a single criterion. Twelve rulings behind
+one checkbox, which can only be ticked all-or-nothing. CLAUDE.md's own sizing rule — one deliverable,
+one task; one bug, one task — is violated at criterion level, and nothing checks it.
+
+### Revised picture of the 83
+
+| | count | |
+|---|---|---|
+| genuine individual operator rulings | ~68 | irreducibly the operator's |
+| **template boilerplate** | **12** | **not a question — a form field duplicating a verb** |
+| bundled (T-742 = 12 rulings in 1) | 1 | a sizing defect, not one decision |
+| settleable by an existing ruling | 0–1 | escalation discipline is NOT the problem |
+
+### Verdict
+
+**IW-2: NO.** **IW-3: the backlog is not concentrated in task shapes — it is concentrated in one
+TEMPLATE LINE**, which spike 3 was not designed to look for and would have missed.
+
+The systemic finding is not "agents escalate too readily". It is **the framework's own inception
+template manufactures an operator criterion per inception and never retires it.** That is AEF's file,
+so the remediation is AEF's.
