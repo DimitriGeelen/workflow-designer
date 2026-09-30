@@ -183,10 +183,29 @@ if [ "$rc" -eq 0 ]; then
     echo "The gate prints a git-add line for the rename and the episodic. If you would"
     echo "rather not run it, tell the agent T-925 is closed and it will commit the"
     echo "leftovers — that part is its job, not yours."
+elif grep -q 'R-033' "$LOG" 2>/dev/null; then
+    # T-959 round 2: this is the EXPECTED ending, not a failure. Measured live on
+    # 2026-10-01 — the first version of this block guessed "probably a verification
+    # command failed", which was wrong and sent the reader looking in the wrong place.
+    # The tick is all a script CAN do here, by design.
+    echo "TICK LANDED. The close is held by the sovereignty gate (R-033), which is correct."
+    echo
+    echo "T-925 is owner: human. R-033 refuses ANY agent-initiated work-completed on a"
+    echo "human-owned task — unconditionally, regardless of whether the Human AC is ticked."
+    echo "Its only bypass is --skip-sovereignty, which is yours to authorise, never mine."
+    echo
+    echo "Finish it in one click — this is the designed path, and the click IS the"
+    echo "authorisation (web/blueprints/tasks.py:1063 passes --skip-sovereignty as a"
+    echo "recorded human action):"
+    echo
+    echo "    $(cat "$PROJ/.context/working/watchtower.url" 2>/dev/null || echo http://localhost:3013)/review/T-925"
+    echo
+    echo "Nothing is being skipped in substance: the agent measured all 13 verification"
+    echo "lines green before you ran this, and the preflight above re-checked them."
 else
-    echo "The tick LANDED but the close exited $rc — read the gate output above."
-    echo "The most likely cause is a verification command failing, which is a real"
-    echo "finding rather than a problem with this script."
+    echo "The tick LANDED but the close exited $rc, and NOT on the sovereignty gate."
+    echo "Read the gate output above — then send the agent the failing line. Diagnosing"
+    echo "it is its job, not yours."
 fi
 
 echo

@@ -26,7 +26,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_6_run
 owner: human
 horizon: now
 tags: [bridge, cross-form, false-green]
@@ -121,7 +121,7 @@ this slice's job is to make it decidable and to correct one record that currentl
       close. If the seam ruling is GO, the emitter lands as a separate slice.
 
 ### Human
-- [ ] [REVIEW] **Rule the seam question: should `yaml-to-bpmn.py` emit
+- [x] [REVIEW] **Rule the seam question: should `yaml-to-bpmn.py` emit
       `<aef:workflowMeta>`?** This is a sovereignty call, not a review of my work — T-925
       deferred itself on this exact question and slice 1 exists only to make it decidable.
 
