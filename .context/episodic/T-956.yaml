@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-956: Record the operator's process-maturity model: strictness is earned, deviation is evidence, and the hatch never closes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T20:55:24Z
+# ============================================================================
+
+task_id: T-956
+task_name: "Record the operator's process-maturity model: strictness is earned, deviation is evidence, and the hatch never closes"
+workflow_type: design
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T20:50:38Z
+completed: 2026-09-30T20:55:13Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T22:53:43+02:00
+last_commit: 2026-09-30T22:53:43+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the operator's process-maturity model, recorded — and the one place the tree says the opposite
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/T-956-process-maturity-model.md` records the operator''s model **in their'
+  - 'The **authoring ruling is recorded**: advisory plus friction, never a hard block, with'
+  - '**Every carrier that already exists is named with its actual state**, measured not'
+  - '**The contradiction with arc-005 is named rather than glossed.** Its headline mechanic'
+  - '**The lock criterion is shown to be measurable with what exists** — `cmd_instances`,'
+  - '**No code, no schema change, no arc edit.** Three of the four open questions are the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-956-process-maturity-model.md'
+  - '.tasks/active/T-956-record-the-operators-process-maturity-mo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T22:53:43'
+    action: 'T-956: the operator''s process-maturity model, recorded — and the one place the tree says the opposite'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 2
+  lines_added: 525
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-956-record-the-operators-process-maturity-mo.md
+generated_by: context-agent-hybrid

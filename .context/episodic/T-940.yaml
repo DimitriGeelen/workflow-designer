@@ -78,10 +78,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 35
-  commits: 4
-  files_changed: 4
-  lines_added: 424
-  lines_removed: 8
+  commits: 5
+  files_changed: 5
+  lines_added: 425
+  lines_removed: 9
+  footprint_refreshed_at: '2026-09-30T20:54:08Z'
+  footprint_refreshed_by_commit: 257ba734
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-940-the-render-gate-blocks-the-release-t-884.md

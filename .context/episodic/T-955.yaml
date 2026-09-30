@@ -73,10 +73,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 5
-  commits: 1
-  files_changed: 4
-  lines_added: 701
-  lines_removed: 1
+  commits: 2
+  files_changed: 7
+  lines_added: 803
+  lines_removed: 7
+  footprint_refreshed_at: '2026-09-30T20:26:46Z'
+  footprint_refreshed_by_commit: a2caf43c
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-955-t-309-slice-1-apivalidate-endpoint-so-th.md

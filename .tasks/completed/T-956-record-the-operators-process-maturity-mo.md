@@ -4,12 +4,13 @@ name: "Record the operator's process-maturity model: strictness is earned, devia
 description: >
   Record the operator's process-maturity model: strictness is earned, deviation is evidence, and the hatch never closes
 
-status: started-work
+status: work-completed
 workflow_type: design
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T20:50:38Z
-last_update: 2026-09-30T20:50:38Z
-date_finished: null
+last_update: 2026-09-30T20:55:13Z
+date_finished: 2026-09-30T20:55:13Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -136,13 +137,22 @@ grep -q 'refused and written to the audit log' .context/arcs/process-instances.y
 # T-325's measurement is quoted accurately — the number is load-bearing.
 grep -q '47 of AEF' docs/reports/T-956-process-maturity-model.md
 grep -q '47 of AEF' tests/test_rule_dialect_axis.py
-# NO code, schema or arc changed by THIS task. Scoped to the paths this task could
-# plausibly have touched, and deliberately NOT a blanket `git diff -- src/`: that came
-# back dirty on an APP_VERSION bump left uncommitted by the 0.14.0 release, which this
-# task did not make and must not silently absorb. Committed separately against T-940.
-test -z "$(git diff --name-only HEAD -- tools/ .context/arcs/ examples/)"
-# The design record is the only new file this task adds.
-test -f docs/reports/T-956-process-maturity-model.md
+# THE "NO CODE" CLAIM, asserted positively. Two earlier forms of this line were both
+# wrong and both were refused:
+#   1. `git diff --name-only HEAD -- src/` came back DIRTY — on an APP_VERSION bump the
+#      0.14.0 release left uncommitted, which this task did not make. A blanket check
+#      would have been "made to pass" by absorbing someone else's loose end into this
+#      commit, which is the wrong repair. It went to T-940 where it belongs.
+#   2. Narrowing it to `tools/ .context/arcs/ examples/` fixed that and left an
+#      uncontrolled absence assertion which is ALSO time-dependent: git diff HEAD is
+#      empty the moment this task commits, so the leg would pass forever, for the
+#      opposite reason it was written. That is PL-365, recorded by me earlier today.
+# So: assert what the record SAYS about its own scope, which is true at any time and is
+# the thing a future reader needs to know.
+grep -q 'No code, no schema change, no arc edit' docs/reports/T-956-process-maturity-model.md
+# Single-line substring: the sentence wraps in the source, and grep is per-line. Second
+# time today I grepped across a line break (T-953 did it to a split string literal).
+grep -q 'questions above are theirs to settle' docs/reports/T-956-process-maturity-model.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -366,3 +376,15 @@ test -f docs/reports/T-956-process-maturity-model.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-956-record-the-operators-process-maturity-mo.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f67ce9b6
+- **Timestamp:** 2026-09-30T20:55:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-30T20:55:13Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
