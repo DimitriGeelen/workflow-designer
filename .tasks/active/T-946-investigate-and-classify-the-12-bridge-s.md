@@ -1,13 +1,13 @@
 ---
-id: T-944
-name: "Triage the 16 standing failures in run-bridge-tests.sh: which are real defects, which are stale expectations, and which are re-vendor reverts like T-943"
+id: T-946
+name: "Investigate and classify the 12 bridge-suite legs T-944 could not individually examine"
 description: >
-  Triage the 16 standing failures in run-bridge-tests.sh: which are real defects, which are stale expectations, and which are re-vendor reverts like T-943
+  T-944 triaged 32 failing legs in run-bridge-tests.sh but individually investigated only the ones that carried the re-vendor finding. Twelve are recorded as 'not individually investigated' rather than carrying a guess — honest, and incomplete. Several name framework files with local commits, so more 1.7.68 reverts are likely among them. Method is established in docs/reports/T-944-bridge-suite-triage.md: a stale _t517 declaration plus a failing guard means the fix was LOST; a stale declaration plus a passing guard means upstream adopted it.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -21,8 +21,8 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-30T13:40:57Z
-last_update: 2026-09-30T14:01:01Z
+created: 2026-09-30T15:44:53Z
+last_update: 2026-09-30T15:44:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -36,95 +36,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-944: Triage the 16 standing failures in run-bridge-tests.sh: which are real defects, which are stale expectations, and which are re-vendor reverts like T-943
+# T-946: Investigate and classify the 12 bridge-suite legs T-944 could not individually examine
 
 ## Context
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
-## Context
-
-`tests/run-bridge-tests.sh` reported **20 failing legs** on 2026-09-30. Four were disposed the
-same day (T-942 fixed the two designer console guards and wired two orphans; T-943 fixed the
-P-011 heading regression), leaving **16**. The suite has **no scheduled caller** — no cron, no
-git hook, no CI — which is recorded in its own source as a known gap, and is why T-943's finding
-sat for five days after the upgrade that caused it.
-
-**This task does not fix anything.** It classifies, with evidence, so the operator can rule on
-what should block what. The reason it is worth doing before scheduling the suite: putting a
-permanently-red suite on a schedule manufactures the exact warning-decay that hid T-943.
-
-The specific reason to expect more than housekeeping — one leg already says so out loud:
-
-    [FAIL] fw note can silently discard an observation payload again (guard reverted in the
-           vendored .agentic-framework, or a re-vendor overwrote it)
-
-That is T-943's class, already labelled, unread. T-943 was found by accident; this is the
-second candidate, so the 1.7.68 re-vendor reverting local fixes is no longer a hypothesis
-about one file.
-
-**One distinction learned from T-943 and required here.** A probe whose CONTROL fails cannot
-establish its own baseline — the guarded property is unverified. A probe whose control passes
-and whose MUTATION leg fails has a verified property and a partial proof-of-teeth. These are
-different severities and were conflated in my first report of them; T-570 and T-572 are the
-second kind, and I described them as "blind" before checking.
-
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] **Every failing leg in a fresh full run is accounted for, with the denominator stated.**
-      → **32 failing, 122 passing**, off a completed run. The AC's escape clause was needed: I
-      had reported "16" from a log read mid-run, and the correction is in the report rather than
-      reconciled away.
-      No leg silently dropped and no count asserted that was not read off the run. If the fresh
-      run's failure set differs from 16, the report says so and why rather than reconciling to
-      the expected number
-- [ ] **NOT MET — left unticked deliberately.** 12 of the 32 legs are recorded as "not
-      individually investigated". That is an honest disposition but it is not one "backed by a
-      command and its output", which is what this criterion asks for. Ticking it would claim
-      evidence that does not exist; rewording it to match what I did would be moving the
-      goalposts, which this session has already refused twice. **T-946 filed** to finish it.
-      As originally written:
-- [ ] **Each leg carries a disposition backed by a command and its output,** not by a reading of
-      the failure message. The failure strings in this suite are written to be alarming and
-      several are accurate about a condition while wrong about its cause — that is how I
-      mis-read T-570/T-572 as blind
-- [ ] **NOT MET for the same 12 — left unticked.** The twenty legs I examined are classified on
-      the control-fails / mutation-leg-fails / stale-expectation / ratchet-grown / broken-probe
-      axis, and that axis did its job: it is what separated T-568 and T-569 (property
-      UNVERIFIED, live defects) from T-570 and T-572 (property verified, teeth partial), which I
-      had conflated when I first described them to the operator as "blind". The remaining 12
-      carry a class without evidence behind it. **T-946.** As originally written:
-- [ ] **Each leg is classified on the axis that determines severity:** control-fails (property
-      UNVERIFIED), mutation-leg-fails (property verified, teeth partial), stale-expectation
-      (the probe pins an old behaviour), ratchet-grown (backlog, not breakage), or
-      broken-probe (the instrument itself errors)
-- [x] **Re-vendor reverts are identified as such, by history, not by suspicion.** For each
-      → five, each with the commit that added the guard, the commit that removed it, and the
-      string whose count fell to zero: T-574 (`update-task.sh`), T-568 and T-569 (`fabric.py`),
-      T-657 (`audit.sh`), and the decisions extractor (`extract-decisions.py`). All from
-      `7b5e227e`. T-557 was investigated the same way and **cleared** — upstream ships an
-      equivalent refusal, so it is an adoption, not a loss. I had cited it to the operator as a
-      second T-943 before checking. As originally written:
-      candidate: the commit that added the guard, the commit that removed it, and the string
-      whose occurrence count fell — the method that established T-943. A leg that merely
-      mentions re-vendoring in its message does not qualify without that evidence
-- [x] **A written report exists at `docs/reports/T-944-bridge-suite-triage.md`** with one row
-      → written, and carrying both corrections to my own reporting (the 16-vs-32 count read off
-      an incomplete run, and "the detector runs nowhere" when it runs in the unscheduled suite).
-      Its recommendation #2 became T-945 and is done. As originally written:
-      per leg, its evidence, its class, and a recommended disposition — fix now / baseline with
-      a stated reason / file a task / delete the probe. Recommendations, not actions
-- [x] **Follow-up tasks are filed for the dispositions that need work,** so the triage does not
-      → **T-946** (the 12 uninvestigated legs), **T-947** (re-anchor T-570/T-572 + the key-count
-      drift), **T-948** (the four unclassified validator rules + E-META-AUTHORITY's parity
-      decision). All `horizon: later` — scheduled, not pretended urgent. T-568/T-569 are
-      deliberately NOT among them: framework tooling reported by another project, so not ours
-      under the product-boundary rule. As originally written:
-      itself become an unread artifact. This is the failure mode the RA-* family already
-      demonstrates: 39 open remediation tasks against 16 completed, which is what happens when
-      findings are recorded rather than scheduled
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -377,7 +300,7 @@ second kind, and I described them as "blind" before checking.
 
 ## Updates
 
-### 2026-09-30T13:40:57Z — task-created [task-create-agent]
+### 2026-09-30T15:44:53Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-944-triage-the-16-standing-failures-in-run-b.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-946-investigate-and-classify-the-12-bridge-s.md
 - **Context:** Initial task creation

@@ -1,15 +1,16 @@
 ---
-id: T-944
-name: "Triage the 16 standing failures in run-bridge-tests.sh: which are real defects, which are stale expectations, and which are re-vendor reverts like T-943"
+id: T-945
+name: "Restore the vendor-divergence delivery surface the 1.7.68 re-vendor deleted, and split the revert signal from the bookkeeping debt so 11 lost fixes cannot hide behind 1349 undeclared files"
 description: >
-  Triage the 16 standing failures in run-bridge-tests.sh: which are real defects, which are stale expectations, and which are re-vendor reverts like T-943
+  Restore the vendor-divergence delivery surface the 1.7.68 re-vendor deleted, and split the revert signal from the bookkeeping debt so 11 lost fixes cannot hide behind 1349 undeclared files
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t657-vendor-divergence-must-reach-an-audit-line.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -21,9 +22,9 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-30T13:40:57Z
-last_update: 2026-09-30T14:01:01Z
-date_finished: null
+created: 2026-09-30T15:19:52Z
+last_update: 2026-09-30T15:43:43Z
+date_finished: 2026-09-30T15:43:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -36,7 +37,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-944: Triage the 16 standing failures in run-bridge-tests.sh: which are real defects, which are stale expectations, and which are re-vendor reverts like T-943
+# T-945: Restore the vendor-divergence delivery surface the 1.7.68 re-vendor deleted, and split the revert signal from the bookkeeping debt so 11 lost fixes cannot hide behind 1349 undeclared files
 
 ## Context
 
@@ -44,87 +45,73 @@ date_finished: null
 
 ## Context
 
-`tests/run-bridge-tests.sh` reported **20 failing legs** on 2026-09-30. Four were disposed the
-same day (T-942 fixed the two designer console guards and wired two orphans; T-943 fixed the
-P-011 heading regression), leaving **16**. The suite has **no scheduled caller** — no cron, no
-git hook, no CI — which is recorded in its own source as a known gap, and is why T-943's finding
-sat for five days after the upgrade that caused it.
+`tools/_t517-vendor-divergence.py` detects when a locally-fixed vendored file stops diverging
+from upstream — *"adopted upstream, or the local fix was lost"*. It is correct and it is cheap
+(270–340ms). On **2026-09-25** the AEF 1.7.68 re-vendor (`7b5e227e`) deleted the audit region
+that carried its verdict, and it has reported into nothing since. That is how four reverted local
+fixes went unnoticed for five days, found only when a sweep ran by accident (T-944).
 
-**This task does not fix anything.** It classifies, with evidence, so the operator can rule on
-what should block what. The reason it is worth doing before scheduling the suite: putting a
-permanently-red suite on a schedule manufactures the exact warning-decay that hid T-943.
+The removed region's own comment predicted this: *"A local fix recorded nowhere is destroyed by
+the next re-vendor."* It also records that `_t517` had already been found red after long unread
+stretches **twice**, and states a revisit trigger: *"if an unrecorded entry survives three
+consecutive audits, WARN has failed the same way the bridge suite did and this should become
+FAIL."*
 
-The specific reason to expect more than housekeeping — one leg already says so out loud:
+**Restoring it verbatim is not enough, and would re-create the failure in a new costume.** The old
+rail counted `UNRECORDED|STALE|RECLASSIFIED` into one number. Today that number is **1362**:
 
-    [FAIL] fw note can silently discard an observation payload again (guard reverted in the
-           vendored .agentic-framework, or a re-vendor overwrote it)
+| kind | count | what it means |
+|---|---|---|
+| `STALE` | **11** | a declared local fix now matches baseline — **lost or adopted**. The revert signal. |
+| `RECLASSIFIED` | 2 | declared under the wrong mode |
+| `UNRECORDED` | 1349 | differs from baseline, never declared — bookkeeping debt from the re-vendor |
 
-That is T-943's class, already labelled, unread. T-943 was found by accident; this is the
-second candidate, so the 1.7.68 re-vendor reverting local fixes is no longer a hypothesis
-about one file.
-
-**One distinction learned from T-943 and required here.** A probe whose CONTROL fails cannot
-establish its own baseline — the guarded property is unverified. A probe whose control passes
-and whose MUTATION leg fails has a verified property and a partial proof-of-teeth. These are
-different severities and were conflated in my first report of them; T-570 and T-572 are the
-second kind, and I described them as "blind" before checking.
+A warning reading *"1362 entries"* is not actionable, and the eleven that matter — including the
+`fabric.py` and `extract-decisions.py` losses — would be invisible inside it. That is the same
+decay this project has documented repeatedly: a signal that fires so loudly it stops being read.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] **Every failing leg in a fresh full run is accounted for, with the denominator stated.**
-      → **32 failing, 122 passing**, off a completed run. The AC's escape clause was needed: I
-      had reported "16" from a log read mid-run, and the correction is in the report rather than
-      reconciled away.
-      No leg silently dropped and no count asserted that was not read off the run. If the fresh
-      run's failure set differs from 16, the report says so and why rather than reconciling to
-      the expected number
-- [ ] **NOT MET — left unticked deliberately.** 12 of the 32 legs are recorded as "not
-      individually investigated". That is an honest disposition but it is not one "backed by a
-      command and its output", which is what this criterion asks for. Ticking it would claim
-      evidence that does not exist; rewording it to match what I did would be moving the
-      goalposts, which this session has already refused twice. **T-946 filed** to finish it.
-      As originally written:
-- [ ] **Each leg carries a disposition backed by a command and its output,** not by a reading of
-      the failure message. The failure strings in this suite are written to be alarming and
-      several are accurate about a condition while wrong about its cause — that is how I
-      mis-read T-570/T-572 as blind
-- [ ] **NOT MET for the same 12 — left unticked.** The twenty legs I examined are classified on
-      the control-fails / mutation-leg-fails / stale-expectation / ratchet-grown / broken-probe
-      axis, and that axis did its job: it is what separated T-568 and T-569 (property
-      UNVERIFIED, live defects) from T-570 and T-572 (property verified, teeth partial), which I
-      had conflated when I first described them to the operator as "blind". The remaining 12
-      carry a class without evidence behind it. **T-946.** As originally written:
-- [ ] **Each leg is classified on the axis that determines severity:** control-fails (property
-      UNVERIFIED), mutation-leg-fails (property verified, teeth partial), stale-expectation
-      (the probe pins an old behaviour), ratchet-grown (backlog, not breakage), or
-      broken-probe (the instrument itself errors)
-- [x] **Re-vendor reverts are identified as such, by history, not by suspicion.** For each
-      → five, each with the commit that added the guard, the commit that removed it, and the
-      string whose count fell to zero: T-574 (`update-task.sh`), T-568 and T-569 (`fabric.py`),
-      T-657 (`audit.sh`), and the decisions extractor (`extract-decisions.py`). All from
-      `7b5e227e`. T-557 was investigated the same way and **cleared** — upstream ships an
-      equivalent refusal, so it is an adoption, not a loss. I had cited it to the operator as a
-      second T-943 before checking. As originally written:
-      candidate: the commit that added the guard, the commit that removed it, and the string
-      whose occurrence count fell — the method that established T-943. A leg that merely
-      mentions re-vendoring in its message does not qualify without that evidence
-- [x] **A written report exists at `docs/reports/T-944-bridge-suite-triage.md`** with one row
-      → written, and carrying both corrections to my own reporting (the 16-vs-32 count read off
-      an incomplete run, and "the detector runs nowhere" when it runs in the unscheduled suite).
-      Its recommendation #2 became T-945 and is done. As originally written:
-      per leg, its evidence, its class, and a recommended disposition — fix now / baseline with
-      a stated reason / file a task / delete the probe. Recommendations, not actions
-- [x] **Follow-up tasks are filed for the dispositions that need work,** so the triage does not
-      → **T-946** (the 12 uninvestigated legs), **T-947** (re-anchor T-570/T-572 + the key-count
-      drift), **T-948** (the four unclassified validator rules + E-META-AUTHORITY's parity
-      decision). All `horizon: later` — scheduled, not pretended urgent. T-568/T-569 are
-      deliberately NOT among them: framework tooling reported by another project, so not ours
-      under the product-boundary rule. As originally written:
-      itself become an unread artifact. This is the failure mode the RA-* family already
-      demonstrates: 39 open remediation tasks against 16 completed, which is what happens when
-      findings are recorded rather than scheduled
+- [x] **The audit carries the divergence verdict again** — `fw audit` output names it, and
+      `.context/audits/<today>.yaml` contains it. The cron audit already runs every 15 minutes,
+      which is the whole point: this is a delivery surface, not a new detector
+      → both lines present in `.context/audits/2026-09-30.yaml`. The next loss surfaces within
+      15 minutes instead of five days.
+- [x] **STALE/RECLASSIFIED and UNRECORDED are reported as SEPARATE lines**, because one is "a
+      local fix may have been destroyed" and the other is "the manifest is behind". Merging them
+      is what would let eleven lost fixes hide behind 1349 bookkeeping rows
+      → two `warn` calls. Merged, the audit would read **1362** and the eleven that matter would
+      be invisible inside it. Restoring the original verbatim would have done exactly that.
+- [x] **The stale line NAMES the files**, not just a count. `fabric.py` and `extract-decisions.py`
+      are the reason this task exists; a number alone would not have led anyone to them
+      → names 12, including both. Evidence on BOTH lines is now the tool's own bytes rather than
+      a sentence of ours — the T-657 guard asserts this with a canary path, and my first draft
+      failed that leg on the unrecorded line.
+- [x] **WARN, not FAIL, and the reason is recorded** — a structure FAIL blocks push and its only
+      bypass is Tier-0 gated. The original made this call deliberately and its revisit trigger is
+      carried forward, now with the count at three: it has been found red-and-unread twice before,
+      and this is the third
+- [x] **Both directions proven with the rail extracted from `audit.sh` itself**, not a paraphrase:
+      it WARNs against the live tree (11 stale), and PASSES against a stub where the tool reports
+      clean. A rail that can only produce one verdict is not a rail
+      → four verdicts proven against stubs with the rail extracted verbatim (43 lines):
+      clean→PASS; stale-only→one WARN naming files; unrecorded-only→the bookkeeping WARN; and a
+      tool that explodes→**NOT EVALUATED**, never a PASS.
+- [x] **`_t657-vendor-divergence-must-reach-an-audit-line.sh` runs and passes**, and is wired into
+      `tests/run-bridge-tests.sh` — it is currently `rc=3 COULD-NOT-MEASURE` and invoked by
+      nothing, so the guard on the surface had itself no surface
+      → **7/7**. Re-anchored from a literal comment string to the FUNCTION plus its contract, so
+      a rewrite of the rail's internals cannot blind it again; its mutant was re-anchored too.
+      Now invoked by the suite — `grep -c _t657` on the runner was **0** before this task.
+      Two of its legs were fair criticism of my rail and I changed the rail, not the legs.
+- [x] **The next re-vendor's reversion of THIS rail is anticipated in writing.** `audit.sh` carries
+      17 local commits and is the most-overwritten file in the tree; this rail will be deleted
+      again. The durable fix is upstream adoption (asked at `framework:pickup` @249) and the task
+      must not imply otherwise
+      → stated in the rail's own comment block, where the next person to delete it will be
+      standing. This is a stopgap that shortens the blind window, not a fix for the cause.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -285,6 +272,21 @@ second kind, and I described them as "blind" before checking.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The guard on the surface. 7 legs: red->WARN with the count, evidence quoting the TOOL's
+# own bytes, green->PASS, inert in the framework repo, inert with no tool, <30s, and a
+# mutant that swallows a verdict the unmutated rail demonstrably emits.
+bash tools/_t657-vendor-divergence-must-reach-an-audit-line.sh
+# The rail exists in the audit by name.
+grep -q '^check_vendor_divergence$' .agentic-framework/agents/audit/audit.sh
+# TWO separate lines, not one merged count — the whole point of this task. Written to a file
+# before grepping: `sed | grep -q` makes sed take SIGPIPE and the line fails at 141 with the
+# pattern present (L-387).
+sed -n '/^check_vendor_divergence() {$/,/^}$/p' .agentic-framework/agents/audit/audit.sh > /tmp/.t945-rail && grep -q 'NO LONGER DIVERGE' /tmp/.t945-rail
+sed -n '/^check_vendor_divergence() {$/,/^}$/p' .agentic-framework/agents/audit/audit.sh > /tmp/.t945-rail && grep -q 'undeclared vendored path' /tmp/.t945-rail
+# The guard is invoked by the suite. It was invoked by nothing at all before this task, which
+# is why its rc=3 reached no one for five days.
+grep -q '_t657-vendor-divergence-must-reach-an-audit-line.sh' tests/run-bridge-tests.sh
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -377,7 +379,19 @@ second kind, and I described them as "blind" before checking.
 
 ## Updates
 
-### 2026-09-30T13:40:57Z — task-created [task-create-agent]
+### 2026-09-30T15:19:52Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-944-triage-the-16-standing-failures-in-run-b.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-945-restore-the-vendor-divergence-delivery-s.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ea5d886e
+- **Timestamp:** 2026-09-30T15:43:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-30T15:43:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

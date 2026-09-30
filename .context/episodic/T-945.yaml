@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-945: Restore the vendor-divergence delivery surface the 1.7.68 re-vendor deleted, and split the revert signal from the bookkeeping debt so 11 lost fixes cannot hide behind 1349 undeclared files
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T15:43:52Z
+# ============================================================================
+
+task_id: T-945
+task_name: "Restore the vendor-divergence delivery surface the 1.7.68 re-vendor deleted, and split the revert signal from the bookkeeping debt so 11 lost fixes cannot hide behind 1349 undeclared files"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T15:19:52Z
+completed: 2026-09-30T15:43:43Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T17:43:37+02:00
+last_commit: 2026-09-30T17:43:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the divergence verdict reaches the audit again, with the revert signal split from the debt
+
+# Key outcomes
+outcomes:
+  - '**The audit carries the divergence verdict again** — `fw audit` output names it, and'
+  - '**STALE/RECLASSIFIED and UNRECORDED are reported as SEPARATE lines**, because one is "a'
+  - '**The stale line NAMES the files**, not just a count. `fabric.py` and `extract-decisions.py`'
+  - '**WARN, not FAIL, and the reason is recorded** — a structure FAIL blocks push and its only'
+  - '**Both directions proven with the rail extracted from `audit.sh` itself**, not a paraphrase:'
+  - '**`_t657-vendor-divergence-must-reach-an-audit-line.sh` runs and passes**, and is wired into'
+  - '**The next re-vendor''s reversion of THIS rail is anticipated in writing.** `audit.sh` carries'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the divergence verdict reaches the audit again, with the revert signal split from the debt'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.tasks/active/T-945-restore-the-vendor-divergence-delivery-s.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t657-vendor-divergence-must-reach-an-audit-line.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T17:43:37'
+    action: 'T-945: the divergence verdict reaches the audit again, with the revert signal split from the debt'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 23 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 23
+  commits: 1
+  files_changed: 4
+  lines_added: 507
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-945-restore-the-vendor-divergence-delivery-s.md
+generated_by: context-agent-hybrid
