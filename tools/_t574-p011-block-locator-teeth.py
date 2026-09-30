@@ -51,20 +51,44 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GATE = os.path.join(ROOT, ".agentic-framework", "agents", "task-create", "update-task.sh")
+# T-943: extraction moved OUT of update-task.sh and into this shared helper under T-3232.
+LIB = os.path.join(ROOT, ".agentic-framework", "lib", "verification-port.sh")
 
-# The anchors the mutant reverts. Kept as exact source text so a refactor that
-# moves this logic breaks the probe LOUDLY rather than letting it silently stop
-# testing anything (PL-148: an instrument's registration must be asserted by
-# something other than the instrument).
-NEW_ANCHOR = "    _v_exact=$(grep -c '^## Verification[[:space:]]*$' \"$TASK_FILE\" 2>/dev/null || true)"
-NEW_EXTRACT = (
-    "    verify_section=$(awk -v start=\"$_v_exact_ln\" "
-    "'NR>start { if ($0 ~ /^## /) exit; print }' \"$TASK_FILE\" 2>/dev/null)"
-)
-OLD_EXTRACT = (
-    "    verify_section=$(sed -n '/^## Verification/,/^## /p' \"$TASK_FILE\" 2>/dev/null | sed '$d')\n"
-    "    verify_section=$(echo \"$verify_section\" | tail -n +2)"
-)
+# ---------------------------------------------------------------------------
+# T-943 RESTRUCTURE — why the behavioural legs now run FIRST and unconditionally
+# ---------------------------------------------------------------------------
+# This probe used to `die()` when it could not find an exact source line in
+# update-task.sh, on the reasoning that a refactor should break it LOUDLY rather
+# than let it silently stop testing. The reasoning was right and the
+# implementation still cost us the finding:
+#
+#   2026-08-22  b17e49fa  T-575 lands the exact-heading refusal in the VENDORED gate
+#   2026-09-25  7b5e227e  "upgraded to AEF bleeding-edge 1.7.68" overwrites the file
+#   2026-09-25  ...       this probe starts printing ABORT: "the locator is GONE"
+#   2026-09-30  T-943     someone runs the suite and reads it
+#
+# ABORT was loud about the WRONG THING. It said "I cannot test this" and said
+# nothing about whether the protection still worked — so for five days the only
+# available reading was a red line in a twenty-failure suite that gates no
+# release. A probe that cannot answer its own question when an anchor moves is a
+# probe whose value depends on its anchors never moving.
+#
+# So the split is now explicit:
+#   BEHAVIOURAL legs  — fixtures in, exit codes and output out. No source anchors.
+#                       These answer "does the protection work?" and they survive
+#                       any refactor, any re-vendor, any reimplementation.
+#   MUTATION legs     — require a source anchor, and prove the FIXTURES
+#                       DISCRIMINATE (that they would go red if the fix were
+#                       removed). If the anchor has moved, that proof is
+#                       unavailable, and the probe reports a FAILED leg saying
+#                       exactly that — while still reporting everything the
+#                       behavioural legs learned.
+# Both must pass. A missing anchor is still red, because CANNOT RUN is not a
+# pass — but it is now red WITH an answer attached instead of instead of one.
+
+# Mutation anchors, in the LIB where the logic actually lives.
+LIB_EXACT_AWK = "/^## Verification[[:space:]]*$/ { if (!seen) { seen=1; inblk=1 }; next }"
+LIB_RC3_RETURN = "            return 3"
 
 FAILS = []
 TOTAL_LEGS = 0
@@ -182,7 +206,7 @@ FIXTURES = {
 }
 
 
-def run_gate(gate_src, fixture_text, tid):
+def run_gate(gate_src, fixture_text, tid, lib_src=None):
     """Drive run_verification_commands against one fixture in a tmpdir.
 
     Sources the real gate file and calls the real function — the instrument
@@ -211,16 +235,27 @@ def run_gate(gate_src, fixture_text, tid):
             die("cannot find the end of run_verification_commands()")
         func = rest[: end_m.end()]
 
+        # T-943: extraction lives in lib/verification-port.sh since T-3232, and
+        # run_verification_commands hard-refuses if extract_verification_block is
+        # not defined. Source the lib (a possibly-MUTATED copy) so the harness
+        # exercises the real two-layer path rather than a stub of either half.
+        lib_path = os.path.join(td, "verification-port.sh")
+        with open(lib_path, "w", encoding="utf-8") as f:
+            f.write(lib_src if lib_src is not None else open(LIB, encoding="utf-8").read())
+
         harness = (
             "set -uo pipefail\n"
             "RED=''; GREEN=''; YELLOW=''; CYAN=''; NC=''\n"
             "SKIP_VERIFICATION=false\n"
             'PROJECT_ROOT="%s"\n'
             'TASK_FILE="%s"\n'
+            'FRAMEWORK_ROOT="%s"\n'
             "log_gate_bypass() { :; }\n"
+            'source "%s"\n'
             "%s\n"
             "run_verification_commands\n"
-            'echo "GATE_RC=$?"\n' % (td, task_path, func)
+            'echo "GATE_RC=$?"\n'
+            % (td, task_path, os.path.join(ROOT, ".agentic-framework"), lib_path, func)
         )
         harness_path = os.path.join(td, "harness.sh")
         with open(harness_path, "w", encoding="utf-8") as f:
@@ -230,15 +265,20 @@ def run_gate(gate_src, fixture_text, tid):
         )
         out = p.stdout + p.stderr
         rc_m = re.search(r"GATE_RC=(\d+)", out)
-        rc = int(rc_m.group(1)) if rc_m else None
+        # T-943: the refusal paths call `exit 1`, which ends the harness shell
+        # before it can echo GATE_RC. Falling back to the process status is not a
+        # convenience — without it every REFUSING fixture reported rc=None, which
+        # is unequal to 1 and so read as "did not refuse". The probe would have
+        # gone red on a working gate and blamed the gate.
+        rc = int(rc_m.group(1)) if rc_m else p.returncode
         return rc, out
 
 
-def evaluate(gate_src, label):
-    """Return {fixture: (rc, out)} for all four fixtures."""
+def evaluate(gate_src, lib_src=None):
+    """Return {fixture: (rc, out)} for every fixture."""
     res = {}
     for name, text in FIXTURES.items():
-        rc, out = run_gate(gate_src, text, "T-999")
+        rc, out = run_gate(gate_src, text, "T-999", lib_src=lib_src)
         res[name] = (rc, out)
     return res
 
@@ -249,18 +289,14 @@ def main():
     with open(GATE, encoding="utf-8") as f:
         clean = f.read()
 
-    if NEW_ANCHOR not in clean:
-        die(
-            "the T-574 exact-heading locator is GONE from update-task.sh.\n"
-            "  This probe can no longer test what it claims to test, and that is a\n"
-            "  failure, not a skip. Expected to find:\n    %s" % NEW_ANCHOR
-        )
-    if NEW_EXTRACT not in clean:
-        die("the T-574 anchored awk extraction is GONE from update-task.sh")
+    if not os.path.exists(LIB):
+        die("extraction lib not found: %s" % LIB)
+    with open(LIB, encoding="utf-8") as f:
+        lib_clean = f.read()
 
     print("== control: unmutated gate (T-560 — a harness that fails on everything")
     print("   would satisfy 'every mutant died' equally well) ==")
-    base = evaluate(clean, "control")
+    base = evaluate(clean)
 
     rc, out = base["wellformed"]
     leg(
@@ -283,11 +319,25 @@ def main():
         "mid-line heading (the real T-572 shape) is REFUSED, not silently passed (rc=%s)" % rc,
     )
 
+    # T-943 CHANGED THIS EXPECTATION, deliberately. It previously required the
+    # T-542 shape to be REFUSED, which is what the pre-T-3232 gate did: its prefix
+    # anchor opened the range on `## Verification of the probe itself`, fed the
+    # shell a markdown table, and refused loudly. Refusing was the best available
+    # outcome for a locator that had picked the wrong heading — it was never the
+    # right outcome for the DOCUMENT, which is perfectly well-formed and contains
+    # an exact heading further down.
+    #
+    # The exact-match anchor resolves it correctly, so the correct assertion is now
+    # that the real block RUNS. Encoding "refuses" would pin the old defect's
+    # symptom as a requirement and block the fix that removed it — a guard
+    # asserting the bug (PL-159 class). The mutant below still proves the exact
+    # anchor is load-bearing.
     rc, out = base["t542-prefix"]
     leg(
-        "t542-refused",
-        rc == 1 and "COULD NOT READ THE BLOCK" in out,
-        "prefix heading (the real T-542 shape) is REFUSED (rc=%s)" % rc,
+        "t542-resolves",
+        rc == 0 and "Running 2 verification command(s)" in out,
+        "prefix-heading-above-real-heading (T-542 shape) resolves to the CORRECT "
+        "block and runs both legs (rc=%s)" % rc,
     )
 
     rc, out = base["trailing"]
@@ -307,52 +357,103 @@ def main():
     )
 
     # ----------------------------------------------------------------------
-    # Mutant: revert to the pre-T-574 prefix-sed locator. Must redden the two
-    # malformed legs and ONLY those.
+    # MUTATION legs (T-943). These prove the fixtures DISCRIMINATE — that they
+    # would go red if the protection were removed. Unlike the behavioural legs
+    # above, they need a source anchor, so a moved anchor costs us this proof and
+    # nothing else. That is reported as a failing leg rather than an ABORT: the
+    # old ABORT threw away the behavioural answer too, which is how five days
+    # passed with the gate open and the only signal being "I cannot test this".
     # ----------------------------------------------------------------------
     print()
-    print("== mutant: revert to the pre-T-574 `sed -n '/^## Verification/,/^## /p'` locator ==")
-    mutant = clean.replace(NEW_EXTRACT, OLD_EXTRACT, 1)
-    if mutant == clean:
-        die("mutant patch was a no-op — the anchored extraction did not match")
-    # Also restore the silent early return, which is the half that hides.
-    mutant = mutant.replace(
-        '    if [ -z "$verify_cmds" ]; then',
-        '    [ -z "$verify_cmds" ] && return 0\n    if [ -z "$verify_cmds" ]; then',
-        1,
-    )
-    # And disable the refusal, so the mutant behaves as the old gate did.
-    mutant = mutant.replace('    if [ -n "$_v_why" ]; then', '    if false; then', 1)
+    print("== mutant: remove the rc=3 malformed-heading refusal (reproduces the")
+    print("   state the 1.7.68 re-vendor left us in on 2026-09-25) ==")
 
-    mres = evaluate(mutant, "mutant")
+    if LIB_RC3_RETURN not in lib_clean:
+        leg(
+            "mutation-anchor-rc3",
+            False,
+            "ANCHOR MOVED: %r is no longer in %s, so the discrimination proof is "
+            "unavailable — this leg says nothing about whether the protection works. "
+            "READ THE BEHAVIOURAL LEGS ABOVE for that: if they are green the fix was "
+            "refactored and this anchor needs updating; if t572-refused is red the "
+            "protection itself is gone. Do not infer either from this line."
+            % (LIB_RC3_RETURN, os.path.relpath(LIB, ROOT)),
+        )
+    else:
+        mutant_lib = lib_clean.replace(LIB_RC3_RETURN, "            return 0", 1)
+        # A mutation that changed nothing would make every mutant leg below fail
+        # for a reason that has nothing to do with the gate. Assert the patch bit,
+        # so the red line names the harness rather than the subject (T-849/PL-339:
+        # a mutation harness without this cannot tell 'fix removed' from 'script
+        # broken'). The old version of this probe had the guard; T-943's first
+        # draft dropped it, and that is how this one was found.
+        leg(
+            "mutation-applied-rc3",
+            mutant_lib != lib_clean,
+            "the rc=3 patch actually changed the lib source",
+        )
+        mres = evaluate(clean, lib_src=mutant_lib)
 
-    m_t572_rc, m_t572_out = mres["t572-inline"]
-    leg(
-        "mutant-kills-t572",
-        m_t572_rc == 0 and "COULD NOT READ" not in m_t572_out,
-        "reverted gate passes the T-572 fixture SILENTLY (rc=%s) — the defect reproduces" % m_t572_rc,
-    )
+        m_t572_rc, m_t572_out = mres["t572-inline"]
+        leg(
+            "mutant-kills-t572",
+            m_t572_rc == 0 and "COULD NOT READ" not in m_t572_out,
+            "without rc=3 the T-572 fixture passes SILENTLY (rc=%s) — the defect reproduces"
+            % m_t572_rc,
+        )
 
-    m_wf_rc, m_wf_out = mres["wellformed"]
-    leg(
-        "mutant-spares-wellformed",
-        m_wf_rc == 0 and "Running 2 verification command(s)" in m_wf_out,
-        "reverted gate still passes the well-formed case — the mutant is TARGETED, not broad",
-    )
+        m_wf_rc, m_wf_out = mres["wellformed"]
+        leg(
+            "mutant-spares-wellformed",
+            m_wf_rc == 0 and "Running 2 verification command(s)" in m_wf_out,
+            "the well-formed case still passes — the mutant is TARGETED, not broad",
+        )
 
-    m_tr_rc, m_tr_out = mres["trailing"]
-    leg(
-        "mutant-undercounts-trailing",
-        m_tr_rc == 0 and "Running 1 verification command(s)" in m_tr_out,
-        "reverted gate runs only 1 of 2 legs when Verification is last — the `sed '$d'` bug reproduces",
-    )
+        m_ab_rc, _ = mres["absent"]
+        leg(
+            "mutant-spares-absent",
+            m_ab_rc == 0,
+            "the absent case still passes — the mutant reddens only what it owns",
+        )
 
-    m_ab_rc, _ = mres["absent"]
-    leg(
-        "mutant-spares-absent",
-        m_ab_rc == 0,
-        "reverted gate still passes the absent case — mutant reddens only what it owns",
-    )
+    # Second mutant: the EXACT-match anchor itself, which is T-574's original
+    # fix rather than T-943's. Reverting it to a prefix match is what let T-542's
+    # `## Verification of the probe itself` open the range on the wrong heading.
+    print()
+    print("== mutant: relax the exact-heading anchor to a prefix match (reverts T-574) ==")
+    if LIB_EXACT_AWK not in lib_clean:
+        leg(
+            "mutation-anchor-exact",
+            False,
+            "ANCHOR MOVED: the exact-heading awk line is no longer in %s. Behavioural "
+            "legs above are unaffected; re-anchor this one."
+            % os.path.relpath(LIB, ROOT),
+        )
+    else:
+        relaxed = lib_clean.replace(
+            LIB_EXACT_AWK,
+            "/^## Verification/ { if (!seen) { seen=1; inblk=1 }; next }",
+            1,
+        )
+        leg(
+            "mutation-applied-exact",
+            relaxed != lib_clean,
+            "the prefix-anchor patch actually changed the lib source",
+        )
+        rres = evaluate(clean, lib_src=relaxed)
+        r_t542_rc, r_t542_out = rres["t542-prefix"]
+        leg(
+            "mutant-breaks-t542",
+            not (r_t542_rc == 1 and "COULD NOT READ" in r_t542_out),
+            "a prefix anchor stops refusing the T-542 shape correctly (rc=%s) — "
+            "T-574's exact match is load-bearing" % r_t542_rc,
+        )
+        r_wf_rc, r_wf_out = rres["wellformed"]
+        leg(
+            "relaxed-spares-wellformed",
+            r_wf_rc == 0 and "Running 2 verification command(s)" in r_wf_out,
+            "the well-formed case is unaffected by the relaxation — targeted mutant",
+        )
 
     print()
     print("%d passed, %d failed" % (TOTAL_LEGS - len(FAILS), len(FAILS)))

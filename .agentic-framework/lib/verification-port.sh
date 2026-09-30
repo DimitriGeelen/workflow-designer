@@ -235,5 +235,40 @@ extract_verification_block() {
        || [ "${st[2]}" -gt 1 ]; then
         return 2
     fi
+
+    # T-943. rc=2 above covers "could not READ the block". It does not cover
+    # "could not FIND the heading", and until now that case returned empty with
+    # rc=0 — byte-identical to a task that legitimately has no ## Verification
+    # section. Measured: a file whose heading is glued to the end of an AC line
+    # (the real T-572 shape) and one reading `## Verification (P-011)` both
+    # yielded 0 bytes / rc 0, while each contained `false` — a command that
+    # would have BLOCKED the close had it run.
+    #
+    # This is a REGRESSION, not an omission. T-575 shipped an exact-heading
+    # refusal in the vendored update-task.sh on 2026-08-22 (b17e49fa); the AEF
+    # 1.7.68 re-vendor on 2026-09-25 (7b5e227e) overwrote the file and took it
+    # out. Same upgrade also regressed the mandated commit spelling, which its
+    # own message records — this was the second regression in it and nobody
+    # looked. The fix belongs UPSTREAM for that reason; carried here only so the
+    # gate is not open while AEF adopts it.
+    #
+    # It lives in this function, not in the caller, because T-3232 is right that
+    # a gate re-checking the heading would reimplement the code it guards and so
+    # could not detect that code being fixed or re-broken. The exit code stays
+    # the entire contract; this adds one more code to it.
+    #
+    # "Heading-like" is deliberately NARROW — a line that opens with ## and names
+    # Verification, or a line that ENDS with the heading (the glue shape). A bare
+    # substring test would fire on any task that merely discusses `## Verification`
+    # in prose, which is a large and legitimate population in this corpus.
+    local _exact _headingish
+    _exact=$(grep -c '^## Verification[[:space:]]*$' "$file" 2>/dev/null || true)
+    if [ "${_exact:-0}" -eq 0 ]; then
+        _headingish=$(grep -cE '^##[[:space:]]*Verification|##[[:space:]]*Verification[[:space:]]*$' \
+                      "$file" 2>/dev/null || true)
+        if [ "${_headingish:-0}" -gt 0 ]; then
+            return 3
+        fi
+    fi
     return 0
 }

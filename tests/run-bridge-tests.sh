@@ -830,6 +830,23 @@ else
   fail=$((fail + 1))
 fi
 
+# T-943: the contract UNDERNEATH that probe. The four states extract_verification_block must
+# keep distinct, asserted against the live function rather than through the gate's printed
+# words, so a change to the caller's wording cannot make this leg lie either way.
+#
+# Registered here for the reason the caveat above gives, and with the same caveat attached: the
+# T-574 probe was ALREADY registered here on 2026-09-25 when the 1.7.68 re-vendor reverted the
+# fix, and it printed "the locator is GONE" on every run for five days. Registration made the
+# finding available. It did not make anyone read it — that took a release and a sweep. Wiring a
+# probe into an ungated runner buys reachability, not detection (PL-363).
+if bash "$ROOT/tools/_t943-heading-states.sh" > "$TMP/leg-_t943-states.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "extract_verification_block stopped distinguishing 'no ## Verification section' from 'heading present but unmatched' — a task can close again having run ZERO commands while printing a pass, or the prose-mention controls started over-firing (T-943 — run 'bash tools/_t943-heading-states.sh')"
+  show_output "$TMP/leg-_t943-states.out" "_t943-heading-states.sh"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an

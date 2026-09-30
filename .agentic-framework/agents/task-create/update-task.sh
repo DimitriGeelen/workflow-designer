@@ -1317,7 +1317,51 @@ run_verification_commands() {
         fi
     fi
 
-    [ -z "$verify_cmds" ] && return 0
+    # rc=3 (T-943) means the extractor could not FIND the heading, although
+    # something heading-shaped is in the file. Distinct from rc=2 (could not READ
+    # it) and from empty-with-rc-0 (there genuinely is no section, which is a
+    # documented pass-through). Before this existed, all three of those rendered
+    # identically: zero commands run, nothing printed, completion allowed.
+    if [ "$extract_rc" -eq 3 ]; then
+        if [ "${FW_ALLOW_UNEXTRACTABLE_VERIFICATION:-0}" = "1" ]; then
+            log_gate_bypass "FW_ALLOW_UNEXTRACTABLE_VERIFICATION" \
+                "verification heading is malformed in $TASK_FILE" 2>/dev/null || true
+        else
+            echo "" >&2
+            echo -e "${RED}BLOCKED: COULD NOT READ THE BLOCK — the ## Verification heading is malformed.${NC}" >&2
+            echo "" >&2
+            echo "  File: $TASK_FILE" >&2
+            echo "" >&2
+            echo "  A heading-shaped line naming Verification is present, but none matches" >&2
+            echo "  exactly '## Verification'. Completing now would run ZERO verification" >&2
+            echo "  commands and print a pass — indistinguishable from a task that has no" >&2
+            echo "  such section at all (T-574, regressed by the 1.7.68 re-vendor, T-943)." >&2
+            echo "" >&2
+            echo "  Most likely causes:" >&2
+            echo "    - the heading is glued to the end of another line (T-572's shape:" >&2
+            echo "      a backticked mention of it inside an acceptance criterion)" >&2
+            echo "    - the heading carries a suffix, e.g. '## Verification (P-011)'" >&2
+            echo "" >&2
+            echo "  Find it with:" >&2
+            echo "    grep -n 'Verification' $TASK_FILE" >&2
+            echo "" >&2
+            echo "  Bypass: FW_ALLOW_UNEXTRACTABLE_VERIFICATION=1 (logged Tier-2)" >&2
+            exit 1
+        fi
+    fi
+
+    # T-943: say zero out loud. A task with genuinely no ## Verification section is
+    # a documented pass-through, but returning in SILENCE makes it indistinguishable
+    # in the output from a task whose legs all ran and passed — which is the exact
+    # sentence in T-574's title ("0 legs run reads identical to all legs passed").
+    # The exit-code contract above distinguishes the three states for the CODE; this
+    # line distinguishes two of them for the READER. Was present before the 1.7.68
+    # re-vendor and went out with the rest of T-575's work.
+    if [ -z "$verify_cmds" ]; then
+        echo -e "${CYAN}=== Verification Gate (P-011) ===${NC}"
+        echo "Running 0 verification command(s)... (no ## Verification section — pass-through)"
+        return 0
+    fi
 
     # T-2991: refuse an unparseable block BEFORE the read loop below evals any
     # line of it. Order is the whole point — a multi-line `python3 -c "` block's
