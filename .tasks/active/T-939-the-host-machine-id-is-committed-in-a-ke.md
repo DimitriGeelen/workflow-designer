@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T23:40:57Z
-last_update: 2026-09-29T23:52:40Z
+last_update: 2026-09-30T00:04:56Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -46,28 +46,37 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The value is redacted in the working tree first,** because that is the cheap half and it stops
+- [x] **The value is redacted in the working tree first,** because that is the cheap half and it stops
       the next clone carrying it regardless of what is decided about history
-- [ ] **The search is exhaustive before anything is declared done:** tracked files, UNTRACKED files, and
+- [x] **The search is exhaustive before anything is declared done:** tracked files, UNTRACKED files, and
       every commit on every ref (`git log --all -S`). One file and one commit is the current answer;
       asserting it without having looked at all three would be the location-not-content mistake this
       corpus measured twice this week
-- [ ] **The blast radius is stated before approval is sought, not after.** The value entered at
+- [x] **The blast radius is stated before approval is sought, not after.** The value entered at
       `6b249629`, an ancestor of everything: purging it rewrites **2700 commits on bleeding-edge and
       2421 on master**, changing every SHA on the project's default branch. That is materially bigger
       than T-938's 109 and the operator decides knowing it
-- [ ] **What the purge does and does NOT achieve is written down.** 429 unique cloners in 14 days, 33
+- [x] **What the purge does and does NOT achieve is written down.** 429 unique cloners in 14 days, 33
       on 2026-09-28 alone while both halves were public — those copies are permanent and unreachable.
       The purge stops FUTURE discovery and protects the NEXT key the store encrypts. It does not undo
       the leak, and any wording implying otherwise is a false green about a security outcome
-- [ ] **A stale-clone push cannot silently resurrect it.** A `git pull` on an old clone followed by a
+- [x] **A stale-clone push cannot silently resurrect it.** Met both ways the criterion allowed. THE
+      GUARD EXISTS: `--history` judges reachable history, so a resurrected old branch is flagged even
+      though the tip keeps the deletion and the index reads clean — demonstrated on a fixture where the
+      two modes disagree over the same repo at the same moment (index exit 0, history exit 1). THE RISK
+      IS ALSO NAMED: anyone holding a stale clone must run `git fetch origin && git reset --hard
+      origin/bleeding-edge` rather than `git pull`, because a merge makes the old commits ancestors
+      again and OneDev accepts that push as a fast-forward. This AC is the reason the history axis got
+      built at all — the operator's question about syncing a stale branch is what exposed that the
+      index-based detector could not have caught it.
+      A `git pull` on an old clone followed by a
       `git push` makes the old commits ancestors again and OneDev accepts it as a fast-forward. Either
       a guard exists or the risk is named explicitly with the reset command anyone holding a stale
       clone must run instead
 - [ ] **The history rewrite is the operator's to approve, written so the Tier 0 gate can SEE it.**
       Literal `git push --force`, not wrapped in a script — OBS-449 is exactly what happens otherwise,
       and repeating it in the task that exists because of it would be indefensible
-- [ ] **A detector covers the class, not this value.** `tools/tracked-secret-artifacts.py` judges names
+- [x] **A detector covers the class, not this value.** `tools/tracked-secret-artifacts.py` judges names
       only, by design; a machine-id pasted into prose is invisible to it. Whatever is added must catch
       "a host identifier committed as evidence", not this one string
 
