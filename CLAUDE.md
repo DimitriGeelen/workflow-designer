@@ -644,6 +644,36 @@ When giving the human a command to run (Tier 0 approvals, inception decisions, v
 3. **Use `bin/fw` not `fw`** — the global `fw` may resolve to a different install
 4. **No bare multi-line** — if multiple commands are needed, chain with `&&` on one line
 
+### Wrap Operator Commands in `runme.sh` (standing operator instruction, 2026-09-30)
+
+**Every command-line instruction handed to the operator — single or multiple — is wrapped in a shell
+script the operator can run with one line.** Not a fenced block of steps to copy in sequence, not a
+chain of `&&` they have to read before trusting. One file, one invocation.
+
+1. **Write it to `runme.sh`** at the project root, and **print the full absolute path** so the
+   operator can run it without reconstructing where it is:
+   `bash /opt/832-Workflow-designer/runme.sh`
+2. **One command still gets a script.** The rule is not "wrap it when it gets long" — a single
+   command in a file is inspectable, re-runnable, and does not depend on the operator's terminal
+   surviving a copy-paste.
+3. **A `--dry-run` mode**, and run it yourself before handing the script over. Handing over an
+   unexercised script is handing over a claim.
+4. **Preflight before the first write**, and each check states what it proves. A refused script must
+   leave the tree exactly as it found it.
+5. **Confirm before each irreversible step**, and stop on the first failure rather than continuing
+   into a half-done state.
+6. **The operator's decisions stay arguments, not defaults.** A version number, a target ref, a
+   destructive flag — pass them in and refuse without them (G-007: choosing the number is choosing
+   what is promised).
+
+**AND THE AGENT DOES NOT RUN IT.** This is the part that is not convenience. `check-tier0.sh` matches
+the **command text**, so a force-push, hard reset or `rm -rf` inside a script is invisible to it — the
+harness only sees `bash runme.sh`. That is not theoretical: on 2026-09-30 an agent moved a force-push
+into a script to stabilise its Tier 0 approval hash, and the move defeated the gate; the push executed
+with `fw tier0 approve` still reporting "approvals logged: 0" (**OBS-449**). Wrapping commands for the
+operator is required; running the wrapper is a four-control bypass in one invocation. Say so in the
+script's own header, as `runme.sh` does.
+
 ### Inception Discipline
 When the active task has `workflow_type: inception`:
 1. **State the phase** — Say "This is an inception/exploration task" before doing any work
