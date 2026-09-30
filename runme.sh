@@ -123,6 +123,14 @@ printf '  master  %s -> %s  (%s commits)\n' "$(git rev-parse --short master)" \
 
 # ── 1. FAST-FORWARD MASTER ────────────────────────────────────────────────────────────────────────
 step "1/6  Fast-forward master to bleeding-edge (refspec push, working tree untouched)"
+
+# IDEMPOTENT, same reason as step 2: a re-run after a mid-sequence stop would prompt to push a ref
+# that is already there. Skipping keeps the confirms meaningful — every prompt in this script should
+# be a question whose answer changes something.
+if [ "$(git rev-parse master)" = "$(git rev-parse bleeding-edge)" ] \
+   && [ "$(git rev-parse origin/master 2>/dev/null)" = "$(git rev-parse bleeding-edge)" ]; then
+    echo "  skip  master and origin/master already at $(git rev-parse --short bleeding-edge)"
+else
 confirm "Push bleeding-edge to origin/master? (git refuses unless it is a fast-forward)"
 
 # THE GUARD MEASURES TRACKED MODIFICATIONS, NOT THE TOTAL PATH COUNT, and the first version of it
@@ -150,6 +158,7 @@ if [ "$DRY" -eq 0 ]; then
   before continuing; do not re-run until you know what."
     echo "  ok   tracked files untouched by the push ($AFTER modified, unchanged)"
 fi
+fi
 
 # From here master carries src/ changes while VERSION still names the OLD release: "same version,
 # different bytes", the case the release guard exists to catch. T-823 hit it and recorded it rather
@@ -172,6 +181,16 @@ CUR_LIT="$(grep -oE "^const APP_VERSION = '[^']+';" "$SRC" | head -1)"
   and this script cannot keep the two in sync. Look for: const APP_VERSION = '...';"
 echo "  current literal: $CUR_LIT"
 echo "  target:          const APP_VERSION = '$VERSION';"
+
+# IDEMPOTENT: skip when both copies already read the target. A re-run after a mid-sequence stop
+# would otherwise prompt to write 0.14.0 over 0.14.0, and the operator quite reasonably declined
+# that — a confirm for a no-op is a prompt that teaches the reader their answer does not matter.
+# Every step in this script has to survive being re-run, because a six-step release that stops in the
+# middle WILL be re-run; that is the normal case, not the exception.
+CUR_FILE="$(tr -d '[:space:]' < VERSION 2>/dev/null || true)"
+if [ "$CUR_FILE" = "$VERSION" ] && printf '%s' "$CUR_LIT" | grep -qF "'$VERSION';"; then
+    echo "  skip  both already read $VERSION — nothing to write"
+else
 confirm "Write '$VERSION' to ./VERSION and to the APP_VERSION literal in $SRC?"
 run "printf '%s\n' '$VERSION' > VERSION"
 run "python3 - <<PY
@@ -184,6 +203,7 @@ if n != 1:
 io.open(p, 'w', encoding='utf-8').write(new)
 print('  APP_VERSION literal updated')
 PY"
+fi
 if [ "$DRY" -eq 0 ]; then
     grep -qE "^const APP_VERSION = '$VERSION';" "$SRC" \
       || die "the APP_VERSION literal did not take — parity gate would refuse at step 3"
