@@ -48,6 +48,21 @@ set -uo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO" || exit 90
 
+# ── EVERYTHING IS LOGGED, so a failure can be READ rather than retyped. ──────────────────────────
+# Standing operator instruction 2026-09-30: the agent reads the output; the operator does not
+# copy-paste it. The log lives INSIDE the project so the agent can read it without crossing the
+# T-559 boundary, and at a FIXED path as well as a timestamped one so "read the last run" needs no
+# guessing. stderr is merged in: the first run failed inside scripts/release-designer.sh, which
+# writes its refusals to stderr, and a log without stderr would have recorded a silent stop.
+LOGDIR="$REPO/.context/working"
+mkdir -p "$LOGDIR"
+LOG="$LOGDIR/runme-$(date -u +%Y%m%dT%H%M%SZ).log"
+LATEST="$LOGDIR/runme-LATEST.log"
+exec > >(tee -a "$LOG") 2>&1
+ln -sf "$(basename "$LOG")" "$LATEST" 2>/dev/null || true
+printf 'log: %s\n' "$LOG"
+printf 'log: %s  (symlink to the run above)\n' "$LATEST"
+
 VERSION="${1:-}"
 DRY=0
 [ "${2:-}" = "--dry-run" ] && DRY=1
@@ -124,10 +139,39 @@ fi
 # than absorbing it. Steps 2-5 close the window, which is why they run in one sitting.
 echo "  note master now serves bytes that do not match released 0.13.0 until step 4 commits"
 
-# ── 2. VERSION ────────────────────────────────────────────────────────────────────────────────────
-step "2/6  Write VERSION = $VERSION"
-confirm "Write '$VERSION' to ./VERSION?"
+# ── 2. VERSION, BOTH COPIES ───────────────────────────────────────────────────────────────────────
+# The first run of this script failed at step 3 because it wrote ./VERSION and left the APP_VERSION
+# literal in src/ at the old number. release-designer.sh's parity gate caught it and refused before
+# touching dist/ — working exactly as designed, and this script was the thing that was wrong.
+#
+# WHY THE LITERAL EXISTS AT ALL: the designer renders its own version in its header, and this
+# script's contract with dist/ is a plain byte copy (`diff -q SRC ARTIFACT`), so the version has to
+# be a literal in the source rather than substituted at build time. The gate is what keeps the
+# literal honest, which is why it is not bypassed here — it is satisfied.
+step "2/6  Write VERSION = $VERSION (./VERSION and the APP_VERSION literal in src/)"
+SRC="src/aef-workflow-designer.html"
+CUR_LIT="$(grep -oE "^const APP_VERSION = '[^']+';" "$SRC" | head -1)"
+[ -n "$CUR_LIT" ] || die "cannot find the APP_VERSION literal in $SRC — the parity gate will refuse
+  and this script cannot keep the two in sync. Look for: const APP_VERSION = '...';"
+echo "  current literal: $CUR_LIT"
+echo "  target:          const APP_VERSION = '$VERSION';"
+confirm "Write '$VERSION' to ./VERSION and to the APP_VERSION literal in $SRC?"
 run "printf '%s\n' '$VERSION' > VERSION"
+run "python3 - <<PY
+import io, re
+p = '$SRC'
+s = io.open(p, encoding='utf-8').read()
+new, n = re.subn(r\"^const APP_VERSION = '[^']+';\", \"const APP_VERSION = '$VERSION';\", s, count=1, flags=re.M)
+if n != 1:
+    raise SystemExit('expected exactly 1 APP_VERSION literal, substituted %d' % n)
+io.open(p, 'w', encoding='utf-8').write(new)
+print('  APP_VERSION literal updated')
+PY"
+if [ "$DRY" -eq 0 ]; then
+    grep -qE "^const APP_VERSION = '$VERSION';" "$SRC" \
+      || die "the APP_VERSION literal did not take — parity gate would refuse at step 3"
+    echo "  ok   ./VERSION and the src literal both read $VERSION"
+fi
 
 # ── 3. BUILD ──────────────────────────────────────────────────────────────────────────────────────
 step "3/6  Build dist/ (deterministic: same source + same VERSION => identical bytes)"
