@@ -4,12 +4,13 @@ name: "P-011 cannot tell a missing Verification heading from a malformed one, an
 description: >
   P-011 cannot tell a missing Verification heading from a malformed one, and the T-574 probe that would catch it is anchored to a source line that moved
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t574-p011-block-locator-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T12:52:58Z
-last_update: 2026-09-30T12:52:58Z
-date_finished: null
+last_update: 2026-09-30T13:07:40Z
+date_finished: 2026-09-30T13:07:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -311,9 +312,14 @@ python3 tools/_t574-p011-block-locator-teeth.py
 bash tools/_t943-heading-states.sh
 # The new return code is reachable from the caller, and the caller refuses on it.
 grep -q 'extract_rc" -eq 3' .agentic-framework/agents/task-create/update-task.sh
-# The corpus is not in the refused state: every task file carries an exact heading,
-# so this fix opens no existing close. Pins the INVARIANT (zero malformed), not a count.
-test "$(grep -L '^## Verification[[:space:]]*$' .tasks/active/*.md .tasks/completed/*.md | wc -l)" -eq 0
+# The corpus is not in the refused state, so this fix opens no existing close.
+# Stated POSITIVELY (T-843 refused the negation, correctly): `grep -L ... -eq 0` passes
+# vacuously if the GLOB matches nothing — a broken path and a clean corpus produce the
+# same green. So assert a non-empty denominator first, then that every file in it carries
+# the heading. Compares two counts rather than pinning either, so it does not rot as tasks
+# are added (T-3326).
+test "$(ls .tasks/active/*.md .tasks/completed/*.md | wc -l)" -gt 0
+test "$(grep -l '^## Verification[[:space:]]*$' .tasks/active/*.md .tasks/completed/*.md | wc -l)" -eq "$(ls .tasks/active/*.md .tasks/completed/*.md | wc -l)"
 
 ## RCA
 
@@ -411,3 +417,15 @@ test "$(grep -L '^## Verification[[:space:]]*$' .tasks/active/*.md .tasks/comple
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-943-p-011-cannot-tell-a-missing-verification.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-22892304
+- **Timestamp:** 2026-09-30T13:07:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-30T13:07:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

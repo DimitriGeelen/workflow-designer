@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-943: P-011 cannot tell a missing Verification heading from a malformed one, and the T-574 probe that would catch it is anchored to a source line that moved
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T13:07:51Z
+# ============================================================================
+
+task_id: T-943
+task_name: "P-011 cannot tell a missing Verification heading from a malformed one, and the T-574 probe that would catch it is anchored to a source line that moved"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T12:52:58Z
+completed: 2026-09-30T13:07:40Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T15:06:39+02:00
+last_commit: 2026-09-30T15:06:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the 1.7.68 re-vendor reverted T-574's fix, and its guard could only say 'I cannot test this'
+
+# Key outcomes
+outcomes:
+  - '**`extract_verification_block` distinguishes "no heading" from "heading-like line present'
+  - '**The detection does not fire on a prose mention.** A task body that references'
+  - '**update-task.sh refuses on the new code** with a message that names the file, says zero'
+  - '**Both directions, against the live function:** well-formed still runs its commands and'
+  - '**The T-574 probe tests the CONTRACT, not a source line.** Re-anchored to'
+  - '**Reported upstream to AEF,** because the fix lives in a vendored file and the measured'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the 1.7.68 re-vendor reverted T-574''s fix, and its guard could only say ''I cannot test this'''
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.tasks/active/T-943-p-011-cannot-tell-a-missing-verification.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t574-p011-block-locator-teeth.py'
+  - 'tools/_t943-heading-states.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T15:06:39'
+    action: 'T-943: the 1.7.68 re-vendor reverted T-574''s fix, and its guard could only say ''I cannot test this'''
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 14
+  commits: 1
+  files_changed: 6
+  lines_added: 805
+  lines_removed: 74
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-943-p-011-cannot-tell-a-missing-verification.md
+generated_by: context-agent-hybrid
