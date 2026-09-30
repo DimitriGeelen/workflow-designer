@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-954: Make the spent decision script refuse to record a second ruling
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T20:09:59Z
+# ============================================================================
+
+task_id: T-954
+task_name: "Make the spent decision script refuse to record a second ruling"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T20:06:50Z
+completed: 2026-09-30T20:09:51Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T22:09:19+02:00
+last_commit: 2026-09-30T22:09:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the spent decision script now refuses a second ruling, and names why
+
+# Key outcomes
+outcomes:
+  - 'A **preflight** check refuses when a T-925 seam ruling already exists, so the refusal'
+  - 'The refusal **names the check, the existing decision id, and what actually remains**'
+  - '**Both directions proven by running it**, not by reading it: with the real decisions'
+  - 'The negative leg uses a **narrow, documented seam** (`T925_DECISIONS_FILE`) rather'
+  - 'Exercised only via `--dry-run` and the refusal path, both of which record nothing —'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'runme.sh'
+  - '.tasks/active/T-954-make-the-spent-decision-script-refuse-to.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T22:09:19'
+    action: 'T-954: the spent decision script now refuses a second ruling, and names why'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 2
+  lines_added: 400
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-954-make-the-spent-decision-script-refuse-to.md
+generated_by: context-agent-hybrid

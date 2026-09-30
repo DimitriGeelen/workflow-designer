@@ -2600,3 +2600,10 @@ decisions:
     date: 2026-09-29
     task: T-931
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-351
+    decision: "T-925 seam ruling: A — A — emit all ten attributes (recommended)"
+    scope: project
+    date: 2026-09-30
+    task: T-925
+    rationale: "Operator ruling on whether tools/yaml-to-bpmn.py should emit <aef:workflowMeta>. Priced in docs/reports/T-925-workflowmeta-bridge-seam.md: the bridge produced 1 of 25 served renders (not the 24 the original deferral assumed), customer-refund is in no pin manifest, 10 bridge tests contain no golden-byte comparison, and test_harness_cross_form_agreement.py holds a KNOWN disagreement citing T-925 that a fix would retire."

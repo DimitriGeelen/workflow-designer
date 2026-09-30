@@ -2790,3 +2790,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-454
+  text: "The reviewer static-scan returns severe, deterministic findings and the task closes anyway. T-954 closed with 5/5 acceptance criteria and 14/14 verification while the same run reported Overall: FAIL with three findings — swallowed-errors once and skip-as-pass twice — all severe, all deterministic, all against the verification block that had just been declared 14/14 passed. The findings were correct: a subject driven into a temp file with a trailing or-true, then read back by an absence check with no assertion that the file has content, so a crash certifies the property instead of failing. THE DETECTION EXISTS AND THE ENFORCEMENT DOES NOT. That is the exact gap this project keeps rediscovering one layer at a time: T-945 (a correct divergence detector with no audit line), T-949 (a 27-item warning with one true item), T-952 (a daily monitor whose verdict reached only syslog). Here the surface is present and read, the finding is severe and deterministic rather than heuristic, and the gate still says work-completed. Whether a severe deterministic reviewer finding should BLOCK a close is a sovereignty question, not an agent one — the argument against is that a non-blocking scan can be improved freely without stalling every close, and the argument for is that severe plus deterministic is exactly the class that does not need human judgement. Candidate shape if it is ever wanted: block on severe AND deterministic only, leave heuristic findings advisory, and require the same --force the AC and verification gates already take so a bypass is logged rather than silent."
+  captured: 2026-09-30T20:11:15Z
+  context_task: T-925
+  tags: []
+  status: pending
+  promoted_to: null

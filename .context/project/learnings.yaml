@@ -2567,3 +2567,21 @@ learnings:
   task: T-944
   date: 2026-09-30
   context: Added via context agent
+- id: PL-365
+  learning: "A verification check whose truth depends on WHEN it runs is not a check. 'test -z $(git diff --name-only HEAD -- path)' and 'test $(git diff ... | wc -l) -eq 1' were both true while the change sat unstaged and became VACUOUS the moment it was committed — git diff HEAD is empty once the work is in HEAD, so the leg passes for the opposite reason it was written. It would then pass forever, on any tree, asserting nothing. Same defect class as an uncontrolled absence assertion (T-843) but the trigger is time rather than a missing search target, so the absence-census does not catch it. THE REPAIR IS TO ASSERT A TIME-INDEPENDENT INVARIANT INSTEAD: for a generated file, 're-render it and cmp against the committed bytes' (render == f(source)) holds at any moment, is stronger because it also proves nothing was hand-edited, and keeps working as a standing guard — it would catch a future re-vendor reverting the generator while leaving its output in place. Ask of every verification line: would this still mean the same thing a week from now, on a clean tree?"
+  source: P-011
+  task: T-953
+  date: 2026-09-30
+  context: Added via context agent
+- id: PL-366
+  learning: "Do not infer an artifact's INTENT from its STATE without reading its source and its origin commit. customer-refund.bpmn was the only served document with no <aef:workflowMeta>, so I recorded the T-301 divergence as 'may be a deliberate metadata-less import fixture — operator decision', and reasoned that adding metadata would destroy its value as the natural fixture for a third-party BPMN file. Every word of that was invented. The source YAML declares 'workflowMeta: id: customer-refund' explicitly; the RENDERER erased it (tools/yaml-to-bpmn.py emits none of workflowMeta's ten attributes), which was already filed as T-925 with confirmed BVP 142. Two cheap reads would have prevented it: the .workflow.yaml beside the render, and 'git log --diff-filter=A' on the file, which names T-283 and its stated purpose. THE SHAPE OF THE ERROR: an artifact that looks deliberately odd is evidence of SOMETHING, and 'someone chose this' is the most flattering of the available explanations and the one that requires no further work. A recorded reason that ascribes intent becomes the next reader's starting point, so a wrong one does more damage than no reason at all — it redirects them away from a filed cause. Rule: before writing 'this may be deliberate' into any durable record, read the generator, the source, and the commit that introduced it."
+  source: P-001
+  task: T-925
+  date: 2026-09-30
+  context: Added via context agent
+- id: PL-367
+  learning: "Redirecting a command's output to a file and then asserting on that file needs TWO guards, not one: the command's exit status AND the file being non-empty. Without the second, a crash is indistinguishable from a clean negative result — the file is empty, every absence check reading it passes vacuously, and the run reads as proof of the very thing you were testing for. Caught by the reviewer static-scan on T-954 as swallowed-errors plus skip-as-pass, both severe and deterministic, against my own verification block: the subject was driven into a temp file with a trailing 'or true' to let an EXPECTED non-zero exit through, and that let every UNEXPECTED one through as well. The repair is to capture the status rather than discard it, assert the exact expected value, and assert the output file has content before any absence check reads it. THIS GENERALISES PAST VERIFICATION BLOCKS: the T-949, T-301 and T-952 teeth scripts all drive a fixture into a temp file and read the result back, and any leg that checks only the status is one crash away from certifying a property it never measured. Note also that the reviewer DID detect this and the close proceeded anyway, because the static-scan is non-blocking — the detection exists, the enforcement does not."
+  source: P-011
+  task: T-954
+  date: 2026-09-30
+  context: Added via context agent
