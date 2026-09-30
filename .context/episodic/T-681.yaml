@@ -1,0 +1,98 @@
+# ============================================================================
+# EPISODIC MEMORY - T-681: EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs 1-6 have no tasks at all
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T11:26:51Z
+# ============================================================================
+
+task_id: T-681
+task_name: "EWCR arc holds only Arc-0 and every task in it is closed; roadmap Arcs 1-6 have no tasks at all"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-05T14:17:12Z
+completed: 2026-09-30T11:26:42Z
+duration_days: 25
+updates_count: 3
+first_commit: 2026-09-05T18:24:30+02:00
+last_commit: 2026-09-08T22:40:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception artifact — one of six undecomposed arcs is startable, and its proof is trivially green until a mutation control makes it mean something.. problem statement, exploration plan, scope fence and real go/no-go criteria — the NO-GO arm is a condition that can actually fire.. inception decision GO (via Watchtower). S1 — the arc names three authorities and two of them do not exist here; the fence's real subject is the version ledger and the write path into the git tree.. S2 — IW-2 resolves positive, the fence has a demonstrated red state; the control's first run said NO-GO for a broken reason.. decomposition — three Arc-2 build tasks, reshaped by the spikes: enumerate what is actually there, wear the belt on the write path, and make the control admit when it never fired.. G-048 + PL-317/PL-318 — the belt exists on the delete path only, and a control that cannot fire reports the alarming verdict with confidence.. dispose the four IW questions against what the GO actually produced — two of them answered against their own filed premise
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/T-681-ewcr-next-arc-inception.md'
+  - 'docs/research/executable-workflow/_t681-s2-mutation-control-prototype.py'
+  - '.tasks/active/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - '.tasks/active/T-682-arc-2-boundary-enumeration-name-every-au.md'
+  - '.tasks/active/T-683-wear-the-belt-on-the-write-path-withinre.md'
+  - '.tasks/active/T-684-ship-the-arc-2-mutation-control-with-a-m.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-05T18:24:30'
+    action: 'T-681: inception artifact — one of six undecomposed arcs is startable, and its proof is trivially green until a mutation control makes it mean something.'
+  - time: '2026-09-05T18:25:34'
+    action: 'T-681: problem statement, exploration plan, scope fence and real go/no-go criteria — the NO-GO arm is a condition that can actually fire.'
+  - time: '2026-09-05T18:30:50'
+    action: 'T-681: inception decision GO (via Watchtower)'
+  - time: '2026-09-05T19:22:03'
+    action: 'T-681: S1 — the arc names three authorities and two of them do not exist here; the fence''s real subject is the version ledger and the write path into the git tree.'
+  - time: '2026-09-05T19:25:15'
+    action: 'T-681: S2 — IW-2 resolves positive, the fence has a demonstrated red state; the control''s first run said NO-GO for a broken reason.'
+  - time: '2026-09-05T19:27:03'
+    action: 'T-681: decomposition — three Arc-2 build tasks, reshaped by the spikes: enumerate what is actually there, wear the belt on the write path, and make the control admit when it never fired.'
+  - time: '2026-09-05T19:29:10'
+    action: 'T-681: G-048 + PL-317/PL-318 — the belt exists on the delete path only, and a control that cannot fire reports the alarming verdict with confidence.'
+  - time: '2026-09-08T22:40:54'
+    action: 'T-681: dispose the four IW questions against what the GO actually produced — two of them answered against their own filed premise'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 35829 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 35829
+  commits: 8
+  files_changed: 8
+  lines_added: 1236
+  lines_removed: 32
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md
+generated_by: context-agent-hybrid

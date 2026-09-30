@@ -4,12 +4,13 @@ name: "T-884's /api/instances: the four remaining sites, and the fabricated 'thr
 description: >
   T-884's /api/instances: the four remaining sites, and the fabricated 'three weeks' I put in T-941's record
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tests/test_designer_export_contract.py, tests/test_designer_owner_derived.py, tests/test_designer_render.py, tools/_t682-boundary-inventory.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T11:28:05Z
-last_update: 2026-09-30T11:28:05Z
-date_finished: null
+last_update: 2026-09-30T11:33:59Z
+date_finished: 2026-09-30T11:33:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -377,3 +378,20 @@ grep -q '26 HOURS' .context/project/learnings.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-942-t-884s-apiinstances-the-four-remaining-s.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-51763040
+- **Timestamp:** 2026-09-30T11:34:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — **Both orphaned tests are wired into `tests/run-bridge-tests.sh`** and the T-316
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: **Both orphaned tests are wired into `tests/run-bridge-tests.sh`** and the T-316`
+
+### 2026-09-30T11:33:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
