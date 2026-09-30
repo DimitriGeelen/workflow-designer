@@ -1,21 +1,11 @@
 ---
-id: T-885
-name: "The round-trip guard _roundtrip-serialization-cdp.mjs covers only the NODE-level
-  aef.* seam — checkDenominator() derives its 36 keys from aef.* dot-accesses, metaKeys
-  and bindFields. Document-level aef:workflowMeta attributes are outside its denominator
-  BY CONSTRUCTION. Measured under T-875 by mutation: deleting the editor's kind writer
-  line entirely still yields exit 0 / pass true over 20 fixtures. The open question
-  this raises is bigger than the attribute that found it: uuid, pageWidth, tier_default,
-  title and description are all workflowMeta attributes and may be riding on no round-trip
-  guard at all. uuid in particular is connector-referenceable identity (T-224) and
-  is pinned cross-agent. Needs a census of what actually guards document-level metadata,
-  then an instrument."
+id: T-941
+name: "T-884's /api/instances was never added to the arc-2 boundary inventory — the second place one omission surfaced"
 description: >
-  Promoted from observation OBS-402
+  T-884's /api/instances was never added to the arc-2 boundary inventory — the second place one omission surfaced
 
 status: started-work
 workflow_type: build
-current_node: frw_6_run
 owner: agent
 horizon: now
 tags: []
@@ -31,9 +21,9 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-26T23:43:01Z
-last_update: 2026-09-29T17:23:05Z
-date_finished:
+created: 2026-09-30T11:13:55Z
+last_update: 2026-09-30T11:13:55Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -44,54 +34,69 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-09-26T23:43:13Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 4
-      F1: 3
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=4 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
-      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-885: The round-trip guard _roundtrip-serialization-cdp.mjs covers only the NODE-level aef.* seam — checkDenominator() derives its 36 keys from aef.* dot-accesses, metaKeys and bindFields. Document-level aef:workflowMeta attributes are outside its denominator BY CONSTRUCTION. Measured under T-875 by mutation: deleting the editor's kind writer line entirely still yields exit 0 / pass true over 20 fixtures. The open question this raises is bigger than the attribute that found it: uuid, pageWidth, tier_default, title and description are all workflowMeta attributes and may be riding on no round-trip guard at all. uuid in particular is connector-referenceable identity (T-224) and is pinned cross-agent. Needs a census of what actually guards document-level metadata, then an instrument.
+# T-941: T-884's /api/instances was never added to the arc-2 boundary inventory — the second place one omission surfaced
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-884 shipped `GET /api/instances` on 2026-09-09. It was classified in neither of the two
+places that describe the designer's surface, and **both instruments detected it correctly:**
+
+| instrument | what it said | when it was read |
+|---|---|---|
+| `tools/_t682-boundary-inventory.py` | `UNCLASSIFIED (no semantics row)`, exit non-zero | **never** — 3 weeks |
+| `tests/test_designer_render.py` | unexpected console error, exit 1 | 2026-09-30, by blocking the 0.14.0 release |
+
+Neither was a detector failure. The inventory check ran only from T-681's `## Verification`
+block, and T-681 was itself one of the twelve tasks sitting unclosed — so the finding was
+reachable only through a task nobody was closing. The render gate was read because a release
+walked into it. **The difference between three weeks and immediately was whether something
+with a deadline happened to trip over it.**
+
+This task classifies the route. It does not claim to fix the reading problem.
 
 ## Acceptance Criteria
 
 ### Agent
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [x] **`GET /api/instances` has a `ROUTE_SEMANTICS` row** and
+      `python3 tools/_t682-boundary-inventory.py` exits 0 with no DRIFT block
+      → `OK — 8 routes, server and inventory agree, all classified`
+- [x] **The `mutates` value is verified against the call graph, not inferred from the verb.**
+      A GET that spawns a subprocess is the one case where "mutates: none" can describe the
+      handler truthfully while the authority sits one process away. The row must name the
+      functions actually checked in `instance-node.py`, so a later reader can re-run the check
+      instead of trusting the word "none"
+      → `cmd_snapshot` (instance-node.py:652) reaches only `_reverse` and `_read_refusals`;
+      it does not reach `_append_line`, `_audit_append` or `_write_node`. Row names all three.
+- [x] **The generated report is regenerated** (`--write`) and
+      `docs/reports/T-682-arc-2-boundary-inventory.md` names the route — a semantics row that
+      never reaches the published document classifies nothing a reader can see
+- [x] **Both-directions proof, negative leg first:** a committed test shows the check still
+      FAILS for a route with no semantics row, and PASSES for the current route set. Adding a
+      row is exactly the edit that could turn the detector into a rubber stamp, so the proof
+      that it still bites belongs in the same commit as the row
+      → `tests/test_boundary_inventory_unclassified.py`. Mutation-checked: with a row injected
+      for the synthetic route the negative leg fails, so the test is not passing vacuously.
+- [x] **The root cause is recorded where it will be read again,** not only in this task: one
+      omission, two instruments, three weeks apart, and the reason the silent one stayed silent
+      → **PL-363**, plus the comment block above the row itself, which is the page a future
+      reader is already on when they add the next route.
+- [x] **PREVENTION, not just mitigation (G-019).** Classifying this one route fixes the
+      symptom; it does nothing about the reason the finding went unread for three weeks. The
+      check is now an audit rail (`check_boundary_inventory`), so it runs on the audit's
+      schedule rather than waiting for someone to open T-681. WARN not FAIL — an unclassified
+      route is an unreviewed fence, not a live breach, unlike the tracked-secret rail that
+      FAILs beside it. Both legs proven: PASS on the live clean state, and WARN against a stub
+      root, using the rail extracted verbatim from `audit.sh` rather than a paraphrase.
 
-**This task is the CENSUS, not the repair.** Scope fence: it answers "what, if anything,
-guards document-level `aef:workflowMeta` attributes" and files what it finds. Building the
-instrument is a separate task, filed on this task's evidence. Writing a guard before knowing
-what is bare is how the second wrong guard gets built — exactly the mistake the T-875
-mutation caught.
+<!-- NO ### Human SECTION, deliberately. Every criterion above is a shell check, so there is
+     no judgement to reserve. Per this session's T-931 work a task with no open Human criterion
+     is agent-owned; inventing a [RUBBER-STAMP] "confirm the row looks right" would be exactly
+     the ceremony that work existed to delete. The template's guidance follows, unused:
 
-- [x] Every `aef:workflowMeta` attribute the editor reads and every one it writes is enumerated, and the two lists are diffed — an attribute written but never read back is a silent-drop candidate on its own, before any guard question
-- [x] For the writable set, coverage is established **by mutation, not by reading test names**: with the attribute suppressed in the writer, the candidate guards are re-run and the result recorded per attribute as COVERED (something went red) or BARE (nothing did)
-- [x] The mutation is proven to have applied — a substitution that silently matched nothing reads identically to a guard that passed, and that failure mode has already occurred twice in this corpus
-- [x] `uuid` is reported explicitly and separately whatever the result: it is connector-referenceable identity (T-224), pinned cross-agent with AEF, and is the one attribute whose silent loss would be a seam-integrity defect rather than a cosmetic one
-- [x] The source tree is left byte-identical to its pre-census state — every mutation reverted and the revert verified, not assumed
-- [x] Findings are filed as their own task(s) with the census as evidence; this task builds no guard
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+     Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
 
@@ -123,23 +128,6 @@ mutation caught.
 
 ## Verification
 
-# The census's findings were filed and built: T-886 (workflowMeta denominator) and T-910 (laneMeta) are closed tasks.
-ls .tasks/completed/T-886-*.md .tasks/completed/T-910-*.md
-# The repair the census asked for exists and is static-checkable without a browser: every emitter-written
-# workflowMeta and laneMeta attribute is compared or excluded with a reason (property, not a live count).
-node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q '"denominators_only": true'
-# ANCHOR REPAIR (2026-09-29). This line used to end the pattern at `0 unclassified"` — a closing
-# quote, i.e. anchored to the END of the summary string. T-905 (78a25279, 01:32Z) appended
-# "; computed sources N verified, M open" to that same summary FIFTEEN MINUTES after this line was
-# written (d328aff6, 01:17Z), and the line went red while the property it checks stayed true. It sat
-# red for ten hours because nothing re-runs a parked task's verification. Exactly the mutable-anchor
-# rot this block warns about above (T-3326). Now pins the INVARIANT and nothing about what follows.
-# The [^0-9] guard is load-bearing: a bare `0 unclassified` would also match "10 unclassified".
-node tools/_roundtrip-serialization-cdp.mjs --denominators-only > .context/working/.t885-denoms.out 2>&1 && grep -qE '[^0-9]0 unclassified' .context/working/.t885-denoms.out
-# uuid — the census's one seam-integrity finding — is in the compared set, not merely mentioned.
-grep -qE "^const WMSPEC = \[.*'uuid'" tools/_roundtrip-serialization-cdp.mjs
-# The write-only attribute the census found (source=) is excluded WITH a reason that names the census.
-grep -qE "^  source: 'WRITE-ONLY \(T-885 census\)" tools/_roundtrip-serialization-cdp.mjs
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -266,6 +254,25 @@ grep -qE "^  source: 'WRITE-ONLY \(T-885 census\)" tools/_roundtrip-serializatio
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The drift check itself passes: server and inventory agree, every route classified.
+python3 tools/_t682-boundary-inventory.py
+# Both-directions proof. The negative leg is the load-bearing one: adding a
+# ROUTE_SEMANTICS row is exactly the edit that could turn this detector into a
+# rubber stamp, so the test asserts an UNROWED route is still caught, and only
+# then that the real route set is clean.
+python3 tests/test_boundary_inventory_unclassified.py
+# The published document names the route — a semantics row that never reaches the
+# report classifies nothing a reader can see. Anchored to the route string, not to a
+# route COUNT: the count moves whenever a route is added (T-3326, mutable anchors).
+grep -q '/api/instances' docs/reports/T-682-arc-2-boundary-inventory.md
+# The row records WHICH functions were checked, so 'mutates: none' stays re-verifiable
+# by a later reader instead of being a word they have to trust.
+grep -q '_reverse + _read_refusals' tools/_t682-boundary-inventory.py
+# The audit runs the check on a schedule. This is the prevention half: the classification
+# above is mitigation, and G-019 is explicit that the two are not the same. Without this
+# line the next unclassified route waits for whoever next opens T-681 (PL-363).
+grep -q 'check_boundary_inventory$' .agentic-framework/agents/audit/audit.sh
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -284,15 +291,27 @@ grep -qE "^  source: 'WRITE-ONLY \(T-885 census\)" tools/_roundtrip-serializatio
 
 ## Evolution
 
-### 2026-09-26 — the census found the finding it was shaped for, and one it was not
-- **What changed:** Filed to answer "what guards document-level aef:workflowMeta attributes" — the answer was nothing: uuid, description and kind could each be dropped from the writer with every guard green (commit 90a8f47c). The unplanned finding was `source=`: written by the emitter and read back by nothing, so a round-trip comparison of it is structurally impossible, not merely missing. That became the first entry in WM_EXCLUDED with a reason, and the shape "write-only attribute" became T-898's inception.
-- **Plan impact:** Scope fence held — this task built no guard. T-886 built the workflowMeta denominator on this evidence; T-910 later generalised it to laneMeta after T-890 measured the identical gap one element over.
-- **Triggered:** T-886 (repair), T-898 (write-only source=), and by lineage T-910.
+<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
+     understanding evolved during build — what was learned that wasn't known at
+     filing, what in the original plan no longer fits, what triggered pivots
+     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
+     before --status work-completed.
 
-### 2026-09-29 — closing under procAsFit round 1
-- **What changed:** Nothing in the deliverable. All six ACs were ticked on 2026-09-26; the task then sat at started-work with an empty Verification and Evolution for three days — the G-027 shape, third instance this round (T-866, T-906, this).
-- **Plan impact:** Verification pins properties the census's downstream repairs must keep true (both denominators static-checkable and clean; uuid compared; source= excluded with the census named), rather than re-running the destructive mutation census, which the task's own AC required to leave the tree byte-identical.
-- **Triggered:** Nothing filed.
+     Origin: T-1717 grill Q4 — "the understanding of what we need and want
+     evolves with the process of materialisation." Structural counter to §ACD:
+     spec-vs-build divergence is logged as soon as it happens, not lost as
+     folklore.
+
+     Format (one entry per slice boundary or significant insight):
+       ### YYYY-MM-DD — [topic]
+       - **What changed:** [what we learned that we didn't know at filing]
+       - **Plan impact:** [what in the plan no longer fits]
+       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
+
+     The completion gate (T-1718) blocks --status work-completed when this
+     section exists but is empty/template-only. Use --skip-evolution to bypass
+     (logged Tier-2). Non-arc tasks may leave this empty.
+-->
 
 ## Recommendation
 
@@ -323,42 +342,6 @@ grep -qE "^  source: 'WRITE-ONLY \(T-885 census\)" tools/_roundtrip-serializatio
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
-**Recommendation:** GO — close as work-completed.
-
-**Rationale:** The deliverable is a CENSUS, and it answered its question on 2026-09-26: nothing
-guarded document-level `aef:workflowMeta`. All six Agent ACs were ticked that day. Its scope fence
-("this task builds no guard") held, and the repairs it asked for were filed and are now CLOSED —
-T-886 (workflowMeta denominator) and T-910 (laneMeta). Nothing about the census is outstanding.
-There are no `### Human` acceptance criteria: the only two checkbox lines under that heading are the
-template's own [REVIEW]/[REVIEWER] examples, inside the HTML comment. So this task is not waiting on
-a verification step the operator owes — it is waiting only on the R-033 sovereignty gate, because
-`owner: human` and an agent may not complete a human-owned task. That is the whole of the block.
-
-**Evidence:**
-- Census result: `uuid`, `description` and `kind` each deletable from the editor's writer with every
-  guard green across 20 fixtures (commit `90a8f47c`). `uuid` reported separately per AC 4 — it is
-  connector-referenceable identity (T-224), pinned cross-agent, so its silent loss is a
-  seam-integrity defect and not a cosmetic one.
-- Unplanned finding: `source=` is emitter-written and read back by nothing, making a round-trip
-  comparison structurally impossible rather than merely absent. Became T-898; carried in the guard
-  as WM_EXCLUDED with a reason naming this census.
-- Downstream repairs exist and are static-checkable without a browser: both denominators derive
-  clean (`node 37 / workflowMeta 10 / laneMeta 4 attributes derived, 0 unclassified`), `uuid` is in
-  the compared set, `source=` excluded with its reason.
-- Verification: 5/5 PASS under gate semantics (`set -o pipefail`, no errexit), re-run 2026-09-29.
-
-**One caveat the operator should see before approving.** This block's `0 unclassified` line was RED
-until minutes ago, and not for a real failure. It was written at `d328aff6` (01:17Z) anchored to the
-END of the summary string; T-905 (`78a25279`, 01:32Z) appended `; computed sources N verified, M
-open` to that same string fifteen minutes later, in the same session. The property stayed true and
-the check stopped measuring it, for ten hours, because nothing re-runs a parked task's verification.
-The anchor is repaired and the repair is proven both ways — it accepts the live output and rejects
-`3 unclassified`, `10 unclassified` and `40 unclassified`. Flagged rather than quietly fixed because
-a green that was red an hour ago is worth one sentence of the approver's attention.
-
-**Not in scope of this close:** `computed sources 3 verified, 3 open` in the same summary is T-905's
-loose end, not this census's. Folding it in here would re-open a scope fence that deliberately held.
-
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -382,62 +365,7 @@ loose end, not this census's. Folding it in here would re-open a scope fence tha
 
 ## Updates
 
-### 2026-09-26T23:43:01Z — task-created [task-create-agent]
+### 2026-09-30T11:13:55Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-885-the-round-trip-guard-roundtrip-serializa.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-941-t-884s-apiinstances-was-never-added-to-t.md
 - **Context:** Initial task creation
-
-### 2026-09-26T23:43:13Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-
-## 2026-09-27 — CENSUS RESULTS
-
-Method: suppress the attribute in the editor writer, re-run the guards, record whether
-anything goes red. Every mutation asserted applied before the run (count==1 or hard error);
-source tree restored and verified byte-identical with `cmp` afterwards.
-
-Guards run: `tools/_roundtrip-serialization-cdp.mjs` (20 fixtures),
-`tests/test_corpus_fixture_pins.py`, `tests/test_designer_export_contract.py`.
-
-| attribute | fixtures carrying | read? | written? | mutation verdict |
-|---|---|---|---|---|
-| `id` | 20 | yes | unconditional | structural — not suppressible |
-| `version` | 20 | yes | unconditional | structural — not suppressible |
-| `schemaVersion` | 20 | yes | unconditional | structural — not suppressible |
-| `title` | 20 | yes | yes | **COVERED** — killed the harness (falls back to `Process_<id>`) |
-| `tier_default` | 20 | yes | yes | **COVERED** — killed the harness |
-| `description` | 3 | yes | yes | **BARE** — mutant survived |
-| `uuid` | 1 | yes | yes | **BARE** — mutant survived |
-| `kind` | 1 | yes | yes | **BARE** — mutant survived (measured under T-875) |
-| `pageWidth` | 0 | yes | yes | **NOT EXERCISABLE** — no fixture carries it, so nothing was measured (T-3105: that is not a pass) |
-| `source` | 0 | **NO** | yes | **WRITE-ONLY** — emitted by the writer, never read on import, and no map anywhere carries it |
-
-### uuid is the finding, reported separately as the AC required
-
-`uuid` is BARE. Suppress it in the writer and every guard stays green.
-
-It is not a cosmetic attribute: T-224 introduced it as connector-referenceable identity, it is
-what off-page links resolve against, and it is pinned cross-agent — AEF holds fixtures byte-pinned
-on our side (`offpage-seam.bpmn`, `s4-exemplar.bpmn`). A regression that stopped emitting it
-would break link resolution on both sides of the seam and no test in this repository would say so.
-
-Only ONE of 20 fixtures carries a uuid, which is the likely reason coverage never developed —
-the population that would exercise it is a single file.
-
-### Two predictions I got wrong, recorded because they show the model was unreliable
-
-- I predicted `tier_default` would be BARE, reasoning that the reader defaults it to `2` and
-  would mask the loss. It is COVERED.
-- I predicted `uuid` would be COVERED, reasoning the projection would show `null` against a
-  value. It is BARE.
-
-Two of three predictions inverted. Reading the harness was not a substitute for mutating it,
-and the same will be true of whoever writes the instrument next.
-
-### Not repaired here
-
-This task builds no guard, by its own scope fence. Three bare attributes, one unexercisable and
-one write-only branch are filed as the follow-up.
-
-### 2026-09-29T17:23:05Z — status-update [task-update-agent]
-- **Change:** owner: human → agent

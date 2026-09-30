@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-885: The round-trip guard _roundtrip-serialization-cdp.mjs covers only the NODE-level aef.* seam — checkDenominator() derives its 36 keys from aef.* dot-accesses, metaKeys and bindFields. Document-level aef:workflowMeta attributes are outside its denominator BY CONSTRUCTION. Measured under T-875 by mutation: deleting the editor's kind writer line entirely still yields exit 0 / pass true over 20 fixtures. The open question this raises is bigger than the attribute that found it: uuid, pageWidth, tier_default, title and description are all workflowMeta attributes and may be riding on no round-trip guard at all. uuid in particular is connector-referenceable identity (T-224) and is pinned cross-agent. Needs a census of what actually guards document-level metadata, then an instrument.
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T11:12:41Z
+# ============================================================================
+
+task_id: T-885
+task_name: "The round-trip guard _roundtrip-serialization-cdp.mjs covers only the NODE-level aef.* seam — checkDenominator() derives its 36 keys from aef.* dot-accesses, metaKeys and bindFields. Document-level aef:workflowMeta attributes are outside its denominator BY CONSTRUCTION. Measured under T-875 by mutation: deleting the editor's kind writer line entirely still yields exit 0 / pass true over 20 fixtures. The open question this raises is bigger than the attribute that found it: uuid, pageWidth, tier_default, title and description are all workflowMeta attributes and may be riding on no round-trip guard at all. uuid in particular is connector-referenceable identity (T-224) and is pinned cross-agent. Needs a census of what actually guards document-level metadata, then an instrument."
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-26T23:43:01Z
+completed: 2026-09-30T11:12:33Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-09-27T01:47:04+02:00
+last_commit: 2026-09-29T16:28:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  uuid can be dropped from the editor writer and every guard stays green. Verification and Evolution written for a census whose six ACs have been ticked since 2026-09-26 — the close itself is the operator's, and the gate said so. the verification line went red fifteen minutes after it was written, and stayed red for ten hours
+
+# Key outcomes
+outcomes:
+  - 'Every `aef:workflowMeta` attribute the editor reads and every one it writes is enumerated, and the two lists are diffed — an attribute written but never read back is a silent-drop candidate on its own, before any guard question'
+  - 'For the writable set, coverage is established **by mutation, not by reading test names**: with the attribute suppressed in the writer, the candidate guards are re-run and the result recorded per attribute as COVERED (something went red) or BARE (nothing did)'
+  - 'The mutation is proven to have applied — a substitution that silently matched nothing reads identically to a guard that passed, and that failure mode has already occurred twice in this corpus'
+  - '`uuid` is reported explicitly and separately whatever the result: it is connector-referenceable identity (T-224), pinned cross-agent with AEF, and is the one attribute whose silent loss would be a seam-integrity defect rather than a cosmetic one'
+  - 'The source tree is left byte-identical to its pre-census state — every mutation reverted and the revert verified, not assumed'
+  - 'Findings are filed as their own task(s) with the census as evidence; this task builds no guard'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-885-the-round-trip-guard-roundtrip-serializa.md'
+  - '.tasks/active/T-886-uuid-can-be-dropped-from-the-editor-writ.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T01:47:04'
+    action: 'T-885: uuid can be dropped from the editor writer and every guard stays green'
+  - time: '2026-09-29T01:17:28'
+    action: 'T-885: Verification and Evolution written for a census whose six ACs have been ticked since 2026-09-26 — the close itself is the operator''s, and the gate said so'
+  - time: '2026-09-29T16:28:12'
+    action: 'T-885: the verification line went red fifteen minutes after it was written, and stayed red for ten hours'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 5009 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5009
+  commits: 3
+  files_changed: 3
+  lines_added: 770
+  lines_removed: 25
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-885-the-round-trip-guard-roundtrip-serializa.md
+generated_by: context-agent-hybrid

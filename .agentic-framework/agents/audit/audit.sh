@@ -3900,6 +3900,41 @@ check_stray_captures() {
 }
 check_stray_captures
 
+# T-941 — the arc-2 boundary inventory, on a schedule instead of on a hope.
+#
+# The tool itself was never the problem. It derives the route set from gallery-serve.py's own
+# dispatch by AST and refuses to let a route inherit a neighbour's fence, so it flagged
+# GET /api/instances as UNCLASSIFIED from the day T-884 shipped it and exited non-zero every
+# single time. Nothing ran it. Its only caller was T-681's P-011 verification block, and T-681
+# sat with all its Agent ACs ticked and unclosed for three weeks — so the finding inherited that
+# task's closure rate, which was zero. The identical omission also left the route out of
+# tests/test_designer_render.py's CONSOLE_WHITELIST, and that copy was read in three weeks only
+# because a release walked into it (PL-363).
+#
+# WARN, not FAIL, and the choice is deliberate: an unclassified route is an unreviewed fence,
+# not a live breach — unlike the tracked-secret rail below, which FAILs. The cost of that choice
+# is real, because a warning in an eleven-warning report is exactly how the last one went unread,
+# so the mitigation line carries the one command that fixes it rather than advice to go looking.
+check_boundary_inventory() {
+    local _tool="$PROJECT_ROOT/tools/_t682-boundary-inventory.py"
+    [ -f "$_tool" ] || return 0     # not this project; silent rather than noisy elsewhere
+    [ -f "$PROJECT_ROOT/tools/gallery-serve.py" ] || return 0
+
+    local _out _rc
+    _out=$(cd "$PROJECT_ROOT" && python3 "$_tool" 2>&1); _rc=$?
+
+    if [ "$_rc" -eq 0 ]; then
+        # Report what it measured, not just that it ran — "OK" with no denominator is the
+        # empty-candidate-set failure this file warns about everywhere else (T-3105).
+        pass "Boundary inventory: $(printf '%s' "$_out" | head -1)"
+    else
+        warn "Boundary inventory drift: a designer route is unfenced or unclassified" \
+             "$(printf '%s' "$_out" | grep -E 'IN SERVER|IN INVENTORY|UNCLASSIFIED' | tr '\n' ';' | sed 's/;$//')" \
+             "Add its ROUTE_SEMANTICS row (verify what it MUTATES against the call graph, not the HTTP verb), then: cd $PROJECT_ROOT && python3 tools/_t682-boundary-inventory.py --write"
+    fi
+}
+check_boundary_inventory
+
 # T-938 — a secret-bearing path that git can see. THIS FAILS, it does not WARN.
 #
 # SECOND INSTANCE OF THE SAME CLASS IN THIS PROJECT. T-410: Watchtower's session signing key

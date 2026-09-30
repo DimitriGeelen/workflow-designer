@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-708: RA-012: CTL-029 two stuck partial-complete tasks T-093 and T-178
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T11:12:28Z
+# ============================================================================
+
+task_id: T-708
+task_name: "RA-012: CTL-029 two stuck partial-complete tasks T-093 and T-178"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-16T13:25:24Z
+completed: 2026-09-30T11:12:20Z
+duration_days: 14
+updates_count: 3
+first_commit: 2026-09-20T20:31:00+02:00
+last_commit: 2026-09-20T20:34:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  RA-012 discharged by T-723's sweep — and the bypass log's own hit on T-178 named rather than waved past. OBS-358 — closing a task moves its verification cost into every later audit. OBS-359 — fw audit returns exit 0 when it cannot run, so the pre-push gate reads "skipped" as "passed"
+
+# Key outcomes
+outcomes:
+  - '`fw audit --section oe-daily` no longer names T-093 or T-178 under CTL-029'
+  - 'Both tasks are in .tasks/completed/ with status work-completed'
+  - 'Neither was closed with --force or any skip flag'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-093.yaml'
+  - '.context/episodic/T-178.yaml'
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-708-ra-012-ctl-029-two-stuck-partial-complet.md'
+  - '.tasks/active/T-723-ra-027-fail-d2-human-review-queue-has-12.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-20T20:31:00'
+    action: 'T-708: RA-012 discharged by T-723''s sweep — and the bypass log''s own hit on T-178 named rather than waved past'
+  - time: '2026-09-20T20:32:12'
+    action: 'T-708: OBS-358 — closing a task moves its verification cost into every later audit'
+  - time: '2026-09-20T20:34:48'
+    action: 'T-708: OBS-359 — fw audit returns exit 0 when it cannot run, so the pre-push gate reads "skipped" as "passed"'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 20026 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc-003, audit-remediation, RA-012]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 20026
+  commits: 3
+  files_changed: 5
+  lines_added: 230
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-708-ra-012-ctl-029-two-stuck-partial-complet.md
+generated_by: context-agent-hybrid

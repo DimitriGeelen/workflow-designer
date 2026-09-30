@@ -6,12 +6,13 @@ description: >
   two are signed off and await only the status flip, which is the human completion
   verb.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-012]
-components: []
+components: [tools/_t931-ownership.py, tools/_t931-ownership-teeth.sh]
 related_tasks: []
 arc_id: arc-003
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -19,8 +20,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:24Z
-last_update: 2026-09-29T17:23:04Z
-date_finished:
+last_update: 2026-09-30T11:12:20Z
+date_finished: 2026-09-30T11:12:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -248,6 +249,26 @@ test "$(grep -l '^status: work-completed' .tasks/completed/T-093-*.md .tasks/com
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-09-30 — the two instances closed; the class did not, and this task became an instance of it
+
+- **What changed:** T-093 and T-178 were unstuck and the ACs hold — verification passes 5/5 today.
+  What was not known at filing is that unsticking two tasks did nothing to the mechanism that
+  stuck them. CTL-029 kept firing: 12 more tasks now qualify as all-Agent-ACs-ticked-but-open,
+  and **T-708 is one of them.** The remediation task for "tasks are not getting closed" was itself
+  not getting closed for 14 days. Measured across the whole family: **39 open RA-* tasks against
+  16 completed**, so the audit emits remediation faster than agents consume it, and every
+  uncollected finding becomes a task that is also uncollected.
+- **Plan impact:** the ACs as written were satisfiable by touching two files, which is why they
+  passed while the problem grew. This is PL-214 exactly — the fix landed at the site where the
+  defect was found, not at the shared mechanism. An AC of the form "the audit no longer names
+  T-093 or T-178" cannot fail when the audit names twelve other tasks instead. Nothing in the
+  task was wrong; its scope was one cycle wide, and the defect is per-class.
+- **Triggered:** no new task filed from here. The measurement belongs with T-937, which reached
+  the same conclusion for operator-owned decisions (production outruns consumption, and only a
+  sitting clears it) and explicitly did NOT examine the agent-owned queue. The agent-owned queue
+  is the worse of the two and has no operator in it at all — so "waiting on a human" was never
+  the explanation for this backlog.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -281,3 +302,15 @@ test "$(grep -l '^status: work-completed' .tasks/completed/T-093-*.md .tasks/com
 
 ### 2026-09-29T17:23:04Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0e956caa
+- **Timestamp:** 2026-09-30T11:12:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-30T11:12:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

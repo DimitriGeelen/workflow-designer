@@ -72,6 +72,27 @@ ROUTE_SEMANTICS = {
     ('GET', '/api/versions'): ('none — reads index.json', 'ID_RE only (read path)'),
     ('GET', '/api/version'):  ('none — reads vN.bpmn', 'ID_RE only (read path)'),
     ('GET', '/api/thumb'):    ('none — reads vN.png', 'ID_RE only (read path)'),
+    # T-884 shipped this route on 2026-09-09 and classified it nowhere. This check caught it
+    # immediately and correctly — UNCLASSIFIED, exit non-zero, exactly as the comment above
+    # promises — and went unread for three weeks, because the only thing that ran it was
+    # T-681's verification block and T-681 was one of the twelve tasks nobody was closing.
+    # The SAME omission also left the route out of tests/test_designer_render.py's
+    # CONSOLE_WHITELIST, where it surfaced on 2026-09-30 by blocking the 0.14.0 release.
+    # One omission, two instruments, both correct; the difference between three weeks and
+    # immediately was whether something with a deadline tripped over it (T-941).
+    #
+    # 'none' is VERIFIED, not inferred from the verb: cmd_snapshot (instance-node.py:652)
+    # calls _reverse and _read_refusals, prints, returns — it does not reach _append_line,
+    # _audit_append or _write_node. Checked because a GET that spawns a subprocess is the one
+    # case where 'mutates: none' can describe the HANDLER truthfully while the authority sits
+    # one process away, and an inventory that stops at the process boundary reports on the
+    # wrong subject.
+    ('GET', '/api/instances'): ('none — runs `instance-node.py snapshot <id>` as a subprocess '
+                                '(read-only: _reverse + _read_refusals; no write path reached) '
+                                'and returns its stdout verbatim',
+                                '_valid_id -> 400 BEFORE the subprocess starts, so no '
+                                'unfenced id reaches argv; 60s timeout; rc 3 -> 404, any '
+                                'other non-zero -> 500 with output truncated to 2000 chars'),
     # T-689 corrected the count from 5 to 6. The sixth is the ghosts/claims registry at
     # .context/designer/registry.yaml (gallery-serve.py:726,729 -> write_registry). It was
     # missed because the T-683 containment work enumerated the ID-DERIVED targets — the ones
