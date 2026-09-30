@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-953: Emit aef:workflowMeta from yaml-to-bpmn.py — T-925 ruling A, all ten attributes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T19:58:40Z
+# ============================================================================
+
+task_id: T-953
+task_name: "Emit aef:workflowMeta from yaml-to-bpmn.py — T-925 ruling A, all ten attributes"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T19:50:10Z
+completed: 2026-09-30T19:58:17Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T21:56:16+02:00
+last_commit: 2026-09-30T21:56:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the bridge carries document metadata again — ruling A, and a rule that could never be compared now is
+
+# Key outcomes
+outcomes:
+  - '`emit()` writes `<bpmn:extensionElements><aef:workflowMeta …/></bpmn:extensionElements>`'
+  - '**Every scalar `workflowMeta` key is emitted, not a whitelist.** The canonical ten come'
+  - '**A dict/list value WARNs on stderr and is dropped loudly**, following `:221-230`'
+  - '**A document with no `workflowMeta` is byte-identical to before.** No empty'
+  - '**`customer-refund` is re-rendered and the T-301 divergence is GONE at its cause** —'
+  - '**The now-stale T-301 baseline entry is REMOVED.** Leaving it would make the check fail'
+  - '**All 10 bridge-consuming tests still pass**, and the `KNOWN` disagreement in'
+  - '**No corpus bytes move except customer-refund''s.** `git diff --name-only` over'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'examples/app-processes/rendered/customer-refund.bpmn'
+  - '.tasks/active/T-953-emit-aefworkflowmeta-from-yaml-to-bpmnpy.md'
+  - 'tests/test_harness_cross_form_agreement.py'
+  - 'tools/_t301-known-divergences.txt'
+  - 'tools/yaml-to-bpmn.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T21:56:16'
+    action: 'T-953: the bridge carries document metadata again — ruling A, and a rule that could never be compared now is'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 5
+  lines_added: 488
+  lines_removed: 64
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-953-emit-aefworkflowmeta-from-yaml-to-bpmnpy.md
+generated_by: context-agent-hybrid
