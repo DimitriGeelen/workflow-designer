@@ -447,3 +447,40 @@ content rule — the same axis that was already being read.
 
 ### 2026-08-09T11:36:19Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+### 2026-09-30 — evidence for the open history-rewrite ruling (added by T-939, AC NOT ticked)
+
+The Human AC above has been open since August. It asked the operator to decide with a stated
+rationale: *"a Flask session key for a LAN dev tool, now rotated — not a vendor credential"*, so a
+rewrite buys tidiness rather than protection. Tonight's work on T-938/T-939 produced four facts that
+bear on it. Two support that rationale, two qualify it. The decision remains the operator's; this is
+evidence, not a recommendation, and no box here has been touched.
+
+**1. The value is still publicly fetchable, by SHA.** Measured against the public GitHub mirror:
+
+    master (tip)        HTTP 404   gone
+    bleeding-edge (tip) HTTP 404   gone
+    at 2b9c8ffa         HTTP 200   STILL SERVED — where it entered
+
+**2. The blast radius is 1283 commits on each branch.** It entered at `2b9c8ffa` (T-001) and left at
+`20088431` (T-410's own untrack). Not the 2421 a root-commit purge would cost, but not small. For
+calibration: T-938 rewrote 109 commits tonight with `git filter-repo` in about 3 seconds, so the
+mechanical cost is trivial — the cost is every SHA after `2b9c8ffa` changing on both branches, and
+every stale clone needing `git reset --hard` rather than `git pull`.
+
+**3. The repository is PUBLIC and continuously harvested.** 1,623 clones from 429 unique cloners in
+14 days, on a repo with zero stars and zero watchers — that is automated collection, which is normal
+for public repos and means the history has been taken many times. T-410 reasoned about the key's
+value; it did not know the distribution surface.
+
+**4. QUALIFIES the "LAN dev tool" premise: Watchtower listens on 0.0.0.0:3013, not on localhost.**
+`ss -tlnp` shows `LISTEN 0.0.0.0:3013 (python3 pid 798028)`. So the app itself imposes no LAN
+restriction — whether the forged-session risk is LAN-only rests on the **firewall**, not on the
+binding. The agent has not inspected or modified ufw and will not (operator's security boundary).
+This is stated so the premise is checked rather than assumed; it may well hold.
+
+**What is no longer at stake either way:** the invisibility. `tools/tracked-secret-artifacts.py
+--history` now judges reachable history rather than the index, and `fw audit` reports this as a
+standing WARN every run. It was invisible for four months because every scanner asked about the index.
+That is fixed regardless of how the rewrite is decided, which is why the fix was not held hostage to
+the decision.
