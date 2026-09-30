@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-955: T-309 slice 1: /api/validate endpoint so the designer can reach the ONE validator, no second implementation
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T20:26:26Z
+# ============================================================================
+
+task_id: T-955
+task_name: "T-309 slice 1: /api/validate endpoint so the designer can reach the ONE validator, no second implementation"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T20:20:59Z
+completed: 2026-09-30T20:26:17Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T22:26:06+02:00
+last_commit: 2026-09-30T22:26:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the designer can reach the validator — one implementation, not a second
+
+# Key outcomes
+outcomes:
+  - '`POST /api/validate` in `tools/gallery-serve.py` accepts BPMN XML and returns the'
+  - '**Findings round-trip with their identity intact**: each carries its rule id,'
+  - '**A clean document returns zero findings, and a deliberately broken one returns the'
+  - '**Malformed input is refused, not crashed**: non-XML returns a structured error with'
+  - '**The route follows the file''s existing 8-route pattern** — same dispatch, same error'
+  - 'A test in `tests/` drives the endpoint over real HTTP against a live server, is wired'
+  - 'The **live operator defect is reachable through it**: the lead-value rule'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-955-t-309-slice-1-apivalidate-endpoint-so-th.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t955_validate_endpoint.py'
+  - 'tools/gallery-serve.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T22:26:06'
+    action: 'T-955: the designer can reach the validator — one implementation, not a second'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 701
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-955-t-309-slice-1-apivalidate-endpoint-so-th.md
+generated_by: context-agent-hybrid
