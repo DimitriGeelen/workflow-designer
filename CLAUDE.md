@@ -697,6 +697,16 @@ doing. The log had the answer the whole time, in the project, one `tail` away.
 5. **Act within the authority already given.** Diagnosing, reading logs, and fixing the agent's own
    defect need no new permission. A Tier 0 or sovereignty step still stops and asks — but "the script
    failed" is not one of those.
+6. **Hand over a logging script and arm the watch in the SAME turn.** This rule described what to do
+   when a monitor fires and never said to arm one. On 2026-09-30 the agent handed the operator a
+   `runme.sh` that writes a log, armed nothing, and waited — twice. Both times the operator had to
+   say *"I've done it, I think"* before anything was read. That is worse than narrating events at
+   them: it is silence that looks like attention.
+   The moment a script is handed over, watch its log (`Monitor` on the log path, or a background
+   `until` loop on the `done`/`rc=` line). When it lands, read the log, report the outcome, and
+   finish whatever the script deliberately left undone — a close that leaves a rename staged and an
+   episodic untracked is not finished work, and the script says so on its own last lines.
+   **The operator should never be the transport for "it ran".**
 
 ### Present Decisions As A Recommendation Plus A Numbered Menu (standing operator instruction, 2026-09-30)
 
