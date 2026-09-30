@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-940: The render gate blocks the release: T-884's optional /api/instances probe is not on the console whitelist that exists for exactly that case
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T10:00:54Z
+# ============================================================================
+
+task_id: T-940
+task_name: "The render gate blocks the release: T-884's optional /api/instances probe is not on the console whitelist that exists for exactly that case"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T09:25:06Z
+completed: 2026-09-30T10:00:47Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T11:26:15+02:00
+last_commit: 2026-09-30T11:39:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the render gate blocked the release correctly — T-884's optional probe was never whitelisted. CLAUDE.md — a monitor is for acting on, not reporting back (said twice, so encoded). runme.sh steps 1 and 2 are idempotent — a confirm for a no-op is a prompt that teaches the answer does not matter. 0.14.0 IS RELEASED — and my last line called a successful release a failure
+
+# Key outcomes
+outcomes:
+  - '**The whitelist gains `/api/instances`, and nothing else changes.** The designer''s JS is already'
+  - '**The entry carries its rationale, like the two beside it.** `/api/health` and `/favicon.ico`'
+  - '**`RELEASE_SKIP_RENDER_CHECK=1` is NOT used.** The gate is right; bypassing it to ship would be'
+  - '**Proven by running the gate, not by reading it:** `python3 tests/test_designer_render.py` passes'
+  - '**The whitelist stays scoped.** Its header says "Scoped to EXACTLY these two per spec"; that'
+  - '**The release completes afterwards** — this task exists only because step 3 refused, so it is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - 'runme.sh'
+  - '.tasks/active/T-940-the-render-gate-blocks-the-release-t-884.md'
+  - 'tests/test_designer_render.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T11:26:15'
+    action: 'T-940: the render gate blocked the release correctly — T-884''s optional probe was never whitelisted'
+  - time: '2026-09-30T11:33:24'
+    action: 'T-940: CLAUDE.md — a monitor is for acting on, not reporting back (said twice, so encoded)'
+  - time: '2026-09-30T11:36:11'
+    action: 'T-940: runme.sh steps 1 and 2 are idempotent — a confirm for a no-op is a prompt that teaches the answer does not matter'
+  - time: '2026-09-30T11:39:36'
+    action: 'T-940: 0.14.0 IS RELEASED — and my last line called a successful release a failure'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 35 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 35
+  commits: 4
+  files_changed: 4
+  lines_added: 424
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-940-the-render-gate-blocks-the-release-t-884.md
+generated_by: context-agent-hybrid

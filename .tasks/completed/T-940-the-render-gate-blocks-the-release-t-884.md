@@ -4,12 +4,13 @@ name: "The render gate blocks the release: T-884's optional /api/instances probe
 description: >
   Found by the release gate on 2026-09-30 while cutting 0.14.0, at step 3. tests/test_designer_render.py serves the built artifact from a static server and fails on any console error not in CONSOLE_WHITELIST, currently ('/api/health', '/favicon.ico'). T-884 added a second optional backend probe - fetch('/api/instances?template=...') at src/aef-workflow-designer.html:9238 - and did not add it to the whitelist. The designer's JS is CORRECT: the catch sets instanceView.available = false with the comment 'additive overlay: absence is a state, never a fault', and selectInstance refuses to claim not-found when the endpoint is absent. The 404 console entry comes from the browser's network layer before the catch runs and is unavoidable for any optional endpoint. So the artifact is right and the test's whitelist is stale. This is the release gate doing its job: the defect has been in src since T-884 and was invisible because dist/ was not rebuilt since. Scope: add the probe to the whitelist with the same documented rationale the other two carry, and nothing else - RELEASE_SKIP_RENDER_CHECK=1 is not used.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_designer_render.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T09:25:06Z
-last_update: 2026-09-30T09:36:12Z
-date_finished: null
+last_update: 2026-09-30T10:00:47Z
+date_finished: 2026-09-30T10:00:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -319,3 +320,20 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-940-the-render-gate-blocks-the-release-t-884.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8024e20d
+- **Timestamp:** 2026-09-30T10:00:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — **Proven by running the gate, not by reading it:** `python3 tests/test_designer_render.py` passes
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_designer_render.py in: **Proven by running the gate, not by reading it:** `python3 tests/test_designer_render.py` passes`
+
+### 2026-09-30T10:00:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
