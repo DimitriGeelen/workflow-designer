@@ -26,7 +26,7 @@ alone (CLAUDE.md Human Task Completion Rule).
 Rows with an empty `## Verification` block need that scrutiny most —
 nothing mechanical would gate their close.
 
-## Qualifying tasks (8)
+## Qualifying tasks (9)
 
 | Task | Status | Workflow | Name | Agent ACs | Verification cmds? |
 |------|--------|----------|------|----------:|--------------------|
@@ -38,4 +38,5 @@ nothing mechanical would gate their close.
 | T-309 | started-work | inception | Surface workflow validator findings in the designer | 3 | **no** |
 | T-357 | started-work | inception | Adopt BPMN DI as the designer geometry and retire ae... | 3 | **no** |
 | T-723 | started-work | build | RA-027: FAIL D2 human review queue has 12 tasks wait... | 3 | yes |
+| T-952 | started-work | build | Give run-bridge-tests.sh a scheduled caller with a f... | 7 | yes |
 

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-30T17:51:29Z ===
+task_id: T-950
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-950.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Correct the T-949 triage: T-263's slice was delivered and left unclosed, not unstarted
+  Duration: 0 days (8 min)
+  Updates: 1
+  Commits: 1
+  Lines: +34799 -19445 across 802 files
+  Outcomes: 6 AC checked
+  Artifacts: 802 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-950-correct-the-t-949-triage-t-263s-slice-wa.md
+--- exit code: 0 ---

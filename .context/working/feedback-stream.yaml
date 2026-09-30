@@ -13410,3 +13410,93 @@ scan_id: R-78c3c180
 task_id: T-264
 payload:
   task_file: .tasks/active/T-264-save-target-guard-set-id-field-collision.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T17:51:23Z'
+scan_id: R-e09814ce
+task_id: T-950
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T17:51:23Z'
+scan_id: R-e09814ce
+task_id: T-950
+payload:
+  task_file: .tasks/active/T-950-correct-the-t-949-triage-t-263s-slice-wa.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T18:23:42Z'
+scan_id: R-b77bd573
+task_id: T-951
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T18:23:42Z'
+scan_id: R-b77bd573
+task_id: T-951
+payload:
+  task_file: .tasks/active/T-951-assert-the-stem--workflowmetaid-invarian.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T19:09:58Z'
+scan_id: R-419cc5c0
+task_id: T-952
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T19:09:58Z'
+scan_id: R-419cc5c0
+task_id: T-952
+payload:
+  task_file: .tasks/active/T-952-give-run-bridge-testssh-a-scheduled-call.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T19:58:33Z'
+scan_id: R-f90e081a
+task_id: T-953
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T19:58:33Z'
+scan_id: R-f90e081a
+task_id: T-953
+payload:
+  task_file: .tasks/active/T-953-emit-aefworkflowmeta-from-yaml-to-bpmnpy.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T20:09:52Z'
+scan_id: R-219dd7df
+task_id: T-954
+payload:
+  overall: FAIL
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T20:09:52Z'
+scan_id: R-219dd7df
+task_id: T-954
+payload:
+  task_file: .tasks/active/T-954-make-the-spent-decision-script-refuse-to.md

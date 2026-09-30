@@ -89,6 +89,12 @@
   "total": 11,
   "ts": 1790511766
  },
+ "T-340": {
+  "failed": 0,
+  "status": "timeout",
+  "total": 2,
+  "ts": 1790790681
+ },
  "T-341": {
   "failed": 1,
   "status": "fail",

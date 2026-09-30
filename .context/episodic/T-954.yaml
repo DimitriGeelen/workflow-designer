@@ -69,10 +69,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 3
-  commits: 1
-  files_changed: 2
-  lines_added: 400
-  lines_removed: 0
+  commits: 2
+  files_changed: 9
+  lines_added: 789
+  lines_removed: 99
+  footprint_refreshed_at: '2026-09-30T20:11:30Z'
+  footprint_refreshed_by_commit: 6582a19e
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-954-make-the-spent-decision-script-refuse-to.md

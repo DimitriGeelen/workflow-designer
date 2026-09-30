@@ -1,10 +1,10 @@
-# Audit Results - 2026-09-30-2213
-timestamp: 2026-09-30T20:13:00Z
-sections: "structure"
+# Audit Results - 2026-09-30-2000
+timestamp: 2026-09-30T18:00:01Z
+sections: "structure,compliance,quality,discovery"
 summary:
-  pass: 28
-  warn: 13
-  fail: 0
+  pass: 36
+  warn: 26
+  fail: 1
 findings:
   - level: PASS
     check: "Tasks directory exists"
@@ -17,7 +17,7 @@ findings:
   - level: PASS
     check: "Task template exists"
   - level: PASS
-    check: "No duplicate task IDs — examined 953 task file(s) across 1 corpus view(s)"
+    check: "No duplicate task IDs — examined 949 task file(s) across 1 corpus view(s)"
   - level: PASS
     check: "All project YAML files parse correctly — examined 14 project YAML file(s)"
   - level: PASS
@@ -30,7 +30,7 @@ findings:
   - level: INFO
     check: "free driver F2: retire_when text present, no recognition heuristic — manual review"
   - level: PASS
-    check: "No inline arc:<slug> tag-only scans outside canonical lib (T-1881) — examined 340 source file(s) under lib/ web/ agents/ bin/ tools/"
+    check: "No inline arc:<slug> tag-only scans outside canonical lib (T-1881) — examined 335 source file(s) under lib/ web/ agents/ bin/ tools/"
   - level: WARN
     check: "No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/)"
     mitigation: "The scan walked no .py files under web/ or lib/ — the OBS-097 rail asserted nothing this run"
@@ -41,15 +41,15 @@ findings:
     check: "Found 4 GO-scope-not-propagated inception(s) of 33 GO-recorded completed inception(s) examined — GO recorded, related_tasks empty, nobody back-references, no unlocks_inception_decision"
     mitigation: "Triage: per inception either backfill related_tasks: / unlocks_inception_decision:, or file the slices its GO approved. Full list: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; sibling to L-417/T-1975)"
   - level: PASS
-    check: "Fabric: 490 registered card(s)"
+    check: "Fabric: 483 registered card(s)"
   - level: WARN
-    check: "Fabric: 159/490 cards have no edges"
+    check: "Fabric: 152/483 cards have no edges"
     mitigation: "Run: fw fabric enrich"
   - level: WARN
     check: "Fabric drift: 11 source file(s) have no fabric card"
     mitigation: "Run: fw fabric scan"
   - level: WARN
-    check: "Fabric: 17 card(s) point at files no watch pattern covers"
+    check: "Fabric: 15 card(s) point at files no watch pattern covers"
     mitigation: "Widen .fabric/watch-patterns.yaml, or remove the cards if they are not components"
   - level: PASS
     check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
@@ -58,7 +58,7 @@ findings:
   - level: PASS
     check: "Watchtower currency: running pid 798028 is newer than every file under web/"
   - level: PASS
-    check: "Exec-bit parity: every 100755-indexed script is executable on disk — examined 207 indexed-100755 script(s) (*.sh + bin/fw)"
+    check: "Exec-bit parity: every 100755-indexed script is executable on disk — examined 204 indexed-100755 script(s) (*.sh + bin/fw)"
   - level: WARN
     check: "Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab)"
     mitigation: "Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing"
@@ -77,9 +77,9 @@ findings:
   - level: PASS
     check: "BVP drivers: every active free and arc-scoped driver is scorable (handler or scoring: spec)"
   - level: PASS
-    check: "Delegation surface: reviewer-closeable 1, agent-self 2, operator-only 80 across 73 active task(s) with open Human criteria"
+    check: "Delegation surface: reviewer-closeable 1, agent-self 2, operator-only 79 across 72 active task(s) with open Human criteria"
   - level: PASS
-    check: "Task ownership: all 68 human-owned task(s) have an open Human criterion behind the field — examined 176 active task file(s)"
+    check: "Task ownership: all 67 human-owned task(s) have an open Human criterion behind the field — examined 176 active task file(s)"
   - level: PASS
     check: "No stray screen captures — scanned the repository root and working directories by PostScript header, not by filename (all four known cases had none)"
   - level: PASS
@@ -90,8 +90,6 @@ findings:
   - level: WARN
     check: "Vendor divergence: 1349 undeclared vendored path(s) differ from baseline (T-945, orig T-657)"
     mitigation: "A local fix recorded nowhere is destroyed by the next re-vendor without trace. Declare each with an upstream: lane: python3 tools/_t517-vendor-divergence.py"
-  - level: PASS
-    check: "Bridge suite: failure floor held — 32 failure(s), 125 passed, rc=1, 803s (0d 1h old)"
   - level: WARN
     check: "Secret in reachable git HISTORY (not the index):  [DEFINITIVE] .context/working/.fw-secret-key "
     mitigation: "ROTATE the value; that is what makes the historical copy harmless. A git filter-repo rewrite plus force-push is defence-in-depth AFTER rotation and is Tier 0 — the operator's call, never the agent's."
@@ -99,5 +97,65 @@ findings:
     check: "Continuous-run wrapper last recorded ARMED but the turn driver is not"
     mitigation: "fw continuous arm --hours N --iterations N --directive '...' (T-3225). Same drift class as the 74-day and 8-day prior incidents (G-099)."
   - level: WARN
-    check: "Fabric: 166 under-populated card(s)"
+    check: "Fabric: 159 under-populated card(s)"
     mitigation: "Run: bin/fw fabric enrich --describe-only (fills purpose/subsystem from each file's own header; names what it refuses). Zero-edge cards want a look, not a re-run: bin/fw fabric drift"
+  - level: WARN
+    check: "Task T-932-ownership-follows-the-need-for-human-jud.md missing field: owner"
+    mitigation: "Fix missing field: owner in T-932-ownership-follows-the-need-for-human-jud.md"
+  - level: PASS
+    check: "All active tasks meet quality thresholds — examined 176 active task(s)"
+  - level: WARN
+    check: "8 active task(s) have every Agent AC ticked and no Human AC outstanding, but are still started-work/issues"
+    mitigation: "Candidates for close, not closures — spot-check with 'fw task verify T-XXX' per task, then 'fw task update T-XXX --status work-completed'. Full list: /opt/832-Workflow-designer/.context/audits/unclosed-satisfied/LATEST.md"
+  - level: PASS
+    check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
+  - level: PASS
+    check: "CTL-028: All completed/ tasks have frontmatter status: work-completed — examined 773 completed task(s)"
+  - level: PASS
+    check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009) — examined 773 completed task(s)"
+  - level: WARN
+    check: "CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-041 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-101 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-102 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-102 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-105 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-105 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-293 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-293 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-309 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-309 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-357 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-357 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-723 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-723 --status work-completed"
+  - level: WARN
+    check: "CTL-012: Completed task T-508 has unchecked AC"
+    mitigation: "Review task completion — AC gate may have been bypassed"
+  - level: WARN
+    check: "CTL-012: Completed task T-938 has unchecked AC"
+    mitigation: "Review task completion — AC gate may have been bypassed"
+  - level: WARN
+    check: "CTL-012: Completed task T-939 has unchecked AC"
+    mitigation: "Review task completion — AC gate may have been bypassed"
+  - level: PASS
+    check: "D1: Episodic quality — 0% [TODO] (0/773)"
+  - level: FAIL
+    check: "D2: Human review queue — 31 task(s) waiting >30d: T-233(47d) T-308(62d) T-310(62d) T-325(59d) T-340(46d) T-351(58d) T-353(58d) T-368(53d) T-392(34d) T-410(52d) T-423(21d) T-432(39d) T-433(39d) T-449(49d) T-537(33d) T-540(33d) T-565(35d) T-579(36d) T-586(33d) T-588(35d) T-589(35d) T-590(35d) T-592(35d) T-593(35d) T-596(35d) T-597(35d) T-600(34d) T-601(34d) T-606(34d) T-608(34d) T-643(30d) T-647(30d) T-671(27d) T-676(21d)"
+    mitigation: "Review with: fw task verify (lists unchecked Human ACs)"
+  - level: PASS
+    check: "D8: Handover quality — no [TODO] in LATEST.md"
+  - level: PASS
+    check: "D8b: Handover archive — 0/10 recent handovers have [TODO]s"
+  - level: PASS
+    check: "D10: Decision-without-dialogue — none detected"
+  - level: PASS
+    check: "D11: Gap register staleness — all gaps fresh"
