@@ -830,6 +830,21 @@ else
   fail=$((fail + 1))
 fi
 
+# T-945: the vendor-divergence guard must reach a surface someone reads.
+#
+# This probe existed, was correct, and was invoked by NOTHING — `grep -c _t657` on this file
+# was 0 before now. When the 1.7.68 re-vendor deleted the audit region it watches, it went to
+# rc=3 COULD-NOT-MEASURE and said so to no one, which is how four reverted local fixes sat
+# unnoticed for five days (T-944). A guard on a delivery surface that has no delivery surface
+# of its own is the defect it was written to prevent, one level up.
+if bash "$ROOT/tools/_t657-vendor-divergence-must-reach-an-audit-line.sh" > "$TMP/leg-_t657.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the vendored-divergence verdict no longer reaches an audit line, or the rail stopped discriminating — a local fix destroyed by the next re-vendor would again be invisible for as long as nobody runs this suite by hand (T-945/T-657 — run 'bash tools/_t657-vendor-divergence-must-reach-an-audit-line.sh'; rc=3 means the rail is GONE, not that the probe is broken)"
+  show_output "$TMP/leg-_t657.out" "_t657-vendor-divergence-must-reach-an-audit-line.sh"
+  fail=$((fail + 1))
+fi
+
 # T-943: the contract UNDERNEATH that probe. The four states extract_verification_block must
 # keep distinct, asserted against the live function rather than through the gate's printed
 # words, so a change to the caller's wording cannot make this leg lie either way.

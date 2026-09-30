@@ -42,16 +42,30 @@ echo "=== T-657: the divergence guard must reach a surface someone reads ==="
 echo
 
 # --- extract the real region, never a retyped copy --------------------------
+# T-945 RE-ANCHORED THIS. It used to grep for the literal comment
+#   "# T-657: give the vendored-divergence guard a delivery surface."
+# followed by a bare `\n    fi\nfi\n` shape. The 1.7.68 re-vendor deleted that region on
+# 2026-09-25 and this probe went to rc=3 COULD-NOT-MEASURE — correctly refusing to claim a
+# pass it could not justify, and saying NOTHING about whether the surface existed. Nothing
+# ran it either, so the refusal reached no one and four reverted fixes sat for five days.
+#
+# It now extracts the FUNCTION by name and asserts the CONTRACT below (red tool -> WARN
+# carrying the count; green tool -> PASS; a lost fix -> a WARN that NAMES it). A rewrite of
+# the rail's internals cannot blind this; only removing or renaming the function can, and
+# that is reported as a failing leg rather than an abort.
 extract() {
     python3 - "$SRC" <<'PY'
 import re, sys
 src = open(sys.argv[1]).read()
-m = re.search(r"\n# T-657: give the vendored-divergence guard a delivery surface\..*?\n    fi\nfi\n",
-              src, re.S)
+m = re.search(r"^check_vendor_divergence\(\) \{.*?^\}$", src, re.S | re.M)
 if not m:
-    sys.stderr.write("COULD-NOT-MEASURE: the T-657 region was not found in audit.sh\n")
+    sys.stderr.write(
+        "COULD-NOT-MEASURE: check_vendor_divergence() is not in audit.sh.\n"
+        "  The divergence guard has no delivery surface — which is the exact state the\n"
+        "  1.7.68 re-vendor left us in, and is what this probe exists to catch. If the rail\n"
+        "  was renamed rather than removed, re-anchor this extractor.\n")
     sys.exit(3)
-sys.stdout.write(m.group(0))
+sys.stdout.write(m.group(0) + "\ncheck_vendor_divergence\n")
 PY
 }
 BLOCK="$TMP/block.sh"
@@ -177,14 +191,19 @@ echo "--- teeth: neutralise the exit-code test and the red tree must fall silent
 MUT="$TMP/block-mutant.sh"
 # Force the failure branch unreachable — the pre-T-657 world, where the tool's verdict
 # existed and reached no one. Reached without touching anything else in the block.
-sed 's|^    if \[ \$? -ne 0 \]; then|    if false; then|' "$BLOCK" > "$MUT"
+# T-945 re-anchored this too. The old pattern targeted `if [ $? -ne 0 ]; then`, the shape
+# of the pre-1.7.68 rail. The current rail captures the status into $_rc and takes the PASS
+# branch when it is zero, so the equivalent neutralisation — making the failure branch
+# unreachable, i.e. the pre-T-657 world where the tool's verdict reached no one — is to force
+# that success test true.
+sed 's|^    if \[ "\$_rc" -eq 0 \]; then|    if true; then|' "$BLOCK" > "$MUT"
 BASELINE=$(verdict "$RED" "$TMP/framework")
 # T-656: assert the mutation LANDED. A sed that matched nothing leaves an unmutated
 # subject that passes every leg and certifies teeth the prober does not have.
 # T-661: asked as "the original form is gone", not "'if false' appears exactly once" —
 # the latter is an equality where the invariant is a floor, and it also cannot tell a
 # landed mutation from an `if false` the subject already contained.
-if ! MUTATED=$(assert_mutation_complete "$BLOCK" "$MUT" '^    if \[ \$? -ne 0 \]; then' 'exit-code test'); then
+if ! MUTATED=$(assert_mutation_complete "$BLOCK" "$MUT" '^    if \[ "\$_rc" -eq 0 \]; then' 'success-branch test'); then
     bad "$MUTATED"
 elif ! echo "$BASELINE" | grep -q '^WARN::'; then
     # AND assert the FIXTURE landed. Caught live while writing this: an unbound-variable

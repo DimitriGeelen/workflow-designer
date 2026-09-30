@@ -3935,6 +3935,89 @@ check_boundary_inventory() {
 }
 check_boundary_inventory
 
+# T-945 — RESTORES the delivery surface the 1.7.68 re-vendor deleted on 2026-09-25
+# (7b5e227e), which is the reason four reverted local fixes went unseen for five days.
+#
+# WHY THIS IS AN AUDIT LINE AND NOT A BETTER CHECK — carried forward from the original
+# T-657 region, because it is still the correct reasoning. tools/_t517-vendor-divergence.py
+# was already correct. It had been found red after a long unread stretch TWICE before this,
+# and was right both times. Its only host was a ~13-minute bridge suite that nothing runs on
+# a schedule, so its verdict reached no one. Detection was never the variable; delivery was.
+# The 13 minutes was never THIS check's cost: measured standalone, 270-340ms.
+#
+# WHAT IS NEW, AND WHY RESTORING IT VERBATIM WOULD HAVE FAILED. The original counted
+# UNRECORDED|STALE|RECLASSIFIED into ONE number. Today that number is 1362, and the eleven
+# that matter would be invisible inside it:
+#     STALE        11   a declared local fix now matches baseline — LOST or adopted
+#     RECLASSIFIED  2   declared under the wrong mode
+#     UNRECORDED 1349   never declared — bookkeeping debt from the re-vendor itself
+# Those are different questions. One asks whether our work was destroyed; the other asks
+# whether the manifest is current. Merged, the first hides behind the second, and a warning
+# reading "1362" is exactly the decay every other rail in this file guards against. So they
+# are two lines, and the stale line NAMES THE FILES — fabric.py and extract-decisions.py are
+# how this was found, and a bare count would not have led anyone to them.
+#
+# WARN, NOT FAIL, deliberately: a structure FAIL blocks push and its only bypass is Tier-0
+# gated. The original's revisit trigger is carried forward and the counter now reads three —
+# "if an unrecorded entry survives three consecutive audits, WARN has failed the same way the
+# bridge suite did and this should become FAIL."
+#
+# AND THIS RAIL WILL ITSELF BE REVERTED. audit.sh carries 17 local commits and is the
+# most-overwritten file in this tree. The durable fix is upstream adoption, asked for at
+# framework:pickup @249. This is the stopgap that makes the next loss visible in <=15 minutes
+# instead of five days.
+check_vendor_divergence() {
+    local _tool="$PROJECT_ROOT/tools/_t517-vendor-divergence.py"
+    [ -f "$_tool" ] || return 0                       # inert where it is not vendored
+    [ "$PROJECT_ROOT" != "${FRAMEWORK_ROOT:-}" ] || return 0   # the framework does not vendor itself
+
+    local _out _rc
+    _out=$(cd "$PROJECT_ROOT" && python3 "$_tool" 2>&1); _rc=$?
+
+    if [ "$_rc" -eq 0 ]; then
+        local _dec
+        _dec=$(printf '%s\n' "$_out" | grep -oE 'declared[ :]+[0-9]+' | grep -oE '[0-9]+' | head -1)
+        pass "Vendor divergence: all ${_dec:-0} diverged path(s) declared"
+        return 0
+    fi
+
+    # Parse the summary line rather than grep-counting rows: "FAIL — N unrecorded, M stale, K reclassified"
+    local _sum _stale _recl _unrec
+    _sum=$(printf '%s\n' "$_out" | grep -m1 -E '^FAIL' || true)
+    _stale=$(printf '%s' "$_sum" | grep -oE '[0-9]+ stale'        | grep -oE '^[0-9]+' || echo 0)
+    _recl=$(printf  '%s' "$_sum" | grep -oE '[0-9]+ reclassified' | grep -oE '^[0-9]+' || echo 0)
+    _unrec=$(printf '%s' "$_sum" | grep -oE '[0-9]+ unrecorded'   | grep -oE '^[0-9]+' || echo 0)
+
+    if [ "${_stale:-0}" -eq 0 ] && [ "${_recl:-0}" -eq 0 ] && [ "${_unrec:-0}" -eq 0 ]; then
+        warn "Vendor divergence: the check failed but reported no counts — NOT EVALUATED" \
+             "$(printf '%s\n' "$_out" | tail -3)" \
+             "Run by hand: cd $PROJECT_ROOT && python3 tools/_t517-vendor-divergence.py"
+        return 0
+    fi
+
+    # LINE 1 — the revert signal. This is the one that means our work may be gone.
+    if [ "${_stale:-0}" -gt 0 ] || [ "${_recl:-0}" -gt 0 ]; then
+        # ${_recl:+...} suppresses on EMPTY, not on zero — and _recl is the string "0",
+        # which is non-empty. Test the number.
+        local _recl_txt=""
+        [ "${_recl:-0}" -gt 0 ] && _recl_txt="; $_recl reclassified"
+        warn "Vendor divergence: $_stale declared local fix(es) NO LONGER DIVERGE — adopted upstream, or LOST to a re-vendor$_recl_txt" \
+             "$(printf '%s\n' "$_out" | grep -A1 -E 'STALE|RECLASSIFIED' | grep -oE '\.agentic-framework/[^ ]+' | sed 's/:$//' | sort -u | head -12 | tr '\n' ' ')" \
+             "Resolve each at its own guard: guard still passes => upstream adopted it; guard fails => the fix was LOST and must be restored (T-945, method in docs/reports/T-944-bridge-suite-triage.md)"
+    fi
+
+    # LINE 2 — bookkeeping. Real, but it is debt, not destruction. Kept separate on purpose.
+    if [ "${_unrec:-0}" -gt 0 ]; then
+        # Evidence is the TOOL'S OWN BYTES, not a sentence of ours. A rail that renders a
+        # hardcoded message could be reporting anything, including a stale belief about what
+        # the tool found — and the operator would have no way to tell from the audit alone.
+        warn "Vendor divergence: $_unrec undeclared vendored path(s) differ from baseline (T-945, orig T-657)" \
+             "$(printf '%s\n' "$_out" | grep -E 'UNRECORDED' | head -4 | sed 's/^[[:space:]]*//' | tr '\n' ' ')[manifest behind the tree — largely the 1.7.68 re-vendor's own 1407 changed files, T-944]" \
+             "A local fix recorded nowhere is destroyed by the next re-vendor without trace. Declare each with an upstream: lane: python3 tools/_t517-vendor-divergence.py"
+    fi
+}
+check_vendor_divergence
+
 # T-938 — a secret-bearing path that git can see. THIS FAILS, it does not WARN.
 #
 # SECOND INSTANCE OF THE SAME CLASS IN THIS PROJECT. T-410: Watchtower's session signing key
