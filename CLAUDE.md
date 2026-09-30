@@ -674,6 +674,30 @@ with `fw tier0 approve` still reporting "approvals logged: 0" (**OBS-449**). Wra
 operator is required; running the wrapper is a four-control bypass in one invocation. Say so in the
 script's own header, as `runme.sh` does.
 
+### A Monitor Is For Acting On, Not Reporting Back (standing operator instruction, 2026-09-30)
+
+**When a background monitor shows something failing, READ THE LOG AND ACT. Do not relay the event to
+the operator and wait.**
+
+Stated twice by the operator in one session, so it is recorded rather than promised. What happened:
+`runme.sh` was given a log precisely so the operator would never copy-paste output. A monitor was
+armed on it. The run then failed, and instead of reading the log the agent narrated each monitor
+event back — *"waiting on step 2"*, *"that's noise"* — until the operator asked what the hell it was
+doing. The log had the answer the whole time, in the project, one `tail` away.
+
+1. **A failure event is a cue to diagnose, not to summarise.** Read the log, find the cause, and come
+   back with the cause and a fix — not with the event.
+2. **Do not narrate progress events.** "Step 1 confirmed" tells the operator what their own terminal
+   already shows. Silence between a start and a conclusion is correct.
+3. **Filter on terminal states and anchor the patterns.** A filter loose enough to match `STOPPED:`
+   inside audit trend text, or `refus` inside a mitigation sentence, produces false alarms that train
+   the reader to ignore real ones — the same decay every other gate in this file warns about.
+4. **If the monitor cannot see the failure, the monitor is wrong.** Widen it or read the log directly;
+   do not infer from silence. Silence and success are different states.
+5. **Act within the authority already given.** Diagnosing, reading logs, and fixing the agent's own
+   defect need no new permission. A Tier 0 or sovereignty step still stops and asks — but "the script
+   failed" is not one of those.
+
 ### Inception Discipline
 When the active task has `workflow_type: inception`:
 1. **State the phase** — Say "This is an inception/exploration task" before doing any work
