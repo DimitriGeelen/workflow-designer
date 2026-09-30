@@ -1,12 +1,28 @@
 # T-944 — triage of the standing failures in `tests/run-bridge-tests.sh`
 
-**Date:** 2026-09-30 · **Task:** T-944 · **Status:** in progress (full-suite run finishing)
+**Date:** 2026-09-30 · **Task:** T-944 · **Status:** reconciled against a completed full run
 
 ---
 
+## Correction: the failure count was 16 because I read an incomplete run
+
+**A completed full run reports `bridge round-trip: 122 passed, 32 failed`.** Not 20, and not the
+16 I was asked to triage.
+
+Where "20" came from: the earlier run I read had been launched with a timeout and I read its log
+while it was still inside the T-509 instrument sweep — roughly 1066 lines into a ~1500-line run.
+Everything after that section had not executed yet. I counted the FAIL lines present, got 20,
+subtracted the 4 disposed that day and reported "16 remaining" as a total. It was a partial count
+stated as a complete one, which is the second unmeasured number I have asserted today.
+
+The corrected accounting: **32 failing legs now**, after 4 were fixed on 2026-09-30, so **36 were
+failing before that work**. Sixteen of the 32 were never in my earlier reading at all — they sit
+past the point where the log I read stopped. They are triaged below and none of them changes the
+headline.
+
 ## The headline is not the suite
 
-I was asked to sort 16 failing legs into real defects, stale expectations and backlog. Doing it
+I was asked to sort the failing legs into real defects, stale expectations and backlog. Doing it
 surfaced something larger, and it changes what the triage is for.
 
 **One commit — `7b5e227e`, "T-840: upgraded to AEF bleeding-edge 1.7.68", 2026-09-25 — reverted at
@@ -69,8 +85,14 @@ This is four deep, and every layer exists and works:
    the baseline now — adopted upstream, or the local fix was lost.`
    It names **11 stale declarations** and exits non-zero. It is *right*, and it states the exact
    ambiguity a reader needs.
-3. **The detector has no delivery surface.** `_t517` is referenced **0 times** in `audit.sh`, and
-   this morning's audit YAML contains **no occurrence of "diverg"**. The detector runs nowhere.
+3. **The detector reports only into the unscheduled suite.** `_t517` is referenced **0 times** in
+   `audit.sh`, and this morning's audit YAML contains **no occurrence of "diverg"** — so it never
+   reaches the surface that runs on cron every 15 minutes.
+   **Correction:** I first wrote "the detector runs nowhere". It is wired into
+   `tests/run-bridge-tests.sh` (6 references) and **is** one of the 32 failing legs there, #19:
+   *"vendored framework divergence no longer matches .vendor-divergence.yaml"*. So it runs — in the
+   one place nothing schedules. That is a weaker claim than I made and the more useful one, because
+   it means the fix is a delivery surface, not a new detector.
 4. **The guard for layer 3 cannot even measure, and nothing runs it.**
    `tools/_t657-vendor-divergence-must-reach-an-audit-line.sh` exits **rc=3**:
    `COULD-NOT-MEASURE: the T-657 region was not found in audit.sh` — because the upgrade removed
@@ -148,12 +170,83 @@ teeth*. These are different severities and I conflated them once already this se
 | finding anchorability (T-335) | real | 4 XmlValidator rule ids unclassified in ANCHOR | Classify |
 | unwired-guard ratchet (T-451) | ratchet grown | baseline 64, current 143, **GREW by 86**; also 7 stale baseline entries | Needs its own sitting; do not re-baseline silently |
 | G-015 hygiene ratchet (T-508) | ratchet grown | a new carrier appeared; 1 baseline entry now clean (`--tighten` available) | Tighten the 1; triage the new carrier |
-| T-509 instrument sweep | pending | run finishing | — |
-| T-821 swallowed-failure census | pending | run finishing | — |
-| T-358 third-party byteid | pending | fixture drift reported | — |
+| T-509 instrument sweep | regression | an instrument that passed 2026-08-15 no longer does | Fold into the re-vendor sweep below |
+| T-821 swallowed-failure census | real | a bare catch appeared, or an excuse's site count moved | Needs its own look |
+| T-358 third-party byteid | fixture drift | a third-party document's recorded bytes changed | Re-record deliberately, or find the drift |
 
-Counts and the remaining rows will be reconciled against the completed full run before this report
-is marked final. **Nothing below the line above has been fixed by this task** — triage only.
+### The sixteen legs past where my earlier log stopped
+
+These were never in the "16" I was asked to triage — they sit after the point the truncated log
+ended. Listed with what I established and, where I did not investigate, **that fact rather than a
+guess**:
+
+| # | leg | class | basis |
+|---|---|---|---|
+| 17 | Human AC invisible to the approvals queue | real | not individually investigated |
+| 18 | **episodic decisions extractor regressed** | **re-vendor revert, confirmed** | `lib/extract-decisions.py` is on `_t517`'s stale list AND its guard fails — by the rule below, the local fix was lost, not adopted |
+| 19 | **vendored divergence no longer matches the declaration** | **this is the detector itself** | `FAIL — 1349 unrecorded, 11 stale, 2 reclassified` |
+| 20 | episodic memory can be lost silently (pipefail guard in `update-task.sh`) | suspected re-vendor revert | same file as T-574 (12 local commits, confirmed reverted once); **not individually confirmed** |
+| 21 | malformed component cards undetected (`fw fabric validate`) | real | not individually investigated |
+| 22 | fabric coverage warning stopped discriminating | real | not individually investigated |
+| 23 | a suite leg discards its probe's output | real | not individually investigated |
+| 24 | D2 review-queue line disagrees with its own threshold | real | not individually investigated |
+| 25 | audit trend detector merges or drops controls | real | not individually investigated |
+| 26 | a watching gap's closure gauge unreadable by `lib/gaps.py` | real | not individually investigated |
+| 27 | a BVP driver is dead / vacuous / ungraded | real | not individually investigated |
+| 28 | BVP cost axis collapsed to a flag | real | not individually investigated |
+| 29 | operator `hx-prompt` rationale stored percent-encoded | real | not individually investigated |
+| 30 | T-344 denominator guard reading the wrong audit line | real | not individually investigated |
+| 31 | `_t525` fixture legs no longer detect a broken coverage check | real | not individually investigated |
+| 32 | absence-assertion census stopped discriminating | probe stale, gate works | the T-843 gate it guards **refused one of my own verification lines today**, so the enforcement is live; the census probe is the part that drifted |
+
+**The inference rule used above, stated so it can be checked:** a file on `_t517`'s stale list was
+declared as carrying a local fix and now matches the upstream baseline. `_t517` correctly reports
+that as ambiguous — *"adopted upstream, or the local fix was lost."* The ambiguity resolves when you
+look at that fix's own guard: if the guard still passes, upstream adopted the behaviour; if the
+guard fails, the fix is gone. That is how T-568, T-569 and the decisions extractor were classified
+as losses, and how T-557 was classified as an adoption.
+
+### `_t517`'s eleven stale declarations — the authoritative list
+
+```
+ 1  agents/context/check-inception-schema.py
+ 2  agents/context/lib/extract-decisions.py        <- guard fails (#18) => LOST
+ 3  docs/spikes/T-586-loop-detect-ts/loop-detect.js
+ 4  lib/ts/dist/loop-detect.js
+ 5  web/blueprints/fabric.py                       <- guards fail (#9,#10) => LOST x2
+ 6  web/conftest.py
+ 7  web/templates/fabric_detail.html               <- part of T-569 => LOST
+ 8  web/test_app.py
+ 9  web/test_context_tokens.py
+10  web/test_costs.py
+11  web/test_safe_commands.py
+```
+
+`update-task.sh` and `observe.sh` are **not** on this list, and that is not reassuring — it is an
+artefact of timing. `update-task.sh` diverges from baseline again because T-943 re-fixed it hours
+ago; before today it would have been stale. The list shows the reverts **that have not yet been
+re-fixed**, not all of them.
+
+**Nothing in this report has been fixed by this task** — triage only, with one exception noted next.
+
+### One thing was fixed: a regression of my own
+
+The G-015 hygiene ratchet (#12) flagged a **new** carrier, and it was mine. T-942's verification
+block contained:
+
+```
+test "$(grep -l 'CONSOLE_WHITELIST = (' tests/*.py | wc -l)" -eq 1
+```
+
+with a comment of mine claiming it "pins the INVARIANT rather than a corpus count". The ratchet
+classified it `[population-pinned]` and was right: it counts a glob over `tests/*.py`, so it moves
+when anyone else adds a test file. My comment asserting otherwise is precisely the self-issued
+exemption that rule exists to refuse.
+
+Replaced with four assertions naming the four files T-942 actually changed. What is **lost** is the
+"no other file defines its own copy" guarantee — that belongs to a tree-wide ratchet, not to one
+task's verification block, and saying so is better than keeping a line that claims a property it
+does not have. Carrier count 43 → 42, carrier-files 114 → 113.
 
 ---
 

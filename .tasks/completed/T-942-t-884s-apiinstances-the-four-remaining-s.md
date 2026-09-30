@@ -266,9 +266,20 @@ defect (PL-214): the next optional probe will break a subset of them again.
 
 # Zero orphans. This is the leg that caught my own mistake, so it runs first.
 python3 tests/test_t316_runner_orphans.py
-# Exactly ONE definition of the whitelist across tests/. Pins the INVARIANT (one
-# definition site) rather than a corpus count, so it does not rot as tests are added.
-test "$(grep -l 'CONSOLE_WHITELIST = (' tests/*.py | wc -l)" -eq 1
+# REPLACED under T-944. This line was:
+#     test "$(grep -l 'CONSOLE_WHITELIST = (' tests/*.py | wc -l)" -eq 1
+# and its comment claimed it "pins the INVARIANT rather than a corpus count". The G-015
+# hygiene ratchet classified it [population-pinned] and it was right: the line counts a
+# glob over tests/*.py, so it is a global that moves when anyone else adds a test file,
+# not a property of what T-942 delivered. My own comment asserting otherwise is exactly
+# the self-issued exemption that rule exists to refuse.
+# Traded for four assertions naming the four files this task actually changed. What is
+# LOST is the "no other file defines its own copy" guarantee; that belongs to a ratchet
+# over the tree, not to one task's verification block.
+grep -q 'CONSOLE_WHITELIST = (' tests/designer_console.py
+grep -q 'from designer_console import' tests/test_designer_render.py
+grep -q 'from designer_console import' tests/test_designer_export_contract.py
+grep -q 'from designer_console import' tests/test_designer_owner_derived.py
 # All three console guards green against the shared definition.
 python3 tests/test_designer_render.py
 python3 tests/test_designer_export_contract.py
