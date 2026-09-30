@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-957: Hand T-925 closure over as a runme.sh — I broke the wrap-everything rule again
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T21:12:33Z
+# ============================================================================
+
+task_id: T-957
+task_name: "Hand T-925 closure over as a runme.sh — I broke the wrap-everything rule again"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T21:09:27Z
+completed: 2026-09-30T21:12:23Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T23:11:28+02:00
+last_commit: 2026-09-30T23:11:28+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  wrap T-925's closure in runme.sh — I broke the standing instruction by ARGUING past it
+
+# Key outcomes
+outcomes:
+  - '`runme.sh` ticks T-925''s `[REVIEW]` Human AC and closes the task, so the operator''s'
+  - '**Content-anchored, not line-number-anchored.** A line number would silently hit the'
+  - '**Preflight before the first write**, each check stating what it proves, and a refused'
+  - '**Idempotent**: if the AC is already ticked, it refuses and names the check rather'
+  - '**Confirms before the irreversible step** and shows the exact edit first, because the'
+  - '**Exercised via `--dry-run` before handover**, which must change nothing — and the'
+  - '**The agent does not run the real path** (OBS-449). The log opens on line 1 so a'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'runme.sh'
+  - '.tasks/active/T-957-hand-t-925-closure-over-as-a-runmesh--i-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T23:11:28'
+    action: 'T-957: wrap T-925''s closure in runme.sh — I broke the standing instruction by ARGUING past it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 2
+  lines_added: 469
+  lines_removed: 188
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-957-hand-t-925-closure-over-as-a-runmesh--i-.md
+generated_by: context-agent-hybrid

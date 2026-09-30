@@ -13500,3 +13500,57 @@ scan_id: R-219dd7df
 task_id: T-954
 payload:
   task_file: .tasks/active/T-954-make-the-spent-decision-script-refuse-to.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T20:26:19Z'
+scan_id: R-1ad9130a
+task_id: T-955
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T20:26:19Z'
+scan_id: R-1ad9130a
+task_id: T-955
+payload:
+  task_file: .tasks/active/T-955-t-309-slice-1-apivalidate-endpoint-so-th.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T20:55:14Z'
+scan_id: R-f67ce9b6
+task_id: T-956
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T20:55:14Z'
+scan_id: R-f67ce9b6
+task_id: T-956
+payload:
+  task_file: .tasks/active/T-956-record-the-operators-process-maturity-mo.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T21:12:24Z'
+scan_id: R-97142971
+task_id: T-957
+payload:
+  overall: FAIL
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T21:12:24Z'
+scan_id: R-97142971
+task_id: T-957
+payload:
+  task_file: .tasks/active/T-957-hand-t-925-closure-over-as-a-runmesh--i-.md

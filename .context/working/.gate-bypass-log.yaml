@@ -1144,3 +1144,35 @@ Three verification lines of mine we'
   caller: 'check-active-task focus-drift'
   target: 'T-954'
   command: 'FW_SWITCH_FOCUS=1 git add -A .tasks/ .context/episodic/ .context/project/ .context/inbox.yaml .fabric/ && FW_SWITCH_FOCUS=1 git commit -q -m "T-954: close — and the reviewer was right about my verif'
+- timestamp: '2026-09-30T20:26:45Z'
+  task: 'T-925'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-955'
+  command: 'FW_SWITCH_FOCUS=1 git add -A .tasks/ .context/episodic/ .fabric/ && FW_SWITCH_FOCUS=1 git commit -q -m "T-955: close — 7/7 ACs, 13/13 verification, reviewer PASS
+
+The workflow checker can now reach '
+- timestamp: '2026-09-30T20:54:07Z'
+  task: 'T-956'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-940'
+  command: 'FW_SWITCH_FOCUS=1 git add src/aef-workflow-designer.html && FW_SWITCH_FOCUS=1 git commit -q -m "T-940: commit the 0.14.0 APP_VERSION bump the release left in the working tree
+
+Found while verifying T-'
+- timestamp: '2026-09-30T20:55:46Z'
+  task: 'T-925'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-956'
+  command: 'FW_SWITCH_FOCUS=1 git add -A .tasks/ .context/episodic/ .fabric/ && FW_SWITCH_FOCUS=1 git commit -q -m "T-956: close — 6/6 ACs, 17/17 verification, reviewer PASS
+
+The model is recorded with every ca'
+- timestamp: '2026-09-30T21:13:09Z'
+  task: 'T-925'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-957'
+  command: 'FW_SWITCH_FOCUS=1 git add -A .tasks/ .context/ .fabric/ && FW_SWITCH_FOCUS=1 git commit -q -m "T-957: close — 7/7 ACs, 13/13 verification
+
+Three verification errors of mine on the way, all caught by'
