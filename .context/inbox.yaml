@@ -2819,3 +2819,11 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-458
+  text: "The episodic generator concludes 'Mechanical task -- AC checked, no decisions to record' from the task file's ## Decisions section ALONE, and never reads .context/project/decisions.yaml. Any decision recorded through the decision menu or fw inception decide therefore lands in the register and is INVISIBLE to episodic memory -- the memory that outlives the task file's surrounding context. Measured at T-959: T-925 existed to make exactly one decision (PD-351, an operator sovereignty ruling on a four-month deferral), its register entry is complete, its task-file Decisions section was empty, and its generated episodic asserted there were no decisions. Corrected by hand in both places. Remedy: the generator should join on decisions.yaml by task id, and where the register has an entry the task file lacks, say so rather than concluding absence. Same defect shape as OBS-452 (hollow handover) -- a generator that reports confidently on the one source it happens to read."
+  captured: 2026-09-30T22:42:59Z
+  context_task: T-959
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

@@ -71,10 +71,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 2
-  commits: 1
-  files_changed: 2
-  lines_added: 469
-  lines_removed: 188
+  commits: 2
+  files_changed: 28
+  lines_added: 1232
+  lines_removed: 282
+  footprint_refreshed_at: '2026-09-30T21:13:11Z'
+  footprint_refreshed_by_commit: bc9e0044
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-957-hand-t-925-closure-over-as-a-runmesh--i-.md

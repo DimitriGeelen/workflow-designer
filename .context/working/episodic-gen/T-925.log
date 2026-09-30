@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-09-30T22:41:06Z ===
+task_id: T-925
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer/.agentic-framework
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-925.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no cross-form rule on any of its ten attributes can ever be compared
+  Duration: 1 days (2323 min)
+  Updates: 3
+  Commits: 2
+  Lines: +3696 -189 across 44 files
+  Outcomes: 6 AC checked
+  Artifacts: 44 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-925-toolsyaml-to-bpmnpy-drops-document-level.md
+--- exit code: 0 ---

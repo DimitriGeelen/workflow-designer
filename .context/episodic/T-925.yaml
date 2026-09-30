@@ -1,0 +1,191 @@
+# ============================================================================
+# EPISODIC MEMORY - T-925: tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no cross-form rule on any of its ten attributes can ever be compared
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T22:41:07Z
+# ============================================================================
+
+task_id: T-925
+task_name: "tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no cross-form rule on any of its ten attributes can ever be compared"
+workflow_type: build
+# CORRECTED BY HAND (T-959, 2026-10-01). The generator wrote:
+#     enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+# That is false, and false in the worst place: T-925's ENTIRE PURPOSE was a sovereignty
+# decision. It deferred itself for four months on one question, slice 1 existed only to make
+# that question decidable, and the operator ruled on 2026-09-30 (PD-351).
+#
+# Why the generator said otherwise: it reads the task file's `## Decisions` section, which is
+# empty, and not `.context/project/decisions.yaml`, which holds the ruling. The decision was
+# recorded through the decision menu straight into the register, so the one source the
+# generator consults never saw it. Filed as OBS-458 — every decision recorded that way is
+# invisible to episodic memory, which is the memory that outlives the task file's context.
+enrichment_status: hand-corrected  # a sovereignty ruling, NOT a mechanical close
+
+# Timeline
+created: 2026-09-29T07:57:12Z
+completed: 2026-09-30T22:40:55Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-09-30T21:45:55+02:00
+last_commit: 2026-09-30T22:15:25+02:00
+
+# Summary (auto-generated from git commit messages)
+# The auto-mined summary is kept below, unedited, because the way it failed is part of the
+# record: it spliced a sentence from an unrelated handover commit ("the generator was hollow
+# again") into T-925's history, and it drew from a commit window that misses the task's own
+# earlier work (first_commit below reads 21:45 on the final day).
+summary_auto_mined: |
+  owner to human — the seam ruling is a sovereignty call. session handover — filled by hand, because the generator was hollow again
+
+summary: |
+  A four-month deferral broken by measuring the premise it rested on, then ruled by the
+  operator.
+
+  T-925 asked one question: should tools/yaml-to-bpmn.py emit <aef:workflowMeta>? It had
+  deferred itself on that question since May, on the stated grounds that 24 of 24 rendered
+  maps were bridge-produced, so changing the emitter would move the whole corpus. Slice 1
+  measured it: the bridge produced 1 of 25 served renders. The premise was false, and the
+  brief says so in those words. Also measured — customer-refund is in no AEF pin manifest,
+  the 10 bridge tests contain no golden-byte comparison, and the cross-form harness held a
+  KNOWN disagreement citing T-925 that a fix would retire.
+
+  The operator ruled A (emit all ten attributes) on 2026-09-30, recorded as PD-351. T-953
+  shipped the emitter change: 128 of 128 documents across four roots now derive from an
+  authored id, up from 126, and a document with no workflowMeta is byte-identical to the
+  pre-change emitter (controlled against git show HEAD:tools/yaml-to-bpmn.py).
+
+  Three instruments then detected their own obsolescence rather than being remembered: the
+  T-301 baseline's stale-entry leg failed on its own single entry once the cause was fixed;
+  the cross-form E-WORKFLOW-KIND entry fired exactly as its own text had predicted it would;
+  and T-925's ## Verification block turned out to assert the BUG, so it would have refused
+  the close (repaired under T-959).
+
+  Closing it took two acts that are deliberately not the agent's: the operator ticked the
+  [REVIEW] criterion by running runme.sh, and then discharged the R-033 sovereignty gate
+  with a click in Watchtower. The agent could do neither, which is the design working.
+
+# Key outcomes
+outcomes:
+  - '**The blast radius is MEASURED, not asserted.** T-925''s cost argument rests on'
+  - '**The 24 AEF-process renders'' actual producer is identified.** They carry no'
+  - '**A decision brief in `docs/reports/T-925-workflowmeta-bridge-seam.md`** stating: the'
+  - '`tools/_t301-known-divergences.txt` **cites T-925 as the cause.** Its current reason'
+  - '**No emitter change, and no corpus bytes moved.** Asserted structurally, not promised:'
+  - '[REVIEW] **Rule the seam question: should `yaml-to-bpmn.py` emit'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # HAND-ADDED (T-959). The generator emitted "# No decisions recorded (mechanical task or
+  # old template)" here. The decision below is in .context/project/decisions.yaml as PD-351
+  # and was never in the task file's ## Decisions section, which is the only place the
+  # generator looks. See OBS-458.
+  - id: PD-351
+    decision: "Emit all ten attributes — yaml-to-bpmn.py SHOULD emit <aef:workflowMeta> (option A)"
+    date: 2026-09-30
+    authority: operator (sovereignty)
+    recorded_via: runme.sh decision menu -> .context/project/decisions.yaml
+    rationale: >
+      Priced in docs/reports/T-925-workflowmeta-bridge-seam.md, and every number in it
+      measured rather than asserted. The four-month deferral rested on "24 of 24 rendered
+      maps are bridge-produced"; the bridge produced 1 of 25 served renders. customer-refund
+      appears in no AEF pin manifest. The 10 bridge tests contain no golden-byte comparison.
+      test_harness_cross_form_agreement.py held a KNOWN disagreement citing T-925 that the
+      fix would retire — and did.
+    consequence: >
+      Shipped under T-953, deliberately as a separate slice, because T-925's own Agent AC
+      said the emitter would land separately on a GO. 128 of 128 documents across four roots
+      now derive from an authored id (was 126). A document carrying no workflowMeta is
+      byte-identical to the pre-change emitter. The T-301 divergence baseline went from one
+      entry to none, and its own stale-entry leg is what reported the entry had stopped
+      diverging.
+    rejected:
+      - "B/C (narrower emission or none) — the brief's measurements removed the cost that
+         motivated them: there was no 24-document corpus to move."
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-09-30.yaml'
+  - '.context/audits/cron/2026-09-30-2000.yaml'
+  - '.context/audits/cron/2026-09-30-2015.yaml'
+  - '.context/audits/cron/2026-09-30-2030.yaml'
+  - '.context/audits/cron/2026-09-30-2045.yaml'
+  - '.context/audits/cron/2026-09-30-2100.yaml'
+  - '.context/audits/cron/2026-09-30-2115.yaml'
+  - '.context/audits/cron/2026-09-30-2130.yaml'
+  - '.context/audits/cron/2026-09-30-2145.yaml'
+  - '.context/audits/cron/2026-09-30-2215.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/audits/full-audit-timing.yaml'
+  - '.context/audits/instance-refusals.jsonl'
+  - '.context/audits/unclosed-satisfied/LATEST.md'
+  - '.context/episodic/T-954.yaml'
+  - '.context/handovers/S-2026-0930-2212.discard-manifest.yaml'
+  - '.context/handovers/S-2026-0930-2212.md'
+  - '.context/locks/T-925.lock'
+  - '.context/locks/T-950.lock'
+  - '.context/locks/T-951.lock'
+  - '.context/locks/T-952.lock'
+  - '.context/locks/T-953.lock'
+  - '.context/locks/T-954.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/telemetry/bvp-sticky.jsonl'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/continuous-run.jsonl'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-950.log'
+  - '.context/working/episodic-gen/T-951.log'
+  - '.context/working/episodic-gen/T-952.log'
+  - '.context/working/episodic-gen/T-953.log'
+  - '.context/working/episodic-gen/T-954.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.obs-highwater'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/.verify-queue-state.json'
+  - '.tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T21:45:55'
+    action: 'T-925: owner to human — the seam ruling is a sovereignty call'
+  - time: '2026-09-30T22:15:25'
+    action: 'T-925: session handover — filled by hand, because the generator was hollow again'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2323 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bridge, cross-form, false-green]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2323
+  commits: 2
+  files_changed: 44
+  lines_added: 3696
+  lines_removed: 189
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-925-toolsyaml-to-bpmnpy-drops-document-level.md
+generated_by: context-agent-hybrid
