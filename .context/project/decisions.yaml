@@ -2586,3 +2586,17 @@ decisions:
     date: 2026-09-29
     task: T-884
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-349
+    decision: "ACTOR in `update-task.sh` beside `:2356` (+ the class surfaced in `fw task delegate`);"
+    scope: project
+    date: 2026-09-29
+    task: T-931
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-350
+    decision: "prove the predicate READS correctly before letting it write, negative direction first."
+    scope: project
+    date: 2026-09-29
+    task: T-931
+    rationale: "Auto-captured from task file on completion"

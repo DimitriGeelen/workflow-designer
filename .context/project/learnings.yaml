@@ -2561,3 +2561,9 @@ learnings:
   task: T-941
   date: 2026-09-30
   context: Added via context agent; duration claim corrected under T-942 the same day
+- id: PL-364
+  learning: "Never pipe a command's own output through a filter you did not need: | tail, | grep and | head hide the failure you are about to misreport. Hit three times in one session — 'tail -60' buffered a 900s verification sweep into silence, 'tail -3' swallowed a backgrounded commit that never landed, and 'grep -E created|error' ate 'ERROR: Missing required flag(s): --description' so three task-creates reported success having created nothing. The filter is applied for readability and costs correctness: the agent then reports the filtered view as the outcome. Rule: run the command bare, read all of it, and filter only a SECOND read of a saved file (cmd > /tmp/out 2>&1; then grep the file). Same defect class as every false-green in this session — a reporting surface that is confident because it has nothing left to be wrong about."
+  source: P-001
+  task: T-944
+  date: 2026-09-30
+  context: Added via context agent
