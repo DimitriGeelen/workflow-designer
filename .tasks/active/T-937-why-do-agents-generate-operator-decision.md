@@ -15,7 +15,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-09-29T21:44:42Z
-last_update: 2026-09-29T21:47:42Z
+last_update: 2026-09-30T07:44:51Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -174,39 +174,34 @@ checkable by someone who was not in the room.
   created faster than they are ticked — or is the backlog a spike that has stopped growing? Everything
   else depends on the answer: a stalled pile and a rising tide want different remedies.
   confidence: 2
-  disposition:
-  rationale:
-
+  disposition: answered
+  rationale: Stock count of open operator criteria in .tasks/active/: 34 on 2026-07-06, 84 on 2026-09-28, ~+4/week net. It IS a rate, but mild, and one week went -46 so batch clearing works.
 - **IW-2: Could any material share of the 51 rulings have been settled under a ruling that ALREADY
   exists?** This is the load-bearing question. If yes, the defect is escalation discipline and it is
   ours. If ~none map to a prior ruling, then the criteria are irreducibly the operator's and no
   agent-side fix exists — in which case saying so plainly is the deliverable.
   confidence: 1
-  disposition:
-  rationale:
-
+  disposition: answered
+  rationale: NO, and this falsifies the hypothesis. 1 of a reproducible 15-sample (seed 937) was arguably settleable by an existing ruling, threshold was 4. Escalation discipline is not the defect; no agent-side fix of the kind this task sought exists.
 - **IW-3: Is the backlog concentrated in a few task shapes or spread evenly?** A concentration admits a
   targeted fix; an even spread does not. Grouping by workflow_type, arc and originating family answers it.
   confidence: 2
-  disposition:
-  rationale:
-
+  disposition: dissolved
+  rationale: Not concentrated in task shapes, which is what spike 3 was designed to test. The apparent concentration was 12 identical template-generated criteria, and that turned out to be 12 genuinely undecided inceptions at DEFER rather than a template defect (my claim, withdrawn at AEF inbox @19). The question as framed has no answer worth spiking.
 - **IW-4: Does age indicate neglect, or correct prioritisation?** A 42-day median was measured before. If
   the oldest criteria are also the lowest unblock score, the ordering is working and age is not evidence
   of a problem. If the oldest are HIGH-value, that is a different and worse finding.
   confidence: 1
-  disposition:
-  rationale:
-
+  disposition: answered
+  rationale: Age measures when someone last sat down with the queue, not per-item neglect: the -46 week shows clearing happens in bursts rather than FIFO. A 42-day median sampled during a quiet stretch overstates neglect.
 - **IW-5: Is there a settling mechanism other than one human answering serially?** Standing rulings over
   classes, a default with an objection window, a reviewer authority that does not exist today. Asked last
   and deliberately: it is only worth exploring if IW-2 comes back negative, and proposing new authority
   before establishing that the current authority is saturated would be building a bypass looking for a
   reason (PD-302).
   confidence: 0
-  disposition:
-  rationale:
-
+  disposition: deferred
+  rationale: Not explored, by design: it was gated on IW-2 returning positive and IW-2 returned negative. Proposing a new settling authority when the existing authority is not saturated would be a bypass looking for a reason (PD-302). If it is ever opened it is a separate inception and the operator's to open.
 ## Exploration Plan
 
 Three spikes, one question each, no build artefacts. Ordered so a negative result on spike 2 makes
@@ -310,7 +305,41 @@ decision load is.
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** NO-GO on the premise this task was opened to test, and nothing to build.
+
+**Rationale:** The exploration ran and answered its load-bearing question negatively. IW-2 asked
+whether a material share of the operator's open rulings could have been settled under a ruling that
+already exists; the threshold was 4 of a reproducible 15-sample and the result was 1, arguably 0.
+Escalation discipline is not why the queue grows, so there is no agent-side mechanism to build. That
+outcome was written into the hypothesis as reachable precisely so this recommendation could be made
+without inventing a fix to look useful — and T-872 reached the same conclusion from different evidence
+on 2026-09-26.
+
+What the exploration DID establish is worth keeping without a build task: the queue grows about +4 per
+week net (34 open on 2026-07-06, 84 on 2026-09-28), it is cleared in bursts rather than FIFO, and one
+week in August went -46 — so the backlog is unattended rather than unclearable. The remedy is a sitting
+with the docket, which already exists and needs no mechanism.
+
+**Evidence:**
+- Stock measurement, immune to the rename blindness that broke the first attempt: 34 -> 84 over twelve
+  weeks. The flow measurement produced "1801 created / 104 ticked / answer rate 0.06" and was WRONG —
+  a task completion is a `git mv`, which shows in a diff as a rename with no content lines, so the
+  method counted arrivals and was blind to departures. Recorded because that figure would otherwise
+  have been quoted onward as a fact about the corpus when it is a fact about the method.
+- IW-2 read by hand over 15 criteria (random.seed(937), reproducible). A keyword-overlap aid put
+  PD-308 top for 11 of 15 because PD-308 is simply long text — third failure this week of a scoring
+  heuristic on this exact question, and the reason the read was manual.
+- Two structural claims made during this work were WITHDRAWN after checking properly: a 54-criterion
+  denominator gap in the delegation boundary (real divergence: 3, AEF inbox @13) and a template defect
+  that was me not reading one line above where I stopped grepping (AEF inbox @19). Both are recorded
+  in this artifact rather than edited out.
+- One finding stands and went upstream: any AEF metric deriving rates from `.tasks/` git diffs has the
+  rename blindness (AEF inbox @18, ask b, not withdrawn).
+
+**What this does NOT recommend:** IW-5 — whether a settling mechanism other than one human answering
+serially should exist — was deliberately left unspiked because it was gated on IW-2 returning positive.
+Opening it is the operator's, as a separate inception. Proposing new authority while the existing
+authority is not saturated would be a bypass looking for a reason (PD-302).
 
 **Rationale:**
 

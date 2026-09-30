@@ -2543,3 +2543,15 @@ learnings:
   task: T-933
   date: 2026-09-29
   context: Added via context agent
+- id: PL-361
+  learning: "A grep window is not a read, and both structural claims I withdrew in one session came from that. Claim 1: two encodings of the delegation boundary 'disagree on the denominator by ~54 criteria' — I compared one side's Human-section-only count against the other's whole-tree total; scope-fair they agree exactly and the real divergence is 3. Claim 2: an inception template's Human criterion 'lacks @auto-tick-on-decide unlike its three siblings' — I grepped, saw hits at lines 143/145/147, and never read line 151, which carries it. Both were sent to a counterparty before the check that refuted them, and in both cases the refuting check took under two minutes. The rule: before reporting a MISSING marker, attribute, or field, read the whole surrounding block rather than the grep hits — absence is the one claim a keyword search cannot establish."
+  source: P-001
+  task: T-937
+  date: 2026-09-30
+  context: Added via context agent
+- id: PL-362
+  learning: "A flow metric over a corpus that RENAMES files counts arrivals and is blind to departures, and it fails in the alarming direction only. Measuring operator criteria created vs ticked from 'git log -U0 -- .tasks/' gave 1801 created against 104 ticked, an 'answer rate' of 0.06. The arithmetic does not close: 1801 - 213 removed - 104 ticked should leave ~1484 open and only 83 are. The ~1400 missing left .tasks/active/ when their tasks completed, and a completion is a git mv — a rename, which appears in a diff with NO content lines. The stock measurement (count what exists at sampled points in time) cannot be fooled by renames and gave the real answer: 34 open on 2026-07-06, 84 on 2026-09-28, about +4/week. When flow and stock disagree and the flow accounting does not close, stock wins."
+  source: P-001
+  task: T-937
+  date: 2026-09-30
+  context: Added via context agent

@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T23:40:57Z
-last_update: 2026-09-30T00:04:56Z
+last_update: 2026-09-30T00:05:59Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -335,3 +335,33 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-939-the-host-machine-id-is-committed-in-a-ke.md
 - **Context:** Initial task creation
+
+## Decisions
+
+### 2026-09-30 — operator accepts the current state; the history rewrite is DECLINED
+
+- **Chose:** redact going forward (done, `1b98bebd`) and leave the value in history. No rewrite of
+  master's 2421 commits, no `/etc/machine-id` regeneration.
+- **Operator's words:** *"We accept it as it is and close this instance with that."*
+- **Why this is coherent rather than a shrug**, recorded so a later reader does not mistake it for
+  neglect:
+  - The API key the machine-id protected is being rotated by the operator, so the derivation input
+    guards nothing current.
+  - `.context/secrets/` is now gitignored with a pattern, and `check_secret_paths_visible_to_git`
+    FAILS if anything lands there tracked again.
+  - 429 unique cloners took the repo in the 14-day window, 33 of them on 2026-09-28 while both halves
+    were public. Those copies are permanent. A rewrite would remove the value from a repository that
+    unknown parties already hold in full — it protects nothing that is not already out.
+  - The residual exposure is: someone checking out a pre-`1b98bebd` commit can read a machine-id whose
+    only use is decrypting a store that no longer contains the leaked key.
+- **Rejected — regenerating `/etc/machine-id`:** invalidates the leaked value outright for one command,
+  but carries system-wide effects (systemd, D-Bus, DHCP identity, anything machine-bound) that are not
+  worth absorbing once the key itself is rotated.
+- **Rejected — the 2421-commit rewrite of master:** every SHA on the default branch changes, every
+  clone needs a hard reset rather than a pull, and it would have invalidated any release tag cut
+  afterwards. Cost is real; benefit is zero given the clones already taken.
+
+**What remains true and is not a loose end:** the detector reports a standing WARN for
+`.context/working/.fw-secret-key` in reachable history (T-410's key, rotated). That WARN is correct and
+will persist until someone rewrites history, which is the same declined trade. It is visible rather
+than silent, which is the property that was missing for four months.
