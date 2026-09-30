@@ -2761,3 +2761,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-450
+  text: "Watchtower's GO button reports 'Unknown error' when a gate refuses SILENTLY, so the operator cannot act on it. Reproduced live on T-937: clicking GO returned 'Decision not recorded / Unknown error from fw inception decide'. The real cause was five open questions with empty disposition fields, which the disposition gate correctly refuses - but it refused without printing anything, and web/blueprints/inception.py:647 falls back to that literal string when BOTH stdout and stderr are empty. run_fw_command handles timeouts ('Command timed out') and exceptions (str(exc)) with real messages; only a silent non-zero exit produces the blank, and that is exactly what a gate refusal does here. Consequence: an operator clicking GO on any under-disposed inception gets a dead end with no path forward, and the information they need exists - inception_underdisposed_questions() in lib/inception-readiness.sh returns 'IW-1 disposition=false rationale=false' per question. The decide preflight should print that. Same family as the other findings of 2026-09-29/30: a gate that refuses correctly and reports nothing, so the human cannot act. AEF's blueprint and AEF's gate, so the fix is theirs. SECOND, SEPARATE FINDING against my own conduct: I twice sent the operator to the inception page to 'authorize the exploration'. That is a misuse of the verb - in AEF's model inception decide records the FINAL go/no-go derived from the disposed questions, not permission to start. The task was already started-work and needed no approval at all. The blank error cost the operator two dead-end clicks; my misreading of the verb is what sent them there."
+  captured: 2026-09-30T07:34:14Z
+  context_task: T-939
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true

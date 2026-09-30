@@ -116,3 +116,60 @@ authority (a proposal to rule on, not a mechanism to build — PD-302) · buildi
 ## Findings
 
 *(empty — exploration has not run)*
+
+---
+
+## Spike 1 — the rate. Answered IW-1 and IW-4, and refuted my own first measurement.
+
+### The number that matters: the queue grows about +4 per week, net
+
+Stock measurement — open `[REVIEW]`/`[REVIEWER]`/`[RUBBER-STAMP]` criteria in `.tasks/active/`, counted
+at the first commit of each week, HTML comments stripped so template examples do not inflate it:
+
+| date | open | Δ |
+|---|---|---|
+| 2026-07-06 | 34 | |
+| 2026-07-27 | 67 | +33 over 3 weeks |
+| **2026-08-03** | **21** | **−46 — a batch was cleared** |
+| 2026-08-31 | 64 | +43 |
+| 2026-09-21 | 79 | +15 |
+| 2026-09-28 | 84 | +5 |
+
+**IW-1 answered: it is a rate, not a one-off.** 34 → 84 over twelve weeks, roughly +4/week net. But it
+is a *mild* rate, not a runaway, and one week in August went **−46** — so batch clearing demonstrably
+works and has been done before. That single data point matters more than the trend: the backlog is not
+structurally unclearable, it is unattended.
+
+**IW-4 partially answered.** The −46 event shows the queue is cleared in bursts, not FIFO. So age is
+evidence of *when someone last sat down with it*, not of per-item neglect. A 42-day median measured
+during a quiet stretch says less than it appears to.
+
+### My first measurement was unusable, and the reason is worth more than the number
+
+I first measured *flow* — criteria added vs ticked in `git log -U0` over `.tasks/`:
+
+    open criteria ADDED    1801
+    ticked ADDED            104      => "answer rate 0.06"
+
+**That 0.06 is wrong and I nearly reported it.** The arithmetic does not close: 1801 created minus 213
+removed minus 104 ticked should leave ~1484 open, and only 79–84 are. The missing ~1400 left
+`.tasks/active/` when their tasks completed — and a task completion is a `git mv`, which appears in the
+diff as a **rename with no content lines**. So the flow method cannot see criteria leaving, and it
+counts a re-worded criterion as a new one.
+
+Two lessons, both already this corpus's recurring theme:
+
+1. **A flow measurement over a corpus that MOVES its files needs to account for the moves.** Mine
+   counted arrivals and was blind to departures, which makes every ratio it produces meaningless in
+   one direction only — the alarming one.
+2. **The stock measurement is immune to it.** Counting what exists at a point in time cannot be fooled
+   by renames. When flow and stock disagree, stock wins unless the flow accounting is closed.
+
+Recorded rather than deleted because "1801 vs 104" is exactly the kind of figure that would have been
+quoted onward, and it is an artefact of my method rather than a fact about the corpus.
+
+### Verdict on the spike-1 gate
+
+The exploration plan said a negative here is a NO-GO for the whole task. It is **not** negative:
+production does materially exceed answering (2.5× growth in twelve weeks). So spike 2 — the
+load-bearing IW-2 read — is warranted, and proceeds.
