@@ -4,12 +4,13 @@ name: "Assert the stem == workflowMeta.id invariant across all three corpora (T-
 description: >
   Assert the stem == workflowMeta.id invariant across all three corpora (T-301 GO)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t301-id-stem-invariant.py, tools/_t301-invariant-teeth.sh, tools/_t301-known-divergences.txt]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T18:15:41Z
-last_update: 2026-09-30T18:15:41Z
-date_finished: null
+last_update: 2026-09-30T18:23:39Z
+date_finished: 2026-09-30T18:23:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -414,3 +415,19 @@ python3 tools/_t301-id-stem-invariant.py > /tmp/.t301-measure.out 2>&1 && grep -
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-951-assert-the-stem--workflowmetaid-invarian.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b77bd573
+- **Timestamp:** 2026-09-30T18:23:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `destroy`
+
+### 2026-09-30T18:23:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

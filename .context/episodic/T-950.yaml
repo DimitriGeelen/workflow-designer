@@ -870,10 +870,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 8
-  commits: 1
-  files_changed: 802
-  lines_added: 34799
-  lines_removed: 19445
+  commits: 2
+  files_changed: 804
+  lines_added: 35707
+  lines_removed: 19460
+  footprint_refreshed_at: '2026-09-30T17:51:42Z'
+  footprint_refreshed_by_commit: 46a51a2f
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-950-correct-the-t-949-triage-t-263s-slice-wa.md

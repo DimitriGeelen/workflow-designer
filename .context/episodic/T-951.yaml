@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-951: Assert the stem == workflowMeta.id invariant across all three corpora (T-301 GO)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T18:23:49Z
+# ============================================================================
+
+task_id: T-951
+task_name: "Assert the stem == workflowMeta.id invariant across all three corpora (T-301 GO)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T18:15:41Z
+completed: 2026-09-30T18:23:39Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T20:23:24+02:00
+last_commit: 2026-09-30T20:23:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the T-301 invariant is asserted at last — and it is already broken on a live document
+
+# Key outcomes
+outcomes:
+  - '`tools/_t301-id-stem-invariant.py` asserts `card id == derived workflowMeta.id` across'
+  - 'The id derivation replicates `src/aef-workflow-designer.html:11210` exactly, including'
+  - '**A divergent fixture is caught.** A synthesised card whose bytes declare a different id'
+  - '**An empty population is not a pass** (T-3105). If any of the three roots contributes'
+  - 'Wired into `tests/run-bridge-tests.sh`.'
+  - 'The current corpus state is **measured and recorded**, not assumed. T-301 measured 0'
+  - 'The live divergence is **recorded with a reason, not silenced**, in'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-951-assert-the-stem--workflowmetaid-invarian.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t301-id-stem-invariant.py'
+  - 'tools/_t301-invariant-teeth.sh'
+  - 'tools/_t301-known-divergences.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T20:23:24'
+    action: 'T-951: the T-301 invariant is asserted at last — and it is already broken on a live document'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 5
+  lines_added: 960
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-951-assert-the-stem--workflowmetaid-invarian.md
+generated_by: context-agent-hybrid

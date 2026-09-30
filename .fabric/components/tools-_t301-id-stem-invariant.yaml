@@ -1,0 +1,21 @@
+id: tools/_t301-id-stem-invariant.py
+name: _t301-id-stem-invariant
+type: script
+subsystem: instruments
+location: tools/_t301-id-stem-invariant.py
+tags: []
+
+purpose: "T-301 — assert `card id == derived workflowMeta.id` across every served corpus."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-30
+created_by: unknown
