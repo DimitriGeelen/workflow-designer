@@ -4,12 +4,13 @@ name: "Give run-bridge-tests.sh a scheduled caller with a failure-count ratchet"
 description: >
   Give run-bridge-tests.sh a scheduled caller with a failure-count ratchet
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t952-audit-rail-teeth.sh, tools/_t952-bridge-baseline.txt, tools/_t952-bridge-suite-ratchet.py, tools/_t952-ratchet-teeth.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T18:25:00Z
-last_update: 2026-09-30T18:25:00Z
-date_finished: null
+last_update: 2026-09-30T19:09:27Z
+date_finished: 2026-09-30T19:09:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -203,7 +204,18 @@ bash -n tests/run-bridge-tests.sh
 .agentic-framework/agents/audit/audit.sh --section structure > /tmp/.t952-audit.out 2>&1; grep -q 'Bridge suite:' /tmp/.t952-audit.out
 # NO cron entry was added — the withdrawn AC, asserted so the withdrawal is structural
 # and not just a paragraph. The registry must not mention a suite RUNNER.
-test "$(grep -c 'run-bridge-tests' .context/cron-registry.yaml)" -eq 0
+#
+# CONTROLLED, because the first version of this was `test "$(grep -c ...)" -eq 0` and the
+# T-843/_t560 gate refused the close: rename the registry or mistype the pattern and the
+# leg passes vacuously — a broken search and a satisfied assertion produce identical green.
+# The companion below greps the SAME STRING somewhere it IS present, so the absence leg
+# only means something because the search is demonstrably capable of succeeding.
+# The control is tools/_t509-instrument-sweep.sh, which names the suite. NOT
+# tests/run-bridge-tests.sh: the string "run-bridge-tests" does not appear INSIDE that
+# file, so the obvious-looking control failed the moment it was run — which is the whole
+# argument for controls, demonstrated on me twice in five minutes.
+grep -q 'run-bridge-tests' tools/_t509-instrument-sweep.sh
+! grep -q 'run-bridge-tests' .context/cron-registry.yaml
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -427,3 +439,15 @@ test "$(grep -c 'run-bridge-tests' .context/cron-registry.yaml)" -eq 0
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-952-give-run-bridge-testssh-a-scheduled-call.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-419cc5c0
+- **Timestamp:** 2026-09-30T19:09:58Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-30T19:09:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,21 @@
+id: tools/_t952-ratchet-teeth.sh
+name: _t952-ratchet-teeth
+type: script
+subsystem: instruments
+location: tools/_t952-ratchet-teeth.sh
+tags: []
+
+purpose: "T-952 — does the bridge-suite ratchet bite, and does it refuse when it cannot measure?"
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-30
+created_by: unknown

@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-952: Give run-bridge-tests.sh a scheduled caller with a failure-count ratchet
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T19:10:05Z
+# ============================================================================
+
+task_id: T-952
+task_name: "Give run-bridge-tests.sh a scheduled caller with a failure-count ratchet"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T18:25:00Z
+completed: 2026-09-30T19:09:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-09-30T21:08:13+02:00
+last_commit: 2026-09-30T21:08:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the suite's redness reaches the audit — and the scheduled-run idea was already refused, correctly
+
+# Key outcomes
+outcomes:
+  - 'The suite''s current pass/fail counts are **measured by a completed run**, not carried'
+  - '`tools/_t952-bridge-suite-ratchet.py` reads `tests/.run-history.tsv`, takes the newest'
+  - '**Killed runs are discarded, loudly.** Only `rc` 0 or 1 describes a completed sweep.'
+  - '**Cannot-measure is never a pass**: no history, no completed run, an unusable baseline,'
+  - 'The ratchet has **teeth proven by fixtures** — rise, fall, exact-hold, killed-newest,'
+  - '**The verdict reaches `fw audit`.** This is the actual gap: `grep -c ''_t813\|run-history''`'
+  - 'The audit line is **proven in both directions** against fixtures — red history produces'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.tasks/active/T-952-give-run-bridge-testssh-a-scheduled-call.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/.run-history.tsv'
+  - 'tools/_t952-audit-rail-teeth.sh'
+  - 'tools/_t952-bridge-baseline.txt'
+  - 'tools/_t952-bridge-suite-ratchet.py'
+  - 'tools/_t952-ratchet-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T21:08:13'
+    action: 'T-952: the suite''s redness reaches the audit — and the scheduled-run idea was already refused, correctly'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 44 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 44
+  commits: 1
+  files_changed: 8
+  lines_added: 1049
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-952-give-run-bridge-testssh-a-scheduled-call.md
+generated_by: context-agent-hybrid

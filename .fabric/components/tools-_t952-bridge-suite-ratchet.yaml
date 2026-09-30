@@ -1,0 +1,21 @@
+id: tools/_t952-bridge-suite-ratchet.py
+name: _t952-bridge-suite-ratchet
+type: script
+subsystem: instruments
+location: tools/_t952-bridge-suite-ratchet.py
+tags: []
+
+purpose: "_t952 — a ratchet on the bridge suite's failure count, read from its run history."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-09-30
+created_by: unknown
