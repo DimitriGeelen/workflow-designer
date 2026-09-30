@@ -314,13 +314,56 @@ def tracked_files():
     return [l for l in out.splitlines() if l.strip()], None
 
 
+def historical_paths():
+    """Every path ever present in REACHABLE history, not just the current index.
+
+    T-939 — WHY THE INDEX IS THE WRONG POPULATION FOR THIS QUESTION, learned the hard way.
+    `git ls-files` answers "is a secret tracked NOW". It cannot answer "does a clone of this
+    repository contain a secret", and those differ in the two cases that actually matter:
+
+      1. AFTER A PURGE THAT WAS NOT COMPLETE. `.context/secrets/api-keys.enc` was removed from the
+         index under T-938, so the index-based check went green immediately — while 109 commits still
+         carried the blob and anyone cloning got it. The green was accurate about the index and
+         useless about the repository.
+      2. AFTER A RESURRECTION. If someone with a stale clone runs `git pull` and pushes the merge,
+         the old commits become reachable again while the tip keeps the deletion. The index stays
+         clean, so the index check stays green, and the secret is back in every clone. This is a
+         REAL risk here: OneDev accepts that push as a fast-forward.
+
+    `git rev-list --objects --all` names every object reachable from every ref together with its
+    path, which is exactly the set a clone receives. One pass, no per-commit loop — an earlier
+    version of this check walked `git rev-list` and asked `cat-file -e` per commit, which is
+    O(commits x paths) and took minutes on 2700 commits.
+
+    Returns paths, so the SAME classify() judges them. A second notion of "is this key material"
+    for the history axis is how two encodings start disagreeing (G-052).
+    """
+    try:
+        out = subprocess.run(["git", "-C", ROOT, "rev-list", "--objects", "--all"],
+                             capture_output=True, text=True, check=True).stdout
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        return None, "git rev-list --objects --all failed: %s" % e
+    seen = set()
+    for line in out.splitlines():
+        # "<sha> <path>" for blobs and trees; bare "<sha>" for commits. Paths may contain spaces.
+        parts = line.split(" ", 1)
+        if len(parts) == 2 and parts[1].strip():
+            seen.add(parts[1].strip())
+    return sorted(seen), None
+
+
 def main():
     ap = argparse.ArgumentParser(add_help=True)
     ap.add_argument("--census", action="store_true")
     ap.add_argument("--allowlist", default=ALLOWLIST)
+    ap.add_argument("--history", action="store_true",
+                    help="judge every path ever present in REACHABLE history instead of the current "
+                         "index. Answers 'does a clone of this repo contain key material', which is "
+                         "the question the index cannot answer after an incomplete purge or a "
+                         "resurrected stale clone (T-939).")
     args = ap.parse_args()
 
-    files, err = tracked_files()
+    files, err = historical_paths() if args.history else tracked_files()
     if err:
         print("ERROR: %s" % err, file=sys.stderr)
         return 2

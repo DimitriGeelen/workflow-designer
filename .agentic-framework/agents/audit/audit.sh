@@ -3959,10 +3959,38 @@ check_secret_paths_visible_to_git() {
 
     _unignored="$(printf '%s' "$_unignored" | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' ')"
 
+    # T-939 — THE HISTORY AXIS, and it WARNS rather than FAILS. Deliberate asymmetry.
+    #
+    # `--history` judges every path ever present in reachable history: the set a clone actually
+    # receives. The index cannot answer that, and the gap is not theoretical — it is how T-938's purge
+    # looked complete the moment `git rm --cached` ran, while 109 commits still carried the blob. It is
+    # also the resurrection case: a stale clone that pulls and pushes makes old commits reachable again
+    # while the tip keeps the deletion, so the index stays green and every clone has the secret back.
+    #
+    # WHY WARN AND NOT FAIL, when the index case fails. A secret in history whose value has been
+    # rotated is not a live exposure: `.fw-secret-key` sits in this repo's history from T-410 and the
+    # key it signs with was replaced, so the committed one signs nothing. Failing on it would make the
+    # audit permanently red until someone rewrites 2400 commits on master — a remedy the operator has
+    # already weighed and declined once. A red that cannot be cleared is a red people learn to bypass,
+    # which is how the index finding would have been missed too. Live exposure fails; historical
+    # residue warns and names rotation as the remedy that actually closes it.
+    local _hist=""
+    if [ -f "$_tool" ] && command -v python3 >/dev/null 2>&1; then
+        if ! _hist="$(cd "$PROJECT_ROOT" && timeout 300 python3 "$_tool" --history 2>&1)"; then
+            _hist="$(printf '%s' "$_hist" | grep -E '^\s+\[' | head -4 | tr -s ' ' | tr '\n' ' ')"
+        else
+            _hist=""
+        fi
+    fi
+
     if [ -n "$_tracked" ]; then
         fail "SECRET TRACKED BY GIT: $_tracked" \
              "In the index, therefore in history and probably already pushed. Encrypted is not safe when the key derives from /etc/machine-id (world-readable): the encryption protects the file only while it stays on this machine, and makes it LOOK safe to commit. Second instance of this class here — T-410 was the session signing key, two months, mirrored to GitHub." \
              "git rm --cached the path, add a PATTERN (not a path) to .gitignore, then decide about history — a rewrite plus force-push is Tier 0 and the operator's. Rotate unless the operator rules otherwise."
+    elif [ -n "$_hist" ]; then
+        warn "Secret in reachable git HISTORY (not the index): $_hist" \
+             "Nothing is tracked now, but every clone of this repository still receives it. The index cannot see this — it is how T-938's purge read as complete while 109 commits still carried the blob, and it is how a stale clone that pulls-and-pushes silently restores one." \
+             "ROTATE the value; that is what makes the historical copy harmless. A git filter-repo rewrite plus force-push is defence-in-depth AFTER rotation and is Tier 0 — the operator's call, never the agent's."
     elif [ -n "$_unignored" ]; then
         warn "Secret-bearing path on disk but NOT gitignored: $_unignored" \
              "Not yet tracked, so nothing has leaked — but one broad 'git add' makes it the case above, and handover commits stage .context/" \
