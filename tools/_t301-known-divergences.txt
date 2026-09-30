@@ -21,14 +21,33 @@
 # arrived through a framework-side change to the derivation, not through T-501 as T-301
 # predicted.
 #
-# The obvious fix is to add <aef:workflowMeta id="customer-refund"/> to the document. It is
-# NOT applied here, for two reasons, both of which are the operator's call and not mine:
-#   1. This is the only served document with no aef:workflowMeta. That may be deliberate —
-#      it is the natural fixture for "a third-party BPMN file with no AEF metadata", and
-#      giving it metadata would destroy that property.
-#   2. T-563's notes are explicit that moving bytes on corpus documents is watched by
-#      _t308 and _t358. A byte change here is a seam event, not a tidy-up.
+# ── CORRECTED 2026-09-30 (T-925). The first version of this block said the divergence
+# ── "may be a deliberate metadata-less import fixture — operator decision", and reasoned
+# ── that giving the document metadata would destroy its value as the natural fixture for
+# ── "a third-party BPMN file with no AEF metadata". THAT WAS WRONG, and it misdirected
+# ── the reader away from a filed cause. The wrong reading is kept here because the
+# ── reasoning is instructive: I inferred an authoring INTENT from an artifact's state
+# ── without reading the artifact's SOURCE.
+# ──
+# ── The source declares its id explicitly:
+# ──     examples/app-processes/customer-refund.workflow.yaml
+# ──       workflowMeta:
+# ──         id: customer-refund
+# ──
+# ── The renderer erased it. examples/app-processes/rendered/customer-refund.bpmn carries
+# ── "<!-- Generated from customer-refund by tools/yaml-to-bpmn.py -->", and
+# ── `grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py` is 0: the bridge reads workflowMeta
+# ── only to derive wid/process_id and emits none of its ten attributes. This is T-925,
+# ── filed, confirmed-scored (BVP 142), and it is the CAUSE of this divergence.
+# ──
+# ── Nothing about this document is a deliberate metadata-less fixture. It is T-283's
+# ── tenant-neutrality article (SD-12), and it is the ONLY bridge-produced document in any
+# ── served corpus — which is why it is the only one showing the bridge's defect.
 #
-# So: asserted, named, and put in front of a human. Removing this entry requires either
-# fixing the document or ruling that the invariant does not apply to metadata-less imports.
-customer-refund | pool_customer_refund | No <aef:workflowMeta>; procId is "Pool_customer_refund". Live since T-563 reordered the derivation chain (procId before procName). May be a deliberate metadata-less import fixture — operator decision, see T-951.
+# So: asserted, named, and pointed at its cause. This entry is retired by fixing T-925
+# (slice-1 seam brief: docs/reports/T-925-workflowmeta-bridge-seam.md), NOT by editing the
+# document — editing the render would hide the emitter bug, which is mitigation dressed as
+# prevention (G-019). If the operator instead rules that the bridge need not round-trip
+# document metadata (brief option C), this entry becomes a permanent accepted limitation
+# and should say so.
+customer-refund | pool_customer_refund | CAUSE IS T-925: tools/yaml-to-bpmn.py erases all ten document-level workflowMeta attributes, so the authored id (customer-refund, declared in the source YAML) is lost and derivation falls to sanitize(procId) = pool_customer_refund. The only bridge-produced document in any served corpus. Retire this entry by fixing T-925, not by editing the document. Seam brief: docs/reports/T-925-workflowmeta-bridge-seam.md

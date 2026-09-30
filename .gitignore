@@ -42,3 +42,10 @@ tests/__pycache__/
 # them, because a .gitignore line here leaves every other consumer exposed (PL-214).
 .context/secrets/
 *.enc
+
+# runme.sh writes a timestamped log per run plus a LATEST copy, both at the project
+# root (the standing operator instruction requires the log to open on the first line,
+# before argument validation, so the refusal path leaves a trace). They are run
+# artifacts, not source. Ignored so handing the operator a logging script does not
+# also hand them a dirty working tree — which is how a real change gets lost in noise.
+runme-*.log

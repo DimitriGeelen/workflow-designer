@@ -24,8 +24,9 @@ description: >
   maps are bridge-produced, so emitting it changes bytes AEF pins against) — that
   is the first thing this task must settle, before any code.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: [bridge, cross-form, false-green]
@@ -42,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-29T07:57:12Z
-last_update: '2026-09-29T08:35:02Z'
+last_update: 2026-09-30T19:38:41Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,10 +90,63 @@ confirmed_at: '2026-09-29T08:35:03Z'
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+
+**SLICE 1 — settle the seam question. No emitter change in this slice.** T-925's own
+description says so: *"whether the bridge SHOULD emit workflowMeta is a seam question … that
+is the first thing this task must settle, before any code."* The ruling is the operator's;
+this slice's job is to make it decidable and to correct one record that currently misdirects.
+
+- [x] **The blast radius is MEASURED, not asserted.** T-925's cost argument rests on
+      *"24/24 rendered maps are bridge-produced, so emitting it changes bytes AEF pins
+      against."* Measured instead: which rendered documents would change bytes if the bridge
+      emitted `aef:workflowMeta`. Method is re-render-and-diff into a scratch path — never
+      over the committed corpus — because only a diff distinguishes "the bridge made this"
+      from "a bridge-shaped file exists here".
+- [x] **The 24 AEF-process renders' actual producer is identified.** They carry no
+      `Generated from … by tools/yaml-to-bpmn.py` header (only customer-refund does, ×2) yet
+      they DO carry `aef:workflowMeta`, which the bridge provably cannot emit
+      (`grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py` = 0). Both facts cannot be true of
+      one producer, so one of them names the wrong tool.
+- [x] **A decision brief in `docs/reports/T-925-workflowmeta-bridge-seam.md`** stating: the
+      measured byte-change count, what AEF pins and whether these files are in it, the ten
+      attributes currently lost, and the options with their consequences. Written so the
+      operator can rule without re-deriving any of it.
+- [x] `tools/_t301-known-divergences.txt` **cites T-925 as the cause.** Its current reason
+      says the divergence *"may be a deliberate metadata-less import fixture — operator
+      decision"*. That is wrong and actively misdirects: the source YAML declares
+      `workflowMeta.id: customer-refund` and the bridge erased it. Corrected in place, with
+      the wrong reading left visible.
+- [x] **No emitter change, and no corpus bytes moved.** Asserted structurally, not promised:
+      `git diff --stat` over `examples/*/rendered/` and `tools/yaml-to-bpmn.py` is empty at
+      close. If the seam ruling is GO, the emitter lands as a separate slice.
 
 ### Human
+- [ ] [REVIEW] **Rule the seam question: should `yaml-to-bpmn.py` emit
+      `<aef:workflowMeta>`?** This is a sovereignty call, not a review of my work — T-925
+      deferred itself on this exact question and slice 1 exists only to make it decidable.
+
+  **Steps:**
+  1. Read the brief — it is short and every number in it is measured:
+     `docs/reports/T-925-workflowmeta-bridge-seam.md`
+  2. Run the decision script and pick an option. Recommendation is shown first; `1`/`2`/`3`
+     acts immediately, arrows + Enter also work:
+     `bash /opt/832-Workflow-designer/runme.sh`
+
+  **Expected:** Your choice is recorded as a decision on T-925 and the script prints where.
+  The three options are:
+  - **A — emit all ten attributes** (my recommendation). 1 tracked file changes bytes, no
+    pin is affected, no test is expected to break, and one KNOWN-disagreement entry in
+    `test_harness_cross_form_agreement.py` becomes retireable.
+  - **B — emit `id` only.** Closes the visible symptom, leaves nine attributes destroyed and
+    the cross-form hole intact.
+  - **C — rule the bridge is deliberately lossy.** Then the T-301 divergence is expected
+    behaviour, the baseline entry becomes a permanent accepted limitation, and every
+    document-level validator rule keeps a permanent known-disagreement.
+
+  **If not:** If none of the three fits, the thing to say is which claim in the brief you
+  doubt — the load-bearing one is that the bridge produced **1** of the 25 served renders,
+  not 24, which is what T-925's original deferral assumed.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -124,6 +178,30 @@ confirmed_at: '2026-09-29T08:35:03Z'
 -->
 
 ## Verification
+
+# --- T-925 slice 1: the seam question, priced --------------------------------
+# The brief exists and carries the measurement the ruling depends on.
+test -f docs/reports/T-925-workflowmeta-bridge-seam.md
+grep -q 'That premise is false' docs/reports/T-925-workflowmeta-bridge-seam.md
+grep -q 'Pool_task_lifecycle' docs/reports/T-925-workflowmeta-bridge-seam.md
+# The premise under test, re-asserted mechanically rather than quoted: the bridge cannot
+# emit workflowMeta, and exactly the customer-refund pair carries its header.
+test "$(grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py)" -eq 0
+test "$(grep -rl 'by tools/yaml-to-bpmn.py' examples/ build/ 2>/dev/null | wc -l)" -eq 2
+# CONTROLLED absence (T-843): the same string IS present in a designer-exported render, so
+# the zero above means "the emitter lacks it", not "my pattern is wrong".
+grep -q 'aef:workflowMeta' examples/aef-processes/rendered/task-lifecycle.bpmn
+! grep -q 'aef:workflowMeta' examples/app-processes/rendered/customer-refund.bpmn
+# The source DID declare the id — the fact that makes this a renderer bug, not authoring.
+grep -q 'id: customer-refund' examples/app-processes/customer-refund.workflow.yaml
+# The baseline now names the cause, and no longer claims a deliberate fixture.
+grep -q 'CAUSE IS T-925' tools/_t301-known-divergences.txt
+! grep -q 'may be a deliberate metadata-less import fixture' tools/_t301-known-divergences.txt
+# T-301's instruments still pass with the rewritten reason.
+python3 tools/_t301-id-stem-invariant.py
+bash tools/_t301-invariant-teeth.sh
+# NO emitter change and NO corpus bytes moved — the slice boundary, asserted not promised.
+test -z "$(git diff --stat -- examples/ tools/yaml-to-bpmn.py)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -347,3 +425,6 @@ confirmed_at: '2026-09-29T08:35:03Z'
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md
 - **Context:** Initial task creation
+
+### 2026-09-30T19:38:41Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

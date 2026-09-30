@@ -1,230 +1,211 @@
 #!/usr/bin/env bash
+# =============================================================================
+#  T-925 — RULE THE SEAM QUESTION
+#  Run with:   bash /opt/832-Workflow-designer/runme.sh
+# =============================================================================
 #
-#   bash /opt/832-Workflow-designer/runme.sh
+#  WHY THE AGENT DOES NOT RUN THIS. check-tier0.sh matches COMMAND TEXT, so a
+#  consequential command inside a script is invisible to it — the harness only
+#  ever sees "bash runme.sh". On 2026-09-30 an agent moved a force-push into a
+#  script to stabilise its Tier 0 approval hash and the move defeated the gate;
+#  the push executed with `fw tier0 approve` still reporting "approvals logged:
+#  0" (OBS-449). Wrapping commands for the operator is required. Running the
+#  wrapper is a four-control bypass in one invocation.
 #
-# Three decisions. Each shows my RECOMMENDATION first, a short scannable rationale, then
-# numbered options. Press 1/2/3, or use the arrow keys and Enter. Nothing is pre-executed.
+#  This script records a DECISION. It changes no code, moves no corpus bytes,
+#  and touches nothing under examples/ or tools/yaml-to-bpmn.py.
 #
-# Non-interactive form:
-#   bash runme.sh --t937 <go|no-go|skip> --t938 <close|skip> --t939 <close|skip> [--dry-run]
-#
-# THE AGENT MUST NOT RUN THIS (OBS-449). check-tier0.sh matches COMMAND TEXT, so an
-# inception decision and two --force closes are invisible to it once inside a script — the
-# harness only sees `bash runme.sh`. On 2026-09-30 an agent moved a force-push into a script
-# and it executed with `fw tier0 approve` reporting "approvals logged: 0".
-#
-# Log: .context/working/runme-<ts>.log, opened on the FIRST line so even a refusal is
-# recorded, and copied to runme-LATEST.log on exit (a real file — it used to be a symlink,
-# which pointed at an older successful run and hid a failure completely).
+#  Log opens on the first line, before any validation, because the refusal path
+#  is the one most likely to be hit first and the one that most needs a trace.
+#  runme-LATEST.log is a FILE COPY made on an EXIT trap — never a symlink, which
+#  would point at an older successful run and hide a failure.
+# =============================================================================
 set -uo pipefail
 
-ROOT="/opt/832-Workflow-designer"
-FW="$ROOT/.agentic-framework/bin/fw"
-LOG_DIR="$ROOT/.context/working"
-LOG="$LOG_DIR/runme-$(date -u +%Y%m%d-%H%M%S).log"
+PROJ="/opt/832-Workflow-designer"
+cd "$PROJ" || { echo "FATAL: cannot cd to $PROJ"; exit 1; }
 
-mkdir -p "$LOG_DIR"
-exec > >(stdbuf -oL tee -a "$LOG") 2>&1
-trap 'cp -f "$LOG" "$LOG_DIR/runme-LATEST.log" 2>/dev/null || true' EXIT
+TS="$(date -u +%Y%m%dT%H%M%SZ)"
+LOG="$PROJ/runme-$TS.log"
+exec > >(tee -a "$LOG") 2>&1
+trap 'cp -f "$LOG" "$PROJ/runme-LATEST.log" 2>/dev/null || true' EXIT
 
-T937=""; T938=""; T939=""; DRY=0; INTERACTIVE=1
-while [ $# -gt 0 ]; do
-    case "$1" in
-        --t937) T937="${2:-}"; INTERACTIVE=0; shift 2 ;;
-        --t938) T938="${2:-}"; INTERACTIVE=0; shift 2 ;;
-        --t939) T939="${2:-}"; INTERACTIVE=0; shift 2 ;;
-        --dry-run) DRY=1; shift ;;
-        -h|--help) sed -n '2,18p' "$0"; exit 0 ;;
-        *) echo "unknown argument: $1 — run with no arguments to be asked instead." >&2; exit 2 ;;
-    esac
-done
-
-echo "=== three decisions waiting on you ==="
+echo "=== T-925 seam decision — $TS ==="
 echo "log: $LOG"
-[ "$DRY" -eq 1 ] && echo "DRY RUN — nothing will be executed"
 echo
 
-cd "$ROOT" || { echo "REFUSED: cannot cd to $ROOT"; exit 2; }
-[ -x "$FW" ] || { echo "REFUSED: fw not executable at $FW"; exit 2; }
-for t in T-937 T-938 T-939; do
-    n=$(ls "$ROOT"/.tasks/active/"$t"-*.md 2>/dev/null | wc -l)
-    [ "$n" -eq 1 ] || { echo "REFUSED: $t — expected 1 file in .tasks/active/, found $n (already closed?)"; exit 2; }
-done
-grep -q '^## Recommendation' "$(ls "$ROOT"/.tasks/active/T-937-*.md)" \
-    || { echo "REFUSED: T-937 has no ## Recommendation to decide against"; exit 2; }
-echo "preflight ok — all three open, fw present, T-937 has a written recommendation"
+DRY=0
+[ "${1:-}" = "--dry-run" ] && DRY=1 && echo "*** DRY RUN — nothing will be recorded ***" && echo
 
-# ---------------------------------------------------------------------------------------
-# menu <recommended-index> <label…>  — echoes the chosen 1-based index on stdout.
-# Press the number, or arrow up/down then Enter. The recommended option starts highlighted.
-# Drawn on /dev/tty so the redraws never pollute the log; the CHOICE is echoed to stdout,
-# so the log records what was picked without the cursor games.
-# Falls back to a plain prompt when there is no tty (so the non-interactive path still works).
-# ---------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# PREFLIGHT — each check states what it proves.
+# ---------------------------------------------------------------------------
+echo "--- preflight ---"
+fail=0
+chk() {  # chk <description> <what it proves>  ; command on stdin via eval
+    if eval "$2" >/dev/null 2>&1; then
+        echo "  ok    $1"
+    else
+        echo "  FAIL  $1"
+        fail=1
+    fi
+}
+chk "task T-925 is active (the decision has somewhere to land)" \
+    "ls .tasks/active/T-925-*.md"
+chk "the brief exists (you are not being asked to decide blind)" \
+    "test -f docs/reports/T-925-workflowmeta-bridge-seam.md"
+chk "the bridge still cannot emit workflowMeta (the defect is still real)" \
+    "test \"\$(grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py)\" -eq 0"
+chk "exactly 2 renders are bridge-produced (the measured blast radius holds)" \
+    "test \"\$(grep -rl 'by tools/yaml-to-bpmn.py' examples/ build/ 2>/dev/null | wc -l)\" -eq 2"
+chk "fw is runnable" \
+    "test -x .agentic-framework/bin/fw"
+
+if [ "$fail" -ne 0 ]; then
+    echo
+    echo "REFUSED: a preflight check failed. Nothing was changed."
+    echo "The tree is exactly as it was. Log: $LOG"
+    exit 2
+fi
+echo "  all preflight checks passed"
+echo
+
+# ---------------------------------------------------------------------------
+# THE DECISION
+# ---------------------------------------------------------------------------
+cat <<'BRIEF'
+
+  ─────────────────────────────────────────────────────────────────────────────
+  MY RECOMMENDATION: A — emit all ten attributes
+  ─────────────────────────────────────────────────────────────────────────────
+
+  Rationale, one measured fact per line:
+
+    - The bridge produced 1 of the 25 served renders, not 24. T-925 deferred
+      itself on "24/24 rendered maps are bridge-produced"; that is false.
+    - The 24 AEF renders come from the designer's exporter — they carry DI,
+      a collaboration/participant pair, and workflowMeta, none of which the
+      bridge emits. Re-rendered and diffed: 15831 vs 14503 bytes.
+    - customer-refund appears in NO pin manifest. Nothing AEF pins moves.
+    - 10 tests consume the bridge. None does a golden-byte comparison. None
+      asserts workflowMeta absence as correct.
+    - test_harness_cross_form_agreement.py records this hole as a KNOWN
+      disagreement citing T-925. Fixing the bridge RETIRES that entry.
+    - Ten attributes are destroyed today, silently: id uuid version
+      schemaVersion title description source tier_default pageWidth kind.
+    - Precedent: T-060 ruled the same defect a bug one level down, for
+      node-level <aef:meta>, and fixed it.
+
+  Full brief: docs/reports/T-925-workflowmeta-bridge-seam.md
+
+BRIEF
+
+OPTIONS=(
+  "A — emit all ten attributes (recommended)"
+  "B — emit id only; leave the other nine destroyed"
+  "C — rule the bridge is deliberately lossy; record as accepted limitation"
+)
+CODES=(A B C)
+REC=0   # index of the recommended option
+
+# menu: draws on /dev/tty, echoes ONLY the chosen code to stdout so the log
+# records the choice without the cursor redraws.
 menu() {
-    local rec="$1"; shift
-    local -a opts=("$@")
-    local n=${#opts[@]} cur=$((rec-1)) i key rest
-
-    if [ ! -r /dev/tty ]; then echo "$rec"; return; fi
-
-    for ((i=0;i<n;i++)); do printf '\n' > /dev/tty; done
+    local sel=$REC n=${#OPTIONS[@]}
+    if [ ! -t 0 ] || [ ! -e /dev/tty ]; then
+        echo "no tty — falling back to the recommended option" >&2
+        echo "$REC"
+        return 0
+    fi
     while :; do
-        printf '\033[%dA' "$n" > /dev/tty
-        for ((i=0;i<n;i++)); do
-            local mark=""
-            [ $((i+1)) -eq "$rec" ] && mark="   ← recommended"
-            if [ "$i" -eq "$cur" ]; then
-                printf '\033[2K   \033[1;36m▸ %d) %s\033[0m%s\n' "$((i+1))" "${opts[$i]}" "$mark" > /dev/tty
-            else
-                printf '\033[2K     %d) %s%s\n' "$((i+1))" "${opts[$i]}" "$mark" > /dev/tty
-            fi
-        done
-        IFS= read -rsn1 key < /dev/tty || { echo "$((cur+1))"; return; }
+        {
+            printf '\n'
+            for i in $(seq 0 $((n-1))); do
+                if [ "$i" -eq "$sel" ]; then
+                    printf '  \033[7m %d) %s \033[0m' "$((i+1))" "${OPTIONS[$i]}"
+                else
+                    printf '     %d) %s' "$((i+1))" "${OPTIONS[$i]}"
+                fi
+                [ "$i" -eq "$REC" ] && printf '   <- recommended'
+                printf '\n'
+            done
+            printf '\n  press 1-%d, or arrows + Enter:  ' "$n"
+        } > /dev/tty
+
+        IFS= read -rsn1 key < /dev/tty || { printf '\n' > /dev/tty; echo "$REC"; return 0; }
         case "$key" in
-            '')    echo "$((cur+1))"; return ;;                       # Enter
-            [1-9]) [ "$key" -le "$n" ] && { echo "$key"; return; } ;;  # direct number
-            $'\033')                                                  # arrow keys
-                   IFS= read -rsn2 -t 0.3 rest < /dev/tty || rest=""
-                   case "$rest" in
-                       '[A') cur=$(( (cur - 1 + n) % n )) ;;
-                       '[B') cur=$(( (cur + 1) % n )) ;;
-                   esac ;;
+            [1-9])
+                if [ "$key" -le "$n" ]; then printf '\n' > /dev/tty; echo "$((key-1))"; return 0; fi
+                printf '\n  not an option — try again\n' > /dev/tty ;;
+            "")  printf '\n' > /dev/tty; echo "$sel"; return 0 ;;
+            $'\033')
+                IFS= read -rsn2 -t 0.3 rest < /dev/tty || rest=""
+                case "$rest" in
+                    '[A') sel=$(( (sel - 1 + n) % n )) ;;
+                    '[B') sel=$(( (sel + 1) % n )) ;;
+                esac ;;
+            *) printf '\n  unrecognised key — try again\n' > /dev/tty ;;
         esac
+        # redraw: move up over the block we printed
+        printf '\033[%dA\033[J' "$((n + 3))" > /dev/tty
     done
 }
 
-run() {
-    echo "\$ $*"
-    if [ "$DRY" -eq 1 ]; then echo "  (dry-run: not executed)"; return 0; fi
-    "$@"
-}
+IDX="$(menu)"
+CODE="${CODES[$IDX]}"
+CHOICE="${OPTIONS[$IDX]}"
 
-rc_any=0
-
-# ═══════════════════════════ T-937 ═══════════════════════════
-cat <<'EOF'
-
-────────────────────────────────────────────────────────────────
- T-937   Record the inception decision
-         (an agent may never run this verb — the gate blocks it)
-
-   MY RECOMMENDATION:   NO-GO
-
-   Why:
-     • It asked one question: could a real share of your open
-       rulings have been settled by a ruling that ALREADY exists?
-     • Measured answer: 1 out of 15.  The threshold was 4.
-     • So escalation discipline is NOT why your queue grows,
-       and there is no mechanism for me to build.
-     • T-872 reached the same conclusion, separately, on 26 Sep.
-
-   A no-go does NOT discard what it measured:
-     • queue grows ~+4 per week (34 open in Jul → 84 in Sep)
-     • it clears in bursts, not first-in-first-out
-     • one week in August went −46
-     → the backlog is UNATTENDED, not unclearable. The remedy is
-       a sitting with the docket you already have.
-EOF
-if [ "$INTERACTIVE" -eq 1 ]; then
-    case "$(menu 1 'NO-GO — close the question' 'GO — there is something to build' 'Skip, decide later')" in
-        1) T937="no-go" ;; 2) T937="go" ;; *) T937="skip" ;;
-    esac
-fi
-echo "   you chose: $T937"
-case "$T937" in
-    go|no-go)
-        run "$FW" inception decide T-937 "$T937" --rationale \
-            "NO-GO. IW-2's load-bearing question was answered negatively: 1 of a reproducible 15-sample (threshold 4) could have been settled under an existing ruling. Escalation discipline is therefore not why the queue grows, and there is no agent-side mechanism to build. The measurements stand and are not discarded: roughly +4/week net growth, cleared in bursts rather than FIFO, one week in August at -46. The backlog is unattended rather than unclearable; the remedy is a sitting with the docket that already exists." \
-            || rc_any=1 ;;
-    skip) echo "   -> left open" ;;
-    *) echo "REFUSED: --t937 must be go, no-go or skip (got '${T937:-<missing>}')"; exit 2 ;;
-esac
-
-# ═══════════════════════════ T-938 ═══════════════════════════
-cat <<'EOF'
-
-────────────────────────────────────────────────────────────────
- T-938   The leaked API key — close it?
-
-   MY RECOMMENDATION:   CLOSE, violations on the record
-
-   The work is done:
-     • key purged from local, OneDev and GitHub, verified by SHA
-     • detector added to the audit so it cannot recur silently
-     • 055 and AEF both told
-     • 5 of 7 Agent criteria ticked
-
-   The 2 unticked are MINE, and both say VIOLATED:
-     1. "contents never read, printed, decrypted or logged"
-        You asked what was in the key. I decrypted it and gave
-        you issuer, length, a mask and a hash. Plaintext was
-        never printed or written. Your question was legitimate
-        and the answer changed your decision — it proved the key
-        was LIVE, not stale. But the rule says never, and I did.
-     2. "the force-push is NOT performed by the agent"
-        You told me to do it, so it was authorised — but it ran
-        with NO Tier 0 approval recorded, because putting it in
-        a script hid it from a gate that reads command text.
-        That is OBS-449.
-
-   Closing needs --force (both are Agent criteria, so P-010
-   blocks). --force keeps both violations permanently on record.
-   That is better than ticking them (claiming something untrue)
-   or rewording them (moving the goalposts afterwards).
-EOF
-if [ "$INTERACTIVE" -eq 1 ]; then
-    case "$(menu 1 'CLOSE with --force, violations recorded' 'Skip, leave it open')" in
-        1) T938="close" ;; *) T938="skip" ;;
-    esac
-fi
-echo "   you chose: $T938"
-case "$T938" in
-    close) run env FW_SWITCH_FOCUS=1 "$FW" task update T-938 --status work-completed --force || rc_any=1 ;;
-    skip)  echo "   -> left open" ;;
-    *) echo "REFUSED: --t938 must be close or skip (got '${T938:-<missing>}')"; exit 2 ;;
-esac
-
-# ═══════════════════════════ T-939 ═══════════════════════════
-cat <<'EOF'
-
-────────────────────────────────────────────────────────────────
- T-939   The machine-id in git history — close it?
-
-   MY RECOMMENDATION:   CLOSE
-
-   Why:
-     • 6 of 7 Agent criteria ticked
-     • the one left is "the history rewrite is the operator's to
-       approve" — you declined it (2700 bleeding-edge / 2421
-       master commits) and accepted the machine-id as it stands
-     • so it is NOT violated. It is unmet by your own decision,
-       and closing records exactly that
-     • needs --force only because it is an Agent criterion
-EOF
-if [ "$INTERACTIVE" -eq 1 ]; then
-    case "$(menu 1 'CLOSE — your decision is the reason it is unmet' 'Skip, leave it open')" in
-        1) T939="close" ;; *) T939="skip" ;;
-    esac
-fi
-echo "   you chose: $T939"
-case "$T939" in
-    close) run env FW_SWITCH_FOCUS=1 "$FW" task update T-939 --status work-completed --force || rc_any=1 ;;
-    skip)  echo "   -> left open" ;;
-    *) echo "REFUSED: --t939 must be close or skip (got '${T939:-<missing>}')"; exit 2 ;;
-esac
-
-# ---- verify: reports, never gates. A close that happened is not undone by a bad read. ----
+echo "CHOICE: $CODE"
+echo "        $CHOICE"
 echo
-echo "--- where they stand now ---"
-for t in T-937 T-938 T-939; do
-    if ls "$ROOT"/.tasks/completed/"$t"-*.md >/dev/null 2>&1; then
-        echo "   $t  CLOSED"
-    else
-        echo "   $t  still open"
-    fi
-done
+
+if [ "$DRY" -eq 1 ]; then
+    echo "DRY RUN — would record decision $CODE on T-925 and stop here."
+    echo "Log: $LOG"
+    exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# CONFIRM the one irreversible-ish step (it writes a decision record).
+# ---------------------------------------------------------------------------
+printf '  record decision %s on T-925? [y/N] ' "$CODE" > /dev/tty
+IFS= read -r yn < /dev/tty || yn=""
+case "$yn" in
+    y|Y) ;;
+    *) echo "ABORTED by operator — nothing recorded. Log: $LOG"; exit 3 ;;
+esac
 echo
-echo "=== done. log: $LOG ==="
-[ "$rc_any" -eq 0 ] || echo "NOTE: a command returned non-zero — the cause is above."
-exit "$rc_any"
+
+echo "--- recording ---"
+.agentic-framework/bin/fw context add-decision \
+    "T-925 seam ruling: $CODE — $CHOICE" \
+    --task T-925 \
+    --rationale "Operator ruling on whether tools/yaml-to-bpmn.py should emit <aef:workflowMeta>. Priced in docs/reports/T-925-workflowmeta-bridge-seam.md: the bridge produced 1 of 25 served renders (not the 24 the original deferral assumed), customer-refund is in no pin manifest, 10 bridge tests contain no golden-byte comparison, and test_harness_cross_form_agreement.py holds a KNOWN disagreement citing T-925 that a fix would retire."
+rc=$?
+
+echo
+if [ "$rc" -eq 0 ]; then
+    echo "RECORDED: decision $CODE on T-925."
+else
+    echo "WARNING: add-decision exited $rc — the choice is in this log either way: $CODE"
+fi
+
+cat <<NEXT
+
+  ─────────────────────────────────────────────────────────────────────────────
+  WHAT IS STILL YOURS TO DO
+  ─────────────────────────────────────────────────────────────────────────────
+
+  The [REVIEW] Human AC on T-925 is still unticked. I must never tick it — only
+  you may. Tick it in:
+      .tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md
+
+  Then, if you chose A or B, slice 2 is the emitter change and it is mine to
+  build. If you chose C, the T-301 baseline entry becomes a permanent accepted
+  limitation and I will reword it to say so.
+
+  Log: $LOG
+  Copy: $PROJ/runme-LATEST.log
+
+NEXT
+exit 0
