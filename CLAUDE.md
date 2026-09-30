@@ -698,6 +698,63 @@ doing. The log had the answer the whole time, in the project, one `tail` away.
    defect need no new permission. A Tier 0 or sovereignty step still stops and asks — but "the script
    failed" is not one of those.
 
+### Present Decisions As A Recommendation Plus A Numbered Menu (standing operator instruction, 2026-09-30)
+
+**When a script asks the operator to decide, it shows the recommendation FIRST, a rationale they
+can scan in seconds, then numbered options they select with one keypress.** Not prose they have to
+read to the end. Not flags they have to assemble.
+
+This was reached the hard way: three attempts at the same three-decision handover in one session.
+Attempt 1 refused until the operator supplied six argument tokens (`--t937 X --t938 Y --t939 Z`)
+and wrote no log when it refused, so they got a bare `REFUSED` with nothing to read. Attempt 2
+asked interactively but buried each recommendation inside a paragraph. The operator's verdict on
+both was *"your script sucked"*, and they were right twice.
+
+1. **`MY RECOMMENDATION: <X>` on its own line, before the reasoning.** The operator is deciding,
+   not auditing — they need the proposal up front and the evidence available, in that order.
+2. **Rationale as short bullets, not paragraphs.** Each bullet one fact or one measurement. If a
+   number is load-bearing, give it (`1 out of 15, threshold 4`), not an adjective (`few`).
+3. **Numbered options, one keypress.** `1`/`2`/`3` acts immediately; arrow up/down + Enter also
+   works; the recommended option starts highlighted and is marked `← recommended`.
+4. **No pre-executed default, and no default answer either.** "Decisions stay arguments, not
+   defaults" means nothing is chosen for them — it does NOT mean they must type flags. A menu with
+   a highlighted recommendation satisfies the rule; a script that refuses to start without flags
+   defeats the one-line instruction above it.
+5. **Draw the menu on `/dev/tty`, echo only the CHOICE to stdout.** Cursor redraws must not reach
+   the log; the log must still record what was chosen. Fall back to the recommended index when
+   there is no tty so the non-interactive path keeps working.
+6. **Exercise the interactive path before handing it over**, through a pty (`script -qc`) if
+   necessary. A menu that was never keyed is a claim. Test a wrong keypress too: a typo must
+   re-ask, never abort a multi-decision run.
+7. **Open the log on the first line, before argument validation.** The refusal path is the one the
+   operator is most likely to hit first, and it is the one that most needs a trace. Do not make
+   `runme-LATEST.log` a symlink — it will point at an older successful run and hide the failure.
+
+### External Bug Reports Are Only Ours If They Touch Workflow Design (standing operator instruction, 2026-09-30)
+
+**Ignore bugs reported by other projects unless they concern workflow design.** This project's
+product is the workflow designer. A report about framework tooling, dashboards or shared
+infrastructure is not our work merely because it arrived here or because our vendored copy is
+where someone fixed it once.
+
+When a report DOES touch workflow design, it is a **pickup request**, and it gets the pickup
+treatment already described above (G-020): assess scope, form an opinion, and decide whether to
+incorporate it. Three outcomes are all legitimate:
+
+1. **Incorporate it** — file the work as our own task with real ACs.
+2. **Already incorporated** — say so and move on; it reaches them through upstream.
+3. **Decline it** — record why.
+
+**No reply is owed.** The reporter learns the outcome through upstream, not through us
+maintaining a correspondence. Asking whether to reply is fine; assuming we must is not.
+
+Worked example, 2026-09-30: T-568 (Watchtower's fabric card cache) and T-569 (card purpose
+markdown rendering) were reported by 001-CashWeb, were fixed in our vendored copy in August, and
+were reverted by the 1.7.68 re-vendor. The agent had them queued as the next work and was about to
+notify the reporter. Both are framework tooling with no workflow-design content: **not ours**, and
+the notification was dropped. What IS ours in the same finding is that the upgrade silently eats
+*this project's* fixes — `audit.sh` and `update-task.sh` carry 17 and 12 local commits.
+
 ### Inception Discipline
 When the active task has `workflow_type: inception`:
 1. **State the phase** — Say "This is an inception/exploration task" before doing any work
