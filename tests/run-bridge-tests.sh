@@ -922,6 +922,26 @@ else
   fail=$((fail + 1))
 fi
 
+
+# T-952: the suite's own redness has to reach a reader, and the ratchet that reads it has
+# to bite. _t813-suite-age.py has run daily since T-917 — correctly — into `logger` and
+# nowhere else; `grep -c '_t813\|run-history'` on audit.sh was 0. Same shape as _t517
+# before T-945: a correct detector with no delivery surface.
+#
+# ONLY THE TEETH RUN HERE. The ratchet itself lives in the audit, deliberately: inside this
+# suite it would read the PREVIOUS run's history row (this run's is appended by the exit
+# trap), and a risen failure count would add one more failure to the very number it is
+# measuring. Instruments get proven here; verdicts get delivered by the audit.
+if bash "$ROOT/tools/_t952-ratchet-teeth.sh" > "$TMP/leg-_t952-teeth.out" 2>&1 \
+   && bash "$ROOT/tools/_t952-audit-rail-teeth.sh" > "$TMP/leg-_t952-rail.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the bridge-suite failure ratchet stopped discriminating, or its audit line stopped carrying the tool's verdict — suite redness would go back to dying in syslog, and a SIGTERM'd partial sweep could read as an improvement (T-952 — run 'bash tools/_t952-ratchet-teeth.sh' and 'bash tools/_t952-audit-rail-teeth.sh'; rc=3 on the rail prober means check_bridge_suite_ratchet() is GONE from audit.sh, which audit.sh's 17 local commits make likely after any re-vendor)"
+  show_output "$TMP/leg-_t952-teeth.out" "_t952-ratchet-teeth.sh"
+  show_output "$TMP/leg-_t952-rail.out" "_t952-audit-rail-teeth.sh"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an

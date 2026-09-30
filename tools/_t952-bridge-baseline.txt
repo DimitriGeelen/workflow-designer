@@ -1,0 +1,26 @@
+# T-952 — the bridge suite's recorded FAILURE FLOOR.
+#
+# Format: <integer> | <reason>   (first non-comment line wins)
+#
+# A RISE above this number fails the ratchet. A FALL passes and reports that the floor can
+# be lowered, but changes nothing automatically — tightening a floor should have a commit
+# behind it, not happen as a side effect of a good day.
+#
+# WHY A FLOOR AND NOT ZERO. The suite has been red for every recorded run. A gate demanding
+# zero would fail every night and train the reader to ignore it, which is the decay that
+# produced the 1362 merged divergence count (T-945) and the 27-item GO-scope warning with
+# one real item in it (T-949). A floor makes "red" actionable: it distinguishes "still the
+# same 32" from "something that used to pass now fails".
+#
+# MEASURED, not carried over. Set from a run that reached its own summary line:
+#
+#   2026-09-30T18:50:16Z   125 passed   32 failed   rc=1   803s   cf4e503b
+#
+# The preceding completed run was 122/32 at 13:57:30Z. The three extra passes are the legs
+# added the same day (T-949 triage completeness, T-301 id/stem invariant, and their teeth
+# picked up by the T-509 instrument sweep) — three new passes, zero new failures.
+#
+# The 32 are NOT triaged as benign. T-944 examined 20 of them and filed T-946/T-947/T-948;
+# 12 were explicitly not individually investigated. This floor holds the line while that
+# work is outstanding; it does not bless it.
+32 | Measured 2026-09-30T18:50:16Z: 125 passed, 32 failed, rc=1, 803s, commit cf4e503b. Previous completed run 122/32. 12 of the 32 remain uninvestigated (T-946).

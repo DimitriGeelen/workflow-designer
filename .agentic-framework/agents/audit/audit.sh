@@ -4018,6 +4018,55 @@ check_vendor_divergence() {
 }
 check_vendor_divergence
 
+# T-952 — the bridge suite's redness and staleness must reach a reader.
+#
+# tools/_t813-suite-age.py has run daily since T-917 and is correct. Its verdict goes to
+# `logger -t agentic-cron` and NOWHERE ELSE: `grep -c '_t813\|run-history'` on this file was
+# 0 before this rail. So the framework has known, every day, how red and how stale the
+# gating suite is, and told no surface anyone reads. That is the identical shape to _t517
+# before T-945 — a correct detector with no delivery surface — and it is why this rail
+# exists rather than another detector.
+#
+# DELIBERATELY NOT a scheduled run of the suite itself. T-917 measured that and refused:
+# ~650-1045s, a browser per CDP probe, SIGTERMed near 600s, and it has twice exited 0 while
+# reporting 9 failures (OBS-430). The rc=143 rows sitting in tests/.run-history.tsv are that
+# prediction already come true. Scheduling it would manufacture a permanently-red rail or a
+# false green; this reads what the monitor already knows, in milliseconds.
+#
+# AND THIS RAIL WILL BE REVERTED. audit.sh carries 17 local commits and is the
+# most-overwritten file in this tree (T-945 says the same thing a few lines up). Stopgap;
+# the durable fix is upstream adoption.
+check_bridge_suite_ratchet() {
+    local _tool="$PROJECT_ROOT/tools/_t952-bridge-suite-ratchet.py"
+    [ -f "$_tool" ] || return 0                       # inert where it is not vendored
+    [ -f "$PROJECT_ROOT/tests/.run-history.tsv" ] || {
+        warn "Bridge suite: NOT EVALUATED — no run history exists" \
+             "tests/.run-history.tsv is absent, so nobody has run the suite since recording began (the T-813 F-03 condition)" \
+             "This is NOT zero failures. Run once by hand: cd $PROJECT_ROOT && bash tests/run-bridge-tests.sh"
+        return 0
+    }
+
+    local _out _rc
+    _out=$(cd "$PROJECT_ROOT" && python3 "$_tool" 2>&1); _rc=$?
+
+    # Evidence is the TOOL'S OWN BYTES. A rail rendering a fixed sentence could be
+    # reporting anything, including a stale belief about what the tool found (T-945).
+    local _latest _floor _age
+    _latest=$(printf '%s\n' "$_out" | grep -m1 'latest complete' | sed 's/^[^:]*: *//')
+    _floor=$(printf  '%s\n' "$_out" | grep -m1 'baseline floor'  | sed 's/^[^:]*: *//')
+    _age=$(printf    '%s\n' "$_out" | grep -m1 -oE '\([0-9]+d [0-9]+h old\)')
+
+    if [ "$_rc" -eq 0 ]; then
+        pass "Bridge suite: failure floor held — ${_latest:-unknown} ${_age:-}"
+        return 0
+    fi
+
+    warn "Bridge suite: $(printf '%s\n' "$_out" | grep -m1 -E '^FAIL' | sed 's/^FAIL: *//' | cut -c1-140)" \
+         "floor ${_floor:-unknown}; latest ${_latest:-unknown} ${_age:-}" \
+         "Run by hand: cd $PROJECT_ROOT && python3 tools/_t952-bridge-suite-ratchet.py (a RISE means something that passed now fails; STALE means the suite has not been run, and a floor is not held by a measurement nobody took)"
+}
+check_bridge_suite_ratchet
+
 # T-938 — a secret-bearing path that git can see. THIS FAILS, it does not WARN.
 #
 # SECOND INSTANCE OF THE SAME CLASS IN THIS PROJECT. T-410: Watchtower's session signing key
