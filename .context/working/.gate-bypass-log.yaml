@@ -1176,3 +1176,9 @@ The model is recorded with every ca'
   command: 'FW_SWITCH_FOCUS=1 git add -A .tasks/ .context/ .fabric/ && FW_SWITCH_FOCUS=1 git commit -q -m "T-957: close — 7/7 ACs, 13/13 verification
 
 Three verification errors of mine on the way, all caught by'
+- timestamp: '2026-09-30T22:40:55Z'
+  task: 'T-925'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Completed via Watchtower UI (human action)'
+  explained: true

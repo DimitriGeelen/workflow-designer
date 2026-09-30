@@ -2585,3 +2585,15 @@ learnings:
   task: T-954
   date: 2026-09-30
   context: Added via context agent
+- id: PL-368
+  learning: "A task's ## Verification block is a SNAPSHOT, and P-011 runs it only on the work-completed transition (PL-161) — so for any task that stays open across a slice boundary, the gate is guaranteed to be stale by the time it fires, and it cannot report its own staleness. Measured on T-925: it asserted THE BUG it was filed for (emitter drops aef:workflowMeta, render lacks it, baseline names it as a live cause). The operator's own ruling fixed that bug under a later slice — which T-925's Agent AC had explicitly predicted would happen — making 3 of its 13 lines false. The close script would therefore have ticked the Human AC and then been refused by the gate: box ticked, task open, which is worse than either end state. The remedy already existed and was not used: `fw task verify T-XXX` runs the block read-only at any time. ANY script that triggers a close must run it as a preflight. Two corollaries: when repairing a stale line, print the superseded form above its replacement rather than deleting it, because a completion gate that quietly reflows to match the tree stops being a gate; and check WHICH gate refused — the same close was also held by R-033 (owner: human), and a script that guesses 'probably a verification failure' sends the reader to the wrong place."
+  source: P-011
+  task: T-959
+  date: 2026-09-30
+  context: >
+    T-959. NOTE ON THIS ENTRY: it was created by an accidental probe carrying the literal
+    text "probe" and was rewritten in place. The probe existed because closing T-959 cleared
+    focus (current_task: null), after which the close's own LEARNING PROMPT — "Consider: fw
+    fix-learned T-959 ..." — is blocked by the no-active-task gate, since fix-learned is not
+    on the read-only allowlist while context add-learning is. A prompt that names a command
+    its own transition has just made unrunnable. Filed as OBS-460.

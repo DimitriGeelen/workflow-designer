@@ -4,10 +4,11 @@ name: "T-925's Verification block asserts the pre-fix world and now fails, block
 description: >
   T-925's Verification block asserts the pre-fix world and now fails, blocking the operator's own close
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T22:15:00Z
-last_update: 2026-09-30T22:15:00Z
-date_finished: null
+last_update: 2026-09-30T23:06:10Z
+date_finished: 2026-09-30T23:06:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -62,31 +63,67 @@ Found by running the full bridge suite for T-958, not by inspection.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Every line of T-925's `## Verification` block is measured, with its line number and
+- [x] **Every line of T-925's `## Verification` block is measured, with its line number and
       rc recorded** — not a sample. The sample I took first missed line 189, which also fails.
-- [ ] Each failing line is replaced by an assertion of the **post-T-953 truth**, and the
+- [x] Each failing line is replaced by an assertion of the **post-T-953 truth**, and the
       superseded slice-1 claim is left **visible** beside it rather than deleted, so a reader
       finds out that the state changed and why (the AC predicted it) instead of finding a
       block that looks like it was always this way.
-- [ ] The two census offenders in the block are fixed at their defect class, not worked around:
+- [x] The two census offenders in the block are fixed at their defect class, not worked around:
       - line 199 — an **uncontrolled absence assertion** (`! grep` with no companion grepping
         the same string where it IS present). T-843's rule, and the census counts it.
       - line 204 — `test -z "$(git diff --stat ...)"`, **true only because the work is
         committed** (PL-365). A check whose truth depends on when it runs asserts nothing.
-- [ ] `tools/_t560-absence-assertion-census.py` reports **75 or fewer** uncontrolled absence
+- [x] `tools/_t560-absence-assertion-census.py` reports **75 or fewer** uncontrolled absence
       assertions — i.e. my two T-925 additions are drained. 75, not 74: the tree was already
       at 75 at commit `cf4e503b`, so claiming the floor is a separate pre-existing item and
       NOT this task's to absorb.
-- [ ] **T-925 can actually close:** every non-comment line of its rewritten block exits 0,
+- [x] **T-925 can actually close:** every non-comment line of its rewritten block exits 0,
       rehearsed under the gate's own shell (`bash -c 'set -o pipefail; <line>'`, no `-e`), and
       reported as a per-line table rather than a summary.
-- [ ] `runme.sh` is re-exercised with `--dry-run` after the change and proven **inert** again
+- [x] `runme.sh` is re-exercised with `--dry-run` after the change and proven **inert** again
       (the unticked line still present exactly once, no `.bak` left, task file clean in git) —
       because the script's whole promise is that its refusal path leaves the tree untouched,
       and I changed the file it edits.
-- [ ] The bridge-suite ratchet is **re-measured on a quiet tree**, and the 32→33 reading from
-      the T-958 run is explained rather than left as a breach: `verification-hygiene.py` and
-      the T-560 census both scan `.tasks/`, and I was editing task files while the suite ran.
+- [x] The bridge-suite ratchet is **re-measured**, and the 32→33 reading is explained rather
+      than left as a breach.
+
+      **My first explanation was wrong and is left here rather than replaced.** I said the
+      suite had been perturbed because `verification-hygiene.py` and the T-560 census scan
+      `.tasks/` while I was editing task files. That does not hold: both scan `active/` **and**
+      `completed/`, so a task moving between them changes no count, and T-958's verification
+      lines are of none of the kinds either tool flags. I had asserted a mechanism without
+      checking it could produce the effect.
+
+      **What the measurement says.** Three full sweeps, same code:
+
+      | run | passed | failed |
+      |---|---|---|
+      | `cf4e503b` (the floor's own run) | 125 | **32** |
+      | 1 | 127 | **33** |
+      | 2 | 126 | **34** |
+      | 3 | 128 | **32** |
+
+      Three legs were **added** since `cf4e503b` — `_t952-ratchet-teeth.sh`,
+      `test_t955_validate_endpoint.py`, `_t958-boundary-row-teeth.py` — all three green in all
+      three runs, so 157 legs → 160 and the predicted split was **128/32**. Run 3 is exactly
+      that. `_t952-bridge-suite-ratchet.py` now reports `OK — floor held at exactly 32`.
+
+      **Two legs are nondeterministic, and the exact FAIL-list diff names them:**
+      - `an in-place card edit did not reach the live dashboard` — failed runs 1 and 2, passed
+        run 3 (2 of 3)
+      - `editor behavior leg failed — jump-autosave poisoning` — failed run 2 only (1 of 3)
+
+      Nothing fails in run 3 that did not fail in run 1, so **no regression ever existed**.
+      The floor was never breached by the code; it was breached by flake, and then healed
+      itself — which is worse than a steady red, because a breach that comes and goes trains
+      the reader to discount it. Filed as **OBS-459** against the ratchet I wrote yesterday:
+      its `COMPLETED_RCS` guard discards partial sweeps but nothing separates a one-leg flake
+      from a real rise, and its baseline promises that a rise "fails loudly".
+
+      Method note: the first diff I ran truncated one run's lines at 50 chars and the others at
+      60, so every line "differed" and the output was meaningless. Re-run at one width before
+      drawing anything from it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -397,3 +434,15 @@ here because one task is one deliverable.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-959-t-925s-verification-block-asserts-the-pr.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-74ec66b5
+- **Timestamp:** 2026-09-30T23:06:13Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-09-30T23:06:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

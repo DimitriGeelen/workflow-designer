@@ -1,36 +1,15 @@
 ---
-id: T-925
-name: "tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no
-  cross-form rule on any of its ten attributes can ever be compared"
+id: T-960
+name: "Housekeeping: commit T-959 close artefacts, and the focus-cleared-by-close loop that requires this task to exist"
 description: >
-  MEASURED under T-826, not read: a YAML document carrying workflowMeta.kind='overlord'
-  fires E-WORKFLOW-KIND on the YAML form; bridged through tools/yaml-to-bpmn.py the
-  output contains ZERO 'workflowMeta' occurrences (grep -c) and the XML form is silent.
-  grep -n 'aef:workflowMeta' tools/yaml-to-bpmn.py returns nothing: emit() reads meta
-  = workflow.get('workflowMeta') at :141 and uses it ONLY for wid/process_id derivation.
-  So all ten document-level attributes the designer emits (id, uuid, version, schemaVersion,
-  title, description, source, tier_default, pageWidth, kind) are LOST across the bridge.
-  WHY IT MATTERS BEYOND kind: tests/test_harness_cross_form_agreement.py compares
-  the two validator forms by driving YAML fixtures THROUGH this bridge, so a document-level
-  rule can never be compared on a bridged document. The bridged doc is clean because
-  the carrier was ERASED, not because the value became legal — and that harness's
-  own docstring forbids inferring BRIDGE_REPAIRED from 'XML said nothing': 'Inferring
-  it is how a real hole gets absorbed as a repair.' T-826 declares E-WORKFLOW-KIND
-  a KNOWN disagreement citing THIS task rather than absorbing it. SAME CLASS AS T-885,
-  one instrument over: T-885 found document-level workflowMeta outside the round-trip
-  guard's denominator BY CONSTRUCTION; this is document-level workflowMeta outside
-  the BRIDGE's output entirely. NOT IN SCOPE HERE: whether the bridge SHOULD emit
-  workflowMeta is a seam question (the corpus is pinned by AEF and 24/24 rendered
-  maps are bridge-produced, so emitting it changes bytes AEF pins against) — that
-  is the first thing this task must settle, before any code.
+  Housekeeping: commit T-959 close artefacts, and the focus-cleared-by-close loop that requires this task to exist
 
-status: work-completed
+status: started-work
 workflow_type: build
-current_node: frw_11_task
-owner: human
-horizon: null
-tags: [bridge, cross-form, false-green]
-components: [tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn, tests/test_finding_anchorability.py, tests/test_harness_cross_form_agreement.py, tools/_t301-known-divergences.txt, tools/_t820-rule-axes.sh, tools/_t826-kind-rule-axes-teeth.sh, tools/yaml-to-bpmn.py]
+owner: agent
+horizon: now
+tags: []
+components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -42,9 +21,9 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-29T07:57:12Z
-last_update: 2026-09-30T22:40:55Z
-date_finished: 2026-09-30T22:40:55Z
+created: 2026-09-30T23:08:30Z
+last_update: 2026-09-30T23:08:30Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -55,98 +34,40 @@ date_finished: 2026-09-30T22:40:55Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed: []
-cost_estimate_proposed:
-  - ts: '2026-09-29T08:35:02Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      blast_radius:
-      tier: 2
-      effort: 8
-    rationale: blast_radius=? (no-components-UNMEASURED-not-zero); tier=2 
-      (workflow:build); effort=8 (lines=269,acs=4)
-    rubric_sha: e4a00f38e801
-bvp_scores:
-  D1: 4
-  D2: 4
-  D3: 3
-  D4: 2
-  F-RECALL: 2
-  F2: 0
-  F4: 0
-  F3: 4
-  F1: 1
-confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
-confirmed_at: '2026-09-29T08:35:03Z'
 ---
 
-# T-925: tools/yaml-to-bpmn.py drops document-level aef:workflowMeta entirely, so no cross-form rule on any of its ten attributes can ever be compared
+# T-960: Housekeeping: commit T-959 close artefacts, and the focus-cleared-by-close loop that requires this task to exist
 
 ## Context
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
+## Context
+
+This task exists because closing T-959 cleared focus, and the close's own artefacts — the
+rename into `completed/`, the generated episodic, PL-368 — then could not be committed: every
+write path needs an active task and a completed task cannot be refocused. The framework's own
+block message prescribes "create a task", so this is that task, and it records the loop rather
+than just working around it (**OBS-461**). The project's history shows the workaround has been
+folklore for a while: T-672 is literally named "housekeeping … commit finalisation".
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-
-**SLICE 1 — settle the seam question. No emitter change in this slice.** T-925's own
-description says so: *"whether the bridge SHOULD emit workflowMeta is a seam question … that
-is the first thing this task must settle, before any code."* The ruling is the operator's;
-this slice's job is to make it decidable and to correct one record that currently misdirects.
-
-- [x] **The blast radius is MEASURED, not asserted.** T-925's cost argument rests on
-      *"24/24 rendered maps are bridge-produced, so emitting it changes bytes AEF pins
-      against."* Measured instead: which rendered documents would change bytes if the bridge
-      emitted `aef:workflowMeta`. Method is re-render-and-diff into a scratch path — never
-      over the committed corpus — because only a diff distinguishes "the bridge made this"
-      from "a bridge-shaped file exists here".
-- [x] **The 24 AEF-process renders' actual producer is identified.** They carry no
-      `Generated from … by tools/yaml-to-bpmn.py` header (only customer-refund does, ×2) yet
-      they DO carry `aef:workflowMeta`, which the bridge provably cannot emit
-      (`grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py` = 0). Both facts cannot be true of
-      one producer, so one of them names the wrong tool.
-- [x] **A decision brief in `docs/reports/T-925-workflowmeta-bridge-seam.md`** stating: the
-      measured byte-change count, what AEF pins and whether these files are in it, the ten
-      attributes currently lost, and the options with their consequences. Written so the
-      operator can rule without re-deriving any of it.
-- [x] `tools/_t301-known-divergences.txt` **cites T-925 as the cause.** Its current reason
-      says the divergence *"may be a deliberate metadata-less import fixture — operator
-      decision"*. That is wrong and actively misdirects: the source YAML declares
-      `workflowMeta.id: customer-refund` and the bridge erased it. Corrected in place, with
-      the wrong reading left visible.
-- [x] **No emitter change, and no corpus bytes moved.** Asserted structurally, not promised:
-      `git diff --stat` over `examples/*/rendered/` and `tools/yaml-to-bpmn.py` is empty at
-      close. If the seam ruling is GO, the emitter lands as a separate slice.
+- [ ] T-959's close artefacts are committed: the `active/` → `completed/` rename, the generated
+      episodic, and the corrected `PL-368` in `learnings.yaml`.
+- [ ] The blocker was **isolated, not guessed**: a `--dry-run` probe proved the refusal came
+      from the no-active-task gate and not from the commit message's content. Recorded because
+      the gate's secondary "file-write pattern" line sent me rewriting the message twice for
+      nothing before I checked.
+- [ ] `PL-368` carries the real learning and not the literal string `probe` that my allowlist
+      probe created, with that incident stated in its own `context:` field rather than tidied
+      away.
+- [ ] Nothing is left uncommitted that belongs to T-925, T-958 or T-959: `git status` shows no
+      task file, episodic, or learnings change outstanding for those three.
 
 ### Human
-- [x] [REVIEW] **Rule the seam question: should `yaml-to-bpmn.py` emit
-      `<aef:workflowMeta>`?** This is a sovereignty call, not a review of my work — T-925
-      deferred itself on this exact question and slice 1 exists only to make it decidable.
-
-  **Steps:**
-  1. Read the brief — it is short and every number in it is measured:
-     `docs/reports/T-925-workflowmeta-bridge-seam.md`
-  2. Run the decision script and pick an option. Recommendation is shown first; `1`/`2`/`3`
-     acts immediately, arrows + Enter also work:
-     `bash /opt/832-Workflow-designer/runme.sh`
-
-  **Expected:** Your choice is recorded as a decision on T-925 and the script prints where.
-  The three options are:
-  - **A — emit all ten attributes** (my recommendation). 1 tracked file changes bytes, no
-    pin is affected, no test is expected to break, and one KNOWN-disagreement entry in
-    `test_harness_cross_form_agreement.py` becomes retireable.
-  - **B — emit `id` only.** Closes the visible symptom, leaves nine attributes destroyed and
-    the cross-form hole intact.
-  - **C — rule the bridge is deliberately lossy.** Then the T-301 divergence is expected
-    behaviour, the baseline entry becomes a permanent accepted limitation, and every
-    document-level validator rule keeps a permanent known-disagreement.
-
-  **If not:** If none of the three fits, the thing to say is which claim in the brief you
-  doubt — the load-bearing one is that the bridge produced **1** of the 25 served renders,
-  not 24, which is what T-925's original deferral assumed.
-
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -178,71 +99,6 @@ this slice's job is to make it decidable and to correct one record that currentl
 -->
 
 ## Verification
-
-# --- T-925 slice 1: the seam question, priced --------------------------------
-# The brief exists and carries the measurement the ruling depends on.
-test -f docs/reports/T-925-workflowmeta-bridge-seam.md
-grep -q 'That premise is false' docs/reports/T-925-workflowmeta-bridge-seam.md
-grep -q 'Pool_task_lifecycle' docs/reports/T-925-workflowmeta-bridge-seam.md
-test "$(grep -rl 'by tools/yaml-to-bpmn.py' examples/ build/ 2>/dev/null | wc -l)" -eq 2
-# The source DID declare the id — the fact that made this a renderer bug rather than an
-# authoring mistake, and the reason the ruling went the way it did. Unchanged by the fix.
-grep -q 'id: customer-refund' examples/app-processes/customer-refund.workflow.yaml
-grep -q 'aef:workflowMeta' examples/aef-processes/rendered/task-lifecycle.bpmn
-
-# --- REWRITTEN BY T-959. SUPERSEDED BY T-953, BY THIS TASK'S OWN PLAN --------
-#
-# Four lines here asserted THE BUG, and P-011 runs this block on the work-completed
-# transition and at no other time (PL-161), so they had to be true at the moment the
-# operator closes the task. Measured 2026-10-01: three of them were FALSE.
-#
-#   line 189  test "$(grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py)" -eq 0       rc=1
-#   line 194  ! grep -q 'aef:workflowMeta' .../rendered/customer-refund.bpmn         rc=1
-#   line 198  grep -q 'CAUSE IS T-925' tools/_t301-known-divergences.txt             rc=1
-#
-# All three were true when slice 1 closed. All three are false now because the operator
-# ruled A (PD-351) and T-953 shipped the emitter fix — which is EXACTLY the "separate
-# slice" the Agent AC above said would follow a GO. The ACs predicted this; what nobody
-# did was re-read the gate afterwards. Left as it was, `runme.sh` would have ticked the
-# Human AC and then been refused by this gate: box ticked, task still open.
-#
-# The superseded form is printed above each replacement rather than deleted. A completion
-# gate that quietly reflows to match the tree stops being a gate, and "the tree changed
-# and here is why" is the part worth keeping.
-#
-# was: test "$(grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py)" -eq 0   (pre-T-953)
-test "$(grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py)" -ge 1
-# was: ! grep -q 'aef:workflowMeta' .../customer-refund.bpmn              (pre-T-953)
-# Now a PRESENCE assertion, which needs no control — and it carries the authored id, not a
-# sanitised fallback, which is the whole substance of the ruling.
-grep -q 'aef:workflowMeta id="customer-refund"' examples/app-processes/rendered/customer-refund.bpmn
-# was: grep -q 'CAUSE IS T-925' tools/_t301-known-divergences.txt         (pre-T-953)
-# The baseline no longer names a live cause because it no longer HAS an entry. Assert the
-# retirement record positively; the stale-entry leg in the invariant is what would catch a
-# silent re-appearance, and it is run two lines below.
-grep -q 'CURRENTLY EMPTY, AND THAT IS THE POINT' tools/_t301-known-divergences.txt
-grep -q 'retired the same day by' tools/_t301-known-divergences.txt
-#
-# was: ! grep -q 'may be a deliberate metadata-less import fixture' <same file>
-# DROPPED, not reworded. It was an UNCONTROLLED absence assertion (T-843): nothing greps
-# that string where it IS present, so it cannot distinguish "the wrong reason is gone"
-# from "my pattern never matched anything". It is also now vacuous — the entry it
-# described was deleted outright, so the check has nothing left to be wrong about. The
-# positive assertions above say the same thing without the blind spot.
-
-# T-301's instruments, which is where the real teeth are: the invariant across all four
-# roots, and its own prober. The invariant's stale-entry leg is what reported the baseline
-# entry had stopped diverging in the first place.
-python3 tools/_t301-id-stem-invariant.py > /tmp/.t925-inv.out 2>&1 && grep -q '0 divergent' /tmp/.t925-inv.out
-bash tools/_t301-invariant-teeth.sh
-# was: test -z "$(git diff --stat -- examples/ tools/yaml-to-bpmn.py)"
-# DROPPED. That is PL-365 — a check whose truth depends on WHEN it runs. `git diff` with no
-# ref compares the working tree to the index, so it goes vacuously true the moment the work
-# is committed, and it passed at close for that reason rather than for its stated one. Its
-# replacement is the time-independent form of what it was reaching for: the committed
-# render is byte-reproducible from its source by the CURRENT emitter, so the bytes and the
-# source cannot drift apart unnoticed.
-python3 tools/yaml-to-bpmn.py examples/app-processes/customer-refund.workflow.yaml --out /tmp/.t925-rr.bpmn && diff -q /tmp/.t925-rr.bpmn examples/app-processes/rendered/customer-refund.bpmn
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -369,6 +225,19 @@ python3 tools/yaml-to-bpmn.py examples/app-processes/customer-refund.workflow.ya
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# ── T-960 ─────────────────────────────────────────────────────────────────────
+# Each line rehearsed under `bash -c 'set -o pipefail; <line>'`. No line pins a
+# global count or a live-audit string (G-015): each asserts a fact about the three
+# specific tasks this housekeeping covers.
+
+test "$(ls .tasks/active/T-959-* 2>/dev/null | wc -l)" -eq 0 && test -f .tasks/completed/T-959-t-925s-verification-block-asserts-the-pr.md
+test -f .context/episodic/T-959.yaml && test -f .context/episodic/T-925.yaml
+# PL-368 exists AND is not the accidental probe text. The positive half is the control:
+# without it, the negative half would pass just as well if the entry vanished entirely.
+grep -q 'id: PL-368' .context/project/learnings.yaml && ! grep -A1 'id: PL-368' .context/project/learnings.yaml | grep -q 'learning: "probe"'
+python3 -c "import yaml;yaml.safe_load(open('.context/project/learnings.yaml'));print('ok')" > /tmp/.t960-y.out 2>&1 && grep -q ok /tmp/.t960-y.out
+python3 tools/_t952-bridge-suite-ratchet.py > /tmp/.t960-r.out 2>&1 && grep -q 'floor held at exactly 32' /tmp/.t960-r.out
 
 ## RCA
 
@@ -441,27 +310,6 @@ python3 tools/yaml-to-bpmn.py examples/app-processes/customer-refund.workflow.ya
 
 ## Decisions
 
-### 2026-09-30 — the seam question (PD-351)
-- **Chose:** Option A — `tools/yaml-to-bpmn.py` emits `<aef:workflowMeta>`, all ten attributes.
-- **Authority:** the operator. A sovereignty call, not a review of agent work — which is why
-  the Human AC above is `[REVIEW]` and why no agent could tick it.
-- **Why:** the four-month deferral rested on "24 of 24 rendered maps are bridge-produced", so
-  an emitter change would move the whole corpus. Measured in
-  `docs/reports/T-925-workflowmeta-bridge-seam.md`: the bridge produced **1 of 25** served
-  renders. The brief's headline is "That premise is false." Also measured — customer-refund is
-  in no AEF pin manifest, the 10 bridge tests hold no golden-byte comparison, and the cross-form
-  harness carried a KNOWN disagreement citing T-925 that a fix would retire.
-- **Rejected:** narrower emission, or none. Their whole case was the corpus-wide cost, and the
-  measurement removed it.
-- **Consequence:** shipped under **T-953** as a separate slice, exactly as the Agent AC above
-  said it would on a GO. 128/128 documents across four roots now derive from an authored id
-  (was 126); a document with no workflowMeta is byte-identical to the previous emitter.
-
-<!-- T-959: this section was EMPTY when T-925 closed, and the episodic generator reads it
-     rather than .context/project/decisions.yaml — so T-925's long-term memory recorded
-     "Mechanical task — no decisions to record" about a task that existed to make one
-     decision. Written in so a regeneration is correct at the source. OBS-458. -->
-
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -483,27 +331,7 @@ python3 tools/yaml-to-bpmn.py examples/app-processes/customer-refund.workflow.ya
 
 ## Updates
 
-### 2026-09-29T07:57:12Z — task-created [task-create-agent]
+### 2026-09-30T23:08:30Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-960-housekeeping-commit-t-959-close-artefact.md
 - **Context:** Initial task creation
-
-### 2026-09-30T19:38:41Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-
-### 2026-09-30T19:45:48Z — status-update [task-update-agent]
-- **Change:** owner: agent → human
-- **Reason:** Slice 1 complete: the seam question is priced and decidable. The ruling is a sovereignty call — see the [REVIEW] Human AC and bash /opt/832-Workflow-designer/runme.sh
-
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-99fdf2f3
-- **Timestamp:** 2026-09-30T22:40:58Z
-- **Catalogue:** v1.3-seed
-- **Overall:** PASS
-- **Needs Human:** no
-- **Findings:** none
-
-### 2026-09-30T22:40:55Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
-- **Reason:** Completed via Watchtower UI (human action)

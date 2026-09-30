@@ -1,16 +1,15 @@
-timestamp: 2026-09-30T21:00:02Z
+timestamp: 2026-09-30T23:00:01Z
 findings:
   - id: D1
     level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/779)"
+    check: "D1: Episodic quality — 0% [TODO] (0/782)"
   - id: D2
     level: FAIL
-    check: "D2: Human review queue — 31 task(s) waiting >30d: T-233(47d) T-308(63d) T-310(62d) T-325(60d) T-340(46d) T-351(58d) T-353(58d) T-368(53d) T-392(34d) T-410(52d) T-423(21d) T-432(39d) T-433(39d) T-449(49d) T-537(34d) T-540(34d) T-565(35d) T-579(36d) T-586(34d) T-588(35d) T-589(35d) T-590(35d) T-592(35d) T-593(35d) T-596(35d) T-597(35d) T-600(35d) T-601(35d) T-606(34d) T-608(34d) T-643(31d) T-647(30d) T-671(27d) T-676(21d) T-733(14d)"
+    check: "D2: Human review queue — 31 task(s) waiting >30d: T-233(47d) T-308(63d) T-310(63d) T-325(60d) T-340(46d) T-351(58d) T-353(58d) T-368(53d) T-392(35d) T-410(52d) T-423(21d) T-432(39d) T-433(39d) T-449(49d) T-537(34d) T-540(34d) T-565(35d) T-579(37d) T-586(34d) T-588(35d) T-589(35d) T-590(35d) T-592(35d) T-593(35d) T-596(35d) T-597(35d) T-600(35d) T-601(35d) T-606(35d) T-608(35d) T-643(31d) T-647(30d) T-671(27d) T-676(21d) T-733(14d)"
     mitigation: "Review with: fw task verify (lists unchecked Human ACs)"
   - id: D8
-    level: WARN
-    check: "D8: Handover quality — LATEST.md has 1 [TODO] section(s)"
-    mitigation: "Fill remaining [TODO] sections in LATEST.md"
+    level: PASS
+    check: "D8: Handover quality — no [TODO] in LATEST.md"
   - id: D10
     level: PASS
     check: "D10: Decision-without-dialogue — none detected"
@@ -19,7 +18,7 @@ findings:
     check: "D11: Gap register staleness — all gaps fresh"
 
 summary:
-  pass: 3
-  warn: 1
+  pass: 4
+  warn: 0
   fail: 1
   total: 5

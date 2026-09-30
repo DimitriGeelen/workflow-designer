@@ -1,9 +1,9 @@
-# Audit Results - 2026-09-30-2358
-timestamp: 2026-09-30T21:58:16Z
+# Audit Results - 2026-10-01-0103
+timestamp: 2026-09-30T23:03:43Z
 sections: "structure"
 summary:
-  pass: 28
-  warn: 13
+  pass: 27
+  warn: 14
   fail: 0
 findings:
   - level: PASS
@@ -17,7 +17,7 @@ findings:
   - level: PASS
     check: "Task template exists"
   - level: PASS
-    check: "No duplicate task IDs — examined 957 task file(s) across 1 corpus view(s)"
+    check: "No duplicate task IDs — examined 958 task file(s) across 1 corpus view(s)"
   - level: PASS
     check: "All project YAML files parse correctly — examined 14 project YAML file(s)"
   - level: PASS
@@ -77,9 +77,9 @@ findings:
   - level: PASS
     check: "BVP drivers: every active free and arc-scoped driver is scorable (handler or scoring: spec)"
   - level: PASS
-    check: "Delegation surface: reviewer-closeable 1, agent-self 2, operator-only 80 across 73 active task(s) with open Human criteria"
+    check: "Delegation surface: reviewer-closeable 1, agent-self 2, operator-only 79 across 72 active task(s) with open Human criteria"
   - level: PASS
-    check: "Task ownership: all 68 human-owned task(s) have an open Human criterion behind the field — examined 177 active task file(s)"
+    check: "Task ownership: all 67 human-owned task(s) have an open Human criterion behind the field — examined 176 active task file(s)"
   - level: PASS
     check: "No stray screen captures — scanned the repository root and working directories by PostScript header, not by filename (all four known cases had none)"
   - level: PASS
@@ -90,8 +90,9 @@ findings:
   - level: WARN
     check: "Vendor divergence: 1349 undeclared vendored path(s) differ from baseline (T-945, orig T-657)"
     mitigation: "A local fix recorded nowhere is destroyed by the next re-vendor without trace. Declare each with an upstream: lane: python3 tools/_t517-vendor-divergence.py"
-  - level: PASS
-    check: "Bridge suite: failure floor held — 32 failure(s), 125 passed, rc=1, 803s (0d 3h old)"
+  - level: WARN
+    check: "Bridge suite: failures ROSE — 34 against a floor of 32 (+2)."
+    mitigation: "Run by hand: cd /opt/832-Workflow-designer && python3 tools/_t952-bridge-suite-ratchet.py (a RISE means something that passed now fails; STALE means the suite has not been run, and a floor is not held by a measurement nobody took)"
   - level: WARN
     check: "Secret in reachable git HISTORY (not the index):  [DEFINITIVE] .context/working/.fw-secret-key "
     mitigation: "ROTATE the value; that is what makes the historical copy harmless. A git filter-repo rewrite plus force-push is defence-in-depth AFTER rotation and is Tier 0 — the operator's call, never the agent's."

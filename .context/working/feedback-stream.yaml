@@ -13554,3 +13554,111 @@ scan_id: R-97142971
 task_id: T-957
 payload:
   task_file: .tasks/active/T-957-hand-t-925-closure-over-as-a-runmesh--i-.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T21:51:06Z'
+scan_id: R-2f159f77
+task_id: T-958
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T21:51:06Z'
+scan_id: R-2f159f77
+task_id: T-958
+payload:
+  task_file: .tasks/active/T-958-classify-post-apivalidate-in-the-boundar.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T21:53:21Z'
+scan_id: R-cef8d669
+task_id: T-958
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T21:53:21Z'
+scan_id: R-cef8d669
+task_id: T-958
+payload:
+  task_file: .tasks/active/T-958-classify-post-apivalidate-in-the-boundar.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T22:14:43Z'
+scan_id: R-38d60d49
+task_id: T-958
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T22:14:43Z'
+scan_id: R-38d60d49
+task_id: T-958
+payload:
+  task_file: .tasks/active/T-958-classify-post-apivalidate-in-the-boundar.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T22:40:58Z'
+scan_id: R-99fdf2f3
+task_id: T-925
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T22:40:58Z'
+scan_id: R-99fdf2f3
+task_id: T-925
+payload:
+  task_file: .tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T23:06:05Z'
+scan_id: R-dcc6e710
+task_id: T-959
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T23:06:05Z'
+scan_id: R-dcc6e710
+task_id: T-959
+payload:
+  task_file: .tasks/active/T-959-t-925s-verification-block-asserts-the-pr.md
+---
+kind: scan_emitted
+timestamp: '2026-09-30T23:06:13Z'
+scan_id: R-74ec66b5
+task_id: T-959
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-09-30T23:06:13Z'
+scan_id: R-74ec66b5
+task_id: T-959
+payload:
+  task_file: .tasks/active/T-959-t-925s-verification-block-asserts-the-pr.md

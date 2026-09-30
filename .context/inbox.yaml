@@ -2827,3 +2827,27 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-459
+  text: "The bridge suite's failure count is NOT STABLE run-to-run, and the T-952 ratchet compares a floor against that unstable number -- so a flake is recorded and reported as a regression. Measured 2026-10-01, two full sweeps minutes apart with no relevant code change between them: run1 127 passed/33 failed, run2 126/34. Exact FAIL-list diff: all 33 of run1 recur in run2 plus ONE new leg ('editor behavior leg failed -- jump-autosave poisoning'), i.e. a leg that passed and then failed at the same commit. Three legs were ADDED since the 32-failure baseline commit cf4e503b (T-952 ratchet teeth, T-955 validate endpoint, T-958 boundary teeth) and all three pass in both runs, so the expected split was 128/32 and one previously-passing leg flipped in each run. Consequence for the ratchet: COMPLETED_RCS already discards partial sweeps, which was the right fix for a different problem, but nothing distinguishes a one-leg flake from a real rise -- and the baseline's own text says a rise 'fails loudly'. Remedy options: require N consecutive completed rows above the floor before failing, or keep a per-leg pass/fail record rather than a count so a flip can be named. Sibling of T-326 (flaky gating leg)."
+  captured: 2026-09-30T22:47:41Z
+  context_task: T-959
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-460
+  text: "The task-close transition prints a LEARNING PROMPT naming a command that the same transition has just made unrunnable. Closing a task sets focus.yaml current_task: null, and 'fw fix-learned T-XXX' is not on the read-only allowlist (agents/context/lib/safe-commands.sh), so the no-active-task gate (P-002) blocks it: 'BLOCKED: No active task'. Measured at T-959 close, 2026-09-30. 'fw context add-learning \"...\" --task T-XXX' IS allowlisted and works, so the capability exists and only the suggested route is broken. Consequence: the one moment the framework asks for a learning is the one moment it refuses to accept one by the route it recommends, which is how bugfix learnings go unrecorded. Remedy: either add fix-learned to the allowlist, or have the close prompt emit the add-learning form instead. Related: the probe I used to discover this created PL-368 with the literal text 'probe', rewritten in place with the real learning and the incident recorded in its own context field."
+  captured: 2026-09-30T23:07:16Z
+  context_task: null
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-461
+  text: "Closing a task clears focus (current_task: null), which makes the close's OWN leftovers uncommittable: the rename into completed/, the generated episodic, and any learning all need an active task, and the completed task cannot be refocused. So every close requires a SUBSEQUENT task to exist purely to commit the previous one, or the artefacts sit uncommitted. Measured at T-959 close 2026-09-30: 'fw git commit' blocked with 'BLOCKED: No active task'; isolated with a --dry-run probe to prove it was the task gate and not the commit message's content (the gate's secondary 'file-write pattern' line sent me rewriting the message twice for nothing). This project's history already shows the workaround as a pattern -- see T-672 'housekeeping ... commit finalisation' -- so it has been absorbed as folklore rather than fixed. Sibling of OBS-460 (the close's learning prompt names a command the close makes unrunnable). Remedy options: keep focus on the just-closed task until its artefacts are committed, or allowlist a commit whose message references the just-closed task id."
+  captured: 2026-09-30T23:08:47Z
+  context_task: T-960
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-959: T-925's Verification block asserts the pre-fix world and now fails, blocking the operator's own close
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T23:06:20Z
+# ============================================================================
+
+task_id: T-959
+task_name: "T-925's Verification block asserts the pre-fix world and now fails, blocking the operator's own close"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T22:15:00Z
+completed: 2026-09-30T23:06:10Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-01T00:25:38+02:00
+last_commit: 2026-10-01T00:43:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme.sh would have ticked the box and then been refused by the gate. the operator's tick landed; runme.sh diagnosed the refusal wrongly. T-925 closed by the operator — and its episodic said it had no decisions
+
+# Key outcomes
+outcomes:
+  - '**Every line of T-925''s `## Verification` block is measured, with its line number and'
+  - 'Each failing line is replaced by an assertion of the **post-T-953 truth**, and the'
+  - 'The two census offenders in the block are fixed at their defect class, not worked around:'
+  - '`tools/_t560-absence-assertion-census.py` reports **75 or fewer** uncontrolled absence'
+  - '**T-925 can actually close:** every non-comment line of its rewritten block exits 0,'
+  - '`runme.sh` is re-exercised with `--dry-run` after the change and proven **inert** again'
+  - 'The bridge-suite ratchet is **re-measured**, and the 32→33 reading is explained rather'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-925.yaml'
+  - '.context/episodic/T-957.yaml'
+  - '.context/episodic/T-958.yaml'
+  - '.context/inbox.yaml'
+  - '.context/working/episodic-gen/T-925.log'
+  - '.context/working/episodic-gen/T-958.log'
+  - 'runme.sh'
+  - '.tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md'
+  - '.tasks/active/T-959-t-925s-verification-block-asserts-the-pr.md'
+  - '.tasks/completed/T-925-toolsyaml-to-bpmnpy-drops-document-level.md'
+  - '.tasks/completed/T-958-classify-post-apivalidate-in-the-boundar.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T00:25:38'
+    action: 'T-959: runme.sh would have ticked the box and then been refused by the gate'
+  - time: '2026-10-01T00:36:46'
+    action: 'T-959: the operator''s tick landed; runme.sh diagnosed the refusal wrongly'
+  - time: '2026-10-01T00:43:54'
+    action: 'T-959: T-925 closed by the operator — and its episodic said it had no decisions'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 51 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 51
+  commits: 3
+  files_changed: 10
+  lines_added: 881
+  lines_removed: 36
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-959-t-925s-verification-block-asserts-the-pr.md
+generated_by: context-agent-hybrid
