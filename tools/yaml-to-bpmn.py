@@ -175,6 +175,48 @@ def emit(workflow):
     out.append('    xmlns:aef=%s' % _attr(AEF_NS))
     out.append('    xmlns:xsi=%s>' % _attr(XSI_NS))
     out.append('  <bpmn:process id=%s name=%s>' % (_attr(process_id), _attr(process_name)))
+
+    # -- document-level workflowMeta (T-925 / T-953, operator ruling A = PD-351) ------
+    # Until now `meta` was read at :141 and used ONLY to derive wid/process_id, so every
+    # document-level attribute was destroyed on the way through: a YAML declaring
+    # `workflowMeta.id: customer-refund` compiled to a document whose only identity was
+    # `<bpmn:process id="Pool_customer_refund">`. That is T-301's divergence, at its cause.
+    #
+    # It also meant tests/test_harness_cross_form_agreement.py could never compare a
+    # document-level rule: it drives YAML fixtures through this emitter, so the XML form
+    # was silent for every input. Its own docstring names the trap — the bridged document
+    # was "clean because the carrier was ERASED, not because the value became legal".
+    #
+    # NOT A WHITELIST, deliberately. T-060 is the precedent this seam was settled on: the
+    # node-level <aef:meta> channel emitted from its own fixed META_KEYS list and silently
+    # lost agentType/triggeredBy/emits, with no failing test anywhere. So every scalar
+    # present is emitted. The canonical ten lead in fixed order for byte-stability against
+    # the designer's own exporter; anything else follows, sorted, so the output is
+    # deterministic rather than dict-ordered.
+    _WM_CANONICAL = ("id", "uuid", "version", "schemaVersion", "title",
+                     "description", "source", "tier_default", "pageWidth", "kind")
+    _wm_scalar = lambda v: not isinstance(v, (dict, list))
+    _wm_pairs = ['%s=%s' % (k, _attr(meta[k]))
+                 for k in _WM_CANONICAL if k in meta and _wm_scalar(meta[k])]
+    _wm_pairs += ['%s=%s' % (k, _attr(meta[k]))
+                  for k in sorted(meta)
+                  if k not in _WM_CANONICAL and _wm_scalar(meta[k])]
+    # A structured value cannot ride an attribute channel. Warn rather than drop in
+    # silence — the same contract as the node-level T-062 warn at :221-230.
+    for _k in sorted(meta):
+        if not _wm_scalar(meta[_k]):
+            sys.stderr.write(
+                "WARN yaml-to-bpmn: workflowMeta key %r has a %s value that cannot ride "
+                "the scalar <aef:workflowMeta> channel — flatten it to a scalar "
+                "(dropped)\n" % (_k, type(meta[_k]).__name__))
+    # No metadata, no element: a document that carries no workflowMeta stays byte-identical
+    # to what this emitter produced before, so the change is scoped to documents that
+    # actually declare something.
+    if _wm_pairs:
+        out.append('    <bpmn:extensionElements>')
+        out.append('      <aef:workflowMeta %s/>' % " ".join(_wm_pairs))
+        out.append('    </bpmn:extensionElements>')
+
     out.append('')
 
     # -- laneSet ---------------------------------------------------------

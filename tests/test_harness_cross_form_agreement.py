@@ -166,27 +166,27 @@ BRIDGE_REPAIRED = {
                           "T-312 unpositioned SENTINEL, so the map degrades into "
                           "the honest-degradation path the geometry rule already "
                           "skips. That holds for 2 of this rule's 6 carriers",
-    "E-WORKFLOW-KIND":    "ERASURE, WHICH IS NOT A REPAIR (T-826, registered as "
-                          "T-925): yaml-to-bpmn.py emits NO <aef:workflowMeta> "
-                          "element at all -- it reads workflowMeta only to "
-                          "derive wid/process_id (:141) -- so a document "
-                          "carrying kind=\"overlord\" bridges to BPMN with 0 "
-                          "occurrences of workflowMeta and the XML form is "
-                          "silent because the author's datum is GONE, not "
-                          "because it became legal. MEASURED: yaml form fires "
-                          "E-WORKFLOW-KIND, `grep -c workflowMeta` on the "
-                          "bridged output is 0. Filed here rather than in "
-                          "KNOWN_DISAGREEMENTS only because that class demands a "
-                          "CARRIES-probe over bridged bytes that carry nothing. "
-                          "The XML rule itself is NOT unexercised -- it is "
-                          "witnessed by the hand-authored "
-                          "tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn, "
-                          "which is the only fixture here the bridge cannot "
-                          "produce. If T-925 makes the bridge emit workflowMeta, "
-                          "the staleness check below FIRES and this entry must "
-                          "be re-read rather than edited",
+    # ── E-WORKFLOW-KIND RETIRED 2026-09-30 by T-953. Its own closing sentence called
+    # ── this shot: "If T-925 makes the bridge emit workflowMeta, the staleness check
+    # ── below FIRES and this entry must be re-read rather than edited." T-925 ruling A
+    # ── (PD-351) made the bridge emit it; the staleness check fired on the next run with
+    # ── "the XML form now FIRES (E-XML-WORKFLOW-KIND). The declared repair no longer
+    # ── describes the bridge."
+    # ──
+    # ── RE-READ, not renumbered. The entry existed to say the XML form's silence was
+    # ── ERASURE rather than repair — the author's datum was gone, so a document-level
+    # ── rule could not fail for any input. That is no longer true: the datum survives
+    # ── compilation and the XML form fires on it, so the pair AGREES and belongs in
+    # ── neither BRIDGE_REPAIRED nor KNOWN_DISAGREEMENTS. EXPECTED_REPAIRED drops to 3
+    # ── as a CONSEQUENCE of the removal, not as a tolerance adjustment — the distinction
+    # ── the old entry was at pains to preserve.
+    # ──
+    # ── Kept in the record because it is the first entry here ever retired by its cause
+    # ── being fixed rather than by its wording being softened. Verbatim text:
+    # ──   docs/reports/T-925-workflowmeta-bridge-seam.md, and the entry itself at
+    # ──   git show 8efb7d68:tests/test_harness_cross_form_agreement.py
 }
-EXPECTED_REPAIRED = 4
+EXPECTED_REPAIRED = 3
 
 # T-332. A BRIDGE_REPAIRED entry is declared per RULE ID, but a rule can fire on
 # several carriers with different repair characters. Both entries above were

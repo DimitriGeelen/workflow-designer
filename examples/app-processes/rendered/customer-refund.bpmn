@@ -5,6 +5,9 @@
     xmlns:aef="http://anchorpoint.framework/aef/extensions"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <bpmn:process id="Pool_customer_refund" name="customer-refund">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="customer-refund" version="1" schemaVersion="2" source="docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS-workflow-process-layer-2026-07-02.md" tier_default="2"/>
+    </bpmn:extensionElements>
 
     <bpmn:laneSet id="LaneSet_customer-refund">
       <bpmn:lane id="customer" name="Customer · External">

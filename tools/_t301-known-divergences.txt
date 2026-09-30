@@ -7,47 +7,29 @@
 # A new divergence not listed here fails the check. Adding a line is a decision that
 # should be visible in a commit, which is why the reason is mandatory.
 #
-# ── customer-refund ──────────────────────────────────────────────────────────────
-# `examples/app-processes/rendered/customer-refund.bpmn` (tracked) and its untracked
-# build copy `build/gallery/rendered/customer-refund.bpmn` declare
-#   <bpmn:process id="Pool_customer_refund" name="customer-refund">
-# and carry NO <aef:workflowMeta> element at all. The derivation chain therefore falls to
-# sanitizeWorkflowId(procId) = "pool_customer_refund", against a stem of "customer-refund".
+# ── CURRENTLY EMPTY, AND THAT IS THE POINT ──────────────────────────────────────────
 #
-# WHY IT IS RECORDED RATHER THAN FIXED. T-301's own write-up (2026-08-20) describes this
-# document as deriving its id from <bpmn:process name> and coming out equal to its stem
-# "by luck". That was true under the chain of the time. T-563 reordered the chain to put
-# procId BEFORE procName, and the luck ran out — so this divergence is LIVE today, and it
-# arrived through a framework-side change to the derivation, not through T-501 as T-301
-# predicted.
+# The file held exactly one entry, `customer-refund | pool_customer_refund`, from
+# 2026-09-30. It was retired the same day by **T-953** — not by editing the document, and
+# not by widening the check, but by fixing the cause: `tools/yaml-to-bpmn.py` now emits
+# `<aef:workflowMeta>` (operator ruling A on the T-925 seam question, PD-351), so the
+# authored id the source YAML always declared survives compilation.
 #
-# ── CORRECTED 2026-09-30 (T-925). The first version of this block said the divergence
-# ── "may be a deliberate metadata-less import fixture — operator decision", and reasoned
-# ── that giving the document metadata would destroy its value as the natural fixture for
-# ── "a third-party BPMN file with no AEF metadata". THAT WAS WRONG, and it misdirected
-# ── the reader away from a filed cause. The wrong reading is kept here because the
-# ── reasoning is instructive: I inferred an authoring INTENT from an artifact's state
-# ── without reading the artifact's SOURCE.
-# ──
-# ── The source declares its id explicitly:
-# ──     examples/app-processes/customer-refund.workflow.yaml
-# ──       workflowMeta:
-# ──         id: customer-refund
-# ──
-# ── The renderer erased it. examples/app-processes/rendered/customer-refund.bpmn carries
-# ── "<!-- Generated from customer-refund by tools/yaml-to-bpmn.py -->", and
-# ── `grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py` is 0: the bridge reads workflowMeta
-# ── only to derive wid/process_id and emits none of its ten attributes. This is T-925,
-# ── filed, confirmed-scored (BVP 142), and it is the CAUSE of this divergence.
-# ──
-# ── Nothing about this document is a deliberate metadata-less fixture. It is T-283's
-# ── tenant-neutrality article (SD-12), and it is the ONLY bridge-produced document in any
-# ── served corpus — which is why it is the only one showing the bridge's defect.
+# The retirement was DETECTED, not remembered. After the emitter fix the invariant check
+# failed on its own stale-entry leg:
 #
-# So: asserted, named, and pointed at its cause. This entry is retired by fixing T-925
-# (slice-1 seam brief: docs/reports/T-925-workflowmeta-bridge-seam.md), NOT by editing the
-# document — editing the render would hide the emitter bug, which is mitigation dressed as
-# prevention (G-019). If the operator instead rules that the bridge need not round-trip
-# document metadata (brief option C), this entry becomes a permanent accepted limitation
-# and should say so.
-customer-refund | pool_customer_refund | CAUSE IS T-925: tools/yaml-to-bpmn.py erases all ten document-level workflowMeta attributes, so the authored id (customer-refund, declared in the source YAML) is lost and derivation falls to sanitize(procId) = pool_customer_refund. The only bridge-produced document in any served corpus. Retire this entry by fixing T-925, not by editing the document. Seam brief: docs/reports/T-925-workflowmeta-bridge-seam.md
+#     FAIL: 1 baseline entry(ies) no longer diverge — either the document was fixed
+#           (delete the entry) or this check stopped seeing it
+#
+# That leg exists precisely so a recorded exception cannot outlive the thing it excuses,
+# and it earned its keep within hours of being written. Measured after the fix: 128
+# documents across 4 roots, 0 divergent, all 128 deriving from an authored id (was 126,
+# with customer-refund's pair falling through to sanitize(procId)).
+#
+# Trail: docs/reports/T-925-workflowmeta-bridge-seam.md (the priced seam question),
+# T-301 (the invariant), T-951 (the check), T-953 (the emitter fix).
+#
+# An empty file is a legitimate state and the check handles it: with no entries, any
+# divergence is NEW and fails. Do not delete this file to "clean up" — its absence and
+# its emptiness mean the same thing to the checker, but the comments above are the only
+# record of why the ratchet exists and how the one entry it ever held was closed.
