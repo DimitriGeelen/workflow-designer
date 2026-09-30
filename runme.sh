@@ -61,6 +61,43 @@ chk "exactly 2 renders are bridge-produced (the measured blast radius holds)" \
 chk "fw is runnable" \
     "test -x .agentic-framework/bin/fw"
 
+# IDEMPOTENCY (T-954). This script is single-use: the question it asks has one answer, and
+# a second run would record a second decision on an already-settled question — capable of
+# contradicting the first, with nothing to say which is current. That is the same class of
+# quiet, unintended action the decision-menu instruction exists to prevent at the operator's
+# end, so it is checked at this one.
+#
+# The seam is deliberately NARROW: T925_DECISIONS_FILE relocates the LOOKUP so both
+# directions of this guard can be proven. It is not a --skip-checks flag; a general bypass
+# switch on a decision script would be a worse hazard than the one being fixed.
+DECISIONS="${T925_DECISIONS_FILE:-$PROJ/.context/project/decisions.yaml}"
+if [ -f "$DECISIONS" ] && grep -q 'T-925 seam ruling' "$DECISIONS" 2>/dev/null; then
+    _pd=$(grep -B4 'T-925 seam ruling' "$DECISIONS" 2>/dev/null \
+          | grep -oE 'PD-[0-9]+' | tail -1)
+    _ans=$(grep -m1 'T-925 seam ruling' "$DECISIONS" | sed 's/.*seam ruling: *//' | cut -c1-60)
+    echo "  STOP  idempotency check: a T-925 seam ruling is already recorded"
+    echo
+    echo "REFUSED by the idempotency preflight check — not by argument validation,"
+    echo "not by a failure. Nothing was changed and nothing was recorded."
+    echo
+    echo "  already recorded : ${_pd:-<id not parsed>}"
+    echo "  the ruling       : ${_ans:-A}"
+    echo "  where            : ${DECISIONS#$PROJ/}"
+    echo
+    echo "This script asks a question that now has an answer, and running it again would"
+    echo "record a second decision on it. It has done its job."
+    echo
+    echo "WHAT ACTUALLY REMAINS, and it is not this script:"
+    echo "  The [REVIEW] Human AC on T-925 is still unticked. Only you may tick it —"
+    echo "  the agent must never tick a Human AC. Tick it in:"
+    echo "    .tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md"
+    echo "  Then T-925 closes. The emitter work the ruling authorised is already done"
+    echo "  and pushed (T-953)."
+    echo
+    echo "Log: $LOG"
+    exit 4
+fi
+
 if [ "$fail" -ne 0 ]; then
     echo
     echo "REFUSED: a preflight check failed. Nothing was changed."
