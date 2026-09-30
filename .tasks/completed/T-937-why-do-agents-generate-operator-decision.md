@@ -6,17 +6,17 @@ description: >
   Inception: Why do agents generate operator decisions faster than any human answers
   them, and which of the 51 open rulings should never have been escalated
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_3_start
+current_node: frw_11_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-09-29T21:44:42Z
-last_update: 2026-09-30T09:19:14Z
-date_finished:
+last_update: 2026-09-30T14:43:51Z
+date_finished: 2026-09-30T14:43:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -265,15 +265,15 @@ decision load is.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -364,7 +364,11 @@ DEFER because the exploration has not run, not because the question is doubtful.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: NO-GO
+
+**Rationale**: NO-GO. IW-2's load-bearing question was answered negatively: 1 of a reproducible 15-sample (threshold 4) could have been settled under an existing ruling. Escalation discipline is therefore not why the queue grows, and there is no agent-side mechanism to build. The measurements stand and are not discarded: roughly +4/week net growth, cleared in bursts rather than FIFO, one week in August at -46. The backlog is unattended rather than unclearable; the remedy is a sitting with the docket that already exists.
+
+**Date**: 2026-09-30T14:43:50Z
 
 ## Updates
 
@@ -373,3 +377,41 @@ DEFER because the exploration has not run, not because the question is doubtful.
 
 ### 2026-09-29T21:45:34Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-09-30T14:43:50Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** NO-GO
+- **Rationale:** NO-GO. IW-2's load-bearing question was answered negatively: 1 of a reproducible 15-sample (threshold 4) could have been settled under an existing ruling. Escalation discipline is therefore not why the queue grows, and there is no agent-side mechanism to build. The measurements stand and are not discarded: roughly +4/week net growth, cleared in bursts rather than FIFO, one week in August at -46. The backlog is unattended rather than unclearable; the remedy is a sitting with the docket that already exists.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-aa81f6a1
+- **Timestamp:** 2026-09-30T14:43:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-c5058a48
+- **Timestamp:** 2026-09-30T14:43:52Z
+- **Overall:** CONFIRMED
+- **Claims:** 1
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-872` | task | ✓ pass |
+
+### 2026-09-30T14:43:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: NO-GO

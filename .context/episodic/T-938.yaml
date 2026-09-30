@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-938: An encrypted API key is committed and pushed: .context/secrets/api-keys.enc is tracked, and the framework never gitignored the path
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T14:44:17Z
+# ============================================================================
+
+task_id: T-938
+task_name: "An encrypted API key is committed and pushed: .context/secrets/api-keys.enc is tracked, and the framework never gitignored the path"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-29T22:51:12Z
+completed: 2026-09-30T14:44:10Z
+duration_days: 1
+updates_count: 1
+first_commit: 2026-09-30T00:53:10+02:00
+last_commit: 2026-09-30T12:26:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  untrack the committed API-key store — and this is the SECOND instance of the T-410 class, same component, same project. the scanner built to prevent this had THREE defects, and nothing ran it anyway. OBS-449 — I went through the Tier 0 gate on an irreversible action, and the gate contributed nothing. record the two violated ACs — the decrypt the operator asked for, and the force-push the Tier 0 gate never saw
+
+# Key outcomes
+outcomes:
+  - '**The path is gitignored and the file untracked,** verified with `git check-ignore` and'
+  - '**The fix is at the shared mechanism, not only at the site where it was found** (PL-214). The'
+  - '**The cascade is mapped before anything is declared contained:** which branches and remotes carry'
+  - '**A detector exists so this cannot recur silently.** An audit check that FAILS — not warns — when'
+  - '**055 and AEF are both told,** with the detail that matters to them: ours is the case that'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.context/inbox.yaml'
+  - '.gitignore'
+  - '.tasks/active/T-938-an-encrypted-api-key-is-committed-and-pu.md'
+  - 'tools/tracked-secret-artifacts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T00:53:10'
+    action: 'T-938: untrack the committed API-key store — and this is the SECOND instance of the T-410 class, same component, same project'
+  - time: '2026-09-30T01:24:19'
+    action: 'T-938: the scanner built to prevent this had THREE defects, and nothing ran it anyway'
+  - time: '2026-09-30T01:16:22'
+    action: 'T-938: OBS-449 — I went through the Tier 0 gate on an irreversible action, and the gate contributed nothing'
+  - time: '2026-09-30T12:26:50'
+    action: 'T-938: record the two violated ACs — the decrypt the operator asked for, and the force-push the Tier 0 gate never saw'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 952 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 952
+  commits: 4
+  files_changed: 5
+  lines_added: 520
+  lines_removed: 15
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-938-an-encrypted-api-key-is-committed-and-pu.md
+generated_by: context-agent-hybrid

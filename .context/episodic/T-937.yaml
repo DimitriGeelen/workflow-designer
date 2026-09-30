@@ -1,0 +1,97 @@
+# ============================================================================
+# EPISODIC MEMORY - T-937: Why do agents generate operator decisions faster than any human answers them, and which of the 51 open rulings should never have been escalated
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T14:43:58Z
+# ============================================================================
+
+task_id: T-937
+task_name: "Why do agents generate operator decisions faster than any human answers them, and which of the 51 open rulings should never have been escalated"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-29T21:44:42Z
+completed: 2026-09-30T14:43:51Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-09-29T23:47:41+02:00
+last_commit: 2026-09-30T11:19:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception opened on the generator, not the backlog — template filled, nothing explored yet. wrote a hypothesis with a success clause someone else could check — the gate refused a filled-in template, correctly. NO-GO — the premise is falsified, five questions disposed, nothing to build. release notes DRAFTED for the operator — and fw release status says "no tag" on a project with sixteen. runme.sh for the release, and the standing rule recorded in CLAUDE.md. runme.sh logs everything, and step 2 was wrong — it bumped ./VERSION and left the literal in src/. my step-1 guard could not hold — it counted untracked paths across an interactive pause
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.context/inbox.yaml'
+  - '.context/project/assumptions.yaml'
+  - '.context/project/learnings.yaml'
+  - 'docs/releases/RELEASE-NOTES-DRAFT-next.md'
+  - 'docs/reports/T-937-operator-decision-production-rate.md'
+  - 'runme.sh'
+  - '.tasks/active/T-937-why-do-agents-generate-operator-decision.md'
+  - '.tasks/active/T-939-the-host-machine-id-is-committed-in-a-ke.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-29T23:47:41'
+    action: 'T-937: inception opened on the generator, not the backlog — template filled, nothing explored yet'
+  - time: '2026-09-30T00:33:45'
+    action: 'T-937: wrote a hypothesis with a success clause someone else could check — the gate refused a filled-in template, correctly'
+  - time: '2026-09-30T10:04:04'
+    action: 'T-937: NO-GO — the premise is falsified, five questions disposed, nothing to build'
+  - time: '2026-09-30T10:47:03'
+    action: 'T-937: release notes DRAFTED for the operator — and fw release status says "no tag" on a project with sixteen'
+  - time: '2026-09-30T10:55:24'
+    action: 'T-937: runme.sh for the release, and the standing rule recorded in CLAUDE.md'
+  - time: '2026-09-30T11:06:01'
+    action: 'T-937: runme.sh logs everything, and step 2 was wrong — it bumped ./VERSION and left the literal in src/'
+  - time: '2026-09-30T11:19:12'
+    action: 'T-937: my step-1 guard could not hold — it counted untracked paths across an interactive pause'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 1019 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1019
+  commits: 7
+  files_changed: 9
+  lines_added: 947
+  lines_removed: 30
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-937-why-do-agents-generate-operator-decision.md
+generated_by: context-agent-hybrid
