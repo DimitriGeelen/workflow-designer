@@ -1,24 +1,32 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  T-925 — RULE THE SEAM QUESTION
+#  T-925 — TICK THE HUMAN AC AND CLOSE THE TASK
 #  Run with:   bash /opt/832-Workflow-designer/runme.sh
 # =============================================================================
 #
-#  WHY THE AGENT DOES NOT RUN THIS. check-tier0.sh matches COMMAND TEXT, so a
-#  consequential command inside a script is invisible to it — the harness only
-#  ever sees "bash runme.sh". On 2026-09-30 an agent moved a force-push into a
-#  script to stabilise its Tier 0 approval hash and the move defeated the gate;
-#  the push executed with `fw tier0 approve` still reporting "approvals logged:
-#  0" (OBS-449). Wrapping commands for the operator is required. Running the
-#  wrapper is a four-control bypass in one invocation.
+#  WHAT THIS DOES, IN ONE SENTENCE: changes `- [ ]` to `- [x]` on T-925's one
+#  [REVIEW] criterion and then closes the task. Nothing else.
 #
-#  This script records a DECISION. It changes no code, moves no corpus bytes,
-#  and touches nothing under examples/ or tools/yaml-to-bpmn.py.
+#  WHY A SCRIPT FOR ONE EDIT. Standing operator instruction: every command-line
+#  instruction handed over is wrapped, single or multiple, and the absolute path
+#  is printed. I broke it by handing over a bare `sed` and arguing that ticking
+#  a Human AC "should be your own act" — which is true and is not an exemption,
+#  because YOU RUNNING THIS IS THAT ACT. It is exactly how the T-925 ruling
+#  itself was made an hour earlier.
 #
-#  Log opens on the first line, before any validation, because the refusal path
-#  is the one most likely to be hit first and the one that most needs a trace.
-#  runme-LATEST.log is a FILE COPY made on an EXIT trap — never a symlink, which
-#  would point at an older successful run and hide a failure.
+#  WHY IT IS LEGITIMATE FOR A SCRIPT TO TICK A HUMAN AC. The rule is that the
+#  AGENT must never tick one. This script does not run itself; the operator runs
+#  it, sees the exact edit, and confirms. That is the same shape as
+#  `fw inception decide`, which also records a human judgement by being invoked.
+#
+#  THE AGENT DOES NOT RUN THIS. check-tier0.sh matches command TEXT, so anything
+#  consequential inside a script is invisible to it — the harness only sees
+#  `bash runme.sh` (OBS-449). Only --dry-run was exercised before handover, and
+#  the dry run is asserted not to tick.
+#
+#  Log opens on the first line, before any validation, so the refusal path — the
+#  one most likely to be hit first — leaves a trace. runme-LATEST.log is a FILE
+#  COPY on an EXIT trap, never a symlink pointing at an older success.
 # =============================================================================
 set -uo pipefail
 
@@ -30,219 +38,139 @@ LOG="$PROJ/runme-$TS.log"
 exec > >(tee -a "$LOG") 2>&1
 trap 'cp -f "$LOG" "$PROJ/runme-LATEST.log" 2>/dev/null || true' EXIT
 
-echo "=== T-925 seam decision — $TS ==="
+echo "=== T-925: tick the Human AC and close — $TS ==="
 echo "log: $LOG"
 echo
 
 DRY=0
-[ "${1:-}" = "--dry-run" ] && DRY=1 && echo "*** DRY RUN — nothing will be recorded ***" && echo
+[ "${1:-}" = "--dry-run" ] && DRY=1 && echo "*** DRY RUN — nothing will be changed ***" && echo
+
+TASK="$PROJ/.tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md"
+
+# Content-anchored, never line-number-anchored: a line number silently hits the wrong
+# line after any edit above it.
+OPEN_RE='^- \[ \] \[REVIEW\] \*\*Rule the seam question'
+DONE_RE='^- \[x\] \[REVIEW\] \*\*Rule the seam question'
 
 # ---------------------------------------------------------------------------
-# PREFLIGHT — each check states what it proves.
+# PREFLIGHT — each check says what it proves. A refusal changes nothing.
 # ---------------------------------------------------------------------------
 echo "--- preflight ---"
 fail=0
-chk() {  # chk <description> <what it proves>  ; command on stdin via eval
-    if eval "$2" >/dev/null 2>&1; then
-        echo "  ok    $1"
-    else
-        echo "  FAIL  $1"
-        fail=1
-    fi
+chk() {
+    if eval "$2" >/dev/null 2>&1; then echo "  ok    $1"; else echo "  FAIL  $1"; fail=1; fi
 }
-chk "task T-925 is active (the decision has somewhere to land)" \
-    "ls .tasks/active/T-925-*.md"
-chk "the brief exists (you are not being asked to decide blind)" \
-    "test -f docs/reports/T-925-workflowmeta-bridge-seam.md"
-chk "the bridge still cannot emit workflowMeta (the defect is still real)" \
-    "test \"\$(grep -c 'aef:workflowMeta' tools/yaml-to-bpmn.py)\" -eq 0"
-chk "exactly 2 renders are bridge-produced (the measured blast radius holds)" \
-    "test \"\$(grep -rl 'by tools/yaml-to-bpmn.py' examples/ build/ 2>/dev/null | wc -l)\" -eq 2"
-chk "fw is runnable" \
-    "test -x .agentic-framework/bin/fw"
-
-# IDEMPOTENCY (T-954). This script is single-use: the question it asks has one answer, and
-# a second run would record a second decision on an already-settled question — capable of
-# contradicting the first, with nothing to say which is current. That is the same class of
-# quiet, unintended action the decision-menu instruction exists to prevent at the operator's
-# end, so it is checked at this one.
-#
-# The seam is deliberately NARROW: T925_DECISIONS_FILE relocates the LOOKUP so both
-# directions of this guard can be proven. It is not a --skip-checks flag; a general bypass
-# switch on a decision script would be a worse hazard than the one being fixed.
-DECISIONS="${T925_DECISIONS_FILE:-$PROJ/.context/project/decisions.yaml}"
-if [ -f "$DECISIONS" ] && grep -q 'T-925 seam ruling' "$DECISIONS" 2>/dev/null; then
-    _pd=$(grep -B4 'T-925 seam ruling' "$DECISIONS" 2>/dev/null \
-          | grep -oE 'PD-[0-9]+' | tail -1)
-    _ans=$(grep -m1 'T-925 seam ruling' "$DECISIONS" | sed 's/.*seam ruling: *//' | cut -c1-60)
-    echo "  STOP  idempotency check: a T-925 seam ruling is already recorded"
-    echo
-    echo "REFUSED by the idempotency preflight check — not by argument validation,"
-    echo "not by a failure. Nothing was changed and nothing was recorded."
-    echo
-    echo "  already recorded : ${_pd:-<id not parsed>}"
-    echo "  the ruling       : ${_ans:-A}"
-    echo "  where            : ${DECISIONS#$PROJ/}"
-    echo
-    echo "This script asks a question that now has an answer, and running it again would"
-    echo "record a second decision on it. It has done its job."
-    echo
-    echo "WHAT ACTUALLY REMAINS, and it is not this script:"
-    echo "  The [REVIEW] Human AC on T-925 is still unticked. Only you may tick it —"
-    echo "  the agent must never tick a Human AC. Tick it in:"
-    echo "    .tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md"
-    echo "  Then T-925 closes. The emitter work the ruling authorised is already done"
-    echo "  and pushed (T-953)."
-    echo
-    echo "Log: $LOG"
-    exit 4
-fi
+chk "T-925 is still active (there is something to close)" \
+    "test -f '$TASK'"
+chk "the [REVIEW] criterion is present (the anchor still matches)" \
+    "grep -qE '$OPEN_RE|$DONE_RE' '$TASK'"
+chk "fw is runnable (the close can actually happen)" \
+    "test -x '$PROJ/.agentic-framework/bin/fw'"
+chk "the ruling this AC records exists (PD-351)" \
+    "grep -q 'T-925 seam ruling' '$PROJ/.context/project/decisions.yaml'"
 
 if [ "$fail" -ne 0 ]; then
     echo
-    echo "REFUSED: a preflight check failed. Nothing was changed."
-    echo "The tree is exactly as it was. Log: $LOG"
+    echo "REFUSED by a preflight check. Nothing was changed; the tree is as it was."
+    echo "Log: $LOG"
     exit 2
+fi
+
+# IDEMPOTENCY — the T-954 lesson, earned by this script's predecessor.
+if grep -qE "$DONE_RE" "$TASK"; then
+    echo "  STOP  idempotency check: the [REVIEW] criterion is ALREADY ticked"
+    echo
+    echo "REFUSED by the idempotency preflight check — not by a failure."
+    echo "Nothing was changed."
+    echo
+    echo "If T-925 is still in .tasks/active/ it only needs the close:"
+    echo "  cd $PROJ && bin/fw task update T-925 --status work-completed"
+    echo
+    echo "Log: $LOG"
+    exit 4
 fi
 echo "  all preflight checks passed"
 echo
 
 # ---------------------------------------------------------------------------
-# THE DECISION
+# SHOW THE EXACT EDIT. The script is checking a box on your behalf; you should
+# see precisely what you are authorising before it happens.
 # ---------------------------------------------------------------------------
-cat <<'BRIEF'
-
-  ─────────────────────────────────────────────────────────────────────────────
-  MY RECOMMENDATION: A — emit all ten attributes
-  ─────────────────────────────────────────────────────────────────────────────
-
-  Rationale, one measured fact per line:
-
-    - The bridge produced 1 of the 25 served renders, not 24. T-925 deferred
-      itself on "24/24 rendered maps are bridge-produced"; that is false.
-    - The 24 AEF renders come from the designer's exporter — they carry DI,
-      a collaboration/participant pair, and workflowMeta, none of which the
-      bridge emits. Re-rendered and diffed: 15831 vs 14503 bytes.
-    - customer-refund appears in NO pin manifest. Nothing AEF pins moves.
-    - 10 tests consume the bridge. None does a golden-byte comparison. None
-      asserts workflowMeta absence as correct.
-    - test_harness_cross_form_agreement.py records this hole as a KNOWN
-      disagreement citing T-925. Fixing the bridge RETIRES that entry.
-    - Ten attributes are destroyed today, silently: id uuid version
-      schemaVersion title description source tier_default pageWidth kind.
-    - Precedent: T-060 ruled the same defect a bug one level down, for
-      node-level <aef:meta>, and fixed it.
-
-  Full brief: docs/reports/T-925-workflowmeta-bridge-seam.md
-
-BRIEF
-
-OPTIONS=(
-  "A — emit all ten attributes (recommended)"
-  "B — emit id only; leave the other nine destroyed"
-  "C — rule the bridge is deliberately lossy; record as accepted limitation"
-)
-CODES=(A B C)
-REC=0   # index of the recommended option
-
-# menu: draws on /dev/tty, echoes ONLY the chosen code to stdout so the log
-# records the choice without the cursor redraws.
-menu() {
-    local sel=$REC n=${#OPTIONS[@]}
-    if [ ! -t 0 ] || [ ! -e /dev/tty ]; then
-        echo "no tty — falling back to the recommended option" >&2
-        echo "$REC"
-        return 0
-    fi
-    while :; do
-        {
-            printf '\n'
-            for i in $(seq 0 $((n-1))); do
-                if [ "$i" -eq "$sel" ]; then
-                    printf '  \033[7m %d) %s \033[0m' "$((i+1))" "${OPTIONS[$i]}"
-                else
-                    printf '     %d) %s' "$((i+1))" "${OPTIONS[$i]}"
-                fi
-                [ "$i" -eq "$REC" ] && printf '   <- recommended'
-                printf '\n'
-            done
-            printf '\n  press 1-%d, or arrows + Enter:  ' "$n"
-        } > /dev/tty
-
-        IFS= read -rsn1 key < /dev/tty || { printf '\n' > /dev/tty; echo "$REC"; return 0; }
-        case "$key" in
-            [1-9])
-                if [ "$key" -le "$n" ]; then printf '\n' > /dev/tty; echo "$((key-1))"; return 0; fi
-                printf '\n  not an option — try again\n' > /dev/tty ;;
-            "")  printf '\n' > /dev/tty; echo "$sel"; return 0 ;;
-            $'\033')
-                IFS= read -rsn2 -t 0.3 rest < /dev/tty || rest=""
-                case "$rest" in
-                    '[A') sel=$(( (sel - 1 + n) % n )) ;;
-                    '[B') sel=$(( (sel + 1) % n )) ;;
-                esac ;;
-            *) printf '\n  unrecognised key — try again\n' > /dev/tty ;;
-        esac
-        # redraw: move up over the block we printed
-        printf '\033[%dA\033[J' "$((n + 3))" > /dev/tty
-    done
-}
-
-IDX="$(menu)"
-CODE="${CODES[$IDX]}"
-CHOICE="${OPTIONS[$IDX]}"
-
-echo "CHOICE: $CODE"
-echo "        $CHOICE"
+LINE_NO="$(grep -nE "$OPEN_RE" "$TASK" | head -1 | cut -d: -f1)"
+echo "--- the exact edit ---"
+echo "  file : ${TASK#$PROJ/}"
+echo "  line : $LINE_NO"
 echo
+echo "  before:"
+sed -n "${LINE_NO}p" "$TASK" | sed 's/^/    /'
+echo "  after:"
+sed -n "${LINE_NO}p" "$TASK" | sed "s/^- \[ \]/- [x]/" | sed 's/^/    /'
+echo
+cat <<'WHAT'
+  WHAT THE CRITERION SAYS, and why it is already satisfied in substance:
+
+    "[REVIEW] Rule the seam question: should yaml-to-bpmn.py emit
+     <aef:workflowMeta>?"
+
+  You ruled it. Option A, recorded as PD-351, and the emitter change shipped
+  under T-953 (128 of 128 documents now derive from an authored id). This box
+  is a RECORD of that decision, lagging behind it — and it is stuck only
+  because the agent is forbidden to tick a Human AC on your behalf.
+
+  Ticking it asserts nothing new. It closes the bookkeeping.
+
+WHAT
 
 if [ "$DRY" -eq 1 ]; then
-    echo "DRY RUN — would record decision $CODE on T-925 and stop here."
+    echo "DRY RUN — would tick line $LINE_NO and then close T-925. Stopping here."
     echo "Log: $LOG"
     exit 0
 fi
 
-# ---------------------------------------------------------------------------
-# CONFIRM the one irreversible-ish step (it writes a decision record).
-# ---------------------------------------------------------------------------
-printf '  record decision %s on T-925? [y/N] ' "$CODE" > /dev/tty
+printf '  tick it and close T-925? [y/N] ' > /dev/tty
 IFS= read -r yn < /dev/tty || yn=""
 case "$yn" in
     y|Y) ;;
-    *) echo "ABORTED by operator — nothing recorded. Log: $LOG"; exit 3 ;;
+    *) echo; echo "ABORTED by operator — nothing changed. Log: $LOG"; exit 3 ;;
 esac
 echo
 
-echo "--- recording ---"
-.agentic-framework/bin/fw context add-decision \
-    "T-925 seam ruling: $CODE — $CHOICE" \
-    --task T-925 \
-    --rationale "Operator ruling on whether tools/yaml-to-bpmn.py should emit <aef:workflowMeta>. Priced in docs/reports/T-925-workflowmeta-bridge-seam.md: the bridge produced 1 of 25 served renders (not the 24 the original deferral assumed), customer-refund is in no pin manifest, 10 bridge tests contain no golden-byte comparison, and test_harness_cross_form_agreement.py holds a KNOWN disagreement citing T-925 that a fix would retire."
-rc=$?
+# ---------------------------------------------------------------------------
+echo "--- ticking ---"
+cp -f "$TASK" "$TASK.t957.bak"
+sed -i "s/$OPEN_RE/- [x] [REVIEW] **Rule the seam question/" "$TASK"
 
-echo
-if [ "$rc" -eq 0 ]; then
-    echo "RECORDED: decision $CODE on T-925."
+if grep -qE "$DONE_RE" "$TASK"; then
+    echo "  ok    line $LINE_NO is now ticked"
+    rm -f "$TASK.t957.bak"
 else
-    echo "WARNING: add-decision exited $rc — the choice is in this log either way: $CODE"
+    echo "  FAIL  the edit did not land — restoring from backup"
+    mv -f "$TASK.t957.bak" "$TASK"
+    echo
+    echo "REFUSED: the tick could not be applied and the file was restored."
+    echo "Log: $LOG"
+    exit 5
+fi
+echo
+
+echo "--- closing T-925 ---"
+"$PROJ/.agentic-framework/bin/fw" task update T-925 --status work-completed
+rc=$?
+echo
+
+if [ "$rc" -eq 0 ]; then
+    echo "DONE: T-925's Human AC is ticked and the task is closed."
+    echo
+    echo "The gate prints a git-add line for the rename and the episodic. If you would"
+    echo "rather not run it, tell the agent T-925 is closed and it will commit the"
+    echo "leftovers — that part is its job, not yours."
+else
+    echo "The tick LANDED but the close exited $rc — read the gate output above."
+    echo "The most likely cause is a verification command failing, which is a real"
+    echo "finding rather than a problem with this script."
 fi
 
-cat <<NEXT
-
-  ─────────────────────────────────────────────────────────────────────────────
-  WHAT IS STILL YOURS TO DO
-  ─────────────────────────────────────────────────────────────────────────────
-
-  The [REVIEW] Human AC on T-925 is still unticked. I must never tick it — only
-  you may. Tick it in:
-      .tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md
-
-  Then, if you chose A or B, slice 2 is the emitter change and it is mine to
-  build. If you chose C, the T-301 baseline entry becomes a permanent accepted
-  limitation and I will reword it to say so.
-
-  Log: $LOG
-  Copy: $PROJ/runme-LATEST.log
-
-NEXT
-exit 0
+echo
+echo "Log:  $LOG"
+echo "Copy: $PROJ/runme-LATEST.log"
+exit "$rc"
