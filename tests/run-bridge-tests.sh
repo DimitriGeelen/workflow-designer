@@ -942,6 +942,27 @@ else
   fail=$((fail + 1))
 fi
 
+
+# T-955 (T-309 GO slice 1): the designer can now REACH the validator.
+#
+# T-309's finding was reach, not rules: ~24 XmlValidator rule ids are trusted and green,
+# and a grep of src/aef-workflow-designer.html finds no validation surface at all — so
+# they run here and from the CLI and never reach the person drawing the map. POST
+# /api/validate is that reach, and it holds NO rule logic (no rule id appears in the
+# server's executable code) so there is exactly one implementation to keep honest.
+#
+# Chosen over a JS port on measured grounds: this repo already maintains
+# test_harness_cross_form_agreement.py because two implementations of the same rules
+# drift, and that test is failing RIGHT NOW on an E-NODE-LANE disagreement. A third form
+# would be strictly worse. The offline cost is precedented — save is server-only too.
+if python3 "$ROOT/tests/test_t955_validate_endpoint.py" > "$TMP/leg-_t955.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the designer's route to the validator is broken or gone — findings would stop reaching the author while the rules stay green here, which is the exact gap T-309 was filed for (T-955 — run 'python3 tests/test_t955_validate_endpoint.py'; its last leg strips the route from a copy of the server and requires a 404, so a failure there means the test lost its teeth rather than the route being fine)"
+  show_output "$TMP/leg-_t955.out" "test_t955_validate_endpoint.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an

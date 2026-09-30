@@ -37,6 +37,7 @@ Usage: gallery-serve.py [PORT] [--docroot DIR] [--repo DIR] [--bind ADDR] [--all
 Defaults: PORT=8834, docroot=<repo>/build/gallery, repo=<script>/.., bind=0.0.0.0
 """
 import base64
+import importlib.util
 import json
 import os
 import re
@@ -52,6 +53,31 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
 ID_RE = re.compile(r'^[a-z0-9][a-z0-9_-]*$')
+
+# T-955: the validator is a script with a dash in its name, so it loads by spec rather
+# than by import. Cached because /api/validate is called per keystroke-ish, and a fresh
+# exec_module per request would re-read 2000 lines each time. A load FAILURE is not
+# cached: a validator that is briefly unreadable should be retried, never remembered as
+# missing.
+_VALIDATOR_MOD = None
+
+
+def _load_validator():
+    global _VALIDATOR_MOD
+    if _VALIDATOR_MOD is not None:
+        return _VALIDATOR_MOD
+    path = os.path.join(SCRIPT_DIR, 'validate-workflow.py')
+    if not os.path.isfile(path):
+        raise RuntimeError('validate-workflow.py not found at %s' % path)
+    spec = importlib.util.spec_from_file_location('_t955_validator', path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError('cannot build an import spec for %s' % path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    if not hasattr(mod, 'run_xml'):
+        raise RuntimeError('validate-workflow.py has no run_xml(); the entry point moved')
+    _VALIDATOR_MOD = mod
+    return mod
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(SCRIPT_DIR, '..'))
@@ -667,9 +693,51 @@ class Handler(SimpleHTTPRequestHandler):
         return self._json(404, {'ok': False, 'error': 'unknown endpoint'})
 
     # ---- POST ----
+    # ---- T-955 (T-309 GO slice 1): reach the ONE validator -------------------
+    # The designer has no validation surface at all — `grep` for one finds nothing — so
+    # ~24 XmlValidator rules run in the bridge suite and from the CLI and never reach the
+    # person drawing the map, which is where the mistake is made (T-309).
+    #
+    # THIS ROUTE DELIBERATELY CONTAINS NO RULE LOGIC. It loads tools/validate-workflow.py
+    # and calls its existing run_xml(), which already parses, reports E-XML-PARSE on a
+    # ParseError, validates, and returns Finding objects with an as_dict(). Everything
+    # below is transport.
+    #
+    # WHY A SIDECAR AND NOT A JS PORT. This repo already maintains
+    # tests/test_harness_cross_form_agreement.py because two implementations of the same
+    # rules drift, and it is FAILING RIGHT NOW on "NEW DISAGREEMENT E-NODE-LANE: yaml
+    # fires=True, xml fires=False". A JS port would add a THIRD form to a pair that
+    # cannot stay in agreement. That is the current state of the tree, not a forecast.
+    # The offline cost is real and already precedented: save is server-only too, and the
+    # designer's detectSaveApi pattern degrades for exactly this case.
+    def _api_validate(self, payload):
+        bpmn = payload.get('bpmn', '')
+        if not isinstance(bpmn, str) or not bpmn.strip():
+            return self._json(400, {'ok': False, 'error': 'missing/empty bpmn'})
+        try:
+            mod = _load_validator()
+        except Exception as e:
+            # A validator we cannot load must NOT read as "no findings" — that is the
+            # false-green this project keeps getting bitten by. Refuse loudly instead.
+            sys.stderr.write('[gallery-serve] validator unavailable: %s\n' % e)
+            return self._json(503, {'ok': False,
+                                    'error': 'validator unavailable: %s' % e})
+        try:
+            findings = mod.run_xml(bpmn)
+        except Exception as e:
+            sys.stderr.write('[gallery-serve] validate failed: %s\n' % e)
+            return self._json(500, {'ok': False, 'error': 'validate failed: %s' % e})
+        rows = [f.as_dict() for f in findings]
+        return self._json(200, {
+            'ok': True,
+            'findings': rows,
+            'errors': sum(1 for r in rows if r.get('severity') == 'ERROR'),
+            'warnings': sum(1 for r in rows if r.get('severity') == 'WARN'),
+        })
+
     def do_POST(self):
         parsed = urlparse(self.path)
-        if parsed.path not in ('/api/save', '/api/delete'):
+        if parsed.path not in ('/api/save', '/api/delete', '/api/validate'):
             return self._json(404, {'ok': False, 'error': 'unknown endpoint'})
         try:
             length = int(self.headers.get('Content-Length', '0'))
@@ -678,6 +746,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {'ok': False, 'error': 'bad json: %s' % e})
         if parsed.path == '/api/delete':
             return self._api_delete(payload)
+        if parsed.path == '/api/validate':
+            return self._api_validate(payload)
         id_ = payload.get('id', '')
         bpmn = payload.get('bpmn', '')
         if not self._valid_id(id_):
