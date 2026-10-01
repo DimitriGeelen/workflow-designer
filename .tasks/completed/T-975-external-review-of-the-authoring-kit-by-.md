@@ -1,11 +1,8 @@
 ---
-id: T-974
-name: "Vendor authoring kit released beside the designer artifact"
+id: T-975
+name: "External review of the authoring kit by three peer agents, findings folded into the guide"
 description: >
-  v0.13.0 shipped no exemplar, no validator, no conformance checklist; Evergreen's
-  generator produced 26 maps with no governance carriers. Ship a versioned kit next
-  to dist/ so any project's agent can produce and self-check governed maps without
-  hand-delivered instructions.
+  External review of the authoring kit by three peer agents, findings folded into the guide
 
 status: work-completed
 workflow_type: build
@@ -13,7 +10,7 @@ current_node: frw_11_task
 owner: agent
 horizon: null
 tags: []
-components: [scripts/release-designer.sh, tests/run-bridge-tests.sh, tests/test_t974_authoring_kit.py, tools/build-authoring-kit.py]
+components: [tools/build-authoring-kit.py, tools/validate-workflow.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -25,9 +22,9 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-01T17:54:32Z
-last_update: 2026-10-01T18:19:33Z
-date_finished: 2026-10-01T18:00:41Z
+created: 2026-10-01T18:04:38Z
+last_update: 2026-10-01T18:20:05Z
+date_finished: 2026-10-01T18:20:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -38,87 +35,41 @@ date_finished: 2026-10-01T18:00:41Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-01T17:56:52Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 3
-      F3: 0
-      F1: 1
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=3 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
-      task body — no hypothesis, so this score has no claim to be wrong about,L0:
-      no signal); F1=1 (basis: task body — no hypothesis, so this score has no claim
-      to be wrong about,L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-974: Vendor authoring kit released beside the designer artifact
+# T-975: External review of the authoring kit by three peer agents, findings folded into the guide
 
 ## Context
 
-Evergreen deployed designer v0.13.0 and its generator produced 26 maps with zero governance
-carriers. The release contained no exemplar, no validator and no conformance checklist, so
-nothing a vendor's agent could read told it what a good map carries. The operator's purpose
-ruling: the value is the mechanism that lets other projects' agents do this unaided, not maps
-drawn by us. **If the knowledge has to be hand-delivered, the mechanism is not finished.**
-
-Shape, forced by how releases travel: a release is ONE immutable, sha256-pinned HTML that AEF
-vendors (`docs/aef-designer-integration-protocol.md`). A Python validator cannot ride inside it,
-so the kit is a versioned COMPANION directory beside it, built by the same script under the same
-immutability rule. Cutting a release stays the operator's act (G-007: the version number is a
-promise); this task builds and proves the machinery against a scratch dist, and does not cut one.
+Operator ruling, 2026-10-01: *"Don't ask me to review the guide, you think about it and if you
+need more then get external guidance please. We have three review agents from other on
+subscription you can ask for help."* So T-974's Human AC (review of `AUTHORING.md`) is
+discharged by my own critique plus three independent external reviews, not by the operator.
+The reviewers read the kit cold, as a vendor's generating agent would. That is the closest
+available stand-in for the .132 trial, and it is cheaper to fail.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] A builder (`tools/build-authoring-kit.py`) writes `aef-authoring-kit-<VERSION>/` containing:
-      `validate-workflow.py` (the repo's exact bytes), `exemplar.bpmn` (a corpus map that
-      validates clean with every lane governed), `CONFORMANCE.md`, `AUTHORING.md`, and
-      `SHA256SUMS` covering every other file.
-- [x] `CONFORMANCE.md` is GENERATED from the validator and the dialect axis (every XML rule id,
-      severity class, UNIVERSAL / DIALECT-RELATIVE / PRESENTATIONAL), never hand-written. A test
-      fails if a rule is added to the validator and the checklist does not list it.
-- [x] `AUTHORING.md` is the guide for a generating agent: validate before every save and read the
-      findings; state lane authority and workflowMeta; **derive, never invent** (an owner or an
-      order the source does not state stays unknown, and is annotated, not connected); declare
-      `kind` for overview maps. Every rule it names exists in the validator (checked).
-- [x] The kit is self-contained: run from a directory outside this repo, its validator passes the
-      exemplar clean and reports `W-XML-NO-WORKFLOWMETA` + `W-XML-LANE-NO-AUTHORITY` on a map
-      shaped like Evergreen's (synthetic fixture, not their content).
-- [x] `scripts/release-designer.sh` builds the kit beside the artifact, under the SAME immutability
-      rule (an existing released kit is never rewritten). Exercised against a scratch dist, so
-      `dist/` is untouched by this task.
-- [x] Deterministic: two builds from the same tree are byte-identical.
+- [x] My own critique of `AUTHORING.md` is written down BEFORE any external review arrives, so
+      the reviews can be compared against it rather than absorbed into it. *(commit 0dee892d,
+      before either reply.)*
+- [x] The kit (built from the tree, not described) is sent to three external review agents with
+      one identical brief: act as a generating agent with a source and only this kit, and say
+      what you would still have to guess. *(Codex, GLM, Vibe; each in its own workspace.)*
+- [x] Each reply is recorded verbatim-in-substance in `docs/reports/T-975-kit-external-review.md`
+      with a disposition per point: folded into the guide, rejected with the reason, or deferred
+      to a named task. Nothing is silently dropped. *(X1-X12, G1-G10, R1-R6.)*
+- [x] Changes land in `docs/authoring-kit/AUTHORING.md`, and `tests/test_t974_authoring_kit.py`
+      stays green (every rule the guide names still exists). *(16/16.)*
+- [x] If fewer than three reviewers answer, the report says how many did and which did not,
+      rather than presenting a partial panel as a full one. *(§3.3: Mistral rate-limited, 2 of 3.)*
 
-**Evidence (2026-10-01):** `tests/test_t974_authoring_kit.py` 16/16, wired into the bridge
-runner (orphan guard green). CONFORMANCE.md: 31 BPMN-form rules, 0 unclassified, 0 messages
-that fell back to code; the test derives the rule set by regex independently of the builder's
-AST walk. Copied outside the repo and run with `python3 -I`, the kit passes its exemplar clean
-and reports `W-XML-NO-WORKFLOWMETA` + `W-XML-LANE-NO-AUTHORITY` on a vendor-shaped map. The
-release script ran end to end against a scratch `RELEASE_DIST`; `git status dist/` was empty
-before and after. Exemplar is `task-lifecycle.bpmn`: clean, 3 governed lanes, 9 tasks,
-4 gateways. It declares no `kind`, deliberately: choosing one for our own corpus map is a
-modelling decision, and the guide teaches `kind` in prose instead.
-
-- [x] The guide says what a vendor's generating agent needs to know, judged by agents doing that
-      job rather than by reading it. *(Was a Human [REVIEW] AC. Reassigned by the operator,
-      2026-10-01: "Don't ask me to review the guide, you think about it and if you need more
-      then get external guidance please." Discharged by T-975: my critique written first, then
-      OpenAI Codex and Z.ai GLM each built a map from a synthetic source with only the kit
-      (Mistral rate-limited, so 2 of 3 answered), then a FRESH Codex session on the revised kit.
-      Governance guesses went from present in both round-1 reports to none in round 2, and the
-      round-1 divergence on ERP authority closed. Remaining guesses are the source's own
-      ambiguity. Evidence: `docs/reports/T-975-kit-external-review.md`.)*
+**Outcome beyond the ACs:** a fresh Codex session on the revised kit had no governance guesses
+left (round 1: both reviewers had them). Two real validator defects found by outsiders using the
+kit for its job: plain-task occupancy (fixed here) and the refused XOR merge (T-977). Plus T-976
+(layout is not flow-aware) and T-978 (finding messages overstate), both product fixes.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -280,8 +231,9 @@ modelling decision, and the guide teaches `kind` in prose instead.
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 python3 tests/test_t974_authoring_kit.py
-python3 tests/test_t316_runner_orphans.py
-bash -n scripts/release-designer.sh
+grep -q "honest end state" docs/authoring-kit/AUTHORING.md
+grep -q "2 of 3 answered\|Two of three reviewers answered" docs/reports/T-975-kit-external-review.md
+python3 -c "import importlib.util as u;s=u.spec_from_file_location('v','tools/validate-workflow.py');m=u.module_from_spec(s);s.loader.exec_module(m);assert m.NODE_OCCUPANCY['task']==m.NODE_OCCUPANCY['serviceTask']"
 
 ## RCA
 
@@ -352,17 +304,6 @@ bash -n scripts/release-designer.sh
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
-**Recommendation:** GO
-**Rationale:** The kit is built, tested and wired into the release, and nothing about it needs a
-second message to a vendor: rules, classes and vocabularies are generated from the validator,
-so it cannot drift. What only you can judge is whether the guide's prose says everything a
-generating agent needs. Shipping it to a vendor still needs a release cut, which is your call.
-**Evidence:**
-- 16/16 legs, including running outside the repo with `python3 -I` and naming both missing
-  carriers on a vendor-shaped map
-- release script run end to end against a scratch dist; real `dist/` untouched
-- CONFORMANCE.md: 31 rules, 0 unclassified, derived independently and compared
-
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -373,16 +314,6 @@ generating agent needs. Shipping it to a vendor still needs a release cut, which
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
-
-### 2026-10-01 — Who judges whether the guide is sufficient
-- **Chose:** agents doing the guide's job (build a map from a source with only the kit), from two
-  outside vendors, plus a fresh re-run on the revision (T-975).
-- **Why:** operator ruling, verbatim: *"Don't ask me to review the guide, you think about it and
-  if you need more then get external guidance please. We have three review agents from other on
-  subscription you can ask for help."* And the guide's audience is a generating agent, so an
-  agent using it is a closer test than a human reading it.
-- **Rejected:** keeping the Human [REVIEW] AC (overruled by the operator); a cold read by a
-  reviewer instead of a trial (a read finds what looks unclear, a trial finds what was guessed).
 
 ## Decision
 
@@ -396,30 +327,19 @@ generating agent needs. Shipping it to a vendor still needs a release cut, which
 
 ## Updates
 
-### 2026-10-01T17:54:32Z — task-created [task-create-agent]
+### 2026-10-01T18:04:38Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-974-vendor-authoring-kit-released-beside-the.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-975-external-review-of-the-authoring-kit-by-.md
 - **Context:** Initial task creation
-
-### 2026-10-01T17:56:52Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-ca718513
-- **Timestamp:** 2026-10-01T18:00:44Z
+- **Scan ID:** R-04a92f8d
+- **Timestamp:** 2026-10-01T18:20:11Z
 - **Catalogue:** v1.3-seed
-- **Overall:** CONCERN
+- **Overall:** PASS
 - **Needs Human:** no
-- **Findings:** 1
+- **Findings:** none
 
-**Per-AC findings:**
-
-- **AC#1 (Agent)** — A builder (`tools/build-authoring-kit.py`) writes `aef-authoring-kit-<VERSION>/` containing:
-  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/build-authoring-kit.py in: A builder (`tools/build-authoring-kit.py`) writes `aef-authoring-kit-<VERSION>/` containing:`
-
-### 2026-10-01T18:00:41Z — status-update [task-update-agent]
+### 2026-10-01T18:20:05Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
-
-### 2026-10-01T18:19:29Z — status-update [task-update-agent]
-- **Change:** owner: human → agent

@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-974: Vendor authoring kit released beside the designer artifact
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T18:19:34Z
+# ============================================================================
+
+task_id: T-974
+task_name: "Vendor authoring kit released beside the designer artifact"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-01T17:54:32Z
+completed: 2026-10-01T18:19:29Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-01T20:00:19+02:00
+last_commit: 2026-10-01T20:01:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the vendor authoring kit — what a generating agent reads instead of being told by us. partial-complete, Recommendation GO; one Human review of the guide prose remains
+
+# Key outcomes
+outcomes:
+  - 'A builder (`tools/build-authoring-kit.py`) writes `aef-authoring-kit-<VERSION>/` containing:'
+  - '`CONFORMANCE.md` is GENERATED from the validator and the dialect axis (every XML rule id,'
+  - '`AUTHORING.md` is the guide for a generating agent: validate before every save and read the'
+  - 'The kit is self-contained: run from a directory outside this repo, its validator passes the'
+  - '`scripts/release-designer.sh` builds the kit beside the artifact, under the SAME immutability'
+  - 'Deterministic: two builds from the same tree are byte-identical.'
+  - 'The guide says what a vendor''s generating agent needs to know, judged by agents doing that'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-01 — Who judges whether the guide is sufficient'
+    chose: 'agents doing the guide''s job (build a map from a source with only the kit), from two outside vendors, plus a fresh re-run on the revision (T-975).'
+    rationale: 'operator ruling, verbatim: *"Don''t ask me to review the guide, you think about it and if you need more then get external guidance please. We have three review agents from other on subscription you can ask for help."* And the guide''s audience is a generating agent, so an agent using it is a closer test than a human reading it.'
+    alternatives_rejected: ['keeping the Human [REVIEW] AC (overruled by the operator); a cold read by a reviewer instead of a trial (a read finds what looks unclear, a trial finds what was guessed).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/authoring-kit/AUTHORING.md'
+  - '.fabric/components/tests-test_t973_save_findings.yaml'
+  - '.fabric/components/tests-test_t974_authoring_kit.yaml'
+  - '.fabric/components/tools-build-authoring-kit.yaml'
+  - 'scripts/release-designer.sh'
+  - '.tasks/active/T-974-vendor-authoring-kit-released-beside-the.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t974_authoring_kit.py'
+  - 'tools/build-authoring-kit.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T20:00:19'
+    action: 'T-974: the vendor authoring kit — what a generating agent reads instead of being told by us'
+  - time: '2026-10-01T20:01:11'
+    action: 'T-974: partial-complete, Recommendation GO; one Human review of the guide prose remains'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 24 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 24
+  commits: 2
+  files_changed: 9
+  lines_added: 985
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-974-vendor-authoring-kit-released-beside-the.md
+generated_by: context-agent-hybrid

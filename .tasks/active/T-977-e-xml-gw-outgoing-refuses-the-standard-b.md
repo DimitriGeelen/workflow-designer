@@ -1,13 +1,13 @@
 ---
-id: T-975
-name: "External review of the authoring kit by three peer agents, findings folded into the guide"
+id: T-977
+name: "E-XML-GW-OUTGOING refuses the standard BPMN merge: every exclusiveGateway must have 2+ outgoing, so a converging XOR is an ERROR"
 description: >
-  External review of the authoring kit by three peer agents, findings folded into the guide
+  Found by Codex in T-975's external review (X7), confirmed at validate-workflow.py:1208. Same class as T-970: refusing standard BPMN a vendor will emit. A converging gateway (>=2 incoming, 1 outgoing) is legal BPMN; the rule should fire only on a diverging gateway with <2 outgoing.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -21,8 +21,8 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-01T18:04:38Z
-last_update: 2026-10-01T18:04:38Z
+created: 2026-10-01T18:12:30Z
+last_update: 2026-10-01T18:12:30Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -36,39 +36,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-975: External review of the authoring kit by three peer agents, findings folded into the guide
+# T-977: E-XML-GW-OUTGOING refuses the standard BPMN merge: every exclusiveGateway must have 2+ outgoing, so a converging XOR is an ERROR
 
 ## Context
 
-Operator ruling, 2026-10-01: *"Don't ask me to review the guide, you think about it and if you
-need more then get external guidance please. We have three review agents from other on
-subscription you can ask for help."* So T-974's Human AC (review of `AUTHORING.md`) is
-discharged by my own critique plus three independent external reviews, not by the operator.
-The reviewers read the kit cold, as a vendor's generating agent would. That is the closest
-available stand-in for the .132 trial, and it is cheaper to fail.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] My own critique of `AUTHORING.md` is written down BEFORE any external review arrives, so
-      the reviews can be compared against it rather than absorbed into it. *(commit 0dee892d,
-      before either reply.)*
-- [x] The kit (built from the tree, not described) is sent to three external review agents with
-      one identical brief: act as a generating agent with a source and only this kit, and say
-      what you would still have to guess. *(Codex, GLM, Vibe; each in its own workspace.)*
-- [x] Each reply is recorded verbatim-in-substance in `docs/reports/T-975-kit-external-review.md`
-      with a disposition per point: folded into the guide, rejected with the reason, or deferred
-      to a named task. Nothing is silently dropped. *(X1-X12, G1-G10, R1-R6.)*
-- [x] Changes land in `docs/authoring-kit/AUTHORING.md`, and `tests/test_t974_authoring_kit.py`
-      stays green (every rule the guide names still exists). *(16/16.)*
-- [x] If fewer than three reviewers answer, the report says how many did and which did not,
-      rather than presenting a partial panel as a full one. *(§3.3: Mistral rate-limited, 2 of 3.)*
-
-**Outcome beyond the ACs:** a fresh Codex session on the revised kit had no governance guesses
-left (round 1: both reviewers had them). Two real validator defects found by outsiders using the
-kit for its job: plain-task occupancy (fixed here) and the refused XOR merge (T-977). Plus T-976
-(layout is not flow-aware) and T-978 (finding messages overstate), both product fixes.
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -229,11 +208,6 @@ kit for its job: plain-task occupancy (fixed here) and the refused XOR merge (T-
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-python3 tests/test_t974_authoring_kit.py
-grep -q "honest end state" docs/authoring-kit/AUTHORING.md
-grep -q "2 of 3 answered\|Two of three reviewers answered" docs/reports/T-975-kit-external-review.md
-python3 -c "import importlib.util as u;s=u.spec_from_file_location('v','tools/validate-workflow.py');m=u.module_from_spec(s);s.loader.exec_module(m);assert m.NODE_OCCUPANCY['task']==m.NODE_OCCUPANCY['serviceTask']"
-
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -326,7 +300,7 @@ python3 -c "import importlib.util as u;s=u.spec_from_file_location('v','tools/va
 
 ## Updates
 
-### 2026-10-01T18:04:38Z — task-created [task-create-agent]
+### 2026-10-01T18:12:30Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-975-external-review-of-the-authoring-kit-by-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-977-e-xml-gw-outgoing-refuses-the-standard-b.md
 - **Context:** Initial task creation

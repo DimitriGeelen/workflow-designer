@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-975: External review of the authoring kit by three peer agents, findings folded into the guide
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T18:20:18Z
+# ============================================================================
+
+task_id: T-975
+task_name: "External review of the authoring kit by three peer agents, findings folded into the guide"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T18:04:38Z
+completed: 2026-10-01T18:20:05Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-01T20:07:54+02:00
+last_commit: 2026-10-01T20:20:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  my own critique of the authoring guide, written before any external reply (C1-C8). Codex review recorded with dispositions; fix NODE_OCCUPANCY missing plain task (X6). guide rewritten from two external reviews; CONFORMANCE lists intake rules. round 2 (fresh Codex on revised kit): governance guesses gone; R1-R6 folded
+
+# Key outcomes
+outcomes:
+  - 'My own critique of `AUTHORING.md` is written down BEFORE any external review arrives, so'
+  - 'The kit (built from the tree, not described) is sent to three external review agents with'
+  - 'Each reply is recorded verbatim-in-substance in `docs/reports/T-975-kit-external-review.md`'
+  - 'Changes land in `docs/authoring-kit/AUTHORING.md`, and `tests/test_t974_authoring_kit.py`'
+  - 'If fewer than three reviewers answer, the report says how many did and which did not,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Codex review recorded with dispositions; fix NODE_OCCUPANCY missing plain task (X6)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/reports/T-975-kit-external-review.md'
+  - '.tasks/active/T-975-external-review-of-the-authoring-kit-by-.md'
+  - '.tasks/completed/T-974-vendor-authoring-kit-released-beside-the.md'
+  - 'tools/build-authoring-kit.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T20:07:54'
+    action: 'T-975: my own critique of the authoring guide, written before any external reply (C1-C8)'
+  - time: '2026-10-01T20:12:45'
+    action: 'T-975: Codex review recorded with dispositions; fix NODE_OCCUPANCY missing plain task (X6)'
+  - time: '2026-10-01T20:15:38'
+    action: 'T-975: guide rewritten from two external reviews; CONFORMANCE lists intake rules'
+  - time: '2026-10-01T20:20:04'
+    action: 'T-975: round 2 (fresh Codex on revised kit): governance guesses gone; R1-R6 folded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 15
+  commits: 4
+  files_changed: 6
+  lines_added: 721
+  lines_removed: 72
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-975-external-review-of-the-authoring-kit-by-.md
+generated_by: context-agent-hybrid
