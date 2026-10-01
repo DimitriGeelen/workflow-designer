@@ -2597,3 +2597,9 @@ learnings:
     fix-learned T-959 ..." — is blocked by the no-active-task gate, since fix-learned is not
     on the read-only allowlist while context add-learning is. A prompt that names a command
     its own transition has just made unrunnable. Filed as OBS-460.
+- id: PL-369
+  learning: "External review panel = the three LOCALLY PAID agent accounts: OpenAI Codex (codex exec), Z.AI GLM coding plan (opencode run -m zai-coding-plan/glm-5.2), and Antigravity. Mistral is NOT one (only via OpenRouter, paid per use): T-975 burned ~15 min on it. Ring20 Manager knows how to reach these accounts: ask it over TermLink before probing the host."
+  source: unknown
+  task: T-979
+  date: 2026-10-01
+  context: Added via context agent
