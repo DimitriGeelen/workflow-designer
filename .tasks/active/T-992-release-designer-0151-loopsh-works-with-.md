@@ -71,6 +71,13 @@ date_finished: null
       0.15.0, tag on the release commit; the 0.15.1 kit is posted to Evergreen on
       `xfer-evergreen-kit` and reassembled from the hub with a matching checksum.
 
+**Agent error, recorded (2026-10-02):** while preparing this release I ran `bash runme.sh 0.15.1
+--dry-run` against what was still the T-981 cron-install script; it reads `--dry-run` only as its
+FIRST argument, so it took the real install path three times. Each run stopped at its confirmation
+prompt (no tty -> "not confirmed, nothing written") and the install diff was 0 lines, so nothing
+changed, but the rule is that the agent runs runme.sh only as a dry run. Cause: I did not read the
+file before running it. The release script was restored from 1a179ecb and then dry-run correctly.
+
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
