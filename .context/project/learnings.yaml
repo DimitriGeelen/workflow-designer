@@ -2609,3 +2609,9 @@ learnings:
   task: T-980
   date: 2026-10-01
   context: Added via context agent
+- id: PL-371
+  learning: "Re-measure before every claim about a partner's artefacts. In the Evergreen update (T-989, offset 10) I told them their generator invents start/end events; their 26 maps have at most one start/end each. Their own answer had said it was PAST behaviour, already fixed; I quoted my taxonomy notes instead of the corpus, and had to post a correction (offset 12). A claim sent to another project travels further than one in our own files and is harder to retract."
+  source: unknown
+  task: T-989
+  date: 2026-10-01
+  context: Added via context agent
