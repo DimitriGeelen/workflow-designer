@@ -98,6 +98,13 @@ chk "the gallery builder exists" \
     "test -f '$PROJ/tools/serve-gallery.sh'"
 chk "port $PORT is free (nothing else is bound to it)" \
     "! ss -tlnH \"sport = :$PORT\" 2>/dev/null | grep -q LISTEN"
+# T-965: a second run must not race a server already serving this docroot. Name the
+# pid rather than making the operator hunt for it.
+if ss -tlnH "sport = :$PORT" 2>/dev/null | grep -q LISTEN; then
+    _pid="$(ss -tlnpH "sport = :$PORT" 2>/dev/null | grep -oE 'pid=[0-9]+' | head -1 | cut -d= -f2)"
+    echo "        ^ already serving, pid ${_pid:-unknown}. Stop it with:  kill ${_pid:-<pid>}"
+    echo "          or run this script on another port:  bash $PROJ/runme.sh 8900"
+fi
 
 if [ "$fail" -ne 0 ]; then
     echo
@@ -124,19 +131,24 @@ cat <<'WHAT'
      — NOT a blank panel. "Not yet checked", "no findings" and "could not
      check" are three different lines, on purpose.
 
-  TO SEE IT FIND SOMETHING, drag a step so it sits BELOW every lane band,
-  then press ✓ Check again. You should get:
-     a red ✖ on that step, and a row reading E-XML-NODE-UNASSIGNED
-     "...is in no lane, so it has no authority-of-record ... an owner
-      cannot be derived and must not be invented"
-  That is the same defect class as the AEF map you screenshotted in July.
+  TO SEE IT FIND SOMETHING, drag a step clear of every lane band and press
+  ✓ Check again. You should get TWO rows:
+     W-XML-LANE-GEOMETRY  and  W-XML-LANE-CAPACITY
+  both labelled "not on the map".
 
-  THE ONE THING I WANT YOUR EYE ON: a step flagged this way often ALSO
-  carries the older "⚠ no authority" label. Two marks, closely related
-  conditions. Tell me whether to leave both, hide mine when the older one
-  is showing, or merge them. That is taste, and it is yours.
+  CORRECTED FROM THE LAST VERSION OF THIS SCRIPT, which told you that drag
+  would give E-XML-NODE-UNASSIGNED. It cannot. The designer reassigns a
+  step's lane only while it is OVER a lane, so a step dragged into empty
+  space keeps its last valid lane and is never orphaned — good behaviour I
+  had not read before telling you to rely on it. That rule comes from
+  IMPORTED maps, not from drawing. Sorry for the wasted attempt.
 
-  Ctrl-C stops the server when you are done.
+  WHY THOSE TWO SAY "not on the map": they anchor to a LANE, not to a step,
+  and only steps can carry a marker today. That gap is OBS-465 and is the
+  next thing worth building — it is also, I think, the honest answer to
+  whether this feature is finished.
+
+  The server runs in the background; the stop command is printed at the end.
 
 WHAT
 
@@ -156,31 +168,73 @@ if [ "$rc" -ne 0 ]; then
     exit 3
 fi
 
-# Assert the built copy actually carries the feature. A rebuild that silently
-# produced the old file would otherwise send you looking for a button that is
-# not there, and you would reasonably conclude the work was broken.
-if ! grep -q 'async function validateCurrentWorkflow' "$PROJ/build/gallery/designer.html" 2>/dev/null; then
-    echo
-    echo "REFUSED: the rebuilt serve root does NOT contain the Check feature."
-    echo "That means serve-gallery.sh copied something other than src/, and serving"
-    echo "it would show you the wrong page. Tell the agent — this is its bug, not yours."
+# ---------------------------------------------------------------------------
+# SERVE — detached, against the docroot just built. T-965.
+#
+# The previous version called serve-gallery.sh a SECOND time here, and that was
+# three bugs in one line:
+#   1. serve-gallery.sh does `rm -rf "$OUT"` on EVERY invocation — it is a full
+#      rebuild by design (its own header, T-350/G-015). So the serve step DELETED
+#      the docroot the check above had just verified, making that check assert
+#      nothing about what you actually get.
+#   2. It blocks forever. "Ctrl-C stops it" was in the header, and that is not the
+#      same as the terminal coming back. The operator read a script that never
+#      returns and prints nothing further as hung, and cancelled it. They were
+#      right to: a handover script that owns your terminal indefinitely is not a
+#      handover.
+#   3. The URL was printed BEFORE that rebuild, so for a moment the page it told
+#      you to open did not exist.
+#
+# Now: build once (above), start gallery-serve.py directly, wait until it really
+# answers, verify the FEATURE OVER HTTP rather than by grepping a file that is
+# about to be deleted, print the URL, and return the terminal.
+# ---------------------------------------------------------------------------
+SERVED_LOG="$PROJ/build/gallery-serve-$TS.log"
+nohup python3 "$PROJ/tools/gallery-serve.py" "$PORT" \
+      --docroot "$PROJ/build/gallery" --repo "$PROJ" --bind 0.0.0.0 \
+      > "$SERVED_LOG" 2>&1 &
+SRV_PID=$!
+
+# Wait for it to actually answer. Printing a URL before the socket is live is
+# how the 404 window above happened.
+ready=0
+for _ in $(seq 1 60); do
+    if curl -sf -o /dev/null "http://127.0.0.1:$PORT/api/health" 2>/dev/null; then ready=1; break; fi
+    sleep 0.25
+done
+if [ "$ready" -ne 1 ]; then
+    echo "REFUSED: the server did not come up on port $PORT within 15s."
+    kill "$SRV_PID" 2>/dev/null
+    echo "Its own log: $SERVED_LOG"
+    echo "Log: $LOG"
+    exit 5
+fi
+
+# THE CHECK THAT MATTERS, made against what is actually being served. The old
+# grep-the-file version could not have caught a serve step that shipped the wrong
+# page, because the serve step ran afterwards.
+if ! curl -sf "http://127.0.0.1:$PORT/designer.html" 2>/dev/null \
+     | grep -q 'async function validateCurrentWorkflow'; then
+    echo "REFUSED: the page being SERVED does not contain the Check feature."
+    echo "Stopping the server rather than sending you to look for a missing button."
+    kill "$SRV_PID" 2>/dev/null
+    echo "Tell the agent — this is its bug, not yours."
     echo "Log: $LOG"
     exit 4
 fi
-echo "  ok    build/gallery/designer.html carries the Check feature"
-echo
 
+echo "$SRV_PID" > "$PROJ/build/gallery-serve.pid"
+echo "  ok    the SERVED page carries the Check feature (verified over HTTP)"
+echo
 echo "============================================================"
 echo "  OPEN THIS:   http://localhost:$PORT/designer.html"
-echo "  (from another device you need a port you have opened; :8834 is"
-echo "   behind ufw by T-253 and the agent must not change that)"
+echo
+echo "  The server runs in the BACKGROUND — this script is done and your"
+echo "  terminal is yours again. Stop it when you have finished looking:"
+echo "      kill $SRV_PID"
+echo "  (pid also in build/gallery-serve.pid; its own log is $SERVED_LOG)"
 echo "============================================================"
 echo
-echo "--- serving (Ctrl-C to stop) ---"
-bash "$PROJ/tools/serve-gallery.sh" "$PORT"
-rc=$?
-echo
-echo "Server stopped (exit $rc)."
 echo "Log:  $LOG"
 echo "Copy: $PROJ/runme-LATEST.log"
-exit "$rc"
+exit 0

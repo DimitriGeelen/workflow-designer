@@ -922,7 +922,11 @@ def main():
     sys.stderr.write("gallery-serve (write-capable) docroot=%s repo=%s\n" % (DOCROOT, REPO))
     sys.stderr.write("Local:  http://localhost:%d/\n" % PORT)
     sys.stderr.write("LAN:    http://%s:%d/\n" % (ip, PORT))
-    sys.stderr.write("API:    /api/health /api/list /api/save /api/delete /api/versions /api/version /api/thumb /api/instances\n")
+    # T-965: /api/validate was missing here. It shipped under T-955 with tests, a
+    # boundary-inventory row and a suite leg, and the one surface that announces what
+    # this server offers never mentioned it. Noticed by reading the banner in a log,
+    # not by any check — the route list is prose and nothing compares it to the routes.
+    sys.stderr.write("API:    /api/health /api/list /api/save /api/delete /api/versions /api/version /api/thumb /api/instances /api/validate\n")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
