@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  T-982 — RECORD THE GO DECISION ON THE GENERATE-REVIEW-LEARN LOOP
-#  Run with:   bash /opt/832-Workflow-designer/runme.sh
-#  Dry run:    bash /opt/832-Workflow-designer/runme.sh --dry-run
+#  T-987 — CUT RELEASE 0.15.0: the designer + the authoring kit (with the review loop)
+#  Run with:   bash /opt/832-Workflow-designer/runme.sh 0.15.0
+#  Dry run:    bash /opt/832-Workflow-designer/runme.sh 0.15.0 --dry-run
 # =============================================================================
 #
-#  WHAT THIS DOES: records the operator's GO on inception T-982 (agent-led map generation with
-#  an iterative review-correct loop whose learnings feed back into the guide, rubric and
-#  validator). GO means three build slices: B1 the loop ships in the kit (citation convention,
-#  rubric v3, review/correct briefs, loop driver, planted-defect calibration set + test);
-#  B2 the learning ledger and its promotion step; B3 provenance on save + structural diff so
-#  human edits become proposed learnings. Report: docs/reports/T-982-generate-review-loop.md
+#  WHAT THIS DOES, each step confirmed separately, stopping at the first failure:
+#    1. scripts/release-designer.sh: writes dist/aef-workflow-designer-0.15.0.html, the
+#       authoring kit dist/aef-authoring-kit-0.15.0/, and MANIFEST.yaml; runs the render gate
+#       (ON); announces the release on the hub rail.
+#    2. commits exactly those dist/ paths as the release commit.
+#    3. creates the annotated tag designer-v0.15.0 on that commit.
+#    4. pushes bleeding-edge and the tag to origin.
+#  Same pattern as 0.14.0 (tag on the bleeding-edge release commit). master is NOT advanced
+#  here; that remains a separate decision. Notes: docs/releases/RELEASE-NOTES-0.15.0.md
 #
-#  THE AGENT DOES NOT RUN THIS. An inception decision is the operator's authority, and
-#  check-tier0.sh matches command TEXT, so a decision moved into a script is invisible to
-#  it (OBS-449). The agent only ran --dry-run.
+#  THE VERSION IS YOUR ARGUMENT (G-007): the script refuses without it or if it differs from
+#  ./VERSION. THE AGENT DOES NOT RUN THIS: a release is a promise over immutable bytes, a tag
+#  and a push are outward, and check-tier0.sh cannot see commands inside a script (OBS-449).
+#  The agent ran --dry-run only.
 # =============================================================================
 [ -z "${BASH_VERSION:-}" ] && exec bash "$0" "$@"
 set -uo pipefail
@@ -24,47 +28,64 @@ TS=$(date +%Y%m%dT%H%M%S)
 LOG="$PROJ/.context/working/runme-$TS.log"
 mkdir -p "$PROJ/.context/working" && touch "$LOG" || { echo "cannot write log $LOG"; exit 1; }
 exec > >(tee -a "$LOG") 2>&1
-echo "runme.sh T-982 started $TS  log: $LOG"
-
-DRY=0; [ "${1:-}" = "--dry-run" ] && DRY=1
-FW="$PROJ/.agentic-framework/bin/fw"
-RATIONALE="GO: the generate -> review -> correct -> learn loop was run end to end on two sources (docs/reports/T-982-generate-review-loop.md). Reviewer caught 3/3 planted defects, 0 false positives; a blind spot shared by two agent reviewers was closed by one human disagreement turned into rubric v3, which then caught 2/2 with 0 false alarms on a clean control; the corrector applied the findings and named the cause; re-review clean. The deterministic validator accepted every planted defect. Build slices: B1 loop in the kit with reviewer calibration, B2 learning ledger + promotion with human checkpoint, B3 provenance on save + structural diff for human edits."
+echo "runme.sh T-987 started $TS  log: $LOG"
 
 fail() { echo "STOPPED: $*"; echo "rc=1  (log: $LOG)"; exit 1; }
+confirm() { local a; read -r -p "$1 [y/N] " a </dev/tty || a=n; [ "$a" = y ] || [ "$a" = Y ]; }
+
+V="${1:-}"; DRY=0; [ "${2:-}" = "--dry-run" ] && DRY=1
+[ -n "$V" ] || fail "pass the version as the first argument, e.g.  bash $0 0.15.0"
+cd "$PROJ" || fail "project dir missing"
+TAG="designer-v$V"
+ART="dist/aef-workflow-designer-$V.html"
+KIT="dist/aef-authoring-kit-$V"
 
 # --- preflight: each check says what it proves; nothing is written before all pass ---
-cd "$PROJ" || fail "project dir missing"
-[ -x "$FW" ] || fail "fw not found at $FW"
-TASK=$(ls .tasks/active/T-982-*.md 2>/dev/null | head -1)
-[ -n "$TASK" ] || fail "T-982 is not in .tasks/active (already decided or moved?)"
-echo "ok  T-982 exists: $TASK"
-grep -q '^workflow_type: inception' "$TASK" || fail "T-982 is not an inception"
-echo "ok  T-982 is an inception"
-test -s docs/reports/T-982-generate-review-loop.md || fail "the research report is missing"
-echo "ok  research report present"
-if grep -qE '^\*\*Decision\*\*: *(GO|NO-GO)' "$TASK"; then fail "T-982 already carries a decision"; fi
-echo "ok  no decision recorded yet"
-# Added after the first real run stopped here: `fw inception decide` refuses without a
-# review marker (T-973 gate). The agent runs `fw task review T-982` to create it; this
-# check makes the script say so up front instead of failing at the last step.
-test -f .context/working/.reviewed-T-982 || fail "no review marker: run  cd $PROJ && $FW task review T-982"
-echo "ok  review marker present (fw task review T-982 has run)"
-# The second real run stopped at the hypothesis gate. Run the framework's OWN gate functions
-# here, so any refusal happens before the confirm prompt rather than after it.
-bash -c "source .agentic-framework/lib/task-audit.sh && audit_task_placeholders '$TASK' && audit_inception_recommendation '$TASK' && audit_inception_hypothesis '$TASK' go" \
-  || fail "a decide gate refuses T-982 (placeholders / recommendation / hypothesis): see the lines above"
-echo "ok  placeholder, recommendation and hypothesis gates pass"
+[ "$(tr -d '[:space:]' < VERSION)" = "$V" ] || fail "./VERSION is '$(tr -d '[:space:]' < VERSION)', not '$V'"
+echo "ok  ./VERSION is $V"
+bash tools/_t808-version-parity.sh >/dev/null || fail "APP_VERSION in src does not match VERSION"
+echo "ok  APP_VERSION matches VERSION"
+[ "$(git rev-parse --abbrev-ref HEAD)" = "bleeding-edge" ] || fail "not on bleeding-edge"
+echo "ok  on bleeding-edge"
+git diff --quiet HEAD -- VERSION src/aef-workflow-designer.html scripts/release-designer.sh tools/build-authoring-kit.py docs/authoring-kit tools/validate-workflow.py \
+  || fail "uncommitted changes in files the release is built from; commit them first"
+echo "ok  the release inputs are committed"
+git rev-parse -q --verify "refs/tags/$TAG" >/dev/null && fail "tag $TAG already exists locally"
+git ls-remote --exit-code --tags origin "$TAG" >/dev/null 2>&1 && fail "tag $TAG already exists on origin"
+echo "ok  tag $TAG does not exist (local or origin)"
+[ -e "$ART" ] && fail "$ART already exists: $V may already be cut"
+[ -e "$KIT" ] && fail "$KIT already exists"
+echo "ok  no $V artifact or kit in dist/ yet"
 
 echo
 echo "WILL RUN:"
-echo "  $FW inception decide T-982 go --rationale \"<rationale above, $(echo -n "$RATIONALE" | wc -c) chars>\""
+echo "  1. scripts/release-designer.sh          (render gate ON, announce ON)"
+echo "  2. git commit $ART $KIT dist/MANIFEST.yaml"
+echo "  3. git tag -a $TAG"
+echo "  4. git push origin bleeding-edge && git push origin $TAG"
 if [ "$DRY" = 1 ]; then echo; echo "DRY RUN: nothing written."; echo "rc=0  (log: $LOG)"; exit 0; fi
 
 echo
-read -r -p "Record GO on T-982? [y/N] " ans </dev/tty || ans=n
-[ "$ans" = y ] || [ "$ans" = Y ] || fail "not confirmed, nothing written"
+confirm "Step 1/4: cut release $V (writes dist/, announces)?" || fail "not confirmed at step 1; nothing written"
+scripts/release-designer.sh || fail "release-designer.sh failed (see above); dist/ may need a look"
+{ [ -f "$ART" ] && cmp -s src/aef-workflow-designer.html "$ART"; } || fail "$ART missing or differs from src"
+(cd "$KIT" && sha256sum -c SHA256SUMS --quiet) || fail "the kit does not verify against its SHA256SUMS"
+echo "ok  artifact == src, kit verifies"
 
-"$FW" inception decide T-982 go --rationale "$RATIONALE" || fail "fw inception decide returned non-zero"
+confirm "Step 2/4: commit the release files?" || fail "not confirmed at step 2; dist/ is written but NOT committed"
+git add "$ART" "$KIT" dist/MANIFEST.yaml || fail "git add failed"
+git commit -q -m "T-987: release designer $V — designer + authoring kit (review loop, calibration)" \
+  -m "Notes: docs/releases/RELEASE-NOTES-$V.md" || fail "commit failed"
+echo "ok  release commit $(git rev-parse --short HEAD)"
+
+SHA=$(sha256sum "$ART" | awk '{print $1}')
+confirm "Step 3/4: tag $TAG on $(git rev-parse --short HEAD)?" || fail "not confirmed at step 3; committed, NOT tagged"
+git tag -a "$TAG" -m "designer $V (sha256 $SHA) + authoring kit" || fail "tag failed"
+echo "ok  tagged $TAG"
+
+confirm "Step 4/4: push bleeding-edge and $TAG to origin?" || fail "not confirmed at step 4; tagged locally, NOT pushed"
+git push origin bleeding-edge || fail "push of bleeding-edge failed"
+git push origin "$TAG" || fail "push of $TAG failed"
 echo
-echo "DONE: GO recorded on T-982."
+echo "DONE: release $V cut, committed, tagged $TAG and pushed."
 echo "rc=0  (log: $LOG)"
