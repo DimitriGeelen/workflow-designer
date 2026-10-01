@@ -88,6 +88,29 @@ def xml_rules():
     return out
 
 
+def intake_rules():
+    """{rule_id: (severity, message)} emitted OUTSIDE the validator classes: the document could
+    not be read or parsed, so no modelling rule ran. Found by the T-975 review: the checklist
+    claimed to list every rule and omitted these. Derived from the AST, not listed by hand."""
+    tree = ast.parse(open(VALIDATOR, encoding='utf-8').read())
+    inside = set()
+    for cls in tree.body:
+        if isinstance(cls, ast.ClassDef):
+            inside.update(id(n) for n in ast.walk(cls))
+    out = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or id(node) in inside:
+            continue
+        f = node.func
+        if isinstance(f, ast.Attribute) and f.attr in SEVERITY and len(node.args) >= 3 \
+                and isinstance(node.args[0], ast.Constant):
+            out.setdefault(node.args[0].value, (SEVERITY[f.attr], _template(node.args[2])))
+        elif isinstance(f, ast.Name) and f.id == 'Finding' and len(node.args) >= 4 \
+                and isinstance(node.args[1], ast.Constant) and isinstance(node.args[0], ast.Name):
+            out.setdefault(node.args[1].value, (node.args[0].id, _template(node.args[3])))
+    return out
+
+
 def conformance_md(version):
     val = _load(VALIDATOR, '_kit_validator')
     axis = _load(AXIS, '_kit_axis').classification()
@@ -129,6 +152,15 @@ def conformance_md(version):
         lines.append('| `%s` | %s | %s | %s |' % (
             rid, sev, axis.get(rid, 'UNCLASSIFIED'), msg.replace('|', '\\|')))
     lines += ['', '%d rules, %d unclassified.' % (len(rules), len(missing)), '']
+    intake = intake_rules()
+    lines += ['## Before any rule runs', '',
+              'These fire when the document cannot be read or parsed. No modelling rule has run,',
+              'so the map has NOT been checked: fix the file first.', '',
+              '| rule | severity | says |', '|---|---|---|']
+    for rid in sorted(intake):
+        sev, msg = intake[rid]
+        lines.append('| `%s` | %s | %s |' % (rid, sev, msg.replace('|', '\\|')))
+    lines.append('')
     return '\n'.join(lines)
 
 

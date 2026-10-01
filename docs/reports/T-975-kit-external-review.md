@@ -112,6 +112,45 @@ transferred.** What did not transfer is everything the guide leaves implicit.
 | X11 | A worked partial-process example (known routing + unconnected same-process steps, every resulting warning listed) | matches C5 | **fold** |
 | X12 | Serialization contract: identity generation, schemaVersion, kind vs isExecutable, condition syntax, merge pattern, geometry/DI | matches C2, C4, C6 | **fold** |
 
+### 3.2 opencode · glm-5.2 (Z.ai) — completed; map + REPORT.md
+
+Same headline as Codex: **it invented nothing**, and refused the same temptations (connect the
+unordered steps, move the passive-voice rejection into a plausible lane, retype plain tasks to
+silence the capacity skip, give the carrier an agent authority). Final map: 0 errors, 7 warnings,
+the identical honest set.
+
+**The divergence that proves the main gap:** Codex mapped the ERP automation to `none` (no rule
+told it otherwise); GLM mapped it to `authority`. Two careful agents, one fact, two answers.
+That is C3/X10, and it is now section 3 of the guide.
+
+| # | GLM point | disposition |
+|---|---|---|
+| G1 | actor -> authority table is "¾ guesswork" | **folded**: guide §3 |
+| G2 | unknown order earns 5 findings, not 1; a generator will think it failed and "fix" the map | **folded**: guide §5, the honest end state |
+| G3 | DISCONNECTED class vs its code comment | = X3, deferred to OBS-467, guide §9 says so |
+| G4 | plain task missing from NODE_OCCUPANCY | = X6, **independently re-found**, already fixed |
+| G5 | `version`/`schemaVersion` never checked | **folded**: guide §8 |
+| G6 | **my brief's command had a stray `.`; argparse exits 2, the same as "invalid"** | my error, acknowledged. Guide §1 now warns that a bad invocation also exits 2 |
+| G7 | E-XML-PARSE / E-LOAD missing from CONFORMANCE | = X8, **fixed**: builder derives an intake section from the AST |
+| G8 | where do events and gateways go when no performer is named | **folded**: guide §2 |
+| G9 | `kind` for an as-is captured process; `isExecutable` | **folded**: guide §6 |
+| G10 | positions never mentioned | **folded**: guide §7, backed by the T-976 measurement |
+
+### 3.3 Mistral Vibe — rate-limited
+
+Mistral answered every attempt with "Rate limit exceeded" (probe + retry loop of 2-minute
+waits). **Two of three reviewers answered.** Not presented as a full panel.
+
+### 3.4 What changed
+
+`AUTHORING.md` rewritten: loop with publish step and save-API caveat (C1, X9); namespace, event
+and gateway placement, uid derivation (C2, C4, G8); performer -> authority table with
+element-over-lane precedence (C3, X1, X10, G1); annotation snippet, merge workaround, no invented
+conditions (C5, X7, X11); the honest end state (X2, G2); kind and isExecutable as they really
+behave (C7, X5, G9); layout, measured (C6, G10); what is NOT checked (X4, G5).
+`CONFORMANCE.md` gains the intake rules (X8, G7). Validator: plain-task occupancy (X6/G4).
+New tasks: T-976 layout, T-977 XOR merge, T-978 message prose.
+
 Independent agreement with my pre-written critique: C2, C3, C4, C5, C6 all re-found. New to me:
 X1, X2, X4, X5, X6, X7, X8. **Two are real validator defects (X6, X7)**, found by an outside
 agent using the kit for its intended job, which is the strongest argument for this method.

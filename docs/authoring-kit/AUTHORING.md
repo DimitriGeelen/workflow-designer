@@ -7,71 +7,159 @@ governance at all**: no map said what it was, and no task had a derivable owner.
 the generating agent. This guide, the validator beside it, and `CONFORMANCE.md` are what tell
 you.
 
-Everything here is checkable. If the validator and this guide ever disagree, the validator wins
-and this guide has a bug.
+When this guide and the validator disagree, the validator wins and this guide has a bug.
+Section 8 lists what the validator does **not** check, so you know where you are on your own.
 
-## The loop
+## 1. The loop
 
-1. **Generate** the map from the source.
-2. **Validate before you save**: `python3 validate-workflow.py <map.bpmn>` (Python 3, standard
-   library only). Exit 0 = clean, 1 = warnings, 2 = errors. Add `--json` for machine-readable
-   findings. If you save through the designer's `/api/save`, the response carries the same
-   verdict under `validation`, and `{ok:false}` there means the validator could not run. That is
-   NOT a clean map.
-3. **Read every finding.** Each one names a rule id; `CONFORMANCE.md` lists them all with their
-   class.
-4. **Fix only what the source lets you derive.** Leave the rest unknown, declared as unknown
-   (see below).
-5. Save, then re-validate the saved bytes.
+1. **Write a candidate** map to a file.
+2. **Validate it:** `python3 validate-workflow.py candidate.bpmn` (Python 3, standard library
+   only; add `--json` for machine-readable findings). Exit **0** = clean, **1** = warnings only,
+   **2** = errors. A wrong command line also exits 2, so if you see 2 with no ERROR line, check
+   your invocation before your map.
+3. **Read every finding.** `CONFORMANCE.md` lists every rule with its class.
+4. **Fix only what the source lets you derive.** Declare the rest unknown (section 4). Section 5
+   tells you exactly which warnings an honest map keeps, so you know when to stop.
+5. **Publish** the validated file (save it through the designer or its API, commit it), then
+   validate the published bytes again.
 
-## What every map carries
+**About the save API.** Some designer servers return the validator's verdict in the `/api/save`
+response under `validation`. Many do not yet. **No `validation` key means the server did not
+validate: run the validator yourself.** `{"ok": false}` inside `validation` means it could not
+run. Neither means the map is clean.
 
-Compare `exemplar.bpmn`: a complete map that validates clean.
+## 2. What every map carries
 
-- **`<aef:workflowMeta id=… version=… schemaVersion=…/>`** inside the process's
+`exemplar.bpmn` is a complete map that validates clean. Copy its shape.
+
+- **The AEF namespace:** `xmlns:aef="http://anchorpoint.framework/aef/extensions"` on the root.
+  The BPMN namespace may be prefixed (`bpmn:`) or the default; both are accepted.
+- **`<aef:workflowMeta id="…" version="1" schemaVersion="2"/>`** in the process's
   `extensionElements`. Without it the map has no id of its own and no `kind`
-  (`W-XML-NO-WORKFLOWMETA`).
-- **`<aef:laneMeta authority=…/>` on every lane.** The lane is the sole authority-of-record for
-  who performs the work in it (mapping-v1 §3). A lane that states nothing gets
-  `W-XML-LANE-NO-AUTHORITY`. The vocabulary is in `CONFORMANCE.md`.
-- **Every flow node in exactly one lane** (`E-XML-NODE-UNASSIGNED` otherwise).
-- **A stable `<aef:uid value=…/>`** on every node and sequence flow, so a round trip keeps
-  identity.
+  (`W-XML-NO-WORKFLOWMETA`). The validator checks only that the element exists and that `kind`,
+  if present, is valid; supply `id`, `version` and `schemaVersion` anyway.
+- **`<aef:laneMeta authority="…"/>`** in every lane's `extensionElements`
+  (`W-XML-LANE-NO-AUTHORITY` if absent). Section 3 says which value.
+- **Every flow node in a lane**, including events and gateways (`E-XML-NODE-UNASSIGNED`). The
+  source rarely names a performer for an event or a gateway. Put it in the lane of the step it
+  follows or decides about. That placement asserts no performer: only tasks are owner-bearing.
+- **`<aef:uid value="…"/>`** on every node and every sequence flow, **derived from the source's
+  own identity** (a requirement id, an ontology IRI, a step's stable key), never from a counter
+  or a random value. A uid that changes when you regenerate makes every regeneration a new map,
+  and the round trip loses its history.
+- Plain `<task>` is accepted, as are `userTask`, `serviceTask` and `scriptTask`.
 
-Plain `<task>` is fine; so is the default (unprefixed) BPMN namespace. The task type
-(user/service/script) is presentational. If it disagrees with the lane, the lane wins and you get
-a warning (`W-TYPE-LANE-MISMATCH`), not a refusal.
+## 3. What a lane is, and which authority it gets
 
-## Derive, never invent
+A lane says **who performs** the work in it. Lane by performer, not by system or department
+chart, unless the system IS the performer.
+
+| the source says the work is done by… | `authority` | the task's owner |
+|---|---|---|
+| a named human role or department (sales employee, credit control, warehouse) | `sovereignty` | human |
+| an automated system acting on its own rules (the ERP generates the invoice) | `authority` | agent |
+| an AI or software agent that proposes or acts on initiative | `initiative` | agent |
+| a party outside the organisation (carrier, supplier, customer) | `external` | none: no task is compiled |
+| **nobody the source names** | `none` | none: `W-LANE-NO-OWNER` on each task |
+
+**Precedence:** a task may carry its own `<aef:meta authority="…"/>`; when it does, that value
+wins over its lane's. Use it only when the source assigns that one step to a different performer
+than the rest of the lane. Otherwise let the lane speak.
+
+Task type (`userTask` / `serviceTask` / `scriptTask` / `task`) is presentational. If it disagrees
+with the authority you get `W-TYPE-LANE-MISMATCH` and the authority still wins. When the source
+does not say how a step is performed, plain `task` is the honest choice.
+
+## 4. Derive, never invent
 
 This is the rule the 26 maps broke. A generator under pressure to produce a "complete" diagram
 will make up what the source does not say. Do not.
 
-- **An owner the source does not state stays unknown.** Declare it: `authority="none"` on the
-  lane. That earns `W-LANE-NO-OWNER` on each task in it, which is the honest finding. Do **not**
-  omit `laneMeta`, and do **not** pick a plausible authority to make the warning go away.
-- **An order the source does not state stays unknown.** Do not connect the steps. Put them in
-  the map unconnected, add a `textAnnotation` saying the order is not recorded in the source, and
-  accept `W-XML-DISCONNECTED`. That warning is the true statement about the map. Connecting the
-  steps to silence it fabricates process knowledge.
+- **An owner the source does not state stays unknown.** Put the step in a lane with
+  `authority="none"`. Passive voice ("the order is closed") names no performer. Do not move the
+  step into a plausible lane, and do not omit `laneMeta`.
+- **An order the source does not state stays unknown.** Do not connect the steps. Leave them
+  unconnected, in the lane of their performer, and annotate them:
+
+  ```xml
+  <textAnnotation id="note_order">
+    <text>Order relative to packing is not recorded in the source</text>
+  </textAnnotation>
+  <association id="assoc_1" sourceRef="note_order" targetRef="inspect"/>
+  ```
 - **Do not invent start and end events.** One start before every step with no predecessor and
-  one end after every step with no successor turns a single process into several parallel ones
-  the source never described. If the source states one process, draw one.
+  one end after every step with no successor turns one process into several parallel ones the
+  source never described. Two ends are right when the source states two outcomes (an order is
+  rejected or fulfilled), and wrong when they exist only to give orphans an exit.
+- **Do not invent conditions.** Label each exclusive-gateway branch with the source's own words
+  (`name="limit exceeded"`), not an executable expression the source never stated.
+- **Merging branches:** until a converging exclusive gateway is accepted (it currently raises
+  `E-XML-GW-OUTGOING`), route the branches straight into the next step. A task may have several
+  incoming sequence flows.
+- **Prose order is evidence, not proof.** "Picks, packs and books a carrier" is a reasonable
+  sequence; "inspection and labelling also happen" is not. When in doubt, it is unknown.
 
-## Say what kind of map it is
+## 5. The honest end state: which warnings stay
 
-`<aef:workflowMeta kind="documentation"/>` marks a map as illustrative: an overview, a landscape,
-a capability map. Nothing will mint executable tasks from it. Leave `kind` out only for a real
-process. A landscape overview judged as an executable process produces findings that are
-category errors.
+Stop iterating when every remaining finding is one of these, and each traces to something the
+source does not say. Removing them by changing the map is fabrication.
 
-## Classes of finding
+| what the source leaves unknown | findings you keep |
+|---|---|
+| the order of N unplaced steps | 1 × `W-XML-DISCONNECTED`, plus per step 1 × `W-XML-UNREACHABLE` and 1 × `W-XML-DEADEND` |
+| who performs a step | 1 × `W-LANE-NO-OWNER` per task in the `none` lane |
+
+The current wording of the first two messages overstates. `W-XML-DISCONNECTED` speaks of
+"independent processes" and `W-XML-DEADEND` of control that "never terminates". On an honest
+partial map they mean "these steps have no recorded place in the flow". Your map is right; the
+messages are being corrected.
+
+## 6. Say what kind of map it is
+
+- **A real process**, including an as-is process captured from interviews: leave `kind` out.
+- **An overview, landscape or capability map** (boxes that are not steps of one flow):
+  `kind="documentation"`.
+- **A plan of work to be carried out as tasks:** `kind="work-plan"`.
+
+Today `kind` is a **declaration that nothing acts on yet**: the validator checks only that the
+value is valid, and every rule still applies to an overview map. Declare it anyway. It is the
+only carrier for the fact, and tools that honour it can only honour what you wrote.
+`isExecutable` is not read by anything here; `false` is the honest value for a captured process.
+
+## 7. Layout
+
+Positions are presentational: they never change what a map means. They do decide whether a
+human can read it.
+
+- **Either** emit `aef:position` per node, as the exemplar does: left to right in flow order,
+  each node inside its own lane's band. The lane geometry and capacity rules then check you.
+- **Or** emit no geometry at all, and **write the flow elements in flow order** in the file. The
+  designer lays out an unpositioned map in document order; it does not yet layer by flow. A map
+  whose end event comes first in the file is drawn with the end first.
+- If you emit BPMN DI (`BPMNShape` bounds), the designer uses those coordinates as given.
+
+## 8. What the validator does NOT check
+
+You are on your own for these. Get them right because the source says so, not because nothing
+complained.
+
+- that every node and flow **has** an `aef:uid` (only that no two are equal);
+- that a node is in **exactly one** lane (only that it is in at least one);
+- the `id`, `version` and `schemaVersion` attributes of `workflowMeta`;
+- whether a lane's authority is **true** of the source (only that the value is in the
+  vocabulary);
+- `isExecutable`, branch label wording, annotation text.
+
+## 9. Classes of finding
 
 `CONFORMANCE.md` classifies every rule, derived from the frozen standard rather than asserted:
 
-- **UNIVERSAL**: any conformant document satisfies it. Fix it, or, for an unknown owner or order,
-  declare the unknown as above.
-- **DIALECT-RELATIVE**: our house convention, not the standard. A conformant document can trip
-  it. Still worth satisfying when you author for this designer, and never a reason to distort
-  the source.
-- **PRESENTATIONAL**: layout. Never affects what the map means.
+- **UNIVERSAL**: rests on the standard or on graph structure. Fix it, or for an unknown owner or
+  order, declare the unknown as in section 4.
+- **DIALECT-RELATIVE**: our house convention, not the standard. Worth satisfying when you author
+  for this designer, never a reason to distort the source.
+- **PRESENTATIONAL**: layout only.
+
+`W-XML-DISCONNECTED` is listed UNIVERSAL by that derivation (it reads graph structure), although
+the standard has no connectivity clause. That disagreement is known and recorded on our side.
+Treat it as section 5 says.
