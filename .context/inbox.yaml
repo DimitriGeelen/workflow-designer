@@ -2867,3 +2867,19 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-464
+  text: "The partial-complete commit allowance (T-3179) matches only BARE 'git commit', not 'fw git commit' -- the form CLAUDE.md prescribes everywhere else. The block message explicitly promises the allowance (\"'git commit' IS allowed here (T-3179) ... run the commit bare\") and then refuses the wrapper, with a Why line that changes between attempts: first 'matches a file-write pattern' for a multi-line message, then 'not on the read-only allowlist' for a single-line one. Measured at T-962's partial-complete transition 2026-10-01: three refusals before the bare form succeeded. Consequence: at the one moment a task is told to checkpoint its own verified work, the prescribed commit path is the one that does not work, so the agent either bypasses the git agent (losing its traceability enforcement, though the commit-msg hook still fires) or gives up and leaves the work uncommitted. Remedy: add the fw wrapper form to the T-3179 matcher, or have the block message name the bare form as the required path rather than describing the wrapper as allowed. Sibling of OBS-460/OBS-461 -- the third place today where a gate's own guidance names a route the gate then refuses."
+  captured: 2026-10-01T08:41:11Z
+  context_task: T-962
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-465
+  text: "Lane-anchored validator findings have NO visual anchor in the designer: they reach the dock as rows and can never reach the map. Four XmlValidator rules emit location as \"lane '<id>'\" rather than a node id -- W-XML-LANE-CAPACITY, W-XML-LANE-GEOMETRY, E-XML-ABBR-DUP, E-XML-LANE-AUTHORING-DEFAULT -- so findingNodeId() correctly resolves them to nothing and T-962's marker path skips them. Two of those four are the picture-disagrees-with-the-file class that docs/reports/T-309-iw1-where-findings-surface.md argued was the whole point of putting findings on a canvas: a step that looks placed and structurally is not. Measured at T-964 against the operator's live server: moving a step clear of every lane band yields W-XML-LANE-GEOMETRY and W-XML-LANE-CAPACITY, both listed, both flagged not-on-the-map, zero markers. Current behaviour is honest (the rows say 'not on the map') but it is not what the operator asked for -- 'makes it visibly in the flow so we can remediate it'. Remedy: mark the LANE BAND, which is already drawn, the same way nodes are marked; the finding already carries the lane id. Sibling of the node-marker work, not a defect in it."
+  captured: 2026-10-01T11:47:31Z
+  context_task: T-964
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

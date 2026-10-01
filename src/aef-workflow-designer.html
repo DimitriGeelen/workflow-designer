@@ -1597,7 +1597,7 @@ font-family: 'Outfit';
 
   <!-- ============ T-962 (T-309 slice 3): validator findings ============ -->
   <!-- Every finding the validator returned, whether or not it could be placed on the map.
-       Markers on nodes are a declared SUBSET of this list (see FINDING_MARKER_RULES); the
+       Markers on nodes are a SUBSET of this list (everything except FINDING_MARKER_EXCLUDED); the
        list is the complete record, so a finding is never lost for having nowhere to sit. -->
   <div id="findings-drawer" data-open="0">
     <div class="findings-head">
@@ -9499,34 +9499,35 @@ async function validateCurrentWorkflow() {
 // as a clean one. Hence four states, each with its own line in the header.
 let findingsView = { state: 'unchecked', rows: [], byNode: new Map(), reason: null };
 
-// WHICH RULES GET A MARKER ON THE CANVAS. A declared list, not a severity gate, because
-// severity cannot separate signal from noise here: `W-XML-GW-AMBIGUOUS` fires on 47 of
-// AEF's 48 live gateways and 0 of ours (T-325 — it reports which toolchain wrote the
-// file, not whether the file is wrong), and it is a WARN, exactly like the genuinely
-// valuable `W-XML-LANE-GEOMETRY` / `W-XML-LANE-CAPACITY`. Marking all warnings would put
-// ~47 markers on an AEF-authored map, and arc-001 commits this editor to opening those.
-// AEF's L-527: a rule that gets tuned out is weaker than no rule.
+// WHICH RULES GET A MARKER ON THE CANVAS. A DENYLIST: everything marks except what is
+// named here. T-964 inverted this from an allowlist, and the reason is the whole lesson.
 //
-// EXCLUSION FROM THIS SET IS NOT SUPPRESSION. Every finding still appears in the list.
-// The set decides what shouts, not what is reported.
+// The allowlist FAILED SILENTLY, immediately, on the two rules that matter most. It
+// omitted `W-XML-LANE-CAPACITY` and `W-XML-LANE-GEOMETRY` — the picture-disagrees-with-
+// the-file class, which the T-309 IW-1 brief had argued was "the real prize … specific to
+// a visual tool", because a step can look placed and structurally not be. So the feature
+// built to make exactly those visible on the map produced a row and no marker for them,
+// and nothing said so. A rule you forget to add to an allowlist is invisible.
 //
-// THIS LIST IS A STAND-IN. `tests/test_rule_dialect_axis.py` already classifies every
-// rule as universal or dialect-relative, and the validator does not read it
-// (`grep -c dialect tools/validate-workflow.py` → 0). When that axis is consumed this
-// hand list should be DELETED, not extended — it is the same judgement, hard-coded.
-const FINDING_MARKER_RULES = new Set([
-  // Authority: a step nobody owns. The flagship case, and the operator's own field defect
-  // (a map with ~14 steps below every lane band — they looked placed, they were in no lane).
-  'E-XML-NODE-UNASSIGNED', 'E-XML-LANEREF-DANGLING', 'E-XML-AUTHORITY',
-  'W-LANE-NO-OWNER', 'W-TYPE-LANE-MISMATCH', 'W-XML-AUTHORITY-DEFAULT-MISMATCH',
-  // Flow: control that cannot start, cannot finish, or points at nothing.
-  'E-XML-FLOW-DANGLING', 'W-XML-UNREACHABLE', 'W-XML-DEADEND',
-  // Parallelism that does not rejoin.
-  'W-XML-PGW-UNBALANCED', 'W-XML-PGW-NOOP', 'W-XML-PGW-CONDITION',
-  // Decisions that cannot decide, and identity collisions.
-  'E-XML-GW-OUTGOING', 'E-XML-ID-DUP', 'E-XML-UID-DUP', 'E-XML-NODE-TYPE',
-  // DELIBERATELY ABSENT: 'W-XML-GW-AMBIGUOUS' (the 47-of-48 above). It is in the list,
-  // just not on the canvas.
+// A denylist fails the other way: a new rule marks, and a rule that marks wrongly gets
+// NOTICED and excluded here with its reason. D2 is "no silent failures", and between a
+// failure mode that hides the feature and one that over-shows it, the loud one is correct.
+// The measured noise problem is exactly one rule, which is a thin basis for a policy that
+// defaults to silence.
+//
+// EXCLUSION IS NOT SUPPRESSION. Every finding still appears in the dock. This set decides
+// what shouts on the canvas, never what is reported.
+//
+// STILL A STAND-IN. `tests/test_rule_dialect_axis.py` already classifies every rule as
+// universal or dialect-relative and the validator does not read it
+// (`grep -c dialect tools/validate-workflow.py` → 0). When that axis is consumed, this
+// set should be DELETED rather than extended — it is the same judgement, hard-coded.
+const FINDING_MARKER_EXCLUDED = new Set([
+  // Fires on 47 of AEF's 48 live gateways and 0 of ours (T-325). It reports which
+  // toolchain wrote the file, not whether the file is wrong, and arc-001 commits this
+  // editor to opening AEF-authored maps. AEF's L-527: a rule that gets tuned out is
+  // weaker than no rule, because its silence stops meaning anything.
+  'W-XML-GW-AMBIGUOUS',
 ]);
 
 // `location` is prose, e.g. "node 'wrk_2_context'" or "exclusiveGateway 'frw_2_build'",
@@ -9634,7 +9635,7 @@ async function runCheck() {
     } else {
       const byNode = new Map();
       for (const r of res.findings) {
-        if (!FINDING_MARKER_RULES.has(r.rule)) continue;
+        if (FINDING_MARKER_EXCLUDED.has(r.rule)) continue;
         const id = findingNodeId(r.location);
         if (!id) continue;
         // Worst severity wins the marker: a node with an error and a warning reads ERROR.

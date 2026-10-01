@@ -119,6 +119,36 @@ JS_DIRTY = """async () => {
   };
 }"""
 
+# T-964 REGRESSION. Move a node clear of every lane band. The designer does NOT orphan it —
+# `if (newLane) n.lane = newLane` keeps the last valid lane — so this is not
+# E-XML-NODE-UNASSIGNED; it is W-XML-LANE-CAPACITY, the lane can no longer contain its own
+# member. That rule is the picture-disagrees-with-the-file class this whole feature exists
+# for, and the original ALLOWLIST silently omitted it: a row in the dock and no marker on the
+# map, with nothing to say so. The leg demands the MARKER, not merely the finding.
+JS_LANE_OVERFLOW = """async () => {
+  const n = state.nodes[0];
+  let bottom = POOL_Y + POOL_HEADER;
+  for (const l of getLanes()) bottom += l.height;
+  n.y = bottom + 400;
+  const centerY = n.y + NODE_DEFAULTS[n.type].h / 2;
+  const newLane = laneAtY(centerY);
+  if (newLane) n.lane = newLane;          // exactly what the drag handler does
+  renderAll();
+  await runCheck();
+  const marked = Array.from(document.querySelectorAll('[data-finding-badge]'))
+    .map(e => e.getAttribute('data-finding-badge'));
+  const rows = Array.from(document.querySelectorAll('.finding-row'))
+    .map(r => r.getAttribute('data-rule'));
+  return {
+    laneKept: !!findLane(n.lane),
+    laneAtYWasNull: newLane === null,
+    rows, marked,
+    capacityListed: rows.filter(r => r === 'W-XML-LANE-CAPACITY').length,
+    capacityMarked: marked.filter(r => r === 'W-XML-LANE-CAPACITY').length,
+    unanchoredRows: document.querySelectorAll('.finding-row[data-anchored="0"]').length,
+  };
+}"""
+
 # Clear every condition on one exclusive gateway's outgoing edges. buildBpmnXml emits
 # <bpmn:conditionExpression> only when e.condition is set, so this produces exactly the
 # ambiguity W-XML-GW-AMBIGUOUS reports — the 47-of-48 rule.
@@ -162,7 +192,7 @@ def main():
         return 3
     src_text = open(SRC, encoding="utf-8").read()
     for needle, what in (("findings-drawer", "the findings dock"),
-                         ("FINDING_MARKER_RULES", "the marker allowlist"),
+                         ("FINDING_MARKER_EXCLUDED", "the marker denylist"),
                          ("data-finding-badge", "the node marker")):
         if needle not in src_text:
             print("COULD-NOT-MEASURE: %s is not in the designer (%s); this leg guards "
@@ -228,7 +258,32 @@ def main():
                   and all(x in d["apiLocations"] for x in marked_display),
                   "marked=%s apiLocations=%s" % (marked_display, d["apiLocations"][:6]))
 
-            # --- leg 6: the allowlist quiets the canvas WITHOUT hiding the row -------
+            # --- leg 6 (T-964): a node clear of every lane band is MARKED ------------
+            # The regression this slice shipped without. The original allowlist omitted
+            # W-XML-LANE-CAPACITY, so this produced a row and no marker, silently.
+            page.reload()
+            page.wait_for_function("() => typeof _apiAvailable !== 'undefined' && _apiAvailable === true",
+                                   timeout=15000)
+            lo = page.evaluate(JS_LANE_OVERFLOW)
+            check("a node dragged clear of the lanes keeps its lane "
+                  "(the designer refuses to orphan it)",
+                  lo["laneKept"] is True and lo["laneAtYWasNull"] is True,
+                  json.dumps({k: lo[k] for k in ("laneKept", "laneAtYWasNull")}))
+            # CORRECTED FROM MY FIRST ATTEMPT, which demanded a MARKER here and failed.
+            # W-XML-LANE-CAPACITY anchors to `lane '<id>'`, not to a node, so no node marker
+            # is possible — the denylist inversion was necessary but could never be
+            # sufficient for a lane-anchored rule. What must hold is that it is LISTED and
+            # HONESTLY LABELLED as unanchored, rather than dropped for having nowhere to sit.
+            # Lane markers are a separate gap (4 lane-anchored rules), filed, not faked here.
+            check("lane-anchored findings are LISTED and flagged as not-on-the-map "
+                  "(never dropped for having no node to sit on)",
+                  lo["capacityListed"] > 0 and lo["capacityMarked"] == 0
+                  and lo["unanchoredRows"] >= lo["capacityListed"],
+                  "listed=%s marked=%s unanchored=%s rows=%s"
+                  % (lo["capacityListed"], lo["capacityMarked"],
+                     lo["unanchoredRows"], lo["rows"]))
+
+            # --- leg 7: the denylist quiets the canvas WITHOUT hiding the row --------
             a = page.evaluate(JS_AMBIGUOUS)
             if a.get("skipped"):
                 check("allowlist leg could run against the seed map", False, a["skipped"])
