@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-29T20:09:10Z
-last_update: 2026-09-29T17:23:03Z
+last_update: 2026-10-01T06:13:29Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -448,9 +448,22 @@ that `W-GW-AMBIGUOUS` was YAML-only and the designer speaks BPMN. **That is no l
   `conditionExpression` from a corpus BPMN map and "nothing fires (exit 0)". Re-run on
   `examples/aef-processes/rendered/task-lifecycle.bpmn`, 8 blocks removed:
   **4 × `W-XML-GW-AMBIGUOUS`, rc=1.** The rule was ported some time in the two months since.
-- **Parity has doubled.** Revision 1 counted "only 7 rule ids shared". Counted now from
+- ~~**Parity has doubled.** Revision 1 counted "only 7 rule ids shared". Counted now from
   `tools/validate-workflow.py`: **14 shared**, 24 XML-form rules in total (14 paired + 10
-  XML-only), 19 YAML-only.
+  XML-only), 19 YAML-only.~~
+  **CORRECTED, same day, before anything was built on it.** That line counted "shared" by
+  stripping the `-XML-` infix and pairing by name, which measures *conceptual* parity. It is
+  not comparable to revision 1's "7 shared ids" unless revision 1 counted the same way, and
+  its text does not say. Caught when `W-LANE-NO-OWNER` — which my infix heuristic had filed
+  as YAML-only — fired on a `.bpmn` document.
+  Re-measured by **class membership**, which needs no naming convention to be true:
+  `Validator` emits **31** rule ids, `XmlValidator` emits **29**, and only **3** id strings
+  are emitted by both (`E-INCEPTION-NOT-SOVEREIGN`, `W-LANE-NO-OWNER`,
+  `W-TYPE-LANE-MISMATCH`). Conceptual pairs after infix-stripping: 14. Both numbers are real
+  and they answer different questions — "would the designer get the same checks" (pairs) vs
+  "what would a cross-form harness compare" (literal ids). Neither supports "doubled".
+  **The blocker finding does not depend on this count** and stands on its own: revision 1's
+  own falsifiability control, re-run like for like, now fires.
 - **The 19 YAML-only rules are mostly not parity gaps at all** — `E-YAML-PARSE`, `E-LOAD`,
   `E-NOT-MAPPING`, `E-TOPLEVEL-MISSING`, `E-NODE-FIELD`, `E-LANE-FIELD`, `E-EDGE-FIELD` are
   YAML-authoring concerns with no BPMN-XML counterpart to have. The genuinely semantic
