@@ -2899,3 +2899,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-468
+  text: "Two validator guards are RED at HEAD and nobody reads them (detector-with-no-reader class): (1) tests/test_finding_anchorability.py — E-XML-LANE-AUTHORING-DEFAULT, E-XML-META-AUTHORITY, E-XML-NODE-UNASSIGNED, W-XML-AUTHORITY-DEFAULT-MISMATCH unclassified in ANCHOR, plus a stale ANCHOR row W-XML-NODE-UNASSIGNED (renamed by T-891); in-memory fill shows NODE/NODE verify clean, the other two are never witnessed. (2) tests/run-validator-tests.sh — warn/W-XML-NODE-UNASSIGNED.xml expects exit 1 but T-891 promoted the rule to ERROR (exit 2). Also test_rule_form_parity: E-META-AUTHORITY unclassified. Found under T-972, deliberately not fixed there (one deliverable)."
+  captured: 2026-10-01T17:23:18Z
+  context_task: T-972
+  tags: []
+  status: pending
+  promoted_to: null

@@ -14,8 +14,13 @@
     xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
     xmlns:aef="http://anchorpoint.framework/aef/extensions">
   <bpmn:process id="Pool_t" name="t">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="t"/>
+    </bpmn:extensionElements>
     <bpmn:laneSet id="LS">
       <bpmn:lane id="agent" name="Agent">
+        <!-- T-972: a lane with no authority now warns; a clean fixture must state one. -->
+        <bpmn:extensionElements><aef:laneMeta authority="initiative"/></bpmn:extensionElements>
         <bpmn:flowNodeRef>n_s</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>n_g</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>

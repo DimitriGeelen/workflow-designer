@@ -7,6 +7,11 @@
     xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
     xmlns:aef="http://anchorpoint.framework/aef/extensions">
   <bpmn:process id="Pool_investigate" name="investigate">
+    <bpmn:extensionElements>
+      <!-- T-972: the same workflowMeta its YAML sibling carries. This golden dropped it,
+           and "valid" meant "passes" rather than "complete" until W-XML-NO-WORKFLOWMETA. -->
+      <aef:workflowMeta id="investigate" version="1" schemaVersion="2" tier_default="2"/>
+    </bpmn:extensionElements>
 
     <bpmn:laneSet id="LaneSet_investigate">
       <bpmn:lane id="human" name="Human - Sovereignty">

@@ -1158,6 +1158,23 @@ class XmlValidator:
                     "<aef:workflowMeta id='%s'>" % (_wm_el.get("id") or "?"),
                     "kind '%s' not in %s" % (_kind, sorted(WORKFLOW_KINDS)),
                 )
+        # T-972: the document that carries NO workflowMeta at all. An absent `kind`
+        # stays legal and silent (T-875, above) — this fires on the absent ELEMENT,
+        # which takes away two things at once: the map's own id (identity then falls
+        # back to the process id, so a round trip cannot keep it — Evergreen's #2/#3)
+        # and `kind`, the one field that stops an overview map from being judged as an
+        # executable process. 26 of 26 Evergreen maps carried none and 130 saves said
+        # nothing. DIALECT-RELATIVE and declared so in the axis: the frozen standard
+        # never names workflowMeta, so a conformant document may omit it. This is house
+        # convention stated as house convention, not as spec.
+        if next(process.iter("{%s}workflowMeta" % AEF_NS), None) is None:
+            self.warn(
+                "W-XML-NO-WORKFLOWMETA",
+                "process '%s'" % (process.get("id") or "?"),
+                "no <aef:workflowMeta>: the map has no id of its own (identity falls "
+                "back to the process id) and no kind, so it is judged as an executable "
+                "process; declare kind=\"documentation\" for an overview or landscape map",
+            )
 
         lane_set = process.find("{%s}laneSet" % BPMN_NS)
         declared_lanes = (
@@ -1789,6 +1806,36 @@ class XmlValidator:
                 "{%s}extensionElements/{%s}laneMeta" % (BPMN_NS, AEF_NS)
             )
             authority = lm.get("authority") if lm is not None else None
+            # T-972: the lane that states no authority at all. Before this, a lane with
+            # authority="none" drew W-LANE-NO-OWNER on every task while a lane with NO
+            # laneMeta drew nothing — omission was rewarded over an honest unknown, and
+            # that is how 26 Evergreen maps with zero authority-of-record passed every
+            # save. §3 makes the lane the SOLE authority-of-record, so its absence is the
+            # violation itself (carrier is SEMANTIC_MUST in the axis -> UNIVERSAL).
+            # One finding per lane, carrying the task count, rather than one per task:
+            # the defect is the lane's, and the count keeps it from being quieter.
+            if authority is None:
+                _refs = {
+                    (r.text or "").strip()
+                    for r in lane.findall("{%s}flowNodeRef" % BPMN_NS)
+                }
+                _tasks = sum(
+                    1 for c in process
+                    if c.get("id") in _refs and self._local(c.tag) in TYPE_PERFORMER
+                )
+                self.warn(
+                    "W-XML-LANE-NO-AUTHORITY",
+                    "lane '%s'" % (lane.get("id") or "?"),
+                    "lane '%s' declares no authority (%s); mapping-v1 §3 makes the lane "
+                    "the sole authority-of-record, so the owner of its %d task(s) cannot "
+                    "be derived and a downstream compiler must invent one"
+                    % (
+                        lane.get("name") or lane.get("id") or "?",
+                        "no <aef:laneMeta>" if lm is None
+                        else "<aef:laneMeta> without authority",
+                        _tasks,
+                    ),
+                )
 
             # An ABSENT abbr is not a violation — the carrier is optional and a lane that
             # makes no abbr claim cannot collide with one. Only a present, repeated value is

@@ -275,6 +275,21 @@ PARITY = {
                                   "today' was collapsed into 'out of scope'"),
     "W-XML-LANE-CAPACITY":  (GAP, "lane height + y carried by 24/24 yaml maps; "
                                   "no YAML rule (0 live)"),
+    # T-972. Both PAIRED, and the pairing is the finding: the YAML form already REFUSED
+    # what the XML form let through without a word. workflowMeta is in REQUIRED_TOPLEVEL
+    # and authority in REQUIRED_LANE_FIELDS, both ERRORs. The designer speaks BPMN, so the
+    # form vendors actually save through was the one with the hole -- 26 Evergreen maps,
+    # 130 saves. WARN on this side rather than ERROR: the operator's advisory ruling, and
+    # §3 lane-wins/warn-not-refuse.
+    "W-XML-NO-WORKFLOWMETA":   (PAIRED, "E-TOPLEVEL-MISSING (workflowMeta in "
+                                        "REQUIRED_TOPLEVEL), ERROR there (T-972)"),
+    "W-XML-LANE-NO-AUTHORITY": (PAIRED, "E-LANE-FIELD (authority in "
+                                        "REQUIRED_LANE_FIELDS), ERROR there (T-972)"),
+    # T-967, classified late under T-972: shipped without a row and failed this guard
+    # from the day it landed. A GAP, not out of scope: the YAML form carries the same
+    # edges and could compute the same weakly-connected components; nobody built it.
+    "W-XML-DISCONNECTED":      (GAP, "edges carried by every yaml map; no YAML "
+                                     "component rule (T-967)"),
     "I-XML-LANE-GEOMETRY-SKIP": (PAIRED, "skip-note for W-XML-LANE-GEOMETRY; "
                                          "shares its classification"),
     "I-XML-LANE-CAPACITY-SKIP": (PAIRED, "skip-note for W-XML-LANE-CAPACITY; "
@@ -318,7 +333,7 @@ OUT_OF_SCOPE_PROBES = {}
 #    not a measurement.
 # T-902 (2026-09-29): 13 -> 12, re-derived in the census (docs/reports/T-320-rule-form-parity-census.md).
 # -1 T-902 E-XML-META-AUTHORITY — the YAML twin E-META-AUTHORITY was built, so gap #11 closes.
-EXPECTED_GAPS = 12
+EXPECTED_GAPS = 13
 
 
 # --------------------------------------------------------------------------

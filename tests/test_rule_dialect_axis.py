@@ -167,6 +167,12 @@ CARRIER_CLASS = {
     # document-level class at all, so this reading is ours and is declared as such.
     "workflowMeta.kind":            SEMANTIC_MUST,  # UNRATIFIED
     "aef:workflowMeta/@kind":       SEMANTIC_MUST,  # UNRATIFIED
+    # T-972: the workflowMeta ELEMENT itself, as opposed to its kind. SEMANTIC_OPTIONAL
+    # because the frozen standard never names it, so a conformant document may omit it.
+    # That makes W-XML-NO-WORKFLOWMETA DIALECT-RELATIVE, which is the truthful label:
+    # the rule states house convention, and calling it universal would be the 47-of-48
+    # mistake (W-XML-GW-AMBIGUOUS) made on purpose.
+    "aef:workflowMeta":             SEMANTIC_OPTIONAL,  # UNRATIFIED
 }
 
 # Carriers whose class above is this file's reading rather than the standard's
@@ -187,8 +193,12 @@ UNRATIFIED_CARRIERS = {
                               "from a map marked documentation (T-213/T-875)",
     "aef:workflowMeta/@kind": "§1 has no document-level class at all; XML-form twin of "
                               "workflowMeta.kind, same reading (T-213/T-875)",
+    # T-972: same measurement as the two above. 0 occurrences in the standard.
+    "aef:workflowMeta":       "§1 has no document-level class at all; read as optional "
+                              "because nothing in the standard mandates it, so firing on "
+                              "its absence is a house demand, declared as one (T-972)",
 }
-EXPECTED_UNRATIFIED = 4
+EXPECTED_UNRATIFIED = 5
 
 
 # --------------------------------------------------------------------------
@@ -317,6 +327,13 @@ RULE_CARRIERS = {
     # "every conformant document satisfies it" nor "an optional carrier is absent".
     # Filed as OBS-467 rather than resolved by forcing a label.
     "W-XML-DISCONNECTED":       (("sequenceFlow",), REQUIRES),
+    # T-972. REQUIRES over a SEMANTIC_MUST carrier -> UNIVERSAL, derived: §3 makes the
+    # lane the sole authority-of-record, so a lane without one is the violation itself
+    # (PL-035). Sibling of W-LANE-NO-OWNER above, which is CONSTRAINS on the same carrier
+    # because it fires on a PRESENT value of "none". Same carrier, opposite polarity.
+    "W-XML-LANE-NO-AUTHORITY":  (("aef:laneMeta/@authority",), REQUIRES),
+    # T-972. REQUIRES over an optional carrier -> DIALECT-RELATIVE, derived, and probed.
+    "W-XML-NO-WORKFLOWMETA":    (("aef:workflowMeta",), REQUIRES),
     "W-XML-LANE-GEOMETRY":      (("aef:position",), CONSTRAINS),
     "I-XML-LANE-GEOMETRY-SKIP": (("aef:position",), REQUIRES),
     "W-XML-LANE-CAPACITY":      (("aef:position", "aef:laneMeta/@height"), CONSTRAINS),
@@ -543,6 +560,13 @@ POLARITY_PROBES = {
         '      <bpmn:conditionExpression>${x == true}</bpmn:conditionExpression>\n'
         '    </bpmn:sequenceFlow>',
         '<bpmn:sequenceFlow id="f1" sourceRef="n_f" targetRef="n_a"/>'),
+    # T-972: adding the element must silence the rule — and nothing else about the map
+    # changes, so the probe isolates the carrier.
+    "W-XML-NO-WORKFLOWMETA": (
+        "warn/W-XML-NO-WORKFLOWMETA.xml",
+        '  <bpmn:process id="Pool_t" name="t">\n',
+        '  <bpmn:process id="Pool_t" name="t">\n'
+        '    <bpmn:extensionElements><aef:workflowMeta id="t"/></bpmn:extensionElements>\n'),
 }
 
 
@@ -565,6 +589,7 @@ CARRIER_TOKEN = {
     "edge condition":      "condition:",
     "conditionExpression": "conditionExpression",
     "aef:io":              "io:",
+    "aef:workflowMeta":    "aef:workflowMeta",
 }
 
 

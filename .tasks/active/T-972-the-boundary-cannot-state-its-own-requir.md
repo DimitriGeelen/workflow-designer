@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T16:51:54Z
-last_update: 2026-10-01T16:51:54Z
+last_update: 2026-10-01T16:53:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -81,25 +81,49 @@ before this is fixed will skip their corpus for the same reason.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **My T-970 defect is fixed first:** plain `task` participates in ownership checks rather
+- [x] **My T-970 defect is fixed first:** plain `task` participates in ownership checks rather
       than being skipped. Proven by a case where a plain task in a no-owner lane produces a
       finding — before this, it produced silence.
-- [ ] `W-XML-LANE-NO-AUTHORITY` fires on a lane with **no `aef:laneMeta` at all**, naming what
+- [x] `W-XML-LANE-NO-AUTHORITY` fires on a lane with **no `aef:laneMeta` at all**, naming what
       cannot be derived. Absence must not be quieter than a declared `authority="none"`.
-- [ ] `W-XML-NO-WORKFLOWMETA` fires on a document with no `aef:workflowMeta`, because without
+- [x] `W-XML-NO-WORKFLOWMETA` fires on a document with no `aef:workflowMeta`, because without
       it there is no id and no `kind` — and `kind` is what would stop an overview map being
       judged as an executable process.
-- [ ] **Measured against the real corpus, not a fixture:** the Evergreen maps go from 16
+- [x] **Measured against the real corpus, not a fixture:** the Evergreen maps go from 16
       findings to a number that includes one lane-authority finding per lane and one
       workflowMeta finding per map. The whole point is that their 130 silent saves would have
       spoken on the first one.
-- [ ] **No regression on ours:** our own 25 maps still produce 8 findings, because they carry
+- [x] **No regression on ours:** our own 25 maps still produce 8 findings, because they carry
       both attributes. If our corpus lights up, the rules are wrong rather than the corpus.
-- [ ] Both rules classified in `tests/test_rule_dialect_axis.py` on the way in, derived rather
+- [x] Both rules classified in `tests/test_rule_dialect_axis.py` on the way in, derived rather
       than asserted.
-- [ ] WARN, not ERROR, and no conformance clause cited beyond §3's own words — the operator's
+- [x] WARN, not ERROR, and no conformance clause cited beyond §3's own words — the operator's
       advisory-plus-friction ruling, and the 47-of-48 lesson about asserting house convention
       as spec.
+
+**Evidence (2026-10-01, measured HEAD vs tree on both corpora, same harness):**
+- Ours, 25 maps: **8 → 8** (`W-LANE-NO-OWNER` 7, `W-XML-DISCONNECTED` 1). Unchanged.
+- Evergreen, the 26 current maps (`docs/views/bpmn` + `soll-offertes-zonder-novis`):
+  **22 → 26 of 26 maps speak; 46 → 138 findings** = +26 `W-XML-NO-WORKFLOWMETA` (one per map)
+  +66 `W-XML-LANE-NO-AUTHORITY` (one per lane). The AC's "16" was the 13-map rendered subset,
+  and so was my 32-lane estimate. Real figure recorded, not the forecast.
+- Each rule has a single-rule warn fixture that fires ONLY that rule.
+- Dialect axis 57 → 59. `W-XML-LANE-NO-AUTHORITY` derives **UNIVERSAL** (REQUIRES over the
+  SEMANTIC_MUST lane-authority carrier). `W-XML-NO-WORKFLOWMETA` derives **DIALECT-RELATIVE**:
+  the standard names workflowMeta 0 times, so a conformant document may omit it. Declared as
+  the 5th unratified carrier and behaviourally probed (adding the element silences it).
+- Two `valid/` goldens drew the new warnings and were COMPLETED rather than the rule softened:
+  `investigate.bpmn` had dropped the workflowMeta its own YAML sibling carries.
+- Form parity: both PAIRED with existing YAML ERRORs (REQUIRED_TOPLEVEL / REQUIRED_LANE_FIELDS).
+  The YAML form already refused what the BPMN form, the one vendors save through, let pass.
+- Also paid: `W-XML-DISCONNECTED` (T-967, mine) sat unclassified in both the parity and the
+  anchorability guards since it shipped; now GAP / DOC. Anchor classes for all three rules were
+  checked against 105 real documents, 0 disagreements. The anchorability guard was already red
+  over four older rules and stays red; filed separately, not fixed here.
+- **Where the hole actually was:** the designer's exporter writes workflowMeta unconditionally
+  (src:11205) and maps absent laneMeta to authority="none" on import (src:11598). Evergreen's
+  maps never passed through either: their generator posted bytes and the server stored them
+  unexamined. The boundary that must speak is `/api/save`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -259,6 +283,14 @@ before this is fixed will skip their corpus for the same reason.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+python3 tests/test_rule_dialect_axis.py
+python3 tools/validate-workflow.py tests/fixtures/valid/investigate.bpmn
+python3 tools/validate-workflow.py tests/fixtures/valid/gw-single-default.xml
+python3 -c "import json,subprocess as s;f=json.loads(s.run(['python3','tools/validate-workflow.py','--json','tests/fixtures/warn/W-XML-LANE-NO-AUTHORITY.xml'],capture_output=True,text=True).stdout)['findings'];assert [x['rule'] for x in f]==['W-XML-LANE-NO-AUTHORITY'],f"
+python3 -c "import json,subprocess as s;f=json.loads(s.run(['python3','tools/validate-workflow.py','--json','tests/fixtures/warn/W-XML-NO-WORKFLOWMETA.xml'],capture_output=True,text=True).stdout)['findings'];assert [x['rule'] for x in f]==['W-XML-NO-WORKFLOWMETA'],f"
+# invariant, not a count (T-3326): no map we author draws either rule, because ours carry both carriers
+python3 -c "import glob,json,subprocess as s;b=[(p,x['rule']) for p in glob.glob('examples/*/rendered/*.bpmn') for x in json.loads(s.run(['python3','tools/validate-workflow.py','--json',p],capture_output=True,text=True).stdout)['findings'] if x['rule'] in ('W-XML-NO-WORKFLOWMETA','W-XML-LANE-NO-AUTHORITY')];assert glob.glob('examples/*/rendered/*.bpmn') and not b,b"
 
 ## RCA
 

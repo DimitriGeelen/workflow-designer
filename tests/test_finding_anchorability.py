@@ -118,6 +118,16 @@ ANCHOR = {
     # -- named .bpmn, not .xml like its ten siblings, because bpmn_documents() walks
     # for ".bpmn" alone and an .xml fixture is invisible to this axis (T-926).
     "E-XML-WORKFLOW-KIND":       "DOC-META",
+    # T-972. LANE: the location names the lane's own id, which is unique and drawn, so
+    # the canvas can point at exactly the lane that states no authority.
+    "W-XML-LANE-NO-AUTHORITY":   "LANE",
+    # T-972. The location names the PROCESS id because there is no workflowMeta to name --
+    # that absence is the finding. Nothing on the canvas is that element, so not gutter-able.
+    "W-XML-NO-WORKFLOWMETA":     "DOC",
+    # T-967, classified late under T-972. DOC: location is the literal "<process>" -- the
+    # finding is about the whole graph's shape, and the components are listed in the
+    # message, not anchored. Unclassified here from the day it shipped.
+    "W-XML-DISCONNECTED":        "DOC",
 }
 
 GUTTERABLE = {"NODE", "LANE"}
