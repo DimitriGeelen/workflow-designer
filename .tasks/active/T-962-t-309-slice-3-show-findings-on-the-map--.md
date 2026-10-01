@@ -4,12 +4,13 @@ name: "T-309 slice 3: show findings ON the map — node badges for anchorable fi
 description: >
   T-309 slice 3: show findings ON the map — node badges for anchorable findings, a list for the rest, and 'not yet checked' as its own state
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+current_node: frw_8_partial
+owner: human
 horizon: now
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_t962_findings_on_map.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T06:57:15Z
-last_update: 2026-10-01T07:38:57Z
-date_finished: null
+last_update: 2026-10-01T08:39:28Z
+date_finished: 2026-10-01T08:39:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -385,6 +386,34 @@ grep -q "data-state=.unchecked." src/aef-workflow-designer.html
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+**Recommendation:** GO
+
+**Rationale:** The slice is complete and mechanically guarded. Validator findings now reach
+the author: a marker on each offending node, a dock listing every finding, and three states
+that stay distinct. The one open item is a taste question about visual duplication that does
+not block the mechanism and cannot be settled by a test — if the answer is "leave both", no
+code changes at all.
+
+**Evidence:**
+- `tests/test_t962_findings_on_map.py` — **9/9**, driving the real editor in headless chromium
+  against the real `gallery-serve.py`, from a docroot asserted byte-identical to `src/`.
+- Two legs guard defects already made once in this slice: markers resolve by `displayIdOf`
+  (the exported id the validator names — matching `n.id` placed **zero** markers while the
+  dock said "3 findings, 0 on the map"), and `W-XML-GW-AMBIGUOUS` is asserted **listed (1)
+  and marked (0)**, so the allowlist quiets the canvas without hiding a row.
+- Teeth: `T962_DESIGNER_SRC` pointed at the pre-change designer exits **3**, refusing.
+- Wired into `tests/run-bridge-tests.sh`, so it has a scheduled reader rather than a one-shot
+  Verification block (PL-161).
+- Visual verification: 7 captures in `docs/reports/t962-shots/`, read back — and **reading
+  them is what found both defects**, neither of which any DOM assertion would have caught.
+- Four layout variants measured, including focus mode correctly suppressing the dock.
+- Reviewer: **PASS**, no findings.
+
+**What this slice deliberately does not do:** propose or apply fixes (slice 4, where
+`laneAtY` returning `null` is what separates a derivable fix from inventing an owner), and
+consume `tests/test_rule_dialect_axis.py` — which would let the hand-written
+`FINDING_MARKER_RULES` list be deleted rather than extended.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -415,9 +444,12 @@ grep -q "data-state=.unchecked." src/aef-workflow-designer.html
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-38328e65
-- **Timestamp:** 2026-10-01T08:38:44Z
+- **Scan ID:** R-2210b8a7
+- **Timestamp:** 2026-10-01T08:39:32Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-10-01T08:39:28Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
