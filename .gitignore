@@ -49,3 +49,8 @@ tests/__pycache__/
 # artifacts, not source. Ignored so handing the operator a logging script does not
 # also hand them a dirty working tree — which is how a real change gets lost in noise.
 runme-*.log
+
+# T-970: the Evergreen corpus intake. Their maps describe a real company's internal
+# processes; the owner approved SENDING them to us, which is not the same as archiving
+# them in our git history forever. Analysed in place, never committed.
+build/evergreen-intake/

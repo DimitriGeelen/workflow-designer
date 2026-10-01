@@ -236,7 +236,29 @@ XML_TRANSLATED_NODE_TYPES = frozenset(
 # PL-064 applies to what is NOT here: absence from the corpus is not absence of
 # demand. This set is deliberately small and explicit so widening it is a visible
 # decision rather than a silent one.
-XML_ONLY_NODE_TYPES = frozenset({"boundaryEvent"})
+# T-970: plain BPMN `<task>` is ACCEPTED on the XML side.
+#
+# It was rejected as an unknown element, and that was 94 of 110 findings — 86% — on the
+# first corpus we ever validated that we did not author ourselves (aef-greenfield-test,
+# 26 maps generated from an OWL ontology and published through POST /api/save on
+# designer v0.13.0). We were refusing the base task element of the standard we claim to
+# implement.
+#
+# OUR OWN FROZEN STANDARD SAYS NOT TO. mapping-v1 §3:
+#   "a node's `owner` MUST be its lane — there is no node-level `owner` override. The
+#    Lane (its `aef:laneMeta authority`) is the sole authority-of-record for who-performs
+#    … Task-type (userTask vs service/scriptTask) SHOULD agree with the lane and is
+#    PRESENTATIONAL where it does not; the forward-compiler emits a validation WARNING on
+#    the mismatch rather than refusing the diagram (O-1: lane wins, warn-not-refuse)."
+#
+# So a plain `<task>` in an authority-bearing lane has a perfectly derivable owner, and an
+# ERROR that refuses the diagram over a presentational property contradicts O-1 directly.
+#
+# WHY THE MISTAKE WAS EASY: §3's table lists userTask / serviceTask / scriptTask as
+# MAPPING ROWS — what each type compiles to — and it reads like an input vocabulary. It is
+# not one. XML_ONLY because the YAML form has its own authored type list; nothing here
+# changes what the designer emits.
+XML_ONLY_NODE_TYPES = frozenset({"boundaryEvent", "task"})
 
 XML_NODE_TYPES = XML_TRANSLATED_NODE_TYPES | XML_ONLY_NODE_TYPES
 

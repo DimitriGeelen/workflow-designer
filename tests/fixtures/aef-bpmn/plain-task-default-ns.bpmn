@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  T-970 regression fixture: plain BPMN <task> in the DEFAULT namespace.
+
+  Two properties, both learned from the first corpus we validated that we did not
+  author (aef-greenfield-test, 26 maps generated from an OWL ontology):
+
+    1. `<task>` — the base task element of the standard. We used to reject it as an
+       unknown flow-node element, which was 94 of 110 findings on that corpus, while
+       mapping-v1 §3 says the LANE is the sole authority-of-record and task-type is
+       presentational where it disagrees ("lane wins, warn-not-refuse").
+
+    2. NO NAMESPACE PREFIX. Their generator emits the default BPMN namespace; our own
+       corpus is uniformly `bpmn:`-prefixed. Both are valid. A fixture that used the
+       prefix would not have exercised the shape that actually arrived — and my first
+       probe at this defect mutated `<bpmn:task`, matched nothing, and reported a clean
+       pass on a file it had not changed.
+
+  SYNTHETIC ON PURPOSE. Their maps describe a real company's internal processes and
+  system landscape; the owner approved sending them to us, which is not the same as
+  approving their permanent presence in our git history. This fixture carries the
+  structure and none of their content.
+
+  The lane carries authority, so the single task HAS a derivable owner. Expected:
+  no E-XML-NODE-TYPE, and the document is otherwise sound.
+-->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:aef="http://anchorpoint.framework/aef/extensions"
+             id="Definitions_plain_task" targetNamespace="http://anchorpoint.framework">
+  <process id="Process_plain-task-default-ns" isExecutable="false">
+    <extensionElements>
+      <aef:workflowMeta id="plain-task-default-ns" version="1" schemaVersion="2"
+                        title="Plain task, default namespace" kind="documentation"/>
+    </extensionElements>
+    <laneSet id="LaneSet_1">
+      <lane id="lane_agent" name="Agent">
+        <extensionElements>
+          <aef:laneMeta authority="initiative" abbr="AG"/>
+        </extensionElements>
+        <flowNodeRef>Start_1</flowNodeRef>
+        <flowNodeRef>Task_1</flowNodeRef>
+        <flowNodeRef>End_1</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="Start_1" name="Begin">
+      <extensionElements><aef:meta aef:uid="u-start-1"/></extensionElements>
+      <outgoing>flow_1</outgoing>
+    </startEvent>
+    <task id="Task_1" name="Do the thing">
+      <extensionElements><aef:meta aef:uid="u-task-1"/></extensionElements>
+      <incoming>flow_1</incoming>
+      <outgoing>flow_2</outgoing>
+    </task>
+    <endEvent id="End_1" name="Done">
+      <extensionElements><aef:meta aef:uid="u-end-1"/></extensionElements>
+      <incoming>flow_2</incoming>
+    </endEvent>
+    <sequenceFlow id="flow_1" sourceRef="Start_1" targetRef="Task_1"/>
+    <sequenceFlow id="flow_2" sourceRef="Task_1" targetRef="End_1"/>
+  </process>
+</definitions>
