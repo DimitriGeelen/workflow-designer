@@ -2859,3 +2859,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-463
+  text: "Watchtower's /designer/app has been serving the NOT-YET-SYNCED PLACEHOLDER, not the designer. .agentic-framework/policy/designer-pin.yaml pins vendored_path vendor/designer/aef-workflow-designer-0.11.0.html, and that file does not exist -- vendor/designer/ holds 0.12.0 and 0.8.0. _vendored_path() therefore misses, _serve_bundle() falls through to _placeholder(), and the route answers HTTP 200 with a page titled 'Workflow Designer - not yet synced'. Measured 2026-10-01 on http://127.0.0.1:3013/designer/app. The 200 is why nothing noticed: every liveness or reachability check that greps for a status code passes, and the designer -- this project's entire product -- is simply absent from the URL an operator opens. Our own src/ is at APP_VERSION 0.14.0, two releases past the pin. This IS ours despite living under .agentic-framework/: it concerns workflow design directly, the designer is our product, and the symptom is that the product is not being served. Remedy is the governed path, not a file copy: fw designer sync --from <delivered-artifact>, which sha256-verifies against the pin before installing; whether the pin should move to 0.12.0 or to a fresh 0.14.0 release is the operator's call. Worth a reachability check that asserts the served bundle CONTAINS the designer rather than merely returning 200."
+  captured: 2026-10-01T07:38:44Z
+  context_task: T-962
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
