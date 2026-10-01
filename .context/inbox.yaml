@@ -2906,3 +2906,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-469
+  text: "Sidecar identity defect in VENDORED installs: lib/sidecar/outbox.py _root() uses FRAMEWORK_ROOT (or its own file location), so in this project agent_id resolves to '.agentic-framework', not '832-Workflow-designer'. Effects: (1) 'fw sidecar inbox' reads an EMPTY inbox while the real one inbox:cacc73ea32b121dd/832-Workflow-designer holds 79 consults (17 substantive AEF replies 09-22..09-30, plus nudges up to 10 attempts); (2) every consult we send is signed '.agentic-framework', so replies route away from us. This is the mechanism behind the operator having to say 'check your inbox'. Workaround (verified via whoami): FRAMEWORK_ROOT=/opt/832-Workflow-designer python3 .agentic-framework/lib/sidecar_cli.py <cmd>. Durable fix belongs upstream (project id from PROJECT_ROOT, not FRAMEWORK_ROOT). Found under T-979."
+  captured: 2026-10-01T18:46:04Z
+  context_task: T-979
+  tags: []
+  status: pending
+  promoted_to: null
