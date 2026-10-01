@@ -73,7 +73,9 @@ def build(out, version='0.0.0-t974', *extra):
 
 
 def tree_bytes(d):
-    return {n: open(os.path.join(d, n), 'rb').read() for n in sorted(os.listdir(d))}
+    # recursive since T-983 (calibration/ subdirectory)
+    return {os.path.relpath(os.path.join(r, n), d): open(os.path.join(r, n), 'rb').read()
+            for r, _dirs, names in os.walk(d) for n in names}
 
 
 def validator_xml_rule_ids():
@@ -95,10 +97,16 @@ def main():
         check('builder builds', r.returncode == 0, r.stderr.strip()[-200:])
         if r.returncode != 0:
             return 1
-        names = sorted(os.listdir(k1))
-        check('1a. kit holds exactly the five files',
-              names == ['AUTHORING.md', 'CONFORMANCE.md', 'SHA256SUMS', 'exemplar.bpmn',
-                        'validate-workflow.py'], str(names))
+        # Recursive since T-983 added calibration/. The list is exact on purpose: a file that
+        # appears in the kit unannounced is as much a defect as one that goes missing.
+        names = sorted(os.path.relpath(os.path.join(r_, f), k1).replace(os.sep, '/')
+                       for r_, _d, fs in os.walk(k1) for f in fs)
+        check('1a. kit holds exactly the expected files',
+              names == ['AUTHORING.md', 'CONFORMANCE.md', 'CORRECT.md', 'GENERATE.md',
+                        'REVIEW.md', 'RUBRIC.md', 'SHA256SUMS',
+                        'calibration/SOURCE.md', 'calibration/clean.bpmn',
+                        'calibration/expected.json', 'calibration/planted.bpmn',
+                        'exemplar.bpmn', 'loop.sh', 'validate-workflow.py'], str(names))
         sums = dict(reversed(l.split('  ', 1)) for l in
                     open(os.path.join(k1, 'SHA256SUMS')).read().split('\n') if l)
         ok = sums and all(hashlib.sha256(open(os.path.join(k1, n), 'rb').read()).hexdigest() == h

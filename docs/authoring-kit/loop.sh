@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# loop.sh — the generate -> validate -> review -> correct loop, provider-agnostic (T-983, T-982 GO).
+#
+# The generator and the reviewer are AGENTS you configure; this script only sequences them and
+# keeps every round's artefacts. Use a reviewer from a different model or vendor than the
+# generator: a reviewer that shares the generator's training shares its blind spots.
+#
+#   KIT_GENERATOR_CMD  command prefix that runs the generating agent on one prompt, in the CWD,
+#                      allowed to read the kit and write files there. Example:
+#                        KIT_GENERATOR_CMD='codex exec --skip-git-repo-check --sandbox workspace-write'
+#   KIT_REVIEWER_CMD   the same for the reviewing agent. Example:
+#                        KIT_REVIEWER_CMD='opencode run -m <provider/model>'
+#
+# Usage:
+#   loop.sh <workdir> <source.md> [max_rounds]   run the loop on a source; default 4 rounds
+#   loop.sh --calibrate <workdir>                prove the configured reviewer still catches the
+#                                                kit's planted defects (calibration/) and raises
+#                                                nothing on the clean control map
+#
+# Stop rule: a review round with zero findings, or max_rounds. Every round's map.rN.bpmn,
+# review.rN.json and corrections.rN.json is kept: the corrections' "lesson" fields are the loop's
+# learnings, and they are meant to be read and promoted (guide, rubric, validator, source owner).
+set -u
+KIT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+need_cmds() {
+    local missing=""
+    [ -n "${KIT_GENERATOR_CMD:-}" ] || missing="$missing KIT_GENERATOR_CMD"
+    [ -n "${KIT_REVIEWER_CMD:-}" ] || missing="$missing KIT_REVIEWER_CMD"
+    if [ -n "$missing" ]; then
+        echo "loop.sh: refusing to start: set$missing (see the header of this file)" >&2
+        exit 2
+    fi
+}
+agent() {  # agent <prefix> <prompt>
+    bash -c "$1 \"\$1\"" _ "$2" < /dev/null >> agents.log 2>&1
+}
+log() { echo "$(date +%H:%M:%S) $*" | tee -a LOOP.txt; }
+count() {
+    python3 -c "import json,sys;d=json.load(open(sys.argv[1]));print(len(d))" "$1" 2>/dev/null || echo ERR
+}
+
+if [ "${1:-}" = "--calibrate" ]; then
+    [ -n "${KIT_REVIEWER_CMD:-}" ] || { echo "loop.sh: --calibrate needs KIT_REVIEWER_CMD" >&2; exit 2; }
+    WD="${2:?usage: loop.sh --calibrate <workdir>}"
+    for which in clean planted; do
+        mkdir -p "$WD/$which" && cp "$KIT/calibration/SOURCE.md" "$WD/$which/SOURCE.md"
+        cp "$KIT/calibration/$which.bpmn" "$WD/$which/map.bpmn"
+        ( cd "$WD/$which" && rm -f REVIEW.json && agent "$KIT_REVIEWER_CMD" \
+            "The kit is at $KIT. Read $KIT/REVIEW.md and carry it out completely." )
+    done
+    python3 - "$KIT/calibration/expected.json" "$WD/clean/REVIEW.json" "$WD/planted/REVIEW.json" <<'PY'
+import json, sys
+exp = json.load(open(sys.argv[1]))["planted"]
+def load(p):
+    try: return json.load(open(p))
+    except Exception: return None
+clean, planted = load(sys.argv[2]), load(sys.argv[3])
+if clean is None or planted is None:
+    print("CALIBRATION: COULD NOT MEASURE (a reviewer wrote no parseable REVIEW.json)"); sys.exit(3)
+caught = [e for e in exp if any(f.get("element") == e["element"] and f.get("category") == e["category"] for f in planted)]
+planted_ids = {e["element"] for e in exp}
+false_planted = [f for f in planted if f.get("element") not in planted_ids]
+print("recall: %d/%d planted defects caught" % (len(caught), len(exp)))
+for e in exp:
+    print("  %s %-20s %s" % ("caught" if e in caught else "MISSED", e["category"], e["element"]))
+print("false findings: %d on the clean map, %d on unplanted elements" % (len(clean), len(false_planted)))
+ok = len(caught) == len(exp) and not clean and not false_planted
+print("CALIBRATION: %s" % ("PASS" if ok else "FAIL"))
+sys.exit(0 if ok else 1)
+PY
+    exit $?
+fi
+
+need_cmds
+WD="${1:?usage: loop.sh <workdir> <source.md> [max_rounds]}"; SRC="${2:?source.md}"; MAX="${3:-4}"
+mkdir -p "$WD" && cp "$SRC" "$WD/SOURCE.md" && cd "$WD" || exit 2
+PRE="The kit is at $KIT."
+
+log "round 0: generate"
+agent "$KIT_GENERATOR_CMD" "$PRE Read $KIT/GENERATE.md and carry it out completely."
+[ -s map.bpmn ] || { log "STOPPED: the generator wrote no map.bpmn"; exit 1; }
+cp map.bpmn map.r0.bpmn
+log "validator: $(python3 "$KIT/validate-workflow.py" map.bpmn | tail -1)"
+for r in $(seq 1 "$MAX"); do
+    rm -f REVIEW.json
+    log "round $r: review"
+    agent "$KIT_REVIEWER_CMD" "$PRE Read $KIT/REVIEW.md and carry it out completely."
+    n=$(count REVIEW.json)
+    [ "$n" = ERR ] && { log "STOPPED: no parseable REVIEW.json in round $r"; exit 1; }
+    cp REVIEW.json "review.r$r.json"
+    log "round $r: $n finding(s)"
+    [ "$n" = 0 ] && { log "DONE: clean review in round $r"; exit 0; }
+    rm -f CORRECTIONS.json
+    log "round $r: correct"
+    agent "$KIT_GENERATOR_CMD" "$PRE Read $KIT/CORRECT.md and carry it out completely."
+    [ "$(count CORRECTIONS.json)" = ERR ] && { log "STOPPED: no parseable CORRECTIONS.json in round $r"; exit 1; }
+    cp CORRECTIONS.json "corrections.r$r.json"; cp map.bpmn "map.r$r.bpmn"
+    log "validator: $(python3 "$KIT/validate-workflow.py" map.bpmn | tail -1)"
+done
+log "DONE: $MAX rounds without a clean review; read review.r$MAX.json"
+exit 1

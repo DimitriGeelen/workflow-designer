@@ -1,0 +1,21 @@
+id: tests/test_t983_review_loop_kit.py
+name: test_t983_review_loop_kit
+type: script
+subsystem: tests
+location: tests/test_t983_review_loop_kit.py
+tags: []
+
+purpose: "T-983 (T-982 GO, slice B1): the review loop ships in the authoring kit, and works."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-01
+created_by: unknown

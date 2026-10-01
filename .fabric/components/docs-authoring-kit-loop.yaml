@@ -1,0 +1,21 @@
+id: docs/authoring-kit/loop.sh
+name: loop
+type: script
+subsystem: docs
+location: docs/authoring-kit/loop.sh
+tags: []
+
+purpose: "loop.sh — the generate -> validate -> review -> correct loop, provider-agnostic (T-983, T-982 GO)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-01
+created_by: unknown

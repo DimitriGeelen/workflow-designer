@@ -28,6 +28,38 @@ response under `validation`. Many do not yet. **No `validation` key means the se
 validate: run the validator yourself.** `{"ok": false}` inside `validation` means it could not
 run. Neither means the map is clean.
 
+## 1b. The loop: generate, review against the source, correct, learn
+
+A validator can only check structure. Whether a map is TRUE to its source (nothing invented,
+nothing missed, unknowns declared, authorities right) takes a reviewer that reads the source.
+The kit ships that loop:
+
+```
+GENERATE.md  you, from the source, citing it        -> map.bpmn
+validator    the floor: structure and governance     (never the judge)
+REVIEW.md    another agent, against the SOURCE       -> REVIEW.json   (rubric: RUBRIC.md)
+CORRECT.md   you: apply or contest each finding      -> CORRECTIONS.json, with a lesson each
+             ... re-review until a review round finds nothing
+```
+
+`loop.sh` runs it with any two agents you configure (see its header). Use a reviewer from a
+different model or vendor than the generator. `loop.sh --calibrate` proves your reviewer still
+catches the kit's planted defects and raises nothing on a clean map; run it when you change
+reviewer, model or rubric. The `lesson` in every correction is how the loop improves: read them,
+and when one recurs, it belongs in this guide, the rubric, or the validator.
+
+**Cite your source on every element.** Each lane and flow node carries a `<documentation>` child:
+
+```xml
+<bpmn:task id="check-credit-limit" name="Check customer credit limit">
+  <bpmn:documentation>source: "Credit control checks the customer's credit limit."</bpmn:documentation>
+</bpmn:task>
+```
+
+or, when the element exists although the source does not state it:
+`source: unstated - <why it exists anyway>`. The quote must be verbatim. This is what makes
+"invented" checkable: every element either quotes the source or says that it does not.
+
 ## 2. What every map carries
 
 `exemplar.bpmn` is a complete map that validates clean. Copy its shape.

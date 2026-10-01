@@ -1029,6 +1029,18 @@ else
 fi
 
 echo
+echo "== The review loop ships in the kit and calibrates (T-983, T-982 GO) =="
+# No LLM here: stub agents fill the KIT_GENERATOR_CMD / KIT_REVIEWER_CMD seam. The teeth are
+# legs 6 and 7: calibration must FAIL for a blind reviewer and for one that flags a clean map.
+if python3 "$ROOT/tests/test_t983_review_loop_kit.py" > "$TMP/leg-_t983.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the review loop's kit files, calibration set or loop.sh orchestration regressed, or calibration stopped telling a blind reviewer from a working one (T-983 — run 'python3 tests/test_t983_review_loop_kit.py')"
+  show_output "$TMP/leg-_t983.out" "test_t983_review_loop_kit.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== The designer can REACH the validator (T-961, T-309 slice 2) =="
 # The other half of T-955. That leg guards the ROUTE; this one guards the editor's side of
 # it — validateCurrentWorkflow() serialising the live map, posting it, and parsing the

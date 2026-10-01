@@ -13,7 +13,11 @@ CONTENTS of aef-authoring-kit-<VERSION>/:
   CONFORMANCE.md        GENERATED from the validator's own source and the dialect axis:
                         every XML-form rule, its severity, its derived class, its message
   AUTHORING.md          the generator-agent guide (docs/authoring-kit/AUTHORING.md)
-  SHA256SUMS            over every other file
+  RUBRIC.md, GENERATE.md, REVIEW.md, CORRECT.md, loop.sh
+                        the generate -> review -> correct loop (T-983)
+  calibration/          a source, a clean map, a planted-defect map and expected.json, so
+                        `loop.sh --calibrate` can prove a reviewer still catches defects
+  SHA256SUMS            over every other file, recursively
 
 NOTHING HERE IS WRITTEN BY HAND TWICE. Rule ids come from the validator's AST, classes from
 tests/test_rule_dialect_axis.py's classification(), vocabularies from the validator's module
@@ -42,6 +46,11 @@ ROOT = os.path.abspath(os.path.join(HERE, '..'))
 VALIDATOR = os.path.join(HERE, 'validate-workflow.py')
 AXIS = os.path.join(ROOT, 'tests', 'test_rule_dialect_axis.py')
 GUIDE = os.path.join(ROOT, 'docs', 'authoring-kit', 'AUTHORING.md')
+KITSRC = os.path.join(ROOT, 'docs', 'authoring-kit')
+# T-983 (T-982 GO, slice B1): the review loop ships in the kit. Copied verbatim from
+# docs/authoring-kit/; calibration/ is a subdirectory the builder checks before shipping.
+LOOP_FILES = ('RUBRIC.md', 'GENERATE.md', 'REVIEW.md', 'CORRECT.md', 'loop.sh')
+CALIBRATION = ('SOURCE.md', 'clean.bpmn', 'planted.bpmn', 'expected.json')
 EXEMPLAR = os.path.join(ROOT, 'examples', 'aef-processes', 'rendered', 'task-lifecycle.bpmn')
 
 SEVERITY = {'err': 'ERROR', 'warn': 'WARN', 'info': 'INFO'}
@@ -175,18 +184,52 @@ def build_into(d, version):
     shutil.copyfile(VALIDATOR, os.path.join(d, 'validate-workflow.py'))
     shutil.copyfile(EXEMPLAR, os.path.join(d, 'exemplar.bpmn'))
     shutil.copyfile(GUIDE, os.path.join(d, 'AUTHORING.md'))
+    for name in LOOP_FILES:
+        shutil.copyfile(os.path.join(KITSRC, name), os.path.join(d, name))
+    os.chmod(os.path.join(d, 'loop.sh'), 0o755)
+    _check_calibration(val)
+    os.makedirs(os.path.join(d, 'calibration'))
+    for name in CALIBRATION:
+        shutil.copyfile(os.path.join(KITSRC, 'calibration', name),
+                        os.path.join(d, 'calibration', name))
     with open(os.path.join(d, 'CONFORMANCE.md'), 'w', encoding='utf-8', newline='\n') as f:
         f.write(conformance_md(version))
     sums = []
-    for name in sorted(os.listdir(d)):
+    for name in _files(d):
         with open(os.path.join(d, name), 'rb') as f:
             sums.append('%s  %s' % (hashlib.sha256(f.read()).hexdigest(), name))
     with open(os.path.join(d, 'SHA256SUMS'), 'w', encoding='utf-8', newline='\n') as f:
         f.write('\n'.join(sums) + '\n')
 
 
+def _files(d):
+    """Every file under d, as sorted forward-slash relative paths (deterministic, recursive)."""
+    out = []
+    for root, _dirs, names in os.walk(d):
+        for n in names:
+            out.append(os.path.relpath(os.path.join(root, n), d).replace(os.sep, '/'))
+    return sorted(out)
+
+
+def _check_calibration(val):
+    """Refuse to ship a calibration set that contradicts itself: a clean map that draws errors,
+    or an expected defect whose element is not in the planted map."""
+    import json
+    import xml.etree.ElementTree as ET
+    cal = os.path.join(KITSRC, 'calibration')
+    clean = open(os.path.join(cal, 'clean.bpmn'), encoding='utf-8').read()
+    errs = [f.rule for f in val.run_xml(clean) if f.severity == 'ERROR']
+    if errs:
+        raise RuntimeError('calibration/clean.bpmn draws errors %s' % sorted(set(errs)))
+    ids = {el.get('id') for el in ET.parse(os.path.join(cal, 'planted.bpmn')).getroot().iter()}
+    for e in json.load(open(os.path.join(cal, 'expected.json')))['planted']:
+        if e['element'] not in ids:
+            raise RuntimeError('calibration/expected.json names %s, absent from planted.bpmn'
+                               % e['element'])
+
+
 def same_tree(a, b):
-    la, lb = sorted(os.listdir(a)), sorted(os.listdir(b))
+    la, lb = _files(a), _files(b)
     if la != lb:
         return False
     return all(filecmp.cmp(os.path.join(a, n), os.path.join(b, n), shallow=False) for n in la)
