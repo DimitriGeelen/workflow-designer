@@ -1,13 +1,19 @@
 ---
 id: T-978
-name: "W-XML-DISCONNECTED and W-XML-DEADEND messages assert more than the graph shows: 'independent processes', 'UNREACHABLE stays silent', 'control never terminates'"
+name: "W-XML-DISCONNECTED and W-XML-DEADEND messages assert more than the graph shows:
+  'independent processes', 'UNREACHABLE stays silent', 'control never terminates'"
 description: >
-  Found by Codex in T-975 (X2): on an honestly partial map (unordered steps left unconnected) DISCONNECTED calls the parts independent processes and claims UNREACHABLE stays silent while it fires; DEADEND says control never terminates where the source simply does not say. Messages must state the structural fact and its possible readings, not a diagnosis.
+  Found by Codex in T-975 (X2): on an honestly partial map (unordered steps left unconnected)
+  DISCONNECTED calls the parts independent processes and claims UNREACHABLE stays
+  silent while it fires; DEADEND says control never terminates where the source simply
+  does not say. Messages must state the structural fact and its possible readings,
+  not a diagnosis.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +28,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T18:12:34Z
-last_update: 2026-10-01T18:12:34Z
-date_finished: null
+last_update: 2026-10-01T18:34:42Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +40,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-01T18:34:42Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-978: W-XML-DISCONNECTED and W-XML-DEADEND messages assert more than the graph shows: 'independent processes', 'UNREACHABLE stays silent', 'control never terminates'
@@ -46,8 +73,22 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `W-XML-DISCONNECTED` states the structural fact (N parts, which nodes) and its possible
+      readings (separate processes sharing a pool, OR steps whose place in one process is not
+      recorded), and no longer claims `W-XML-UNREACHABLE` "stays silent" when it does not.
+- [x] `W-XML-DEADEND` says no end event is reachable from the node, without asserting that
+      control "never terminates", which overstates what a partial map shows.
+- [x] `W-LANE-NO-OWNER` (both forms) no longer says a downstream compiler "must invent" an owner
+      (the wrong prescription: an unknown owner should stay unresolved) and no longer calls the
+      lane the "sole" authority-of-record, which contradicts element-level precedence (T-889).
+- [x] Rule ids, severities and when each rule fires are unchanged: corpus 8 -> 8 by rule, and
+      every test that matches on message text still passes (checked, not assumed).
+- [x] `AUTHORING.md` §5 stops apologising for the old wording.
+
+**Evidence:** corpus 8 -> 8 by rule; validator suite 60/61 (the 1 is OBS-468, pre-existing);
+dialect axis, kit, findings-on-map, save-findings, dead-leg census green; parity, check-pass
+and cross-form were already red with byte-identical failure lines. No test matched on message
+text (grepped); two fixture COMMENTS say "never terminates" about a genuine trap and stay.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -208,6 +249,13 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# BEHAVIOURAL: run the validator on real fixtures and read the message it EMITS. A source-text
+# check cannot tell a message from a comment that quotes the old wording (the first version failed on exactly that).
+python3 -c "import subprocess as s;o=s.run(['python3','tools/validate-workflow.py','tests/fixtures/warn/W-LANE-NO-OWNER.yaml'],capture_output=True,text=True).stdout;assert 'Declared unknown is honest' in o and 'must invent' not in o,o"
+python3 -c "import subprocess as s;o=s.run(['python3','tools/validate-workflow.py','tests/fixtures/warn/W-XML-DEADEND.xml'],capture_output=True,text=True).stdout;assert 'does not record what follows' in o and 'never terminates' not in o,o"
+python3 -c "import subprocess as s,glob;o=s.run(['python3','tools/validate-workflow.py']+glob.glob('tests/fixtures/aef-overlay/*.bpmn'),capture_output=True,text=True).stdout;assert 'W-XML-DISCONNECTED' in o and 'no recorded place' in o and 'independent processes' not in o,o"
+python3 tests/test_t974_authoring_kit.py
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -304,3 +352,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-978-w-xml-disconnected-and-w-xml-deadend-mes.md
 - **Context:** Initial task creation
+
+### 2026-10-01T18:34:42Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

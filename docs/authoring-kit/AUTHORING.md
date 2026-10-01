@@ -120,10 +120,10 @@ source does not say. Removing them by changing the map is fabrication.
 The rule against inventing outranks every finding here. "The validator wins" (top of this
 guide) is about what the validator **checks**, never permission to make up a fact to satisfy it.
 
-The current wording of the first two messages overstates. `W-XML-DISCONNECTED` speaks of
-"independent processes" and `W-XML-DEADEND` of control that "never terminates". On an honest
-partial map they mean "these steps have no recorded place in the flow". Your map is right; the
-messages are being corrected.
+Each of these messages names both readings: `W-XML-DISCONNECTED` says the parts are either
+separate processes or steps with no recorded place, and `W-XML-DEADEND` says control is either
+trapped or the source does not record what follows. On a map built from a source that leaves
+the order unknown, the second reading is the true one, and the map is right as it stands.
 
 ## 6. Say what kind of map it is
 

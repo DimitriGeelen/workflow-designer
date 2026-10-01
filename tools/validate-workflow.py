@@ -870,8 +870,11 @@ class Validator:
                     self.warn(
                         "W-DEADEND",
                         "node '%s'" % uid,
-                        "no endEvent is reachable from this node (control never "
-                        "terminates)",
+                        # T-978: no longer "control never terminates". On an honest partial
+                        # map the node simply has no recorded path onward (external review,
+                        # T-975 X2); a real trap and an unrecorded order look the same here.
+                        "no endEvent is reachable from this node: either control is "
+                        "trapped, or the source does not record what follows it",
                     )
 
     # -- required I/O inputs (section 4.3, section 7.3) --------------------
@@ -1017,10 +1020,12 @@ class Validator:
                 self.warn(
                     "W-LANE-NO-OWNER",
                     "node '%s'" % uid,
-                    "%s is a task but its lane authority '%s' has no compiled "
-                    "outcome; mapping-v1 §3 makes the lane the sole "
-                    "authority-of-record, so this task has no derivable owner "
-                    "and a downstream compiler must invent one"
+                    # T-978: not "the lane is the SOLE authority" (an element's own
+                    # authority wins when present, T-889) and not "a compiler must invent
+                    # one" (the wrong prescription: an unknown owner should stay unknown).
+                    "this %s's authority '%s' names no owner; "
+                    "mapping-v1 §3 derives a task's owner from its lane, so this task "
+                    "has no derivable owner. Declared unknown is honest: do not guess one"
                     % (ntype, authority),
                 )
 
@@ -1395,8 +1400,11 @@ class XmlValidator:
                     self.warn(
                         "W-XML-DEADEND",
                         "node '%s'" % n,
-                        "no endEvent is reachable from this node (control never "
-                        "terminates)",
+                        # T-978: no longer "control never terminates". On an honest partial
+                        # map the node simply has no recorded path onward (external review,
+                        # T-975 X2); a real trap and an unrecorded order look the same here.
+                        "no endEvent is reachable from this node: either control is "
+                        "trapped, or the source does not record what follows it",
                     )
 
         # -- T-967: the process is ONE graph, not two sharing a pool (WARN) ---
@@ -1452,10 +1460,13 @@ class XmlValidator:
                 self.warn(
                     "W-XML-DISCONNECTED",
                     "<process>",
-                    "the flow graph falls into %d disconnected parts, so this is two or "
-                    "more independent processes sharing one pool rather than one process: "
-                    "%s. Each part reaching its own startEvent is why W-XML-UNREACHABLE "
-                    "stays silent here" % (len(components), "; ".join(parts)),
+                    # T-978: states the fact and both readings. It used to diagnose
+                    # "independent processes" and claim W-XML-UNREACHABLE stays silent, both
+                    # false on a map that leaves unordered steps unconnected (T-975 X2).
+                    "the flow graph falls into %d disconnected parts: %s. Either these are "
+                    "separate processes sharing one pool, or some steps have no recorded "
+                    "place in one process (then annotate them, do not connect them)"
+                    % (len(components), "; ".join(parts)),
                 )
 
         # v1.1 IW-9 authority enforcement (mapping-v1 §3/§7): O-1 type/lane
@@ -2036,10 +2047,12 @@ class XmlValidator:
                 self.warn(
                     "W-LANE-NO-OWNER",
                     "node '%s'" % nid,
-                    "%s is a task but its lane authority '%s' has no compiled "
-                    "outcome; mapping-v1 §3 makes the lane the sole "
-                    "authority-of-record, so this task has no derivable owner "
-                    "and a downstream compiler must invent one"
+                    # T-978: not "the lane is the SOLE authority" (an element's own
+                    # authority wins when present, T-889) and not "a compiler must invent
+                    # one" (the wrong prescription: an unknown owner should stay unknown).
+                    "this %s's authority '%s' names no owner; "
+                    "mapping-v1 §3 derives a task's owner from its lane, so this task "
+                    "has no derivable owner. Declared unknown is honest: do not guess one"
                     % (local, authority),
                 )
 
