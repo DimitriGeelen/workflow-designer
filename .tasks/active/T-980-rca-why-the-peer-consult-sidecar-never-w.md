@@ -130,9 +130,11 @@ engineering upstream agent to solve that."* Research artefact:
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that fixing the sidecar upstream for vendored consumers (AEF D1-D4: project identity
+from the project root, the inbox hook installed and able to parse the inbox, the sweep cron for
+consumers; TermLink D5-D6: per-project listeners and receipts),
+we will achieve working two-way agent messaging for this project without manual workarounds.
+We will know that we are successful when we see `fw sidecar whoami` print `832-Workflow-designer` with no FRAMEWORK_ROOT override, the sidecar-inbox hook installed in `.claude/settings.json` and printing a non-empty block when the inbox holds 1 or more consults, and a consult sent to 999-Agentic-Engineering-Framework return a reply that `fw sidecar inbox` shows here; all measured in this project after the next bleeding-edge upgrade.
 
 ## Assumptions
 

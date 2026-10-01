@@ -47,6 +47,11 @@ echo "ok  no decision recorded yet"
 # check makes the script say so up front instead of failing at the last step.
 test -f .context/working/.reviewed-T-980 || fail "no review marker: run  cd $PROJ && $FW task review T-980"
 echo "ok  review marker present (fw task review T-980 has run)"
+# The second real run stopped at the hypothesis gate. Run the framework's OWN gate functions
+# here, so any refusal happens before the confirm prompt rather than after it.
+bash -c "source .agentic-framework/lib/task-audit.sh && audit_task_placeholders '$TASK' && audit_inception_recommendation '$TASK' && audit_inception_hypothesis '$TASK' go" \
+  || fail "a decide gate refuses T-980 (placeholders / recommendation / hypothesis): see the lines above"
+echo "ok  placeholder, recommendation and hypothesis gates pass"
 
 echo
 echo "WILL RUN:"
