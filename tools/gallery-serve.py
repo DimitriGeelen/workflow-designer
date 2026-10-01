@@ -31,7 +31,9 @@ API:
   GET  /api/thumb?id=<id>&v=<n>    -> that version's PNG
   GET  /api/instances?template=<id> -> tools/instance-node.py snapshot <id> (T-884): where every
                                       live instance of that template is, plus their audit-log refusals
-  POST /api/save  {id, bpmn, png?, note?, promote?} -> {ok:true, v, ts, corpus:bool}
+  POST /api/save  {id, bpmn, png?, note?, promote?} -> {ok:true, v, ts, corpus:bool, validation}
+                  validation = {ok:true, findings[], errors, warnings} | {ok:false, reason}
+                  ADVISORY (T-973): findings never block the save; the version is written first
 
 Usage: gallery-serve.py [PORT] [--docroot DIR] [--repo DIR] [--bind ADDR] [--allow-new-corpus]
 Defaults: PORT=8834, docroot=<repo>/build/gallery, repo=<script>/.., bind=0.0.0.0
@@ -735,6 +737,30 @@ class Handler(SimpleHTTPRequestHandler):
             'warnings': sum(1 for r in rows if r.get('severity') == 'WARN'),
         })
 
+    # ---- T-973: the save response carries the validator's verdict ---------------------
+    # Evergreen's 26 maps passed 130 saves without a word: their generator posted bytes and
+    # this boundary stored them unexamined. /api/validate existed, but a client has to KNOW to
+    # call it, and none did. The save response is the one channel every client already reads.
+    #
+    # ADVISORY, NEVER BLOCKING (T-956 ruling). This runs AFTER the version is durably written
+    # and cannot raise: whatever happens here, the save stands. A tagged union, the same
+    # shape the designer's validateCurrentWorkflow() uses: an unavailable validator reports
+    # {ok:false, reason} and has NO `findings` key, so it can never read as a clean map.
+    @staticmethod
+    def _save_validation(bpmn):
+        try:
+            mod = _load_validator()
+            rows = [f.as_dict() for f in mod.run_xml(bpmn)]
+        except Exception as e:
+            sys.stderr.write('[gallery-serve] save-time validation unavailable: %s\n' % e)
+            return {'ok': False, 'reason': 'validator unavailable: %s' % e}
+        return {
+            'ok': True,
+            'findings': rows,
+            'errors': sum(1 for r in rows if r.get('severity') == 'ERROR'),
+            'warnings': sum(1 for r in rows if r.get('severity') == 'WARN'),
+        }
+
     def do_POST(self):
         parsed = urlparse(self.path)
         if parsed.path not in ('/api/save', '/api/delete', '/api/validate'):
@@ -824,7 +850,8 @@ class Handler(SimpleHTTPRequestHandler):
         except Exception as e:
             sys.stderr.write("[gallery-serve] registry sync (save) failed for %r: %s\n" % (id_, e))
 
-        return self._json(200, {'ok': True, 'v': v, 'ts': ts, 'corpus': to_corpus})
+        return self._json(200, {'ok': True, 'v': v, 'ts': ts, 'corpus': to_corpus,
+                                'validation': self._save_validation(bpmn)})
 
     # ---- DELETE (T-166) — archive-based, recoverable ----
     def _api_delete(self, payload):

@@ -86,13 +86,18 @@ if corpus_total != 0:
 #      1 x W-XML-LANE-GEOMETRY  (wholesale lane inversion, T-312)
 #    + 2 x W-XML-LANE-CAPACITY  (agent 194px, framework 44px overflow, T-313)
 #    + 1 x W-XML-GW-AMBIGUOUS   (fw_gw_ready, 4 unconditioned branches, T-317)
-#    = 4 admitted, non-INFO findings. A 5th means a NEW defect entered AEF's
+#    + 1 x W-XML-DISCONNECTED   (4 independent entry points -- promote, insight,
+#                                consolidate, harvest -- each start->end in one pool.
+#                                Looked at under T-973, not bumped: true of AEF's bytes,
+#                                the same shape as Evergreen's Class C, T-967/T-971)
+#    = 5 admitted, non-INFO findings. A 6th means a NEW defect entered AEF's
 #    bytes or one of our rules changed behaviour — either way, look, do not bump.
 r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "validate-workflow.py"),
                     FIXTURE, "--json"], capture_output=True, text=True)
 _found = json.loads(r.stdout).get("findings", []) if r.stdout.strip() else []
-_KNOWN = ("W-XML-LANE-GEOMETRY", "W-XML-LANE-CAPACITY", "W-XML-GW-AMBIGUOUS")
-_EXPECTED_KNOWN = 4
+_KNOWN = ("W-XML-LANE-GEOMETRY", "W-XML-LANE-CAPACITY", "W-XML-GW-AMBIGUOUS",
+          "W-XML-DISCONNECTED")
+_EXPECTED_KNOWN = 5
 _admitted = [f for f in _found
              if f["severity"] != "INFO" and f["rule"] in _KNOWN]
 for _f in _admitted:

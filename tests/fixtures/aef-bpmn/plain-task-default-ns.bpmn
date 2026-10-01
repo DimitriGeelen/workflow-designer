@@ -23,6 +23,11 @@
 
   The lane carries authority, so the single task HAS a derivable owner. Expected:
   no E-XML-NODE-TYPE, and the document is otherwise sound.
+
+  Lives in aef-bpmn/, so it obeys that directory's forward-fixture contract: every node
+  and flow carries <aef:uid value=…/>. (First version wrote <aef:meta aef:uid=…>, a
+  carrier nothing reads, and broke tests/test_forward_fixtures.py; found by the bridge
+  suite under T-973.)
 -->
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
              xmlns:aef="http://anchorpoint.framework/aef/extensions"
@@ -43,19 +48,23 @@
       </lane>
     </laneSet>
     <startEvent id="Start_1" name="Begin">
-      <extensionElements><aef:meta aef:uid="u-start-1"/></extensionElements>
+      <extensionElements><aef:uid value="u-start-1"/></extensionElements>
       <outgoing>flow_1</outgoing>
     </startEvent>
     <task id="Task_1" name="Do the thing">
-      <extensionElements><aef:meta aef:uid="u-task-1"/></extensionElements>
+      <extensionElements><aef:uid value="u-task-1"/></extensionElements>
       <incoming>flow_1</incoming>
       <outgoing>flow_2</outgoing>
     </task>
     <endEvent id="End_1" name="Done">
-      <extensionElements><aef:meta aef:uid="u-end-1"/></extensionElements>
+      <extensionElements><aef:uid value="u-end-1"/></extensionElements>
       <incoming>flow_2</incoming>
     </endEvent>
-    <sequenceFlow id="flow_1" sourceRef="Start_1" targetRef="Task_1"/>
-    <sequenceFlow id="flow_2" sourceRef="Task_1" targetRef="End_1"/>
+    <sequenceFlow id="flow_1" sourceRef="Start_1" targetRef="Task_1">
+      <extensionElements><aef:uid value="u-flow_1"/></extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="flow_2" sourceRef="Task_1" targetRef="End_1">
+      <extensionElements><aef:uid value="u-flow_2"/></extensionElements>
+    </sequenceFlow>
   </process>
 </definitions>

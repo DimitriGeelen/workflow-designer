@@ -138,6 +138,15 @@ DECLARED_WARN_MAP="context-memory"
 DECLARED_WARN_RULE="W-LANE-NO-OWNER"
 DECLARED_WARN_COUNT=7
 DECLARED_WARN_TASK="T-189 (v1.1: may a lane axis be non-actor?)"
+# T-967/T-973: a SECOND declared rule on the same map, declared just as answerably.
+# W-XML-DISCONNECTED fires once: the operator saw by eye on 2026-10-01 that this map is two
+# disjoint flows in one pool (session start -> persisted; complete -> stored), which is why
+# the rule exists at all. Whether that is two processes or one with a missing link is a
+# modelling question for the map's owner, not something to settle by drawing an edge here.
+# The total must equal the sum of both counts, so any third rule still fails.
+DECLARED_WARN_RULE2="W-XML-DISCONNECTED"
+DECLARED_WARN_COUNT2=1
+DECLARED_WARN_TASK2="T-967 (two disjoint flows, operator-observed)"
 
 shopt -s nullglob
 files=("$CORPUS"/*.workflow.yaml)
@@ -168,13 +177,15 @@ for f in "${files[@]}"; do
     pass=$((pass + 1))
   elif [ "$base" = "$DECLARED_WARN_MAP" ] && ! grep -q "^ERROR" "$TMP/.out"; then
     got_declared="$(grep -c "\[$DECLARED_WARN_RULE\]" "$TMP/.out" || true)"
+    got_declared2="$(grep -c "\[$DECLARED_WARN_RULE2\]" "$TMP/.out" || true)"
     got_total="$(grep -c "^WARN  \[" "$TMP/.out" || true)"
-    if [ "$got_declared" -ne "$DECLARED_WARN_COUNT" ] || [ "$got_total" -ne "$DECLARED_WARN_COUNT" ]; then
-      report FAIL "$base — declared ${DECLARED_WARN_COUNT}× ${DECLARED_WARN_RULE} only; got ${got_declared} of that rule and ${got_total} warning(s) total"
+    if [ "$got_declared" -ne "$DECLARED_WARN_COUNT" ] || [ "$got_declared2" -ne "$DECLARED_WARN_COUNT2" ] \
+       || [ "$got_total" -ne $((DECLARED_WARN_COUNT + DECLARED_WARN_COUNT2)) ]; then
+      report FAIL "$base — declared ${DECLARED_WARN_COUNT}× ${DECLARED_WARN_RULE} + ${DECLARED_WARN_COUNT2}× ${DECLARED_WARN_RULE2} only; got ${got_declared} + ${got_declared2} and ${got_total} warning(s) total"
       show_output "$TMP/.out" "validator $base"
       fail=$((fail + 1))
     else
-      report PASS "$base — ${DECLARED_WARN_COUNT}× ${DECLARED_WARN_RULE}, declared (${DECLARED_WARN_TASK})"
+      report PASS "$base — ${DECLARED_WARN_COUNT}× ${DECLARED_WARN_RULE} (${DECLARED_WARN_TASK}) + ${DECLARED_WARN_COUNT2}× ${DECLARED_WARN_RULE2} (${DECLARED_WARN_TASK2}), declared"
       pass=$((pass + 1))
     fi
   else
@@ -987,6 +998,20 @@ if python3 "$ROOT/tests/test_t962_findings_on_map.py" > "$TMP/leg-_t962.out" 2>&
 else
   report FAIL "validator findings stopped reaching the map, or the three states collapsed into one — an unchecked map reading as a clean one is the false green this whole slice exists to prevent (T-962 — run 'python3 tests/test_t962_findings_on_map.py'; if the displayIdOf leg is the red one, markers are being placed against internal ids again and the dock will cheerfully report 'N findings, 0 on the map')"
   show_output "$TMP/leg-_t962.out" "test_t962_findings_on_map.py"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== /api/save carries the validator's verdict, advisorily (T-973) =="
+# Evergreen's 26 maps passed 130 saves silently because the save path never ran the
+# validator. Four legs over real HTTP; the one that matters is the copy with no validator
+# beside it: the save must still land, and validation must say {ok:false} with no findings
+# key. A broken validator that reads as a clean map is the false green.
+if python3 "$ROOT/tests/test_t973_save_findings.py" > "$TMP/leg-_t973.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "/api/save stopped reporting findings, started BLOCKING on them, or reads an unloadable validator as a clean map (T-973 — run 'python3 tests/test_t973_save_findings.py')"
+  show_output "$TMP/leg-_t973.out" "test_t973_save_findings.py"
   fail=$((fail + 1))
 fi
 

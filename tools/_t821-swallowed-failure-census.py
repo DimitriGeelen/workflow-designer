@@ -48,6 +48,12 @@ EXCUSES = {
     "let tw = 0; try { tw = t.getBBox().width; } catch (_) { tw = badgeText.length * 6; }":
         (1, "getBBox throws on an unrendered node; the character estimate is a deliberate "
             "approximation with a known error, not a failure to report."),
+    # T-961/T-973: not swallowed. A non-JSON body leaves data null, and the very next
+    # statement treats `!data` as a failure, calls aefRecordFault('validate', ...) and returns
+    # {ok:false, reason}. Recording here as well would log one fault twice.
+    "try { data = await res.json(); } catch (_) { /* non-JSON body handled below */ }":
+        (1, "the null data is caught by the next branch, which records the fault via "
+            "aefRecordFault('validate') and returns {ok:false, reason}; never read as clean."),
     "try { bb = svg.getBBox(); } catch (_) { bb = null; }":
         (1, "null bb is handled by the caller as 'nothing to fit', which is true when the "
             "canvas is empty — indistinguishable from the throw and equally correct."),

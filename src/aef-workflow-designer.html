@@ -9548,7 +9548,11 @@ const FINDING_MARKER_EXCLUDED = new Set([
 //
 // Returns the INTERNAL n.id, because that is what selection and renderNodes key on.
 function findingNodeId(location) {
-  const m = /'([^']+)'/.exec(String(location || ''));
+  // \x27 is a single quote. Spelled as an escape because a bare-quote regex literal holds an
+  // odd number of quotes, and tools/_t821-swallowed-failure-census.py (a quote-tracking
+  // state machine, not a JS parser) then reads the rest of the file as a string and loses
+  // every catch site below this line (T-973).
+  const m = /\x27([^\x27]+)\x27/.exec(String(location || ''));
   if (!m) return null;
   const wanted = m[1];
   const hit = state.nodes.find(n => displayIdOf(n) === wanted) || findNode(wanted);
