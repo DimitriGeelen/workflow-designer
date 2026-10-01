@@ -1,0 +1,21 @@
+id: tests/test_t974_authoring_kit.py
+name: test_t974_authoring_kit
+type: script
+subsystem: tests
+location: tests/test_t974_authoring_kit.py
+tags: []
+
+purpose: "T-974: the vendor authoring kit is complete, self-contained, deterministic and immutable."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-01
+created_by: unknown

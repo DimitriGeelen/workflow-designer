@@ -1016,6 +1016,19 @@ else
 fi
 
 echo
+echo "== The vendor authoring kit is complete, self-contained and immutable (T-974) =="
+# What a vendor's generating agent reads instead of being told by us. Leg 3 derives the rule
+# set independently of the builder; leg 8 runs the real release script against a scratch
+# RELEASE_DIST, so dist/ is never touched by this suite.
+if python3 "$ROOT/tests/test_t974_authoring_kit.py" > "$TMP/leg-_t974.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the authoring kit lost a rule from its checklist, names a rule that does not exist, stopped running outside this repo, or a released kit can be rewritten (T-974 — run 'python3 tests/test_t974_authoring_kit.py')"
+  show_output "$TMP/leg-_t974.out" "test_t974_authoring_kit.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== The designer can REACH the validator (T-961, T-309 slice 2) =="
 # The other half of T-955. That leg guards the ROUTE; this one guards the editor's side of
 # it — validateCurrentWorkflow() serialising the live map, posting it, and parsing the

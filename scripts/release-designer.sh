@@ -13,7 +13,9 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$REPO_ROOT/src/aef-workflow-designer.html"
-DIST="$REPO_ROOT/dist"
+# RELEASE_DIST exists so the release machinery can be exercised end to end against a scratch
+# directory (T-974) without touching the real dist/, whose artifacts are pinned by consumers.
+DIST="${RELEASE_DIST:-$REPO_ROOT/dist}"
 VERSION_FILE="$REPO_ROOT/VERSION"
 
 [ -f "$SRC" ]          || { echo "ERROR: source not found: $SRC" >&2; exit 1; }
@@ -24,6 +26,11 @@ VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
 
 ARTIFACT="$DIST/aef-workflow-designer-$VERSION.html"
 MANIFEST="$DIST/MANIFEST.yaml"
+# T-974: the vendor authoring kit (validator + exemplar + generated conformance checklist +
+# authoring guide) ships BESIDE the artifact. v0.13.0 reached a vendor with none of it, and
+# its generator produced 26 maps with zero governance carriers.
+KIT_BUILDER="$REPO_ROOT/tools/build-authoring-kit.py"
+KIT="$DIST/aef-authoring-kit-$VERSION"
 
 # Version parity gate (T-808, value review F-10). The designer renders APP_VERSION in its
 # header; that constant is a literal in src because this script's contract is a plain copy
@@ -100,6 +107,21 @@ MSG
   fi
 fi
 
+# T-974: the kit obeys the SAME immutability rule as the artifact, and is checked here, BEFORE
+# any write, so a refused release still leaves dist/ untouched. --check builds into a temp dir
+# and compares; it writes nothing. The one bypass is the artifact's own, loudly warned.
+[ -f "$KIT_BUILDER" ] || { echo "ERROR: authoring-kit builder not found: $KIT_BUILDER" >&2; exit 1; }
+if ! python3 "$KIT_BUILDER" --version "$VERSION" --out "$KIT" --check; then
+  if [ "${RELEASE_ALLOW_OVERWRITE:-0}" = "1" ]; then
+    echo "WARNING: RELEASE_ALLOW_OVERWRITE=1 — rebuilding the ALREADY-RELEASED kit $KIT" >&2
+    KIT_REBUILD=1
+  else
+    echo "ERROR: refusing to overwrite the already-released authoring kit $KIT" >&2
+    echo "       (same rule as the artifact: a version denotes fixed bytes)." >&2
+    exit 1
+  fi
+fi
+
 mkdir -p "$DIST"
 cp "$SRC" "$ARTIFACT"
 
@@ -129,6 +151,12 @@ elif [ -f "$RENDER_TEST" ]; then
 else
   echo "WARNING: render test not found ($RENDER_TEST) — render gate skipped." >&2
 fi
+
+# T-974: build the kit only after the artifact passed its render gate, so a failed gate
+# never leaves a kit for a release that did not happen.
+[ "${KIT_REBUILD:-0}" = "1" ] && rm -rf "$KIT"
+python3 "$KIT_BUILDER" --version "$VERSION" --out "$KIT"
+KIT_SUMS_SHA="$(sha256sum "$KIT/SHA256SUMS" | awk '{print $1}')"
 
 SHA="$(sha256sum "$ARTIFACT" | awk '{print $1}')"
 BYTES="$(wc -c < "$ARTIFACT" | tr -d '[:space:]')"
@@ -202,12 +230,17 @@ supersedes: "$SUPERSEDES"
 # (contract: docs/aef-designer-integration-protocol.md §Annotation seam).
 capabilities:
   annotation_seam: 1
+# T-974: the vendor authoring kit for this version. Verify the directory with
+#   (cd <kit> && sha256sum -c SHA256SUMS), and SHA256SUMS itself against kit_sha256.
+kit: "${KIT#$REPO_ROOT/}"
+kit_sha256: "$KIT_SUMS_SHA"
 EOF
 
 echo "Released designer $VERSION"
 echo "  artifact: dist/aef-workflow-designer-$VERSION.html"
 echo "  sha256:   $SHA"
 echo "  bytes:    $BYTES"
+echo "  kit:      ${KIT#$REPO_ROOT/} (SHA256SUMS $KIT_SUMS_SHA)"
 
 # Announce to the rail (T-389, G-024 consumer half). A cut nobody can learn about
 # is the gap itself: AEF re-reported a defect fixed 9 days earlier because nothing
