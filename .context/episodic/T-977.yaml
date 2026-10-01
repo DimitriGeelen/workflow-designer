@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-977: E-XML-GW-OUTGOING refuses the standard BPMN merge: every exclusiveGateway must have 2+ outgoing, so a converging XOR is an ERROR
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T18:34:31Z
+# ============================================================================
+
+task_id: T-977
+task_name: "E-XML-GW-OUTGOING refuses the standard BPMN merge: every exclusiveGateway must have 2+ outgoing, so a converging XOR is an ERROR"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T18:12:30Z
+completed: 2026-10-01T18:34:21Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-01T20:34:16+02:00
+last_commit: 2026-10-01T20:34:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a converging exclusive gateway (the standard BPMN merge) is no longer an ERROR
+
+# Key outcomes
+outcomes:
+  - 'A CONVERGING exclusiveGateway (>= 2 incoming, exactly 1 outgoing) no longer raises'
+  - 'The rule still fires where it should: a gateway with 0 outgoing, and a 1-in/1-out gateway'
+  - 'The YAML form''s `E-GW-OUTGOING` gets the same predicate, or the parity table records why'
+  - 'Our corpus is unchanged (8 findings) and the bridge-relevant guards stay green: rule-form'
+  - '`docs/authoring-kit/AUTHORING.md` drops the merge workaround it currently tells generators'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a converging exclusive gateway (the standard BPMN merge) is no longer an ERROR'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/designer/schema.md'
+  - '.tasks/active/T-977-e-xml-gw-outgoing-refuses-the-standard-b.md'
+  - 'tests/fixtures/valid/gw-converging.bpmn'
+  - 'tests/fixtures/valid/gw-converging.workflow.yaml'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T20:34:16'
+    action: 'T-977: a converging exclusive gateway (the standard BPMN merge) is no longer an ERROR'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 21
+  commits: 1
+  files_changed: 6
+  lines_added: 217
+  lines_removed: 15
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-977-e-xml-gw-outgoing-refuses-the-standard-b.md
+generated_by: context-agent-hybrid
