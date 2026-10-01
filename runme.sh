@@ -42,6 +42,11 @@ test -s docs/reports/T-980-sidecar-rca.md || fail "the RCA report is missing"
 echo "ok  RCA report present"
 if grep -qE '^\*\*Decision\*\*: *(GO|NO-GO)' "$TASK"; then fail "T-980 already carries a decision"; fi
 echo "ok  no decision recorded yet"
+# Added after the first real run stopped here: `fw inception decide` refuses without a
+# review marker (T-973 gate). The agent runs `fw task review T-980` to create it; this
+# check makes the script say so up front instead of failing at the last step.
+test -f .context/working/.reviewed-T-980 || fail "no review marker: run  cd $PROJ && $FW task review T-980"
+echo "ok  review marker present (fw task review T-980 has run)"
 
 echo
 echo "WILL RUN:"
