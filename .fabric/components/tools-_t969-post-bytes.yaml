@@ -1,0 +1,21 @@
+id: tools/_t969-post-bytes.sh
+name: _t969-post-bytes
+type: script
+subsystem: instruments
+location: tools/_t969-post-bytes.sh
+tags: []
+
+purpose: "_t969-post-bytes.sh — post a file to a termlink topic in sha-verified parts."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-01
+created_by: unknown
