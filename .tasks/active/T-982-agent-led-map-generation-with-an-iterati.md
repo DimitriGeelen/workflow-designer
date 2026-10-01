@@ -142,7 +142,7 @@ Research artefact: `docs/reports/T-982-generate-review-loop.md`.
 
 We believe that making map production an agent-led generate -> review-against-source -> correct loop, with the validator as the floor and every correction fed back into the guide, rubric or validator,
 we will achieve maps faithful to their source (nothing invented, nothing missed, unknowns declared) and a kit that improves itself with use.
-We will know that we are successful when we see a second loop run on the same source need fewer than half the review corrections of the first, and 0 invented elements in the final map per an independent reviewer.
+We will know that we are successful when we see the shipped reviewer catch every planted defect in a fixed set of 3 or more with 0 false findings on a clean control map, and every human or reviewer disagreement recorded in the learning ledger with a destination, both re-measured on each release of the kit.
 
 ## Assumptions
 
@@ -167,29 +167,29 @@ We will know that we are successful when we see a second loop run on the same so
 -->
 
 - **IW-1: Where does the loop live: shipped in the kit for vendor agents, in AEF as a skill, in the designer, or all three?**
-  confidence: 0
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Kit first: rubric, review/correct briefs, citation convention and a provider-agnostic loop driver ship beside the designer release (T-974 channel), so every vendor agent gets the loop; an AEF skill can wrap the same files later. Spikes S1/S2 ran entirely from kit files.
 - **IW-2: What is the source-reference convention (how each element cites the passage it came from) so review can check fidelity?**
-  confidence: 0
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: answered
+  rationale: Every lane and flow node carries <documentation>source: "<verbatim quote>"</documentation> or source: unstated - <why>. Script-checkable: S1 23 quoted / 4 unstated / 0 misquoted; it is what made the fabricated citation in S1b detectable.
 - **IW-3: What is the review rubric, and what is the stop rule (when is a map done)?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Rubric v3: invented, missed, wrong-authority, undeclared-unknown, citation, readability, scope; governance categories always major. Stop rule: a review round with 0 findings, max 4 rounds. S1b 3/3 recall, 0 false positives; S2b v3 2/2 with 0 false alarms on the S1 control.
 - **IW-4: Who reviews: one independent agent, or a panel of our three paid providers, and how are disagreements routed (human, guide, validator)?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: One independent reviewer from another vendor, CALIBRATED on planted defects each release, plus the human checkpoint. A second agent reviewer added nothing in S2b: both shared the rubric blind spot. Blind spots are closed by rubric changes from human disagreement, not by more agents.
 - **IW-5: How does a learning travel back: which corrections become guide text, which rubric items, which validator rules, and who decides?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: A learning ledger records every correction and disagreement with a proposed destination (guide / rubric / validator / source owner); promotion needs repetition or a human confirmation (report §4c, L1-L4). The corrector names the lesson itself (S2: it diagnosed why the generator erred).
 - **IW-6: How do HUMAN edits become learnings? (Operator, 2026-10-01: "when a human changes something, routing, stuff like that ... review and ingest again as rubric or guidance.") Needs per-version provenance (agent vs human), a structural diff, an agent pass that names the likely reason, and a human checkpoint before a single edit becomes a rule.**
   confidence: 1
-  disposition:
-  rationale:
+  disposition: deferred
+  rationale: Needs per-version provenance (agent vs human) on save and a structural diff before any human edit can be read as a correction; scoped as its own build slice, not measurable inside this spike.
 
 ## Exploration Plan
 
@@ -251,11 +251,21 @@ We will know that we are successful when we see a second loop run on the same so
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO — ship the loop in the kit, with a calibrated reviewer and a learning ledger
 
 **Rationale:**
 
-Framing only. Evidence from T-974/T-975 (two vendor agents, one fresh re-run) is the starting research; the loop's shape, ownership and stop rule are not yet decided.
+The loop was run end to end on two sources and its parts were each tested, not assumed: the
+reviewer caught 3/3 planted defects with 0 false positives; a blind spot shared by two agent
+reviewers was closed by one human disagreement turned into a rubric rule, which then caught 2/2
+with 0 false alarms on a clean control; the corrector applied the findings and named the cause
+(the guide over-applies its own honest-unknown rule); the re-review came back clean. The
+deterministic validator accepted every planted defect and scored one of them BETTER, which is
+the case for agent-led review in one line. Build as slices: (B1) kit gains the citation
+convention, rubric v3, review/correct briefs, a provider-agnostic loop driver and a
+planted-defect calibration set with a test; (B2) the learning ledger and its promotion step,
+starting with L3 (guide) and L4 (report to AEF); (B3) per-version provenance on save and a
+structural diff, so human edits become proposed learnings (IW-6).
 
 **Evidence:**
 

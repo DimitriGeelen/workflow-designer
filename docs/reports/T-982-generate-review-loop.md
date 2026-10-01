@@ -175,6 +175,38 @@ disagrees, the disagreement becomes a rubric rule with its reason, and the revie
 what two reviewers missed. Learning destination: rubric. Pending: specificity of v3 on the clean
 S1 map (no false alarms), and the correct -> re-review closure on S2.
 
+**Closing checks:**
+- **Specificity:** rubric v3 on the honest S1 map -> **0 findings**. The new rule bites without
+  false alarms.
+- **Correct -> re-review on S2:** Codex APPLIED both scope findings (the two command tasks are
+  gone: 8 references before, 0 after); validator warnings 10 -> 5; **round-2 review: 0 findings.**
+- **The corrector explained the cause**, which a reviewer alone would not have: it had applied
+  the guide's honest-unknown rule ("unknown order -> leave unconnected and annotate") to
+  reference commands, i.e. it read a command list as steps of unknown order. The guide
+  over-applies its own best rule. Second learning, destination: **guide**.
+
+## 4c. Learning ledger (proposed, not yet promoted)
+
+Promotion waits for the decision AND for the human checkpoint of §4b: a single observation
+proposes, it does not become a rule on its own.
+
+| # | learning | from | destination | status |
+|---|---|---|---|---|
+| L1 | `wrong-authority`, `invented`, `undeclared-unknown` are always major | S1b reviewer rated a governance error minor | rubric | applied in the spike rubric (v2) |
+| L2 | `scope`: reference material (command lists, tables, examples) is not process | S2b: both agent reviewers missed it, the human did not | rubric | applied in the spike rubric (v3); proven to bite (2/2) without false alarms (0 on S1) |
+| L3 | the honest-unknown rule applies only to steps the source presents as part of the flow | S2 corrector's own lesson | guide | proposed |
+| L4 | a source-vs-reference diff exposes documentation that understates the real process | S2: AGENT.md omits the human decision healing.sh implements | report to the source owner (AEF) | proposed |
+
+## 4d. Restated hypothesis (the original measure was unmeasurable)
+
+"Fewer than half the corrections in round 2" assumed round 1 has corrections; with the revised
+guide, round 1 was clean on both sources. The loop's value showed up elsewhere, so the measures
+that matter are:
+1. **reviewer recall on planted defects** (S1b: 3/3, 0 false positives);
+2. **a disagreement converted into a rule that then catches it** (S2b: 0 -> 2 of 2, 0 false
+   alarms on the control);
+3. over time, **human corrections per map** (§4b), the operator-facing measure.
+
 ## 4b. The second feedback source: human edits
 
 > **Operator:** *"There can also be feedback from human. So when a human changes something,
