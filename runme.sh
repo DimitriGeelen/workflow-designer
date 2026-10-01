@@ -30,6 +30,22 @@
 #  localhost; from another device you would need a port you have opened yourself.
 #  Pass one as the first argument to override.
 # =============================================================================
+# ── T-963: START UNDER BASH, OR RE-EXEC INTO IT ──────────────────────────────
+# MUST be the first executable line, before `set -o pipefail` and before the log
+# is opened. Measured 2026-10-01: invoked as `sh runme.sh` this script died with
+#     runme.sh: 33: set: Illegal option -o pipefail
+# at the `set` line — which is BEFORE the log exists, so it produced no log, no
+# trace, and nothing for a watcher to see. The operator ran it twice and both
+# times the only evidence was absence. A handover script whose failure mode is
+# "no output anywhere" is worse than one that fails loudly.
+#
+# `sh` is dash on this host, and neither `-o pipefail` nor the `>(tee …)` process
+# substitution below is POSIX. Re-exec rather than drop the features: pipefail is
+# load-bearing in the rebuild step, and the log is the whole point.
+if [ -z "${BASH_VERSION:-}" ]; then
+    exec bash "$0" "$@"
+fi
+
 set -uo pipefail
 
 PROJ="/opt/832-Workflow-designer"
@@ -37,8 +53,19 @@ cd "$PROJ" || { echo "FATAL: cannot cd to $PROJ"; exit 1; }
 
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 LOG="$PROJ/runme-$TS.log"
-exec > >(tee -a "$LOG") 2>&1
-trap 'cp -f "$LOG" "$PROJ/runme-LATEST.log" 2>/dev/null || true' EXIT
+# Prove the log can actually be written BEFORE redirecting into it. If the script
+# is run by a user without write access here, the redirect would otherwise swallow
+# every subsequent message and leave the same no-output-anywhere signature.
+if touch "$LOG" 2>/dev/null; then
+    exec > >(tee -a "$LOG") 2>&1
+    trap 'cp -f "$LOG" "$PROJ/runme-LATEST.log" 2>/dev/null || true' EXIT
+else
+    LOG="(none — $PROJ is not writable by $(id -un))"
+    echo "WARNING: cannot create a log file in $PROJ as $(id -un)."
+    echo "         Continuing WITHOUT a log; everything below is on screen only,"
+    echo "         so copy it if something goes wrong."
+    echo
+fi
 
 echo "=== T-962: serve the designer with validator findings — $TS ==="
 echo "log: $LOG"
