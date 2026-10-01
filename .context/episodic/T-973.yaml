@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-973: /api/save returns validator findings advisorily — the boundary speaks to every generator at the moment it saves
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T17:56:44Z
+# ============================================================================
+
+task_id: T-973
+task_name: "/api/save returns validator findings advisorily — the boundary speaks to every generator at the moment it saves"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T17:36:23Z
+completed: 2026-10-01T17:56:33Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-01T19:56:22+02:00
+last_commit: 2026-10-01T19:56:22+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  /api/save returns the validator's verdict, advisorily — the boundary speaks to every generator at the moment it saves
+
+# Key outcomes
+outcomes:
+  - '`POST /api/save` returns a `validation` key on every successful save: `{ok:true, findings,'
+  - '**Advisory, never blocking** (T-956 ruling): the version is written and `ok:true, v` is'
+  - 'Both directions over real HTTP: a map missing workflowMeta returns'
+  - 'The existing save response fields (`ok, v, ts, corpus`) are unchanged, so no current client'
+  - 'A pickup proposal for AEF''s blueprint is written to `docs/reports/T-973-aef-save-findings-pickup.md`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-973-aef-save-findings-pickup.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-973-apisave-returns-validator-findings-advis.md'
+  - 'tests/fixtures/aef-bpmn/plain-task-default-ns.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/.run-history.tsv'
+  - 'tests/test_dead_leg_census.py'
+  - 'tests/test_t973_save_findings.py'
+  - 'tools/gallery-serve.py'
+  - 'tools/_t821-swallowed-failure-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T19:56:22'
+    action: 'T-973: /api/save returns the validator''s verdict, advisorily — the boundary speaks to every generator at the moment it saves'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 20
+  commits: 1
+  files_changed: 10
+  lines_added: 664
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-973-apisave-returns-validator-findings-advis.md
+generated_by: context-agent-hybrid
