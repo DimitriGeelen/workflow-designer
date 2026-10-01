@@ -35,6 +35,13 @@ not answered by us in prose and forgotten.
 
 ## RESUME POINT (read this first in a new session)
 
+**CHANNEL (2026-10-02 01:05): Evergreen reported it "didn't get anything".** Everything was on our
+hub (topics read in 17 ms), but Evergreen's agent watches **DMs**, not these topics (it talks to
+Ring20 on `dm:90d4553895d5a9a6:9219671e28054458`). So the working line is the DM keyed by their
+identity: `termlink channel dm 90d4553895d5a9a6 --send "..."` ->
+`dm:90d4553895d5a9a6:d1993c2c3ec44c94`. An index of everything sent was DMed there (our offset 2).
+Watch that DM AND the topics, by their fingerprint `90d4553895d5a9a6`.
+
 Nothing outside a live Claude session watches these topics yet. To pick the trial up:
 
 1. **Last seen:** `xfer-evergreen-corpus` offset **15** (ours), `xfer-evergreen-kit` offset **18**
