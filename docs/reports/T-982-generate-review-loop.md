@@ -69,7 +69,60 @@ description of ours (e.g. a framework process with a known reference map), where
 
 Time-box: S1 + S2 one session; S3 one session.
 
-## 5. Open questions (IW-1 .. IW-5 in the task)
+### S1 setup, as run (2026-10-01)
+
+- **Source:** the T-975 bicycle-wholesaler interview notes (unchanged, so results compare).
+- **Kit:** built from the tree at the start of S1 (guide after the T-975 round-2 revisions,
+  T-977/T-978 fixes in the validator).
+- **Generator:** OpenAI Codex. **Reviewer:** Z.AI GLM-5.2. Different vendors, so the reviewer
+  does not share the generator's blind spots by construction.
+- **Citation convention v1 (IW-2 draft):** every lane and flow node carries
+  `<documentation>source: "<verbatim quote>"</documentation>` or
+  `source: unstated - <why it exists anyway>`. This is what makes "invented" checkable: an
+  element either quotes the source or says it does not.
+- **Rubric v1 (IW-3 draft):** invented, missed, wrong-authority, undeclared-unknown, citation,
+  readability; major or minor; NOT reportable: layout, ids, and the honest end-state findings
+  of guide §5.
+- **Stop rule v1:** a review round that returns zero findings, or 4 rounds.
+- **Corrector:** the generator, which must APPLY or CONTEST each finding with a source quote,
+  and name the lesson and its destination (guide / rubric / validator / none) for every finding.
+  That last field is the feedback path: the loop writes its own learnings.
+
+## 4b. The second feedback source: human edits
+
+> **Operator:** *"There can also be feedback from human. So when a human changes something,
+> routing, stuff like that, that's then something I would suggest to review and ingest again as
+> rubric or guidance."*
+
+An agent reviewer INFERS what is wrong. A human edit IS a correction, with ground truth: a
+rerouted flow, a step moved to another lane, a renamed step, a deleted invented step, an added
+missing one. It is the review finding the loop should have produced, delivered for free.
+
+```
+agent-generated version ──(human edits in the designer, saves)──► human version
+            └──────────────── structural DIFF ────────────────┘
+                                   │
+                  REVIEW the diff (agent): what changed, and WHY would a human change it?
+                  classify with the same rubric categories (invented / missed / wrong-authority ...)
+                                   │
+                  LEARNING record ──► promote: guide | rubric | validator   (same path as §3)
+```
+
+What exists already: the designer keeps every save as a version (`.editor-versions/<id>/vN.bpmn`
++ index), and since T-973 every save runs the validator. What is missing:
+1. **provenance per version**: was this version written by an agent or by a human? Without it, a
+   diff cannot be read as a correction. The save carries a free-text `note`; a typed origin field
+   is the clean form.
+2. **a diff-to-learning step**: a structural diff (nodes, lanes, flows, authorities), not a text
+   diff, then an agent pass that names the likely reason and proposes the lesson.
+3. **a human checkpoint on promotion**: an edit can be taste, a fix, or a mistake. A single human
+   edit should propose a learning, not silently become a rule; repetition across maps, or an
+   explicit confirmation, promotes it.
+
+This also gives the hypothesis a second, stronger measure later: **fewer human corrections per
+map over time**, which is the signal that actually matters to an operator.
+
+## 5. Open questions (IW-1 .. IW-6 in the task)
 
 Where the loop lives (kit / AEF skill / designer); the source-reference convention; the rubric
 and stop rule; one reviewer or a panel of our three paid providers; how a learning travels back

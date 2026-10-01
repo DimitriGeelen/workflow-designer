@@ -186,6 +186,10 @@ We will know that we are successful when we see a second loop run on the same so
   confidence: 1
   disposition:
   rationale:
+- **IW-6: How do HUMAN edits become learnings? (Operator, 2026-10-01: "when a human changes something, routing, stuff like that ... review and ingest again as rubric or guidance.") Needs per-version provenance (agent vs human), a structural diff, an agent pass that names the likely reason, and a human checkpoint before a single edit becomes a rule.**
+  confidence: 1
+  disposition:
+  rationale:
 
 ## Exploration Plan
 
