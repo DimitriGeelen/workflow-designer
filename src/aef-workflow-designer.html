@@ -658,6 +658,62 @@ font-family: 'Outfit';
      than --text-faint so it stays legible — this is the one mark that says what the
      element actually is. */
   .node-foreign-tag { fill: var(--text-dim); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
+
+  /* ── T-962 (T-309 slice 3): validator findings on the map ──────────────────────────
+     The marker takes the BOTTOM-RIGHT corner, the one position still free: top-left is
+     T-893's authority marker, top-right is T-884's instance badge and the I/O badge,
+     bottom-left is the constituents badge. Pill under text, same reason as the instance
+     badge — legible where an edge crosses.
+     Colour carries severity and nothing else, so a reader never has to decode shape. */
+  .node-finding-pill { fill: var(--surface); stroke: var(--border-strong); stroke-width: .5px; pointer-events: none; }
+  .node-finding-badge { font-family: var(--mono); font-size: 8px; font-weight: 600; pointer-events: none; }
+  .node[data-finding="ERROR"] .node-finding-badge { fill: var(--red); }
+  .node[data-finding="WARN"]  .node-finding-badge { fill: var(--orange); }
+  .node[data-finding="ERROR"] .node-finding-pill  { stroke: var(--red); }
+  .node[data-finding="WARN"]  .node-finding-pill  { stroke: var(--orange); }
+
+  /* The findings drawer DOCKS along the bottom of the canvas column, rather than floating
+     over the middle of the diagram. Read off the first screenshot, not reasoned about: the
+     floating version sat on top of the map the operator is meant to be remediating, and
+     clicking a row selects a node that may be underneath it. Docked and height-capped, the
+     occlusion is a predictable bottom strip instead of arbitrary.
+     Left/right track main's own grid columns (220px palette, 320px properties), including
+     the modes that remove them, so the dock never straddles a panel edge. */
+  #findings-drawer { position: fixed; left: 220px; right: 320px; bottom: 0; z-index: 40;
+    max-height: 30vh; display: none; flex-direction: column; background: var(--surface);
+    border: 1px solid var(--border-strong); border-bottom: none;
+    border-radius: 8px 8px 0 0; box-shadow: 0 -4px 18px rgba(0,0,0,.26); }
+  body.vc-no-palette #findings-drawer { left: 0; }
+  body.vc-no-props   #findings-drawer { right: 0; }
+  /* Focus mode deliberately strips chrome to the diagram; a findings dock is chrome. */
+  body.vc-focus      #findings-drawer { display: none !important; }
+  #findings-drawer[data-open="1"] { display: flex; }
+  .findings-head { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  .findings-title { font-weight: 600; font-size: 12px; }
+  /* The state line is the load-bearing part of this panel: "not yet checked",
+     "no findings" and "could not check" must never render as the same empty area.
+     T-961 made that distinction true at the function boundary and it dies here if
+     this line is cosmetic. */
+  .findings-state { font-size: 11px; font-family: var(--mono); }
+  .findings-state[data-state="unchecked"]   { color: var(--text-dim); }
+  .findings-state[data-state="clean"]       { color: var(--green); }
+  .findings-state[data-state="unavailable"] { color: var(--orange); }
+  .findings-state[data-state="findings"]    { color: var(--text); }
+  .findings-close { margin-left: auto; cursor: pointer; background: none; border: none; color: var(--text-dim); font-size: 14px; line-height: 1; padding: 2px 4px; }
+  .findings-close:hover { color: var(--text); }
+  .findings-list { overflow-y: auto; padding: 4px 0; }
+  .finding-row { display: grid; grid-template-columns: 54px 1fr; gap: 8px; padding: 5px 10px; cursor: pointer; border-left: 2px solid transparent; }
+  .finding-row:hover { background: var(--surface-2); border-left-color: var(--border-strong); }
+  .finding-row[data-anchored="0"] { cursor: default; }
+  .finding-row[data-anchored="0"]:hover { background: none; border-left-color: transparent; }
+  .finding-sev { font-family: var(--mono); font-size: 10px; font-weight: 600; }
+  .finding-row[data-sev="ERROR"] .finding-sev { color: var(--red); }
+  .finding-row[data-sev="WARN"]  .finding-sev { color: var(--orange); }
+  .finding-rule { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+  .finding-msg  { font-size: 11px; color: var(--text); }
+  /* A finding with no node to sit on is still a finding. Saying so beats letting the
+     reader assume the list and the map agree. */
+  .finding-row[data-anchored="0"] .finding-rule::after { content: ' · not on the map'; color: var(--text-faint); }
   /* T-258: annotation seam v0 (T-250 GO) — read-only badge layer driven by the
      embedding parent via postMessage. Never serialized; wiped on every render. */
   .aef-annotation { pointer-events: none; }
@@ -1273,6 +1329,9 @@ font-family: 'Outfit';
       <button class="btn" id="btn-load">Load…</button>
       <!-- T-154: "📂 Open project…" moved to the brand area (replacing the workflow-picker
            <select>); a single, duplicate-free entry point. -->
+      <!-- T-962: hidden until detectSaveApi() confirms a server, like its neighbours — the
+           standalone file:// build must not offer a button that cannot work. -->
+      <button class="btn" id="btn-check" title="Check this map against the workflow validator and show what it finds (requires the write-capable gallery server)" style="display:none">✓ Check</button>
       <button class="btn" id="btn-versions" title="Browse and revert to a saved version of this map (requires the write-capable gallery server)" style="display:none">🕘 Versions</button>
       <button class="btn" id="btn-save-project" title="Save this map into the repo as a new version (requires the write-capable gallery server)" style="display:none">⤓ Save to project</button>
       <button class="btn btn-primary" id="btn-save">Save</button>
@@ -1535,6 +1594,19 @@ font-family: 'Outfit';
   <!-- T-245: the only visible chrome in focus mode — floating, semi-transparent
        until hovered so it never fights the diagram in a presentation. -->
   <button class="btn" id="vc-exit" title="Exit focus mode (Esc)" type="button">⛶ Exit focus</button>
+
+  <!-- ============ T-962 (T-309 slice 3): validator findings ============ -->
+  <!-- Every finding the validator returned, whether or not it could be placed on the map.
+       Markers on nodes are a declared SUBSET of this list (see FINDING_MARKER_RULES); the
+       list is the complete record, so a finding is never lost for having nowhere to sit. -->
+  <div id="findings-drawer" data-open="0">
+    <div class="findings-head">
+      <span class="findings-title">Validator</span>
+      <span class="findings-state" id="findings-state" data-state="unchecked">not yet checked</span>
+      <button class="findings-close" id="findings-close" title="Close" type="button">✕</button>
+    </div>
+    <div class="findings-list" id="findings-list"></div>
+  </div>
 
   <!-- ============ Editor settings (modal, T-075) ============ -->
   <!-- Every control here is an editor-local preference (localStorage only) —
@@ -3743,6 +3815,28 @@ function renderNodes() {
           else if (istate === 'refused-target') pill('node-instance-refused-badge', '✗ refused target', by, 'refused-target');
           if (isRefused) pill('node-instance-refused-badge', '⛔ ' + ov.refused.rule, istate === 'current' ? by - 13 : by, 'refused');
         }
+      }
+    }
+    // T-962: validator finding marker. BOTTOM-RIGHT — the one free corner: top-left is
+    // T-893's authority marker, top-right is T-884's instance badge and the I/O badge,
+    // bottom-left is the constituents badge. Pill under text for the same reason as the
+    // instance badge: legibility where an edge crosses.
+    //
+    // Reads findingsView and writes nothing to the model, so a stale marker is impossible
+    // by construction — findingsView is replaced wholesale on every check, and cleared to
+    // 'unavailable' with an empty byNode when the validator could not be reached.
+    {
+      const fnd = findingsView.byNode.get(n.id);
+      if (fnd) {
+        const sev = (fnd.severity === 'ERROR') ? 'ERROR' : 'WARN';
+        g.setAttribute('data-finding', sev);
+        const txt = (sev === 'ERROR') ? '✖' : '⚠';
+        const fw = 13, fx = n.x + def.w - fw - 2, fy = n.y + def.h - 2;
+        g.appendChild(el('rect', { x: fx, y: fy - 9, width: fw, height: 11.5, rx: 3,
+                                   class: 'node-finding-pill', 'data-finding-pill': sev }));
+        g.appendChild(el('text', { x: fx + fw / 2, y: fy, class: 'node-finding-badge',
+                                   'text-anchor': 'middle', 'data-finding-badge': fnd.rule },
+                         [text(txt)]));
       }
     }
     gNodes.appendChild(g);
@@ -9307,6 +9401,8 @@ async function detectSaveApi() {
       if (bo) bo.style.display = '';
       const bp = $('btn-pending-refs');   // T-228 (S4a): pending off-page refs picker
       if (bp) bp.style.display = '';
+      const bc = $('btn-check');          // T-962: validator findings on the map
+      if (bc) bc.style.display = '';
       refreshUuidIndex();   // T-240: bind uuid workflowRefs to live maps at startup
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
@@ -9389,6 +9485,169 @@ async function validateCurrentWorkflow() {
     warnings: (typeof data.warnings === 'number') ? data.warnings
       : rows.filter(f => f && f.severity === 'WARN').length,
   };
+}
+
+// ─── T-962 (T-309 slice 3): show findings ON the map ────────────────────────────────
+// The operator's shape, 2026-10-01: "a check that shows the errors and also makes it
+// visibly in the flow so we can remediate it". Markers on nodes, a list for everything,
+// and the list row is what you click — gBadges/gBadgesTop are pointer-events:none, so
+// the interactive element is the row and it reuses existing selection.
+
+// 'unchecked' IS A STATE, not an empty findings list. This is the whole point of the
+// panel: T-961 made "could not look" structurally different from "found nothing" at the
+// function boundary, and that distinction dies here if an unchecked map renders the same
+// as a clean one. Hence four states, each with its own line in the header.
+let findingsView = { state: 'unchecked', rows: [], byNode: new Map(), reason: null };
+
+// WHICH RULES GET A MARKER ON THE CANVAS. A declared list, not a severity gate, because
+// severity cannot separate signal from noise here: `W-XML-GW-AMBIGUOUS` fires on 47 of
+// AEF's 48 live gateways and 0 of ours (T-325 — it reports which toolchain wrote the
+// file, not whether the file is wrong), and it is a WARN, exactly like the genuinely
+// valuable `W-XML-LANE-GEOMETRY` / `W-XML-LANE-CAPACITY`. Marking all warnings would put
+// ~47 markers on an AEF-authored map, and arc-001 commits this editor to opening those.
+// AEF's L-527: a rule that gets tuned out is weaker than no rule.
+//
+// EXCLUSION FROM THIS SET IS NOT SUPPRESSION. Every finding still appears in the list.
+// The set decides what shouts, not what is reported.
+//
+// THIS LIST IS A STAND-IN. `tests/test_rule_dialect_axis.py` already classifies every
+// rule as universal or dialect-relative, and the validator does not read it
+// (`grep -c dialect tools/validate-workflow.py` → 0). When that axis is consumed this
+// hand list should be DELETED, not extended — it is the same judgement, hard-coded.
+const FINDING_MARKER_RULES = new Set([
+  // Authority: a step nobody owns. The flagship case, and the operator's own field defect
+  // (a map with ~14 steps below every lane band — they looked placed, they were in no lane).
+  'E-XML-NODE-UNASSIGNED', 'E-XML-LANEREF-DANGLING', 'E-XML-AUTHORITY',
+  'W-LANE-NO-OWNER', 'W-TYPE-LANE-MISMATCH', 'W-XML-AUTHORITY-DEFAULT-MISMATCH',
+  // Flow: control that cannot start, cannot finish, or points at nothing.
+  'E-XML-FLOW-DANGLING', 'W-XML-UNREACHABLE', 'W-XML-DEADEND',
+  // Parallelism that does not rejoin.
+  'W-XML-PGW-UNBALANCED', 'W-XML-PGW-NOOP', 'W-XML-PGW-CONDITION',
+  // Decisions that cannot decide, and identity collisions.
+  'E-XML-GW-OUTGOING', 'E-XML-ID-DUP', 'E-XML-UID-DUP', 'E-XML-NODE-TYPE',
+  // DELIBERATELY ABSENT: 'W-XML-GW-AMBIGUOUS' (the 47-of-48 above). It is in the list,
+  // just not on the canvas.
+]);
+
+// `location` is prose, e.g. "node 'wrk_2_context'" or "exclusiveGateway 'frw_2_build'",
+// and "<file>" for document-level findings. Surveyed across the whole rendered corpus plus
+// four deliberately-broken variants: three shapes, two of them quoted-id.
+//
+// We take the quoted id and then RESOLVE IT AGAINST THE NODE SET rather than trusting the
+// type word. That is deliberately shape-agnostic: lane- and document-level rules I could
+// not reach from any fixture may well emit "lane '<id>'", and this must put those in the
+// list rather than hang a marker on a node that does not exist.
+//
+// RESOLVED BY displayIdOf, NOT BY n.id. The validator reads the EXPORTED document, so the
+// id it reports is the exported one — which is displayIdOf(n), the same id T-884's
+// instance overlay matches on. The first version of this matched n.id and silently placed
+// ZERO markers while the drawer cheerfully reported "2 findings, 0 on the map". Caught by
+// reading the screenshot, not by any DOM assertion: every row rendered correctly and said
+// "not on the map", which is a true statement about a wrong computation.
+//
+// Returns the INTERNAL n.id, because that is what selection and renderNodes key on.
+function findingNodeId(location) {
+  const m = /'([^']+)'/.exec(String(location || ''));
+  if (!m) return null;
+  const wanted = m[1];
+  const hit = state.nodes.find(n => displayIdOf(n) === wanted) || findNode(wanted);
+  return hit ? hit.id : null;
+}
+
+function renderFindingsPanel() {
+  const drawer = $('findings-drawer');
+  const stateEl = $('findings-state');
+  const list = $('findings-list');
+  if (!drawer || !stateEl || !list) return;
+
+  const v = findingsView;
+  const marked = v.byNode.size;
+  let label;
+  if (v.state === 'unchecked') { label = 'not yet checked'; }
+  else if (v.state === 'unavailable') { label = 'could not check — ' + (v.reason || 'reason unknown'); }
+  else if (v.rows.length === 0) { label = 'checked · no findings'; }
+  else {
+    const errs = v.rows.filter(r => r.severity === 'ERROR').length;
+    const warns = v.rows.length - errs;
+    // Both numbers always, so "3 findings, 0 marked" is visible rather than inferred —
+    // that is the case where the list and the map legitimately disagree.
+    label = `${v.rows.length} finding${v.rows.length === 1 ? '' : 's'} · `
+          + `${errs} error${errs === 1 ? '' : 's'}, ${warns} warning${warns === 1 ? '' : 's'} · `
+          + `${marked} on the map`;
+  }
+  stateEl.textContent = label;
+  stateEl.setAttribute('data-state',
+    v.state === 'unchecked' ? 'unchecked'
+    : v.state === 'unavailable' ? 'unavailable'
+    : v.rows.length === 0 ? 'clean' : 'findings');
+
+  list.innerHTML = '';
+  for (const r of v.rows) {
+    const nodeId = findingNodeId(r.location);
+    const row = document.createElement('div');
+    row.className = 'finding-row';
+    row.setAttribute('data-sev', r.severity || 'WARN');
+    row.setAttribute('data-rule', r.rule || '');
+    row.setAttribute('data-anchored', nodeId ? '1' : '0');
+    const left = document.createElement('div');
+    const sev = document.createElement('div');
+    sev.className = 'finding-sev';
+    sev.textContent = (r.severity === 'ERROR') ? 'ERROR' : 'WARN';
+    left.appendChild(sev);
+    const right = document.createElement('div');
+    const rule = document.createElement('div');
+    rule.className = 'finding-rule';
+    rule.textContent = r.rule || '';
+    const msg = document.createElement('div');
+    msg.className = 'finding-msg';
+    msg.textContent = r.message || '';
+    right.appendChild(rule);
+    right.appendChild(msg);
+    row.appendChild(left);
+    row.appendChild(right);
+    if (nodeId) {
+      // The "so we can remediate it" half: the row takes you to the step.
+      row.addEventListener('click', () => {
+        const n = findNode(nodeId);
+        if (!n) return;
+        selection = { kind: 'node', id: nodeId };
+        multiSelect.clear();
+        renderAll();
+        if (typeof renderProps === 'function') renderProps();
+      });
+    }
+    list.appendChild(row);
+  }
+  drawer.setAttribute('data-open', '1');
+}
+
+async function runCheck() {
+  const btn = $('btn-check');
+  const label = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = '✓ Checking…'; }
+  try {
+    const res = await validateCurrentWorkflow();
+    if (!res.ok) {
+      // NOT an empty findings list. The panel says it could not look, and the map keeps
+      // no markers from a previous run that would now be describing a different document.
+      findingsView = { state: 'unavailable', rows: [], byNode: new Map(), reason: res.reason };
+    } else {
+      const byNode = new Map();
+      for (const r of res.findings) {
+        if (!FINDING_MARKER_RULES.has(r.rule)) continue;
+        const id = findingNodeId(r.location);
+        if (!id) continue;
+        // Worst severity wins the marker: a node with an error and a warning reads ERROR.
+        const prev = byNode.get(id);
+        if (!prev || (prev.severity !== 'ERROR' && r.severity === 'ERROR')) byNode.set(id, r);
+      }
+      findingsView = { state: 'checked', rows: res.findings.slice(), byNode, reason: null };
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = label || '✓ Check'; }
+  }
+  renderFindingsPanel();
+  renderAll();   // markers are drawn by renderNodes from findingsView
 }
 
 // Copy the computed SVG-relevant styles from a live element tree onto a detached
@@ -10409,6 +10668,23 @@ $('btn-save-project').onclick = saveToProject;
 $('btn-versions').onclick = openVersionsModal;
 $('btn-open-project').onclick = openProjectModal;   // T-144 (moved to brand area in T-154)
 $('btn-pending-refs').onclick = openPendingRefModal; // T-228 (S4a): pending off-page refs picker
+$('btn-check').onclick = runCheck;                   // T-962 (T-309 slice 3)
+// Closing the drawer returns to 'unchecked' and clears the markers, rather than hiding a
+// panel whose findings stay painted on the map. A marker with no visible explanation is
+// worse than no marker.
+$('findings-close').onclick = () => {
+  findingsView = { state: 'unchecked', rows: [], byNode: new Map(), reason: null };
+  $('findings-drawer').setAttribute('data-open', '0');
+  renderFindingsPanel_close();
+};
+// Split out so the close path cannot accidentally re-open the drawer that
+// renderFindingsPanel() always opens.
+function renderFindingsPanel_close() {
+  const stateEl = $('findings-state'), list = $('findings-list');
+  if (stateEl) { stateEl.textContent = 'not yet checked'; stateEl.setAttribute('data-state', 'unchecked'); }
+  if (list) list.innerHTML = '';
+  renderAll();
+}
 // T-154: the workflow-picker <select> and its onchange handler are gone — the brand-area
 // "📂 Open project…" button is the single entry point. loadFromLibrary() is retained; it is
 // still invoked by the palette map-list rows (createNewWorkflow / library switching).
