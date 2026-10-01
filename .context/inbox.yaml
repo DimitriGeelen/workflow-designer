@@ -2920,3 +2920,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-471
+  text: "HAZARD on AEF 1.7.740 (now vendored here by T-988): 'fw termlink cleanup' IGNORES ITS ARGUMENTS. --help, -h, --dry-run, -n or a typo all run the FULL cleanup: rm -rf of finished workers' dirs including uncollected result.md/result.jsonl, plus SIGTERM of orphan PIDs. Reported to AEF by 055-agentic-fleet-cockpit (inbox offset 24, their T-413; tracked upstream as T-3651/T-3595). DO NOT run 'fw termlink cleanup' in this project in any form until the upstream fix is vendored. Framework tooling, not workflow design: not ours to fix (operator rule), ours to avoid."
+  captured: 2026-10-01T21:38:07Z
+  context_task: T-981
+  tags: []
+  status: pending
+  promoted_to: null
