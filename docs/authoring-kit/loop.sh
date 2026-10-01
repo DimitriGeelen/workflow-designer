@@ -36,6 +36,19 @@ agent() {  # agent <prefix> <prompt>
     bash -c "$1 \"\$1\"" _ "$2" < /dev/null >> agents.log 2>&1
 }
 log() { echo "$(date +%H:%M:%S) $*" | tee -a LOOP.txt; }
+# T-991: every agent works on a COPY of the kit inside its own working directory, and every
+# prompt names only ./kit/ paths. Sandboxed agents (opencode, for one) refuse to read outside
+# their working directory: 0.15.0 pointed them at the kit by absolute path, and a real
+# calibration with such a reviewer could not even read REVIEW.md ("external_directory ...
+# auto-rejecting"). The stub tests missed it because stubs have no sandbox.
+stage_kit() {  # stage_kit <dir>
+    mkdir -p "$1/kit" || return 1
+    local f
+    for f in AUTHORING.md CONFORMANCE.md RUBRIC.md GENERATE.md REVIEW.md CORRECT.md \
+             validate-workflow.py exemplar.bpmn; do
+        [ -f "$KIT/$f" ] && cp "$KIT/$f" "$1/kit/$f"
+    done
+}
 count() {
     python3 -c "import json,sys;d=json.load(open(sys.argv[1]));print(len(d))" "$1" 2>/dev/null || echo ERR
 }
@@ -46,8 +59,9 @@ if [ "${1:-}" = "--calibrate" ]; then
     for which in clean planted; do
         mkdir -p "$WD/$which" && cp "$KIT/calibration/SOURCE.md" "$WD/$which/SOURCE.md"
         cp "$KIT/calibration/$which.bpmn" "$WD/$which/map.bpmn"
+        stage_kit "$WD/$which" || { echo "loop.sh: could not stage the kit" >&2; exit 2; }
         ( cd "$WD/$which" && rm -f REVIEW.json && agent "$KIT_REVIEWER_CMD" \
-            "The kit is at $KIT. Read $KIT/REVIEW.md and carry it out completely." )
+            "The kit is in ./kit/. Read ./kit/REVIEW.md and carry it out completely." )
     done
     python3 - "$KIT/calibration/expected.json" "$WD/clean/REVIEW.json" "$WD/planted/REVIEW.json" <<'PY'
 import json, sys
@@ -74,18 +88,18 @@ fi
 
 need_cmds
 WD="${1:?usage: loop.sh <workdir> <source.md> [max_rounds]}"; SRC="${2:?source.md}"; MAX="${3:-4}"
-mkdir -p "$WD" && cp "$SRC" "$WD/SOURCE.md" && cd "$WD" || exit 2
-PRE="The kit is at $KIT."
+mkdir -p "$WD" && cp "$SRC" "$WD/SOURCE.md" && stage_kit "$WD" && cd "$WD" || exit 2
+PRE="The kit is in ./kit/."
 
 log "round 0: generate"
-agent "$KIT_GENERATOR_CMD" "$PRE Read $KIT/GENERATE.md and carry it out completely."
+agent "$KIT_GENERATOR_CMD" "$PRE Read ./kit/GENERATE.md and carry it out completely."
 [ -s map.bpmn ] || { log "STOPPED: the generator wrote no map.bpmn"; exit 1; }
 cp map.bpmn map.r0.bpmn
-log "validator: $(python3 "$KIT/validate-workflow.py" map.bpmn | tail -1)"
+log "validator: $(python3 kit/validate-workflow.py map.bpmn | tail -1)"
 for r in $(seq 1 "$MAX"); do
     rm -f REVIEW.json
     log "round $r: review"
-    agent "$KIT_REVIEWER_CMD" "$PRE Read $KIT/REVIEW.md and carry it out completely."
+    agent "$KIT_REVIEWER_CMD" "$PRE Read ./kit/REVIEW.md and carry it out completely."
     n=$(count REVIEW.json)
     [ "$n" = ERR ] && { log "STOPPED: no parseable REVIEW.json in round $r"; exit 1; }
     cp REVIEW.json "review.r$r.json"
@@ -93,10 +107,10 @@ for r in $(seq 1 "$MAX"); do
     [ "$n" = 0 ] && { log "DONE: clean review in round $r"; exit 0; }
     rm -f CORRECTIONS.json
     log "round $r: correct"
-    agent "$KIT_GENERATOR_CMD" "$PRE Read $KIT/CORRECT.md and carry it out completely."
+    agent "$KIT_GENERATOR_CMD" "$PRE Read ./kit/CORRECT.md and carry it out completely."
     [ "$(count CORRECTIONS.json)" = ERR ] && { log "STOPPED: no parseable CORRECTIONS.json in round $r"; exit 1; }
     cp CORRECTIONS.json "corrections.r$r.json"; cp map.bpmn "map.r$r.bpmn"
-    log "validator: $(python3 "$KIT/validate-workflow.py" map.bpmn | tail -1)"
+    log "validator: $(python3 kit/validate-workflow.py map.bpmn | tail -1)"
 done
 log "DONE: $MAX rounds without a clean review; read review.r$MAX.json"
 exit 1

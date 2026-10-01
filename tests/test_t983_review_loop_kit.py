@@ -36,6 +36,7 @@ A = '{http://anchorpoint.framework/aef/extensions}'
 STUB = r'''
 import json, os, shutil, sys
 mode, kit = sys.argv[1], sys.argv[2]
+open("prompts.log", "a").write(sys.argv[-1] + "\n")   # T-991: what the agent was told to read
 cal = os.path.join(kit, "calibration")
 if mode == "gen":
     if os.path.exists("REVIEW.json"):           # correct step: nothing to change
@@ -148,6 +149,20 @@ def main():
               r.returncode == 0 and 'DONE: clean review in round 1' in log
               and os.path.isfile(os.path.join(wd, 'map.r0.bpmn')) and os.path.isfile(os.path.join(wd, 'review.r1.json')),
               (log.strip().splitlines() or [''])[-1] if log else r.stderr[-160:])
+        # 9 (T-991) ------------------------------------------------------------------------
+        # A sandboxed agent (opencode) cannot read outside its working directory. 0.15.0 told
+        # agents to read the kit by ABSOLUTE path, and a real calibration failed on it; the stubs
+        # above have no sandbox, so they could not notice. So: every prompt an agent received must
+        # name only paths inside its own working directory, and the kit must be staged there.
+        logs = []
+        for d, _dirs, files in os.walk(tmp):
+            if 'prompts.log' in files:
+                logs.append((d, open(os.path.join(d, 'prompts.log')).read()))
+        outside = [(d, l) for d, txt in logs for l in txt.splitlines() if kit in l or re.search(r'(^|\s)/', l)]
+        staged = all(os.path.isfile(os.path.join(d, 'kit', 'REVIEW.md')) for d, _ in logs)
+        check('9. every agent prompt names only paths inside its workdir, and the kit is staged there (T-991)',
+              logs and not outside and staged,
+              '%d workdirs, %d prompt(s) pointing outside, staged=%s' % (len(logs), len(outside), staged))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

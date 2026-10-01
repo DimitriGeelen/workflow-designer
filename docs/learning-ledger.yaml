@@ -8,7 +8,7 @@
 #
 # status:      proposed -> confirmed -> promoted      (or rejected, with a reason)
 # source:      loop | reviewer | human | trial
-# destination: guide | rubric | validator | source-owner
+# destination: guide | rubric | validator | source-owner | tooling (the kit's own scripts)
 # promoted:    {where: <repo file>, marker: <text that must appear in it>}
 #              or {where: "sidecar:<client_msg_id>"} for a report to another project
 
@@ -58,3 +58,12 @@ learnings:
   confirmed_by: operator GO on T-982 ('B2 ... L4 (report to AEF)')
   promoted:
     where: sidecar:c01cc6fc-ab7e-4880-8ab5-da41da48ed3e
+- id: L5
+  learning: test the kit's tooling with a REAL sandboxed agent before shipping; a stub cannot see a sandbox
+  evidence: 'T-991: the 0.15.0 loop.sh pointed agents at the kit by absolute path; a real calibration
+    with GLM via opencode was refused ("external_directory ... auto-rejecting") and could not measure.
+    14 stub-based legs had passed. Fixed by staging ./kit/ per workdir; test leg 9 fails on 0.15.0.'
+  source: loop
+  destination: tooling
+  status: proposed
+  occurrences: 1

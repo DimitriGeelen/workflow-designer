@@ -28,7 +28,7 @@ import yaml
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 DEFAULT = os.path.join(ROOT, 'docs', 'learning-ledger.yaml')
-DESTS = {'guide', 'rubric', 'validator', 'source-owner'}
+DESTS = {'guide', 'rubric', 'validator', 'source-owner', 'tooling'}  # tooling: the kit's own scripts (T-991)
 SOURCES = {'loop', 'reviewer', 'human', 'trial'}
 
 
