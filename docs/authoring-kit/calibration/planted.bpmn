@@ -77,24 +77,19 @@ generates and sends the invoice automatically."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="order-arrives-by-email" />
       </bpmn:extensionElements>
-      <bpmn:outgoing>order-arrives-by-email--enter-order-into-erp</bpmn:outgoing>
-    </bpmn:startEvent>
+      <bpmn:outgoing>order-arrives-by-email--enter-order-into-erp</bpmn:outgoing></bpmn:startEvent>
     <bpmn:task id="enter-order-into-erp" name="Enter order into ERP">
       <bpmn:documentation>source: "A sales employee enters the order into the ERP."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="enter-order-into-erp" />
       </bpmn:extensionElements>
-      <bpmn:incoming>order-arrives-by-email--enter-order-into-erp</bpmn:incoming>
-      <bpmn:outgoing>enter-order-into-erp--check-customer-credit-limit</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>order-arrives-by-email--enter-order-into-erp</bpmn:incoming><bpmn:outgoing>enter-order-into-erp--check-customer-credit-limit</bpmn:outgoing></bpmn:task>
     <bpmn:task id="check-customer-credit-limit" name="Check customer credit limit">
       <bpmn:documentation>source: "Credit control checks the customer's credit limit."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="check-customer-credit-limit" />
       </bpmn:extensionElements>
-      <bpmn:incoming>enter-order-into-erp--check-customer-credit-limit</bpmn:incoming>
-      <bpmn:outgoing>check-customer-credit-limit--credit-limit-exceeded</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>enter-order-into-erp--check-customer-credit-limit</bpmn:incoming><bpmn:outgoing>check-customer-credit-limit--credit-limit-exceeded</bpmn:outgoing></bpmn:task>
     <bpmn:exclusiveGateway id="credit-limit-exceeded" name="Credit limit exceeded?">
       <bpmn:documentation>source: "If the limit is exceeded, the sales
 manager decides whether to accept the order anyway; a rejected order is closed and the
@@ -102,10 +97,7 @@ customer is told."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="credit-limit-exceeded" />
       </bpmn:extensionElements>
-      <bpmn:incoming>check-customer-credit-limit--credit-limit-exceeded</bpmn:incoming>
-      <bpmn:outgoing>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:outgoing>
-      <bpmn:outgoing>credit-limit-exceeded--pick-parts</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
+      <bpmn:incoming>check-customer-credit-limit--credit-limit-exceeded</bpmn:incoming><bpmn:outgoing>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:outgoing><bpmn:outgoing>credit-limit-exceeded--pick-parts</bpmn:outgoing></bpmn:exclusiveGateway>
     <bpmn:task id="decide-whether-to-accept-order-anyway" name="Decide whether to accept order anyway">
       <bpmn:documentation>source: "If the limit is exceeded, the sales
 manager decides whether to accept the order anyway; a rejected order is closed and the
@@ -113,9 +105,7 @@ customer is told."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="decide-whether-to-accept-order-anyway" />
       </bpmn:extensionElements>
-      <bpmn:incoming>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:incoming>
-      <bpmn:outgoing>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:incoming><bpmn:outgoing>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:outgoing></bpmn:task>
     <bpmn:exclusiveGateway id="accept-order-anyway" name="Accept order anyway?">
       <bpmn:documentation>source: "If the limit is exceeded, the sales
 manager decides whether to accept the order anyway; a rejected order is closed and the
@@ -123,116 +113,88 @@ customer is told."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="accept-order-anyway" />
       </bpmn:extensionElements>
-      <bpmn:incoming>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:incoming>
-      <bpmn:outgoing>accept-order-anyway--close-rejected-order</bpmn:outgoing>
-      <bpmn:outgoing>accept-order-anyway--pick-parts</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
+      <bpmn:incoming>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:incoming><bpmn:outgoing>accept-order-anyway--close-rejected-order</bpmn:outgoing><bpmn:outgoing>accept-order-anyway--pick-parts</bpmn:outgoing></bpmn:exclusiveGateway>
     <bpmn:task id="close-rejected-order" name="Close rejected order">
       <bpmn:documentation>source: "a rejected order is closed"</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="close-rejected-order" />
       </bpmn:extensionElements>
-      <bpmn:incoming>accept-order-anyway--close-rejected-order</bpmn:incoming>
-      <bpmn:outgoing>close-rejected-order--tell-customer</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>accept-order-anyway--close-rejected-order</bpmn:incoming><bpmn:outgoing>close-rejected-order--tell-customer</bpmn:outgoing></bpmn:task>
     <bpmn:task id="tell-customer" name="Tell customer">
       <bpmn:documentation>source: "customer is told."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="tell-customer" />
       </bpmn:extensionElements>
-      <bpmn:incoming>close-rejected-order--tell-customer</bpmn:incoming>
-      <bpmn:outgoing>tell-customer--order-rejected</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>close-rejected-order--tell-customer</bpmn:incoming><bpmn:outgoing>tell-customer--order-rejected</bpmn:outgoing></bpmn:task>
     <bpmn:endEvent id="order-rejected" name="Order rejected; customer told">
       <bpmn:documentation>source: "a rejected order is closed and the
 customer is told."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="order-rejected" />
       </bpmn:extensionElements>
-      <bpmn:incoming>tell-customer--order-rejected</bpmn:incoming>
-    </bpmn:endEvent>
+      <bpmn:incoming>tell-customer--order-rejected</bpmn:incoming></bpmn:endEvent>
     <bpmn:task id="pick-parts" name="Pick parts">
       <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="pick-parts" />
       </bpmn:extensionElements>
-      <bpmn:incoming>credit-limit-exceeded--pick-parts</bpmn:incoming>
-      <bpmn:incoming>accept-order-anyway--pick-parts</bpmn:incoming>
-      <bpmn:outgoing>pick-parts--pack-order</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>credit-limit-exceeded--pick-parts</bpmn:incoming><bpmn:incoming>accept-order-anyway--pick-parts</bpmn:incoming><bpmn:outgoing>pick-parts--quality-inspection</bpmn:outgoing></bpmn:task>
     <bpmn:task id="pack-order" name="Pack order">
       <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="pack-order" />
       </bpmn:extensionElements>
-      <bpmn:incoming>pick-parts--pack-order</bpmn:incoming>
-      <bpmn:outgoing>pack-order--book-carrier</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>quality-inspection--pack-order</bpmn:incoming><bpmn:outgoing>pack-order--book-carrier</bpmn:outgoing></bpmn:task>
     <bpmn:task id="book-carrier" name="Book carrier">
       <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="book-carrier" />
       </bpmn:extensionElements>
-      <bpmn:incoming>pack-order--book-carrier</bpmn:incoming>
-      <bpmn:outgoing>book-carrier--collect-parcel</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>pack-order--book-carrier</bpmn:incoming><bpmn:outgoing>book-carrier--collect-parcel</bpmn:outgoing></bpmn:task>
     <bpmn:task id="collect-parcel" name="Collect parcel">
       <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="collect-parcel" />
       </bpmn:extensionElements>
-      <bpmn:incoming>book-carrier--collect-parcel</bpmn:incoming>
-      <bpmn:outgoing>collect-parcel--after-shipment</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>book-carrier--collect-parcel</bpmn:incoming><bpmn:outgoing>collect-parcel--after-shipment</bpmn:outgoing></bpmn:task>
     <bpmn:parallelGateway id="after-shipment" name="After shipment">
       <bpmn:documentation>source: unstated - Routing after collection represents shipment. Delivery and automatic invoicing both follow shipment; their relative order is not stated. This fork imposes no order between them.</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="after-shipment" />
       </bpmn:extensionElements>
-      <bpmn:incoming>collect-parcel--after-shipment</bpmn:incoming>
-      <bpmn:outgoing>after-shipment--deliver-parcel-to-customer</bpmn:outgoing>
-      <bpmn:outgoing>after-shipment--generate-and-send-invoice</bpmn:outgoing>
-    </bpmn:parallelGateway>
+      <bpmn:incoming>collect-parcel--after-shipment</bpmn:incoming><bpmn:outgoing>after-shipment--deliver-parcel-to-customer</bpmn:outgoing><bpmn:outgoing>after-shipment--generate-and-send-invoice</bpmn:outgoing></bpmn:parallelGateway>
     <bpmn:task id="deliver-parcel-to-customer" name="Deliver parcel to customer">
       <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="deliver-parcel-to-customer" />
       </bpmn:extensionElements>
-      <bpmn:incoming>after-shipment--deliver-parcel-to-customer</bpmn:incoming>
-      <bpmn:outgoing>deliver-parcel-to-customer--delivery-and-invoicing-complete</bpmn:outgoing>
-    </bpmn:task>
+      <bpmn:incoming>after-shipment--deliver-parcel-to-customer</bpmn:incoming><bpmn:outgoing>deliver-parcel-to-customer--delivery-and-invoicing-complete</bpmn:outgoing></bpmn:task>
     <bpmn:serviceTask id="generate-and-send-invoice" name="Generate and send invoice automatically">
       <bpmn:documentation>source: "After shipment the ERP
 generates and sends the invoice automatically."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="generate-and-send-invoice" />
       </bpmn:extensionElements>
-      <bpmn:incoming>after-shipment--generate-and-send-invoice</bpmn:incoming>
-      <bpmn:outgoing>generate-and-send-invoice--delivery-and-invoicing-complete</bpmn:outgoing>
-    </bpmn:serviceTask>
+      <bpmn:incoming>after-shipment--generate-and-send-invoice</bpmn:incoming><bpmn:outgoing>generate-and-send-invoice--send-payment-reminder</bpmn:outgoing></bpmn:serviceTask>
     <bpmn:parallelGateway id="delivery-and-invoicing-complete" name="Delivery and invoicing complete">
       <bpmn:documentation>source: unstated - Structural join for the two stated post-shipment activities; it adds no task or performer and imposes no relative order on them.</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="delivery-and-invoicing-complete" />
       </bpmn:extensionElements>
-      <bpmn:incoming>deliver-parcel-to-customer--delivery-and-invoicing-complete</bpmn:incoming>
-      <bpmn:incoming>generate-and-send-invoice--delivery-and-invoicing-complete</bpmn:incoming>
-      <bpmn:outgoing>delivery-and-invoicing-complete--accepted-order-fulfilled</bpmn:outgoing>
-    </bpmn:parallelGateway>
+      <bpmn:incoming>deliver-parcel-to-customer--delivery-and-invoicing-complete</bpmn:incoming><bpmn:incoming>send-payment-reminder--join</bpmn:incoming><bpmn:outgoing>delivery-and-invoicing-complete--accepted-order-fulfilled</bpmn:outgoing></bpmn:parallelGateway>
     <bpmn:endEvent id="accepted-order-fulfilled" name="Accepted order delivered and invoiced">
       <bpmn:documentation>source: unstated - Marks the accepted-order outcome after the stated delivery and invoicing activities; no additional operational step is asserted.</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="accepted-order-fulfilled" />
       </bpmn:extensionElements>
-      <bpmn:incoming>delivery-and-invoicing-complete--accepted-order-fulfilled</bpmn:incoming>
-    </bpmn:endEvent>
+      <bpmn:incoming>delivery-and-invoicing-complete--accepted-order-fulfilled</bpmn:incoming></bpmn:endEvent>
     <bpmn:task id="quality-inspection" name="Quality inspection">
       <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could
 say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="quality-inspection" />
       </bpmn:extensionElements>
-    </bpmn:task>
+    <bpmn:incoming>pick-parts--quality-inspection</bpmn:incoming><bpmn:outgoing>quality-inspection--pack-order</bpmn:outgoing></bpmn:task>
     <bpmn:task id="labelling" name="Labelling">
       <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could
 say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
@@ -320,9 +282,9 @@ say whether those happen before or after packing, or in which order relative to 
         <aef:uid value="deliver-parcel-to-customer--delivery-and-invoicing-complete" />
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="generate-and-send-invoice--delivery-and-invoicing-complete" sourceRef="generate-and-send-invoice" targetRef="send-payment-reminder">
+    <bpmn:sequenceFlow id="generate-and-send-invoice--send-payment-reminder" sourceRef="generate-and-send-invoice" targetRef="send-payment-reminder">
       <bpmn:extensionElements>
-        <aef:uid value="generate-and-send-invoice--delivery-and-invoicing-complete" />
+        <aef:uid value="generate-and-send-invoice--send-payment-reminder" />
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="delivery-and-invoicing-complete--accepted-order-fulfilled" sourceRef="delivery-and-invoicing-complete" targetRef="accepted-order-fulfilled">
@@ -341,5 +303,5 @@ say whether those happen before or after packing, or in which order relative to 
     <bpmn:textAnnotation id="Note_returns">
       <bpmn:text>Returns are handled by a separate process that is not described here. Returns are outside this map.</bpmn:text>
     </bpmn:textAnnotation>
-  <bpmn:sequenceFlow id="pick-parts--quality-inspection" sourceRef="pick-parts" targetRef="quality-inspection" /><bpmn:sequenceFlow id="quality-inspection--pack-order" sourceRef="quality-inspection" targetRef="pack-order" /><bpmn:task id="send-payment-reminder" name="Send payment reminder"><bpmn:documentation>source: "The ERP sends a payment reminder after seven days."</bpmn:documentation></bpmn:task><bpmn:sequenceFlow id="send-payment-reminder--join" sourceRef="send-payment-reminder" targetRef="delivery-and-invoicing-complete" /></bpmn:process>
+  <bpmn:sequenceFlow id="pick-parts--quality-inspection" sourceRef="pick-parts" targetRef="quality-inspection" /><bpmn:sequenceFlow id="quality-inspection--pack-order" sourceRef="quality-inspection" targetRef="pack-order" /><bpmn:task id="send-payment-reminder" name="Send payment reminder"><bpmn:documentation>source: "The ERP sends a payment reminder after seven days."</bpmn:documentation><bpmn:incoming>generate-and-send-invoice--send-payment-reminder</bpmn:incoming><bpmn:outgoing>send-payment-reminder--join</bpmn:outgoing></bpmn:task><bpmn:sequenceFlow id="send-payment-reminder--join" sourceRef="send-payment-reminder" targetRef="delivery-and-invoicing-complete" /></bpmn:process>
 </bpmn:definitions>

@@ -223,9 +223,9 @@ def _check_calibration(val):
         raise RuntimeError('calibration/clean.bpmn draws errors %s' % sorted(set(errs)))
     ids = {el.get('id') for el in ET.parse(os.path.join(cal, 'planted.bpmn')).getroot().iter()}
     for e in json.load(open(os.path.join(cal, 'expected.json')))['planted']:
-        if e['element'] not in ids:
-            raise RuntimeError('calibration/expected.json names %s, absent from planted.bpmn'
-                               % e['element'])
+        for el in e['elements']:
+            if el not in ids:
+                raise RuntimeError('calibration/expected.json names %s, absent from planted.bpmn' % el)
 
 
 def same_tree(a, b):

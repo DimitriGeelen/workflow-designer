@@ -72,12 +72,17 @@ def load(p):
 clean, planted = load(sys.argv[2]), load(sys.argv[3])
 if clean is None or planted is None:
     print("CALIBRATION: COULD NOT MEASURE (a reviewer wrote no parseable REVIEW.json)"); sys.exit(3)
-caught = [e for e in exp if any(f.get("element") == e["element"] and f.get("category") == e["category"] for f in planted)]
-planted_ids = {e["element"] for e in exp}
+# A defect is caught when a finding names ANY element that implements it with ANY category
+# that truthfully describes it (T-991: a correct reviewer reported the wired-in inspection as
+# 'invented' on the FLOW, and exact node+category matching scored that correct catch as a miss).
+def hits(e, f):
+    return f.get("element") in e["elements"] and f.get("category") in e["categories"]
+caught = [e for e in exp if any(hits(e, f) for f in planted)]
+planted_ids = {x for e in exp for x in e["elements"]}
 false_planted = [f for f in planted if f.get("element") not in planted_ids]
 print("recall: %d/%d planted defects caught" % (len(caught), len(exp)))
 for e in exp:
-    print("  %s %-20s %s" % ("caught" if e in caught else "MISSED", e["category"], e["element"]))
+    print("  %s %-34s %s" % ("caught" if e in caught else "MISSED", "/".join(e["categories"]), e["elements"][0]))
 print("false findings: %d on the clean map, %d on unplanted elements" % (len(clean), len(false_planted)))
 ok = len(caught) == len(exp) and not clean and not false_planted
 print("CALIBRATION: %s" % ("PASS" if ok else "FAIL"))

@@ -67,3 +67,13 @@ learnings:
   destination: tooling
   status: proposed
   occurrences: 1
+- id: L6
+  learning: a calibration set must contain ONLY its intended defects, and its scoring must accept every truthful way a correct reviewer can report one
+  evidence: 'T-991: the real calibration said FAIL for a reviewer that had caught all three defects.
+    My planting left a flow id that lied about its target and five stale incoming/outgoing refs (the
+    reviewer rightly flagged them), and exact node+category matching scored a correct catch on the
+    implementing FLOW, as invented, as a miss.'
+  source: loop
+  destination: tooling
+  status: proposed
+  occurrences: 1

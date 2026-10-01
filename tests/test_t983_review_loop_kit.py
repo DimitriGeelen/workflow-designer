@@ -46,7 +46,7 @@ if mode == "gen":
     sys.exit(0)
 planted = "send-payment-reminder" in open("map.bpmn").read()
 if mode == "good":
-    out = [{"element": e["element"], "category": e["category"], "severity": "major"}
+    out = [{"element": e["elements"][0], "category": e["categories"][0], "severity": "major"}
            for e in json.load(open(os.path.join(cal, "expected.json")))["planted"]] if planted else []
 elif mode == "blind":
     out = []
