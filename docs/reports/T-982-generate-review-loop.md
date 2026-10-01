@@ -135,6 +135,46 @@ S1's source no longer exercises the loop (round 1 was clean). S2 uses a real fra
 explanation), with an independent reference map in our corpus (`healing-loop.bpmn`, 11 nodes,
 built from `healing.sh`). Same generator, reviewer and driver; rubric v2.
 
+**S2 result:** generated in 68 s (validator 0 errors / 10 warnings / 1 note); GLM's round-1
+review again returned **zero findings**. Audited:
+- every element quotes the source verbatim except the honest `Performer not stated [none]` lane;
+- **the map is faithful to THIS source.** AGENT.md §Workflow is a straight six-step list with no
+  decision and no "advisory only" outcome. The reference map (built from `healing.sh`, the code)
+  has a human decision ("Human acts on the advice?") and two outcomes the document never states.
+  So "missed against the reference" is a **gap in the source document**, not a map defect.
+- **one probable reviewer miss:** `patterns` and `suggest`, CLI subcommands from the document's
+  §Commands reference, appear as two free-floating process tasks. Cited correctly, modelled
+  wrongly (a command list is not a process).
+
+**Two things S2 teaches:**
+1. **The loop is only as faithful as its source**, and a source-vs-reference diff is a product of
+   its own: it shows where documentation understates the real process. That is feedback for the
+   document's owner (here AEF's AGENT.md lacks the human decision its own code implements).
+2. **The hypothesis's measure is wrong.** "Fewer corrections in round 2" cannot be measured when
+   the revised guide already makes round 1 clean, which it now did twice. Better measures:
+   (a) reviewer recall on planted defects (S1b: 3/3), (b) agreement or disagreement between
+   independent reviewers on the same map (S2b, running), (c) human corrections per map over time
+   (§4b). The hypothesis should be restated before any decision.
+
+### S2b — a second, independent reviewer, then a human disagreement
+
+- **Codex as second reviewer** on the same S2 map, same brief and rubric v2: **0 findings.** Two
+  independent reviewers from two vendors both accepted the CLI commands as process tasks.
+- So this is a **shared blind spot**, and its cause is not either reviewer: the rubric had no
+  category for it. A panel of agents does not catch what the rubric does not ask.
+- **The human (here: me, acting as the human reviewer) disagreed**: in the source, `patterns` and
+  `suggest` sit under `## Commands`, a reference list; the process is `## Workflow`, and they are
+  not in it.
+- **Rubric v3** adds a `scope` category: "a step belongs in the map only if the source presents
+  it as part of the flow", with the reason it was added written into the rubric.
+- **GLM re-reviewed the SAME map with rubric v3: 2 findings, both `scope`, both major, exactly
+  the two command tasks**, nothing else.
+
+**That is the loop proven once, end to end, on the human path of §4b:** agents agree, a human
+disagrees, the disagreement becomes a rubric rule with its reason, and the reviewer then catches
+what two reviewers missed. Learning destination: rubric. Pending: specificity of v3 on the clean
+S1 map (no false alarms), and the correct -> re-review closure on S2.
+
 ## 4b. The second feedback source: human edits
 
 > **Operator:** *"There can also be feedback from human. So when a human changes something,
