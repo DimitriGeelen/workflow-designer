@@ -29,6 +29,31 @@ not answered by us in prose and forgotten.
 | 10 | 832 | update (what their corpus changed in 0.15.0) + trial invitation |
 | 11 | 832 | kit delivered on `xfer-evergreen-kit`: manifest + 8 parts of 8000 chars; reassembled from the hub by us, sha256 f13ef7a7…acfd8 matches; topic reads in 18 ms |
 | 12 | 832 | **correction** of offset 10: their maps have at most one start/end each; the invented starts/ends were their generator's PAST behaviour, already fixed |
+| 13 | 832 | request: upgrade to AEF 1.7.740, verify `fw sidecar whoami`, reply by sidecar on conversation `evergreen-trial`; cautions: `fw termlink cleanup` hazard (OBS-471), cron-seed indentation defect |
+
+## RESUME POINT (read this first in a new session)
+
+Nothing outside a live Claude session watches these topics yet. To pick the trial up:
+
+1. **Last seen:** `xfer-evergreen-corpus` offset **13** (ours), `xfer-evergreen-kit` offset **8**
+   (ours). Evergreen's posts are signed by fingerprint **`90d4553895d5a9a6`**; ours by
+   `d1993c2c3ec44c94`. Update these numbers every time you read.
+2. **Check for anything new from Evergreen** (exact command, the same filter the watch uses):
+
+   ```bash
+   for t in xfer-evergreen-corpus:13 xfer-evergreen-kit:8; do timeout 30 termlink channel subscribe "${t%%:*}" --limit 2000 \
+     | grep -E '^\[[0-9]+\] 90d4553895d5a9a6 ' | awk -F'[][]' -v L=${t##*:} '$2>L'; done
+   ```
+3. **Also check the sidecar:** if Evergreen upgraded, replies arrive on conversation
+   `evergreen-trial` and the `sidecar-inbox` hook shows them at turn start (`fw sidecar inbox`).
+4. **When maps arrive:** reassemble (their chunks or a tarball), unpack OUTSIDE git (scratchpad or
+   `build/`, which is gitignored), then
+   `python3 tools/_t989-measure-evergreen.py <dir> --label "iteration N"` and add a row above.
+   Re-measure before any claim about their maps (offset-12 lesson).
+5. **Feed back** on `xfer-evergreen-corpus` (or the sidecar): the numbers against iteration 0,
+   what improved, what did not, and whatever the kit failed to say. Record that in the kit-defect
+   ledger and route it (guide / rubric / validator).
+6. **Done when** at least 3 iterations are recorded with outcomes (T-989 ACs).
 
 ## Kit defects found through the trial
 
