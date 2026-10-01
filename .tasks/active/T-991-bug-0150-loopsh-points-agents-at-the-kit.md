@@ -260,6 +260,26 @@ python3 tools/learning-ledger.py check
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** running the released 0.15.0 `loop.sh --calibrate` with a real reviewer (GLM via
+opencode) produced no REVIEW.json; the agent log showed `external_directory ... auto-rejecting`,
+and the tool reported COULD NOT MEASURE.
+
+**Root cause:** loop.sh told each agent to read the kit by ABSOLUTE path, outside the agent's working
+directory; sandboxed agents refuse that. The spikes (T-982) had worked only because they COPIED the
+kit into each workspace; that step was not carried into the shipped driver.
+
+**Why structurally allowed:** every loop test used stub agents, and a stub has no sandbox, so 14
+green legs measured the orchestration and could not see the one property that broke it. No real
+provider was run against the RELEASED artefact before shipping. A second defect hid behind the
+first: the calibration set carried planting artefacts and its scoring demanded exact node +
+category, so once the kit could run, the tool still said FAIL for a correct reviewer.
+
+**Prevention:** test leg 9 fails if any prompt names a path outside the agent's workdir (proven to
+fail on the 0.15.0 loop.sh); the builder refuses a calibration set whose expected elements are not
+in the planted map; ledger L5 (run the released tooling with a real sandboxed agent before
+shipping) and L6 (a calibration set holds only its intended defects; scoring accepts every
+truthful report), both proposed for the operator's checkpoint.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
