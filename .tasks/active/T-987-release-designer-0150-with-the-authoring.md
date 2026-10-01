@@ -62,18 +62,25 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `VERSION` is `0.15.0` and the designer's `APP_VERSION` literal matches it
+- [x] `VERSION` is `0.15.0` and the designer's `APP_VERSION` literal matches it
       (`tools/_t808-version-parity.sh` passes). Version chosen by the operator: *"go ahead with
       T-983 then 0.15.0"*.
-- [ ] `docs/releases/RELEASE-NOTES-0.15.0.md` states what changed since `designer-v0.14.0`,
+- [x] `docs/releases/RELEASE-NOTES-0.15.0.md` states what changed since `designer-v0.14.0`,
       measured from git, and the known gaps.
-- [ ] A `runme.sh` cuts the release for the operator: preflight (clean tree for the release files,
+- [x] A `runme.sh` cuts the release for the operator: preflight (clean tree for the release files,
       tag absent, parity), `scripts/release-designer.sh` with its render gate ON, then commit of
       `dist/`, the annotated tag `designer-v0.15.0`, and push, each step confirmed. Dry run
       exercised by the agent; the agent does not run it.
-- [ ] After the operator's run: `dist/aef-workflow-designer-0.15.0.html` equals `src`,
+- [x] After the operator's run: `dist/aef-workflow-designer-0.15.0.html` equals `src`,
       `dist/aef-authoring-kit-0.15.0/` verifies against its SHA256SUMS, `MANIFEST.yaml` names
       both, and the tag resolves to the release commit.
+
+**Evidence (after the operator's run, log runme-20261001T232434.log):** render gate PASS during
+the cut; dist/aef-workflow-designer-0.15.0.html == src; dist/aef-authoring-kit-0.15.0/ verifies
+against SHA256SUMS (11 entries) and its SHA256SUMS hash equals MANIFEST kit_sha256; MANIFEST
+latest 0.15.0, supersedes 0.14.0; annotated tag designer-v0.15.0 -> release commit da8c8f00;
+tag present on origin; bleeding-edge in sync with origin. The pre-push audit's exec-bit warning
+names two vendored framework files untouched by this work.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -233,6 +240,11 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+cmp -s src/aef-workflow-designer.html dist/aef-workflow-designer-0.15.0.html
+bash -c "cd dist/aef-authoring-kit-0.15.0 && sha256sum -c SHA256SUMS --quiet"
+git rev-parse -q --verify refs/tags/designer-v0.15.0
+grep -q '^latest: "0.15.0"' dist/MANIFEST.yaml
 
 ## RCA
 
