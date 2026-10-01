@@ -2851,3 +2851,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-462
+  text: "A task's own exploration record can carry a stale BLOCKER that reads as current and silently mis-sequences the next slice. T-309 revision 1 (2026-07-29) made rule parity 'a prerequisite of the first slice, not a follow-up' on the measured grounds that W-GW-AMBIGUOUS was YAML-only and the designer speaks BPMN. Re-measured 2026-10-01: the rule has since been ported, the revision's OWN falsifiability control now fires (strip 8 conditionExpressions from task-lifecycle.bpmn, get 4x W-XML-GW-AMBIGUOUS, rc=1), and shared rule ids went 7 to 14 with 24 XML-form rules total. Separately IW-2, which the GO called the expensive unknown, was resolved by T-955 and IW-3 by the operator in T-956 -- neither closure was written back to T-309. So the document that a future agent reads to decide what to build next understated the readiness on three counts at once. Same shape as PL-368 (T-925's Verification block asserting the bug it was filed for): a correct snapshot outliving its subject inside a document with no staleness signal. Remedy worth considering: when a task closes an IW/unpriced item belonging to another task, require the back-reference -- the audit already has a GO-scope-not-propagated rail for the inverse direction (parent to children) and nothing for child to parent."
+  captured: 2026-10-01T06:13:13Z
+  context_task: T-309
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

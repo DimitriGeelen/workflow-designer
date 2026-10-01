@@ -438,6 +438,45 @@ because the delivery route is the expensive unknown and it is exactly what has n
 A NO-GO here is entirely defensible on "not yet priced" grounds — the honest read is that spike 1
 established the value and left the cost open.
 
+**Revision 2 (2026-10-01) — the prerequisite above is SATISFIED, and the expensive unknown is
+priced. Re-measured, not re-reasoned.**
+
+Revision 1 made rule parity "a prerequisite of the first slice, not a follow-up", on the grounds
+that `W-GW-AMBIGUOUS` was YAML-only and the designer speaks BPMN. **That is no longer true.**
+
+- **The named falsifiability control now fires.** Revision 1's evidence was: strip every
+  `conditionExpression` from a corpus BPMN map and "nothing fires (exit 0)". Re-run on
+  `examples/aef-processes/rendered/task-lifecycle.bpmn`, 8 blocks removed:
+  **4 × `W-XML-GW-AMBIGUOUS`, rc=1.** The rule was ported some time in the two months since.
+- **Parity has doubled.** Revision 1 counted "only 7 rule ids shared". Counted now from
+  `tools/validate-workflow.py`: **14 shared**, 24 XML-form rules in total (14 paired + 10
+  XML-only), 19 YAML-only.
+- **The 19 YAML-only rules are mostly not parity gaps at all** — `E-YAML-PARSE`, `E-LOAD`,
+  `E-NOT-MAPPING`, `E-TOPLEVEL-MISSING`, `E-NODE-FIELD`, `E-LANE-FIELD`, `E-EDGE-FIELD` are
+  YAML-authoring concerns with no BPMN-XML counterpart to have. The genuinely semantic
+  stragglers are `E-NODE-LANE` (already a KNOWN live disagreement in
+  `test_harness_cross_form_agreement.py`), `W-TYPE-LANE-MISMATCH`, `W-LANE-NO-OWNER`,
+  `W-IO-INPUT` and the `E-SCOPEOF-*` / `E-CONST-*` families.
+- **The XML-only set contains the value.** `E-XML-NODE-UNASSIGNED` — revision 1's own nominated
+  lead-value rule — plus `W-XML-LANE-GEOMETRY` and `W-XML-LANE-CAPACITY`, which are the shape of
+  the live operator defect revision 1 described (~14 nodes below all lane bands, read off a
+  screenshot). The rule for that defect now exists on the path the designer speaks.
+
+**Two of the four unpriced items are closed, by work done since:**
+
+| item | state |
+|---|---|
+| **IW-2** delivery route (port-to-JS vs sidecar-HTTP vs shared spec) — *"the expensive unknown"* | **RESOLVED by T-955.** Sidecar HTTP: `POST /api/validate` on `tools/gallery-serve.py`, holding no rule logic, so there is exactly one implementation to keep honest. Chosen over a JS port on measured grounds — this repo already maintains a cross-form agreement harness because two implementations drift, and a third form would be strictly worse. 7 test legs over real HTTP, including one that strips the route and requires 404. |
+| **IW-3** advisory vs blocking | **RESOLVED by the operator, 2026-09-30.** Advisory plus friction, never a hard block; the author stays the final authority. Recorded in `docs/reports/T-956-process-maturity-model.md` so this slice inherits it rather than re-asking. |
+| **IW-1** where findings surface (gutter vs panel vs save-time) | **OPEN** — and now the only thing between the GO and a build slice. |
+| **IW-4** the XOR-identical-targets rule | **OPEN**, and genuinely a follow-up: a new rule, not a parity gap. |
+
+**Consequence for sequencing:** the first build slice is the **surface** (IW-1), not rule parity.
+Revision 1's prerequisite was real when written and has been overtaken by T-955 and by whoever
+ported `W-XML-GW-AMBIGUOUS`. Nobody re-read it — the same failure mode as T-925's Verification
+block (PL-368): a correct snapshot that outlived its subject, inside a document that reads as
+current. Found only because this measurement was taken before building on the recommendation.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.

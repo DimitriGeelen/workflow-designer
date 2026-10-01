@@ -1,0 +1,123 @@
+# ============================================================================
+# EPISODIC MEMORY - T-960: Housekeeping: commit T-959 close artefacts, and the focus-cleared-by-close loop that requires this task to exist
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-09-30T23:10:53Z
+# ============================================================================
+
+task_id: T-960
+task_name: "Housekeeping: commit T-959 close artefacts, and the focus-cleared-by-close loop that requires this task to exist"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T23:08:30Z
+completed: 2026-09-30T23:10:44Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-01T01:09:46+02:00
+last_commit: 2026-10-01T01:09:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  commit T-959 close artefacts, and record the loop that made this task necessary
+
+# Key outcomes
+outcomes:
+  - 'T-959''s close artefacts are committed: the `active/` → `completed/` rename, the generated'
+  - 'The blocker was **isolated, not guessed**: a `--dry-run` probe proved the refusal came'
+  - '`PL-368` carries the real learning and not the literal string `probe` that my allowlist'
+  - 'Nothing is left uncommitted that belongs to T-925, T-958 or T-959: `git status` shows no'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-09-30.yaml'
+  - '.context/audits/2026-10-01.yaml'
+  - '.context/audits/cron/2026-09-23-0000.yaml'
+  - '.context/audits/cron/2026-09-23-0015.yaml'
+  - '.context/audits/cron/2026-09-23-0045.yaml'
+  - '.context/audits/cron/2026-09-23-0100.yaml'
+  - '.context/audits/cron/2026-09-30-2315.yaml'
+  - '.context/audits/cron/2026-09-30-2330.yaml'
+  - '.context/audits/cron/2026-09-30-2345.yaml'
+  - '.context/audits/cron/2026-10-01-0000.yaml'
+  - '.context/audits/cron/2026-10-01-0015.yaml'
+  - '.context/audits/cron/2026-10-01-0030.yaml'
+  - '.context/audits/cron/2026-10-01-0045.yaml'
+  - '.context/audits/cron/2026-10-01-0100.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/audits/full-audit-timing.yaml'
+  - '.context/audits/instance-refusals.jsonl'
+  - '.context/episodic/T-959.yaml'
+  - '.context/handovers/S-2026-0930-2330.discard-manifest.yaml'
+  - '.context/inbox.yaml'
+  - '.context/locks/T-958.lock'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/telemetry/bvp-sticky.jsonl'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/continuous-run.jsonl'
+  - '.context/working/episodic-gen/T-959.log'
+  - '.context/working/.fabric-describe.last'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.obs-highwater'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-baseline'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-737-handoversh-reports-3-urgent-observations.md'
+  - '.tasks/active/T-960-housekeeping-commit-t-959-close-artefact.md'
+  - '.tasks/completed/T-925-toolsyaml-to-bpmnpy-drops-document-level.md'
+  - '.tasks/completed/T-959-t-925s-verification-block-asserts-the-pr.md'
+  - 'tests/.run-history.tsv'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T01:09:46'
+    action: 'T-960: commit T-959 close artefacts, and record the loop that made this task necessary'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 47
+  lines_added: 4242
+  lines_removed: 512
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-960-housekeeping-commit-t-959-close-artefact.md
+generated_by: context-agent-hybrid

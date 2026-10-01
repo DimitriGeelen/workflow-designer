@@ -85,9 +85,11 @@ metrics:
   git_mining: ok
   wall_clock_minutes: 51
   commits: 3
-  files_changed: 10
+  files_changed: 11
   lines_added: 881
   lines_removed: 36
+  footprint_refreshed_at: '2026-09-30T23:09:49Z'
+  footprint_refreshed_by_commit: 042a820d
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-959-t-925s-verification-block-asserts-the-pr.md

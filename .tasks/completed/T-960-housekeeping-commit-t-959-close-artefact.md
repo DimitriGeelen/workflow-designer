@@ -4,10 +4,11 @@ name: "Housekeeping: commit T-959 close artefacts, and the focus-cleared-by-clos
 description: >
   Housekeeping: commit T-959 close artefacts, and the focus-cleared-by-close loop that requires this task to exist
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T23:08:30Z
-last_update: 2026-09-30T23:08:30Z
-date_finished: null
+last_update: 2026-09-30T23:10:44Z
+date_finished: 2026-09-30T23:10:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -55,16 +56,16 @@ folklore for a while: T-672 is literally named "housekeeping … commit finalisa
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] T-959's close artefacts are committed: the `active/` → `completed/` rename, the generated
+- [x] T-959's close artefacts are committed: the `active/` → `completed/` rename, the generated
       episodic, and the corrected `PL-368` in `learnings.yaml`.
-- [ ] The blocker was **isolated, not guessed**: a `--dry-run` probe proved the refusal came
+- [x] The blocker was **isolated, not guessed**: a `--dry-run` probe proved the refusal came
       from the no-active-task gate and not from the commit message's content. Recorded because
       the gate's secondary "file-write pattern" line sent me rewriting the message twice for
       nothing before I checked.
-- [ ] `PL-368` carries the real learning and not the literal string `probe` that my allowlist
+- [x] `PL-368` carries the real learning and not the literal string `probe` that my allowlist
       probe created, with that incident stated in its own `context:` field rather than tidied
       away.
-- [ ] Nothing is left uncommitted that belongs to T-925, T-958 or T-959: `git status` shows no
+- [x] Nothing is left uncommitted that belongs to T-925, T-958 or T-959: `git status` shows no
       task file, episodic, or learnings change outstanding for those three.
 
 ### Human
@@ -233,9 +234,21 @@ folklore for a while: T-672 is literally named "housekeeping … commit finalisa
 
 test "$(ls .tasks/active/T-959-* 2>/dev/null | wc -l)" -eq 0 && test -f .tasks/completed/T-959-t-925s-verification-block-asserts-the-pr.md
 test -f .context/episodic/T-959.yaml && test -f .context/episodic/T-925.yaml
-# PL-368 exists AND is not the accidental probe text. The positive half is the control:
-# without it, the negative half would pass just as well if the entry vanished entirely.
-grep -q 'id: PL-368' .context/project/learnings.yaml && ! grep -A1 'id: PL-368' .context/project/learnings.yaml | grep -q 'learning: "probe"'
+# PL-368 carries the real learning. PURELY POSITIVE — no absence to control.
+#
+# The first version of this line was:
+#   grep -q 'id: PL-368' <file> && ! grep -A1 'id: PL-368' <file> | grep -q 'learning: "probe"'
+# and the comment above it claimed the positive half was the control. It was not, and the
+# T-843 close gate REFUSED it: a control must grep THE SAME STRING where it IS present, and
+# nothing here greps 'learning: "probe"' anywhere it exists. Greping a different string
+# (`id: PL-368`) establishes only that the file has the entry, not that the pattern
+# `learning: "probe"` could ever have matched. That is the exact mistake recorded earlier
+# today — a "control" over a different string than the absence asserted — made again, with
+# a comment asserting it had been avoided.
+#
+# Asserting the presence of the real text needs no control at all, which is why it is the
+# better repair of the two the census offers.
+grep -A1 'id: PL-368' .context/project/learnings.yaml > /tmp/.t960-p.out 2>&1 && grep -q 'Verification block is a SNAPSHOT' /tmp/.t960-p.out
 python3 -c "import yaml;yaml.safe_load(open('.context/project/learnings.yaml'));print('ok')" > /tmp/.t960-y.out 2>&1 && grep -q ok /tmp/.t960-y.out
 python3 tools/_t952-bridge-suite-ratchet.py > /tmp/.t960-r.out 2>&1 && grep -q 'floor held at exactly 32' /tmp/.t960-r.out
 
@@ -335,3 +348,20 @@ python3 tools/_t952-bridge-suite-ratchet.py > /tmp/.t960-r.out 2>&1 && grep -q '
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-960-housekeeping-commit-t-959-close-artefact.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7330d7c5
+- **Timestamp:** 2026-09-30T23:10:46Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **decaying-task-path-ref** (partial, deterministic) @ Verification:line 132
+     - evidence: `T-959 no longer in active/ — test "$(ls .tasks/active/T-959-* 2>/dev/null | wc -l)" -eq 0 && test -f .tasks/completed/T-959-t-925s-verification-block-asserts-the-pr.md`
+
+### 2026-09-30T23:10:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
