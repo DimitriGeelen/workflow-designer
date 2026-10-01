@@ -7,13 +7,13 @@ description: >
   to dist/ so any project's agent can produce and self-check governed maps without
   hand-delivered instructions.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
-owner: agent
+current_node: frw_8_partial
+owner: human
 horizon: now
 tags: []
-components: []
+components: [scripts/release-designer.sh, tests/run-bridge-tests.sh, tests/test_t974_authoring_kit.py, tools/build-authoring-kit.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -26,8 +26,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T17:54:32Z
-last_update: 2026-10-01T17:56:52Z
-date_finished:
+last_update: 2026-10-01T18:00:41Z
+date_finished: 2026-10-01T18:00:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -350,6 +350,17 @@ bash -n scripts/release-designer.sh
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+**Recommendation:** GO
+**Rationale:** The kit is built, tested and wired into the release, and nothing about it needs a
+second message to a vendor: rules, classes and vocabularies are generated from the validator,
+so it cannot drift. What only you can judge is whether the guide's prose says everything a
+generating agent needs. Shipping it to a vendor still needs a release cut, which is your call.
+**Evidence:**
+- 16/16 legs, including running outside the repo with `python3 -I` and naming both missing
+  carriers on a vendor-shaped map
+- release script run end to end against a scratch dist; real `dist/` untouched
+- CONFORMANCE.md: 31 rules, 0 unclassified, derived independently and compared
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -380,3 +391,20 @@ bash -n scripts/release-designer.sh
 
 ### 2026-10-01T17:56:52Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ca718513
+- **Timestamp:** 2026-10-01T18:00:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — A builder (`tools/build-authoring-kit.py`) writes `aef-authoring-kit-<VERSION>/` containing:
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/build-authoring-kit.py in: A builder (`tools/build-authoring-kit.py`) writes `aef-authoring-kit-<VERSION>/` containing:`
+
+### 2026-10-01T18:00:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
