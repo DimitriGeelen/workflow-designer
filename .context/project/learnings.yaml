@@ -2603,3 +2603,9 @@ learnings:
   task: T-979
   date: 2026-10-01
   context: Added via context agent
+- id: PL-370
+  learning: "A delivery acknowledgement is not a reading. Peer-consult 'delivered:true' / INJECTED_NOW proved only that the hub stored the message; 79 consults sat unread for 9 days behind a wrong identity while every guard (inbox, audit ledger, hook) read through that same identity and reported healthy. Before trusting a comms channel, prove the ROUND TRIP from the consumer side: whoami names this project, and a reply to a sent message is actually read here (T-980)."
+  source: unknown
+  task: T-980
+  date: 2026-10-01
+  context: Added via context agent
