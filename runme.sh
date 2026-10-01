@@ -53,9 +53,22 @@ echo "ok  the release inputs are committed"
 git rev-parse -q --verify "refs/tags/$TAG" >/dev/null && fail "tag $TAG already exists locally"
 git ls-remote --exit-code --tags origin "$TAG" >/dev/null 2>&1 && fail "tag $TAG already exists on origin"
 echo "ok  tag $TAG does not exist (local or origin)"
-[ -e "$ART" ] && fail "$ART already exists: $V may already be cut"
-[ -e "$KIT" ] && fail "$KIT already exists"
-echo "ok  no $V artifact or kit in dist/ yet"
+# RESUMABLE (T-992, after a run stopped at step 3): if $V is already cut AND committed AND the
+# artifact equals src AND the kit verifies, steps 1-2 are DONE and are skipped without a prompt
+# (T-940: a confirm for a no-op teaches that the answer does not matter). A half-written dist/
+# (exists but uncommitted, or differing) still refuses: that needs a human look.
+CUT_DONE=0
+if [ -e "$ART" ] || [ -e "$KIT" ]; then
+  { [ -f "$ART" ] && [ -d "$KIT" ]; } || fail "$ART / $KIT only partly present: look before re-running"
+  git ls-files --error-unmatch "$ART" >/dev/null 2>&1 && git diff --quiet HEAD -- "$ART" "$KIT" dist/MANIFEST.yaml \
+    || fail "$V is in dist/ but not committed cleanly: look before re-running"
+  cmp -s src/aef-workflow-designer.html "$ART" || fail "$ART differs from src"
+  (cd "$KIT" && sha256sum -c SHA256SUMS --quiet) || fail "$KIT does not verify against its SHA256SUMS"
+  CUT_DONE=1
+  echo "ok  $V already cut and committed ($(git log -1 --format=%h -- "$ART")): steps 1-2 done, resuming at step 3"
+else
+  echo "ok  no $V artifact or kit in dist/ yet"
+fi
 
 echo
 echo "WILL RUN:"
@@ -66,6 +79,7 @@ echo "  4. git push origin bleeding-edge && git push origin $TAG"
 if [ "$DRY" = 1 ]; then echo; echo "DRY RUN: nothing written."; echo "rc=0  (log: $LOG)"; exit 0; fi
 
 echo
+if [ "$CUT_DONE" = 0 ]; then
 confirm "Step 1/4: cut release $V (writes dist/, announces)?" || fail "not confirmed at step 1; nothing written"
 scripts/release-designer.sh || fail "release-designer.sh failed (see above); dist/ may need a look"
 { [ -f "$ART" ] && cmp -s src/aef-workflow-designer.html "$ART"; } || fail "$ART missing or differs from src"
@@ -77,10 +91,12 @@ git add "$ART" "$KIT" dist/MANIFEST.yaml || fail "git add failed"
 git commit -q -m "T-992: release designer $V — loop.sh works with sandboxed agents (T-991)" \
   -m "Notes: docs/releases/RELEASE-NOTES-$V.md" || fail "commit failed"
 echo "ok  release commit $(git rev-parse --short HEAD)"
+fi
+REL=$(git log -1 --format=%H -- "$ART")
 
 SHA=$(sha256sum "$ART" | awk '{print $1}')
-confirm "Step 3/4: tag $TAG on $(git rev-parse --short HEAD)?" || fail "not confirmed at step 3; committed, NOT tagged"
-git tag -a "$TAG" -m "designer $V (sha256 $SHA) + authoring kit" || fail "tag failed"
+confirm "Step 3/4: tag $TAG on the release commit $(git rev-parse --short "$REL")?" || fail "not confirmed at step 3; committed, NOT tagged (re-run this script to resume)"
+git tag -a "$TAG" "$REL" -m "designer $V (sha256 $SHA) + authoring kit" || fail "tag failed"
 echo "ok  tagged $TAG"
 
 confirm "Step 4/4: push bleeding-edge and $TAG to origin?" || fail "not confirmed at step 4; tagged locally, NOT pushed"
