@@ -2891,3 +2891,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-467
+  text: "The rule-dialect classifier has no class for 'the standard is SILENT about this property', and T-967's W-XML-DISCONNECTED is the first rule that needs one. Its three classes all key on what mapping-v1 says about a CARRIER: PRESENTATIONAL when every carrier read is in the §1 presentational class, DIALECT-RELATIVE when the predicate fires on absence of a carrier the standard does not mandate, UNIVERSAL otherwise. W-XML-DISCONNECTED fires on a GLOBAL GRAPH PROPERTY -- the flow graph falling into more than one weakly-connected component -- and §6 conformance mandates connectivity nowhere. Entered as REQUIRES over sequenceFlow, the derivation returned UNIVERSAL (measured: 49 universal before, 50 after; dialect-relative unchanged at 3), because sequenceFlow is a STRUCTURE carrier rather than an aef: governance carrier. Left as derived rather than forced, since T-323's lesson is that a classification must be derived and never asserted because it looks right. But UNIVERSAL claims every conformant document satisfies connectivity, and the standard simply does not say that -- silence is not the same as a universal requirement, nor the same as an optional carrier being absent. Consequence if unaddressed: a convention of ours is about to be surfaced to authors of maps we did not write, labelled as universally correct, which is the 47-of-48 mistake with a different rule. Remedy worth considering: a fourth class, CONVENTIONAL, for predicates resting on properties the frozen standard neither requires nor forbids."
+  captured: 2026-10-01T12:59:37Z
+  context_task: T-967
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

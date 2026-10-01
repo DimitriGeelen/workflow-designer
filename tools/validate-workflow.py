@@ -1324,6 +1324,65 @@ class XmlValidator:
                         "terminates)",
                     )
 
+        # -- T-967: the process is ONE graph, not two sharing a pool (WARN) ---
+        #
+        # W-XML-UNREACHABLE above cannot see this, and the reason is worth stating:
+        # it asks whether each node is reachable from ANY startEvent. A disconnected
+        # fragment that brings its OWN start event satisfies that for every node, so
+        # the alarm goes quiet on a map that is MORE wrong, not less. The check is
+        # silenceable by making the problem bigger.
+        #
+        # Found by an operator reading a rendered map in seconds — "two start points
+        # and a disjointed process" — on examples/aef-processes/rendered/context-memory,
+        # where this validator had been reporting only lane-ownership warnings.
+        #
+        # WARN, AND NO CONFORMANCE CLAUSE IS CITED, deliberately. mapping-v1 §6 says
+        # nothing about connectivity: it covers the attribute-class partition, the
+        # governance meta-keys, aef:uid round-trip and presentational no-ops. This is a
+        # modelling convention of ours, not the standard, and after measuring
+        # W-XML-GW-AMBIGUOUS fire on 47 of AEF's 48 live gateways (T-325) the cost of
+        # asserting a house convention as a spec violation is not theoretical.
+        #
+        # Multiple startEvents are NOT the trigger — they are legal BPMN and the corpus
+        # has a legitimate case (error-escalation-ladder: 14 nodes, 2 starts, ONE
+        # component). Disconnection is the trigger.
+        if len(flow_node_ids) > 1:
+            undirected = {}
+            for n in flow_node_ids:
+                undirected[n] = set(succ.get(n, ())) | set(pred.get(n, ()))
+            unvisited = set(flow_node_ids)
+            components = []
+            while unvisited:
+                root = min(unvisited)
+                comp = set()
+                stack = [root]
+                while stack:
+                    cur = stack.pop()
+                    if cur in comp:
+                        continue
+                    comp.add(cur)
+                    stack.extend(undirected.get(cur, ()) - comp)
+                components.append(comp)
+                unvisited -= comp
+            if len(components) > 1:
+                parts = []
+                for comp in sorted(components, key=lambda c: (-len(c), min(c))):
+                    starts = sorted(n for n in comp if node_type.get(n) == "startEvent")
+                    ends = sorted(n for n in comp if node_type.get(n) == "endEvent")
+                    parts.append("%d node(s) [%s -> %s]" % (
+                        len(comp),
+                        ", ".join(starts) if starts else "no start",
+                        ", ".join(ends) if ends else "no end",
+                    ))
+                self.warn(
+                    "W-XML-DISCONNECTED",
+                    "<process>",
+                    "the flow graph falls into %d disconnected parts, so this is two or "
+                    "more independent processes sharing one pool rather than one process: "
+                    "%s. Each part reaching its own startEvent is why W-XML-UNREACHABLE "
+                    "stays silent here" % (len(components), "; ".join(parts)),
+                )
+
         # v1.1 IW-9 authority enforcement (mapping-v1 §3/§7): O-1 type/lane
         # mismatch (WARN) + O-3 inception-must-be-sovereignty-laned (ERROR).
         self._check_iw9_authority(process)

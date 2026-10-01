@@ -298,6 +298,25 @@ RULE_CARRIERS = {
     "W-XML-PGW-UNBALANCED":     (("sequenceFlow",), STRUCTURAL),
     "W-XML-UNREACHABLE":        (("sequenceFlow",), STRUCTURAL),
     "W-XML-DEADEND":            (("sequenceFlow",), STRUCTURAL),
+    # T-967. Entered as REQUIRES because the rule fires when a CONNECTING sequenceFlow
+    # is ABSENT, and mapping-v1 §6 mandates connectivity nowhere — so a disconnected
+    # document is conformant and firing on it separates our authoring convention from
+    # correctness. I expected DIALECT-RELATIVE.
+    #
+    # THE DERIVATION SAYS UNIVERSAL, AND IT IS LEFT THAT WAY. Measured: 49 universal
+    # before this entry, 50 after; dialect-relative stays 3. The classification is
+    # derived from the §1 CARRIER partition, and `sequenceFlow` is STRUCTURE — plain
+    # BPMN graph shape, not an aef: governance carrier — so REQUIRES polarity over a
+    # structure carrier still lands UNIVERSAL. Overriding that to match my prose is
+    # precisely the move this file was built to prevent (T-323: a classification must
+    # be derived, never asserted because it looks right).
+    #
+    # The disagreement is real and is a gap in the MODEL, not in either answer: the
+    # three classes key on what the standard SAYS about a carrier, and this rule rests
+    # on a global graph property the standard is SILENT about. Silence is neither
+    # "every conformant document satisfies it" nor "an optional carrier is absent".
+    # Filed as OBS-467 rather than resolved by forcing a label.
+    "W-XML-DISCONNECTED":       (("sequenceFlow",), REQUIRES),
     "W-XML-LANE-GEOMETRY":      (("aef:position",), CONSTRAINS),
     "I-XML-LANE-GEOMETRY-SKIP": (("aef:position",), REQUIRES),
     "W-XML-LANE-CAPACITY":      (("aef:position", "aef:laneMeta/@height"), CONSTRAINS),
