@@ -53,7 +53,13 @@ TermLink, not to probe this host.
 - [ ] The reviewer roster is recorded where the next session finds it (project learning): Codex,
       Z.AI, Antigravity are the paid accounts; Mistral is not one (OpenRouter only, paid per use);
       Ring20 Manager knows how to reach them.
-- [ ] Ring20 Manager is asked over TermLink how to invoke Antigravity, and its answer is recorded.
+- [ ] Ring20 Manager is asked over TermLink for the DIRECT-call ruleset for all three providers
+      (command, workdir/write permission, auth and quota rules, what may be sent, how a panel is
+      run), and its answer is recorded. Operator, 2026-10-01: *"call it directly, not dispatch
+      ... ask Ring20 how to call these providers directly. That's the info you need in the
+      future. And the whole ruleset for that. You will get that in an upgrade when we upgrade to
+      next version, bleeding edge version of the engineering framework."* So the recorded answer
+      is interim; the authoritative ruleset arrives with the next AEF upgrade and supersedes it.
 - [ ] Antigravity runs the revised kit with the T-975 brief and source, as a round-2 reader, and
       its report gets per-point dispositions in `docs/reports/T-975-kit-external-review.md`.
 - [ ] If Antigravity cannot be reached, the report says so and why, and the panel stays
