@@ -1,0 +1,110 @@
+# ============================================================================
+# EPISODIC MEMORY - T-992: Release designer 0.15.1: loop.sh works with sandboxed agents (T-991)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T22:34:26Z
+# ============================================================================
+
+task_id: T-992
+task_name: "Release designer 0.15.1: loop.sh works with sandboxed agents (T-991)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T22:06:51Z
+completed: 2026-10-01T22:34:18Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-02T00:07:14+02:00
+last_commit: 2026-10-02T00:34:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  prepare 0.15.1 — VERSION + APP_VERSION (parity ok), release notes for the T-991 fix. runme.sh cuts 0.15.1 (restored release script; dry run + both refusals exercised); recorded my accidental non-dry runs of the cron script (stopped at confirm, nothing written). 0.15.1 notes include the calibration-set and scoring fix, and the real PASS. release designer 0.15.1 — loop.sh works with sandboxed agents (T-991). release runme.sh is resumable — a run that stopped after commit resumes at the tag step; the tag goes on the release commit, not HEAD. 0.15.1 verified after the operator's resumed run; kit delivered to Evergreen
+
+# Key outcomes
+outcomes:
+  - '`VERSION` and `APP_VERSION` are `0.15.1` (parity passes). Number chosen by the operator:'
+  - '`docs/releases/RELEASE-NOTES-0.15.1.md` states the one fix (T-991) and why it shipped broken.'
+  - '`runme.sh` cuts 0.15.1 with the same four confirmed steps as 0.15.0; dry run and both refusal'
+  - 'After the operator''s run: artifact == src, kit verifies, manifest names both and supersedes'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '0.15.1 notes include the calibration-set and scoring fix, and the real PASS'
+    source: git-mined
+  - description: 'prepare 0.15.1 — VERSION + APP_VERSION (parity ok), release notes for the T-991 fix'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-authoring-kit-0.15.1/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.15.1/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.15.1/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.15.1/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.15.1/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.15.1/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.15.1/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.15.1/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.15.1/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.15.1/loop.sh'
+  - 'dist/aef-authoring-kit-0.15.1/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.15.1/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.15.1/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.15.1/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.15.1.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.15.1.md'
+  - 'runme.sh'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-992-release-designer-0151-loopsh-works-with-.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-02T00:07:14'
+    action: 'T-992: prepare 0.15.1 — VERSION + APP_VERSION (parity ok), release notes for the T-991 fix'
+  - time: '2026-10-02T00:07:55'
+    action: 'T-992: runme.sh cuts 0.15.1 (restored release script; dry run + both refusals exercised); recorded my accidental non-dry runs of the cron script (stopped at confirm, nothing written)'
+  - time: '2026-10-02T00:16:02'
+    action: 'T-992: 0.15.1 notes include the calibration-set and scoring fix, and the real PASS'
+  - time: '2026-10-02T00:24:36'
+    action: 'T-992: release designer 0.15.1 — loop.sh works with sandboxed agents (T-991)'
+  - time: '2026-10-02T00:30:35'
+    action: 'T-992: release runme.sh is resumable — a run that stopped after commit resumes at the tag step; the tag goes on the release commit, not HEAD'
+  - time: '2026-10-02T00:34:18'
+    action: 'T-992: 0.15.1 verified after the operator''s resumed run; kit delivered to Evergreen'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 27 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 27
+  commits: 6
+  files_changed: 21
+  lines_added: 16527
+  lines_removed: 52
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-992-release-designer-0151-loopsh-works-with-.md
+generated_by: context-agent-hybrid
