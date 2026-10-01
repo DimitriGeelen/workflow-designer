@@ -210,18 +210,36 @@ if [ "$ready" -ne 1 ]; then
     exit 5
 fi
 
-# THE CHECK THAT MATTERS, made against what is actually being served. The old
-# grep-the-file version could not have caught a serve step that shipped the wrong
-# page, because the serve step ran afterwards.
-if ! curl -sf "http://127.0.0.1:$PORT/designer.html" 2>/dev/null \
-     | grep -q 'async function validateCurrentWorkflow'; then
+# THE CHECK THAT MATTERS, made against what is actually being served. The earlier
+# grep-the-file-on-disk version could not have caught a serve step that shipped the
+# wrong page, because the serve step ran afterwards and rebuilt the directory.
+#
+# T-966: DOWNLOAD TO A FILE, THEN GREP THE FILE. The first version of this line was
+#     curl -sf ".../designer.html" | grep -q '...'
+# under `set -o pipefail`, and it REFUSED on a page that was perfectly fine. grep -q
+# matches and exits, closing the pipe; curl cannot finish writing a 1,063,221-byte
+# document into a 64KB buffer and dies; pipefail propagates its status; the `!`
+# turns that into a refusal. Measured on a live server: piped rc=23, file rc=0,
+# deterministic at this size rather than racy.
+#
+# CLAUDE.md calls the file form "THE DEFAULT" and gives this exact curl example,
+# citing a measurement on a 146KB page. I wrote the pipe anyway, while fixing a
+# different defect in this same script. Keeping the whole story here because the
+# rule plainly is not enough on its own.
+PAGE_TMP="$PROJ/build/.runme-served-$TS.html"
+curl -sf "http://127.0.0.1:$PORT/designer.html" -o "$PAGE_TMP" 2>/dev/null
+if ! grep -q 'async function validateCurrentWorkflow' "$PAGE_TMP" 2>/dev/null; then
     echo "REFUSED: the page being SERVED does not contain the Check feature."
     echo "Stopping the server rather than sending you to look for a missing button."
     kill "$SRV_PID" 2>/dev/null
+    rm -f "$PAGE_TMP"
     echo "Tell the agent — this is its bug, not yours."
     echo "Log: $LOG"
     exit 4
 fi
+# Per-run filename and removed on success, so a stale page from an earlier run can
+# never satisfy a later check.
+rm -f "$PAGE_TMP"
 
 echo "$SRV_PID" > "$PROJ/build/gallery-serve.pid"
 echo "  ok    the SERVED page carries the Check feature (verified over HTTP)"
