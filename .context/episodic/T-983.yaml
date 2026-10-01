@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-983: B1 (T-982): the review loop ships in the authoring kit: citation convention, rubric v3, review/correct briefs, provider-agnostic loop driver, planted-defect calibration set with a test
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T21:12:50Z
+# ============================================================================
+
+task_id: T-983
+task_name: "B1 (T-982): the review loop ships in the authoring kit: citation convention, rubric v3, review/correct briefs, provider-agnostic loop driver, planted-defect calibration set with a test"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T20:52:24Z
+completed: 2026-10-01T21:12:39Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-01T23:12:38+02:00
+last_commit: 2026-10-01T23:12:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the generate -> review -> correct loop ships in the authoring kit, with reviewer calibration
+
+# Key outcomes
+outcomes:
+  - '`AUTHORING.md` states the source-citation convention (every lane and flow node carries'
+  - 'The kit ships `RUBRIC.md` (rubric v3: seven categories, governance always major, the'
+  - 'The kit ships `loop.sh`, a provider-agnostic driver: the generator and reviewer commands'
+  - 'The kit ships a calibration set: one synthetic source, a clean map, a map with planted'
+  - 'A test (no LLM) proves: every new file is in a built kit and covered by SHA256SUMS; the'
+  - '`tests/test_t974_authoring_kit.py` stays green with the new file list.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/authoring-kit/calibration/clean.bpmn'
+  - 'docs/authoring-kit/calibration/expected.json'
+  - 'docs/authoring-kit/calibration/planted.bpmn'
+  - 'docs/authoring-kit/calibration/SOURCE.md'
+  - 'docs/authoring-kit/CORRECT.md'
+  - 'docs/authoring-kit/GENERATE.md'
+  - 'docs/authoring-kit/loop.sh'
+  - 'docs/authoring-kit/REVIEW.md'
+  - 'docs/authoring-kit/RUBRIC.md'
+  - '.fabric/components/docs-authoring-kit-loop.yaml'
+  - '.fabric/components/tests-test_t983_review_loop_kit.yaml'
+  - '.tasks/active/T-983-b1-t-982-the-review-loop-ships-in-the-au.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t974_authoring_kit.py'
+  - 'tests/test_t983_review_loop_kit.py'
+  - 'tools/build-authoring-kit.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T23:12:38'
+    action: 'T-983: the generate -> review -> correct loop ships in the authoring kit, with reviewer calibration'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 20
+  commits: 1
+  files_changed: 17
+  lines_added: 1288
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-983-b1-t-982-the-review-loop-ships-in-the-au.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,104 @@
+# ============================================================================
+# EPISODIC MEMORY - T-987: Release designer 0.15.0 with the authoring kit and review loop
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T21:27:33Z
+# ============================================================================
+
+task_id: T-987
+task_name: "Release designer 0.15.0 with the authoring kit and review loop"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T21:12:59Z
+completed: 2026-10-01T21:27:26Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-01T23:14:47+02:00
+last_commit: 2026-10-01T23:27:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  prepare 0.15.0 — VERSION + APP_VERSION (parity ok), release notes since designer-v0.14.0. runme.sh cuts 0.15.0 (version is the operator's argument; 4 confirmed steps; dry-run + both refusal paths exercised). release designer 0.15.0 — designer + authoring kit (review loop, calibration). 0.15.0 verified after the operator's cut (artifact==src, kit verifies, manifest + kit_sha256, tag on release commit and origin, announced)
+
+# Key outcomes
+outcomes:
+  - '`VERSION` is `0.15.0` and the designer''s `APP_VERSION` literal matches it'
+  - '`docs/releases/RELEASE-NOTES-0.15.0.md` states what changed since `designer-v0.14.0`,'
+  - 'A `runme.sh` cuts the release for the operator: preflight (clean tree for the release files,'
+  - 'After the operator''s run: `dist/aef-workflow-designer-0.15.0.html` equals `src`,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-authoring-kit-0.15.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.15.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.15.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.15.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.15.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.15.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.15.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.15.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.15.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.15.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.15.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.15.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.15.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.15.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.15.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.15.0.md'
+  - 'runme.sh'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-987-release-designer-0150-with-the-authoring.md'
+  - '.tasks/completed/T-983-b1-t-982-the-review-loop-ships-in-the-au.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T23:14:47'
+    action: 'T-987: prepare 0.15.0 — VERSION + APP_VERSION (parity ok), release notes since designer-v0.14.0'
+  - time: '2026-10-01T23:16:26'
+    action: 'T-987: runme.sh cuts 0.15.0 (version is the operator''s argument; 4 confirmed steps; dry-run + both refusal paths exercised)'
+  - time: '2026-10-01T23:24:57'
+    action: 'T-987: release designer 0.15.0 — designer + authoring kit (review loop, calibration)'
+  - time: '2026-10-01T23:27:25'
+    action: 'T-987: 0.15.0 verified after the operator''s cut (artifact==src, kit verifies, manifest + kit_sha256, tag on release commit and origin, announced)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 14
+  commits: 4
+  files_changed: 22
+  lines_added: 16520
+  lines_removed: 57
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-987-release-designer-0150-with-the-authoring.md
+generated_by: context-agent-hybrid

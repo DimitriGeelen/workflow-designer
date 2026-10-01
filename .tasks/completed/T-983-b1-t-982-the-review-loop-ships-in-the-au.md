@@ -11,13 +11,13 @@ description: >
   is shipped with expected findings, and a test proves the builder includes it. Evidence
   and drafts: scratchpad spikes S1/S1b/S2/S2b recorded in docs/reports/T-982-generate-review-loop.md.
 
-status: started-work
+status: work-completed
 workflow_type: build
 current_node: frw_3_start
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tests/test_t974_authoring_kit.py, tests/test_t983_review_loop_kit.py, tools/build-authoring-kit.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -30,8 +30,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T20:52:24Z
-last_update: 2026-10-01T21:08:51Z
-date_finished:
+last_update: 2026-10-01T21:12:39Z
+date_finished: 2026-10-01T21:12:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -367,3 +367,15 @@ python3 tests/test_t316_runner_orphans.py
 ### 2026-10-01T21:08:51Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-edb45a08
+- **Timestamp:** 2026-10-01T21:12:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-01T21:12:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
