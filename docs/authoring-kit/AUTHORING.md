@@ -98,9 +98,10 @@ will make up what the source does not say. Do not.
   rejected or fulfilled), and wrong when they exist only to give orphans an exit.
 - **Do not invent conditions.** Label each exclusive-gateway branch with the source's own words
   (`name="limit exceeded"`), not an executable expression the source never stated.
-- **Merging branches:** until a converging exclusive gateway is accepted (it currently raises
-  `E-XML-GW-OUTGOING`), route the branches straight into the next step. A task may have several
-  incoming sequence flows.
+- **Merging branches:** use a converging exclusive gateway (two or more incoming flows, exactly
+  one outgoing), or route the branches straight into the next step. Both are valid. An exclusive
+  gateway with one incoming and one outgoing flow decides nothing and is refused
+  (`E-XML-GW-OUTGOING`).
 - **Prose order is evidence, not proof.** "Picks, packs and books a carrier" is a reasonable
   sequence; "inspection and labelling also happen" is not. When in doubt, it is unknown.
 

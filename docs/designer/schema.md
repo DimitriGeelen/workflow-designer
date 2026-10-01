@@ -601,7 +601,7 @@ For a workflow to be valid:
 - Every `sourceRef` and `targetRef` must resolve to a node's `bpmn:id`
 - Every node's `lane` must match a lane in the `bpmn:laneSet`
 - Every required input must have a corresponding upstream output of compatible type
-- Every `exclusiveGateway` must have at least two outgoing edges; conditions must be mutually exclusive (or default-marked)
+- Every `exclusiveGateway` must have at least two outgoing edges, unless it is a converging (merge) gateway with two or more incoming edges and exactly one outgoing (T-977); conditions must be mutually exclusive (or default-marked)
 
 Additional advisory checks (WARN, non-fatal — the file is still structurally valid):
 

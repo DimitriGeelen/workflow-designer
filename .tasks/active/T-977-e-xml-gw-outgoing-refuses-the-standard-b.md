@@ -1,13 +1,18 @@
 ---
 id: T-977
-name: "E-XML-GW-OUTGOING refuses the standard BPMN merge: every exclusiveGateway must have 2+ outgoing, so a converging XOR is an ERROR"
+name: "E-XML-GW-OUTGOING refuses the standard BPMN merge: every exclusiveGateway must
+  have 2+ outgoing, so a converging XOR is an ERROR"
 description: >
-  Found by Codex in T-975's external review (X7), confirmed at validate-workflow.py:1208. Same class as T-970: refusing standard BPMN a vendor will emit. A converging gateway (>=2 incoming, 1 outgoing) is legal BPMN; the rule should fire only on a diverging gateway with <2 outgoing.
+  Found by Codex in T-975's external review (X7), confirmed at validate-workflow.py:1208.
+  Same class as T-970: refusing standard BPMN a vendor will emit. A converging gateway
+  (>=2 incoming, 1 outgoing) is legal BPMN; the rule should fire only on a diverging
+  gateway with <2 outgoing.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +27,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T18:12:30Z
-last_update: 2026-10-01T18:12:30Z
-date_finished: null
+last_update: 2026-10-01T18:31:44Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +39,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-01T18:31:44Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=gateway); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=1 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-977: E-XML-GW-OUTGOING refuses the standard BPMN merge: every exclusiveGateway must have 2+ outgoing, so a converging XOR is an ERROR
@@ -46,8 +72,24 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A CONVERGING exclusiveGateway (>= 2 incoming, exactly 1 outgoing) no longer raises
+      `E-XML-GW-OUTGOING`. Proven by a fixture that is otherwise clean.
+- [x] The rule still fires where it should: a gateway with 0 outgoing, and a 1-in/1-out gateway
+      (a gateway that decides nothing). Proven by fixtures, both directions.
+- [x] The YAML form's `E-GW-OUTGOING` gets the same predicate, or the parity table records why
+      not. The two forms must not diverge on a governance-neutral structural fact.
+- [x] Our corpus is unchanged (8 findings) and the bridge-relevant guards stay green: rule-form
+      parity, dialect axis, check-pass reachability.
+- [x] `docs/authoring-kit/AUTHORING.md` drops the merge workaround it currently tells generators
+      to use, and `docs/designer/schema.md`'s ">= 2 outgoing" text says what the rule now does.
+
+**Evidence:** `valid/gw-converging.{workflow.yaml,bpmn}` (split + merge, otherwise clean) raise
+E-GW-OUTGOING / E-XML-GW-OUTGOING on `n_merge` under the pre-change validator and are clean
+after. The existing 1-in/1-out fixtures (`invalid/E-GW-OUTGOING.yaml`, `E-XML-GW-OUTGOING.xml`)
+still fail on both forms. One predicate on both forms, so the PAIRED parity row stays true.
+Corpus 8 -> 8. Validator suite 58 -> 60 passed (the 1 failure is OBS-468's, pre-existing).
+Parity, check-pass reachability and cross-form agreement were already red and their failure
+lines are byte-identical before and after.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -208,6 +250,12 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+python3 tools/validate-workflow.py tests/fixtures/valid/gw-converging.bpmn
+python3 tools/validate-workflow.py tests/fixtures/valid/gw-converging.workflow.yaml
+python3 -c "import subprocess as s,sys;r=s.run(['python3','tools/validate-workflow.py','tests/fixtures/invalid/E-XML-GW-OUTGOING.xml'],capture_output=True,text=True);sys.exit(0 if r.returncode==2 and 'E-XML-GW-OUTGOING' in r.stdout else 1)"
+python3 -c "import subprocess as s,sys;r=s.run(['python3','tools/validate-workflow.py','tests/fixtures/invalid/E-GW-OUTGOING.yaml'],capture_output=True,text=True);sys.exit(0 if r.returncode==2 and 'E-GW-OUTGOING' in r.stdout else 1)"
+python3 tests/test_t974_authoring_kit.py
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -304,3 +352,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-977-e-xml-gw-outgoing-refuses-the-standard-b.md
 - **Context:** Initial task creation
+
+### 2026-10-01T18:31:44Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

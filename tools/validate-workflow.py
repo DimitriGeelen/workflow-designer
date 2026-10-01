@@ -569,8 +569,14 @@ class Validator:
             outgoing = [
                 e for e in edges if isinstance(e, dict) and e.get("source") == uid
             ]
-            # section 7.3: at least two outgoing edges
-            if len(outgoing) < 2:
+            incoming = [
+                e for e in edges if isinstance(e, dict) and e.get("target") == uid
+            ]
+            # section 7.3: at least two outgoing edges, unless it is a CONVERGING gateway
+            # (>= 2 incoming, exactly 1 outgoing): the standard BPMN merge (T-977, paired
+            # with E-XML-GW-OUTGOING so the two forms do not diverge).
+            converging = len(outgoing) == 1 and len(incoming) >= 2
+            if len(outgoing) < 2 and not converging:
                 self.err(
                     "E-GW-OUTGOING",
                     loc,
@@ -1117,6 +1123,8 @@ class XmlValidator:
 
         # -- sequenceFlow endpoint resolution (section 7.3) -----------------
         outgoing_count = {}
+        # T-977: incoming too, so a CONVERGING exclusive gateway can be told from a broken one.
+        incoming_count = {}
         # Outgoing flows carrying no bpmn:conditionExpression, per source node.
         # Kept as flow ids rather than a bare count so the finding can name the
         # witnesses — a count alone tells an author there is a problem without
@@ -1133,6 +1141,9 @@ class XmlValidator:
                         "%s '%s' does not resolve to a flow-node bpmn:id"
                         % (attr, ref),
                     )
+            tgt = flow.get("targetRef")
+            if tgt is not None:
+                incoming_count[tgt] = incoming_count.get(tgt, 0) + 1
             src = flow.get("sourceRef")
             if src is not None:
                 outgoing_count[src] = outgoing_count.get(src, 0) + 1
@@ -1210,9 +1221,15 @@ class XmlValidator:
                     )
 
         # -- exclusiveGateway outgoing count (section 7.3) ------------------
+        # T-977: a CONVERGING gateway (>= 2 incoming, exactly 1 outgoing) is the standard BPMN
+        # merge and was refused here as an ERROR, so a vendor drawing an ordinary XOR merge got a
+        # hard error (found by an external reviewer using the authoring kit, T-975 X7). Same
+        # class as T-970: refusing standard BPMN. Still an error: 0 outgoing (a dead end that
+        # claims to decide), and 1-in/1-out (a gateway that decides nothing).
         for gid in gateways:
             count = outgoing_count.get(gid, 0)
-            if count < 2:
+            converging = count == 1 and incoming_count.get(gid, 0) >= 2
+            if count < 2 and not converging:
                 self.err(
                     "E-XML-GW-OUTGOING",
                     "exclusiveGateway '%s'" % gid,

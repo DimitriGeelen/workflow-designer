@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from gw-converging by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_gw_converging" name="gw-converging">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="gw-converging" version="1" schemaVersion="2"/>
+    </bpmn:extensionElements>
+
+    <bpmn:laneSet id="LaneSet_gw-converging">
+      <bpmn:lane id="agent" name="Agent - Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_split</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_b</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_merge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_e</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_s" name="Start">
+      <bpmn:extensionElements>
+        <aef:uid value="n_s"/>
+        <aef:position x="100" y="60"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="n_split" name="Which?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_split"/>
+        <aef:position x="200" y="60"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_1</bpmn:incoming>
+      <bpmn:outgoing>e_2</bpmn:outgoing>
+      <bpmn:outgoing>e_3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="n_a" name="A">
+      <bpmn:extensionElements>
+        <aef:uid value="n_a"/>
+        <aef:position x="300" y="20"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_2</bpmn:incoming>
+      <bpmn:outgoing>e_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_b" name="B">
+      <bpmn:extensionElements>
+        <aef:uid value="n_b"/>
+        <aef:position x="300" y="100"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_3</bpmn:incoming>
+      <bpmn:outgoing>e_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="n_merge" name="Merge">
+      <bpmn:extensionElements>
+        <aef:uid value="n_merge"/>
+        <aef:position x="420" y="60"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_4</bpmn:incoming>
+      <bpmn:incoming>e_5</bpmn:incoming>
+      <bpmn:outgoing>e_6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_e" name="End">
+      <bpmn:extensionElements>
+        <aef:uid value="n_e"/>
+        <aef:position x="520" y="60"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_6</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e_1" sourceRef="n_s" targetRef="n_split">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_2" sourceRef="n_split" targetRef="n_a">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">case a</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_3" sourceRef="n_split" targetRef="n_b">
+      <bpmn:extensionElements><aef:uid value="e_3"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">case b</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_4" sourceRef="n_a" targetRef="n_merge">
+      <bpmn:extensionElements><aef:uid value="e_4"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_5" sourceRef="n_b" targetRef="n_merge">
+      <bpmn:extensionElements><aef:uid value="e_5"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_6" sourceRef="n_merge" targetRef="n_e">
+      <bpmn:extensionElements><aef:uid value="e_6"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>
