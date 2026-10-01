@@ -131,6 +131,17 @@ TYPE_PERFORMER = {
     "userTask": "human",
     "serviceTask": "agent",
     "scriptTask": "agent",
+    # T-972, repairing T-970. Plain `<task>` was made a valid element without being
+    # added here, and every ownership check keys on this table — so plain tasks became
+    # SILENTLY UNEXAMINED. That turned a loud rejection (94 errors on the first corpus
+    # we did not author) into a quiet blind spot, which is strictly worse: the author
+    # gets a clean bill on a map where no task has a derivable owner.
+    #
+    # None, not "agent" or "human": a plain task implies NO performer, which is exactly
+    # why mapping-v1 §3 makes the lane the sole authority-of-record. The value is read
+    # only for the type-vs-lane mismatch message; membership in this table is what makes
+    # the node participate in ownership checks at all.
+    "task": None,
 }
 
 # section 3: required top-level keys (lanes >= 1; nodes/edges may be empty)
@@ -966,7 +977,10 @@ class Validator:
             # O-1: task-type should agree with lane authority (lane wins)
             if ntype in TYPE_PERFORMER and authority is not None:
                 owner = AUTHORITY_OWNER.get(authority)
-                if owner is not None and owner != TYPE_PERFORMER[ntype]:
+                # T-972: a type implying NO performer (plain `task`) cannot MISMATCH a
+                # lane — the lane is the sole authority and the type claims nothing.
+                if (owner is not None and TYPE_PERFORMER[ntype] is not None
+                        and owner != TYPE_PERFORMER[ntype]):
                     self.warn(
                         "W-TYPE-LANE-MISMATCH",
                         "node '%s'" % uid,
@@ -1930,7 +1944,10 @@ class XmlValidator:
             # O-1: task-type should agree with lane authority (lane wins)
             if local in TYPE_PERFORMER and authority is not None:
                 owner = AUTHORITY_OWNER.get(authority)
-                if owner is not None and owner != TYPE_PERFORMER[local]:
+                # T-972: see the YAML-side note — a plain `task` implies no performer,
+                # so it can carry no mismatch; it participates in ownership checks only.
+                if (owner is not None and TYPE_PERFORMER[local] is not None
+                        and owner != TYPE_PERFORMER[local]):
                     self.warn(
                         "W-TYPE-LANE-MISMATCH",
                         "node '%s'" % nid,
