@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-982: Agent-led map generation with an iterative review-correct loop whose learnings feed back into the guide, rubric and validator (deterministic checks as the floor)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T20:51:59Z
+# ============================================================================
+
+task_id: T-982
+task_name: "Agent-led map generation with an iterative review-correct loop whose learnings feed back into the guide, rubric and validator (deterministic checks as the floor)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T19:38:37Z
+completed: 2026-10-01T20:51:52Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-01T21:39:45+02:00
+last_commit: 2026-10-01T22:03:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception framed — agent-led generate/review/correct loop, learnings fed back into guide, rubric and validator. S1 setup recorded; human edits added as the second (ground-truth) feedback source, IW-6. S1 clean (audited, not trusted); S1b reviewer caught 3/3 planted defects, 0 false positives; first loop-made learning (wrong-authority always major) -> rubric v2; S2 on the healing loop started. S2 faithful to its source (reference gap is the doc's); S2b panel shared a blind spot; human disagreement -> rubric v3 'scope' -> reviewer now catches it (loop proven once end to end). loop closed (correct applied, re-review clean, v3 specific); learning ledger L1-L4; hypothesis restated to measurable reviewer calibration; IW-1..5 answered, IW-6 deferred; Recommendation GO in three build slices. runme.sh records the operator's GO (all decide gates pre-checked; dry-run only)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-982-generate-review-loop.md'
+  - 'runme.sh'
+  - '.tasks/active/T-982-agent-led-map-generation-with-an-iterati.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T21:39:45'
+    action: 'T-982: inception framed — agent-led generate/review/correct loop, learnings fed back into guide, rubric and validator'
+  - time: '2026-10-01T21:41:51'
+    action: 'T-982: S1 setup recorded; human edits added as the second (ground-truth) feedback source, IW-6'
+  - time: '2026-10-01T21:49:58'
+    action: 'T-982: S1 clean (audited, not trusted); S1b reviewer caught 3/3 planted defects, 0 false positives; first loop-made learning (wrong-authority always major) -> rubric v2; S2 on the healing loop started'
+  - time: '2026-10-01T21:58:28'
+    action: 'T-982: S2 faithful to its source (reference gap is the doc''s); S2b panel shared a blind spot; human disagreement -> rubric v3 ''scope'' -> reviewer now catches it (loop proven once end to end)'
+  - time: '2026-10-01T22:03:24'
+    action: 'T-982: loop closed (correct applied, re-review clean, v3 specific); learning ledger L1-L4; hypothesis restated to measurable reviewer calibration; IW-1..5 answered, IW-6 deferred; Recommendation GO in three build slices'
+  - time: '2026-10-01T22:03:50'
+    action: 'T-982: runme.sh records the operator''s GO (all decide gates pre-checked; dry-run only)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 73 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 73
+  commits: 6
+  files_changed: 3
+  lines_added: 601
+  lines_removed: 44
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-982-agent-led-map-generation-with-an-iterati.md
+generated_by: context-agent-hybrid
