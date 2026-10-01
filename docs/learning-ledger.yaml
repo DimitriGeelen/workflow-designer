@@ -1,0 +1,60 @@
+# Learning ledger (T-984, T-982 GO slice B2).
+#
+# Every correction and disagreement the mapping loop produces, from the review loop, a reviewer,
+# a human edit, or a partner trial, lands here with a destination. A single observation only
+# PROPOSES. It becomes `confirmed` by repetition or by a human, and only a confirmed learning is
+# `promoted` into the guide, the rubric, the validator, or a report to the source's owner.
+# `tools/learning-ledger.py check` refuses a promotion whose file does not contain its marker.
+#
+# status:      proposed -> confirmed -> promoted      (or rejected, with a reason)
+# source:      loop | reviewer | human | trial
+# destination: guide | rubric | validator | source-owner
+# promoted:    {where: <repo file>, marker: <text that must appear in it>}
+#              or {where: "sidecar:<client_msg_id>"} for a report to another project
+
+learnings:
+- id: L1
+  learning: wrong-authority, invented and undeclared-unknown are always major
+  evidence: 'T-982 S1b: a calibrated reviewer rated a human department marked automated ''minor'''
+  source: reviewer
+  destination: rubric
+  status: promoted
+  occurrences: 1
+  confirmed_by: operator GO on T-982 (rubric v3 ships in B1)
+  promoted:
+    where: docs/authoring-kit/RUBRIC.md
+    marker: are always major
+- id: L2
+  learning: 'scope: reference material (command lists, tables, examples) is not process'
+  evidence: 'T-982 S2b: two agent reviewers from two vendors accepted CLI commands as tasks; the human
+    did not; rule v3 then caught 2/2 with 0 false alarms'
+  source: human
+  destination: rubric
+  status: promoted
+  occurrences: 1
+  confirmed_by: operator GO on T-982 (rubric v3 ships in B1)
+  promoted:
+    where: docs/authoring-kit/RUBRIC.md
+    marker: '**scope**'
+- id: L3
+  learning: the honest-unknown rule applies only to steps the source presents as part of the flow
+  evidence: 'T-982 S2: the corrector said the generator had applied ''unknown order -> leave unconnected''
+    to reference commands'
+  source: loop
+  destination: guide
+  status: promoted
+  occurrences: 1
+  confirmed_by: operator GO on T-982 ('B2 ... starting with L3 (guide)')
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: only to steps the source presents as part of the flow
+- id: L4
+  learning: a source-vs-reference diff exposes documentation that understates the real process
+  evidence: 'T-982 S2: healing AGENT.md workflow omits the human decision healing.sh implements'
+  source: loop
+  destination: source-owner
+  status: promoted
+  occurrences: 1
+  confirmed_by: operator GO on T-982 ('B2 ... L4 (report to AEF)')
+  promoted:
+    where: sidecar:c01cc6fc-ab7e-4880-8ab5-da41da48ed3e

@@ -1041,6 +1041,17 @@ else
 fi
 
 echo
+echo "== The learning ledger enforces the human checkpoint (T-984, T-982 GO) =="
+# Nothing is promoted without confirmation, and a promotion must be visible in the file it names.
+if python3 "$ROOT/tests/test_t984_learning_ledger.py" > "$TMP/leg-_t984.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the learning ledger let a lesson skip the human checkpoint, claimed a promotion its file does not show, or duplicated a repeated lesson (T-984 — run 'python3 tests/test_t984_learning_ledger.py'; 'python3 tools/learning-ledger.py check' names the entry)"
+  show_output "$TMP/leg-_t984.out" "test_t984_learning_ledger.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== The designer can REACH the validator (T-961, T-309 slice 2) =="
 # The other half of T-955. That leg guards the ROUTE; this one guards the editor's side of
 # it — validateCurrentWorkflow() serialising the live map, posting it, and parsing the

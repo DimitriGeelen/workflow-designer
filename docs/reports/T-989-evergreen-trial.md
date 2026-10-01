@@ -51,8 +51,11 @@ Nothing outside a live Claude session watches these topics yet. To pick the tria
    `python3 tools/_t989-measure-evergreen.py <dir> --label "iteration N"` and add a row above.
    Re-measure before any claim about their maps (offset-12 lesson).
 5. **Feed back** on `xfer-evergreen-corpus` (or the sidecar): the numbers against iteration 0,
-   what improved, what did not, and whatever the kit failed to say. Record that in the kit-defect
-   ledger and route it (guide / rubric / validator).
+   what improved, what did not, and whatever the kit failed to say. Every kit gap goes into the
+   learning ledger (`docs/learning-ledger.yaml`, T-984) with `source: trial`: if Evergreen ran the
+   loop, `python3 tools/learning-ledger.py ingest <their corrections.rN.json> --source trial`;
+   otherwise add the entry by hand as `proposed`. It is promoted only after confirmation
+   (`confirm`), and `check` refuses a promotion its file does not show.
 6. **Done when** at least 3 iterations are recorded with outcomes (T-989 ACs).
 
 ## Kit defects found through the trial

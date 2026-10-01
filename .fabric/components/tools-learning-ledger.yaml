@@ -1,0 +1,21 @@
+id: tools/learning-ledger.py
+name: learning-ledger
+type: script
+subsystem: instruments
+location: tools/learning-ledger.py
+tags: []
+
+purpose: "learning-ledger.py — the mapping loop's memory, with a human checkpoint (T-984, T-982 GO B2)."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-01
+created_by: unknown

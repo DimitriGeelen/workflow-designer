@@ -1,13 +1,19 @@
 ---
 id: T-984
-name: "B2 (T-982): learning ledger with a human promotion checkpoint, seeded with L1-L4"
+name: "B2 (T-982): learning ledger with a human promotion checkpoint, seeded with
+  L1-L4"
 description: >
-  A ledger file records every correction and disagreement (from the loop, from reviewers, from humans) with a proposed destination (guide/rubric/validator/source-owner) and a status; promotion requires repetition or explicit human confirmation. Seed with L1-L4 from T-982 §4c. Promote L3 into AUTHORING.md (honest-unknown rule applies only to steps the source presents as part of the flow) and send L4 to AEF (healing AGENT.md omits the human decision healing.sh implements).
+  A ledger file records every correction and disagreement (from the loop, from reviewers,
+  from humans) with a proposed destination (guide/rubric/validator/source-owner) and
+  a status; promotion requires repetition or explicit human confirmation. Seed with
+  L1-L4 from T-982 §4c. Promote L3 into AUTHORING.md (honest-unknown rule applies
+  only to steps the source presents as part of the flow) and send L4 to AEF (healing
+  AGENT.md omits the human decision healing.sh implements).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +28,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T20:52:28Z
-last_update: 2026-10-01T20:52:28Z
-date_finished: null
+last_update: 2026-10-01T21:49:37Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +40,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-01T21:49:38Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (L0: no signal); F3=0 (L0: no
+      signal); F1=3 (L1:keyword=designer,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-984: B2 (T-982): learning ledger with a human promotion checkpoint, seeded with L1-L4
@@ -46,8 +70,28 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `docs/learning-ledger.yaml` holds every learning with: id, the learning, evidence, source
+      (loop / reviewer / human / trial), destination (guide / rubric / validator / source-owner),
+      status (proposed / confirmed / promoted / rejected), occurrences, and where it was promoted.
+      Seeded with L1-L4 from T-982 §4c.
+- [x] `tools/learning-ledger.py` can `ingest` a loop run's `corrections.rN.json` (each lesson
+      becomes a proposed entry; a lesson already in the ledger increments its occurrences instead
+      of duplicating), `list`, `confirm` (human checkpoint), and `check`.
+- [x] `check` enforces the checkpoint: nothing is `promoted` without first being `confirmed`, and
+      a `promoted` entry must name a file that really contains its marker. A ledger that claims a
+      promotion the file does not show fails.
+- [x] L3 is promoted into `AUTHORING.md` and L4 is reported to AEF; both confirmed by the
+      operator's GO on T-982 ("B2 ... starting with L3 (guide) and L4 (report to AEF)").
+- [x] A test covers ingest (new + repeated lesson), the checkpoint refusals, and a promotion whose
+      marker is missing.
+
+**Evidence:** `tests/test_t984_learning_ledger.py` 8/8 (ingest new and repeated lessons; promote of
+a proposed learning refused; promote with an absent marker refused; check catches a skipped
+confirmation and a missing marker; the real ledger passes). Seed L1-L4: L1 and L2 promoted into
+RUBRIC.md (markers verified by `check`), L3 promoted into AUTHORING.md (promote refused BEFORE the
+text existed, accepted after), L4 reported to AEF by sidecar (client_msg_id c01cc6fc...) and
+promoted with that pointer. Wired into run-bridge-tests.sh; the Evergreen trial routes kit gaps
+through the ledger with source: trial.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -208,6 +252,10 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+python3 tests/test_t984_learning_ledger.py
+python3 tools/learning-ledger.py check
+python3 tests/test_t974_authoring_kit.py
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -304,3 +352,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-984-b2-t-982-learning-ledger-with-a-human-pr.md
 - **Context:** Initial task creation
+
+### 2026-10-01T21:49:37Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

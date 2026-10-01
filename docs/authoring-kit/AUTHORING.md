@@ -115,6 +115,10 @@ will make up what the source does not say. Do not.
 - **An owner the source does not state stays unknown.** Put the step in a lane with
   `authority="none"`. Passive voice ("the order is closed") names no performer. Do not move the
   step into a plausible lane, and do not omit `laneMeta`.
+- **This rule applies only to steps the source presents as part of the flow.** Reference
+  material is not a step of unknown order: a command list, an option table, an example or a
+  glossary does not belong in the map at all (rubric category `scope`). A loop once read a
+  "Commands" section as two steps of unknown order and modelled them as unconnected tasks.
 - **An order the source does not state stays unknown.** Do not connect the steps. Leave them
   unconnected, in the lane of their performer, and annotate them:
 
