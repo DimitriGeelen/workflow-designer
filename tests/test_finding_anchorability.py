@@ -91,7 +91,9 @@ ANCHOR = {
     "E-XML-LANEREF-DANGLING":    "REFERENT",
     "E-XML-GW-OUTGOING":         "NODE",
     "W-XML-GW-AMBIGUOUS":        "NODE",
-    "W-XML-NODE-UNASSIGNED":     "NODE",
+    # T-990: renamed from W-XML-NODE-UNASSIGNED when T-891 promoted it to an ERROR; the old row
+    # named a rule the validator no longer emits. Location names the node itself.
+    "E-XML-NODE-UNASSIGNED":     "NODE",
     "W-XML-PGW-CONDITION":       "NODE",
     "W-XML-PGW-NOOP":            "NODE",
     "W-XML-PGW-UNBALANCED":      "NODE",
@@ -128,6 +130,12 @@ ANCHOR = {
     # finding is about the whole graph's shape, and the components are listed in the
     # message, not anchored. Unclassified here from the day it shipped.
     "W-XML-DISCONNECTED":        "DOC",
+    # T-990: classified from what each location names (validate-workflow.py), and WITNESSED by
+    # real documents: two of them had no document anywhere until T-990 added
+    # invalid/E-XML-LANE-AUTHORING-DEFAULT.bpmn and warn/W-XML-AUTHORITY-DEFAULT-MISMATCH.bpmn.
+    "E-XML-LANE-AUTHORING-DEFAULT":     "LANE",   # "lane '<id>'"
+    "E-XML-META-AUTHORITY":             "NODE",   # "node '<id>'"
+    "W-XML-AUTHORITY-DEFAULT-MISMATCH": "NODE",   # "node '<id>'"
 }
 
 GUTTERABLE = {"NODE", "LANE"}

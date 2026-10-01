@@ -211,6 +211,9 @@ PARITY = {
     # AUTHORITIES set, same absent-is-silent semantics), so the classification T-889 refused
     # to assert can be asserted. Gap #11 of the T-903 ledger closes here: 13 -> 12.
     "E-XML-META-AUTHORITY": (PAIRED, "E-META-AUTHORITY"),
+    # T-990: the YAML half of the pair above. The XML row already named it; the YAML row was never
+    # added, so this guard was red over a pairing it itself declared.
+    "E-META-AUTHORITY":     (PAIRED, "E-XML-META-AUTHORITY"),
     # T-890: GAP, not PAIRED, and the reason is the point — the YAML form has no
     # laneMeta authoringDefault at all, so asserting a counterpart would be the T-317
     # failure this harness exists to catch. T-889 set this precedent by classifying its

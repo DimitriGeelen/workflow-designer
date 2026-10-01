@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Flow node 'frw_2_b' is not listed in any lane's flowNodeRef set. WARN, not
-     fatal: the structure is valid, the node is just not placed in a lane. -->
+<!-- Flow node 'frw_2_b' is not listed in any lane's flowNodeRef set -> E-XML-NODE-UNASSIGNED
+     (ERROR). Was W-XML-NODE-UNASSIGNED (WARN) until T-891 promoted it: a node in no lane has no
+     authority-of-record (mapping-v1 section 3), so an owner cannot be derived. Refiled from warn/ to
+     invalid/ under T-990, because the suite reads the expected rule and exit code from the path. -->
 <bpmn:definitions
     xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
     xmlns:aef="http://anchorpoint.framework/aef/extensions">

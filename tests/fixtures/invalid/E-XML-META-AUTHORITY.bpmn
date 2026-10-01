@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-990 witness: task 'a' declares its own authority="overlord", outside the AUTHORITIES
+     vocabulary -> E-XML-META-AUTHORITY (ERROR). No document in the tree exercised this rule before.
+     The lane declares no authoringDefault, so the default-mismatch rule cannot fire as well. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions" id="D_t990c">
+  <bpmn:process id="P_t990c">
+    <bpmn:extensionElements><aef:workflowMeta id="t990c" version="1" schemaVersion="2"/></bpmn:extensionElements>
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="agt" name="Agent">
+        <bpmn:extensionElements><aef:laneMeta authority="initiative"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>s</bpmn:flowNodeRef><bpmn:flowNodeRef>a</bpmn:flowNodeRef><bpmn:flowNodeRef>e</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="s"><bpmn:extensionElements><aef:uid value="u_s"/></bpmn:extensionElements></bpmn:startEvent>
+    <bpmn:serviceTask id="a"><bpmn:extensionElements><aef:uid value="u_a"/><aef:meta authority="overlord"/></bpmn:extensionElements></bpmn:serviceTask>
+    <bpmn:endEvent id="e"><bpmn:extensionElements><aef:uid value="u_e"/></bpmn:extensionElements></bpmn:endEvent>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="a"><bpmn:extensionElements><aef:uid value="u_f1"/></bpmn:extensionElements></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f2" sourceRef="a" targetRef="e"><bpmn:extensionElements><aef:uid value="u_f2"/></bpmn:extensionElements></bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

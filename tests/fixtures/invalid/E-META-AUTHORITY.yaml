@@ -1,0 +1,34 @@
+# T-990 witness: node n_a declares its own aef authority 'overlord', outside the AUTHORITIES
+# vocabulary -> E-META-AUTHORITY (ERROR). No document in the tree exercised this rule before;
+# otherwise this is the clean split/merge map from valid/gw-converging.workflow.yaml.
+workflowMeta:
+  id: t990-meta-authority
+  version: 1
+  schemaVersion: 2
+
+pool:
+  id: Pool_gw_converging
+  name: gw-converging
+
+lanes:
+  - id: agent
+    name: "Agent - Initiative"
+    abbr: agt
+    authority: initiative
+    height: 160
+
+nodes:
+  - { uid: n_s,     type: startEvent,       name: Start,  lane: agent, x: 100, y: 60 }
+  - { uid: n_split, type: exclusiveGateway, name: "Which?", lane: agent, x: 200, y: 60 }
+  - { uid: n_a,     type: serviceTask,      name: A,      lane: agent, x: 300, y: 20, aef: { authority: overlord } }
+  - { uid: n_b,     type: serviceTask,      name: B,      lane: agent, x: 300, y: 100 }
+  - { uid: n_merge, type: exclusiveGateway, name: Merge,  lane: agent, x: 420, y: 60 }
+  - { uid: n_e,     type: endEvent,         name: End,    lane: agent, x: 520, y: 60 }
+
+edges:
+  - { uid: e_1, source: n_s,     target: n_split }
+  - { uid: e_2, source: n_split, target: n_a, condition: "case a" }
+  - { uid: e_3, source: n_split, target: n_b, condition: "case b" }
+  - { uid: e_4, source: n_a,     target: n_merge }
+  - { uid: e_5, source: n_b,     target: n_merge }
+  - { uid: e_6, source: n_merge, target: n_e }

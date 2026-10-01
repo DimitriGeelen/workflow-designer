@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-990 witness: lane 'agt' declares authoringDefault="overlord", outside the AUTHORITIES
+     vocabulary -> E-XML-LANE-AUTHORING-DEFAULT (ERROR). Nothing in the tree exercised this rule
+     before (the anchorability and check-pass guards both listed it as never seen firing);
+     everything else here is deliberately clean so the finding can only be this rule's.
+     Named .bpmn because the anchorability guard walks .bpmn documents only (T-926). -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions" id="D_t990a">
+  <bpmn:process id="P_t990a">
+    <bpmn:extensionElements><aef:workflowMeta id="t990a" version="1" schemaVersion="2"/></bpmn:extensionElements>
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="agt" name="Agent">
+        <bpmn:extensionElements><aef:laneMeta authority="initiative" authoringDefault="overlord"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>s</bpmn:flowNodeRef><bpmn:flowNodeRef>a</bpmn:flowNodeRef><bpmn:flowNodeRef>e</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="s"><bpmn:extensionElements><aef:uid value="u_s"/></bpmn:extensionElements></bpmn:startEvent>
+    <bpmn:serviceTask id="a"><bpmn:extensionElements><aef:uid value="u_a"/></bpmn:extensionElements></bpmn:serviceTask>
+    <bpmn:endEvent id="e"><bpmn:extensionElements><aef:uid value="u_e"/></bpmn:extensionElements></bpmn:endEvent>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="a"><bpmn:extensionElements><aef:uid value="u_f1"/></bpmn:extensionElements></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f2" sourceRef="a" targetRef="e"><bpmn:extensionElements><aef:uid value="u_f2"/></bpmn:extensionElements></bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>
