@@ -88,6 +88,53 @@ Time-box: S1 + S2 one session; S3 one session.
   and name the lesson and its destination (guide / rubric / validator / none) for every finding.
   That last field is the feedback path: the loop writes its own learnings.
 
+### S1 result (2026-10-01, 21:41-21:45)
+
+- Round 0: Codex generated in 85 s. Validator: 0 errors, 9 warnings, 1 note: the honest end
+  state of guide §5 (unknown order, unknown owner, source-word branch labels, geometry skip).
+- Round 1: GLM reviewed and returned **zero findings**. The loop stopped.
+- **Audited, not trusted:** 23 elements quote the source verbatim (checked by script: 0 misquotes),
+  4 are declared `unstated` with honest reasons (unknown rejection performer, the post-shipment
+  parallel split/join, the fulfilled end event), 0 lack a citation. The reviewer's log shows it
+  read the map, the source, the rubric, the guide and the checklist, and ran the validator plus
+  its own checks. So "clean" is plausible, not vacuous.
+
+**What S1 does to the hypothesis.** The hypothesis measures the loop by "fewer than half the
+corrections in round 2". With 0 corrections in round 1 that measure is undefined: the guide
+revisions from T-975 had already removed the defects this source provokes, so this source no
+longer exercises the loop. A clean review is only evidence if the reviewer is known to CATCH
+defects, so S1 is followed by a sensitivity test (below) before anything is concluded.
+
+### S1b — reviewer sensitivity: three planted defects
+
+Copy of the S1 map with three known defects, reviewed by GLM alone with the same brief and rubric:
+1. **wrong-authority:** the Warehouse lane (a human department) set to `authority` (automated);
+2. **undeclared-unknown:** quality inspection wired between picking and packing, though the
+   source says the order is unknown;
+3. **invented + citation:** a "Send payment reminder" step in the ERP lane with a fabricated
+   citation (`"The ERP sends a payment reminder after seven days."`).
+
+The validator accepts all three: 0 errors, and **fewer** warnings than the honest map (7 vs 9),
+because wiring inspection into the flow silenced its unreachable/dead-end warnings. The
+deterministic floor not only misses these defects; one of them makes the map look better to it.
+
+**S1b result:** GLM returned 4 findings and caught **all 3** planted defects, with **0 false
+positives** (every finding is on a planted defect): `invented` + `citation` on the payment
+reminder ("fabricates a verbatim-looking quote ... that appears nowhere in the source"),
+`undeclared-unknown` on the wired-in inspection, `wrong-authority` on the warehouse. So S1's
+clean review is credible: this reviewer finds what is there.
+
+**First learning produced by the loop itself:** it rated the wrong authority **minor**. Authority
+decides who owns the work, so a human department marked automated changes what compiles. Rubric
+v2 makes `wrong-authority`, `invented` and `undeclared-unknown` always major. Destination: rubric.
+
+### S2 — a harder source: the healing loop
+
+S1's source no longer exercises the loop (round 1 was clean). S2 uses a real framework document:
+`.agentic-framework/agents/healing/AGENT.md` (160 lines, 641 words of procedure mixed with
+explanation), with an independent reference map in our corpus (`healing-loop.bpmn`, 11 nodes,
+built from `healing.sh`). Same generator, reviewer and driver; rubric v2.
+
 ## 4b. The second feedback source: human edits
 
 > **Operator:** *"There can also be feedback from human. So when a human changes something,
