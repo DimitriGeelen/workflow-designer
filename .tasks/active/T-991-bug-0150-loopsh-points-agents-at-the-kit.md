@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T22:03:30Z
-last_update: 2026-10-01T22:03:30Z
+last_update: 2026-10-01T22:09:21Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -67,10 +67,19 @@ date_finished: null
       has to read outside its working directory.
 - [x] A test leg fails if any prompt loop.sh hands an agent names a path outside that agent's
       working directory (the stub tests missed this because stubs have no sandbox).
-- [ ] The REAL calibration (GLM via opencode, the case that failed) reaches a verdict on the
+- [x] The REAL calibration (GLM via opencode, the case that failed) reaches a verdict on the
       fixed kit, and that verdict is recorded.
-- [ ] Recorded in the learning ledger (source: loop, destination: the kit tooling), and Evergreen,
+- [x] Recorded in the learning ledger (source: loop, destination: the kit tooling), and Evergreen,
       who just received 0.15.0, is told about the defect and the fix.
+
+**Evidence (real runs, GLM-5.2 via opencode, sandboxed):**
+1. Released 0.15.0 kit: COULD NOT MEASURE ("external_directory ... auto-rejecting").
+2. Sandbox fix: the reviewer read ./kit/ and reviewed both maps, but the tool said FAIL for a
+   reviewer that had caught all three: my planting artefacts (a flow id lying about its target,
+   five stale incoming/outgoing refs) and exact node+category scoring. Both fixed.
+3. Corrected set: **CALIBRATION: PASS, 3/3 caught, 0 false findings (clean and unplanted), all major.**
+Test leg 9 fails on the 0.15.0 loop.sh. Ledger: L5, L6 proposed (destination tooling).
+Evergreen told at offset 14 with a workaround.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -230,6 +239,10 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+python3 tests/test_t983_review_loop_kit.py
+python3 tests/test_t974_authoring_kit.py
+python3 tools/learning-ledger.py check
 
 ## RCA
 
