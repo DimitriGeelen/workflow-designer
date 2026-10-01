@@ -2913,3 +2913,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-470
+  text: "How to actually reach Ring20 Manager (diagnosed under T-979, extends OBS-469): it does NOT read sidecar inboxes. inbox:cacc73ea32b121dd/proxmox-ring20-management contains only our 3 posts, ever. Live listeners (notify-sidecar.sh) exist only for claude-termlink, framework-agent-systemd, claude-termlink-alt: none for 832 or Ring20, so fw sidecar 'INJECTED_NOW, delivered:true' proves nothing about being read. Ring20's identity fingerprint is 9219671e28054458 (it signs receipts as proxmox-ring20-management). Local projects share host fingerprint d1993c2c3ec44c94 and talk to it on dm:9219671e28054458:d1993c2c3ec44c94 with a '[<project> -> ring20-manager]' prefix: send with 'termlink channel dm 9219671e28054458 --send ...'. Watch for replies by SENDER FINGERPRINT, not text: a text filter matched our own request on first poll."
+  captured: 2026-10-01T19:01:08Z
+  context_task: T-979
+  tags: []
+  status: pending
+  promoted_to: null
