@@ -46,7 +46,12 @@ run. Neither means the map is clean.
 - **`<aef:uid value="…"/>`** on every node and every sequence flow, **derived from the source's
   own identity** (a requirement id, an ontology IRI, a step's stable key), never from a counter
   or a random value. A uid that changes when you regenerate makes every regeneration a new map,
-  and the round trip loses its history.
+  and the round trip loses its history. **When the source has no ids** (interview notes, prose),
+  mint a semantic key from the step's own wording, lowercase and hyphenated
+  (`check-credit-limit`), and a flow's uid from its endpoints
+  (`check-credit-limit--decide-override`). Keep a key once published, even if the step's display
+  name changes later: the key is identity, the name is presentation. Two steps that would get the
+  same key are a sign that the source names one step twice, so look before you suffix one.
 - Plain `<task>` is accepted, as are `userTask`, `serviceTask` and `scriptTask`.
 
 ## 3. What a lane is, and which authority it gets
@@ -108,6 +113,11 @@ source does not say. Removing them by changing the map is fabrication.
 |---|---|
 | the order of N unplaced steps | 1 × `W-XML-DISCONNECTED`, plus per step 1 × `W-XML-UNREACHABLE` and 1 × `W-XML-DEADEND` |
 | who performs a step | 1 × `W-LANE-NO-OWNER` per task in the `none` lane |
+| an executable branch condition (you labelled branches in the source's words, section 4) | 1 × `W-XML-GW-AMBIGUOUS` per such gateway. DIALECT-RELATIVE: a branch label is a standard-admitted condition carrier |
+| geometry (you chose the geometry-free layout, section 7) | 1 × `I-XML-LANE-GEOMETRY-SKIP`, an INFO note, not a warning |
+
+The rule against inventing outranks every finding here. "The validator wins" (top of this
+guide) is about what the validator **checks**, never permission to make up a fact to satisfy it.
 
 The current wording of the first two messages overstates. `W-XML-DISCONNECTED` speaks of
 "independent processes" and `W-XML-DEADEND` of control that "never terminates". On an honest
@@ -132,7 +142,9 @@ Positions are presentational: they never change what a map means. They do decide
 human can read it.
 
 - **Either** emit `aef:position` per node, as the exemplar does: left to right in flow order,
-  each node inside its own lane's band. The lane geometry and capacity rules then check you.
+  each node inside its own lane's band. The validator then checks that lanes are in the declared
+  order and that each lane's height holds its members. It does not check that the result reads
+  well.
 - **Or** emit no geometry at all, and **write the flow elements in flow order** in the file. The
   designer lays out an unpositioned map in document order; it does not yet layer by flow. A map
   whose end event comes first in the file is drawn with the end first.

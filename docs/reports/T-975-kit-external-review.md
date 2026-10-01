@@ -151,6 +151,30 @@ behave (C7, X5, G9); layout, measured (C6, G10); what is NOT checked (X4, G5).
 `CONFORMANCE.md` gains the intake rules (X8, G7). Validator: plain-task occupancy (X6/G4).
 New tasks: T-976 layout, T-977 XOR merge, T-978 message prose.
 
+### 3.5 Round 2 — a FRESH Codex session on the revised kit, same source
+
+The test of a revision is whether a new reader guesses less, not whether the reviewers' points
+were addressed. Same source and brief (stray `.` removed), new session, revised kit.
+
+- **Governance guesses gone.** Round 1 guessed what a lane is, ERP's authority, kind,
+  isExecutable, and event placement. Round 2 guessed none of those. It mapped ERP to
+  `authority`, agreeing with GLM, so the round-1 divergence closed. Guess count 9 -> 7 by hand
+  (a regex count read 0 because the report used a different heading level; not reported as 0).
+- **What remains is the SOURCE's ambiguity** ("after shipment" = after collection?), which no
+  guide can remove and which it annotated rather than resolved. Plus one real gap: uid minting for
+  prose sources.
+- Still invented nothing; same honest finding set, plus 2 × W-XML-GW-AMBIGUOUS from branches
+  labelled in the source's words, exactly as §4 told it to.
+
+| # | round-2 point | disposition |
+|---|---|---|
+| R1 | §5 stopping table omits W-XML-GW-AMBIGUOUS, which §4's "label in source words" produces: self-contradiction | **folded**: §5 row + "never invent to satisfy the validator" |
+| R2 | geometry-free layout yields I-XML-LANE-GEOMETRY-SKIP, absent from §5 | **folded**: §5 row |
+| R3 | "derive uid from source identity" is impossible for prose | **folded**: semantic-key rule in §2 |
+| R4 | "a downstream compiler must invent one" prescribes the wrong thing; "sole authority" contradicts element precedence | **added to T-978** (message prose) |
+| R5 | CONFORMANCE calls E-XML-GW-OUTGOING UNIVERSAL while the guide calls it a limitation | **T-977**: the rule is wrong, so its class is wrong with it |
+| R6 | "inside its lane's band" overstates what geometry checks verify | **folded**: §7 states what is and is not checked |
+
 Independent agreement with my pre-written critique: C2, C3, C4, C5, C6 all re-found. New to me:
 X1, X2, X4, X5, X6, X7, X8. **Two are real validator defects (X6, X7)**, found by an outside
 agent using the kit for its intended job, which is the strongest argument for this method.

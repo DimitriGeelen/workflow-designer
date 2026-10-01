@@ -51,18 +51,24 @@ available stand-in for the .132 trial, and it is cheaper to fail.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] My own critique of `AUTHORING.md` is written down BEFORE any external review arrives, so
-      the reviews can be compared against it rather than absorbed into it.
-- [ ] The kit (built from the tree, not described) is sent to three external review agents with
+- [x] My own critique of `AUTHORING.md` is written down BEFORE any external review arrives, so
+      the reviews can be compared against it rather than absorbed into it. *(commit 0dee892d,
+      before either reply.)*
+- [x] The kit (built from the tree, not described) is sent to three external review agents with
       one identical brief: act as a generating agent with a source and only this kit, and say
-      what you would still have to guess.
-- [ ] Each reply is recorded verbatim-in-substance in `docs/reports/T-975-kit-external-review.md`
+      what you would still have to guess. *(Codex, GLM, Vibe; each in its own workspace.)*
+- [x] Each reply is recorded verbatim-in-substance in `docs/reports/T-975-kit-external-review.md`
       with a disposition per point: folded into the guide, rejected with the reason, or deferred
-      to a named task. Nothing is silently dropped.
-- [ ] Changes land in `docs/authoring-kit/AUTHORING.md`, and `tests/test_t974_authoring_kit.py`
-      stays green (every rule the guide names still exists).
-- [ ] If fewer than three reviewers answer, the report says how many did and which did not,
-      rather than presenting a partial panel as a full one.
+      to a named task. Nothing is silently dropped. *(X1-X12, G1-G10, R1-R6.)*
+- [x] Changes land in `docs/authoring-kit/AUTHORING.md`, and `tests/test_t974_authoring_kit.py`
+      stays green (every rule the guide names still exists). *(16/16.)*
+- [x] If fewer than three reviewers answer, the report says how many did and which did not,
+      rather than presenting a partial panel as a full one. *(§3.3: Mistral rate-limited, 2 of 3.)*
+
+**Outcome beyond the ACs:** a fresh Codex session on the revised kit had no governance guesses
+left (round 1: both reviewers had them). Two real validator defects found by outsiders using the
+kit for its job: plain-task occupancy (fixed here) and the refused XOR merge (T-977). Plus T-976
+(layout is not flow-aware) and T-978 (finding messages overstate), both product fixes.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -222,6 +228,11 @@ available stand-in for the .132 trial, and it is cheaper to fail.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+python3 tests/test_t974_authoring_kit.py
+grep -q "honest end state" docs/authoring-kit/AUTHORING.md
+grep -q "2 of 3 answered\|Two of three reviewers answered" docs/reports/T-975-kit-external-review.md
+python3 -c "import importlib.util as u;s=u.spec_from_file_location('v','tools/validate-workflow.py');m=u.module_from_spec(s);s.loader.exec_module(m);assert m.NODE_OCCUPANCY['task']==m.NODE_OCCUPANCY['serviceTask']"
 
 ## RCA
 
