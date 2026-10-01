@@ -1,0 +1,11 @@
+{
+  "about": "Calibration set for loop.sh --calibrate (T-983). SOURCE.md is synthetic interview notes. clean.bpmn is a map an agent generated from it that two reviewers and an audit found faithful (T-982 S1). planted.bpmn is clean.bpmn with three known defects. A calibrated reviewer catches all three and reports nothing on clean.bpmn. Measured with GLM-5.2 on 2026-10-01: 3/3 caught, 0 false findings (T-982 S1b; the warehouse finding was rated minor, which rubric v3 now forbids).",
+  "planted": [
+    {"element": "send-payment-reminder", "category": "invented",
+     "defect": "a payment-reminder step the source never mentions, with a fabricated citation"},
+    {"element": "quality-inspection", "category": "undeclared-unknown",
+     "defect": "wired between picking and packing, though the source says its order is unknown"},
+    {"element": "Lane_warehouse", "category": "wrong-authority",
+     "defect": "a human department marked authority (automated) instead of sovereignty"}
+  ]
+}
