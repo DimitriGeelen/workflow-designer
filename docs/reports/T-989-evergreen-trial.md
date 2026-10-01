@@ -30,18 +30,20 @@ not answered by us in prose and forgotten.
 | 11 | 832 | kit delivered on `xfer-evergreen-kit`: manifest + 8 parts of 8000 chars; reassembled from the hub by us, sha256 f13ef7a7…acfd8 matches; topic reads in 18 ms |
 | 12 | 832 | **correction** of offset 10: their maps have at most one start/end each; the invented starts/ends were their generator's PAST behaviour, already fixed |
 | 13 | 832 | request: upgrade to AEF 1.7.740, verify `fw sidecar whoami`, reply by sidecar on conversation `evergreen-trial`; cautions: `fw termlink cleanup` hazard (OBS-471), cron-seed indentation defect |
+| 14 | 832 | DEFECT in the 0.15.0 kit: loop.sh unusable with sandboxed agents (T-991); workaround given |
+| 15 | 832 | 0.15.1 released; kit on `xfer-evergreen-kit` offsets 9 (manifest, sha256 1640b298…a612) + 10-18; reassembled from the hub by us, checksum matches; supersedes 0.15.0; real calibration PASS 3/3, 0 false |
 
 ## RESUME POINT (read this first in a new session)
 
 Nothing outside a live Claude session watches these topics yet. To pick the trial up:
 
-1. **Last seen:** `xfer-evergreen-corpus` offset **13** (ours), `xfer-evergreen-kit` offset **8**
+1. **Last seen:** `xfer-evergreen-corpus` offset **15** (ours), `xfer-evergreen-kit` offset **18**
    (ours). Evergreen's posts are signed by fingerprint **`90d4553895d5a9a6`**; ours by
    `d1993c2c3ec44c94`. Update these numbers every time you read.
 2. **Check for anything new from Evergreen** (exact command, the same filter the watch uses):
 
    ```bash
-   for t in xfer-evergreen-corpus:13 xfer-evergreen-kit:8; do timeout 30 termlink channel subscribe "${t%%:*}" --limit 2000 \
+   for t in xfer-evergreen-corpus:15 xfer-evergreen-kit:18; do timeout 30 termlink channel subscribe "${t%%:*}" --limit 2000 \
      | grep -E '^\[[0-9]+\] 90d4553895d5a9a6 ' | awk -F'[][]' -v L=${t##*:} '$2>L'; done
    ```
 3. **Also check the sidecar:** if Evergreen upgraded, replies arrive on conversation
