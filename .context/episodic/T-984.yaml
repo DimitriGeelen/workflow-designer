@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-984: B2 (T-982): learning ledger with a human promotion checkpoint, seeded with L1-L4
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T21:52:06Z
+# ============================================================================
+
+task_id: T-984
+task_name: "B2 (T-982): learning ledger with a human promotion checkpoint, seeded with L1-L4"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T20:52:28Z
+completed: 2026-10-01T21:51:54Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-01T23:51:52+02:00
+last_commit: 2026-10-01T23:51:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  learning ledger with the human checkpoint — L1-L4 promoted, L3 into the guide, L4 reported to AEF
+
+# Key outcomes
+outcomes:
+  - '`docs/learning-ledger.yaml` holds every learning with: id, the learning, evidence, source'
+  - '`tools/learning-ledger.py` can `ingest` a loop run''s `corrections.rN.json` (each lesson'
+  - '`check` enforces the checkpoint: nothing is `promoted` without first being `confirmed`, and'
+  - 'L3 is promoted into `AUTHORING.md` and L4 is reported to AEF; both confirmed by the'
+  - 'A test covers ingest (new + repeated lesson), the checkpoint refusals, and a promotion whose'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/learning-ledger.yaml'
+  - 'docs/reports/T-989-evergreen-trial.md'
+  - '.fabric/components/tests-test_t984_learning_ledger.yaml'
+  - '.fabric/components/tools-learning-ledger.yaml'
+  - '.tasks/active/T-984-b2-t-982-learning-ledger-with-a-human-pr.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t984_learning_ledger.py'
+  - 'tools/learning-ledger.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T23:51:52'
+    action: 'T-984: learning ledger with the human checkpoint — L1-L4 promoted, L3 into the guide, L4 reported to AEF'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 59 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 59
+  commits: 1
+  files_changed: 9
+  lines_added: 429
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-984-b2-t-982-learning-ledger-with-a-human-pr.md
+generated_by: context-agent-hybrid
