@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-991: Bug: 0.15.0 loop.sh points agents at the kit outside their workdir; sandboxed agents (opencode) refuse to read it, so the loop and calibration cannot run
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T22:15:42Z
+# ============================================================================
+
+task_id: T-991
+task_name: "Bug: 0.15.0 loop.sh points agents at the kit outside their workdir; sandboxed agents (opencode) refuse to read it, so the loop and calibration cannot run"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T22:03:30Z
+completed: 2026-10-01T22:15:30Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-02T00:06:45+02:00
+last_commit: 2026-10-02T00:15:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  loop.sh stages the kit inside each agent's workdir — sandboxed agents could not read the 0.15.0 kit. calibration set and scoring fixed after the real run said FAIL for a reviewer that caught all three. real calibration PASS on the corrected kit (GLM sandboxed: 3/3 caught, 0 false findings, all major). RCA recorded
+
+# Key outcomes
+outcomes:
+  - '`loop.sh` copies the kit files an agent needs into `<workdir>/kit/` and every prompt names'
+  - 'A test leg fails if any prompt loop.sh hands an agent names a path outside that agent''s'
+  - 'The REAL calibration (GLM via opencode, the case that failed) reaches a verdict on the'
+  - 'Recorded in the learning ledger (source: loop, destination: the kit tooling), and Evergreen,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'calibration set and scoring fixed after the real run said FAIL for a reviewer that caught all three'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/authoring-kit/calibration/expected.json'
+  - 'docs/authoring-kit/calibration/planted.bpmn'
+  - 'docs/authoring-kit/loop.sh'
+  - 'docs/learning-ledger.yaml'
+  - '.tasks/active/T-991-bug-0150-loopsh-points-agents-at-the-kit.md'
+  - 'tests/test_t983_review_loop_kit.py'
+  - 'tools/build-authoring-kit.py'
+  - 'tools/learning-ledger.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-02T00:06:45'
+    action: 'T-991: loop.sh stages the kit inside each agent''s workdir — sandboxed agents could not read the 0.15.0 kit'
+  - time: '2026-10-02T00:10:18'
+    action: 'T-991: calibration set and scoring fixed after the real run said FAIL for a reviewer that caught all three'
+  - time: '2026-10-02T00:15:09'
+    action: 'T-991: real calibration PASS on the corrected kit (GLM sandboxed: 3/3 caught, 0 false findings, all major)'
+  - time: '2026-10-02T00:15:29'
+    action: 'T-991: RCA recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 12 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 12
+  commits: 4
+  files_changed: 8
+  lines_added: 491
+  lines_removed: 87
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-991-bug-0150-loopsh-points-agents-at-the-kit.md
+generated_by: context-agent-hybrid
