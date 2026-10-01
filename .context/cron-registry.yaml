@@ -67,3 +67,15 @@ jobs:
     origin_task: T-917
     status: active
     description: "Reports how old the bridge suite's last run is and how long it has been red, from tests/.run-history.tsv. Exits 3 when there is NO history, which is the F-03 condition and is deliberately not reported as zero failures. Reads only; it does not run the suite. T-917 chose the MONITOR over the suite itself: the suite takes 650-1045s, spawns a browser per CDP probe, has been red for all 12 recorded runs, gets SIGTERMed near 600s, and has twice exited 0 while reporting 9 failures (OBS-430). Scheduling that would manufacture either a permanently-red rail or a false green; scheduling this surfaces the same fact in milliseconds, deterministically."
+
+  # T-981: the consumer sweep job from AEF lib/cron-seed.sh (T-3673), added by hand with this
+  # registry's indentation: cron_seed_ensure_jobs appends at column 0 and refuses an indented
+  # jobs list (it printed ADDED, then failed its own parse check and wrote nothing).
+  - id: sidecar-sweep-5m
+    name: Sidecar ack-ledger sweep (5 min)
+    schedule: '3,8,13,18,23,28,33,38,43,48,53,58 * * * *'
+    command: flock -n /var/lock/agentic-cron-sidecar-sweep-5m-832-workflow-designer.lock -c 'fw sidecar sweep'
+    source_file: agentic-audit.crontab
+    origin_task: T-3673
+    status: active
+    description: "Walks the peer-consult ack ledger and escalates unacked consults (T-3418, T-3673). Without this job unacked consults never escalate."

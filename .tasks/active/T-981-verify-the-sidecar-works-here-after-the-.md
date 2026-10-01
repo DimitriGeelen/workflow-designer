@@ -1,13 +1,19 @@
 ---
 id: T-981
-name: "Verify the sidecar works here after the bleeding-edge upgrade (T-980 hypothesis): whoami, hook installed and non-empty, live AEF round trip, no override"
+name: "Verify the sidecar works here after the bleeding-edge upgrade (T-980 hypothesis):
+  whoami, hook installed and non-empty, live AEF round trip, no override"
 description: >
-  T-980 GO: fixes land upstream (AEF D1-D4, TermLink D5-D6). After the next bleeding-edge AEF upgrade, measure in this project with NO FRAMEWORK_ROOT override: fw sidecar whoami prints 832-Workflow-designer; .claude/settings.json carries the sidecar-inbox UserPromptSubmit hook; the hook prints a non-empty block when the inbox holds >=1 consult; a consult to 999-Agentic-Engineering-Framework gets a reply visible in fw sidecar inbox. If any fails, reopen with AEF citing docs/reports/T-980-sidecar-rca.md.
+  T-980 GO: fixes land upstream (AEF D1-D4, TermLink D5-D6). After the next bleeding-edge
+  AEF upgrade, measure in this project with NO FRAMEWORK_ROOT override: fw sidecar
+  whoami prints 832-Workflow-designer; .claude/settings.json carries the sidecar-inbox
+  UserPromptSubmit hook; the hook prints a non-empty block when the inbox holds >=1
+  consult; a consult to 999-Agentic-Engineering-Framework gets a reply visible in
+  fw sidecar inbox. If any fails, reopen with AEF citing docs/reports/T-980-sidecar-rca.md.
 
-status: captured
+status: started-work
 workflow_type: test
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +28,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T19:25:02Z
-last_update: 2026-10-01T19:25:02Z
-date_finished: null
+last_update: 2026-10-01T21:33:12Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +40,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-01T21:33:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 2
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (L0: no signal); F3=2 (L2:keyword=termlink);
+      F1=1 (L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-981: Verify the sidecar works here after the bleeding-edge upgrade (T-980 hypothesis): whoami, hook installed and non-empty, live AEF round trip, no override
@@ -46,8 +70,15 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] With NO `FRAMEWORK_ROOT` override, `fw sidecar whoami` prints `832-Workflow-designer` (D1).
+- [ ] `.claude/settings.json` carries the `sidecar-inbox` UserPromptSubmit hook (D2), and it prints
+      a non-empty pending-consult block when the inbox holds at least one consult (D3).
+- [ ] The consumer sweep job `sidecar-sweep-5m` is in `.context/cron-registry.yaml` and in the
+      generated crontab (D4); installing it into `/etc/cron.d` is the operator's step (host state),
+      handed over as a `runme.sh`.
+- [ ] A consult sent to 999-Agentic-Engineering-Framework gets a reply that `fw sidecar inbox`
+      shows here, or the task records that AEF has not yet replied and stays open on that one
+      criterion rather than closing on three of four.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -304,3 +335,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-981-verify-the-sidecar-works-here-after-the-.md
 - **Context:** Initial task creation
+
+### 2026-10-01T21:33:12Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

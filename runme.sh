@@ -1,24 +1,18 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  T-987 — CUT RELEASE 0.15.0: the designer + the authoring kit (with the review loop)
-#  Run with:   bash /opt/832-Workflow-designer/runme.sh 0.15.0
-#  Dry run:    bash /opt/832-Workflow-designer/runme.sh 0.15.0 --dry-run
+#  T-981 — INSTALL THE SIDECAR SWEEP JOB INTO /etc/cron.d
+#  Run with:   bash /opt/832-Workflow-designer/runme.sh
+#  Dry run:    bash /opt/832-Workflow-designer/runme.sh --dry-run
 # =============================================================================
 #
-#  WHAT THIS DOES, each step confirmed separately, stopping at the first failure:
-#    1. scripts/release-designer.sh: writes dist/aef-workflow-designer-0.15.0.html, the
-#       authoring kit dist/aef-authoring-kit-0.15.0/, and MANIFEST.yaml; runs the render gate
-#       (ON); announces the release on the hub rail.
-#    2. commits exactly those dist/ paths as the release commit.
-#    3. creates the annotated tag designer-v0.15.0 on that commit.
-#    4. pushes bleeding-edge and the tag to origin.
-#  Same pattern as 0.14.0 (tag on the bleeding-edge release commit). master is NOT advanced
-#  here; that remains a separate decision. Notes: docs/releases/RELEASE-NOTES-0.15.0.md
+#  WHAT THIS DOES: installs this project's generated crontab (.context/cron/agentic-audit.crontab)
+#  into /etc/cron.d via `fw cron install`. The only change is ONE added job, sidecar-sweep-5m: it
+#  walks the peer-consult ack ledger every 5 minutes and escalates messages nobody acknowledged.
+#  Without it (T-980 D4) an unread consult from this project never escalates. The job came from
+#  AEF's lib/cron-seed.sh (T-3673); upgrade could not add it here (it appends at column 0 and our
+#  registry indents), so the agent added it to the registry by hand and regenerated the crontab.
 #
-#  THE VERSION IS YOUR ARGUMENT (G-007): the script refuses without it or if it differs from
-#  ./VERSION. THE AGENT DOES NOT RUN THIS: a release is a promise over immutable bytes, a tag
-#  and a push are outward, and check-tier0.sh cannot see commands inside a script (OBS-449).
-#  The agent ran --dry-run only.
+#  THE AGENT DOES NOT RUN THIS: /etc/cron.d is host state. The agent ran the dry run only.
 # =============================================================================
 [ -z "${BASH_VERSION:-}" ] && exec bash "$0" "$@"
 set -uo pipefail
@@ -28,64 +22,31 @@ TS=$(date +%Y%m%dT%H%M%S)
 LOG="$PROJ/.context/working/runme-$TS.log"
 mkdir -p "$PROJ/.context/working" && touch "$LOG" || { echo "cannot write log $LOG"; exit 1; }
 exec > >(tee -a "$LOG") 2>&1
-echo "runme.sh T-987 started $TS  log: $LOG"
+echo "runme.sh T-981 started $TS  log: $LOG"
 
 fail() { echo "STOPPED: $*"; echo "rc=1  (log: $LOG)"; exit 1; }
-confirm() { local a; read -r -p "$1 [y/N] " a </dev/tty || a=n; [ "$a" = y ] || [ "$a" = Y ]; }
-
-V="${1:-}"; DRY=0; [ "${2:-}" = "--dry-run" ] && DRY=1
-[ -n "$V" ] || fail "pass the version as the first argument, e.g.  bash $0 0.15.0"
+DRY=0; [ "${1:-}" = "--dry-run" ] && DRY=1
+FW="$PROJ/.agentic-framework/bin/fw"
 cd "$PROJ" || fail "project dir missing"
-TAG="designer-v$V"
-ART="dist/aef-workflow-designer-$V.html"
-KIT="dist/aef-authoring-kit-$V"
 
-# --- preflight: each check says what it proves; nothing is written before all pass ---
-[ "$(tr -d '[:space:]' < VERSION)" = "$V" ] || fail "./VERSION is '$(tr -d '[:space:]' < VERSION)', not '$V'"
-echo "ok  ./VERSION is $V"
-bash tools/_t808-version-parity.sh >/dev/null || fail "APP_VERSION in src does not match VERSION"
-echo "ok  APP_VERSION matches VERSION"
-[ "$(git rev-parse --abbrev-ref HEAD)" = "bleeding-edge" ] || fail "not on bleeding-edge"
-echo "ok  on bleeding-edge"
-git diff --quiet HEAD -- VERSION src/aef-workflow-designer.html scripts/release-designer.sh tools/build-authoring-kit.py docs/authoring-kit tools/validate-workflow.py \
-  || fail "uncommitted changes in files the release is built from; commit them first"
-echo "ok  the release inputs are committed"
-git rev-parse -q --verify "refs/tags/$TAG" >/dev/null && fail "tag $TAG already exists locally"
-git ls-remote --exit-code --tags origin "$TAG" >/dev/null 2>&1 && fail "tag $TAG already exists on origin"
-echo "ok  tag $TAG does not exist (local or origin)"
-[ -e "$ART" ] && fail "$ART already exists: $V may already be cut"
-[ -e "$KIT" ] && fail "$KIT already exists"
-echo "ok  no $V artifact or kit in dist/ yet"
+# --- preflight ---
+python3 -c "import yaml;d=yaml.safe_load(open('.context/cron-registry.yaml'));assert any(j['id']=='sidecar-sweep-5m' for j in d['jobs'])" \
+  || fail "the registry does not parse or lacks sidecar-sweep-5m"
+echo "ok  registry parses and carries sidecar-sweep-5m"
+grep -q 'sidecar sweep' .context/cron/agentic-audit.crontab || fail "generated crontab lacks the sweep line: run $FW cron generate"
+echo "ok  generated crontab carries the sweep line"
+"$FW" cron install --dry-run > "$PROJ/.context/working/.runme-cron-dry.txt" 2>&1 || fail "fw cron install --dry-run failed"
+ADDED=$(grep -c '^  +[0-9]' "$PROJ/.context/working/.runme-cron-dry.txt"); REMOVED=$(grep -c '^  -[0-9]' "$PROJ/.context/working/.runme-cron-dry.txt")
+echo "ok  install diff: $ADDED job line(s) added, $REMOVED removed"
+[ "$REMOVED" -eq 0 ] || fail "the install would REMOVE job lines; read .context/working/.runme-cron-dry.txt first"
 
 echo
-echo "WILL RUN:"
-echo "  1. scripts/release-designer.sh          (render gate ON, announce ON)"
-echo "  2. git commit $ART $KIT dist/MANIFEST.yaml"
-echo "  3. git tag -a $TAG"
-echo "  4. git push origin bleeding-edge && git push origin $TAG"
+echo "WILL RUN:  $FW cron install"
 if [ "$DRY" = 1 ]; then echo; echo "DRY RUN: nothing written."; echo "rc=0  (log: $LOG)"; exit 0; fi
-
+read -r -p "Install the crontab into /etc/cron.d? [y/N] " a </dev/tty || a=n
+[ "$a" = y ] || [ "$a" = Y ] || fail "not confirmed, nothing written"
+"$FW" cron install || fail "fw cron install failed"
+grep -q 'sidecar sweep' /etc/cron.d/agentic-audit-832-workflow-designer || fail "installed, but the sweep line is not in /etc/cron.d"
 echo
-confirm "Step 1/4: cut release $V (writes dist/, announces)?" || fail "not confirmed at step 1; nothing written"
-scripts/release-designer.sh || fail "release-designer.sh failed (see above); dist/ may need a look"
-{ [ -f "$ART" ] && cmp -s src/aef-workflow-designer.html "$ART"; } || fail "$ART missing or differs from src"
-(cd "$KIT" && sha256sum -c SHA256SUMS --quiet) || fail "the kit does not verify against its SHA256SUMS"
-echo "ok  artifact == src, kit verifies"
-
-confirm "Step 2/4: commit the release files?" || fail "not confirmed at step 2; dist/ is written but NOT committed"
-git add "$ART" "$KIT" dist/MANIFEST.yaml || fail "git add failed"
-git commit -q -m "T-987: release designer $V — designer + authoring kit (review loop, calibration)" \
-  -m "Notes: docs/releases/RELEASE-NOTES-$V.md" || fail "commit failed"
-echo "ok  release commit $(git rev-parse --short HEAD)"
-
-SHA=$(sha256sum "$ART" | awk '{print $1}')
-confirm "Step 3/4: tag $TAG on $(git rev-parse --short HEAD)?" || fail "not confirmed at step 3; committed, NOT tagged"
-git tag -a "$TAG" -m "designer $V (sha256 $SHA) + authoring kit" || fail "tag failed"
-echo "ok  tagged $TAG"
-
-confirm "Step 4/4: push bleeding-edge and $TAG to origin?" || fail "not confirmed at step 4; tagged locally, NOT pushed"
-git push origin bleeding-edge || fail "push of bleeding-edge failed"
-git push origin "$TAG" || fail "push of $TAG failed"
-echo
-echo "DONE: release $V cut, committed, tagged $TAG and pushed."
+echo "DONE: sweep job installed; it first runs at the next :03/:08/:13/... minute."
 echo "rc=0  (log: $LOG)"
