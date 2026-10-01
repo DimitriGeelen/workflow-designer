@@ -307,6 +307,11 @@ NODE_OCCUPANCY = {
     "userTask": 64,
     "scriptTask": 64,
     "subProcess": 64,
+    # T-975 (Codex review X6): the third table T-970 missed when plain <task> became valid.
+    # The designer imports <task> as a FOREIGN node (src foreignDisplayTag -> serviceTask
+    # shape, tag re-emitted verbatim), so on the canvas it occupies exactly a serviceTask.
+    # Without this row every lane holding a plain task was SKIPPED by capacity checking.
+    "task": 64,
 }
 
 # src:6966 — the containment margin the Clean layout applies at BOTH edges. Used

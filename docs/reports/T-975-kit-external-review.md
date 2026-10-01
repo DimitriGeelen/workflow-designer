@@ -50,6 +50,26 @@ the reviewers and for the trial.
 **C8. When to split.** One map per process; an overview that names sub-processes should link
 them rather than inline them. Not covered.
 
+### C6 answered by measurement, and the answer inverted my draft
+
+Draft advice was going to be "emit no geometry; the designer lays the map out". Tested before
+writing it, by importing one Evergreen map with and without its BPMN DI (screenshots read, then
+deleted: their content is not ours to keep):
+
+- Import precedence is `aef:position` -> BPMN DI -> auto-layout (src:11442). Evergreen's
+  generator emitted DI (`BPMNShape` ×11 on bo-production, ×20 on primary, 0 `aef:position`),
+  so its own coordinates were used.
+- **With their DI the layout is reasonable** for that map: one row in flow order, orphans
+  below.
+- **With the DI stripped, the designer's layout is worse**: one row in DOCUMENT order (End_12 at
+  x=210, ahead of Assembly at x=300), boxes overlapping. ✨ Clean layout keeps document order;
+  it tidies rows, it does not layer by flow.
+
+So "omit geometry" would have been wrong advice. The product gap is ours: **the designer has no
+flow-aware layout**. Filed as **T-976**. Until it lands, the guide's honest advice is cheap and
+true: if you emit no geometry, write elements in flow order, because document order is what the
+import layout follows.
+
 ## 2. The external panel
 
 Brief, identical for each reviewer: act as a vendor's generating agent; given a synthetic source
@@ -67,4 +87,31 @@ guess, what the guide got wrong, and anything you were tempted to invent.
 
 ## 3. Replies and dispositions
 
-_(filled as replies arrive)_
+### 3.1 Codex (OpenAI) — completed; map + REPORT.md
+
+**What it did with the kit, which is itself the main result:** it invented nothing. Unknown
+performers (who handles a rejection; what AEF authority ERP automation has) were declared
+`authority="none"` rather than guessed. Inspection and labelling were left unconnected and
+annotated. It refused every temptation it listed: connecting the unordered steps, giving the
+rejection to sales, calling ERP `external` to silence a warning, marking the map documentation
+to reduce findings. Final map: 0 errors, 7 warnings, all honest. **"Derive, never invent"
+transferred.** What did not transfer is everything the guide leaves implicit.
+
+| # | Codex point | verified? | disposition |
+|---|---|---|---|
+| X1 | Guide says "lane is sole authority, lane wins", but the validator prefers an element's `aef:meta authority` over its lane (T-889) | yes, src `_check_iw9_authority` | **fold**: guide states the real precedence (element if declared, else lane) |
+| X2 | Unknown-order pattern also yields W-XML-UNREACHABLE + W-XML-DEADEND ×2 each, not just DISCONNECTED; DISCONNECTED's prose ("independent processes", "UNREACHABLE stays silent here") is false on this map; DEADEND's "control never terminates" overstates | yes, reproduced in its output | **fold** (guide lists all three) + **validator message fix**, new task |
+| X3 | CONFORMANCE says DISCONNECTED is UNIVERSAL while its own code comment calls it a convention | yes; already OBS-467 | **defer** to OBS-467 (axis model gap), noted in guide |
+| X4 | "Everything here is checkable" overpromises: uid presence, exactly-one lane membership, and workflowMeta field completeness are not checked | yes | **fold**: guide separates checked from unchecked requirements |
+| X5 | `kind="documentation"` gates no validator rule, so the guide's claim misleads | yes; kind-aware applicability is known-unbuilt (T-971 §4.2) | **fold**: guide says what kind does today (stops task minting) and does not do (rules still apply) |
+| X6 | Plain `task` missing from `NODE_OCCUPANCY`, so capacity checks skip lanes holding plain tasks | **yes, confirmed**: third table my T-970 missed | **fix** now in validator |
+| X7 | Every exclusiveGateway must have ≥2 outgoing, so the standard BPMN merge pattern is an ERROR | **yes, confirmed** (src:1208) | **new task**: same class as T-970, rejecting standard BPMN |
+| X8 | `E-XML-PARSE` / `E-LOAD` absent from CONFORMANCE | yes: emitted outside XmlValidator | **fold**: builder lists load/parse rules too |
+| X9 | "Validate before you save" is unclear when the CLI needs a file on disk | fair | **fold**: write candidate -> validate -> publish |
+| X10 | Governance decision table for business processes (departments, ERP automation, external parties, known performer vs unknown authority) | matches my C3 | **fold**: top priority |
+| X11 | A worked partial-process example (known routing + unconnected same-process steps, every resulting warning listed) | matches C5 | **fold** |
+| X12 | Serialization contract: identity generation, schemaVersion, kind vs isExecutable, condition syntax, merge pattern, geometry/DI | matches C2, C4, C6 | **fold** |
+
+Independent agreement with my pre-written critique: C2, C3, C4, C5, C6 all re-found. New to me:
+X1, X2, X4, X5, X6, X7, X8. **Two are real validator defects (X6, X7)**, found by an outside
+agent using the kit for its intended job, which is the strongest argument for this method.
