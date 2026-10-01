@@ -964,6 +964,33 @@ else
 fi
 
 echo
+echo "== Findings reach the MAP, and the three states stay distinct (T-962, T-309 slice 3) =="
+# T-961 proved the designer can ASK. This proves the answer arrives where the author is
+# looking: a marker on each offending node, a dock listing every finding, and — the part
+# that is easy to lose — "not yet checked", "checked · no findings" and "could not check"
+# rendering as three different things. T-961 made that distinction true at the function
+# boundary; it dies at the pixels if an unchecked map looks like a clean one, and then
+# "looks clean" stops meaning anything.
+#
+# Two legs guard defects already made once here:
+#   * ids resolve by displayIdOf (the EXPORTED id the validator names), not n.id. Matching
+#     n.id placed ZERO markers while the dock said "3 findings, 0 on the map" — every row
+#     rendered perfectly and said "not on the map". No DOM assertion caught it; reading a
+#     screenshot did.
+#   * W-XML-GW-AMBIGUOUS (47 of AEF's 48 live gateways, 0 of ours — it reports which
+#     toolchain wrote the file) is LISTED but NOT marked. Both halves asserted, because an
+#     allowlist that also dropped the row would be hiding findings rather than quieting them.
+#
+# Teeth: T962_DESIGNER_SRC pointed at a pre-change designer exits 3 (refuses), not 0.
+if python3 "$ROOT/tests/test_t962_findings_on_map.py" > "$TMP/leg-_t962.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "validator findings stopped reaching the map, or the three states collapsed into one — an unchecked map reading as a clean one is the false green this whole slice exists to prevent (T-962 — run 'python3 tests/test_t962_findings_on_map.py'; if the displayIdOf leg is the red one, markers are being placed against internal ids again and the dock will cheerfully report 'N findings, 0 on the map')"
+  show_output "$TMP/leg-_t962.out" "test_t962_findings_on_map.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== The designer can REACH the validator (T-961, T-309 slice 2) =="
 # The other half of T-955. That leg guards the ROUTE; this one guards the editor's side of
 # it — validateCurrentWorkflow() serialising the live map, posting it, and parsing the

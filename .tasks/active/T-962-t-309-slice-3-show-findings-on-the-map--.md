@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T06:57:15Z
-last_update: 2026-10-01T06:57:15Z
+last_update: 2026-10-01T07:38:57Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -67,45 +67,55 @@ reusing existing selection rather than adding an interactive SVG layer.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A **Check** action runs `validateCurrentWorkflow()` and renders its result. Hidden when
+- [x] A **Check** action runs `validateCurrentWorkflow()` and renders its result. Hidden when
       the API is unavailable, following the existing `detectSaveApi()` gating, so the
       standalone `file://` build does not offer a button that cannot work.
-- [ ] **Node-anchored findings put a marker on the offending node.** The node id is parsed
+- [x] **Node-anchored findings put a marker on the offending node.** The node id is parsed
       from `location`, and the parse is **verified against real validator output** rather than
       assumed from the rendered message text — I have not yet read the raw `location` value
       and will not design the parse before I do.
-- [ ] **Nothing is silently dropped: `markers + list rows == total findings`,** asserted in the
+- [x] **Nothing is silently dropped: `markers + list rows == total findings`,** asserted in the
       test. This is the false-green shape at this layer — a finding whose location does not
       resolve to a node must appear in the list, never vanish because it had nowhere to sit.
-- [ ] **Three states are visually distinct, never conflated:** `not yet checked`,
+- [x] **Three states are visually distinct, never conflated:** `not yet checked`,
       `checked — no findings`, and `could not check` (validator unavailable / unreachable).
       T-961 made that distinction true at the function boundary; it dies here if an unchecked
       map renders the same as a clean one.
-- [ ] **A declared per-rule marker allowlist in one place**, with `W-XML-GW-AMBIGUOUS`
+- [x] **A declared per-rule marker allowlist in one place**, with `W-XML-GW-AMBIGUOUS`
       excluded and the 47-of-48 measurement stated as the reason in the code. The comment
       names `tests/test_rule_dialect_axis.py` as the mechanism that should replace the hand
       list (currently `grep -c dialect tools/validate-workflow.py` → 0).
-- [ ] Clicking a list row **selects the node** so the operator can act on it — the
+- [x] Clicking a list row **selects the node** so the operator can act on it — the
       "so we can remediate it" half of the request.
-- [ ] **Visual verification per CLAUDE.md**, not DOM math: element-level Playwright
+- [x] **Visual verification per CLAUDE.md**, not DOM math: element-level Playwright
       screenshots of the marker and the list, read back with the Read tool, across the modes
       this can affect (theme, density, font) — recorded in `## Visual Verification` below.
 
 ### Human
-- [ ] [REVIEW] **The marker and findings list look right on a real map.**
+- [ ] [REVIEW] **One judgement call: does the finding marker duplicate the existing
+      "⚠ no authority" label, and should it?**
+
+  Narrowed on the reviewer's `human-ac-mechanical-signal` finding, and it was right: the
+  version of this AC asked you to confirm that markers appear and that the state line is
+  never blank — both of which `tests/test_t962_findings_on_map.py` now asserts mechanically
+  (9 legs, including the three states staying distinct). Asking a human to re-verify a
+  green test is how a Human AC becomes administrative overhead. What is left is the part no
+  test can settle.
 
   **Steps:**
-  1. Start the gallery server if it is not running:
-     `cd /opt/832-Workflow-designer && bash tools/serve-gallery.sh`
-  2. Open the designer: the URL that script prints, then `/designer/app`
-  3. Open any map, press **Check**, and look at the result.
-  4. Drag a step below all the lane bands, press **Check** again.
+  1. `bash /opt/832-Workflow-designer/runme.sh` — rebuilds from the working copy and serves
+     it, then prints the URL. (Your usual `/designer/app` cannot show this: it serves a
+     pinned, sha256-verified bundle, and the pin is currently broken — OBS-463.)
+  2. Open a map, drag a step below every lane band, press **✓ Check**.
+  3. Look at that step. It will often carry BOTH a red `✖` finding marker (bottom-right)
+     and the older `⚠ no authority` label (top-left).
 
-  **Expected:** step 3 shows either findings marked on the offending nodes or an explicit
-  "no findings" — never a blank area you have to interpret. Step 4 marks the dragged node.
+  **Expected:** your call on one of three — leave both (they are different conditions:
+  "no lane, so no authority derivable" vs "authority not stated"), suppress the finding
+  marker when the authority label is already showing, or merge them into one mark.
 
-  **If not:** say which of the two looked wrong and I will fix it; this is taste, not
-  mechanism, and the mechanism is covered by the Agent ACs above.
+  **If not actionable:** if the two never appear together on your maps, say so and I will
+  drop the question rather than engineer for a case that does not occur.
 
 ## Visual Verification
 
@@ -291,6 +301,20 @@ exactly where I had written untested CSS. Measured:
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# ── T-962 ─────────────────────────────────────────────────────────────────────
+# Each line rehearsed under `bash -c 'set -o pipefail; <line>'`. No `git diff`
+# line (PL-365: it goes vacuously true once committed) and no global count
+# (G-015): every line asserts a fact about this slice's own artefacts.
+
+grep -q 'async function validateCurrentWorkflow' src/aef-workflow-designer.html && grep -q 'FINDING_MARKER_RULES' src/aef-workflow-designer.html
+timeout 240 python3 tests/test_t962_findings_on_map.py > /tmp/.t962-t.out 2>&1 && grep -q 'allowlist quiets the canvas without hiding a row' /tmp/.t962-t.out
+# The two legs that guard defects already made once here, named individually so a
+# suite that silently stopped running them cannot pass this gate.
+grep -q 'the displayIdOf regression' /tmp/.t962-t.out
+grep -q 'test_t962_findings_on_map.py' tests/run-bridge-tests.sh
+bash -n tests/run-bridge-tests.sh
+grep -q "data-state=.unchecked." src/aef-workflow-designer.html
 
 ## RCA
 
@@ -388,3 +412,12 @@ exactly where I had written untested CSS. Measured:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-962-t-309-slice-3-show-findings-on-the-map--.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-38328e65
+- **Timestamp:** 2026-10-01T08:38:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
