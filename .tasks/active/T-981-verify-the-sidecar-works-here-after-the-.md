@@ -70,15 +70,22 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] With NO `FRAMEWORK_ROOT` override, `fw sidecar whoami` prints `832-Workflow-designer` (D1).
-- [ ] `.claude/settings.json` carries the `sidecar-inbox` UserPromptSubmit hook (D2), and it prints
+- [x] With NO `FRAMEWORK_ROOT` override, `fw sidecar whoami` prints `832-Workflow-designer` (D1).
+- [x] `.claude/settings.json` carries the `sidecar-inbox` UserPromptSubmit hook (D2), and it prints
       a non-empty pending-consult block when the inbox holds at least one consult (D3).
-- [ ] The consumer sweep job `sidecar-sweep-5m` is in `.context/cron-registry.yaml` and in the
+- [x] The consumer sweep job `sidecar-sweep-5m` is in `.context/cron-registry.yaml` and in the
       generated crontab (D4); installing it into `/etc/cron.d` is the operator's step (host state),
       handed over as a `runme.sh`.
 - [ ] A consult sent to 999-Agentic-Engineering-Framework gets a reply that `fw sidecar inbox`
       shows here, or the task records that AEF has not yet replied and stays open on that one
       criterion rather than closing on three of four.
+
+**Evidence (2026-10-01, framework 1.7.740, no override):** `fw sidecar whoami` -> 832-Workflow-designer;
+the hook is in settings.json and surfaced all 79 consults at turn start; a consult sent with the
+fixed identity is signed from_circuit //.../832-Workflow-designer on AEF's inbox (offset 25). Sweep:
+added to the registry by hand (lib/cron-seed.sh indentation defect, reported to AEF), installed by
+the operator (runme.sh, 1 line added), and SEEN RUNNING: journal 23:48:02 "swept: 3 open row(s),
+3 due -> 3 reposted"; expired_unswept 0. Open: criterion 4, a reply from AEF (watch armed).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
