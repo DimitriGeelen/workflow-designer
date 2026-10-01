@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T22:06:51Z
-last_update: 2026-10-01T22:06:51Z
+last_update: 2026-10-01T22:34:16Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,12 +62,12 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `VERSION` and `APP_VERSION` are `0.15.1` (parity passes). Number chosen by the operator:
+- [x] `VERSION` and `APP_VERSION` are `0.15.1` (parity passes). Number chosen by the operator:
       *"tell Evergreen and prepare 0.15.1"*.
-- [ ] `docs/releases/RELEASE-NOTES-0.15.1.md` states the one fix (T-991) and why it shipped broken.
-- [ ] `runme.sh` cuts 0.15.1 with the same four confirmed steps as 0.15.0; dry run and both refusal
+- [x] `docs/releases/RELEASE-NOTES-0.15.1.md` states the one fix (T-991) and why it shipped broken.
+- [x] `runme.sh` cuts 0.15.1 with the same four confirmed steps as 0.15.0; dry run and both refusal
       paths exercised by the agent; the agent does not run it.
-- [ ] After the operator's run: artifact == src, kit verifies, manifest names both and supersedes
+- [x] After the operator's run: artifact == src, kit verifies, manifest names both and supersedes
       0.15.0, tag on the release commit; the 0.15.1 kit is posted to Evergreen on
       `xfer-evergreen-kit` and reassembled from the hub with a matching checksum.
 
@@ -77,6 +77,13 @@ FIRST argument, so it took the real install path three times. Each run stopped a
 prompt (no tty -> "not confirmed, nothing written") and the install diff was 0 lines, so nothing
 changed, but the rule is that the agent runs runme.sh only as a dry run. Cause: I did not read the
 file before running it. The release script was restored from 1a179ecb and then dry-run correctly.
+
+**Evidence (after the operator's runs):** first run cut, announced and committed 5bf2ee9f, then stopped
+at step 3 (not confirmed); the re-run was refused because the script was not resumable (my design
+flaw, fixed: it now resumes at the tag step and tags the RELEASE commit, not HEAD). Resumed run:
+tag designer-v0.15.1 -> 5bf2ee9f, on origin, branch in sync. artifact == src; kit verifies;
+MANIFEST latest 0.15.1, supersedes 0.15.0. Kit posted to Evergreen on xfer-evergreen-kit offsets
+9-18 and reassembled from the hub by us: 48515 bytes, sha256 1640b298...a612 matches.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -236,6 +243,10 @@ file before running it. The release script was restored from 1a179ecb and then d
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+cmp -s src/aef-workflow-designer.html dist/aef-workflow-designer-0.15.1.html
+bash -c "cd dist/aef-authoring-kit-0.15.1 && sha256sum -c SHA256SUMS --quiet"
+git rev-parse -q --verify refs/tags/designer-v0.15.1
 
 ## RCA
 
