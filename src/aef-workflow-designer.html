@@ -9311,6 +9311,86 @@ async function detectSaveApi() {
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
 }
+
+// ─── T-961 (T-309 slice 2): reach the validator ─────────────────────────────────────
+// Serialise the active map and ask the one validator about it. ~24 XmlValidator rules
+// currently run in the bridge suite and from the CLI and reach nobody drawing a map,
+// which is where the mistake is actually made (T-309).
+//
+// PLACEMENT-INDEPENDENT ON PURPOSE. This function knows nothing about where findings
+// are displayed, because T-309's IW-1 — gutter markers vs an on-demand panel vs a
+// save-time prompt — is an open product decision belonging to the operator. Settling it
+// by implementation accident is exactly what this split avoids.
+//
+// THE RETURN SHAPE IS THE POINT. A tagged union, never a bare array:
+//     { ok: true,  findings: [...], errors: n, warnings: n }
+//     { ok: false, reason: '<readable>' }
+// An empty `findings` means THE VALIDATOR RAN AND FOUND NOTHING. It must never also mean
+// the validator could not run. Those two render identically if you return `[]` for both,
+// and "looks clean" is then indistinguishable from "never looked" — the defect class this
+// project keeps rediscovering. The server already refuses to conflate them: T-955 answers
+// 503 when the validator will not load, and its test demands E-XML-PARSE (not `[]`) for
+// garbage input.
+//
+// file:// IS A FIRST-CLASS CASE, NOT A FAILURE. The designer ships as a standalone HTML
+// file where there is no server and `_apiAvailable` is false. That returns ok:false with a
+// reason that makes NO claim about the document, and follows the existing detectSaveApi()
+// gating rather than inventing a second availability notion.
+async function validateCurrentWorkflow() {
+  if (!_apiAvailable) {
+    return { ok: false, reason: 'validation needs the project server; this page is running without it' };
+  }
+  let bpmn;
+  try {
+    bpmn = buildBpmnXml(state);
+  } catch (e) {
+    const why = 'could not serialise the map: ' + ((e && e.message) ? e.message : e);
+    aefRecordFault('validate', why);
+    return { ok: false, reason: why };
+  }
+  if (!bpmn || !bpmn.trim()) {
+    // Guarded separately from the throw above: a serialiser that returns empty without
+    // throwing would otherwise be posted as a valid document and come back E-XML-PARSE,
+    // blaming the validator for a defect on this side of the wire.
+    const why = 'the map serialised to nothing';
+    aefRecordFault('validate', why);
+    return { ok: false, reason: why };
+  }
+  let res;
+  try {
+    res = await fetch('/api/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bpmn }),
+      cache: 'no-store',
+    });
+  } catch (e) {
+    // Reachability, not validity: the server went away mid-session, or this build is
+    // being served from somewhere without the route.
+    const why = 'could not reach the validator: ' + ((e && e.message) ? e.message : e);
+    aefRecordFault('validate', why);
+    return { ok: false, reason: why };
+  }
+  let data = null;
+  try { data = await res.json(); } catch (_) { /* non-JSON body handled below */ }
+  if (!res.ok || !data || data.ok !== true || !Array.isArray(data.findings)) {
+    const why = (data && data.error) ? data.error : ('HTTP ' + res.status);
+    aefRecordFault('validate', why);
+    return { ok: false, reason: why };
+  }
+  // Trust the server's counts when present, derive them when not, so a caller can rely on
+  // the field existing without re-deriving it at every call site.
+  const rows = data.findings;
+  return {
+    ok: true,
+    findings: rows,
+    errors: (typeof data.errors === 'number') ? data.errors
+      : rows.filter(f => f && f.severity === 'ERROR').length,
+    warnings: (typeof data.warnings === 'number') ? data.warnings
+      : rows.filter(f => f && f.severity === 'WARN').length,
+  };
+}
+
 // Copy the computed SVG-relevant styles from a live element tree onto a detached
 // clone (walked in lockstep), so a serialized standalone SVG carries its own paint —
 // class-based CSS from the document <style> does NOT travel with a serialized <svg>,

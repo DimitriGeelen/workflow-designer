@@ -964,6 +964,33 @@ else
 fi
 
 echo
+echo "== The designer can REACH the validator (T-961, T-309 slice 2) =="
+# The other half of T-955. That leg guards the ROUTE; this one guards the editor's side of
+# it — validateCurrentWorkflow() serialising the live map, posting it, and parsing the
+# result — in the REAL editor, in headless chromium, served over real HTTP by the real
+# gallery-serve.py from a docroot asserted byte-identical to src/.
+#
+# The byte-identical assertion is load-bearing: build/gallery/designer.html is a COPY
+# refreshed by tools/serve-gallery.sh and ALREADY differs from src/ in this tree, so a test
+# pointed at the ordinary serve root can pass against code that is not under test.
+#
+# The property is the SHAPE, not the happy path. An empty findings list must mean "ran, found
+# nothing" and never "could not run" — those render identically if you return [] for both, and
+# "looks clean" then becomes indistinguishable from "never looked". So the clean legs are
+# paired with a file://-build leg and a server-killed-mid-session leg, both of which must
+# return ok:false with NO findings key at all.
+#
+# Teeth: pointed at the pre-change designer via T961_DESIGNER_SRC it exits 3 (refuses) rather
+# than passing. Chromium absence is a LOUD environment skip, never a silent green (T-212).
+if python3 "$ROOT/tests/test_t961_designer_validate_reach.py" > "$TMP/leg-_t961.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the designer can no longer reach the validator, or it has started reporting 'no findings' when it simply could not look — which is the false green that makes a validation surface worse than none (T-961 — run 'python3 tests/test_t961_designer_validate_reach.py'; if the byte-identical leg is the one red, src/ and the docroot diverged and the run measured the wrong page)"
+  show_output "$TMP/leg-_t961.out" "test_t961_designer_validate_reach.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== The boundary inventory's drift check still bites (T-958) =="
 # T-955 shipped /api/validate and classified it nowhere; the drift check caught it the same
 # session, and T-958 added its ROUTE_SEMANTICS row. This leg exists because that check has
