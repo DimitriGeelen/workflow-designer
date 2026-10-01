@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-990: Clear the three red validator guards from OBS-468: stale NODE-UNASSIGNED expectation, unclassified anchorability rows, unclassified parity row
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-01T21:56:21Z
+# ============================================================================
+
+task_id: T-990
+task_name: "Clear the three red validator guards from OBS-468: stale NODE-UNASSIGNED expectation, unclassified anchorability rows, unclassified parity row"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T21:52:28Z
+completed: 2026-10-01T21:55:58Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-01T23:55:46+02:00
+last_commit: 2026-10-01T23:55:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  four red validator guards green — every validator rule now seen firing on a real document
+
+# Key outcomes
+outcomes:
+  - '`tests/run-validator-tests.sh` is green: the unassigned-node fixture is filed under the'
+  - '`tests/test_finding_anchorability.py` is green: E-XML-LANE-AUTHORING-DEFAULT,'
+  - '`tests/test_rule_form_parity.py` classifies E-META-AUTHORITY.'
+  - 'No rule''s behaviour changes: corpus 8 -> 8 by rule.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-990-clear-the-three-red-validator-guards-fro.md'
+  - 'tests/fixtures/invalid/E-META-AUTHORITY.yaml'
+  - 'tests/fixtures/invalid/E-XML-LANE-AUTHORING-DEFAULT.bpmn'
+  - 'tests/fixtures/invalid/E-XML-META-AUTHORITY.bpmn'
+  - 'tests/fixtures/invalid/E-XML-NODE-UNASSIGNED.xml'
+  - 'tests/fixtures/warn/W-XML-AUTHORITY-DEFAULT-MISMATCH.bpmn'
+  - 'tests/test_finding_anchorability.py'
+  - 'tests/test_rule_form_parity.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T23:55:46'
+    action: 'T-990: four red validator guards green — every validator rule now seen firing on a real document'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 8
+  lines_added: 460
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-990-clear-the-three-red-validator-guards-fro.md
+generated_by: context-agent-hybrid
