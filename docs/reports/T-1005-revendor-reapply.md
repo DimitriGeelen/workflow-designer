@@ -67,3 +67,8 @@ fw note payload, P-011 unreadable-block gate, T-943 heading states, card purpose
 in-place card edit on the live dashboard and /fabric cache (T-568), episodic pipefail, episodic
 decisions extractor, designer render check. Remaining 29 include the safe-commands/audit.sh/fabric/BVP
 families still on the worklist and the designer-side legs that are separate bug tasks (T-995).
+
+**The unseen refused commits, explained.** `fw git commit -qm "msg"` is refused with
+"ERROR: Commit message required": the wrapper's parser (agents/git/lib/commit.sh) knows `-m`, not a
+combined `-qm`. My output filter matched lowercase `error` only. Reported upstream as a small
+usability item; the practice is `-m`, unfiltered output, `git log -1` after each commit.
