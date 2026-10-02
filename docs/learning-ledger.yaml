@@ -236,8 +236,76 @@ learnings:
     lacks) rather than exempting source-worded labels from readability findings'
   evidence: 'T-989 Evergreen offset 22 (calibration of kit 0.15.1, reviewer Claude Sonnet via claude -p)
     K10: 3/3 caught, 1 minor readability finding on clean.bpmn credit-limit-exceeded--pick-parts (same
-    on planted) -> FAIL; GLM-5.2 never raised it, so reviewers differ on it and the control is not clean'
+    on planted) -> FAIL; GLM-5.2 never raised it, so reviewers differ on it and the control is not clean
+    | recurred on 0.15.2 calibration (iteration 2)'
   source: trial
   destination: tooling
+  status: proposed
+  occurrences: 2
+- id: L19
+  learning: 'reachability is per NODE from any seed: once a map has one link catch (K4 hand-over), every
+    step not downstream of a catch is UNREACHABLE and every step not reaching a throw/end is DEADEND,
+    including chains the source states; bo-business-overview 29 -> 80 warnings after the reviewer added
+    7 catches (K12). Assess per connected component: a component without its own seed gets one finding
+    naming it, not one per node'
+  evidence: 'T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
+    Opus); K12; measured by us: loop/bo-business-overview map.bpmn 80 findings vs 29'
+  source: trial
+  destination: validator
+  status: proposed
+  occurrences: 1
+- id: L20
+  learning: 'a link catch placed before a step whose successor is unrecorded draws its own DEADEND: one
+    unknown counted twice (K11)'
+  evidence: T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
+    Opus); K11; sales-new-vehicle in-shn / in-p2h
+  source: trial
+  destination: validator
+  status: proposed
+  occurrences: 1
+- id: L21
+  learning: 'the calibration clean map names its end event "Accepted order delivered and invoiced", a
+    result the source never states: it breaks the 0.15.2 K3 rule; L16 (check new rules against the clean
+    map) was not applied to K3 before 0.15.2 shipped'
+  evidence: T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
+    Opus); K13; Sonnet flagged it on clean.bpmn; GLM did not
+  source: trial
+  destination: tooling
+  status: proposed
+  occurrences: 1
+- id: L22
+  learning: 'no rule for a step the source says "is detailed in process X": subProcess, callActivity (calledElement)
+    or a cited note (K14)'
+  evidence: T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
+    Opus); K14
+  source: trial
+  destination: guide
+  status: proposed
+  occurrences: 1
+- id: L23
+  learning: duplicate display NAMES of distinct steps (Part Production x2 in the source) are not covered;
+    section 2 covers duplicate keys only (K15)
+  evidence: T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
+    Opus); K15
+  source: trial
+  destination: guide
+  status: proposed
+  occurrences: 1
+- id: L24
+  learning: 'the K2 rule (one step precedes two, relation unstated) must also cover hand-overs: a step
+    handing over to two processes, both or either (K16)'
+  evidence: T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
+    Opus); K16
+  source: trial
+  destination: guide
+  status: proposed
+  occurrences: 1
+- id: L25
+  learning: no format for a citation that quotes several source lines (a lane covering several tasks);
+    Evergreen joined quotes with " ; " (K17)
+  evidence: T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
+    Opus); K17
+  source: trial
+  destination: guide
   status: proposed
   occurrences: 1
