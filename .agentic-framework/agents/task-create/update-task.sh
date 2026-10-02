@@ -31,6 +31,12 @@ source "$FRAMEWORK_ROOT/lib/render_surface.sh" 2>/dev/null || true
 # Anchored AC / Recommendation section extraction (T-3148, sibling to
 # lib/verification-port.sh:extract_verification_block, T-3134)
 source "$FRAMEWORK_ROOT/lib/section-extract.sh"
+# T-923 (re-applied on 1.7.740 by T-1005): the framework records each task's position on the
+# task-lifecycle template as it moves (lib/instance-position.sh). No-op stubs if the lib is absent.
+source "$FRAMEWORK_ROOT/lib/instance-position.sh" 2>/dev/null || true
+command -v fw_instance_walk >/dev/null 2>&1 || fw_instance_walk() { return 0; }
+command -v fw_instance_refused >/dev/null 2>&1 || fw_instance_refused() { return 0; }   # T-883
+command -v fw_instance_node_for_transition >/dev/null 2>&1 || fw_instance_node_for_transition() { echo ""; }
 
 # === Extracted gate functions (T-415) ===
 # Each function accesses outer-scope variables: TASK_FILE, TASK_ID, SKIP_*, colors
@@ -192,6 +198,7 @@ check_human_sovereignty() {
         else
             echo -e "${RED}ERROR: Cannot complete human-owned task${NC}" >&2
             echo "Sovereignty gate (R-033): owner is human." >&2
+            fw_instance_refused "$TASK_ID" skipped-human-gateway R-033 frw_9_human "owner is human; agent attempted work-completed" "$PROJECT_ROOT"   # T-883
             echo "The human must review and approve via Watchtower:" >&2
             # T-1156: Show Watchtower review link instead of bare commands (PL-007)
             source "$FRAMEWORK_ROOT/lib/review.sh" 2>/dev/null
@@ -323,11 +330,18 @@ check_acceptance_criteria() {
             echo "Options:" >&2
             echo "  1. Check the criteria in the task file, then retry" >&2
             echo "  2. Operator only: --skip-acceptance-criteria --reason \"...\" (refused for agents, T-3586)" >&2
-            # T-2624 read-value wiring: this gate IS the tl_archive edge of the
-            # task-lifecycle map — point the tripping agent at the process picture.
-            if [ -f "$PROJECT_ROOT/.context/designer/projects/aef-task-lifecycle/meta.json" ]; then
-                echo "Map: aef-task-lifecycle node tl_archive enforces this — bin/fw corpus explain aef-task-lifecycle" >&2
+            # T-2624 read-value wiring, repointed under T-880: this gate IS the
+            # frw_7_all gateway ("All gates pass?") of the task-lifecycle template.
+            # The original guard tested .context/designer/projects/aef-task-lifecycle/meta.json
+            # (never existed here) and named node tl_archive (not in any rendered
+            # template), so it had never executed in this project (T-878 F1). It now
+            # guards on the AEF-pinned artefact and names a node that is in it;
+            # tools/_t880-instance-node-teeth.sh pins both facts.
+            if [ -f "$PROJECT_ROOT/examples/aef-processes/rendered/task-lifecycle.bpmn" ]; then
+                echo "Map: task-lifecycle node frw_7_all (All gates pass?) refuses this — examples/aef-processes/rendered/task-lifecycle.bpmn; position: python3 tools/instance-node.py get $TASK_ID" >&2
             fi
+            fw_instance_refused "$TASK_ID" unmet-input-contract P-010 frw_7_all "$ac_unchecked/$ac_total $ac_label unchecked" "$PROJECT_ROOT"   # T-883
+            fw_instance_walk "$TASK_ID" agt_2_perform "$PROJECT_ROOT"
             exit 1
         fi
     elif [ "$ac_total" -gt 0 ]; then
@@ -1797,6 +1811,8 @@ run_verification_commands() {
             echo "  1. Fix the issues and retry" >&2
             echo "  2. Update ## Verification commands if they are wrong" >&2
             echo "  3. Operator only: --skip-verification --reason \"...\" (refused for agents, T-3586)" >&2
+            fw_instance_refused "$TASK_ID" unmet-input-contract P-011 frw_7_all "$verify_fail/$verify_total verification(s) failed" "$PROJECT_ROOT"   # T-883
+            fw_instance_walk "$TASK_ID" agt_2_perform "$PROJECT_ROOT"
             exit 1
         fi
     else
@@ -2160,6 +2176,7 @@ if [ -n "$NEW_STATUS" ]; then
                     exit 1
                 fi
                 echo -e "${GREEN}Moved to completed/${NC}"
+                fw_instance_walk "$TASK_ID" frw_11_task "$PROJECT_ROOT"
                 _print_move_next_hint "$TASK_ID"
 
                 # T-2345: clean orphan review marker — marker exists to unblock
@@ -2389,6 +2406,10 @@ PY
             fi
         fi
 
+        if [ "$NEW_STATUS" = "work-completed" ]; then
+            fw_instance_walk "$TASK_ID" frw_6_run "$PROJECT_ROOT"
+        fi
+
         # === Human Sovereignty Gate (R-033/T-198) ===
         if [ "$NEW_STATUS" = "work-completed" ]; then
             apply_reviewer_verdicts
@@ -2497,6 +2518,9 @@ PY
         _sed_i "s/^status:.*/status: $NEW_STATUS/" "$TASK_FILE"
         echo "Status:  $OLD_STATUS → $NEW_STATUS"
         CHANGES+=("status: $OLD_STATUS → $NEW_STATUS")
+        if [ "$NEW_STATUS" != "work-completed" ]; then
+            fw_instance_walk "$TASK_ID" "$(fw_instance_node_for_transition "$OLD_STATUS" "$NEW_STATUS")" "$PROJECT_ROOT"
+        fi
 
         # === Invariant: started-work → horizon: now (T-1068) ===
         # Starting work means it's active NOW. Auto-promote horizon.
@@ -2726,6 +2750,7 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
     if [ "${PARTIAL_COMPLETE:-false}" = true ]; then
         # T-193: Agent done but human ACs pending — stay in active/
         _sed_i "s/^owner:.*/owner: human/" "$TASK_FILE"
+        fw_instance_walk "$TASK_ID" frw_8_partial "$PROJECT_ROOT"
         HUMAN_AC_UNCHECKED_REMAINING=$((HUMAN_AC_TOTAL - HUMAN_AC_CHECKED))
         echo -e "${YELLOW}Partial-complete: $HUMAN_AC_UNCHECKED_REMAINING human AC(s) pending verification${NC}"
         echo -e "${YELLOW}Task stays in active/ — owner set to human${NC}"
@@ -2793,6 +2818,7 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
                 exit 1
             fi
             echo -e "${GREEN}Moved to completed/${NC}"
+            fw_instance_walk "$TASK_ID" frw_11_task "$PROJECT_ROOT"
             _print_move_next_hint "$TASK_ID"
             # T-2345: clean orphan review marker — marker exists to unblock
             # fw inception decide (T-973), moot once task is in completed/.
