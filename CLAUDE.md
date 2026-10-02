@@ -19,6 +19,20 @@ plus Claude Code-specific integration notes.
 ## Project-Specific Rules
 
 <!-- Add any project-specific rules that agents must follow -->
+
+### Commands for the operator ALWAYS go in runme.sh (operator, 2026-10-02: "put it in runme.sh always !!!")
+
+Never hand the operator a command to copy from chat — not even a one-liner. Every command the
+operator must run (releases, `fw inception decide`, Tier-0 approvals, anything operator-only)
+is written into `/opt/832-Workflow-designer/runme.sh`, and the operator runs exactly:
+
+    bash /opt/832-Workflow-designer/runme.sh
+
+The script states what it will do, checks preconditions before writing anything, asks y/N before
+each step that changes state, logs to `.context/working/runme-<ts>.log`, and supports
+`--dry-run`. The agent reads it, runs only `--dry-run`, and never runs it for real. Overwriting
+runme.sh is fine once its previous job is done (check the log/outcome first).
+
 ## Core Principle
 
 **Nothing gets done without a task.** This is enforced structurally by the framework, not by agent discipline.
@@ -465,40 +479,20 @@ Each component has a YAML card in `.fabric/components/` with: id, name, type, su
 
 ### Work Proposal Rule
 - **Before proposing the next unit of work, check context budget** (`checkpoint.sh status`)
-- **The percentages below are the rule. The absolute token counts are not.** The cap is
-  `CONTEXT_WINDOW` (`fw config get CONTEXT_WINDOW`, default 300000), overridable for one
-  run via the `FW_CONTEXT_WINDOW` env var — `budget-gate.sh:107` resolves it as
-  `fw_config_int "CONTEXT_WINDOW" 300000`. Any absolute number written here is a derived
-  illustration that goes stale the moment the window changes — which is exactly what
-  happened (T-614).
-- **Read the level, do not recompute it — but read it through the safe read.**
-  `.agentic-framework/agents/context/checkpoint.sh budget` reports the gate's own verdict
-  as `level`. If `level` and your arithmetic disagree, `level` wins: it is produced by the
-  code that enforces, and your arithmetic is produced by reading prose.
-- **Do not `cat .context/working/.budget-status` (T-675).** That file has two writers that
-  emit a value NOBODY MEASURED: the post-compaction seed (deliberate, ~90s shelf life) and
-  the gate's fail-open on a failed transcript scan (deliberate, so a broken scan never
-  blocks every tool call). Both used to render as `{"level": "ok", "tokens": 0}` — the
-  gate's failure mode wrote MAXIMUM HEADROOM into the file this rule makes authoritative.
-  Measured live on 2026-09-03: the cache read `ok / 0` while the session held 117,630
-  tokens. Both writers now stamp `"measured": false` and `checkpoint.sh budget` refuses an
-  unmeasured, stale, or foreign-session cache, reporting `level: unknown` plus the reason.
-  **`unknown` is not `ok`** — it means measure before deciding, via `checkpoint.sh status`.
-  Hit again live on 2026-09-26 (T-873), which is why this paragraph is worth its length.
-- Below 75%: proceed normally
-- 75–85% (`warn`): propose only small, bounded tasks; commit first
-- 85–95% (`urgent`): propose only wrap-up actions (commit, learnings, handover)
-- Above 95% (`critical`): handover immediately, no new work — the gate blocks here
-- At the default 300K window that is 225K / 255K / 285K. Illustrative, not normative.
+- Below 75% of `FW_CONTEXT_WINDOW`: proceed normally
+- 75-85%: propose only small, bounded tasks; commit first
+- Above 85%: propose only wrap-up actions (commit, learnings, handover)
+- Above 95%: handover immediately, no new work
+- The percentages are the contract. Absolute token counts move with `FW_CONTEXT_WINDOW`
+  (300K default → 225K / 255K / 285K) and must not be written down as if fixed.
 - **This applies especially in autonomous mode** — without a human to catch the mistake, proposing work that can't complete in remaining context risks losing all uncommitted work
 
 ### Automated Monitoring (Claude Code)
 - **Primary enforcement:** A PreToolUse hook runs `budget-gate.sh` which reads **actual token usage** from the session JSONL transcript and **blocks** Write/Edit/Bash at critical level (exit code 2)
 - **Fallback:** A PostToolUse hook runs `checkpoint.sh` for warnings and auto-handover (T-136)
-- Escalation ladder, as percentages of `CONTEXT_WINDOW` — the form the gate computes;
-  source of truth is `agents/context/budget-gate.sh:107-112`: **75%** ok→warn (note),
-  **85%** warn→urgent (warning), **95%** urgent→critical (**BLOCK**). At the 300K
-  default: 225K / 255K / 285K.
+- Escalation ladder, as percentages of `FW_CONTEXT_WINDOW` (source of truth:
+  `agents/context/budget-gate.sh`): **75%** ok→warn (note), **85%** warn→urgent
+  (warning), **95%** urgent→critical (**BLOCK**). At the 300K default: 225K / 255K / 285K.
 - At critical, allowed: git commit/add, fw handover/task, reading files, Write/Edit to `.context/` `.tasks/` `.claude/` (wrap-up paths). Blocked: Write/Edit to source files, general Bash
 - Status cached in `.context/working/.budget-status` (JSON: level, tokens, timestamp)
 - Check current usage: `./agents/context/checkpoint.sh status`
@@ -634,7 +628,7 @@ Human ACs represent real verification steps. Unvalidated deliverables carry down
 ### Commit Cadence and Check-In
 After **every commit**, briefly report what was done and ask if the user wants to continue. Do not chain multiple commits without user interaction.
 
-**Structural enforcement (T-139):** The `budget-gate.sh` PreToolUse hook reads actual token usage from the session transcript and **blocks** Write/Edit/Bash tool calls when context reaches critical level (>=95% of `CONTEXT_WINDOW`; 285K at the 300K default). At critical, only git commit, fw handover, and read operations are allowed. The hook writes `.context/working/.budget-status` with current level (ok/warn/urgent/critical) for fast caching. PostToolUse `checkpoint.sh` remains as fallback for warnings and auto-handover.
+**Structural enforcement (T-139):** The `budget-gate.sh` PreToolUse hook reads actual token usage from the session transcript and **blocks** Write/Edit/Bash tool calls when context reaches critical level (>=95% of `FW_CONTEXT_WINDOW` — 285K at the 300K default). At critical, only git commit, fw handover, and read operations are allowed. The hook writes `.context/working/.budget-status` with current level (ok/warn/urgent/critical) for fast caching. PostToolUse `checkpoint.sh` remains as fallback for warnings and auto-handover.
 
 ### Copy-Pasteable Commands (T-609)
 When giving the human a command to run (Tier 0 approvals, inception decisions, verification steps, Human AC instructions), the command MUST be:
@@ -643,127 +637,6 @@ When giving the human a command to run (Tier 0 approvals, inception decisions, v
 2. **Prefixed with `cd`** — always include `cd /path/to/project &&` so directory context is explicit
 3. **Use `bin/fw` not `fw`** — the global `fw` may resolve to a different install
 4. **No bare multi-line** — if multiple commands are needed, chain with `&&` on one line
-
-### Wrap Operator Commands in `runme.sh` (standing operator instruction, 2026-09-30)
-
-**Every command-line instruction handed to the operator — single or multiple — is wrapped in a shell
-script the operator can run with one line.** Not a fenced block of steps to copy in sequence, not a
-chain of `&&` they have to read before trusting. One file, one invocation.
-
-1. **Write it to `runme.sh`** at the project root, and **print the full absolute path** so the
-   operator can run it without reconstructing where it is:
-   `bash /opt/832-Workflow-designer/runme.sh`
-2. **One command still gets a script.** The rule is not "wrap it when it gets long" — a single
-   command in a file is inspectable, re-runnable, and does not depend on the operator's terminal
-   surviving a copy-paste.
-3. **A `--dry-run` mode**, and run it yourself before handing the script over. Handing over an
-   unexercised script is handing over a claim.
-4. **Preflight before the first write**, and each check states what it proves. A refused script must
-   leave the tree exactly as it found it.
-5. **Confirm before each irreversible step**, and stop on the first failure rather than continuing
-   into a half-done state.
-6. **The operator's decisions stay arguments, not defaults.** A version number, a target ref, a
-   destructive flag — pass them in and refuse without them (G-007: choosing the number is choosing
-   what is promised).
-
-**AND THE AGENT DOES NOT RUN IT.** This is the part that is not convenience. `check-tier0.sh` matches
-the **command text**, so a force-push, hard reset or `rm -rf` inside a script is invisible to it — the
-harness only sees `bash runme.sh`. That is not theoretical: on 2026-09-30 an agent moved a force-push
-into a script to stabilise its Tier 0 approval hash, and the move defeated the gate; the push executed
-with `fw tier0 approve` still reporting "approvals logged: 0" (**OBS-449**). Wrapping commands for the
-operator is required; running the wrapper is a four-control bypass in one invocation. Say so in the
-script's own header, as `runme.sh` does.
-
-### A Monitor Is For Acting On, Not Reporting Back (standing operator instruction, 2026-09-30)
-
-**When a background monitor shows something failing, READ THE LOG AND ACT. Do not relay the event to
-the operator and wait.**
-
-Stated twice by the operator in one session, so it is recorded rather than promised. What happened:
-`runme.sh` was given a log precisely so the operator would never copy-paste output. A monitor was
-armed on it. The run then failed, and instead of reading the log the agent narrated each monitor
-event back — *"waiting on step 2"*, *"that's noise"* — until the operator asked what the hell it was
-doing. The log had the answer the whole time, in the project, one `tail` away.
-
-1. **A failure event is a cue to diagnose, not to summarise.** Read the log, find the cause, and come
-   back with the cause and a fix — not with the event.
-2. **Do not narrate progress events.** "Step 1 confirmed" tells the operator what their own terminal
-   already shows. Silence between a start and a conclusion is correct.
-3. **Filter on terminal states and anchor the patterns.** A filter loose enough to match `STOPPED:`
-   inside audit trend text, or `refus` inside a mitigation sentence, produces false alarms that train
-   the reader to ignore real ones — the same decay every other gate in this file warns about.
-4. **If the monitor cannot see the failure, the monitor is wrong.** Widen it or read the log directly;
-   do not infer from silence. Silence and success are different states.
-5. **Act within the authority already given.** Diagnosing, reading logs, and fixing the agent's own
-   defect need no new permission. A Tier 0 or sovereignty step still stops and asks — but "the script
-   failed" is not one of those.
-6. **Hand over a logging script and arm the watch in the SAME turn.** This rule described what to do
-   when a monitor fires and never said to arm one. On 2026-09-30 the agent handed the operator a
-   `runme.sh` that writes a log, armed nothing, and waited — twice. Both times the operator had to
-   say *"I've done it, I think"* before anything was read. That is worse than narrating events at
-   them: it is silence that looks like attention.
-   The moment a script is handed over, watch its log (`Monitor` on the log path, or a background
-   `until` loop on the `done`/`rc=` line). When it lands, read the log, report the outcome, and
-   finish whatever the script deliberately left undone — a close that leaves a rename staged and an
-   episodic untracked is not finished work, and the script says so on its own last lines.
-   **The operator should never be the transport for "it ran".**
-
-### Present Decisions As A Recommendation Plus A Numbered Menu (standing operator instruction, 2026-09-30)
-
-**When a script asks the operator to decide, it shows the recommendation FIRST, a rationale they
-can scan in seconds, then numbered options they select with one keypress.** Not prose they have to
-read to the end. Not flags they have to assemble.
-
-This was reached the hard way: three attempts at the same three-decision handover in one session.
-Attempt 1 refused until the operator supplied six argument tokens (`--t937 X --t938 Y --t939 Z`)
-and wrote no log when it refused, so they got a bare `REFUSED` with nothing to read. Attempt 2
-asked interactively but buried each recommendation inside a paragraph. The operator's verdict on
-both was *"your script sucked"*, and they were right twice.
-
-1. **`MY RECOMMENDATION: <X>` on its own line, before the reasoning.** The operator is deciding,
-   not auditing — they need the proposal up front and the evidence available, in that order.
-2. **Rationale as short bullets, not paragraphs.** Each bullet one fact or one measurement. If a
-   number is load-bearing, give it (`1 out of 15, threshold 4`), not an adjective (`few`).
-3. **Numbered options, one keypress.** `1`/`2`/`3` acts immediately; arrow up/down + Enter also
-   works; the recommended option starts highlighted and is marked `← recommended`.
-4. **No pre-executed default, and no default answer either.** "Decisions stay arguments, not
-   defaults" means nothing is chosen for them — it does NOT mean they must type flags. A menu with
-   a highlighted recommendation satisfies the rule; a script that refuses to start without flags
-   defeats the one-line instruction above it.
-5. **Draw the menu on `/dev/tty`, echo only the CHOICE to stdout.** Cursor redraws must not reach
-   the log; the log must still record what was chosen. Fall back to the recommended index when
-   there is no tty so the non-interactive path keeps working.
-6. **Exercise the interactive path before handing it over**, through a pty (`script -qc`) if
-   necessary. A menu that was never keyed is a claim. Test a wrong keypress too: a typo must
-   re-ask, never abort a multi-decision run.
-7. **Open the log on the first line, before argument validation.** The refusal path is the one the
-   operator is most likely to hit first, and it is the one that most needs a trace. Do not make
-   `runme-LATEST.log` a symlink — it will point at an older successful run and hide the failure.
-
-### External Bug Reports Are Only Ours If They Touch Workflow Design (standing operator instruction, 2026-09-30)
-
-**Ignore bugs reported by other projects unless they concern workflow design.** This project's
-product is the workflow designer. A report about framework tooling, dashboards or shared
-infrastructure is not our work merely because it arrived here or because our vendored copy is
-where someone fixed it once.
-
-When a report DOES touch workflow design, it is a **pickup request**, and it gets the pickup
-treatment already described above (G-020): assess scope, form an opinion, and decide whether to
-incorporate it. Three outcomes are all legitimate:
-
-1. **Incorporate it** — file the work as our own task with real ACs.
-2. **Already incorporated** — say so and move on; it reaches them through upstream.
-3. **Decline it** — record why.
-
-**No reply is owed.** The reporter learns the outcome through upstream, not through us
-maintaining a correspondence. Asking whether to reply is fine; assuming we must is not.
-
-Worked example, 2026-09-30: T-568 (Watchtower's fabric card cache) and T-569 (card purpose
-markdown rendering) were reported by 001-CashWeb, were fixed in our vendored copy in August, and
-were reverted by the 1.7.68 re-vendor. The agent had them queued as the next work and was about to
-notify the reporter. Both are framework tooling with no workflow-design content: **not ours**, and
-the notification was dropped. What IS ours in the same finding is that the upgrade silently eats
-*this project's* fixes — `audit.sh` and `update-task.sh` carry 17 and 12 local commits.
 
 ### Inception Discipline
 When the active task has `workflow_type: inception`:
