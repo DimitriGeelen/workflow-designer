@@ -26,6 +26,7 @@ L1-L15 were confirmed by operator assent before this rule; they stay valid as le
   confirm <id>      runs evidence_cmd, checks the quorum, confirms or says exactly why not
   rule <id> --kind value|priority --decision TEXT     an operator ruling (never on correctness)
   promote <id> --where FILE --marker TEXT    | --where sidecar:<client_msg_id>
+  stats   per-reviewer verdict mix + results on planted-false controls (reviewer calibration)
   check   exit 1 on: a promotion without a confirmation, a missing marker, or a post-T-1006
           confirmation lacking its evidence result or its vendor quorum
 
@@ -120,11 +121,31 @@ def latest_verdicts(x):
     return list(last.values())
 
 
-def quorum_state(x):
+def calibrated_reviewers(controls_path):
+    """Reviewers that have answered at least one PLANTED-FALSE control and agreed with none (T-1006).
+    Returns (passed, fooled, untested_ok) as sets of reviewer names. A reviewer that has never seen a
+    control is not calibrated: its agree is a claim nobody has checked it can withhold."""
+    passed, fooled = set(), set()
+    if controls_path and os.path.exists(controls_path):
+        for x in load(controls_path)['learnings']:
+            for v in latest_verdicts(x):
+                if v.get('verdict') == 'agree':
+                    fooled.add(v.get('reviewer'))
+                elif v.get('verdict') in ('disagree', 'refine'):
+                    passed.add(v.get('reviewer'))
+    return passed - fooled, fooled
+
+
+CONTROLS = os.path.join(ROOT, 'docs', 'learning-ledger-controls.yaml')
+
+
+def quorum_state(x, controls_path=None):
     author = str(x.get('author_vendor') or AUTHOR_VENDOR).lower()
     vs = latest_verdicts(x)
+    calibrated, _fooled = calibrated_reviewers(controls_path)
     agree_vendors = sorted({str(v.get('vendor')).lower() for v in vs
-                            if v.get('verdict') == 'agree' and str(v.get('vendor')).lower() != author})
+                            if v.get('verdict') == 'agree' and str(v.get('vendor')).lower() != author
+                            and (controls_path is None or v.get('reviewer') in calibrated)})
     against = [v for v in vs if v.get('verdict') in ('disagree', 'refine')]
     return agree_vendors, against, author
 
@@ -153,6 +174,8 @@ def problems(d):
                 out.append('%s: %s without a green evidence re-run (T-1006)' % (i, x['status']))
             if len(c.get('vendors') or []) < QUORUM:
                 out.append('%s: %s without agreement from %d vendors other than the author (T-1006)' % (i, x['status'], QUORUM))
+            elif 'reviewers_calibrated' not in c:
+                out.append('%s: %s before reviewers had to pass planted-false controls; re-run `confirm %s`' % (i, x['status'], i))
         if x.get('status') == 'promoted':
             if not x.get('confirmed_by') and not x.get('confirmation'):
                 out.append('%s: promoted without a confirmation' % i)
@@ -218,10 +241,12 @@ def main(argv=None):
     rv = sub.add_parser('revise'); rv.add_argument('id'); rv.add_argument('--learning')
     rv.add_argument('--proposed-change'); rv.add_argument('--evidence-cmd'); rv.add_argument('--why', required=True)
     c = sub.add_parser('confirm'); c.add_argument('id')
+    c.add_argument('--controls', default=CONTROLS, help='planted-false controls; only reviewers that passed them count')
     c.add_argument('--by', help=argparse.SUPPRESS)
     u = sub.add_parser('rule'); u.add_argument('id'); u.add_argument('--kind', required=True)
     u.add_argument('--decision', required=True)
     p = sub.add_parser('promote'); p.add_argument('id'); p.add_argument('--where', required=True); p.add_argument('--marker')
+    st = sub.add_parser('stats'); st.add_argument('--controls', default=os.path.join(ROOT, 'docs', 'learning-ledger-controls.yaml'))
     sub.add_parser('check')
     a = ap.parse_args(argv)
     d = load(a.ledger)
@@ -314,8 +339,9 @@ def main(argv=None):
                   'not by a person vouching for it (T-1006); use `review`, then `confirm %s`' % a.id, file=sys.stderr)
             return 2
         x = get(a.id)
-        if x.get('status') not in ('proposed', 'escalated'):
-            sys.exit('%s is %s; only a proposed or escalated learning can be confirmed' % (a.id, x.get('status')))
+        recheck = x.get('status') == 'confirmed'  # re-confirm under the current rule; demoted if it fails
+        if x.get('status') not in ('proposed', 'escalated', 'confirmed'):
+            sys.exit('%s is %s; only a proposed, escalated or confirmed learning can be (re)confirmed' % (a.id, x.get('status')))
         why = []
         rc = None
         if not x.get('evidence_cmd'):
@@ -324,7 +350,13 @@ def main(argv=None):
             rc, out = run_evidence(x['evidence_cmd'])
             if rc != 0:
                 why.append('evidence_cmd exits %d:\n    %s' % (rc, out.strip().replace('\n', '\n    ')[-600:]))
-        ag, against, author = quorum_state(x)
+        ag, against, author = quorum_state(x, a.controls)
+        calibrated, fooled = calibrated_reviewers(a.controls)
+        uncounted = sorted({'%s (%s)' % (v.get('reviewer'), 'fooled by a planted-false control' if v.get('reviewer') in fooled
+                            else 'no control result yet') for v in latest_verdicts(x)
+                            if v.get('verdict') == 'agree' and v.get('reviewer') not in calibrated})
+        if uncounted:  # information, not a blocker: the quorum count below already excludes them
+            print('note: agree not counted from: ' + ', '.join(uncounted))
         if against:
             x['status'] = 'escalated'
             why.append('standing %s: %s' % ('/'.join(sorted({v['verdict'] for v in against})),
@@ -332,13 +364,19 @@ def main(argv=None):
         if len(ag) < QUORUM:
             why.append('agree from %d vendor(s) other than %s (%s), need %d' % (len(ag), author, ','.join(ag) or 'none', QUORUM))
         if why:
+            if recheck:
+                x['status'] = 'escalated' if against else 'proposed'
+                x.setdefault('history', []).append({'revision': int(x.get('revision', 0)), 'demoted_from': 'confirmed',
+                                                    'why_revised': 'failed re-check: ' + '; '.join(why)[:300], 'at': now()})
+                x.pop('confirmation', None)
             save(a.ledger, d)
             print('NOT CONFIRMED %s (%s):' % (a.id, x['status']))
             for w in why:
                 print('  - ' + w)
             return 1
         x['status'] = 'confirmed'
-        x['confirmation'] = {'evidence_cmd': x['evidence_cmd'], 'evidence_rc': rc, 'vendors': ag, 'at': now()}
+        x['confirmation'] = {'evidence_cmd': x['evidence_cmd'], 'evidence_rc': rc, 'vendors': ag,
+                             'reviewers_calibrated': sorted(calibrated), 'at': now()}
         save(a.ledger, d); print('%s confirmed: evidence green, agree from %s' % (a.id, ', '.join(ag))); return 0
     if a.cmd == 'rule':
         x = get(a.id)
@@ -361,6 +399,29 @@ def main(argv=None):
         x['status'] = 'promoted'
         x['promoted'] = {'where': a.where} if a.where.startswith('sidecar:') else {'where': a.where, 'marker': a.marker}
         save(a.ledger, d); print('%s promoted into %s' % (a.id, a.where)); return 0
+    if a.cmd == 'stats':
+        # Reviewer calibration (T-1006): verdict mix on real lessons, and what each reviewer said to the
+        # PLANTED-FALSE controls. A reviewer that agrees with a plant does not discriminate.
+        rows = {}
+        for x in d['learnings']:
+            for v in x.get('verdicts') or []:
+                r = rows.setdefault((v.get('reviewer'), v.get('vendor')), {'agree': 0, 'refine': 0, 'disagree': 0, 'no-verdict': 0, 'plants': []})
+                r[v.get('verdict')] = r.get(v.get('verdict'), 0) + 1
+        if os.path.exists(a.controls):
+            for x in load(a.controls)['learnings']:
+                for v in latest_verdicts(x):
+                    r = rows.setdefault((v.get('reviewer'), v.get('vendor')), {'agree': 0, 'refine': 0, 'disagree': 0, 'no-verdict': 0, 'plants': []})
+                    r['plants'].append('%s:%s' % (x['id'], v.get('verdict')))
+        print('%-10s %-8s %5s %6s %8s %10s  %s' % ('reviewer', 'vendor', 'agree', 'refine', 'disagree', 'no-verdict', 'planted-false controls'))
+        for (name, vendor), r in sorted(rows.items(), key=lambda kv: str(kv[0])):
+            n = r['agree'] + r['refine'] + r['disagree']
+            fooled = [p_ for p_ in r['plants'] if p_.endswith(':agree')]
+            flag = '  FOOLED by %s: its agrees carry no weight' % ','.join(fooled) if fooled else ''
+            print('%-10s %-8s %5d %6d %8d %10d  %s%s' % (name, vendor, r['agree'], r['refine'], r['disagree'], r['no-verdict'],
+                  ' '.join(r['plants']) or '-', flag))
+            if n and r['agree'] / n > 0.9:
+                print('%-10s agreed with %d of %d judged verdicts: low discrimination unless the controls say otherwise' % ('', r['agree'], n))
+        return 0
     if a.cmd == 'check':
         ps = problems(d)
         for p_ in ps:
