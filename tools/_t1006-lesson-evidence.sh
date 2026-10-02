@@ -26,10 +26,16 @@ Y
 }
 
 case "${1:-}" in
-L16)  # a rule shipped in the 0.15.2 inputs that the clean map broke, caught only by the real calibration
-  git -C "$ROOT" show --stat 4db14034 | head -3
-  git -C "$ROOT" log -1 --format=%s 4db14034 | grep -q "real calibration caught a wrong rule" \
-    && say "0.15.2 inputs carried a rubric line that made a correct reviewer fault the clean map; nothing ran new rules against clean.bpmn before calibration" ;;
+L16)  # a rule shipped in the 0.15.2 inputs that the clean map broke; only the real calibration caught it
+  say "-- the rubric line as first drafted (-) and as corrected (+) in 4db14034:"
+  git -C "$ROOT" show 4db14034 -- docs/authoring-kit/RUBRIC.md | grep '^[-+] ' | sed 's/^/   /'
+  say "-- what the clean control draws there (the construct the draft called 'invented'):"
+  grep -o '<bpmn:parallelGateway id="[^"]*"[^>]*>' "$CAL/clean.bpmn" | sed 's/^/   /'
+  say "-- the release notes' account of the calibration:"
+  grep -n -i -A2 'real calibration' "$ROOT/docs/releases/RELEASE-NOTES-0.15.2.md" | head -6 | sed 's/^/   /'
+  say "-- was any rule check against clean.bpmn part of the release path before calibration? kit tests naming clean.bpmn:"
+  say "   $(grep -rl 'clean.bpmn' "$ROOT/tests" 2>/dev/null | wc -l) test file(s); release runme mentions calibrate: $(git -C "$ROOT" show 9999dcd2:runme.sh 2>/dev/null | grep -c -i calibrat)"
+  git -C "$ROOT" show 4db14034 -- docs/authoring-kit/RUBRIC.md | grep -q '^-.*gateway added there IS invented' ;;
 L17)  # loop.sh's agent() appends the prompt as the LAST argv element of KIT_*_CMD
   printf '#!/bin/sh\nfor a; do last=$a; done\nprintf "argv: %%s | last: %%.30s\\n" "$*" "$last"\n' > "$W/agent"; chmod +x "$W/agent"
   eval "$(sed -n '/^agent() {/,/^}/p' "$KIT/loop.sh")"   # loop.sh's own function, verbatim
@@ -96,12 +102,12 @@ Y
     && grep -n 'a catch as an entry, so neither draws a reachability warning' "$KIT/AUTHORING.md" | cut -c1-140 \
     && say "...while AUTHORING.md says a catch draws no reachability warning: guide and validator disagree" ;;
 L21)  # the clean control names an end result the source never states, which the kit's own K3 rule forbids
-  grep -n 'name="Accepted order delivered and invoiced"' "$CAL/clean.bpmn" | cut -c1-140
+  grep -n -A1 'name="Accepted order delivered and invoiced"' "$CAL/clean.bpmn" | cut -c1-220
   say "-- the kit's K3 rule, in full:"; sed -n '/Do not invent start and end events/,/^- \*\*One step precedes/p' "$KIT/AUTHORING.md" | sed '$d'
   say "-- the full source text (does it state a final result?):"; sed 's/^/   | /' "$CAL/SOURCE.md"
   say "-- 0.15.2 shipped (499c2896) after the K3 rule landed (9999dcd2); was clean.bpmn's end event touched in between?"
   git -C "$ROOT" log --oneline 9999dcd2^..499c2896 -- docs/authoring-kit/calibration/clean.bpmn | sed 's/^/   /'; say "   (no lines = not touched)"
-  grep -q 'name="Accepted order delivered and invoiced"' "$CAL/clean.bpmn" \
+  grep -A1 'name="Accepted order delivered and invoiced"' "$CAL/clean.bpmn" | grep -q 'source: unstated' \
     && ! grep -q -i 'delivered and invoiced' "$CAL/SOURCE.md" && grep -q -i 'Do not invent start and end events' "$KIT/AUTHORING.md" ;;
 L22)  # partner hit 'is detailed in process X'; the guide has no rule for it
   notes_say 'K14' && ! grep -q -i -E 'callActivity|calledElement|detailed in' "$KIT/AUTHORING.md" \

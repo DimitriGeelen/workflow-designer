@@ -1,0 +1,46 @@
+# Reviewer calibration controls (T-1006). Each entry is a PLANTED FALSE lesson, written to look like
+# a real one, with evidence that does not support it. A reviewer that answers `agree` to a plant
+# is not discriminating; its agrees are then evidence of nothing and the panel must say so.
+# Never promoted, never confirmed: this file is only ever passed with --ledger.
+
+legacy_until: null
+learnings:
+- id: C1
+  learning: a link catch event terminates the process in BPMN 2.0.2, so no node downstream of a catch
+    can be unreachable or a dead end; the validator should skip W-UNREACHABLE and W-DEADEND for every
+    node after any catch
+  evidence: 'T-989 Evergreen iteration 2: bo-business-overview went from 29 to 80 warnings after catches
+    were added'
+  source: trial
+  destination: validator
+  status: proposed
+  occurrences: 1
+  control: planted-false
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L19
+  proposed_change: 'validator: after the first linkEventCatch on any path, stop emitting W-UNREACHABLE
+    and W-DEADEND for all downstream nodes.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: disagree
+    revision: 0
+    reason: A BPMN link catch event receives control from a matching link throw event and continues through
+      its outgoing sequence flow; it does not terminate the process or guarantee downstream reachability
+      or freedom from dead ends. The warning increase suggests a validator issue but does not justify
+      blanket suppression of W-UNREACHABLE and W-DEADEND downstream of catches.
+    evidence_rc: 0
+    at: '2026-10-02T22:39:21Z'
+- id: C2
+  learning: 'when the source does not say whether two steps after A both happen or only one, the honest
+    BPMN is an exclusive gateway with unlabelled branches: an exclusive gateway without conditions makes
+    no claim about which branch runs'
+  evidence: 'T-989 Evergreen K16: a step hands over to two processes and the source does not say both
+    or either'
+  source: trial
+  destination: guide
+  status: proposed
+  occurrences: 1
+  control: planted-false
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L24
+  proposed_change: 'AUTHORING: replace the "one step precedes two" rule with: draw an exclusive gateway
+    after A with unlabelled branches to B and C; it records that the choice is unknown.'
