@@ -1146,6 +1146,22 @@ has_bash_write_pattern() {
     if echo "$cmd" | grep -qE '\bsort\b.*(^|[[:space:]])(-o([[:space:]]|$)|--output)'; then
         return 0
     fi
+    # 832 T-640 (re-applied on 1.7.740 by T-1005). Upstream ALLOWLISTS awk and uniq; ours kept
+    # them gated because each can write without a shell redirect. So the write check must see it:
+    #   awk/gawk/mawk  `print > "f"`, `print | cmd`, `system(...)` live INSIDE the quoted program,
+    #                  which the quote-aware redirect scan above (rightly) ignores — judged on RAW
+    #   uniq IN OUT    the second file operand is an output file
+    if echo "$cmd" | grep -qE '(^|[^[:alnum:]_-])[gm]?awk\b' \
+       && echo "$cmd" | grep -qE '>|system[[:space:]]*\(|print[^|]*\|'; then
+        return 0
+    fi
+    if echo "$_rview" | grep -qE '(^|[;&|[:space:]])uniq\b'; then
+        local _uw _un=0 _after=0
+        for _uw in $(printf '%s' "$cmd" | sed -E 's/.*(^|[;&|[:space:]])uniq\b//; s/[;&|].*//'); do
+            case "$_uw" in -*) ;; *) _un=$((_un + 1)) ;; esac
+        done
+        [ "$_un" -ge 2 ] && return 0
+    fi
 
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
     # T-636 (re-applied by T-1005): verbs named INSIDE a quoted argument of a framework PROSE
