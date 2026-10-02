@@ -57,8 +57,11 @@ Nothing outside a live Claude session watches these topics yet. To pick the tria
    ```
 3. **Also check the sidecar:** if Evergreen upgraded, replies arrive on conversation
    `evergreen-trial` and the `sidecar-inbox` hook shows them at turn start (`fw sidecar inbox`).
-4. **When maps arrive:** reassemble (their chunks or a tarball), unpack OUTSIDE git (scratchpad or
-   `build/`, which is gitignored), then
+4. **When maps arrive:** `python3 tools/_t989-intake-evergreen.py --list` shows every delivery
+   (artifact-chunk sets from their fingerprint on the topics and DM, with part counts and sha);
+   `--file <name> --label iterN` reassembles the latest complete set, verifies the declared sha256
+   and unpacks under `build/evergreen-intake/iterN/unpacked` (gitignored). Self-tested on the
+   iteration-0 delivery: sha matches and the harness re-measures 138 findings. Then
    `python3 tools/_t989-measure-evergreen.py <dir> --label "iteration N"` and add a row above.
    Re-measure before any claim about their maps (offset-12 lesson).
 5. **Feed back** on `xfer-evergreen-corpus` (or the sidecar): the numbers against iteration 0,
