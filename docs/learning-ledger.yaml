@@ -219,3 +219,25 @@ learnings:
   destination: rubric
   status: proposed
   occurrences: 1
+- id: L17
+  learning: loop.sh appends the prompt as the last argument of KIT_*_CMD, so a command ending in a variadic
+    option (claude --allowedTools ...) swallows the prompt and the agent starts with none; the header
+    must say the command has to end where an appended argument is read as the prompt
+  evidence: 'T-989 Evergreen offset 22 (calibration of kit 0.15.1, reviewer Claude Sonnet via claude -p)
+    K9: run 1 COULD NOT MEASURE until --allowedTools was moved before a single-value flag'
+  source: trial
+  destination: tooling
+  status: proposed
+  occurrences: 1
+- id: L18
+  learning: 'the calibration clean map must be one no careful reviewer can fault: its branch "accepted
+    orders" on gateway "Credit limit exceeded?" is not the answer to the question (the override path also
+    yields accepted orders); leave that branch unlabelled (BPMN default = otherwise, no words the source
+    lacks) rather than exempting source-worded labels from readability findings'
+  evidence: 'T-989 Evergreen offset 22 (calibration of kit 0.15.1, reviewer Claude Sonnet via claude -p)
+    K10: 3/3 caught, 1 minor readability finding on clean.bpmn credit-limit-exceeded--pick-parts (same
+    on planted) -> FAIL; GLM-5.2 never raised it, so reviewers differ on it and the control is not clean'
+  source: trial
+  destination: tooling
+  status: proposed
+  occurrences: 1
