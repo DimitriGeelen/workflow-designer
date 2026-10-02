@@ -31,7 +31,17 @@ is written into `/opt/832-Workflow-designer/runme.sh`, and the operator runs exa
 The script states what it will do, checks preconditions before writing anything, asks y/N before
 each step that changes state, logs to `.context/working/runme-<ts>.log`, and supports
 `--dry-run`. The agent reads it, runs only `--dry-run`, and never runs it for real. Overwriting
-runme.sh is fine once its previous job is done (check the log/outcome first).
+runme.sh is fine once its previous job is done (check the log/outcome first) — and NEVER while it
+is running (`pgrep -af runme.sh`): bash reads a running script as it goes, so an edit corrupts it.
+
+**It signals the agent (T-1003).** Every runme.sh sources `tools/runme-signal.sh` right after its
+log is set up and calls `runme_signal_init "<what it does>" "$LOG"`, plus `runme_signal step "…"`
+at each step. That writes one line per event (started / step / done / STOPPED, the last two from
+an EXIT/INT/TERM/HUP trap) to `.context/working/runme.events` and posts it to TermLink topic
+`runme-832` (detached, never slows or breaks the script). When handing a runme.sh to the operator,
+the agent arms `bash tools/runme-watch.sh` as a BACKGROUND task: it exits on the first new event,
+which wakes the agent; read the log, act, re-arm. A sidecar message alone does not wake the agent
+(the inbox is read at the next prompt) — that is why the watcher exists.
 
 ## Core Principle
 
