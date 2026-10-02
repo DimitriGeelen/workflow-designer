@@ -1537,3 +1537,33 @@ entries:
       not list it as STALE: the protocol only protects declared fixes. Re-applied by T-1005
       with the matching rc=3 refusal in update-task.sh. Upstream T-3546 adopted the other half
       of T-943 (say the zero); this half is still owed upstream.
+  # ── T-1005: local ADDITIONS that were never declared; the 1.7.740 re-vendor deleted them and
+  #    the protocol could not list them (it sees only declared paths). Restored from 2659abad^. ──
+  - path: .agentic-framework/agents/context/check-bare-import.sh
+    kind: added
+    task: T-936, T-1005
+    upstream: fix
+    reason: >-
+      Detector added by T-936. Undeclared, so deleted silently by the 1.7.740 re-vendor; restored.
+      Its hook wiring is re-checked under T-1005.
+  - path: .agentic-framework/lib/instance-position.sh
+    kind: added
+    task: T-880, T-883, T-1005
+    upstream: fix
+    reason: >-
+      Instance-node position library (T-880) and its refusal audit (T-883). Undeclared, deleted
+      by the 1.7.740 re-vendor; restored. Callers in update-task.sh are re-applied under T-1005.
+  - path: .agentic-framework/lib/task-ownership.sh
+    kind: added
+    task: T-931, T-1005
+    upstream: fix
+    reason: >-
+      Ownership reverts through the R-033 gate (T-931). Undeclared, deleted by the 1.7.740
+      re-vendor; restored.
+  - path: .agentic-framework/lib/verification-absence.sh
+    kind: added
+    task: T-843, T-1005
+    upstream: fix
+    reason: >-
+      Absence-assertion detector for P-011 Verification blocks (T-843). Undeclared, deleted by the
+      1.7.740 re-vendor; restored. Its call site in update-task.sh is re-applied under T-1005.

@@ -286,36 +286,69 @@ MUT="$FARM/agents/task-create/update-task.sh"
 # generic anchor (the _sed_i text alone) matches both null sites, breaks the ordinary
 # path too, and then leg 3's regression cannot be attributed to region A at all — which
 # is what this leg reported before the marker existed.
-sed 's|^\([[:space:]]*\)_sed_i .*# T-654$|\1: # T-654 reverted|' "$UPDATE" > "$MUT"
-REMAINING=$(grep -c 'horizon: null/" "\$TASK_FILE"' "$MUT" || true)
-# T-661: "every T-654-marked null is gone" rather than "exactly one was". The upper bound
-# was never the property — region A gaining a second marked null is a correct change, and
-# the old equality would have called it a mutation failure. Region B's survival is still
-# asserted separately below; that one IS an exactness claim and stays.
-if ! REVERTED=$(assert_mutation_complete "$UPDATE" "$MUT" '^[[:space:]]*_sed_i .*# T-654$' 'T-654-marked null'); then
-    bad "$REVERTED"
-elif [ "$REMAINING" -lt 1 ]; then
-    bad "MUTATION TOO BROAD — region B's null was neutralised as well ($REMAINING left); leg 1 would fail for the wrong reason."
-else
-    UPDATE_SAVED="$UPDATE"; UPDATE="$MUT"
-    write_task T-9006 work-completed human x
-    complete T-9006 >/dev/null
-    M_ARCHIVED=$(stored_horizon T-9006 || echo "<none>")
-
-    write_task T-9007 started-work agent x
-    complete T-9007 >/dev/null
-    M_ORDINARY=$(stored_horizon T-9007 || echo "<none>")
-    UPDATE="$UPDATE_SAVED"
-
-    if [ "$M_ARCHIVED" != "null" ] && [ "$M_ORDINARY" = "null" ]; then
-        ok "mutant: region-A horizon='$M_ARCHIVED' (regressed), region-B horizon='null' (intact) — leg 3 is load-bearing and leg 1 is independent of it"
-    elif [ "$M_ORDINARY" != "null" ]; then
-        bad "mutant broke the ORDINARY path too (horizon='$M_ORDINARY') — the mutation is too broad to attribute leg 3's failure to region A"
+if grep -q '_sed_i .*# T-654$' "$UPDATE"; then
+    sed 's|^\([[:space:]]*\)_sed_i .*# T-654$|\1: # T-654 reverted|' "$UPDATE" > "$MUT"
+    REMAINING=$(grep -c 'horizon: null/" "\$TASK_FILE"' "$MUT" || true)
+    # T-661: "every T-654-marked null is gone" rather than "exactly one was". The upper bound
+    # was never the property — region A gaining a second marked null is a correct change, and
+    # the old equality would have called it a mutation failure. Region B's survival is still
+    # asserted separately below; that one IS an exactness claim and stays.
+    if ! REVERTED=$(assert_mutation_complete "$UPDATE" "$MUT" '^[[:space:]]*_sed_i .*# T-654$' 'T-654-marked null'); then
+        bad "$REVERTED"
+    elif [ "$REMAINING" -lt 1 ]; then
+        bad "MUTATION TOO BROAD — region B's null was neutralised as well ($REMAINING left); leg 1 would fail for the wrong reason."
     else
-        bad "mutant still nulled region A's horizon ('$M_ARCHIVED') — leg 3 cannot fail and proves nothing"
+        UPDATE_SAVED="$UPDATE"; UPDATE="$MUT"
+        write_task T-9006 work-completed human x
+        complete T-9006 >/dev/null
+        M_ARCHIVED=$(stored_horizon T-9006 || echo "<none>")
+
+        write_task T-9007 started-work agent x
+        complete T-9007 >/dev/null
+        M_ORDINARY=$(stored_horizon T-9007 || echo "<none>")
+        UPDATE="$UPDATE_SAVED"
+
+        if [ "$M_ARCHIVED" != "null" ] && [ "$M_ORDINARY" = "null" ]; then
+            ok "mutant: region-A horizon='$M_ARCHIVED' (regressed), region-B horizon='null' (intact) — leg 3 is load-bearing and leg 1 is independent of it"
+        elif [ "$M_ORDINARY" != "null" ]; then
+            bad "mutant broke the ORDINARY path too (horizon='$M_ORDINARY') — the mutation is too broad to attribute leg 3's failure to region A"
+        else
+            bad "mutant still nulled region A's horizon ('$M_ARCHIVED') — leg 3 cannot fail and proves nothing"
+        fi
+    fi
+
+else
+    # T-1005: on 1.7.740 there are no two regions. Upstream replaced both null sites with ONE
+    # end-of-script invariant ("a task file that lives in .tasks/completed/ carries horizon:
+    # null"), which covers the archive path T-654 fixed and every other path at once. So the
+    # mutation removes that invariant, and BOTH paths must regress — that is what proves the
+    # behaviour legs above still depend on it.
+    python3 - "$UPDATE" "$MUT" <<'PY'
+import sys
+src = open(sys.argv[1]).read()
+needle = '    _sed_i "s/^horizon:.*/horizon: null/" "$TASK_FILE"\nfi\n'
+if src.count(needle) != 1:
+    sys.stderr.write("upstream invariant anchor matches %d sites\n" % src.count(needle)); sys.exit(1)
+open(sys.argv[2], "w").write(src.replace(needle, '    : # invariant reverted\nfi\n', 1))
+PY
+    if [ $? -ne 0 ] || cmp -s "$UPDATE" "$MUT"; then
+        bad "STALE ANCHOR — neither the T-654 marker nor upstream's completed/ invariant found; the mutant is unmodified"
+    else
+        UPDATE_SAVED="$UPDATE"; UPDATE="$MUT"
+        write_task T-9006 work-completed human x
+        complete T-9006 >/dev/null
+        M_ARCHIVED=$(stored_horizon T-9006 || echo "<none>")
+        write_task T-9007 started-work agent x
+        complete T-9007 >/dev/null
+        M_ORDINARY=$(stored_horizon T-9007 || echo "<none>")
+        UPDATE="$UPDATE_SAVED"
+        if [ "$M_ARCHIVED" != "null" ] && [ "$M_ORDINARY" != "null" ]; then
+            ok "mutant (upstream invariant removed): archived='$M_ARCHIVED', ordinary='$M_ORDINARY' — both regress, so the legs above are load-bearing on it"
+        else
+            bad "mutant without the invariant still nulled a horizon (archived='$M_ARCHIVED', ordinary='$M_ORDINARY') — a second null site exists, or the legs cannot fail"
+        fi
     fi
 fi
-
 echo
 echo "=== $PASS passed, $FAIL failed ==="
 [ "$FAIL" -eq 0 ]
