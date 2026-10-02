@@ -222,7 +222,7 @@ learnings:
     each citing the new v4 line; the line was corrected and the kit recalibrated'
   source: loop
   destination: tooling
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L16
   proposed_change: 'Kit release tooling (runme preflight): every new or changed guide/rubric rule goes
@@ -345,6 +345,39 @@ learnings:
       Findings on clean.bpmn block the release pending investigation against BPMN semantics and SOURCE.md,
       correcting whichever artefact is wrong; when that cannot be established, record the conflict as
       open rather than resolving it by assertion.'
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 4
+    reason: 'The evidence supports adding calibration to the release path and investigating clean-control
+      findings before release. The proposed change correctly avoids assuming the control is authoritative:
+      a parallel join synchronizes incoming branches, whereas ordinary converging sequence flows do not,
+      so either the rule or the control may need correction.'
+    evidence_rc: 0
+    at: '2026-10-02T23:22:19Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 4
+    reason: 'The evidence chain holds: the drafted v4 line flagged clean.bpmn''s own parallel fork/join
+      (2 false findings at T-993), was corrected in 4db14034, and the release runme previously had no
+      calibrate/clean-map check, so only the real calibration exposed the conflict. The proposed gating
+      is sound and its ''record as open rather than assert'' guard correctly reflects that the ''parallel
+      join = plain flows'' resolution is itself shaky BPMN-wise (an AND-join synchronizes tokens, unlike
+      a plain implicit merge).'
+    evidence_rc: 0
+    at: '2026-10-02T23:22:42Z'
+  - reviewer: antigravity
+    vendor: google
+    verdict: agree
+    revision: 4
+    reason: The evidence confirms that clean control map conflicts were missed by existing test suites
+      and only surfaced during calibration, supporting the requirement for preflight calibration checks.
+      Furthermore, BPMN 2.0 semantics dictate that parallel joins synchronize tokens rather than behaving
+      like uncontrolled flows, confirming that the original discrepancy was hastily resolved by an incorrect
+      assertion.
+    evidence_rc: 0
+    at: '2026-10-02T23:23:04Z'
   history:
   - revision: 0
     learning: 'a new rubric or guide rule must be checked against the calibration clean map before it
@@ -402,6 +435,19 @@ learnings:
       my scope expansion beyond the evidence'
     at: '2026-10-02T23:20:53Z'
   revision: 4
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L16
+    evidence_rc: 0
+    vendors:
+    - google
+    - openai
+    - zai
+    reviewers_calibrated:
+    - antigravity
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:24:09Z'
 - id: L17
   learning: 'loop.sh appends the prompt as the last argument of KIT_*_CMD; with claude -p, whose --allowedTools
     is variadic (<tools...>), a command ending in that option takes the prompt as one more tool name and
@@ -761,7 +807,7 @@ learnings:
     Opus); K12; measured by us: loop/bo-business-overview map.bpmn 80 findings vs 29'
   source: trial
   destination: validator
-  status: proposed
+  status: escalated
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L19
   proposed_change: 'validator reachability: build the effective flow graph with valid same-scope throw-to-catch
@@ -908,6 +954,45 @@ learnings:
       warning storm while maintaining granular validation in seeded flows.
     evidence_rc: 0
     at: '2026-10-02T23:20:00Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 5
+    reason: The example demonstrates a diagnostic jump when a catch enables analysis, but does not establish
+      that all nodes must be downstream of catches or verify the reported 29→80 increase. Reachability
+      must consider all valid entries, and lack of an explicit throw/end does not alone establish a dead
+      end.
+    evidence_rc: 0
+    at: '2026-10-02T23:23:21Z'
+    refinement: Build the effective graph within each flow scope, resolving valid link transfers and recognizing
+      explicit starts, valid implicit entries/completions, and documented hand-over conventions. Report
+      genuinely seedless weak components once, retain per-node reachability within seeded components,
+      and aggregate dead-end findings only after individually proving that nodes cannot reach any valid
+      completion.
+  - reviewer: antigravity
+    vendor: google
+    verdict: agree
+    revision: 5
+    reason: The evidence confirms that introducing a single link catch seed triggers global reachability
+      checks that flood unrelated stated chains with per-node unreachable and dead-end warnings. Evaluating
+      reachability per weakly connected component and reporting seedless components once correctly eliminates
+      diagnostic cascades while preserving per-node analysis within seeded components.
+    evidence_rc: 0
+    at: '2026-10-02T23:23:40Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 5
+    reason: 'The evidence directly reproduces the claim: with no start/catch the validator emits a single
+      W-NO-START-EVENT and assesses nothing (0/0), while adding one hand-over catch makes it the sole
+      seed and floods every other node per-node (5 UNREACHABLE + 5 DEADEND, including both source-stated
+      chains), matching the docstring that linkEventCatch nodes are additional seeds and the 29-to-80
+      blowup on bo-business-overview. The proposed fix is sound BPMN-wise (same-scope throw-to-catch transfers,
+      explicit/implicit/hand-over seeds) and generalizes the kit''s existing single-finding no-start convention:
+      one finding per genuinely seedless component, per-node analysis retained where a seed exists, and
+      dead-ends only where individually proven.'
+    evidence_rc: 0
+    at: '2026-10-02T23:24:08Z'
   history:
   - revision: 0
     learning: 'reachability is per NODE from any seed: once a map has one link catch (K4 hand-over), every
@@ -1084,7 +1169,7 @@ learnings:
     Opus); K13; Sonnet flagged it on clean.bpmn; GLM did not
   source: trial
   destination: tooling
-  status: proposed
+  status: escalated
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L21
   proposed_change: 'calibration/clean.bpmn: make the end event an UNNAMED none end event cited ''source:
@@ -1160,6 +1245,41 @@ learnings:
       for an end event.
     evidence_rc: 0
     at: '2026-10-02T23:15:13Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: disagree
+    revision: 3
+    reason: 'The source explicitly describes delivery and invoice sending, so the end label can reasonably
+      summarize a supported outcome; ''source: unstated'' does not make it wrong under every reading of
+      K3. Requiring separately stated outcome language would introduce a stricter authoring policy, not
+      establish or correct a demonstrated BPMN error.'
+    evidence_rc: 0
+    at: '2026-10-02T23:21:15Z'
+  - reviewer: antigravity
+    vendor: google
+    verdict: agree
+    revision: 3
+    reason: 'The calibration end event is internally contradictory by pairing a descriptive outcome name
+      with a ''source: unstated'' citation, which violates K3 under any interpretation. The proposed change
+      correctly removes the invented name from clean.bpmn and resolves reviewer divergence by clarifying
+      in K3 that outcomes conveyed only through final activities remain unnamed.'
+    evidence_rc: 0
+    at: '2026-10-02T23:21:55Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 3
+    reason: 'The artifact pairs a name asserting an outcome (''delivered and invoiced'') with a ''source:
+      unstated'' citation in non-canonical wording, and the git check shows it was left untouched when
+      K3''s canonical rule landed — inconsistent under either reading (if activities convey the outcome
+      the citation is false; if not, the name must go), so ''wrong under any reading'' holds. K3''s full
+      text genuinely does not settle whether trailing activities count as a stated outcome, and the fix
+      — unnamed none end event with the exact canonical citation — asserts nothing false under either
+      reading, while the K3 addition (''name an end event only when the source names the outcome itself,
+      e.g. a state like the order is closed'') is a sound bright-line rule consistent with K3''s existing
+      treatment of triggers.'
+    evidence_rc: 0
+    at: '2026-10-02T23:22:07Z'
   history:
   - revision: 0
     learning: 'the calibration clean map names its end event "Accepted order delivered and invoiced",

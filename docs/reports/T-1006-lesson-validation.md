@@ -98,3 +98,30 @@ operator-approved 2026-09-30. `review` now accepts a `{prompt}` token for that f
 ## What the operator is asked
 Nothing. L27 was the one candidate VALUE question (keep the AEF link convention or move to message
 flows); the panel settled it — keep the convention, declare it, name the standard alternative.
+
+## Final state (2026-10-03, six rounds, three calibrated vendors)
+
+| reviewer | vendor | agree | refine | disagree | no-verdict | planted-false controls |
+|---|---|---|---|---|---|---|
+| codex | OpenAI | 11 | 19 | 6 | 0 | disagree, disagree |
+| glm-5.3 | Z.AI | 33 | 1 | 0 | 3 | disagree, disagree (at 1800 s) |
+| antigravity | Google | 10 | 1 | 1 | 0 | disagree, disagree |
+
+**Confirmed (10), each with green evidence and agree from all three calibrated vendors:**
+L16 (release tooling: calibrate before release), L17 (loop.sh prompt placement), L18 (clean AND
+planted map: default flow), L20 (catch draws no W-DEADEND), L22 (detailed-in: task + note; callActivity
+only on invocation), L23 (duplicate display names), L24 (K2 for hand-overs), L25 (multi-quote
+citations), L26 (parallel join is not plain convergence), L27 (cross-map links are an AEF convention).
+
+**Open (2), lone dissent from codex after 5-6 rounds, two calibrated vendors agreeing:**
+- L19 (validator reachability per component): codex keeps narrowing the proposed algorithm. The
+  remaining question is design detail, best settled by building it behind tests, not by more wording.
+- L21 (clean map's end event): a real 2-1 split on whether an outcome conveyed only by the last
+  activities is "stated". The proposed fix (unnamed end, cited unstated) is acceptable under codex's
+  own reading too — codex objects to the claim that the name is wrong, not to the fix.
+
+A rule for lone persistent dissent is NOT built yet; it is a process choice, recorded here, not taken.
+Candidate: after 3 rounds with the same single dissenter and >=2 calibrated agrees, ship only if the
+proposed change is not wrong under the dissenter's own stated reading, and record the dissent.
+
+Kit 0.15.3 can now be built from the 10 confirmed lessons.
