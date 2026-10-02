@@ -176,6 +176,10 @@ def problems(d):
                 out.append('%s: %s without agreement from %d vendors other than the author (T-1006)' % (i, x['status'], QUORUM))
             elif 'reviewers_calibrated' not in c:
                 out.append('%s: %s before reviewers had to pass planted-false controls; re-run `confirm %s`' % (i, x['status'], i))
+            late = [v for v in latest_verdicts(x) if v.get('verdict') in ('disagree', 'refine') and v.get('at', '') > c.get('at', '')]
+            if late:
+                out.append('%s: %s, then %s said %s; re-run `confirm %s`' % (
+                    i, x['status'], late[0].get('reviewer'), late[0].get('verdict'), i))
         if x.get('status') == 'promoted':
             if not x.get('confirmed_by') and not x.get('confirmation'):
                 out.append('%s: promoted without a confirmation' % i)

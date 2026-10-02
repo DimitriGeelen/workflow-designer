@@ -145,5 +145,14 @@ printf '#!/bin/sh\n[ "$1" = "-p" ] && [ "$3" = "--mode" ] && case "$2" in *"LESS
 fresh; L review L2 --reviewer-cmd "$W/pstub -p {prompt} --mode plan" --vendor google --name agy >/dev/null
 grep -q "reason: placed" "$W/l.yaml" && ok "{prompt} placement + closed stdin" || bad "{prompt} placement + closed stdin"
 
+# 16. a reviewer that disagrees AFTER confirmation makes check flag it, and re-check escalates it
+cp "$W/ctl.orig" "$W/ctl.yaml"; fresh
+for v in openai zai; do L review L2 --reviewer-cmd "$W/agree" --vendor $v --name r-$v >/dev/null; done
+C L2 >/dev/null; sleep 1
+L review L2 --reviewer-cmd "$W/disagree" --vendor google --name gemini >/dev/null
+L check > "$W/o"; k=$?; C L2 >/dev/null
+[ $k -ne 0 ] && grep -q "then gemini said disagree" "$W/o" && grep -q "status: escalated" "$W/l.yaml" \
+  && ok "late disagree flagged; re-check escalates" || bad "late disagree flagged; re-check escalates"
+
 echo "t1006: $pass passed, $fail failed"
 [ $fail -eq 0 ]
