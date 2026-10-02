@@ -1,13 +1,10 @@
 ---
-id: T-1000
-name: "Gate re-vendoring: an upgrade is not committed while _t517 reports STALE local
-  fixes (applies to T-988 now)"
+id: T-1005
+name: "Re-vendor step 3 for 1.7.740: re-apply or reclassify the remaining 47 STALE local fixes, file by file with each file's probes"
 description: >
-  F5 + T-944: re-vendoring reverted >=4 local fixes and removed rails twice; the T-988
-  upgrade sits uncommitted with the T-952 rail already erased. From inception T-995
-  (GO 2026-10-02), docs/reports/T-995-bridge-suite-slide.md.
+  T-988 landed through the T-1000 protocol (pristine 2659abad, baseline d9f997bf). _t517 then named 51 STALE declared local fixes; all 51 patches apply mechanically (22 clean, 29 three-way), none already present upstream. Done: T-996 (a3f02cd5), batch 1 web T-568/T-569/T-606/T-646 (b8eb4af6) -> 47 left. update-task.sh (17 local commits) gives 13 conflicts in a bulk 3-way merge: re-apply commit by commit, checking which upstream adopted differently. Worklist: build/revendor-worklist/2659abad2146/WORKLIST.md (regenerate with tools/_t1000-revendor-worklist.py). Each file: apply, resolve, run its probe(s), commit; done when _t517 is clean. Highest value first: update-task.sh (P-011 gate T-574/T-943, bridge legs), audit.sh (T-657, T-952 rails — or move them out per T-999), observe.sh, safe-commands.sh.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
 horizon: now
@@ -40,9 +37,9 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-02T16:38:22Z
-last_update: 2026-10-02T17:25:54Z
-date_finished:
+created: 2026-10-02T17:25:40Z
+last_update: 2026-10-02T17:25:40Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -53,45 +50,20 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-02T16:44:02Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 1
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (L0: no signal); F3=0 (L0: no
-      signal); F1=1 (L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1000: Gate re-vendoring: an upgrade is not committed while _t517 reports STALE local fixes (applies to T-988 now)
+# T-1005: Re-vendor step 3 for 1.7.740: re-apply or reclassify the remaining 47 STALE local fixes, file by file with each file's probes
 
 ## Context
 
-T-995 GO (B4). Re-vendoring reverted local fixes twice (T-840 on 09-25, T-944; the uncommitted
-T-988 now). On 2026-10-02 `_t517` on the working tree: 11 STALE declared local fixes, 1599
-unrecorded, 2 reclassified. The upgrade must not land until each STALE fix is resolved.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-Operator chose option A (2026-10-02): the re-vendor protocol with a moving baseline, enforced by
-hooks; "this is what AEF needs to adopt in the framework" (sent: conversation revendor-protocol).
-
-- [ ] Gate script (project-owned, tools/_t1000-revendor-gate.sh): G1 refuses a commit that changes .agentic-framework/VERSION and stages any path outside .agentic-framework/; G2 refuses every commit right after a pristine-vendor commit (HEAD changed VERSION) unless it advances .vendor-divergence.yaml baseline_commit to HEAD; both refusals name the protocol step to take
-- [ ] Installer (tools/_t1000-install-hook.sh) adds one marked line to .git/hooks/pre-commit, idempotent; the framework hook has no extension point, so a hook reinstall removes it — stated, B3 (T-999) flags its absence, U1 asked AEF for the seam
-- [ ] Worklist tool (tools/_t1000-revendor-worklist.py): after the baseline advance, lists every STALE entry with task/reason, the local commits that touched it, and a patch from the pre-upgrade tree, written under build/ (not committed)
-- [ ] Tested in a scratch git repo: G1 refuses a mixed upgrade commit and passes a pristine one; G2 refuses an ordinary commit after a pristine commit and passes the baseline-advance commit; ordinary commits with no upgrade pass (each leg shown to bite)
-- [ ] docs/reports/T-1000-revendor-gate.md records the protocol, the operator's choice, and how T-988 lands under it (runme.sh sequence prepared, dry-run only)
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -344,10 +316,7 @@ hooks; "this is what AEF needs to adopt in the framework" (sent: conversation re
 
 ## Updates
 
-### 2026-10-02T16:38:22Z — task-created [task-create-agent]
+### 2026-10-02T17:25:40Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1000-gate-re-vendoring-an-upgrade-is-not-comm.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1005-re-vendor-step-3-for-17740-re-apply-or-r.md
 - **Context:** Initial task creation
-
-### 2026-10-02T16:44:02Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work

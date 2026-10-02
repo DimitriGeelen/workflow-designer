@@ -98,3 +98,19 @@ Sequence (to be wrapped in runme.sh when the operator decides T-988):
 3. `_t1000-revendor-worklist.py`, then re-apply (the 10 T-840 patches, T-996, and whatever 1.7.740
    overwrote) and reclassify;
 4. `_t517` clean, then close T-988's divergence criterion.
+
+## First real use: T-988 landed (2026-10-02)
+
+- Operator ran runme.sh: pristine commit **2659abad** (1561 vendored paths), baseline advance
+  **d9f997bf**. The step-1 commit hung ~10 min in the framework post-commit hook (O(files x cards)
+  grep spawns, T-1004); the advisory hook was stopped after the commit had landed. Step 2 was
+  then confirmed by typeahead (the operator had pressed y while waiting), which led to
+  `runme_confirm` (T-1003).
+- `_t517` against the new baseline: **0 unrecorded** (was 1599: the phantom "local changes" were
+  upstream changes), **51 STALE**, each named with its task. This is the visibility the protocol
+  exists for: before, the same tree reported 11 STALE and could not attribute the rest.
+- Mechanical triage: all 51 patches apply (22 clean, 29 three-way); 0 already present upstream.
+- Re-applied so far: T-996 (a3f02cd5); batch 1, the live Watchtower defects T-568 / T-569 / T-606 /
+  T-646 (b8eb4af6): probes green, live T-568 probe green after a Watchtower restart. **47 left**,
+  tracked in T-1005. update-task.sh (17 local commits) conflicts 13 times in a bulk merge and is
+  being done commit by commit.
