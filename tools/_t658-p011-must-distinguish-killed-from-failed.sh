@@ -115,7 +115,9 @@ for code in 128 127 2; do
     # An absence-assertion passes on a run that produced NOTHING. Caught live here: a
     # harness syntax error made every other leg fail while this one reported PASS, because
     # "no kill language" is trivially true of an error message. Require the positive too.
-    echo "$OUT" | grep -q 'FAIL' || BOUND_MUTE="$BOUND_MUTE $code"
+    # T-1005: 1.7.740 reports 127 as NOT RUNNABLE (upstream adopted our T-871) — still a
+    # non-pass verdict, which is all this positive control needs.
+    echo "$OUT" | grep -qE 'FAIL|NOT RUNNABLE' || BOUND_MUTE="$BOUND_MUTE $code"
 done
 if [ -n "$BOUND_MUTE" ]; then
     bad "PRECONDITION FAILED — no FAIL verdict at all for exit code(s):$BOUND_MUTE (the run did not happen; absence of kill language proves nothing)"

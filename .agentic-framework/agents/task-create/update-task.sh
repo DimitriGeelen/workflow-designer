@@ -1466,6 +1466,11 @@ run_verification_commands() {
     verify_pass=0
     verify_fail=0
     verify_failures=""
+    # T-658 (re-applied on 1.7.740 by T-1005): a command KILLED by timeout or a signal has not
+    # failed — it never finished, and said nothing about the code. Counted apart, reported apart.
+    local verify_unfinished verify_unfinished_list _vk_signal _vk_ran
+    verify_unfinished=0
+    verify_unfinished_list=""
 
     echo ""
     echo -e "${CYAN}=== Verification Gate (P-011) ===${NC}"
@@ -1529,7 +1534,24 @@ run_verification_commands() {
             # a confusing gate into a silent one. What changes is that the message
             # now names the cause and the fix, because a refusal nobody can act on
             # is how 801 unrunnable lines accumulated unnoticed.
-            if [ "$exit_code" -eq 127 ]; then
+            # T-658: 124 = timeout(1) fired; 129-192 = killed by signal (exit - 128).
+            _vk_signal=""
+            if [ "$exit_code" -eq 124 ]; then
+                _vk_signal="timeout"
+            elif [ "$exit_code" -gt 128 ] && [ "$exit_code" -le 192 ]; then
+                _vk_signal="signal $((exit_code - 128))"
+            fi
+            if [ -n "$_vk_signal" ]; then
+                # T-658: 124 = timeout(1) fired; 129-192 = killed by signal (exit - 128).
+                echo -e "  ${YELLOW}DID NOT FINISH${NC}: $display_cmd (killed — $_vk_signal, exit $exit_code)"
+                if [ -s /tmp/verify-$$.out ]; then
+                    head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+                else
+                    echo "    (no output captured before the process was killed)"
+                fi
+                verify_unfinished=$((verify_unfinished + 1))
+                verify_unfinished_list="${verify_unfinished_list}\n  - $display_cmd (killed — $_vk_signal)"
+            elif [ "$exit_code" -eq 127 ]; then
                 echo -e "  ${RED}NOT RUNNABLE${NC}: $display_cmd (exit 127 — command not found)"
                 head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
                 echo -e "    ${YELLOW}This is not a failed check — the command does not exist, so nothing"
@@ -1600,8 +1622,31 @@ run_verification_commands() {
             echo -e "${YELLOW}WARNING: $verify_fail/$verify_total verification(s) failed (--skip-verification bypass)${NC}"
             log_gate_bypass "--skip-verification" "run_verification_commands"
         else
-            echo -e "${RED}ERROR: Cannot complete — $verify_fail/$verify_total verification(s) failed:${NC}" >&2
-            echo -e "$verify_failures" >&2
+            _vk_ran=$((verify_fail - verify_unfinished))
+            if [ "$verify_unfinished" -gt 0 ]; then
+                # T-658: never let "killed" read as "failed" in the summary either.
+                echo -e "${RED}ERROR: Cannot complete — $verify_fail/$verify_total verification(s) did not pass:${NC}" >&2
+                if [ "$_vk_ran" -gt 0 ]; then
+                    echo "" >&2
+                    echo "  $_vk_ran ran and reported a failure:" >&2
+                    echo -e "$verify_failures" >&2
+                fi
+                echo "" >&2
+                echo "  $verify_unfinished never finished (killed, not failed):" >&2
+                echo -e "$verify_unfinished_list" >&2
+                echo "" >&2
+                echo "A killed command has told you nothing about your code. Do not 'fix' it" >&2
+                echo "until you know it can complete at all." >&2
+                echo "" >&2
+                echo "Most common cause (OBS-332): a whole \`fw audit\` invocation in ## Verification." >&2
+                echo "It runs from inside the very transaction it is auditing and contends with the" >&2
+                echo "lock FDs this transition holds, so it can hang indefinitely — and it makes this" >&2
+                echo "task's completion depend on every unrelated warning in the tree. Use a single" >&2
+                echo "section instead: fw audit --section <name>" >&2
+            else
+                echo -e "${RED}ERROR: Cannot complete — $verify_fail/$verify_total verification(s) failed:${NC}" >&2
+                echo -e "$verify_failures" >&2
+            fi
             echo "" >&2
             echo "Options:" >&2
             echo "  1. Fix the issues and retry" >&2
