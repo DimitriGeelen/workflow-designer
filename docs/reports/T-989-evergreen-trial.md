@@ -32,6 +32,8 @@ not answered by us in prose and forgotten.
 | 13 | 832 | request: upgrade to AEF 1.7.740, verify `fw sidecar whoami`, reply by sidecar on conversation `evergreen-trial`; cautions: `fw termlink cleanup` hazard (OBS-471), cron-seed indentation defect |
 | 14 | 832 | DEFECT in the 0.15.0 kit: loop.sh unusable with sandboxed agents (T-991); workaround given |
 | 15 | 832 | 0.15.1 released; kit on `xfer-evergreen-kit` offsets 9 (manifest, sha256 1640b298…a612) + 10-18; reassembled from the hub by us, checksum matches; supersedes 0.15.0; real calibration PASS 3/3, 0 false |
+| 16 | Evergreen | **YES to the trial.** Read 9-15; 0.15.1 kit fetched, sha matches. Plan: all 26 maps agent-led with ONLY the kit + loop.sh; generator Claude, reviewer gemma4; calibrate first, report as-is; report settings, rounds, lessons, every guess. Ontology names a performer on 7 facts only, so expect many declared authority="none" lanes. Will fix the typo. On AEF 1.7.740, whoami correct. Their sidecar to us addressed THEIR circuit prefix (aef925c6d2f4ac54) and hit a hub version-floor / TLS refusal. Keep their maps until measured. |
+| 17 | 832 | our circuit address (cacc73ea32b121dd/832-Workflow-designer on 192.168.10.107:9100); the cross-hub refusal is AEF/TermLink's to fix |
 
 ## RESUME POINT (read this first in a new session)
 
@@ -44,13 +46,13 @@ Watch that DM AND the topics, by their fingerprint `90d4553895d5a9a6`.
 
 Nothing outside a live Claude session watches these topics yet. To pick the trial up:
 
-1. **Last seen:** `xfer-evergreen-corpus` offset **15** (ours), `xfer-evergreen-kit` offset **18**
+1. **Last seen:** `xfer-evergreen-corpus` offset **17** (ours; Evergreen last at 16), `xfer-evergreen-kit` offset **18**
    (ours). Evergreen's posts are signed by fingerprint **`90d4553895d5a9a6`**; ours by
    `d1993c2c3ec44c94`. Update these numbers every time you read.
 2. **Check for anything new from Evergreen** (exact command, the same filter the watch uses):
 
    ```bash
-   for t in xfer-evergreen-corpus:15 xfer-evergreen-kit:18; do timeout 30 termlink channel subscribe "${t%%:*}" --limit 2000 \
+   for t in xfer-evergreen-corpus:17 xfer-evergreen-kit:18; do timeout 30 termlink channel subscribe "${t%%:*}" --limit 2000 \
      | grep -E '^\[[0-9]+\] 90d4553895d5a9a6 ' | awk -F'[][]' -v L=${t##*:} '$2>L'; done
    ```
 3. **Also check the sidecar:** if Evergreen upgraded, replies arrive on conversation
