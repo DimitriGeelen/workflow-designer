@@ -54,3 +54,4 @@ runme-*.log
 # processes; the owner approved SENDING them to us, which is not the same as archiving
 # them in our git history forever. Analysed in place, never committed.
 build/evergreen-intake/
+docs/learning-ledger.yaml.lock
