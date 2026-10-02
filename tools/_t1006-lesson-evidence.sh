@@ -44,7 +44,11 @@ L17)  # loop.sh's agent() appends the prompt as the LAST argv element of KIT_*_C
   if command -v claude >/dev/null; then claude --help 2>&1 | grep -E -- '--allowed-?[tT]ools.*\.\.\.' | head -1; fi
   echo "$out" | grep -q 'allowedTools Read Write THE-PROMPT' \
     && ! grep -q -i 'variadic\|must end where' "$KIT/loop.sh" \
-    && say "the prompt lands right after a variadic option's values, and loop.sh's header does not warn about it" ;;
+    && say "the prompt lands right after a variadic option's values, and loop.sh's header does not warn about it" \
+    && say "-- field observation, Evergreen (claude -p as reviewer, kit 0.15.1), their notes and their run log:" \
+    && notes_say 'variadic' \
+    && { grep -h 'COULD NOT MEASURE' "$(dirname "$NOTES")/calibration/calibrate-r1.log" | sed 's/^/   log: /'; true; } \
+    && say "   and after they moved --allowedTools before a single-value flag, the same reviewer measured 3/3 (offset 22)" ;;
 L18)  # the clean map's 'accepted orders' branch answers 'Credit limit exceeded?' though the override path also yields accepted orders
   grep -n 'name="accepted orders"' "$CAL/clean.bpmn" | cut -c1-160
   grep -n 'Credit limit exceeded?' "$CAL/clean.bpmn" | cut -c1-120
@@ -117,6 +121,10 @@ L23)  # duplicate display names of distinct steps: guide covers duplicate keys o
   ! grep -q -i -E 'same (display )?name|duplicate (display )?name' "$KIT/AUTHORING.md" \
     && say "AUTHORING.md (0.15.2) has no rule for two distinct steps sharing a display name" ;;
 L24)  # K2 (one step precedes two, relation unstated) speaks of sequence-flow successors only
+  say "-- the kit's K2 rule, verbatim:"; sed -n '/One step precedes two, and the source says nothing/,/it is not an invention\./p' "$KIT/AUTHORING.md"
+  say "-- L27 (the cross-process form of a hand-over), current wording:"
+  python3 -c "import yaml;d=yaml.safe_load(open('$ROOT/docs/learning-ledger.yaml'));x=[e for e in d['learnings'] if e['id']=='L27'][0];print('   ',x['proposed_change'])"
+  say "-- the partner's report:"
   notes_say 'K16' && grep -n -i 'both or either\|either or both' "$KIT/AUTHORING.md" | cut -c1-160 | head -3
   ! grep -i 'both or either\|either or both' "$KIT/AUTHORING.md" | grep -q -i 'hand-over\|handover\|link' \
     && say "the both-or-either rule in AUTHORING.md never mentions hand-overs/link events" ;;
@@ -130,6 +138,10 @@ L26)  # 0.15.2 says a parallel fork AND JOIN 'says the same as the plain flows';
   grep -q 'A parallel fork (and its join) says the same' "$KIT/AUTHORING.md" ;;
 L27)  # hand-overs between MAPS are drawn as link events; BPMN 2.0.2 link events connect sections of ONE process
   sed -n '/A hand-over to a step in another map/,/citation\./p' "$KIT/AUTHORING.md"
+  say "-- in this product one map file = one bpmn:process (+ its workflowMeta id); the exemplar:"
+  grep -c '<bpmn:process ' "$KIT/exemplar.bpmn" | sed 's/^/   bpmn:process elements in exemplar.bpmn: /'
+  grep -o '<aef:workflowMeta id="[^"]*"' "$KIT/exemplar.bpmn" | head -1 | sed 's/^/   /'
+  say "   targetWorkflow names ANOTHER map's workflowMeta id, i.e. another file and another bpmn:process"
   say "-- does CONFORMANCE.md declare cross-map links as an AEF extension beyond BPMN? matches: $(grep -c -i 'link.*\(extension\|beyond\|not bpmn\|non-standard\)' "$KIT/CONFORMANCE.md")"
   grep -q 'A hand-over to a step in another map' "$KIT/AUTHORING.md" \
     && [ "$(grep -c -i 'link.*\(extension\|beyond\|not bpmn\|non-standard\)' "$KIT/CONFORMANCE.md")" -eq 0 ] ;;
