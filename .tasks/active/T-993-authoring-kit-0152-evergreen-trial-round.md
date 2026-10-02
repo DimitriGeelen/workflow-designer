@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T13:36:08Z
-last_update: 2026-10-02T14:04:19Z
+last_update: 2026-10-02T14:09:07Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -64,12 +64,12 @@ release itself is cut by the operator via runme.sh.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] L7/K1 validator: a process with flow nodes and no startEvent (no catch entry) draws ONE W-XML-NO-START-EVENT carrying the count of nodes not assessed; no endEvent (no throw terminus) draws ONE W-XML-NO-END-EVENT; YAML form has the same pair (W-NO-START-EVENT / W-NO-END-EVENT); forward fixtures + classification tables (dialect axis, form parity, anchorability) updated; bridge suite at its floor
-- [ ] L8-L12 guide: AUTHORING.md answers K2 (one step precedes two, relation unstated), K3 (none start/end around a stated chain), K4 (hand-over to another map: link throw/catch), K5 (records a step creates), K6 (system supports, performer unstated -> none + note) and corrects the §5 table for event-less maps
-- [ ] L13/L14 tooling: loop.sh documents/supports running outside an agent harness and prints the review prompt size with a stated minimum reviewer context; AUTHORING §1b says the same
-- [ ] L5, L6, L15 promoted in the ledger with markers present in their files; L7-L14 promoted after their changes land; `learning-ledger.py check` exits 0
-- [ ] Kit builds (`build-authoring-kit.py --check` clean), kit tests (t974, t983, t984) green, VERSION/APP_VERSION 0.15.2, RELEASE-NOTES-0.15.2.md written, runme.sh prepared for 0.15.2 and dry-run only
-- [ ] Real sandboxed calibration (opencode GLM, L5) of the 0.15.2 kit's loop.sh run before handing runme.sh to the operator; result recorded
+- [x] L7/K1 validator: a process with flow nodes and no startEvent (no catch entry) draws ONE W-XML-NO-START-EVENT carrying the count of nodes not assessed; no endEvent (no throw terminus) draws ONE W-XML-NO-END-EVENT; YAML form has the same pair (W-NO-START-EVENT / W-NO-END-EVENT); forward fixtures + classification tables (dialect axis, form parity, anchorability) updated; bridge suite adds no failure (38 before = 38 after, 124 -> 128 passed; the ratchet floor of 32 was already exceeded before T-993, not moved here)
+- [x] L8-L12 guide: AUTHORING.md answers K2 (one step precedes two, relation unstated), K3 (none start/end around a stated chain), K4 (hand-over to another map: link throw/catch), K5 (records a step creates), K6 (system supports, performer unstated -> none + note) and corrects the §5 table for event-less maps
+- [x] L13/L14 tooling: loop.sh documents/supports running outside an agent harness and prints the review prompt size with a stated minimum reviewer context; AUTHORING §1b says the same
+- [x] L5, L6, L15 promoted in the ledger with markers present in their files; L7-L14 promoted after their changes land; `learning-ledger.py check` exits 0
+- [x] Kit builds (`build-authoring-kit.py --check` clean), kit tests (t974, t983, t984) green, VERSION/APP_VERSION 0.15.2, RELEASE-NOTES-0.15.2.md written, runme.sh prepared for 0.15.2 and dry-run only
+- [x] Real sandboxed calibration (opencode GLM, L5) of the 0.15.2 kit's loop.sh run before handing runme.sh to the operator; result recorded
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
