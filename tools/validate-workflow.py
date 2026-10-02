@@ -883,9 +883,14 @@ class Validator:
         if bwd_seeds:
             terminating = _reach(bwd_seeds, pred)
             for uid in by_uid:
+                # T-1008 (ledger L20, confirmed by three calibrated vendors): a link catch is an
+                # ENTRY, as AUTHORING says. It drew its own W-DEADEND when the step after it had
+                # no recorded successor, so one unknown was reported twice. Traversal still runs
+                # through it; only its own emission is suppressed.
                 if uid not in terminating and _type(uid) not in (
                     "endEvent",
                     "linkEventThrow",
+                    "linkEventCatch",
                 ):
                     self.warn(
                         "W-DEADEND",
@@ -1438,6 +1443,11 @@ class XmlValidator:
         if bwd_seeds:
             terminating = _reach(bwd_seeds, pred)
             for n in sorted(flow_node_ids):
+                # T-1008 (L20): a catch with no incoming flow is an entry (a link catch, the
+                # hand-over form): its successor's W-XML-DEADEND already reports the unknown.
+                # A catch reached BY flow (a mid-flow timer/message wait) is still assessed.
+                if node_type.get(n) in fwd_starts and not pred.get(n):
+                    continue
                 if n not in terminating and node_type.get(n) not in bwd_ends:
                     self.warn(
                         "W-XML-DEADEND",
