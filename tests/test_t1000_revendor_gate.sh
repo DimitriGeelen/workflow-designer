@@ -40,6 +40,16 @@ leg "6 G2: baseline advanced to the pristine commit: allowed" ok git commit -qm 
 echo p5 >> proj.txt; git add proj.txt
 leg "7 after the advance, ordinary commits flow again: allowed" ok git commit -qm after
 
+echo local-fix >> .agentic-framework/lib/a.sh; git add .agentic-framework/lib/a.sh
+leg "9 G4: a local fix to an UNDECLARED vendored path: refused" refused git commit -qm undeclared
+printf '  - path: .agentic-framework/lib/a.sh\n    kind: content\n    task: T-X\n    upstream: fix\n    reason: test\n' >> .agentic-framework/.vendor-divergence.yaml
+sed -i 's/^paths: \[\]$/entries:/' .agentic-framework/.vendor-divergence.yaml
+git add .agentic-framework/.vendor-divergence.yaml .agentic-framework/lib/a.sh
+leg "10 G4: the same fix with its declaration staged: allowed" ok git commit -qm declared
+echo new > .agentic-framework/lib/b.sh; git add .agentic-framework/lib/b.sh
+leg "11 G4: an undeclared local ADDITION: refused" refused git commit -qm added-undeclared
+git restore --staged .agentic-framework/lib/b.sh; rm -f .agentic-framework/lib/b.sh
+
 echo 1.2.0 > .agentic-framework/VERSION; echo p4 >> proj.txt; git add -A
 leg "8 override is honoured and logged" ok env REVENDOR_GATE_OVERRIDE="test reason" git commit -qm overridden
 leg "8b the override was logged" ok grep -q "test reason" .context/working/revendor-gate-overrides.log

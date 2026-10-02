@@ -19,6 +19,12 @@
 #   G2  right after a pristine commit (HEAD changed VERSION), every commit is refused unless it
 #       sets baseline_commit to HEAD. Nobody carries on as if the upgrade were finished.
 #   G3 (STALE > 0 fails the audit, a release refuses) lives in T-999 / T-998, not here.
+#   G4  an ordinary commit (not the pristine one) that changes or adds a path under
+#       .agentic-framework/ must have that path declared in .vendor-divergence.yaml (as staged).
+#       Found by T-1005: the protocol protects only DECLARED fixes. T-943's verification-port.sh
+#       change and four local additions were never declared, so the 1.7.740 upgrade erased or
+#       deleted them and _t517 listed nothing. Declare at the moment of patching, or the commit
+#       is refused.
 #
 # Override, logged: REVENDOR_GATE_OVERRIDE="<reason>" git commit ...
 # Exit 0 = allowed, 1 = refused.
@@ -58,6 +64,25 @@ if [ -n "$v_idx" ] && [ "$v_idx" != "$v_head" ]; then
             "Unstage them (git restore --staged <path>) and commit them after the baseline advance."
     fi
     exit 0
+fi
+
+# --- G4: every vendored path an ordinary commit touches must be declared ----------------------
+declared=$(git show ":$DIV" 2>/dev/null | sed -n 's/^[[:space:]]*-[[:space:]]*path:[[:space:]]*//p')
+undeclared=""
+while IFS= read -r p; do
+    [ -z "$p" ] && continue
+    case "$p" in "$DIV") continue ;; esac
+    printf '%s\n' "$declared" | grep -qxF "$p" || undeclared="$undeclared $p"
+done <<EOF_G4
+$(git diff --cached --name-only --diff-filter=AMRT | grep '^\.agentic-framework/')
+EOF_G4
+if [ -n "$undeclared" ]; then
+    refuse "G4" \
+        "This commit changes vendored path(s) that .vendor-divergence.yaml does not declare:" \
+        $undeclared \
+        "An undeclared local fix is invisible to the re-vendor protocol and is erased (or, for an" \
+        "added file, deleted) by the next upgrade without trace (T-1005). Add an entry per path" \
+        "(path, kind, task, upstream, reason) to $DIV and stage it with this commit."
 fi
 
 # --- G2: right after a pristine commit, only the baseline advance may follow ------------------
