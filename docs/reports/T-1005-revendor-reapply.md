@@ -21,7 +21,13 @@ behaviour; ours dropped), **partly superseded** (upstream covers part; the rest 
 | 0444fc5b | T-649 warn when completing with uncommitted work | **re-applied** (function + call after P-011) | `_t649` 8/8 |
 | 3653bdbb | T-654 null horizon on archive | **superseded**: upstream has ONE end-of-script invariant for every path to completed/ | `_t654` 7/7; probe gained upstream-shape teeth (removing the invariant regresses both paths) |
 | b17e49fa | T-575 exact-heading refusal | **covered**: malformed heading by the T-943 port, zero said by upstream T-3546, prefix-heading by upstream's exact-match extractor (`_t574` t542 leg). **Not carried: refusal of TWO exact `## Verification` headings** (only the first runs) — no probe, low incidence; known small gap | — |
-| c425cb41, 9a3dee4a, 0fe9498b, bc267087, 9b24a57d | T-843, T-913, T-880, T-923, T-883 | **pending** — their libraries had been deleted (see below), restored; call sites to re-wire | probes red |
+| c425cb41 | T-843 uncontrolled absence assertions | **re-applied** (check function + call; lib restored) | `_t843` 12/12, integration 16/16 |
+| 0fe9498b | T-880 task-lifecycle node hint (frw_7_all) | **re-applied** (replaces the T-2624 hint, which named a node no template has) | `_t880` 16/16 |
+| bc267087 | T-923 instance-position walks at each transition | **re-applied** (lib source + stubs + 7 walk sites, placed by surrounding text) | `_t923` 14/14 |
+| 9b24a57d | T-883 refusal audit (R-033, P-010, P-011) | **re-applied** | `_t883` 18/18 |
+| 9a3dee4a | T-913 unexplained bypass recorded as such | **re-applied** (3rd-arg reason, explained flag, both callers) | `_t913` 17/17 |
+
+**update-task.sh: complete.** 14 probes green after the last change (sweep: _t391, _t522, _t574, _t630, _t649, _t654, _t658, _t843, _t880, _t883, _t913, _t923, _t931, _t943). `_t517`: 45 stale left.
 
 ## Second finding: undeclared local ADDITIONS are deleted, not just overwritten
 
