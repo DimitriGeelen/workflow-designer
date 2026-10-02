@@ -110,6 +110,22 @@ T-849 block with T-401/T-675 under `superseded_changes`, T-401's restored
 `web/test_context_tokens.py` dropped (it imports an API upstream replaced). The register's own
 entry was `kind: added`; the 1.7.740 baseline contains it, so `content`. `_t517`: 27 -> 25 stale.
 
+## Step 2 done (2026-10-03): handover.sh
+
+| local change | 1.7.740 | outcome |
+|---|---|---|
+| T-373 DEFER with no revisit date | AEF T-2865 has it (own heading) | superseded |
+| T-436 observation content (G-032) | AEF T-2927 parses the YAML and adopted our "listed N of M" line | superseded; **G-032 resolved** on the retargeted probe: 124/124 = `fw note count` |
+| T-626 run the revisit scan before rendering | absent; `.revisits-due.txt` was 10 days old and missed T-184 (fires 10-01) | **re-applied** |
+| T-862 carry the authored Suggested First Action | absent | **re-applied**; teeth 11/11, both mutation modes OK |
+
+Probe retargets: `_t436` takes the heredoc body (upstream put indented comments and an env-prefix
+line before it), runs it with `INBOX_FILE`/`HANDOVER_DIGEST=0`, and counts pending with the parser:
+its `grep -c 'status: pending'` matched the phrase inside two observation texts (126 vs 124) and
+reported PARTIAL on its own miscount. `_t445`'s DEFECT fixture is now "pending entries with no
+text" (column-zero no longer breaks a YAML parse); DEFECT/PARTIAL/FIXED all reproduce (3/3).
+`_t517`: 25 -> 24 stale.
+
 ## RESUME POINT (next session starts here)
 
 State at d6e404bc: `_t517` ~30 stale; bridge suite measured 137/29 at cd64a26e (before the allowlist
@@ -122,7 +138,7 @@ Next, in order:
 1. ~~`checkpoint.sh` + `budget-gate.sh`~~ DONE (above) (T-401/T-402/T-675/T-849): 1.7.740 HAS a `budget` verb, but
    the read fence fails 8 arms (stale / foreign / absent / zero-token caches are not refused) and
    `_t849` fails 8 legs. Same method: measure behaviour, add only what is missing, probe-verify.
-2. `handover.sh` (T-436, T-445, T-862 probes abstain: "can no longer test what it claims").
+2. ~~`handover.sh`~~ DONE (above).
 3. `audit.sh` (25 local commits) — move OUR rails to a project-owned audit extension (T-999)
    rather than patch it again; that also restores the T-952 ratchet line.
 4. fabric (`drift.sh` T-524, `enrich.py` T-343), BVP (estimator, bvp.sh, bvp.py), `lib/arc.sh`,

@@ -95,7 +95,10 @@ bad() { legs=$((legs + 1)); echo "  FAIL  $*" >&2; fails=$((fails + 1)); }
 [ -f "$INBOX" ]    || { echo "UNKNOWN — no $INBOX. Cannot answer."; exit 2; }
 [ -f "$HANDOVER" ] || { echo "UNKNOWN — no $HANDOVER. Cannot answer."; exit 2; }
 
-PENDING=$(grep -c 'status: pending' "$INBOX" 2>/dev/null) || PENDING=0
+# T-1005: count with the parser, not grep. `grep -c 'status: pending'` also matched the phrase
+# inside observation TEXT (126 vs fw note count's 124), so the probe reported PARTIAL on its own
+# miscount. Same denominator as `fw note count`.
+PENDING=$(python3 -c "import sys,yaml; d=yaml.safe_load(open(sys.argv[1])) or {}; print(sum(1 for o in (d.get('observations') or []) if isinstance(o,dict) and o.get('status')=='pending'))" "$INBOX" 2>/dev/null) || PENDING=0
 if [ "$PENDING" -eq 0 ]; then
   echo "ABSTAINED — 0 pending observations, so the listing block is unreachable and"
   echo "  this probe cannot distinguish 'fixed' from 'nothing to list'. Emptying the"
@@ -116,9 +119,13 @@ SP="$(mktemp -d)"; trap 'rm -rf "$SP"' EXIT
 # and makes BOTH legs emit 0, i.e. the crash is indistinguishable from the defect and
 # leg A reports a false ok. Caught by leg R on this probe's first run; the assertions
 # below exist so it cannot recur silently.
-sed -n '/# List pending observation summaries/,/^PYEOF$/p' "$HANDOVER" \
-  | sed '1d;/python3 *<</d;/^PYEOF$/d' > "$SP/block.py"
-for marker in 'import re' 're.split' 'print('; do
+# 1.7.740: indented shell comments and an env-prefix line now sit between the anchor and the
+# heredoc, so take only the heredoc BODY: from the first `<< 'PYEOF'` after the anchor to PYEOF.
+awk '/# List pending observation summaries/ {a=1} a && /<< *.PYEOF.$/ {b=1; next} b && /^PYEOF$/ {exit} b' \
+  "$HANDOVER" > "$SP/block.py"
+# 1.7.740 (AEF T-2927, T-1005): the block parses the YAML instead of splitting on an indent,
+# and reads its inputs from the environment. Markers and run_block follow it.
+for marker in 'yaml.safe_load' "os.environ['INBOX_FILE']" 'print('; do
   grep -qF "$marker" "$SP/block.py" || {
     echo "UNKNOWN — extracted block is missing '$marker'; the anchor in $HANDOVER moved"
     echo "  or the extraction is broken. Refusing to score: a crashed block emits 0 lines"
@@ -133,7 +140,9 @@ python3 -c "compile(open('$SP/block.py').read().replace('\$INBOX_FILE','/dev/nul
 
 run_block() { # run_block <inbox-path> -> line count on stdout
   sed "s|\$INBOX_FILE|$1|g" "$SP/block.py" > "$SP/run.py"
-  python3 "$SP/run.py" 2>/dev/null | grep -c '^- ' || true
+  # HANDOVER_DIGEST=0: measure the FULL listing; the digest's top-N is announced on its own line
+  # (T-3028) and is a presentation choice, not a parse shortfall. '- _' is the block's error row.
+  INBOX_FILE="$1" PENDING_OBS=0 HANDOVER_DIGEST=0 python3 "$SP/run.py" 2>/dev/null | grep '^- ' | grep -vc '^- _' || true
 }
 
 # ------------------------------------------------------------------ A: the live inbox

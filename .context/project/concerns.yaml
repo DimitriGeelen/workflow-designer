@@ -1898,7 +1898,16 @@ concerns:
     '
 - id: G-032
   type: gap
-  status: watching
+  status: resolved
+  resolved: 2026-10-03
+  resolution: 'Closed on its own closure condition, measured (T-1005, re-vendor of AEF 1.7.740). Upstream
+    T-2927 replaced the indent split with a YAML parse and adopted 832''s half: a listing shorter than its
+    count must say so ("_Listed N of M pending..."). tools/_t436-inbox-route-probe.sh, retargeted to that
+    block, reports FIXED on the live inbox: 124 rows for 124 pending, equal to `fw note count`. The probe''s
+    own grep had over-counted (126: the phrase "status: pending" inside two observation texts) and now
+    counts with the parser. Prevention: the mismatch line upstream plus _t445, which drives DEFECT,
+    PARTIAL and FIXED through the probe''s real entry point (3/3). The handover shows a 5-row digest by
+    design (T-3028) and announces it ("Showing 5 of 124"), which is disclosure, not the silent drop.'
   severity: high
   title: The inbox's only CONTENT route is dead and fails silently — the handover prints the count, never
     the finding

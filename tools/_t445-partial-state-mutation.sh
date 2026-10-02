@@ -36,14 +36,15 @@ SP="$(mktemp -d)"; trap 'rm -rf "$SP"' EXIT
 
 # DEFECT — column-0 entries, the shape the live inbox actually writes. The block's
 # `\n  - ` split matches nothing, so 0 rows for 2 pending.
+# 1.7.740 (AEF T-2927, T-1005): the block parses YAML, so column-zero entries no longer
+# reproduce the defect. The zero-row state now comes from pending entries the block cannot
+# summarise (no `text`) — the same arm, reached through the parser that replaced the split.
 cat > "$SP/defect.yaml" <<'YEOF'
 observations:
 - id: OBS-901
-  text: "column-zero, as the real inbox writes it"
   status: pending
   promoted_to: null
 - id: OBS-902
-  text: "second"
   status: pending
   promoted_to: null
 YEOF

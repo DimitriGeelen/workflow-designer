@@ -541,9 +541,19 @@ entries:
 
   - path: .agentic-framework/agents/handover/handover.sh
     kind: content
-    task: T-373
+    task: T-862
     upstream: fix
-    reason: Surfaces the deferral state above in the handover.
+    reason: >
+      T-1005 re-apply on 1.7.740, two local changes remain. T-862: the Suggested First Action is
+      the one authored section, and it is carried forward when the focus is unchanged (labelled,
+      with age), never under a different task (teeth 11/11; --mutation and --mutation-overfire
+      both OK). T-626: handover runs revisit-due-scan.sh (14ms) before rendering "Revisits Ripe
+      Today", because no cron here produces that file: it was 10 days stale at re-vendor and
+      missed T-184 (fires 2026-10-01) until the scan ran.
+    superseded_changes: >
+      T-373 (DEFER with no revisit date) is superseded by AEF T-2865 (its own heading, same
+      file). T-436/G-032 (observation content dropped by an indent split) by AEF T-2927;
+      G-032 resolved on the retargeted _t436 probe (124/124).
 
   - path: .agentic-framework/agents/fabric/lib/enrich.py
     kind: content
