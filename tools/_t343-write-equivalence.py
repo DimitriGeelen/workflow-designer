@@ -96,7 +96,9 @@ def main():
         before = enrich.compute_forward_edges(cards, loc_to_id, REPO)
 
         # T-343 call shape: collector supplied
-        collected = []
+        # 1.7.740: upstream's equivalent of T-343 is AEF T-2736, which collects a
+        # {kind: {location: count}} dict instead of our list (T-1005). Same property.
+        collected = {}
         after = enrich.compute_forward_edges(cards, loc_to_id, REPO, collected)
 
         n_edges = sum(len(v) for v in after.values())
@@ -118,7 +120,7 @@ def main():
         print(f"      compared over {n_edges} edge(s) across "
               f"{sum(1 for v in after.values() if v)} card(s) — non-empty, so the "
               f"comparison could have failed")
-        print(f"      collector gathered {len(collected)} discarded edge(s) on the "
+        print(f"      collector gathered {sum(sum(v.values()) for v in collected.values())} discarded edge(s) on the "
               f"same run — the reporting path did execute")
         return 0
     finally:

@@ -511,6 +511,14 @@ entries:
     kind: content
     task: T-524
     upstream: fix
+    revert_history: >-
+      Reverted to the T-191 stub by THREE upgrades: T-840 (1.7.68, restored by T-853) and the
+      1.7.740 re-vendor (restored by T-1005). Teeth: tools/_t524-fabric-validate-teeth.py 10/10 with
+      the restore, 2/10 on upstream's stub. Leg 9 now reads only the Unregistered section (1.7.740
+      added an Under-populated section printing the same `! <path>` form). This is the strongest
+      upstream-debt case in the register: until AEF ships it, every upgrade will revert it again.
+      T-343 (enrich.py) left the register: superseded by AEF T-2736 (same collector, dict-shaped);
+      tools/_t343-write-equivalence.py retargeted and PASS (47 edges compared, 180 discards collected).
     reason: >-
       `do_validate()` was a stub that printed "Deep validation not yet implemented" for every
       card and then `return 0`. The banner was honest; the exit code was not, so anything
@@ -555,12 +563,6 @@ entries:
       file). T-436/G-032 (observation content dropped by an indent split) by AEF T-2927;
       G-032 resolved on the retargeted _t436 probe (124/124).
 
-  - path: .agentic-framework/agents/fabric/lib/enrich.py
-    kind: content
-    task: T-343
-    upstream: fix
-    reason: >-
-      `fw fabric enrich` discarded edges silently; now counts unconditionally and names targets.
 
   - path: .agentic-framework/agents/healing/lib/resolve.sh
     kind: content

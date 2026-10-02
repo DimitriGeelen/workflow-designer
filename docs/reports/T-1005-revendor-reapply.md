@@ -126,6 +126,16 @@ reported PARTIAL on its own miscount. `_t445`'s DEFECT fixture is now "pending e
 text" (column-zero no longer breaks a YAML parse); DEFECT/PARTIAL/FIXED all reproduce (3/3).
 `_t517`: 25 -> 24 stale.
 
+## Step 4a done (2026-10-03): fabric
+
+| file | local change | 1.7.740 | outcome |
+|---|---|---|---|
+| lib/drift.sh | T-524/T-853 `fw fabric validate` (was a stub returning 0) | **stub again** — the third upgrade to revert it | re-applied verbatim; teeth 10/10, 2/10 on the stub |
+| lib/enrich.py | T-343 count discarded edges | AEF T-2736, same fix, dict-shaped collector | superseded; `_t343` retargeted, PASS (47 edges compared, 180 discards collected) |
+
+`_t524` leg 9 now reads only the Unregistered section: 1.7.740's new Under-populated section prints
+the same `! <path>` form and made a carded file look flagged. `_t517`: 24 -> 22 stale.
+
 ## RESUME POINT (next session starts here)
 
 State at d6e404bc: `_t517` ~30 stale; bridge suite measured 137/29 at cd64a26e (before the allowlist

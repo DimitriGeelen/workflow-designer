@@ -203,8 +203,14 @@ try:
     )
     subprocess.run(["git", "-C", root, "init", "-q"], capture_output=True, check=False)
     drc, dout = run(["bash", FABRIC, "drift"], root)
-    unreg = "! tools/nolocation.py" in dout
-    carded_quiet = "! tools/carded.py" not in dout
+    # 1.7.740 added an "Under-populated cards" section that also prints "! <location>" (T-1005),
+    # so both checks read only the Unregistered section.
+    import re as _re
+    _m = _re.search(r"Unregistered components:\n(.*?)(?:\n\s*\n|\Z)",
+                    _re.sub(r"\x1b\[[0-9;]*m", "", dout), _re.S)
+    unreg_sec = _m.group(1) if _m else ""
+    unreg = "! tools/nolocation.py" in unreg_sec
+    carded_quiet = bool(_m) and "! tools/carded.py" not in unreg_sec
     leg("9 the harm is REAL — a location-less card makes its own file report UNREGISTERED",
         unreg and carded_quiet,
         "nolocation flagged=%s carded quiet=%s. drift builds its `registered` set by grepping "
