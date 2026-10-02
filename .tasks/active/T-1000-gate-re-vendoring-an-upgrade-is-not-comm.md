@@ -41,7 +41,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T16:38:22Z
-last_update: 2026-10-02T16:46:32Z
+last_update: 2026-10-02T17:00:33Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -84,10 +84,14 @@ unrecorded, 2 reclassified. The upgrade must not land until each STALE fix is re
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A gate (project-owned file, not under .agentic-framework/) refuses a commit that stages a framework re-vendor (a change to .agentic-framework/VERSION) while `_t517` reports any STALE or RECLASSIFIED entry; it names each entry with its task and reason; exit 0 when there are none or the commit is not a re-vendor
-- [ ] The gate is wired where a re-vendor commit actually passes (git pre-commit path), in a way a re-vendor of the framework does not erase, or — if no such seam exists — the limitation is stated and the gate is wired into the operator's runme.sh commit step, with a U1 ask for the seam
-- [ ] Tested: a fixture/scratch index with a staged VERSION change and a STALE entry is refused; without the VERSION change, or with 0 STALE, it passes (both directions shown to bite)
-- [ ] The 11 STALE entries of the current T-988 tree are listed in a triage table (docs/reports/T-1000-*.md) with, per entry, whether the local fix is lost or adopted upstream, as the input to the T-988 decision
+Operator chose option A (2026-10-02): the re-vendor protocol with a moving baseline, enforced by
+hooks; "this is what AEF needs to adopt in the framework" (sent: conversation revendor-protocol).
+
+- [ ] Gate script (project-owned, tools/_t1000-revendor-gate.sh): G1 refuses a commit that changes .agentic-framework/VERSION and stages any path outside .agentic-framework/; G2 refuses every commit right after a pristine-vendor commit (HEAD changed VERSION) unless it advances .vendor-divergence.yaml baseline_commit to HEAD; both refusals name the protocol step to take
+- [ ] Installer (tools/_t1000-install-hook.sh) adds one marked line to .git/hooks/pre-commit, idempotent; the framework hook has no extension point, so a hook reinstall removes it — stated, B3 (T-999) flags its absence, U1 asked AEF for the seam
+- [ ] Worklist tool (tools/_t1000-revendor-worklist.py): after the baseline advance, lists every STALE entry with task/reason, the local commits that touched it, and a patch from the pre-upgrade tree, written under build/ (not committed)
+- [ ] Tested in a scratch git repo: G1 refuses a mixed upgrade commit and passes a pristine one; G2 refuses an ordinary commit after a pristine commit and passes the baseline-advance commit; ordinary commits with no upgrade pass (each leg shown to bite)
+- [ ] docs/reports/T-1000-revendor-gate.md records the protocol, the operator's choice, and how T-988 lands under it (runme.sh sequence prepared, dry-run only)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
