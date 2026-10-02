@@ -68,12 +68,99 @@ learnings:
   status: proposed
   occurrences: 1
 - id: L6
-  learning: a calibration set must contain ONLY its intended defects, and its scoring must accept every truthful way a correct reviewer can report one
-  evidence: 'T-991: the real calibration said FAIL for a reviewer that had caught all three defects.
-    My planting left a flow id that lied about its target and five stale incoming/outgoing refs (the
-    reviewer rightly flagged them), and exact node+category matching scored a correct catch on the
-    implementing FLOW, as invented, as a miss.'
+  learning: a calibration set must contain ONLY its intended defects, and its scoring must accept every
+    truthful way a correct reviewer can report one
+  evidence: 'T-991: the real calibration said FAIL for a reviewer that had caught all three defects. My
+    planting left a flow id that lied about its target and five stale incoming/outgoing refs (the reviewer
+    rightly flagged them), and exact node+category matching scored a correct catch on the implementing
+    FLOW, as invented, as a miss.'
   source: loop
+  destination: tooling
+  status: proposed
+  occurrences: 1
+- id: L7
+  learning: 'a map with no startEvent draws no W-XML-UNREACHABLE and one with no endEvent no W-XML-DEADEND,
+    so omitting events earns fewer warnings than declaring them: the T-972 class (omission rewarded) again;
+    AUTHORING §5 promises per unplaced step 1 UNREACHABLE + 1 DEADEND, which is false for event-less maps'
+  evidence: 'T-989 iteration 1 (Evergreen round 0, REPORT.md §3b, received 2026-10-02 by send-file, sha
+    2028042f) K1; confirmed in tools/validate-workflow.py: both checks run only "if fwd_seeds"/"if bwd_seeds";
+    bo-parts-sales and bo-service-sales (2 unordered steps, no events) get only DISCONNECTED'
+  source: trial
+  destination: validator
+  status: proposed
+  occurrences: 1
+- id: L8
+  learning: 'the guide has no construct for "A precedes B and C, relation between B and C not stated":
+    plain multiple outgoing flows assert parallelism, a gateway invents a decision'
+  evidence: T-989 iteration 1 (Evergreen round 0, REPORT.md §3b, received 2026-10-02 by send-file, sha
+    2028042f) K2
+  source: trial
+  destination: guide
+  status: proposed
+  occurrences: 1
+- id: L9
+  learning: the guide forbids a start/end per orphan step but does not say whether ONE untriggered none
+    start/end around a chain the source states is honest or invented
+  evidence: T-989 iteration 1 (Evergreen round 0, REPORT.md §3b, received 2026-10-02 by send-file, sha
+    2028042f) K3
+  source: trial
+  destination: guide
+  status: proposed
+  occurrences: 1
+- id: L10
+  learning: the guide says nothing about hand-overs to steps of OTHER maps, though the validator already
+    treats link catch/throw events as cross-workflow entry/terminus
+  evidence: T-989 iteration 1 (Evergreen round 0, REPORT.md §3b, received 2026-10-02 by send-file, sha
+    2028042f) K4; validate-workflow.py reachability comment (schema 7.2)
+  source: trial
+  destination: guide
+  status: proposed
+  occurrences: 1
+- id: L11
+  learning: the guide says nothing about records a step creates (dataObject vs annotation)
+  evidence: T-989 iteration 1 (Evergreen round 0, REPORT.md §3b, received 2026-10-02 by send-file, sha
+    2028042f) K5
+  source: trial
+  destination: guide
+  status: proposed
+  occurrences: 1
+- id: L12
+  learning: the authority table should state the row "a system SUPPORTS a step, performer unstated" ->
+    authority none, system as an annotation (Evergreen read it so; it is the intended reading of "lane
+    by performer, unless the system IS the performer")
+  evidence: T-989 iteration 1 (Evergreen round 0, REPORT.md §3b, received 2026-10-02 by send-file, sha
+    2028042f) K6
+  source: trial
+  destination: guide
+  status: proposed
+  occurrences: 1
+- id: L13
+  learning: loop.sh assumes a caller that may start agents; an agent harness may refuse nested agents
+    ("Create Unsafe Agents"), so the kit needs a documented human-shell/CI mode, or a mode where the calling
+    agent generates and corrects and only the reviewer is spawned
+  evidence: 'T-989 iteration 1 (Evergreen round 0, REPORT.md §3b, received 2026-10-02 by send-file, sha
+    2028042f) K7: their review rounds could not run'
+  source: trial
+  destination: tooling
+  status: proposed
+  occurrences: 1
+- id: L14
+  learning: 'the kit states no minimum reviewer context: map + source + rubric is ~10K tokens, and a local
+    reviewer loaded at 4096 cannot read it whole; loop.sh --calibrate should measure and refuse below
+    it'
+  evidence: T-989 iteration 1 (Evergreen round 0, REPORT.md §3b, received 2026-10-02 by send-file, sha
+    2028042f) K8 (gemma4 on Ollama, num_ctx 4096)
+  source: trial
+  destination: tooling
+  status: proposed
+  occurrences: 1
+- id: L15
+  learning: 'a raw finding count grades honesty as regression: declaring authority none draws W-LANE-NO-OWNER
+    per task, so the trial maps went 138 -> 162 findings while findings outside the AUTHORING §5 end state
+    went 92 -> 0; measure the two separately'
+  evidence: 'T-989 iteration 1: our own harness tools/_t989-measure-evergreen.py; fixed there (findings_end_state
+    / findings_other)'
+  source: trial
   destination: tooling
   status: proposed
   occurrences: 1

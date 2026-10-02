@@ -148,14 +148,25 @@ def main(argv=None):
         tot['maps_with_kind'] += bool(r['kind'])
         tot['maps_multi_start'] += r['start_events'] > 1
         rules.update(r['findings'])
+    end_state = sum(v for k, v in rules.items() if k in END_STATE)
     summary = {'label': a.label, 'maps': len(rows), 'totals': dict(tot),
-               'findings_by_rule': dict(rules.most_common()), 'findings_total': sum(rules.values())}
+               'findings_by_rule': dict(rules.most_common()), 'findings_total': sum(rules.values()),
+               # T-989 iteration 1: a raw total graded honesty as a regression (declaring 'none'
+               # draws W-LANE-NO-OWNER per task). Split by AUTHORING §5: the end state a correct map
+               # KEEPS vs everything else. Read with extra_parts_unexplained: an end-state class is
+               # honest only when the unknown it reports is annotated.
+               'findings_end_state': end_state, 'findings_other': sum(rules.values()) - end_state}
     print(json.dumps(summary, indent=1))
     if a.json:
         json.dump({'summary': summary, 'maps': rows}, open(a.json, 'w'), indent=1)
     if a.baseline:
         compare(a.baseline, files, rows, val)
     return 0
+
+
+# AUTHORING.md §5: the findings a map built from an incomplete source keeps
+END_STATE = {'W-XML-DISCONNECTED', 'W-XML-UNREACHABLE', 'W-XML-DEADEND', 'W-LANE-NO-OWNER',
+             'W-XML-GW-AMBIGUOUS', 'I-XML-LANE-GEOMETRY-SKIP'}
 
 
 def key(path):
@@ -182,7 +193,9 @@ def compare(base_dir, files, rows, val):
         tb += sum(b['findings'].values()); tn += sum(n['findings'].values())
         print('%-46s ' % '/'.join(k)[:46] + ' '.join('%-16s' % ('%s -> %s' % (f(b), f(n))) for _, f in COLS))
     if both:
-        print('findings over the paired maps: %d -> %d' % (tb, tn))
+        ob = sum(sum(v for r_, v in base[k]['findings'].items() if r_ not in END_STATE) for k in both)
+        on = sum(sum(v for r_, v in new[k]['findings'].items() if r_ not in END_STATE) for k in both)
+        print('findings over the paired maps: %d -> %d; outside the §5 end state: %d -> %d' % (tb, tn, ob, on))
 
 
 if __name__ == '__main__':
