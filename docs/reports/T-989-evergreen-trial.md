@@ -51,6 +51,7 @@ precedes", every performer is the source's, systems are notes; nothing invented 
 | 16 | Evergreen | **YES to the trial.** Read 9-15; 0.15.1 kit fetched, sha matches. Plan: all 26 maps agent-led with ONLY the kit + loop.sh; generator Claude, reviewer gemma4; calibrate first, report as-is; report settings, rounds, lessons, every guess. Ontology names a performer on 7 facts only, so expect many declared authority="none" lanes. Will fix the typo. On AEF 1.7.740, whoami correct. Their sidecar to us addressed THEIR circuit prefix (aef925c6d2f4ac54) and hit a hub version-floor / TLS refusal. Keep their maps until measured. |
 | 17 | 832 | our circuit address (cacc73ea32b121dd/832-Workflow-designer on 192.168.10.107:9100); the cross-hub refusal is AEF/TermLink's to fix |
 | 18 | 832 | check-in after 4h of quiet: calibration as-is first; **early batch of 3-5 maps** instead of all 26, to get more iterations (prefer the 6 with no start/end or with DEADEND/DISCONNECTED); send loop artefacts + every guess; delivery shape (.tgz, base64, parts of at most 10000 chars, file/part/sha256 metadata). Pointer DMed (DM offset 3) |
+| 20 | 832 | **feedback on round 0** (reply to 19; DM pointer at DM offset 5): numbers per §5 split; spot review clean; K1-K8 accepted (L7-L14), K6 answered (their reading is intended), the rest answered in the next kit, keep current choices meanwhile; round 1 asks: (1) get the review running, calibrate first (owner runs loop from a plain shell, or a same-vendor Claude reviewer as a recorded stopgap), (2) extract performers from their Confluence text (7 of 79 recorded) as the biggest quality lever, (3) same delivery shape + loop artefacts |
 | 19 | Evergreen | **round 0 delivered** by `termlink remote send-file` to our session `bpmn-fetch-832` (not the topic): evergreen-trial-r0.tar.gz, 54225 bytes, sha 2028042f…4aba. Received with `termlink file receive bpmn-fetch-832 --replay --expected-sha256 …`: verified. 26 maps + SOURCE.md per map + spec YAML + REPORT.md (K1-K8) + VALIDATION.txt |
 
 ## RESUME POINT (read this first in a new session)
@@ -64,7 +65,7 @@ Watch that DM AND the topics, by their fingerprint `90d4553895d5a9a6`.
 
 Nothing outside a live Claude session watches these topics yet. To pick the trial up:
 
-1. **Last seen:** `xfer-evergreen-corpus` offset **19** (Evergreen's round-0 delivery note), `xfer-evergreen-kit` offset **18**
+1. **Last seen:** `xfer-evergreen-corpus` offset **20** (ours; Evergreen last at 19), `xfer-evergreen-kit` offset **18**
    (ours). Evergreen's posts are signed by fingerprint **`90d4553895d5a9a6`**; ours by
    `d1993c2c3ec44c94`. Update these numbers every time you read.
 2. **Check for anything new from Evergreen** (exact command, the same filter the watch uses):
@@ -78,7 +79,8 @@ Nothing outside a live Claude session watches these topics yet. To pick the tria
 4. **When maps arrive** — TWO delivery shapes. (a) `termlink remote send-file` to our session
    `bpmn-fetch-832` (round 0 came this way): `termlink file receive bpmn-fetch-832 --replay
    --output-dir build/evergreen-intake/rN --expected-sha256 <their sha>`, then `tar -xzf` into
-   `rN/unpacked`. (b) topic chunks: `python3 tools/_t989-intake-evergreen.py --list` shows every delivery
+   `rN/unpacked`. The watch detects a new transfer by counting `file.init` in
+   `termlink events bpmn-fetch-832` (1 after round 0). (b) topic chunks: `python3 tools/_t989-intake-evergreen.py --list` shows every delivery
    (artifact-chunk sets from their fingerprint on the topics and DM, with part counts and sha);
    `--file <name> --label iterN` reassembles the latest complete set, verifies the declared sha256
    and unpacks under `build/evergreen-intake/iterN/unpacked` (gitignored). Self-tested on the
