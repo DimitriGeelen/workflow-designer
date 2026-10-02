@@ -14,7 +14,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-10-02T15:13:59Z
-last_update: 2026-10-02T15:15:36Z
+last_update: 2026-10-02T15:19:36Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -84,9 +84,9 @@ bvp_scores_proposed:
   disposition:
   rationale:
 - **IW-4: Under what runner path did two sweeps exit rc 0 while recording 9 failures over 71 checks? (H4, lead L-b)**
-  confidence: 0
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: SIGPIPE — runner piped into `head` dies mid-sweep; EXIT trap records "$?"=0 and there is no PIPE trap (reproduced with identical trap logic: pipe -> rc=0 partial, unpiped -> rc=1); transcripts show agents running it `| grep FAIL | head -20`; _t952 ratchet accepts rc 0 as complete (COMPLETED_RCS=(0,1)) without checking fail==0. docs/reports/T-995-bridge-suite-slide.md §Spike 3
 
 ## Exploration Plan
 

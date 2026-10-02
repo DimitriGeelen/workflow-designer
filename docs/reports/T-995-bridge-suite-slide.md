@@ -74,6 +74,43 @@ Three leads:
    completion, handover, audit, release (runme.sh), pre-push? Where does the signal go to die?
    Compare with what AEF's framework does upstream. Time-box: 1h.
 
+## Findings
+
+### Spike 3 — IW-4: how a sweep exited 0 while failing (ANSWERED, confidence 2)
+
+**Mechanism, reproduced.** The runner records its history from an EXIT trap with `"$?"` and
+traps INT and TERM, but not **PIPE**. When its output is piped into a reader that closes early
+(`… | head`, `… | grep … | head -20`), the next write kills the runner with SIGPIPE. The EXIT
+trap still fires, `$?` is the status of the last completed command (0), and a **partial sweep is
+recorded as rc 0**. A minimal runner with the identical trap logic, piped to `head -5`, recorded
+`pass=6 fail=0 rc=0` for a 200-leg sweep; unpiped, it recorded `rc=1`. (The real runner could
+not be reproduced in isolation: outside the project it stops at its preflight, and a git
+worktree was not permitted. Hence confidence 2, not 3.)
+
+**Who pipes it.** The session transcripts show agents, including this session's, running the
+suite as `bash tests/run-bridge-tests.sh 2>&1 | grep … FAIL | head -20` and `| head -12/-20`.
+The 09-27 rows fit: about 200 s against 800-1400 s for a full sweep, and an identical 71/9 at two
+commits (the same early cut-off point).
+
+**Why it matters beyond two rows.** `tools/_t952-bridge-suite-ratchet.py` treats rc 0 and 1 as
+"completed sweep" (`COMPLETED_RCS = (0, 1)`) and never checks that rc 0 means zero failures. So a
+pipe-killed sweep can read as a big improvement: "failures fell to 9, floor can be lowered". That
+is precisely the false improvement its docstring says it was built to refuse for SIGTERM'd runs.
+The SIGPIPE path was never considered.
+
+**Structural learnings (candidates for the decision):**
+- **F1. An impossible state was never asserted.** "rc 0 with fail > 0" cannot happen in a
+  completed sweep. Neither the recorder nor the ratchet checks it. One line in each would have
+  flagged the two rows on the day they were written.
+- **F2. A trap that records `$?` records a lie on untrapped signals.** The recorder should write
+  `rc` from its own completion flag (set on the final line), not from `$?`, and mark every other
+  exit `partial`. This is a general pattern for any framework script that writes history from an
+  EXIT trap.
+- **F3. The habit of piping a long suite into `head` destroys its result.** It is an agent-usage
+  pattern, not a one-off. Remedy in the tool, not in discipline: the runner writes its full log
+  to a file and prints only a summary, so there is nothing to pipe; or it refuses to run with a
+  pipe on stdout (`[ -p /dev/stdout ]`) unless told to.
+
 ## What the decision will be about
 
 GO / NO-GO on a set of **framework-level changes**, each traceable to a spike finding. Candidate
