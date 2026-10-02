@@ -1,11 +1,11 @@
 {
-  "about": "Calibration set for loop.sh --calibrate (T-983, T-991). SOURCE.md is synthetic interview notes. clean.bpmn is a map an agent generated from it that two reviewers and an audit found faithful (T-982 S1). planted.bpmn is clean.bpmn with three known defects and NOTHING else: its incoming/outgoing refs and flow ids are consistent (T-991 removed planting artefacts a real reviewer rightly flagged). A defect counts as caught when a finding names ANY element that implements it with ANY category that truthfully describes it: wiring steps into an order the source does not give is both 'invented' and 'undeclared-unknown', and may be reported on the node or on the flows. Real runs: GLM-5.2 caught all three with 0 false findings on clean.bpmn (T-982 S1b; T-991 on the sandbox-safe loop.sh).",
+  "about": "Calibration set for loop.sh --calibrate (T-983, T-991). SOURCE.md is synthetic interview notes. clean.bpmn is a map an agent generated from it that two reviewers and an audit found faithful (T-982 S1). planted.bpmn is clean.bpmn with three known defects and NOTHING else: its incoming/outgoing refs and flow ids are consistent (T-991 removed planting artefacts a real reviewer rightly flagged). A defect counts as caught when a finding names ANY element that implements it with ANY category that truthfully describes it: wiring steps into an order the source does not give is both 'invented' and 'undeclared-unknown', and may be reported on the node or on the flows. Real runs: GLM-5.2 caught all three with 0 false findings on clean.bpmn (T-982 S1b; T-991 on the sandbox-safe loop.sh). 0.15.3 (T-1008): the join after shipment was removed from both maps. The source never says completion waits for both delivery and invoicing; after the fork/join correction (L26) both calibrated reviewers rightly flagged it on the clean map. Delivery and invoicing now flow straight into the end event, and the planted reminder step ends there too.",
   "planted": [
     {
       "elements": [
         "send-payment-reminder",
         "generate-and-send-invoice--send-payment-reminder",
-        "send-payment-reminder--join"
+        "send-payment-reminder--accepted-order-fulfilled"
       ],
       "categories": [
         "invented",

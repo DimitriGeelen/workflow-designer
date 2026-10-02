@@ -58,7 +58,6 @@ customer is told."</bpmn:documentation>
           <aef:laneMeta authority="external" />
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>collect-parcel</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>after-shipment</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>deliver-parcel-to-customer</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_erp" name="ERP">
@@ -68,7 +67,6 @@ generates and sends the invoice automatically."</bpmn:documentation>
           <aef:laneMeta authority="authority" />
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>generate-and-send-invoice</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>delivery-and-invoicing-complete</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>accepted-order-fulfilled</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
@@ -182,24 +180,16 @@ customer is told."</bpmn:documentation>
         <aef:uid value="collect-parcel" />
       </bpmn:extensionElements>
       <bpmn:incoming>book-carrier--collect-parcel</bpmn:incoming>
-      <bpmn:outgoing>collect-parcel--after-shipment</bpmn:outgoing>
+      <bpmn:outgoing>collect-parcel--deliver-parcel-to-customer</bpmn:outgoing>
+      <bpmn:outgoing>collect-parcel--generate-and-send-invoice</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:parallelGateway id="after-shipment" name="After shipment">
-      <bpmn:documentation>source: unstated - Routing after collection represents shipment. Delivery and automatic invoicing both follow shipment; their relative order is not stated. This fork imposes no order between them.</bpmn:documentation>
-      <bpmn:extensionElements>
-        <aef:uid value="after-shipment" />
-      </bpmn:extensionElements>
-      <bpmn:incoming>collect-parcel--after-shipment</bpmn:incoming>
-      <bpmn:outgoing>after-shipment--deliver-parcel-to-customer</bpmn:outgoing>
-      <bpmn:outgoing>after-shipment--generate-and-send-invoice</bpmn:outgoing>
-    </bpmn:parallelGateway>
     <bpmn:task id="deliver-parcel-to-customer" name="Deliver parcel to customer">
       <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="deliver-parcel-to-customer" />
       </bpmn:extensionElements>
-      <bpmn:incoming>after-shipment--deliver-parcel-to-customer</bpmn:incoming>
-      <bpmn:outgoing>deliver-parcel-to-customer--delivery-and-invoicing-complete</bpmn:outgoing>
+      <bpmn:incoming>collect-parcel--deliver-parcel-to-customer</bpmn:incoming>
+      <bpmn:outgoing>deliver-parcel-to-customer--accepted-order-fulfilled</bpmn:outgoing>
     </bpmn:task>
     <bpmn:serviceTask id="generate-and-send-invoice" name="Generate and send invoice automatically">
       <bpmn:documentation>source: "After shipment the ERP
@@ -207,24 +197,16 @@ generates and sends the invoice automatically."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="generate-and-send-invoice" />
       </bpmn:extensionElements>
-      <bpmn:incoming>after-shipment--generate-and-send-invoice</bpmn:incoming>
-      <bpmn:outgoing>generate-and-send-invoice--delivery-and-invoicing-complete</bpmn:outgoing>
+      <bpmn:incoming>collect-parcel--generate-and-send-invoice</bpmn:incoming>
+      <bpmn:outgoing>generate-and-send-invoice--accepted-order-fulfilled</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:parallelGateway id="delivery-and-invoicing-complete" name="Delivery and invoicing complete">
-      <bpmn:documentation>source: unstated - Structural join for the two stated post-shipment activities; it adds no task or performer and imposes no relative order on them.</bpmn:documentation>
-      <bpmn:extensionElements>
-        <aef:uid value="delivery-and-invoicing-complete" />
-      </bpmn:extensionElements>
-      <bpmn:incoming>deliver-parcel-to-customer--delivery-and-invoicing-complete</bpmn:incoming>
-      <bpmn:incoming>generate-and-send-invoice--delivery-and-invoicing-complete</bpmn:incoming>
-      <bpmn:outgoing>delivery-and-invoicing-complete--accepted-order-fulfilled</bpmn:outgoing>
-    </bpmn:parallelGateway>
     <bpmn:endEvent id="accepted-order-fulfilled" name="Accepted order delivered and invoiced">
       <bpmn:documentation>source: unstated - Marks the accepted-order outcome after the stated delivery and invoicing activities; no additional operational step is asserted.</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="accepted-order-fulfilled" />
       </bpmn:extensionElements>
-      <bpmn:incoming>delivery-and-invoicing-complete--accepted-order-fulfilled</bpmn:incoming>
+      <bpmn:incoming>deliver-parcel-to-customer--accepted-order-fulfilled</bpmn:incoming>
+      <bpmn:incoming>generate-and-send-invoice--accepted-order-fulfilled</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:task id="quality-inspection" name="Quality inspection">
       <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could
@@ -305,34 +287,24 @@ say whether those happen before or after packing, or in which order relative to 
         <aef:uid value="book-carrier--collect-parcel" />
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="collect-parcel--after-shipment" sourceRef="collect-parcel" targetRef="after-shipment">
+    <bpmn:sequenceFlow id="collect-parcel--deliver-parcel-to-customer" sourceRef="collect-parcel" targetRef="deliver-parcel-to-customer">
       <bpmn:extensionElements>
-        <aef:uid value="collect-parcel--after-shipment" />
+        <aef:uid value="collect-parcel--deliver-parcel-to-customer" />
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="after-shipment--deliver-parcel-to-customer" sourceRef="after-shipment" targetRef="deliver-parcel-to-customer">
+    <bpmn:sequenceFlow id="collect-parcel--generate-and-send-invoice" sourceRef="collect-parcel" targetRef="generate-and-send-invoice">
       <bpmn:extensionElements>
-        <aef:uid value="after-shipment--deliver-parcel-to-customer" />
+        <aef:uid value="collect-parcel--generate-and-send-invoice" />
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="after-shipment--generate-and-send-invoice" sourceRef="after-shipment" targetRef="generate-and-send-invoice">
+    <bpmn:sequenceFlow id="deliver-parcel-to-customer--accepted-order-fulfilled" sourceRef="deliver-parcel-to-customer" targetRef="accepted-order-fulfilled">
       <bpmn:extensionElements>
-        <aef:uid value="after-shipment--generate-and-send-invoice" />
+        <aef:uid value="deliver-parcel-to-customer--accepted-order-fulfilled" />
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="deliver-parcel-to-customer--delivery-and-invoicing-complete" sourceRef="deliver-parcel-to-customer" targetRef="delivery-and-invoicing-complete">
+    <bpmn:sequenceFlow id="generate-and-send-invoice--accepted-order-fulfilled" sourceRef="generate-and-send-invoice" targetRef="accepted-order-fulfilled">
       <bpmn:extensionElements>
-        <aef:uid value="deliver-parcel-to-customer--delivery-and-invoicing-complete" />
-      </bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="generate-and-send-invoice--delivery-and-invoicing-complete" sourceRef="generate-and-send-invoice" targetRef="delivery-and-invoicing-complete">
-      <bpmn:extensionElements>
-        <aef:uid value="generate-and-send-invoice--delivery-and-invoicing-complete" />
-      </bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="delivery-and-invoicing-complete--accepted-order-fulfilled" sourceRef="delivery-and-invoicing-complete" targetRef="accepted-order-fulfilled">
-      <bpmn:extensionElements>
-        <aef:uid value="delivery-and-invoicing-complete--accepted-order-fulfilled" />
+        <aef:uid value="generate-and-send-invoice--accepted-order-fulfilled" />
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
     <bpmn:textAnnotation id="Note_quality-inspection">
@@ -346,9 +318,5 @@ say whether those happen before or after packing, or in which order relative to 
     <bpmn:textAnnotation id="Note_returns">
       <bpmn:text>Returns are handled by a separate process that is not described here. Returns are outside this map.</bpmn:text>
     </bpmn:textAnnotation>
-    <bpmn:textAnnotation id="Note_delivery-and-invoicing-complete">
-      <bpmn:text>Whether the order counts as complete only once both delivery and invoicing are done is not recorded in the source; the join is kept as drawn and this is flagged, not resolved.</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_delivery-and-invoicing-complete" sourceRef="Note_delivery-and-invoicing-complete" targetRef="delivery-and-invoicing-complete" />
   </bpmn:process>
 </bpmn:definitions>
