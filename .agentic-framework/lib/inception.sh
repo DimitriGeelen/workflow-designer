@@ -509,27 +509,6 @@ do_inception_decide() {
 
     # Gate: require fw task review before accepting decision (T-973)
     local review_marker="$PROJECT_ROOT/.context/working/.reviewed-$task_id"
-    # 832 T-996: the marker is a side effect of the AGENT-side `fw task review`, and nothing
-    # makes the agent run it before handing the decision over, so the refusal landed on the
-    # HUMAN at the moment of deciding ("run another command, then re-run") — 15 hits in one
-    # project's transcripts. The gate's purpose (T-973) is that the human SEES the review
-    # before deciding. When the caller is a human at a terminal, satisfy that purpose here:
-    # render the same review (emit_review writes the marker) and ask for confirmation.
-    # Agents ($CLAUDECODE=1) never reach this line (T-1259 gate above); non-interactive
-    # callers keep the refusal.
-    if [ ! -f "$review_marker" ] && [ -r /dev/tty ] && [ -t 1 -o -t 0 ] && [ "${CLAUDECODE:-}" != "1" ] \
-       && [ -f "$FW_LIB_DIR/review.sh" ]; then
-        echo -e "${YELLOW}No review was emitted for $task_id yet — showing it now (T-973 requires you to see it).${NC}" >&2
-        source "$FW_LIB_DIR/review.sh"
-        if emit_review "$task_id" "$task_file" >&2 && [ -f "$review_marker" ]; then
-            local _seen=""
-            read -r -p "You have read the review above. Continue with the decision? [y/N] " _seen </dev/tty || _seen=""
-            if [ "$_seen" != "y" ] && [ "$_seen" != "Y" ]; then
-                echo -e "${YELLOW}Stopped before deciding. The review stays emitted; re-run the decide command when ready.${NC}" >&2
-                exit 1
-            fi
-        fi
-    fi
     if [ ! -f "$review_marker" ]; then
         echo -e "${RED}ERROR: Task review required before decision${NC}" >&2
         echo "" >&2
@@ -559,38 +538,6 @@ do_inception_decide() {
         exit 1
     fi
 
-    # Gate: require a ## Hypothesis in the three-part form, with a success clause
-    # naming something checkable (T-866, arc-004). Fires on GO only — a NO-GO or
-    # DEFER takes on no claim, so demanding a measurable signal there is
-    # bureaucracy. Placed AFTER the Recommendation gate deliberately: the
-    # recommendation is what the human reads, the hypothesis is what the project
-    # will later be measured against, and failing the cheaper/closer one first
-    # keeps the refusals in the order an author can act on them.
-    # Fail CLOSED if the audit lib never loaded. Its sourcing above is inside an
-    # `if [ -f ... ]`, so a missing lib would otherwise reach this line as a bare
-    # "command not found" and — depending on shell settings — let the decision
-    # through. A gate whose absence is indistinguishable from a pass is the exact
-    # defect this arc is built around.
-    if ! command -v audit_inception_hypothesis >/dev/null 2>&1; then
-        echo -e "${RED}ERROR: hypothesis gate unavailable (lib/task-audit.sh did not load)${NC}" >&2
-        echo -e "Refusing the decision rather than recording one the gate never checked." >&2
-        exit 1
-    fi
-    if ! audit_inception_hypothesis "$task_file" "$decision"; then
-        echo "" >&2
-        echo -e "${RED}ERROR: ## Hypothesis required before a GO decision${NC}" >&2
-        echo "" >&2
-        echo -e "A GO is the moment this project takes on a claim. Every support score in" >&2
-        echo -e "this task's value-driver table is an argument about that claim — without it," >&2
-        echo -e "the scores can rank but cannot be wrong, because there is nothing for them" >&2
-        echo -e "to be wrong about." >&2
-        echo "" >&2
-        echo -e "The estimator can draft one from this task's own text; correct it and set" >&2
-        echo -e "  hypothesis_source: human" >&2
-        echo -e "in the frontmatter to make your wording permanent." >&2
-        exit 1
-    fi
-
     local timestamp
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     local decision_upper
@@ -617,26 +564,41 @@ do_inception_decide() {
         # recorded, status started-work) the operator hit on T-3278, with the
         # gate's agent-facing stderr surfaced raw in Watchtower. Refuse HERE,
         # body untouched, in language both operator and agent can act on.
-        source "$FRAMEWORK_ROOT/lib/inception-readiness.sh" 2>/dev/null || true
-        if command -v inception_underdisposed_questions >/dev/null 2>&1; then
-            local _underdisposed
-            _underdisposed=$(inception_underdisposed_questions "$task_file")
-            if [ -n "$_underdisposed" ]; then
-                local _ud_count
-                _ud_count=$(printf '%s\n' "$_underdisposed" | grep -c .)
-                echo -e "${RED}ERROR: Cannot record $decision_upper — $_ud_count Open Question(s) not yet disposed.${NC}" >&2
-                echo "" >&2
-                echo "This inception's decision is not ready: each IW-N under '## Open Questions'" >&2
-                echo "needs 'disposition: answered|deferred|dissolved' plus a one-line rationale" >&2
-                echo "before a go/no-go can complete (T-2190 disposition gate)." >&2
-                echo "" >&2
-                echo "Not yet disposed:" >&2
-                printf '%s\n' "$_underdisposed" | sed 's/^/    - /' >&2
-                echo "" >&2
-                echo "Nothing was written — the task body is untouched. Fill the dispositions" >&2
-                echo "(deferring a question to the build work is a valid disposition), then decide again." >&2
-                return 1
-            fi
+        #
+        # T-3641 (ported from 055 P-001): fail CLOSED. A missing library, an
+        # undefined predicate, or a crashed predicate used to skip this preflight
+        # silently — on the sovereignty path. Refuse instead, body untouched.
+        local _ir_lib="$FRAMEWORK_ROOT/lib/inception-readiness.sh"
+        if ! source "$_ir_lib" 2>/dev/null || ! command -v inception_underdisposed_questions >/dev/null 2>&1; then
+            echo -e "${RED}ERROR: Cannot record $decision_upper — decision-readiness check could not load.${NC}" >&2
+            echo "  $_ir_lib did not load, or did not define inception_underdisposed_questions" >&2
+            echo "  (FRAMEWORK_ROOT=$FRAMEWORK_ROOT). Nothing was written — the task body is untouched." >&2
+            return 1
+        fi
+        local _underdisposed _ud_rc=0
+        # T-3539: rc 1 is a FINDING signal (this runs under `set -euo pipefail`),
+        # so capture it. T-3641: rc>1, or rc!=0 with no report, is a crash.
+        _underdisposed=$(inception_underdisposed_questions "$task_file") || _ud_rc=$?
+        if [ "$_ud_rc" -gt 1 ] || { [ "$_ud_rc" -ne 0 ] && [ -z "$_underdisposed" ]; }; then
+            echo -e "${RED}ERROR: Cannot record $decision_upper — decision-readiness check failed (rc=$_ud_rc) without a report.${NC}" >&2
+            echo "  inception_underdisposed_questions from $_ir_lib crashed. Nothing was written — the task body is untouched." >&2
+            return 1
+        fi
+        if [ -n "$_underdisposed" ]; then
+            local _ud_count
+            _ud_count=$(printf '%s\n' "$_underdisposed" | grep -c .)
+            echo -e "${RED}ERROR: Cannot record $decision_upper — $_ud_count Open Question(s) not yet disposed.${NC}" >&2
+            echo "" >&2
+            echo "This inception's decision is not ready: each IW-N under '## Open Questions'" >&2
+            echo "needs 'disposition: answered|deferred|dissolved' plus a one-line rationale" >&2
+            echo "before a go/no-go can complete (T-2190 disposition gate)." >&2
+            echo "" >&2
+            echo "Not yet disposed:" >&2
+            printf '%s\n' "$_underdisposed" | sed 's/^/    - /' >&2
+            echo "" >&2
+            echo "Nothing was written — the task body is untouched. Fill the dispositions" >&2
+            echo "(deferring a question to the build work is a valid disposition), then decide again." >&2
+            return 1
         fi
 
         tick_inception_decide_acs "$task_file"
@@ -836,7 +798,9 @@ EOF
                 return "$_uts_rc"
             fi
         fi
-        "$AGENTS_DIR/task-create/update-task.sh" "$task_id" --status work-completed --skip-sovereignty --reason "Inception decision: $decision_upper" 2>&1
+        # T-3586: --i-am-human — decide already refused agents (T-1259) before reaching here,
+        # and a Watchtower-driven decide inherits CLAUDECODE=1 from the Flask process.
+        "$AGENTS_DIR/task-create/update-task.sh" "$task_id" --status work-completed --skip-sovereignty --i-am-human --reason "Inception decision: $decision_upper" 2>&1
         _uts_rc=$?
         if [ "$_uts_rc" -ne 0 ]; then
             echo "" >&2

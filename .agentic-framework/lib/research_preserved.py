@@ -1,74 +1,113 @@
-"""research_preserved — was an inception's thinking preserved, wherever it lives? (T-919)
+#!/usr/bin/env python3
+"""Does a task file itself carry its research? (T-3569, C-001)
 
-THE RULING. Operator, 2026-09-16, on OBS-351: *"the task file counts."* C-001 says conversations are
-ephemeral and files are permanent — and a task file IS a file, committed and durable. An inception
-whose reasoning is recorded in its own task file satisfies C-001.
+C-001 asks that inception research be persisted. The audit scanners used to
+answer that by LOCATION only — a `docs/reports/` file named after the task, the
+literal string `docs/reports/` in the body, or an episodic reference. A task
+that wrote its research into its own Problem Statement / Findings / Dialogue
+Log sections was reported as having none. 832 measured 3/3 of their live
+completed-scan findings as that false positive (offer, offset 14).
 
-THE DEFECT THIS REPLACES. Both audit scanners decided "has research artifact" by LOCATION:
+This module is the one definition of "the task record itself preserves the
+research". Both scanners import it (agents/audit/completed-task-scan.py and
+agents/audit/active-task-scan.py); neither carries its own section list.
 
-  completed-task-scan.py  a filename in docs/reports/ containing the task id, OR the literal string
-                          "docs/reports/" anywhere in the body, OR an episodic reference
-  active-task-scan.py     the filename test alone — narrower still
+WHAT COUNTS
+-----------
+Prose under research-bearing `## ` headings (RESEARCH_SECTIONS), after HTML
+comments and `[placeholder]` brackets are stripped and whitespace collapsed.
+Everything else is excluded on purpose — Acceptance Criteria, Verification,
+Updates, Recommendation, Decision(s), Go/No-Go: those sections are filled on
+every task, research or not, so counting them would make coverage universal.
 
-None asks whether the thinking was preserved. Measured on 2026-09-29, the completed scan flagged
-T-250, T-587 and T-879, and every one held substantive exploratory prose in-task: T-250 a 738-char
-Problem Statement and 1198-char Open Questions; T-587 680/569/515/413 across Problem Statement,
-Exploration Plan, Technical Constraints and Scope Fence; T-879 a 513-char Hypothesis. The entire
-output set was false positives under the ruling. OBS-351 recorded the rate as 50% on the four RA-00x
-findings of 2026-09-16; on the live set it was 100%.
-
-ONE ENCODING, ON PURPOSE. This lives in lib/ and is imported by both scanners rather than copied into
-each. The delegation boundary in this same corpus is encoded twice — once in the path that enforces
-and once in the path that reports — and the two were measured disagreeing on 2026-09-29 (G-052). A
-second copy of "was the thinking preserved" would start the same drift on day one.
+THE THRESHOLD
+-------------
+Calibrated on this repo's completed inceptions, not copied from 832's 400.
+The numbers and the two boundary cases are recorded in T-3569 (## Decisions).
 """
+
 from __future__ import annotations
 
 import re
+import sys
 
-# RESEARCH-BEARING SECTIONS ONLY, and the exclusions are what make this discriminating. Every
-# inception carries Acceptance Criteria, Verification, Updates, Recommendation, Decision and Go/No-Go
-# by template, so counting those would make EVERY inception pass — retiring the check by accident,
-# which is a worse outcome than the false positives it is fixing. What counts is the exploratory
-# record: sections that exist only because someone thought on paper.
+# Heading prefixes, lowercase. Prefix match so "Findings (spike 2)",
+# "Hypotheses" and "Spike 1: ..." all count.
 RESEARCH_SECTIONS = (
-    "problem statement", "open questions", "exploration plan", "technical constraints",
-    "hypothesis", "findings", "evidence", "dialogue log", "scope fence", "spikes",
-    "prior art", "assumptions",
+    "problem statement",
+    "open questions",
+    "exploration plan",
+    "technical constraints",
+    "hypothes",
+    "findings",
+    "evidence",
+    "dialogue log",
+    "scope fence",
+    "spike",
+    "prior art",
+    "assumptions",
+    # Not in 832's list; used by this corpus's inceptions for research prose
+    # (T-3240 "Candidate Answers", "Investigation Findings"). T-3569.
+    "candidate",
+    "investigation",
 )
 
-# The threshold carries the measurement it came from, not a round number chosen for looking right.
-# The smallest genuine case observed when this was written is T-879's 513-character Hypothesis — its
-# only research-bearing section. 400 admits it with ~20% margin. A section still holding its template
-# measures under 50 once HTML comments and placeholder brackets are stripped, so the gap between
-# "wrote something" and "left the template in place" is an order of magnitude, not a judgement call.
-# Disagree with the number rather than guessing at one: it is here to be argued with.
-RESEARCH_MIN_CHARS = 400
+# Minimum research prose, in characters after stripping. See module docstring.
+THRESHOLD = 400
 
-_SECTION_RE = re.compile(r"^## +(.+?)\s*$", re.M)
-_COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
-_PLACEHOLDER_RE = re.compile(r"\[TODO\]|\[[A-Z][a-z]+(?: [a-z]+)*\]")
+_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+# A `[placeholder]` bracket: not a checkbox's content we care about and not the
+# text of a markdown link (which is followed by `(`). Single line only.
+_PLACEHOLDER_RE = re.compile(r"\[[^\]\n]*\](?!\()")
+_WS_RE = re.compile(r"\s+")
 
 
-def research_chars(content: str) -> int:
-    """Characters of substantive exploratory prose in the task file itself.
+def _is_research_heading(title: str) -> bool:
+    t = title.strip().lower().lstrip("0123456789. ")
+    return any(t.startswith(p) for p in RESEARCH_SECTIONS)
 
-    HTML comments and placeholder brackets are stripped BEFORE measuring, so a task still holding its
-    template scores near zero rather than passing on the template's own word count. That direction is
-    the load-bearing one: a check that accepts the template accepts everything.
-    """
-    body = _COMMENT_RE.sub("", content or "")
-    marks = list(_SECTION_RE.finditer(body))
-    total = 0
-    for i, m in enumerate(marks):
-        name = m.group(1).strip().lower()
-        if not any(name.startswith(s) for s in RESEARCH_SECTIONS):
+
+def research_sections(text: str) -> dict[str, str]:
+    """Map each research-bearing `## ` heading to its raw body."""
+    out: dict[str, str] = {}
+    current = None
+    buf: list[str] = []
+    in_fence = False
+    for line in _COMMENT_RE.sub("", text).split("\n"):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+        if not in_fence and line.startswith("## "):
+            if current is not None:
+                out[current] = out.get(current, "") + "\n".join(buf)
+            title = line[3:].strip()
+            current = title if _is_research_heading(title) else None
+            buf = []
             continue
-        end = marks[i + 1].start() if i + 1 < len(marks) else len(body)
-        total += len(_PLACEHOLDER_RE.sub("", body[m.end():end]).strip())
-    return total
+        if current is not None:
+            buf.append(line)
+    if current is not None:
+        out[current] = out.get(current, "") + "\n".join(buf)
+    return out
 
 
-def research_preserved_in_task(content: str) -> bool:
-    """True when the task file carries enough exploratory prose to satisfy C-001 on its own."""
-    return research_chars(content) >= RESEARCH_MIN_CHARS
+def _clean(body: str) -> str:
+    body = _PLACEHOLDER_RE.sub("", body)
+    return _WS_RE.sub(" ", body).strip()
+
+
+def research_prose_chars(text: str) -> int:
+    """Characters of research prose the task file carries (after stripping)."""
+    return sum(len(_clean(b)) for b in research_sections(text).values())
+
+
+def research_preserved(text: str, threshold: int = THRESHOLD) -> bool:
+    """True when the task record itself preserves substantive research."""
+    return research_prose_chars(text) >= threshold
+
+
+if __name__ == "__main__":
+    # Calibration aid: `python3 lib/research_preserved.py FILE...` prints
+    # "<chars>\t<file>" per file.
+    for path in sys.argv[1:]:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            print(f"{research_prose_chars(fh.read())}\t{path}")

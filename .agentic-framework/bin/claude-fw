@@ -96,6 +96,31 @@ termlink_inject() {
     termlink pty inject "$TERMLINK_SESSION" "$cmd" --enter >/dev/null 2>&1
 }
 
+# T-3648 (port of 055 P-011/P-012, framework:pickup offsets 242/244): one ping
+# is a liveness SAMPLE, not a verdict. Under CPU load a single ping fails or
+# times out while the session is fine, and the wait loop used to end the agent
+# on it. The session is declared gone only after CLAUDE_FW_PING_FAILURES
+# consecutive failures (default 3, one per 5 s poll; non-numeric or <1 → 3).
+# A success resets the count. Each tolerated failure goes to stderr.
+# Returns 0 when the session is gone, 1 while it should be treated as alive.
+_TL_PING_FAILS=0
+_tl_session_gone() {
+    local limit="${CLAUDE_FW_PING_FAILURES:-3}"
+    case "$limit" in ''|*[!0-9]*) limit=3 ;; esac
+    [ "$limit" -ge 1 ] 2>/dev/null || limit=3
+    if termlink ping "$TERMLINK_SESSION" >/dev/null 2>&1; then
+        _TL_PING_FAILS=0
+        return 1
+    fi
+    _TL_PING_FAILS=$((_TL_PING_FAILS + 1))
+    if [ "$_TL_PING_FAILS" -ge "$limit" ]; then
+        echo "claude-fw: termlink ping failed ${_TL_PING_FAILS} times in a row — session $TERMLINK_SESSION is gone." >&2
+        return 0
+    fi
+    echo "claude-fw: termlink ping failed (${_TL_PING_FAILS}/${limit}) — tolerating, session $TERMLINK_SESSION may be under load." >&2
+    return 1
+}
+
 # T-3346: parse the explicit exit marker the injected command line prints when
 # claude actually terminates. Prompt-glyph detection is unusable here: `❯` is
 # Claude Code's own TUI input caret, on screen the entire time claude is RUNNING,
@@ -112,10 +137,62 @@ _tl_claude_exit_code() {
     printf '%s\n' "$m" | sed -E 's/__CLAUDE_FW_EXIT_([0-9]+)__/\1/'
 }
 
+# T-3647 (port of 055 P-009, framework:pickup offset 241): PIDs of the
+# `termlink register --name <name>` process(es) that own a session. That process
+# outlives the session's shell, so injecting `exit` alone leaked one live,
+# heartbeating registration per wrapper exit. Matching is EXACT, never by pattern:
+# a `termlink list --json` entry whose display_name equals <name>, or a process
+# whose argv holds `register` and `--name <name>` as separate words. The /proc leg
+# matters because `termlink clean` drops the registration file while the process
+# lives on, after which `termlink list` cannot see it at all. A list-sourced PID
+# is kept only if /proc (where present) confirms the same argv, so a recycled PID
+# is never signalled. Prints one PID per line.
+_tl_register_pids() {
+    local name="$1" listing
+    [ -n "$name" ] || return 0
+    listing=$(termlink list --all --json 2>/dev/null) || listing=""
+    printf '%s' "$listing" | python3 -c '
+import json, os, sys
+name, me = sys.argv[1], os.getpid()
+
+def argv_matches(pid):
+    try:
+        with open("/proc/%d/cmdline" % pid, "rb") as f:
+            argv = f.read().decode("utf-8", "replace").split("\0")
+    except OSError:
+        return None
+    return "register" in argv and any(
+        argv[i] == "--name" and argv[i + 1] == name for i in range(len(argv) - 1))
+
+have_proc = os.path.isdir("/proc/self")
+pids = set()
+try:
+    for s in json.load(sys.stdin).get("sessions", []):
+        if s.get("display_name") == name and isinstance(s.get("pid"), int):
+            pids.add(s["pid"])
+except Exception:
+    pass
+if have_proc:
+    pids = {p for p in pids if argv_matches(p)}
+    for d in os.listdir("/proc"):
+        if d.isdigit() and argv_matches(int(d)):
+            pids.add(int(d))
+for p in sorted(pids - {me, os.getppid()}):
+    print(p)
+' "$name" 2>/dev/null || true
+}
+
 termlink_cleanup() {
     if [ -n "$TERMLINK_SESSION" ]; then
+        local _reg_pids
+        _reg_pids=$(_tl_register_pids "$TERMLINK_SESSION")
         termlink pty inject "$TERMLINK_SESSION" "exit" --enter >/dev/null 2>&1 || true
         sleep 2
+        # T-3647: SIGTERM removes the registration cleanly; `exit` alone does not.
+        if [ -n "$_reg_pids" ]; then
+            # shellcheck disable=SC2086 # one PID per word, by construction
+            kill -TERM $_reg_pids 2>/dev/null || true
+        fi
         termlink clean >/dev/null 2>&1 || true
     fi
 }
@@ -521,10 +598,27 @@ _print_startup_banner
 _record_loop_event start armed \
     "restart=$([ "$AUTO_RESTART" = false ] && echo disabled || echo enabled) max_restarts=${MAX_RESTARTS} window=${RESTART_WINDOW}s armed=$(_continuous_armed && echo yes || echo no) termlink=${TERMLINK_ENABLED:-0}"
 
+# T-3629: a relaunch must never hand claude an empty argv. Claude Code 2.1.28x
+# opens its AGENTS OVERVIEW, not a conversation, when started with no arguments
+# and the user's ~/.claude.json has `defaultToAgentsView: true` — so every fresh
+# restart (CLAUDE_ARGS=(), T-3166) parked the agent in the overview with the
+# injected handover addressed to no session (055 P-016: 9 of 13 fleet agents
+# idle). Any real argument takes the conversation path; `-n <name>` also labels
+# the session. The name is restricted to [A-Za-z0-9._-] because the TermLink
+# path joins CLAUDE_ARGS with spaces into one shell line.
+_name_fresh_relaunch() {
+    [ "$restart_count" -gt 0 ] || return 0
+    [ "${#CLAUDE_ARGS[@]}" -eq 0 ] || return 0
+    local base
+    base=$(printf '%s' "${PWD##*/}" | tr -c 'A-Za-z0-9._-' '-')
+    CLAUDE_ARGS=("-n" "fw-${base}-r${restart_count}")
+}
+
 while true; do
     # T-2373: record when this run started so the terminator only acts on a
     # signal written DURING the run (edge case a — not a leftover/stale signal).
     run_start_epoch=$(date +%s)
+    _name_fresh_relaunch # T-3629
     # Run claude with user's arguments
     set +e
     if [ "$TERMLINK_ENABLED" = "1" ] && [ -n "$TERMLINK_SESSION" ]; then
@@ -532,6 +626,7 @@ while true; do
         # printf is the exit signal — see _tl_claude_exit_code. $? and quotes are
         # escaped so they reach the PTY shell literally.
         termlink_inject "claude ${CLAUDE_ARGS[*]}; printf '__CLAUDE_FW_EXIT_%s__\n' \"\$?\""
+        _TL_PING_FAILS=0 # T-3648: each run starts with a clean failure count
         # Wait for claude to exit by polling the PTY for shell prompt
         # We check if claude process is still running inside the session
         while true; do
@@ -552,8 +647,9 @@ while true; do
                     fi
                 fi
             fi
-            # Check if the session is still alive and claude is running
-            if ! termlink ping "$TERMLINK_SESSION" >/dev/null 2>&1; then
+            # Check if the session is still alive and claude is running.
+            # T-3648: tolerant of transient ping failures — see _tl_session_gone.
+            if _tl_session_gone; then
                 exit_code=1
                 break
             fi
@@ -809,7 +905,9 @@ while true; do
                 echo ""
                 echo "claude-fw: Continuous run is armed, but the restart budget is exhausted"
                 echo "  (${spent}/${MAX_RESTARTS} within the last ${RESTART_WINDOW}s). Stopping."
-                _record_loop_event exit max-restarts \
+                # T-3633: own reason, not max-restarts — the ledger must say which
+                # path stopped the loop (precedent: no-directive-headless-rearm).
+                _record_loop_event exit max-restarts-rearm \
                     "re-arm refused: ${spent} restarts within ${RESTART_WINDOW}s window >= MAX_RESTARTS=${MAX_RESTARTS}" "$exit_code"
                 exit "$exit_code"
             fi

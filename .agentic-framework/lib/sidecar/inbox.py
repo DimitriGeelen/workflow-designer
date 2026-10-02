@@ -27,6 +27,7 @@ import json
 import os
 import shutil
 import subprocess
+from datetime import datetime, timezone
 
 from . import circuit, outbox
 
@@ -65,6 +66,48 @@ def legacy_topics(agent: str | None = None) -> list[str]:
     one release (T-3433). Senders never write them; `pending()` drains them so
     a consult posted by a peer that has not yet switched still arrives."""
     return [circuit.legacy_topic_for(agent or agent_id())]
+
+
+def v9_topics(agent: str | None = None) -> list[str]:
+    """The V9 spelling of this agent's inbox topic (T-3479).
+
+    READ-SIDE ONLY. Senders still write the T-3433 form; this exists so that a
+    peer which has already switched to V9 is heard before we change anything
+    they can observe. The write-side cut is a later slice and is gated on
+    telling 832, 010-termlink and 1409-sprind first.
+    """
+    cid = circuit.circuit_id("agent") if agent is None \
+        else circuit.resolve_address(agent)
+    return [circuit.v9_topic_for_circuit(cid)]
+
+
+def read_topics(agent: str | None = None) -> list[str]:
+    """Every topic a reader for `agent` must consult. THE one definition.
+
+    T-3462 (OBS-529): this list used to be written out at each call site, and
+    the two copies drifted the moment the T-3433 transition widened one of
+    them. `pending()` was widened to drain circuit + legacy; `retry.
+    answered_conversations()` was not, and kept peeking the circuit topic
+    alone.
+
+    The consequence was not a missing message — `pending()` still surfaced
+    everything — it was that the SWEEP could not see a reply. A peer answering
+    on the legacy rail left the ack-ledger row open, so every five minutes the
+    retry ladder re-posted, nudged, and eventually fired an operator notice
+    for a conversation that had been answered days earlier. Measured
+    2026-09-25: the circuit topic held 0 foreign conversations and the legacy
+    topic held 8, including all three that had climbed to rung 5.
+
+    So: one function, called by both. A future address change widens this and
+    every reader follows. Adding a topic at a call site is the bug.
+
+    T-3479 is that future address change, and this is the whole of its read
+    half: the V9 topic joins the list here, and `pending()` plus
+    `retry.answered_conversations()` both follow without being touched. That
+    the widening is a one-line change in one place is the property T-3462 built
+    this function to have, now collected.
+    """
+    return [inbox_topic(agent)] + v9_topics(agent) + legacy_topics(agent)
 
 
 def _state_path():
@@ -148,7 +191,7 @@ def pending(agent: str | None = None, *, reader=default_reader,
     With `advance` (the default) the cursors and the seen-set move, so a
     second call returns nothing new. `advance=False` is a peek.
     """
-    topics = [inbox_topic(agent)] + legacy_topics(agent)
+    topics = read_topics(agent)  # T-3462: the one definition, shared with the sweep
     state = load_state()
 
     seen = list(state.get("seen") or [])
@@ -196,3 +239,85 @@ def pending(agent: str | None = None, *, reader=default_reader,
         save_state(state)
 
     return fresh
+
+
+def unread_summary(agent: str | None = None, *, reader=default_reader,
+                   limit: int = DEFAULT_LIMIT,
+                   now: datetime | None = None) -> dict:
+    """What is sitting unread on this agent's consult inbox, per topic.
+
+    T-3544 / OBS-567. Sibling of `dm.summary()` — same job on the rail peers
+    are actually told to use — and the reason it exists is that until it did,
+    nothing counted this. `fw audit` watched the OUTBOUND ledger, `fw doctor`
+    watched `dm:*`, and an arriving consult was visible only to someone who
+    chose to run `fw sidecar inbox` with no reason to think there was anything
+    to read. 832 waited six days that way; 010-termlink found 49 of ours doing
+    the same on their side.
+
+    **This must not drain what it measures.** `pending()` moves cursors and
+    the shared seen-set by default, so counting the naive way would consume
+    the consult it was reporting — the OBS-566/T-3539 shape where the
+    diagnostic destroys its own subject. The read here is `advance=False`,
+    which touches no file; `tests/unit/test_sidecar_unread_summary.py` pins
+    that by byte-comparing `inbox-state.json` across a call, with a control
+    leg that fails against an advancing read.
+
+    **Why this counts through `pending()` rather than offsets-minus-cursor.**
+    The cheap arithmetic `dm._unread_count` uses is right for a DM rail, whose
+    cursor is the whole story. A consult inbox additionally dedupes on
+    `client_msg_id` across three alias topics, so records-past-cursor
+    overstates owed work — measured here at 5 records versus 1 actual consult.
+    Draining through the same function `fw sidecar inbox` uses means the number
+    the WARN reports is exactly the number of consults the operator will be
+    shown when they act on it. An alarm and its remedy that disagree teach
+    people to distrust the alarm.
+    """
+    now_dt = now or datetime.now(timezone.utc)
+    fresh = pending(agent, reader=reader, advance=False, limit=limit)
+
+    by_topic: dict[str, list[dict]] = {}
+    for msg in fresh:
+        by_topic.setdefault(msg.get("topic") or "", []).append(msg)
+
+    rows = []
+    for topic, msgs in by_topic.items():
+        oldest = None
+        oldest_from = None
+        for msg in msgs:
+            ts_ms = msg.get("ts")
+            if not isinstance(ts_ms, (int, float)):
+                continue
+            ts = datetime.fromtimestamp(ts_ms / 1000, tz=timezone.utc)
+            if oldest is None or ts < oldest:
+                oldest = ts
+                oldest_from = msg.get("from")
+        row = {
+            "topic": topic,
+            "unread": len(msgs),
+            "oldest_unread_ts": oldest.isoformat() if oldest else None,
+            "age_hours": (round((now_dt - oldest).total_seconds() / 3600, 1)
+                          if oldest else None),
+            "oldest_from": oldest_from,
+        }
+        rows.append(row)
+
+    rows.sort(key=lambda r: r["topic"])
+    return {"unread": len(fresh), "topics": rows}
+
+
+def unread_stale(min_age_hours: float = 24, *, agent: str | None = None,
+                 reader=default_reader, limit: int = DEFAULT_LIMIT,
+                 now: datetime | None = None) -> list[dict]:
+    """Consult-inbox topics holding an unread consult older than
+    `min_age_hours` — the WARN shape for `fw doctor` and `fw audit`, mirroring
+    `dm.stale()`.
+
+    A topic whose oldest unread consult carries no usable timestamp is
+    REPORTED, not skipped: an unread consult of unknown age is still owed work,
+    and silently dropping it would reproduce the blindness this exists to end.
+    Its `age_hours` comes back None so the caller can say "age unknown" rather
+    than print a number it does not have.
+    """
+    snap = unread_summary(agent, reader=reader, limit=limit, now=now)
+    return [r for r in snap["topics"]
+            if r["age_hours"] is None or r["age_hours"] >= min_age_hours]

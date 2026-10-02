@@ -263,6 +263,61 @@ _fw_single_command_is_safe() {
     cmd="${cmd#"${cmd%%[![:space:]]*}"}"
     cmd="${cmd%"${cmd##*[![:space:]]}"}"
 
+    # F-15 (T-3466): a TERMINAL `VAR=$(cmd)` assignment — the whole remaining
+    # segment is one assignment whose value is a command substitution, nothing
+    # after it. This is a different shape from the T-1908 env-prefix stripper
+    # below: that one strips a `KEY=VALUE` PREFIX in front of a command that
+    # follows it (`KEY=VALUE cmd args`); here the assignment IS the entire
+    # statement and the command to judge sits INSIDE `$( )`. The file's own
+    # header comment (T-2834 block, "Deliberately NOT handled: command
+    # substitution") scoped that exclusion to the general case — an argument
+    # elsewhere on the line containing `$(...)`, e.g. `curl "$(fw watchtower
+    # url)/page"`, where widening would risk admitting the OUTER command on the
+    # strength of an inner one it doesn't share safety with. A terminal
+    # assignment has no outer command to conflate with; the substitution's
+    # result is the entire effect of the line.
+    #
+    # Delegates to the top-level, chain-aware entry point (not a second call
+    # into this function) so `X=$(cmd1 && cmd2)` requires EVERY clause inside
+    # the substitution to be independently safe, same as top-level chains
+    # (T-2834's compound-command rule). Recursion terminates because the
+    # matched string is strictly shorter than $cmd each time (the `VAR=$(` and
+    # trailing `)` are stripped), and the outer redirect/rm/tee/heredoc scan
+    # (has_bash_write_pattern) still runs against the ORIGINAL, un-recursed
+    # line at every call site — this cannot admit a write no matter what the
+    # inner command resolves to.
+    #
+    # Extraction is a plain prefix/suffix strip, not a balanced-paren parser:
+    # for a well-formed `VAR=$( ... )` matching this anchored pattern, stripping
+    # `VAR=$(` off the front and the LAST `)` off the back is exactly correct
+    # for arbitrary nesting (each inner `$(...)` still closes inside what's
+    # captured) — verified against `X=$(echo $(hostname))` in the Decisions
+    # section. It only goes wrong if the line contains a literal unbalanced `)`
+    # as DATA, which is not a shape this dispatch's two reproduction cases hit,
+    # and the failure direction there is a garbled inner string that will not
+    # match any allowlist arm — i.e. still toward blocking, not toward opening.
+    if [[ "$cmd" =~ ^[A-Za-z_][A-Za-z0-9_]*=\$\((.*)\)[[:space:]]*$ ]]; then
+        is_bash_safe_command "${BASH_REMATCH[1]}" && return 0
+        return 1
+    fi
+
+    # T-3644 (ported from 055, framework:pickup offset 227): a segment that is
+    # ONLY a literal assignment — `WURL=x` in `WURL=x; curl -sf "$WURL/"` — runs
+    # nothing and writes nothing. The whole segment must be the assignment: the
+    # value is unquoted words, "double" or 'single' quoted runs, nothing else,
+    # so `X=1 rm -rf /` (whitespace after the value) never matches. No command
+    # substitution in any form: `$(`, `$((` and backticks are refused here even
+    # inside double quotes (the terminal `VAR=$(cmd)` shape is F-15 above).
+    # A bare assignment persists for the REST of the line, so `PATH=/tmp; cat x`
+    # changes what `cat` resolves to — the T-3374 denylist applies here too.
+    # Writes are still judged separately by has_bash_write_pattern on the
+    # original line, so `X=1 > f` stays blocked.
+    if [[ "$cmd" =~ ^([A-Za-z_][A-Za-z0-9_]*)=(([^[:space:]\"\'\`\;\&\|\<\>\(\)]|\"[^\"\`]*\"|\'[^\']*\')*)$ ]]; then
+        _fw_env_prefix_is_denied "${BASH_REMATCH[1]}" && return 1
+        [[ "${BASH_REMATCH[2]}" == *'$('* ]] && return 1
+        return 0
+    fi
+
     # T-2988: strip shell grouping punctuation from the segment's edges.
     #
     # Both readers below take a token positionally — `awk '{print $1}'` for the
@@ -727,11 +782,23 @@ _fw_single_command_is_safe() {
                     case "$fw_sub3" in status|log|worker-commits) return 0 ;; esac
                     ;;
                 arc)
-                    case "$fw_sub3" in list|ls|show|review|show-suggestions|help) return 0 ;; esac
+                    # T-3536: judge-driver and review-driver added. Both post-date
+                    # T-3096's derivation, which is why they were absent rather than
+                    # excluded — see the parity note at the end of this arm.
+                    #   judge-driver  lib/arc.sh:1971 "Read-only. … never mutates the
+                    #                 arc YAML … it only reports a verdict"; and
+                    #                 lib/arc_driver_judge.py has zero write calls.
+                    #   review-driver T-3429's static check. `approve-driver` DOES
+                    #                 mutate scoped_drivers[] and stays absent.
+                    case "$fw_sub3" in list|ls|show|review|show-suggestions|help|judge-driver|review-driver) return 0 ;; esac
                     ;;
                 bvp)
                     # bare `fw bvp` is the ranking; `fw bvp T-123` is per-task detail.
-                    case "$fw_sub3" in ""|arcs|--quadrant|--include-proposed|--include-completed|--help|-h|T-*) return 0 ;; esac
+                    # T-3536: `judge` added — lib/bvp_judge.py:383 "Never writes
+                    # anything. Never touches `bvp_scores:`", zero write calls in the
+                    # module. `confirm` writes bvp_scores: and stays absent, as does
+                    # `estimate-cost`, which writes cost_estimate:.
+                    case "$fw_sub3" in ""|arcs|--quadrant|--include-proposed|--include-completed|--help|-h|T-*|judge) return 0 ;; esac
                     ;;
                 healing)
                     case "$fw_sub3" in diagnose|patterns|suggest) return 0 ;; esac
@@ -833,6 +900,14 @@ _fw_single_command_is_safe() {
                             return 0
                             ;;
                     esac
+                    ;;
+                whoami)
+                    # T-3534: bare `fw whoami` only reads .framework.yaml and the
+                    # hostname. `--register` MINTS an id and writes the file, so it
+                    # is absent — same sub-verb granularity as `fw config get` vs
+                    # `set`. Identity questions are exactly what an agent asks
+                    # between tasks, when focus is most likely to be null.
+                    case " $cmd " in *" --register "*) ;; *) return 0 ;; esac
                     ;;
                 note)
                     # T-2878: observation capture. Same class as the context
@@ -985,8 +1060,22 @@ _fw_single_command_is_safe() {
 has_bash_write_pattern() {
     local cmd="$1"
 
+    # T-3643 (ported from 055, framework:pickup offset 224): a redirect to
+    # /dev/null writes nothing. Strip those tokens (`>/dev/null`, `> /dev/null`,
+    # `1>`, `2>`, `&>`, `>>`) before the redirect scan, so `cat a > /dev/null`
+    # is not a write. The terminator must be whitespace, a separator or end of
+    # line: `/dev/nullx`, `/dev/null.bak`, `/dev/null/sub` are ordinary paths
+    # and stay writes, and any OTHER redirect on the line still bites below.
+    # (The T-3344 strip in is_bash_safe_command covers the allowlist side only;
+    # check-active-task consults THIS scan first.)
+    local _scan="$cmd" _sprev=""
+    while [ "$_scan" != "$_sprev" ]; do
+        _sprev="$_scan"
+        _scan=$(printf '%s' "$_scan" | sed -E 's#(^|[^>&0-9])([0-9]|&)?>>?[[:space:]]*/dev/null([[:space:];|&)]|$)#\1 \3#')
+    done
+
     # Redirect operators (but not comparison operators like 2>&1)
-    if echo "$cmd" | grep -qE '[^2>&]>[^>&]|>>'; then
+    if echo "$_scan" | grep -qE '[^2>&]>[^>&]|>>'; then
         return 0
     fi
 
@@ -1140,8 +1229,9 @@ _fw_fetch_writes_file() {
                         # wget -o is the LOG file (always a write). curl -o is
                         # the output file (stdout when the target is `-`).
                         if [ "$base" = wget ]; then return 0; fi
+                        # T-3643: /dev/null joins `-` — it discards the body.
                         case "$rest" in
-                            *o)   [ "${1:-}" = "-" ] || return 0 ;;
+                            *o)   [ "${1:-}" = "-" ] || [ "${1:-}" = "/dev/null" ] || return 0 ;;
                             *o-)  ;;
                             *)    return 0 ;;   # attached value, e.g. -ofile
                         esac

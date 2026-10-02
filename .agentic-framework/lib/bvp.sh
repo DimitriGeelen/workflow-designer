@@ -86,97 +86,14 @@ def _str_safe_load(text):
     return yaml.load(text, Loader=_L)
 
 
-# ------------------------------------------------- operator-ruled auto-approval
-# T-856. OPERATOR RULING 2026-09-25: "BVP scoring should come automatically, no
-# approval from user anymore. Scoring just happens." And: "key thing is we want to
-# have telemetry about it. We want to collect data so we can analyze it and
-# improve it."
-#
-# WHAT THIS DOES NOT DO. acd_gate guards five verbs. This opens exactly ONE —
-# `confirm`, which scores a task. `weight --set`, `driver --add`,
-# `driver --remove` and `auto-promote --enable` stay gated: they edit the VALUE
-# MODEL itself (D8, sovereignty at policy-edit time), which is a different thing
-# from scoring a task against it, and the ruling did not cover them. A blanket
-# CLAUDECODE bypass would be the obvious wrong implementation and would look
-# identical from the happy path, so a test asserts the other four still refuse.
-#
-# WHY A SWITCH AND NOT A DELETION. A deleted gate is invisible and
-# indistinguishable from upstream behaviour, so the next `fw upgrade` silently
-# "fixes" it back — measured in T-853, where one upgrade reverted six in-tree
-# vendored fixes and nothing noticed for weeks. A config-consulted switch
-# defaults OFF, leaving upstream semantics unchanged for anyone who has not set
-# it, and makes the divergence legible.
-_AUTO_PATH = {'verb': None, 'key': None}
-
-
-def _fw_config_raw(key, default=""):
-    """Read one key from .framework.yaml. Deliberately a flat line scan rather
-    than a YAML load: this runs inside a gate, and a config file that fails to
-    parse must not be able to turn the gate into a traceback."""
-    env = os.environ.get('FW_' + key)
-    if env is not None and env != '':
-        return env
-    cfg = PROJECT_ROOT / '.framework.yaml'
-    try:
-        for line in cfg.read_text().splitlines():
-            line = line.strip()
-            if line.startswith(key + ':'):
-                return line.split(':', 1)[1].strip().strip('"').strip("'")
-    except Exception:
-        return default
-    return default
-
-
-def _auto_enabled(key):
-    return _fw_config_raw(key, '0').lower() in ('1', 'true', 'yes', 'on')
-
-
-def _telemetry(event):
-    """Append one JSONL row per auto-approved action. Append-only, and written
-    ONLY on the auto path — logging a human-approved action as automatic would
-    make the ledger unable to answer the question it exists for. Never raises:
-    telemetry that can break the verb it observes is worse than none."""
-    import json as _json
-    try:
-        # FW_BVP_TELEMETRY_PATH exists so a TEST never writes into the ledger the
-        # operator analyses. Without it the first test run contaminated the real
-        # ledger with fixture rows — an append-only ledger cannot be cleaned up
-        # afterwards, so the redirect has to exist before the test does.
-        override = os.environ.get('FW_BVP_TELEMETRY_PATH')
-        if override:
-            path = Path(override)
-            path.parent.mkdir(parents=True, exist_ok=True)
-        else:
-            d = PROJECT_ROOT / '.context' / 'telemetry'
-            d.mkdir(parents=True, exist_ok=True)
-            path = d / 'bvp-auto-approval.jsonl'
-        row = dict(event)
-        row.setdefault('ts', _utc_now())
-        with open(path, 'a') as fh:
-            fh.write(_json.dumps(row, sort_keys=True) + "\n")
-    except Exception as exc:  # pragma: no cover - never break the verb
-        print(f"WARN: auto-approval telemetry not written ({exc})", file=sys.stderr)
-
-
 # ----------------------------------------------------------- §ACD agent gate
-def acd_gate(verb, args, refusal_hint="", auto_key=None):
+def acd_gate(verb, args, refusal_hint=""):
     """T-1671 §ACD shape: refuse under $CLAUDECODE=1 unless --i-am-human or
     --from-watchtower. Returns True if allowed, False if refused (and prints
-    error). Used by all mutating verbs.
-
-    T-856: `auto_key` names the config switch that may permit this ONE verb
-    automatically. Callers passing no auto_key are unchanged — four of the five
-    call sites, deliberately."""
+    error). Used by all mutating verbs."""
     if os.environ.get('CLAUDECODE') != '1':
         return True
     if '--i-am-human' in args or '--from-watchtower' in args:
-        return True
-    if auto_key and _auto_enabled(auto_key):
-        _AUTO_PATH['verb'] = verb
-        _AUTO_PATH['key'] = auto_key
-        print(f"AUTO-APPROVED: '{verb}' permitted for an agent by {auto_key}=1 "
-              f"(operator ruling, T-856); recorded to "
-              f".context/telemetry/bvp-auto-approval.jsonl", file=sys.stderr)
         return True
     print(f"Error: agents must not invoke 'fw bvp {verb}' directly (§ACD, M6).", file=sys.stderr)
     print("", file=sys.stderr)
@@ -345,10 +262,47 @@ def compute_cost(cost_estimate):
     return None, None, None, None, 'absent'
 
 
-def quadrant(bvp_norm, cost, bvp_median, cost_median):
-    """Return one of hv-lc / hv-hc / lv-lc / lv-hc or '-' if either missing."""
+# T-3485: value-axis equality defect. `bvp_norm >= bvp_median` is true AT
+# equality, which is harmless while the median sits mid-distribution but
+# manufactures a verdict when it doesn't: if the median itself has collapsed
+# onto the corpus floor (median == min(bvp_vals)), then by definition at
+# least half the corpus is tied at that floor value, and `>=` promotes every
+# one of those tied, floor-scoring tasks into `hv`. Measured live: 13/25
+# zero-scored tasks, median 0.00, all 13 in hv-lc. Swapping to `>` does not
+# repair this — it just moves the same tied mass to `lv`, which is equally
+# manufactured (nothing in the corpus becomes newly distinguishable; the
+# verdict for the tied mass is still invented, just on the other side).
+#
+# The repair withholds a verdict for the tied-at-floor mass instead of
+# guessing which side it belongs on — same shape as `quadrant()` already
+# returning '-' for missing cost/value: absence of a real signal renders "I
+# cannot judge this", not a spelled-out bucket. `QUAD_VALUE_WITHHELD` is
+# scoped narrowly: it only fires when a task's own value score equals a
+# degenerate median (median == corpus floor), so a task genuinely above that
+# median is untouched and still classifies normally. On any corpus where the
+# median does NOT sit on the floor (the common case), `value_axis_degenerate`
+# is False and this function's behaviour is byte-identical to before.
+QUAD_VALUE_WITHHELD = 'v-thin'
+
+
+def value_axis_degenerate(bvp_vals):
+    """True when the value-axis median cannot separate the corpus — it sits
+    at the distribution's floor, which forces >=50% of the corpus to be tied
+    there (T-3485). Median-of-n floor-equality implies at least ceil(n/2)
+    values equal that floor: the smallest values determining the median can
+    be no smaller than the true minimum, so if they equal it, they ARE it."""
+    if not bvp_vals:
+        return False
+    return statistics.median(bvp_vals) == min(bvp_vals)
+
+
+def quadrant(bvp_norm, cost, bvp_median, cost_median, degenerate=False):
+    """Return one of hv-lc / hv-hc / lv-lc / lv-hc, QUAD_VALUE_WITHHELD for a
+    degenerate-median tie, or '-' if either axis is missing."""
     if bvp_norm is None or cost is None:
         return '-'
+    if degenerate and bvp_norm == bvp_median:
+        return QUAD_VALUE_WITHHELD
     hv = bvp_norm >= bvp_median
     lc = cost <= cost_median
     return ('hv' if hv else 'lv') + '-' + ('lc' if lc else 'hc')
@@ -430,8 +384,12 @@ def cmd_rank(filter_quadrant=None, include_proposed=False, include_completed=Fal
     cost_vals = [r['cost'] for r in rows if r['cost'] is not None]
     bvp_median = statistics.median(bvp_vals) if bvp_vals else 0.5
     cost_median = statistics.median(cost_vals) if cost_vals else 4.0
+    # T-3485: degeneracy is a property of the whole distribution, computed once
+    # per rank rather than per-row — see value_axis_degenerate() docstring.
+    _value_degenerate = value_axis_degenerate(bvp_vals)
     for r in rows:
-        r['quadrant'] = quadrant(r['bvp_norm'], r['cost'], bvp_median, cost_median)
+        r['quadrant'] = quadrant(r['bvp_norm'], r['cost'], bvp_median, cost_median,
+                                  degenerate=_value_degenerate)
 
     # T-3068: say what the ranking could not place, and say it before the table
     # rather than after — a quadrant filter that silently drops most of the corpus
@@ -450,6 +408,17 @@ def cmd_rank(filter_quadrant=None, include_proposed=False, include_completed=Fal
         print(f"      Quadrant thresholds are computed over the {_n_total - _n_unknown} "
               f"task(s) that do have one.")
         print("      Cost becomes measurable once `components:` is resolved; see T-3068.")
+        print()
+
+    # T-3485: same disclosure discipline as the cost-unknown NOTE above — a
+    # quadrant that silently reclassifies a large tied mass as unplaceable
+    # must say so, or the count shift reads as missing tasks rather than a
+    # withheld verdict.
+    _n_withheld = sum(1 for r in rows if r['quadrant'] == QUAD_VALUE_WITHHELD)
+    if _n_withheld:
+        print(f"NOTE: {_n_withheld}/{_n_total} task(s) have a value score tied at a "
+              f"degenerate median (median sits at the corpus floor, bvp_norm={bvp_median:.2f}) "
+              f"— quadrant withheld ('{QUAD_VALUE_WITHHELD}') rather than guessed. See T-3485.")
         print()
 
     if filter_quadrant:
@@ -591,25 +560,95 @@ def _latest_proposed_scores(fm):
     return scores
 
 
+# T-3503: membership is resolved by the CANONICAL helper, not re-derived here.
+#
+# This function matched `arc_id:` only, so an arc whose members bind via the legacy
+# `arc:<slug>` tag yielded zero members — and cmd_arcs() then `continue`d, dropping
+# the arc from the ranking entirely. Reported by cashweb-integration-agent
+# (agent-chat-arc @1247). The identical copy in web/blueprints/bvp.py carries the
+# same fix, so `fw bvp arcs` and Watchtower /bvp cannot disagree.
+#
+# Delegating rather than adding a fifth regex is the framework's own instruction:
+# audit's T-1881 check exists to stop inline membership scans ("Any NEW occurrence
+# is silent-corpus #3 in waiting") and its mitigation reads "Migrate to
+# lib/arc_membership.{sh,py}". That rail could not have caught THIS site — its
+# pattern requires the literal token `grep`, so a Python reinvention is invisible
+# to it, which is why it passed while both copies were wrong (OBS-546).
+#
+# The caches also remove an O(arcs x tasks) blow-up: membership was re-derived per
+# arc over the whole corpus, so `fw bvp arcs` did ~20 x 3,484 frontmatter parses
+# and exceeded a 300s timeout on this repo. Both indices are now built once.
+_ARC_MEMBERSHIP_INDEX = None
+_ARC_FM_INDEX = None
+
+
+def _arc_membership_index():
+    """(by_arc_id, by_tag, degraded_reason) from lib/arc_membership.py, cached.
+
+    `degraded_reason` is None on success, else a string: the canonical helper could
+    not be loaded and membership has fallen back to `arc_id:`-only. The caller MUST
+    surface it. `fw bvp` is a core verb and must not crash, but silently falling
+    back to the exact defect being fixed would be worse than crashing.
+    """
+    global _ARC_MEMBERSHIP_INDEX
+    if _ARC_MEMBERSHIP_INDEX is None:
+        try:
+            lib_dir = str(FRAMEWORK_ROOT / 'lib')
+            if lib_dir not in sys.path:
+                sys.path.insert(0, lib_dir)
+            from arc_membership import scan_tasks_by_arc_membership
+            by_id, by_tag = scan_tasks_by_arc_membership(PROJECT_ROOT)
+            _ARC_MEMBERSHIP_INDEX = (by_id, by_tag, None)
+        except Exception as exc:  # noqa: BLE001 - never break a core verb
+            _ARC_MEMBERSHIP_INDEX = ({}, {}, f'{type(exc).__name__}: {exc}')
+    return _ARC_MEMBERSHIP_INDEX
+
+
+def _task_frontmatter_index():
+    """{task_id: frontmatter} over the corpus, built once."""
+    global _ARC_FM_INDEX
+    if _ARC_FM_INDEX is None:
+        idx = {}
+        for sub in ('active', 'completed'):
+            for p in sorted(glob.glob(str(PROJECT_ROOT / '.tasks' / sub / 'T-*.md'))):
+                fm = parse_frontmatter(Path(p))
+                if fm and fm.get('id'):
+                    idx[str(fm['id']).strip()] = fm
+        _ARC_FM_INDEX = idx
+    return _ARC_FM_INDEX
+
+
+def arc_membership_degraded():
+    """Reason string when membership could not use the canonical union, else None."""
+    return _arc_membership_index()[2]
+
+
 def _arc_member_tasks(arc_slug, arc_id_str):
-    """T-1849 dual-form: tasks bind via arc_id: <slug> OR arc_id: arc-NNN."""
-    members = []
-    patterns = [
-        str(PROJECT_ROOT / '.tasks' / 'active' / 'T-*.md'),
-        str(PROJECT_ROOT / '.tasks' / 'completed' / 'T-*.md'),
-    ]
+    """Frontmatter of every task in the arc, by the canonical union.
+
+    T-1849 dual-form (`arc_id: <slug>` or `arc_id: arc-NNN`) UNION the legacy
+    `arc:<slug>` tag form (T-3503). Returns [] for an arc that genuinely has no
+    members — which the caller renders as zero, never drops.
+    """
     targets = {x for x in (arc_slug, arc_id_str) if x}
     if not targets:
-        return members
-    for pattern in patterns:
-        for p in sorted(glob.glob(pattern)):
-            fm = parse_frontmatter(Path(p))
-            if not fm:
-                continue
-            arc_id = fm.get('arc_id')
-            if arc_id and str(arc_id) in targets:
-                members.append(fm)
-    return members
+        return []
+    by_id, by_tag, degraded = _arc_membership_index()
+    fm_index = _task_frontmatter_index()
+
+    if degraded:
+        # Canonical helper unavailable: arc_id:-only, the pre-T-3503 behaviour,
+        # surfaced by the caller via arc_membership_degraded() and never silent.
+        return [fm for fm in fm_index.values()
+                if fm.get('arc_id') and str(fm['arc_id']).strip() in targets]
+
+    ids = set()
+    for key in (arc_slug, arc_id_str):
+        if key:
+            ids.update(by_id.get(key, []))
+    if arc_slug:
+        ids.update(by_tag.get(f'arc:{arc_slug}', []))
+    return [fm_index[t] for t in sorted(ids) if t in fm_index]
 
 
 def _arc_rolled_up_scores(members):
@@ -658,6 +697,21 @@ def cmd_arcs():
                 members = _arc_member_tasks(arc_slug, arc_id_str)
                 scores, source = _arc_rolled_up_scores(members)
                 if not scores:
+                    # T-3503: was `continue`, which DELETED the arc from the table.
+                    # That collapsed two different states into one invisible one —
+                    # "no members found" and "members found but none scored" — so an
+                    # arc missing from the ranking was indistinguishable from an arc
+                    # that does not exist, in the table used to choose arcs. Report
+                    # which of the two it is; never omit the row.
+                    rows.append({
+                        'slug': data.get('slug', path.stem),
+                        'arc_id': data.get('id', '-'),
+                        'name': (data.get('name') or '')[:40],
+                        'bvp_raw': None,
+                        'bvp_norm': None,
+                        'status': data.get('status', '-'),
+                        'source': 'no-members' if not members else 'members-unscored',
+                    })
                     continue
         raw, norm, _ = compute_bvp(scores, global_weights)
         rows.append({
@@ -673,11 +727,21 @@ def cmd_arcs():
         print("No arcs have `bvp_scores:` set yet (and no constituent-task rollup available).")
         print("Per D2: arcs compared across arcs use only global drivers (D1-D4 + free).")
         return 0
-    rows.sort(key=lambda r: r['bvp_norm'], reverse=True)
-    print(f"{'ARC':<8} {'SLUG':<24} {'STATUS':<12} {'BVP':>5} {'NORM':>6}  {'SOURCE':<18} NAME")
-    print('-' * 96)
+    # T-3503: unscorable arcs sort LAST and render '-', rather than being dropped or
+    # claiming a score of zero. An arc we cannot score is not an arc worth nothing.
+    rows.sort(key=lambda r: (r['bvp_norm'] is None, -(r['bvp_norm'] or 0.0)))
+    degraded = arc_membership_degraded()
+    if degraded:
+        print(f"WARNING: arc membership DEGRADED to arc_id:-only — {degraded}")
+        print("         Tag-only arcs are under-counted in this table (T-3503).")
+    slug_width = max(24, max((len(r['slug']) for r in rows), default=24))
+    sep_len = 8 + 1 + slug_width + 1 + 12 + 1 + 5 + 1 + 6 + 2 + 18 + 1 + 8
+    print(f"{'ARC':<8} {'SLUG':<{slug_width}} {'STATUS':<12} {'BVP':>5} {'NORM':>6}  {'SOURCE':<18} NAME")
+    print('-' * sep_len)
     for r in rows:
-        print(f"{r['arc_id']:<8} {r['slug']:<24} {r['status']:<12} {r['bvp_raw']:>5} {r['bvp_norm']:>6.2f}  {r['source']:<18} {r['name']}")
+        raw = '-' if r['bvp_raw'] is None else f"{r['bvp_raw']:>5}"
+        norm = '     -' if r['bvp_norm'] is None else f"{r['bvp_norm']:>6.2f}"
+        print(f"{r['arc_id']:<8} {r['slug']:<{slug_width}} {r['status']:<12} {raw:>5} {norm}  {r['source']:<18} {r['name']}")
     return 0
 
 
@@ -877,11 +941,13 @@ def _driver_init(args):
 
 # ---------------------------------------------------------- confirm (T-1924)
 def cmd_confirm(args):
-    """Move bvp_scores_proposed: → bvp_scores: with confirmed_by/at; clear proposed.
+    """Move bvp_scores_proposed: → bvp_scores: with confirmed_by/at/via; clear proposed.
 
-    Sovereignty boundary (F7, D8): only the human confirms. After confirm, the
+    Sovereignty boundary (F7, D8) — WAIVED for the identity check by T-3487
+    (operator directive, 2026-09-26): the §ACD gate below is opt-in via
+    FW_REQUIRE_BVP_CONFIRM_APPROVAL=1, not a hard refusal. After confirm, the
     estimator's M3 v2-delta logic must skip this task (T-1922 reads bvp_scores
-    presence as the "sticky" signal). --override D=N lets the human alter
+    presence as the "sticky" signal). --override D=N lets the caller alter
     individual driver scores at confirm time.
 
     Form validation precedes §ACD (consistent with T-1920/T-1926).
@@ -890,7 +956,8 @@ def cmd_confirm(args):
         print("""Usage: fw bvp confirm T-<id> [--override Dn=N]... [--i-am-human|--from-watchtower]
 
   Moves bvp_scores_proposed: → bvp_scores: on the named task.
-  Records confirmed_by (=$USER) and confirmed_at (UTC ISO-8601).
+  Records confirmed_by (=$USER), confirmed_at (UTC ISO-8601), and
+  confirmed_via (agent|human|watchtower — T-3487 provenance).
   Clears bvp_scores_proposed: so the estimator's next sweep can re-populate
   per M3 v2-delta semantics.
 
@@ -900,7 +967,11 @@ def cmd_confirm(args):
     --i-am-human       sovereignty override for §ACD gate (T-1671 shape)
     --from-watchtower  Flask backend POST
 
-  Refuses under $CLAUDECODE=1 unless --i-am-human or --from-watchtower.
+  T-3487 (2026-09-26, operator-authorised sovereignty waiver): the §ACD
+  human-approval gate on this verb is now OPT-IN. By default confirm proceeds
+  under $CLAUDECODE=1 with no --i-am-human/--from-watchtower (confirmed_via
+  records 'agent'). Set FW_REQUIRE_BVP_CONFIRM_APPROVAL=1 to restore the
+  original hard refusal.
 
   Note: confirm has NO effect if the task has no bvp_scores_proposed: AND no
   --override flags — there's nothing to write. In that case, propose first
@@ -946,13 +1017,17 @@ def cmd_confirm(args):
     # the §ACD refusal). Different ordering from cmd_weight (where rationale
     # validation precedes §ACD) — confirm has no comparable "form" check that
     # benefits from running first.
-    # T-856: the ONLY call site that names an auto_key. The operator ruled that
-    # scoring happens without approval; the other four acd_gate call sites are
-    # untouched and still refuse.
-    if not acd_gate('confirm', args,
-                    refusal_hint="Correct flow: human reviews proposed scores in Watchtower or runs `fw bvp confirm T-<id> --i-am-human`",
-                    auto_key='BVP_AUTO_CONFIRM'):
-        return 1
+    #
+    # T-3487: sovereignty waiver (operator directive, 2026-09-26) — the human-
+    # approval gate on THIS verb only is now opt-in via FW_REQUIRE_BVP_CONFIRM_APPROVAL=1
+    # (restores the exact acd_gate() refusal below). Default (unset) skips the
+    # gate — confirm proceeds under $CLAUDECODE=1 with no --i-am-human/--from-watchtower.
+    # acd_gate() itself is untouched; its other 4 call sites (weight, driver --add,
+    # driver --remove, auto-promote --enable) are unaffected by this switch.
+    if os.environ.get('FW_REQUIRE_BVP_CONFIRM_APPROVAL') == '1':
+        if not acd_gate('confirm', args,
+                        refusal_hint="Correct flow: human reviews proposed scores in Watchtower or runs `fw bvp confirm T-<id> --i-am-human`"):
+            return 1
 
     # Locate task file.
     matches = []
@@ -1005,25 +1080,77 @@ def cmd_confirm(args):
         print(f"Error: no scores to write — proposed was non-empty but didn't contain a score map.", file=sys.stderr)
         return 1
 
-    # T-856: capture the proposal BEFORE it is cleared, so telemetry can compare
-    # what the estimator said against what was written. Clearing it first and then
-    # logging would record the confirmed values twice and answer nothing.
-    _auto = _AUTO_PATH['verb'] == 'confirm'
-    _proposed_scores = {}
-    if proposed:
-        _latest = proposed[-1] if isinstance(proposed, list) else proposed
-        if isinstance(_latest, dict):
-            _src = _latest.get('scores') if 'scores' in _latest else _latest
-            _proposed_scores = {k: v for k, v in (_src or {}).items()
-                                if isinstance(v, (int, float)) and not isinstance(v, bool)}
+    # T-3487: WHO/BY-WHAT-AUTHORITY provenance. confirmed_by/at alone no longer
+    # distinguish "a human ran this" from "an agent ran this" now that the §ACD
+    # gate is opt-in (FW_REQUIRE_BVP_CONFIRM_APPROVAL) rather than a hard refusal
+    # — $USER is the OS user either way. confirmed_via records which of the three
+    # legal paths this confirm took.
+    if '--from-watchtower' in args:
+        confirmed_via = 'watchtower'
+    elif '--i-am-human' in args:
+        confirmed_via = 'human'
+    elif os.environ.get('CLAUDECODE') == '1':
+        confirmed_via = 'agent'
+    else:
+        confirmed_via = 'human'
+
+    # ── T-3523 (D-661 leg 3): an operator's adjustment is STICKY ──────────────
+    #
+    # Operator ruling 2026-09-27: legs 1 and 2 waived human approval for BVP scoring
+    # and arc drivers, so an agent can now score the value of its own work. This is
+    # the counterweight that keeps that waiver reversible: "when we get new scoring
+    # that it doesn't overwrite the adjusted values", and "means skip and report".
+    #
+    # Two routes, neither needing the operator to tick anything: provenance
+    # (confirmed_via is one of the operator's own doors) and digest (the stored
+    # values no longer match the stamp written with them — a hand-edit). An AGENT
+    # confirm yields to either; a human/watchtower confirm is the operator speaking
+    # and always proceeds.
+    if confirmed_via == 'agent':
+        try:
+            _lib = str(FRAMEWORK_ROOT / 'lib')
+            if _lib not in sys.path:
+                sys.path.insert(0, _lib)
+            import bvp_sticky as _sticky
+            _state = _sticky.sticky_state(
+                fm.get('bvp_scores'),
+                confirmed_via=fm.get('confirmed_via'),
+                stamped_digest=(fm.get('bvp_scores_stamp') or {}).get('digest'),
+            )
+        except Exception as _exc:  # noqa: BLE001 — a missing guard must not corrupt
+            # Fail CLOSED here, unlike most degradations in this codebase: if the
+            # protection cannot run we decline to overwrite rather than overwrite
+            # unprotected. The cost of a false skip is one operator re-run; the cost
+            # of a false overwrite is a silently discarded operator judgement.
+            print(f"REFUSING: sticky-check unavailable ({type(_exc).__name__}: {_exc})",
+                  file=sys.stderr)
+            print("  Not overwriting bvp_scores while the operator-adjustment guard "
+                  "cannot run. Re-run once lib/bvp_sticky.py is importable.", file=sys.stderr)
+            return 1
+        if _state['sticky']:
+            print(_sticky.format_skip(task_id, 'bvp_scores', _state))
+            print(f"  Existing scores kept: {fm.get('bvp_scores')}")
+            print(f"  To override deliberately, confirm as yourself: "
+                  f"fw bvp confirm {task_id} --i-am-human")
+            print(_sticky.format_summary(skipped=1, written=0))
+            return 0
 
     fm['bvp_scores'] = confirmed
     fm['bvp_scores_proposed'] = []  # M3 — cleared; estimator may re-populate next sweep.
-    # On the auto path `confirmed_by` must NOT read as a person: USER is the OS
-    # account the agent happens to run as, and recording that would make every
-    # auto-confirmation indistinguishable from an operator's in the task file.
-    fm['confirmed_by'] = ('agent:auto (%s)' % _AUTO_PATH['key']) if _auto else os.environ.get('USER', 'unknown')
+    fm['confirmed_by'] = os.environ.get('USER', 'unknown')
     fm['confirmed_at'] = _utc_now()
+    fm['confirmed_via'] = confirmed_via
+    # Stamp what we wrote, so the NEXT write can tell whether these values are still
+    # the ones an agent put there. A human/watchtower confirm is stamped too — the
+    # provenance route already protects it, and a stamp keeps the record uniform.
+    try:
+        _lib = str(FRAMEWORK_ROOT / 'lib')
+        if _lib not in sys.path:
+            sys.path.insert(0, _lib)
+        import bvp_sticky as _sticky_w
+        fm['bvp_scores_stamp'] = _sticky_w.stamp(confirmed)
+    except Exception:  # noqa: BLE001 — an unstamped write is unprotected, not wrong
+        pass
 
     # Re-serialise frontmatter + write back.
     if _HAS_RUAMEL:
@@ -1036,32 +1163,11 @@ def cmd_confirm(args):
     new_body = raw[:m.start(1)] + new_fm_text + raw[m.end(1):]
     _atomic_write_text(task_path, new_body)
 
-    # T-856 telemetry — written AFTER the write succeeds, so the ledger records
-    # what actually landed rather than what was intended. Auto path only.
-    if _auto:
-        _delta = {k: (confirmed.get(k) - _proposed_scores.get(k))
-                  for k in sorted(set(confirmed) & set(_proposed_scores))
-                  if confirmed.get(k) != _proposed_scores.get(k)}
-        _telemetry({
-            'event': 'bvp_confirm_auto',
-            'verb': 'confirm',
-            'switch': _AUTO_PATH['key'],
-            'target': task_id,
-            'task_file': str(task_path.relative_to(PROJECT_ROOT)),
-            'proposal_existed': bool(_proposed_scores),
-            'proposed': _proposed_scores,
-            'confirmed': confirmed,
-            'overrides': overrides or {},
-            'delta_vs_proposed': _delta,
-            'proposer_exact': bool(_proposed_scores) and not _delta and not overrides,
-            'os_user': os.environ.get('USER', 'unknown'),
-        })
-
     print(f"OK: confirmed bvp_scores for {task_id}")
     print(f"  Scores: {confirmed}")
     if overrides:
         print(f"  Overrides applied: {overrides}")
-    print(f"  Confirmed by: {fm['confirmed_by']}  at: {fm['confirmed_at']}")
+    print(f"  Confirmed by: {fm['confirmed_by']}  at: {fm['confirmed_at']}  via: {fm['confirmed_via']}")
     print(f"  bvp_scores_proposed: cleared (M3 — estimator may re-propose if next pass diverges by ≥2)")
     return 0
 
@@ -1999,6 +2105,12 @@ USAGE:
                                   R3 regression guard (max delta ≤1)
   fw bvp estimate measure-a3 [--n N] [--output PATH]
                                   A3 latency measurement (mean <5s SLA)
+  fw bvp judge T-<id> [--json]
+                                  judge a PROPOSED score: presence/sufficiency/
+                                  goal-hierarchy (T-3526, D-662). Read-only.
+  fw bvp judge T-<id> --dispatch [--timeout N] [--json]
+                                  judge via isolated TermLink worker; see
+                                  `fw bvp judge --help`
   fw bvp auto-promote [--dry-run]
                                   promote captured → started-work for HV/LC
                                   tasks (off by default; reads policy
@@ -2226,6 +2338,57 @@ EOF
             fi
             return $_rc
         fi
+    fi
+    # T-3526 (D-662 slice 2 of 3): 'judge' verb — independent judge of a
+    # PROPOSED score against presence/sufficiency/goal-hierarchy. Read-only:
+    # writes nothing, ever (not bvp_scores:, not bvp_scores_proposed:). Kept
+    # out of the in-process Python heredoc for the same reason 'estimate' is —
+    # a separate concern with its own dispatch mode, invokable directly via
+    # TermLink convention (lib/bvp_judge_dispatch_cli.py mirrors T-1951's
+    # reviewer --dispatch shape rather than inventing a second one).
+    if [ "${1:-}" = "judge" ]; then
+        shift
+        local sub="${1:-}"
+        if [ -z "$sub" ] || [ "$sub" = "--help" ] || [ "$sub" = "-h" ]; then
+            cat <<'EOF'
+fw bvp judge — judge a PROPOSED score against presence/sufficiency/goal-hierarchy (T-3526)
+
+USAGE:
+  fw bvp judge T-<id> [--json]
+                            judge inline; read-only, writes nothing
+  fw bvp judge T-<id> --dispatch [--timeout N] [--json]
+                            judge via isolated TermLink worker (T-1951 shape);
+                            result posted to the fw bus — read with
+                            `fw bus manifest T-<id>`
+
+NOTES:
+  - Judges the LATEST bvp_scores_proposed: entry; never writes bvp_scores: or
+    bvp_scores_proposed: (D-662, T-3524 slice 2 of 3). The proposer stays
+    agents/termlink/bvp-estimator/estimator.py; the human's door stays
+    `fw bvp confirm` (T-1924), protected by the T-3523 sticky guard.
+  - Verdict is green/amber/red/unknown (lib/judge_verdict.py, T-3525);
+    amber/red/unknown always carry actionable guidance.
+  - Open tasks only; closed (work-completed) tasks are skipped, never rescored.
+EOF
+            return 0
+        fi
+        local _has_jdispatch=0 _jarg
+        for _jarg in "$@"; do
+            if [ "$_jarg" = "--dispatch" ]; then _has_jdispatch=1; break; fi
+        done
+        if [ "$_has_jdispatch" = "1" ]; then
+            local _jdispatch_args=()
+            for _jarg in "$@"; do
+                [ "$_jarg" != "--dispatch" ] && _jdispatch_args+=("$_jarg")
+            done
+            exec env PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" \
+                PYTHONPATH="$FRAMEWORK_ROOT" \
+                python3 -m lib.bvp_judge_dispatch_cli "${_jdispatch_args[@]}"
+        fi
+        PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" \
+            PYTHONPATH="$FRAMEWORK_ROOT" \
+            python3 -m lib.bvp_judge_cli "$@"
+        return $?
     fi
     _bvp_python_engine "$@"
 }

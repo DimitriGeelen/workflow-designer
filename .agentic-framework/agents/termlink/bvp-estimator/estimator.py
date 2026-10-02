@@ -2279,37 +2279,21 @@ _TEMPLATE_LINES_CACHE: set[str] | None = None
 
 
 def _template_lines() -> set[str]:
-    """Stripped non-empty lines of EVERY `.tasks/templates/*.md`, cached.
+    """Stripped non-empty lines of `.tasks/templates/default.md`, cached.
 
-    Empty set when templates are absent (a consumer mid-bootstrap) — which
+    Empty set when the template is absent (a consumer mid-bootstrap) — which
     degrades stripping to a no-op rather than failing the score.
-
-    T-865: this used to read ONLY `default.md`, and the omission was load-
-    bearing. Inceptions are created from `inception.md`, whose boilerplate was
-    therefore never stripped — so any signal keyed on a word that template
-    supplies fires on every inception in the corpus. Measured when it bit: a
-    VoI signal on "go/no-go" (a phrase `inception.md` ships) scored 11 of 14
-    active inceptions at an identical 0.6, reproducing the very uniform-score
-    defect it had just been written to fix, one level up.
-
-    A stripper that covers one of three templates is worse than none, because
-    it presents as coverage. Reading the directory means a new template is
-    covered the day it is added rather than the day someone remembers.
     """
     global _TEMPLATE_LINES_CACHE
     if _TEMPLATE_LINES_CACHE is not None:
         return _TEMPLATE_LINES_CACHE
+    tpl = PROJECT_ROOT / ".tasks" / "templates" / "default.md"
     lines: set[str] = set()
-    tpl_dir = PROJECT_ROOT / ".tasks" / "templates"
     try:
-        for tpl in sorted(tpl_dir.glob("*.md")):
-            try:
-                for ln in tpl.read_text(encoding="utf-8").splitlines():
-                    s = ln.strip()
-                    if s:
-                        lines.add(s)
-            except OSError:
-                continue
+        for ln in tpl.read_text(encoding="utf-8").splitlines():
+            s = ln.strip()
+            if s:
+                lines.add(s)
     except OSError:
         pass
     _TEMPLATE_LINES_CACHE = lines
@@ -2487,51 +2471,12 @@ def declarative_matches(spec: dict, fm: dict, body: str,
     ]).lower()
     cand_paths = _candidate_paths(fm, body_txt)
 
-    # ── T-868 (arc-004 S3): cite the hypothesis, but only a HUMAN one ────────
-    #
-    # In the source BVP method a support score is an argument about a stated
-    # claim. Ours matches the task body and emits a number, so it can rank but
-    # cannot be wrong. Citing the claim is what makes a score correctable.
-    #
-    # CITATION COUNTS ONLY WHEN `hypothesis_source: human`. After S2 most
-    # hypotheses in a corpus are machine DRAFTS, and a score citing a draft is
-    # the machine citing itself — a layer of indirection that READS as grounded
-    # in a claim while the claim was also machine-made. That is worse than an
-    # honest pattern-match, because it borrows authority it has not earned and
-    # the evidence line looks identical either way. So an unconfirmed draft is
-    # not cited, and the evidence says so rather than staying quiet about it.
-    #
-    # SLICE BOUNDARY, recorded here because this is where a future reader looks:
-    # this covers the DECLARATIVE drivers only (F1/F3/F4 — 27 of 63 weight, the
-    # yardstick axes). D1-D4 keep their hand-written handlers, whose rubrics are
-    # judgement over prose rather than signal matching; rewiring those is a
-    # larger change and was deliberately left out of this slice.
-    hyp_human = str(fm.get("hypothesis_source") or "").strip().lower() == "human"
-    hyp_clauses: dict[str, str] = {}
-    if hyp_human:
-        _h = _hypothesis_section(body).lower()
-        if _h:
-            _m = re.search(r"we believe that(.*?)we will achieve(.*?)we will know(.*)",
-                           _h, re.S)
-            if _m:
-                hyp_clauses = {"change": _m.group(1), "outcome": _m.group(2),
-                               "signal": _m.group(3)}
-            else:
-                hyp_clauses = {"hypothesis": _h}
-
-    def _cite(needle: str) -> str:
-        """Which hypothesis clause, if any, carries this signal."""
-        for clause, txt in hyp_clauses.items():
-            if needle in txt:
-                return f"@hypothesis:{clause}"
-        return "@body" if hyp_clauses else ""
-
     result: dict[int, list[str]] = {}
     for lvl, sigs in sorted(_spec_levels(spec).items()):
         matched: list[str] = []
         for kw in (sigs.get("keywords") or []):
             if isinstance(kw, str) and kw.strip() and kw.strip().lower() in hay:
-                matched.append(f"L{lvl}:keyword={kw}{_cite(kw.strip().lower())}")
+                matched.append(f"L{lvl}:keyword={kw}")
         for pat in (sigs.get("paths") or []):
             if not isinstance(pat, str) or not pat.strip():
                 continue
@@ -2565,26 +2510,12 @@ def score_declarative(spec: dict, fm: dict, body: str,
     ranking denominator).
     """
     matches = declarative_matches(spec, fm, body, tags)
-
-    # T-868: say what this score is an argument ABOUT, on every score. Silence
-    # here is what let a body-matched number read as a reasoned one — the reader
-    # had no way to tell whether a claim existed at all.
-    _src = str(fm.get("hypothesis_source") or "").strip().lower()
-    if _src == "human":
-        basis = "basis: human hypothesis (clauses cited below where they matched)"
-    elif _hypothesis_section(body):
-        basis = ("basis: task body — a hypothesis exists but is an unconfirmed DRAFT, "
-                 "so it is not cited; set hypothesis_source: human to make these "
-                 "scores arguments about your claim")
-    else:
-        basis = "basis: task body — no hypothesis, so this score has no claim to be wrong about"
-
     hits = [(lvl, m) for lvl, m in matches.items() if m]
     if not hits:
-        return 0, [basis, "L0: no signal", "→0 (declarative: no level matched)"]
+        return 0, ["L0: no signal", "→0 (declarative: no level matched)"]
     best = max(lvl for lvl, _ in hits)
     ev = [s for _, m in sorted(hits) for s in m]
-    return best, [basis] + ev + [f"→{best} (declarative: highest matching level)"]
+    return best, ev + [f"→{best} (declarative: highest matching level)"]
 
 
 def _load_driver_specs() -> dict[str, dict]:
@@ -2705,391 +2636,6 @@ def has_scorer(driver_id: str, name: str | None = None,
     return bool(driver_id in specs or (name and name in specs))
 
 
-# ── T-865: automatic inception inputs, with human values made STICKY ─────────
-#
-# Operator direction 2026-09-26, verbatim in substance: rank everything, take
-# the human out of scoring as far as possible, keep a feedback signal so the
-# estimates improve — "but if I want to override it then it should not be
-# overwritten by an automatic ranking".
-#
-# That last clause is what makes full automation safe rather than reckless. If
-# a re-score can silently paint over a judgement call, then re-scoring is a
-# destructive act and nobody dares run it often; the estimates then never
-# improve, because improvement requires running them repeatedly. Sticky is the
-# precondition for "run it as often as you like".
-#
-# TWO STATES, NO THIRD. `<field>_source: human` is sticky. Everything else is
-# estimated and freely overwritten. A third "unknown provenance" state was
-# considered and rejected: it reintroduces exactly the ambiguity this replaces.
-# Legacy values carrying the template's 0.5 have no source, so they count as
-# estimated and are corrected on the first pass — which is the point.
-#
-# OBSERVABILITY IS NOT OPTIONAL HERE. A sticky guard that silently stops working
-# is indistinguishable from one that works, right up until someone notices their
-# overrides have been quietly erased for weeks. So every run reports the count
-# it protected. That is the whole reason the count exists.
-
-_STICKY_TELEMETRY_DEFAULT = ".context/telemetry/bvp-sticky.jsonl"
-
-
-def _sticky_telemetry(event: dict) -> None:
-    """Append one JSON line. Honours FW_BVP_STICKY_TELEMETRY_PATH.
-
-    The env override exists because T-856 learned it the hard way: its first
-    test run wrote fixture rows into the real append-only ledger, which cannot
-    be cleaned. A test must be able to point this somewhere disposable.
-    """
-    path = os.environ.get("FW_BVP_STICKY_TELEMETRY_PATH") or str(
-        PROJECT_ROOT / _STICKY_TELEMETRY_DEFAULT)
-    try:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "a", encoding="utf-8") as fh:
-            fh.write(json.dumps(event, sort_keys=True) + "\n")
-    except OSError:
-        pass  # telemetry must never fail a score
-
-
-_VOI_SIGNALS = (
-    # (level, label, needles) — highest matching level wins, same ladder shape
-    # as the declarative driver specs so the two read alike.
-    (1.0, "blocks-named-work", ("blocks arc", "blocks every", "gating decision",
-                                "blocks all", "prerequisite for")),
-    (0.8, "unblocks-or-blocked", ("unblocks", "blocked on", "blocks ", "gates ")),
-    (0.6, "decision-with-alternatives", ("go/no-go", "alternatives", "option a",
-                                         "either way", "no-repair", "trade-off")),
-    (0.4, "open-question", ("open question", "we do not know", "unclear whether",
-                            "assumption", "validate whether", "decide ")),
-)
-
-
-def _estimate_voi(fm: dict, body: str, tags: list[str]) -> tuple[float, list[str]]:
-    """Estimate the value of RESOLVING this inception's question, 0.0..1.0.
-
-    Not "is this task important" — that is what the D-drivers measure. VoI is
-    how much is unlocked by turning the question into an answer, so the signals
-    are about leverage and blockage, not about the subject matter.
-
-    A no-signal inception scores 0.2, NOT a neutral mid. That is deliberate and
-    is the operator's direction: everything stays in the ranking grid, so an
-    inception that states no question and blocks nothing must rank low rather
-    than be excluded. 0.2 is a measurement ("nothing here indicates leverage"),
-    not an abstention — and unlike the old 0.5 it is distinguishable from a
-    human's considered mid-score, because that one carries source: human.
-    """
-    hay = "\n".join([
-        str(fm.get("name") or ""),
-        str(fm.get("description") or ""),
-        _strip_template(body or ""),
-        " ".join(str(t) for t in (tags or [])),
-    ]).lower()
-    ev: list[str] = []
-    for level, label, needles in _VOI_SIGNALS:
-        hit = next((n for n in needles if n in hay), None)
-        if hit:
-            ev.append(f"voi:{label}~'{hit.strip()}'")
-            return level, ev
-    # Related tasks are a weak dependency signal when the prose carries none.
-    rel = fm.get("related_tasks") or []
-    if isinstance(rel, list) and len(rel) >= 2:
-        return 0.4, [f"voi:has-{len(rel)}-related-tasks"]
-    return 0.2, ["voi:no-leverage-signal (measured low, not unassessed)"]
-
-
-def _estimate_target_blast_radius(fm: dict, body: str,
-                                  tags: list[str]) -> tuple[int, list[str]]:
-    """Estimate an inception's target blast radius 0..9 from its own text.
-
-    Same pre-fill problem as voi_score and the same 42/45 population. Scales
-    off how wide the question's ANSWER would reach, which the body states in
-    practice ("the standard", "every task", "one script").
-    """
-    hay = "\n".join([
-        str(fm.get("name") or ""),
-        str(fm.get("description") or ""),
-        _strip_template(body or ""),
-    ]).lower()
-    for score, needles in (
-        (9, ("every task", "corpus-wide", "the standard", "all agents",
-             "cross-cutting", "whole corpus")),
-        (7, ("subsystem", "every instrument", "all inceptions", "the ranking")),
-        (5, ("several files", "multiple", "each arc")),
-        (3, ("one subsystem", "a handful", "single surface")),
-    ):
-        hit = next((n for n in needles if n in hay), None)
-        if hit:
-            return score, [f"tbr:reach~'{hit}'→{score}"]
-    return 1, ["tbr:no-reach-signal→1"]
-
-
-def propose_inception_inputs(task_path: Path, dry_run: bool = False) -> dict:
-    """Estimate voi_score / target_blast_radius unless a human set them.
-
-    Returns {'protected': [...], 'estimated': {...}, 'diverged': [...]}.
-    `protected` is what the caller REPORTS — an unreported sticky guard is an
-    unverifiable one.
-    """
-    fm, body = parse_task(task_path)
-    out: dict = {"protected": [], "estimated": {}, "diverged": []}
-    if (fm.get("workflow_type") or "").lower() != "inception":
-        return out
-    tags = list(fm.get("tags") or [])
-
-    for field, estimator in (("voi_score", _estimate_voi),
-                             ("target_blast_radius", _estimate_target_blast_radius)):
-        src = str(fm.get(f"{field}_source") or "").strip().lower()
-        est, _ev = estimator(fm, body, tags)
-        if src == "human":
-            out["protected"].append(field)
-            # The gap between what a human chose and what the machine would have
-            # said IS the training signal. It cannot be reconstructed later —
-            # once the human value is stored, the estimate that disagreed with
-            # it is gone unless it is written down at the moment of divergence.
-            stored = fm.get(field)
-            try:
-                if stored is not None and abs(float(stored) - float(est)) > 1e-9:
-                    out["diverged"].append(field)
-                    _sticky_telemetry({
-                        "ts": _utc_now(),
-                        "task": str(fm.get("id") or task_path.stem),
-                        "field": field,
-                        "human": stored,
-                        "estimate": est,
-                        "delta": round(float(est) - float(stored), 4),
-                        "estimator": ESTIMATOR_ID,
-                    })
-            except (TypeError, ValueError):
-                pass
-            continue
-        out["estimated"][field] = est
-    return out
-
-
-# ── T-867 (arc-004): draft the hypothesis, never fabricate its success clause ──
-#
-# S1 gated GO on a hypothesis. Measured before building this: of 14 active
-# inceptions, ~11 are delivery-shaped and NONE carries one. So the gate alone is
-# an obstacle standing in front of eleven tasks belonging to the person who
-# reported that writing these is hard. This slice is the ramp.
-#
-# THE ONE RULE THIS FILE EXISTS TO ENFORCE: the drafter must not invent a success
-# clause. A plausible invented metric is WORSE than a blank one — it satisfies the
-# gate, reads as considered, and commits the project to a claim nobody made. That
-# is "manufacture a fake claim to pass a gate", which is the exact failure the
-# research exemption was added to prevent, arriving from the other side.
-#
-# So the split is deliberate and asymmetric. The machine does the mechanical
-# two-thirds it can source from the task's own words, and NAMES THE GAP where only
-# judgement will do. S1's gate then still refuses a draft carrying that marker —
-# and the two halves agreeing is the point: the drafter marks the hole, the gate
-# holds the line, and neither pretends the task is ready.
-
-_HYPOTHESIS_NEEDS_YOU = (
-    "[NEEDS YOU: name something a person could go and look at — a count, a "
-    "threshold, a named check, or a state that would visibly change]")
-
-# Candidate observables, most specific first. These are things a reader could
-# actually go and verify; vague quantifiers are deliberately absent.
-_OBSERVABLE_PATTERNS = (
-    r"\b\d+\s*%\s*[a-z][\w -]{2,30}",
-    r"\b\d+\s+(?:of|/)\s*\d+\s+[a-z][\w -]{2,30}",
-    r"\b(?:fw\s+(?:audit|doctor|bvp|fabric)[\w -]{0,20})",
-    r"\b(?:_t\d+[\w-]*\.(?:sh|py|mjs))",
-    r"\b\d+\s+(?:failures?|errors?|warnings?|tasks?|cards?|maps?|tests?|"
-    r"instruments?|inceptions?|files?|lanes?|commits?)\b",
-    r"\bexit code \d+\b",
-)
-
-
-def _hypothesis_section(body: str) -> str:
-    """The ## Hypothesis section body, HTML comments stripped."""
-    m = re.search(r"^##\s+Hypothesis\s*$(.*?)(?=^#{2,}\s|\Z)", body or "",
-                  re.M | re.S)
-    if not m:
-        return ""
-    txt = re.sub(r"<!--.*?-->", "", m.group(1), flags=re.S)
-    return "\n".join(ln for ln in txt.splitlines() if ln.strip()).strip()
-
-
-# Words a candidate must not END on. Caught on first live run: the raw patterns
-# happily returned "80% of the" — a fragment that MEANS nothing but CONTAINS a
-# digit, so S1's gate would have accepted it. A drafter that manufactures signals
-# which pass the gate while saying nothing is the fabrication failure this module
-# is built to refuse, arriving through a regex rather than through invention.
-_OBS_TRAILING_STOPWORDS = {
-    "the", "a", "an", "of", "in", "on", "to", "for", "and", "or", "with",
-    "that", "this", "these", "those", "is", "are", "was", "were", "be",
-    "at", "by", "from", "as", "its", "their",
-}
-
-
-def _candidate_observables(text: str) -> list[str]:
-    """Things in the task's own text that a person could later go and check.
-
-    A candidate survives only if, after trimming trailing function words, it still
-    carries a NOUN-ish tail — something being counted or named. "0 of 30 empty"
-    survives; "80% of the" does not, and is dropped rather than returned, so the
-    caller falls through to the NEEDS-YOU marker. Dropping a weak candidate costs
-    the author one sentence; returning it costs the project a claim nobody made.
-    """
-    out: list[str] = []
-    for pat in _OBSERVABLE_PATTERNS:
-        for m in re.finditer(pat, text or "", re.I):
-            words = " ".join(m.group(0).split()).split(" ")
-            while words and words[-1].lower().strip(".,;:") in _OBS_TRAILING_STOPWORDS:
-                words.pop()
-            if not words:
-                continue
-            tail = words[-1].strip(".,;:")
-            # The surviving tail must be a word, not the bare number itself —
-            # "43" alone is not an observation, "43 failures" is.
-            if not tail or tail.replace("%", "").replace(".", "").isdigit():
-                continue
-            if len(words) < 2:
-                continue
-            s = " ".join(words)
-            if s not in out:
-                out.append(s)
-    return out[:3]
-
-
-def _draft_hypothesis(fm: dict, body: str) -> tuple[str, list[str]]:
-    """Draft the three-part form from the task's own text. Returns (text, evidence).
-
-    The first two clauses are sourced mechanically and will often read awkwardly.
-    That is acceptable and expected: the draft exists so the author starts from
-    something to CORRECT rather than from a blank page, and an awkward sentence is
-    easy to fix. A fabricated success clause is not, because nothing signals that
-    it needs fixing.
-    """
-    ev: list[str] = []
-    name = str(fm.get("name") or "").strip().strip('"')
-    desc = str(fm.get("description") or "").strip()
-
-    change = name[:1].lower() + name[1:] if name else "this change lands"
-    ev.append("change<-name")
-
-    outcome = ""
-    pm = re.search(r"^##\s+Problem Statement\s*$(.*?)(?=^#{2,}\s|\Z)", body or "",
-                   re.M | re.S)
-    if pm:
-        ptxt = re.sub(r"<!--.*?-->", "", pm.group(1), flags=re.S).strip()
-        first = next((ln.strip() for ln in ptxt.splitlines() if ln.strip()), "")
-        if len(first) > 15:
-            outcome = first.rstrip(".")
-            ev.append("outcome<-problem-statement")
-    if not outcome and desc:
-        first = re.split(r"(?<=[.!?])\s", desc)[0].strip()
-        if len(first) > 15:
-            outcome = first.rstrip(".")
-            ev.append("outcome<-description")
-    if not outcome:
-        outcome = "[NEEDS YOU: what does this buy, stated as an outcome]"
-        ev.append("outcome<-NEEDS-YOU")
-
-    obs = _candidate_observables(f"{name}\n{desc}\n{_strip_template(body or '')}")
-    signal = obs[0] if obs else _HYPOTHESIS_NEEDS_YOU
-    # Evidence is DERIVED from the value, not emitted alongside it. Written the
-    # parallel way first, and the fabricate-mutation walked straight through the
-    # gap: it replaced the signal and left the `ev.append` beside it untouched, so
-    # the evidence line still said NEEDS-YOU while the clause carried an invented
-    # metric. An evidence line that can disagree with the thing it describes is a
-    # false green with extra steps — the reader trusts it precisely because it
-    # looks like provenance.
-    if signal is _HYPOTHESIS_NEEDS_YOU:
-        ev.append("signal<-NEEDS-YOU (nothing checkable in the task's own text)")
-    else:
-        ev.append(f"signal<-body:'{signal}'")
-
-    text = (f"We believe that {change},\n"
-            f"we will achieve {outcome}.\n"
-            f"We will know that we are successful when we see {signal}.")
-    return text, ev
-
-
-def propose_hypothesis(task_path: Path) -> dict:
-    """Draft a hypothesis unless a human wrote one. Returns a report dict.
-
-    `protected` is REPORTED, not merely honoured: a sticky guard nobody can see is
-    indistinguishable from one that has silently stopped working, which is the
-    failure class this whole arc sits inside.
-    """
-    fm, body = parse_task(task_path)
-    out: dict = {"protected": False, "drafted": None, "diverged": False,
-                 "needs_you": False, "evidence": []}
-    if (fm.get("workflow_type") or "").lower() != "inception":
-        return out
-    if str(fm.get("inception_kind") or "").strip().lower() == "research":
-        out["evidence"] = ["skipped: inception_kind: research (no claim to draft)"]
-        return out
-
-    existing = _hypothesis_section(body)
-    draft, ev = _draft_hypothesis(fm, body)
-    out["evidence"] = ev
-    out["needs_you"] = "[NEEDS YOU" in draft
-
-    if str(fm.get("hypothesis_source") or "").strip().lower() == "human":
-        out["protected"] = True
-        # The gap between what a person wrote and what the machine would have
-        # written IS the training signal, and it is unrecoverable once the human
-        # text is stored — the draft that disagreed with it is simply gone unless
-        # it is written down at the moment of divergence.
-        if existing and existing.split() != draft.split():
-            out["diverged"] = True
-            _sticky_telemetry({
-                "ts": _utc_now(),
-                "task": str(fm.get("id") or task_path.stem),
-                "field": "hypothesis",
-                "human": existing[:600],
-                "estimate": draft[:600],
-                "estimator": ESTIMATOR_ID,
-            })
-        return out
-
-    out["drafted"] = draft
-
-    # WRITE only into an absent or empty section. Never over existing prose —
-    # that is the same sticky rule as the numeric fields, applied to text, and it
-    # holds even without `hypothesis_source: human`: someone who typed a sentence
-    # into this section has said something, flag or no flag, and a drafting pass
-    # that silently replaced it would be the handover defect (OBS-383) rebuilt in
-    # a new place. A draft the author never sees in the file is not a ramp, which
-    # is why this writes at all; overwriting is where helping turns destructive.
-    if existing:
-        out["evidence"].append("not written: section already has content")
-        return out
-    if dry_run_writes():
-        return out
-
-    banner = ("<!-- DRAFTED by the estimator from this task's own text. Correct it, "
-              "then set `hypothesis_source: human` in the frontmatter to make your "
-              "wording permanent. Until then a later pass may redraft it. -->")
-    try:
-        raw = task_path.read_text(encoding="utf-8")
-    except OSError:
-        return out
-    block = f"## Hypothesis\n\n{banner}\n\n{draft}\n"
-    if re.search(r"^##\s+Hypothesis\s*$", raw, re.M):
-        new = re.sub(r"^##\s+Hypothesis\s*$(.*?)(?=^#{2,}\s|\Z)",
-                     block + "\n", raw, count=1, flags=re.M | re.S)
-    else:
-        # No section at all: place it before Assumptions, else append.
-        if re.search(r"^##\s+Assumptions\s*$", raw, re.M):
-            new = re.sub(r"^##\s+Assumptions\s*$", block + "\n## Assumptions",
-                         raw, count=1, flags=re.M)
-        else:
-            new = raw.rstrip("\n") + "\n\n" + block
-    if new != raw:
-        _atomic_write_text(task_path, new)
-        out["evidence"].append("written into the task")
-    return out
-
-
-def dry_run_writes() -> bool:
-    """Honour FW_HYPOTHESIS_DRY_RUN so a test can exercise drafting without
-    mutating fixtures it did not create."""
-    return os.environ.get("FW_HYPOTHESIS_DRY_RUN") == "1"
-
-
 def _score_inception_voi(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
     """T-2189 inception scoring exception (050-Inceptions.md §Scoring Exception).
 
@@ -3099,39 +2645,19 @@ def _score_inception_voi(fm: dict, body: str, tags: list[str]) -> tuple[int, lis
     D-handlers measure. Same score is returned for every requested driver —
     rank is determined by voi alone. Build-task scoring is unchanged.
 
-    T-865 (operator-directed 2026-09-26): the value is now ESTIMATED when no
-    human chose it, rather than read from whatever the template pre-filled.
-
-    Before T-865 this returned a neutral 2 for absent-or-malformed, while the
-    task template shipped `voi_score: 0.5` — and int(round(0.5*5)) is also 2. So
-    "nobody assessed this" and "someone judged it mid" produced an identical
-    score, and 42 of 45 inceptions ranked on a number no person had chosen.
-    T-624 tried to fix that with a warning printed above the field; 28 days
-    later the figure had not moved by one, because a comment is not a gate.
-
-    The rule now has exactly two states, and no third:
-      voi_score_source: human  -> STICKY. Used as-is, never re-derived.
-      anything else            -> estimated from the task's own text.
-
-    Nothing is excluded from ranking to achieve this (operator direction:
-    ranking is automatic and universal, no abstention bucket) — an inception
-    with no signal scores LOW, which is a measurement, not an abstention.
+    Missing or malformed `voi_score` returns a neutral mid-score (2) so
+    grandfathered inceptions (pre-T-2188) still rank, just not by VoI.
     """
-    src = str(fm.get("voi_score_source") or "").strip().lower()
     voi = fm.get("voi_score")
-
-    if src == "human" and voi is not None:
-        try:
-            voi_f = max(0.0, min(1.0, float(voi)))
-        except (TypeError, ValueError):
-            voi_f = None
-        if voi_f is not None:
-            score = int(round(voi_f * 5))
-            return score, [f"→{score} (voi:{voi_f:.2f} HUMAN-SET, sticky)"]
-
-    voi_f, ev = _estimate_voi(fm, body, tags)
+    if voi is None:
+        return 2, ["→2 (voi-absent-grandfathered)"]
+    try:
+        voi_f = float(voi)
+    except (TypeError, ValueError):
+        return 2, ["→2 (voi-malformed)"]
+    voi_f = max(0.0, min(1.0, voi_f))
     score = int(round(voi_f * 5))
-    return score, ev + [f"→{score} (voi:{voi_f:.2f} estimated)"]
+    return score, [f"→{score} (voi:{voi_f:.2f})"]
 
 
 def estimate_task(task_path: Path, drivers: dict[str, int]) -> dict:
@@ -3326,6 +2852,39 @@ COST_WORKFLOW_TIER = {
 }
 
 
+def _expand_write_set(patterns: list[str]) -> set[str] | None:
+    """Expand declared `write_set:` globs to real paths, or None if unresolvable.
+
+    T-3512. DELEGATES to lib/write_set.py rather than re-implementing glob
+    expansion, because `fw write-set check` must agree with the estimator about what
+    a declared pattern covers. Two readers of one field that disagree is the defect
+    class this repo spent 2026-09-26 removing from arc membership (five readers,
+    three verdicts), and the fix costs one import.
+
+    The lib is resolved from THIS FILE, not from PROJECT_ROOT. `write_set.py` is a
+    framework-owned asset, and a consumer project has no `lib/` of its own — so a
+    PROJECT_ROOT lookup would fail in every consumer and degrade this scorer to a
+    pattern count without anyone noticing. That is the exact anti-pattern the audit
+    rail from T-2648 / OBS-097 exists to catch ("No PROJECT_ROOT resolution of
+    framework-owned assets"), and I wrote it before the tests caught me: the first
+    version used PROJECT_ROOT and silently degraded inside a temp-tree fixture,
+    which is what a consumer install looks like from here.
+
+    Note the two roots are NOT interchangeable: PROJECT_ROOT below is correct, because
+    the declared globs are relative to the project whose task this is.
+    """
+    framework_root = Path(os.environ.get("FRAMEWORK_ROOT") or
+                          Path(__file__).resolve().parents[3])
+    try:
+        lib_dir = str(framework_root / "lib")
+        if lib_dir not in sys.path:
+            sys.path.insert(0, lib_dir)
+        from write_set import expand_globs  # type: ignore[import-not-found]
+    except Exception:  # noqa: BLE001 - estimator must never die on an import
+        return None
+    return expand_globs(patterns, str(PROJECT_ROOT))
+
+
 def score_blast_radius(fm: dict, body: str, tags: list[str]) -> tuple[int | None, list[str]]:
     """Heuristic: count `components:` entries → 1/3/5/7/9 scale, or None if unknown.
 
@@ -3377,12 +2936,81 @@ def score_blast_radius(fm: dict, body: str, tags: list[str]) -> tuple[int | None
     if not isinstance(components, list):
         return None, ["→? (components-malformed)"]
     n = len([c for c in components if c])
-    if n == 0: return None, ["→? (no-components-UNMEASURED-not-zero)"]
-    if n == 1: return 1, ["→1 (single-component)"]
-    if n <= 3: return 3, [f"→3 ({n}-components)"]
-    if n <= 6: return 5, [f"→5 ({n}-components-medium-blast)"]
-    if n <= 9: return 7, [f"→7 ({n}-components-large-blast)"]
-    return 9, [f"→9 ({n}-components-cross-cutting)"]
+    if n:
+        if n == 1: return 1, ["→1 (single-component)"]
+        if n <= 3: return 3, [f"→3 ({n}-components)"]
+        if n <= 6: return 5, [f"→5 ({n}-components-medium-blast)"]
+        if n <= 9: return 7, [f"→7 ({n}-components-large-blast)"]
+        return 9, [f"→9 ({n}-components-cross-cutting)"]
+
+    # ── T-3512: fall back to the DECLARED write set ──────────────────────────
+    #
+    # `components:` is resolved from real git history at the `work-completed`
+    # transition, and `fw bvp` excludes work-completed by default — so the branch
+    # above is unavailable for exactly the open tasks the ranking exists to order.
+    # Measured 2026-09-27: of 200 rankable tasks, 30 (15%) had any cost at all.
+    # `write_set:` is declared at CAPTURE, which is the other end of the lifecycle,
+    # so it covers the population components cannot.
+    #
+    # ORDERED AFTER components DELIBERATELY: components is a measurement of what the
+    # task DID touch, write_set a prediction of what it WILL. Measurement outranks
+    # declaration, and putting this leg second means no task that already scores can
+    # change its score — the new code is reachable only where the old returned None.
+    #
+    # Unit honesty: components counts component CARDS, this counts FILES matched by
+    # the declared globs. They are not the same unit. The 1/3/5/7/9 ladder is coarse
+    # enough to absorb that (its own docstring says 7-vs-8 is rarely meaningful,
+    # 1-vs-5 is), and the evidence token names which source produced the number so a
+    # reader is never guessing.
+    ws = fm.get("write_set")
+    if ws is not None:
+        if not isinstance(ws, list):
+            return None, ["→? (write_set-malformed)"]
+        patterns = [p for p in ws if isinstance(p, str) and p.strip()]
+        if not patterns:
+            # An explicitly empty list is a DECLARATION, not an absence — see
+            # lib/write_set.py: "An empty list is still declared." So 0 is the
+            # honest answer here, and T-3068's rule is untouched: it forbids
+            # scoring *missing* information as the cheapest value, not scoring a
+            # genuine zero as zero.
+            #
+            # Its own token, never reused, because this arc has already had to
+            # reject 93 tasks' worth of pre-T-3068 fabricated zeros whose evidence
+            # read "blast_radius=0 (no-signal)". A stored 0 must stay traceable to
+            # which of those two things it means.
+            return 0, ["→0 (empty-write-set-DECLARED-not-unmeasured)"]
+        try:
+            matched = _expand_write_set(patterns)
+        except Exception:  # noqa: BLE001 - never break an estimator over a glob
+            matched = None
+        if matched is None:
+            # Could not expand (no project root, unreadable tree). Fall back to the
+            # pattern count, and say that is what happened — a pattern count is a
+            # weaker signal than a file count and the record should not imply
+            # otherwise.
+            k = len(patterns)
+            src = f"{k}-write-set-patterns-unexpanded"
+        else:
+            k = len(matched)
+            src = f"{k}-write-set-paths"
+            # NO "matched nothing → unknown" branch, and its absence is deliberate.
+            # `expand_globs` keeps a non-matching pattern as-is (lib/write_set.py:
+            # "Pattern doesn't match anything yet — keep the normalized form so two
+            # tasks declaring the same unborn path overlap correctly"), so for any
+            # non-empty pattern list the result is never empty and such a branch
+            # could not fire. I wrote one first and removed it after measuring:
+            # a guard that cannot fire reads as coverage it does not provide.
+            #
+            # It would also have been wrong on the merits. A task declaring three
+            # files it is about to CREATE has a blast radius of three; "does not
+            # exist yet" is a fact about the clock, not missing information.
+        if k == 1: return 1, [f"→1 ({src})"]
+        if k <= 3: return 3, [f"→3 ({src})"]
+        if k <= 6: return 5, [f"→5 ({src})"]
+        if k <= 9: return 7, [f"→7 ({src})"]
+        return 9, [f"→9 ({src}-cross-cutting)"]
+
+    return None, ["→? (no-components-UNMEASURED-not-zero)"]
 
 
 def score_tier(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
@@ -3577,32 +3205,12 @@ def cmd_one(task_id: str, dry_run: bool = False, json_out: bool = False) -> int:
     result["reason"] = reason
     result["task_id"] = task_id
     result["task_path"] = str(task_path.relative_to(PROJECT_ROOT))
-    # T-865: report what the sticky guard protected. A guard nobody can see is
-    # indistinguishable from one that has silently stopped working — which is
-    # the failure mode this whole arc exists to hunt, so it is reported on every
-    # run rather than only when something looks wrong.
-    inc = propose_inception_inputs(task_path, dry_run=dry_run)
-    result["inception_inputs"] = inc
-    hyp = propose_hypothesis(task_path)
-    result["hypothesis"] = hyp
     if json_out:
         print(json.dumps(result, indent=2))
     else:
         sc = result["scores"]
         sc_str = " ".join(f"{k}={v}" for k, v in sc.items())
         print(f"{task_id}: {sc_str}  [{reason}]  ({result['latency_s']}s)")
-        if inc["protected"]:
-            extra = (f"; {len(inc['diverged'])} diverged from the estimate "
-                     f"(logged)") if inc["diverged"] else ""
-            print(f"  left {len(inc['protected'])} human-set value(s) untouched: "
-                  f"{', '.join(inc['protected'])}{extra}")
-        if hyp["protected"]:
-            print("  left the human-written hypothesis untouched"
-                  + ("; it diverges from the draft (logged)" if hyp["diverged"] else ""))
-        elif hyp["drafted"]:
-            note = (" — success clause NEEDS YOU, and the GO gate will still refuse "
-                    "it, which is correct") if hyp["needs_you"] else ""
-            print(f"  drafted a hypothesis{note}")
     return 0
 
 
@@ -3973,6 +3581,27 @@ def _cost_proposed_is_stale(fm: dict, stale_hours: int) -> bool:
         return True
 
 
+def _cost_sweep_in_scope(fm: dict, task_path: Path, statuses: list[str]) -> bool:
+    """T-3551. Is this task in the cost sweep's population?
+
+    Two ways in, and the second is why this is a function rather than an `in`:
+
+      1. status ∈ statuses          — the original scope (captured, started-work)
+      2. partial-complete           — status `work-completed` AND the file is still
+                                      under `.tasks/active/`
+
+    (2) cannot be written as a status, because `work-completed` names two different
+    situations that share one word: a task awaiting Human-criterion verification in
+    `active/`, and a task archived in `completed/`. The first is open work carrying
+    freshly-resolved `components:`; the second is finished. Only the directory
+    separates them, so the directory is part of the predicate.
+    """
+    status = fm.get("status")
+    if status in statuses:
+        return True
+    return status == "work-completed" and task_path.parent.name == "active"
+
+
 def cmd_cost_sweep(stale_hours: int = 24,
                    statuses: list[str] | None = None,
                    cron: bool = False) -> int:
@@ -3981,6 +3610,22 @@ def cmd_cost_sweep(stale_hours: int = 24,
     Scope: tasks with status ∈ statuses AND (no `cost_estimate:` OR
     `cost_estimate_proposed:` is stale/missing OR `unscored: true`).
     Sovereignty: never overwrites confirmed `cost_estimate:`.
+
+    T-3551 — PLUS partial-complete, which the status list alone cannot express.
+    `components:` is resolved at the `work-completed` transition, and this scope
+    stopped at `work-completed`, so the cost input arrived exactly when the sweep
+    stopped asking for it. Measured: 50 active tasks carried `components:` and a
+    `blast_radius: null` proposal, and every one of the 50 was `work-completed`.
+    The sweep had been running every 15 minutes throughout — it was never idle, it
+    was looking at a population that excluded the data.
+
+    A `work-completed` task still in `.tasks/active/` is partial-complete: agent
+    criteria done, Human criteria outstanding. It is open work, and arc
+    close-readiness L1 ("no unestimated tasks") governs it. Archived tasks under
+    `completed/` stay out — they are not remaining work, and re-scoring 3,040 files
+    every 15 minutes would churn the corpus for a decision nobody is making.
+
+    Hence the predicate is (status, directory), not status alone.
     """
     if statuses is None:
         statuses = ["started-work", "captured"]
@@ -3994,7 +3639,7 @@ def cmd_cost_sweep(stale_hours: int = 24,
     for tp in task_files:
         try:
             fm, _ = parse_task(tp)
-            if fm.get("status") not in statuses:
+            if not _cost_sweep_in_scope(fm, tp, statuses):
                 continue
             if fm.get("cost_estimate"):
                 # Confirmed score exists — leave it alone (sovereignty).

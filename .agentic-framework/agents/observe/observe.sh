@@ -136,7 +136,7 @@ do_capture() {
         echo "  fw note \"$(printf '%s ' "${strays[@]}" | sed 's/[[:space:]]*$//')\"" >&2
         echo "" >&2
         echo "Options go after the text: --task T-XXX, --tag <tag>, --urgent." >&2
-        echo "Sub-verbs that DO exist: list, count, triage, promote, dismiss, resolve." >&2
+        echo "Sub-verbs that DO exist: list, count, triage, promote, dismiss." >&2
         exit 1
     fi
 
@@ -296,30 +296,31 @@ do_count() {
     fi
 }
 
+# _tasks_naming_obs <OBS-NNN> — T-3646: print the active/completed task files
+# that already name this observation id. Boundary-anchored so OBS-0220 does not
+# count as OBS-022 (and OBS-022 inside OBS-0220 is not a hit either way).
+_tasks_naming_obs() {
+    local obs_id="$1" d
+    for d in "$PROJECT_ROOT/.tasks/active" "$PROJECT_ROOT/.tasks/completed"; do
+        [ -d "$d" ] || continue
+        grep -lE "(^|[^A-Za-z0-9_-])${obs_id}([^0-9]|\$)" "$d"/T-*.md 2>/dev/null || true
+    done
+}
+
 do_promote() {
     local obs_id=""
     local task_type="build"
-    # T-912: the default is `agent`, and the default is the whole change. It was `human`,
-    # hardcoded with no way to say otherwise, so every promotion produced a task an agent could
-    # not close — and the evidence is that almost none of them had a human criterion to justify
-    # it. T-910 (from OBS-416) closed with 0/0 Human ACs, 6/6 Agent ACs and verification 10/10,
-    # after three operator attempts and a --skip-sovereignty bypass, because the sovereignty gate
-    # fires on the OWNER FIELD rather than on any unchecked human criterion. T-885 is the same
-    # shape and still open. Human ownership is still available and still honoured; it is now a
-    # choice someone makes rather than one the tool makes for them.
-    local task_owner="agent"
+    local allow_duplicate=false
     while [ $# -gt 0 ]; do
         case "$1" in
             --type|-t) task_type="$2"; shift 2 ;;
-            --owner|-o) task_owner="$2"; shift 2 ;;
+            --allow-duplicate) allow_duplicate=true; shift ;;
             -h|--help)
-                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--owner <agent|human>]"
-                echo "  --owner defaults to 'agent'. Use --owner human when the task genuinely needs"
-                echo "  human judgement, and give it a Human acceptance criterion saying what to judge."
+                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--allow-duplicate]"
                 return 0 ;;
             -*)
                 echo -e "${RED}Unknown flag: $1${NC}" >&2
-                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--owner <agent|human>]" >&2
+                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>]" >&2
                 return 1 ;;
             *)
                 if [ -z "$obs_id" ]; then obs_id="$1"; else
@@ -345,191 +346,40 @@ do_promote() {
         return 1
     fi
 
+    # T-3646 (ported from 055 P-007, framework:pickup offset 238): promote used
+    # to create a task without looking whether one already names this id, so a
+    # re-promote (or a promote after someone filed the task by hand) produced a
+    # silent duplicate. Refuse, list the tasks, and offer both ways out — a
+    # recurrence is legitimate, so this informs rather than blocking forever.
+    if [ "$allow_duplicate" != true ]; then
+        local _existing
+        _existing=$(_tasks_naming_obs "$obs_id")
+        if [ -n "$_existing" ]; then
+            echo -e "${RED}$obs_id is already named by existing task(s) — not promoting:${NC}" >&2
+            printf '%s\n' "$_existing" | sed "s|^$PROJECT_ROOT/||; s/^/    /" >&2
+            echo "" >&2
+            echo "  Nothing was created and the inbox is unchanged." >&2
+            echo "  Already handled:  fw note dismiss $obs_id --reason \"tracked in T-XXX\"" >&2
+            echo "  Genuine recurrence: fw note promote $obs_id --allow-duplicate" >&2
+            return 1
+        fi
+    fi
+
     echo -e "${YELLOW}Promoting $obs_id to task (type: $task_type)...${NC}"
     echo ""
 
-    # Create task. The output is CAPTURED so the created id can be read back, then re-printed in
-    # full — swallowing it would trade one silent record for another.
-    local create_out create_rc=0
-    create_out=$(PROJECT_ROOT="$PROJECT_ROOT" "$FRAMEWORK_ROOT/agents/task-create/create-task.sh" \
+    # Create task
+    PROJECT_ROOT="$PROJECT_ROOT" "$FRAMEWORK_ROOT/agents/task-create/create-task.sh" \
         --name "$text" \
         --description "Promoted from observation $obs_id" \
         --type "$task_type" \
-        --owner "$task_owner" 2>&1) || create_rc=$?
-    printf '%s\n' "$create_out"
-    if [ "$create_rc" -ne 0 ]; then
-        echo -e "${RED}promote: task creation failed (rc=$create_rc)${NC}" >&2
-        echo "  $obs_id is left PENDING — an observation marked promoted with no task behind it" >&2
-        echo "  is worse than one still in the queue." >&2
-        return 1
-    fi
+        --owner human
 
-    # T-912: read the REAL task id. This used to write the literal string 'task' into
-    # promoted_to, so the field existed and was filled with a constant — measured across all six
-    # previously-promoted observations, `promoted_to: 'task'` in 6 of 6, never an id. context_task
-    # is not a substitute: it records the task in FOCUS AT CAPTURE TIME, so OBS-416 became T-910
-    # and its record says T-890. The result was that nothing linked an observation to the task it
-    # turned into (OBS-257).
-    local new_id
-    new_id=$(printf '%s\n' "$create_out" | sed -n 's/^ID:[[:space:]]*\(T-[0-9][0-9]*\).*/\1/p' | head -1)
-    if [ -z "$new_id" ]; then
-        echo -e "${RED}promote: could not read the created task id from create-task.sh output${NC}" >&2
-        echo "  $obs_id is left PENDING. Writing a placeholder here is what this change removes;" >&2
-        echo "  doing it again on the failure path would reintroduce the defect with better manners." >&2
-        return 1
-    fi
-
-    # The REVERSE link, in a field a query can read. The description already says "Promoted from
-    # observation OBS-NNN", but that is prose, and prose is not an index.
-    local task_file
-    task_file=$(printf '%s\n' "$create_out" | sed -n 's/^File:[[:space:]]*\(.*[^[:space:]]\)[[:space:]]*$/\1/p' | head -1)
-    if [ -n "$task_file" ] && [ -f "$task_file" ]; then
-        OBS_ID="$obs_id" TASK_FILE="$task_file" python3 - <<'PY' || echo "  (warning: could not add the observation backlink to $task_file)" >&2
-import os, sys
-f, obs = os.environ['TASK_FILE'], os.environ['OBS_ID']
-lines = open(f, encoding='utf-8').read().split('\n')
-# Idempotent: a backlink already present is left alone rather than duplicated.
-if any(ln.startswith('observation:') for ln in lines):
-    sys.exit(0)
-for i, ln in enumerate(lines):
-    if ln.startswith('id: '):
-        lines.insert(i + 1, 'observation: %s' % obs)
-        break
-else:
-    sys.exit(1)   # no id: line — say so rather than writing the field somewhere arbitrary
-open(f, 'w', encoding='utf-8').write('\n'.join(lines))
-PY
-    fi
-
-    # Mark as promoted, with the id rather than a constant.
-    _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: promoted/;s/promoted_to: null/promoted_to: $new_id/}" "$INBOX_FILE"
+    # Mark as promoted
+    _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: promoted/;s/promoted_to: null/promoted_to: task/}" "$INBOX_FILE"
 
     echo ""
-    echo -e "${GREEN}$obs_id promoted to $new_id${NC} (owner: $task_owner)"
-    echo "  $obs_id.promoted_to → $new_id, and $new_id.observation → $obs_id"
-}
-
-# T-914: the disposition that had no verb.
-#
-# `fw note` could promote (this needs a task), dismiss (this is not worth doing) and nothing else.
-# But the largest class in the inbox is neither: measured 2026-09-28 by
-# tools/_t703-inbox-residue.py --check, 85 of 118 items over 7 days old are carried-by-completed-
-# task — the work was DONE, by a task that has since closed, and the thread lives in
-# .context/episodic/T-NNN.yaml. That census names the blocker on all 85 rows: "closure blocked:
-# dismiss verb cannot record where the content lives".
-#
-# Dismissing them would record a decision nobody made ("not worth doing" about work already
-# finished) and lose the pointer. Promoting them would file a task for work that already has one.
-# So the only honest disposition was unrepresentable, and the items stayed pending — not through
-# neglect but because the queue had no exit for them. That is why it grows monotonically, and why
-# 39% of it is flagged urgent, which is the point at which the flag stops carrying information.
-#
-# The state was already wanted before it was buildable: OBS-313, OBS-318 and OBS-331 carry
-# `status: resolved` today, set by hand, with no field recording the carrier.
-#
-# THE CARRIER IS MANDATORY AND VALIDATED. An observation marked resolved with no pointer, or with
-# a pointer that does not resolve, is the same defect T-912 just removed from promote — a field
-# that exists and says nothing. A task id must name a real task file; any other carrier must be a
-# path that exists.
-do_resolve() {
-    local obs_id="${1:-}"
-    if [ -z "$obs_id" ]; then
-        echo -e "${RED}Usage: fw note resolve OBS-NNN --carrier <T-NNN|path> [--reason \"...\"]${NC}" >&2
-        echo "  --carrier is REQUIRED: where the content lives now (the task that did the work," >&2
-        echo "  or the file that holds the thread). Resolved with no carrier is not resolved." >&2
-        return 1
-    fi
-    shift
-
-    local carrier="" reason=""
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --carrier|-c) carrier="$2"; shift 2 ;;
-            --reason) reason="$2"; shift 2 ;;
-            -h|--help)
-                echo "Usage: fw note resolve OBS-NNN --carrier <T-NNN|path> [--reason \"...\"]"
-                return 0 ;;
-            *) shift ;;
-        esac
-    done
-
-    if [ -z "$carrier" ]; then
-        echo -e "${RED}resolve: --carrier is required${NC}" >&2
-        echo "  Resolving without saying where the content went produces a record that cannot" >&2
-        echo "  answer the only question anyone asks of it. Use 'fw note dismiss' if the" >&2
-        echo "  observation is genuinely not actionable." >&2
-        return 1
-    fi
-
-    # Validate the carrier BEFORE touching the inbox. A refusal that has already written is worse
-    # than no refusal.
-    local carrier_kind=""
-    if printf '%s' "$carrier" | grep -qE '^T-[0-9]+$'; then
-        carrier_kind="task"
-        # nullglob-free: the glob is tested by -e on the first expansion result
-        local found=""
-        for f in "$PROJECT_ROOT"/.tasks/active/"$carrier"-*.md "$PROJECT_ROOT"/.tasks/completed/"$carrier"-*.md; do
-            [ -f "$f" ] && { found="$f"; break; }
-        done
-        if [ -z "$found" ]; then
-            echo -e "${RED}resolve: carrier $carrier does not resolve to a task file${NC}" >&2
-            echo "  Looked in .tasks/active/ and .tasks/completed/. $obs_id left pending." >&2
-            return 1
-        fi
-    else
-        carrier_kind="path"
-        if [ ! -e "$PROJECT_ROOT/$carrier" ] && [ ! -e "$carrier" ]; then
-            echo -e "${RED}resolve: carrier path '$carrier' does not exist${NC}" >&2
-            echo "  A pointer that does not resolve is a decoration. $obs_id left pending." >&2
-            return 1
-        fi
-    fi
-
-    ensure_inbox
-
-    # Python for the same reason do_dismiss uses it: the reason is free text and can contain ':',
-    # quotes and newlines, all of which a sed substitution mangles. Only the target entry's lines
-    # are touched, so the rest of the file stays byte-identical.
-    if ! OBS_ID="$obs_id" OBS_CARRIER="$carrier" OBS_KIND="$carrier_kind" OBS_REASON="$reason" INBOX="$INBOX_FILE" python3 -c '
-import json, os, sys, datetime
-
-obs_id  = os.environ["OBS_ID"]
-carrier = os.environ["OBS_CARRIER"]
-kind    = os.environ["OBS_KIND"]
-reason  = os.environ["OBS_REASON"]
-path    = os.environ["INBOX"]
-lines = open(path).read().split("\n")
-
-start = next((i for i, l in enumerate(lines) if l.startswith("- id: %s" % obs_id)), None)
-if start is None:
-    print("observation %s not found in %s" % (obs_id, path), file=sys.stderr)
-    sys.exit(1)
-
-end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("- ")), len(lines))
-
-status_idx = next((i for i in range(start, end) if lines[i].strip() == "status: pending"), None)
-if status_idx is None:
-    cur = next((lines[i].strip() for i in range(start, end) if lines[i].strip().startswith("status:")), "unknown")
-    print("%s is not pending (%s) — not resolving" % (obs_id, cur), file=sys.stderr)
-    sys.exit(2)
-
-lines[status_idx] = "  status: resolved"
-ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-ins = [
-    "  resolved_carrier: " + json.dumps(carrier),
-    "  resolved_carrier_kind: " + json.dumps(kind),
-    "  resolved_at: " + ts,
-]
-if reason.strip():
-    ins.insert(2, "  resolved_reason: " + json.dumps(reason))
-lines[status_idx + 1:status_idx + 1] = ins
-open(path, "w").write("\n".join(lines))
-'; then
-        echo -e "${RED}$obs_id NOT resolved — the inbox was not modified${NC}" >&2
-        return 1
-    fi
-
-    echo -e "${GREEN}$obs_id resolved${NC} → carrier $carrier ($carrier_kind)"
+    echo -e "${GREEN}$obs_id promoted to task${NC}"
 }
 
 do_dismiss() {
@@ -650,8 +500,6 @@ show_help() {
     echo "  fw note triage                           Review pending observations"
     echo "  fw note promote OBS-NNN [--type T]       Promote to task (default type: build)"
     echo "  fw note dismiss OBS-NNN --reason \"...\"   Dismiss with reason"
-    echo "  fw note resolve OBS-NNN --carrier T-NNN    Close it — the work is already done;"
-    echo "                                           --carrier says WHERE it lives"
     echo ""
     echo "The inbox lives at: .context/inbox.yaml"
 }
@@ -664,7 +512,6 @@ case "${1:-}" in
     triage)     do_triage ;;
     promote)    shift; do_promote "$@" ;;
     dismiss)    shift; do_dismiss "$@" ;;
-    resolve)    shift; do_resolve "$@" ;;
     -h|--help|help)  show_help ;;
     "")         show_help; exit 1 ;;
     -*)

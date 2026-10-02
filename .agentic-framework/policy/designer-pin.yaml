@@ -16,13 +16,13 @@
 # frozen annotated tag = published frozen bytes — 832's working tree stays
 # off-limits.
 
-version: "0.11.0"
-sha256: "4f20b146def45626436e3b3ccc1b049a335254845eeafa755f4760a357dc5a39"
-bytes: 966087
+version: "0.15.0"
+sha256: "fc1880e719b92a8976bffaad1370177202b58ad01b88b66e8093cf20123e65d5"
+bytes: 1063551
 
 source_repo: "832-Workflow-designer"
-source_artifact: "dist/aef-workflow-designer-0.11.0.html"
-source_tag: "designer-v0.11.0"
+source_artifact: "dist/aef-workflow-designer-0.15.0.html"
+source_tag: "designer-v0.15.0"
 source_manifest: "dist/MANIFEST.yaml"                 # 832 side
 # Read-only LAN origin for pull-at-tag intake (T-247/D-335, tooling T-2616).
 # `fw designer sync --from-tag` fetches artifact + MANIFEST at the annotated tag
@@ -141,7 +141,16 @@ protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha25
 #   derived from lane authority (sovereignty→human, initiative/authority→agent);
 #   owner is still serialized in metaKeys for reverse-render laning (O-2), so the
 #   AEF import/reverse-render path is unaffected. (2) T-176 offline-hardening.
-vendored_path: "vendor/designer/aef-workflow-designer-0.11.0.html"
+# T-3584 (2026-09-30): re-pinned 0.13.0 -> 0.14.0 on operator request; announce 832 @20,
+#   verified by pull-at-tag (MANIFEST sha+bytes self-consistent, sha matches the announce).
+#   New in 0.14.0 (832): aefMeta.authority first-class; lane authoring defaults; diagram-kind
+#   marker; instance overlay via an OPTIONAL /api/instances probe. Served statically here, that
+#   probe 404s once in the console by design (absence is a state, not a fault).
+# 832 T-988 (2026-10-01): LOCAL re-pin 0.14.0 -> 0.15.0 on operator request ("full upgrade"),
+#   ahead of AEF's own pin — declared in .vendor-divergence.yaml so a re-vendor cannot drop it
+#   silently. sha+bytes computed independently from the designer-v0.15.0 tag blob and equal to
+#   the MANIFEST at that tag (src_commit 1a179ecb).
+vendored_path: "vendor/designer/aef-workflow-designer-0.15.0.html"
 
 # Offline-hardened (832 T-176): web fonts are embedded as base64 woff2 — ZERO network
 # on load (no fonts.googleapis.com / gstatic fetch). Fully self-contained for

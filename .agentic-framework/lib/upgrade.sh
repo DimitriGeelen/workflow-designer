@@ -396,7 +396,10 @@ _self_vendor_policy() {
     # lib/bvp.sh refusal messages both name by path. Omitting it would point
     # every consumer at a file that is not there — the same docs↔reality gap
     # T-3064 found for designer-pin.yaml, one list entry earlier.
-    for _svp_name in value-drivers.yaml bvp-scoring-rubric.md capability-overlay/tool-set.yaml anti-patterns.yaml escalation-patterns.yaml designer-pin.yaml driver-scoring-example.yaml; do
+    # T-3580 round 5: review-backends.yaml is the ONE worker-kind→vendor mapping the vendored
+    # lib/verdict_ledger.py derives every review dispatch's vendor from (it falls back to
+    # FRAMEWORK_ROOT/policy/, which in a consumer is .agentic-framework/policy/).
+    for _svp_name in value-drivers.yaml bvp-scoring-rubric.md capability-overlay/tool-set.yaml anti-patterns.yaml escalation-patterns.yaml designer-pin.yaml driver-scoring-example.yaml review-backends.yaml; do
         _svp_src="$FRAMEWORK_ROOT/policy/$_svp_name"
         _svp_dst="$_self_vendor/policy/$_svp_name"
         [ -f "$_svp_src" ] || continue
@@ -1721,6 +1724,35 @@ CRONREGEOF
         fi
     fi
 
+    # T-3673: framework-owned cron jobs missing from an existing registry.
+    # Add-only by id — an operator-edited job with the same id is never touched.
+    if [ -f "$target_dir/.context/cron-registry.yaml" ] && [ -f "$FRAMEWORK_ROOT/lib/cron-seed.sh" ]; then
+        source "$FRAMEWORK_ROOT/lib/cron-seed.sh"
+        local _cs_out _cs_line _cs_added=0
+        _cs_out=$(CRON_SEED_DRY_RUN=$([ "$dry_run" = true ] && echo 1) \
+            cron_seed_ensure_jobs "$target_dir/.context/cron-registry.yaml" "$target_dir" 2>&1) || {
+            echo -e "  ${YELLOW}WARN${NC}  Cron registry job merge failed: $_cs_out"
+            _cs_out=""
+        }
+        while IFS= read -r _cs_line; do
+            case "$_cs_line" in
+                ADDED\ *)
+                    _cs_added=$((_cs_added + 1)); changes=$((changes + 1))
+                    if [ "$dry_run" = true ]; then
+                        echo -e "  ${CYAN}WOULD ADD${NC}  cron job ${_cs_line#ADDED }"
+                    else
+                        echo -e "  ${GREEN}ADDED${NC}  cron job ${_cs_line#ADDED }"
+                    fi ;;
+                PRESENT\ *) echo -e "  ${GREEN}OK${NC}  cron job ${_cs_line#PRESENT } already present" ;;
+            esac
+        done <<< "$_cs_out"
+        if [ "$_cs_added" -gt 0 ] && [ "$dry_run" != true ]; then
+            (cd "$target_dir" && PROJECT_ROOT="$target_dir" "$FRAMEWORK_ROOT/bin/fw" cron generate >/dev/null 2>&1) \
+                && echo -e "  ${GREEN}OK${NC}  Cron source regenerated — run 'fw cron install' to deploy" \
+                || echo -e "  ${YELLOW}WARN${NC}  'fw cron generate' failed — run it manually, then 'fw cron install'"
+        fi
+    fi
+
     # ── 3c. BVP policy files (T-2262 / arc-006 Slice 2B) ──
     # Sibling of T-2261's lib/init.sh wiring. Seed BVP-policy files on consumers
     # that pre-date T-2261. Copy-on-missing only — consumer customisation survives.
@@ -1745,6 +1777,30 @@ CRONREGEOF
             echo -e "  ${CYAN}WOULD SEED${NC}  BVP policy files ($bvp_seeded file(s))"
         else
             echo -e "  ${GREEN}SEEDED${NC}  BVP policy files ($bvp_seeded file(s))"
+        fi
+    fi
+
+    # ── 3d. Project objectives authoring task (T-3636, T-3535 IW-3) ──
+    # One authoring moment per project. A consumer with no objectives file and no
+    # objectives-authoring task gets ONE task to write its own. Never a copy of the
+    # framework's objectives.yaml (Directive 4) — that file is this repo's state.
+    local _obj_lib="$FRAMEWORK_ROOT/lib/objectives-seed.sh"
+    [ -f "$_obj_lib" ] || _obj_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/objectives-seed.sh"
+    if [ -f "$_obj_lib" ] && [ -d "$target_dir/.tasks" ]; then
+        # shellcheck source=lib/objectives-seed.sh
+        source "$_obj_lib"
+        if [ "$(fw_objectives_seed_status "$target_dir")" = "needed" ]; then
+            changes=$((changes + 1))
+            if [ "$dry_run" = true ]; then
+                echo -e "  ${CYAN}WOULD SEED${NC}  task: write down this project's objectives (.context/project/objectives.yaml)"
+            else
+                local _obj_task
+                if _obj_task=$(fw_objectives_seed_task "$target_dir" "$FRAMEWORK_ROOT" "$project_name"); then
+                    echo -e "  ${GREEN}SEEDED${NC}  task $(basename "$_obj_task" .md): write down this project's objectives (one time)"
+                else
+                    echo -e "  ${YELLOW}WARN${NC}  could not seed the objectives task — see message above"
+                fi
+            fi
         fi
     fi
 

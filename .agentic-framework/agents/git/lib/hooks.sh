@@ -24,7 +24,7 @@
 # PL-078 still applies: when you change the CONTENT of any hook template below,
 # bump this constant AND the `# VERSION=` literal in the commit-msg heredoc
 # together, so consumers' next install-hooks redeploys all four.
-COMMIT_MSG_HOOK_VERSION="1.15"
+COMMIT_MSG_HOOK_VERSION="1.17"
 
 # T-2813: verify a hook actually landed by reading state back from disk,
 # rather than trusting that the `cat`/`chmod` calls that wrote it didn't
@@ -70,6 +70,7 @@ do_install_hooks() {
     local pre_commit_hook="$hooks_dir/pre-commit"
     local post_commit_hook="$hooks_dir/post-commit"
     local pre_push_hook="$hooks_dir/pre-push"
+    local pre_merge_commit_hook="$hooks_dir/pre-merge-commit"   # T-3511
 
     # Check if hooks exist
     if [ -f "$commit_msg_hook" ] && [ "$force" = false ]; then
@@ -102,7 +103,7 @@ do_install_hooks() {
 # commit-msg hook - Task Reference Enforcement
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.15
+# VERSION=1.17
 
 COMMIT_MSG_FILE="$1"
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
@@ -341,7 +342,7 @@ HOOK_EOF
 #                   + Secret Scan (T-1844)
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.3
+# VERSION=1.4
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -524,11 +525,79 @@ if [ -f "$LARGE_FILE_SCANNER" ]; then
     fi
 fi
 
+# FW-HOOK-BLOCK: t3511-parked-merge (conflicted-merge leg)
+# T-3511. A CONFLICTED merge fires no hook during `git merge`; the resolving
+# `git commit` then fires pre-commit, not pre-merge-commit — measured on git
+# 2.43.0. So the same guard runs from here too, otherwise a parked branch merged
+# with a conflict lands unguarded while the clean-merge case is refused, and the
+# gate's coverage would depend on whether the branches happened to collide.
+# The guard returns immediately unless MERGE_HEAD is present, so an ordinary
+# commit pays a single stat.
+PARKED_GUARD="$FRAMEWORK_ROOT/agents/git/lib/parked-merge-guard.sh"
+if [ -f "$PARKED_GUARD" ]; then
+    PROJECT_ROOT="$PROJECT_ROOT" bash "$PARKED_GUARD" check || exit 1
+fi
+
 exit 0
 HOOK_EOF
 
     chmod +x "$pre_commit_hook"
     _verify_hook_written "$pre_commit_hook" || { install_failed=true; failed_hooks+=("$pre_commit_hook"); }
+
+    # T-3511 (OBS-547 prevention leg): refuse a merge whose source branch's
+    # governing task is deliberately parked.
+    #
+    # A SEPARATE hook and not another block in pre-commit, because git fires
+    # `pre-merge-commit` INSTEAD OF `pre-commit` for a clean merge — measured on
+    # 2.43.0, not assumed. That is the shape the 2026-09-26 incident used, so a
+    # pre-commit-only guard would have been green, tested and unreachable (L-573).
+    # The conflicted-merge shape DOES route through pre-commit, which is why the
+    # same guard is invoked from both; it self-limits by checking MERGE_HEAD first,
+    # so an ordinary commit pays one stat.
+    cat > "$pre_merge_commit_hook" << 'HOOK_EOF'
+#!/bin/bash
+# pre-merge-commit hook - Parked-branch merge guard (T-3511)
+# Installed by: ./agents/git/git.sh install-hooks
+# Part of: Agentic Engineering Framework
+# VERSION=1.0
+
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+
+# Resolve FRAMEWORK_ROOT — framework / consumer / vendored layouts.
+FRAMEWORK_ROOT="$PROJECT_ROOT"
+if [ -f "$PROJECT_ROOT/.framework.yaml" ]; then
+    _fw_path=$(grep "^framework_path:" "$PROJECT_ROOT/.framework.yaml" 2>/dev/null | sed 's/framework_path:[[:space:]]*//')
+    [ -n "$_fw_path" ] && [ -d "$_fw_path" ] && FRAMEWORK_ROOT="$_fw_path"
+fi
+[ ! -f "$FRAMEWORK_ROOT/agents/git/lib/parked-merge-guard.sh" ] \
+    && [ -f "$PROJECT_ROOT/.agentic-framework/agents/git/lib/parked-merge-guard.sh" ] \
+    && FRAMEWORK_ROOT="$PROJECT_ROOT/.agentic-framework"
+
+# T-2061 bash-invoke pattern: gate on -f and run via `bash`, so a vendored copy
+# that landed without the exec bit still runs.
+PARKED_GUARD="$FRAMEWORK_ROOT/agents/git/lib/parked-merge-guard.sh"
+if [ -f "$PARKED_GUARD" ]; then
+    PROJECT_ROOT="$PROJECT_ROOT" bash "$PARKED_GUARD" check || exit 1
+elif [ -f "$PROJECT_ROOT/.framework.yaml" ] || [ -d "$PROJECT_ROOT/.tasks" ]; then
+    # Degrade to ALLOW, but never silently (T-2647). The guard itself has a loud
+    # degradation path, and it is UNREACHABLE when the guard file is the thing
+    # missing — so the message has to exist here too. Found by the T-3511 suite's
+    # broken-framework_path test, which passed the merge and said nothing.
+    #
+    # Scoped to projects that declare a framework or carry a task corpus: a plain
+    # git repo with neither has nothing to guard, and warning there on every merge
+    # is the noise that trains people to stop reading hook output.
+    echo "WARNING: parked-branch merge guard is NOT running (T-3511) — not found at:" >&2
+    echo "  $PARKED_GUARD" >&2
+    echo "Merges of deliberately-parked branches are unguarded in this repo." >&2
+    echo "Fix: cd $PROJECT_ROOT && bin/fw upgrade   (framework repo: bin/fw vendor self)" >&2
+fi
+
+exit 0
+HOOK_EOF
+
+    chmod +x "$pre_merge_commit_hook"
+    _verify_hook_written "$pre_merge_commit_hook" || { install_failed=true; failed_hooks+=("$pre_merge_commit_hook"); }
 
     # Create post-commit hook for bypass detection + context checkpoint
     cat > "$post_commit_hook" << 'HOOK_EOF'
@@ -688,10 +757,10 @@ HOOK_EOF
     # Create pre-push hook for audit enforcement
     cat > "$pre_push_hook" << 'HOOK_EOF'
 #!/bin/bash
-# pre-push hook - Audit Enforcement + lightweight-tag rejection + VERSION monotonicity + self-vendor drift (T-1593, T-1603, T-1829, T-2240, T-3125, T-3126, T-3297)
+# pre-push hook - Audit Enforcement + forced-update guard + lightweight-tag rejection + VERSION monotonicity + self-vendor drift (T-1593, T-1603, T-1829, T-2240, T-3125, T-3126, T-3297, T-3594)
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.8
+# VERSION=1.9
 
 # T-1603: VERSION monotonicity check.
 # Origin: T-1602 surfaced silent VERSION rollback in cc38e98f5 (1.5.463 → 1.5.19,
@@ -708,6 +777,98 @@ _block_lines=""
 # Need to capture stdin once; tee to FD 9 so the lightweight-tag loop below
 # can re-read it via /dev/fd/9 (mkfifo not portable enough across hosts).
 _stdin_buf=$(cat)
+
+# T-3594 (T-3576 GO): forced ref updates and ref deletions need a Tier 0 ACTION
+# approval (T-3593) — enforced HERE, at the ref level, so it holds for any push
+# that runs this hook: typed, `bash push.sh`, make, python. The PreToolUse text
+# gate only sees typed commands (T-2742); this hook sees what git is about to do.
+#   delete         local sha all zeros                      → branch-delete
+#   new ref        remote sha all zeros                     → allowed
+#   tag moved      refs/tags/*, remote sha not all zeros    → force-push (git
+#                  treats every tag update as forced; is-ancestor would peel the
+#                  old tag and read a moved release tag as a fast-forward)
+#   fast-forward   remote sha is an ancestor of local sha   → allowed
+#   anything else  (incl. remote sha unknown locally)       → force-push
+# A matching approval (same verb, same ref, same remote) is consumed and logged;
+# otherwise the whole push is refused and a pending request is written for
+# `fw tier0 approve`. Fails CLOSED when the approval module cannot be found.
+# LIMIT, stated plainly: any path that skips client-side hooks skips this one
+# too — `git push --no-verify`, a `core.hooksPath` override (`git -c
+# core.hooksPath=… push`, an included file, or a config file selected by HOME,
+# XDG_CONFIG_HOME, GIT_CONFIG_GLOBAL/SYSTEM, or carried by GIT_CONFIG_PARAMETERS
+# / GIT_CONFIG_COUNT), another repo's own config (-C, --git-dir, GIT_DIR), and
+# ref updates through plumbing (`git send-pack`) or a forge API. Typed, the text
+# gate labels --no-verify and the hooksPath/config-file overrides HOOK BYPASS
+# (T-3593 round 4; CLAUDE.md lists exactly which); inside a script none is seen. Server-side branch and tag protection is
+# the stronger control and is the operator's decision.
+_t3594_root="$(git rev-parse --show-toplevel 2>/dev/null)"
+_t3594_remote="${1:-}"
+_t3594_args=""
+_t3594_lines=""
+while IFS=' ' read -r _l_ref _l_sha _r_ref _r_sha; do
+    [ -z "$_l_ref" ] && continue
+    _verb=""
+    if [ "$_l_sha" = "$_zero" ]; then
+        [ "$_r_sha" = "$_zero" ] && continue
+        _verb="branch-delete"
+    elif [ "$_r_sha" = "$_zero" ] || [ "$_l_sha" = "$_r_sha" ]; then
+        continue
+    elif [ "${_r_ref#refs/tags/}" != "$_r_ref" ]; then
+        _verb="force-push"                          # T-3594 A1: a tag was moved
+    elif git cat-file -e "$_r_sha" 2>/dev/null \
+         && git merge-base --is-ancestor "$_r_sha" "$_l_sha" 2>/dev/null; then
+        continue
+    else
+        _verb="force-push"
+    fi
+    _t3594_args="${_t3594_args} ${_verb} ${_r_ref}"
+    _t3594_lines="${_t3594_lines}${_t3594_lines:+
+}  ${_verb}: ${_r_ref} on remote '${_t3594_remote}'"
+done <<EOF
+${_stdin_buf}
+EOF
+if [ -n "$_t3594_args" ]; then
+    _t3594_py=""
+    _t3594_fwp=$(grep "^framework_path:" "$_t3594_root/.framework.yaml" 2>/dev/null | sed 's/framework_path:[[:space:]]*//')
+    for _c in "${_t3594_fwp:+$_t3594_fwp/lib/tier0_action.py}" \
+              "$_t3594_root/.agentic-framework/lib/tier0_action.py" \
+              "$_t3594_root/lib/tier0_action.py"; do
+        [ -n "$_c" ] && [ -f "$_c" ] && { _t3594_py="$_c"; break; }
+    done
+    _t3594_fw="fw"
+    if [ -x "$_t3594_root/bin/fw" ]; then _t3594_fw="bin/fw"
+    elif [ -x "$_t3594_root/.agentic-framework/bin/fw" ]; then _t3594_fw=".agentic-framework/bin/fw"; fi
+    # shellcheck disable=SC2086  # _t3594_args is a verb/ref word list by construction
+    if [ -n "$_t3594_py" ] && _t3594_ok=$(PROJECT_ROOT="$_t3594_root" python3 "$_t3594_py" prepush "$_t3594_remote" $_t3594_args 2>&1); then
+        echo "Tier 0 action approval consumed (T-3594):" >&2
+        printf '%s\n' "$_t3594_ok" | sed 's/^/  /' >&2
+    else
+        echo "" >&2
+        echo "ERROR: Push blocked — forced update or ref deletion without a Tier 0 approval (T-3594):" >&2
+        printf '%s\n' "$_t3594_lines" >&2
+        echo "" >&2
+        if [ -z "$_t3594_py" ]; then
+            echo "  The approval module (lib/tier0_action.py) was not found, so no approval" >&2
+            echo "  can be checked — refusing (fail closed). Run 'fw upgrade' / 'fw vendor'." >&2
+        else
+            echo "  This is enforced at git pre-push, so it applies however the push was" >&2
+            echo "  launched (typed, script, make). A request has been recorded; to approve" >&2
+            echo "  it, the operator (human-only) runs:" >&2
+            echo "    cd $_t3594_root && $_t3594_fw tier0 approve" >&2
+            echo "  then push again. One approval covers one ref update, once, for a bounded time." >&2
+        fi
+        echo "" >&2
+        echo "  Limit: any path that skips client-side hooks skips this one too —" >&2
+        echo "  'git push --no-verify', a core.hooksPath override (-c, an included file, or" >&2
+        echo "  a config file chosen by HOME / XDG_CONFIG_HOME / GIT_CONFIG_*), plumbing (send-pack) or" >&2
+        echo "  forge-API ref updates. Typed, --no-verify and core.hooksPath are Tier 0;" >&2
+        echo "  inside a script none of them is seen. Server-side branch and tag" >&2
+        echo "  protection (e.g. OneDev) is the stronger control — an operator decision." >&2
+        echo "" >&2
+        exit 1
+    fi
+fi
+
 while IFS=' ' read -r _local_ref _local_sha _remote_ref _remote_sha; do
     [ -z "$_local_ref" ] && continue
     # Skip deletions (local_sha is all zeros)
@@ -1351,7 +1512,7 @@ HOOK_EOF
     # it exists and is executable — a hook whose write failed is reported as
     # a failure, never silently folded into a success banner.
     if [ "$install_failed" = true ]; then
-        echo -e "${RED}ERROR: hook installation failed — ${#failed_hooks[@]} of 4 hook(s) were not written:${NC}" >&2
+        echo -e "${RED}ERROR: hook installation failed — ${#failed_hooks[@]} of 5 hook(s) were not written:${NC}" >&2
         echo "" >&2
         for _fh in "${failed_hooks[@]}"; do
             echo "  - $_fh" >&2
@@ -1399,7 +1560,12 @@ Options:
 
 Installs:
   - commit-msg hook: Validates task reference in commit message
+  - pre-commit hook: Master-merge-only guard, task-corpus guard, secret scan,
+                     and the parked-branch merge guard's conflicted-merge leg
   - post-commit hook: Detects bypasses and reminds to log them
+  - pre-merge-commit hook: Refuses a merge whose source branch's governing task
+                     is parked (T-3511). Does NOT fire on a fast-forward — git
+                     creates no commit there, so that shape is unguarded.
   - pre-push hook: Runs audit before push (blocks on FAIL, and on could-not-run)
 
 The hooks enforce task traceability (P-002: Structural Enforcement).

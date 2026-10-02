@@ -182,8 +182,36 @@ _project_root_is_stale() {
         canon_home="$(cd "$HOME" 2>/dev/null && pwd -P)" || canon_home="$HOME"
         [ "$canon_pr" = "$canon_home" ] && return 0
     fi
+    # T-3645 (ported from 055-agentic-fleet-cockpit T-349, pickup P-008): the home
+    # from the password database, for hook environments where HOME is unset or points
+    # elsewhere. A home carrying framework markers (/root/.framework.yaml, /root/.tasks)
+    # is never the project a hook is guarding.
+    _passwd_home_canon
+    [ -n "$_FW_PASSWD_HOME" ] && [ "$(cd "$pr" 2>/dev/null && pwd -P)" = "$_FW_PASSWD_HOME" ] && return 0
     [ -f "$pr/.framework.yaml" ] || [ -d "$pr/.tasks" ] || return 0   # no marker → stale
     return 1                            # real project root, not $HOME → keep (env wins)
+}
+
+# T-3645: canonical passwd home of the current uid, looked up once per process
+# into _FW_PASSWD_HOME (call without $(...) so the cache survives). getent first
+# (no interpreter start-up on every hook call); python3 where getent is absent
+# (macOS). Empty when neither resolves.
+_FW_PASSWD_HOME=""
+_FW_PASSWD_HOME_DONE=0
+_passwd_home_canon() {
+    [ "$_FW_PASSWD_HOME_DONE" -eq 0 ] || return 0
+    _FW_PASSWD_HOME_DONE=1
+    local h=""
+    if command -v getent >/dev/null 2>&1; then
+        h="$(getent passwd "$(id -u)" 2>/dev/null | cut -d: -f6)" || h=""
+    fi
+    if [ -z "$h" ]; then
+        h="$(python3 -c 'import os,pwd; print(pwd.getpwuid(os.getuid()).pw_dir)' 2>/dev/null)" || h=""
+    fi
+    if [ -n "$h" ]; then
+        _FW_PASSWD_HOME="$(cd "$h" 2>/dev/null && pwd -P)" || _FW_PASSWD_HOME=""
+    fi
+    return 0
 }
 
 # Resolve PROJECT_ROOT
@@ -232,6 +260,18 @@ if [ -z "${PROJECT_ROOT:-}" ] || _project_root_is_stale "${PROJECT_ROOT:-}"; the
         unset _cwd_root
     else
         PROJECT_ROOT=$(find_project_root) || true
+        # T-3645 (ported from 055 T-349): the walk result gets the same staleness test
+        # as an inherited root. When it lands on a home (stale) and this fw is a
+        # vendored copy inside a real project, that project is the one being guarded.
+        if [ -n "${PROJECT_ROOT:-}" ] && _project_root_is_stale "$PROJECT_ROOT"; then
+            _vendor_dir="$(cd "$FW_BIN_DIR/.." 2>/dev/null && pwd)"
+            _vendor_parent="$(dirname "$_vendor_dir")"
+            if [ "$(basename "$_vendor_dir")" = ".agentic-framework" ] && \
+               { [ -f "$_vendor_parent/.framework.yaml" ] || [ -d "$_vendor_parent/.tasks" ]; }; then
+                PROJECT_ROOT="$_vendor_parent"
+            fi
+            unset _vendor_dir _vendor_parent
+        fi
     fi
 fi
 
@@ -1302,7 +1342,9 @@ show_help() {
     echo -e "${BOLD}Utility:${NC}"
     echo -e "  ${GREEN}plugin-audit${NC}          Audit plugins for task-system awareness"
     echo -e "  ${GREEN}ux-review${NC} <url>       Browser-driving UX review of an interactive render surface"
+    echo -e "  ${GREEN}review${NC} cost|propose|approve|backend  Review/dispatch cost ledger and paid-backend approvals (T-3583, T-3586)"
     echo -e "  ${GREEN}gpu${NC} <cmd>             GPU coordination (recover)"
+    echo -e "  ${GREEN}whoami${NC} ${CYAN}[--register]${NC} Which project this is (id, name, root) and which instance you are"
     echo -e "  ${GREEN}gaps${NC}                 Show spec-reality gaps being watched"
     echo -e "  ${GREEN}provisions${NC} ${CYAN}[--tail N]${NC} Show the auto-provision audit trail (arc-020 S7)"
     echo -e "  ${GREEN}traceability${NC} baseline Set traceability baseline (imported projects)"
@@ -1750,7 +1792,7 @@ do_doctor() {
     # lib/paths.sh (see T-2466 note above), so this is inlined rather than shared
     # with agents/git/lib/common.sh's resolve_git_hooks_dir.
     local hooks_dir
-    hooks_dir=$(git -C "$PROJECT_ROOT" rev-parse --git-path hooks 2>/dev/null)
+    hooks_dir=$(git -C "$PROJECT_ROOT" rev-parse --git-path hooks 2>/dev/null) || hooks_dir=""  # T-3625: not a git repo -> fallback below
     case "$hooks_dir" in
         /*) ;;
         "") hooks_dir="$PROJECT_ROOT/.git/hooks" ;;
@@ -2368,21 +2410,21 @@ PY
     # project has no .tasks/active.
     local _del_cli="${FRAMEWORK_ROOT:-$PROJECT_ROOT}/lib/delegation_cli.py"
     if [ -f "$_del_cli" ] && [ -d "$PROJECT_ROOT/.tasks/active" ]; then
-        local _del_thr _del_facts _del_level _del_rc _del_as _del_oo _del_tasks _del_list
+        local _del_thr _del_facts _del_level _del_rc _del_rj _del_as _del_oo _del_tasks _del_list
         _del_thr=$(fw_config_int DELEGATION_SURFACE_WARN 2>/dev/null || echo 50)
         _del_facts=$(PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="${FRAMEWORK_ROOT:-$PROJECT_ROOT}" \
                      PYTHONPATH="${FRAMEWORK_ROOT:-$PROJECT_ROOT}" \
                      FW_DELEGATION_SURFACE_WARN="$_del_thr" \
                      python3 -m lib.delegation_cli surface --facts 2>/dev/null || true)
         if [ -n "$_del_facts" ]; then
-            IFS=$'\t' read -r _del_level _del_rc _del_as _del_oo _del_tasks _del_thr _del_list <<< "$_del_facts"
+            IFS=$'\t' read -r _del_level _del_rc _del_rj _del_as _del_oo _del_tasks _del_thr _del_list <<< "$_del_facts"
             if [ "${_del_level:-}" = "WARN" ]; then
-                echo -e "  ${YELLOW}WARN${NC}  Delegation surface: 0 reviewer-closeable criteria while $_del_oo are operator-only (threshold $_del_thr)"
+                echo -e "  ${YELLOW}WARN${NC}  Delegation surface: 0 reviewer-closeable or reviewer-judges criteria while $_del_oo are operator-only (threshold $_del_thr)"
                 echo -e "         $_del_tasks active task(s) with open Human criteria — the D-626 delegation reaches nothing"
                 echo -e "         Run: bin/fw reviewer surface"
                 warnings=$((warnings + 1))
             elif [ -n "${_del_level:-}" ]; then
-                echo -e "  ${GREEN}OK${NC}  Delegation surface: reviewer-closeable $_del_rc, agent-self $_del_as, operator-only $_del_oo (across $_del_tasks active task(s))"
+                echo -e "  ${GREEN}OK${NC}  Delegation surface: reviewer-closeable $_del_rc, reviewer-judges $_del_rj, agent-self $_del_as, operator-only $_del_oo (across $_del_tasks active task(s))"
                 [ -n "${_del_list:-}" ] && echo -e "         delegable now: $_del_list — bin/fw task delegate <id> --dry-run"
             fi
         fi
@@ -2764,6 +2806,13 @@ PY
             local _bs_tokens=""
             local _bs_f="$PROJECT_ROOT/.context/working/.budget-status"
             [ -f "$_bs_f" ] && _bs_tokens=$(grep -o '"tokens"[[:space:]]*:[[:space:]]*[0-9]*' "$_bs_f" 2>/dev/null | grep -o '[0-9]*$' || true)
+            # T-3598: the cache is shared by every Claude process in the project;
+            # do not print another session's figure as this one's budget.
+            local _bs_csid=""
+            [ -f "$_bs_f" ] && _bs_csid=$(grep -o '"claude_session_id"[[:space:]]*:[[:space:]]*"[^"]*"' "$_bs_f" 2>/dev/null | sed 's/.*"\([^"]*\)"$/\1/' || true)
+            if [ -n "$_bs_csid" ] && [ -n "${CLAUDE_CODE_SESSION_ID:-}" ] && [ "$_bs_csid" != "$CLAUDE_CODE_SESSION_ID" ]; then
+                _bs_tokens=""
+            fi
             echo -e "  ${YELLOW}WARN${NC}  Unsupervised session (not under claude-fw) — budget auto-restart will NOT fire"
             if [ -n "$_bs_tokens" ]; then
                 echo -e "         Current budget: ${_bs_tokens} tokens"
@@ -3357,6 +3406,31 @@ sys.exit(0 if '$_tl_topic' in names else 1)
                     warnings=$((warnings + 1))
                 done <<< "$_dm_rows"
             fi
+
+            # T-3544/OBS-567: the same question asked of the INBOUND consult
+            # inbox, which is the rail peers are actually told to use and the
+            # one both of the incidents above arrived on. 832 waited six days;
+            # 010-termlink found 49 of ours unread on their side and called
+            # consumption "the gap, and it is ours". Same fact-function
+            # contract, same WARN shape, deliberately not a second idiom.
+            local _ib_rows _ib_rc
+            _ib_rows=$(fw_sidecar_inbox_stale_facts "$PROJECT_ROOT" "$(fw_config SIDECAR_CONSULT_WARN_HOURS)"); _ib_rc=$?
+            if [ "$_ib_rc" -eq 2 ]; then
+                _doctor_warn_host "Consult-inbox backlog check could not run (fw sidecar inbox-stale --json produced no readable output)"
+            elif [ "$_ib_rc" -eq 0 ] && [ -n "$_ib_rows" ]; then
+                local _ib_topic _ib_unread _ib_age _ib_from _ib_age_disp
+                while IFS=$'\t' read -r _ib_topic _ib_unread _ib_age _ib_from; do
+                    [ -z "$_ib_topic" ] && continue
+                    if [ "$_ib_age" = "unknown" ]; then
+                        _ib_age_disp="age unknown"
+                    else
+                        _ib_age_disp=$(awk -v h="$_ib_age" 'BEGIN{if (h>=48) printf "%.1fd", h/24; else printf "%.0fh", h}')
+                    fi
+                    echo -e "  ${YELLOW}WARN${NC}  $_ib_unread unread consult(s) on $_ib_topic, oldest $_ib_age_disp from $_ib_from"
+                    echo "         A peer is waiting. Run: fw sidecar inbox --peek to read without draining, then fw sidecar inbox to drain"
+                    warnings=$((warnings + 1))
+                done <<< "$_ib_rows"
+            fi
         fi
         fi  # T-2452/F6-style --quick guard
     else
@@ -3867,11 +3941,27 @@ print(sum(1 for e in entries if (e.get('status') or 'pending') == 'pending'))
     if [ -f "$cron_registry" ] && [ "$_fw_is_wt" = "1" ]; then
         echo -e "  ${CYAN}SKIP${NC}  Cron drift checks skipped — linked worktree (cron is host-level, managed from the main checkout)"
     elif [ -f "$cron_registry" ] && [ "$(cron_registry_job_count "$cron_registry")" = "0" ]; then
-        # T-2844: `fw init` seeds `jobs: []`. An empty registry has no generated
-        # form, so "not generated" is correct rather than drift — every freshly
-        # initialised project used to WARN here. A malformed registry returns -1,
-        # not 0, and falls through to the checks below on purpose.
-        echo -e "  ${CYAN}SKIP${NC}  Cron drift checks skipped — registry declares no jobs (nothing to generate)"
+        # T-2844: `fw init` seeds `jobs: []`. A freshly initialised project has no
+        # deployed target either, so "not generated" reads correctly as "nothing
+        # to generate" — SKIP. T-3161: but `jobs: []` with a deployed target
+        # PRESENT is not fresh init, it is an unmigrated legacy-lane project with
+        # a live crontab the registry knows nothing about (G-088 / 001-CashWeb).
+        # That state must be loud, not silent — WARN, and name the trap directly
+        # rather than the generic "run fw cron install" (that command is what
+        # erases the very jobs this WARN exists to protect). A malformed registry
+        # returns -1, not 0, and falls through to the checks below either way.
+        _t3161_target_dir="${FW_CRON_INSTALL_DIR:-/etc/cron.d}"
+        _t3161_slug=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')
+        _t3161_target="$_t3161_target_dir/agentic-audit-${_t3161_slug}"
+        if [ -f "$_t3161_target" ]; then
+            echo -e "  ${YELLOW}WARN${NC}  Cron registry declares no jobs but a deployed crontab exists at $_t3161_target"
+            echo -e "        This looks like an unmigrated legacy install, not a fresh project."
+            echo -e "        Do NOT run 'fw cron install' yet — populate .context/cron-registry.yaml"
+            echo -e "        jobs: to match $_t3161_target first, or that command will refuse (T-3161)."
+            warnings=$((warnings + 1))
+        else
+            echo -e "  ${CYAN}SKIP${NC}  Cron drift checks skipped — registry declares no jobs (nothing to generate)"
+        fi
     elif [ -f "$cron_registry" ]; then
         local cron_source="$PROJECT_ROOT/.context/cron/agentic-audit.crontab"
         local cron_target_dir="${FW_CRON_INSTALL_DIR:-/etc/cron.d}"
@@ -5652,6 +5742,57 @@ PYREID
 cmd="${1:-}"
 shift || true
 
+# T-3499 (BVP loop S6, arc-006): per-verb invocation counter — the usage leg of
+# the VALUE axis in docs/architecture/bvp-feedback-loop.md.
+#
+# WHY HERE, and not anywhere tidier: most branches of the case below call `exec`,
+# which replaces this process. A counter placed after the dispatch would never
+# run for the majority of verbs. This point — after $cmd is known, before the
+# case — is the only place that sees every invocation exactly once.
+#
+# `hook` is EXCLUDED on purpose. Hook dispatch is already counted per-hook in
+# .hook-counter by lib/hook-telemetry.sh, and it is by far the hottest path
+# (budget-gate alone has fired 8970 times), so counting it here would pay the
+# telemetry cost twice on the most frequent invocation and add no new signal.
+#
+# The key is pattern-guarded because the counter is a flat `key=count` file:
+# `fw 'foo=bar'` would otherwise write a line that reads back as a different key
+# with a corrupt count. Anything not verb-shaped is simply not counted.
+#
+# The guard is a NEGATED class (`*[!a-z0-9-]*` → reject), not an allow-pattern.
+# The obvious-looking `[a-z][a-z0-9-]*` does NOT work here and was measured
+# failing: in a shell `case` glob, `*` matches any characters, it is not a repeat
+# of the preceding bracket class the way a regex `*` would be. So
+# `[a-z][a-z0-9-]*` matched `evil=injected` — the `*` absorbed `=injected` — and
+# wrote a corrupt line straight into the live counter. Glob is not regex.
+#
+# Reuses _fw_telemetry_increment rather than a second hand-rolled
+# read-modify-write. That is not politeness about duplication — a naive RMW loses
+# increments catastrophically under concurrency (T-3371/OBS-417 measured 1600
+# expected vs 17 recorded, 98.9% lost, with keys vanishing entirely). This file
+# is invoked concurrently by dispatched workers as a matter of routine.
+#
+# Fail-open on every path: `|| true` plus silenced output, so telemetry can never
+# change fw's exit code or print anything. lib/hook-telemetry.sh states the same
+# rule for hooks — a lossy counter is bad, a wedged gate is worse. Here the stakes
+# are higher: this is the entry point for every framework command.
+if [ "${FW_VERB_TELEMETRY:-1}" != "0" ] \
+    && [ "$cmd" != "hook" ] \
+    && [ -n "${PROJECT_ROOT:-}" ] \
+    && [ -d "$PROJECT_ROOT/.context/working" ] \
+    && [ -f "$FW_LIB_DIR/hook-telemetry.sh" ]; then
+    case "$cmd" in
+        *[!a-z0-9-]*) : ;;   # contains a char no verb has — do not count
+        ?*)
+            # shellcheck source=../lib/hook-telemetry.sh
+            { source "$FW_LIB_DIR/hook-telemetry.sh" \
+                && _fw_telemetry_increment \
+                    "$PROJECT_ROOT/.context/working/.verb-counter" "$cmd"; } \
+                >/dev/null 2>&1 || true
+            ;;
+    esac
+fi
+
 case "$cmd" in
     ask)
         exec "$FW_LIB_DIR/ask.sh" "$@"
@@ -5666,6 +5807,10 @@ case "$cmd" in
             echo "  fw reviewer T-XXX [--json] [--no-write]                      Scan one task (inline)"
             echo "  fw reviewer T-XXX --dispatch [--timeout N] [--json]         Scan via isolated TermLink worker (T-1951)"
             echo "  fw reviewer surface [--json] [--warn-threshold N]           Delegation surface (D-626 / T-3445)"
+            echo "  fw reviewer judge T-XXX [--criterion N] [--dry-run]              Dispatch independent reviewer on criterion (T-3580)"
+            echo "  fw reviewer verdict record T-XXX --ac N --outcome green|amber|red|escalate --reviewer ID --rung R --dispatch-id ID --digest D"
+            echo "                    [--guidance '...'] [--evidence PATH]... [--digest D]   (T-3579)"
+            echo "  fw reviewer verdict apply|check-render|list|digest|audit          Independent verdict ledger"
             echo "  fw reviewer audit [--pass-a [--baseline [--force]] | --pass-b]"
             echo "                    [--limit N] [--quiet] [--timeout N]"
             echo "                                                               Layer 3 daily corpus re-scan"
@@ -5724,6 +5869,21 @@ case "$cmd" in
                 PYTHONPATH="$FRAMEWORK_ROOT" \
                 FW_DELEGATION_SURFACE_WARN="$(fw_config_int DELEGATION_SURFACE_WARN)" \
                 python3 -m lib.delegation_cli surface "$@"
+        fi
+        # T-3580 (T-3557 slice 3): dispatch independent reviewer on REVIEWER_JUDGES criteria
+        if [ "${1:-}" = "judge" ]; then
+            shift
+            exec env PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" \
+                PYTHONPATH="$FRAMEWORK_ROOT" \
+                python3 -m lib.reviewer.judge_cli "$@"
+        fi
+        # T-3579 (T-3557 slice 2): an independent reviewer's recorded verdict — the
+        # writer slice 3 (`fw reviewer judge`) calls. record | apply | check-render | list.
+        if [ "${1:-}" = "verdict" ]; then
+            shift
+            exec env PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" \
+                PYTHONPATH="$FRAMEWORK_ROOT" \
+                python3 -m lib.verdict_ledger "$@"
         fi
         if [ "${1:-}" = "audit" ]; then
             shift
@@ -6435,6 +6595,45 @@ print(f'  Run \"fw cron generate\" to update the crontab file')
                 _cron_target_dir="${FW_CRON_INSTALL_DIR:-/etc/cron.d}"
                 _cron_slug=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')
                 _cron_target="$_cron_target_dir/agentic-audit-${_cron_slug}"
+
+                # T-3161: refuse before touching anything (source OR target) when the
+                # deployed target exists but was not produced by the registry-driven
+                # lane. Without this, a project still on the legacy heredoc lane with
+                # `jobs: []` gets both files silently replaced with a header-only
+                # crontab (G-088 / 001-CashWeb field report). The marker check is the
+                # single source of truth in lib/cron-registry.sh, shared with doctor
+                # and audit's WARN-vs-SKIP split below.
+                source "$FRAMEWORK_ROOT/lib/cron-registry.sh"
+                if [ -f "$_cron_target" ] && ! cron_target_has_registry_marker "$_cron_target"; then
+                    if [ -n "${FW_CRON_ALLOW_UNMIGRATED_OVERWRITE:-}" ]; then
+                        _t3161_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+                        _t3161_log_dir="$PROJECT_ROOT/.context/working"
+                        mkdir -p "$_t3161_log_dir" 2>/dev/null || true
+                        {
+                            echo "- timestamp: '$_t3161_ts'"
+                            echo "  task: 'T-3161'"
+                            echo "  flag: 'FW_CRON_ALLOW_UNMIGRATED_OVERWRITE=1'"
+                            echo "  caller: 'fw cron install'"
+                            printf "  target: '%s'\n" "$_cron_target"
+                            echo "  reason: 'unmigrated-target overwrite bypass (T-3161)'"
+                        } >> "$_t3161_log_dir/.gate-bypass-log.yaml" 2>/dev/null || true
+                        echo -e "${YELLOW}WARN:${NC} overwriting unmigrated target $_cron_target (FW_CRON_ALLOW_UNMIGRATED_OVERWRITE=1) — logged Tier-2" >&2
+                    else
+                        echo -e "${RED}ERROR:${NC} $_cron_target exists but was not generated by this registry (no 'managed by cron-registry.yaml' header)." >&2
+                        echo "" >&2
+                        echo "This looks like an unmigrated legacy install — installing now would replace it" >&2
+                        echo "with whatever .context/cron-registry.yaml currently declares, which may be" >&2
+                        echo "empty ('jobs: []') relative to what is actually deployed and running." >&2
+                        echo "" >&2
+                        echo "To migrate: populate .context/cron-registry.yaml with jobs: matching the" >&2
+                        echo "schedule already deployed at $_cron_target, then re-run 'fw cron install'." >&2
+                        echo "" >&2
+                        echo "If you are certain overwriting is safe, bypass with:" >&2
+                        echo "  FW_CRON_ALLOW_UNMIGRATED_OVERWRITE=1 fw cron install" >&2
+                        echo "(logged Tier-2 to .context/working/.gate-bypass-log.yaml)" >&2
+                        exit 1
+                    fi
+                fi
 
                 # Step 1: regenerate crontab from registry (re-using fw cron generate logic)
                 if ! "$0" cron generate >/dev/null; then
@@ -7403,15 +7602,6 @@ EOF
         # Pairs with TermLink T-1636 (inbox.queued emitter, hub-side).
         exec python3 "$FW_LIB_DIR/peer.py" "$@"
         ;;
-    external)
-        # 832 T-887: external-consult — the UNCORRELATED counterpart to `peer`.
-        # `peer` and `sidecar` consult the TermLink mesh, where every responder
-        # is a Claude sharing one cohort identity, so a peer consult cannot
-        # catch a failure mode the lineage shares. This asks differently-trained
-        # models for the STRONGEST OBJECTION, and records it as a named,
-        # rescannable artifact. Local G-008 divergence pending upstream.
-        exec python3 "$FW_LIB_DIR/external_consult.py" "$@"
-        ;;
     sidecar)
         # T-3406 / arc-011 peer-consult sidecar: send a consult to a peer
         # agent and read consults addressed to this one. Wraps the outbox
@@ -7696,6 +7886,45 @@ DEPLOYEOF
             approve)
                 PENDING_FILE="$PROJECT_ROOT/.context/working/.tier0-approval.pending"
                 APPROVAL_FILE="$PROJECT_ROOT/.context/working/.tier0-approval"
+                ACTION_PENDING="$PROJECT_ROOT/.context/working/.tier0-action.pending.json"
+                T0_ACTION_PY="$FRAMEWORK_ROOT/lib/tier0_action.py"
+                # T-3593: human-only, structurally. An agent approving its own
+                # Tier 0 block is the exact authority the gate withholds.
+                _t0_human=false
+                for _t0_arg in "$@"; do [ "$_t0_arg" = "--i-am-human" ] && _t0_human=true; done
+                if [ "${CLAUDECODE:-}" = "1" ] && [ "$_t0_human" != true ]; then
+                    echo -e "${RED}Refused: 'fw tier0 approve' is human-only (CLAUDECODE=1).${NC}" >&2
+                    _t0_fw="fw"
+                    if [ -x "$PROJECT_ROOT/bin/fw" ]; then _t0_fw="bin/fw"
+                    elif [ -x "$PROJECT_ROOT/.agentic-framework/bin/fw" ]; then _t0_fw=".agentic-framework/bin/fw"; fi
+                    echo "An agent may not approve its own Tier 0 action. Ask the operator to run:" >&2
+                    echo "  cd $PROJECT_ROOT && $_t0_fw tier0 approve" >&2
+                    exit 1
+                fi
+                if [ -f "$ACTION_PENDING" ] && [ -f "$T0_ACTION_PY" ]; then
+                    echo -e "${BOLD}Tier 0 Approval — action(s)${NC}"
+                    echo ""
+                    echo "  You are approving, each ONCE, for ${TIER0_TTL_HUMAN} (${TIER0_TTL_RESOLVED}s):"
+                    PROJECT_ROOT="$PROJECT_ROOT" python3 "$T0_ACTION_PY" pending-show | sed 's/^/    - /'
+                    echo ""
+                    echo "  A retry in the same plain shape (flag order, spacing, a cd prefix)"
+                    echo "  matches; a different ref, remote, branch or path does not."
+                    echo ""
+                    _t0_override=""
+                    [ "$_t0_human" = true ] && _t0_override="--i-am-human"
+                    # shellcheck disable=SC2086  # empty or one flag, by construction
+                    if ! _t0_hash=$(PROJECT_ROOT="$PROJECT_ROOT" python3 "$T0_ACTION_PY" approve-pending "$TIER0_TTL_RESOLVED" $_t0_override 2>&1 >/dev/null); then
+                        echo -e "${RED}Approval failed — nothing was approved:${NC} ${_t0_hash}" >&2
+                        exit 1
+                    fi
+                    _t0_hash=$(printf '%s\n' "$_t0_hash" | tail -1)
+                    # The same block's legacy hash request is superseded by the action approval.
+                    if [ -f "$PENDING_FILE" ] && [ -n "$_t0_hash" ] && [ "$(awk '{print $1}' "$PENDING_FILE")" = "$_t0_hash" ]; then
+                        rm -f "$PENDING_FILE"
+                    fi
+                    echo -e "${GREEN}Approved.${NC} Logged to .context/working/tier0-action-events.jsonl. Retry now."
+                    exit 0
+                fi
                 if [ ! -f "$PENDING_FILE" ]; then
                     echo -e "${YELLOW}No pending Tier 0 block to approve${NC}"
                     echo "A Tier 0 block must occur first before you can approve it."
@@ -7728,6 +7957,15 @@ DEPLOYEOF
                 else
                     echo -e "  ${GREEN}Clean:${NC} No pending blocks or approvals"
                 fi
+                # T-3593: live action approvals (approved, or admitted by the text
+                # gate and awaiting consumption at git pre-push).
+                if [ -f "$FRAMEWORK_ROOT/lib/tier0_action.py" ]; then
+                    _t0_live=$(PROJECT_ROOT="$PROJECT_ROOT" python3 "$FRAMEWORK_ROOT/lib/tier0_action.py" status 2>/dev/null)
+                    if [ -n "$_t0_live" ]; then
+                        echo -e "  ${GREEN}Live action approvals:${NC}"
+                        printf '%s\n' "$_t0_live" | sed 's/^/    /'
+                    fi
+                fi
                 echo ""
                 if [ -f "$LOG_FILE" ]; then
                     tier0_count=$(python3 -c "
@@ -7744,7 +7982,8 @@ print(len(tier0))
                 echo -e "${BOLD}fw tier0${NC} — Tier 0 enforcement management"
                 echo ""
                 echo "Subcommands:"
-                echo "  approve    Approve a pending Tier 0 blocked command"
+                echo "  approve    Approve a pending Tier 0 block (human-only; the ACTION when"
+                echo "             the block named one, else the exact command)"
                 echo "  status     Show Tier 0 enforcement status"
                 echo ""
                 echo "Tier 0 commands are destructive operations that require"
@@ -8814,6 +9053,45 @@ with open('$BYPASS_LOG', 'w') as f:
         # (.context/provisions.jsonl, written via lib/aef_provision_log.py).
         PROJECT_ROOT="$PROJECT_ROOT" python3 "$FRAMEWORK_ROOT/lib/aef_provision_log.py" "$@"
         ;;
+    whoami)
+        # T-3534: answer "who am I and where" from any cwd inside the project.
+        # Origin: another project's agent had to ask the OPERATOR which project it
+        # was talking to. Identity was implied in four places and answerable in none.
+        #
+        # Reports BOTH identities because they answer different questions:
+        #   project  — id + name, committed in .framework.yaml, shared by every
+        #              clone/checkout. Governance and addressing use this.
+        #   instance — id@host:root, runtime, never stored. Distinguishes two
+        #              checkouts of one project; the shape TermLink tags already use.
+        source "$FRAMEWORK_ROOT/lib/project_identity.sh"
+        _wai_id=$(fw_project_id "$PROJECT_ROOT")
+        echo -e "${BOLD}Project${NC}"
+        if [ -n "$_wai_id" ]; then
+            echo -e "  id:        ${GREEN}${_wai_id}${NC}"
+        else
+            echo -e "  id:        ${YELLOW}(unregistered)${NC} — run: $(basename "$0") whoami --register"
+        fi
+        echo    "  name:      $(fw_project_name "$PROJECT_ROOT")"
+        echo    "  root:      $PROJECT_ROOT"
+        echo    "  host:      $(hostname 2>/dev/null || echo unknown)"
+        echo ""
+        echo -e "${BOLD}Instance${NC}  (this checkout; clones share the id and differ here)"
+        echo    "  $(fw_project_instance "$PROJECT_ROOT")"
+        if [ "${1:-}" = "--register" ]; then
+            # Mints only when absent. An existing id is preserved unconditionally —
+            # re-registering must never silently re-identify a project.
+            echo ""
+            _wai_new=$(fw_project_identity_ensure "$PROJECT_ROOT")
+            if [ "$_wai_new" = "$_wai_id" ]; then
+                echo -e "  ${CYAN}unchanged${NC} — this project already has an identity. Ids are minted once."
+                echo    "  Forking to a NEW project is a different action and is not this verb."
+            else
+                echo -e "  ${GREEN}registered:${NC} $_wai_new  (written to .framework.yaml)"
+            fi
+        fi
+        exit 0
+        ;;
+
     gaps)
         # T-397: Register renamed gaps.yaml → concerns.yaml; fall back to old name.
         GAPS_FILE="$PROJECT_ROOT/.context/project/concerns.yaml"
@@ -10381,6 +10659,12 @@ PYPREDICT
         esac
         exit $_test_exit
         ;;
+    runme)
+        # T-3675: operator command handoff as one logged line (bash /abs/runme.sh)
+        source "$FRAMEWORK_ROOT/lib/runme.sh"
+        runme_main "$@"
+        exit $?
+        ;;
     notify)
         # T-710: Push notification management
         _notify_sub="${1:-}"
@@ -10569,6 +10853,12 @@ YAMLEOF
                 exit 1
                 ;;
         esac
+        ;;
+    review)
+        # T-3583/T-3586: review and dispatch cost (registry, ledger, paid proposals).
+        # lib/review.sh is the `fw task review` emitter — T-3583 overwrote it; do not reuse the name.
+        PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" python3 "$FW_LIB_DIR/review_cost.py" "$@"
+        exit $?
         ;;
     config)
         source "$FW_LIB_DIR/config-file.sh"

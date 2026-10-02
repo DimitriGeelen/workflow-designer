@@ -1,6 +1,7 @@
 """Tasks blueprint — task list, detail, status API."""
 
 import re as re_mod
+from urllib.parse import urlencode
 from datetime import datetime, timezone
 
 import markdown2
@@ -12,7 +13,9 @@ from web.shared import (
     FRAMEWORK_ROOT, PROJECT_ROOT, render_page, parse_frontmatter,
     get_all_task_metadata, get_episodic_tags, task_id_sort_key,
     extract_recommendation, extract_reviewer_verdict, render_markdown_safe,
+    protect_path_underscores,
     _auto_link_files,
+    count_human_acs,
 )
 from web.subprocess_utils import run_fw_command
 
@@ -373,6 +376,7 @@ def _render_md_inline(text):
     text = _auto_link_task_refs(text)
     text = _auto_link_bare_urls(text)
     text = _normalize_md_relative_links(text)
+    text = protect_path_underscores(text)  # T-3587
     html = markdown2.markdown(text, safe_mode='escape').strip()
     if html.startswith('<p>') and html.endswith('</p>'):
         html = html[3:-4]
@@ -390,6 +394,7 @@ def _render_md_block(text):
     text = _auto_link_task_refs(text)
     text = _auto_link_bare_urls(text)
     text = _normalize_md_relative_links(text)
+    text = protect_path_underscores(text)  # T-3587
     html = markdown2.markdown(text, safe_mode='escape').strip()
     html = _linkify_code_urls(html)
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
@@ -657,6 +662,24 @@ def _build_active_filter_chips(active: dict, view: str) -> list[dict]:
     return chips
 
 
+# T-3575: cards shown per backlog/archive board column before the "+N more" list link.
+BOARD_COLUMN_CAP = 20
+# Only these columns are capped; In Progress / Issues always show every card so the
+# board never hides current work (T-3575 render review).
+BOARD_CAPPED_STATUSES = ("captured", "work-completed")
+
+
+def _board_order_key(t):
+    """Newest-first: last_update, then descending task number."""
+    lu = str(t.get("last_update") or "").replace("T", " ")[:19]
+    return (lu, task_id_sort_key_num(t.get("id", "")))
+
+
+def task_id_sort_key_num(tid):
+    m = re_mod.search(r"(\d+)", str(tid))
+    return int(m.group(1)) if m else -1
+
+
 @bp.route("/tasks")
 def tasks():
     # T-1233: Use cached task metadata (avoids re-reading 1200+ files per request)
@@ -737,6 +760,15 @@ def tasks():
         "specification", "design",
     ]
 
+    # Board columns: newest first, so a cap trims the stalest cards, not the current ones.
+    board_tasks = sorted(all_tasks, key=_board_order_key, reverse=True)
+    # "+N more" must land on the same filtered list the board came from.
+    overflow_qs = urlencode([(k, v) for k, v in (
+        ("owner", owner_filter), ("horizon", horizon_filter), ("tag", tag_filter),
+        ("q", search_query), ("type", type_filter), ("component", component_filter),
+        ("arc", arc_filter), ("sort", sort_by if sort_by != "id" else ""),
+    ) if v])
+
     # T-1982: attach BVP_norm per task so kanban cards + list view can render a chip.
     _attach_bvp_to_tasks(all_tasks)
 
@@ -757,6 +789,10 @@ def tasks():
         active_filter_chips=active_filter_chips,
         page_title="Tasks",
         tasks=all_tasks,
+        board_tasks=board_tasks,
+        board_column_cap=BOARD_COLUMN_CAP,
+        board_capped_statuses=BOARD_CAPPED_STATUSES,
+        overflow_qs=overflow_qs,
         statuses=statuses,
         types=types,
         components=components,
@@ -827,10 +863,15 @@ def task_detail(task_id):
                 artifacts.append({"name": f.name, "path": f"docs/reports/{f.name}"})
 
     # Compute whether "Complete Task" button should show (T-640)
+    # T-3591: Human criteria are counted with count_human_acs, the scoping behind
+    # is_ready_for_batch_completion. _parse_acceptance_criteria stops at an
+    # intervening `## ` heading, so a `### Human` block past one (T-2200/T-2202)
+    # was invisible here and an unticked [REVIEW] criterion still got the button.
     can_complete = False
     if ac_items and task_data.get("status") != "work-completed":
         all_checked = all(ac["checked"] for ac in ac_items)
-        can_complete = all_checked
+        _, human_unchecked = count_human_acs(task_content)
+        can_complete = all_checked and human_unchecked == 0
 
     # T-1584: Surface Recommendation + Reviewer Verdict cards (cross-surface parity
     # with /review T-1575/T-1583 and /approvals T-1531/T-1569). Same drift class as

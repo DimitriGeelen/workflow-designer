@@ -17,7 +17,7 @@ from pathlib import Path
 import yaml
 from flask import Blueprint, request
 
-from web.shared import FRAMEWORK_ROOT, PROJECT_ROOT, render_page, parse_frontmatter, task_id_sort_key, get_all_task_metadata, extract_recommendation_verdict, extract_recommendation_state, extract_reviewer_verdict, count_unchecked_human_acs, needs_human_review, mtime_cached_get
+from web.shared import FRAMEWORK_ROOT, PROJECT_ROOT, render_page, render_markdown_safe, parse_frontmatter, task_id_sort_key, get_all_task_metadata, extract_recommendation_verdict, extract_recommendation_state, extract_reviewer_verdict, count_unchecked_human_acs, needs_human_review, mtime_cached_get, has_unchecked_review_ac, request_task_metadata, is_ready_for_batch_completion
 
 # T-1808: paused-dispatch surface — needs lib/ on the path so the helper imports cleanly.
 # T-2645 (832 G-004 sibling): lib/ is FRAMEWORK-owned — PROJECT_ROOT resolution broke
@@ -213,6 +213,25 @@ def _count_body_assumptions(body: str) -> int:
     return len(_INLINE_ASSUMPTION_RE.findall(section))
 
 
+def _task_meta():
+    """Task frontmatter rows, fetched once per request (T-3600).
+
+    Passes this module's `get_all_task_metadata` binding so tests that
+    substitute it here keep working.
+    """
+    return request_task_metadata(get_all_task_metadata)
+
+
+def _active_task_fms() -> dict:
+    """{task_id: frontmatter} for tasks in .tasks/active/, from the shared cache."""
+    out = {}
+    for fm in _task_meta():
+        tid = fm.get("id")
+        if tid and fm.get("_location") == "active":
+            out.setdefault(tid, fm)
+    return out
+
+
 def _load_pending_go_decisions():
     """Scan active inception tasks where decision is still pending.
 
@@ -227,7 +246,7 @@ def _load_pending_go_decisions():
     # T-1244: Use shared task metadata cache to filter to active+inception tasks
     # before reading bodies. Avoids re-globbing 100+ active tasks per request.
     candidates = [
-        fm for fm in get_all_task_metadata()
+        fm for fm in _task_meta()
         if fm.get("_location") == "active" and fm.get("workflow_type") == "inception"
     ]
     candidates.sort(key=lambda fm: task_id_sort_key(fm.get("_path", "")))
@@ -343,6 +362,9 @@ def _load_pending_go_decisions():
             "artifacts": artifacts,
             "rationale_hint": rationale_hint,
             "recommendation": rec_display,
+            # T-3587: rendered through the shared pipeline so Evidence refs are
+            # links (or visibly dead) here too, not raw Markdown in a pre-wrap div.
+            "recommendation_html": render_markdown_safe(rec_display),
             "rec_decision": rec_decision,
             "verdict": verdict,
             "go_nogo_criteria": go_nogo_raw,
@@ -370,7 +392,7 @@ def _load_pending_human_acs():
     # T-1244: Pull active-task frontmatter from shared cache instead of
     # re-globbing per request. Body still required for AC parse.
     candidates = [
-        fm for fm in get_all_task_metadata()
+        fm for fm in _task_meta()
         if fm.get("_location") == "active"
     ]
     candidates.sort(key=lambda fm: task_id_sort_key(fm.get("_path", "")))
@@ -393,9 +415,13 @@ def _load_pending_human_acs():
         if not needs_human_review(body):
             continue
 
+        # DISPLAY ONLY (T-3590): the per-criterion detail rendered in the card.
+        # No decision on this page reads it — `_parse_acceptance_criteria` stops
+        # at an intervening `## ` heading and so can see zero Human criteria on a
+        # task that has an unticked one (T-2200/T-2202). Admission, sort priority
+        # and batch readiness use the web.shared predicates instead.
         all_acs = _parse_acceptance_criteria(body)
         human_acs = [ac for ac in all_acs if ac.get("section") == "human"]
-        unchecked = [ac for ac in human_acs if not ac["checked"]]
 
         # Calculate age from date_finished or last_update
         age_days = 0
@@ -412,8 +438,7 @@ def _load_pending_human_acs():
         is_stale = age_days > 7
 
         # Priority: has REVIEW AC unchecked → 0, stale → 1, RUBBER-STAMP only → 2
-        has_review = any(ac.get("confidence") == "review" and not ac["checked"]
-                        for ac in human_acs)
+        has_review = has_unchecked_review_ac(body)  # T-3590: canonical scoping
         sort_priority = 0 if has_review else (1 if is_stale else 2)
 
         # T-1531: extract agent recommendation verdict (GO/DEFER/NO-GO/?)
@@ -430,6 +455,9 @@ def _load_pending_human_acs():
             "name": fm.get("name", ""),
             "status": fm.get("status", ""),
             "human_acs": human_acs,
+            # T-3590: canonical count (every `### Human` block) — the badge and the
+            # card's Complete button read this, never the display list above.
+            "unchecked_count": count_unchecked_human_acs(body),
             "age_days": age_days,
             "is_stale": is_stale,
             "sort_priority": sort_priority,
@@ -443,6 +471,44 @@ def _load_pending_human_acs():
     return results
 
 
+_TASK_ID_RE = re.compile(r"^T-\d+$")
+
+
+def _read_active_task(task_id: str):
+    """(frontmatter, body) for an active task, read fresh from disk; None if the
+    id is malformed or no active task carries it. T-3590: complete_batch judges
+    readiness at POST time on this, never on the list the page rendered."""
+    if not _TASK_ID_RE.match(task_id or ""):
+        return None
+    for p in sorted((PROJECT_ROOT / ".tasks" / "active").glob(f"{task_id}-*.md")):
+        try:
+            fm, body = parse_frontmatter(p.read_text())
+        except OSError:
+            continue
+        if str(fm.get("id", "")) == task_id:
+            return fm, body
+    return None
+
+
+def _load_batch_ready_tasks():
+    """Active tasks `is_ready_for_batch_completion` accepts (T-3590).
+
+    Returns list of {task_id, name}, id-sorted. The batch form posts exactly
+    these ids; complete_batch re-checks each against the same predicate.
+    """
+    out = []
+    candidates = [fm for fm in _task_meta() if fm.get("_location") == "active"]
+    candidates.sort(key=lambda fm: task_id_sort_key(fm.get("_path", "")))
+    for fm in candidates:
+        path = fm.get("_path")
+        if not path:
+            continue
+        body = _get_body_cached(path)
+        if is_ready_for_batch_completion(fm.get("status", ""), body):
+            out.append({"task_id": fm.get("id", ""), "name": fm.get("name", "")})
+    return out
+
+
 def _count_deferred_inceptions():
     """Count active inceptions with a recorded DEFER decision (T-1518).
 
@@ -451,7 +517,7 @@ def _count_deferred_inceptions():
     hint when /approvals has no pending decisions.
     """
     count = 0
-    for fm in get_all_task_metadata():
+    for fm in _task_meta():
         if fm.get("_location") != "active" or fm.get("workflow_type") != "inception":
             continue
         path = fm.get("_path")
@@ -519,14 +585,33 @@ def _load_close_ready_arcs(threshold: float = 0.80) -> list[dict]:
             continue
         constituents = _resolve_constituents(arc)
         stats = _completion_stats(constituents)
-        if stats["ratio"] < threshold:
+
+        # T-3552 (T-3548 Slice A): surface on quadrant exhaustion, not on a
+        # completion ratio. `completed / total` describes the LIST; closure is a
+        # claim about what is LEFT. Measured on this corpus at the swap: the 80%
+        # ratio surfaced 8 arcs, 6 of which still had high-value open members —
+        # orchestrator-rethink read "close-ready" at 85% with 18 open members, 8
+        # of them Q1/Q2.
+        #
+        # `threshold` is kept in the signature and still applied as a CEILING on
+        # nothing — it is retained only so existing callers and tests that pass it
+        # do not break. The ratio itself is still reported in the row, because it
+        # is useful information; it is simply no longer the predicate.
+        legs = _arc_readiness_legs(arc, constituents)
+        if legs is not None and not (legs["l1"]["passed"] and legs["l2"]["passed"]):
             continue
+        if legs is None and stats["ratio"] < threshold:
+            # Readiness could not be computed (helper unavailable). Fall back to
+            # the old ratio rather than surfacing everything or nothing — a
+            # degraded queue is recoverable, a silently empty one is not.
+            continue
+
         rec = _anchor_recommendation(arc)
         anchor_id = rec.get("anchor_id", "") or str(arc.get("anchor_task") or "").strip()
         blocked_reason = ""
         if not rec.get("present"):
             blocked_reason = (
-                f"anchor {anchor_id or '(none set)'} has no `## Recommendation` — the agent "
+                f"anchor {anchor_id or '(none set)'} has no Recommendation section — the agent "
                 f"advisory that closure review reads. Until it is written the arc cannot be "
                 f"judged, only counted."
             ) if anchor_id else (
@@ -546,8 +631,122 @@ def _load_close_ready_arcs(threshold: float = 0.80) -> list[dict]:
             "completed": stats["completed"],
             "total": stats["total"],
             "headline_mechanic": str(arc.get("headline_mechanic") or ""),
+            # T-3552: the legs that produced this row. Carried so a surface can
+            # say WHY an arc is here without recomputing and risking a second,
+            # disagreeing answer.
+            "readiness": legs,
         })
     return out
+
+
+# Cached across requests: the medians are a corpus-wide property, and recomputing
+# them per arc would re-read every active task 18 times on one page load.
+_READINESS_MEDIANS: dict = {}
+
+
+def _arc_readiness_legs(arc: dict, constituents) -> dict | None:
+    """L1/L2/L3 for one arc, or None when readiness cannot be computed.
+
+    Returning None rather than a failed verdict is deliberate: "the predicate
+    could not run" and "the predicate says no" are different facts, and the
+    caller degrades to the old ratio on the first while honouring the second.
+    Collapsing them would make a broken import look like an arc that is not
+    ready — the same false-negative class this task removes from the ratio.
+    """
+    import sys as _sys
+
+    lib_dir = str(Path(__file__).resolve().parents[2] / "lib")
+    if lib_dir not in _sys.path:
+        _sys.path.insert(0, lib_dir)
+    try:
+        import arc_close_readiness as _acr
+        from web.blueprints.arcs import _anchor_recommendation as _anchor
+    except Exception:
+        return None
+
+    try:
+        # T-3600: frontmatter comes from the shared task cache. Both the medians
+        # and the per-member reads used to re-parse the files with pure-Python
+        # yaml.safe_load — 9.5s cold for the medians, 3.8s on every build for
+        # the members.
+        active = _active_task_fms()
+        if not _READINESS_MEDIANS:
+            _READINESS_MEDIANS.update(
+                _acr.corpus_medians(PROJECT_ROOT, open_fms=list(active.values())))
+
+        open_members: list[tuple[str, dict]] = []
+        for c in constituents or []:
+            # A constituent still in active/ is open work — including
+            # partial-complete, which is most of them. See the module docstring
+            # in lib/arc_close_readiness.py for why that population is right.
+            tid = c.get("id") if isinstance(c, dict) else str(c)
+            if not tid or tid not in active:
+                continue
+            open_members.append((tid, active[tid]))
+
+        rec = _anchor(arc) or {}
+        legs = _acr.evaluate(
+            open_members,
+            _READINESS_MEDIANS,
+            {
+                "present": bool(rec.get("present")),
+                "verdict": rec.get("verdict", ""),
+                "has_rationale": True,  # `_anchor_recommendation` has no rationale probe
+            },
+        )
+
+        # T-3553: L4 costs a subprocess, so it runs only for arcs that already
+        # cleared L1+L2 — the set the operator is actually being offered. Adding
+        # it for all 18 in-progress arcs would put 18 `fw arc demo-check` calls on
+        # every /approvals render to answer a question about 2 of them.
+        if legs["l1"]["passed"] and legs["l2"]["passed"]:
+            demo = _arc_demo_state(arc)
+            legs = _acr.evaluate(
+                open_members,
+                _READINESS_MEDIANS,
+                {
+                    "present": bool(rec.get("present")),
+                    "verdict": rec.get("verdict", ""),
+                    "has_rationale": True,
+                },
+                demo=demo,
+            )
+        return legs
+    except Exception:
+        return None
+
+
+def _arc_demo_state(arc: dict) -> dict:
+    """Run `fw arc demo-check` for one arc. T-3553.
+
+    Shells out on purpose. `_arc_validate_demo_path` (lib/arc.sh) already encodes
+    every rule — existence, minimum size, extension allowlist, traceability to the
+    arc or one of its member tasks — and re-expressing those in python would be a
+    second opinion about the same question. The exit code carries the three states
+    a boolean would flatten.
+    """
+    import subprocess
+
+    slug = str(arc.get("slug") or arc.get("id") or "").strip()
+    if not slug:
+        return {"state": "absent", "detail": "arc has no slug or id"}
+    fw = Path(__file__).resolve().parents[2] / "bin" / "fw"
+    try:
+        p = subprocess.run([str(fw), "arc", "demo-check", slug],
+                           capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        # Could not ask. Not the same as "no demo" — say so.
+        return {"state": "indeterminate", "detail": "demo-check could not be run"}
+
+    out = ((p.stdout or "") + (p.stderr or "")).strip().splitlines()
+    first = out[0] if out else ""
+    if p.returncode == 0:
+        return {"state": "valid", "detail": first.replace("valid: ", "", 1)}
+    if p.returncode == 2:
+        return {"state": "indeterminate", "detail": first}
+    if first.startswith("absent:"):
+        return {"state": "absent", "detail": first}
+    return {"state": "invalid", "detail": first}
 
 
 def _load_decided_unclosed():
@@ -575,13 +774,62 @@ def _load_decided_unclosed():
         return []
 
     candidates = [
-        fm for fm in get_all_task_metadata()
+        fm for fm in _task_meta()
         if fm.get("_location") == "active" and fm.get("workflow_type") == "inception"
     ]
     try:
         return decided_unclosed.scan(candidates, _get_body_cached)
     except Exception:
         return []
+
+
+def _approval_counts(pending_tier0, pending_go, ac_task_count, paused_dispatches,
+                     arcs_close_ready, bvp_proposals, decided_unclosed) -> dict:
+    """The badge arithmetic, shared by the page and the dashboard tile (T-3600).
+
+    One function so the two cannot drift. A ripe DEFER revisit is deliberately
+    not counted. T-3175: a decided-but-unclosed inception is one outstanding
+    operator action, so it counts toward the badge like every other section.
+    Omitting it from the total was how the queue read "complete" while three of
+    these sat open.
+    """
+    tier0_count = sum(1 for a in pending_tier0 if a.get("status") == "pending")
+    go_count = len(pending_go)
+    total = (tier0_count + go_count + ac_task_count + len(paused_dispatches)
+             + len(arcs_close_ready) + len(bvp_proposals) + len(decided_unclosed))
+    return {"total_count": total, "tier0_count": tier0_count,
+            "go_count": go_count, "ac_task_count": ac_task_count}
+
+
+def _count_pending_human_ac_tasks() -> int:
+    """How many cards `_load_pending_human_acs()` would render, without rendering them.
+
+    Same candidates and the same admission predicate; skips the per-criterion
+    parse and markdown render, which is display-only (T-3600).
+    """
+    count = 0
+    for fm in _task_meta():
+        if fm.get("_location") != "active" or not fm.get("_path"):
+            continue
+        body = _get_body_cached(fm["_path"])
+        if body and needs_human_review(body):
+            count += 1
+    return count
+
+
+def approval_summary() -> dict:
+    """Counts-only view of /approvals for the dashboard tile (T-3600)."""
+    from web.blueprints.bvp import _load_proposals
+
+    return _approval_counts(
+        _load_pending_approvals(),
+        _load_pending_go_decisions(),
+        _count_pending_human_ac_tasks(),
+        _load_paused_dispatches(),
+        _load_close_ready_arcs(),
+        _load_proposals(),
+        _load_decided_unclosed(),
+    )
 
 
 def _build_approvals_context(expand_overflow: bool = False):
@@ -608,29 +856,25 @@ def _build_approvals_context(expand_overflow: bool = False):
 
     bvp_proposals = _load_proposals()
 
-    tier0_count = sum(1 for a in pending_tier0 if a.get("status") == "pending")
+    counts = _approval_counts(pending_tier0, pending_go, len(pending_acs),
+                              paused_dispatches, arcs_close_ready, bvp_proposals,
+                              decided_unclosed)
+    tier0_count = counts["tier0_count"]
     tier0_origin_summary = _tier0_origin_summary(pending_tier0)  # T-3078
-    go_count = len(pending_go)
-    ac_count = sum(
-        sum(1 for ac in t["human_acs"] if not ac["checked"])
-        for t in pending_acs
-    )
+    go_count = counts["go_count"]
+    ac_count = sum(t["unchecked_count"] for t in pending_acs)  # T-3590: canonical
     paused_count = len(paused_dispatches)  # T-1808
     arc_close_count = len(arcs_close_ready)  # T-1961
     bvp_proposal_count = len(bvp_proposals)  # T-2335
-    # T-3175: a decided-but-unclosed inception is one outstanding operator
-    # action, so it counts toward the badge like every other section. Omitting
-    # it from the total was how the queue read "complete" while three of these
-    # sat open.
     decided_unclosed_count = len(decided_unclosed)
-    total = (tier0_count + go_count + len(pending_acs) + paused_count
-             + arc_close_count + bvp_proposal_count + decided_unclosed_count)
+    total = counts["total_count"]
 
-    # Count tasks ready for batch completion (all human ACs checked)
-    ready_count = sum(
-        1 for t in pending_acs
-        if all(ac["checked"] for ac in t["human_acs"])
-    )
+    # T-3590: tasks the batch button may close, by the ONE canonical predicate.
+    # Disjoint from pending_acs by construction (admission requires an unchecked
+    # Human criterion); the old count filtered pending_acs with a second parser
+    # and so could only ever be non-zero when that parser was wrong.
+    batch_ready = _load_batch_ready_tasks()
+    ready_count = len(batch_ready)
 
     return dict(
         pending_tier0=pending_tier0,
@@ -653,6 +897,7 @@ def _build_approvals_context(expand_overflow: bool = False):
         total_count=total,
         active_count=tier0_count,
         ready_count=ready_count,
+        batch_ready=batch_ready,                    # T-3590
         deferred_count=deferred_count,
         expand_overflow=expand_overflow,
         continuous=_halt_state(),          # T-3200
@@ -808,27 +1053,39 @@ def _execute_inception_decide(command_preview: str) -> dict:
 
 @bp.route("/api/approvals/complete-batch", methods=["POST"])
 def complete_batch():
-    """Complete all tasks where ALL Human ACs are checked (T-846).
+    """Complete the tasks the operator saw listed as ready (T-846, T-3590).
 
-    This is a human-initiated batch action from the Watchtower UI.
-    Only completes tasks that are fully ready (no unchecked ACs).
+    This is a human-initiated batch action from the Watchtower UI. The form posts
+    the task ids the page displayed (``task_id``, repeated). Each id is re-read
+    from disk and re-judged by `is_ready_for_batch_completion` NOW; any id that
+    is not ready is refused and named. Nothing outside the posted list is ever
+    touched — there is no "complete everything that happens to be ready".
     """
     import subprocess
+    from markupsafe import escape
 
-    pending_acs = _load_pending_human_acs()
+    requested = []
+    for tid in request.form.getlist("task_id"):
+        tid = (tid or "").strip()
+        if tid and tid not in requested:
+            requested.append(tid)
+    if not requested:
+        return '<p style="color:var(--pico-del-color);">Refused: no task ids posted. Reload /approvals and use the batch button.</p>'
 
-    # Find tasks where ALL human ACs are checked
     ready_tasks = []
-    for t in pending_acs:
-        unchecked = [ac for ac in t["human_acs"] if not ac["checked"]]
-        if not unchecked:
-            ready_tasks.append(t["task_id"])
-
-    if not ready_tasks:
-        return '<p style="color:var(--pico-muted-color);">No tasks ready for completion (all have unchecked ACs).</p>'
+    errors = []
+    for tid in requested:
+        found = _read_active_task(tid)
+        if found is None:
+            errors.append(f"{escape(tid)}: refused — not an active task")
+            continue
+        fm, body = found
+        if not is_ready_for_batch_completion(fm.get("status", ""), body):
+            errors.append(f"{escape(tid)}: refused — not ready (needs status work-completed and every Human criterion ticked)")
+            continue
+        ready_tasks.append(tid)
 
     completed = []
-    errors = []
     fw_path = str(FRAMEWORK_ROOT / "bin" / "fw")
 
     for task_id in ready_tasks:
@@ -844,7 +1101,11 @@ def complete_batch():
                  "--skip-sovereignty", "--skip-verification", "--skip-acceptance-criteria",
                  "--reason", "Batch completed via Watchtower UI (human action)"],
                 capture_output=True, text=True, timeout=30,
-                cwd=str(PROJECT_ROOT)
+                cwd=str(PROJECT_ROOT),
+                # T-3586: strip the CLAUDECODE Flask inherits from an agent shell (same
+                # defence as T-1193 above) — update-task.sh refuses these --skip-* flags
+                # under CLAUDECODE=1, and this is the operator's own click.
+                env={k: v for k, v in os.environ.items() if k != "CLAUDECODE"},
             )
             if result.returncode == 0:
                 completed.append(task_id)

@@ -65,6 +65,44 @@ port_in_use() {
 
 # ensure_firewall_open is sourced from lib/firewall.sh (T-888)
 
+# T-3662 (P-01 F-28): has this project chosen a port (FW_PORT or PORT in
+# .framework.yaml)? If not, every project resolved the same registry default
+# and the second one on a host collided with the first.
+port_configured() {
+    [ -n "${FW_PORT:-}" ] || _fw_config_file_val "PORT" >/dev/null 2>&1
+}
+
+# allocate_port — first port from PORT_SCAN_BASE (100 ports) that is free or
+# already held by THIS project's identified Watchtower. Foreign holders are
+# skipped, never signalled. Prints the port; rc 1 when the range is exhausted.
+allocate_port() {
+    local base p
+    base=$(fw_config "PORT_SCAN_BASE" 3000)
+    [[ "$base" =~ ^[0-9]+$ ]] || base=3000
+    for ((p = base; p < base + 100; p++)); do
+        if ! port_in_use "$p" || _watchtower_port_holder_is_ours "$p"; then
+            echo "$p"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# persist_port PORT — record an allocated port as PORT in .framework.yaml with
+# the `fw config set` writer, so restarts and `fw watchtower port` agree.
+persist_port() {
+    local p="$1"
+    if [ ! -f "$PROJECT_ROOT/.framework.yaml" ]; then
+        log_warn "No .framework.yaml — allocated port $p is not recorded (set it: fw config set PORT $p)."
+        return 0
+    fi
+    if ( source "$FRAMEWORK_ROOT/lib/config-file.sh" && _config_set PORT "$p" ) >/dev/null 2>&1; then
+        log_info "Recorded PORT: $p in .framework.yaml (per-project port, T-3662)."
+    else
+        log_warn "Could not record PORT $p in .framework.yaml (set it: fw config set PORT $p)."
+    fi
+}
+
 # ---------------------------------------------------------------------------
 # stop — Graceful shutdown with SIGTERM, fallback to SIGKILL
 # ---------------------------------------------------------------------------
@@ -85,7 +123,11 @@ do_stop() {
 
     log_info "Stopping Watchtower (PID $pid)..."
 
-    # Graceful shutdown
+    # Graceful shutdown. T-3660: a --debug (foreground) server runs Werkzeug's
+    # reloader, which serves from a CHILD of the pid on file; signal that child
+    # too, or it is orphaned still holding the port. Only children of our own
+    # pid are touched — never a process group, never a port holder.
+    pkill -TERM -P "$pid" 2>/dev/null || true
     kill -TERM "$pid" 2>/dev/null || true
     local timeout=10
     while [ "$timeout" -gt 0 ] && kill -0 "$pid" 2>/dev/null; do
@@ -97,6 +139,7 @@ do_stop() {
     # Force kill if still running
     if kill -0 "$pid" 2>/dev/null; then
         log_warn "Graceful shutdown failed. Sending SIGKILL..."
+        pkill -KILL -P "$pid" 2>/dev/null || true
         kill -KILL "$pid" 2>/dev/null || true
         sleep 1
     fi
@@ -114,8 +157,9 @@ do_stop() {
 # start — Launch Watchtower with health check
 # ---------------------------------------------------------------------------
 do_start() {
-    local port="$DEFAULT_PORT"
+    local port=""
     local debug_flag=""
+    local allocated=0
 
     # Parse start-specific args
     while [ $# -gt 0 ]; do
@@ -149,11 +193,35 @@ do_start() {
 
     # Check if already running
     if is_running; then
-        local pid
+        local pid run_port=""
         pid=$(get_pid)
-        log_warn "Watchtower is already running (PID $pid)."
+        [ -f "$PORT_FILE" ] && run_port=$(tr -d '[:space:]' < "$PORT_FILE" 2>/dev/null || true)
+        # T-3662: reuse the running server only once /api/_identity says it is
+        # THIS project's — a live pid alone can be a recycled pid or a server
+        # some other project now owns on that port.
+        if [ -n "$run_port" ] && { [ -z "$port" ] || [ "$port" = "$run_port" ]; } \
+            && _watchtower_port_holder_is_ours "$run_port"; then
+            log_info "Watchtower is already running for this project (PID $pid, identity verified)."
+            echo "  Local:  http://localhost:${run_port}"
+            return 0
+        fi
+        log_warn "Watchtower is already running (PID $pid)${run_port:+ on port $run_port}, but it was not reused."
         log_info "Use '$(basename "$0") restart' to restart, or '$(basename "$0") stop' first."
         return 1
+    fi
+
+    # T-3662 (P-01 F-28): an explicit --port or a configured PORT wins. With
+    # neither, allocate per project instead of every project resolving 3000.
+    if [ -z "$port" ]; then
+        if port_configured; then
+            port="$DEFAULT_PORT"
+        elif port=$(allocate_port); then
+            allocated=1
+            log_info "No PORT configured for this project; allocated port $port."
+        else
+            log_error "No free port in the 100 from PORT_SCAN_BASE ($(fw_config PORT_SCAN_BASE 3000)). Start with --port N."
+            exit 1
+        fi
     fi
 
     # Check Flask is installed
@@ -217,7 +285,30 @@ do_start() {
     export PROJECT_ROOT
     log_info "Starting Watchtower on port $port (project: $PROJECT_ROOT)..."
     cd "$FRAMEWORK_ROOT"
-    PROJECT_ROOT="$PROJECT_ROOT" python3 -m web.app --port "$port" $debug_flag > "$LOG_FILE" 2>&1 &
+
+    # T-3660 (P-01 F-17): --debug is a FOREGROUND run. Exec the server so this
+    # process IS the server: output goes to the terminal, Ctrl-C stops it, and
+    # the pid file names it (exec keeps $$), so `stop` works from another shell.
+    if [ -n "$debug_flag" ]; then
+        echo "$$" > "$PID_FILE"
+        printf '%s\n' "$port" > "$PORT_FILE"
+        printf '%s\n' "http://localhost:${port}" > "$URL_FILE"
+        [ "$allocated" -eq 1 ] && persist_port "$port"
+        log_info "Foreground (--debug): output below, Ctrl-C to stop."
+        exec python3 -m web.app --port "$port" --debug
+    fi
+
+    watchtower_rotate_log "$LOG_FILE" 3  # T-3627: rotate, never truncate the evidence
+    # T-3660 (P-01 F-16): detach for real. A plain `&` child stays in the
+    # launcher's process group and session, so closing the terminal (SIGHUP to
+    # that group) killed the server. setsid gives it its own session — it is
+    # not a group leader here (no job control), so setsid execs in place and
+    # $! is the server's pid. nohup is the fallback where setsid is absent.
+    if command -v setsid >/dev/null 2>&1; then
+        setsid python3 -m web.app --port "$port" < /dev/null > "$LOG_FILE" 2>&1 &
+    else
+        nohup python3 -m web.app --port "$port" < /dev/null > "$LOG_FILE" 2>&1 &
+    fi
     local new_pid=$!
     echo "$new_pid" > "$PID_FILE"
 
@@ -249,6 +340,7 @@ do_start() {
                 exit 1
             fi
             log_info "Health check passed (identity verified)."
+            [ "$allocated" -eq 1 ] && persist_port "$port"
             ensure_firewall_open "$port"
 
             local lan_ip
@@ -345,9 +437,13 @@ do_status() {
         fi
     else
         echo -e "${YELLOW}Watchtower is not running${NC}"
+        # T-3661 (P-01 F-25): status is a predicate scripts branch on, so the
+        # stopped states must not exit 0. LSB init-script codes.
         if [ -f "$PID_FILE" ]; then
             echo "  (Stale PID file exists — will be cleaned on next start)"
+            return 1
         fi
+        return 3
     fi
 }
 
@@ -484,7 +580,7 @@ case "$cmd" in
         echo "  start   [--port N] [--debug]  Start Watchtower"
         echo "  stop                           Stop Watchtower"
         echo "  restart [--port N] [--debug]  Stop then start"
-        echo "  status                         Show current state"
+        echo "  status                         Show current state; exit 0 running, 1 stale PID file, 3 not running (T-3661)"
         echo "  port                           Print current port (triple-file source of truth; T-1376 B5)"
         echo "  url                            Print current URL (triple-file source of truth; T-1376 B5)"
         echo "  current                        Exit 1 if the running process predates web/ source (T-3282)"

@@ -31,9 +31,18 @@
 # Arcs surface via:
 #   - `.context/arcs/<slug>.yaml` registry (filename stem = slug)
 #   - `.context/working/arc-focus.yaml` (single-arc focus)
-#   - `arc:<slug>` tag namespace (canonical during transition; T-NEW-3
-#                                  introduces `arc_id:` task-frontmatter
-#                                  field as the post-migration target)
+#   - `arc_id:` task-frontmatter field — CANONICAL source of truth (T-1849),
+#                                  written by `fw arc tag` since T-2955
+#   - `arc:<slug>` tag namespace — LEGACY (pre-T-1850, which migrated 162
+#                                  tasks off it). Still READ, so the union in
+#                                  lib/arc_membership.* stays correct for
+#                                  un-migrated tasks; no longer written.
+#     (T-3504: this block previously called the TAG namespace "canonical
+#      during transition", contradicting two other lines in this same file
+#      and the `fw arc help` output 50 lines apart. Reported by a peer agent
+#      at agent-chat-arc @1090, whose point was that it makes the defect
+#      self-justifying: an author who checks the help before writing is told
+#      the deprecated form is the right one.)
 #   - handover.sh `## Current Arc` section
 #   - Watchtower landing-page section + `/tasks?arc=<slug>` filter chip
 #   - Watchtower `/arcs/<slug>` AND `/arcs/<arc-NNN>` both resolve to the
@@ -637,7 +646,13 @@ except ValueError:
     fm_end = len(text)
 head = text[:fm_end]
 m = re.search(r'^arc_id:\s*(\S.*?)\s*$', head, re.MULTILINE)
-print(m.group(1).strip().strip('"').strip("'") if m else "")
+v = m.group(1).strip() if m else ""
+if v[:1] in ('"', "'"):
+    e = v.find(v[0], 1)
+    v = v[1:e] if e != -1 else v[1:]
+else:  # T-3577: an unquoted trailing ' # comment' is not part of the value
+    v = re.sub(r"(^|\s+)#.*$", "", v).strip()
+print(v)
 PY
 )"
     if [ -n "$existing_arc_id" ]; then
@@ -719,7 +734,12 @@ fn, arc_id = sys.argv[1], sys.argv[2]
 text = open(fn).read()
 m = re.search(r'^arc_id:[ \t]*(.*)$', text, re.MULTILINE)
 if m:
-    cur = m.group(1).strip().strip('"').strip("'")
+    cur = m.group(1).strip()
+    if cur[:1] in ('"', "'"):
+        _e = cur.find(cur[0], 1)
+        cur = cur[1:_e] if _e != -1 else cur[1:]
+    else:  # T-3577: drop an unquoted trailing ' # comment'
+        cur = re.sub(r"(^|\s+)#.*$", "", cur).strip()
     if cur == arc_id:
         print(f"Task already has arc_id: {arc_id} — skipping")
     elif cur:
@@ -796,7 +816,35 @@ arc_close() {
     # do_inception_decide (T-1259/T-1260): closure decisions belong to the
     # human, recorded via Watchtower. Origin: 4th-instance auto-close incident
     # 2026-05-02 on this very arc — see T-1670, docs/reports/T-1670-default-to-open-gate-gap.md.
-    if [ "${CLAUDECODE:-}" = "1" ] && [ "$i_am_human" = false ] && [ "$from_watchtower" = false ]; then
+    #
+    # T-3487 introduced FW_REQUIRE_ARC_CLOSE_APPROVAL as an OPT-IN switch, so the
+    # refusal was off unless the var was set to 1.
+    #
+    # T-3508 restores the default to ON and makes the waiver opt-OUT. The switch
+    # and its name are kept; only the default moved. Set
+    # FW_REQUIRE_ARC_CLOSE_APPROVAL=0 to waive the identity check.
+    #
+    # WHY, and this is the part not to quietly re-flip: T-3487's authorisation
+    # named "BVP and ARC drivers" and this verb is arc CLOSE, a different
+    # decision class — the authorising quote itself ended "ask AEF agent". That
+    # question was raised and PARKED (T-3487 is still captured/horizon:later),
+    # and while it was open a batch-merge worker landed the branch under T-3506 on
+    # the premise that it was one of "four independently-reviewed branches"
+    # (OBS-547). Branch topology cannot express "deliberately unlanded", so the
+    # sweeper could not have known. This default is the conservative position
+    # until the operator rules; flipping it back is one line.
+    #
+    # The refusal this guards was earned over four repeat incidents (T-1670,
+    # T-1671), one of them an agent auto-closing arc-003 and needing a revert.
+    #
+    # Independent of this switch, and unchanged: --demo and
+    # --headline-mechanic fire for agent and human callers alike (see
+    # arc_create's _arc_validate_headline_mechanic and the --demo validation
+    # below — neither reads CLAUDECODE/i_am_human/from_watchtower), so waiving
+    # the IDENTITY check never waives the EVIDENCE checks. arc_abandon and
+    # arc_approve_driver --none carry the same gate shape at their own call
+    # sites and are not touched here.
+    if [ "${FW_REQUIRE_ARC_CLOSE_APPROVAL:-1}" != "0" ] && [ "${CLAUDECODE:-}" = "1" ] && [ "$i_am_human" = false ] && [ "$from_watchtower" = false ]; then
         local anchor="" wt_url=""
         anchor=$(awk -F': ' '/^anchor_task:/ {print $2; exit}' "$(_arc_path "$id")" 2>/dev/null | tr -d ' "' || true)
         if command -v fw_config >/dev/null 2>&1; then
@@ -834,6 +882,21 @@ arc_close() {
     f="$(_arc_path "$id")"
     now="$(_arc_now)"
 
+    # T-3487: WHO/BY-WHAT-AUTHORITY provenance. Arc frontmatter previously
+    # recorded no who/how field at all for closure (only status/closed_at/
+    # decision/demo_evidence) — with the identity gate now opt-in, this is the
+    # only remaining record of which of the three legal paths a close took.
+    local closed_via
+    if [ "$from_watchtower" = true ]; then
+        closed_via="watchtower"
+    elif [ "$i_am_human" = true ]; then
+        closed_via="human"
+    elif [ "${CLAUDECODE:-}" = "1" ]; then
+        closed_via="agent"
+    else
+        closed_via="human"
+    fi
+
     # T-1668 §ACD Layer B: refuse without --demo.
     if [ -z "$demo" ]; then
         echo "Error: --demo is required to close an arc (§ACD/G-062)." >&2
@@ -862,9 +925,9 @@ arc_close() {
         esac
     fi
 
-    python3 - "$f" "$now" "$decision" "$demo" <<'PY'
+    python3 - "$f" "$now" "$decision" "$demo" "$closed_via" <<'PY'
 import re, sys
-fn, now, decision, demo = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+fn, now, decision, demo, closed_via = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
 text = open(fn).read()
 text = re.sub(r'^status:.*$', 'status: closed', text, count=1, flags=re.MULTILINE)
 text = re.sub(r'^closed_at:.*$', f'closed_at: {now}', text, count=1, flags=re.MULTILINE)
@@ -876,10 +939,15 @@ if re.search(r'^demo_evidence:', text, re.MULTILINE):
     text = re.sub(r'^demo_evidence:.*$', f'demo_evidence: "{safe_demo}"', text, count=1, flags=re.MULTILINE)
 else:
     text = text.rstrip("\n") + f'\ndemo_evidence: "{safe_demo}"\n'
+if re.search(r'^closed_via:', text, re.MULTILINE):
+    text = re.sub(r'^closed_via:.*$', f'closed_via: {closed_via}', text, count=1, flags=re.MULTILINE)
+else:
+    text = text.rstrip("\n") + f'\nclosed_via: {closed_via}\n'
 open(fn, "w").write(text)
 PY
     echo "Closed arc '${id}' at ${now}${decision:+ — ${decision}}"
     echo "  demo_evidence: ${demo}"
+    echo "  closed_via: ${closed_via}"
 
     local current
     current="$(_arc_current_focus)"
@@ -1097,6 +1165,11 @@ Verbs:
   approve-driver <id> --none --justification "<≥30 chars>"
                             T-1926: append a scoped driver (cap 3, weight ≤6) or
                             declare none. Refused under \$CLAUDECODE=1 (§ACD, M6).
+  judge-driver <id> "<name>"|--all [--json]
+                            T-3527: judge a proposed/approved scoped driver
+                            against the arc's own goal, wrapping (not
+                            replacing) review-driver's static checks.
+                            Read-only, no §ACD gate.
   remove-driver <id> "<name>" --rationale "<≥30 chars>" [--i-am-human|--from-watchtower]
   set-scoped-weight <id> "<name>" --weight N --rationale "<≥30 chars>" [--i-am-human|--from-watchtower]
                             T-1977: mutate scoped_drivers[].weight in place.
@@ -1127,7 +1200,8 @@ Examples:
 Storage:
   .context/arcs/<id>.yaml          — registry
   .context/working/arc-focus.yaml  — focused arc (single)
-  Task tags: arc:<id> (canonical); from-T-XXXX as legacy alias
+  Task membership: arc_id: <id> in frontmatter (canonical, T-1849)
+                   arc:<id> tag (legacy, pre-T-1850 — still read, not written)
 
 Surfaces:
   - Handover: ## Current Arc section (if focus set)
@@ -1142,6 +1216,96 @@ EOF
 #   agent runs `fw arc review <slug>` → emits clickable URL + QR → human opens
 #   /arcs/<slug>/close (T-1911/T-1902) → submits via the §ACD-exempt
 #   `--from-watchtower` path which the Flask backend invokes.
+# T-3553 (T-3548 Slice B) — check the demo evidence an arc ALREADY carries.
+#
+# `_arc_validate_demo_path` / `_arc_validate_demo_url` are thorough and have run at
+# exactly one moment since T-1668: when the operator types `fw arc close --demo
+# <path>`. Nothing ever looked at the `demo_evidence:` already recorded on the arc.
+# So an arc could be surfaced close-ready with no demo at all and the first anyone
+# heard of it was the close form — live at the time of writing, `readme-first-run`
+# passed L1+L2+L3 with `demo_evidence: null`, and 11 of 18 in-progress arcs carry
+# null.
+#
+# This verb is a READER. It validates, it never writes, and it never closes
+# anything. The §ACD gates on `fw arc close` are untouched.
+#
+# Exit codes are the contract, because the caller must be able to tell three things
+# apart that a boolean would flatten:
+#   0  valid        — recorded, present, ≥256 bytes, allowlisted, traceable to this arc
+#   1  invalid      — recorded but fails a rule, OR nothing recorded at all
+#   2  indeterminate— a URL, which cannot be judged without the network
+#
+# `indeterminate` is deliberately NOT `valid`. Surfacing must not depend on a
+# network call, and "we could not check" is a different sentence from "it checks
+# out" — the same distinction T-3550 drew for a killed push an hour ago.
+arc_demo_check() {
+    local id="${1:-}"
+    [ -n "$id" ] || { echo "Usage: fw arc demo-check <arc-id-or-slug>" >&2; return 2; }
+    id="$(_arc_normalize_input "$id")"
+    _arc_validate_id "$id" || return 2
+    _arc_exists "$id" || { echo "Error: arc '$id' not found" >&2; return 1; }
+
+    local arc_path demo
+    arc_path="$(_arc_path "$id")"
+    # Take the value up to the first ` #` comment — several arcs carry a long
+    # trailing rationale after the path (continuous-run's is a paragraph).
+    demo=$(awk -F'demo_evidence:[[:space:]]*' '/^demo_evidence:[[:space:]]*/ {print $2; exit}' "$arc_path")
+    demo="${demo%%  #*}"
+    demo="$(printf '%s' "$demo" | sed -e 's/^[[:space:]"]*//' -e 's/[[:space:]"]*$//')"
+
+    if [ -z "$demo" ] || [ "$demo" = "null" ] || [ "$demo" = "~" ]; then
+        echo "absent: arc '$id' records no demo_evidence." >&2
+        echo "  §ACD (G-062): closure asks whether a captured artefact shows the" >&2
+        echo "  headline_mechanic firing. With nothing recorded, that question has" >&2
+        echo "  no subject — 'substrate is in place' is not an answer to it." >&2
+        return 1
+    fi
+
+    case "$demo" in
+        http://*|https://*)
+            echo "indeterminate: demo_evidence is a URL ($demo)." >&2
+            echo "  Validating it needs the network, which this check does not use." >&2
+            echo "  Verify at close time: bin/fw arc close $id --demo '$demo'" >&2
+            return 2 ;;
+    esac
+
+    # Multi-artefact entries are recorded by hand on several arcs, e.g.
+    # `parallel-execution-aef`: "agents/.../single-host-parallel-demo.sh (T-2341,
+    # exit 0) + docs/reports/T-2371-arc-011-wire-evidence-demo.md".
+    #
+    # PASS IF ANY CANDIDATE VALIDATES. G-062 asks whether a captured artefact
+    # shows the headline_mechanic firing — one that does is enough, and the
+    # sentence does not get less true because a second path was listed beside it.
+    #
+    # Judging only the first token was the first thing I wrote here, and it
+    # reported `parallel-execution-aef` invalid: its leading token is a `.sh`,
+    # which is not on the evidence allowlist, while the `.md` next to it passes
+    # cleanly. That is the check being wrong about a real arc — exactly the false
+    # negative this leg exists to remove, rebuilt one level down.
+    local cand rc_last=1
+    for cand in $(printf '%s' "$demo" | tr '+,' '  '); do
+        case "$cand" in
+            \(*|*\)|exit|[0-9]*) continue ;;   # prose fragments like "(T-2341," / "0)"
+        esac
+        case "$cand" in
+            */*|*.*) ;;                        # only things shaped like a path
+            *) continue ;;
+        esac
+        if _arc_validate_demo_path "$cand" "$id" "$arc_path" 2>/dev/null; then
+            echo "valid: $cand"
+            return 0
+        fi
+        rc_last=1
+    done
+
+    # Nothing validated — re-run the first candidate WITHOUT suppressing stderr so
+    # the caller sees a real reason rather than a bare exit code.
+    local first
+    first=$(printf '%s' "$demo" | tr '+,' '  ' | awk '{print $1}')
+    _arc_validate_demo_path "$first" "$id" "$arc_path"
+    return "${rc_last:-1}"
+}
+
 arc_review() {
     local id="${1:-}"
     [ -n "$id" ] || { echo "Usage: fw arc review <arc-id-or-slug>" >&2; return 2; }
@@ -1216,10 +1380,12 @@ arc_dispatch() {
         tag)     arc_tag     "$@";;
         close)   arc_close   "$@";;
         review)  arc_review  "$@";;                     # T-1962
+        demo-check) arc_demo_check "$@";;               # T-3553 (T-3548 Slice B)
         abandon) arc_abandon "$@";;
         migrate) arc_migrate "$@";;
         approve-driver)   arc_approve_driver   "$@";;   # T-1926 (arc-006)
         review-driver)    arc_review_driver    "$@";;   # T-3429 (arc-006, D-586)
+        judge-driver)     arc_judge_driver     "$@";;   # T-3527 (D-662 slice 3 of 3)
         remove-driver)    arc_remove_driver    "$@";;   # T-1976 (arc-006)
         set-scoped-weight) arc_set_scoped_weight "$@";; # T-1977 (arc-006)
         show-suggestions) arc_show_suggestions "$@";;   # T-1926 (arc-006)
@@ -1695,8 +1861,98 @@ else:
         return 1
     fi
 
-    if ! _arc_approve_driver_acd_gate "set-scoped-weight" "$i_am_human" "$from_watchtower"; then
-        return 1
+    # ── T-3523 (D-661 leg 2, operator ruling 2026-09-27): the reviewer, not the
+    # operator, gates a weight change — mirroring what T-3429/D-586 did for
+    # `approve-driver`. Asked whether "agent-approved drivers" reaches the weight or
+    # stops at adding one, the operator ruled it reaches the weight: a driver whose
+    # weight nobody can tune is inert.
+    #
+    # The §ACD refusal that stood here becomes the OVERRIDE path, exactly as in
+    # approve-driver: --i-am-human / --from-watchtower still change the weight
+    # directly, and an unflagged agent call runs the static reviewer instead of being
+    # refused. Reviewed BY NAME against the existing scoped_drivers[] entry — the
+    # reviewer already handles an already-approved driver (it skips self-collision in
+    # check_b and falls back to scoped_drivers), which is how the unscorable drivers
+    # the T-3428 audit names get a verdict at all.
+    #
+    # WHAT THIS WAIVES, recorded because it is not small: a scoped-driver weight is a
+    # BVP calibration parameter, and an agent tuning it is an agent adjusting the
+    # instrument that ranks its own work. CLAUDE.md's producer-not-judge binding says
+    # not to, and 832-Workflow-designer held the same line with us on their own RCA.
+    # The operator has the authority to waive it and did. The counterweights are the
+    # two immediately below and after: the reviewer must pass, the sticky guard stops
+    # an agent overwriting the operator's own weights, and every change already lands
+    # in .context/audits/arc-scoped-weight-changes.jsonl.
+    local weight_set_by="human"
+    if [ "$i_am_human" = "false" ] && [ "$from_watchtower" = "false" ]; then
+        local _wrev_json="" _wrev_rc=0
+        # `var=$(cmd)` is a simple command whose status IS the substitution's, so
+        # under `set -e` a failing reviewer aborts the function before the branch
+        # below can report it — the refusal became a silent exit 1. Caught by running
+        # the agent path and getting no output at all.
+        _wrev_json=$(_arc_driver_review_run "$f" "$PROJECT_ROOT" "$name" "false" "json") || _wrev_rc=$?
+        if [ "$_wrev_rc" -ne 0 ]; then
+            echo "Error: scoped driver '$name' did not pass review — weight unchanged." >&2
+            echo "  A weight change is a calibration change; the reviewer gates it (D-586 pattern)." >&2
+            echo "  Preview the verdict: fw arc review-driver $id \"$name\" --dry-run" >&2
+            echo "  Override as yourself: --i-am-human / --from-watchtower" >&2
+            return 1
+        fi
+        weight_set_by="reviewer"
+    fi
+
+    # ── T-3523 (D-661 leg 3): operator-adjusted weights are STICKY ────────────
+    # Operator ruling 2026-09-27, on scope: "it also covers ArcScope drivers,
+    # absolutely." Same two routes as the task-score guard — provenance (the weights
+    # were last set through the operator's own door) and digest (they no longer match
+    # the stamp written with them, i.e. someone edited the arc YAML directly).
+    # An agent yields to either; a human/watchtower caller is the operator speaking.
+    #
+    # NOW REACHABLE. When this guard was first written the §ACD gate above refused
+    # agents outright, so it could not execute on any path — the L-573 class, caught
+    # by testing the agent path rather than the --i-am-human one. That gap in D-661
+    # leg 2 was filed as OBS-558 and the operator ruled to close it, so the reviewer
+    # branch above now admits agents and this is the guard that stops a
+    # newly-admitted agent from overwriting the operator's own weights.
+    local _sticky_actor="agent"
+    [ "$i_am_human" = true ] && _sticky_actor="human"
+    [ "$from_watchtower" = true ] && _sticky_actor="watchtower"
+    if [ "$_sticky_actor" = "agent" ]; then
+        local _sticky_out _sticky_rc
+        _sticky_out=$(python3 - "$f" "${FRAMEWORK_ROOT:-.}" <<'PY'
+import sys, yaml
+sys.path.insert(0, sys.argv[2] + '/lib')
+try:
+    import bvp_sticky as st
+except Exception as exc:  # noqa: BLE001
+    # Fail CLOSED, as the task-score guard does: declining costs one re-run,
+    # overwriting costs an operator judgement nobody can see was discarded.
+    print(f"REFUSING: sticky-check unavailable ({type(exc).__name__}: {exc})")
+    sys.exit(4)
+d = yaml.safe_load(open(sys.argv[1])) or {}
+state = st.sticky_state(
+    d.get('scoped_drivers'),
+    confirmed_via=d.get('scoped_drivers_via'),
+    stamped_digest=(d.get('scoped_drivers_stamp') or {}).get('digest'),
+)
+if state['sticky']:
+    print(st.format_skip(str(d.get('id', 'arc')), 'scoped_drivers', state))
+    sys.exit(3)
+sys.exit(0)
+PY
+)
+        _sticky_rc=$?
+        if [ "$_sticky_rc" = "3" ]; then
+            echo "$_sticky_out"
+            echo "  Weights kept unchanged."
+            echo "  To change them deliberately, run as yourself: fw arc set-scoped-weight $id \"$name\" --weight $weight --rationale \"...\" --i-am-human"
+            echo "bvp sticky: 0 value(s) written, 1 skipped as operator-adjusted"
+            return 0
+        elif [ "$_sticky_rc" = "4" ]; then
+            echo "$_sticky_out" >&2
+            echo "  Not changing scoped-driver weights while the operator-adjustment guard cannot run." >&2
+            return 1
+        fi
     fi
 
     # Capture old weight for audit log, then mutate via ruamel (preserve comments).
@@ -1745,6 +2001,30 @@ else:
 os.replace(tmp_fn, fn)
 PY
 
+    # T-3523: stamp what we just wrote, so the NEXT caller can tell whether these
+    # weights are still the ones this verb put there, and record which door the
+    # change came through. A human/watchtower change is stamped too — the provenance
+    # route already protects it, and a uniform record is easier to reason about.
+    python3 - "$f" "${FRAMEWORK_ROOT:-.}" "$_sticky_actor" <<'PY' || true
+import sys, yaml
+sys.path.insert(0, sys.argv[2] + '/lib')
+try:
+    import bvp_sticky as st
+    from ruamel.yaml import YAML
+    y = YAML(); y.preserve_quotes = True; y.indent(mapping=2, sequence=4, offset=2)
+    with open(sys.argv[1]) as fh:
+        data = y.load(fh)
+    data['scoped_drivers_stamp'] = st.stamp(
+        [dict(sd) for sd in (data.get('scoped_drivers') or [])])
+    data['scoped_drivers_via'] = sys.argv[3]
+    with open(sys.argv[1], 'w') as fh:
+        y.dump(data, fh)
+except Exception:
+    # An unstamped write is UNPROTECTED, not wrong — the next caller reads a
+    # missing stamp as "overwritable", which is the pre-T-3523 behaviour.
+    pass
+PY
+
     # Audit row to dedicated weight-change history.
     local log="$PROJECT_ROOT/.context/audits/arc-scoped-weight-changes.jsonl"
     mkdir -p "$(dirname "$log")"
@@ -1780,6 +2060,72 @@ _arc_remove_driver_help() {
     echo "  .context/audits/arc-scoped-driver-removals.jsonl."
     echo ""
     echo "  Refuses under \$CLAUDECODE=1 unless --i-am-human or --from-watchtower (M6, §ACD)."
+}
+
+# T-3527 (D-662 slice 3 of 3): arc judge-driver — WRAPS review-driver's static
+# scorable/distinct/distinguishes checks (T-3429) with the quality judgement they
+# cannot make: whether the driver actually connects to THIS arc's own goal
+# (description:/headline_mechanic:), not just to D1-D4 in the abstract. Also fixes
+# OBS-559: a tooling failure in the wrapped scorability check (the estimator
+# failing to import/execute) now comes back UNKNOWN with guidance, never a
+# driver-quality fail — a check that could not run must not answer as one that did.
+#
+# Read-only. Unlike approve-driver/set-scoped-weight, this verb never mutates the
+# arc YAML and carries no §ACD gate — there is nothing here for a human to approve
+# or an agent to be refused; it only reports a verdict (lib/judge_verdict.py).
+arc_judge_driver() {
+    local id="" name="" emit="human" want_all=false
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --all) want_all=true; shift;;
+            --json) emit="json"; shift;;
+            --help|-h) _arc_judge_driver_help; return 0;;
+            *)
+                if [ -z "$id" ]; then id="$1"
+                elif [ -z "$name" ]; then name="$1"
+                else echo "Unexpected arg: $1" >&2; return 2; fi
+                shift;;
+        esac
+    done
+
+    if [ -z "$id" ]; then _arc_judge_driver_help; return 2; fi
+    id="$(_arc_normalize_input "$id")"
+    _arc_validate_id "$id" || return 2
+    _arc_exists "$id" || { echo "Error: arc '$id' not found" >&2; return 1; }
+
+    if [ "$want_all" = "false" ] && [ -z "$name" ]; then
+        echo "Error: driver name is required (or pass --all)." >&2
+        _arc_judge_driver_help
+        return 2
+    fi
+
+    local -a _jd_extra=()
+    [ "$emit" = "json" ] && _jd_extra+=(--json)
+    if [ "$want_all" = "true" ]; then
+        PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" \
+            PYTHONPATH="$FRAMEWORK_ROOT" \
+            python3 -m lib.arc_driver_judge_cli "$id" --all "${_jd_extra[@]}"
+    else
+        PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" \
+            PYTHONPATH="$FRAMEWORK_ROOT" \
+            python3 -m lib.arc_driver_judge_cli "$id" "$name" "${_jd_extra[@]}"
+    fi
+}
+
+_arc_judge_driver_help() {
+    echo "Usage:"
+    echo "  fw arc judge-driver <arc-id> \"<name>\" [--json]"
+    echo "  fw arc judge-driver <arc-id> --all [--json]"
+    echo ""
+    echo "  Judges a proposed or approved scoped driver against the arc's own goal"
+    echo "  (description:/headline_mechanic:), WRAPPING (not replacing) the static"
+    echo "  scorable/distinct/distinguishes checks from 'fw arc review-driver' (T-3429)."
+    echo "  Verdict is green/amber/red/unknown (T-3525, lib/judge_verdict.py);"
+    echo "  non-green always carries actionable guidance. Read-only — never writes"
+    echo "  reviewer: or scoped_drivers:, and carries no §ACD gate."
+    echo ""
+    echo "  A tooling failure in the wrapped scorability check comes back UNKNOWN,"
+    echo "  never a fail (OBS-559, T-3527)."
 }
 
 arc_show_suggestions() {

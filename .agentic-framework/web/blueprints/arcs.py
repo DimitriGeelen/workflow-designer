@@ -389,9 +389,10 @@ def _task_meta_index() -> dict[str, dict[str, Any]]:
     reference costs one pointer and makes the comparison mean what it reads as.
     """
     global _TASK_META_INDEX
-    from web.shared import get_all_task_metadata
+    from web.shared import request_task_metadata
 
-    rows = get_all_task_metadata()
+    # T-3600: once per request — _resolve_constituents asks per constituent.
+    rows = request_task_metadata()
     if _TASK_META_INDEX is not None and _TASK_META_INDEX[0] is rows:
         return _TASK_META_INDEX[1]
 
@@ -731,6 +732,133 @@ def arcs_index():
     )
 
 
+# ── T-3564: arc page layout — quick links, purpose, task overview, story ──
+# One ordered list of {id, title} drives BOTH the quick-link bar and the
+# section wrappers in arc_detail.html, so a link and its target cannot drift.
+
+def _source_ref(src: Any) -> dict[str, str]:
+    """Turn a story `source:` string into {text, href} ('' href = plain text)."""
+    text = str(src or "").strip()
+    if not text:
+        return {"text": "", "href": ""}
+    path = text.split("#", 1)[0]
+    if re.fullmatch(r"T-\d+", path):
+        return {"text": text, "href": f"/tasks/{path}"}
+    m = re.match(r"\.tasks/(?:active|completed)/(T-\d+)-", path)
+    if m:
+        return {"text": text, "href": f"/tasks/{m.group(1)}"}
+    if path.startswith("docs/") and (PROJECT_ROOT / path).is_file():
+        return {"text": text, "href": f"/file/{path}"}
+    return {"text": text, "href": ""}
+
+
+def _arc_story(arc: dict[str, Any]) -> dict[str, Any]:
+    """Normalise the T-3563 story fields; absent/empty fields stay empty."""
+    def _text(v: Any) -> str:
+        return str(v).strip() if v not in (None, "") else ""
+
+    def _rows(key: str, primary: str) -> list[dict[str, Any]]:
+        raw = arc.get(key)
+        out: list[dict[str, Any]] = []
+        if not isinstance(raw, list):
+            return out
+        for item in raw:
+            if isinstance(item, dict):
+                text = _text(item.get(primary))
+                if not text:
+                    continue
+                row = {k: _text(v) for k, v in item.items()}
+                row["text"] = text
+                row["source_ref"] = _source_ref(item.get("source"))
+                out.append(row)
+            elif _text(item):
+                out.append({"text": _text(item), "source_ref": _source_ref("")})
+        return out
+
+    ev_raw = arc.get("evidence")
+    evidence = []
+    if isinstance(ev_raw, dict):
+        for k, v in ev_raw.items():
+            if _text(v):
+                evidence.append({"label": str(k).replace("_", " "), "ref": _source_ref(v),
+                                 "value": _text(v)})
+    return {
+        "purpose": _text(arc.get("purpose")),
+        "objective": _text(arc.get("objective")),
+        "success_criteria": _rows("success_criteria", "criterion"),
+        "context": _rows("context", "point"),
+        "decisions": _rows("decisions", "decision"),
+        "open_questions": _rows("open_questions", "question"),
+        "non_goals": _rows("non_goals", "text"),
+        "history": _rows("history", "event"),
+        "evidence": evidence,
+        "story_review": _text(arc.get("story_review")),
+    }
+
+
+def _task_overview(constituents: list[dict[str, Any]]) -> dict[str, Any]:
+    """Counts by status (completed -> 'done'), open tasks, and tasks awaiting review.
+
+    A work-completed task still in active/ is partial-complete (waiting on a
+    human), so it is labelled 'awaiting review' and kept out of the open list.
+    """
+    counts: dict[str, int] = {}
+    open_tasks: list[dict[str, Any]] = []
+    awaiting: list[dict[str, Any]] = []
+    for c in constituents:
+        if c.get("missing"):
+            label = "missing"
+        elif c.get("completed"):
+            label = "done"
+        elif str(c.get("status") or "") == "work-completed":
+            label = "awaiting review"
+            awaiting.append(c)
+        else:
+            label = str(c.get("status") or "?")
+            open_tasks.append(c)
+        counts[label] = counts.get(label, 0) + 1
+    order = ["done", "awaiting review", "started-work", "issues", "captured"]
+    ordered = sorted(counts.items(),
+                     key=lambda kv: (order.index(kv[0]) if kv[0] in order else len(order), kv[0]))
+    open_order = ["issues", "started-work", "captured"]
+    open_tasks.sort(key=lambda c: open_order.index(c.get("status")) if c.get("status") in open_order
+                    else len(open_order))
+    return {"counts": ordered, "open_tasks": open_tasks, "awaiting_review": awaiting,
+            "total": len(constituents)}
+
+
+def _arc_sections(arc: dict[str, Any], story: dict[str, Any], constituents: list,
+                  reports: list, bvp_info: Any) -> list[dict[str, str]]:
+    """Ordered {id, title} of every section the page renders (drives quick links)."""
+    s: list[dict[str, str]] = []
+    if story["purpose"] or story["objective"]:
+        s.append({"id": "purpose", "title": "Purpose"})
+    s.append({"id": "task-overview", "title": "Task overview"})
+    for sid, title, key in (
+        ("success-criteria", "Success criteria", "success_criteria"),
+        ("context", "Context", "context"),
+        ("decisions", "Decisions", "decisions"),
+        ("open-questions", "Open questions", "open_questions"),
+        ("non-goals", "Non-goals", "non_goals"),
+        ("history", "History", "history"),
+        ("evidence", "Evidence", "evidence"),
+    ):
+        if story[key]:
+            s.append({"id": sid, "title": title})
+    if bvp_info:
+        s.append({"id": "bvp-signals", "title": "BVP signals"})
+        if isinstance(bvp_info, dict) and bvp_info.get("scoped_drivers"):
+            s.append({"id": "scoped-drivers", "title": "Scoped drivers"})
+    if reports:
+        s.append({"id": "reports", "title": "Reports & evidence"})
+    s.append({"id": "constituent-tasks", "title": "Constituent tasks"})
+    if arc.get("status") == "closed":
+        s.append({"id": "arc-closed", "title": "Arc closed"})
+    else:
+        s.append({"id": "completion-check", "title": "Completion check"})
+    return s
+
+
 @bp.route("/arcs/<arc_id>")
 def arc_detail(arc_id: str):
     """Detail page for one arc.
@@ -757,8 +885,14 @@ def arc_detail(arc_id: str):
     reports = _arc_reports(arc_slug)
     # T-1930 (arc-006): BVP signals — arc-level scores, coherence, proposed drivers.
     bvp_info = _bvp_signals(arc, arc_slug, arc_numeric)
+    story = _arc_story(arc)
+    sections = _arc_sections(arc, story, constituents, reports, bvp_info)
     return render_page(
         "arc_detail.html",
+        story=story,
+        sections=sections,
+        section_ids={x["id"] for x in sections},
+        task_overview=_task_overview(constituents),
         page_title=f"Arc: {arc.get('name', arc_id)}",
         arc=arc,
         arc_id=arc_id,
@@ -813,41 +947,30 @@ def _bvp_coherence_for_arc(arc: dict, arc_slug: str, arc_numeric: str) -> list[d
     if not claims:
         return []
 
-    # Collect constituent task paths (either slug or arc-NNN form).
-    constituent_paths: list[Path] = []
-    tasks_dir = PROJECT_ROOT / ".tasks"
-    for sub in ("active", "completed"):
-        for p in (tasks_dir / sub).glob("T-*.md"):
-            try:
-                m = _FRONTMATTER_RE.match(p.read_text())
-            except OSError:
-                continue
-            if not m:
-                continue
-            try:
-                fm = yaml.safe_load(m.group(1)) or {}
-            except yaml.YAMLError:
-                continue
+    # Collect constituent task frontmatters (either slug or arc-NNN form).
+    # T-3574: this used to read + yaml.safe_load every task file twice over (once
+    # to find members, once per claimed driver). Members come from the cached
+    # task index; each is parsed once via the mtime-cached frontmatter reader.
+    from web.blueprints.bvp import _parse_frontmatter, _task_index
+    index = _task_index()
+    ids: set[str] = set()
+    for key in (arc_slug, arc_numeric):
+        if key:
+            ids.update(index["by_arc_id"].get(key, []))
+    constituent_fms: list[dict] = []
+    for tid in sorted(ids):
+        for p in index["paths_by_id"].get(tid, []):
+            fm = _parse_frontmatter(p) or {}
             aid = str(fm.get("arc_id") or "").strip()
             if aid and (aid == arc_slug or (arc_numeric and aid == arc_numeric)):
-                constituent_paths.append(p)
-    if not constituent_paths:
+                constituent_fms.append(fm)
+    if not constituent_fms:
         return []
 
     findings: list[dict] = []
     for driver_id, claim_val in claims.items():
         scores = []
-        for p in constituent_paths:
-            try:
-                m = _FRONTMATTER_RE.match(p.read_text())
-            except OSError:
-                continue
-            if not m:
-                continue
-            try:
-                fm = yaml.safe_load(m.group(1)) or {}
-            except yaml.YAMLError:
-                continue
+        for fm in constituent_fms:
             s = (fm.get("bvp_scores") or {}).get(driver_id)
             if s is None:
                 continue

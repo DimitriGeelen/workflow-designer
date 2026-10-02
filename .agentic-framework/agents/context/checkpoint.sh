@@ -615,7 +615,15 @@ except Exception: print('')
             echo "reason: no cache file"
             exit 0
         fi
-        BUDGET_FILE="$BUDGET_FILE" MY_SESSION_ID="$MY_SESSION_ID" STATUS_MAX_AGE="$(fw_config_int "BUDGET_STATUS_MAX_AGE" 90)" python3 -c "
+        # T-3598: the framework session_id above is shared by every Claude
+        # process in the project (session.yaml), so it cannot tell the parent
+        # from a TermLink worker. The Claude session id can: CLAUDE_CODE_SESSION_ID
+        # in a Bash call, else the stem of FW_TRANSCRIPT_PATH.
+        MY_CLAUDE_SID="${CLAUDE_CODE_SESSION_ID:-}"
+        if [ -z "$MY_CLAUDE_SID" ] && [ -n "${FW_TRANSCRIPT_PATH:-}" ]; then
+            MY_CLAUDE_SID=$(basename "$FW_TRANSCRIPT_PATH" .jsonl)
+        fi
+        BUDGET_FILE="$BUDGET_FILE" MY_SESSION_ID="$MY_SESSION_ID" MY_CLAUDE_SID="$MY_CLAUDE_SID" STATUS_MAX_AGE="$(fw_config_int "BUDGET_STATUS_MAX_AGE" 90)" python3 -c "
 import json, os, time, sys
 
 budget_file = os.environ['BUDGET_FILE']
@@ -643,31 +651,10 @@ if age > max_age:
     reasons.append(f'cache is {age}s old (max {max_age}s)')
 if sid != 'unknown' and my_sid != 'unknown' and sid != my_sid:
     reasons.append(f'cache was written by session {sid}, not this session ({my_sid})')
-
-# T-849 (closes the hole left in T-3241's remediation of G-087): the three tests
-# above shut the stale door and the foreign-session door and left the ZERO door
-# open — and the zero door is the one that opens on every compaction, which is
-# exactly when an agent runs /resume and asks for the gauge. Measured
-# 2026-09-25: this reader printed 'level: ok / tokens: 0 / age_seconds: 51' from
-# a cache written fresh by this very session, against a true 98,461. That is
-# verbatim the {'level':'ok','tokens':0} payload the field report was written
-# about, surviving the guard built to stop it. A level without a credible count
-# is not a gauge: report unknown and make the reader run 'checkpoint.sh status'.
-# baseline_tokens rides along in the same write, so the contradiction is
-# MEASURABLE rather than merely suspicious — tokens below a non-zero baseline is
-# impossible, since baseline is what the session had already paid before its
-# first turn.
-_base = s.get('baseline_tokens')
-_base_known = isinstance(_base, int) and not isinstance(_base, bool) and _base > 0
-if not isinstance(tokens, int) or isinstance(tokens, bool):
-    reasons.append(f'cache carries no numeric token count (tokens: {tokens!r}) — a level without a count is not a gauge')
-elif tokens <= 0:
-    if _base_known:
-        reasons.append(f'cache reports tokens: {tokens} while baseline_tokens: {_base} — impossible, a session cannot hold fewer tokens than it had paid before its first turn')
-    else:
-        reasons.append(f'cache reports tokens: {tokens} — the writer recorded no measurement, which is NOT the same as a healthy zero')
-elif _base_known and tokens < _base:
-    reasons.append(f'cache reports tokens: {tokens} below baseline_tokens: {_base} — impossible, so the measurement is not trustworthy')
+csid = s.get('claude_session_id') or ''
+my_csid = os.environ.get('MY_CLAUDE_SID') or ''
+if csid and my_csid and csid != my_csid:
+    reasons.append(f'cache was written by Claude session {csid}, not this one ({my_csid})')
 
 if reasons:
     print('level: unknown')

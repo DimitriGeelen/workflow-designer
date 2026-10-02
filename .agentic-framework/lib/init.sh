@@ -306,15 +306,26 @@ do_init() {
 # logic: docs-daily, retention-daily, pickup-process, liveness-1m.
 jobs: []
 CRONREGEOF
+        # T-3673: framework-owned jobs a consumer needs (sidecar-sweep-5m)
+        source "$FRAMEWORK_ROOT/lib/cron-seed.sh"
+        cron_seed_ensure_jobs "$target_dir/.context/cron-registry.yaml" "$target_dir" >/dev/null || true
     fi
 
     #@init: yaml-5rc .context/bypass-log.yaml bypasses
     # Git hook bypass log
+    #
+    # F-21: this must stay a bare `bypasses:` key, NOT `bypasses: []`. The
+    # appender (agents/git/lib/bypass.sh log_bypass_entry) only writes this
+    # header when the file is missing; if the file already exists (as it does
+    # right after `fw init`), the appender skips straight to `cat >>` with
+    # block-sequence items under the existing key. A flow-style `bypasses: []`
+    # followed by block-sequence items is not valid YAML, so every project's
+    # first logged bypass corrupted the file.
     if [ ! -f "$target_dir/.context/bypass-log.yaml" ]; then
         cat > "$target_dir/.context/bypass-log.yaml" << 'BYPASSEOF'
 # Git hook bypass log
 # Entries auto-added by post-commit hook when --no-verify is detected
-bypasses: []
+bypasses:
 BYPASSEOF
     fi
 
@@ -1206,6 +1217,17 @@ generate_claude_code_config() {
           {
             "type": "command",
             "command": "$fw_prefix hook audit-task-tools"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$fw_prefix hook sidecar-inbox"
           }
         ]
       }

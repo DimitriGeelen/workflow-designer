@@ -14,6 +14,7 @@ bp = Blueprint("config", __name__)
 SETTINGS = [
     ("CONTEXT_WINDOW", "300000", "Context window size for budget enforcement (tokens)"),
     ("PORT", "3000", "Watchtower web UI listen port"),
+    ("PORT_SCAN_BASE", "3000", "First port tried when a project has no PORT set: fw serve scans 100 ports up from here, skips any held by another service, and records the chosen port as PORT in .framework.yaml (T-3662)"),
     ("RAIL_IDENTITY_FILE", "", "Project-owned termlink signing identity for outbound rail posts (T-2904). Empty = sign as host key, which is indistinguishable from co-resident agents. Created on first use."),
     ("RAIL_PROJECT_LABEL", "", "Canonical from_project label attached to outbound rail posts (T-2905). Empty = derived from the project directory name, normalised. Emitted, never typed at a call site."),
     ("DISPATCH_LIMIT", "2", "Agent tool dispatches before TermLink gate triggers"),
@@ -50,7 +51,9 @@ SETTINGS = [
     # only ever fast-forwards from it at a release. Separate keys on purpose.
     ("DEV_BRANCH", "bleeding-edge", "The sanctioned development branch — what the session commits to, what branch-hygiene measures 'landed' against, and the only writer of RELEASE_BRANCH; T-3185/T-3187/T-3188"),
     ("RELEASE_BRANCH", "master", "The consumer install surface — the branch fw release tag-and-release fast-forwards before cutting the tag; nothing authors it directly; T-3185/T-3190"),
+    ("RELEASE_TAG_PATTERN", "v[0-9]*", "Glob for release tags read by fw release status; prefixed semver (designer-vX.Y.Z) is tried when nothing matches, else no matching tag and UNKNOWN commits, never 0; T-3585"),
     ("RETIRE_WHEN_ADVISORY", "1", "Enable the audit retire_when advisory rail for free drivers; 0 silences the section; T-2169"),
+    ("SIDECAR_CONSULT_WARN_HOURS", "4", "Hours an inbound peer consult may sit unread on the sidecar inbox before fw audit and fw doctor WARN; far below the sibling dm: rail's 24 because a consult is a peer blocked on an answer; T-3544 / OBS-567"),
     ("DELEGATION_SURFACE_WARN", "50", "Operator-only open-Human-criteria count above which fw audit and fw doctor WARN, but only while reviewer-closeable is 0 (lib/delegation.py:surface_verdict); T-3445 / D-626"),
     ("GITIGNORE_REGISTER_ADVISORY", "1", "Enable the audit WARN for .gitignore comment blocks that defer work without naming a T-/G-/OBS-/L- entry; 0 silences it; T-2994"),
     ("INDEX_STALE_DAYS", "7", "Days before fw doctor WARNs that the vector index is stale, measured from the corpus manifest's build time; T-3013"),
@@ -62,6 +65,7 @@ SETTINGS = [
     ("AUDIT_TIMEOUT_WARN_FRACTION", "0.70", "Fraction of AUDIT_TIMEOUT (or FW_AUDIT_FULL_TIMEOUT) at which fw doctor WARNs that the last recorded full-audit run is eating into its timeout headroom (agents/audit/audit.sh, bin/fw do_doctor). T-3127"),
     ("AUDIT_STRUCTURE_TIMING_STALE_DAYS", "7", "Days after which fw doctor WARNs that the 'structure' section timing backing fw_prepush_lock_wait_default / fw_handover_push_timeout_default (lib/prepush-lock-wait.sh) is stale. T-3451."),
     ("PROVISION_LOAD_MAX", "0.8", "Per-core normalized 1-minute loadavg threshold for the environmental governor's provisioning admission (lib/aef_governor.py). Under = allow, at/over = defer, at/over 2x = deny; bad values fall back to 0.8, logged. T-3311."),
+    ("REVIEWER_JUDGE_WEEKLY_SPEND_CEILING", "10000", "Weekly USD spend ceiling for independent reviewer judgments via fw reviewer judge (T-3580, IW-7 rung selection). When reached, rung degrades one step and the verdict records the degradation. Per-unit cost depends on rung (same-vendor independent = lower cost, 3-vendor panel = higher cost). T-3580."),
 ]
 
 

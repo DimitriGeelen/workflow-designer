@@ -145,6 +145,26 @@ def cmd_inbox(args) -> int:
     return 0
 
 
+def _inbound_or_unknown() -> dict:
+    """`inbox.unread_summary()`, or an explicit UNKNOWN when no address can be
+    derived (T-3544).
+
+    The library raises rather than guessing, which is right: an unreadable hub
+    anchor means the inbox has no address, and inventing one would be worse
+    than failing. But `fw sidecar status` is a status command — it should
+    report what it could not determine, not abort. So the failure is caught
+    HERE, at the display boundary, and rendered as `unknown` with its reason.
+
+    `unread: None` is deliberately not `0`. Everything in this task exists
+    because a check that cannot see its subject had been indistinguishable
+    from a check that saw nothing wrong.
+    """
+    try:
+        return inbox.unread_summary()
+    except circuit.CircuitError as exc:
+        return {"unread": None, "topics": [], "reason": str(exc)}
+
+
 def cmd_status(args) -> int:
     snap = status_mod.snapshot()
     # T-3442: DM rail summary is queried HERE, separately from
@@ -154,6 +174,16 @@ def cmd_status(args) -> int:
     # answer of its own, so it is merged in at the CLI boundary instead of
     # folded into the hub-free function.
     dm_rows = dm.summary()
+    # T-3544: the INBOUND consult backlog, merged at the CLI boundary for the
+    # same reason dm_rows is (see the comment above) — snapshot() stays
+    # hub-free. Until this line existed, `status` reported the outbound ledger
+    # in five ways and the one number a waiting peer cares about in none.
+    #
+    # An unreadable hub anchor degrades to UNKNOWN, never to 0. `status` must
+    # not start crashing on a host that could always run it, and it must not
+    # answer "no consults waiting" when what it means is "I could not look" —
+    # that false green is the whole subject of this task.
+    inbound = _inbound_or_unknown()
     probe = None
     if args.probe:
         # Kept apart from the file-derived numbers on purpose: the hub's
@@ -163,11 +193,23 @@ def cmd_status(args) -> int:
     if args.json:
         payload = dict(snap)
         payload["dm_rails"] = dm_rows
+        payload["inbound"] = inbound
         if probe is not None:
             payload["hub_probe"] = probe
         print(json.dumps(payload, indent=2))
         return 0
     print(status_mod.render(snap))
+    # Printed unconditionally, including the zero. "inbound unread: 0" is a
+    # measurement; the absence of a line is indistinguishable from a check
+    # that was never made, which is the state this whole task is about.
+    if inbound["unread"] is None:
+        print(f"inbound unread:   unknown — {inbound.get('reason', 'no address')}")
+    else:
+        print(f"inbound unread:   {inbound['unread']}")
+    for row in inbound["topics"]:
+        age = "unknown" if row["age_hours"] is None else f"{row['age_hours']}h"
+        print(f"  {row['topic']}: {row['unread']} unread, oldest {age}"
+              f" from {row['oldest_from'] or 'unknown'}")
     if dm_rows:
         print("dm rails:")
         for row in dm_rows:
@@ -207,7 +249,10 @@ def cmd_e2e(args) -> int:
 
     T-3423. Preflight first so a missing hub never costs a worker; then
     lib/sidecar/e2e.py:run with the real collaborators; JSON record under
-    .context/sidecar/e2e/<run>.json; exit 0 only when the blocking hops pass.
+    .context/sidecar/e2e/<run>.json; exit 0 on PASS, 1 on FAIL, 3 on PENDING
+    (T-3476: peer mode only — "no answer yet" is not "broken", and `fw
+    sidecar settle <run_id>` re-checks a PENDING record later without
+    re-sending).
     """
     ok, why = e2e.preflight()
     if not ok:
@@ -247,7 +292,49 @@ def cmd_e2e(args) -> int:
     else:
         print(e2e.render(report))
         print(f"  report: {path}")
-    return 0 if report["verdict"] == "PASS" else 1
+    return _exit_for_verdict(report["verdict"])
+
+
+def _exit_for_verdict(verdict: str) -> int:
+    """0 PASS, 1 FAIL, 3 PENDING — distinct so a caller can tell "not yet"
+    from "broken" (T-3476) instead of collapsing both into a bare failure."""
+    if verdict == e2e.PASS:
+        return 0
+    if verdict == e2e.PENDING:
+        return 3
+    return 1
+
+
+def cmd_settle(args) -> int:
+    """Re-check a stored peer-mode e2e run against current hub state and
+    update its verdict in place, without re-sending (T-3476).
+
+    Reads .context/sidecar/e2e/<run_id>.json, re-derives H2/H4/H5 from
+    current hub messages keyed on the record's own client_msg_id and
+    conversation_id, and writes the settled record back to the same path —
+    a PENDING run turns PASS the moment the peer's ACK lands on the hub, or
+    stays PENDING (still no answer) or moves to FAIL (H1/H2 evidence turned
+    up broken, which settle() also re-checks).
+    """
+    path = e2e.report_dir() / f"{args.run_id}.json"
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+    except OSError:
+        print(f"settle: no run record for {args.run_id!r} at {path}", file=sys.stderr)
+        return 2
+    try:
+        report = e2e.settle(report)
+    except ValueError as exc:
+        print(f"settle: {exc}", file=sys.stderr)
+        return 2
+    e2e.write_report(report)
+    if args.json:
+        print(json.dumps(report, indent=2, sort_keys=True))
+    else:
+        print(e2e.render(report))
+        print(f"  settled: {report['settle_history'][-1]['from_verdict']} -> {report['verdict']}")
+        print(f"  report: {path}")
+    return _exit_for_verdict(report["verdict"])
 
 
 def cmd_dm_stale(args) -> int:
@@ -261,6 +348,33 @@ def cmd_dm_stale(args) -> int:
         return 0
     for row in rows:
         print(f"{row['topic']}\t{row['unread']}\t{row['age_hours']}")
+    return 0
+
+
+def cmd_inbox_stale(args) -> int:
+    """Consult-inbox topics holding an unread consult older than
+    `--threshold-hours` — the fact both `fw doctor` and `fw audit`'s
+    `check_sidecar_ledger` read for the T-3544 WARN. Deliberately the same
+    contract as `dm-stale` above: exit 0 always, because a backlog is a
+    finding and not a command failure, and the caller decides what a non-empty
+    list means. Moves no cursor — see `inbox.unread_summary`.
+
+    The ONE thing it does not do is exit 0 on a failure to look. When no
+    address can be derived, it exits 2 with the reason on stderr, so the fact
+    function reports rc 2 ("the check could not run") deliberately rather than
+    picking that up from an incidental traceback — and so neither caller can
+    mistake "I could not look" for "nothing is waiting"."""
+    try:
+        rows = inbox.unread_stale(min_age_hours=args.threshold_hours)
+    except circuit.CircuitError as exc:
+        print(f"consult-inbox backlog check could not run: {exc}", file=sys.stderr)
+        return 2
+    if args.json:
+        print(json.dumps(rows, indent=2))
+        return 0
+    for row in rows:
+        age = "unknown" if row["age_hours"] is None else row["age_hours"]
+        print(f"{row['topic']}\t{row['unread']}\t{age}\t{row['oldest_from'] or 'unknown'}")
     return 0
 
 
@@ -328,12 +442,27 @@ def build_parser() -> argparse.ArgumentParser:
     ee.add_argument("--json", action="store_true")
     ee.set_defaults(func=cmd_e2e)
 
+    se = sub.add_parser("settle", help="re-check a stored peer-mode e2e run against "
+                        "current hub state; a late ACK turns PENDING into PASS "
+                        "without re-sending (T-3476)")
+    se.add_argument("run_id", help="the run id from a prior `fw sidecar e2e --peer` "
+                    "(the .context/sidecar/e2e/<run_id>.json filename stem)")
+    se.add_argument("--json", action="store_true")
+    se.set_defaults(func=cmd_settle)
+
     ds = sub.add_parser("dm-stale", help="dm:* rails addressed to us with an unread "
                         "content post older than --threshold-hours (T-3442, "
                         "fw doctor / fw audit fact source)")
     ds.add_argument("--threshold-hours", type=float, default=24.0)
     ds.add_argument("--json", action="store_true")
     ds.set_defaults(func=cmd_dm_stale)
+
+    ibs = sub.add_parser("inbox-stale", help="consult-inbox topics holding an unread "
+                         "consult older than --threshold-hours (T-3544, "
+                         "fw doctor / fw audit fact source)")
+    ibs.add_argument("--threshold-hours", type=float, default=24.0)
+    ibs.add_argument("--json", action="store_true")
+    ibs.set_defaults(func=cmd_inbox_stale)
 
     return parser
 

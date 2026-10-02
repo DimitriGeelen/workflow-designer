@@ -13,15 +13,14 @@ Known settings registry (mirrors lib/config.sh FW_CONFIG_REGISTRY)
 4-tier resolution: explicit CLI flag > `FW_*` env var > `.framework.yaml` > hardcoded default. Persistent per-project config: `fw config set KEY VALUE` writes to `.framework.yaml`.
 
 Agent-relevant settings:
-- `FW_CONTEXT_WINDOW` (300000) — budget enforcement ceiling
+- `FW_CONTEXT_WINDOW` (registry default 300000; **this project: 975000**) — budget enforcement ceiling. Every band in §Context Budget Management is a percentage of it.
 - `FW_PORT` (3000) — Watchtower listen port (also resolved via triple-file; see Watchtower Port section)
 - `FW_SAFE_MODE` (0) — bypass task gate (escape hatch). **Must be set on the Claude
-  process itself, not as a command prefix (T-3179).** `check-active-task.sh` reads the
-  hook process's environment, never the command string, s
+  process itself, not as a command p
 
 *(truncated — see CLAUDE.md for full section)*
 
-## Dependencies (8)
+## Dependencies (9)
 
 | Component | Relationship | Description |
 |-----------|--------------|-------------|
@@ -33,6 +32,7 @@ Agent-relevant settings:
 | [shared](/docs/generated/web-shared) | uses | Shared helpers for all web blueprints — path resolution, navigation groups, ambient status strip, render_page (htmx/full page rendering) |
 | [audit-yaml-validator](/docs/generated/audit-yaml-validator) | calls | Validate all project YAML files parse correctly. Part of the audit structure section. Added as regression test after T-206 silent corruption. |
 | [fw](/docs/generated/bin-fw) | calls | Single entry point for all framework operations. Reads .framework.yaml from the project directory to resolve FRAMEWORK_ROOT, then routes commands to the appropriate agent. Supports both in-repo and shared tooling modes. |
+| [aef_governor](/docs/generated/lib-aef_governor) | calls | arc-020 S5: environmental governor v1 — loadavg-based provisioning admission. |
 
 ## Used By (7)
 
@@ -42,7 +42,7 @@ Agent-relevant settings:
 | [__init__](/docs/generated/web-blueprints-__init__) | called_by | Flask blueprint:   Init |
 | [__init__](/docs/generated/web-blueprints-__init__) | registered_by | Flask blueprint:   Init |
 | [config](/docs/generated/web-templates-config) | rendered_by | Watchtower /config page — show all FW_* settings with current values and sources |
-| [handover_digest](/docs/generated/tests-unit-handover_digest) | tests_by | TODO: describe what this component does |
+| [handover_digest](/docs/generated/tests-unit-handover_digest) | tests_by | T-3028 (T-3025 GO, option 3): the three state dumps digest to count + regenerating command + top-N; the narrative does not change. |
 | [__init__](/docs/generated/web-blueprints-__init__) | uses_by | Flask blueprint:   Init |
 
 ## Related

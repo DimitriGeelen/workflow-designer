@@ -144,6 +144,11 @@ CRONEOF
             # remains only for pre-T-448 consumer projects with no registry.
             if [ -f "$PROJECT_ROOT/.context/cron-registry.yaml" ]; then
                 shift
+                # T-3626: cd first. paths.sh set _FW_PATHS_DERIVED_BY, so the
+                # nested fw (T-3285) re-anchors to the cwd project — without
+                # this, an explicit PROJECT_ROOT run from another tree installs
+                # THAT tree's crontab.
+                cd "$PROJECT_ROOT" || exit 1
                 exec "$FW_PATH" cron install "$@"
             fi
 
@@ -1954,6 +1959,123 @@ else
          "Migrate to lib/arc_membership.{sh,py} (arc_tasks_for / scan_tasks_by_arc_membership). See T-1880 for pattern. Silent-corpus risk class L-397."
 fi
 
+# T-3516 (OBS-546): ctl-arc-membership-python-import.
+# The check above requires the literal token `grep`, so it is blind to a
+# Python file that re-derives arc membership without ever calling grep — a
+# silent-corpus risk in exactly the language the shell-pattern check cannot
+# see (T-3503 measured this live: two Python copies of arc membership both
+# drifted wrong while the check above reported PASS in the same run).
+#
+# Inverted design (allowlist of DIRECT derivation, not blocklist of
+# reinvention text): a blocklist of "bad regexes" is unbounded per language
+# ("the set of ways to write a regex is not finite" — this task's own
+# framing); an allowlist of files permitted to derive membership directly is
+# finite. So: any Python file outside the allowlist that (a) iterates the
+# task corpus (`.tasks/active` / `.tasks/completed` / a `T-*.md` glob) AND
+# (b) references `arc_id` WITHIN 60 LINES of that iteration, and does NOT
+# import the canonical helper, is a reinvention candidate.
+#
+# Comments are stripped (tokenize COMMENT tokens only — never strings, so a
+# real `row["arc_id"]` access still counts) before matching, so a comment
+# that merely NAMES the pattern does not trip the check — the exact class
+# that broke a T-3502 verification line on a correct tree. The 60-line
+# window (not file-wide co-occurrence) excludes large multi-purpose files
+# that iterate the corpus in one function and resolve an unrelated arc_id
+# in a different, distant function (measured false-positive risk on this
+# corpus: agents/termlink/bvp-estimator/estimator.py, >1000 lines apart).
+#
+# Allowlist: lib/arc_membership.py (canonical), lib/migrations/ (one-shot
+# migration), tests/, docs/, .fabric/, .context/ (out-of-scope surfaces).
+# Scope: lib/, web/, agents/, bin/, tools/ — *.py only (shell reinvention is
+# still caught by the grep-token check above; this is the Python half).
+# Failure mode: FAIL — same class, same severity as T-1881.
+if command -v python3 >/dev/null 2>&1; then
+    arc_py_import_findings=$(python3 - "$PROJECT_ROOT" <<'PY'
+import io
+import re
+import sys
+import tokenize
+from pathlib import Path
+
+root = Path(sys.argv[1])
+scan_dirs = ["lib", "web", "agents", "bin", "tools"]
+allow_prefixes = ("lib/arc_membership.py", "lib/migrations/")
+allow_infixes = ("/tests/", "/docs/", "/.fabric/", "/.context/")
+
+corpus_iter_re = re.compile(
+    r"""\.tasks[/'"]\s*/?\s*['"]?(active|completed)|glob\(\s*['"]T-\*\.md['"]"""
+)
+arc_id_re = re.compile(r"arc_id")
+import_re = re.compile(
+    r"(?:from\s+(?:lib\.)?arc_membership\s+import)|(?:import\s+(?:lib\.)?arc_membership\b)"
+)
+WINDOW = 60
+
+scanned = 0
+findings = []
+for d in scan_dirs:
+    base = root / d
+    if not base.is_dir():
+        continue
+    for path in sorted(base.rglob("*.py")):
+        rel = str(path.relative_to(root))
+        if rel.startswith(allow_prefixes):
+            continue
+        if any(inf in ("/" + rel + "/") for inf in allow_infixes):
+            continue
+        scanned += 1
+        try:
+            src = path.read_text(errors="replace")
+        except OSError:
+            continue
+        lines = src.splitlines()
+        try:
+            for tok in tokenize.generate_tokens(io.StringIO(src).readline):
+                if tok.type == tokenize.COMMENT:
+                    r, c = tok.start[0] - 1, tok.start[1]
+                    if 0 <= r < len(lines):
+                        lines[r] = lines[r][:c]
+        except tokenize.TokenError:
+            pass
+
+        if import_re.search("\n".join(lines)):
+            continue  # delegates — compliant regardless of local text
+
+        iter_lines = [i for i, l in enumerate(lines) if corpus_iter_re.search(l)]
+        if not iter_lines:
+            continue
+        arc_lines = [i for i, l in enumerate(lines) if arc_id_re.search(l)]
+        if not arc_lines:
+            continue
+        for il in iter_lines:
+            for al in arc_lines:
+                if abs(il - al) <= WINDOW:
+                    findings.append(f"{rel}:{il + 1}~{al + 1}")
+                    break
+            else:
+                continue
+            break
+
+print(f"scanned={scanned}")
+for f in findings:
+    print("FINDING " + f)
+PY
+)
+    arc_py_import_scanned=$(printf '%s\n' "$arc_py_import_findings" | grep '^scanned=' | cut -d= -f2)
+    arc_py_import_evidence=$(printf '%s\n' "$arc_py_import_findings" | grep '^FINDING ' | sed 's/^FINDING //')
+    arc_py_import_violations=0
+    [ -n "$arc_py_import_evidence" ] && arc_py_import_violations=$(printf '%s\n' "$arc_py_import_evidence" | grep -c .)
+    if [ "$arc_py_import_violations" -eq 0 ]; then
+        pass_over "${arc_py_import_scanned:-0}" "Python file(s) under lib/ web/ agents/ bin/ tools/" \
+             "No Python arc-membership derivation outside canonical import (T-3516, OBS-546)" \
+             "" "The scan walked no files — check that lib/ web/ agents/ bin/ tools/ exist under PROJECT_ROOT"
+    else
+        fail "Found $arc_py_import_violations Python arc-membership derivation site(s) not importing the canonical helper" \
+             "$(printf '%s\n' "$arc_py_import_evidence" | head -5)" \
+             "Import from lib.arc_membership (scan_tasks_by_arc_membership / task_dict_in_arc / task_has_arc_membership) instead of re-deriving. See T-1880/T-3516."
+    fi
+fi
+
 # T-2648 (OBS-097, 832's G-004 class): split-root asset-resolution lint.
 # Framework-owned dirs (lib/ agents/ policy/ bin/ web/) resolved via
 # PROJECT_ROOT are invisible bugs in this repo (roots coincide) but break
@@ -2123,6 +2245,14 @@ INLINE_RT_LINE_RE = re.compile(r'^related_tasks:.*\bT-\d+\b.*\$', re.M)
 # Inline list form plus the indented block form both occur in the corpus.
 UNLOCKS_RE = re.compile(r'^unlocks_inception_decision:.*(?:\n[ \t]+-.*)*', re.M)
 TID_RE = re.compile(r'\bT-\d+\b')
+# T-3469 classification inputs. A body-level mention is WEAKER evidence than a
+# declared link, so it never removes a finding — it only labels one. The
+# predicate above decides what is flagged; these decide how a flagged item is
+# described. Origin OBS-535: the WARN's single count read as 185 abandoned
+# decisions when the measured candidate set was 30.
+ANY_WF_RE = re.compile(r'^workflow_type:\s*(\S+)\s*\$', re.M)
+CREATED_RE = re.compile(r'^created:\s*(\S{10})', re.M)
+FOLLOWER_TYPES = set(['build', 'refactor', 'test', 'decommission'])
 
 
 def task_files(d):
@@ -2160,6 +2290,7 @@ def no_related_tasks(content):
 total_inceptions = 0
 go_inceptions = 0
 candidates = []   # (t_id, path)
+cand_created = {}  # T-3469: candidate id -> created date, for the at-or-after test
 completed_cache = []
 for path, fn, t_id, content in task_files(completed_dir):
     completed_cache.append((t_id, content))
@@ -2171,6 +2302,9 @@ for path, fn, t_id, content in task_files(completed_dir):
     go_inceptions += 1
     if no_related_tasks(content):
         candidates.append((t_id, path))
+        cm = CREATED_RE.search(content)
+        if cm:
+            cand_created[t_id] = cm.group(1)
 
 # Pass 2: walk active/ once and reuse the completed/ read from pass 1. Collect
 # every task id referenced by a related_tasks: line or an
@@ -2190,12 +2324,67 @@ def harvest(owner_id, content):
                 referenced.add(tm.group(0))
 
 
+# T-3469: the same two walks also collect body-level followers, so classifying
+# costs no extra IO. cand_ids is known from pass 1, so this can fold in here.
+cand_ids = set(t_id for t_id, _ in candidates)
+followers = {}   # inception id -> list of (follower_id, 'active'|'completed')
+
+
+def collect_followers(owner_id, content, where):
+    wm = ANY_WF_RE.search(content)
+    if not wm or wm.group(1) not in FOLLOWER_TYPES:
+        return
+    cm = CREATED_RE.search(content)
+    if not cm:
+        return
+    created = cm.group(1)
+    for tm in set(TID_RE.findall(content)):
+        if tm == owner_id or tm not in cand_ids:
+            continue
+        ic = cand_created.get(tm)
+        # At-or-after only: a task filed BEFORE the inception cannot be the work
+        # its GO approved, however much it mentions it.
+        if ic and created >= ic:
+            followers.setdefault(tm, []).append((owner_id, where))
+
+
 for t_id, content in completed_cache:
     harvest(t_id, content)
+    collect_followers(t_id, content, 'completed')
 for path, fn, t_id, content in task_files(active_dir):
     harvest(t_id, content)
+    collect_followers(t_id, content, 'active')
 
 findings = [(t_id, path) for t_id, path in candidates if t_id not in referenced]
+
+
+def tier_of(t_id):
+    # linked-late | in-flight | candidate.
+    # T-3562: these tiers are decided by a MENTION in a later task body, never by
+    # a declared link, so none of them is evidence that anything was built. The
+    # comment here used to say the other two tiers mean the work propagated;
+    # that belief is how T-3475 (D-645 slice 1, GO 2026-09-25) sat unbuilt
+    # under an in-flight label, because an unrelated estimator task mentioned it.
+    # candidate = no later build-class task mentions it at all.
+    # in-flight = mentioned by at least one task still in active/.
+    # linked-late = mentioned only by completed tasks. Built: UNKNOWN.
+    # NOTE: comments, not a docstring. This whole scan lives inside a
+    # double-quoted 'python3 -c' string, so a triple-quoted docstring closes
+    # the shell string and the rest of the function is handed to bash as
+    # commands. Single quotes here on purpose: a backtick inside this block
+    # would be command-substituted by bash at evaluation time (T-3086).
+    fol = followers.get(t_id)
+    if not fol:
+        return 'candidate'
+    if any(where == 'active' for _, where in fol):
+        return 'in-flight'
+    return 'linked-late'
+
+
+tiers = dict((t_id, tier_of(t_id)) for t_id, _ in findings)
+n_cand = sum(1 for v in tiers.values() if v == 'candidate')
+n_flight = sum(1 for v in tiers.values() if v == 'in-flight')
+n_linked = sum(1 for v in tiers.values() if v == 'linked-late')
 
 
 def id_key(pair):
@@ -2230,13 +2419,47 @@ lines.append('These are candidates for triage, not confirmed abandoned decisions
 lines.append('some may have shipped work that was simply never linked back. Deciding')
 lines.append('which is which is the judgement this check exists to force.')
 lines.append('')
-lines.append('## Findings (most recent first)')
+lines.append('## Tiers (T-3469)')
 lines.append('')
-if findings:
-    for t_id, path in findings:
-        lines.append('- ' + t_id + ' — ' + os.path.relpath(path, project_root))
-else:
-    lines.append('_None._')
+lines.append('The predicate above decides WHAT is flagged and is unchanged. These')
+lines.append('tiers describe a flagged item using one weaker signal the predicate')
+lines.append('does not consult: whether a build/refactor/test/decommission task')
+lines.append('created at-or-after the inception mentions it anywhere in its body.')
+lines.append('A body mention is weaker than a declared link, so it never removes a')
+lines.append('finding — it only labels one.')
+lines.append('')
+lines.append('EVERY item below has NO declared build link. A mention is a mention, not a')
+lines.append('build: whether any of this work was built is UNKNOWN until a build task')
+lines.append('declares it with unlocks_inception_decision: (T-1984). (T-3562: these tiers')
+lines.append('used to describe a mention as evidence that the work was under way or done;')
+lines.append('that label hid D-645 slice 1, unbuilt, for four days.)')
+lines.append('')
+lines.append('- candidate   (' + str(n_cand) + ') — no later build-class task mentions it at all.')
+lines.append('- in-flight   (' + str(n_flight) + ') — mentioned by at least one task still in '
+             'active/. A mention, not evidence that the work started.')
+lines.append('- linked-late (' + str(n_linked) + ') — mentioned only by completed tasks. '
+             'Whether it was built is UNKNOWN: check, then declare the link.')
+lines.append('')
+lines.append('Origin OBS-535: this scan used to report one undifferentiated count,')
+lines.append('which read as abandonment for every tier at once.')
+lines.append('')
+for tier_name in ('candidate', 'in-flight', 'linked-late'):
+    sel = [(t, p) for t, p in findings if tiers[t] == tier_name]
+    lines.append('## ' + tier_name + ' (' + str(len(sel)) + ', most recent first)')
+    lines.append('')
+    if sel:
+        for t_id, path in sel:
+            row = '- ' + t_id + ' — ' + os.path.relpath(path, project_root)
+            fol = followers.get(t_id)
+            if fol:
+                row += ' [followers: ' + ', '.join(
+                    f_id + ('*' if where == 'active' else '')
+                    for f_id, where in sorted(fol)[:6]) + ']'
+            lines.append(row)
+    else:
+        lines.append('_None._')
+    lines.append('')
+lines.append('(* = follower still in active/)')
 
 try:
     with open(report_path, 'w') as f:
@@ -2244,11 +2467,22 @@ try:
 except Exception:
     pass
 
-sample = ', '.join(t_id for t_id, _ in findings[:5])
-overflow = len(findings) - min(5, len(findings))
+# T-3469: the WARN leads with the candidate count, so the examples printed
+# beside it must be examples OF that tier — not of whichever finding happens to
+# have the highest id. Counts go before the sample so a sample containing an
+# unexpected character cannot swallow a field on the shell read.
+cand_list = [t for t, _ in findings if tiers[t] == 'candidate']
+# Sample the tier the headline counts, and let the overflow count THAT tier
+# too. An overflow measured against all 186 findings would re-inflate the very
+# number this change exists to deflate -- '(+181 more)' beside a headline of 25.
+sample_src = cand_list if cand_list else [t for t, _ in findings]
+sample_of = 'candidate' if cand_list else 'unlinked'
+sample = ', '.join(sample_src[:5])
+overflow = len(sample_src) - min(5, len(sample_src))
 if overflow > 0:
-    sample += ' (+' + str(overflow) + ' more)'
-print('|'.join([str(total_inceptions), str(go_inceptions), str(len(findings)), sample]))
+    sample += ' (+' + str(overflow) + ' more ' + sample_of + ')'
+print('|'.join([str(total_inceptions), str(go_inceptions), str(len(findings)),
+                str(n_cand), str(n_flight), str(n_linked), sample]))
 " 2>/dev/null)
 
 if [ -z "$go_scope_summary" ]; then
@@ -2261,16 +2495,16 @@ if [ -z "$go_scope_summary" ]; then
          "the pre-scan produced no summary line" \
          "Re-run the pre-scan without 2>/dev/null to see the error; the check asserts nothing until it does"
 else
-    IFS='|' read -r _gs_inceptions _gs_go _gs_count _gs_sample <<< "$go_scope_summary"
+    IFS='|' read -r _gs_inceptions _gs_go _gs_count _gs_cand _gs_flight _gs_linked _gs_sample <<< "$go_scope_summary"
     if [ "${_gs_count:-0}" -eq 0 ]; then
         pass_over "${_gs_go:-0}" "GO-recorded completed inception(s) of ${_gs_inceptions:-0} completed inception(s)" \
              "No GO-scope-not-propagated inception(s) (sibling to L-417)" \
              "the workflow_type:inception filter matched ${_gs_inceptions:-0} completed task(s), of which 0 recorded a GO" \
              "Check the GO predicate against .tasks/completed/ by hand — an empty GO set is what T-3099 found and repaired, and it can regress"
     else
-        warn "Found $_gs_count GO-scope-not-propagated inception(s) of ${_gs_go:-0} GO-recorded completed inception(s) examined — GO recorded, related_tasks empty, nobody back-references, no unlocks_inception_decision" \
+        warn "$_gs_count GO'd inception(s) have NO declared build link — whether they were built is UNKNOWN (${_gs_cand:-0} not even mentioned by a later task; ${_gs_flight:-0} mentioned by an open task; ${_gs_linked:-0} mentioned only by closed tasks; of ${_gs_go:-0} GO-recorded completed inception(s) examined). A mention is not a build (T-3562)." \
              "$_gs_sample" \
-             "Triage: per inception either backfill related_tasks: / unlocks_inception_decision:, or file the slices its GO approved. Full list: cat $GO_SCOPE_REPORT_PATH (origin: T-2078, T-2091, T-3099; sibling to L-417/T-1975)"
+             "For each: find the task that builds it and declare unlocks_inception_decision: [T-XXXX:<decision-id>] on it, or record that it was never built. The tiers are mentions only; the unmentioned ones are the likeliest abandoned, but a mention proves nothing either way (T-3475 was mentioned and unbuilt). Triage per tier: cat $GO_SCOPE_REPORT_PATH (origin: T-2078, T-2091, T-3099; tiers T-3469/OBS-535; wording T-3562)"
     fi
 fi
 # end GO-scope-not-propagated scan (T-3099)
@@ -2363,7 +2597,13 @@ print(f'{unenriched} {total}')
                  "Graph coverage below target" \
                  "Run: fw fabric enrich"
         else
-            pass "Fabric edges: $fabric_enriched/$fabric_total cards enriched ($fabric_unenriched without edges)"
+            # F-24: this line only ever measured depends_on/depended_by edges — it
+            # never read purpose/subsystem. "cards enriched" claimed a broader
+            # property (usable content) than the check tests, so a card with a
+            # placeholder purpose and subsystem: unknown still counted as
+            # "enriched" as long as it had an edge. Wording now matches what is
+            # actually measured; it does not claim content quality.
+            pass "Fabric edges: $fabric_enriched/$fabric_total cards have edges ($fabric_unenriched without edges)"
         fi
     fi
 fi
@@ -2492,12 +2732,26 @@ if [ -f "$_cron_registry" ] && fw_is_linked_worktree "$PROJECT_ROOT"; then
     info "Cron drift checks skipped — linked worktree (cron is host-level, managed from the main checkout)"
 elif [ -f "$_cron_registry" ] && \
      { source "$FRAMEWORK_ROOT/lib/cron-registry.sh"; [ "$(cron_registry_job_count "$_cron_registry")" = "0" ]; }; then
-    # T-2844: `fw init` seeds `jobs: []`. An empty registry has no generated form,
-    # so "present but not generated" is the correct state, not drift. Parity with
-    # the same guard in `fw doctor` (bin/fw) — both surfaces emitted this on every
-    # freshly initialised project. A malformed registry returns -1, not 0, and
-    # falls through to the checks below on purpose.
-    info "Cron drift checks skipped — registry declares no jobs (nothing to generate)"
+    # T-2844: `fw init` seeds `jobs: []`. A freshly initialised project has no
+    # deployed target either, so "present but not generated" is correct, not
+    # drift — INFO/skip. T-3161: parity with `fw doctor` (bin/fw) — `jobs: []`
+    # WITH a deployed target present is not fresh init, it is an unmigrated
+    # legacy-lane project whose live crontab the registry knows nothing about
+    # (G-088 / 001-CashWeb). That state must WARN, naming the trap directly
+    # rather than the generic "run fw cron install" remedy (that command is
+    # what erases the very jobs this WARN exists to protect — it now refuses
+    # on an unmigrated target, see T-3161's install-side gate). A malformed
+    # registry returns -1, not 0, and falls through to the checks below either way.
+    _t3161_target_dir="${FW_CRON_INSTALL_DIR:-/etc/cron.d}"
+    _t3161_slug=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')
+    _t3161_target="$_t3161_target_dir/agentic-audit-${_t3161_slug}"
+    if [ -f "$_t3161_target" ]; then
+        warn "Cron registry declares no jobs but a deployed crontab exists at $_t3161_target" \
+             "$_cron_registry has jobs: [] while $_t3161_target is present on disk — likely an unmigrated legacy install, not a fresh project" \
+             "Populate .context/cron-registry.yaml jobs: to match $_t3161_target before running fw cron install (T-3161)"
+    else
+        info "Cron drift checks skipped — registry declares no jobs (nothing to generate)"
+    fi
 elif [ -f "$_cron_registry" ]; then
     _cron_source="$PROJECT_ROOT/.context/cron/agentic-audit.crontab"
     _cron_target_dir="${FW_CRON_INSTALL_DIR:-/etc/cron.d}"
@@ -2550,52 +2804,52 @@ elif [ -f "$_cron_registry" ]; then
     fi
 fi
 
-# T-873 (G-055/PL-124 sibling): `fw upgrade` step [1/10] replaces CLAUDE.md's
-# governance tail wholesale from the framework template. Project-specific text
-# written INLINE inside a governance section cannot survive that merge, and
-# upgrade.sh knows it: it copies the old file to CLAUDE.md.bak first, diffs the
-# two, and prints a lost-line warning whose own remedy ends "remove
-# CLAUDE.md.bak to clear". That last clause is what makes the .bak an
-# acknowledgement token — durable, and clearable by one command.
-#
-# NOTHING READ IT. Before this check, the only reference to CLAUDE.md.bak
-# anywhere under agents/ or lib/ was the line in upgrade.sh that writes it, so
-# the warning lived exactly as long as the terminal that carried it. Measured
-# 2026-09-25 in this project: a real upgrade dropped 25 lines including the
-# entire T-675 budget-cache passage ("`unknown` is not `ok`"). The degraded file
-# was still uncommitted and still being loaded as the agent's own instructions a
-# day later, and the loss was found by accident while reading something else.
-#
-# THE PREDICATE IS EXISTENCE, NOT CONTENT — deliberately, and it is the whole
-# design. A line-level diff cannot tell a rewording from a deletion: after
-# T-873's fix was correct and complete, 6 lines still read as "absent" whose
-# substance was present and improved. A check gated on that count would have
-# gone red on the finished repair and stayed red with nothing that clears it,
-# which is OBS-293 (a permanently red check trains readers to ignore it). So
-# the count is reported as context and what is ASSERTED is whether a human
-# acknowledged the rewrite. The honest limit: this cannot tell whether the
-# review was done WELL, only whether it was done at all — still strictly more
-# than the zero readers it had.
-# ── T-873 claude-bak-signal: begin (extracted verbatim by tools/_t873-claude-bak-teeth.sh) ──
-_t873_claude="$PROJECT_ROOT/CLAUDE.md"
-_t873_bak="${_t873_claude}.bak"
-if [ -f "$_t873_claude" ] && [ -f "$_t873_bak" ]; then
-    _t873_lost=$( { grep -Fxv -f "$_t873_claude" "$_t873_bak" 2>/dev/null || true; } \
-                  | grep -cvE '^[[:space:]]*$' || true )
-    case "$_t873_lost" in ''|*[!0-9]*) _t873_lost=0 ;; esac
-    if [ "$_t873_lost" -gt 0 ]; then
-        warn "CLAUDE.md governance rewrite unreviewed: $_t873_lost line(s) in CLAUDE.md.bak are absent from CLAUDE.md" \
-             "fw upgrade replaced the governance tail from the framework template and kept the old file as CLAUDE.md.bak. Some of the $_t873_lost may be reworded rather than lost — the diff cannot tell them apart, which is exactly why a human clears this and not a count" \
-             "Review: diff CLAUDE.md.bak CLAUDE.md — re-apply what is still wanted, then clear the signal: rm CLAUDE.md.bak"
+# T-3581: the reviewer-verdict ledger is a SOVEREIGNTY-relevant close path (a green row
+# ticks a Human criterion and hands ownership to the agent), so it needs a consumer that
+# is not the closer. Every row is cross-checked for schema, a signed review-dispatch
+# record for the row's task, a producer set that is non-empty and excludes the reviewer,
+# evidence paths inside the repo, and an introducing commit that exists and is not a
+# producer's. A torn line is a failure. FAIL, not WARN: an unverifiable row is exactly what
+# a forged close looks like, and it is a property of committed content.
+if [ -f "$FRAMEWORK_ROOT/lib/verdict_ledger.py" ]; then
+    _vl_out=$(PROJECT_ROOT="$PROJECT_ROOT" python3 "$FRAMEWORK_ROOT/lib/verdict_ledger.py" audit 2>&1)
+    _vl_rc=$?
+    if [ "$_vl_rc" -eq 0 ]; then
+        pass "Reviewer-verdict ledger: $(echo "$_vl_out" | tail -1)"
+    elif [ "$_vl_rc" -eq 2 ]; then
+        fail "Reviewer-verdict ledger: rows that do not verify" \
+             "$(echo "$_vl_out" | grep '^FAIL' | head -3 | tr '\n' ';')" \
+             "Inspect: python3 lib/verdict_ledger.py audit — a row with no signed review dispatch, an introducing commit by a producer, or a torn line must be removed or re-recorded by a real review dispatch; a refusal caused by a FIXED framework defect: fw reviewer verdict acknowledge <row> --fixed-by T-XXXX --reason '...'"
+    elif [ "$_vl_rc" -eq 3 ]; then
+        # T-3657: every failing row carries a committed acknowledgement naming the completed task
+        # that fixed the defect behind it. WARN, never PASS — the rows still do not count.
+        warn "Reviewer-verdict ledger: acknowledged refusals only — $(echo "$_vl_out" | tail -1)" \
+             "$(echo "$_vl_out" | grep '^WARN acknowledged' | head -3 | tr '\n' ';')" \
+             "Inspect: python3 lib/verdict_ledger.py audit — acknowledged rows never count as verdicts"
     else
-        warn "CLAUDE.md.bak present with no differing lines — the review is done or was a no-op, but the signal was never cleared" \
-             "Nothing is currently lost, so this is bookkeeping with a deadline: the next fw upgrade overwrites CLAUDE.md.bak with its own backup and takes this evidence with it" \
-             "Clear it: rm CLAUDE.md.bak"
+        fail "Reviewer-verdict ledger: audit could not run (rc=$_vl_rc) — the ledger is UNVERIFIED" \
+             "$(echo "$_vl_out" | tail -2 | tr '\n' ';')" \
+             "Run: python3 lib/verdict_ledger.py audit"
     fi
-elif [ -f "$_t873_claude" ]; then
-    pass "CLAUDE.md: no pending governance-rewrite review — examined 1 CLAUDE.md, no CLAUDE.md.bak alongside it"
+else
+    # T-3581: absent validation code is a failure, not a skip — nothing else checks the ledger.
+    fail "Reviewer-verdict ledger: lib/verdict_ledger.py is missing — the ledger is UNVERIFIED" \
+         "verdict validation code unavailable" \
+         "Restore it: bin/fw vendor self (or fw upgrade)"
 fi
-# ── T-873 claude-bak-signal: end ──
+
+# T-3580 round 7: every spend-ceiling step-down (a review run registered one rung below what IW-7
+# requires) is a WARN — the lever must be visible even when it was exercised legitimately.
+_audit_review_step_downs() {
+    [ -f "$FRAMEWORK_ROOT/lib/verdict_ledger.py" ] || return 0
+    local _sd
+    _sd=$(PROJECT_ROOT="$PROJECT_ROOT" python3 "$FRAMEWORK_ROOT/lib/verdict_ledger.py" audit 2>/dev/null | grep '^WARN step-down' || true)
+    [ -z "$_sd" ] && return 0
+    warn "Reviewer spend-ceiling step-downs: $(echo "$_sd" | wc -l | tr -d ' ') review run(s) granted a lower rung than IW-7 requires" \
+         "$(echo "$_sd" | head -3 | tr '\n' ';')" \
+         "Inspect: python3 lib/verdict_ledger.py audit — raise REVIEWER_JUDGE_WEEKLY_SPEND_CEILING to withdraw a step-down"
+}
+_audit_review_step_downs
 
 # T-3282 (G-104): the RUNNING Watchtower is a deployment surface of its own —
 # source can be fixed, tested, and closed green while the process serves the
@@ -2820,6 +3074,20 @@ if [ -f "$_bh_lib" ] && git -C "$PROJECT_ROOT" rev-parse --git-dir >/dev/null 2>
             # tree into the newer one — remediation that undoes the finding.
             _bh_devname=$(_fw_bh_dev_name "$PROJECT_ROOT")
             _bh_fix="Cleanup: git branch -d <name> (merged); fw integrate run ${_bh_devname} (overdue merge-back). Full list: $_bh_full"
+            # T-3510 (OBS-547): this mitigation line is an INSTRUCTION, and on
+            # 2026-09-26 a batch-merge worker followed it into a deliberately parked
+            # branch — taking the `fw arc close` sovereignty gate off by default.
+            # Never recommend landing a branch the scan has just reported as
+            # unlanded ON PURPOSE.
+            _bh_ubd=$(printf '%s\n' "$_bh_out" | grep -c '^unlanded-by-design ')
+            if [ "${_bh_ubd:-0}" -gt 0 ] && [ "${_bh_ubd:-0}" -eq "${_bh_count:-0}" ]; then
+                _bh_fix="No landing is owed: every finding is unlanded-by-design — each branch is unlanded because its governing task is PARKED. Do NOT merge or batch-land them; resolve the task first. Full list: $_bh_full"
+            elif [ "${_bh_ubd:-0}" -gt 0 ]; then
+                _bh_fix="$_bh_fix — ${_bh_ubd} finding(s) are unlanded-by-design: their governing tasks are PARKED. EXCLUDE those branches from any merge or batch landing."
+            fi
+            if printf '%s\n' "$_bh_out" | grep -q '^parked-but-landed '; then
+                _bh_fix="$_bh_fix — PARKED-BUT-LANDED present: a parked task's code is already live in ${_bh_devname}. Reconcile the task record against the tree before anything else, and do not delete the branch to make the finding go away."
+            fi
             if printf '%s\n' "$_bh_out" | grep -q '^diverged-fork '; then
                 # T-100195 (RCA T-100194): a fork is BOTH ahead and behind, so a
                 # go-live `git merge` conflicts and a one-way `fw integrate`
@@ -3230,60 +3498,80 @@ check_dead_negation_lint
 # heavy to run from this audit (and its suites themselves spawn
 # `audit.sh --section structure`, contending this very lock), so the run is
 # nightly and this check only READS the report it leaves behind:
-#   FAIL — a COMPLETED run listed failures or exited non-zero
-#   WARN — report missing, unparsable, timed out mid-run (OBS-392), or finished
-#          >48h ago (two nightlies)
-#   PASS — fresh clean report, named over the set it examined
-# The timed-out case is the one that is easy to get wrong in both directions: it
-# is not a PASS (nothing was proven) and not a FAIL (nothing was disproven).
-# The line text names its corpus ("unit suite (tests/unit)") — the whole point
+#   FAIL — the run RECORDED failures (complete or not — T-3602), or a complete
+#          run exited non-zero
+#   WARN — report missing, unparsable, finished >48h ago (two nightlies), or a
+#          partial run (ceiling hit, per-file timeout, files never reached) that
+#          recorded no failure — "N of M file(s) ran", the rest undetermined
+#   PASS — fresh clean complete report, named over the set it examined
+# The partial case is the one that is easy to get wrong in both directions. The
+# unrun remainder is not a PASS (nothing was proven), but a recorded `not ok` is
+# a verdict whether or not the run later hit its ceiling (OBS-587 — treating the
+# whole list as unproven hid 46 red files for three weeks).
+# The line text names its corpus ("Unit suite (<suite_dir>)", the report's own
+# suite_dir relative to PROJECT_ROOT — T-3650; never a literal) — the whole point
 # of OBS-361 is that a green line must not answer a broader question than the
 # one it examined (same family as the invariant-suite rewording above).
+#
+# T-3621 — the pre-push RATCHET. The pre-push hook runs `audit.sh --section
+# structure` (agents/git/lib/hooks.sh) and nothing else does with exactly that
+# scope; the */30 cron runs structure,compliance,quality,discovery and the daily
+# run is unscoped. Under that one scope, a red listed in the committed baseline
+# (.context/audits/unit-suite/baseline.yaml) and not yet expired grades WARN.
+# A red NOT in the baseline, or a baselined red past its expiry, FAILs. Every
+# other scope FAILs on every red, baselined or not, so the backlog never reads
+# green. A missing or unreadable baseline fails closed (every red FAILs). The
+# baseline shrinks via agents/audit/unit_suite_baseline.py regenerate; growing
+# it needs `add --i-am-human`.
+_audit_is_prepush_scope() {
+    [ "${SECTIONS:-}" = "structure" ]
+}
 check_unit_suite_report() {
     local _report="${FW_UNIT_SUITE_REPORT:-$CONTEXT_DIR/audits/unit-suite/LATEST.yaml}"
-
-    # T-934: skip where there is nothing to run. unit-suite.sh resolves its corpus as
-    # FW_UNIT_SUITE_DIR, else <framework>/tests/unit — and a vendored consumer has no tests/unit at
-    # all, so the report can NEVER be produced and this WARN can never be cleared. It appeared 4 times
-    # in 832's 14-day trend with a mitigation ("run agents/audit/unit-suite.sh") that does nothing
-    # there. check_invariant_suite and the dead-negation lint two hundred lines up already INFO-skip on
-    # exactly this grounds; T-3302 added this check without adopting the idiom.
-    #
-    # THE PREDICATE IS "IS THERE A SUITE", NOT "AM I THE FRAMEWORK REPO". Skipping on repo identity
-    # alone would excuse a consumer that vendors tests/unit and never runs them — which is the very
-    # blindness T-3302 was written to end. A present suite with no report still WARNs.
-    local _suite_dir="${FW_UNIT_SUITE_DIR:-$FRAMEWORK_ROOT/tests/unit}"
-    if [ ! -d "$_suite_dir" ] && [ ! -f "$_report" ]; then
-        info "Unit suite (tests/unit) skipped — framework-repo property; no suite at $_suite_dir to run"
-        return 0
-    fi
-
+    local _baseline="${FW_UNIT_SUITE_BASELINE:-$CONTEXT_DIR/audits/unit-suite/baseline.yaml}"
     if [ ! -f "$_report" ]; then
-        warn "Unit suite (tests/unit) NOT CHECKED — no report at .context/audits/unit-suite/LATEST.yaml (T-3302)" \
-             "The nightly unit-suite runner has not produced a report; tests/unit reds are invisible until it does" \
+        warn "Unit suite NOT CHECKED — no report at .context/audits/unit-suite/LATEST.yaml (T-3302)" \
+             "The nightly unit-suite runner has not produced a report; unit-suite reds are invisible until it does" \
              "Run once by hand: agents/audit/unit-suite.sh — or wait for the nightly cron (unit-suite-nightly)"
         return 0
     fi
 
+    # T-3602: fields 8-10 carry run completeness — "<ran> of <expected> file(s)
+    # ran", the per-file timeouts by name, and 1 when anything was left
+    # undetermined (run ceiling hit, a file killed, or files never reached).
     local _parsed
-    _parsed=$(python3 - "$_report" <<'PYEOF' 2>/dev/null
+    _parsed=$(python3 - "$_report" "$_baseline" "${PROJECT_ROOT:-}" <<'PYEOF' 2>/dev/null
 import sys, yaml, datetime
 try:
     d = yaml.safe_load(open(sys.argv[1])) or {}
     legs = d.get("legs") or {}
     total = failed = 0
     names = []
+    reds = []      # T-3621: (leg, name) pairs, matched against the baseline
+    errors = []    # leg-level errors: never baselinable
+    files = completed = not_run = 0
+    per_file = True
+    ftimed = []
     for leg in ("bats", "pytest"):
         l = legs.get(leg) or {}
         total += int(l.get("tests") or 0)
         failed += int(l.get("failed_count") or 0)
         names += ["%s: %s" % (leg, n) for n in (l.get("failed") or [])]
+        reds += [(leg, str(n)) for n in (l.get("failed") or [])]
         if l.get("error"):
             names.append("%s: %s" % (leg, l["error"]))
+            errors.append("%s: %s" % (leg, l["error"]))
+        files += int(l.get("files") or 0)
+        if "files_completed" in l:
+            completed += int(l.get("files_completed") or 0)
+            not_run += int(l.get("files_not_run") or 0)
+            ftimed += ["%s: %s" % (leg, f) for f in (l.get("files_timed_out") or [])]
+        else:
+            per_file = False   # pre-T-3602 (v1) report: completion unknown
     rc = d.get("runner_exit")
     rc = 1 if rc is None else int(rc)
-    # OBS-392: a run killed at its ceiling produced no verdict. An absent field
-    # (pre-T-3302 report shape) reads false, preserving the existing behaviour.
+    # OBS-392: a run killed at its ceiling. An absent field (pre-T-3302 report
+    # shape) reads false, preserving the existing behaviour.
     to = 1 if d.get("timed_out") else 0
     tos = int(d.get("timeout_seconds") or 0)
     age_h = -1
@@ -3296,52 +3584,138 @@ try:
                         .total_seconds() // 3600)
         except Exception:
             pass
-    print("%d|%d|%d|%d|%d|%d|%s" % (total, failed, rc, age_h, to, tos,
-                                    ";".join(names[:3]).replace("|", "/")))
+    ran = ("%d of %d file(s) ran" % (completed, files)) if per_file \
+        else ("unknown of %d file(s) ran (pre-T-3602 report: no per-file completion)" % files)
+    partial = 1 if (to or ftimed or not_run or (per_file and completed < files)) else 0
+    # Name EVERY recorded failure, up to a bound that keeps the line readable.
+    shown = names[:25]
+    if len(names) > 25:
+        shown.append("... +%d more in the report" % (len(names) - 25))
+    # T-3621: grade each recorded red against the ratchet baseline. "none" /
+    # "bad" mean no baseline applies: the caller fails closed on every red.
+    bl_state, n_base, new, expired = "none", 0, [], []
+    try:
+        b = yaml.safe_load(open(sys.argv[2]))
+        ents = b.get("entries") if isinstance(b, dict) else None
+        if not isinstance(ents, list):
+            raise ValueError("no entries list")
+        today = datetime.datetime.now(datetime.timezone.utc).date()
+        base = {}
+        for e in ents:
+            try:
+                exp_ok = datetime.date.fromisoformat(str(e.get("expires"))) >= today
+            except Exception:
+                exp_ok = False          # unreadable expiry: treat as expired
+            base[(e.get("leg"), str(e.get("name")))] = exp_ok
+        bl_state = "ok"
+        for leg, n in reds:
+            if (leg, n) not in base:
+                new.append("%s: %s" % (leg, n))
+            elif base[(leg, n)]:
+                n_base += 1
+            else:
+                expired.append("%s: %s" % (leg, n))
+        new += errors
+    except FileNotFoundError:
+        bl_state = "none"
+    except Exception:
+        bl_state = "bad"
+    def _bound(xs):
+        return "; ".join(xs[:25] + (["... +%d more" % (len(xs) - 25)] if len(xs) > 25 else [])).replace("|", "/")
+    # T-3650 (055 framework:pickup @225): name the directory the report
+    # measured, relative to PROJECT_ROOT — not a literal that is only true in
+    # this repo. No suite_dir in the report → empty → no directory named.
+    sd = str(d.get("suite_dir") or "").rstrip("/")
+    root = (sys.argv[3] if len(sys.argv) > 3 else "").rstrip("/")
+    if sd and root and sd.startswith(root + "/"):
+        sd = sd[len(root) + 1:]
+    print("%d|%d|%d|%d|%d|%d|%s|%s|%s|%d|%s|%d|%d|%d|%s|%s|%s" % (
+        total, failed, rc, age_h, to, tos,
+        "; ".join(shown).replace("|", "/"), ran,
+        ", ".join(ftimed).replace("|", "/"), partial,
+        bl_state, n_base, len(new), len(expired), _bound(new), _bound(expired),
+        sd.replace("|", "/")))
 except Exception:
     pass
 PYEOF
 )
     if [ -z "$_parsed" ]; then
         warn_unenumerable ".context/audits/unit-suite/LATEST.yaml" \
-             "Unit suite (tests/unit) green" \
+             "Unit suite green" \
              "The report exists but could not be parsed — 'could not read' must not render as green (T-3302)" \
              "Inspect the report, then re-run: agents/audit/unit-suite.sh"
         return 0
     fi
 
     local _us_total _us_failed _us_rc _us_age _us_timedout _us_timeout_s _us_names
-    IFS='|' read -r _us_total _us_failed _us_rc _us_age _us_timedout _us_timeout_s _us_names <<< "$_parsed"
+    local _us_ran _us_ftimed _us_partial
+    local _us_bl _us_nbase _us_nnew _us_nexp _us_new _us_exp _us_dir
+    IFS='|' read -r _us_total _us_failed _us_rc _us_age _us_timedout _us_timeout_s _us_names \
+        _us_ran _us_ftimed _us_partial _us_bl _us_nbase _us_nnew _us_nexp _us_new _us_exp _us_dir <<< "$_parsed"
+    local _us_label="Unit suite${_us_dir:+ ($_us_dir)}"
 
-    # OBS-392 / L-622: a run that hit its ceiling produced NO VERDICT. Its
-    # failure list is a CASUALTY list — the runner was killed mid-corpus, so a
-    # named test may be genuinely red or merely unlucky about when the axe fell,
-    # and the tests it never reached are unmeasured, not silent-because-green.
-    # FAILing on that list is the false-RED mirror of the false-GREEN family this
-    # check belongs to (T-3302/T-3328): the assertion cannot tell "looked and
-    # found a problem" from "could not look".
-    #
-    # It also deadlocks. The FAIL makes this audit exit 2, which reds
-    # tests/unit/audit.bats, whose reds land in the next nightly report, which
-    # sustains the FAIL. Measured 2026-09-07..10: 32 commits stranded behind a
-    # pre-push gate reading a report that could not come clean on its own
-    # (OBS-394/395). The FAIL's own mitigation — re-run unit-suite.sh — is
-    # exactly the run that times out, so it cannot terminate.
-    #
-    # So: WARN, never PASS. The corpus is UNMEASURED, not green, and the text has
-    # to say so — a WARN that read as reassurance would just move the false-green
-    # down one tier instead of removing it.
-    if [ "${_us_timedout:-0}" -eq 1 ]; then
-        local _us_ceiling_txt="its timeout ceiling"
-        [ "${_us_timeout_s:-0}" -gt 0 ] && _us_ceiling_txt="its ${_us_timeout_s}s ceiling"
-        warn "Unit suite (tests/unit) COULD NOT DETERMINE — nightly run hit $_us_ceiling_txt (T-3302, OBS-392)" \
-             "timed_out=true, runner_exit=$_us_rc, report ${_us_age}h old. It lists $_us_failed of $_us_total test(s) as failed, but a run killed mid-corpus yields a casualty list, not a verdict — and the tests it never reached are UNMEASURED, not green. First listed: ${_us_names:-none listed}" \
-             "Make a run COMPLETE before trusting any count: raise FW_UNIT_SUITE_TIMEOUT, or split/shard the corpus (OBS-388 covers the nested tests/lint suite). Re-running unit-suite.sh unchanged just re-times-out. Until one completes, treat tests/unit as UNKNOWN"
+    local _us_ceiling_txt="its timeout ceiling"
+    [ "${_us_timeout_s:-0}" -gt 0 ] && _us_ceiling_txt="its ${_us_timeout_s}s ceiling"
+    local _us_incomplete=""
+    if [ "${_us_partial:-0}" -eq 1 ]; then
+        _us_incomplete="Run INCOMPLETE: $_us_ran"
+        [ "${_us_timedout:-0}" -eq 1 ] && _us_incomplete="$_us_incomplete; run hit $_us_ceiling_txt"
+        [ -n "$_us_ftimed" ] && _us_incomplete="$_us_incomplete; per-file timeout: $_us_ftimed"
+        _us_incomplete="$_us_incomplete. Tests in files that did not finish are not determined, not green. "
+    fi
+
+    # T-3602 (OBS-587) — recorded failures are verdicts, even from a partial
+    # run. A test killed by a ceiling never prints `not ok` (bats) or a FAILED
+    # summary line (pytest); every failure in the report FINISHED and failed.
+    # OBS-392 (T-3357) discarded the whole list of a timed-out run as a
+    # "casualty list". Because the corpus never completed inside its ceiling,
+    # that WARN was the only branch that ever ran: 46 bats + 6 pytest files sat
+    # red and unreported from 2026-09-08 to 2026-09-30. Only the tests the run
+    # never reached are undetermined, and the WARN below still covers them.
+    if [ "$_us_failed" -gt 0 ]; then
+        # T-3621 ratchet: only the pre-push scope, only with a readable baseline.
+        local _us_bl_note=""
+        case "${_us_bl:-none}" in
+            ok)   _us_bl_note="Ratchet baseline (T-3621): ${_us_nbase} baselined, ${_us_nnew} new, ${_us_nexp} expired. Only the pre-push scope grades baselined reds WARN; this scope FAILs on every red. " ;;
+            bad)  _us_bl_note="Ratchet baseline (T-3621) UNREADABLE at $_baseline: failing closed on every red. " ;;
+            *)    _us_bl_note="Ratchet baseline (T-3621) absent at $_baseline: failing closed on every red. " ;;
+        esac
+        if _audit_is_prepush_scope && [ "${_us_bl:-none}" = "ok" ]; then
+            if [ "${_us_nnew:-0}" -gt 0 ] || [ "${_us_nexp:-0}" -gt 0 ]; then
+                fail "$_us_label: ${_us_nnew} NEW red(s), ${_us_nexp} EXPIRED baselined red(s) — pre-push ratchet (T-3621)" \
+                     "${_us_incomplete}NEW (not in baseline): ${_us_new:-none}. EXPIRED (baselined, past expiry): ${_us_exp:-none}. ${_us_nbase} other baselined red(s) grade WARN" \
+                     "New red: fix it or file a task (one bug = one task); only the operator may accept it into the baseline (python3 agents/audit/unit_suite_baseline.py add --i-am-human --name '<name>'). Expired: fix it, or the operator re-arms it the same way. Report: .context/audits/unit-suite/LATEST.yaml"
+                return 0
+            fi
+            warn "$_us_label: ${_us_nbase} BASELINED red(s), 0 new, 0 expired — pre-push ratchet grade; the full fw audit still FAILs them (T-3621)" \
+                 "${_us_incomplete:-$_us_ran. }runner_exit=$_us_rc; baseline: $_baseline. Baselined reds are a known backlog owned by their triage tasks, not green" \
+                 "Fix the reds via their owning tasks (owner: in the baseline); once a nightly run shows them green, shrink the baseline: python3 agents/audit/unit_suite_baseline.py regenerate"
+            # Unchanged rule: a stale report is still called stale.
+            if [ "$_us_age" -lt 0 ] || [ "$_us_age" -ge 48 ]; then
+                warn "$_us_label report STALE — last run ${_us_age}h ago, threshold 48h (T-3302)" \
+                     "The nightly unit-suite cron (unit-suite-nightly) has not produced a fresh report; reds since then are invisible" \
+                     "Check the schedule (fw cron status, grep 'agentic-cron' syslog) or run by hand: agents/audit/unit-suite.sh"
+            fi
+            return 0
+        fi
+        fail "$_us_label: $_us_failed of $_us_total unit test(s) RED (T-3302, T-3602)" \
+             "${_us_incomplete:-$_us_ran. }${_us_bl_note}runner_exit=$_us_rc; recorded failures: ${_us_names:-none listed}" \
+             "Read the report (.context/audits/unit-suite/LATEST.yaml), fix or file per red (one bug = one task), re-run: agents/audit/unit-suite.sh"
         return 0
     fi
 
-    if [ "$_us_failed" -gt 0 ] || [ "$_us_rc" -ne 0 ]; then
-        fail "Unit suite (tests/unit): $_us_failed of $_us_total unit test(s) RED (T-3302)" \
+    # No recorded reds, but part of the corpus produced no verdict: WARN, never
+    # PASS. The unmeasured remainder is UNKNOWN, not green (OBS-392 still holds
+    # for the tests that did not run).
+    if [ "${_us_partial:-0}" -eq 1 ]; then
+        warn "$_us_label COULD NOT DETERMINE — $_us_ran, no failures recorded (T-3302, T-3602)" \
+             "${_us_incomplete}timed_out=$([ "${_us_timedout:-0}" -eq 1 ] && echo true || echo false), runner_exit=$_us_rc, report ${_us_age}h old. The tests that ran recorded no failure; the rest are UNMEASURED, not green" \
+             "Get the named files under their per-file cap (FW_UNIT_SUITE_FILE_TIMEOUT) or raise the run budget (FW_UNIT_SUITE_TIMEOUT / FW_UNIT_SUITE_JOBS). Until a run completes, treat the unrun part of the suite as UNKNOWN"
+        return 0
+    fi
+
+    if [ "$_us_rc" -ne 0 ]; then
+        fail "$_us_label: $_us_failed of $_us_total unit test(s) RED (T-3302)" \
              "runner_exit=$_us_rc; first failures: ${_us_names:-none listed}" \
              "Read the report (.context/audits/unit-suite/LATEST.yaml), fix or file per red (one bug = one task), re-run: agents/audit/unit-suite.sh"
         return 0
@@ -3350,13 +3724,13 @@ PYEOF
     # A report older than two nightly slots means the schedule itself broke —
     # "checked two days ago" must not keep rendering as "checked".
     if [ "$_us_age" -lt 0 ] || [ "$_us_age" -ge 48 ]; then
-        warn "Unit suite (tests/unit) report STALE — last run ${_us_age}h ago, threshold 48h (T-3302)" \
+        warn "$_us_label report STALE — last run ${_us_age}h ago, threshold 48h (T-3302)" \
              "The nightly unit-suite cron (unit-suite-nightly) has not produced a fresh report; reds since then are invisible" \
              "Check the schedule (fw cron status, grep 'agentic-cron' syslog) or run by hand: agents/audit/unit-suite.sh"
         return 0
     fi
 
-    pass_over "$_us_total" "unit test(s) (tests/unit)" "Unit suite (tests/unit) green" \
+    pass_over "$_us_total" "unit test(s)${_us_dir:+ ($_us_dir)}" "$_us_label green" \
          "report parsed but recorded zero tests across both legs — a harness error, not a green corpus (T-3302)" \
          "Run manually and read the output: agents/audit/unit-suite.sh"
 }
@@ -3579,10 +3953,41 @@ check_sidecar_ledger() {
         done <<< "$_dm_rows"
     fi
 
+    # T-3544/OBS-567: the INBOUND consult backlog. Placed here, beside the DM
+    # check and BEFORE the outbox-existence gate, for the identical reason: a
+    # project that has never sent a consult can still be sitting on unread
+    # ones, so this must not inherit the ledger's "no outbox → stay silent"
+    # short-circuit. The outbound ledger's own PASS line reads like a verdict
+    # on the whole sidecar, which is how a six-day peer blockage went unseen
+    # while every number on this check was green.
+    local _ib_rows _ib_rc
+    _ib_rows=$(fw_sidecar_inbox_stale_facts "$PROJECT_ROOT" "$(fw_config SIDECAR_CONSULT_WARN_HOURS)"); _ib_rc=$?
+    if [ "$_ib_rc" -eq 2 ]; then
+        _bad=1
+        warn "Sidecar: consult-inbox backlog check could not run" \
+             "fw sidecar inbox-stale --json produced no readable output" \
+             "Run: bin/fw sidecar inbox-stale --json — an unreadable check is the same silent-failure shape as an unreadable ledger (T-3420)"
+    elif [ "$_ib_rc" -eq 0 ] && [ -n "$_ib_rows" ]; then
+        _bad=1
+        local _ib_topic _ib_unread _ib_age _ib_from _ib_age_disp
+        while IFS=$'\t' read -r _ib_topic _ib_unread _ib_age _ib_from; do
+            [ -z "$_ib_topic" ] && continue
+            if [ "$_ib_age" = "unknown" ]; then
+                _ib_age_disp="age unknown"
+            else
+                _ib_age_disp=$(awk -v h="$_ib_age" 'BEGIN{if (h>=48) printf "%.1fd", h/24; else printf "%.0fh", h}')
+            fi
+            warn "$_ib_unread unread consult(s) on $_ib_topic, oldest $_ib_age_disp from $_ib_from" \
+                 "fw sidecar inbox-stale --json: unread=$_ib_unread age_hours=$_ib_age from=$_ib_from on $_ib_topic" \
+                 "A peer is waiting. Run: bin/fw sidecar inbox --peek to read without draining, then bin/fw sidecar inbox to drain"
+        done <<< "$_ib_rows"
+    fi
+
     local _facts _rc _unknown _expired _stored _delivered _total _deadletters
     _facts=$(fw_sidecar_ledger_facts "$PROJECT_ROOT"); _rc=$?
-    # No outbox — the ledger has nothing to report. Any DM WARN above has
-    # already been printed by this point, so returning here does not lose it.
+    # No outbox — the ledger has nothing to report. Any DM or consult-inbox
+    # WARN above has already been printed by this point, so returning here
+    # does not lose it (T-3544 added the second one under the same guarantee).
     [ "$_rc" -eq 1 ] && return 0
     if [ "$_rc" -ne 0 ] || [ -z "$_facts" ]; then
         warn "Sidecar ledger unreadable" \
@@ -3780,393 +4185,19 @@ check_delegation_surface() {
              python3 -m lib.delegation_cli surface --facts 2>/dev/null || true)
     [ -n "$_facts" ] || return 0
 
-    local _level _rc _as _oo _tasks _thr _delegable
-    IFS=$'\t' read -r _level _rc _as _oo _tasks _thr _delegable <<< "$_facts"
+    local _level _rc _rj _as _oo _tasks _thr _delegable
+    IFS=$'\t' read -r _level _rc _rj _as _oo _tasks _thr _delegable <<< "$_facts"
     [ -n "${_level:-}" ] || return 0
 
     if [ "$_level" = "WARN" ]; then
-        warn "Delegation surface: 0 reviewer-closeable criteria while $_oo are operator-only (threshold $_thr)" \
-             "$_tasks active task(s) carry open Human criteria; reviewer-closeable $_rc, agent-self $_as, operator-only $_oo — the D-626 delegation reaches nothing" \
+        warn "Delegation surface: 0 reviewer-closeable or reviewer-judges criteria while $_oo are operator-only (threshold $_thr)" \
+             "$_tasks active task(s) carry open Human criteria; reviewer-closeable $_rc, reviewer-judges $_rj, agent-self $_as, operator-only $_oo — the D-626 delegation reaches nothing" \
              "Run: bin/fw reviewer surface — then 'bin/fw task delegate <id> --dry-run' on anything it lists; if nothing is delegable, the criteria are written [REVIEW] where they should be [REVIEWER] (CLAUDE.md §AC Classification Guidance)"
     else
-        pass "Delegation surface: reviewer-closeable $_rc, agent-self $_as, operator-only $_oo across $_tasks active task(s) with open Human criteria"
+        pass "Delegation surface: reviewer-closeable $_rc, reviewer-judges $_rj, agent-self $_as, operator-only $_oo across $_tasks active task(s) with open Human criteria"
     fi
 }
 check_delegation_surface
-
-# T-931 — stale ownership. The half check_delegation_surface above CANNOT see.
-#
-# That rail measures OPEN Human criteria and buckets them. A task whose criteria are all ticked —
-# or which never had a Human criterion at all — contributes nothing to it, because there is nothing
-# open to classify. So a task can be 100% blocked on `owner: human` and the delegation surface
-# reports a clean PASS over it. That is not a flaw in that rail; it answers a different question.
-# Nobody was asking this one.
-#
-# Measured on 832 the day this was written: 112 active tasks carried `owner: human` and 45 of them
-# had no open Human criterion behind the field. Ten had every Human criterion TICKED — the operator
-# had already exercised the judgement and the task stayed shut anyway. Thirteen had every Agent
-# criterion ticked too, and ten of those thirteen had been reported by CTL-029 as "completable, not
-# closed" for a month. CTL-029 reads checkboxes; it cannot say why a completable task will not
-# close, because the cause is a frontmatter field no check read.
-#
-# Operator ruling 2026-09-29: `owner: human` is a sovereignty claim only while a Human criterion is
-# actually open. This rail is the DETECTOR half of that ruling and runs on cron. The CORRECTOR
-# (tools/_t931-ownership-sweep.sh) is attended and must never run unattended — a wrong predicate
-# sweeping the corpus would strip real claims with nobody watching. A detector can only over-report.
-check_stale_ownership() {
-    [ -d "$PROJECT_ROOT/.tasks/active" ] || return 0
-    local _tool="$PROJECT_ROOT/tools/_t931-ownership.py"
-    if [ ! -f "$_tool" ]; then
-        return 0   # predicate not vendored here; silent rather than noisy on other projects
-    fi
-
-    # The facts line comes from the tool, exactly as check_delegation_surface above takes its own
-    # from `lib.delegation_cli surface --facts`. An earlier draft inlined the python as a heredoc
-    # inside this command substitution: `bash -n` passed the whole file and it blew up at run time
-    # with "syntax error near unexpected token `||`", because a substitution body is parsed lazily.
-    # A lint that goes green on broken code is the same false green this rail exists to remove.
-    local _facts
-    _facts=$(cd "$PROJECT_ROOT" && python3 "$_tool" --facts 2>/dev/null || true)
-
-    # T-3105: an unreadable or empty result must NOT render as a clean bill of health. "no stale
-    # ownership" and "the predicate never ran" are different facts that look identical in a PASS.
-    if [ -z "$_facts" ]; then
-        warn "Stale task ownership — NOT EVALUATED: the ownership predicate produced no result" \
-             "The check ran and measured nothing. A PASS here would assert coverage it does not have (T-3105)." \
-             "Run by hand: cd $PROJECT_ROOT && python3 tools/_t931-ownership.py | tail -2"
-        return 0
-    fi
-
-    local _scanned _human _stale _ready _names
-    IFS=$'\t' read -r _scanned _human _stale _ready _names <<< "$_facts"
-
-    if [ "${_scanned:-0}" -eq 0 ]; then
-        warn "Stale task ownership — NOT EVALUATED: candidate set empty (0 active task file(s))" \
-             "The scan walked no tasks, so the T-931 rail asserted nothing this run" \
-             "Confirm .tasks/active is really empty and not a mis-scoped glob"
-        return 0
-    fi
-
-    if [ "${_stale:-0}" -gt 0 ]; then
-        warn "Stale task ownership: $_stale of $_human human-owned task(s) have no open Human criterion" \
-             "owner: human is a sovereignty claim only while a Human criterion is open (T-931). ${_ready} of these also have every Agent criterion ticked — those are blocked on a signature with nothing to sign. First few: $_names" \
-             "Review: cd $PROJECT_ROOT && bash tools/_t931-ownership-sweep.sh   (dry run; add --apply to correct)"
-    else
-        pass "Task ownership: all $_human human-owned task(s) have an open Human criterion behind the field — examined $_scanned active task file(s)"
-    fi
-}
-check_stale_ownership
-
-# T-936 (OBS-448) — accidental screen captures written into the tree.
-#
-# FOUR TIMES IN SEVEN DAYS. A `python3 - <<'PY'` heredoc body, or a broken multi-line `python3 -c "`,
-# leaks to the shell and its first line — `import yaml,glob,sys`, `import importlib.util`, `import
-# re,io` — resolves not to Python but to ImageMagick's import(1), which CAPTURES THE SCREEN and writes
-# PostScript named after the following token. Exit 0, no error, the expected output still appears. 37MB
-# sat at the repository root for six days. The fourth was created by the agent itself while writing the
-# observation about the other three, and this check found it ninety minutes later on its first run.
-#
-# T-391 swept this class on 2026-08-08 and closed. That was mitigation; four recurrences say prevention
-# never existed (G-019). Prevention is the operator's — removing import(1) from PATH, or enabling the
-# PreToolUse gate this task authored. DETECTION is what belongs here, and six days of invisibility is
-# the part that actually cost something.
-#
-# The rail never opens the raster. These are images of the operator's screen; the tool reads a capped
-# PostScript header and reports size and canvas so exposure can be judged without anyone paging through
-# a desktop. Cron runs this; nothing here deletes anything.
-check_stray_captures() {
-    local _tool="$PROJECT_ROOT/tools/_t936-stray-capture-scan.py"
-    [ -f "$_tool" ] || return 0     # not vendored here; silent rather than noisy elsewhere
-
-    local _facts
-    _facts=$(cd "$PROJECT_ROOT" && python3 "$_tool" --facts 2>/dev/null || true)
-    if [ -z "$_facts" ]; then
-        warn "Stray screen captures — NOT EVALUATED: the capture scan produced no result" \
-             "The check ran and measured nothing. A PASS here would assert coverage it does not have (T-3105)." \
-             "Run by hand: cd $PROJECT_ROOT && python3 tools/_t936-stray-capture-scan.py"
-        return 0
-    fi
-
-    local _n _bytes _canvas _paths
-    IFS=$'\t' read -r _n _bytes _canvas _paths <<< "$_facts"
-
-    if [ "${_n:-0}" -gt 0 ]; then
-        warn "Stray screen capture(s) in the tree: $_n, $(( _bytes / 1048576 ))MB, largest canvas $_canvas" \
-             "ImageMagick import(1) ran instead of python — a heredoc or quoted -c block leaked to the shell (OBS-448). These are images of the operator's SCREEN: $_paths" \
-             "Look at them or delete them — that is the operator's call, not the agent's. Prevention: enable the bare-import gate (see T-936) or remove import(1) from PATH"
-    else
-        pass "No stray screen captures — scanned the repository root and working directories by PostScript header, not by filename (all four known cases had none)"
-    fi
-}
-check_stray_captures
-
-# T-941 — the arc-2 boundary inventory, on a schedule instead of on a hope.
-#
-# The tool itself was never the problem. It derives the route set from gallery-serve.py's own
-# dispatch by AST and refuses to let a route inherit a neighbour's fence, so it flagged
-# GET /api/instances as UNCLASSIFIED from the day T-884 shipped it and exited non-zero every
-# single time. Nothing ran it. Its only caller was T-681's P-011 verification block, and T-681
-# sat with all its Agent ACs ticked and unclosed for three weeks — so the finding inherited that
-# task's closure rate, which was zero. The identical omission also left the route out of
-# tests/test_designer_render.py's CONSOLE_WHITELIST, and that copy was read in three weeks only
-# because a release walked into it (PL-363).
-#
-# WARN, not FAIL, and the choice is deliberate: an unclassified route is an unreviewed fence,
-# not a live breach — unlike the tracked-secret rail below, which FAILs. The cost of that choice
-# is real, because a warning in an eleven-warning report is exactly how the last one went unread,
-# so the mitigation line carries the one command that fixes it rather than advice to go looking.
-check_boundary_inventory() {
-    local _tool="$PROJECT_ROOT/tools/_t682-boundary-inventory.py"
-    [ -f "$_tool" ] || return 0     # not this project; silent rather than noisy elsewhere
-    [ -f "$PROJECT_ROOT/tools/gallery-serve.py" ] || return 0
-
-    local _out _rc
-    _out=$(cd "$PROJECT_ROOT" && python3 "$_tool" 2>&1); _rc=$?
-
-    if [ "$_rc" -eq 0 ]; then
-        # Report what it measured, not just that it ran — "OK" with no denominator is the
-        # empty-candidate-set failure this file warns about everywhere else (T-3105).
-        pass "Boundary inventory: $(printf '%s' "$_out" | head -1)"
-    else
-        warn "Boundary inventory drift: a designer route is unfenced or unclassified" \
-             "$(printf '%s' "$_out" | grep -E 'IN SERVER|IN INVENTORY|UNCLASSIFIED' | tr '\n' ';' | sed 's/;$//')" \
-             "Add its ROUTE_SEMANTICS row (verify what it MUTATES against the call graph, not the HTTP verb), then: cd $PROJECT_ROOT && python3 tools/_t682-boundary-inventory.py --write"
-    fi
-}
-check_boundary_inventory
-
-# T-945 — RESTORES the delivery surface the 1.7.68 re-vendor deleted on 2026-09-25
-# (7b5e227e), which is the reason four reverted local fixes went unseen for five days.
-#
-# WHY THIS IS AN AUDIT LINE AND NOT A BETTER CHECK — carried forward from the original
-# T-657 region, because it is still the correct reasoning. tools/_t517-vendor-divergence.py
-# was already correct. It had been found red after a long unread stretch TWICE before this,
-# and was right both times. Its only host was a ~13-minute bridge suite that nothing runs on
-# a schedule, so its verdict reached no one. Detection was never the variable; delivery was.
-# The 13 minutes was never THIS check's cost: measured standalone, 270-340ms.
-#
-# WHAT IS NEW, AND WHY RESTORING IT VERBATIM WOULD HAVE FAILED. The original counted
-# UNRECORDED|STALE|RECLASSIFIED into ONE number. Today that number is 1362, and the eleven
-# that matter would be invisible inside it:
-#     STALE        11   a declared local fix now matches baseline — LOST or adopted
-#     RECLASSIFIED  2   declared under the wrong mode
-#     UNRECORDED 1349   never declared — bookkeeping debt from the re-vendor itself
-# Those are different questions. One asks whether our work was destroyed; the other asks
-# whether the manifest is current. Merged, the first hides behind the second, and a warning
-# reading "1362" is exactly the decay every other rail in this file guards against. So they
-# are two lines, and the stale line NAMES THE FILES — fabric.py and extract-decisions.py are
-# how this was found, and a bare count would not have led anyone to them.
-#
-# WARN, NOT FAIL, deliberately: a structure FAIL blocks push and its only bypass is Tier-0
-# gated. The original's revisit trigger is carried forward and the counter now reads three —
-# "if an unrecorded entry survives three consecutive audits, WARN has failed the same way the
-# bridge suite did and this should become FAIL."
-#
-# AND THIS RAIL WILL ITSELF BE REVERTED. audit.sh carries 17 local commits and is the
-# most-overwritten file in this tree. The durable fix is upstream adoption, asked for at
-# framework:pickup @249. This is the stopgap that makes the next loss visible in <=15 minutes
-# instead of five days.
-check_vendor_divergence() {
-    local _tool="$PROJECT_ROOT/tools/_t517-vendor-divergence.py"
-    [ -f "$_tool" ] || return 0                       # inert where it is not vendored
-    [ "$PROJECT_ROOT" != "${FRAMEWORK_ROOT:-}" ] || return 0   # the framework does not vendor itself
-
-    local _out _rc
-    _out=$(cd "$PROJECT_ROOT" && python3 "$_tool" 2>&1); _rc=$?
-
-    if [ "$_rc" -eq 0 ]; then
-        local _dec
-        _dec=$(printf '%s\n' "$_out" | grep -oE 'declared[ :]+[0-9]+' | grep -oE '[0-9]+' | head -1)
-        pass "Vendor divergence: all ${_dec:-0} diverged path(s) declared"
-        return 0
-    fi
-
-    # Parse the summary line rather than grep-counting rows: "FAIL — N unrecorded, M stale, K reclassified"
-    local _sum _stale _recl _unrec
-    _sum=$(printf '%s\n' "$_out" | grep -m1 -E '^FAIL' || true)
-    _stale=$(printf '%s' "$_sum" | grep -oE '[0-9]+ stale'        | grep -oE '^[0-9]+' || echo 0)
-    _recl=$(printf  '%s' "$_sum" | grep -oE '[0-9]+ reclassified' | grep -oE '^[0-9]+' || echo 0)
-    _unrec=$(printf '%s' "$_sum" | grep -oE '[0-9]+ unrecorded'   | grep -oE '^[0-9]+' || echo 0)
-
-    if [ "${_stale:-0}" -eq 0 ] && [ "${_recl:-0}" -eq 0 ] && [ "${_unrec:-0}" -eq 0 ]; then
-        warn "Vendor divergence: the check failed but reported no counts — NOT EVALUATED" \
-             "$(printf '%s\n' "$_out" | tail -3)" \
-             "Run by hand: cd $PROJECT_ROOT && python3 tools/_t517-vendor-divergence.py"
-        return 0
-    fi
-
-    # LINE 1 — the revert signal. This is the one that means our work may be gone.
-    if [ "${_stale:-0}" -gt 0 ] || [ "${_recl:-0}" -gt 0 ]; then
-        # ${_recl:+...} suppresses on EMPTY, not on zero — and _recl is the string "0",
-        # which is non-empty. Test the number.
-        local _recl_txt=""
-        [ "${_recl:-0}" -gt 0 ] && _recl_txt="; $_recl reclassified"
-        warn "Vendor divergence: $_stale declared local fix(es) NO LONGER DIVERGE — adopted upstream, or LOST to a re-vendor$_recl_txt" \
-             "$(printf '%s\n' "$_out" | grep -A1 -E 'STALE|RECLASSIFIED' | grep -oE '\.agentic-framework/[^ ]+' | sed 's/:$//' | sort -u | head -12 | tr '\n' ' ')" \
-             "Resolve each at its own guard: guard still passes => upstream adopted it; guard fails => the fix was LOST and must be restored (T-945, method in docs/reports/T-944-bridge-suite-triage.md)"
-    fi
-
-    # LINE 2 — bookkeeping. Real, but it is debt, not destruction. Kept separate on purpose.
-    if [ "${_unrec:-0}" -gt 0 ]; then
-        # Evidence is the TOOL'S OWN BYTES, not a sentence of ours. A rail that renders a
-        # hardcoded message could be reporting anything, including a stale belief about what
-        # the tool found — and the operator would have no way to tell from the audit alone.
-        warn "Vendor divergence: $_unrec undeclared vendored path(s) differ from baseline (T-945, orig T-657)" \
-             "$(printf '%s\n' "$_out" | grep -E 'UNRECORDED' | head -4 | sed 's/^[[:space:]]*//' | tr '\n' ' ')[manifest behind the tree — largely the 1.7.68 re-vendor's own 1407 changed files, T-944]" \
-             "A local fix recorded nowhere is destroyed by the next re-vendor without trace. Declare each with an upstream: lane: python3 tools/_t517-vendor-divergence.py"
-    fi
-}
-check_vendor_divergence
-
-# T-952 — the bridge suite's redness and staleness must reach a reader.
-#
-# tools/_t813-suite-age.py has run daily since T-917 and is correct. Its verdict goes to
-# `logger -t agentic-cron` and NOWHERE ELSE: `grep -c '_t813\|run-history'` on this file was
-# 0 before this rail. So the framework has known, every day, how red and how stale the
-# gating suite is, and told no surface anyone reads. That is the identical shape to _t517
-# before T-945 — a correct detector with no delivery surface — and it is why this rail
-# exists rather than another detector.
-#
-# DELIBERATELY NOT a scheduled run of the suite itself. T-917 measured that and refused:
-# ~650-1045s, a browser per CDP probe, SIGTERMed near 600s, and it has twice exited 0 while
-# reporting 9 failures (OBS-430). The rc=143 rows sitting in tests/.run-history.tsv are that
-# prediction already come true. Scheduling it would manufacture a permanently-red rail or a
-# false green; this reads what the monitor already knows, in milliseconds.
-#
-# AND THIS RAIL WILL BE REVERTED. audit.sh carries 17 local commits and is the
-# most-overwritten file in this tree (T-945 says the same thing a few lines up). Stopgap;
-# the durable fix is upstream adoption.
-check_bridge_suite_ratchet() {
-    local _tool="$PROJECT_ROOT/tools/_t952-bridge-suite-ratchet.py"
-    [ -f "$_tool" ] || return 0                       # inert where it is not vendored
-    [ -f "$PROJECT_ROOT/tests/.run-history.tsv" ] || {
-        warn "Bridge suite: NOT EVALUATED — no run history exists" \
-             "tests/.run-history.tsv is absent, so nobody has run the suite since recording began (the T-813 F-03 condition)" \
-             "This is NOT zero failures. Run once by hand: cd $PROJECT_ROOT && bash tests/run-bridge-tests.sh"
-        return 0
-    }
-
-    local _out _rc
-    _out=$(cd "$PROJECT_ROOT" && python3 "$_tool" 2>&1); _rc=$?
-
-    # Evidence is the TOOL'S OWN BYTES. A rail rendering a fixed sentence could be
-    # reporting anything, including a stale belief about what the tool found (T-945).
-    local _latest _floor _age
-    _latest=$(printf '%s\n' "$_out" | grep -m1 'latest complete' | sed 's/^[^:]*: *//')
-    _floor=$(printf  '%s\n' "$_out" | grep -m1 'baseline floor'  | sed 's/^[^:]*: *//')
-    _age=$(printf    '%s\n' "$_out" | grep -m1 -oE '\([0-9]+d [0-9]+h old\)')
-
-    if [ "$_rc" -eq 0 ]; then
-        pass "Bridge suite: failure floor held — ${_latest:-unknown} ${_age:-}"
-        return 0
-    fi
-
-    warn "Bridge suite: $(printf '%s\n' "$_out" | grep -m1 -E '^FAIL' | sed 's/^FAIL: *//' | cut -c1-140)" \
-         "floor ${_floor:-unknown}; latest ${_latest:-unknown} ${_age:-}" \
-         "Run by hand: cd $PROJECT_ROOT && python3 tools/_t952-bridge-suite-ratchet.py (a RISE means something that passed now fails; STALE means the suite has not been run, and a floor is not held by a measurement nobody took)"
-}
-check_bridge_suite_ratchet
-
-# T-938 — a secret-bearing path that git can see. THIS FAILS, it does not WARN.
-#
-# SECOND INSTANCE OF THE SAME CLASS IN THIS PROJECT. T-410: Watchtower's session signing key
-# (.fw-secret-key) was tracked from 2b9c8ffa for TWO MONTHS, pushed to origin and mirrored to GitHub.
-# T-938: Watchtower's API-key store (.context/secrets/api-keys.enc, written by web/secrets_store.py)
-# was tracked, committed 973813ea, pushed to origin/bleeding-edge, three days before anyone looked.
-# Same component, same project, three months apart. T-410 fixed one path and not the mechanism that
-# writes secrets into a repository nobody ignored, and the second instance is the receipt (G-019).
-#
-# WHY FAIL AND NOT WARN, which is the only interesting decision here. This report currently carries
-# ten warnings. A committed credential added as an eleventh is a line the operator has been trained to
-# scroll past — that is precisely how the last one survived three days and the one before it two
-# months. The severity has to match the consequence: a push makes the exposure irreversible, and
-# `fw handover` pushes. Everything else in this file can wait for a triage pass; this cannot.
-#
-# It never reads a secret. Tracked-ness and ignored-ness are git metadata; the file's contents are
-# never opened, and for this task the operator ruled against rotation, which makes the file's
-# continued confidentiality the entire mitigation.
-check_secret_paths_visible_to_git() {
-    command -v git >/dev/null 2>&1 || return 0
-    (cd "$PROJECT_ROOT" && git rev-parse --git-dir >/dev/null 2>&1) || return 0
-
-    # ONE ENCODING OF "IS THIS NAME KEY MATERIAL". tools/tracked-secret-artifacts.py already owns that
-    # judgement — DEFINITIVE suffixes and names, dotenv, and the secrecy-word x credential-noun pair
-    # at disjoint spans — with an allowlist and a census mode. An earlier draft of this rail carried
-    # its own five-pattern list, which would have drifted from the tool within a week; the delegation
-    # boundary in this same corpus is encoded twice and was measured disagreeing (G-052). So the rail
-    # CALLS the tool for the tracked question and adds only the axis the tool does not have.
-    #
-    # WHY THE RAIL EXISTS AT ALL IF THE TOOL DOES THE JUDGING: the tool was written in August (T-410)
-    # and NOTHING EVER RAN IT. Not the audit, not a hook, not cron. `.context/secrets/api-keys.enc`
-    # was tracked and public for three days while a scanner built to prevent exactly that sat on disk
-    # uninvoked — and its rule would have missed the file anyway (basename-only, singular nouns; both
-    # fixed under T-938). An instrument nobody calls is not a control.
-    local _tracked="" _unignored="" _f
-    local _tool="$PROJECT_ROOT/tools/tracked-secret-artifacts.py"
-    if [ -f "$_tool" ] && command -v python3 >/dev/null 2>&1; then
-        if ! _tracked="$(cd "$PROJECT_ROOT" && python3 "$_tool" 2>&1)"; then
-            # Non-zero exit means it found tracked key material. Its own report names the files.
-            _tracked="$(printf '%s' "$_tracked" | grep -vE '^tracked-secret scan ok' | head -6 | tr '\n' ' ')"
-        else
-            _tracked=""
-        fi
-    fi
-
-    # THE AXIS THE TOOL DOES NOT HAVE: present on disk but not ignored. Not yet leaked, but one broad
-    # `git add` from it — and `fw handover` stages .context/. This is the near-miss state, so it warns
-    # rather than fails.
-    local _pats=(".context/secrets" "api-keys.enc" ".fw-secret-key" ".litellm" "credentials.json")
-    local _p
-    for _p in "${_pats[@]}"; do
-        while IFS= read -r _f; do
-            [ -n "$_f" ] || continue
-            (cd "$PROJECT_ROOT" && git check-ignore -q "$_f" 2>/dev/null) || _unignored="$_unignored $_f"
-        done < <(cd "$PROJECT_ROOT" && find . -path ./.git -prune -o -name "*${_p}*" -print 2>/dev/null | head -5)
-    done
-
-    _unignored="$(printf '%s' "$_unignored" | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' ')"
-
-    # T-939 — THE HISTORY AXIS, and it WARNS rather than FAILS. Deliberate asymmetry.
-    #
-    # `--history` judges every path ever present in reachable history: the set a clone actually
-    # receives. The index cannot answer that, and the gap is not theoretical — it is how T-938's purge
-    # looked complete the moment `git rm --cached` ran, while 109 commits still carried the blob. It is
-    # also the resurrection case: a stale clone that pulls and pushes makes old commits reachable again
-    # while the tip keeps the deletion, so the index stays green and every clone has the secret back.
-    #
-    # WHY WARN AND NOT FAIL, when the index case fails. A secret in history whose value has been
-    # rotated is not a live exposure: `.fw-secret-key` sits in this repo's history from T-410 and the
-    # key it signs with was replaced, so the committed one signs nothing. Failing on it would make the
-    # audit permanently red until someone rewrites 2400 commits on master — a remedy the operator has
-    # already weighed and declined once. A red that cannot be cleared is a red people learn to bypass,
-    # which is how the index finding would have been missed too. Live exposure fails; historical
-    # residue warns and names rotation as the remedy that actually closes it.
-    local _hist=""
-    if [ -f "$_tool" ] && command -v python3 >/dev/null 2>&1; then
-        if ! _hist="$(cd "$PROJECT_ROOT" && timeout 300 python3 "$_tool" --history 2>&1)"; then
-            _hist="$(printf '%s' "$_hist" | grep -E '^\s+\[' | head -4 | tr -s ' ' | tr '\n' ' ')"
-        else
-            _hist=""
-        fi
-    fi
-
-    if [ -n "$_tracked" ]; then
-        fail "SECRET TRACKED BY GIT: $_tracked" \
-             "In the index, therefore in history and probably already pushed. Encrypted is not safe when the key derives from /etc/machine-id (world-readable): the encryption protects the file only while it stays on this machine, and makes it LOOK safe to commit. Second instance of this class here — T-410 was the session signing key, two months, mirrored to GitHub." \
-             "git rm --cached the path, add a PATTERN (not a path) to .gitignore, then decide about history — a rewrite plus force-push is Tier 0 and the operator's. Rotate unless the operator rules otherwise."
-    elif [ -n "$_hist" ]; then
-        warn "Secret in reachable git HISTORY (not the index): $_hist" \
-             "Nothing is tracked now, but every clone of this repository still receives it. The index cannot see this — it is how T-938's purge read as complete while 109 commits still carried the blob, and it is how a stale clone that pulls-and-pushes silently restores one." \
-             "ROTATE the value; that is what makes the historical copy harmless. A git filter-repo rewrite plus force-push is defence-in-depth AFTER rotation and is Tier 0 — the operator's call, never the agent's."
-    elif [ -n "$_unignored" ]; then
-        warn "Secret-bearing path on disk but NOT gitignored: $_unignored" \
-             "Not yet tracked, so nothing has leaked — but one broad 'git add' makes it the case above, and handover commits stage .context/" \
-             "Add a pattern covering it to .gitignore, then verify with: git check-ignore -v <path>"
-    else
-        pass "No secret-bearing path is tracked or unignored — tracked-ness judged by tools/tracked-secret-artifacts.py over the whole index, ignored-ness over ${#_pats[@]} on-disk pattern(s)"
-    fi
-}
-check_secret_paths_visible_to_git
 
 # T-3262 (G-099). `fw doctor` (bin/fw:2390+) already compares the
 # continuous-run wrapper ledger against the turn-driver state and WARNs when
@@ -4864,6 +4895,26 @@ else
     pass "Gate-bypass log: clean (no bypasses recorded)"
 fi
 
+# Review and dispatch cost (T-3583 operator ruling, built T-3586): weekly cost by
+# backend and class from .context/costs/reviews.jsonl, a WARN for any paid-class record
+# with no approved proposal, a FAIL when the operator-owned registry does not validate
+# (e.g. openrouter reclassified — it is pinned paid). lib/review_cost.py is the only parser.
+if [ -f "$FRAMEWORK_ROOT/lib/review_cost.py" ]; then
+    while IFS=$'\t' read -r _rc_lvl _rc_msg; do
+        case "$_rc_lvl" in
+            PASS) pass "$_rc_msg" ;;
+            INFO) info "$_rc_msg" ;;
+            WARN) warn "$_rc_msg" ".context/costs/reviews.jsonl + proposals.jsonl" \
+                       "A paid review needs an approved proposal first: bin/fw review propose, operator approves" ;;
+            FAIL) fail "$_rc_msg" "policy/review-backends.yaml" \
+                       "Restore the registry: bin/fw review list-backends names the invalid entries" ;;
+            "") ;;
+            *) warn "Review-cost audit emitted unexpected output: ${_rc_lvl:0:120}" "lib/review_cost.py audit" \
+                    "Run: python3 lib/review_cost.py audit" ;;
+        esac
+    done < <(PROJECT_ROOT="$PROJECT_ROOT" FRAMEWORK_ROOT="$FRAMEWORK_ROOT" python3 "$FRAMEWORK_ROOT/lib/review_cost.py" audit 2>&1)
+fi
+
 # Check for commit-msg hook (validates task references)
 if [ -f "$PROJECT_ROOT/.git/hooks/commit-msg" ]; then
     pass "Commit-msg hook installed"
@@ -5465,6 +5516,14 @@ if [ -n "$COMPLETED_SCAN" ]; then
              "Save research findings: docs/reports/${task_id}-*.md"
         missing_research=$((missing_research + 1))
     done < <(echo "$COMPLETED_SCAN" | python3 -c "import sys,json; [print(x) for x in json.load(sys.stdin).get('missing_research',[])]" 2>/dev/null)
+fi
+
+# T-3569: the scanner degrades to location-only when lib/research_preserved.py
+# is missing; say so rather than let the degraded answer pass as the full one.
+_c001_note=$(echo "$COMPLETED_SCAN" | python3 -c "import sys,json; print(json.load(sys.stdin).get('research_predicate_note',''))" 2>/dev/null || echo "")
+if [ -n "$_c001_note" ]; then
+    warn "C-001: $_c001_note" "In-task research records are not being counted" \
+         "Restore lib/research_preserved.py (fw vendor self / fw upgrade)"
 fi
 
 if [ "$missing_research" -eq 0 ]; then
@@ -7892,13 +7951,54 @@ if [ ! -d "$ARC_DIR" ] || ! ls "$ARC_DIR"/*.yaml >/dev/null 2>&1; then
     info "Arc registry empty — no arcs to evaluate"
 else
     threshold="${FW_ARC_COMPLETION_THRESHOLD:-0.80}"
+
+    # T-3507: membership index, built ONCE for the whole section.
+    #
+    # The loop below spawns a fresh python3 per arc, so nothing can cache across
+    # iterations. Before this, the live scan ran only `if not items` — as a
+    # FALLBACK when constituent_tasks: was empty — so whenever that deprecated
+    # cache was non-empty the check computed completed/total over it alone.
+    # Measured: orchestrator-rethink 31 of 124 members, watchtower-redesign 1 of
+    # 70, project-shape-resilience 6 of 18. 174 task-arc relationships invisible.
+    #
+    # Simply deleting the `if not items` guard would fire the per-arc scan for all
+    # ~20 arcs — 20 walks of 3,484 task files. That is the O(arcs x tasks) trap
+    # T-3503 just removed from `fw bvp arcs`, which had exceeded a 300s timeout
+    # because of it. So the corpus is walked once, here, and looked up per arc.
+    #
+    # Delegates to lib/arc_membership.py rather than keeping the inline tag/arc_id
+    # regexes this block used to carry — the fourth reinvention of arc membership,
+    # and one audit's own T-1881 rail cannot see because its pattern requires a
+    # literal `grep` (OBS-546).
+    ARC_MEMBERSHIP_MAP="$(mktemp)"
+    ARC_MEMBERSHIP_DEGRADED=""
+    if ! python3 - "$PROJECT_ROOT" "$FRAMEWORK_ROOT" > "$ARC_MEMBERSHIP_MAP" 2>/dev/null <<'PY'
+import sys
+sys.path.insert(0, sys.argv[2] + '/lib')
+from arc_membership import scan_tasks_by_arc_membership
+by_arc_id, by_tag = scan_tasks_by_arc_membership(sys.argv[1])
+# One line per key: "<key>\t<space-separated task ids>". Both the arc_id keys
+# (slug and arc-NNN forms) and the "arc:<slug>" tag keys are emitted verbatim;
+# the per-arc lookup below unions whichever of them apply to that arc.
+for key, tids in list(by_arc_id.items()) + list(by_tag.items()):
+    print(key + "\t" + " ".join(sorted(set(tids))))
+PY
+    then
+        ARC_MEMBERSHIP_DEGRADED="canonical membership helper unavailable"
+        : > "$ARC_MEMBERSHIP_MAP"
+        warn "Arc-completion membership DEGRADED to constituent_tasks: only" \
+             "lib/arc_membership.py could not be loaded — completion ratios below are computed over the deprecated cache and may under-count" \
+             "Check FRAMEWORK_ROOT resolution; the ratios are still printed but their denominators are not trustworthy"
+    fi
+
     for arc_yaml in "$ARC_DIR"/*.yaml; do
         # Parse arc fields (id, status, constituent_tasks).
         # Use python to avoid yaml-library coupling — simple line scan suffices.
-        eval "$(python3 - "$arc_yaml" "$PROJECT_ROOT" <<'PY'
+        eval "$(python3 - "$arc_yaml" "$PROJECT_ROOT" "$ARC_MEMBERSHIP_MAP" <<'PY'
 import re, sys, os, glob
 text = open(sys.argv[1]).read()
 project_root = sys.argv[2]
+membership_map_path = sys.argv[3] if len(sys.argv) > 3 else ""
 def grab(field, default=""):
     m = re.search(rf'^{field}:\s*(.*?)$', text, re.MULTILINE)
     return m.group(1).strip() if m else default
@@ -7913,37 +8013,37 @@ m = re.match(r'\[(.*?)\]', ct_line)
 items = []
 if m and m.group(1).strip():
     items = [s.strip().strip('"').strip("'") for s in m.group(1).split(",") if s.strip()]
-# Tag-based fallback (T-1813): when constituent_tasks is empty, scan .tasks/ for
-# tasks tagged arc:<slug>. Mirrors lib/arc.sh:_arc_tasks_with_tag.
-# T-1875 (T-NEW-11): extended to union with arc_id: frontmatter scan — the
-# canonical source-of-truth field introduced in T-1849 and populated by the
-# T-1850 migration. Without this union, audit was blind to 163 task-arc
-# relationships across 5 arcs after migration. Mirrors lib/arc.sh:_arc_tasks_for.
-if not items and arc_slug:
-    tag_pattern = f"arc:{arc_slug}"
-    # arc_id may be either slug form (`arc-grooming`) or arc-NNN form (`arc-005`).
-    arc_id_re = re.compile(
-        rf'^\s*arc_id:\s*["\']?({re.escape(arc_slug)}|{re.escape(arc_id)})["\']?\s*$',
-        re.MULTILINE,
-    )
-    seen = set()
-    for d in ("active", "completed"):
-        for f in glob.glob(os.path.join(project_root, ".tasks", d, "T-*.md")):
-            try:
-                tt = open(f).read()
-            except OSError:
-                continue
-            matched = False
-            tags_m = re.search(r'^tags:\s*(.*?)$', tt, re.MULTILINE)
-            if tags_m and tag_pattern in tags_m.group(1):
-                matched = True
-            if not matched and arc_id_re.search(tt):
-                matched = True
-            if matched:
-                id_m = re.search(r'^id:\s*(T-\d+)', tt, re.MULTILINE)
-                if id_m:
-                    seen.add(id_m.group(1))
-    items = sorted(seen)
+# T-3507: UNION, not a fallback.
+#
+# This used to read `if not items and arc_slug:` — the live scan ran only when
+# constituent_tasks: was EMPTY. The comment here claimed a union with the arc_id:
+# scan (T-1875), and that union was real, but it lived inside the fallback branch,
+# so it unioned only with itself. Any arc with a non-empty constituent_tasks: had
+# its ratio computed over that deprecated append-only cache alone.
+#
+# Measured before the change: orchestrator-rethink saw 31 of 124 members,
+# watchtower-redesign 1 of 70, project-shape-resilience 6 of 18 — 174 task-arc
+# relationships invisible to the check. No verdict flipped (all three cross 0.80
+# either way), so the defect was latent; its live cost was telling the operator
+# "31/31 tasks completed" about an arc with 124 members, inside a WARN they act on.
+#
+# Membership now comes from the pre-loop index (built once, see the section
+# header), so the union costs one corpus walk per RUN rather than one per arc.
+# `constituent_tasks:` is still unioned in rather than discarded: it is deprecated
+# but it is also the only record of authored order, and a task deleted from disk
+# should not silently shrink an arc's historical denominator.
+scan_ids = set()
+if membership_map_path and os.path.isfile(membership_map_path):
+    wanted = {k for k in (arc_slug, arc_id, f"arc:{arc_slug}") if k}
+    try:
+        with open(membership_map_path) as mh:
+            for line in mh:
+                key, _, rest = line.rstrip("\n").partition("\t")
+                if key in wanted:
+                    scan_ids.update(t for t in rest.split() if t)
+    except OSError:
+        pass
+items = sorted(set(items) | scan_ids)
 print(f'ARC_ID={arc_id!r}')
 print(f'ARC_STATUS={status!r}')
 print(f'ARC_TASKS=({" ".join(items)})')
@@ -7976,6 +8076,8 @@ PY
             pass "Arc '${ARC_ID}': ${completed}/${total} (${ratio}) — below threshold ${threshold}, no closure pressure"
         fi
     done
+    # T-3507: the pre-loop membership index is scratch state for this section only.
+    rm -f "$ARC_MEMBERSHIP_MAP"
 fi
 
 echo ""

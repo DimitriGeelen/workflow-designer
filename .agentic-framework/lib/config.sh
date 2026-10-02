@@ -213,6 +213,7 @@ fw_consumer_yamls() {
 FW_CONFIG_REGISTRY=(
     "CONTEXT_WINDOW|300000|Context window size for budget enforcement (tokens)"
     "PORT|3000|Watchtower web UI listen port"
+    "PORT_SCAN_BASE|3000|First port tried when a project has no PORT set: fw serve scans 100 ports up from here, skips any held by another service, and records the chosen port as PORT in .framework.yaml (T-3662)"
     "RAIL_IDENTITY_FILE||Project-owned termlink signing identity for outbound rail posts (T-2904). Empty = sign as host key, which is indistinguishable from co-resident agents. Created on first use."
     "RAIL_PROJECT_LABEL||Canonical from_project label attached to outbound rail posts (T-2905). Empty = derived from the project directory name, normalised. Emitted, never typed at a call site."
     "DISPATCH_LIMIT|2|Agent tool dispatches before TermLink gate triggers"
@@ -253,6 +254,7 @@ FW_CONFIG_REGISTRY=(
     # the question the release train exists to answer.
     "DEV_BRANCH|bleeding-edge|The sanctioned development branch — what the persistent session commits to, what branch-hygiene measures 'landed' against, and the only writer of RELEASE_BRANCH (lib/branch-hygiene.sh). T-3185/T-3187/T-3188."
     "RELEASE_BRANCH|master|The consumer install surface — the branch fw release tag-and-release fast-forwards before cutting the tag. Nothing authors it directly (lib/release.sh, agents/git/lib/master-guard.sh). T-3185/T-3190."
+    "RELEASE_TAG_PATTERN|v[0-9]*|Glob for release tags read by fw release status (lib/release.sh). If it matches nothing, prefixed semver such as designer-vX.Y.Z is tried, and failing that status reports no matching tag and UNKNOWN commits, never 0. T-3585."
     "RETIRE_WHEN_ADVISORY|1|Enable the audit retire_when advisory rail for free drivers; 0 silences the section entirely (agents/audit/audit.sh). T-2169."
     # T-3445 (mechanism for D-626). The conjunction is the signal, not either
     # half: zero reviewer-closeable criteria is unremarkable in a small corpus,
@@ -260,6 +262,7 @@ FW_CONFIG_REGISTRY=(
     # being delegated. Both at once means the delegation the operator granted
     # reaches nothing — which is the state 832 measured (0 of 342) and asked us
     # to make visible.
+    "SIDECAR_CONSULT_WARN_HOURS|4|Hours an inbound peer consult may sit unread on the sidecar inbox before fw audit and fw doctor WARN (agents/audit/audit.sh, bin/fw doctor, lib/sidecar-audit.sh:fw_sidecar_inbox_stale_facts). Deliberately far below the sibling dm:* rail's 24: a dm: rail carries incidental posts, a consult is a PEER BLOCKED ON AN ANSWER. Origin T-3544/OBS-567 — 832-Workflow-designer waited six days and 010-termlink found 49 of ours unread on their own inbox. Raise it if the WARN nags; do not raise it to silence a real backlog."
     "DELEGATION_SURFACE_WARN|50|Operator-only open-Human-criteria count above which fw audit and fw doctor WARN, but only while reviewer-closeable is 0 (agents/audit/audit.sh, lib/delegation.py:surface_verdict). T-3445 / D-626."
     "GITIGNORE_REGISTER_ADVISORY|1|Enable the audit WARN for .gitignore comment blocks that defer work without naming a T-/G-/OBS-/L- entry; 0 silences it (agents/audit/audit.sh, lib/gitignore-register.sh). T-2994."
     # T-3024 (T-3022 slice E'). Handovers are 68% of indexed corpus volume and 79%
@@ -318,6 +321,7 @@ FW_CONFIG_REGISTRY=(
     # deny — deny/defer always logged. Retrofits the load-62 incident. The
     # full mem/disk/cpu/net adaptive governor is slice S5b.
     "PROVISION_LOAD_MAX|0.8|Per-core normalized 1-minute loadavg threshold for the environmental governor's provisioning admission (lib/aef_governor.py). Under = allow, at/over = defer, at/over 2x = deny; bad values fall back to 0.8, logged. T-3311."
+    "REVIEWER_JUDGE_WEEKLY_SPEND_CEILING|10000|Weekly USD spend ceiling for independent reviewer judgments via fw reviewer judge (T-3580, IW-7 rung selection). Estimated USD, read from the committed cost ledger (.context/costs/reviews.jsonl, reviewer-judge rows). When the due rung would pass it, the run is registered one rung lower; the SIGNED REVIEW RUN records the decision (due, granted, spend, ledger commit), the ticked criterion annotation shows rung granted/due/reason, and fw audit WARNs on every step-down. Floor 100: a value below it (0, negative, NaN, non-numeric) means no step-down, never always. T-3580."
 )
 
 # fw_config_registry — Print all known settings with current values

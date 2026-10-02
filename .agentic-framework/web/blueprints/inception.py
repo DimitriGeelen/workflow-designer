@@ -29,6 +29,8 @@ def _md(text):
     # Ensure blank line before lists so markdown parser recognizes them
     text = re_mod.sub(r"([^\n])\n(- )", r"\1\n\n\2", text)
     text = re_mod.sub(r"([^\n])\n(\d+\. )", r"\1\n\n\2", text)
+    from web.shared import protect_path_underscores
+    text = protect_path_underscores(text)  # T-3587
     html = markdown2.markdown(text, extras=["fenced-code-blocks", "tables"])
     # T-1723: artefact paths → /file/ anchors (existence-gated, idempotent).
     html = _auto_link_files(html)
@@ -642,11 +644,38 @@ def record_decision(task_id):
         # and the reason is visible inline. The logging.error above preserves
         # server-side observability regardless of the client-facing status.
         import html as _html
-        # T-3280: same operator-facing translation on the failure path.
-        reason = _html.escape(
-            _operator_facing_stderr((stderr or stdout or "Unknown error from fw inception decide")[:3000])[:300]
-            or "Unknown error from fw inception decide"
+        # T-3539: when the CLI exits non-zero having written NOTHING to either
+        # stream, say exactly that. "Unknown error" is true but useless, and it
+        # points the reader at Watchtower when the fault is upstream in the CLI.
+        # Measured origin: three call sites of inception_underdisposed_questions
+        # used `out=$(fn …)` unguarded, and that function returns 1 to mean "I
+        # found under-disposed questions". Under `set -e` the command died before
+        # printing its own warning, so Watchtower was handed an exit code and two
+        # empty streams and could only shrug. Naming the shape would have pointed
+        # at the CLI in one read instead of a full diagnosis session.
+        _silent = (
+            "fw inception decide failed and produced NO output on either stream.\n"
+            "That is a CLI-side failure, not a Watchtower one — the command died "
+            "before it could report a reason, so there is nothing to show here.\n"
+            f"Reproduce on the host: bin/fw task review {task_id}"
         )
+        # T-3280: same operator-facing translation on the failure path.
+        # T-3540: 1500, not 300. The FAILURE path had the tightest budget of any
+        # message on this page while the sibling success-adjacent path at :608
+        # already allowed 1500 — exactly backwards, since a refusal is the message
+        # that has to be actionable. Measured: the disposition refusal names which
+        # IW-N questions are undisposed, and 300 chars cut the list after
+        # "Not yet disposed:\n    - IW" — clipping the one part the operator needed
+        # and leaving a message that reads as a broken system rather than a gate.
+        _full = _operator_facing_stderr((stderr or stdout or _silent)[:3000]) or _silent
+        reason = _html.escape(_full[:1500])
+        if len(_full) > 1500:
+            # Say that it was cut, and where the rest is. A silently-clipped message
+            # is indistinguishable from a message that simply stops making sense.
+            reason += _html.escape(
+                f"\n\n… output truncated at 1500 chars. Full text: "
+                f"bin/fw task review {task_id}"
+            )
         return (
             f'<div class="go-decision" style="border:1px solid #ef4444; border-radius:6px; padding:0.6rem;">'
             f'<strong>{task_id}</strong>: '
