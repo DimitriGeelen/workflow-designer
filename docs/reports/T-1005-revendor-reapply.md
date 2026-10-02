@@ -94,3 +94,24 @@ that 1.7.740 replaced (`_sc_is_commit_only_command`, `_sc_drift_target`, "does n
 structure legs), (b) fetchers that upstream refuses at the allowlist instead of the write check
 (gate-equivalent, verified end to end), (c) usability: `| tac` not allowlisted, `curl --output-dir`
 over-blocked. None is an unguarded write.
+
+## RESUME POINT (next session starts here)
+
+State at d6e404bc: `_t517` ~30 stale; bridge suite measured 137/29 at cd64a26e (before the allowlist
+work). Done: update-task.sh (14 probes), create-task.sh, hooks.sh (+ live hooks reinstalled, gate
+re-added), observe.sh, the allowlist + drift gate, superseded entries pruned, 5 deleted additions
+restored, G4 gate. Uncommitted on purpose: `.agentic-framework/web/test_context_tokens.py` (restored,
+untracked — commit with the budget work).
+
+Next, in order:
+1. `checkpoint.sh` + `budget-gate.sh` (T-401/T-402/T-675/T-849): 1.7.740 HAS a `budget` verb, but
+   the read fence fails 8 arms (stale / foreign / absent / zero-token caches are not refused) and
+   `_t849` fails 8 legs. Same method: measure behaviour, add only what is missing, probe-verify.
+2. `handover.sh` (T-436, T-445, T-862 probes abstain: "can no longer test what it claims").
+3. `audit.sh` (25 local commits) — move OUR rails to a project-owned audit extension (T-999)
+   rather than patch it again; that also restores the T-952 ratchet line.
+4. fabric (`drift.sh` T-524, `enrich.py` T-343), BVP (estimator, bvp.sh, bvp.py), `lib/arc.sh`,
+   `lib/ask.py`, `bin/fw` (fw external route), web (`app.py`, approvals.html, tests).
+5. Re-run the bridge suite (file output, never piped to head) and record the count.
+Method notes: `fw git commit -m` (never `-qm`), unfiltered output, `git log -1` after each commit;
+a merge source for T-840-era losses is the pre-T-840 file over the v1.6.763 baseline.
