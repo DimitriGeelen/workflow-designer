@@ -63,7 +63,10 @@ run_case() {
 
 # field <file> <key>  — the frontmatter value, empty string when the field is blank
 field() {
-    sed -n '2,30p' "$1" | grep -m1 "^$2:" | sed "s/^$2:[[:space:]]*//"
+    # T-1005: read the whole frontmatter (up to the closing ---), not lines 2-30. The 1.7.740
+    # template carries long comment blocks and puts created: on line 39, so a fixed window
+    # reported a correct timestamp as missing.
+    awk 'NR==1{next} /^---[[:space:]]*$/{exit} {print}' "$1" | grep -m1 "^$2:" | sed "s/^$2:[[:space:]]*//"
 }
 
 check() {
