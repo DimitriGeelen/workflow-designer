@@ -381,21 +381,6 @@ entries:
       independently. Their words: "arrived at independently, which is mild evidence it's the
       obvious shape once you see the root cause rather than the symptom." Nothing to upstream.
 
-  - path: .agentic-framework/agents/context/lib/extract-decisions.py
-    kind: added
-    task: T-516
-    upstream: superseded
-    superseded_by: AEF T-3015 — agents/context/lib/extract_decisions.py, rail 11895
-    reason: >-
-      Block-aware replacement parser. Ships with the episodic.sh change above. SUPERSEDED by
-      upstream's own helper, which does the same job. NOTE THE FILENAMES: ours is
-      extract-decisions.py (hyphen), theirs is extract_decisions.py (underscore). They differ,
-      so the next re-vendor does not overwrite ours — it lands theirs ALONGSIDE it, and the
-      overwritten episodic.sh will call theirs. Ours becomes orphaned dead code that no test
-      covers and no caller reaches, which is precisely the unwired-instrument class T-451
-      ratchets against. Deleting it is the right move AT the re-vendor, not before: until then
-      it is the live implementation. Flagged here so the re-vendor does not have to rediscover it.
-
   - path: .agentic-framework/agents/context/budget-gate.sh
     kind: content
     task: T-401
@@ -407,12 +392,6 @@ entries:
       longer derives LEVEL=ok from TOKENS=0 — an unmeasured reading now writes LEVEL=unknown,
       which matches no branch of either case statement. Both changes are additive to the JSON
       shape; every existing reader keys on level/tokens/timestamp and is unaffected.
-
-  - path: .agentic-framework/lib/context_tokens.py
-    kind: added
-    task: T-401
-    upstream: fix
-    reason: Token accounting extracted so the gauge and its tests share one implementation.
 
   - path: .agentic-framework/web/test_context_tokens.py
     kind: added
@@ -592,67 +571,6 @@ entries:
   # These are NOT upstream debt. But a vendoring process that silently demotes exec bits and
   # drops a catalogue file is itself worth reporting to framework-agent — it is the mechanism
   # that will destroy the `fix` entries above at the next re-vendor.
-  - path: .agentic-framework/.secret-scan-patterns
-    kind: added
-    task: T-276
-    upstream: vendoring-repair
-    reason: >-
-      Upstream file (its own header says T-1844) that the old do_vendor copy skipped; restored
-      by hand from the sha-verified clone.
-
-  - path: .agentic-framework/agents/git/lib/secret-scan.sh
-    kind: mode
-    task: T-276
-    upstream: vendoring-repair
-    reason: >-
-      100644 => 100755. Directly relevant to email-archive's G-FW-SECRET-SCAN-SILENT-SKIP
-      (rail 11889): they observe mode 644 and they are right that upstream ships it that way.
-      It is 755 here only because T-276 chmod'd it. Not load-bearing though — hooks.sh:304
-      gates on -f not -x (AEF T-2061) and invokes via `bash "$SCANNER"`, so the exec bit is
-      irrelevant to whether the scanner runs. The fail-open they report IS fixed upstream.
-
-  - path: .agentic-framework/agents/audit/orchestrator-mcp-scan.sh
-    kind: mode
-    task: T-276
-    upstream: vendoring-repair
-    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
-
-  - path: .agentic-framework/agents/context/commit-cadence.sh
-    kind: mode
-    task: T-276
-    upstream: vendoring-repair
-    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
-
-  - path: .agentic-framework/agents/context/loop-detect.sh
-    kind: mode
-    task: T-276
-    upstream: vendoring-repair
-    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
-
-  - path: .agentic-framework/agents/git/lib/master-guard.sh
-    kind: mode
-    task: T-276
-    upstream: vendoring-repair
-    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
-
-  - path: .agentic-framework/lib/build.sh
-    kind: mode
-    task: T-276
-    upstream: vendoring-repair
-    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
-
-  - path: .agentic-framework/agents/designer/designer.sh
-    kind: mode
-    task: T-296
-    upstream: vendoring-repair
-    reason: 100644 => 100755, restored during the 0.8.0 release intake run.
-
-  - path: .agentic-framework/docs/spikes/T-586-loop-detect-ts/loop-detect.js
-    kind: mode
-    task: T-276
-    upstream: vendoring-repair
-    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
-
   # ── local config: never travels upstream ───────────────────────────────────────────────
   - path: .agentic-framework/policy/designer-pin.yaml
     kind: content
@@ -1567,3 +1485,17 @@ entries:
     reason: >-
       Absence-assertion detector for P-011 Verification blocks (T-843). Undeclared, deleted by the
       1.7.740 re-vendor; restored. Its call site in update-task.sh is re-applied under T-1005.
+  # ── T-1005: superseded at the 1.7.740 re-vendor and REMOVED from this manifest: 8 exec-bit
+  #    (mode) entries now shipped executable upstream; .secret-scan-patterns and lib/context_tokens.py
+  #    shipped byte-identical upstream; agents/context/lib/extract-decisions.py (T-516) replaced by
+  #    upstream's extract_decisions.py (T-3015), which the episodic generator calls. See
+  #    docs/reports/T-1005-revendor-reapply.md. ──
+  - path: .agentic-framework/agents/context/lib/extract_decisions.py
+    kind: content
+    task: T-516, T-1005
+    upstream: fix
+    reason: >-
+      Upstream's extractor (T-3015) terminates a value at an unknown bolded label, but its label
+      regex was \w+, so a multi-word label ("**Also rejected:**") was read as a continuation and
+      folded into the previous value. One character class fixed; tools/_t516 now tests this LIVE
+      extractor (8/8) instead of our old dead copy.

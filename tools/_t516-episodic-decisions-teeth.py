@@ -21,7 +21,9 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-EXTRACT = os.path.join(ROOT, ".agentic-framework", "agents", "context", "lib", "extract-decisions.py")
+# T-1005: upstream T-3015 replaced our extract-decisions.py with its own extract_decisions.py,
+# which the episodic generator actually calls (episodic.sh). Test the LIVE extractor, not a dead copy.
+EXTRACT = os.path.join(ROOT, ".agentic-framework", "agents", "context", "lib", "extract_decisions.py")
 
 TEMPLATE_COMMENT = """## Decisions
 
