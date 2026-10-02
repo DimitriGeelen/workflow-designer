@@ -89,6 +89,9 @@ entries:
     task: T-557
     upstream: fix
     reason: >-
+      T-1005 (1.7.740): upstream now refuses the payload-losing calls itself (better than ours:
+      it names the discarded words and the correct form); re-applied in MINIMAL form — one line
+      stating that nothing was written, because its "Captured as the note text" reads as a capture.
       `fw note` silently destroyed eleven observations between 2026-08-09 and 2026-08-17.
       do_dispatch routes any unrecognised FIRST WORD to do_capture (the `*)` arm of the case
       at ~line 305), and do_capture takes `$1` as the observation TEXT while the flag loop's

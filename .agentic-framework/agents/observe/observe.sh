@@ -126,6 +126,9 @@ do_capture() {
     # note will use a word nobody thought to list.
     if [ ${#strays[@]} -gt 0 ]; then
         echo -e "${RED}ERROR: fw note received ${#strays[@]} argument(s) it cannot use.${NC}" >&2
+        # 832 T-557 (re-applied on 1.7.740 by T-1005, minimal form): say it outright. "Captured as
+        # the note text" below can be read as "it was captured"; it was not.
+        echo "  Nothing was written — the inbox is unchanged. Re-run in the form shown below." >&2
         echo "" >&2
         echo "  Captured as the note text : \"$text\"" >&2
         echo "  Would have been DISCARDED : $(printf '"%s" ' "${strays[@]}")" >&2
