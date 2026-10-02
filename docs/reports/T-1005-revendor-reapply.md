@@ -18,7 +18,18 @@ behaviour; ours dropped), **partly superseded** (upstream covers part; the rest 
 | 324faa00 | T-630 stdin swallowed the command list | **superseded**: upstream adopted it (redirect + reconciliation, crediting 832's report) | `_t630` 11/11 — probe accepts upstream wording; its mutation shows the swallow returns without the redirect and reconciliation blocks it |
 | ac53a8b9 | T-658 killed vs failed | **re-applied** (ported: signal classified first, 127 next, generic FAIL last; split summary + OBS-332 hint) | `_t658` 11/11, mutation bites; probe accepts upstream's NOT RUNNABLE for 127 |
 | 580d51f2 note | T-871 exit 127 = command not found | upstream now carries this as its own branch (NOT RUNNABLE) | read in source |
-| b17e49fa, 0444fc5b, 3653bdbb, c425cb41, 9a3dee4a, 0fe9498b, bc267087, 9b24a57d | T-575, T-649, T-654, T-843, T-913, T-880, T-923, T-883 | **pending** | probes red on 1.7.740 |
+| 0444fc5b | T-649 warn when completing with uncommitted work | **re-applied** (function + call after P-011) | `_t649` 8/8 |
+| 3653bdbb | T-654 null horizon on archive | **superseded**: upstream has ONE end-of-script invariant for every path to completed/ | `_t654` 7/7; probe gained upstream-shape teeth (removing the invariant regresses both paths) |
+| b17e49fa | T-575 exact-heading refusal | **covered**: malformed heading by the T-943 port, zero said by upstream T-3546, prefix-heading by upstream's exact-match extractor (`_t574` t542 leg). **Not carried: refusal of TWO exact `## Verification` headings** (only the first runs) — no probe, low incidence; known small gap | — |
+| c425cb41, 9a3dee4a, 0fe9498b, bc267087, 9b24a57d | T-843, T-913, T-880, T-923, T-883 | **pending** — their libraries had been deleted (see below), restored; call sites to re-wire | probes red |
+
+## Second finding: undeclared local ADDITIONS are deleted, not just overwritten
+
+The pristine commit recorded 7 deletions. Five were our own code files that the vendor copy
+does not ship: `check-bare-import.sh` (T-936), `instance-position.sh` (T-880/T-883),
+`task-ownership.sh` (T-931), `verification-absence.sh` (T-843) — none declared — and
+`external_consult.py` (T-887, declared). Restored from 2659abad^ and declared (24a25850). The two
+remaining deletions are runtime state files and stay deleted.
 
 ## Finding for the protocol (T-1000) and for AEF
 
