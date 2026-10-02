@@ -15,7 +15,9 @@ Per map, and totalled:
     annotation (an associated textAnnotation): honest disconnection vs unexplained
   - element citations: <documentation> source "quote" / unstated / none (the kit's convention)
 
-Usage: _t989-measure-evergreen.py <dir-with-.bpmn> [--label NAME] [--json OUT]
+Usage: _t989-measure-evergreen.py <dir-with-.bpmn> [--label NAME] [--json OUT] [--baseline DIR]
+--baseline: score DIR too and compare map by map, only over the maps both sets contain (key: as-is
+or Soll + file name), so a partial batch is compared with the same maps, not the whole corpus.
 Writes nothing unless --json is given. The corpus itself is never committed (owner approved
 sending, not archiving); only the numbers go into docs/reports/T-989-evergreen-trial.md.
 """
@@ -127,6 +129,7 @@ def main(argv=None):
     ap.add_argument('dir')
     ap.add_argument('--label', default='batch')
     ap.add_argument('--json')
+    ap.add_argument('--baseline')
     a = ap.parse_args(argv)
     files = sorted(glob.glob(os.path.join(a.dir, '**', '*.bpmn'), recursive=True))
     if not files:
@@ -150,7 +153,36 @@ def main(argv=None):
     print(json.dumps(summary, indent=1))
     if a.json:
         json.dump({'summary': summary, 'maps': rows}, open(a.json, 'w'), indent=1)
+    if a.baseline:
+        compare(a.baseline, files, rows, val)
     return 0
+
+
+def key(path):
+    # as-is and Soll share file names (the iteration-0 collision): the set is part of the key
+    return ('soll' if 'soll' in path.lower() else 'as-is', os.path.basename(path))
+
+
+COLS = (('findings', lambda r: sum(r['findings'].values())), ('lanes_auth', lambda r: '%d/%d' % (r['lanes_with_authority'], r['lanes'])),
+        ('meta', lambda r: int(r['workflowMeta'])), ('start/end', lambda r: '%d/%d' % (r['start_events'], r['end_events'])),
+        ('unexpl', lambda r: r['extra_parts_unexplained']), ('quote/unst/none', lambda r: '%d/%d/%d' % (r['cited_quote'], r['cited_unstated'], r['uncited'])))
+
+
+def compare(base_dir, files, rows, val):
+    bfiles = sorted(glob.glob(os.path.join(base_dir, '**', '*.bpmn'), recursive=True))
+    base = {key(f): measure(f, val) for f in bfiles}
+    new = {key(f): r for f, r in zip(files, rows)}
+    both = sorted(set(base) & set(new))
+    print('\nPAIRED with %s: %d map(s) in both; %d new-only %s; baseline has %d' % (
+        base_dir, len(both), len(set(new) - set(base)), sorted('/'.join(k) for k in set(new) - set(base)), len(base)))
+    print('%-46s ' % 'map' + ' '.join('%-16s' % c for c, _ in COLS))
+    tb = tn = 0
+    for k in both:
+        b, n = base[k], new[k]
+        tb += sum(b['findings'].values()); tn += sum(n['findings'].values())
+        print('%-46s ' % '/'.join(k)[:46] + ' '.join('%-16s' % ('%s -> %s' % (f(b), f(n))) for _, f in COLS))
+    if both:
+        print('findings over the paired maps: %d -> %d' % (tb, tn))
 
 
 if __name__ == '__main__':

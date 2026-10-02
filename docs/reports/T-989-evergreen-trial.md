@@ -62,7 +62,9 @@ Nothing outside a live Claude session watches these topics yet. To pick the tria
    (artifact-chunk sets from their fingerprint on the topics and DM, with part counts and sha);
    `--file <name> --label iterN` reassembles the latest complete set, verifies the declared sha256
    and unpacks under `build/evergreen-intake/iterN/unpacked` (gitignored). Self-tested on the
-   iteration-0 delivery: sha matches and the harness re-measures 138 findings. Then
+   iteration-0 delivery: sha matches and the harness re-measures 138 findings. For a PARTIAL batch
+   add `--baseline build/evergreen-intake/corpus/docs/views` (iteration 0): it prints a per-map
+   before/after table over the maps both sets contain, so 5 maps are compared with the same 5. Then
    `python3 tools/_t989-measure-evergreen.py <dir> --label "iteration N"` and add a row above.
    Re-measure before any claim about their maps (offset-12 lesson).
 5. **Feed back** on `xfer-evergreen-corpus` (or the sidecar): the numbers against iteration 0,

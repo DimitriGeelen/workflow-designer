@@ -54,11 +54,11 @@ def part_no(p):
 
 def chunks(topics):
     by_file = collections.defaultdict(list)
-    for t in topics:
-        for e in envelopes(t):
+    for topic in topics:
+        for e in envelopes(topic):
             md = e.get("metadata") or {}
             if e.get("sender_id") == SENDER and e.get("msg_type") == "artifact-chunk" and md.get("file"):
-                by_file[md["file"]].append((t, e))
+                by_file[md["file"]].append((topic, e))
     return by_file
 
 
@@ -66,7 +66,7 @@ def latest_set(items):
     """Walk newest to oldest and keep the first occurrence of each part number until complete."""
     items = sorted(items, key=lambda te: te[1].get("ts", 0), reverse=True)
     got, total, sha = {}, None, None
-    for t, e in items:
+    for _, e in items:
         n, of = part_no(e["metadata"].get("part"))
         if n is None:
             continue
@@ -124,8 +124,11 @@ def main():
         with tarfile.open(fileobj=io.BytesIO(blob)) as tf:
             safe = [m for m in tf.getmembers() if not (m.name.startswith("/") or ".." in m.name.split("/"))]
             tf.extractall(os.path.join(out, "unpacked"), members=safe)
-        n_bpmn = sum(1 for _, _, fs in os.walk(os.path.join(out, "unpacked")) for f in fs if f.endswith(".bpmn"))
-        print("unpacked %d member(s) to %s (%d .bpmn)" % (len(safe), os.path.relpath(out, ROOT) + "/unpacked", n_bpmn))
+        walk = [(d, f) for d, _, fs in os.walk(os.path.join(out, "unpacked")) for f in fs if f.endswith(".bpmn")]
+        hidden = sum(1 for d, _ in walk if "/." in d)
+        # the harness globs **/*.bpmn, which skips dot-directories (e.g. a designer store's saved versions)
+        print("unpacked %d member(s) to %s: %d .bpmn the harness measures, %d more under dot-directories (not measured)" % (
+            len(safe), os.path.relpath(out, ROOT) + "/unpacked", len(walk) - hidden, hidden))
     return 0
 
 
