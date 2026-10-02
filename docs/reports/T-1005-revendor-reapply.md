@@ -95,6 +95,21 @@ structure legs), (b) fetchers that upstream refuses at the allowlist instead of 
 (gate-equivalent, verified end to end), (c) usability: `| tac` not allowlisted, `curl --output-dir`
 over-blocked. None is an unguarded write.
 
+## Step 1 done (2026-10-03): checkpoint.sh + budget-gate.sh
+
+Measured behaviour first, against 1.7.740 as vendored:
+
+| probe | before | after | what it showed |
+|---|---|---|---|
+| `_t849` zero-token teeth | 6/14 | **14/14**, `--mutation` OK | upstream's T-3241 reader still prints `level: ok` for a fresh cache with `tokens: 0` (what every compaction writes). Re-applied the T-849 block verbatim from 2ded86a0 |
+| `_t675` read fence | 2/10 | **10/10** | 1.7.740 refuses with `level: unknown` + `reason:` and exit 0 (ours used exit 3); its gate stamps `level: unknown, tokens: null` with no `measured` key. Probe retargeted to upstream's signal; mutant (T-849 block stripped) -> 2 FAIL |
+| `_t402` gate drive | "changed" | 5 rows allowed -> **blocked** | compound / comment / string / fetch+exec misclassifications all closed upstream; negative controls and both heredoc sentinels unchanged. Our T-402 fix is superseded |
+
+Divergence register: budget-gate.sh entry removed (matches upstream), checkpoint.sh reduced to the
+T-849 block with T-401/T-675 under `superseded_changes`, T-401's restored
+`web/test_context_tokens.py` dropped (it imports an API upstream replaced). The register's own
+entry was `kind: added`; the 1.7.740 baseline contains it, so `content`. `_t517`: 27 -> 25 stale.
+
 ## RESUME POINT (next session starts here)
 
 State at d6e404bc: `_t517` ~30 stale; bridge suite measured 137/29 at cd64a26e (before the allowlist
@@ -104,7 +119,7 @@ restored, G4 gate. Uncommitted on purpose: `.agentic-framework/web/test_context_
 untracked — commit with the budget work).
 
 Next, in order:
-1. `checkpoint.sh` + `budget-gate.sh` (T-401/T-402/T-675/T-849): 1.7.740 HAS a `budget` verb, but
+1. ~~`checkpoint.sh` + `budget-gate.sh`~~ DONE (above) (T-401/T-402/T-675/T-849): 1.7.740 HAS a `budget` verb, but
    the read fence fails 8 arms (stale / foreign / absent / zero-token caches are not refused) and
    `_t849` fails 8 legs. Same method: measure behaviour, add only what is missing, probe-verify.
 2. `handover.sh` (T-436, T-445, T-862 probes abstain: "can no longer test what it claims").

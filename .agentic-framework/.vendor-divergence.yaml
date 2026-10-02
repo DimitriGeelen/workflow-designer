@@ -384,34 +384,24 @@ entries:
       independently. Their words: "arrived at independently, which is mild evidence it's the
       obvious shape once you see the root cause rather than the symptom." Nothing to upstream.
 
-  - path: .agentic-framework/agents/context/budget-gate.sh
-    kind: content
-    task: T-401
-    upstream: fix
-    reason: >
-      Budget gauge read false-critical after compaction; usage scoped to the session's own mode.
-      T-675 (also upstream: fix) additionally stamps `measured` and `session_id` into
-      .budget-status. The fail-open on a failed scan is unchanged and still exits 0, but it no
-      longer derives LEVEL=ok from TOKENS=0 — an unmeasured reading now writes LEVEL=unknown,
-      which matches no branch of either case statement. Both changes are additive to the JSON
-      shape; every existing reader keys on level/tokens/timestamp and is unaffected.
-
-  - path: .agentic-framework/web/test_context_tokens.py
-    kind: added
-    task: T-401
-    upstream: fix
-    reason: Tests for the above.
-
   - path: .agentic-framework/agents/context/checkpoint.sh
     kind: content
-    task: T-401
+    task: T-849
     upstream: fix
     reason: >
-      Fallback path aligned with the corrected gauge. T-675 adds the `budget` subcommand — the
-      safe read of .budget-status that the /resume skill already mandates but that shipped
-      nowhere, leaving readers to `cat` a file that cannot distinguish a measurement from an
-      assumption. Refuses unmeasured / stale / foreign-session caches with a reason. Strictly
-      additive: a new case branch plus one word in the usage line.
+      T-1005 re-apply on 1.7.740. What remains local is ONE block in the `budget` safe reader:
+      a level without a credible token count is not a gauge (tokens 0 / null / non-numeric /
+      negative / below baseline_tokens -> level unknown with a reason). Upstream's T-3241 reader
+      refuses unknown / stale / foreign caches but still prints `level: ok` for a fresh cache
+      carrying tokens: 0, which is what every compaction writes. Probes: tools/_t849 (14/14,
+      --mutation OK), tools/_t675 (retargeted to upstream's refusal shape, 10/10).
+    superseded_changes: >
+      T-401 (gauge scoped to the session's own transcript; budget-gate.sh + its tests) and
+      T-675 (the `budget` verb, `measured` stamp, fail-open writes unknown) are superseded by
+      AEF T-3241 / T-3598 / T-2919 in 1.7.740: budget-gate.sh now matches upstream exactly, and
+      tools/_t402-gate-drive-probe shows all five compound/comment/string misclassifications
+      blocked with negative controls and heredoc sentinels unchanged. T-401's
+      web/test_context_tokens.py was dropped: it tests an API upstream replaced.
 
   - path: .agentic-framework/agents/audit/completed-task-scan.py
     kind: content
@@ -602,7 +592,7 @@ entries:
       the operator's call, not ours (AEF stated this at DM 536 §1).
 
   - path: .agentic-framework/.vendor-divergence.yaml
-    kind: added
+    kind: content  # T-1005: the 1.7.740 pristine baseline (2659abad) already contains it
     task: T-517
     upstream: local-config
     reason: >-

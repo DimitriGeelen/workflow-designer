@@ -9,7 +9,7 @@ checked the happy path would restate the bug rather than catch it.
 
 Two subjects:
 
-  checkpoint.sh budget    must REFUSE (exit 3) an unmeasured, stale, foreign-session,
+  checkpoint.sh budget    must REFUSE (`level: unknown` + reason; exit 3 before 1.7.740) an unmeasured, stale, foreign-session,
                           scan-failed, or absent cache, and ACCEPT (exit 0) a genuine
                           fresh measured one. The accept arm matters as much as the
                           refusals: a reader that refuses everything is ignored, and
@@ -104,7 +104,9 @@ def check_reader():
         try:
             ctx = make_root(tmp, cache)
             r = run(["bash", CHECKPOINT, "budget"], ctx)
-            refused = r.returncode == 3
+            # 1.7.740 contract (T-3241, T-1005): a refusal is `level: unknown` + `reason:` on
+            # stdout with exit 0, not exit 3. Same property, upstream's signal.
+            refused = r.stdout.startswith("level: unknown")
             ok = refused == expect_refused
             # A refusal must SAY WHY. "unknown" with no reason is just a different
             # way to be unhelpful, and would leave the reader guessing.
@@ -157,7 +159,9 @@ def check_gate_fail_open():
                 written = json.load(open(p))
             except Exception:
                 pass
-        stamped = written.get("measured") is False and written.get("level") == "unknown"
+        # 1.7.740's gate stamps level unknown + tokens null and writes no `measured` key;
+        # what matters is that it does not claim a measurement (T-1005).
+        stamped = written.get("level") == "unknown" and written.get("measured") is not True
         print("%-6s ... and records it as UNMEASURED (%s)" %
               ("PASS" if stamped else "FAIL",
                json.dumps({k: written.get(k) for k in ("level", "tokens", "measured")})))
@@ -166,9 +170,10 @@ def check_gate_fail_open():
 
         # And the safe reader must then refuse what the gate just wrote.
         r2 = run(["bash", CHECKPOINT, "budget"], ctx)
+        r2_refused = r2.stdout.startswith("level: unknown")
         print("%-6s ... and the safe read refuses it (rc=%d)" %
-              ("PASS" if r2.returncode == 3 else "FAIL", r2.returncode))
-        if r2.returncode != 3:
+              ("PASS" if r2_refused else "FAIL", r2.returncode))
+        if not r2_refused:
             failures.append("safe read accepted the gate's unmeasured write")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
