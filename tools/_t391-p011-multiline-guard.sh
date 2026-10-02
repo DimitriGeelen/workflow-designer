@@ -142,13 +142,16 @@ echo "-- torn multi-line construct --"
 BOX=$(make_sandbox torn "$TORN")
 run_gate "$BOX"
 
-if echo "$OUT" | grep -q "MALFORMED"; then
+# T-1005: on 1.7.740 upstream's T-2991 (check_verification_parseable) refuses this torn form
+# FIRST, in its own words ("cannot parse"); our MALFORMED guard still owns the heredoc form
+# below, which T-2991 does not catch. Either refusal satisfies this leg.
+if echo "$OUT" | grep -qE "MALFORMED|bash cannot parse"; then
     ok "block containing a multi-line construct is REFUSED"
 else
     bad "multi-line construct was NOT refused"
 fi
 
-if echo "$OUT" | grep -q "incomplete command"; then
+if echo "$OUT" | grep -qE "incomplete command|unexpected end of file|cannot parse"; then
     ok "refusal names the reason (incomplete command), not just that it refused"
 else
     bad "refusal did not name which line or why"
@@ -219,7 +222,12 @@ else
     if bash -n "$MUT" 2>/dev/null \
        && bash "$MUT" --help >/dev/null 2>&1 || [ -s "$MUT" ]; then
         ok "mutant parses and loads (not a syntax-error or path-resolution false kill)"
-        BOX=$(make_sandbox teeth "$TORN")
+        # T-1005: the teeth use the HEREDOC form. On 1.7.740 the torn form is refused by
+        # upstream's T-2991 even with this guard off, so a torn-form mutant could never bite;
+        # the heredoc body is the case only this guard catches.
+        BOX=$(make_sandbox teeth 'cat <<EOF
+touch '"$MARKER"'
+EOF')
         run_gate "$BOX" "$MUT"
         if [ -e "$BOX/$MARKER" ]; then
             ok "TEETH BITE: with the guard off, the continuation line executed in PROJECT_ROOT"
