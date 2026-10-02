@@ -161,8 +161,8 @@ will make up what the source does not say. Do not.
   with no order between them, which is what the source says. It also implies both always
   happen. If the source does not say that (it may be either/or), add a note associated to A:
   `Whether B and C both follow A, or only one of them, is not recorded in the source`. Never
-  add an exclusive gateway, which invents a decision, or a parallel gateway, which adds nothing
-  the plain flows do not already say.
+  add an exclusive gateway: it invents a decision. A parallel fork (and its join) says the same
+  as the plain flows, so it is allowed but not needed; it is not an invention.
 - **A hand-over to a step in another map** is a link event, not a note. End the path in this map
   with an `intermediateThrowEvent` carrying
   `<aef:link targetWorkflow="<the other map's workflowMeta id>" name="<the other process's name>"/>`

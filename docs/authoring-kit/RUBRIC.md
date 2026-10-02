@@ -34,8 +34,9 @@ it reads.
 - One none start event before, and one none end event after, a chain the source states, cited
   `unstated` and not named as a trigger or result. They mark the stated order's boundaries.
 - Plain sequence flows from one step to two successors when the source states both follow it,
-  with a note if the source does not say whether both always happen. (An exclusive or parallel
-  gateway added there IS invented.)
+  with a note if the source does not say whether both always happen. A parallel fork/join there
+  says the same thing and is not invented either. (An exclusive gateway there IS invented: it
+  adds a decision.)
 - A link throw/catch event for a hand-over the source states to another process.
 - A note naming a record a step creates or uses, or the system that supports it, when it quotes
   the source.
@@ -58,4 +59,6 @@ order at all; the geometry-skip note). They are not defects.
 - v4, "Not invented" and the supporting-system sentence: an agent generating 26 real maps under
   the kit (Evergreen trial round 0, T-989) had to guess at each of these (findings K2-K6); a
   reviewer without them would flag honest choices as `invented`, or miss a system lane passed off
-  as a performer.
+  as a performer. Its first draft also called a parallel fork/join after one step "invented";
+  the real calibration (GLM-5.2) then flagged the clean control map's own fork and join, which
+  mean exactly what plain flows mean. The rule was wrong, not the reviewer (T-993).

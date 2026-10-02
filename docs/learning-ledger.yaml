@@ -208,3 +208,14 @@ learnings:
   promoted:
     where: tools/_t989-measure-evergreen.py
     marker: findings_end_state
+- id: L16
+  learning: 'a new rubric or guide rule must be checked against the calibration clean map before it ships:
+    a rule stronger than BPMN semantics (calling a parallel fork/join after one step "invented", when
+    it means exactly what plain flows mean) makes a correct reviewer flag the clean control'
+  evidence: 'T-993: first real calibration of the 0.15.2 kit (GLM-5.2, opencode, sandboxed) caught 3/3
+    but raised 2 false findings on clean.bpmn (after-shipment fork, delivery-and-invoicing-complete join),
+    each citing the new v4 line; the line was corrected and the kit recalibrated'
+  source: loop
+  destination: rubric
+  status: proposed
+  occurrences: 1

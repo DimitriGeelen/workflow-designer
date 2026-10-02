@@ -51,7 +51,13 @@ operator before it became a rule.
   8/8. Validator guards green: dialect axis, form parity, anchorability, check-pass
   reachability, cross-form agreement (25 pairs, 0 disagreements).
 - **Real calibration** of this kit's `loop.sh` with a real sandboxed reviewer (ledger L5):
-  RESULT_PLACEHOLDER
+  GLM-5.2 through opencode, sandboxed, **PASS: 3/3 planted defects caught, 0 false findings**
+  (review prompts ~6.7K tokens). This check earned its place on its first run. The first
+  calibration of this kit said FAIL. It caught 3/3, but raised 2 findings on the clean control
+  map: the reviewer had applied a draft rubric line calling a parallel fork/join after one step
+  "invented", and our own clean map uses exactly that. The fork means what plain flows mean, so
+  the line was wrong, not the reviewer. It was corrected before release (ledger L16, proposed).
+  A stub reviewer could not have caught it, because a stub does not read the rubric.
 
 ## Unchanged
 
