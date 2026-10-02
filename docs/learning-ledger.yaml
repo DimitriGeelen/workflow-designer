@@ -222,7 +222,7 @@ learnings:
     each citing the new v4 line; the line was corrected and the kit recalibrated'
   source: loop
   destination: tooling
-  status: confirmed
+  status: promoted
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L16
   proposed_change: 'Kit release tooling (runme preflight): every new or changed guide/rubric rule goes
@@ -448,6 +448,9 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:24:09Z'
+  promoted:
+    where: scripts/release-designer.sh
+    marker: Kit calibration gate (T-1008, ledger L16
 - id: L17
   learning: 'loop.sh appends the prompt as the last argument of KIT_*_CMD; with claude -p, whose --allowedTools
     is variadic (<tools...>), a command ending in that option takes the prompt as one more tool name and
@@ -456,7 +459,7 @@ learnings:
     K9: run 1 COULD NOT MEASURE until --allowedTools was moved before a single-value flag'
   source: trial
   destination: tooling
-  status: confirmed
+  status: promoted
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L17
   proposed_change: 'loop.sh header (KIT_*_CMD): the prompt is appended as the command''s LAST argument,
@@ -646,6 +649,9 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:13:37Z'
+  promoted:
+    where: docs/authoring-kit/loop.sh
+    marker: PROMPT PLACEMENT (0.15.3, L17)
 - id: L18
   learning: 'the calibration clean map must be one no careful reviewer can fault: its branch "accepted
     orders" on gateway "Credit limit exceeded?" is not the answer to the question (the override path also
@@ -657,7 +663,7 @@ learnings:
     | recurred on 0.15.2 calibration (iteration 2)'
   source: trial
   destination: tooling
-  status: confirmed
+  status: promoted
   occurrences: 2
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L18
   proposed_change: 'calibration/clean.bpmn AND calibration/planted.bpmn: drop the name ''accepted orders''
@@ -797,6 +803,9 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:11:01Z'
+  promoted:
+    where: docs/authoring-kit/calibration/clean.bpmn
+    marker: default="credit-limit-exceeded--pick-parts"
 - id: L19
   learning: 'reachability is per NODE from any seed: once a map has one link catch (K4 hand-over), every
     step not downstream of a catch is UNREACHABLE and every step not reaching a throw/end is DEADEND,
@@ -1074,7 +1083,7 @@ learnings:
     Opus); K11; sales-new-vehicle in-shn / in-p2h
   source: trial
   destination: validator
-  status: confirmed
+  status: promoted
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L20
   proposed_change: 'validator: linkEventCatch nodes are excluded from W-DEADEND emission (as AUTHORING
@@ -1160,6 +1169,9 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:11:03Z'
+  promoted:
+    where: tools/validate-workflow.py
+    marker: T-1008 (ledger L20
 - id: L21
   learning: 'the calibration clean map''s end event ''Accepted order delivered and invoiced'' is named
     but cited ''source: unstated'', so it is wrong under any reading; and K3 does not say whether an outcome
@@ -1335,7 +1347,7 @@ learnings:
     Opus); K14
   source: trial
   destination: guide
-  status: confirmed
+  status: promoted
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L22
   proposed_change: 'AUTHORING: when the source only says a step ''is detailed in process X'', default
@@ -1457,6 +1469,9 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:11:04Z'
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: is detailed in process X"** is a task
 - id: L23
   learning: duplicate display NAMES of distinct steps (Part Production x2 in the source) are not covered;
     section 2 covers duplicate keys only (K15)
@@ -1464,7 +1479,7 @@ learnings:
     Opus); K15
   source: trial
   destination: guide
-  status: confirmed
+  status: promoted
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L23
   proposed_change: 'AUTHORING section 2: two distinct steps with the same display name keep the source''s
@@ -1545,6 +1560,9 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:11:05Z'
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: Two distinct steps the source gives the same display name
 - id: L24
   learning: the K2 rule (one step precedes two, relation unstated) speaks only of sequence-flow successors;
     a step that hands over to two processes raises the same question (K16) and the guide gives no answer
@@ -1552,7 +1570,7 @@ learnings:
     Opus); K16
   source: trial
   destination: guide
-  status: confirmed
+  status: promoted
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L24
   proposed_change: 'AUTHORING: apply K2 to hand-overs as it stands: two hand-over throws after A by plain
@@ -1662,6 +1680,9 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:11:05Z'
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: The same question for hand-overs.
 - id: L25
   learning: no format for a citation that quotes several source lines (a lane covering several tasks);
     Evergreen joined quotes with " ; " (K17)
@@ -1669,7 +1690,7 @@ learnings:
     Opus); K17
   source: trial
   destination: guide
-  status: confirmed
+  status: promoted
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L25
   proposed_change: 'AUTHORING citation rule: an element backed by several source lines cites each verbatim
@@ -1727,6 +1748,9 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:11:06Z'
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: An element backed by several source lines
 - id: L26
   learning: 'AUTHORING (0.15.2, from the T-993 correction) says "a parallel fork (and its join) says the
     same as the plain flows": true of the fork (both branches start), false of the join: a parallel join
@@ -1736,7 +1760,7 @@ learnings:
     AUTHORING K2 paragraph'
   source: reviewer
   destination: guide
-  status: confirmed
+  status: promoted
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L26
   proposed_change: 'AUTHORING K2 paragraph: for unconditional outgoing flows from an activity, a parallel
@@ -1836,6 +1860,9 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:11:06Z'
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: NOT the same as plain converging flows
 - id: L27
   learning: hand-overs between maps are drawn as BPMN link events (throw/catch with aef:link targetWorkflow),
     but BPMN 2.0.2 link events connect two sections of ONE process; across processes they are an AEF convention,
@@ -1845,7 +1872,7 @@ learnings:
     has no extension note'
   source: reviewer
   destination: guide
-  status: confirmed
+  status: promoted
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L27
   proposed_change: 'AUTHORING hand-over rule and CONFORMANCE.md: cross-map hand-overs drawn as link throw/catch
@@ -1975,3 +2002,6 @@ learnings:
     - glm-5.2
     - glm-5.3
     at: '2026-10-02T23:11:07Z'
+  promoted:
+    where: tools/build-authoring-kit.py
+    marker: Conventions beyond BPMN 2.0.2

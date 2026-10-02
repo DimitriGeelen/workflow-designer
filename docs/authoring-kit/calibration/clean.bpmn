@@ -95,7 +95,7 @@ generates and sends the invoice automatically."</bpmn:documentation>
       <bpmn:incoming>enter-order-into-erp--check-customer-credit-limit</bpmn:incoming>
       <bpmn:outgoing>check-customer-credit-limit--credit-limit-exceeded</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:exclusiveGateway id="credit-limit-exceeded" name="Credit limit exceeded?">
+    <bpmn:exclusiveGateway id="credit-limit-exceeded" name="Credit limit exceeded?" default="credit-limit-exceeded--pick-parts">
       <bpmn:documentation>source: "If the limit is exceeded, the sales
 manager decides whether to accept the order anyway; a rejected order is closed and the
 customer is told."</bpmn:documentation>
@@ -260,7 +260,7 @@ say whether those happen before or after packing, or in which order relative to 
         <aef:uid value="credit-limit-exceeded--decide-whether-to-accept-order-anyway" />
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="credit-limit-exceeded--pick-parts" sourceRef="credit-limit-exceeded" targetRef="pick-parts" name="accepted orders">
+    <bpmn:sequenceFlow id="credit-limit-exceeded--pick-parts" sourceRef="credit-limit-exceeded" targetRef="pick-parts">
       <bpmn:extensionElements>
         <aef:uid value="credit-limit-exceeded--pick-parts" />
       </bpmn:extensionElements>
@@ -346,5 +346,9 @@ say whether those happen before or after packing, or in which order relative to 
     <bpmn:textAnnotation id="Note_returns">
       <bpmn:text>Returns are handled by a separate process that is not described here. Returns are outside this map.</bpmn:text>
     </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Note_delivery-and-invoicing-complete">
+      <bpmn:text>Whether the order counts as complete only once both delivery and invoicing are done is not recorded in the source; the join is kept as drawn and this is flagged, not resolved.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_delivery-and-invoicing-complete" sourceRef="Note_delivery-and-invoicing-complete" targetRef="delivery-and-invoicing-complete" />
   </bpmn:process>
 </bpmn:definitions>

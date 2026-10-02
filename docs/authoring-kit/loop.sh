@@ -11,6 +11,14 @@
 #   KIT_REVIEWER_CMD   the same for the reviewing agent. Example:
 #                        KIT_REVIEWER_CMD='opencode run -m <provider/model>'
 #
+#   PROMPT PLACEMENT (0.15.3, L17): the prompt is appended as the command's LAST argument, so the
+#   command must end where your CLI parses one more argument as the prompt. Known case: claude's
+#   --allowedTools takes several values (<tools...>) and swallows an appended prompt, so the agent
+#   starts with none (Evergreen K9: COULD NOT MEASURE until the option was moved). Put such an
+#   option before a fully supplied single-value option, e.g.
+#                        KIT_REVIEWER_CMD='claude --allowedTools Read Write -p'
+#   and check your own CLI for options that take several values or still await one.
+#
 # Usage:
 #   loop.sh <workdir> <source.md> [max_rounds]   run the loop on a source; default 4 rounds
 #   loop.sh --calibrate <workdir>                prove the configured reviewer still catches the

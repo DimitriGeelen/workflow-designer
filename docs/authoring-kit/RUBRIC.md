@@ -34,9 +34,15 @@ it reads.
 - One none start event before, and one none end event after, a chain the source states, cited
   `unstated` and not named as a trigger or result. They mark the stated order's boundaries.
 - Plain sequence flows from one step to two successors when the source states both follow it,
-  with a note if the source does not say whether both always happen. A parallel fork/join there
-  says the same thing and is not invented either. (An exclusive gateway there IS invented: it
-  adds a decision.)
+  with a note if the source does not say whether both always happen. A parallel fork there says
+  the same thing and is not invented either. A parallel JOIN is not the same as plain converging
+  flows (it waits for every branch): it is right only where the source says the next step waits
+  for all of them; elsewhere flag it as `readability`, not `invented`, and say why. (An exclusive
+  gateway after one step with two successors IS invented: it adds a decision.)
+- An unlabelled default flow on a decision whose other branch carries the source's words.
+- A task with a cited `Detailed in: X` note for a step the source says is detailed elsewhere; a
+  `callActivity` only where the source says the step invokes X.
+- Two distinct steps with the same display name, kept verbatim, told apart by distinct keys.
 - A link throw/catch event for a hand-over the source states to another process.
 - A note naming a record a step creates or uses, or the system that supports it, when it quotes
   the source.
@@ -62,3 +68,8 @@ order at all; the geometry-skip note). They are not defects.
   as a performer. Its first draft also called a parallel fork/join after one step "invented";
   the real calibration (GLM-5.2) then flagged the clean control map's own fork and join, which
   mean exactly what plain flows mean. The rule was wrong, not the reviewer (T-993).
+- v5 (0.15.3), corrected: that last sentence was itself half wrong. A fork does mean what plain
+  flows mean; a join does not (it synchronises). Found by the cross-vendor lesson panel (T-1006,
+  ledger L26, confirmed by OpenAI, Z.AI and Google reviewers that first rejected planted-false
+  lessons); the operator was never asked to vouch for it. The join, the default flow, `Detailed
+  in`, and duplicate display names were added from the same panel (L18, L22, L23).

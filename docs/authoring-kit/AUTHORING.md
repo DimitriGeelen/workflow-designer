@@ -71,6 +71,15 @@ or, when the element exists although the source does not state it:
 `source: unstated - <why it exists anyway>`. The quote must be verbatim. This is what makes
 "invented" checkable: every element either quotes the source or says that it does not.
 
+**An element backed by several source lines** (a lane that covers several steps, a step the
+source describes in two places) cites each quote on its own `source:` line inside the one
+`<documentation>`, never joined with a separator a reader could mistake for source text:
+
+```xml
+<bpmn:documentation>source: "The warehouse picks the parts."
+source: "The warehouse also does quality inspection and labelling for each order."</bpmn:documentation>
+```
+
 ## 2. What every map carries
 
 `exemplar.bpmn` is a complete map that validates clean. Copy its shape.
@@ -95,6 +104,10 @@ or, when the element exists although the source does not state it:
   (`check-credit-limit--decide-override`). Keep a key once published, even if the step's display
   name changes later: the key is identity, the name is presentation. Two steps that would get the
   same key are a sign that the source names one step twice, so look before you suffix one.
+  **Two distinct steps the source gives the same display name** (say, "Part Production" in two
+  places) keep that name verbatim on both and get distinct keys. Where the source gives
+  distinguishing lane or context, cite it in a qualifier note on each; where it gives none, add
+  nothing. Never rename either step to make the names unique.
 - Plain `<task>` is accepted, as are `userTask`, `serviceTask` and `scriptTask`.
 
 ## 3. What a lane is, and which authority it gets
@@ -161,8 +174,17 @@ will make up what the source does not say. Do not.
   with no order between them, which is what the source says. It also implies both always
   happen. If the source does not say that (it may be either/or), add a note associated to A:
   `Whether B and C both follow A, or only one of them, is not recorded in the source`. Never
-  add an exclusive gateway: it invents a decision. A parallel fork (and its join) says the same
-  as the plain flows, so it is allowed but not needed; it is not an invention.
+  add an exclusive gateway: it invents a decision. For unconditional outgoing flows, a parallel
+  fork makes the same branching explicit, so it is allowed but not needed. **A parallel join is
+  NOT the same as plain converging flows:** a join waits for every incoming branch, while plain
+  flows into a step do not synchronise and can run that step once per arrival. Draw a join only
+  where the source says the next step waits for all branches; where the source is ambiguous, keep
+  the construct you have and say so in a note rather than swapping it silently.
+- **The same question for hand-overs.** A step that hands over to two other processes, with the
+  source silent on whether both happen, gets two hand-over throws by plain flows (which in BPMN
+  means both) and the note above on the step: `Whether both hand-overs happen, or only one, is not
+  recorded in the source`. The note records the source's silence; it does not change what the
+  flows mean.
 - **A hand-over to a step in another map** is a link event, not a note. End the path in this map
   with an `intermediateThrowEvent` carrying
   `<aef:link targetWorkflow="<the other map's workflowMeta id>" name="<the other process's name>"/>`
@@ -171,13 +193,25 @@ will make up what the source does not say. Do not.
   a terminus and a catch as an entry, so neither draws a reachability warning, and the designer
   can jump between the two maps. Cite the source line that states the hand-over. If the source
   names the other process but not the step it goes to, link to the process and say so in the
-  citation.
+  citation. **This is an AEF convention, not standard BPMN:** BPMN 2.0.2 link events connect
+  sections of ONE process, and each map here is its own process. A standards-only tool sees the
+  throw and the catch but cannot infer the cross-process connection from `aef:link`. Where the two
+  maps are distinct participants, the BPMN-standard form is a message flow in a collaboration
+  (optionally a message end event to a message start event); see CONFORMANCE.md.
+- **A step the source says "is detailed in process X"** is a task with a cited note
+  `Detailed in: X`. Use a `callActivity` only when the source establishes that the step invokes X
+  as reusable behaviour, with `calledElement` resolving to X's BPMN process (a workflowMeta id
+  suffices only if your export guarantees that resolution). Never a `subProcess` with content the
+  source does not give.
 - **Records a step creates or uses** (an order, a quote, a production order) go in a note
   associated to the step: `Creates: production order`, cited like any element. BPMN's
   `dataObjectReference` is valid and the validator accepts it, but the designer does not draw
   it, so a reader of the map never sees it. Use the note until the designer does.
 - **Do not invent conditions.** Label each exclusive-gateway branch with the source's own words
-  (`name="limit exceeded"`), not an executable expression the source never stated.
+  (`name="limit exceeded"`), not an executable expression the source never stated. When the
+  source clearly implies an "otherwise" case (a yes/no decision whose other branch it does word),
+  make that branch the gateway's unlabelled default flow (`default="<flow id>"` on the gateway)
+  rather than inventing words for it. Do not infer a default merely because wording is missing.
 - **Merging branches:** use a converging exclusive gateway (two or more incoming flows, exactly
   one outgoing), or route the branches straight into the next step. Both are valid. An exclusive
   gateway with one incoming and one outgoing flow decides nothing and is refused

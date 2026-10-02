@@ -62,6 +62,20 @@ else
   exit 1
 fi
 
+# Kit calibration gate (T-1008, ledger L16 — confirmed by OpenAI, Z.AI and Google reviewers, T-1006).
+# In 0.15.2 a drafted rubric line conflicted with the clean control map and only a live calibration
+# caught it; nothing on this path ran new rules against clean.bpmn. A NEW kit version (none in the
+# real dist/ yet) is refused unless docs/authoring-kit/calibration-records/<VERSION>.yaml records a
+# PASS calibration of the kit bytes this tree builds NOW (hash-bound, so a rule edited after
+# calibration voids it). Before any write. No bypass flag: a calibration needs a live reviewer, and
+# shipping rules no reviewer has run against the control is the thing L16 exists to stop.
+if [ ! -d "$REPO_ROOT/dist/aef-authoring-kit-$VERSION" ]; then
+  if ! python3 "$REPO_ROOT/tools/kit-calibration-gate.py" check --version "$VERSION"; then
+    echo "ERROR: kit calibration gate FAILED — release aborted before any write to dist/." >&2
+    exit 1
+  fi
+fi
+
 # Release immutability guard (T-198, G-007). A release is a promise: version X
 # means these exact bytes, forever. AEF vendors a pinned copy of a dist/ artifact
 # and verifies its sha256 (protocol: docs/aef-designer-integration-protocol.md),

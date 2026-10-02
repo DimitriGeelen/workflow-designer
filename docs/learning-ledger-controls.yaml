@@ -66,6 +66,16 @@ learnings:
       hand-over conventions) as flow edges when computing reachability and dead ends, eliminating the
       false W-UNREACHABLE/W-DEADEND warnings on link-connected chains while keeping those checks active
       for genuinely disconnected nodes downstream of catches.'
+  - reviewer: antigravity
+    vendor: google
+    verdict: disagree
+    revision: 0
+    reason: In BPMN 2.0.2, a link catch event does not terminate the process but continues execution from
+      a matching link throw event, so downstream nodes can still be dead ends or unreachable. Additionally,
+      the evidence shows that adding link events caused the validator to flag all nodes across unrelated
+      chains, pointing to a graph traversal bug rather than correct termination semantics.
+    evidence_rc: 0
+    at: '2026-10-02T23:12:19Z'
 - id: C2
   learning: 'when the source does not say whether two steps after A both happen or only one, the honest
     BPMN is an exclusive gateway with unlabelled branches: an exclusive gateway without conditions makes
@@ -121,3 +131,13 @@ learnings:
       doesn't mention hand-overs, which would warrant extending K2's wording, not reversing it).
     evidence_rc: 0
     at: '2026-10-02T23:10:38Z'
+  - reviewer: antigravity
+    vendor: google
+    verdict: disagree
+    revision: 0
+    reason: In BPMN 2.0, an exclusive gateway enforces mutual exclusivity where exactly one branch executes,
+      which falsely rules out both steps occurring. Moreover, the cited evidence recommends extending
+      rule K2 to hand-overs rather than replacing it with an exclusive gateway that invents an unsupported
+      decision.
+    evidence_rc: 0
+    at: '2026-10-02T23:12:22Z'

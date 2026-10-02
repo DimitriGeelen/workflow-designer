@@ -147,6 +147,20 @@ def conformance_md(version):
         '- Flow-node elements accepted: %s' % ', '.join(
             '`%s`' % t for t in sorted(val.XML_NODE_TYPES)),
         '',
+        # T-1008 (ledger L27, confirmed by three calibrated vendors): say where we go beyond
+        # the standard, so a standards-only reader is not surprised by it.
+        '## Conventions beyond BPMN 2.0.2',
+        '',
+        '- **Cross-map hand-overs are link events.** A hand-over to another map is drawn as an',
+        '  `intermediateThrowEvent` / `intermediateCatchEvent` pair carrying `aef:link`',
+        '  (`targetWorkflow`, `name`). BPMN 2.0.2 link events connect sections of ONE process, and',
+        '  each map is its own process, so this is an AEF navigation convention. A standards-only',
+        '  tool sees both events but cannot infer the cross-process connection. The',
+        '  BPMN-standard form, where the two maps are distinct participants, is a message flow in a',
+        '  collaboration (optionally a message end event to a message start event).',
+        '- **A link catch is an entry, a link throw a terminus.** The validator seeds reachability at',
+        '  a catch and draws no dead-end at it (0.15.3); BPMN gives these events no such role.',
+        '',
         '## Rules',
         '',
         'Class: UNIVERSAL = any conformant document satisfies it. DIALECT-RELATIVE = house',
