@@ -1346,6 +1346,89 @@ run_verification_commands() {
     check_verification_port_literals "$verify_cmds"
     check_verification_unjudged_test_runs "$verify_cmds"
 
+    # T-391 (AEF OBS-201): refuse a block containing a MULTI-LINE construct.
+    #
+    # The loop below runs ONE LINE PER COMMAND (`eval "$cmd"` at the `cd
+    # "$PROJECT_ROOT" &&` below). A construct spanning lines is therefore torn
+    # apart: the opener runs truncated, and every continuation line runs as a
+    # BARE SHELL COMMAND in the repo root. CLAUDE.md tells agents to write
+    # `python3 -c "import yaml; ..."` verification lines, so the multi-line form
+    # of that idiom is a natural thing to write — and its second line is
+    # `import yaml, sys`, which the shell resolves to ImageMagick's screen
+    # capture binary. AEF found a 7 MB PostScript file named `yaml,sys` in their
+    # repo root, staged, caught only by a secret scanner false-positive.
+    #
+    # Two properties make the torn form worse than a stray file: `import` exits
+    # 0 after writing, so the line is reported PASS and counted toward the
+    # verification total; and cwd is forced to PROJECT_ROOT, so the artifact
+    # lands where `git add -A` stages it.
+    #
+    # The predicate is delegated to bash's own parser rather than to a pattern
+    # list. Counting quote characters was tried first and produced 12 false
+    # positives across 9 task files (`grep -q "x').onclick"` has an odd quote
+    # count and is perfectly valid) — PL-025: character-level regexes
+    # over-approximate shell intent. A vocabulary deny-list (`import`, `from`,
+    # ...) was rejected for the G-025/G-026 reason: enumeration cannot name
+    # every member of an open class, in either polarity. `bash -n` is the only
+    # thing that actually knows how quoting nests.
+    #
+    #   rc != 0      -> unterminated quote / syntax error: the line is a fragment
+    #   stderr != "" -> bash warns "here-document delimited by end-of-file":
+    #                   the line opens a heredoc whose body is on later lines
+    #
+    # BOUNDARY — what this does NOT catch (AEF, rail 479; they ran the positive
+    # control before trusting their own zero result). `import yaml, sys` PASSES
+    # `bash -n`: it is a syntactically valid shell command. That is the same
+    # argument used above against a keyword list, turned back on this remedy —
+    # `bash -n` has no vocabulary, which is its virtue against `import`-as-keyword
+    # and exactly why it cannot see `import`-as-command. A standalone dangerous
+    # line pasted into a Verification block is undetectable by syntax alone.
+    #
+    # It is still sufficient for the MECHANISM: tearing a quoted one-liner always
+    # leaves an unterminated opener, so the block is refused at the line before
+    # the damage. Corollary for anyone scanning with this predicate: a zero
+    # result means "no torn openers", never "no dangerous lines".
+    #
+    # `bash -n` parses without executing, so this is safe on any line. Measured
+    # blast radius at introduction: 1460 verification lines across 322 task
+    # files, 0 refused. Herestrings (`<<<`) and arithmetic shifts (`$((1<<2))`)
+    # are silent under this predicate and stay legal.
+    local _vc_line _vc_err _vc_rc _vc_bad
+    _vc_bad=""
+    while IFS= read -r _vc_line; do
+        _vc_line=$(echo "$_vc_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        [ -z "$_vc_line" ] && continue
+        # Guarded as an `if` condition, not a bare assignment: this script runs
+        # under `set -e` (line 14), and a bare `_vc_err=$(bash -n ...)` aborts
+        # the whole script the moment `bash -n` reports the very fragment this
+        # loop exists to catch — the guard would kill the gate instead of
+        # reporting it (observed: silent exit 2 right after the P-010 line).
+        if _vc_err=$(bash -n -c "$_vc_line" 2>&1 >/dev/null); then
+            _vc_rc=0
+        else
+            _vc_rc=$?
+        fi
+        if [ $_vc_rc -ne 0 ]; then
+            _vc_bad="${_vc_bad}\n  - incomplete command (bash -n exit $_vc_rc): ${_vc_line:0:100}"
+        elif [ -n "$_vc_err" ]; then
+            _vc_bad="${_vc_bad}\n  - opens an unterminated heredoc: ${_vc_line:0:100}"
+        fi
+    done <<< "$verify_cmds"
+
+    if [ -n "$_vc_bad" ]; then
+        echo "" >&2
+        echo -e "${RED}=== Verification Gate (P-011): MALFORMED BLOCK ===${NC}" >&2
+        echo "The ## Verification section contains a multi-line construct." >&2
+        echo "P-011 runs ONE LINE PER COMMAND, so its continuation lines would be" >&2
+        echo "executed as bare shell commands in $PROJECT_ROOT." >&2
+        echo -e "$_vc_bad" >&2
+        echo "" >&2
+        echo "Nothing was run. Rewrite each verification as a SINGLE line, e.g." >&2
+        echo "  python3 -c \"import yaml; yaml.safe_load(open('file.yaml'))\"" >&2
+        echo "or move the multi-line logic into a script and call the script." >&2
+        return 1
+    fi
+
     verify_total=$(echo "$verify_cmds" | wc -l)
     verify_pass=0
     verify_fail=0
@@ -1395,10 +1478,38 @@ run_verification_commands() {
             verify_pass=$((verify_pass + 1))
         else
             exit_code=$?
-            echo -e "  ${RED}FAIL${NC}: $display_cmd (exit $exit_code)"
-            head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+            # T-871 / OBS-399: exit 127 is COMMAND NOT FOUND, not a failed check,
+            # and the two were indistinguishable here. A line that cannot run was
+            # reported as "FAIL", so it read as "your work is wrong" when it meant
+            # "this check does not exist" — and nobody chased it.
+            #
+            # Measured when it surfaced: 142 ACTIVE tasks in this corpus carry a
+            # Verification line invoking bare `bin/fw`, which exists in the
+            # framework repo and NOT in a project that vendors the framework at
+            # .agentic-framework/. Those tasks are structurally unclosable: a
+            # reviewer can PASS, every criterion can be ticked, and the gate still
+            # refuses. 659 COMPLETED tasks carry the same line and closed anyway,
+            # which means the gate was bypassed rather than satisfied.
+            #
+            # It still BLOCKS. A check that did not run is not a pass — that is
+            # T-3105's whole point, and downgrading 127 to a warning would convert
+            # a confusing gate into a silent one. What changes is that the message
+            # now names the cause and the fix, because a refusal nobody can act on
+            # is how 801 unrunnable lines accumulated unnoticed.
+            if [ "$exit_code" -eq 127 ]; then
+                echo -e "  ${RED}NOT RUNNABLE${NC}: $display_cmd (exit 127 — command not found)"
+                head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+                echo -e "    ${YELLOW}This is not a failed check — the command does not exist, so nothing"
+                echo -e "    was verified. In a project that VENDORS the framework, \`bin/fw\` is not"
+                echo -e "    on disk; use \`.agentic-framework/bin/fw\` (or whatever \$FRAMEWORK_ROOT/bin/fw"
+                echo -e "    resolves to). Fix the line rather than bypassing the gate.${NC}"
+                verify_failures="${verify_failures}\n  - $display_cmd (exit 127 — COMMAND NOT FOUND, nothing was verified)"
+            else
+                echo -e "  ${RED}FAIL${NC}: $display_cmd (exit $exit_code)"
+                head -5 /tmp/verify-$$.out 2>/dev/null | sed 's/^/    /'
+                verify_failures="${verify_failures}\n  - $display_cmd (exit $exit_code)"
+            fi
             verify_fail=$((verify_fail + 1))
-            verify_failures="${verify_failures}\n  - $display_cmd (exit $exit_code)"
         fi
         rm -f /tmp/verify-$$.out
     done <<< "$verify_cmds"
@@ -1690,6 +1801,46 @@ print(json.dumps(row, sort_keys=True))
     echo -e "${GREEN}Happiness recorded:${NC} $_hv → .context/working/happiness.jsonl"
 fi
 
+# === Completion watchdog (T-522) ===
+# T-1169 detects "episodic generation ran and produced nothing" and T-1860 logs every
+# invocation — but BOTH controls live INSIDE the episodic block, so neither can observe the
+# one failure mode where the block is never reached. That mode is real and it is silent:
+# `set -euo pipefail` (line 14) turns any unguarded non-zero command between the move-to-
+# completed/ and the episodic block into a bare `exit 1`, after the task file has already
+# been moved and rewritten. The operator sees a task in completed/ and no error worth
+# reading; the memory is simply missing, and stays missing until a handover notices weeks of
+# gaps. T-1374 fixed one instance, T-522 fixed another in the same block, and the pattern
+# says there will be a third.
+# So this watchdog sits OUTSIDE the block it guards, on the EXIT trap, and reports the
+# absence the inner controls structurally cannot see. It never blocks and never repairs —
+# it makes a silent abort loud, and it honours the T-1860 promise ("log EVERY invocation")
+# on the path where the logging code itself never ran.
+_T522_COMPLETION_PHASE=""       # "" none | "started" transition begun | "episodic" block reached
+_t522_completion_watchdog() {
+    local rc="${1:-0}"
+    [ "${_T522_COMPLETION_PHASE:-}" = "started" ] || return 0
+    # A partial-complete task deliberately skips episodic generation (T-1160/T-1103) and
+    # stays in active/ — that is a designed skip, not a lost one.
+    [ "${PARTIAL_COMPLETE:-false}" = true ] && return 0
+    local log="${CONTEXT_DIR:-$PROJECT_ROOT/.context}/working/episodic-gen/${TASK_ID}.log"
+    mkdir -p "$(dirname "$log")" 2>/dev/null || true
+    {
+        echo "=== episodic-gen NOT REACHED: $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+        echo "task_id: $TASK_ID"
+        echo "detected_by: T-522 completion watchdog (EXIT trap)"
+        echo "script_exit_code: $rc"
+        echo "reason: the work-completed transition began but execution left update-task.sh"
+        echo "        before the Episodic Generation block. Under set -euo pipefail this is"
+        echo "        almost always an unguarded non-zero command between the move to"
+        echo "        completed/ and that block. Re-run with 'bash -x' to find the line."
+    } >> "$log" 2>&1
+    echo "" >&2
+    echo -e "${RED:-}ERROR: episodic generation was never reached for $TASK_ID (exit=$rc)${NC:-}" >&2
+    echo "  The task was completed but its episodic memory was NOT generated." >&2
+    echo "  This is a script-level abort, not a generator failure — see $log" >&2
+    echo -e "  Recover: $(_emit_user_command "context generate-episodic $TASK_ID" 2>/dev/null || echo "fw context generate-episodic $TASK_ID")" >&2
+}
+
 # Acquire per-task lock to prevent concurrent modifications (T-587).
 # T-3306: bounded (120s) — an unguarded reentry path (a child process the
 # close-guard env didn't reach) must degrade to a loud timeout error, never
@@ -1701,8 +1852,10 @@ if type keylock_acquire &>/dev/null; then
         echo "in-flight close, if this command runs inside its verification (OBS-372, T-3306)." >&2
         exit 1
     fi
-    trap 'keylock_release "$TASK_ID" 2>/dev/null' EXIT
 fi
+# Single composed EXIT trap (T-522, re-applied on 1.7.740 by T-1005): the watchdog must run even
+# when the keylock library is absent, and a second `trap ... EXIT` would silently replace the first.
+trap '_t522_rc=$?; _t522_completion_watchdog "$_t522_rc"; if type keylock_release >/dev/null 2>&1; then keylock_release "$TASK_ID" 2>/dev/null || true; fi' EXIT
 
 # Read current state
 OLD_STATUS=$({ grep "^status:" "$TASK_FILE" 2>/dev/null || true; } | head -1 | sed 's/status:[[:space:]]*//')
@@ -1728,6 +1881,7 @@ if [ -n "$NEW_STATUS" ]; then
         if [ "$OLD_STATUS" = "work-completed" ] && [ "$(dirname "$TASK_FILE")" = "$TASKS_DIR/active" ]; then
             # T-193: Partial-complete re-run — check if human ACs now satisfied
             echo -e "${CYAN}Re-checking partial-complete status...${NC}"
+            _T522_COMPLETION_PHASE="started"   # T-522: this branch can also move to completed/
             # T-3148: anchored, FIRST-WINS extraction (lib/section-extract.sh).
             AC_SECTION=$(extract_ac_section "$TASK_FILE")
             # Strip HTML comments — template examples contain checkbox patterns.
@@ -1791,6 +1945,7 @@ if [ -n "$NEW_STATUS" ]; then
                 rm -f "$PROJECT_ROOT/.context/working/.reviewed-$TASK_ID" 2>/dev/null || true
 
                 # Generate episodic if not already present
+                _T522_COMPLETION_PHASE="episodic"   # T-522: reached the stage the watchdog guards
                 if [ ! -f "$CONTEXT_DIR/episodic/$TASK_ID.yaml" ]; then
                     echo ""
                     echo -e "${YELLOW}=== Auto-trigger: Episodic Generation ===${NC}"
@@ -2327,6 +2482,7 @@ fi
 
 # Trigger 2: work-completed → finalize
 if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATUS" != "work-completed" ]; then
+    _T522_COMPLETION_PHASE="started"   # T-522: watchdog is now armed until the episodic stage
     # Set date_finished
     _sed_i "s/^date_finished:.*/date_finished: $TIMESTAMP/" "$TASK_FILE"
     echo ""
@@ -2487,8 +2643,22 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
         LOC_TO_ID_FILE=$(mktemp)
         for card in "$FABRIC_DIR"/*.yaml; do
             [ -f "$card" ] || continue
-            c_loc=$(grep "^location:" "$card" 2>/dev/null | sed 's/^location:[[:space:]]*//' | head -1)
-            c_id=$(grep "^id:" "$card" 2>/dev/null | sed 's/^id:[[:space:]]*//' | head -1)
+            # T-522: `|| true` is load-bearing, not defensive noise. A component card that
+            # lacks `location:` (or `id:`) makes grep exit 1; under `set -euo pipefail`
+            # (line 14) pipefail propagates that through the pipe and the ASSIGNMENT ITSELF
+            # then terminates the whole script — mid-loop, exit 1, no message. The task has
+            # already been moved to completed/ by then, so completion LOOKS successful while
+            # everything below this point never runs: decision auto-capture, outcome
+            # back-prop, and the Episodic Generation block ~110 lines down. Measured: two
+            # hand-written cards without `location:` landed at 12:13:39Z on 2026-08-15 and
+            # the next two completions (T-520 12:13:59Z, T-521 13:34:03Z) both lost their
+            # episodics, while T-519 at 11:53:42Z — before the cards existed — was fine.
+            # This is the third instance of the same failure in this one block: T-1374
+            # (G-054) added `|| true` to the two greps ~40 lines below for exactly this
+            # reason and did not carry it to these two. The lesson is the one T-521 wrote
+            # down — a fix belongs at the mechanism, not at the site where it was noticed.
+            c_loc=$({ grep "^location:" "$card" 2>/dev/null || true; } | sed 's/^location:[[:space:]]*//' | head -1)
+            c_id=$({ grep "^id:" "$card" 2>/dev/null || true; } | sed 's/^id:[[:space:]]*//' | head -1)
             if [ -n "$c_loc" ] && [ -n "$c_id" ]; then
                 echo "${c_loc}=${c_id}" >> "$LOC_TO_ID_FILE"
             fi
@@ -2607,6 +2777,7 @@ with open(path, 'w') as f:
     # Partial-complete means human ACs are unchecked; the task stays in active/.
     # Generating episodic now creates premature memory of unfinalized work.
     # The human-finalization path (line ~388) handles episodic generation on final completion.
+    _T522_COMPLETION_PHASE="episodic"   # T-522: reached the stage the watchdog guards
     if [ "${PARTIAL_COMPLETE:-false}" = false ]; then
         echo ""
         echo -e "${YELLOW}=== Auto-trigger: Episodic Generation ===${NC}"
