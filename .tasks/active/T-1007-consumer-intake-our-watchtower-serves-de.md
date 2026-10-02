@@ -1,13 +1,18 @@
 ---
 id: T-1007
-name: "Consumer intake: our Watchtower serves designer 0.15.0, two releases behind 0.15.2"
+name: "Consumer intake: our Watchtower serves designer 0.15.0, two releases behind
+  0.15.2"
 description: >
-  policy/designer-pin.yaml pins 0.15.0 while dist/ holds 0.15.2 (released 2026-10-02). The release-lag audit rail (T-382) was dropped from audit.sh by the 1.7.740 re-vendor (T-1005), so nothing reported it. Advance the pin (version, sha256, bytes) as T-743 did, and verify /designer serves 0.15.2.
+  policy/designer-pin.yaml pins 0.15.0 while dist/ holds 0.15.2 (released 2026-10-02).
+  The release-lag audit rail (T-382) was dropped from audit.sh by the 1.7.740 re-vendor
+  (T-1005), so nothing reported it. Advance the pin (version, sha256, bytes) as T-743
+  did, and verify /designer serves 0.15.2.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T22:38:21Z
-last_update: 2026-10-02T22:38:21Z
-date_finished: null
+last_update: 2026-10-02T23:14:50Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-02T23:14:14Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (L0: no signal); F3=0 (L0: no
+      signal); F1=1 (L1:keyword=designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1007: Consumer intake: our Watchtower serves designer 0.15.0, two releases behind 0.15.2
@@ -62,8 +85,9 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] policy/designer-pin.yaml names 0.15.2 with the sha256 and bytes of designer-v0.15.2's MANIFEST (68454742…, 1063551)
+- [ ] `fw designer sync --from-tag` (the canonical intake, T-2616) installs it, verifying the sha against both the pin and the MANIFEST at the tag
+- [ ] Watchtower's /designer/app serves bytes whose sha256 is 68454742…
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -98,6 +122,8 @@ date_finished: null
 
 ## Verification
 
+grep -q 'version: "0.15.2"' .agentic-framework/policy/designer-pin.yaml
+grep -q '68454742196d2a53da2c6fed7dc7cb945c60995690d9224e6ab5e4f72d2f4394' .agentic-framework/policy/designer-pin.yaml
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -320,3 +346,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1007-consumer-intake-our-watchtower-serves-de.md
 - **Context:** Initial task creation
+
+### 2026-10-02T23:14:14Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

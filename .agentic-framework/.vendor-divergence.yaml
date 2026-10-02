@@ -524,6 +524,15 @@ entries:
       G-032 resolved on the retargeted _t436 probe (124/124).
 
 
+  - path: .agentic-framework/policy/designer-pin.yaml
+    kind: content
+    task: T-1007
+    upstream: local-config
+    reason: >-
+      Our own Watchtower's designer pin. 0.15.0 -> 0.15.2 by the canonical intake
+      (fw designer sync --from-tag: sha verified against the pin AND designer-v0.15.2's MANIFEST;
+      /designer/app now serves sha 68454742). AEF pins its own version; this one is ours.
+
   - path: .agentic-framework/.vendor-divergence.yaml
     kind: content  # T-1005: the 1.7.740 pristine baseline (2659abad) already contains it
     task: T-517

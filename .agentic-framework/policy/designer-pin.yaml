@@ -16,13 +16,13 @@
 # frozen annotated tag = published frozen bytes — 832's working tree stays
 # off-limits.
 
-version: "0.15.0"
-sha256: "fc1880e719b92a8976bffaad1370177202b58ad01b88b66e8093cf20123e65d5"
+version: "0.15.2"
+sha256: "68454742196d2a53da2c6fed7dc7cb945c60995690d9224e6ab5e4f72d2f4394"
 bytes: 1063551
 
 source_repo: "832-Workflow-designer"
-source_artifact: "dist/aef-workflow-designer-0.15.0.html"
-source_tag: "designer-v0.15.0"
+source_artifact: "dist/aef-workflow-designer-0.15.2.html"
+source_tag: "designer-v0.15.2"
 source_manifest: "dist/MANIFEST.yaml"                 # 832 side
 # Read-only LAN origin for pull-at-tag intake (T-247/D-335, tooling T-2616).
 # `fw designer sync --from-tag` fetches artifact + MANIFEST at the annotated tag
@@ -150,7 +150,10 @@ protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha25
 #   ahead of AEF's own pin — declared in .vendor-divergence.yaml so a re-vendor cannot drop it
 #   silently. sha+bytes computed independently from the designer-v0.15.0 tag blob and equal to
 #   the MANIFEST at that tag (src_commit 1a179ecb).
-vendored_path: "vendor/designer/aef-workflow-designer-0.15.0.html"
+# 832 T-1007 (2026-10-03): 0.15.0 -> 0.15.2 (consumer intake; the pin had lagged two releases
+#   unseen because the T-382 release-lag rail was dropped from audit.sh by the 1.7.740 re-vendor).
+#   sha+bytes equal to designer-v0.15.2:dist/MANIFEST.yaml.
+vendored_path: "vendor/designer/aef-workflow-designer-0.15.2.html"
 
 # Offline-hardened (832 T-176): web fonts are embedded as base64 woff2 — ZERO network
 # on load (no fonts.googleapis.com / gstatic fetch). Fully self-contained for
