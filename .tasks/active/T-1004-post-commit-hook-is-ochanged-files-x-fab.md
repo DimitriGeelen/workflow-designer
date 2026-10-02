@@ -1,14 +1,14 @@
 ---
-id: T-988
-name: "Full upgrade: framework, termlink, workflow designer"
+id: T-1004
+name: "post-commit hook is O(changed files x fabric cards) in process spawns: a 1561-file commit hung ~10+ min"
 description: >
-  Full upgrade: framework, termlink, workflow designer
+  Framework .git/hooks/post-commit (VERSION=1.7, fabric advisory + new-file advisory) loops every changed file over every .fabric/components/*.yaml card with a grep per pair: 1561 files x 506 cards ~ 1M grep spawns. The T-988 pristine commit (2026-10-02) sat in post-commit for 10+ min with the operator at the prompt; the hook was stopped (advisory only, bypass detection already done). Fix: build a location->card index once (one grep -H over all cards) and look files up in it; cap or skip the advisory above N files. Reported to AEF.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
-tags: []
+horizon: next
+tags: [bug]
 components: []
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -37,8 +37,8 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-01T21:30:27Z
-last_update: 2026-10-02T17:21:19Z
+created: 2026-10-02T17:20:14Z
+last_update: 2026-10-02T17:20:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -52,26 +52,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-988: Full upgrade: framework, termlink, workflow designer
+# T-1004: post-commit hook is O(changed files x fabric cards) in process spawns: a 1561-file commit hung ~10+ min
 
 ## Context
 
-Operator instruction 2026-10-01: "Please run full upgrade for workshop designer, for framework,
-for agentic engineering framework, termlink and workflow designer." Successor to T-840 (blocked
-2026-09-25 on the upstream_repo continuation-line reader). Per CLAUDE.md §runme.sh, upgrade
-commands are handed to the operator as a script; the agent does not run it.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Current versions measured BEFORE anything is written: framework (vendored + upstream
-      available), termlink CLI + running hub, designer VERSION / dist / vendored pin.
-- [ ] `fw upgrade --dry-run` delta recorded in this task before any real upgrade.
-- [ ] Upgrade steps wrapped in `runme.sh` with `--dry-run`, preflight, per-step confirmation;
-      the agent ran only `--dry-run`.
-- [ ] Local divergences (`.vendor-divergence.yaml`, audit.sh / update-task.sh local commits)
-      re-checked after upgrade — none silently reverted.
-- [ ] `fw doctor` and `fw audit` before/after counts compared and reported.
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -324,29 +316,7 @@ commands are handed to the operator as a script; the agent does not run it.
 
 ## Updates
 
-### 2026-10-01T21:45Z — state measured, designer done, framework losses found [agent]
-- **Framework:** already at upstream bleeding-edge HEAD 498444e7 (== .framework.yaml version_sha,
-  1.7.740), applied 21:26Z by another session (PID 131942, focus T-981) and left UNCOMMITTED
-  (1128 files). No newer version exists; `fw upgrade` would be a no-op.
-- **Lost by this upgrade** (subagent forensics, base 7b5e227e): 11 declared local fixes —
-  external_consult.py + bin/fw route (T-887), observe.sh (T-912/914), estimator.py (T-865/867/868),
-  bvp.sh (T-856; BVP_AUTO_CONFIRM now inert), web/app.py (T-858), audit.sh (T-873/931/934/936/938/
-  939/941/945/952), update-task.sh (T-843/871/880/883/923/931/943), checkpoint.sh (T-849),
-  check-active-task.sh (T-921), fabric drift.sh (T-853/524), handover.sh (T-862) — plus undeclared
-  deleted libs task-ownership.sh, instance-position.sh, verification-absence.sh, check-bare-import.sh.
-  31 further entries were already lost by the 1.7.68 re-vendor (HEAD lacks them too).
-- **Trial 3-way merge** (base 7b5e227e / ours HEAD / theirs 1.7.740, scratchpad only): 7 clean,
-  4 conflicted (observe 1, bvp 2, audit 4→2, update-task 4 hunks). Not yet applied.
-- **Exec bit** restored on agents/audit/orchestrator-mcp-scan.sh (audit FAIL → cleared).
-- **Designer:** re-pinned 0.14.0 → 0.15.0 (pin file had 0.14.0 but no vendored file: NOT SYNCED);
-  `fw designer sync --from-tag` both anchors ✓; divergence entry updated. Watchtower was DOWN
-  (dead PID 798028) — restarted on :3013; /designer/app serves 1063551 B, sha fc1880e7 ✓.
-- **TermLink:** CLI 0.12.41, hub up (PID 959728, 124 sessions, mixed versions). runme-upgrade.sh
-  builds /opt/termlink committed HEAD (7 ahead of origin); dry-run rc=0. Hub not restarted.
-- **Framework defect noticed:** gate advises `fw context focus WM-003`, which exits 1 silently
-  here — this project has no .tasks/workflow/.
-
-### 2026-10-01T21:30:27Z — task-created [task-create-agent]
+### 2026-10-02T17:20:14Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-988-full-upgrade-framework-termlink-workflow.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1004-post-commit-hook-is-ochanged-files-x-fab.md
 - **Context:** Initial task creation
