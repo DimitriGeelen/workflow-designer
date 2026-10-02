@@ -1057,6 +1057,43 @@ _fw_single_command_is_safe() {
 }
 
 # Check if a command contains file-write patterns
+# 832 T-636 (re-applied on 1.7.740 by T-1005): framework verbs whose quoted arguments are
+# PROSE the framework stores, not shell it runs. Only for these may a verb named inside quotes
+# (`fw note "tee writes a copy"`) be ignored by the rm/tee checks below.
+_sc_is_framework_prose_verb() {
+    local c="$1" tok1 tok2 tok3 rest
+    rest="${c#"${c%%[![:space:]]*}"}"          # ltrim
+    tok1="${rest%%[[:space:]]*}"
+    case "$tok1" in
+        fw|*/fw) ;;
+        *) return 1 ;;
+    esac
+    rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
+    tok2="${rest%%[[:space:]]*}"
+    rest="${rest#"$tok2"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
+    tok3="${rest%%[[:space:]]*}"
+    case "$tok2" in
+        note) return 0 ;;
+        # T-650: the alias needs its OWN entry here, not just in _sc_simple_is_safe.
+        # The two lists answer different questions — "is this verb safe with no task?"
+        # and "does this verb take free prose that must not be read as shell?" — and
+        # `fw fix-learned T-XXX "<sentence>"` needs a yes from both. With only the first,
+        # the command is admitted and then trips on its own argument the moment a learning
+        # contains `>` or `&&`, which is exactly the kind of sentence a bugfix learning is.
+        fix-learned) return 0 ;;
+        context)
+            case "$tok3" in add-learning|add-pattern|add-decision) return 0 ;; esac
+            ;;
+        task)
+            case "$tok3" in create) return 0 ;; esac
+            ;;
+        git)
+            case "$tok3" in commit) return 0 ;; esac
+            ;;
+    esac
+    return 1
+}
+
 has_bash_write_pattern() {
     local cmd="$1"
 
@@ -1111,9 +1148,12 @@ has_bash_write_pattern() {
     fi
 
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
-    # T-636 (re-applied by T-1005): verbs named INSIDE a quoted argument are prose, not
-    # commands (`fw note "tee writes a copy"`); judged on the quote-stripped view.
-    if echo "$_rview" | grep -qE '\b(rm|rmdir)\b'; then
+    # T-636 (re-applied by T-1005): verbs named INSIDE a quoted argument of a framework PROSE
+    # verb are text, not commands. Any other command keeps the raw view: `bash -c "rm -rf x"`
+    # executes its quotes.
+    local _pview="$cmd"
+    if [ "$_rview" != "$cmd" ] && _sc_is_framework_prose_verb "$cmd"; then _pview="$_rview"; fi
+    if echo "$_pview" | grep -qE '\b(rm|rmdir)\b'; then
         return 0
     fi
 
@@ -1123,7 +1163,7 @@ has_bash_write_pattern() {
     fi
 
     # tee (writes to file)
-    if echo "$_rview" | grep -qE '\btee\b'; then
+    if echo "$_pview" | grep -qE '\btee\b'; then
         return 0
     fi
 
