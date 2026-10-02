@@ -1068,7 +1068,17 @@ has_bash_write_pattern() {
     # and stay writes, and any OTHER redirect on the line still bites below.
     # (The T-3344 strip in is_bash_safe_command covers the allowlist side only;
     # check-active-task consults THIS scan first.)
-    local _scan="$cmd" _sprev=""
+    # 832 T-404/T-632 (re-applied on 1.7.740 by T-1005): judge REDIRECTS on shell structure,
+    # not on characters inside quotes. `grep -n "a\\|>>\\|b" f`, `echo "a > b"` and
+    # `python3 -c "...>= 50..."` are reads; the raw-text scan called them writes and the
+    # no-task gate refused them. Uses upstream's _fw_strip_quoted. Conservative fallbacks to
+    # the RAW text: unbalanced quotes (strip fails), or any command substitution, since
+    # stripping a double-quoted "$(cmd > f)" would hide a real write.
+    local _rview="$cmd"
+    if [[ "$cmd" != *'$('* && "$cmd" != *'`'* ]] && declare -F _fw_strip_quoted >/dev/null 2>&1; then
+        _rview="$(_fw_strip_quoted "$cmd")" || _rview="$cmd"
+    fi
+    local _scan="$_rview" _sprev=""
     while [ "$_scan" != "$_sprev" ]; do
         _sprev="$_scan"
         _scan=$(printf '%s' "$_scan" | sed -E 's#(^|[^>&0-9])([0-9]|&)?>>?[[:space:]]*/dev/null([[:space:];|&)]|$)#\1 \3#')
