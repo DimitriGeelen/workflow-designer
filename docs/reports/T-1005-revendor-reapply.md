@@ -43,3 +43,14 @@ The protocol protects only DECLARED local fixes. `lib/verification-port.sh` carr
 fix undeclared, so the 1.7.740 upgrade erased it and `_t517` listed nothing. Declaring at the
 moment a vendored file is patched (the manifest's own rule) is load-bearing; a gate that refuses
 a commit touching `.agentic-framework/` without a manifest entry would close the gap.
+
+## Other files (in progress)
+
+| file | outcome | evidence |
+|---|---|---|
+| 8 exec-bit (mode) entries; `.secret-scan-patterns`; `lib/context_tokens.py` | **superseded** (shipped upstream / identical) — removed from the manifest | `git ls-files -s`, content compare |
+| `extract-decisions.py` (T-516, deleted by T-840) | **superseded** by upstream `extract_decisions.py` (T-3015), the live path; its multi-word-label fold fixed in place (declared) | `_t516` 8/8 against the live extractor |
+| `observe.sh` (T-557) | **superseded** in substance (upstream refusal adopted); one line re-applied: "Nothing was written" | fw note test 6 legs |
+| `create-task.sh` | T-660, T-767 clean; **T-774/T-775/T-776 ported** (frontmatter-scoped substitution; line-break names refused; T-XXX before operator text) | `_t774` 13/13, `_t775` 6/6, `_t776` 5/5, `_t767` 4/4 |
+| `git/lib/hooks.sh` | T-686 clean; **T-659 ported** into the hook template; live hooks reinstalled (`install-hooks --force`) and the re-vendor gate line re-added | `_t659` 6/6 |
+| `web/test_context_tokens.py`, `web/test_safe_commands.py` (deleted by T-840) | restored to the working tree; to be committed with `safe-commands.sh` | — |
