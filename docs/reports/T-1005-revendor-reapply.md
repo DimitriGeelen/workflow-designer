@@ -54,7 +54,7 @@ a commit touching `.agentic-framework/` without a manifest entry would close the
 | `create-task.sh` | T-660, T-767 clean; **T-774/T-775/T-776 ported** (frontmatter-scoped substitution; line-break names refused; T-XXX before operator text) | `_t774` 13/13, `_t775` 6/6, `_t776` 5/5, `_t767` 4/4 |
 | `git/lib/hooks.sh` | T-686 clean; **T-659 ported** into the hook template; live hooks reinstalled (`install-hooks --force`) and the re-vendor gate line re-added | `_t659` 6/6 |
 | `web/test_context_tokens.py`, `web/test_safe_commands.py` (deleted by T-840) | restored to the working tree; to be committed with `safe-commands.sh` | — |
-| `safe-commands.sh` + `check-active-task.sh` (T-390..T-652, lost at T-840) | **pending, deliberately**. The right merge is ours = the pre-T-840 file, base = the T-276 baseline (v1.6.763) the fixes were made on, theirs = 1.7.740. Upstream added +1254 / +682 lines to these files meanwhile (partly converging on our approach), leaving 6 + 10 conflict regions in security-relevant hook code. Oracle: `web/test_safe_commands.py` (restored): **78 pass / 54 fail on pristine 1.7.740** — includes genuine writes NOT caught (`cmd 2> errors.log`, `cmd &> combined.log`). Both files restored to pristine meanwhile; done next as a focused piece. | test file restored, uncommitted |
+| `safe-commands.sh` + `check-active-task.sh` (T-390..T-652, lost at T-840) | **done by behaviour, not by merge** (see below). Was: **pending, deliberately**. The right merge is ours = the pre-T-840 file, base = the T-276 baseline (v1.6.763) the fixes were made on, theirs = 1.7.740. Upstream added +1254 / +682 lines to these files meanwhile (partly converging on our approach), leaving 6 + 10 conflict regions in security-relevant hook code. Oracle: `web/test_safe_commands.py` (restored): **78 pass / 54 fail on pristine 1.7.740** — includes genuine writes NOT caught (`cmd 2> errors.log`, `cmd &> combined.log`). Both files restored to pristine meanwhile; done next as a focused piece. | test file restored, uncommitted |
 
 **Merge-source lesson.** For fixes lost at the EARLIER re-vendor (T-840), the pre-upgrade file of THIS
 upgrade does not contain them; "ours" must be the file before T-840 and "base" the baseline those fixes
@@ -72,3 +72,25 @@ families still on the worklist and the designer-side legs that are separate bug 
 "ERROR: Commit message required": the wrapper's parser (agents/git/lib/commit.sh) knows `-m`, not a
 combined `-qm`. My output filter matched lowercase `error` only. Reported upstream as a small
 usability item; the practice is `-m`, unfiltered output, `git log -1` after each commit.
+
+## The allowlist (safe-commands.sh + check-active-task.sh): behaviour first
+
+A three-way merge from the pre-T-840 file left 977 lines in conflict across 6 regions, because
+upstream had grown the same files by ~1900 lines meanwhile. Instead: start from 1.7.740, measure,
+add only what is missing.
+
+| gap in 1.7.740 | fix | commit |
+|---|---|---|
+| allowlisted verbs that WRITE passed the no-task gate: `grep x f 2> err.log`, `&> f`, `sed …w f`, `sort -o` | three write checks (2>/&> to a file; sed w; sort -o/--output) | 6fc8e737 (reported to AEF) |
+| quoted `>`/`>>` read as redirects (`grep -n ">>" f`, `echo "a > b"`, `python3 -c "…>="`) | redirects judged on upstream `_fw_strip_quoted` view; raw on substitutions/unbalanced quotes | c31857a3 |
+| verbs named inside prose arguments (`fw note "tee writes…"`) | rm/tee on the stripped view ONLY for framework prose verbs (T-636 helper) — `bash -c "rm -rf x"` stays a write | 6c3cbd39, 27ba4c0e |
+| `awk '{print > "o"}'`, `system()`, `print |`, `uniq IN OUT` — allowlisted, write without a redirect | awk/uniq write checks (my quote-aware scan had made awk's in-program redirect invisible; caught by the oracle) | b87b1409 |
+| focus-drift read task ids out of quoted fixtures / heredocs (blocked this session twice) | clause-scoped target (upstream `_fw_chain_split`), heredoc bodies dropped, path-to-fw normalised | 525f130b, probe `_t1005-drift-target-clause-scoped.py` 14/14 |
+
+**End-to-end** (real hook, governed sandbox, no task; control: `echo x > out.txt` must BLOCK):
+all 10 write forms BLOCK, the quoted-operator reads ALLOW. Oracle `web/test_safe_commands.py`:
+54 -> 30 failing. **Not carried, recorded:** the remaining 30 are (a) tests of OUR function names
+that 1.7.740 replaced (`_sc_is_commit_only_command`, `_sc_drift_target`, "does not fork"
+structure legs), (b) fetchers that upstream refuses at the allowlist instead of the write check
+(gate-equivalent, verified end to end), (c) usability: `| tac` not allowlisted, `curl --output-dir`
+over-blocked. None is an unguarded write.
