@@ -213,8 +213,13 @@ check(
     bool(skips) and skips[0].severity == vw.INFO,
     "the SKIP note is INFO severity",
 )
+# T-993: was `exit_code(run_xml(xml)) == 0`, which stood in for this intent only while the
+# helper's event-less map drew no other finding. Since T-993 it draws W-XML-NO-START-EVENT /
+# W-XML-NO-END-EVENT (K1), so the intent is asserted directly: the SKIP note does
+# not fail the map on its own (an equal-exit-code comparison would lose its teeth: with a
+# WARN note both sides read 1).
 check(
-    vw.exit_code(vw.run_xml(xml)) == 0,
+    bool(skips) and vw.exit_code(skips) == 0,
     "a SKIP note does not turn a clean map into a failing one",
 )
 

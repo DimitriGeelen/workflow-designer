@@ -166,7 +166,9 @@ def main(argv=None):
 
 # AUTHORING.md §5: the findings a map built from an incomplete source keeps
 END_STATE = {'W-XML-DISCONNECTED', 'W-XML-UNREACHABLE', 'W-XML-DEADEND', 'W-LANE-NO-OWNER',
-             'W-XML-GW-AMBIGUOUS', 'I-XML-LANE-GEOMETRY-SKIP'}
+             'W-XML-GW-AMBIGUOUS', 'I-XML-LANE-GEOMETRY-SKIP',
+             # 0.15.2 (T-993, K1): end state only when the source states no order at all
+             'W-XML-NO-START-EVENT', 'W-XML-NO-END-EVENT'}
 
 
 def key(path):

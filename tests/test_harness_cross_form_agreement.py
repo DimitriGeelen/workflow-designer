@@ -78,7 +78,9 @@ PAIRS = {
     # counterpart was simply the wrong one. Correcting it turns a false
     # "disagreement" into the AGREE it always was.
     "E-EDGE-FIELD":         {"E-XML-FLOW-DANGLING"},
-    "E-NODE-LANE":          {"E-XML-LANEREF-DANGLING", "W-XML-NODE-UNASSIGNED"},
+    # T-993: was W-XML-NODE-UNASSIGNED, the name T-990 retired when T-891 promoted it to an
+    # ERROR; the stale name made a real agreement read as a NEW DISAGREEMENT.
+    "E-NODE-LANE":          {"E-XML-LANEREF-DANGLING", "E-XML-NODE-UNASSIGNED"},
     "E-EDGE-DANGLING":      {"E-XML-FLOW-DANGLING"},
     "E-GW-OUTGOING":        {"E-XML-GW-OUTGOING"},
     "E-UID-DUP":            {"E-XML-UID-DUP"},
@@ -102,6 +104,9 @@ PAIRS = {
     "E-NODE-TYPE":          {"E-XML-NODE-TYPE"},
     "W-DEADEND":            {"W-XML-DEADEND"},
     "W-UNREACHABLE":        {"W-XML-UNREACHABLE"},
+    "W-NO-START-EVENT":     {"W-XML-NO-START-EVENT"},   # T-993 (K1)
+    "W-NO-END-EVENT":       {"W-XML-NO-END-EVENT"},     # T-993 (K1)
+    "E-META-AUTHORITY":     {"E-XML-META-AUTHORITY"},   # T-889/T-990: paired in the parity table, never here
     "W-GW-AMBIGUOUS":       {"W-XML-GW-AMBIGUOUS"},
     "W-PGW-CONDITION":      {"W-XML-PGW-CONDITION"},
     "W-PGW-NOOP":           {"W-XML-PGW-NOOP"},

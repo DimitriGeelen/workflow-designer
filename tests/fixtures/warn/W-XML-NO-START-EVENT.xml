@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-993 (K1): a step and an end, no startEvent and no catch event. Reachability from a start cannot be assessed, so W-XML-NO-START-EVENT fires once for the map (it used to be silent). The end is reachable from n_x, so W-XML-NO-END-EVENT does not fire. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:flowNodeRef>n_x</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_e</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:scriptTask id="n_x"/>
+    <bpmn:endEvent id="n_e"/>
+    <bpmn:sequenceFlow id="f0" sourceRef="n_x" targetRef="n_e"/>
+  </bpmn:process>
+</bpmn:definitions>

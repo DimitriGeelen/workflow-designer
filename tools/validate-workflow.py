@@ -801,7 +801,8 @@ class Validator:
         A workflow with no startEvent (resp. endEvent) is skipped for the
         corresponding check — there is no anchor to measure against, and the
         missing-event case is a modelling choice the structural rules do not
-        mandate.
+        mandate. Since T-993 the skip is reported (W-NO-START-EVENT /
+        W-NO-END-EVENT, one each per workflow) instead of silent.
         """
         by_uid = {
             n["uid"]: n
@@ -841,6 +842,25 @@ class Validator:
             for uid in by_uid
             if _type(uid) in ("startEvent", "linkEventCatch")
         ]
+        # T-993 (K1, L7): the counterpart of W-XML-NO-START-EVENT / W-XML-NO-END-EVENT.
+        # The skip documented above stays (no anchor, nothing to measure against), but it
+        # is no longer silent: omitting the events must not earn fewer warnings.
+        if not fwd_seeds:
+            self.warn(
+                "W-NO-START-EVENT",
+                "nodes",
+                "no startEvent (or linkEventCatch): reachability of %d node(s) was not "
+                "assessed. If the source states where the process begins, mark it; if it "
+                "does not, this is the honest end state (AUTHORING §5)" % len(by_uid),
+            )
+        if not [u for u in by_uid if _type(u) in ("endEvent", "linkEventThrow")]:
+            self.warn(
+                "W-NO-END-EVENT",
+                "nodes",
+                "no endEvent (or linkEventThrow): whether control terminates was not "
+                "assessed for %d node(s). If the source states an outcome, mark it; if it "
+                "does not, this is the honest end state (AUTHORING §5)" % len(by_uid),
+            )
         if fwd_seeds:
             reachable = _reach(fwd_seeds, succ)
             for uid in by_uid:
@@ -1383,6 +1403,28 @@ class XmlValidator:
         fwd_starts = ("startEvent", "intermediateCatchEvent")
         bwd_ends = ("endEvent", "intermediateThrowEvent")
         fwd_seeds = [n for n in flow_node_ids if node_type.get(n) in fwd_starts]
+        # T-993 (Evergreen trial K1, ledger L7): with no start (resp. end) the two checks
+        # below have no anchor and used to stay SILENT, so a map that left its events out
+        # drew fewer warnings than one that declared them: omission rewarded, the T-972
+        # class again. One finding per map, carrying the count of nodes not assessed (the
+        # T-972 shape: the defect is the map's, the count keeps it from being quieter). Not
+        # one per node: a fully stated chain without events is not N unreachable steps.
+        if flow_node_ids and not fwd_seeds:
+            self.warn(
+                "W-XML-NO-START-EVENT",
+                "<process>",
+                "no startEvent (or link catch event): reachability of %d node(s) was not "
+                "assessed. If the source states where the process begins, mark it; if it "
+                "does not, this is the honest end state (AUTHORING §5)" % len(flow_node_ids),
+            )
+        if flow_node_ids and not [n for n in flow_node_ids if node_type.get(n) in bwd_ends]:
+            self.warn(
+                "W-XML-NO-END-EVENT",
+                "<process>",
+                "no endEvent (or link throw event): whether control terminates was not "
+                "assessed for %d node(s). If the source states an outcome, mark it; if it "
+                "does not, this is the honest end state (AUTHORING §5)" % len(flow_node_ids),
+            )
         if fwd_seeds:
             reachable = _reach(fwd_seeds, succ)
             for n in sorted(flow_node_ids):

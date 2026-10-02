@@ -15,6 +15,14 @@ Legs:
   6. --calibrate FAILS with a blind reviewer (finds nothing) -- the teeth for leg 5
   7. --calibrate FAILS with a noisy reviewer (a finding on the clean map)
   8. the full loop with a stub generator and a clean-reporting reviewer stops DONE in round 1
+  9. every agent prompt names only paths inside its workdir (T-991)
+ 10. --review-only reviews an existing map with no generator, numbering rounds (T-993, K7)
+ 11. every review prints its prompt size (T-993, K8)
+ 12. a declared reviewer context below the prompt size refuses calibration (T-993, K8)
+
+A stub has no sandbox and no context window, so this file cannot be the last check: before
+every kit release, run loop.sh --calibrate with a REAL sandboxed reviewer (ledger L5, T-991;
+done for 0.15.1 and 0.15.2 with GLM-5.2 through opencode).
 
 Exit 0 iff every check passes. Run: python3 tests/test_t983_review_loop_kit.py
 """
@@ -149,6 +157,28 @@ def main():
               r.returncode == 0 and 'DONE: clean review in round 1' in log
               and os.path.isfile(os.path.join(wd, 'map.r0.bpmn')) and os.path.isfile(os.path.join(wd, 'review.r1.json')),
               (log.strip().splitlines() or [''])[-1] if log else r.stderr[-160:])
+        # 10-12 (T-993, Evergreen trial K7/K8) ----------------------------------------------
+        # K7: an agent harness refused to start nested agents, so no review ran. --review-only
+        # reviews a map that already exists, with no generator configured.
+        ro = os.path.join(tmp, 'review-only')
+        r = run(['bash', loop, '--review-only', ro, os.path.join(cal, 'SOURCE.md'), os.path.join(cal, 'planted.bpmn')],
+                env=env0)
+        check('10a. --review-only refuses without KIT_REVIEWER_CMD', r.returncode == 2, 'rc=%d' % r.returncode)
+        rr = [run(['bash', loop, '--review-only', ro, os.path.join(cal, 'SOURCE.md'), os.path.join(cal, 'planted.bpmn')],
+                  env=env(KIT_REVIEWER_CMD='good')) for _ in (1, 2)]
+        n1 = len(json.load(open(os.path.join(ro, 'review.r1.json')))) if os.path.isfile(os.path.join(ro, 'review.r1.json')) else -1
+        check('10b. --review-only needs no generator, writes review.r1.json then review.r2.json, exit 1 on findings',
+              [x.returncode for x in rr] == [1, 1] and n1 == 3 and os.path.isfile(os.path.join(ro, 'review.r2.json')),
+              'rc=%s n1=%d %s' % ([x.returncode for x in rr], n1, rr[0].stderr[-120:]))
+        # K8: the prompt size is printed, and a declared context too small for it refuses.
+        log10 = open(os.path.join(ro, 'LOOP.txt')).read() if os.path.isfile(os.path.join(ro, 'LOOP.txt')) else ''
+        check('11. every review prints its prompt size', re.search(r'review prompt ~\d+ tokens', log10) is not None, log10[-160:])
+        e12 = env(KIT_REVIEWER_CMD='good'); e12['KIT_REVIEWER_CONTEXT'] = '100'
+        r = run(['bash', loop, '--calibrate', os.path.join(tmp, 'cal-small')], env=e12)
+        check('12. --calibrate with KIT_REVIEWER_CONTEXT below the prompt size: COULD NOT MEASURE, reviewer not run',
+              r.returncode == 3 and 'COULD NOT MEASURE' in r.stdout
+              and not os.path.isfile(os.path.join(tmp, 'cal-small', 'clean', 'REVIEW.json')),
+              'rc=%d %s' % (r.returncode, r.stdout[-160:]))
         # 9 (T-991) ------------------------------------------------------------------------
         # A sandboxed agent (opencode) cannot read outside its working directory. 0.15.0 told
         # agents to read the kit by ABSOLUTE path, and a real calibration failed on it; the stubs

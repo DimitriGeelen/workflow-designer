@@ -43,7 +43,18 @@ CORRECT.md   you: apply or contest each finding      -> CORRECTIONS.json, with a
 ```
 
 `loop.sh` runs it with any two agents you configure (see its header). Use a reviewer from a
-different model or vendor than the generator. `loop.sh --calibrate` proves your reviewer still
+different model or vendor than the generator.
+
+**Where to run it.** `loop.sh` starts both agents itself, so run it from a plain shell or CI,
+not from inside an agent session: an agent harness may refuse to start nested agents, and then
+no review round runs at all. If you are the generating agent and cannot start the loop, write
+your maps, then ask your operator to run `loop.sh` (or `loop.sh --review-only`, which reviews
+and records maps you already wrote, without starting a generator).
+
+**Reviewer context.** The reviewer reads REVIEW.md, RUBRIC.md, the source and the map in one
+prompt. `loop.sh` prints the size of every review prompt; a reviewer whose context window is
+smaller than that cannot read it whole, and its review means nothing. In practice allow at
+least 16K tokens, more for long sources. A local model loaded at 4096 is too small. `loop.sh --calibrate` proves your reviewer still
 catches the kit's planted defects and raises nothing on a clean map; run it when you change
 reviewer, model or rubric. The `lesson` in every correction is how the loop improves: read them,
 and when one recurs, it belongs in this guide, the rubric, or the validator.
@@ -98,6 +109,11 @@ chart, unless the system IS the performer.
 | an AI or software agent that proposes or acts on initiative | `initiative` | agent |
 | a party outside the organisation (carrier, supplier, customer) | `external` | none: no task is compiled |
 | **nobody the source names** | `none` | none: `W-LANE-NO-OWNER` on each task |
+| a system **supports** the step, but the source names nobody who performs it | `none` | none: put the step in the `none` lane and the system in a note (`System: Novis`) associated to the step |
+
+A system that *supports* a step is a tool, not a performer: "the quote is approved in CPQ"
+says where, not who. Only when the source makes the system the actor ("Novis creates the
+production order") is it a lane of its own with `authority`.
 
 **Precedence:** a task may carry its own `<aef:meta authority="…"/>`; when it does, that value
 wins over its lane's. Use it only when the source assigns that one step to a different performer
@@ -132,6 +148,34 @@ will make up what the source does not say. Do not.
   one end after every step with no successor turns one process into several parallel ones the
   source never described. Two ends are right when the source states two outcomes (an order is
   rejected or fulfilled), and wrong when they exist only to give orphans an exit.
+- **One start and one end around a chain the source states are not invented.** When the source
+  states an order (A precedes B precedes C) but no trigger and no outcome, a none start event
+  before A and a none end event after C mark where the stated order begins and ends. They assert
+  no trigger and no result. Cite them `source: unstated - marks where the stated order begins
+  (ends); the source names no trigger (result)`. Do not name them as if they were a trigger
+  ("Customer calls") unless the source says so. Leaving them out is not more honest: the
+  validator then reports `W-XML-NO-START-EVENT` / `W-XML-NO-END-EVENT` for the map, because
+  without them it cannot check reachability at all (section 5).
+- **One step precedes two, and the source says nothing about how the two relate.** Draw a plain
+  sequence flow from A to each of B and C, with no gateway. In BPMN that means both follow A
+  with no order between them, which is what the source says. It also implies both always
+  happen. If the source does not say that (it may be either/or), add a note associated to A:
+  `Whether B and C both follow A, or only one of them, is not recorded in the source`. Never
+  add an exclusive gateway, which invents a decision, or a parallel gateway, which adds nothing
+  the plain flows do not already say.
+- **A hand-over to a step in another map** is a link event, not a note. End the path in this map
+  with an `intermediateThrowEvent` carrying
+  `<aef:link targetWorkflow="<the other map's workflowMeta id>" name="<the other process's name>"/>`
+  in its `extensionElements`, and start the receiving map's path with an
+  `intermediateCatchEvent` carrying the same pair pointing back. The validator treats a throw as
+  a terminus and a catch as an entry, so neither draws a reachability warning, and the designer
+  can jump between the two maps. Cite the source line that states the hand-over. If the source
+  names the other process but not the step it goes to, link to the process and say so in the
+  citation.
+- **Records a step creates or uses** (an order, a quote, a production order) go in a note
+  associated to the step: `Creates: production order`, cited like any element. BPMN's
+  `dataObjectReference` is valid and the validator accepts it, but the designer does not draw
+  it, so a reader of the map never sees it. Use the note until the designer does.
 - **Do not invent conditions.** Label each exclusive-gateway branch with the source's own words
   (`name="limit exceeded"`), not an executable expression the source never stated.
 - **Merging branches:** use a converging exclusive gateway (two or more incoming flows, exactly
@@ -148,7 +192,8 @@ source does not say. Removing them by changing the map is fabrication.
 
 | what the source leaves unknown | findings you keep |
 |---|---|
-| the order of N unplaced steps | 1 × `W-XML-DISCONNECTED`, plus per step 1 × `W-XML-UNREACHABLE` and 1 × `W-XML-DEADEND` |
+| the order of N unplaced steps | 1 × `W-XML-DISCONNECTED`, plus per step 1 × `W-XML-UNREACHABLE` and 1 × `W-XML-DEADEND` (when the map has a start and an end event) |
+| no stated order at all, so the map has no start or no end event | 1 × `W-XML-NO-START-EVENT` and/or 1 × `W-XML-NO-END-EVENT` for the map, plus 1 × `W-XML-DISCONNECTED` if the steps fall into several parts. Reachability is then not assessed per step. If the source states any chain, mark it with a start and an end (section 4) and the per-step findings above apply instead |
 | who performs a step | 1 × `W-LANE-NO-OWNER` per task in the `none` lane |
 | an executable branch condition (you labelled branches in the source's words, section 4) | 1 × `W-XML-GW-AMBIGUOUS` per such gateway. DIALECT-RELATIVE: a branch label is a standard-admitted condition carrier |
 | geometry (you chose the geometry-free layout, section 7) | 1 × `I-XML-LANE-GEOMETRY-SKIP`, an INFO note, not a warning |

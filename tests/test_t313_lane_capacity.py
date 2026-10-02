@@ -216,7 +216,10 @@ check(
     skips[0].message if skips else "",
 )
 check(
-    bool(skips) and skips[0].severity == getattr(vw, "INFO", "INFO") and vw.exit_code(vw.run_xml(xml)) == 0,
+    # T-993: exit code compared with and without the note (the helper's event-less map now
+    # also draws W-XML-NO-START/END-EVENT, so a bare `== 0` no longer isolates the note).
+    bool(skips) and skips[0].severity == getattr(vw, "INFO", "INFO")
+    and vw.exit_code(skips) == 0,
     "the SKIP note is INFO and does not fail the map",
 )
 

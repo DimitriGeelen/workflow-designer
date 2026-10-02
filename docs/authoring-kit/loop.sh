@@ -16,6 +16,18 @@
 #   loop.sh --calibrate <workdir>                prove the configured reviewer still catches the
 #                                                kit's planted defects (calibration/) and raises
 #                                                nothing on the clean control map
+#   loop.sh --review-only <workdir> <source.md> <map.bpmn>
+#                                                one review round of a map you already wrote,
+#                                                needs only KIT_REVIEWER_CMD; writes review.rN.json
+#                                                (N = next free). Correct the map yourself per
+#                                                CORRECT.md, then run it again (T-993, K7)
+#
+# WHERE TO RUN IT (T-993, K7): from a plain shell or CI. This script starts agents; an agent
+# harness may refuse to let one agent start others, and then no review round runs at all.
+#
+# REVIEWER CONTEXT (T-993, K8): every review prompt's size is printed (estimated tokens = bytes/4
+# of REVIEW.md + RUBRIC.md + SOURCE.md + map.bpmn). Set KIT_REVIEWER_CONTEXT=<tokens> to the
+# reviewer's real context window and a review it cannot read whole is refused instead of run.
 #
 # Stop rule: a review round with zero findings, or max_rounds. Every round's map.rN.bpmn,
 # review.rN.json and corrections.rN.json is kept: the corrections' "lesson" fields are the loop's
@@ -49,6 +61,17 @@ stage_kit() {  # stage_kit <dir>
         [ -f "$KIT/$f" ] && cp "$KIT/$f" "$1/kit/$f"
     done
 }
+prompt_tokens() {  # prompt_tokens <dir>: estimated tokens a reviewer must read in one prompt
+    cat "$1/kit/REVIEW.md" "$1/kit/RUBRIC.md" "$1/SOURCE.md" "$1/map.bpmn" 2>/dev/null | wc -c | awk '{print int($1/4)+1}'
+}
+fits() {  # fits <dir>: print the size; return 1 if KIT_REVIEWER_CONTEXT is set and too small
+    local n; n=$(prompt_tokens "$1")
+    if [ -n "${KIT_REVIEWER_CONTEXT:-}" ] && [ "$n" -gt "$KIT_REVIEWER_CONTEXT" ]; then
+        echo "review prompt ~${n} tokens > KIT_REVIEWER_CONTEXT=${KIT_REVIEWER_CONTEXT}: the reviewer cannot read it whole; REFUSED" | tee -a "$1/LOOP.txt" >&2
+        return 1
+    fi
+    echo "review prompt ~${n} tokens (reviewer context ${KIT_REVIEWER_CONTEXT:-not declared})" | tee -a "$1/LOOP.txt"
+}
 count() {
     python3 -c "import json,sys;d=json.load(open(sys.argv[1]));print(len(d))" "$1" 2>/dev/null || echo ERR
 }
@@ -60,6 +83,7 @@ if [ "${1:-}" = "--calibrate" ]; then
         mkdir -p "$WD/$which" && cp "$KIT/calibration/SOURCE.md" "$WD/$which/SOURCE.md"
         cp "$KIT/calibration/$which.bpmn" "$WD/$which/map.bpmn"
         stage_kit "$WD/$which" || { echo "loop.sh: could not stage the kit" >&2; exit 2; }
+        fits "$WD/$which" || { echo "CALIBRATION: COULD NOT MEASURE (reviewer context too small)"; exit 3; }
         ( cd "$WD/$which" && rm -f REVIEW.json && agent "$KIT_REVIEWER_CMD" \
             "The kit is in ./kit/. Read ./kit/REVIEW.md and carry it out completely." )
     done
@@ -91,6 +115,23 @@ PY
     exit $?
 fi
 
+if [ "${1:-}" = "--review-only" ]; then
+    [ -n "${KIT_REVIEWER_CMD:-}" ] || { echo "loop.sh: --review-only needs KIT_REVIEWER_CMD" >&2; exit 2; }
+    WD="${2:?usage: loop.sh --review-only <workdir> <source.md> <map.bpmn>}"; SRC="${3:?source.md}"; MAP="${4:?map.bpmn}"
+    mkdir -p "$WD" && cp "$SRC" "$WD/SOURCE.md" && cp "$MAP" "$WD/map.bpmn" && stage_kit "$WD" && cd "$WD" || exit 2
+    r=1; while [ -e "review.r$r.json" ]; do r=$((r + 1)); done
+    cp map.bpmn "map.r$r.reviewed.bpmn"
+    log "review-only round $r; validator: $(python3 kit/validate-workflow.py map.bpmn | tail -1)"
+    fits . || exit 3
+    rm -f REVIEW.json
+    agent "$KIT_REVIEWER_CMD" "The kit is in ./kit/. Read ./kit/REVIEW.md and carry it out completely."
+    n=$(count REVIEW.json)
+    [ "$n" = ERR ] && { log "STOPPED: no parseable REVIEW.json"; exit 1; }
+    cp REVIEW.json "review.r$r.json"
+    log "review-only round $r: $n finding(s)$([ "$n" = 0 ] && echo ': DONE, clean review')"
+    [ "$n" = 0 ] && exit 0 || exit 1
+fi
+
 need_cmds
 WD="${1:?usage: loop.sh <workdir> <source.md> [max_rounds]}"; SRC="${2:?source.md}"; MAX="${3:-4}"
 mkdir -p "$WD" && cp "$SRC" "$WD/SOURCE.md" && stage_kit "$WD" && cd "$WD" || exit 2
@@ -104,6 +145,7 @@ log "validator: $(python3 kit/validate-workflow.py map.bpmn | tail -1)"
 for r in $(seq 1 "$MAX"); do
     rm -f REVIEW.json
     log "round $r: review"
+    fits . || { log "STOPPED: reviewer context too small in round $r"; exit 3; }
     agent "$KIT_REVIEWER_CMD" "$PRE Read ./kit/REVIEW.md and carry it out completely."
     n=$(count REVIEW.json)
     [ "$n" = ERR ] && { log "STOPPED: no parseable REVIEW.json in round $r"; exit 1; }

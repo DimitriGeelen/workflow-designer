@@ -65,8 +65,12 @@ learnings:
     14 stub-based legs had passed. Fixed by staging ./kit/ per workdir; test leg 9 fails on 0.15.0.'
   source: loop
   destination: tooling
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: tests/test_t983_review_loop_kit.py
+    marker: run loop.sh --calibrate with a REAL sandboxed reviewer
 - id: L6
   learning: a calibration set must contain ONLY its intended defects, and its scoring must accept every
     truthful way a correct reviewer can report one
@@ -76,8 +80,12 @@ learnings:
     FLOW, as invented, as a miss.'
   source: loop
   destination: tooling
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: docs/authoring-kit/loop.sh
+    marker: A defect is caught when a finding names ANY element that implements it
 - id: L7
   learning: 'a map with no startEvent draws no W-XML-UNREACHABLE and one with no endEvent no W-XML-DEADEND,
     so omitting events earns fewer warnings than declaring them: the T-972 class (omission rewarded) again;
@@ -87,8 +95,12 @@ learnings:
     bo-parts-sales and bo-service-sales (2 unordered steps, no events) get only DISCONNECTED'
   source: trial
   destination: validator
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: tools/validate-workflow.py
+    marker: W-XML-NO-START-EVENT
 - id: L8
   learning: 'the guide has no construct for "A precedes B and C, relation between B and C not stated":
     plain multiple outgoing flows assert parallelism, a gateway invents a decision'
@@ -96,8 +108,12 @@ learnings:
     2028042f) K2
   source: trial
   destination: guide
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: One step precedes two, and the source says nothing about how the two relate
 - id: L9
   learning: the guide forbids a start/end per orphan step but does not say whether ONE untriggered none
     start/end around a chain the source states is honest or invented
@@ -105,8 +121,12 @@ learnings:
     2028042f) K3
   source: trial
   destination: guide
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: One start and one end around a chain the source states are not invented
 - id: L10
   learning: the guide says nothing about hand-overs to steps of OTHER maps, though the validator already
     treats link catch/throw events as cross-workflow entry/terminus
@@ -114,16 +134,24 @@ learnings:
     2028042f) K4; validate-workflow.py reachability comment (schema 7.2)
   source: trial
   destination: guide
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: A hand-over to a step in another map
 - id: L11
   learning: the guide says nothing about records a step creates (dataObject vs annotation)
   evidence: T-989 iteration 1 (Evergreen round 0, REPORT.md §3b, received 2026-10-02 by send-file, sha
     2028042f) K5
   source: trial
   destination: guide
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: Records a step creates or uses
 - id: L12
   learning: the authority table should state the row "a system SUPPORTS a step, performer unstated" ->
     authority none, system as an annotation (Evergreen read it so; it is the intended reading of "lane
@@ -132,8 +160,12 @@ learnings:
     2028042f) K6
   source: trial
   destination: guide
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: docs/authoring-kit/AUTHORING.md
+    marker: a system **supports** the step
 - id: L13
   learning: loop.sh assumes a caller that may start agents; an agent harness may refuse nested agents
     ("Create Unsafe Agents"), so the kit needs a documented human-shell/CI mode, or a mode where the calling
@@ -142,8 +174,12 @@ learnings:
     2028042f) K7: their review rounds could not run'
   source: trial
   destination: tooling
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: docs/authoring-kit/loop.sh
+    marker: loop.sh --review-only <workdir>
 - id: L14
   learning: 'the kit states no minimum reviewer context: map + source + rubric is ~10K tokens, and a local
     reviewer loaded at 4096 cannot read it whole; loop.sh --calibrate should measure and refuse below
@@ -152,8 +188,12 @@ learnings:
     2028042f) K8 (gemma4 on Ollama, num_ctx 4096)
   source: trial
   destination: tooling
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: docs/authoring-kit/loop.sh
+    marker: KIT_REVIEWER_CONTEXT
 - id: L15
   learning: 'a raw finding count grades honesty as regression: declaring authority none draws W-LANE-NO-OWNER
     per task, so the trial maps went 138 -> 162 findings while findings outside the AUTHORING §5 end state
@@ -162,5 +202,9 @@ learnings:
     / findings_other)'
   source: trial
   destination: tooling
-  status: proposed
+  status: promoted
   occurrences: 1
+  confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
+  promoted:
+    where: tools/_t989-measure-evergreen.py
+    marker: findings_end_state

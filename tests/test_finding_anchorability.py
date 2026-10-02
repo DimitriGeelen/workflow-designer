@@ -99,6 +99,10 @@ ANCHOR = {
     "W-XML-PGW-UNBALANCED":      "NODE",
     "W-XML-UNREACHABLE":         "NODE",
     "W-XML-DEADEND":             "NODE",
+    # T-993 (K1): about the whole map (no start / no end event exists); the location is
+    # <process> and the count of nodes not assessed is in the message, as DISCONNECTED.
+    "W-XML-NO-START-EVENT":      "DOC",
+    "W-XML-NO-END-EVENT":        "DOC",
     "I-XML-LANE-GEOMETRY-SKIP":  "DOC",
     "W-XML-LANE-GEOMETRY":       "LANE-PAIR",
     "I-XML-LANE-CAPACITY-SKIP":  "LANE",

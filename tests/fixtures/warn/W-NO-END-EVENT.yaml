@@ -1,0 +1,12 @@
+# T-993 (K1): a start and a step, no endEvent and no linkEventThrow. Whether control
+# terminates cannot be assessed, so W-NO-END-EVENT fires once (it used to be silent). n_x is
+# reachable from the start, so W-NO-START-EVENT does not fire.
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: agent, name: Agent, abbr: agt, authority: initiative, height: 320}
+nodes:
+  - {uid: n_s, type: startEvent, name: Start, lane: agent, x: 100, y: 100}
+  - {uid: n_x, type: scriptTask, name: Step, lane: agent, x: 300, y: 100}
+edges:
+  - {uid: e_0, source: n_s, target: n_x}

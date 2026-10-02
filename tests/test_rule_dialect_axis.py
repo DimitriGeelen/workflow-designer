@@ -234,6 +234,12 @@ RULE_CARRIERS = {
     "W-SCOPEOF-TYPE":           (("aef:meta/@scopeOf",), CONSTRAINS),
     "W-UNREACHABLE":            (("edges",), STRUCTURAL),
     "W-DEADEND":                (("edges",), STRUCTURAL),
+    # T-993 (K1, L7): fire once per map when no start (resp. end) event exists, i.e. on
+    # the ABSENCE of a node type. Derived UNIVERSAL (REQUIRES over a STRUCTURE carrier), and
+    # left so for the reason given at W-XML-DISCONNECTED: BPMN admits a process without
+    # events, and the standard is silent on it -- the OBS-467 model gap, not a forced label.
+    "W-NO-START-EVENT":         (("nodes/@type",), REQUIRES),
+    "W-NO-END-EVENT":           (("nodes/@type",), REQUIRES),
     # fires when a node's REQUIRED input has no upstream `io.outputs` entry
     # matching by name -- i.e. it demands an optional carrier be present on
     # nodes OTHER than the one being checked. Conformant to omit, so a corpus
@@ -308,6 +314,12 @@ RULE_CARRIERS = {
     "W-XML-PGW-UNBALANCED":     (("sequenceFlow",), STRUCTURAL),
     "W-XML-UNREACHABLE":        (("sequenceFlow",), STRUCTURAL),
     "W-XML-DEADEND":            (("sequenceFlow",), STRUCTURAL),
+    # T-993 (K1, L7): fire once per map when no start (resp. end) event exists, i.e. on
+    # the ABSENCE of a node type. Derived UNIVERSAL (REQUIRES over a STRUCTURE carrier), and
+    # left so for the reason given at W-XML-DISCONNECTED: BPMN admits a process without
+    # events, and the standard is silent on it -- the OBS-467 model gap, not a forced label.
+    "W-XML-NO-START-EVENT":     (("flow-node element",), REQUIRES),
+    "W-XML-NO-END-EVENT":       (("flow-node element",), REQUIRES),
     # T-967. Entered as REQUIRES because the rule fires when a CONNECTING sequenceFlow
     # is ABSENT, and mapping-v1 §6 mandates connectivity nowhere — so a disconnected
     # document is conformant and firing on it separates our authoring convention from

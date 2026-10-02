@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  T-992 — CUT RELEASE 0.15.1: loop.sh works with sandboxed agents (T-991)
-#  Run with:   bash /opt/832-Workflow-designer/runme.sh 0.15.1
-#  Dry run:    bash /opt/832-Workflow-designer/runme.sh 0.15.1 --dry-run
+#  T-993 — CUT RELEASE 0.15.2: the authoring kit revised from the Evergreen trial (K1-K8)
+#  Run with:   bash /opt/832-Workflow-designer/runme.sh 0.15.2
+#  Dry run:    bash /opt/832-Workflow-designer/runme.sh 0.15.2 --dry-run
 # =============================================================================
 #
 #  WHAT THIS DOES, each step confirmed separately, stopping at the first failure:
-#    1. scripts/release-designer.sh: writes dist/aef-workflow-designer-0.15.1.html, the
-#       authoring kit dist/aef-authoring-kit-0.15.1/, and MANIFEST.yaml; runs the render gate
+#    1. scripts/release-designer.sh: writes dist/aef-workflow-designer-0.15.2.html, the
+#       authoring kit dist/aef-authoring-kit-0.15.2/, and MANIFEST.yaml; runs the render gate
 #       (ON); announces the release on the hub rail.
 #    2. commits exactly those dist/ paths as the release commit.
-#    3. creates the annotated tag designer-v0.15.1 on that commit.
+#    3. creates the annotated tag designer-v0.15.2 on that commit.
 #    4. pushes bleeding-edge and the tag to origin.
-#  Same pattern as 0.14.0 and 0.15.0 (tag on the bleeding-edge release commit). master is NOT advanced
-#  here; that remains a separate decision. Notes: docs/releases/RELEASE-NOTES-0.15.1.md
+#  Same pattern as 0.14.0, 0.15.0 and 0.15.1 (tag on the bleeding-edge release commit). master is NOT advanced
+#  here; that remains a separate decision. Notes: docs/releases/RELEASE-NOTES-0.15.2.md
 #
 #  THE VERSION IS YOUR ARGUMENT (G-007): the script refuses without it or if it differs from
 #  ./VERSION. THE AGENT DOES NOT RUN THIS: a release is a promise over immutable bytes, a tag
@@ -28,13 +28,13 @@ TS=$(date +%Y%m%dT%H%M%S)
 LOG="$PROJ/.context/working/runme-$TS.log"
 mkdir -p "$PROJ/.context/working" && touch "$LOG" || { echo "cannot write log $LOG"; exit 1; }
 exec > >(tee -a "$LOG") 2>&1
-echo "runme.sh T-992 started $TS  log: $LOG"
+echo "runme.sh T-993 started $TS  log: $LOG"
 
 fail() { echo "STOPPED: $*"; echo "rc=1  (log: $LOG)"; exit 1; }
 confirm() { local a; read -r -p "$1 [y/N] " a </dev/tty || a=n; [ "$a" = y ] || [ "$a" = Y ]; }
 
 V="${1:-}"; DRY=0; [ "${2:-}" = "--dry-run" ] && DRY=1
-[ -n "$V" ] || fail "pass the version as the first argument, e.g.  bash $0 0.15.1"
+[ -n "$V" ] || fail "pass the version as the first argument, e.g.  bash $0 0.15.2"
 cd "$PROJ" || fail "project dir missing"
 TAG="designer-v$V"
 ART="dist/aef-workflow-designer-$V.html"
@@ -53,7 +53,7 @@ echo "ok  the release inputs are committed"
 git rev-parse -q --verify "refs/tags/$TAG" >/dev/null && fail "tag $TAG already exists locally"
 git ls-remote --exit-code --tags origin "$TAG" >/dev/null 2>&1 && fail "tag $TAG already exists on origin"
 echo "ok  tag $TAG does not exist (local or origin)"
-# RESUMABLE (T-992, after a run stopped at step 3): if $V is already cut AND committed AND the
+# RESUMABLE (T-992, after a 0.15.1 run stopped at step 3): if $V is already cut AND committed AND the
 # artifact equals src AND the kit verifies, steps 1-2 are DONE and are skipped without a prompt
 # (T-940: a confirm for a no-op teaches that the answer does not matter). A half-written dist/
 # (exists but uncommitted, or differing) still refuses: that needs a human look.
@@ -88,7 +88,7 @@ echo "ok  artifact == src, kit verifies"
 
 confirm "Step 2/4: commit the release files?" || fail "not confirmed at step 2; dist/ is written but NOT committed"
 git add "$ART" "$KIT" dist/MANIFEST.yaml || fail "git add failed"
-git commit -q -m "T-992: release designer $V — loop.sh works with sandboxed agents (T-991)" \
+git commit -q -m "T-993: release designer $V — authoring kit revised from the Evergreen trial (K1-K8, ledger L5-L15)" \
   -m "Notes: docs/releases/RELEASE-NOTES-$V.md" || fail "commit failed"
 echo "ok  release commit $(git rev-parse --short HEAD)"
 fi
