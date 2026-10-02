@@ -47,8 +47,9 @@
 # supersedes SOME of an entry's changes, keep `upstream:` as the verdict for what REMAINS owed
 # and record the rest under `superseded_changes:`. See agents/audit/audit.sh below.
 
-baseline_commit: ebf0c721a94dbe9c5ed056b54de741a4c05bf336
-baseline_note: >-
+baseline_commit: 2659abad2146f2d4c436853d0826d53eb7bff2a4
+baseline_note: "T-988/T-1000 — pristine vendor commit of AEF 1.7.740 (re-vendor protocol step 1). Every declared local fix the upgrade overwrote now shows STALE in tools/_t517; resolve each via tools/_t1000-revendor-worklist.py."
+baseline_note_previous: >-
   T-276 — re-vendor of framework v1.6.763 (28c7a1bd3, GitHub mirror). The last point at which
   this tree matched upstream. Chosen as the baseline rather than the two T-276 follow-up commits
   (70627849, a69b5324) precisely BECAUSE those follow-ups are the post-vendor repair: measuring
@@ -655,9 +656,14 @@ entries:
   # ── local config: never travels upstream ───────────────────────────────────────────────
   - path: .agentic-framework/policy/designer-pin.yaml
     kind: content
-    task: T-296, T-743
+    task: T-296, T-743, T-988
     upstream: local-config
     reason: >-
+      T-988 (2026-10-01): advanced 0.14.0 -> 0.15.0 on the operator's "run full upgrade ...
+      workflow designer". AEF's pin (arrived with the 1.7.740 upgrade) said 0.14.0 but its
+      vendored file was absent (`fw designer status`: NOT SYNCED). Pull-at-tag at
+      designer-v0.15.0, both anchors verified; served bytes over HTTP at /designer/app =
+      1063551 B / fc1880e7. 0.12.0 and 0.8.0 artifacts retained.
       T-743 (2026-09-21): advanced 0.8.0 -> 0.12.0, four releases in one step. This pin is
       what OUR Watchtower's /designer blueprint reads, so it had been serving 0.8.0 to the
       operator while src/ and dist/ sat at 0.12.0. Intake ran the sanctioned pull-at-tag
