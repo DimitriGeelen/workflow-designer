@@ -92,5 +92,14 @@ fresh; L review L2 --reviewer-cmd "$W/slow" --vendor openai --name codex >/dev/n
 L review L2 --reviewer-cmd "$W/slow" --vendor zai --name glm >/dev/null & wait
 [ "$(grep -c 'verdict: agree' "$W/l.yaml")" -eq 2 ] && ok "parallel reviews both recorded" || bad "parallel reviews both recorded"
 
+# 12. revising the wording voids earlier verdicts; re-review on the new revision confirms
+fresh; for v in openai zai; do L review L2 --reviewer-cmd "$W/agree" --vendor $v --name r-$v >/dev/null; done
+L revise L2 --learning "narrower lesson" --why "codex refinement" >/dev/null
+L confirm L2 > "$W/o"; c1=$?
+for v in openai zai; do L review L2 --reviewer-cmd "$W/agree" --vendor $v --name r-$v >/dev/null; done
+L confirm L2 >/dev/null; c2=$?
+[ $c1 -ne 0 ] && grep -q "need 2" "$W/o" && [ $c2 -eq 0 ] && grep -q "why_revised: codex refinement" "$W/l.yaml" \
+  && ok "revision voids old verdicts; new ones count" || bad "revision voids old verdicts; new ones count"
+
 echo "t1006: $pass passed, $fail failed"
 [ $fail -eq 0 ]

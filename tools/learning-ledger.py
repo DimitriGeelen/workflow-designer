@@ -21,6 +21,8 @@ L1-L15 were confirmed by operator assent before this rule; they stay valid as le
           sends lesson + evidence + evidence_cmd output + proposed change to one reviewer (the prompt
           is appended as CMD's last argument, as loop.sh does) and records its verdict
           agree | disagree | refine; a reply with no parseable verdict is recorded as no-verdict
+  revise <id> --why TEXT [--learning T] [--proposed-change T] [--evidence-cmd C]
+          new wording -> new revision; verdicts on the old wording stop counting
   confirm <id>      runs evidence_cmd, checks the quorum, confirms or says exactly why not
   rule <id> --kind value|priority --decision TEXT     an operator ruling (never on correctness)
   promote <id> --where FILE --marker TEXT    | --where sidecar:<client_msg_id>
@@ -107,9 +109,13 @@ def is_legacy(d, x):
 
 
 def latest_verdicts(x):
-    """The newest verdict per reviewer name: a reviewer may change its mind after a refinement."""
+    """The newest verdict per reviewer on the CURRENT revision. A verdict judged a wording; once
+    the lesson is revised (`revise`), verdicts on the old wording no longer count."""
+    rev = int(x.get('revision', 0))
     last = {}
     for v in x.get('verdicts') or []:
+        if int(v.get('revision', 0)) != rev:
+            continue
         last[v.get('reviewer')] = v
     return list(last.values())
 
@@ -176,6 +182,10 @@ EVIDENCE COMMAND (re-runs the claim): {evidence_cmd}
 ITS OUTPUT JUST NOW (exit {rc}):
 {output}
 
+Do not run commands or read files: everything you are given is above, and the evidence command
+has already been run for you. If what is above is not enough to judge, that is a "disagree" with the
+reason "evidence insufficient: <what is missing>".
+
 Answer with ONE line of JSON and nothing after it:
 {{"verdict": "agree" | "disagree" | "refine", "reason": "<one or two sentences>", "refinement": "<the corrected lesson, only for refine>"}}
 agree = the lesson is right and the change should ship as written. refine = right in substance, wrong in
@@ -205,6 +215,8 @@ def main(argv=None):
     s.add_argument('--proposed-change'); s.add_argument('--author-vendor')
     r = sub.add_parser('review'); r.add_argument('id'); r.add_argument('--reviewer-cmd', required=True)
     r.add_argument('--vendor', required=True); r.add_argument('--name'); r.add_argument('--timeout', type=int, default=900)
+    rv = sub.add_parser('revise'); rv.add_argument('id'); rv.add_argument('--learning')
+    rv.add_argument('--proposed-change'); rv.add_argument('--evidence-cmd'); rv.add_argument('--why', required=True)
     c = sub.add_parser('confirm'); c.add_argument('id')
     c.add_argument('--by', help=argparse.SUPPRESS)
     u = sub.add_parser('rule'); u.add_argument('id'); u.add_argument('--kind', required=True)
@@ -270,6 +282,7 @@ def main(argv=None):
             reply = 'reviewer could not start: %s' % e
         v, reason, refinement = parse_verdict(reply)
         rec = {'reviewer': a.name or a.reviewer_cmd.split()[0], 'vendor': a.vendor.lower(), 'verdict': v,
+               'revision': int(x.get('revision', 0)),
                'reason': reason or reply.strip()[-300:], 'evidence_rc': rc, 'at': now()}
         if refinement:
             rec['refinement'] = refinement
@@ -280,6 +293,21 @@ def main(argv=None):
             save(a.ledger, d)
         print('%s: %s (%s) says %s: %s' % (a.id, rec['reviewer'], rec['vendor'], v, rec['reason'][:200]))
         return 0 if v != 'no-verdict' else 3
+    if a.cmd == 'revise':
+        x = get(a.id)
+        if x.get('status') not in ('proposed', 'escalated'):
+            sys.exit('%s is %s; only a proposed or escalated learning can be revised' % (a.id, x.get('status')))
+        if not (a.learning or a.proposed_change or a.evidence_cmd):
+            sys.exit('revise needs at least one of --learning / --proposed-change / --evidence-cmd')
+        x.setdefault('history', []).append({'revision': int(x.get('revision', 0)), 'learning': x['learning'],
+                                            'proposed_change': x.get('proposed_change'), 'why_revised': a.why, 'at': now()})
+        for k, v in (('learning', a.learning), ('proposed_change', a.proposed_change), ('evidence_cmd', a.evidence_cmd)):
+            if v:
+                x[k] = v
+        x['revision'] = int(x.get('revision', 0)) + 1
+        x['status'] = 'proposed'
+        save(a.ledger, d)
+        print('%s revised to revision %d; earlier verdicts no longer count' % (a.id, x['revision'])); return 0
     if a.cmd == 'confirm':
         if a.by:
             print('REFUSED: confirm takes no --by. A lesson is confirmed by its evidence and a cross-vendor panel, '
