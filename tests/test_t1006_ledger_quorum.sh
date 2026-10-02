@@ -18,6 +18,7 @@ learnings:
               {reviewer: gpt-other, vendor: openai, verdict: disagree}, {reviewer: sonnet, vendor: anthropic, verdict: disagree},
               {reviewer: gemini, vendor: google, verdict: disagree}]}
 YAML
+cp "$W/ctl.yaml" "$W/ctl.orig"
 C() { python3 "$T" --ledger "$W/l.yaml" confirm "$@" --controls "$W/ctl.yaml"; }
 
 stub() {  # stub <name> <reply> — a reviewer that ignores its prompt and prints a fixed reply
@@ -124,7 +125,7 @@ L review L2 --reviewer-cmd "$W/agree" --vendor google --name gemini >/dev/null; 
   && ok "uncalibrated or fooled reviewer's agree does not count" || bad "uncalibrated or fooled reviewer's agree does not count"
 
 # 14. a confirmation made before calibration is flagged by check; re-check demotes it if quorum now fails
-fresh; L review L2 --reviewer-cmd "$W/agree" --vendor openai --name codex >/dev/null
+cp "$W/ctl.orig" "$W/ctl.yaml"; fresh; L review L2 --reviewer-cmd "$W/agree" --vendor openai --name codex >/dev/null
 L review L2 --reviewer-cmd "$W/agree" --vendor zai --name glm >/dev/null
 C L2 >/dev/null && python3 - "$W/l.yaml" <<'PY'
 import sys, yaml
