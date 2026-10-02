@@ -111,6 +111,95 @@ The SIGPIPE path was never considered.
   to a file and prints only a summary, so there is nothing to pipe; or it refuses to run with a
   pipe on stdout (`[ -p /dev/stdout ]`) unless told to.
 
+### Spike 4 — IW-3: who consumes the suite's result (ANSWERED, confidence 3)
+
+Every place that could act on a red suite, checked on 2026-10-02:
+
+| consumer | acts on the suite? | evidence |
+|---|---|---|
+| task completion (P-011, update-task.sh) | no | no reference to the suite or its history |
+| release (`runme.sh`, `release-designer.sh`) | no | 0 references; 0.15.0, 0.15.1 and 0.15.2 were all cut at 38-40 failures |
+| pre-push hook | no | it runs the `structure` audit section only |
+| cron `bridge-suite-age-daily` (T-917) | reports only | prints age / red duration; it chose deliberately NOT to run the suite (its description already records "twice exited 0 while reporting 9 failures (OBS-430)") |
+| audit rail `check_bridge_suite_ratchet` (T-952) | WARN only, and **now gone** | present in HEAD's vendored `audit.sh` (4 refs), **0 in the working tree**: the uncommitted T-988 re-vendor overwrote it. The cron audit carried "Bridge suite: failures ROSE — 38 against a floor of 32" at 2026-10-01 23:00 and in none of the 70 cron audits since 01:00 on 10-02. T-952's own comment predicted exactly this ("likely after any re-vendor"). |
+| observation inbox | captured, not acted on | **OBS-430** (urgent, 09-28) states the rc-0 anomaly; still `pending`, among 124 pending / 46 urgent observations |
+
+So: the result was **seen four times** (the T-917 cron description, OBS-430, the T-952 ratchet
+and its audit WARN) and **acted on zero times**. Every consumer is a reporter. The only one in
+the audit was removed by a re-vendor, silently, in less than a day. The suite has a leg that
+detects that removal, and it is one of the 38 failures, so the alarm about the missing alarm is
+inside the thing nobody reads.
+
+**Structural learnings (candidates for the decision):**
+- **F4. A signal with no consumer that can say no is decoration.** Four layers each reported
+  the redness; none could block anything. At least one gate that matters must refuse on a rise:
+  the release (`runme.sh` preflight: no release while the suite is above its floor or STALE),
+  which is cheap and outward-facing.
+- **F5. A local rail in a vendored file is erased by the next re-vendor.** T-952 knew and wrote
+  it down, and it happened within a day. A project-owned check must live in a project-owned file
+  the vendor never overwrites (a project audit hook or plugin directory that `audit.sh` sources),
+  or be upstreamed. For AEF upstream: give consuming projects an extension point for audit
+  checks, so they never patch `audit.sh`.
+- **F6. An urgent observation can sit for days.** OBS-430 named the exact defect on 09-28. The
+  inbox's urgent flag has no deadline and no escalation. 46 urgent items means "urgent" carries
+  no information. Candidate: urgent observations older than N days surface in the handover's
+  first section and in `fw doctor` as a FAIL, not a count.
+
+### Spike 1 — IW-1 and IW-2: attribution (IW-1 DISSOLVED, IW-2 ANSWERED, confidence 2)
+
+**IW-1 dissolves.** Lead L-a ("9 -> 30 at the same commit in 3 minutes") compared a pipe-killed
+partial sweep (71 checks, rc 0, Spike 3) with a full one. It was never an environment effect.
+Spike 2 (rerun at d43b09a0 with and without services) is therefore not needed. Environment-
+dependent legs do exist (a live Watchtower for T-568, a browser for the CDP probes), but they are
+not what drove the slide.
+
+**The real curve:** 7-10 failures (09-22 to 09-24) -> the T-840 re-vendor to AEF 1.7.68 on 09-25
+(1407 vendored files changed, 545 of them carrying local commits; T-944) -> 29-32 from 09-27 ->
+35-40 since. A second re-vendor (T-988, AEF 1.7.740, uncommitted in the working tree since
+10-01) has started the same cycle: it already erased T-952's audit rail.
+
+**IW-2: the 38 failing legs of 2026-10-02, grouped by what they test** (by each leg's message and
+target; not re-verified leg by leg, hence confidence 2):
+
+| class | count | legs (abridged) |
+|---|---|---|
+| vendored framework (`.agentic-framework/`: update-task.sh, audit.sh, observe.sh, web/, lib/) | **24** | P-011 gate, T-943 heading states, T-574, fw note, episodic pipefail and extractor, vendored-divergence (x2), T-949 triage, T-952 ratchet rail, fabric validate/coverage/_t525, T-568/T-569 card cache and markdown, 403 htmx, hx-prompt encoding, D2 review queue, audit trend, gaps closure gauge, BVP (x2), T-344, approvals queue |
+| designer (ours: src/, bridge, tests) | **9** | round-trip fixed point (plain-task fixture), editor↔bridge (T-490), meta carriage (T-570), bridge vocabulary (T-572), swallowed-failure (x2), third-party byte identity, render check (artifact; passes since 0.15.2 was cut), release immutability (T-994, a test defect) |
+| project tooling / task hygiene | **5** | unwired-guard backlog, G-015 carrier, T-509 instrument sweep, capture helper, absence census |
+
+**About two thirds of the red is local fixes to the vendored framework that a re-vendor reverted.**
+T-944 diagnosed exactly this on 09-30, including that the upgrade had removed the audit rail
+that would have reported it (T-657). Two days later the next re-vendor removed the next rail
+(T-952). **The pattern was diagnosed and then recurred, because the diagnosis produced fixes,
+not a change in how re-vendoring works.**
+
+## The answer to the question
+
+The suite slid because **the project patches its vendored framework in place and then
+re-vendors over the patches**. Each re-vendor silently reverted local fixes and removed the rails
+that would have reported it. That is about 24 of the 38. Nothing stopped it, because:
+- every consumer of the result only **reports** (F4);
+- the one report in the audit lived **inside a vendored file** and was erased with the rest (F5);
+- the observation that named the rc-0 defect **sat unrouted** (F6);
+- **the record itself could lie**: a pipe-killed partial sweep recorded rc 0 (F1-F3), and the
+  ratchet built to stop decay set its floor at the decayed value (L-c).
+
+## Recommendation: GO, as these build tasks (each one deliverable)
+
+| # | change | owner | from |
+|---|---|---|---|
+| B1 | **Runner record integrity.** rc from a completion flag, not `$?`; trap PIPE; every non-final exit recorded `partial`; full log to a file plus a summary on stdout (nothing worth piping); the ratchet rejects `rc 0 && fail > 0` as impossible | project | F1-F3 |
+| B2 | **A consumer that can say no.** `runme.sh` preflight refuses a release while the ratchet reports RISE or STALE (override only with a logged reason) | project | F4 |
+| B3 | **Project rails out of vendored files.** Restore the T-952 rail in a project-owned audit extension that `audit.sh` sources, not in `audit.sh`; same for T-657 | project | F5 |
+| B4 | **Re-vendoring becomes a gated operation.** Before an upgrade is committed (T-988 now), `_t517` divergence runs and every STALE local fix is resolved: adopted upstream, re-applied, or upstreamed. The upgrade does not land with STALE entries | project + operator (T-988) | F5, T-944 |
+| B5 | **Re-anchor the floor** after B1, B3 and B4, to a measured full run, with the known-good 7 (09-22) recorded beside it as the target | project | L-c |
+| U1 | **Upstream to AEF:** (a) an audit extension point so projects never patch `audit.sh`; (b) the EXIT-trap `$?` pattern (F2) in any framework script that records history; (c) urgent observations that age past N days surface in the handover and as a `fw doctor` FAIL (F6); (d) re-vendor tooling that runs a divergence check and refuses on STALE local fixes | AEF | F2, F5, F6 |
+| — | **Triage OBS-430 now:** answered by this inception | agent | F6 |
+
+The designer-owned 9 are not part of this decision. Each gets its own bug task ("one bug = one
+task"), starting with the round-trip fixed point and editor↔bridge, which guard the save path
+Evergreen's maps go through.
+
 ## What the decision will be about
 
 GO / NO-GO on a set of **framework-level changes**, each traceable to a spike finding. Candidate

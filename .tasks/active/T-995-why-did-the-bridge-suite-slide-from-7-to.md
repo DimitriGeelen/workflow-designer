@@ -14,7 +14,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-10-02T15:13:59Z
-last_update: 2026-10-02T15:19:36Z
+last_update: 2026-10-02T15:22:06Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -72,17 +72,17 @@ bvp_scores_proposed:
 -->
 
 - **IW-1: Are most of the 31 new failures environment-dependent (browser/CDP, Watchtower, hub) rather than product regressions, and does the suite fail to tell the two apart? (H1, lead L-a: 9 -> 30 at the same commit d43b09a0 in 3 minutes)**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: dissolved
+  rationale: L-a compared a SIGPIPE-killed partial sweep (71 checks, rc 0; IW-4) with a full one — not an environment effect; env-dependent legs exist (live Watchtower, CDP) but did not drive the slide; spike 2 not needed. Report §Spike 1
 - **IW-2: How many failures are guards on the vendored framework that drifted with upgrades (incl. the uncommitted T-988), unfixed and un-rebaselined? (H2)**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: ~24 of 38 test the vendored framework (by leg message/target, not re-verified per leg); curve 7-10 -> 29-32 follows the T-840 re-vendor (09-25, 1407 files, 545 with local commits; T-944 found >=4 local fixes reverted and the T-657 rail removed); the uncommitted T-988 re-vendor has already erased the T-952 rail. Report §Spike 1
 - **IW-3: Does anything in the normal work cycle (task completion, handover, audit, release, pre-push) consume the suite's result, or does a red suite have no consequence? (H3)**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: answered
+  rationale: no consumer can say no — completion, release (3 releases cut at 38-40), pre-push all ignore it; cron T-917 and audit rail T-952 only report, and the audit rail was erased from the working-tree audit.sh by the uncommitted T-988 re-vendor (HEAD 4 refs, tree 0; audit line present 10-01 23:00, absent in all 70 cron audits since); OBS-430 (urgent, 09-28) named the rc-0 defect and is still pending. Report §Spike 4
 - **IW-4: Under what runner path did two sweeps exit rc 0 while recording 9 failures over 71 checks? (H4, lead L-b)**
   confidence: 2
   disposition: answered
