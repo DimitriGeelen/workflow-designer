@@ -308,7 +308,11 @@ def main():
     rc, out = base["absent"]
     leg(
         "control-absent",
-        rc == 0 and "Running 0 verification command(s)" in out,
+        # T-1005: 1.7.740 says the zero in its own words (T-3546: "Verification: skipped — no
+        # '## Verification' section"); our T-943 wording went out with the re-vendor. The
+        # property is that the zero is SAID, not which sentence says it — accept either.
+        rc == 0 and ("Running 0 verification command(s)" in out
+                     or "Verification: skipped" in out or "Verification: 0 commands" in out),
         "no section → pass-through, and SAYS zero (rc=%s)" % rc,
     )
 

@@ -1525,3 +1525,15 @@ entries:
       a human runs decide at a terminal without a marker, decide renders the same review
       (emit_review, which writes the marker) and asks "read it, continue? [y/N]". Agents and
       non-interactive callers keep the refusal. Sent to AEF for a structural fix (T-996).
+  - path: .agentic-framework/lib/verification-port.sh
+    kind: content
+    task: T-943, T-1005
+    upstream: fix
+    reason: >-
+      extract_verification_block returns 3 when a heading-shaped line names Verification but
+      none is exactly '## Verification' (glued to another line, or suffixed), so the P-011 gate
+      refuses instead of closing with zero commands run. T-943 added it on 1.7.68 but it was
+      NEVER DECLARED here, so the 1.7.740 re-vendor erased it and the protocol (T-1000) could
+      not list it as STALE: the protocol only protects declared fixes. Re-applied by T-1005
+      with the matching rc=3 refusal in update-task.sh. Upstream T-3546 adopted the other half
+      of T-943 (say the zero); this half is still owed upstream.
