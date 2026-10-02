@@ -1111,7 +1111,9 @@ has_bash_write_pattern() {
     fi
 
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
-    if echo "$cmd" | grep -qE '\b(rm|rmdir)\b'; then
+    # T-636 (re-applied by T-1005): verbs named INSIDE a quoted argument are prose, not
+    # commands (`fw note "tee writes a copy"`); judged on the quote-stripped view.
+    if echo "$_rview" | grep -qE '\b(rm|rmdir)\b'; then
         return 0
     fi
 
@@ -1121,7 +1123,7 @@ has_bash_write_pattern() {
     fi
 
     # tee (writes to file)
-    if echo "$cmd" | grep -qE '\btee\b'; then
+    if echo "$_rview" | grep -qE '\btee\b'; then
         return 0
     fi
 
