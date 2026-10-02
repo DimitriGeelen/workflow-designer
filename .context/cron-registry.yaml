@@ -68,6 +68,15 @@ jobs:
     status: active
     description: "Reports how old the bridge suite's last run is and how long it has been red, from tests/.run-history.tsv. Exits 3 when there is NO history, which is the F-03 condition and is deliberately not reported as zero failures. Reads only; it does not run the suite. T-917 chose the MONITOR over the suite itself: the suite takes 650-1045s, spawns a browser per CDP probe, has been red for all 12 recorded runs, gets SIGTERMed near 600s, and has twice exited 0 while reporting 9 failures (OBS-430). Scheduling that would manufacture either a permanently-red rail or a false green; scheduling this surfaces the same fact in milliseconds, deterministically."
 
+  - id: project-audit-hourly
+    name: "832 project audit rails (hourly)"
+    schedule: "20 * * * *"
+    command: "flock -n /var/lock/agentic-cron-project-audit-832.lock -c 'bash tools/project-audit.sh --quiet'"
+    source_file: agentic-audit.crontab
+    origin_task: T-999
+    status: active
+    description: "Runs 832's own audit rails (release lag, gap closure keys, Human AC actionability, stale ownership, stray captures, boundary inventory, vendored divergence, bridge-suite ratchet, secret paths incl. history) from tools/project-audit.sh and writes .context/audits/project/LATEST.yaml. They lived inside vendored audit.sh until upgrades deleted them (T-840: T-382 and T-660; 1.7.740: the rest); a project-owned file on its own schedule is out of a re-vendor's reach. ~3s."
+
   # T-981: the consumer sweep job from AEF lib/cron-seed.sh (T-3673), added by hand with this
   # registry's indentation: cron_seed_ensure_jobs appends at column 0 and refuses an indented
   # jobs list (it printed ADDED, then failed its own parse check and wrote nothing).

@@ -1,0 +1,21 @@
+id: tools/project-audit.sh
+name: project-audit
+type: script
+subsystem: instruments
+location: tools/project-audit.sh
+tags: []
+
+purpose: "project-audit.sh — 832's OWN audit rails, in a file no re-vendor can touch (T-999, T-995 B3)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-02
+created_by: unknown

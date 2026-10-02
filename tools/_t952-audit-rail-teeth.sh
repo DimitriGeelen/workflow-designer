@@ -16,7 +16,7 @@ set -uo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib/mutation-assert.sh"
 
 PROJ="${T952_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-SRC="$PROJ/.agentic-framework/agents/audit/audit.sh"
+SRC="$PROJ/tools/project-audit.sh"   # T-999: the rail moved out of vendored audit.sh, which re-vendors overwrite
 
 PASS=0; FAIL=0
 ok()  { PASS=$((PASS+1)); echo "  PASS  $1"; }
@@ -40,7 +40,7 @@ src = open(sys.argv[1]).read()
 m = re.search(r"^check_bridge_suite_ratchet\(\) \{.*?^\}$", src, re.S | re.M)
 if not m:
     sys.stderr.write(
-        "COULD-NOT-MEASURE: check_bridge_suite_ratchet() is not in audit.sh.\n"
+        "COULD-NOT-MEASURE: check_bridge_suite_ratchet() is not in tools/project-audit.sh.\n"
         "  The suite ratchet has no delivery surface — which is the state T-952 found it\n"
         "  in and exists to prevent. If the rail was renamed rather than removed,\n"
         "  re-anchor this extractor.\n")
