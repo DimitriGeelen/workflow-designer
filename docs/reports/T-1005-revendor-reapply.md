@@ -136,6 +136,37 @@ text" (column-zero no longer breaks a YAML parse); DEFECT/PARTIAL/FIXED all repr
 `_t524` leg 9 now reads only the Unregistered section: 1.7.740's new Under-populated section prints
 the same `! <path>` form and made a carded file look flagged. `_t517`: 24 -> 22 stale.
 
+## Step 4b done (2026-10-03): eight small entries, all superseded or baseline-resident
+
+Every probe passes on upstream 1.7.740 as vendored, so these local fixes are superseded and their
+entries left the register (`_t517`: 22 -> 14 stale):
+
+| file | local | probe on 1.7.740 | upstream |
+|---|---|---|---|
+| context/revisit-due-scan.sh | T-373 undated DEFER | `_t373` PASS | T-2865 |
+| context/lib/focus.sh | T-381 focus on a completed id | `_t381` 12/12 | T-2874 |
+| context/lib/episodic.sh (2 entries) | T-516 / T-567 | `_t516` 8/8, `_t567` parse PASS + teeth 4/4 | double-quoted scalar handling |
+| context/check-inception-schema.py | T-624 planted voi example | `_t624` PASS | message no longer offers a value |
+| context/post-compact-resume.sh | T-675 seed stamped unmeasured | `_t675` 10/10 via the T-849 reader | seed still writes tokens 0; the reader refuses it |
+| healing/lib/resolve.sh | T-295 list indent | code cites "832 T-295" | T-2672 |
+| lib/ts/dist/loop-detect.js | T-351 vendoring-repair | matches baseline | n/a |
+| policy/designer-pin.yaml | local-config | in the 1.7.740 baseline (upgrade keeps it) | n/a — but see below |
+
+**Found on the way:** the pin says designer 0.15.0 while 0.15.2 is released: our own Watchtower
+serves a version two releases old. The audit rail that reported release lag (T-382, `tools/_t382`)
+is one of the project rails 1.7.740 dropped from audit.sh. Filed as T-1007.
+
+## audit.sh (step 3) — classified, not yet re-applied
+
+Full table: `docs/reports/T-1005-audit-sh-classification.md` (sub-agent, read-only, verified against
+upstream line numbers). 24 local commits: **5 superseded** (T-344, T-345, T-374, T-654, T-833),
+**9 project rails** (T-382, T-657, T-660, T-931, T-936, T-939, T-941, T-945, T-952: all call our
+own tools/ or tests/), **10 framework fixes upstream still lacks** (T-371, T-525, T-534, T-535,
+T-651, T-656, T-677, T-873, T-934, T-938). Upstream audit.sh has **no extension point**: every
+`source` loads from `$FRAMEWORK_ROOT`, the section list is fixed (645-648). So: the 9 rails go into
+a project-owned script on their own schedule (T-999), the extension point goes to AEF (T-995 U1a),
+and the 10 fixes are re-applied or upstreamed one by one.
+
 ## RESUME POINT (next session starts here)
 
 State at d6e404bc: `_t517` ~30 stale; bridge suite measured 137/29 at cd64a26e (before the allowlist
