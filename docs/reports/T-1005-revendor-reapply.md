@@ -59,3 +59,11 @@ a commit touching `.agentic-framework/` without a manifest entry would close the
 **Merge-source lesson.** For fixes lost at the EARLIER re-vendor (T-840), the pre-upgrade file of THIS
 upgrade does not contain them; "ours" must be the file before T-840 and "base" the baseline those fixes
 were written against. A first attempt that used the pre-1.7.740 file merged cleanly and restored nothing.
+
+## Measured (2026-10-02 18:37Z, commit cd64a26e)
+
+Bridge suite: **137 passed, 29 failed** (was 128 / 38 at 4db14034 this morning). Nine legs back to green:
+fw note payload, P-011 unreadable-block gate, T-943 heading states, card purpose markdown (T-569),
+in-place card edit on the live dashboard and /fabric cache (T-568), episodic pipefail, episodic
+decisions extractor, designer render check. Remaining 29 include the safe-commands/audit.sh/fabric/BVP
+families still on the worklist and the designer-side legs that are separate bug tasks (T-995).
