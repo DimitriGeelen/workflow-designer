@@ -2,16 +2,20 @@
 #
 # Every correction and disagreement the mapping loop produces, from the review loop, a reviewer,
 # a human edit, or a partner trial, lands here with a destination. A single observation only
-# PROPOSES. It becomes `confirmed` by repetition or by a human, and only a confirmed learning is
+# PROPOSES. It becomes `confirmed` only when its evidence_cmd re-runs green AND reviewers from at
+# least two vendors other than the author's agree (T-1006); a disagree escalates. The operator is not
+# asked whether a lesson is true, only for value/priority rulings (`rule`). Only a confirmed learning is
 # `promoted` into the guide, the rubric, the validator, or a report to the source's owner.
 # `tools/learning-ledger.py check` refuses a promotion whose file does not contain its marker.
 #
-# status:      proposed -> confirmed -> promoted      (or rejected, with a reason)
+# status:      proposed -> confirmed -> promoted      (or escalated / rejected, with a reason)
 # source:      loop | reviewer | human | trial
 # destination: guide | rubric | validator | source-owner | tooling (the kit's own scripts)
 # promoted:    {where: <repo file>, marker: <text that must appear in it>}
 #              or {where: "sidecar:<client_msg_id>"} for a report to another project
+# legacy_until: entries up to this id were confirmed by operator assent before T-1006 and stay valid.
 
+legacy_until: L15
 learnings:
 - id: L1
   learning: wrong-authority, invented and undeclared-unknown are always major
@@ -209,9 +213,10 @@ learnings:
     where: tools/_t989-measure-evergreen.py
     marker: findings_end_state
 - id: L16
-  learning: 'a new rubric or guide rule must be checked against the calibration clean map before it ships:
-    a rule stronger than BPMN semantics (calling a parallel fork/join after one step "invented", when
-    it means exactly what plain flows mean) makes a correct reviewer flag the clean control'
+  learning: 'a new or changed guide/rubric rule must be run against the calibration clean map before it
+    ships: in 0.15.2 a drafted rubric line and the clean control conflicted, and only the real calibration
+    exposed it; which of the two was wrong was then resolved too quickly (the ''parallel join = plain
+    flows'' premise, see L26)'
   evidence: 'T-993: first real calibration of the 0.15.2 kit (GLM-5.2, opencode, sandboxed) caught 3/3
     but raised 2 false findings on clean.bpmn (after-shipment fork, delivery-and-invoicing-complete join),
     each citing the new v4 line; the line was corrected and the kit recalibrated'
@@ -219,16 +224,291 @@ learnings:
   destination: rubric
   status: proposed
   occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L16
+  proposed_change: 'Release rule for the kit: every new or changed guide/rubric rule goes through loop.sh
+    --calibrate with reviewers from two vendors other than the author''s before release. Findings on clean.bpmn
+    block the release pending investigation against BPMN semantics and SOURCE.md, correcting whichever
+    artefact is wrong; when that cannot be established, record the conflict as open rather than resolving
+    it by assertion.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    reason: 'Checking changed rules against a clean control is sound, but a parallel join is not generally
+      equivalent to plain converging sequence flows: it synchronizes incoming branches. The supplied commit
+      message does not establish that both reported findings were false.'
+    evidence_rc: 0
+    at: '2026-10-02T22:20:28Z'
+    refinement: Before release, run changed guide/rubric rules through independent calibration and block
+      release on unresolved findings against a semantically verified clean control. Investigate findings
+      against BPMN semantics and process requirements before changing either the rule or the control;
+      do not assume explicit parallel joins are equivalent to plain flows.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    reason: 'The T-993 calibration and the 0.15.2 commit message directly support the claim: the v4 line
+      condemned a construct BPMN 2.0 fully permits (an after-shipment parallel fork and its synchronizing
+      delivery/invoicing join are genuine concurrency, not an ''invented'' pattern), so even a correct
+      reviewer raised 2 false findings on clean.bpmn, and nothing had exercised new rules against the
+      clean map before release. Gating every new or changed guide/rubric rule on a real cross-vendor calibration
+      that must draw 0 findings on clean.bpmn is a sound, mechanically checkable regression control of
+      exactly the observed failure mode.'
+    evidence_rc: 0
+    at: '2026-10-02T22:21:55Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: disagree
+    revision: 1
+    reason: 'evidence insufficient: the output is a commit message asserting the conclusion, without the
+      offending rubric line, relevant BPMN and SOURCE.md excerpts, or calibration findings needed to establish
+      that the control was correct and the rule caused false findings. It also does not establish that
+      pre-release calibration was absent.'
+    evidence_rc: 0
+    at: '2026-10-02T22:31:19Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: 'T-993 and the cited commit directly evidence the failure mode: a new v4 rubric line produced
+      2 false findings on clean.bpmn and no pre-release step ran changed rules against the control. The
+      proposed change closes exactly that gap with sound semantics (a clean-map finding blocks release
+      and is resolved against BPMN semantics and SOURCE.md by fixing whichever of rule or control is wrong,
+      assuming neither); the two-non-author-vendor calibration is a reasonable operationalization of the
+      kit''s existing multi-vendor review practice.'
+    evidence_rc: 0
+    at: '2026-10-02T22:31:37Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 2
+    reason: 'Calibration before release is sound, but the excerpts do not establish that both findings
+      were false: a parallel join synchronizes incoming tokens, whereas plain converging sequence flows
+      do not inherently synchronize. Gateway IDs alone cannot establish semantic equivalence.'
+    evidence_rc: 0
+    at: '2026-10-02T22:50:30Z'
+    refinement: Require every new or changed guide/rubric rule to undergo loop.sh --calibrate with reviewers
+      from two vendors other than the author's before release. Findings on clean.bpmn block release pending
+      investigation against BPMN semantics and SOURCE.md, correcting whichever artifact is wrong; describe
+      T-993 as exposing a rule/control conflict unless the full topology and source establish which was
+      wrong.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 2
+    reason: The commit diff, the corrected rubric text itself ('The rule was wrong, not the reviewer (T-993)'),
+      and clean.bpmn's two parallelGateways corroborate that the draft line wrongly called a parallel
+      fork/join 'invented' and induced 2 false findings on the clean control, with the release runme containing
+      no calibration step; BPMN 2.0 semantics back the correction (an explicit parallel fork/join is equivalent
+      to implicit uncontrolled flow, only an exclusive gateway adds a decision). The proposed gate — real
+      calibration before offering a release, with any clean.bpmn finding blocking until rule or control
+      is fixed without presuming which — is directly supported by this incident.
+    evidence_rc: 0
+    at: '2026-10-02T22:51:14Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 3
+    reason: The evidence supports calibration as a release gate for detecting rule/control conflicts,
+      while the proposed investigation correctly avoids treating clean.bpmn as unquestionable. A parallel
+      join synchronizes incoming branches whereas plain incoming flows do not, so calibration findings
+      require semantic investigation rather than an asserted equivalence.
+    evidence_rc: 0
+    at: '2026-10-02T23:03:20Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 3
+    reason: 'The T-993 evidence directly supports the lesson: the drafted rubric line flagged the clean
+      control''s own parallel gateways, and the evidence command confirms no clean-map/calibrate check
+      existed in the release path before this. The block-and-investigate protocol correctly targets the
+      demonstrated failure of resolving the conflict by assertion — a caution BPMN 2.0 itself reinforces,
+      since a parallel join is synchronizing and is not strictly equivalent to plain converging flows;
+      the two-vendor requirement exceeds the single-reviewer evidence but is proportionate hardening rather
+      than a distortion.'
+    evidence_rc: 0
+    at: '2026-10-02T23:04:15Z'
+  history:
+  - revision: 0
+    learning: 'a new rubric or guide rule must be checked against the calibration clean map before it
+      ships: a rule stronger than BPMN semantics (calling a parallel fork/join after one step "invented",
+      when it means exactly what plain flows mean) makes a correct reviewer flag the clean control'
+    proposed_change: 'Release rule for the kit: every new or changed guide/rubric rule is run against
+      calibration/clean.bpmn by a real calibration (loop.sh --calibrate, a reviewer not from the author''s
+      vendor) before the release is offered, and the release preflight refuses unless clean.bpmn draws
+      0 findings.'
+    why_revised: 'codex rev0 refine: the ''parallel join = plain flows'' premise is wrong (now L26); keep
+      the release rule, drop the claim'
+    at: '2026-10-02T22:30:54Z'
+  - revision: 1
+    learning: 'a new or changed guide/rubric rule must be run against the calibration clean map before
+      it ships: in 0.15.2 a rubric line made a correct reviewer fault the clean control (2 findings),
+      and nothing had run the new rules against clean.bpmn first'
+    proposed_change: 'Release rule for the kit: every new or changed guide/rubric rule goes through a
+      real calibration (loop.sh --calibrate, reviewers from two vendors other than the author''s) before
+      the release is offered. A finding on clean.bpmn blocks the release until it is investigated against
+      BPMN semantics and SOURCE.md and resolved by fixing either the rule or the control, whichever is
+      wrong; neither is assumed right.'
+    why_revised: 'codex rev1 disagree: evidence insufficient — evidence now shows the drafted vs corrected
+      rubric line, the clean map''s gateways, and the release path''s lack of a clean.bpmn check; wording
+      unchanged'
+    at: '2026-10-02T22:50:07Z'
+  - revision: 2
+    learning: 'a new or changed guide/rubric rule must be run against the calibration clean map before
+      it ships: in 0.15.2 a rubric line made a correct reviewer fault the clean control (2 findings),
+      and nothing had run the new rules against clean.bpmn first'
+    proposed_change: 'Release rule for the kit: every new or changed guide/rubric rule goes through a
+      real calibration (loop.sh --calibrate, reviewers from two vendors other than the author''s) before
+      the release is offered. A finding on clean.bpmn blocks the release until it is investigated against
+      BPMN semantics and SOURCE.md and resolved by fixing either the rule or the control, whichever is
+      wrong; neither is assumed right.'
+    why_revised: 'codex rev2 refine (and L26 confirmed): T-993 exposed a rule/control conflict; whether
+      the findings were false is not established, so the lesson no longer claims it'
+    at: '2026-10-02T23:01:48Z'
+  revision: 3
 - id: L17
-  learning: loop.sh appends the prompt as the last argument of KIT_*_CMD, so a command ending in a variadic
-    option (claude --allowedTools ...) swallows the prompt and the agent starts with none; the header
-    must say the command has to end where an appended argument is read as the prompt
+  learning: loop.sh appends the prompt as the last argument of KIT_*_CMD; a command ending in an option
+    that takes several values swallows the prompt as one more value, and one ending in an option still
+    awaiting its value consumes or rejects it — either way the agent does not get its prompt
   evidence: 'T-989 Evergreen offset 22 (calibration of kit 0.15.1, reviewer Claude Sonnet via claude -p)
     K9: run 1 COULD NOT MEASURE until --allowedTools was moved before a single-value flag'
   source: trial
   destination: tooling
   status: proposed
   occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L17
+  proposed_change: 'loop.sh header (KIT_*_CMD): the prompt is appended as the command''s LAST argument;
+    make sure the CLI parses that argument as the prompt: supply every option''s value, put options that
+    take several values before a fully supplied NON-variadic option, or end option parsing with -- if
+    the CLI supports it.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    reason: A trailing variadic option can consume the appended prompt, but the evidence shows argument
+      placement and help syntax, not actual prompt consumption. Requiring a single-value flag afterward
+      is unnecessarily restrictive and should specify that its value must also be supplied.
+    evidence_rc: 0
+    at: '2026-10-02T22:22:09Z'
+    refinement: 'loop.sh appends the prompt as the final argument of KIT_*_CMD. Configure the command
+      so that argument is parsed as the prompt: avoid trailing variadic options or options awaiting a
+      value. For claude --allowedTools, place a fully supplied option afterward, or use an end-of-options
+      separator (--) if the CLI supports it.'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    reason: Claude CLI's --allowedTools is a commander-style variadic option (<tools...>) that consumes
+      all following arguments until the next flag, so a prompt appended after it is swallowed as another
+      tool value, exactly matching the T-989 failure and the evidence output; the proposed header wording
+      correctly states that KIT_*_CMD must end where one more appended argument is read as the positional
+      prompt, with variadic options followed by another flag.
+    evidence_rc: 0
+    at: '2026-10-02T22:22:24Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 1
+    reason: A trailing variadic option can consume the appended prompt, but an option awaiting a value
+      may instead reject it or cause a parse error; starting with no prompt is not guaranteed. A following
+      complete option must itself be non-variadic to resolve the ambiguity.
+    evidence_rc: 0
+    at: '2026-10-02T22:31:47Z'
+    refinement: 'loop.sh appends the prompt as the last argument of KIT_*_CMD. Ensure the CLI parses that
+      argument as the prompt: supply all required option values, and place variadic options before a fully
+      supplied non-variadic option, or terminate option parsing with -- if the CLI supports it.'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: 'The mechanism is real and correctly described: variadic options like claude''s --allowedTools
+      <tools...> consume all following non-option arguments, so a prompt appended last is swallowed as
+      another tool value, which is exactly what the T-989 incident (fixed only by reordering) and the
+      evidence command (argv ending in ''-p --allowedTools Read Write THE-PROMPT'' with no header warning)
+      demonstrate. The proposed remedies are sound: placing the variadic option before a complete option
+      terminates value collection at the next dash-prefixed flag, and ''--'' forces positional parsing
+      where supported.'
+    evidence_rc: 0
+    at: '2026-10-02T22:32:16Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 2
+    reason: The risk is real, but variadic-option consumption depends on the CLI parser; the displayed
+      argv and help text do not establish actual prompt consumption.
+    evidence_rc: 0
+    at: '2026-10-02T22:51:27Z'
+    refinement: loop.sh appends the prompt as the last argument of KIT_*_CMD. Supply all required option
+      values and ensure the CLI treats the appended argument as its prompt. A trailing variadic option
+      may consume it; where supported, terminate option parsing with --, or place a fully supplied non-variadic
+      option after the variadic values and verify prompt parsing.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 2
+    reason: The argv dump and T-989 both show the prompt appended directly after variadic --allowedTools
+      <tools...> values, which Commander-style CLIs greedily consume as another tool value, and the same
+      holds for a dangling option awaiting its value; the header guidance (complete all option values,
+      place variadic options before a fully supplied non-variadic one, or terminate options with --) is
+      correct and matches the observed fix.
+    evidence_rc: 0
+    at: '2026-10-02T22:51:44Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 3
+    reason: The evidence supports this failure for Claude's variadic --allowedTools, but argument consumption
+      depends on the CLI parser; not every multi-value option greedily consumes a trailing positional
+      argument.
+    evidence_rc: 0
+    at: '2026-10-02T23:04:28Z'
+    refinement: loop.sh appends the prompt as the last argument of KIT_*_CMD. Supply all required option
+      values and ensure the CLI treats the appended argument as its prompt. For greedy variadic options
+      such as Claude's --allowedTools, place a fully supplied non-variadic option afterward, or terminate
+      option parsing with -- if supported by that CLI.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 3
+    reason: 'The mechanics are standard CLI behavior and directly demonstrated: a variadic option like
+      --allowedTools greedily consumes following non-flag arguments, so loop.sh''s appended prompt becomes
+      another tool value instead of the positional prompt, exactly matching T-989 run 1''s failure and
+      its fix (moving the variadic option before a fully-supplied single-value flag); the awaiting-value
+      failure mode is equally standard. The proposed header advice (supply all option values, order variadic
+      options before a satisfied non-variadic one, or terminate with --) correctly addresses both modes.'
+    evidence_rc: 0
+    at: '2026-10-02T23:04:39Z'
+  history:
+  - revision: 0
+    learning: loop.sh appends the prompt as the last argument of KIT_*_CMD, so a command ending in a variadic
+      option (claude --allowedTools ...) swallows the prompt and the agent starts with none; the header
+      must say the command has to end where an appended argument is read as the prompt
+    proposed_change: 'loop.sh header (KIT_*_CMD): the prompt is appended as the command''s LAST argument,
+      so the command must end where one more argument is read as the prompt. Put any option that takes
+      several values (e.g. claude --allowedTools Read Write) before a single-value flag, never last.'
+    why_revised: 'codex rev0 refine: wording too narrow (a single-value flag is one fix, not the rule)'
+    at: '2026-10-02T22:30:54Z'
+  - revision: 1
+    learning: loop.sh appends the prompt as the last argument of KIT_*_CMD, so a command ending in an
+      option that takes several values (claude --allowedTools a b) or still awaits a value reads the prompt
+      as that option's value, and the agent starts with no prompt
+    proposed_change: 'loop.sh header (KIT_*_CMD): the prompt is appended as the command''s LAST argument,
+      so the command must end where one more argument is read as the prompt: never end on an option that
+      takes several values or still awaits its value. Put such an option earlier, followed by a complete
+      option, or end the options with -- if the CLI supports it.'
+    why_revised: 'codex rev1 refine: a following option must itself be non-variadic; an awaiting option
+      may error rather than swallow'
+    at: '2026-10-02T22:50:07Z'
+  - revision: 2
+    learning: loop.sh appends the prompt as the last argument of KIT_*_CMD; a command ending in an option
+      that takes several values swallows the prompt as one more value, and one ending in an option still
+      awaiting its value consumes or rejects it — either way the agent does not get its prompt
+    proposed_change: 'loop.sh header (KIT_*_CMD): the prompt is appended as the command''s LAST argument;
+      make sure the CLI parses that argument as the prompt: supply every option''s value, put options
+      that take several values before a fully supplied NON-variadic option, or end option parsing with
+      -- if the CLI supports it.'
+    why_revised: 'codex rev2 refine: consumption depends on the parser; evidence now carries the field
+      observation (Evergreen: COULD NOT MEASURE until the option moved, then 3/3)'
+    at: '2026-10-02T23:01:49Z'
+  revision: 3
 - id: L18
   learning: 'the calibration clean map must be one no careful reviewer can fault: its branch "accepted
     orders" on gateway "Credit limit exceeded?" is not the answer to the question (the override path also
@@ -242,6 +522,124 @@ learnings:
   destination: tooling
   status: proposed
   occurrences: 2
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L18
+  proposed_change: 'calibration/clean.bpmn AND calibration/planted.bpmn: drop the name ''accepted orders''
+    from credit-limit-exceeded--pick-parts and set default="credit-limit-exceeded--pick-parts" on the
+    gateway (a binary decision whose other branch carries the source''s ''limit is exceeded'', so the
+    otherwise case is clearly implied). AUTHORING branch-label rule gains: when the source clearly implies
+    an otherwise case, that branch may be the gateway''s unlabelled default flow; do not infer default
+    semantics merely from missing wording. Recalibrate with two vendors.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    reason: “Accepted orders” is potentially ambiguous, but an unlabelled flow is not automatically a
+      BPMN default; an explicit default is taken only when no other outgoing condition is true. The supplied
+      evidence does not establish that the other branch has the condition needed to preserve routing.
+    evidence_rc: 0
+    at: '2026-10-02T22:22:36Z'
+    refinement: Remove the ambiguous label, and designate this flow as the gateway’s default only after
+      verifying that the other outgoing flow explicitly tests whether the credit limit is exceeded and
+      that fallback routing matches the source. Keep expected.json unchanged only if those semantics are
+      preserved, then recalibrate with two vendors.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    reason: The evidence confirms the clean map's flow credit-limit-exceeded--pick-parts carries name="accepted
+      orders" off a gateway asking "Credit limit exceeded?" — an outcome label that doesn't answer the
+      condition and is ambiguous since the manager-override path (source line 5) also yields accepted
+      orders, so a careful reviewer can legitimately fault the control. Making it the gateway's default
+      flow (unlabelled, semantics = otherwise) is BPMN 2.0-correct, adds no words the source lacks, and
+      fixing the control is better than exempting source-worded labels from readability findings; recalibrating
+      with two vendors is the right closure.
+    evidence_rc: 0
+    at: '2026-10-02T22:22:59Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 1
+    reason: 'The local change is reasonable: ''accepted orders'' does not distinguish this branch from
+      acceptance after override. However, a source leaving a branch implicit does not universally establish
+      default-flow semantics, and a flow name alone does not encode a condition.'
+    evidence_rc: 0
+    at: '2026-10-02T22:32:29Z'
+    refinement: 'Remove ''accepted orders'' and designate credit-limit-exceeded--pick-parts as the unlabelled
+      default for this binary decision. Change AUTHORING to say: when the source clearly implies an otherwise
+      case, that branch may be represented as an unlabelled default flow; do not infer default semantics
+      merely from missing source wording. Recalibrate with two vendors.'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: refine
+    revision: 1
+    reason: 'The finding is legitimate: ''accepted orders'' does not answer ''Credit limit exceeded?''
+      (the override path also yields accepted orders), and an unlabelled flow marked with the gateway''s
+      default attribute is the spec-correct way to make the implicit ''otherwise'' explicit. But the evidence
+      shows the same readability finding on the planted map, so fixing only clean.bpmn leaves the identical
+      reviewer-divergence noise on planted during recalibration.'
+    evidence_rc: 0
+    at: '2026-10-02T22:33:20Z'
+    refinement: 'L18: the branch credit-limit-exceeded--pick-parts is the case the source leaves implicit
+      (limit not exceeded; the other branch carries the source''s ''limit is exceeded'', and ''accepted
+      orders'' wrongly answers a question the gateway never asked since the override path also yields
+      accepted orders). Fix: in calibration/clean.bpmn AND in calibration/planted.bpmn (where the same
+      finding was observed), drop the name ''accepted orders'' from that flow and set default="credit-limit-exceeded--pick-parts"
+      on the exclusiveGateway, so ''otherwise'' is explicit BPMN rather than a reader''s assumption. AUTHORING''s
+      branch-label rule gains one sentence: a branch the source leaves implicit is the gateway''s default
+      flow, unlabelled. Recalibrate with two vendors.'
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 2
+    reason: The source supports an otherwise path to picking parts when the credit limit is not exceeded;
+      'accepted orders' also describes orders accepted through the override path and therefore poorly
+      distinguishes this branch. Explicitly designating the unlabelled flow as the gateway’s default is
+      valid BPMN, and the proposed rule correctly distinguishes default semantics from merely absent wording.
+    evidence_rc: 0
+    at: '2026-10-02T22:51:57Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 2
+    reason: '"accepted orders" is a state description lifted from the sentence about the warehouse, not
+      the answer to "Credit limit exceeded?" — override-accepted orders also reach pick-parts — so the
+      readability finding is legitimate and the clean map is genuinely faultable. Making that branch the
+      unlabelled default flow (default attribute on the exclusiveGateway referencing the flow id, per
+      BPMN 2.0 the default must carry no condition and expresses "otherwise") is the idiomatic fix, and
+      the authoring-rule addition is properly guarded (only when the source clearly implies an otherwise
+      case) with two-vendor recalibration to verify.'
+    evidence_rc: 0
+    at: '2026-10-02T22:52:25Z'
+  history:
+  - revision: 0
+    learning: 'the calibration clean map must be one no careful reviewer can fault: its branch "accepted
+      orders" on gateway "Credit limit exceeded?" is not the answer to the question (the override path
+      also yields accepted orders); leave that branch unlabelled (BPMN default = otherwise, no words the
+      source lacks) rather than exempting source-worded labels from readability findings'
+    proposed_change: 'calibration/clean.bpmn: drop the name ''accepted orders'' from flow credit-limit-exceeded--pick-parts
+      and mark it the gateway''s default flow (no label = otherwise, no words the source lacks); expected.json
+      unchanged; recalibrate with two vendors.'
+    why_revised: 'codex rev0 refine: an unlabelled flow is not a BPMN default unless marked; evidence
+      now shows both branches, the label rule and the full source'
+    at: '2026-10-02T22:30:54Z'
+  - revision: 1
+    learning: 'the calibration clean map must be one no careful reviewer can fault: its branch "accepted
+      orders" on gateway "Credit limit exceeded?" is not the answer to the question (the override path
+      also yields accepted orders); leave that branch unlabelled (BPMN default = otherwise, no words the
+      source lacks) rather than exempting source-worded labels from readability findings'
+    proposed_change: 'calibration/clean.bpmn: the branch credit-limit-exceeded--pick-parts is the case
+      the source leaves implicit (limit not exceeded; the other branch carries the source''s ''limit is
+      exceeded''). Drop the label ''accepted orders'' and set default="credit-limit-exceeded--pick-parts"
+      on the gateway, so ''otherwise'' is explicit BPMN rather than a reader''s assumption. AUTHORING''s
+      branch-label rule gains one sentence: a branch the source leaves implicit is the gateway''s default
+      flow, unlabelled. Recalibrate with two vendors.'
+    why_revised: 'codex+glm rev1 refine: default only where the source clearly implies otherwise; glm:
+      planted.bpmn carries the same label and the same finding'
+    at: '2026-10-02T22:50:08Z'
+  - revision: 2
+    demoted_from: confirmed
+    why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
+    at: '2026-10-02T23:09:20Z'
+  revision: 2
 - id: L19
   learning: 'reachability is per NODE from any seed: once a map has one link catch (K4 hand-over), every
     step not downstream of a catch is UNREACHABLE and every step not reaching a throw/end is DEADEND,
@@ -254,25 +652,333 @@ learnings:
   destination: validator
   status: proposed
   occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L19
+  proposed_change: 'validator reachability: resolve valid same-level throw-to-catch transfers; compute
+    components and reachability from explicit starts, valid implicit entries, and hand-over catches under
+    the kit''s documented convention; aggregate genuinely seedless components into one W-UNREACHABLE each
+    (representative node and size); keep per-node analysis inside seeded components; aggregate W-DEADEND
+    only when every reported node lacks a path to valid termination, following link transfers through
+    their catches.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    reason: The output demonstrates that adding a catch activates per-node warnings on unrelated chains;
+      it does not establish that those chains are invalid BPMN or validate the proposed grouping. Component
+      aggregation is a diagnostic policy, and a link catch is not inherently an independent BPMN execution
+      seed.
+    evidence_rc: 0
+    at: '2026-10-02T22:23:13Z'
+    refinement: Define effective control-flow edges, including resolved throw-to-catch links, and explicitly
+      document any authoring-kit seed conventions. Aggregate unreachable findings for wholly unseeded
+      weakly connected components, retaining node-level checks within seeded components; aggregate dead-end
+      findings only where the separate termination-reachability check establishes them.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    reason: 'The evidence reproduces the mechanism: with no seed events the validator is silent (0/0),
+      and adding one link catch flags every node of each seedless component per node (5 UNREACHABLE +
+      5 DEADEND for the two stated chains), which explains the 29→80 jump and matches BPMN semantics where
+      tokens originate only at starts/link catches. Consolidating seedless components to one W-UNREACHABLE
+      and at most one W-DEADEND, while keeping per-node assessment for components containing a start or
+      catch, is a correct de-noising that ships as written.'
+    evidence_rc: 0
+    at: '2026-10-02T22:24:16Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 1
+    reason: The output demonstrates diagnostic multiplication after adding a disconnected catch, but does
+      not establish that the stated chains are semantically unreachable or dead ends. A BPMN link catch
+      is not inherently an execution seed, and link resolution requires the same process level, not merely
+      the same map.
+    evidence_rc: 0
+    at: '2026-10-02T22:33:36Z'
+    refinement: Traverse valid throw-to-catch links within the same process level before computing components
+      and reachability. Treat catches as seeds only under an explicit fragment-boundary convention; aggregate
+      proven unseeded-component findings into one diagnostic naming a representative and size, retain
+      per-node checks within seeded components, and aggregate dead-end findings only when termination
+      analysis independently establishes the condition for the entire reported component.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: 'The evidence command reproduces the claimed mechanism exactly (0/0 findings with no seed,
+      then 5 per-node UNREACHABLE + 5 DEADEND including both stated chains once one catch exists), and
+      the fix''s semantics are sound BPMN 2.0: a link catch is an entry seed, a link throw a valid terminator,
+      and a same-map throw→catch pair is correctly traversed as an edge (they pair within one process),
+      so unseeded weakly connected components collapsing to one aggregated finding directly bounds the
+      29→80 noise while keeping per-node checks where a seed makes them actionable.'
+    evidence_rc: 0
+    at: '2026-10-02T22:34:44Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 2
+    reason: The evidence supports a global-seed reporting regression, but does not establish that every
+      seedless component is unreachable under BPMN, where start events can be omitted. A link throw transfers
+      control and is not itself process termination.
+    evidence_rc: 0
+    at: '2026-10-02T22:52:41Z'
+    refinement: Resolve valid same-level throw-to-catch transfers, then compute components and reachability
+      using explicit and valid implicit entries, plus hand-over catches under the documented kit convention.
+      Aggregate genuinely seedless components into one W-UNREACHABLE each; retain per-node analysis in
+      seeded components, and aggregate W-DEADEND only when every reported node lacks a path to valid termination,
+      following link transfers through their catches.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 2
+    reason: 'The evidence cleanly reproduces the claimed failure mode (0/0 findings for two seedless stated
+      chains, jumping to 5 per-node UNREACHABLE plus 5 DEADEND once a single link catch exists), consistent
+      with the 29->80 blow-up on bo-business-overview. The fix is BPMN-2.0-sound: link throw->catch pairing
+      is same-process-level only, catch-as-seed is correctly conditioned on the kit''s declared K4 hand-over
+      convention, and one aggregated finding per seedless weakly-connected component with per-node checks
+      retained inside seeded components is the right noise-reduction.'
+    evidence_rc: 0
+    at: '2026-10-02T22:53:33Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: disagree
+    revision: 3
+    reason: 'evidence insufficient: the output demonstrates cross-component sensitivity but provides neither
+      the kit’s hand-over and implicit-entry convention nor cases validating link resolution and dead-end
+      aggregation. A BPMN link catch is not inherently an independent execution seed, so the proposed
+      seed rules cannot be endorsed from these counts alone.'
+    evidence_rc: 0
+    at: '2026-10-02T23:04:51Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 3
+    reason: The evidence command reproduces the claimed behavior exactly (0/0 with no events; 5 per-node
+      UNREACHABLE and 5 DEADEND once one hand-over catch exists, suppressing the stated-chain implicit
+      entries), and the 29-to-80 findings growth on bo-business-overview substantiates the noise problem.
+      The proposed change — resolve same-level throw-to-catch link transfers, seed from explicit starts/valid
+      implicit entries/hand-over catches, one aggregated W-UNREACHABLE per genuinely seedless component,
+      per-node analysis only inside seeded components — matches BPMN 2.0 link-event semantics and the
+      kit's documented conventions.
+    evidence_rc: 0
+    at: '2026-10-02T23:05:33Z'
+  history:
+  - revision: 0
+    learning: 'reachability is per NODE from any seed: once a map has one link catch (K4 hand-over), every
+      step not downstream of a catch is UNREACHABLE and every step not reaching a throw/end is DEADEND,
+      including chains the source states; bo-business-overview 29 -> 80 warnings after the reviewer added
+      7 catches (K12). Assess per connected component: a component without its own seed gets one finding
+      naming it, not one per node'
+    proposed_change: 'validator reachability: assess per connected component. A component that contains
+      a start or link catch is assessed per node as today; a component with no seed of its own draws ONE
+      W-UNREACHABLE (and at most one W-DEADEND) naming the component''s first node and its size, instead
+      of one per node. AUTHORING §5 table updated to match.'
+    why_revised: 'codex rev0 refine: define the edges (resolved throw->catch) and aggregate per weakly
+      connected component only where wholly unseeded'
+    at: '2026-10-02T22:30:55Z'
+  - revision: 1
+    learning: 'reachability is per NODE from any seed: once a map has one link catch (K4 hand-over), every
+      step not downstream of a catch is UNREACHABLE and every step not reaching a throw/end is DEADEND,
+      including chains the source states; bo-business-overview 29 -> 80 warnings after the reviewer added
+      7 catches (K12). Assess per connected component: a component without its own seed gets one finding
+      naming it, not one per node'
+    proposed_change: 'validator reachability: (1) traverse resolved links (a throw to the catch it names,
+      same map) as edges; (2) a weakly connected component with no start or catch of its own draws ONE
+      W-UNREACHABLE naming its first node and size, not one per node; (3) inside seeded components, per-node
+      checks stay; (4) W-DEADEND is aggregated the same way only where the termination check itself establishes
+      it. AUTHORING section 5 table updated to match.'
+    why_revised: 'codex rev1 refine: links resolve within one process level; catches are seeds only under
+      a declared fragment convention; aggregate only proven conditions'
+    at: '2026-10-02T22:50:08Z'
+  - revision: 2
+    learning: 'reachability is per NODE from any seed: once a map has one link catch (K4 hand-over), every
+      step not downstream of a catch is UNREACHABLE and every step not reaching a throw/end is DEADEND,
+      including chains the source states; bo-business-overview 29 -> 80 warnings after the reviewer added
+      7 catches (K12). Assess per connected component: a component without its own seed gets one finding
+      naming it, not one per node'
+    proposed_change: 'validator reachability: (1) traverse valid throw-to-catch links within the same
+      process level before computing components; (2) treat a link catch as a seed only under the kit''s
+      declared convention that a catch marks where a hand-over enters (stated in AUTHORING and CONFORMANCE);
+      (3) a weakly connected component with no seed draws ONE W-UNREACHABLE naming a representative node
+      and its size; (4) per-node checks stay inside seeded components; (5) W-DEADEND is aggregated only
+      when the termination analysis establishes it for the whole reported component.'
+    why_revised: 'codex rev2 refine: seeds include valid implicit entries; a throw transfers rather than
+      terminates; dead-end aggregation follows transfers'
+    at: '2026-10-02T23:01:49Z'
+  revision: 3
 - id: L20
-  learning: 'a link catch placed before a step whose successor is unrecorded draws its own DEADEND: one
-    unknown counted twice (K11)'
+  learning: 'a link catch placed before a step whose successor is unrecorded draws its own W-DEADEND,
+    though AUTHORING says a catch draws no reachability warning: one unknown reported twice (K11)'
   evidence: T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
     Opus); K11; sales-new-vehicle in-shn / in-p2h
   source: trial
   destination: validator
   status: proposed
   occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L20
+  proposed_change: 'validator: linkEventCatch nodes are excluded from W-DEADEND emission (as AUTHORING
+    already states), while reachability still traverses them; the warning stays on the step with no recorded
+    path onward. No broader de-duplication.'
+  verdicts:
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    reason: The evidence output shows one unrecorded successor after X1 producing two W-DEADEND warnings
+      (on x1 and on the catch in1), and AUTHORING.md:171 already states a catch is an entry drawing no
+      reachability warning, so guide and validator disagree exactly as claimed. In BPMN 2.0 a link catch
+      is an inbound connector paired with a throw, not a terminus, so reporting the dead-end once on the
+      last step lacking a recorded path onward (X1) is the correct fix.
+    evidence_rc: 0
+    at: '2026-10-02T22:19:18Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    reason: The output supports suppressing W-DEADEND on link catches to match the stated authoring policy,
+      but does not establish that warnings generally occur only once or only at the last step. Being an
+      entry does not itself exempt a catch from BPMN reachability analysis.
+    evidence_rc: 0
+    at: '2026-10-02T22:24:29Z'
+    refinement: Exclude linkEventCatch nodes from W-DEADEND diagnostic emission to match AUTHORING.md,
+      while retaining traversal through them for reachability analysis. In the demonstrated case, retain
+      the warning on x1 and suppress the warning on in1; broader deduplication requires separate evidence
+      and rules.
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 1
+    reason: The output shows W-DEADEND on both the link catch and its downstream step, contradicting the
+      quoted authoring policy for catches. Suppressing emission on linkEventCatch nodes while preserving
+      traversal and the downstream warning resolves that inconsistency without broader de-duplication.
+    evidence_rc: 0
+    at: '2026-10-02T22:34:54Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: 'The evidence reproduces the defect exactly: a single unrecorded successor after x1 yields
+      W-DEADEND on both x1 and the link catch in1, while AUTHORING.md line 171 explicitly states a catch
+      draws no reachability warning, so the validator deviates from documented behavior. Excluding linkEventCatch
+      from W-DEADEND emission while still traversing them keeps the actionable warning on the step with
+      the missing onward path and is correctly scoped (no broader dedup), which is sound BPMN-wise since
+      the catch is merely an entry whose downstream dead-end is already reported at the step.'
+    evidence_rc: 0
+    at: '2026-10-02T22:35:27Z'
+  history:
+  - revision: 0
+    learning: 'a link catch placed before a step whose successor is unrecorded draws its own DEADEND:
+      one unknown counted twice (K11)'
+    proposed_change: 'validator: a linkEventCatch draws no W-DEADEND of its own (it is an entry, as AUTHORING
+      already states); the unrecorded successor is reported once, on the last step that has no recorded
+      path onward.'
+    why_revised: 'codex rev0 refine: narrower — suppress only the catch''s own DEADEND, keep traversal;
+      broader dedup needs its own evidence'
+    at: '2026-10-02T22:30:55Z'
+  - revision: 1
+    demoted_from: confirmed
+    why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
+    at: '2026-10-02T23:09:21Z'
+  revision: 1
 - id: L21
-  learning: 'the calibration clean map names its end event "Accepted order delivered and invoiced", a
-    result the source never states: it breaks the 0.15.2 K3 rule; L16 (check new rules against the clean
-    map) was not applied to K3 before 0.15.2 shipped'
+  learning: 'the calibration clean map''s end event ''Accepted order delivered and invoiced'' is cited
+    ''source: unstated'' yet named as a result, which K3 forbids for an unstated event; the source does
+    state the outcome (delivers it to the customer; sends the invoice), so the name is fine and the citation
+    is wrong'
   evidence: T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
     Opus); K13; Sonnet flagged it on clean.bpmn; GLM did not
   source: trial
   destination: tooling
   status: proposed
   occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L21
+  proposed_change: 'calibration/clean.bpmn: keep the end event''s name and replace its ''source: unstated
+    - ...'' citation with the source lines that state the outcome (one source: line per quote: ''The carrier
+    collects the parcel and delivers it to the customer.'' and ''After shipment the ERP generates and
+    sends the invoice automatically.''). Recalibrate with two vendors.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: disagree
+    reason: The output establishes the end-event name and a rule heading, but provides neither the source
+      narrative nor the full K3 rule needed to prove a violation. It also does not establish that L16
+      was skipped; BPMN 2.0 permits named none end events, so the proposed replacement and retroactive
+      release requirement are not justified by this evidence.
+    evidence_rc: 0
+    at: '2026-10-02T22:24:38Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: no-verdict
+    reason: "tools/_t1006-lesson-evidence.sh L21; echo \"exit=$?\" failed\n\e[91m\e[1mError: \e[0mThe\
+      \ user rejected permission to use this specific tool call.\n\e[0m✗ \e[0mcat /opt/832-Workflow-designer/tools/_t1006-lesson-evidence.sh\
+      \ failed\n\e[91m\e[1mError: \e[0mThe user rejected permission to use this specific tool call."
+    evidence_rc: 0
+    at: '2026-10-02T22:24:59Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: disagree
+    revision: 1
+    reason: 'evidence insufficient: the output shows the end event’s name but not its documentation containing
+      the alleged ''source: unstated'' citation. The source supports the named outcome, but the claimed
+      citation defect is not demonstrated.'
+    evidence_rc: 0
+    at: '2026-10-02T22:35:36Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: 'The source explicitly states the outcome (''delivers it to the customer''; ''generates and
+      sends the invoice automatically''), so under K3 the result-named end event at line 222 is legitimate
+      and an ''source: unstated ... names no result'' citation is the error, not the name; replacing it
+      with the two verbatim quotes (one source: line per quote) is the correct fix, and the not-touched-since-K3
+      check confirms the stale citation persists in 0.15.2.'
+    evidence_rc: 0
+    at: '2026-10-02T22:36:05Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 2
+    reason: 'The source explicitly states delivery to the customer and generation and sending of the invoice,
+      supporting the named outcome. Replacing the ''source: unstated'' documentation with those two source
+      quotations corrects the citation without inventing an event or changing process behavior.'
+    evidence_rc: 0
+    at: '2026-10-02T22:53:41Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 2
+    reason: 'The source explicitly states the outcome (''delivers it to the customer'', ''generates and
+      sends the invoice''), so per K3 the name ''Accepted order delivered and invoiced'' is legitimate
+      and the ''source: unstated'' citation — reserved for ends the source does not name a result for
+      — is the error; the evidence lines confirm exactly this mismatch, and the untouched-since-before-0.15.2
+      history explains the stale citation.'
+    evidence_rc: 0
+    at: '2026-10-02T22:53:56Z'
+  history:
+  - revision: 0
+    learning: 'the calibration clean map names its end event "Accepted order delivered and invoiced",
+      a result the source never states: it breaks the 0.15.2 K3 rule; L16 (check new rules against the
+      clean map) was not applied to K3 before 0.15.2 shipped'
+    proposed_change: 'calibration/clean.bpmn: replace the named end event ''Accepted order delivered and
+      invoiced'' with an unnamed none end event cited ''source: unstated - marks where the stated order
+      ends'' (the K3 rule); recalibrate with two vendors. Also: L16''s release rule applies to K3 retroactively.'
+    why_revised: codex rev0 disagree (evidence insufficient; named none ends are BPMN-legal) and the full
+      evidence shows the source DOES state delivery and invoicing; the defect is the citation, not the
+      name
+    at: '2026-10-02T22:30:55Z'
+  - revision: 1
+    learning: 'the calibration clean map''s end event ''Accepted order delivered and invoiced'' is cited
+      ''source: unstated'' yet named as a result, which K3 forbids for an unstated event; the source does
+      state the outcome (delivers it to the customer; sends the invoice), so the name is fine and the
+      citation is wrong'
+    proposed_change: 'calibration/clean.bpmn: keep the end event''s name and replace its ''source: unstated
+      - ...'' citation with the source lines that state the outcome (one source: line per quote: ''The
+      carrier collects the parcel and delivers it to the customer.'' and ''After shipment the ERP generates
+      and sends the invoice automatically.''). Recalibrate with two vendors.'
+    why_revised: 'codex rev1 disagree: evidence insufficient — evidence now prints the end event''s documentation
+      line (''source: unstated - ...''); wording unchanged'
+    at: '2026-10-02T22:50:08Z'
+  - revision: 2
+    demoted_from: confirmed
+    why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
+    at: '2026-10-02T23:09:21Z'
+  revision: 2
 - id: L22
   learning: 'no rule for a step the source says "is detailed in process X": subProcess, callActivity (calledElement)
     or a cited note (K14)'
@@ -282,6 +988,106 @@ learnings:
   destination: guide
   status: proposed
   occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L22
+  proposed_change: 'AUTHORING: when the source only says a step ''is detailed in process X'', default
+    to a task with a cited note ''Detailed in: X''. Use a callActivity when the source establishes that
+    the step invokes reusable behaviour, with calledElement resolving to the corresponding BPMN Process
+    or GlobalTask; a workflowMeta id suffices only if the export guarantees that resolution. Never invent
+    subprocess contents the source does not give.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    reason: “Is detailed in process X” establishes a documentation reference, not necessarily invocation
+      of a reusable process; presence in the same corpus does not establish callActivity semantics. calledElement
+      must resolve to a callable BPMN element, not merely a workflowMeta identifier.
+    evidence_rc: 0
+    at: '2026-10-02T22:25:07Z'
+    refinement: 'For a step described as ''detailed in process X'', use a task with a cited ''Detailed
+      in: X'' note unless the source establishes invocation of a reusable process. Use callActivity only
+      for such invocation, with calledElement referencing the target BPMN Process by a resolvable QName;
+      use X''s workflowMeta id only if the export mapping guarantees that resolution. Do not invent subprocess
+      contents absent from the source.'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    reason: 'The evidence confirms the gap (AUTHORING.md 0.15.2 mentions neither callActivity/calledElement
+      nor ''detailed in'', and K14 records the unresolved subProcess choice), and the proposed rule matches
+      BPMN 2.0 semantics: callActivity with calledElement is the correct construct for a step realized
+      by an existing process definition, a task with a cited note is the safe fallback when X is not in
+      the corpus (avoiding a dangling calledElement), and inventing subProcess content the source does
+      not give would fabricate detail.'
+    evidence_rc: 0
+    at: '2026-10-02T22:25:20Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 1
+    reason: A documentation cross-reference alone does not establish subprocess or call semantics. However,
+      BPMN callActivity can reference a reusable Process or GlobalTask, and invocation need not be expressed
+      with the literal word 'invokes'.
+    evidence_rc: 0
+    at: '2026-10-02T22:36:13Z'
+    refinement: 'When the source only says a step ''is detailed in process X'', default to a task with
+      a cited note ''Detailed in: X''. Use callActivity when the source establishes invocation of reusable
+      behavior, with calledElement resolving to the corresponding BPMN Process or GlobalTask; a workflowMeta
+      id is sufficient only if the export guarantees that resolution. Do not invent subprocess contents
+      absent from the source.'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: 'The evidence (K14 and AUTHORING.md 0.15.2 lacking any such rule) confirms the gap, and the
+      proposed rule is BPMN-correct: subProcess requires inner content the source doesn''t provide, callActivity/calledElement
+      should only be used for a genuine invocation resolving to an actual BPMN process, and ''detailed
+      in process X'' is a documentation cross-reference best captured as a task with a cited note.'
+    evidence_rc: 0
+    at: '2026-10-02T22:36:22Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 2
+    reason: A statement that a step is detailed elsewhere does not establish invocation semantics or justify
+      invented subprocess contents. A task with a cited note is a sound authoring default, while callActivity
+      requires a calledElement reference that resolves to the reusable Process or GlobalTask.
+    evidence_rc: 0
+    at: '2026-10-02T22:54:05Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 2
+    reason: The evidence command confirms the gap (AUTHORING.md 0.15.2 mentions neither callActivity/calledElement
+      nor 'detailed in', and K14 records the unruled subProcess use). The proposed default (task + cited
+      note) is source-faithful, and the escalation to callActivity matches BPMN 2.0, where a CallActivity's
+      calledElement may reference a Process or GlobalTask; requiring guaranteed resolution and forbidding
+      invented subprocess contents is sound.
+    evidence_rc: 0
+    at: '2026-10-02T22:54:17Z'
+  history:
+  - revision: 0
+    learning: 'no rule for a step the source says "is detailed in process X": subProcess, callActivity
+      (calledElement) or a cited note (K14)'
+    proposed_change: 'AUTHORING: a step the source says ''is detailed in process X'' is a callActivity
+      whose calledElement is X''s workflowMeta id when X is a map in the same corpus, else a task with
+      a cited note ''Detailed in: X''; never a subProcess with content the source does not give.'
+    why_revised: 'codex rev0 refine: ''detailed in'' is a documentation reference unless the source states
+      invocation; calledElement must resolve to a BPMN process'
+    at: '2026-10-02T22:30:55Z'
+  - revision: 1
+    learning: 'no rule for a step the source says "is detailed in process X": subProcess, callActivity
+      (calledElement) or a cited note (K14)'
+    proposed_change: 'AUTHORING: a step the source says ''is detailed in process X'' is a task with a
+      cited note ''Detailed in: X''. Use a callActivity only when the source says the step invokes X,
+      with calledElement resolving to X''s BPMN process (not merely a workflowMeta id unless the export
+      guarantees it resolves). Never a subProcess with content the source does not give.'
+    why_revised: 'codex rev1 refine: callActivity when the source establishes invocation of reusable behaviour
+      (not only the literal word), to a Process or GlobalTask'
+    at: '2026-10-02T22:50:09Z'
+  - revision: 2
+    demoted_from: confirmed
+    why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
+    at: '2026-10-02T23:09:22Z'
+  revision: 2
 - id: L23
   learning: duplicate display NAMES of distinct steps (Part Production x2 in the source) are not covered;
     section 2 covers duplicate keys only (K15)
@@ -291,15 +1097,161 @@ learnings:
   destination: guide
   status: proposed
   occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L23
+  proposed_change: 'AUTHORING section 2: two distinct steps with the same display name keep the source''s
+    name verbatim and get distinct ids. Where the source gives distinguishing lane or context, cite it
+    in a qualifier note; where it gives none, add nothing and do not rename the steps to make names unique.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    reason: BPMN permits distinct activities to share a display name while requiring distinct IDs. A cited
+      qualifier note should be conditional on available source evidence, since the source may provide
+      no distinguishing qualifier.
+    evidence_rc: 0
+    at: '2026-10-02T22:25:31Z'
+    refinement: Two distinct source steps with the same display name retain that name verbatim and receive
+      distinct IDs. Where the source supplies distinguishing lane or context information, preserve it
+      and cite it in a qualifier note without changing the display names; otherwise, do not invent a qualifier
+      or rename steps merely to make names unique.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: no-verdict
+    reason: "ission requested: external_directory (/opt/832-Workflow-designer/*); auto-rejecting\n\e[0m✗\
+      \ \e[0mls /opt/832-Workflow-designer/ && bash /opt/832-Workflow-designer/tools/_t1006-lesson-evidence.sh\
+      \ L23; echo \"EXIT: $?\" failed\n\e[91m\e[1mError: \e[0mThe user rejected permission to use this\
+      \ specific tool call."
+    evidence_rc: 0
+    at: '2026-10-02T22:25:33Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 1
+    reason: BPMN permits distinct activities to share a display name while requiring unique IDs. Preserving
+      source names and adding only source-supported contextual notes avoids inventing distinctions or
+      imposing unnecessary name uniqueness.
+    evidence_rc: 0
+    at: '2026-10-02T22:36:33Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: The evidence output confirms AUTHORING.md 0.15.2 has no rule covering two distinct steps sharing
+      a display name (only duplicate keys are covered, per NOTES.md line 45), and the proposed rule is
+      sound under BPMN 2.0, where names need not be unique but ids must be; keeping source names verbatim
+      with distinct ids preserves source fidelity.
+    evidence_rc: 0
+    at: '2026-10-02T22:36:47Z'
+  history:
+  - revision: 0
+    learning: duplicate display NAMES of distinct steps (Part Production x2 in the source) are not covered;
+      section 2 covers duplicate keys only (K15)
+    proposed_change: 'AUTHORING §2: two distinct steps with the same display name keep the source''s name
+      verbatim on both, get distinct ids, and are told apart by a cited qualifier note (lane or context
+      the source gives); the generator never renames them to make names unique.'
+    why_revised: 'codex rev0 refine: the qualifier note only when the source supplies one'
+    at: '2026-10-02T22:30:56Z'
+  - revision: 1
+    demoted_from: confirmed
+    why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
+    at: '2026-10-02T23:09:22Z'
+  revision: 1
 - id: L24
-  learning: 'the K2 rule (one step precedes two, relation unstated) must also cover hand-overs: a step
-    handing over to two processes, both or either (K16)'
+  learning: the K2 rule (one step precedes two, relation unstated) speaks only of sequence-flow successors;
+    a step that hands over to two processes raises the same question (K16) and the guide gives no answer
   evidence: T-989 iteration 2 (Evergreen iter1, offset 24, NOTES.md; kit 0.15.2, reviewer Sonnet, corrector
     Opus); K16
   source: trial
   destination: guide
   status: proposed
   occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L24
+  proposed_change: 'AUTHORING: apply K2 to hand-overs as it stands: two hand-over throws after A by plain
+    flows, which in BPMN means both happen; when the source does not say both, add the K2 note to A recording
+    that the source does not confirm it (the note records the source''s silence, it does not change what
+    the flows mean). The cross-process form of each hand-over follows L27.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: disagree
+    reason: The output establishes only a reported documentation gap, not the validity of the proposed
+      notation. Under [BPMN 2.0.2](https://www.omg.org/spec/BPMN/2.0.2/PDF), link events cannot connect
+      separate processes, and two unconditional outgoing sequence flows activate both branches; an annotation
+      cannot make that behavior unspecified.
+    evidence_rc: 0
+    at: '2026-10-02T22:25:52Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    reason: 'The K16 note documents that AUTHORING.md''s both-or-either rule omits hand-overs, and the
+      proposed change mirrors the established K2 convention exactly: two link throw events fed by plain
+      sequence flows is valid BPMN (throws take incoming flows only) and the same source-ambiguity note
+      is preserved.'
+    evidence_rc: 0
+    at: '2026-10-02T22:26:39Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: disagree
+    revision: 1
+    reason: 'evidence insufficient: neither the actual K2 rule nor L27 is provided, and the excerpt only
+      reports an unresolved question. Plain unconditional sequence flows can activate both branches, but
+      that BPMN behavior does not establish that the kit should prescribe both hand-overs when the source
+      is silent.'
+    evidence_rc: 0
+    at: '2026-10-02T22:54:29Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: 'The K16 note directly evidences the gap (the guide''s both-or-either rule never covers hand-overs/link
+      events), and the proposed resolution is sound BPMN: unconditional outgoing sequence flows from an
+      activity are uncontrolled flow (implicit parallel split), so two hand-over throws after A by plain
+      flows do mean both fire, and the K2 source-silence note records the assumption without altering
+      flow semantics; cross-process form properly defers to L27.'
+    evidence_rc: 0
+    at: '2026-10-02T22:55:07Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 2
+    reason: Two unconditional outgoing sequence flows from A activate both hand-over throws; an annotation
+      can record uncertainty in the source but cannot make that behavior exclusive. Applying K2 this way
+      is consistent with its quoted wording, provided each hand-over follows L27’s distinction between
+      the AEF navigation convention and standard BPMN cross-participant messaging.
+    evidence_rc: 0
+    at: '2026-10-02T23:02:34Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 2
+    reason: The verbatim K2 text and the partner's K16 confirm the guide addresses the both-or-either
+      question only for plain sequence-flow successors and is silent for hand-overs; and the proposed
+      extension is BPMN-sound, since two plain flows from A to two link throws are uncontrolled (implicit
+      parallel) flow, meaning both hand-overs fire, so K2's note mechanism transfers unchanged while L27
+      correctly carries the cross-process form.
+    evidence_rc: 0
+    at: '2026-10-02T23:03:06Z'
+  history:
+  - revision: 0
+    learning: 'the K2 rule (one step precedes two, relation unstated) must also cover hand-overs: a step
+      handing over to two processes, both or either (K16)'
+    proposed_change: 'AUTHORING: extend the ''one step precedes two'' rule to hand-overs: a step handing
+      over to two other processes gets two link throws by plain flows, with the same note ''Whether both
+      hand-overs happen, or only one, is not recorded in the source'' when the source does not say.'
+    why_revised: 'codex rev0 disagree: plain flows mean both in BPMN and a note cannot change that; link
+      events across processes are an AEF convention (L27). Restated so it claims no more than that'
+    at: '2026-10-02T22:50:09Z'
+  - revision: 1
+    learning: the K2 rule (one step precedes two, relation unstated) speaks only of sequence-flow successors;
+      a step that hands over to two processes raises the same question (K16) and the guide gives no answer
+    proposed_change: 'AUTHORING: apply K2 to hand-overs as it stands: two hand-over throws after A by
+      plain flows, which in BPMN means both happen; when the source does not say both, add the K2 note
+      to A recording that the source does not confirm it (the note records the source''s silence, it does
+      not change what the flows mean). The cross-process form of each hand-over follows L27.'
+    why_revised: 'codex rev1 disagree: evidence insufficient — evidence now shows the K2 rule verbatim
+      and L27''s current wording'
+    at: '2026-10-02T23:01:49Z'
+  revision: 2
 - id: L25
   learning: no format for a citation that quotes several source lines (a lane covering several tasks);
     Evergreen joined quotes with " ; " (K17)
@@ -309,3 +1261,245 @@ learnings:
   destination: guide
   status: proposed
   occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L25
+  proposed_change: 'AUTHORING citation rule: an element backed by several source lines cites each verbatim
+    quote in its own source: line (one documentation child, one ''source: "..."'' per line), not joined
+    with a separator.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    reason: 'The evidence identifies a missing convention for citations spanning multiple source lines.
+      Requiring one verbatim quote per source: line within a single documentation child resolves that
+      ambiguity without introducing a separator that could be mistaken for source text.'
+    evidence_rc: 0
+    at: '2026-10-02T22:26:48Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: no-verdict
+    reason: "=$?\" failed\n\e[91m\e[1mError: \e[0mThe user rejected permission to use this specific tool\
+      \ call.\n\e[0m✗ \e[0mrg -n \"source:\" AUTHORING.md | head -30; echo ---; rg -n -i \"citation|verbatim|quote\"\
+      \ AUTHORING.md | head -40 failed\n\e[91m\e[1mError: \e[0mThe user rejected permission to use this\
+      \ specific tool call."
+    evidence_rc: 0
+    at: '2026-10-02T22:27:12Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 0
+    reason: The evidence output confirms AUTHORING.md 0.15.2 has no format for multi-line citations and
+      K17 documents the improvised " ; " joining, so the gap is real. The proposed per-line 'source:'
+      rule preserves verbatim quoting and is machine-checkable, making it a sound fix.
+    evidence_rc: 0
+    at: '2026-10-02T22:37:03Z'
+  history:
+  - revision: 0
+    demoted_from: confirmed
+    why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
+    at: '2026-10-02T23:09:23Z'
+- id: L26
+  learning: 'AUTHORING (0.15.2, from the T-993 correction) says "a parallel fork (and its join) says the
+    same as the plain flows": true of the fork (both branches start), false of the join: a parallel join
+    waits for every incoming branch, plain converging flows do not synchronise (each arrival continues)'
+  evidence: 'T-1006 panel, codex (OpenAI) on L16 rev0: ''a parallel join is not generally equivalent to
+    plain converging sequence flows: it synchronizes incoming branches''; the sentence shipped in 0.15.2
+    AUTHORING K2 paragraph'
+  source: reviewer
+  destination: guide
+  status: proposed
+  occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L26
+  proposed_change: 'AUTHORING K2 paragraph: for unconditional outgoing flows from an activity, a parallel
+    fork makes the same branching explicit and is allowed. A parallel join waits for every incoming branch;
+    plain convergence into an activity does not synchronise and can run that activity once per arrival.
+    Draw a join where the source says the next step waits for all branches; where the source is ambiguous,
+    keep the construct and flag the ambiguity in a note rather than swapping it silently. Check clean.bpmn''s
+    join against SOURCE.md before recalibrating.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 0
+    reason: The synchronization correction is right, but fork equivalence assumes unconditional outgoing
+      flows, and plain convergence can execute the next step once per arrival. The gateway declarations
+      alone cannot establish whether clean.bpmn's join matches SOURCE.md.
+    evidence_rc: 0
+    at: '2026-10-02T22:37:16Z'
+    refinement: For unconditional outgoing sequence flows from an activity, a parallel fork makes the
+      same branching explicit. A parallel join waits for a token on every incoming sequence flow; plain
+      convergence into an activity does not synchronize and can execute that activity separately for each
+      arrival. Use a join where the source supports waiting for all branches; if the source is ambiguous,
+      flag that ambiguity rather than automatically replacing the join with plain convergence. Inspect
+      SOURCE.md and the relevant connected flows before recalibrating clean.bpmn.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 0
+    reason: 'BPMN 2.0 semantics confirm the asymmetry: multiple unconditional outgoing flows are an implicit
+      AND-split, so a parallel fork is indeed equivalent to plain flows, while a converging parallel gateway
+      synchronizes (waits for every incoming token) whereas multiple incoming plain flows act as an implicit
+      merge where each arrival continues independently. The evidence (the shipped 0.15.2 K2 sentence and
+      clean.bpmn''s delivery-and-invoicing-complete join) supports the correction, and the proposed rule
+      plus re-check of that join against SOURCE.md is the right change.'
+    evidence_rc: 0
+    at: '2026-10-02T22:37:41Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 1
+    reason: Unconditional outgoing sequence flows from an activity activate all branches, but plain convergence
+      does not synchronize arrivals; a parallel join requires a token on every incoming sequence flow.
+      The proposed correction preserves that distinction and appropriately requires checking SOURCE.md
+      before changing the existing join.
+    evidence_rc: 0
+    at: '2026-10-02T22:55:18Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: 'BPMN 2.0 semantics confirm the split: multiple unconditional outgoing flows from an activity
+      are an implicit parallel split (fork equivalence holds), while a parallel gateway join synchronizes
+      (waits for all incoming tokens) whereas plain converging flows into an activity pass each arrival
+      through unsynchronized, potentially instantiating the activity once per arrival. The evidence output
+      shows the 0.15.2 guide asserting ''(and its join) says the same'' at lines 163-165 and clean.bpmn
+      drawing both parallel gateways, so the error is real and the proposed K2 rewrite states the correct
+      distinction with sound conservative guidance for ambiguous sources.'
+    evidence_rc: 0
+    at: '2026-10-02T22:55:41Z'
+  history:
+  - revision: 0
+    learning: 'AUTHORING (0.15.2, from the T-993 correction) says "a parallel fork (and its join) says
+      the same as the plain flows": true of the fork (both branches start), false of the join: a parallel
+      join waits for every incoming branch, plain converging flows do not synchronise (each arrival continues)'
+    proposed_change: 'AUTHORING K2 paragraph: ''A parallel fork says the same as the plain flows (both
+      branches start), so it is allowed but not needed. A parallel join is NOT the same as plain converging
+      flows: it waits for every incoming branch, plain flows do not. Draw a join only where the source
+      says the next step waits for all branches (e.g. after both delivery and invoicing); otherwise route
+      the branches straight into the next step.'' Re-check clean.bpmn''s delivery-and-invoicing-complete
+      join against SOURCE.md under that rule; recalibrate.'
+    why_revised: 'codex rev0 refine: fork equivalence holds for unconditional outgoing flows; plain convergence
+      fires the next step per arrival; if ambiguous, flag rather than auto-replace'
+    at: '2026-10-02T22:50:09Z'
+  - revision: 1
+    demoted_from: confirmed
+    why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
+    at: '2026-10-02T23:09:24Z'
+  revision: 1
+- id: L27
+  learning: hand-overs between maps are drawn as BPMN link events (throw/catch with aef:link targetWorkflow),
+    but BPMN 2.0.2 link events connect two sections of ONE process; across processes they are an AEF convention,
+    and the kit nowhere says so (CONFORMANCE.md silent)
+  evidence: 'T-1006 panel, codex (OpenAI) on L24 rev0: ''Under BPMN 2.0.2, link events cannot connect
+    separate processes''; AUTHORING K4 rule (promoted from L5-L15) makes them the hand-over form; CONFORMANCE.md
+    has no extension note'
+  source: reviewer
+  destination: guide
+  status: proposed
+  occurrences: 1
+  evidence_cmd: bash tools/_t1006-lesson-evidence.sh L27
+  proposed_change: 'AUTHORING hand-over rule and CONFORMANCE.md: cross-map hand-overs drawn as link throw/catch
+    with aef:link are an AEF navigation convention beyond BPMN 2.0.2, whose link events connect sections
+    of one process; a standards-only tool sees the events but cannot infer the cross-process connection
+    from the aef:link metadata. Where the two maps are distinct participants, the BPMN-standard form is
+    a message flow in a collaboration, optionally a message end event to a message start event.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 0
+    reason: BPMN link events cannot cross process boundaries, so documenting the AEF convention is appropriate.
+      However, the excerpt shows only extension metadata, which does not establish that standards-only
+      tools see unmatched BPMN link events, and message flows require distinct participants in a collaboration.
+    evidence_rc: 0
+    at: '2026-10-02T22:37:54Z'
+    refinement: Document cross-process hand-overs using aef:link as an AEF navigation convention beyond
+      standard BPMN link-event semantics; standards-only tools cannot infer the cross-process connection
+      from that metadata. For communication between distinct participants, a BPMN-standard alternative
+      is a message flow in a collaboration, optionally connecting a message end event to a message start
+      event when sending completes the sender’s path and receipt instantiates the receiving process.
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 0
+    reason: BPMN 2.0.2 explicitly scopes link events to connecting sections of a single process (the spec
+      states they cannot link separate processes/pools and that message flows are the mechanism there),
+      so codex's claim is correct; the evidence command confirms the kit's K4 rule mandates cross-map
+      link events via aef:link while CONFORMANCE.md has zero mention of this extension. The proposed change
+      keeps the working convention, documents it honestly as an AEF extension with the standards-only
+      consequence (unmatched throw/catch) and the standard alternative (message end/start pair with message
+      flow in a collaboration), which is accurate.
+    evidence_rc: 0
+    at: '2026-10-02T22:38:10Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: refine
+    revision: 1
+    reason: The standards distinction is correct, but separate maps do not necessarily represent separate
+      processes, and the excerpt shows aef:link metadata without establishing that BPMN linkEventDefinition
+      elements exist. Zero matches also does not establish that the kit nowhere documents the convention.
+    evidence_rc: 0
+    at: '2026-10-02T22:55:53Z'
+    refinement: 'Document aef:link cross-map navigation as an AEF convention: BPMN link events connect
+      sections within the same process scope and cannot cross process or subprocess boundaries. Standard
+      tools cannot infer the AEF navigation relationship from that metadata; for communication between
+      distinct participants, use message flows in a collaboration, optionally connecting a message end
+      event to a message start event.'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 1
+    reason: BPMN 2.0.2 is explicit that link events connect two sections of one process and cannot connect
+      different processes (that is what message flows/message events are for), and the evidence output
+      confirms the kit prescribes cross-map link throw/catch via non-standard aef:link metadata while
+      CONFORMANCE.md contains no extension note (0 matches). The proposed wording is accurate — a standards-only
+      tool sees the events but cannot resolve the cross-process pairing from extensionElements — and the
+      suggested standard alternative (message flow in a collaboration, message end to message start) is
+      correct BPMN.
+    evidence_rc: 0
+    at: '2026-10-02T22:56:16Z'
+  - reviewer: codex
+    vendor: openai
+    verdict: agree
+    revision: 2
+    reason: BPMN 2.0.2 link events cannot connect separate processes, and the supplied evidence establishes
+      that these hand-overs cross process boundaries through AEF metadata. The proposed documentation
+      correctly identifies that navigation convention and distinguishes it from standard message flows
+      between participants in a collaboration.
+    evidence_rc: 0
+    at: '2026-10-02T23:02:09Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: agree
+    revision: 2
+    reason: BPMN 2.0.2 scopes link throw/catch pairs to the same process (cross-process exchange is message
+      flows in a collaboration), and the evidence confirms the guide mandates aef:link targetWorkflow
+      pointing at another file's bpmn:process while CONFORMANCE.md has no extension note, so the documentation-only
+      change is correct and the standards-form alternative stated is accurate.
+    evidence_rc: 0
+    at: '2026-10-02T23:02:22Z'
+  history:
+  - revision: 0
+    learning: hand-overs between maps are drawn as BPMN link events (throw/catch with aef:link targetWorkflow),
+      but BPMN 2.0.2 link events connect two sections of ONE process; across processes they are an AEF
+      convention, and the kit nowhere says so (CONFORMANCE.md silent)
+    proposed_change: 'Keep link events as the hand-over form (the designer navigates them and Evergreen''s
+      maps use them), but say so honestly: AUTHORING''s hand-over rule and CONFORMANCE.md state that cross-map
+      links are an AEF convention beyond BPMN 2.0.2 (which scopes link events to one process), that a
+      standards-only tool will see an unmatched throw/catch, and that the BPMN-standard alternative is
+      a message end/start event pair with a message flow in a collaboration.'
+    why_revised: 'codex rev0 refine: say what standards-only tools lose (the connection), and message
+      flows need distinct participants'
+    at: '2026-10-02T22:50:09Z'
+  - revision: 1
+    learning: hand-overs between maps are drawn as BPMN link events (throw/catch with aef:link targetWorkflow),
+      but BPMN 2.0.2 link events connect two sections of ONE process; across processes they are an AEF
+      convention, and the kit nowhere says so (CONFORMANCE.md silent)
+    proposed_change: 'AUTHORING hand-over rule and CONFORMANCE.md: cross-map hand-overs drawn as link
+      throw/catch with aef:link are an AEF navigation convention beyond BPMN 2.0.2, whose link events
+      connect sections of one process; a standards-only tool sees the events but cannot infer the cross-process
+      connection from the aef:link metadata. Where the two maps are distinct participants, the BPMN-standard
+      form is a message flow in a collaboration, optionally a message end event to a message start event.'
+    why_revised: 'codex rev1 refine: evidence now shows one map = one bpmn:process and that targetWorkflow
+      names another map''s process'
+    at: '2026-10-02T23:01:50Z'
+  revision: 2

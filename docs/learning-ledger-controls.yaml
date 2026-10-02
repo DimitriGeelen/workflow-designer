@@ -30,6 +30,13 @@ learnings:
       blanket suppression of W-UNREACHABLE and W-DEADEND downstream of catches.
     evidence_rc: 0
     at: '2026-10-02T22:39:21Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: no-verdict
+    revision: 0
+    reason: ''
+    evidence_rc: 0
+    at: '2026-10-02T22:54:13Z'
 - id: C2
   learning: 'when the source does not say whether two steps after A both happen or only one, the honest
     BPMN is an exclusive gateway with unlabelled branches: an exclusive gateway without conditions makes
@@ -44,3 +51,20 @@ learnings:
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L24
   proposed_change: 'AUTHORING: replace the "one step precedes two" rule with: draw an exclusive gateway
     after A with unlabelled branches to B and C; it records that the choice is unknown.'
+  verdicts:
+  - reviewer: codex
+    vendor: openai
+    verdict: disagree
+    revision: 0
+    reason: An exclusive gateway asserts that exactly one outgoing branch is taken; omitting labels or
+      conditions does not make the both-versus-either semantics unknown. The evidence identifies an ambiguity
+      in hand-overs but does not justify resolving it as exclusive choice.
+    evidence_rc: 0
+    at: '2026-10-02T22:54:29Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: no-verdict
+    revision: 0
+    reason: ''
+    evidence_rc: 0
+    at: '2026-10-02T23:09:14Z'
