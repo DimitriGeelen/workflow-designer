@@ -82,6 +82,11 @@ d["edges"]+= [{"uid":"e4","source":"in1","target":"c1"},{"uid":"e5","source":"c1
 yaml.safe_dump(d, sys.stdout)' > "$W/after.yaml"
   bu=$(count "$W/before.yaml" "UNREACHABLE"); bd=$(count "$W/before.yaml" "DEADEND")
   au=$(count "$W/after.yaml" "UNREACHABLE"); ad=$(count "$W/after.yaml" "DEADEND")
+  say "-- the kit's entry convention (AUTHORING hand-over rule + validator docstring):"
+  grep -n 'a catch as an entry' "$KIT/AUTHORING.md" | cut -c1-200 | sed 's/^/   /'
+  grep -n '`linkEventCatch` nodes are additional seeds' "$V" | cut -c1-160 | sed 's/^/   /'
+  say "-- and when a map has no start event at all, the validator assesses nothing (W-NO-START-EVENT, one finding):"
+  grep -n 'reachability of %d node(s) was not' "$V" | cut -c1-160 | sed 's/^/   /'
   say "two stated chains (a1>a2>a3, b1>b2), no events: UNREACHABLE=$bu DEADEND=$bd"
   say "same map + one hand-over catch>C1>throw:          UNREACHABLE=$au DEADEND=$ad (per node, incl. stated chains)"
   [ "$bu" -eq 0 ] && [ "$bd" -eq 0 ] && [ "$au" -ge 5 ] && [ "$ad" -ge 5 ] ;;

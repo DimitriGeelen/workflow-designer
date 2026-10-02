@@ -377,20 +377,20 @@ learnings:
     - glm-5.3
     at: '2026-10-02T23:11:00Z'
 - id: L17
-  learning: loop.sh appends the prompt as the last argument of KIT_*_CMD; a command ending in an option
-    that takes several values swallows the prompt as one more value, and one ending in an option still
-    awaiting its value consumes or rejects it — either way the agent does not get its prompt
+  learning: 'loop.sh appends the prompt as the last argument of KIT_*_CMD; with claude -p, whose --allowedTools
+    is variadic (<tools...>), a command ending in that option takes the prompt as one more tool name and
+    the agent starts with no prompt (Evergreen K9: COULD NOT MEASURE until the option was moved)'
   evidence: 'T-989 Evergreen offset 22 (calibration of kit 0.15.1, reviewer Claude Sonnet via claude -p)
     K9: run 1 COULD NOT MEASURE until --allowedTools was moved before a single-value flag'
   source: trial
   destination: tooling
-  status: escalated
+  status: proposed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L17
-  proposed_change: 'loop.sh header (KIT_*_CMD): the prompt is appended as the command''s LAST argument;
-    make sure the CLI parses that argument as the prompt: supply every option''s value, put options that
-    take several values before a fully supplied NON-variadic option, or end option parsing with -- if
-    the CLI supports it.'
+  proposed_change: 'loop.sh header (KIT_*_CMD): the prompt is appended as the command''s LAST argument,
+    so the command must end where your CLI parses one more argument as the prompt. Known case: claude''s
+    --allowedTools is variadic and swallows it; put it before a fully supplied non-variadic option. Check
+    your own CLI''s parser for options that take several values or await one.'
   verdicts:
   - reviewer: codex
     vendor: openai
@@ -519,7 +519,18 @@ learnings:
     why_revised: 'codex rev2 refine: consumption depends on the parser; evidence now carries the field
       observation (Evergreen: COULD NOT MEASURE until the option moved, then 3/3)'
     at: '2026-10-02T23:01:49Z'
-  revision: 3
+  - revision: 3
+    learning: loop.sh appends the prompt as the last argument of KIT_*_CMD; a command ending in an option
+      that takes several values swallows the prompt as one more value, and one ending in an option still
+      awaiting its value consumes or rejects it — either way the agent does not get its prompt
+    proposed_change: 'loop.sh header (KIT_*_CMD): the prompt is appended as the command''s LAST argument;
+      make sure the CLI parses that argument as the prompt: supply every option''s value, put options
+      that take several values before a fully supplied NON-variadic option, or end option parsing with
+      -- if the CLI supports it.'
+    why_revised: 'codex rev3 refine: consumption depends on the parser; scope the lesson to what the evidence
+      shows (claude''s variadic --allowedTools) and make the header advice parser-neutral'
+    at: '2026-10-02T23:11:57Z'
+  revision: 4
 - id: L18
   learning: 'the calibration clean map must be one no careful reviewer can fault: its branch "accepted
     orders" on gateway "Credit limit exceeded?" is not the answer to the question (the override path also
@@ -672,7 +683,7 @@ learnings:
     Opus); K12; measured by us: loop/bo-business-overview map.bpmn 80 findings vs 29'
   source: trial
   destination: validator
-  status: escalated
+  status: proposed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L19
   proposed_change: 'validator reachability: resolve valid same-level throw-to-catch transfers; compute
@@ -825,7 +836,22 @@ learnings:
     why_revised: 'codex rev2 refine: seeds include valid implicit entries; a throw transfers rather than
       terminates; dead-end aggregation follows transfers'
     at: '2026-10-02T23:01:49Z'
-  revision: 3
+  - revision: 3
+    learning: 'reachability is per NODE from any seed: once a map has one link catch (K4 hand-over), every
+      step not downstream of a catch is UNREACHABLE and every step not reaching a throw/end is DEADEND,
+      including chains the source states; bo-business-overview 29 -> 80 warnings after the reviewer added
+      7 catches (K12). Assess per connected component: a component without its own seed gets one finding
+      naming it, not one per node'
+    proposed_change: 'validator reachability: resolve valid same-level throw-to-catch transfers; compute
+      components and reachability from explicit starts, valid implicit entries, and hand-over catches
+      under the kit''s documented convention; aggregate genuinely seedless components into one W-UNREACHABLE
+      each (representative node and size); keep per-node analysis inside seeded components; aggregate
+      W-DEADEND only when every reported node lacks a path to valid termination, following link transfers
+      through their catches.'
+    why_revised: 'codex rev3 disagree: evidence insufficient — evidence now shows the kit''s entry convention
+      (catch = entry/seed) and the no-start behaviour'
+    at: '2026-10-02T23:11:57Z'
+  revision: 4
 - id: L20
   learning: 'a link catch placed before a step whose successor is unrecorded draws its own W-DEADEND,
     though AUTHORING says a catch draws no reachability warning: one unknown reported twice (K11)'
