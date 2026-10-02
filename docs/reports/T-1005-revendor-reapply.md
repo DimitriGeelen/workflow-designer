@@ -54,3 +54,8 @@ a commit touching `.agentic-framework/` without a manifest entry would close the
 | `create-task.sh` | T-660, T-767 clean; **T-774/T-775/T-776 ported** (frontmatter-scoped substitution; line-break names refused; T-XXX before operator text) | `_t774` 13/13, `_t775` 6/6, `_t776` 5/5, `_t767` 4/4 |
 | `git/lib/hooks.sh` | T-686 clean; **T-659 ported** into the hook template; live hooks reinstalled (`install-hooks --force`) and the re-vendor gate line re-added | `_t659` 6/6 |
 | `web/test_context_tokens.py`, `web/test_safe_commands.py` (deleted by T-840) | restored to the working tree; to be committed with `safe-commands.sh` | — |
+| `safe-commands.sh` + `check-active-task.sh` (T-390..T-652, lost at T-840) | **pending, deliberately**. The right merge is ours = the pre-T-840 file, base = the T-276 baseline (v1.6.763) the fixes were made on, theirs = 1.7.740. Upstream added +1254 / +682 lines to these files meanwhile (partly converging on our approach), leaving 6 + 10 conflict regions in security-relevant hook code. Oracle: `web/test_safe_commands.py` (restored): **78 pass / 54 fail on pristine 1.7.740** — includes genuine writes NOT caught (`cmd 2> errors.log`, `cmd &> combined.log`). Both files restored to pristine meanwhile; done next as a focused piece. | test file restored, uncommitted |
+
+**Merge-source lesson.** For fixes lost at the EARLIER re-vendor (T-840), the pre-upgrade file of THIS
+upgrade does not contain them; "ours" must be the file before T-840 and "base" the baseline those fixes
+were written against. A first attempt that used the pre-1.7.740 file merged cleanly and restored nothing.
