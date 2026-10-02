@@ -222,7 +222,7 @@ learnings:
     each citing the new v4 line; the line was corrected and the kit recalibrated'
   source: loop
   destination: rubric
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L16
   proposed_change: 'Release rule for the kit: every new or changed guide/rubric rule goes through loop.sh
@@ -365,6 +365,17 @@ learnings:
       the findings were false is not established, so the lesson no longer claims it'
     at: '2026-10-02T23:01:48Z'
   revision: 3
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L16
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:00Z'
 - id: L17
   learning: loop.sh appends the prompt as the last argument of KIT_*_CMD; a command ending in an option
     that takes several values swallows the prompt as one more value, and one ending in an option still
@@ -373,7 +384,7 @@ learnings:
     K9: run 1 COULD NOT MEASURE until --allowedTools was moved before a single-value flag'
   source: trial
   destination: tooling
-  status: proposed
+  status: escalated
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L17
   proposed_change: 'loop.sh header (KIT_*_CMD): the prompt is appended as the command''s LAST argument;
@@ -520,7 +531,7 @@ learnings:
     | recurred on 0.15.2 calibration (iteration 2)'
   source: trial
   destination: tooling
-  status: proposed
+  status: confirmed
   occurrences: 2
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L18
   proposed_change: 'calibration/clean.bpmn AND calibration/planted.bpmn: drop the name ''accepted orders''
@@ -640,6 +651,17 @@ learnings:
     why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
     at: '2026-10-02T23:09:20Z'
   revision: 2
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L18
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:01Z'
 - id: L19
   learning: 'reachability is per NODE from any seed: once a map has one link catch (K4 hand-over), every
     step not downstream of a catch is UNREACHABLE and every step not reaching a throw/end is DEADEND,
@@ -650,7 +672,7 @@ learnings:
     Opus); K12; measured by us: loop/bo-business-overview map.bpmn 80 findings vs 29'
   source: trial
   destination: validator
-  status: proposed
+  status: escalated
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L19
   proposed_change: 'validator reachability: resolve valid same-level throw-to-catch transfers; compute
@@ -811,7 +833,7 @@ learnings:
     Opus); K11; sales-new-vehicle in-shn / in-p2h
   source: trial
   destination: validator
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L20
   proposed_change: 'validator: linkEventCatch nodes are excluded from W-DEADEND emission (as AUTHORING
@@ -876,6 +898,17 @@ learnings:
     why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
     at: '2026-10-02T23:09:21Z'
   revision: 1
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L20
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:03Z'
 - id: L21
   learning: 'the calibration clean map''s end event ''Accepted order delivered and invoiced'' is cited
     ''source: unstated'' yet named as a result, which K3 forbids for an unstated event; the source does
@@ -885,7 +918,7 @@ learnings:
     Opus); K13; Sonnet flagged it on clean.bpmn; GLM did not
   source: trial
   destination: tooling
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L21
   proposed_change: 'calibration/clean.bpmn: keep the end event''s name and replace its ''source: unstated
@@ -979,6 +1012,17 @@ learnings:
     why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
     at: '2026-10-02T23:09:21Z'
   revision: 2
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L21
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:04Z'
 - id: L22
   learning: 'no rule for a step the source says "is detailed in process X": subProcess, callActivity (calledElement)
     or a cited note (K14)'
@@ -986,7 +1030,7 @@ learnings:
     Opus); K14
   source: trial
   destination: guide
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L22
   proposed_change: 'AUTHORING: when the source only says a step ''is detailed in process X'', default
@@ -1088,6 +1132,17 @@ learnings:
     why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
     at: '2026-10-02T23:09:22Z'
   revision: 2
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L22
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:04Z'
 - id: L23
   learning: duplicate display NAMES of distinct steps (Part Production x2 in the source) are not covered;
     section 2 covers duplicate keys only (K15)
@@ -1095,7 +1150,7 @@ learnings:
     Opus); K15
   source: trial
   destination: guide
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L23
   proposed_change: 'AUTHORING section 2: two distinct steps with the same display name keep the source''s
@@ -1156,6 +1211,17 @@ learnings:
     why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
     at: '2026-10-02T23:09:22Z'
   revision: 1
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L23
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:05Z'
 - id: L24
   learning: the K2 rule (one step precedes two, relation unstated) speaks only of sequence-flow successors;
     a step that hands over to two processes raises the same question (K16) and the guide gives no answer
@@ -1163,7 +1229,7 @@ learnings:
     Opus); K16
   source: trial
   destination: guide
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L24
   proposed_change: 'AUTHORING: apply K2 to hand-overs as it stands: two hand-over throws after A by plain
@@ -1252,6 +1318,17 @@ learnings:
       and L27''s current wording'
     at: '2026-10-02T23:01:49Z'
   revision: 2
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L24
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:05Z'
 - id: L25
   learning: no format for a citation that quotes several source lines (a lane covering several tasks);
     Evergreen joined quotes with " ; " (K17)
@@ -1259,7 +1336,7 @@ learnings:
     Opus); K17
   source: trial
   destination: guide
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L25
   proposed_change: 'AUTHORING citation rule: an element backed by several source lines cites each verbatim
@@ -1297,6 +1374,17 @@ learnings:
     demoted_from: confirmed
     why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
     at: '2026-10-02T23:09:23Z'
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L25
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:06Z'
 - id: L26
   learning: 'AUTHORING (0.15.2, from the T-993 correction) says "a parallel fork (and its join) says the
     same as the plain flows": true of the fork (both branches start), false of the join: a parallel join
@@ -1306,7 +1394,7 @@ learnings:
     AUTHORING K2 paragraph'
   source: reviewer
   destination: guide
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L26
   proposed_change: 'AUTHORING K2 paragraph: for unconditional outgoing flows from an activity, a parallel
@@ -1385,6 +1473,17 @@ learnings:
     why_revised: 'failed re-check: agree from 1 vendor(s) other than anthropic (openai), need 2'
     at: '2026-10-02T23:09:24Z'
   revision: 1
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L26
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:06Z'
 - id: L27
   learning: hand-overs between maps are drawn as BPMN link events (throw/catch with aef:link targetWorkflow),
     but BPMN 2.0.2 link events connect two sections of ONE process; across processes they are an AEF convention,
@@ -1394,7 +1493,7 @@ learnings:
     has no extension note'
   source: reviewer
   destination: guide
-  status: proposed
+  status: confirmed
   occurrences: 1
   evidence_cmd: bash tools/_t1006-lesson-evidence.sh L27
   proposed_change: 'AUTHORING hand-over rule and CONFORMANCE.md: cross-map hand-overs drawn as link throw/catch
@@ -1503,3 +1602,14 @@ learnings:
       names another map''s process'
     at: '2026-10-02T23:01:50Z'
   revision: 2
+  confirmation:
+    evidence_cmd: bash tools/_t1006-lesson-evidence.sh L27
+    evidence_rc: 0
+    vendors:
+    - openai
+    - zai
+    reviewers_calibrated:
+    - codex
+    - glm-5.2
+    - glm-5.3
+    at: '2026-10-02T23:11:07Z'

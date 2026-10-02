@@ -140,5 +140,10 @@ C L2 >/dev/null; r=$?
   && grep -q "demoted_from: confirmed" "$W/l.yaml" && ok "pre-calibration confirmation flagged; failed re-check demotes" \
   || bad "pre-calibration confirmation flagged; failed re-check demotes"
 
+# 15. {prompt} puts the prompt where the command says (agy -p "<prompt>" --mode plan), and stdin is closed
+printf '#!/bin/sh\n[ "$1" = "-p" ] && [ "$3" = "--mode" ] && case "$2" in *"LESSON L2"*) ;; *) exit 1;; esac && read x; [ -z "$x" ] && printf %%s %q\n' '{"verdict": "agree", "reason": "placed"}' > "$W/pstub"; chmod +x "$W/pstub"
+fresh; L review L2 --reviewer-cmd "$W/pstub -p {prompt} --mode plan" --vendor google --name agy >/dev/null
+grep -q "reason: placed" "$W/l.yaml" && ok "{prompt} placement + closed stdin" || bad "{prompt} placement + closed stdin"
+
 echo "t1006: $pass passed, $fail failed"
 [ $fail -eq 0 ]

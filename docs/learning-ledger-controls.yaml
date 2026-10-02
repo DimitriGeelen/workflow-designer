@@ -37,6 +37,35 @@ learnings:
     reason: ''
     evidence_rc: 0
     at: '2026-10-02T22:54:13Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: disagree
+    revision: 0
+    reason: 'The BPMN premise is false: in BPMN 2.0.2 a link catch does not terminate the process — it
+      receives flow from a matching link throw and execution continues via its outgoing flows, so downstream
+      nodes can still be dead ends, and a catch with no matching throw is itself unreachable. The evidence
+      does show the validator mis-models catches (false positives on previously clean chains), but the
+      correct fix is to treat throw→catch as a reachability edge and continue normal analysis, not to
+      blanket-suppress W-UNREACHABLE and W-DEADEND for every downstream node.'
+    evidence_rc: 0
+    at: '2026-10-02T23:10:18Z'
+  - reviewer: glm-5.2
+    vendor: zai
+    verdict: refine
+    revision: 0
+    reason: 'The BPMN premise is false: a link catch does not terminate the process — it pairs with a
+      same-name link throw and flow continues via the catch''s outgoing sequence flow, so downstream nodes
+      can still be genuinely unreachable or dead ends. The evidence (5/5 false warnings on valid link-connected
+      chains) shows the validator lacks throw→catch pairing semantics, which calls for modeling the pair
+      as a flow edge, not blanket-suppressing checks after any catch.'
+    evidence_rc: 0
+    at: '2026-10-02T23:10:43Z'
+    refinement: 'BPMN 2.0.2 link events are a goto pair: a same-name link throw connects to its link catch,
+      whose outgoing sequence flow continues the process — a catch neither terminates the process nor
+      immunizes downstream nodes. The validator should treat same-name link throw→catch pairs (including
+      hand-over conventions) as flow edges when computing reachability and dead ends, eliminating the
+      false W-UNREACHABLE/W-DEADEND warnings on link-connected chains while keeping those checks active
+      for genuinely disconnected nodes downstream of catches.'
 - id: C2
   learning: 'when the source does not say whether two steps after A both happen or only one, the honest
     BPMN is an exclusive gateway with unlabelled branches: an exclusive gateway without conditions makes
@@ -68,3 +97,27 @@ learnings:
     reason: ''
     evidence_rc: 0
     at: '2026-10-02T23:09:14Z'
+  - reviewer: glm-5.3
+    vendor: zai
+    verdict: disagree
+    revision: 0
+    reason: In BPMN 2.0 a diverging exclusive gateway's semantics — with or without conditions — are that
+      exactly one outgoing flow is taken, so it asserts mutual exclusivity, which the silent source does
+      not support (it invents a one-only decision, just as K2 warns; many engines even reject condition-less
+      XOR). The honest encoding of 'both or either, unknown' remains plain flows plus a note (or an inclusive
+      gateway, whose 'at least one, possibly all' actually covers both-or-either); the K16 evidence shows
+      only that the guide should extend K2 to hand-overs, not replace it.
+    evidence_rc: 0
+    at: '2026-10-02T23:10:36Z'
+  - reviewer: glm-5.2
+    vendor: zai
+    verdict: disagree
+    revision: 0
+    reason: In BPMN 2.0 an exclusive gateway asserts exactly one outgoing path is taken, so 'unlabelled
+      branches' is not claim-free — it asserts only-one-of-B-or-C, which invents exclusivity the source
+      never states (ruling out 'both'), and multiple outgoing flows from an XOR split without conditions/default
+      are ill-formed anyway; plain flows plus a note, as the current K2 rule does, is the claim-lightest
+      valid form, and neither T-989 nor the partner's report evidences otherwise (K16 only shows the rule
+      doesn't mention hand-overs, which would warrant extending K2's wording, not reversing it).
+    evidence_rc: 0
+    at: '2026-10-02T23:10:38Z'

@@ -19,7 +19,7 @@ L1-L15 were confirmed by operator assent before this rule; they stay valid as le
   set <id> [--evidence-cmd CMD] [--proposed-change TEXT] [--author-vendor V]
   review <id> --reviewer-cmd CMD --vendor V [--name N] [--timeout SEC]
           sends lesson + evidence + evidence_cmd output + proposed change to one reviewer (the prompt
-          is appended as CMD's last argument, as loop.sh does) and records its verdict
+          is appended as CMD's last argument, or replaces a literal {prompt} token; stdin is closed) and records its verdict
           agree | disagree | refine; a reply with no parseable verdict is recorded as no-verdict
   revise <id> --why TEXT [--learning T] [--proposed-change T] [--evidence-cmd C]
           new wording -> new revision; verdicts on the old wording stop counting
@@ -299,7 +299,11 @@ def main(argv=None):
                                evidence=x.get('evidence', ''), proposed_change=x['proposed_change'],
                                evidence_cmd=x['evidence_cmd'], rc=rc, output=out or '(no output)')
         try:
-            rr = subprocess.run(shlex.split(a.reviewer_cmd) + [prompt], capture_output=True, text=True, timeout=a.timeout)
+            # The prompt is appended as the last argument (as loop.sh does), unless the command names
+            # where it goes with {prompt} — agy takes it as the value of -p (docs/harnesses.md).
+            argv = shlex.split(a.reviewer_cmd)
+            argv = [prompt if t == '{prompt}' else t for t in argv] if '{prompt}' in argv else argv + [prompt]
+            rr = subprocess.run(argv, capture_output=True, text=True, timeout=a.timeout, stdin=subprocess.DEVNULL)
             reply = rr.stdout + '\n' + rr.stderr
         except subprocess.TimeoutExpired:
             reply = ''

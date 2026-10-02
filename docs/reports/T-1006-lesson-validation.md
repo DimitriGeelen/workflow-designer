@@ -71,7 +71,8 @@ command really was thinner than the claim. The evidence probe grew accordingly.
 | reviewer | vendor | agree | refine | disagree | no-verdict | planted-false controls |
 |---|---|---|---|---|---|---|
 | codex | OpenAI | 10 | 18 | 6 | 0 | C1 disagree, C2 disagree |
-| glm-5.3 | Z.AI | 31 | 1 | 0 | 3 | C1 no-verdict, C2 no-verdict (timed out) |
+| glm-5.3 | Z.AI | 31 | 1 | 0 | 3 | first run: both timed out (900 s); re-run at 1800 s: C1 disagree, C2 disagree |
+| glm-5.2 | Z.AI | — | — | — | — | C1 refine ("the BPMN premise is false"), C2 disagree |
 
 GLM agreed with 31 of 32 lessons it judged and has never been shown able to withhold agreement.
 So the rule now counts an agree only from a reviewer that answered a planted-false control and
@@ -80,11 +81,20 @@ agreement (L18, L20-L23, L25, L26) were demoted back to proposed** — their sec
 uncalibrated. L16, L24, L27 reached two-vendor agreement in round 4 and are held the same way.
 L17 and L19 have a standing refine/disagree from codex.
 
-Nothing is confirmed today. That is the honest state: the panel has one discriminating reviewer.
-The fix is a second calibrated vendor — GLM re-run on the controls (longer timeout, glm-5.2 and
-5.3), and Antigravity/Gemini (T-979).
+Re-run with a longer timeout, GLM rejected both plants and said exactly why each premise is false.
+So GLM can withhold agreement; its high agree rate on the revised lessons is not by itself proof of
+deference. Two plants is a small sample: every new panel round should carry fresh controls.
+
+**Outcome after re-check under the calibrated rule: 10 of 12 confirmed** (L16, L18, L20-L27: evidence
+green, agree from OpenAI and Z.AI reviewers that both passed the controls). **L17** (codex: consumption
+depends on the CLI parser; the claim should name claude's variadic option, not all multi-value options)
+and **L19** (codex: evidence lacks the kit's entry convention) stay open with those precise gaps.
+
+Third seat: the 1.7.740 upgrade brought the direct-call ruleset the operator promised
+(`.agentic-framework/docs/harnesses.md`): Antigravity (`agy`, Google) via
+`sudo -n -u dimitri-mint-dev -H /home/dimitri-mint-dev/.local/bin/agy -p "<prompt>" --mode plan --sandbox`,
+operator-approved 2026-09-30. `review` now accepts a `{prompt}` token for that form and closes stdin.
 
 ## What the operator is asked
-Nothing about correctness. L27 may become a VALUE question (keep the AEF link convention that
-Evergreen's maps already use, or move to standard message flows) — only if the panel cannot settle
-it, and then with both sides' reasons.
+Nothing. L27 was the one candidate VALUE question (keep the AEF link convention or move to message
+flows); the panel settled it — keep the convention, declare it, name the standard alternative.
