@@ -1084,6 +1084,22 @@ has_bash_write_pattern() {
         return 0
     fi
 
+    # 832 T-632/T-640 (re-applied on 1.7.740 by T-1005). Three writes the checks above miss,
+    # each on a verb the allowlist ADMITS, so a miss here is an unguarded write without a task:
+    #   2> FILE / &> FILE   the redirect test above skips every fd-2 and &> form (to keep 2>&1);
+    #                       /dev/null targets were already stripped from $_scan
+    #   sed ... w FILE      sed's w flag / w command writes without -i
+    #   sort -o / --output  sort writes its output file itself
+    if echo "$_scan" | grep -qE '(^|[^>&0-9])(2|&)>>?[[:space:]]*[^&[:space:]]'; then
+        return 0
+    fi
+    if echo "$cmd" | grep -qE "\bsed\b.*[^[:alnum:]]w[[:space:]]+[^[:space:]'\"]"; then
+        return 0
+    fi
+    if echo "$cmd" | grep -qE '\bsort\b.*(^|[[:space:]])(-o([[:space:]]|$)|--output)'; then
+        return 0
+    fi
+
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
     if echo "$cmd" | grep -qE '\b(rm|rmdir)\b'; then
         return 0
