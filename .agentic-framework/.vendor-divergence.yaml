@@ -1507,3 +1507,15 @@ entries:
 
       Third of three in this family (OBS-363, OBS-364, OBS-365). G-061 — nothing parses the
       frontmatter the generator has just written — is NOT closed by any of them.
+  - path: .agentic-framework/lib/inception.sh
+    kind: content
+    task: T-996
+    upstream: fix
+    reason: >-
+      `fw inception decide` refused the HUMAN at the moment of deciding with "Task review
+      required before decision" (15 hits in 832 transcripts, 2 in runme logs). The marker it
+      checks (.context/working/.reviewed-<id>) is a side effect of the AGENT-side `fw task
+      review`, and nothing makes the agent run it before handing the decision over. Fix: when
+      a human runs decide at a terminal without a marker, decide renders the same review
+      (emit_review, which writes the marker) and asks "read it, continue? [y/N]". Agents and
+      non-interactive callers keep the refusal. Sent to AEF for a structural fix (T-996).

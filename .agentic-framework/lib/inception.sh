@@ -509,6 +509,27 @@ do_inception_decide() {
 
     # Gate: require fw task review before accepting decision (T-973)
     local review_marker="$PROJECT_ROOT/.context/working/.reviewed-$task_id"
+    # 832 T-996: the marker is a side effect of the AGENT-side `fw task review`, and nothing
+    # makes the agent run it before handing the decision over, so the refusal landed on the
+    # HUMAN at the moment of deciding ("run another command, then re-run") — 15 hits in one
+    # project's transcripts. The gate's purpose (T-973) is that the human SEES the review
+    # before deciding. When the caller is a human at a terminal, satisfy that purpose here:
+    # render the same review (emit_review writes the marker) and ask for confirmation.
+    # Agents ($CLAUDECODE=1) never reach this line (T-1259 gate above); non-interactive
+    # callers keep the refusal.
+    if [ ! -f "$review_marker" ] && [ -r /dev/tty ] && [ -t 1 -o -t 0 ] && [ "${CLAUDECODE:-}" != "1" ] \
+       && [ -f "$FW_LIB_DIR/review.sh" ]; then
+        echo -e "${YELLOW}No review was emitted for $task_id yet — showing it now (T-973 requires you to see it).${NC}" >&2
+        source "$FW_LIB_DIR/review.sh"
+        if emit_review "$task_id" "$task_file" >&2 && [ -f "$review_marker" ]; then
+            local _seen=""
+            read -r -p "You have read the review above. Continue with the decision? [y/N] " _seen </dev/tty || _seen=""
+            if [ "$_seen" != "y" ] && [ "$_seen" != "Y" ]; then
+                echo -e "${YELLOW}Stopped before deciding. The review stays emitted; re-run the decide command when ready.${NC}" >&2
+                exit 1
+            fi
+        fi
+    fi
     if [ ! -f "$review_marker" ]; then
         echo -e "${RED}ERROR: Task review required before decision${NC}" >&2
         echo "" >&2
