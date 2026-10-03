@@ -18,7 +18,8 @@
 # COVERAGE LIMIT, STATED HERE BECAUSE CLAIMING FULL COVERAGE WOULD BE WORSE THAN THE GAP.
 # This hook sees the command string the harness hands it. It therefore catches:
 #     - a Bash tool call whose command begins with `import`
-#     - the same after leading whitespace, `&&`, `;`, `|` or a newline
+#     - the same after leading whitespace, `&&`, `;`, `|`, `(` or a newline -- outside heredoc
+#       bodies and quoted text, so `python3 - <<'PY'` bodies and `python3 -c "import x"` pass
 # It does NOT catch:
 #     - a heredoc body that leaks INSIDE an already-running `bash -c` or script — the inner shell is
 #       not re-scanned, and that is exactly how all four real cases arose
@@ -29,7 +30,7 @@
 #
 # NOT ENABLED BY THE AGENT. Enabling means writing .claude/settings.json, which B-005 blocks
 # structurally, with no settings.local.json side door. The operator enables it:
-#   cd /opt/832-Workflow-designer && .agentic-framework/bin/fw hook-enable --event PreToolUse --matcher Bash --name check-bare-import
+#   cd <project root> && bin/fw hook-enable   (vendored: .agentic-framework/bin/fw) --event PreToolUse --matcher Bash --name check-bare-import
 set -uo pipefail
 
 # The harness passes the tool call as JSON on stdin.
@@ -47,23 +48,60 @@ print(ti.get("command") or "")
 
 [ -n "$_cmd" ] || exit 0
 
-# THE FIRST TOKEN OF THE COMMAND, AND NOTHING ELSE — and the narrowing is the honest part.
+# EVERY CLAUSE'S FIRST TOKEN, OUTSIDE HEREDOC BODIES AND QUOTES (T-1009, 832, 2026-10-04).
 #
-# The first version of this matched `import ` after any separator, including a newline. grep works
-# line by line, so it fired on the BODY of a perfectly good heredoc:
+# The first version matched `import ` after any separator, including a newline. grep works line by
+# line, so it fired on the BODY of a perfectly good heredoc:
 #     python3 - <<'PY'
 #     import re,io          <- matched, and the whole command was refused
 #     PY
-# That is the correct form of the very idiom this hook exists to protect, and blocking it would have
-# made the hook unusable within minutes. Caught by the both-directions test, not by review.
-#
-# What remains is genuinely narrow: the command's first non-whitespace token. Lines after the first
-# belong to heredoc bodies and legitimate multi-line commands, and nothing in the command string
-# distinguishes a leaked body from an intended one — the leak happens in the inner shell, which this
-# hook never sees. See the coverage note in the header: over the four observed incidents this gate
-# catches ZERO. It guards a different, simpler path.
-_first="$(printf '%s' "$_cmd" | head -1 | sed 's/^[[:space:]]*//' | cut -d' ' -f1)"
-if [ "$_first" = "import" ]; then
+# The second version narrowed to the command's first token only, which fixed that and silently
+# dropped every catch the header promises (`cd x && import re` went through) — found by the teeth
+# below, not by review. This version removes the two things that made the first one wrong BEFORE it
+# splits: heredoc bodies (from a `<<WORD` line to the line that is exactly WORD) and quoted text
+# (`python3 -c "import x"`). What is left is shell, split into clauses on newline ; & | ( ), and a
+# clause whose first word is `import` is refused. Both directions are held by
+# tools/_t936-bare-import-gate-teeth.sh (8 catches, 9 controls incl. both heredoc forms).
+# The coverage note in the header still holds: a leak INSIDE an already-running shell is not seen.
+_hit="$(CMD="$_cmd" python3 -c '
+import os, re
+s = os.environ["CMD"]
+out, term = [], None
+for ln in s.split("\n"):
+    if term is not None:
+        if ln.strip() == term:
+            term = None
+        continue
+    out.append(ln)
+    m = re.search(r"<<-?\s*[\x27\x22]?([A-Za-z_][A-Za-z0-9_]*)[\x27\x22]?", ln)
+    if m:
+        term = m.group(1)
+s = "\n".join(out)
+buf, q, i = [], None, 0
+while i < len(s):
+    ch = s[i]
+    if q:
+        if ch == q:
+            q = None
+        elif ch == "\\" and q == "\x22":
+            i += 1
+        i += 1
+        continue
+    if ch in ("\x27", "\x22"):
+        q = ch
+        buf.append(" ")
+    elif ch == "\\":
+        i += 1
+    else:
+        buf.append(ch)
+    i += 1
+for clause in re.split(r"[\n;&|()]", "".join(buf)):
+    w = clause.split()
+    if w and w[0] == "import":
+        print("import")
+        break
+' 2>/dev/null || true)"
+if [ "$_hit" = "import" ]; then
     cat >&2 <<'BLOCK'
 BLOCKED: this command starts with `import`, which is ImageMagick's SCREEN CAPTURE tool.
 

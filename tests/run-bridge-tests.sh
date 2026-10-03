@@ -2512,6 +2512,17 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-936 / T-1009: the bare-import gate refuses what its header promises, and nothing else ──
+# Its code had narrowed to line 1's first word while the header still promised && ; | newline.
+# 8 catches and 9 controls (both heredoc forms, python -c, grep/echo mentions, absolute path).
+if bash "$ROOT/tools/_t936-bare-import-gate-teeth.sh" > "$TMP/leg-_t936-bare-import-gate.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the bare-import gate (check-bare-import.sh) misses a catch its header promises, or blocks a working command such as a python heredoc (run 'bash tools/_t936-bare-import-gate-teeth.sh'; rc 2 means the gate script was not found)"
+  show_output "$TMP/leg-_t936-bare-import-gate.out" "_t936-bare-import-gate-teeth.sh"
+  fail=$((fail + 1))
+fi
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception

@@ -1122,11 +1122,15 @@ entries:
   #    the protocol could not list them (it sees only declared paths). Restored from 2659abad^. ──
   - path: .agentic-framework/agents/context/check-bare-import.sh
     kind: added
-    task: T-936, T-1005
+    task: T-936, T-1005, T-1009
     upstream: fix
     reason: >-
       Detector added by T-936. Undeclared, so deleted silently by the 1.7.740 re-vendor; restored.
-      Its hook wiring is re-checked under T-1005.
+      T-1009 (2026-10-04): wiring checked -- NOT enabled (the operator's `fw hook-enable`, pending
+      since 09-29; B-005 keeps agents out of .claude/settings.json). Code fixed to match its own
+      header: it had narrowed to line 1's first word, silently dropping the promised && ; | newline
+      catches. tools/_t936-bare-import-gate-teeth.sh 17/17 (6 red before), bridge leg. Sent upstream
+      in bundle B.
   - path: .agentic-framework/lib/instance-position.sh
     kind: added
     task: T-880, T-883, T-1005
