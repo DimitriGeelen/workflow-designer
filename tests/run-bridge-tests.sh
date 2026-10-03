@@ -1041,13 +1041,45 @@ else
 fi
 
 echo
-echo "== The learning ledger enforces the human checkpoint (T-984, T-982 GO) =="
+echo "== The learning ledger enforces its checkpoint: evidence + a calibrated cross-vendor panel (T-984, T-1006) =="
 # Nothing is promoted without confirmation, and a promotion must be visible in the file it names.
+# Since T-1006 confirmation is a green evidence re-run plus agree from two calibrated vendors other
+# than the author's, never a person vouching for a technical claim.
 if python3 "$ROOT/tests/test_t984_learning_ledger.py" > "$TMP/leg-_t984.out" 2>&1; then
   pass=$((pass + 1))
 else
-  report FAIL "the learning ledger let a lesson skip the human checkpoint, claimed a promotion its file does not show, or duplicated a repeated lesson (T-984 — run 'python3 tests/test_t984_learning_ledger.py'; 'python3 tools/learning-ledger.py check' names the entry)"
+  report FAIL "the learning ledger let a lesson skip its checkpoint (evidence + calibrated panel), claimed a promotion its file does not show, or duplicated a repeated lesson (T-984 — run 'python3 tests/test_t984_learning_ledger.py'; 'python3 tools/learning-ledger.py check' names the entry)"
   show_output "$TMP/leg-_t984.out" "test_t984_learning_ledger.py"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== Lesson confirmation: evidence + calibrated cross-vendor quorum (T-1006) =="
+if bash "$ROOT/tests/test_t1006_ledger_quorum.sh" > "$TMP/leg-_t1006.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a lesson can be confirmed without green evidence, without two calibrated vendors, by an uncalibrated or fooled reviewer, or by operator assent (T-1006 — run 'bash tests/test_t1006_ledger_quorum.sh')"
+  show_output "$TMP/leg-_t1006.out" "test_t1006_ledger_quorum.sh"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== A link catch draws no dead-end of its own (T-1008, ledger L20) =="
+if python3 -m pytest -q -p no:cacheprovider "$ROOT/tests/test_t1008_catch_no_deadend.py" > "$TMP/leg-_t1008c.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a link catch draws its own W-(XML-)DEADEND again, or a catch reached by flow stopped being assessed (T-1008 — run 'python3 -m pytest tests/test_t1008_catch_no_deadend.py')"
+  show_output "$TMP/leg-_t1008c.out" "test_t1008_catch_no_deadend.py"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== A new kit ships only with a calibration of its own bytes (T-1008, ledger L16) =="
+if bash "$ROOT/tests/test_t1008_kit_calibration_gate.sh" > "$TMP/leg-_t1008g.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the kit calibration gate passes without a record, with a FAIL, or with a record of different bytes (T-1008 — run 'bash tests/test_t1008_kit_calibration_gate.sh')"
+  show_output "$TMP/leg-_t1008g.out" "test_t1008_kit_calibration_gate.sh"
   fail=$((fail + 1))
 fi
 

@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T23:34:09Z
-last_update: 2026-10-03T00:07:20Z
+last_update: 2026-10-03T00:24:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,14 +62,14 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] L20 validator: a link catch draws no W-DEADEND/W-XML-DEADEND of its own (both forms); a mid-flow catch reached by flow is still assessed; regression test covers both
-- [ ] L18 calibration: clean.bpmn AND planted.bpmn drop 'accepted orders' and mark that flow the gateway's default; AUTHORING branch-label rule gains the default-flow sentence
-- [ ] L22-L26 AUTHORING: detailed-in rule, duplicate display names, K2 for hand-overs, multi-quote citations, fork-vs-join correction (and the matching RUBRIC line)
-- [ ] L27: AUTHORING hand-over rule and generated CONFORMANCE.md declare cross-map links an AEF convention beyond BPMN 2.0.2, naming the message-flow alternative
-- [ ] L17: loop.sh header states the prompt-placement rule; L16: the release path refuses a kit version with no recorded PASS calibration
-- [ ] Each of the 10 lessons is promoted in the ledger with a marker present in its file (`learning-ledger.py check` clean)
+- [x] L20 validator: a link catch draws no W-DEADEND/W-XML-DEADEND of its own (both forms); a mid-flow catch reached by flow is still assessed; regression test covers both
+- [x] L18 calibration: clean.bpmn AND planted.bpmn drop 'accepted orders' and mark that flow the gateway's default; AUTHORING branch-label rule gains the default-flow sentence
+- [x] L22-L26 AUTHORING: detailed-in rule, duplicate display names, K2 for hand-overs, multi-quote citations, fork-vs-join correction (and the matching RUBRIC line)
+- [x] L27: AUTHORING hand-over rule and generated CONFORMANCE.md declare cross-map links an AEF convention beyond BPMN 2.0.2, naming the message-flow alternative
+- [x] L17: loop.sh header states the prompt-placement rule; L16: the release path refuses a kit version with no recorded PASS calibration
+- [x] Each of the 10 lessons is promoted in the ledger with a marker present in its file (`learning-ledger.py check` clean)
 - [ ] Kit builds (build-authoring-kit.py --check), kit tests and validator tests pass; bridge suite not worse than 29 failures
-- [ ] Real calibration of the 0.15.3 kit with the calibrated reviewers: PASS (3/3 caught, 0 false on clean) recorded
+- [x] Real calibration of the 0.15.3 kit with the calibrated reviewers: PASS (3/3 caught, 0 false on clean) recorded
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

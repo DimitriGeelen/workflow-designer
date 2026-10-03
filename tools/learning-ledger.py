@@ -60,7 +60,10 @@ def now():
 
 
 def norm(s):
-    return re.sub(r'\s+', ' ', str(s).strip().lower())
+    # Restored verbatim from T-984 (T-1008): the T-1006 rewrite dropped the punctuation strip, so
+    # 'Command lists are not process steps.' and 'command LISTS are not process steps' stopped
+    # merging and a repeated lesson became a duplicate. Caught by tests/test_t984 leg 2.
+    return re.sub(r'[^a-z0-9 ]', '', re.sub(r'\s+', ' ', (s or '').lower())).strip()
 
 
 def load(path):
@@ -71,18 +74,19 @@ def load(path):
 
 
 def save(path, d):
+    # Keep the human-written header comment: rewrite only the body below it.
+    # (Restored verbatim from T-984 by T-1008: the T-1006 rewrite kept only leading '#' lines and
+    # so dropped any key or comment written above `learnings:`.)
     head = ''
     if os.path.exists(path):
-        with open(path, encoding='utf-8') as f:
-            for line in f:
-                if not line.startswith('#'):
-                    break
-                head += line
+        lines = open(path, encoding='utf-8').read().split('\n')
+        for i, l in enumerate(lines):
+            if l.startswith('learnings:'):
+                head = '\n'.join(lines[:i]) + '\n'
+                break
+    body = yaml.safe_dump({'learnings': d['learnings']}, sort_keys=False, allow_unicode=True, width=100)
     with open(path, 'w', encoding='utf-8') as f:
-        f.write(head + ('\n' if head else ''))
-        yaml.safe_dump(d, f, sort_keys=False, allow_unicode=True, width=100)
-
-
+        f.write(head + body)
 @contextlib.contextmanager
 def locked(path):
     """Serialise read-modify-write on the ledger: reviews run in parallel and each takes minutes."""
