@@ -340,13 +340,14 @@ entries:
       are in git history. Classification of all 24 former local commits, verified against upstream
       line numbers: docs/reports/T-1005-audit-sh-classification.md.
       RE-APPLIED here (each by 3-way merge of its own commit, each with its probe green): T-371
-      (C-002 hook message), T-534 (D2 names only tasks meeting its bar), T-656 (signed-off tasks are
-      not awaiting judgement; with its active-task-scan.py hunk), T-677 (a partial run never
-      clobbers the day's fuller record; trend counts once per date), T-934 (unit-suite check skips
+      (C-002 hook message), T-534 (D2 names only tasks meeting its bar), T-535 (env AUDITS_DIR; trend
+      key aggregates moving numbers), T-651 (zero-byte root files), T-656 (signed-off tasks are not
+      awaiting judgement; with its active-task-scan.py hunk), T-677 (a partial run never clobbers the
+      day's fuller record), T-873 (an unreviewed CLAUDE.md.bak is read), T-934 (unit-suite check skips
       where no suite exists). These are the upstream debt.
-      NOT YET RE-APPLIED (conflict on 1.7.740; T-1005 open): T-525 (fabric coverage direction, needs
-      a redesign), T-535 (AUDITS_DIR, trend key on moving numbers), T-651 (zero-byte root files),
-      T-873 (CLAUDE.md.bak left by upgrade).
+      NOT RE-APPLIED: T-525 (fabric coverage as a ratio, a FALL in registered cards named). Upstream
+      moved the coverage verdict into the drift check (AEF T-2735), so the old block has no home; it
+      needs a redesign against the drift check, and the _t525 bridge leg stays red until then.
     superseded_changes: >-
       T-344, T-345, T-374 (AEF T-2735/T-2737), T-654 (upstream episodic Check 1), T-833 (AEF T-3444,
       audit.sh CTL-029 owner skip).
