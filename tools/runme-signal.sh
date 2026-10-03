@@ -19,7 +19,9 @@
 #
 # Line format:  <utc-iso> <run-id> <event> <text>     event: started | step | done | STOPPED
 
-RUNME_EVENTS_FILE="${RUNME_EVENTS_FILE:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.context/working/runme.events}"
+# The project root comes from THIS file's location, not the caller's cwd: the 0.15.3 release was run
+# from another directory and its events reached the topic but not this file (2026-10-03).
+RUNME_EVENTS_FILE="${RUNME_EVENTS_FILE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)/.context/working/runme.events}"
 RUNME_SIGNAL_TOPIC="${RUNME_SIGNAL_TOPIC:-runme-832}"
 RUNME_RUN_ID="${RUNME_RUN_ID:-runme-$(date +%Y%m%dT%H%M%S)-$$}"
 

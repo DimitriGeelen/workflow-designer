@@ -67,6 +67,11 @@ else
     echo "SKIP 7 hub unreachable"; fail=$((fail+1))
 fi
 
+# 8. run from ANOTHER directory, the default events file is still this project's (2026-10-03: the
+#    0.15.3 release ran from elsewhere and its events never reached .context/working/runme.events)
+got=$(cd "$T" && env -u RUNME_EVENTS_FILE bash -c '. "$1/tools/runme-signal.sh"; echo "$RUNME_EVENTS_FILE"' _ "$ROOT")
+[ "$got" = "$ROOT/.context/working/runme.events" ]; ok $? "8 default events file follows the script, not the caller's cwd ($got)"
+
 # 6. timeout exit is distinct and says so
 RUNME_EVENTS_FILE="$T/quiet" RUNME_SIGNAL_TOPIC="runme-832-test-quiet" bash "$ROOT/tools/runme-watch.sh" 2 > "$T/w6" 2>&1; rc=$?
 [ "$rc" = 3 ] && grep -q "no event" "$T/w6"; ok $? "6 nothing happens: watcher exits 3 and says so"
