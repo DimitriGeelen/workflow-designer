@@ -1,0 +1,223 @@
+From ce224df2af49e1cfb63932aa5c61e972b429c134 Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 01:50:42 +0200
+Subject: [PATCH] safe-commands: allowlisted reads that write are writes;
+ quoted operators are not redirects (from 832 T-1005; AEF T-3746)
+
+On this tree, grep/sed/sort/awk/uniq were allowlisted as reads while each has a form that writes:
+'2> f' / '&> f', sed's w command, sort -o / --output, awk 'print > "f"' / 'print | cmd' /
+system(), and uniq IN OUT. Each now counts as a write in has_bash_write_pattern. Redirect, rm and
+tee checks read the _fw_strip_quoted view, so grep -n ">>" f, echo "a > b" and grep -c "x>y" f
+are no longer refused as writes; rm/tee named inside framework prose verbs (fw note "...") are
+data, while bash -c "rm -rf x" stays a write.
+Fixture: tests/unit/test_t3746_allowlisted_writes.sh, composed as check-active-task.sh composes
+the gate (allowed iff not has_bash_write_pattern and is_bash_safe_command): 11 writes incl. a
+control, 10 reads. Before: 10/21 (8 writes pass as reads, 3 reads refused). After: 21/21.
+Your 8 safe-commands bats suites: unchanged (test 42 of context_safe_commands fails before and
+after this commit).
+---
+ agents/context/lib/safe-commands.sh         | 90 ++++++++++++++++++++-
+ tests/unit/test_t3746_allowlisted_writes.sh | 68 ++++++++++++++++
+ 2 files changed, 155 insertions(+), 3 deletions(-)
+ create mode 100644 tests/unit/test_t3746_allowlisted_writes.sh
+
+diff --git a/agents/context/lib/safe-commands.sh b/agents/context/lib/safe-commands.sh
+index 0509b470..c302d060 100644
+--- a/agents/context/lib/safe-commands.sh
++++ b/agents/context/lib/safe-commands.sh
+@@ -1057,6 +1057,43 @@ _fw_single_command_is_safe() {
+ }
+ 
+ # Check if a command contains file-write patterns
++# 832 T-636 (re-applied on 1.7.740 by T-1005): framework verbs whose quoted arguments are
++# PROSE the framework stores, not shell it runs. Only for these may a verb named inside quotes
++# (`fw note "tee writes a copy"`) be ignored by the rm/tee checks below.
++_sc_is_framework_prose_verb() {
++    local c="$1" tok1 tok2 tok3 rest
++    rest="${c#"${c%%[![:space:]]*}"}"          # ltrim
++    tok1="${rest%%[[:space:]]*}"
++    case "$tok1" in
++        fw|*/fw) ;;
++        *) return 1 ;;
++    esac
++    rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
++    tok2="${rest%%[[:space:]]*}"
++    rest="${rest#"$tok2"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
++    tok3="${rest%%[[:space:]]*}"
++    case "$tok2" in
++        note) return 0 ;;
++        # T-650: the alias needs its OWN entry here, not just in _sc_simple_is_safe.
++        # The two lists answer different questions — "is this verb safe with no task?"
++        # and "does this verb take free prose that must not be read as shell?" — and
++        # `fw fix-learned T-XXX "<sentence>"` needs a yes from both. With only the first,
++        # the command is admitted and then trips on its own argument the moment a learning
++        # contains `>` or `&&`, which is exactly the kind of sentence a bugfix learning is.
++        fix-learned) return 0 ;;
++        context)
++            case "$tok3" in add-learning|add-pattern|add-decision) return 0 ;; esac
++            ;;
++        task)
++            case "$tok3" in create) return 0 ;; esac
++            ;;
++        git)
++            case "$tok3" in commit) return 0 ;; esac
++            ;;
++    esac
++    return 1
++}
++
+ has_bash_write_pattern() {
+     local cmd="$1"
+ 
+@@ -1068,7 +1105,17 @@ has_bash_write_pattern() {
+     # and stay writes, and any OTHER redirect on the line still bites below.
+     # (The T-3344 strip in is_bash_safe_command covers the allowlist side only;
+     # check-active-task consults THIS scan first.)
+-    local _scan="$cmd" _sprev=""
++    # 832 T-404/T-632 (re-applied on 1.7.740 by T-1005): judge REDIRECTS on shell structure,
++    # not on characters inside quotes. `grep -n "a\\|>>\\|b" f`, `echo "a > b"` and
++    # `python3 -c "...>= 50..."` are reads; the raw-text scan called them writes and the
++    # no-task gate refused them. Uses upstream's _fw_strip_quoted. Conservative fallbacks to
++    # the RAW text: unbalanced quotes (strip fails), or any command substitution, since
++    # stripping a double-quoted "$(cmd > f)" would hide a real write.
++    local _rview="$cmd"
++    if [[ "$cmd" != *'$('* && "$cmd" != *'`'* ]] && declare -F _fw_strip_quoted >/dev/null 2>&1; then
++        _rview="$(_fw_strip_quoted "$cmd")" || _rview="$cmd"
++    fi
++    local _scan="$_rview" _sprev=""
+     while [ "$_scan" != "$_sprev" ]; do
+         _sprev="$_scan"
+         _scan=$(printf '%s' "$_scan" | sed -E 's#(^|[^>&0-9])([0-9]|&)?>>?[[:space:]]*/dev/null([[:space:];|&)]|$)#\1 \3#')
+@@ -1084,8 +1131,45 @@ has_bash_write_pattern() {
+         return 0
+     fi
+ 
++    # 832 T-632/T-640 (re-applied on 1.7.740 by T-1005). Three writes the checks above miss,
++    # each on a verb the allowlist ADMITS, so a miss here is an unguarded write without a task:
++    #   2> FILE / &> FILE   the redirect test above skips every fd-2 and &> form (to keep 2>&1);
++    #                       /dev/null targets were already stripped from $_scan
++    #   sed ... w FILE      sed's w flag / w command writes without -i
++    #   sort -o / --output  sort writes its output file itself
++    if echo "$_scan" | grep -qE '(^|[^>&0-9])(2|&)>>?[[:space:]]*[^&[:space:]]'; then
++        return 0
++    fi
++    if echo "$cmd" | grep -qE "\bsed\b.*[^[:alnum:]]w[[:space:]]+[^[:space:]'\"]"; then
++        return 0
++    fi
++    if echo "$cmd" | grep -qE '\bsort\b.*(^|[[:space:]])(-o([[:space:]]|$)|--output)'; then
++        return 0
++    fi
++    # 832 T-640 (re-applied on 1.7.740 by T-1005). Upstream ALLOWLISTS awk and uniq; ours kept
++    # them gated because each can write without a shell redirect. So the write check must see it:
++    #   awk/gawk/mawk  `print > "f"`, `print | cmd`, `system(...)` live INSIDE the quoted program,
++    #                  which the quote-aware redirect scan above (rightly) ignores — judged on RAW
++    #   uniq IN OUT    the second file operand is an output file
++    if echo "$cmd" | grep -qE '(^|[^[:alnum:]_-])[gm]?awk\b' \
++       && echo "$cmd" | grep -qE '>|system[[:space:]]*\(|print[^|]*\|'; then
++        return 0
++    fi
++    if echo "$_rview" | grep -qE '(^|[;&|[:space:]])uniq\b'; then
++        local _uw _un=0 _after=0
++        for _uw in $(printf '%s' "$cmd" | sed -E 's/.*(^|[;&|[:space:]])uniq\b//; s/[;&|].*//'); do
++            case "$_uw" in -*) ;; *) _un=$((_un + 1)) ;; esac
++        done
++        [ "$_un" -ge 2 ] && return 0
++    fi
++
+     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
+-    if echo "$cmd" | grep -qE '\b(rm|rmdir)\b'; then
++    # T-636 (re-applied by T-1005): verbs named INSIDE a quoted argument of a framework PROSE
++    # verb are text, not commands. Any other command keeps the raw view: `bash -c "rm -rf x"`
++    # executes its quotes.
++    local _pview="$cmd"
++    if [ "$_rview" != "$cmd" ] && _sc_is_framework_prose_verb "$cmd"; then _pview="$_rview"; fi
++    if echo "$_pview" | grep -qE '\b(rm|rmdir)\b'; then
+         return 0
+     fi
+ 
+@@ -1095,7 +1179,7 @@ has_bash_write_pattern() {
+     fi
+ 
+     # tee (writes to file)
+-    if echo "$cmd" | grep -qE '\btee\b'; then
++    if echo "$_pview" | grep -qE '\btee\b'; then
+         return 0
+     fi
+ 
+diff --git a/tests/unit/test_t3746_allowlisted_writes.sh b/tests/unit/test_t3746_allowlisted_writes.sh
+new file mode 100644
+index 00000000..c33a2645
+--- /dev/null
++++ b/tests/unit/test_t3746_allowlisted_writes.sh
+@@ -0,0 +1,68 @@
++#!/usr/bin/env bash
++# _t3746-allowlisted-writes-fixture.sh — allowlisted "read-only" verbs that WRITE must not pass the
++# no-task gate, and the reads that merely LOOK like writes must still pass. (832 T-1005 → AEF T-3746)
++#
++# Subject: agents/context/lib/safe-commands.sh, composed exactly as the PreToolUse task gate
++# (check-active-task.sh) composes it to let a command run with no active task: ALLOWED iff
++# has_bash_write_pattern says no AND is_bash_safe_command says yes.
++#
++# On 1.7.740 as shipped, grep/sed/sort/awk/uniq were allowlisted as reads while each has a form
++# that writes a file: `2> f`, `&> f`, sed's `w` command, sort -o / --output, awk's in-program
++# `print > "f"` / `print | cmd` / system(), and uniq IN OUT. 832 closed them in its vendored copy
++# (6fc8e737, c31857a3, 6c3cbd39, 27ba4c0e, b87b1409) and verified end to end through the real hook.
++# This file is that matrix, made repeatable. The READ half matters as much: a write check that
++# fires on `grep -n ">>" f` or `echo "a > b"` gets the allowlist bypassed in practice.
++#
++# Usage: bash _t3746-allowlisted-writes-fixture.sh [path/to/safe-commands.sh]
++# Exit 0 = matrix as expected, 1 = a row wrong, 2 = subject not found.
++set -uo pipefail
++ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"   # tests/unit -> repo root
++LIB="${1:-}"
++if [ -z "$LIB" ]; then
++  if [ -f "$ROOT/FRAMEWORK.md" ]; then _order="$ROOT/agents/context/lib $ROOT/.agentic-framework/agents/context/lib"
++  else _order="$ROOT/.agentic-framework/agents/context/lib $ROOT/agents/context/lib"; fi
++  for d in $_order; do [ -f "$d/safe-commands.sh" ] && { LIB="$d/safe-commands.sh"; break; }; done
++fi
++[ -n "$LIB" ] && [ -f "$LIB" ] || { echo "CANNOT RUN: safe-commands.sh not found"; exit 2; }
++
++PASS=0; FAIL=0
++check() { # $1 = want (write|read), $2 = command
++  local rc got
++  LIBF="$LIB" CMD="$2" bash -c 'source "$LIBF" >/dev/null 2>&1
++    if type has_bash_write_pattern >/dev/null 2>&1 && has_bash_write_pattern "$CMD"; then exit 1; fi
++    is_bash_safe_command "$CMD"' >/dev/null 2>&1; rc=$?
++  if [ "$rc" -eq 0 ]; then got=read; else got=write; fi
++  if [ "$got" = "$1" ]; then PASS=$((PASS+1)); printf '  PASS  %-5s %s\n' "$1" "$2"
++  else FAIL=$((FAIL+1)); printf '  FAIL  %-5s %s   (judged %s)\n' "$1" "$2" "$got"; fi
++}
++
++echo "subject: $LIB"
++echo "WRITES — must NOT pass as a read"
++check write 'echo x > out.txt'                         # control: the plain redirect every gate catches
++check write 'grep pattern file.txt 2> err.log'
++check write 'grep pattern file.txt &> all.log'
++check write "sed -n 'w out.txt' file.txt"
++check write "sed -n '/x/w out.txt' file.txt"
++check write 'sort -o out.txt file.txt'
++check write 'sort --output=out.txt file.txt'
++check write "awk '{print > \"o.txt\"}' file.txt"
++check write "awk '{print | \"sh\"}' file.txt"
++check write "awk 'BEGIN{system(\"touch x\")}'"
++check write 'uniq in.txt out.txt'
++
++echo "READS — must still pass"
++check read  'grep -n ">>" file.txt'
++check read  'echo "a > b"'
++check read  'grep -c "x>y" file.txt'
++check read  'grep pattern file.txt 2>/dev/null'
++check read  'grep pattern file.txt 2>&1'
++check read  'sort file.txt'
++check read  'uniq file.txt'
++check read  "awk '{print \$1}' file.txt"
++check read  "sed -n '1,5p' file.txt"
++check read  'cat file.txt'
++
++echo "=== SUMMARY ==="
++echo "PASS: $PASS"
++echo "FAIL: $FAIL"
++[ "$FAIL" -eq 0 ]
+-- 
+2.43.0
+

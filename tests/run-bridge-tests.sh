@@ -2523,6 +2523,18 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1005 / AEF T-3746: allowlisted "reads" that write are refused; quoted operators are not ──
+# 11 writes (incl. the echo > control) and 10 reads, composed exactly as check-active-task.sh
+# composes the no-task gate. 1.7.740 as shipped scores 10/21; a re-vendor that drops our
+# safe-commands.sh fixes shows up here.
+if bash "$ROOT/tools/_t3746-allowlisted-writes-fixture.sh" > "$TMP/leg-_t3746-allowlisted-writes.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an allowlisted read-only verb writes a file without being refused by the no-task gate, or a read with a quoted > is refused (run 'bash tools/_t3746-allowlisted-writes-fixture.sh'; rc 2 means safe-commands.sh was not found)"
+  show_output "$TMP/leg-_t3746-allowlisted-writes.out" "_t3746-allowlisted-writes-fixture.sh"
+  fail=$((fail + 1))
+fi
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception
