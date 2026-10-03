@@ -167,23 +167,31 @@ T-651, T-656, T-677, T-873, T-934, T-938). Upstream audit.sh has **no extension 
 a project-owned script on their own schedule (T-999), the extension point goes to AEF (T-995 U1a),
 and the 10 fixes are re-applied or upstreamed one by one.
 
+## Session 2026-10-03 (later): audit.sh, completed-task-scan, bin/fw, ask.py, web — done
+
+Method that worked: for each file, `git apply -3` of each local commit IN HISTORICAL ORDER (git holds
+the pre-images, so it merges onto upstream's restructured files); a conflict is resolved by reading
+both sides; each change's own probe is the verdict. Probes run on UPSTREAM FIRST to spot supersession.
+
+| file | re-applied | superseded / other |
+|---|---|---|
+| audit.sh | T-371, T-534, T-535, T-651, T-656, T-677, T-873, T-934 (each probe green) | T-344/345/374/654/833 superseded; 8 project rails moved to tools/project-audit.sh (T-999); **T-525 pending a redesign** (upstream moved coverage into the drift check) |
+| active-task-scan.py | T-656 hunk | — |
+| completed-task-scan.py | T-674, T-678 (fence PASSED) | T-919 superseded by AEF T-3569 (their adoption of ours); _t919 retargeted 10/10 |
+| bin/fw, lib/ask.py, web/test_app.py | T-643/T-644 (_t643 17/17, _t644 5/5), T-739 (PASS), T-887 (fw external) | — |
+| web/app.py, bvp.py, conftest.py, test_costs.py, approvals.html | T-545->T-858, T-547, T-648, T-772 (_t545, _t547 green) | T-544 superseded |
+
+Web tests: 155 pass; the same 23 fail on upstream's own test_app.py in this environment (pre-existing).
+`_t517`: 27 -> **3 stale**.
+
 ## RESUME POINT (next session starts here)
 
-State at d6e404bc: `_t517` ~30 stale; bridge suite measured 137/29 at cd64a26e (before the allowlist
-work). Done: update-task.sh (14 probes), create-task.sh, hooks.sh (+ live hooks reinstalled, gate
-re-added), observe.sh, the allowlist + drift gate, superseded entries pruned, 5 deleted additions
-restored, G4 gate. Uncommitted on purpose: `.agentic-framework/web/test_context_tokens.py` (restored,
-untracked — commit with the budget work).
-
-Next, in order:
-1. ~~`checkpoint.sh` + `budget-gate.sh`~~ DONE (above) (T-401/T-402/T-675/T-849): 1.7.740 HAS a `budget` verb, but
-   the read fence fails 8 arms (stale / foreign / absent / zero-token caches are not refused) and
-   `_t849` fails 8 legs. Same method: measure behaviour, add only what is missing, probe-verify.
-2. ~~`handover.sh`~~ DONE (above).
-3. `audit.sh` (25 local commits) — move OUR rails to a project-owned audit extension (T-999)
-   rather than patch it again; that also restores the T-952 ratchet line.
-4. fabric (`drift.sh` T-524, `enrich.py` T-343), BVP (estimator, bvp.sh, bvp.py), `lib/arc.sh`,
-   `lib/ask.py`, `bin/fw` (fw external route), web (`app.py`, approvals.html, tests).
-5. Re-run the bridge suite (file output, never piped to head) and record the count.
-Method notes: `fw git commit -m` (never `-qm`), unfiltered output, `git log -1` after each commit;
-a merge source for T-840-era losses is the pre-T-840 file over the v1.6.763 baseline.
+3 stale entries left, all BVP: `agents/termlink/bvp-estimator/estimator.py` (T-541 c, T-542 c, T-865 clean,
+T-867 c, T-868 clean), `lib/bvp.sh` (T-542 c, T-856 c), `lib/arc.sh` (T-467 c, T-679 c) — "c" = 3-way
+conflict on 1.7.740. Probes on upstream: _t541 REFUSE (handler absent), _t542 FAIL, _t865/_t867/_t868
+cannot-measure, _t467 FAIL, _t856 9/5. FIRST QUESTION before re-applying: T-541's handlers are
+project-specific BVP drivers (score_v_workflow_routing ...): like the audit rails, they may belong in a
+project-owned place, not in vendored estimator.py. Patches: /tmp scratchpad rv/*.patch are gone after
+the session; regenerate with `git show <sha> -- <path>`. Then T-525 (redesign against the drift check),
+then the bridge suite, then close T-1005. After that: AEF's next build via the re-vendor protocol
+(operator said yes, after T-1005).
