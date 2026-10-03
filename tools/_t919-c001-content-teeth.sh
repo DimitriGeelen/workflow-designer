@@ -119,7 +119,8 @@ echo "CONTROLS"
 read -r C320 C513 <<<"$(python3 - <<'PY'
 import sys
 sys.path.insert(0, ".agentic-framework/lib")
-from research_preserved import research_chars
+# 1.7.740: AEF adopted this predicate as T-3569 under its own names (T-1005).
+from research_preserved import research_prose_chars as research_chars
 tmpl = ("## Hypothesis\nWe believe that child-3: Reverse discovery (AEF record -> editable process "
         "map), we will achieve arc: designer-authoring-surface child-3. We will know we have "
         "succeeded when the thing works as described above in the hypothesis statement here.\n")
@@ -136,9 +137,9 @@ ok "real prose scores above it ($C513 >= 400)" \
 # ONE ENCODING: both scanners must import the predicate, never restate it. A second copy is how the
 # delegation boundary ended up encoded twice and disagreeing (G-052, measured 2026-09-29).
 ok "completed scan IMPORTS the predicate" \
-   "$(grep -q 'from research_preserved import research_preserved_in_task' "$SCAN" && echo 0 || echo 1)"
+   "$(grep -qE 'from research_preserved import research_preserved(_in_task)?' "$SCAN" && echo 0 || echo 1)"
 ok "active scan IMPORTS the predicate" \
-   "$(grep -q 'from research_preserved import research_preserved_in_task' .agentic-framework/agents/audit/active-task-scan.py && echo 0 || echo 1)"
+   "$(grep -qE 'from research_preserved import research_preserved(_in_task)?' .agentic-framework/agents/audit/active-task-scan.py && echo 0 || echo 1)"
 ok "neither scanner carries its own RESEARCH_SECTIONS list" \
    "$(! grep -qE '^RESEARCH_SECTIONS' "$SCAN" .agentic-framework/agents/audit/active-task-scan.py && echo 0 || echo 1)" \
    "a second copy of the section vocabulary is the start of the drift"
@@ -146,7 +147,7 @@ ok "neither scanner carries its own RESEARCH_SECTIONS list" \
 # The in-task record must not then trip the "has artifact but doesn't reference it" branch: a task
 # cannot fail to reference itself. This fired on T-280 in the first version of the fix.
 ok "in-task record skips the unreferenced branch (a task cannot fail to cite itself)" \
-   "$(grep -q 'elif not in_task_record:' .agentic-framework/agents/audit/active-task-scan.py && echo 0 || echo 1)"
+   "$(grep -qE 'elif not in_task_record:|and not in_task_record' .agentic-framework/agents/audit/active-task-scan.py && echo 0 || echo 1)"
 echo
 
 echo "For information, not asserted (the live corpus moves):"
