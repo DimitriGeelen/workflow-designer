@@ -2500,6 +2500,18 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-931 / T-1009: `fw task delegate` makes ownership follow the open Human criteria ──
+# The fix (owner flips only when no Human criterion is open, not only when this run converted
+# something) was lost silently in the 1.7.740 re-vendor because no test held it. Four cases,
+# one a control: an open judgement criterion must keep owner: human.
+if python3 "$ROOT/tools/_t931-delegate-owner-follows-criteria.py" > "$TMP/leg-_t931-delegate-owner.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "fw task delegate no longer makes ownership follow the open Human criteria — a task with nothing open keeps owner: human, or one with an open criterion lost it (run 'python3 tools/_t931-delegate-owner-follows-criteria.py'; rc 2 means the CLI could not be run, not a pass)"
+  show_output "$TMP/leg-_t931-delegate-owner.out" "_t931-delegate-owner-follows-criteria.py"
+  fail=$((fail + 1))
+fi
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception

@@ -152,6 +152,17 @@ entries:
       which makes bvp_scores sticky, not inception inputs. Probes _t865 7/7, _t867 10/10,
       _t868 6/6 (all TEETH BROKEN on upstream). Upstream candidates: the body-path source and
       the arc-004 trio, offered via T-1009.
+  - path: .agentic-framework/lib/delegation_cli.py
+    kind: content
+    task: T-1009
+    upstream: fix
+    reason: >-
+      T-931 (0a00d59d, operator ruling 2026-09-29): `fw task delegate` flips owner human -> agent
+      when no Human criterion is open, not only when the run converted something. Lost SILENTLY by
+      the 1.7.740 re-vendor (never declared, no test held it); found 2026-10-04 under T-1009 and
+      re-applied. AEF bleeding-edge 914326e0 still has the old condition -- sent upstream in
+      bundle A. Regression test tools/_t931-delegate-owner-follows-criteria.py (bridge leg),
+      4/4, both bug cases red before the fix.
   - path: .agentic-framework/lib/arc.sh
     kind: content
     task: T-1005

@@ -1,13 +1,20 @@
 ---
 id: T-1009
-name: "Upstream pickup bundles for AEF: T-931 stale-ownership (their T-3568) and T-936/T-939 capture + secret-history scan (their T-3572)"
+name: "Upstream pickup bundles for AEF: T-931 stale-ownership (their T-3568) and T-936/T-939
+  capture + secret-history scan (their T-3572)"
 description: >
-  AEF asked (sidecar t931-stale-ownership, consult-832-Workflow-designer, 09-29/30, unread until 10-03) for our fixes as pickups. None is in 1.7.740. Curate each as a git format-patch series against AEF paths (T-931 spans 6 commits incl. lib/task-ownership.sh, sweep, gate arm, audit check, reversion ledger, tests; T-3572: tools/_t936-stray-capture-scan.py + teeth, tools/tracked-secret-artifacts.py --history, the audit hunk now in tools/project-audit.sh), verify each applies to a clean 1.7.740 tree, and deliver with a manifest.
+  AEF asked (sidecar t931-stale-ownership, consult-832-Workflow-designer, 09-29/30,
+  unread until 10-03) for our fixes as pickups. None is in 1.7.740. Curate each as
+  a git format-patch series against AEF paths (T-931 spans 6 commits incl. lib/task-ownership.sh,
+  sweep, gate arm, audit check, reversion ledger, tests; T-3572: tools/_t936-stray-capture-scan.py
+  + teeth, tools/tracked-secret-artifacts.py --history, the audit hunk now in tools/project-audit.sh),
+  verify each applies to a clean 1.7.740 tree, and deliver with a manifest.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T11:44:35Z
-last_update: 2026-10-03T11:44:35Z
-date_finished: null
+last_update: 2026-10-03T23:21:41Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +57,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-03T23:18:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1009: Upstream pickup bundles for AEF: T-931 stale-ownership (their T-3568) and T-936/T-939 capture + secret-history scan (their T-3572)
@@ -67,8 +95,10 @@ the G4 gate, tests/test_t1000_revendor_gate.sh, plus a regression fixture for T-
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Three bundles under docs/upstream-pickups/ — A T-931 stale-ownership (AEF T-3568), B T-936/T-939 stray-capture + secret-history scan (AEF T-3572), C T-1000 re-vendor tooling + T-3746 fixture (AEF T-3737) — each a `git format-patch` series with paths rewritten to AEF's tree (no `.agentic-framework/` prefix, project-only paths mapped or excluded with a reason)
+- [ ] Each series is verified to `git am` cleanly onto AEF's current bleeding-edge (GitHub mirror branch) in a scratch clone, and its own probe/test runs green there; the result (applies / conflicts / probe outcome) is recorded per bundle in the manifest
+- [ ] A MANIFEST.md per bundle names: AEF task, what it fixes, files, the probe that proves it, what was deliberately left out, and the base commit it was verified against
+- [ ] Delivered to AEF (file transfer or pickup topic) with the manifest summary on the sidecar, and the delivery offset/transfer id recorded here
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -325,3 +355,7 @@ the G4 gate, tests/test_t1000_revendor_gate.sh, plus a regression fixture for T-
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1009-upstream-pickup-bundles-for-aef-t-931-st.md
 - **Context:** Initial task creation
+
+### 2026-10-03T23:18:37Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
