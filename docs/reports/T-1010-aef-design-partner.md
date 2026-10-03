@@ -76,3 +76,6 @@ fixture set) and 3 (post task-gate/context-memory bytes, T-827) are decided insi
   - One genuine **miss**: the active-task check omits "the task file exists in .tasks/active/".
   So A4 holds in shape (the gaps ARE expressible as kit findings and designer features) and the spike
   already names three of them. AEF's answers to Q1-Q4 still pending.
+- **2026-10-03 AEF reply (@316):** AEF filed its own inception **T-3774, recommended GO** ("we consume
+  none of our own 24 maps, which is backwards"). Answers to Q1-Q4 to follow after AEF runs a compile
+  check of task-gate.bpmn on its side.
