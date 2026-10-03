@@ -11,6 +11,10 @@ set -u
 ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 FILE="${RUNME_EVENTS_FILE:-$ROOT/.context/working/runme.events}"
 TOPIC="${RUNME_SIGNAL_TOPIC:-runme-832}"
+# Only THIS project's posts count (2026-10-03: 055-agentic-fleet-cockpit posted "STOPPED rc=1" to
+# runme-832, a copy of this script with the topic name baked in, and woke us for a run that was not
+# ours). TermLink labels each post with the poster's project, e.g. "(832-Workflow-designer)".
+LABEL="(${RUNME_WATCH_PROJECT:-$(basename "$ROOT")})"
 LIMIT="${1:-28800}"
 
 lines() { [ -f "$FILE" ] && wc -l < "$FILE" || echo 0; }
@@ -31,7 +35,7 @@ while [ $(( $(date +%s) - start )) -lt "$LIMIT" ]; do
         echo "runme event (file):"; tail -n +"$((f0 + 1))" "$FILE"; exit 0
     fi
     if command -v termlink >/dev/null 2>&1; then
-        new=$(timeout 20 termlink channel subscribe "$TOPIC" --cursor "$t0" --limit 50 2>/dev/null | grep -E '^\[[0-9]+\]')
+        new=$(timeout 20 termlink channel subscribe "$TOPIC" --cursor "$t0" --limit 50 2>/dev/null | grep -E '^\[[0-9]+\]' | grep -F " $LABEL ")
         [ -n "$new" ] && { echo "runme event (topic $TOPIC):"; echo "$new" | cut -c1-400; exit 0; }
     fi
     sleep 3

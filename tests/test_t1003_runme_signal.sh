@@ -55,6 +55,18 @@ else
     echo "SKIP 5 hub unreachable: topic path not measured"; fail=$((fail+1))
 fi
 
+# 7. another project posting to the same topic does not wake us (2026-10-03, 055-agentic-fleet-cockpit)
+if command -v termlink >/dev/null && timeout 10 termlink channel list >/dev/null 2>&1; then
+    mkdir -p "$T/foreign"
+    RUNME_EVENTS_FILE="$T/unused7" bash "$ROOT/tools/runme-watch.sh" 25 > "$T/w7" 2>&1 & W=$!
+    sleep 6; ( cd "$T/foreign" && timeout 10 termlink channel post "$RUNME_SIGNAL_TOPIC" --ensure-topic \
+        --payload "runme-event: foreign STOPPED rc=1" >/dev/null 2>&1 )
+    wait $W; rc=$?
+    [ "$rc" = 3 ]; ok $? "7 a post from another project on the same topic does not wake the watcher (rc=$rc)"
+else
+    echo "SKIP 7 hub unreachable"; fail=$((fail+1))
+fi
+
 # 6. timeout exit is distinct and says so
 RUNME_EVENTS_FILE="$T/quiet" RUNME_SIGNAL_TOPIC="runme-832-test-quiet" bash "$ROOT/tools/runme-watch.sh" 2 > "$T/w6" 2>&1; rc=$?
 [ "$rc" = 3 ] && grep -q "no event" "$T/w6"; ok $? "6 nothing happens: watcher exits 3 and says so"
