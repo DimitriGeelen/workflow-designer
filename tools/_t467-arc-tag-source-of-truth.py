@@ -138,20 +138,29 @@ def arm_writes_arc_id(lib):
 
 
 def arm_no_deprecated_tag(lib):
+    # T-1005 retarget (1.7.740): upstream T-2955 DUAL-WRITES -- arc_id: (canonical)
+    # plus the legacy arc:<slug> tag, which every reader unions. Not writing the tag
+    # was our choice, not a defect; the property that still matters is that the two
+    # forms never DISAGREE, since a disagreeing pair is a silent second membership.
     root, tf = make_root()
     try:
         run_tag(root, lib, "fence-arc", "T-900")
         fm, _ = frontmatter(tf)
         tags = re.search(r"^tags:.*$", fm, re.MULTILINE)
-        if tags and "arc:fence-arc" in tags.group(0):
-            return False, "wrote deprecated tag: %s" % tags.group(0).strip()
-        return True, "tags line clean"
+        other = [t for t in re.findall(r"arc:([A-Za-z0-9._-]+)", tags.group(0) if tags else "")
+                 if t != "fence-arc"]
+        if other:
+            return False, "legacy tag disagrees with arc_id:: %s" % tags.group(0).strip()
+        return True, "legacy tag (if any) agrees with arc_id:"
     finally:
         shutil.rmtree(root, ignore_errors=True)
 
 
 def arm_idempotent(lib):
-    root, tf = make_root(arc_line="arc_id: fence-arc\n")
+    # T-1005 retarget: the no-op fixture is a task ALREADY fully tagged in upstream's
+    # dual-write shape (arc_id: and the agreeing legacy tag); re-tagging it must not
+    # touch the file. Upstream reports the skip per form, not as one "no change".
+    root, tf = make_root(tags='"arc:fence-arc"', arc_line="arc_id: fence-arc\n")
     try:
         before = open(tf).read()
         rc, out = run_tag(root, lib, "fence-arc", "T-900")
@@ -160,7 +169,7 @@ def arm_idempotent(lib):
             return False, "re-tag exited %d" % rc
         if before != after:
             return False, "file changed on a no-op re-tag"
-        if "no change" not in out:
+        if "skipping" not in out and "no change" not in out:
             return False, "did not report the no-op: %r" % out.strip()[:80]
         return True, "byte-identical, reported"
     finally:
@@ -220,8 +229,8 @@ def arm_help_does_not_promise_tag(lib):
     entry = m.group(0)
     if not re.search(r"arc_id:", entry):
         return False, "help for `tag` never names arc_id:"
-    if re.search(r"^\s*tag <id> T-XXXX\s+Add arc:", entry):
-        return False, "help still says the verb adds the arc: tag"
+    # T-1005 retarget: upstream's help says the verb adds the legacy tag, which is
+    # TRUE under its dual-write; what must hold is that help names the canonical field.
     return True, "help names arc_id: as what the verb writes"
 
 
@@ -316,11 +325,11 @@ def arm_body_arc_tag_not_consulted(lib):
 
 ARMS = [
     ("writes arc_id: into frontmatter", arm_writes_arc_id),
-    ("does NOT write the deprecated arc: tag", arm_no_deprecated_tag),
+    ("legacy arc: tag never disagrees with arc_id:", arm_no_deprecated_tag),
     ("re-tagging the same arc is a byte-identical no-op", arm_idempotent),
     ("refuses cross-arc reassignment, changes nothing", arm_refuses_reassign),
     ("a body quoting tags:/arc_id: is not rewritten", arm_body_not_rewritten),
-    ("--help does not promise the deprecated tag", arm_help_does_not_promise_tag),
+    ("--help names arc_id: as the source of truth", arm_help_does_not_promise_tag),
     # T-679
     ("refuses reassign when membership is legacy-tag-only", arm_refuses_legacy_tag_reassign),
     ("legacy tag for the SAME arc still upgrades to arc_id:", arm_legacy_tag_same_arc_upgrades),
@@ -364,8 +373,8 @@ def main():
     if failures:
         print("\nFENCE FAILED — %d arm(s): %s" % (len(failures), "; ".join(failures)))
         return 1
-    print("\nFENCE PASSED — arc_id: is written, the deprecated tag is not, re-tagging"
-          "\nis a no-op, reassignment is refused, and task bodies are left alone.")
+    print("\nFENCE PASSED — arc_id: is written, the legacy tag never disagrees, re-tagging"
+          "\nis a no-op, reassignment (incl. legacy-tag-only and multi-tag) is refused, and task bodies are left alone.")
     return 0
 
 

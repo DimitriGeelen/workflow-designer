@@ -77,8 +77,10 @@ echo
 # ── TREATMENT: the switch ON permits the one verb it names ─────────────────────
 write_fixture
 before=$(tel_rows)
-out=$(CLAUDECODE=1 FW_BVP_AUTO_CONFIRM=1 "$FW" bvp confirm "$FIXTURE_ID" 2>&1); rc=$?
-if [ "$rc" -eq 0 ] && printf '%s' "$out" | grep -q 'AUTO-APPROVED'; then ok switch_on_permits_confirm
+# T-1005 retarget (1.7.740): upstream T-3487 replaced our switch -- the confirm gate is
+# opt-in via FW_REQUIRE_BVP_CONFIRM_APPROVAL=1, so the default (unset) is the "on" state.
+out=$(CLAUDECODE=1 env -u FW_REQUIRE_BVP_CONFIRM_APPROVAL "$FW" bvp confirm "$FIXTURE_ID" 2>&1); rc=$?
+if [ "$rc" -eq 0 ] && printf '%s' "$out" | grep -q 'via: agent'; then ok switch_on_permits_confirm
 else bad switch_on_permits_confirm "rc=$rc out=$(printf '%s' "$out" | tail -2 | tr '\n' ' ')"; fi
 
 # The promote path: the PROPOSED values must land as confirmed, unchanged.
@@ -86,7 +88,7 @@ if grep -q 'D1: 3' "$FIXTURE" && grep -q 'bvp_scores:' "$FIXTURE"; then ok propo
 else bad proposed_promoted_to_confirmed "confirmed scores do not carry the proposed D1=3"; fi
 
 # confirmed_by must not read as a person on the auto path.
-if grep -q 'confirmed_by: agent:auto' "$FIXTURE"; then ok confirmed_by_marks_auto
+if grep -q 'confirmed_via: agent' "$FIXTURE"; then ok confirmed_by_marks_auto
 else bad confirmed_by_marks_auto "confirmed_by does not mark the auto path: $(grep confirmed_by "$FIXTURE" | head -1)"; fi
 
 # Telemetry: exactly one new row, and it carries the proposal for comparison.
@@ -104,14 +106,14 @@ assert r['proposed']=={'D1':3,'D2':2,'D3':1,'D4':1}, r.get('proposed')
 assert r['confirmed']=={'D1':3,'D2':2,'D3':1,'D4':1}, r.get('confirmed')
 assert r['delta_vs_proposed']=={}, r.get('delta_vs_proposed')
 assert r['proposer_exact'] is True, r.get('proposer_exact')
-assert r['switch']=='BVP_AUTO_CONFIRM', r.get('switch')
+assert r['switch'].startswith('T-3487'), r.get('switch')
 " 2>/dev/null; then ok telemetry_row_carries_proposal_and_delta
 else bad telemetry_row_carries_proposal_and_delta "row shape wrong: $(printf '%s' "$last" | head -c 200)"; fi
 
 # ── CONTROL: the switch OFF still refuses ─────────────────────────────────────
 write_fixture
 before=$(tel_rows)
-out=$(CLAUDECODE=1 FW_BVP_AUTO_CONFIRM=0 "$FW" bvp confirm "$FIXTURE_ID" 2>&1); rc=$?
+out=$(CLAUDECODE=1 FW_REQUIRE_BVP_CONFIRM_APPROVAL=1 "$FW" bvp confirm "$FIXTURE_ID" 2>&1); rc=$?
 if [ "$rc" -ne 0 ] && printf '%s' "$out" | grep -q 'ACD'; then ok switch_off_still_refuses
 else bad switch_off_still_refuses "rc=$rc — the switch is not load-bearing: $(printf '%s' "$out" | head -1)"; fi
 if [ "$(tel_rows)" -eq "$before" ]; then ok no_telemetry_on_refusal
@@ -125,8 +127,8 @@ before=$(tel_rows)
 out=$(env -u CLAUDECODE FW_BVP_AUTO_CONFIRM=1 "$FW" bvp confirm "$FIXTURE_ID" 2>&1); rc=$?
 if [ "$rc" -eq 0 ] && [ "$(tel_rows)" -eq "$before" ]; then ok no_telemetry_when_not_an_agent
 else bad no_telemetry_when_not_an_agent "rc=$rc, rows $before -> $(tel_rows) — a non-agent run was logged as automatic"; fi
-if grep -q 'confirmed_by: agent:auto' "$FIXTURE"; then
-  bad confirmed_by_not_auto_for_human "a non-agent confirm was recorded as agent:auto"
+if grep -q 'confirmed_via: agent' "$FIXTURE"; then
+  bad confirmed_by_not_auto_for_human "a non-agent confirm was recorded as confirmed_via: agent"
 else ok confirmed_by_not_auto_for_human; fi
 
 # ── CONTROL SET: the four verbs the ruling did NOT cover must still refuse,

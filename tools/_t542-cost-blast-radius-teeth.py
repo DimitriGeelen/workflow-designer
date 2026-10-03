@@ -234,11 +234,18 @@ def main():
                       None)
     if blind_task is not None:
         ce = mod.estimate_cost(blind_task)["cost_estimate"]
-        if "blast_radius" in ce:
-            failures.append("leg6: %s carries an explicit blast_radius=%r key rather than "
-                            "omitting it — compute_cost reads the key's PRESENCE, so a null "
-                            "here re-enters the ranking as a comparison against None"
+        # T-1005 retarget (1.7.740): upstream T-3068 emits `blast_radius: null` on
+        # purpose, and its compute_cost tests `br is not None`, not key presence. So
+        # the leg now asserts the property that matters -- a null cannot enter the
+        # ranking -- against the consumer's actual test, instead of the key shape.
+        bvp_sh = (ROOT / ".agentic-framework" / "lib" / "bvp.sh").read_text()
+        if "blast_radius" in ce and ce["blast_radius"] is not None:
+            failures.append("leg6: %s blind task carries blast_radius=%r, not null/absent"
                             % (blind_task.name, ce["blast_radius"]))
+        elif "blast_radius" in ce and "if br is not None and tier is not None" not in bvp_sh:
+            failures.append("leg6: %s carries blast_radius: null and compute_cost no longer "
+                            "tests `br is not None` — a null may re-enter the ranking"
+                            % blind_task.name)
 
     # ── Leg 8 — TEMPLATE-BLIND. A task consisting of nothing but the template
     #    must yield NO blast-radius signal. `.tasks/templates/default.md` cites

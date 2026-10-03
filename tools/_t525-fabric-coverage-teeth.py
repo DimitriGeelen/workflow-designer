@@ -148,6 +148,12 @@ def build_fixture():
     for i in range(FIXTURE_WATCHED):
         with open(os.path.join(root, "src", "f%02d.py" % i), "w") as fh:
             fh.write("# t525 fixture file %d — synthetic, built per run\nx = %d\n" % (i, i))
+    # T-1005 (1.7.740): one project YAML, so upstream's T-3105 "candidate set empty" rail is
+    # EVALUATED on every run. Without it the first run warns NOT EVALUATED and later runs do
+    # not (the first run's own output gives them a file), so leg 6a compared two different
+    # trees and read the difference as a severity change.
+    with open(os.path.join(root, ".context/project", "t525-fixture.yaml"), "w") as fh:
+        fh.write("fixture: t525\n")
     with open(os.path.join(root, ".fabric/watch-patterns.yaml"), "w") as fh:
         fh.write('patterns:\n  - glob: "src/**/*.py"\n')
     for i in range(FIXTURE_CARDS):
@@ -247,7 +253,10 @@ tmp = tempfile.mkdtemp(prefix="t525-teeth-")
 # creation of `<today>.yaml` as a violation, so the leg could not pass on the first audit of any
 # day (OBS-273). Now a path->digest map judged against the paths the subject is entitled to
 # write. See tools/_writeset_hermeticity.py for the measurements behind both halves.
-ALLOWED_WRITES = {os.path.join(".context/audits/discoveries", "LATEST.yaml")}
+# T-1005 (1.7.740): upstream's audit also records its run time in full-audit-timing.yaml
+# (AUDIT_TIMING_FILE, used to size the pre-push timeout) -- a declared output of the subject.
+ALLOWED_WRITES = {os.path.join(".context/audits/discoveries", "LATEST.yaml"),
+                  os.path.join(".context/audits", "full-audit-timing.yaml")}
 
 
 def audits_state():

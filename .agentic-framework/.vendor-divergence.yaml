@@ -133,132 +133,56 @@ entries:
 
   - path: .agentic-framework/agents/termlink/bvp-estimator/estimator.py
     kind: content
-    task: T-541
+    task: T-1005
     upstream: fix
     reason: >-
-      Adds three project-specific BVP driver handlers — score_v_workflow_routing,
-      score_v_aef_integration, score_v_sdlc_enablement — plus the _score_by_ladder helper they
-      share, and wires all three into estimate_task's dispatch table. Operator requested the
-      drivers on 2026-08-16 (weight 9 each); T-540 filed them to the proposal queue and measured
-      that without handlers they score 0 on all 55 non-inception tasks, because score_free_driver
-      substring-matches the driver's own id in the task body. The handlers are LATENT until the
-      operator approves proposals P-bced1426 / P-0b1db872 / P-86588453 — policy/value-drivers.yaml
-      is deliberately untouched — which is the same shape score_f_autonomy shipped in under
-      T-2329.
-
-      TWO PARTS OF THIS ARE GENERIC AND ARE THE ACTUAL UPSTREAM DEBT, not the three
-      project-specific handlers (which AEF has no use for):
-
-      1. _score_by_ladder DERIVES THE ENTRY GATE FROM THE LADDER. Every hand-written handler in
-      this file keeps a `touch` gate listing "does this driver apply at all", then a ladder of
-      level patterns beneath it, with nothing making the gate a superset. Where it is not, the
-      omitted level triggers are dead code — no input can return that level. Hit here for real:
-      `port-indicator` was a level-2 trigger with "port" absent from the gate, so T-294 scored 0
-      and level 2 was unreachable across the whole corpus. Same class as PL-203. Worth AEF's
-      attention as a shape their existing handlers may also carry.
-
-      2. parse_task() DOES NOT STRIP HTML COMMENTS, and handlers therefore score the task
-      TEMPLATE. Task bodies here are 33.6% HTML comment on average (max 64%) — the Human-AC
-      guidance block, the Verification errexit essay, the RCA/Evolution/Decisions templates — and
-      that text is byte-identical in every task. Measured consequence in AEF's own code:
-      score_d3_usability's "default tuned" pattern matches the template's own instruction prose,
-      giving 37 of 58 non-completed tasks a flat D3=2 they never earned (52/58 non-zero collapses
-      to 15/58 once comments are stripped). NOT patched here — it is their scoring calibration and
-      changing it silently would move every D3 score in the register. Reported instead. The three
-      new handlers strip comments themselves so they cannot join it. PL-239 — measure the consumed
-      corpus, not the existing one.
-
-      T-542 EXTENDS THIS ENTRY, same file, and ALL OF IT IS GENERIC UPSTREAM DEBT:
-
-      3. score_blast_radius RETURNED 0 FOR A BLIND READ, AND 0 IS THE CHEAPEST VALUE ON THE
-      SCALE. It derived blast radius from `components:` alone; `components:` is empty on 59 of
-      59 non-completed tasks here, so all 46 non-inceptions scored 0 via `no-components` and
-      the F8 cost axis — where blast_radius carries weight 0.6, the dominant term — collapsed
-      to `inception ? 3.6 : 1.4`, with 29 of 59 tied at the modal value. That is not a tie in
-      cost; it is the absence of a fabric registration wearing the most attractive number an
-      HV/LC filter can promote on. AEF ALREADY NAMED THIS EXACT SHAPE one population earlier:
-      T-2189's own docstring says the count "always returns 0, making inceptions look
-      artificially cheap" — and repaired inceptions only, via target_blast_radius. The same
-      sentence was true of 100% of the non-inception corpus. Fixed here by (a) a third evidence
-      source, source paths named in the body AND PRESENT IN THE TREE, and (b) returning None
-      when nothing is knowable, which propagates to an OMITTED blast_radius key that
-      compute_cost already reads as source:'absent' → quadrant '-' → excluded. Declining to
-      rank is honest; ranking cheapest is not. Result: blast_radius 2 distinct values → 5, F8
-      10 distinct → 13, largest tie 29 → 15, 14 tasks honestly excluded.
-
-      4. THE BODY-PATH SIGNAL HAD TO SUBTRACT THE TASK TEMPLATES, which is finding 2 above
-      recurring in a second handler. `.tasks/templates/default.md` cites
-      tools/_t352-p011-errexit-probe.sh and tools/validate-workflow.py in its errexit warning;
-      path-c-deep-dive.md cites .context/handovers/LATEST.md. The first `estimate-cost all` run
-      scored T-542 ITSELF at blast_radius=5 with two of the four cited paths being the
-      template's. 7 of 59 tasks had no signal except the template. Note these are SHELL-comment
-      lines, not HTML comments, so stripping HTML comments would not have caught them —
-      finding 2's remedy is necessary but not sufficient, and the general rule is subtract what
-      every member of the corpus shares.
-
-      5. PROJECT_ROOT'S FALLBACK IS WRONG UNDER VENDORING — reported, deliberately NOT patched.
-      Line 73 falls back to Path(__file__).resolve().parents[3]. In AEF's own repo the estimator
-      sits at agents/termlink/bvp-estimator/, so parents[3] is the repo root and it is correct.
-      Vendored it sits at .agentic-framework/agents/termlink/bvp-estimator/, so parents[3] is
-      `.agentic-framework` — off by one, and it lands on a directory that EXISTS and contains a
-      plausible policy/ and .tasks/, so nothing errors and RUBRIC_PATH/POLICY_PATH silently read
-      the framework's copies instead of the project's. `fw bvp` always exports PROJECT_ROOT so
-      the CLI path masks it entirely; direct invocation — which lib/bvp.sh's own dispatcher
-      docstring says must work, "the script must also be invokable directly via TermLink
-      convention" — does not. Found by a probe leg going red for the wrong reason: 5 real
-      fixture paths scored as 3, because policy/value-drivers.yaml exists under BOTH roots.
-      Not patched because the fallback is correct in AEF's layout and only wrong in ours;
-      choosing the detection rule is theirs. Adjacent to the audit's existing T-2648/OBS-097
-      check, which covers web/ and lib/ Python but not agents/.
-
+      T-1005 re-apply on 1.7.740, per-fix outcome. T-541 (three product-driver handlers,
+      788a5103) SUPERSEDED in project-owned policy: T-864 moved F1/F3/F4 to declarative
+      `scoring:` specs in policy/value-drivers.yaml (upstream T-3428), so no vendored code is
+      needed. T-542 (e5b6cb2b) PARTLY ADOPTED: upstream T-3068 returns None for an unmeasured
+      blast radius and T-3512 adds write_set:; RE-APPLIED only the third source -- source paths
+      named in the body that EXIST in the tree, minus task-template paths (_BODY_PATH_RE,
+      _template_paths, _paths_named_in_body), after components:/target_blast_radius/write_set.
+      Probe tools/_t542-cost-blast-radius-teeth.py (leg5 red on upstream; leg6 retargeted to
+      upstream's deliberate `blast_radius: null`, which compute_cost tests with `is not None`).
+      T-865 (30408762: propose_inception_inputs -- voi_score/target_blast_radius estimated,
+      a human's number sticky, bvp-sticky.jsonl telemetry), T-867 (cf403184: hypothesis
+      draft) and T-868 (4cc1cbfb: cited support) RE-APPLIED verbatim -- arc-004
+      hypothesis-first-inceptions features upstream lacks; they complement upstream T-3523,
+      which makes bvp_scores sticky, not inception inputs. Probes _t865 7/7, _t867 10/10,
+      _t868 6/6 (all TEETH BROKEN on upstream). Upstream candidates: the body-path source and
+      the arc-004 trio, offered via T-1009.
   - path: .agentic-framework/lib/arc.sh
     kind: content
-    task: T-467
+    task: T-1005
     upstream: fix
     reason: >-
-      `fw arc tag` wrote the T-1851-DEPRECATED `tags: [arc:<slug>]` form and never the
-      T-1849 source-of-truth field `arc_id:`. Upstream's own T-1850 migrated 162 tasks off
-      the tag form, and upstream's own `arc_help` says "Source-of-truth is task-side arc_id:"
-      while naming this verb as the way to record membership — so the documented command was
-      re-creating, one task at a time, what the migration had just cleaned up. Nothing in the
-      framework wrote `arc_id:` anywhere; `arc_show` told the user to edit frontmatter by hand.
-
-      IT NEVER LOOKED BROKEN, and that is the finding rather than an aside. Every reader
-      (lib/arc_membership.py) takes the UNION of `arc_id:` and the legacy tag, so an arc whose
-      membership is split across two representations renders identically to one recorded
-      canonically. 832's T-466 caught it only because a verification leg asserted the field BY
-      NAME instead of asserting that `fw arc show` looked right — an instrument checking the
-      render passes this every time.
-
-      FIXED HERE: `arc_tag()` now writes `arc_id: <slug>` into the frontmatter, is idempotent,
-      and REFUSES to reassign a task that already carries a different arc_id (the old code
-      accepted it silently, producing dual membership — found by the fence, not by the report).
-      The deprecated tag is no longer written; legacy tags already on tasks are left in place
-      and readers keep unioning them. The write is bounded to the frontmatter region: the
-      replaced writer ran `^tags:` over the WHOLE document and could rewrite body prose that
-      quotes the field name. `arc_migrate` step 3 feeds legacy-tagged task ids back into this
-      function, so it now UPGRADES them instead of re-confirming their tags.
-
-      Fenced by 832's tools/_t467-arc-tag-source-of-truth.py — six arms, all six failing
-      against the pre-fix copy, run against a throwaway project root.
-
+      T-1005 re-apply on 1.7.740. T-467 (78cf7d75) ADOPTED: upstream T-2955 makes `fw arc tag`
+      write the canonical arc_id: and refuse a different existing arc_id:; it deliberately
+      DUAL-WRITES the legacy arc:<slug> tag too (we had stopped writing it) -- accepted, every
+      reader unions both, so probe arms were retargeted to "the legacy tag never disagrees with
+      arc_id:". T-679 (97d399b2) RE-APPLIED: upstream's reassignment refusal reads only arc_id:,
+      so a task whose membership is in the legacy tag alone is silently moved into a second arc,
+      and a task with two arc: tags is silently collapsed. The guard scans the frontmatter
+      tags: line before any write (exit 11 / 12 -> refusal, file untouched). Probe
+      tools/_t467-arc-tag-source-of-truth.py 10/10 (both guard arms red on upstream).
+      Upstream candidate: the union-consistent guard.
   - path: .agentic-framework/lib/bvp.sh
     kind: content
-    task: T-542
+    task: T-1005
     upstream: fix
     reason: >-
-      Adds `fw bvp estimate-cost` to `fw bvp --help`. GENERIC upstream debt, one line of
-      substance: the verb was fully implemented under T-1935 and correctly dispatched at
-      lib/bvp.sh:1553, with its own `--help`, but it was never listed in the top-level usage
-      block — which lists `estimate` and its four subverbs. So the only route a reader has to
-      the cost half of the model was to already know it existed. Measured consequence: T-540
-      concluded "driver --init bootstraps the value half and silently not the cost half" and
-      filed the missing cost half as a defect. The cost half was there. A capability nobody can
-      find is indistinguishable from a capability nobody built, and the register recorded the
-      wrong one. The added text also states the coupling the omission hid — `--quadrant` is
-      inert without a cost estimate, because compute_cost returns source:'absent' and every
-      quadrant renders '-', so all four filters print "No tasks match" with no hint why.
-
+      T-1005 re-apply on 1.7.740. T-542 (help line for `fw bvp estimate-cost`) SUPERSEDED:
+      upstream usage lists the verb. T-856 (48e03e08) PARTLY ADOPTED: upstream T-3487 makes the
+      confirm gate opt-in (FW_REQUIRE_BVP_CONFIRM_APPROVAL=1), keeps the other four verbs gated
+      and records confirmed_via: agent -- our BVP_AUTO_CONFIRM switch is dropped. RE-APPLIED
+      only the telemetry half of the operator's 2026-09-25 ruling ("we want to collect data so
+      we can analyze it"): one JSONL row per agent-confirmed score to
+      .context/telemetry/bvp-auto-approval.jsonl (proposed vs confirmed, delta, proposer_exact;
+      FW_BVP_TELEMETRY_PATH redirect for tests), keyed on confirmed_via == 'agent'. The ledger
+      had been silently dark since the upgrade (34 rows, last 2026-09-29). Probe
+      tools/_t856-auto-approval-teeth.sh retargeted, 14/14 (5 red on upstream). Upstream
+      candidate: the telemetry row.
   - path: .agentic-framework/web/app.py
     kind: content
     task: T-544
@@ -345,9 +269,10 @@ entries:
       awaiting judgement; with its active-task-scan.py hunk), T-677 (a partial run never clobbers the
       day's fuller record), T-873 (an unreviewed CLAUDE.md.bak is read), T-934 (unit-suite check skips
       where no suite exists). These are the upstream debt.
-      NOT RE-APPLIED: T-525 (fabric coverage as a ratio, a FALL in registered cards named). Upstream
-      moved the coverage verdict into the drift check (AEF T-2735), so the old block has no home; it
-      needs a redesign against the drift check, and the _t525 bridge leg stays red until then.
+      REDESIGNED: T-525 (fabric coverage as a ratio, a FALL in registered cards named). Upstream
+      moved the coverage verdict into the drift check (AEF T-2735), so the old block had no home; the
+      ratio + direction-vs-prior-daily-report logic now sits in the drift check's unregistered > 0 arm
+      (same WARN severity, same FABRIC_HISTORY_DIR seam). Probes _t525 8/8, _t549 mutation 5/5.
     superseded_changes: >-
       T-344, T-345, T-374 (AEF T-2735/T-2737), T-654 (upstream episodic Check 1), T-833 (AEF T-3444,
       audit.sh CTL-029 owner skip).

@@ -31,6 +31,9 @@ SUBJECT="${SUBJECT:-$ROOT/.agentic-framework/agents/termlink/bvp-estimator/estim
 AUDIT="$ROOT/.agentic-framework/lib/task-audit.sh"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/t867.XXXXXX")"
 trap 'rm -rf "$WORK"; rm -f "${MUT:-}"' EXIT
+# T-1005: never write fixture rows into the real append-only sticky ledger (found
+# 2026-10-03: two T-9993 rows had leaked into .context/telemetry/bvp-sticky.jsonl).
+export FW_BVP_STICKY_TELEMETRY_PATH="$WORK/sticky-tel.jsonl"
 
 PASS=0; FAIL=0
 # needs_you_still_refused_by_gate is a CONTROL here, not an honesty case. It
