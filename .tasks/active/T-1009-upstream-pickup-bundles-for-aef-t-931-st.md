@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T11:44:35Z
-last_update: 2026-10-03T23:52:42Z
+last_update: 2026-10-03T23:55:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -95,10 +95,10 @@ the G4 gate, tests/test_t1000_revendor_gate.sh, plus a regression fixture for T-
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Three bundles under docs/upstream-pickups/ — A T-931 stale-ownership (AEF T-3568), B T-936/T-939 stray-capture + secret-history scan (AEF T-3572), C T-1000 re-vendor tooling + T-3746 fixture (AEF T-3737) — each a `git format-patch` series with paths rewritten to AEF's tree (no `.agentic-framework/` prefix, project-only paths mapped or excluded with a reason)
-- [ ] Each series is verified to `git am` cleanly onto AEF's current bleeding-edge (GitHub mirror branch) in a scratch clone, and its own probe/test runs green there; the result (applies / conflicts / probe outcome) is recorded per bundle in the manifest
-- [ ] A MANIFEST.md per bundle names: AEF task, what it fixes, files, the probe that proves it, what was deliberately left out, and the base commit it was verified against
-- [ ] Delivered to AEF (file transfer or pickup topic) with the manifest summary on the sidecar, and the delivery offset/transfer id recorded here
+- [x] Three bundles under docs/upstream-pickups/ — A T-931 stale-ownership (AEF T-3568), B T-936/T-939 stray-capture + secret-history scan (AEF T-3572), C T-1000 re-vendor tooling + T-3746 fixture (AEF T-3737) — each a `git format-patch` series with paths rewritten to AEF's tree (no `.agentic-framework/` prefix, project-only paths mapped or excluded with a reason) — delivered as FOUR: the T-3746 fixture became its own bundle D (security, separate AEF task)
+- [x] Each series is verified to `git am` cleanly onto AEF's current bleeding-edge (GitHub mirror branch) in a scratch clone, and its own probe/test runs green there; the result (applies / conflicts / probe outcome) is recorded per bundle in the manifest — all four clean on 914326e0
+- [x] A MANIFEST.md per bundle names: AEF task, what it fixes, files, the probe that proves it, what was deliberately left out, and the base commit it was verified against
+- [x] Delivered to AEF (file transfer or pickup topic) with the manifest summary on the sidecar, and the delivery offset/transfer id recorded here — topic xfer-832-upstream-pickups, 14 parts (offsets 0-13), 832-upstream-pickups-2026-10-04.tar.gz.b64 sha256 5b10f773…c037d951, tar.gz sha256 115c41d6…8aa675bfe, reassembly verified from the topic; sidecar notice cc12f703 (conversation sidecar-vendored-consumer-rca)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -136,6 +136,13 @@ the G4 gate, tests/test_t1000_revendor_gate.sh, plus a regression fixture for T-
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+test -f docs/upstream-pickups/README.md
+test "$(ls docs/upstream-pickups/*/MANIFEST.md | wc -l)" -eq 4
+test "$(ls docs/upstream-pickups/*/*.patch | wc -l)" -eq 8
+python3 tools/_t931-delegate-owner-follows-criteria.py
+bash tools/_t936-bare-import-gate-teeth.sh
+bash tools/_t3746-allowlisted-writes-fixture.sh
+python3 tools/_t517-vendor-divergence.py
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
