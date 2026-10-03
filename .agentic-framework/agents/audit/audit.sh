@@ -3529,6 +3529,16 @@ _audit_is_prepush_scope() {
 check_unit_suite_report() {
     local _report="${FW_UNIT_SUITE_REPORT:-$CONTEXT_DIR/audits/unit-suite/LATEST.yaml}"
     local _baseline="${FW_UNIT_SUITE_BASELINE:-$CONTEXT_DIR/audits/unit-suite/baseline.yaml}"
+
+    # 832 T-934 (re-applied by T-1005 on 1.7.740): skip where there is nothing to run. A vendored
+    # consumer has no tests/unit, so the report can NEVER be produced and this WARN can never clear
+    # (its mitigation, "run agents/audit/unit-suite.sh", does nothing there). The predicate is "is
+    # there a suite", not "am I the framework repo": a present suite with no report still WARNs.
+    local _suite_dir="${FW_UNIT_SUITE_DIR:-$FRAMEWORK_ROOT/tests/unit}"
+    if [ ! -d "$_suite_dir" ] && [ ! -f "$_report" ]; then
+        info "Unit suite (tests/unit) skipped — no suite at $_suite_dir to run (832 T-934)"
+        return 0
+    fi
     if [ ! -f "$_report" ]; then
         warn "Unit suite NOT CHECKED — no report at .context/audits/unit-suite/LATEST.yaml (T-3302)" \
              "The nightly unit-suite runner has not produced a report; unit-suite reds are invisible until it does" \
