@@ -4063,3 +4063,18 @@ concerns:
     reported, is not decided here. Auto-transition would move a task's status on the strength
     of a text match, which is the agent deciding rather than proposing. Surfaced, not taken.
   related_tasks: ['T-785', 'T-353', 'T-802', 'T-669']
+- id: G-082
+  type: gap
+  status: watching
+  severity: high
+  title: fw sidecar inbox returns ONE 100-envelope page and never says more are waiting, so a drain looks complete when it is not
+  detected: '2026-10-03'
+  origin_task: T-1005
+  context: 'Measured 2026-10-03. The inbox topic held offsets 0..215. `fw sidecar inbox --peek --json` returned
+    offsets 0..98 (79 consults) and nothing else; a non-peek drain advanced the cursor by one page (lib/sidecar/inbox.py
+    DEFAULT_LIMIT = 100 envelopes, receipts included) and printed no "N more pending". inbox-stale then reported 85
+    unread. Those 85 included AEF''s replies to five proposals 832 sent on 10-01..03 (lesson-validation,
+    revendor-protocol, runme-signal, approval-in-terminal, inception-decide-review-marker): a reader that drains once
+    concludes the peer never answered. Same class as G-032 (a listing shorter than its count, silently).'
+  prevention_needed: 'The reader must either drain to the head or end with "N more pending; run again". Reported to
+    AEF (vendored code). Local mitigation until then: after any drain, check `fw sidecar inbox-stale` is 0.'
