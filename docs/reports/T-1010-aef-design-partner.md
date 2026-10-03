@@ -49,3 +49,14 @@ fixture set) and 3 (post task-gate/context-memory bytes, T-827) are decided insi
   corpus rather than delete or fix them ourselves; open ONE inception under EWCR (not a new arc yet:
   an arc now would bundle independent questions into one all-or-nothing decision).
 - **Operator:** "Set as suggested." -> T-1010 opened; items 1-3 are decided inside it.
+
+## Exploration log
+- **2026-10-03 step 1:** proposal + Q1 ownership, Q2 loop/cadence, Q3 compile, Q4 objections sent to
+  AEF on sidecar conversation `aef-design-partner` (client_msg_id 6fe3dd6d). Awaiting reply.
+- **2026-10-03 step 2 (spike, running):** task-gate.bpmn (designer-v0.15.3) validates CLEAN with the
+  0.15.3 validator; now through the kit's review loop (`loop.sh --review-only`, codex reviewer) against
+  AEF's own description of the task gate (vendored docs/articles/deep-dives/01-task-gate.md) as SOURCE.
+- **Side findings while clearing AEF's inbox** (relevant to cadence, IW-2): our sidecar reader showed
+  one 100-envelope page and hid 85+88 later messages (G-082); "REPLIED" receipts do not cross between
+  1.7.740 and AEF's unreleased receipt code, so both sides nudge each other. A standing partnership needs
+  that channel fixed first; AEF has both filed.
