@@ -128,6 +128,54 @@ class TestRoutes:
 # =========================================================================
 
 
+def document_shell_constructs(payload):
+    """Return the document-shell constructs a real HTML parser finds in `payload`.
+
+    T-645: this used to be two substring assertions —
+
+        assert "<!DOCTYPE" not in html
+        assert "<html" not in html
+
+    — which is a CHARACTER SCAN standing in for a STRUCTURAL property. HTML tag names
+    are case-insensitive and Python's `in` is not, and a substring cannot tell whether
+    it is sitting in a comment, a script body, or an attribute value. Measured, the
+    scan was wrong in both directions at once:
+
+        <HTML><BODY>x</BODY></HTML>        scan PASSED   parser: <html>, <body>
+        <!doctype html><p>x</p>            scan PASSED   parser: <!DOCTYPE>
+        <body><p>x</p></body>              scan PASSED   parser: <body>
+        <Html lang="en"><p>x</p></Html>    scan PASSED   parser: <html>
+        <!-- <html> --><p>hi</p>           scan FAILED   parser: (clean)
+        <script>var s = "<html>";</script> scan FAILED   parser: (clean)
+
+    Four ways to ship a whole document past the test, and two ways to be failed by text
+    that is not markup at all. So: ask the parser. `html.parser` lowercases tag names
+    for us and treats script/style bodies as CDATA and comments as comments, which is
+    the entire difference between the two columns above.
+
+    This does not take over T-646's job. A raw `<html>` in page prose genuinely IS a
+    start tag to any parser, so it is still reported here — as "a document shell was
+    found", which is the honest limit of what a fragment test can say about it.
+    """
+    import html.parser as _hp
+
+    found = []
+
+    class _ShellFinder(_hp.HTMLParser):
+        def handle_starttag(self, tag, attrs):
+            if tag in ("html", "head", "body"):
+                found.append("<%s>" % tag)
+
+        def handle_decl(self, decl):
+            if decl.lower().startswith("doctype"):
+                found.append("<!DOCTYPE>")
+
+    parser = _ShellFinder(convert_charrefs=True)
+    parser.feed(payload)
+    parser.close()
+    return found
+
+
 class TestHtmxPartials:
     """HX-Request header returns fragment (no <html> wrapper)."""
 
@@ -138,9 +186,39 @@ class TestHtmxPartials:
     def test_htmx_returns_fragment(self, client, path):
         resp = client.get(path, headers={"HX-Request": "true"})
         assert resp.status_code == 200
-        html = resp.data.decode()
-        assert "<!DOCTYPE" not in html
-        assert "<html" not in html
+        shell = document_shell_constructs(resp.data.decode())
+        assert not shell, (
+            "%s with HX-Request returned a document shell, not a fragment: %s"
+            % (path, ", ".join(shell))
+        )
+
+    # The detector is the new instrument, so it gets its own tests rather than being
+    # trusted because it is short. Each row below is a payload the SUBSTRING version
+    # got wrong; together they are the reason this task exists.
+    @pytest.mark.parametrize(
+        "payload,expected",
+        [
+            ("<HTML><BODY>x</BODY></HTML>", ["<html>", "<body>"]),
+            ("<!doctype html><p>x</p>", ["<!DOCTYPE>"]),
+            ("<body><p>x</p></body>", ["<body>"]),
+            ('<Html lang="en"><p>x</p></Html>', ["<html>"]),
+        ],
+    )
+    def test_document_shell_is_detected_whatever_its_spelling(self, payload, expected):
+        assert document_shell_constructs(payload) == expected
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            '<nav class="x">hi</nav>',
+            "<!-- <html> --><p>hi</p>",
+            '<script>var s = "<html>";</script><p>hi</p>',
+            "<p>a fragment, no &lt;html&gt;</p>",
+            "",
+        ],
+    )
+    def test_text_that_merely_mentions_a_tag_is_not_a_shell(self, payload):
+        assert document_shell_constructs(payload) == []
 
     @pytest.mark.parametrize(
         "path",
