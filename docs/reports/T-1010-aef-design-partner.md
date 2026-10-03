@@ -60,3 +60,19 @@ fixture set) and 3 (post task-gate/context-memory bytes, T-827) are decided insi
   one 100-envelope page and hid 85+88 later messages (G-082); "REPLIED" receipts do not cross between
   1.7.740 and AEF's unreleased receipt code, so both sides nudge each other. A standing partnership needs
   that channel fixed first; AEF has both filed.
+- **2026-10-03 step 2 RESULT** (GLM-5.3 reviewer; codex hit its usage quota mid-run, which is itself a
+  cadence constraint): `task-gate.bpmn` drew **11 findings, 8 "invented"** against AEF's own article
+  (docs/reports/T-1010-spike-task-gate-review.r1.json). Reading them is the main finding of this spike:
+  - **The source of an executable map is the implementation, not prose.** Script names, exit codes,
+    the bypass log, the focus-drift branch: all "invented" relative to the article, all TRUE of the
+    code. The kit's review rubric assumes the source is a document. A partnership aimed at executable
+    contracts needs a source that is the runtime (code, CLI, config) or a review mode that accepts one.
+    This is the first concrete kit gap of the AEF loop, the analogue of Evergreen's K1.
+  - **A real structural defect the validator misses:** the map routes the agent's remediation out of
+    END event frw_6_block and back INTO START event agt_1_agent; BPMN forbids both. Validator: VALID.
+    Proposed as ledger lesson L28 (validator), to go through the evidence + panel route.
+  - **No source citations** on any element (our renderer never emitted them): AEF's maps would need
+    citations to their source (code paths) for the review loop to judge them at all.
+  - One genuine **miss**: the active-task check omits "the task file exists in .tasks/active/".
+  So A4 holds in shape (the gaps ARE expressible as kit findings and designer features) and the spike
+  already names three of them. AEF's answers to Q1-Q4 still pending.

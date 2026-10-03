@@ -1,0 +1,90 @@
+[
+  {
+    "element": "frw_1_pretooluse",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "Every time the agent attempts to write or edit a file",
+    "problem": "The hook's interception scope is widened to Bash and given an invented script name (check-active-task.sh) and an invented session.yaml context read, none of which the source states — it says only that the hook fires when the agent writes or edits a file (the same '/Bash' widening appears in agt_1_agent's name and the trigger meta).",
+    "correction": "Scope frw_1_pretooluse and the start event agt_1_agent to Write/Edit only, and delete the check-active-task.sh endpoint and the .context/working/session.yaml contextReads."
+  },
+  {
+    "element": "frw_2_exempt",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "Every time the agent attempts to write or edit a file, the hook checks two things: does `.context/working/focus.yaml` contain an active task ID, and does that task file exist in `.tasks/active/`.",
+    "problem": "The 'Exempt path or safe command?' gateway with its decisionInput `[.context,.tasks,.claude,.git] || safe_bash_cmd` and branches 'exempt path / safe cmd' / 'modifies source' has no basis in the source, which states exactly two checks and no exemption logic, and it inserts a decision before the stated task check.",
+    "correction": "Delete frw_2_exempt with flows flow_3 and flow_4, and connect frw_1_pretooluse directly to the active-task decision."
+  },
+  {
+    "element": "frw_4_active",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "If either check fails, the edit is blocked.",
+    "problem": "The gateway invents a third outcome 'stale / focus-drift (T-560/T-1730)' guarded by `focus_session == session`, but the source states a binary result (checks pass or the edit is blocked) and mentions no focus drift, no session matching, and none of the ids T-560, T-1730 or P-002 used on the branch labels.",
+    "correction": "Reduce frw_4_active to two outcomes labelled in the source's words (active task present -> continue; no active task -> block), drop the session equality from the decisionInput, and remove the unsourced ids from the branch names."
+  },
+  {
+    "element": "frw_4_active",
+    "category": "missed",
+    "severity": "major",
+    "source_evidence": "does that task file exist in `.tasks/active/`",
+    "problem": "The map models only the focus.yaml check and omits the source's second stated gate check — that the task file exists in `.tasks/active/` — replacing it with an invented session comparison.",
+    "correction": "Model both stated checks on the active-task decision (active task ID in `.context/working/focus.yaml` AND the task file exists in `.tasks/active/`), with failure of either leading to Block."
+  },
+  {
+    "element": "frw_5_started",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "Every time the agent attempts to write or edit a file, the hook checks two things: does `.context/working/focus.yaml` contain an active task ID, and does that task file exist in `.tasks/active/`.",
+    "problem": "The 'Started-work + real ACs?' gateway adds a third gate check (status in [started-work,issues] and `acs_are_real`, blocking branch 'placeholder ACs (G-020)') that the source never states — acceptance criteria appear only as a property of completed tasks ('Every task has acceptance criteria'), not as a blocking condition.",
+    "correction": "Delete frw_5_started with flow_8 and route the active-task branch straight to the Allow end."
+  },
+  {
+    "element": "hum_1_authorise",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "A formal bypass analysis (T-228) cataloged 13 bypass vectors and confirmed the pattern: structural gates hold, behavioral rules do not.",
+    "problem": "The 'Authorise Tier-2 bypass' userTask (endpoint FW_SWITCH_FOCUS=1 / FW_SAFE_MODE=1) invents a human bypass-authorisation path: the source's only mention of bypasses is an analysis cataloging vectors, and it nowhere describes an authorised bypass, a Tier 2, or these environment variables.",
+    "correction": "Delete hum_1_authorise with flows flow_6 and flow_10 (and the then-empty human lane), leaving allow and block as the only stated outcomes."
+  },
+  {
+    "element": "frw_7_log",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "source is silent",
+    "problem": "The 'Log Tier-2 bypass' scriptTask and its `.context/working/.gate-bypass-log.yaml` write have no support in the source, which records nothing about logging bypasses.",
+    "correction": "Delete frw_7_log with flow_11 together with the bypass path it serves."
+  },
+  {
+    "element": "agt_3_write",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "TASK GATE: No active task. Create one with: fw work-on \"Clean up codebase\" --type refactor",
+    "problem": "The 'Write real acceptance criteria' step invents a second remediation requirement: the source's stated remedy after a block is only to create a task with fw work-on ('Task T-042 created, focus set. Edits are now allowed.'), with no separate AC-writing step before the edit is re-attempted.",
+    "correction": "Delete agt_3_write with flow_13 and route agt_2_create straight back to the re-attempted edit."
+  },
+  {
+    "element": "frw_3_allow",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "source is silent",
+    "problem": "The exit codes in 'Allow — exit 0' and 'Block — exit 2' (frw_6_block) are invented detail: the source says edits are 'blocked' or 'allowed' but never states the hook's exit codes.",
+    "correction": "Rename both end events to the source's own words (e.g. 'Edits are now allowed' / 'The edit is blocked') without exit codes."
+  },
+  {
+    "element": "frw_6_block",
+    "category": "readability",
+    "severity": "major",
+    "source_evidence": "TASK GATE: No active task. Create one with: fw work-on \"Clean up codebase\" --type refactor",
+    "problem": "Block is drawn as an end event yet carries outgoing flow_12 'agent remediates', and the cycle re-enters start event agt_1_agent via flow_14 — a self-contradictory structure (end events have no outgoing flows, start events no incoming) that a standard tool renders by dropping the flows and thus losing the stated blocked -> create-task -> retry cycle.",
+    "correction": "Make the block an intermediate throw event on the path to Create task + set focus rather than an end event, loop back to the hook (frw_1_pretooluse) instead of into the start event, and keep Allow as the single end event."
+  },
+  {
+    "element": "map",
+    "category": "citation",
+    "severity": "minor",
+    "source_evidence": "The Agentic Engineering Framework installs a PreToolUse hook in Claude Code.",
+    "problem": "No lane and no flow node carries the required `<documentation>` source citation, so no element's truth against the source can be checked (e.g. frw_1_pretooluse should cite the quoted line).",
+    "correction": "Add a `<bpmn:documentation>source: \"…\"</bpmn:documentation>` child with a verbatim quote to all 3 lanes and all 11 flow nodes, or `source: unstated - …` for structural boundary events."
+  }
+]

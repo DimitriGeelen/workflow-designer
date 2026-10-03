@@ -2005,3 +2005,13 @@ learnings:
   promoted:
     where: tools/build-authoring-kit.py
     marker: Conventions beyond BPMN 2.0.2
+- id: L28
+  learning: the validator accepts an endEvent with an outgoing sequence flow and a startEvent with an
+    incoming one; BPMN 2.0 forbids both, so it needs a UNIVERSAL rule for each
+  evidence: 'T-1010 spike: GLM-5.3 reviewing task-gate.bpmn (designer-v0.15.3, examples/aef-processes/rendered/)
+    flagged end event frw_6_block with outgoing flow_12 and the loop re-entering start event agt_1_agent
+    via flow_14; validate-workflow.py 0.15.3 reports the map VALID with no findings'
+  source: reviewer
+  destination: validator
+  status: proposed
+  occurrences: 1
