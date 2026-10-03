@@ -2049,7 +2049,9 @@ echo "== exported BPMN validates against the OMG schema and carries complete DI 
 # the leg was wired. Run it before believing a green here.
 #
 # COST: ~2s. No browser — it validates files the previous leg already wrote.
-if [ -d "$T423_ADD_EXP" ] && [ -n "$(ls -A "$T423_ADD_EXP"/*.bpmn 2>/dev/null)" ]; then
+# Existence test via find (no stderr to discard: the dir is checked first), so T-527's
+# capture invariant can keep reading every `if … > null-sink` line as a discarded probe.
+if [ -d "$T423_ADD_EXP" ] && [ -n "$(find "$T423_ADD_EXP" -maxdepth 1 -name '*.bpmn' -print -quit)" ]; then
   if timeout 120 python3 "$ROOT/tools/_t423-di-schema-validate.py" --self-test > "$TMP/leg-_t423-schema.out" 2>&1 \
      && timeout 300 python3 "$ROOT/tools/_t423-di-schema-validate.py" "$T423_ADD_EXP"/*.bpmn >> "$TMP/leg-_t423-schema.out" 2>&1; then
     pass=$((pass + 1))
