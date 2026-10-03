@@ -3130,6 +3130,62 @@ fi
 # T-3062: the T-1845 whole-tree scanners used to live here, inside `structure`.
 # They now live in SECTION 1b below. See that block for why.
 
+# 832: re-applied by T-1005 on 1.7.740.
+# T-651: zero-byte untracked files at the repo ROOT are redirect debris.
+#
+# Provenance, because the shape is not obvious: markdown EXECUTED by a shell turns every
+# blockquote line into a redirect. `> Supersedes the note` is not text at that point, it
+# is "truncate a file named Supersedes". 832 accumulated 23 such files over two incidents
+# (2026-08-26, 2026-08-27) named `DEFER`, `rail`, `risk,`, `**their**`, `scope*,` — the
+# first word of each blockquote line.
+#
+# The 0-byte part is diagnostic, not incidental, and it is the reason this comment says
+# EXECUTED rather than the vaguer "unquoted expansion". Argument position (`sh -c "echo
+# $BODY"`) leaves the first file holding echo's remaining words. Command position
+# (`sh -c "$BODY"`, `eval "$BODY"`) leaves every file empty, because a bare redirect has
+# no command to write anything. All 23 were empty. So the markdown reached the shell as a
+# SCRIPT — meaning any line in it that did not begin with `>` was executed. Nothing in the
+# debris tells us whether such a line existed. Established by sandbox reproduction of both
+# forms (tools/_t651-stray-root-files-are-caught.sh leg 1), not by inspection.
+#
+# Why AUDIT and not a pre-commit hook: they are untracked, so no commit hook ever sees
+# them, and `git status` shows them in the noisy `??` block that gets filtered past. They
+# sat for five days in a repo audited twelve times. Nothing was looking at the root.
+#
+# WARN not FAIL: the debris is inert. The reason to surface it is that the SAME accident
+# aimed at an existing path truncates it silently — the files are the visible residue of a
+# mechanism whose invisible case is data loss. Zero-byte is the discriminator that keeps
+# this quiet about legitimate untracked artifacts (screenshots, scratch output).
+if git -C "$PROJECT_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+    _stray=$(git -C "$PROJECT_ROOT" status --porcelain --untracked-files=all -z 2>/dev/null \
+             | tr '\0' '\n' | grep '^??' | sed 's/^?? //' | grep -v '/' \
+             | while IFS= read -r _f; do
+                   [ -n "$_f" ] && [ -f "$PROJECT_ROOT/$_f" ] && [ ! -s "$PROJECT_ROOT/$_f" ] && printf '%s\n' "$_f"
+               done)
+    if [ -n "$_stray" ]; then
+        _stray_n=$(printf '%s\n' "$_stray" | grep -c .)
+        warn "Stray root files: $_stray_n zero-byte untracked file(s) in repo root (T-651)" \
+             "$(printf '%s\n' "$_stray" | head -5)" \
+             "Shell-redirect debris from unquoted markdown. Verify none collide with a tracked path, then remove by explicit name (never a glob — such names can contain *)"
+    else
+        pass "Stray root files: no zero-byte untracked files in repo root"
+    fi
+fi
+
+LARGE_FILE_SCANNER="$FRAMEWORK_ROOT/agents/git/lib/large-file-scan.sh"
+if [ -x "$LARGE_FILE_SCANNER" ]; then
+    _lf_out=$(PROJECT_ROOT="$PROJECT_ROOT" "$LARGE_FILE_SCANNER" scan-tree 2>&1)
+    _lf_rc=$?
+    if [ "$_lf_rc" -ne 0 ]; then
+        _lf_count=$(echo "$_lf_out" | grep -c "\[BLOCK\]" || true)
+        warn "Large-file gate: $_lf_count tracked file(s) above block threshold (T-1845)" \
+             "$(echo "$_lf_out" | head -5)" \
+             "Untrack + add to .gitignore, or allowlist if deliberate: git rm --cached <path> && echo <path> >> .gitignore"
+    else
+        pass "Large-file gate: tracked tree clean"
+    fi
+fi
+
 # T-2244: Self-vendor drift FAIL (F2 N×M daily-cron backstop). Mirrors
 # `bin/fw doctor` Check 2b (T-1434 + T-2243) and the pre-push gate
 # (T-2240/T-2241). Audit is the third surface — daily cron catches any
