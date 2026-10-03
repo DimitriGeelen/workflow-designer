@@ -1,23 +1,13 @@
 ---
-id: T-1005
-name: "Re-vendor step 3 for 1.7.740: re-apply or reclassify the remaining 47 STALE
-  local fixes, file by file with each file's probes"
+id: T-1009
+name: "Upstream pickup bundles for AEF: T-931 stale-ownership (their T-3568) and T-936/T-939 capture + secret-history scan (their T-3572)"
 description: >
-  T-988 landed through the T-1000 protocol (pristine 2659abad, baseline d9f997bf).
-  _t517 then named 51 STALE declared local fixes; all 51 patches apply mechanically
-  (22 clean, 29 three-way), none already present upstream. Done: T-996 (a3f02cd5),
-  batch 1 web T-568/T-569/T-606/T-646 (b8eb4af6) -> 47 left. update-task.sh (17 local
-  commits) gives 13 conflicts in a bulk 3-way merge: re-apply commit by commit, checking
-  which upstream adopted differently. Worklist: build/revendor-worklist/2659abad2146/WORKLIST.md
-  (regenerate with tools/_t1000-revendor-worklist.py). Each file: apply, resolve,
-  run its probe(s), commit; done when _t517 is clean. Highest value first: update-task.sh
-  (P-011 gate T-574/T-943, bridge legs), audit.sh (T-657, T-952 rails — or move them
-  out per T-999), observe.sh, safe-commands.sh.
+  AEF asked (sidecar t931-stale-ownership, consult-832-Workflow-designer, 09-29/30, unread until 10-03) for our fixes as pickups. None is in 1.7.740. Curate each as a git format-patch series against AEF paths (T-931 spans 6 commits incl. lib/task-ownership.sh, sweep, gate arm, audit check, reversion ledger, tests; T-3572: tools/_t936-stray-capture-scan.py + teeth, tools/tracked-secret-artifacts.py --history, the audit hunk now in tools/project-audit.sh), verify each applies to a clean 1.7.740 tree, and deliver with a manifest.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -43,13 +33,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-XXX` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1009` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-02T17:25:40Z
-last_update: 2026-10-03T11:45:07Z
-date_finished:
+created: 2026-10-03T11:44:35Z
+last_update: 2026-10-03T11:44:35Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -60,27 +50,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-02T17:34:11Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 1
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (L0: no signal); F3=0 (L0: no
-      signal); F1=1 (L1:keyword=designer)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1005: Re-vendor step 3 for 1.7.740: re-apply or reclassify the remaining 47 STALE local fixes, file by file with each file's probes
+# T-1009: Upstream pickup bundles for AEF: T-931 stale-ownership (their T-3568) and T-936/T-939 capture + secret-history scan (their T-3572)
 
 ## Context
 
@@ -90,10 +62,8 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Every STALE entry the worklist names is resolved one of three ways — re-applied (its own commit, with the file's probe(s) run), reclassified `superseded` in .vendor-divergence.yaml with the evidence that upstream has it, or dropped with a reason
-- [ ] update-task.sh is re-applied commit by commit (not a bulk 3-way merge); for each local commit the outcome (applied / adopted upstream / conflict resolved how) is recorded in docs/reports/T-1005-revendor-reapply.md
-- [ ] `tools/_t517-vendor-divergence.py` reports 0 stale and 0 unrecorded at the end
-- [ ] The bridge suite is re-run afterwards and its failure count compared with 38 (expected to fall, since ~24 of the 38 were these reverts)
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -119,11 +89,11 @@ bvp_scores_proposed:
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
+         1. Run `bin/fw reviewer T-1009`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1009 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -337,7 +307,7 @@ bvp_scores_proposed:
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-XXX go|no-go|defer --rationale "..."
+     fw inception decide T-1009 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -346,10 +316,7 @@ bvp_scores_proposed:
 
 ## Updates
 
-### 2026-10-02T17:25:40Z — task-created [task-create-agent]
+### 2026-10-03T11:44:35Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1005-re-vendor-step-3-for-17740-re-apply-or-r.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1009-upstream-pickup-bundles-for-aef-t-931-st.md
 - **Context:** Initial task creation
-
-### 2026-10-02T17:34:11Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
