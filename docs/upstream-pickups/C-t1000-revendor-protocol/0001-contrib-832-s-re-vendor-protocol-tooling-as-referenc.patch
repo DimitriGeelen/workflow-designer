@@ -1,0 +1,618 @@
+From 9a21ee13df08f6f4dc34017f492958ad78f75010 Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 01:52:08 +0200
+Subject: [PATCH] contrib: 832's re-vendor protocol tooling as reference input
+ (from 832 T-1000/T-1005; AEF T-3737)
+
+Consumer-side: pristine-commit + baseline-advance + worklist protocol, the G1/G2/G4 pre-commit
+gate and its installer, the vendor-divergence checker (_t517), and a self-contained test that
+walks the gates in a scratch consumer repo (12/12). README records one measured cycle on 1.7.740
+(1599 -> 0 unrecorded, 51 STALE -> 0) and the gap it cannot close alone: a fix made before
+declare-on-change existed was erased with no trace. Placement is yours (fw upgrade / lib / hook).
+---
+ contrib/832-revendor-protocol/README.md       |  29 +++
+ .../tests/test_t1000_revendor_gate.sh         |  58 +++++
+ .../tools/_t1000-install-hook.sh              |  27 ++
+ .../tools/_t1000-revendor-gate.sh             | 103 ++++++++
+ .../tools/_t1000-revendor-worklist.py         | 102 ++++++++
+ .../tools/_t517-vendor-divergence.py          | 234 ++++++++++++++++++
+ 6 files changed, 553 insertions(+)
+ create mode 100644 contrib/832-revendor-protocol/README.md
+ create mode 100644 contrib/832-revendor-protocol/tests/test_t1000_revendor_gate.sh
+ create mode 100644 contrib/832-revendor-protocol/tools/_t1000-install-hook.sh
+ create mode 100644 contrib/832-revendor-protocol/tools/_t1000-revendor-gate.sh
+ create mode 100644 contrib/832-revendor-protocol/tools/_t1000-revendor-worklist.py
+ create mode 100644 contrib/832-revendor-protocol/tools/_t517-vendor-divergence.py
+
+diff --git a/contrib/832-revendor-protocol/README.md b/contrib/832-revendor-protocol/README.md
+new file mode 100644
+index 00000000..de076575
+--- /dev/null
++++ b/contrib/832-revendor-protocol/README.md
+@@ -0,0 +1,29 @@
++# 832's re-vendor protocol: reference tooling for AEF T-3737
++
++This is consumer-side tooling from 832-Workflow-designer (its T-1000 and T-1005), offered as **reviewed input, not drop-in code**, as agreed. Every tool here works on a *vendoring project's* `.agentic-framework/` plus its `.vendor-divergence.yaml`. Where it should live is your decision: `fw upgrade`, `lib/`, or a vendored hook.
++
++## The problem it solves
++
++A re-vendor is one undifferentiated overwrite, so "upstream changed this" and "our local fix was lost" look the same. 832 lost local fixes this way at three successive upgrades. At 1.7.740 its divergence check, measured against a baseline that had not moved since v1.6.763, reported **1599 "unrecorded" paths**. Almost all of them were upstream changes, and the few real losses were buried among them.
++
++## The protocol
++
++1. **Pristine commit.** Commit the upgrade exactly as `fw upgrade` wrote it, alone (`.agentic-framework/` paths only, with VERSION changed).
++2. **Advance the baseline.** Point `baseline_commit` in `.vendor-divergence.yaml` at that commit. From then on, every *declared* local fix the upgrade overwrote shows as **STALE**, by name, with its task and reason. Real upstream changes stop showing as "unrecorded".
++3. **Work the list.** `tools/_t1000-revendor-worklist.py` lists each STALE fix with the diff from the old baseline to the pre-upgrade HEAD. Each one is re-applied, reclassified as superseded (upstream has it, proven by its probe), or dropped with a reason.
++4. **Done when `tools/_t517-vendor-divergence.py` is clean:** 0 stale, 0 unrecorded.
++
++**Gates** (`tools/_t1000-revendor-gate.sh`, installed into `.git/hooks/pre-commit` by `tools/_t1000-install-hook.sh`, because the framework hook has no project extension point):
++- **G1:** a commit that changes `.agentic-framework/VERSION` may contain only vendored paths.
++- **G2:** after a pristine commit, every commit is refused except the one that advances the baseline to it.
++- **G4:** a commit that changes a vendored path must have that path declared in `.vendor-divergence.yaml`. This is the declare-on-change rule.
++
++## Measured on one full cycle (1.7.740, 2026-10-02 to 2026-10-04)
++
++- **After the baseline advance:** 1599 → **0 unrecorded** and **51 STALE**, each named with its task. Before the protocol, the same tree reported 11 STALE and could not attribute the rest.
++- **After working the list:** 0 stale. Of 51 local fixes, some were re-applied, some were superseded upstream (each proven by its probe on the pristine tree), and some moved out of vendored files into project-owned code (`tools/project-audit.sh`), out of a re-vendor's reach.
++- **The gap the protocol cannot close by itself:** on 2026-10-04 832 found a fix (T-931's `fw task delegate` owner flip) that the upgrade had erased with **no trace**. It had been made before G4 existed, so it was never declared, and no test held it. The protocol only protects what is declared; G4 makes declaring mandatory from now on. For the backlog, 832 opened a one-off census (its T-1020). Your T-3737 ask stands: **list every vendored path whose pre-upgrade content differs from the baseline, declared or not, before overwriting.**
++
++## Running the test
++
++`bash contrib/832-revendor-protocol/tests/test_t1000_revendor_gate.sh` builds a scratch consumer repo, walks G1, G2 and G4, and passes 12/12. Every refusal leg has a matching allow leg, so a gate that refuses everything fails too.
+diff --git a/contrib/832-revendor-protocol/tests/test_t1000_revendor_gate.sh b/contrib/832-revendor-protocol/tests/test_t1000_revendor_gate.sh
+new file mode 100644
+index 00000000..d2cd6a38
+--- /dev/null
++++ b/contrib/832-revendor-protocol/tests/test_t1000_revendor_gate.sh
+@@ -0,0 +1,58 @@
++#!/usr/bin/env bash
++# T-1000: the re-vendor gate, walked through the protocol in a scratch git repo.
++# Each refusal leg has a pass leg beside it, so a gate that refuses everything fails too.
++# Run: bash tests/test_t1000_revendor_gate.sh   (exit 0 = all legs pass)
++set -u
++HERE=$(cd "$(dirname "$0")/.." && pwd)
++GATE="$HERE/tools/_t1000-revendor-gate.sh"
++T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
++pass=0; fail=0
++leg() { # leg <name> <want: ok|refused> <command...>
++    local name=$1 want=$2; shift 2
++    if "$@" >"$T/out" 2>&1; then got=ok; else got=refused; fi
++    if [ "$got" = "$want" ]; then pass=$((pass+1)); echo "PASS $name"; else fail=$((fail+1)); echo "FAIL $name (wanted $want, got $got)"; sed 's/^/     /' "$T/out" | head -8; fi
++}
++cd "$T" && git init -q r && cd r || exit 2
++git config user.email t@t; git config user.name t
++mkdir -p .agentic-framework/lib && echo 1.0.0 > .agentic-framework/VERSION && echo v1 > .agentic-framework/lib/a.sh && echo p > proj.txt
++printf 'baseline_commit: 0000000\npaths: []\n' > .agentic-framework/.vendor-divergence.yaml
++git add -A && git commit -qm c0 --no-verify
++B0=$(git rev-parse HEAD); sed -i "s/0000000/$B0/" .agentic-framework/.vendor-divergence.yaml; git commit -qam "baseline c0" --no-verify
++printf '#!/bin/bash\nbash "%s" || exit 1\n' "$GATE" > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
++
++echo p2 >> proj.txt; git add proj.txt
++leg "1 ordinary project commit, no upgrade: allowed" ok git commit -qm ordinary
++
++echo 1.1.0 > .agentic-framework/VERSION; echo v2 > .agentic-framework/lib/a.sh; echo p3 >> proj.txt; git add -A
++leg "2 G1: upgrade commit mixed with a project file: refused" refused git commit -qm mixed
++git restore --staged proj.txt
++leg "3 G1: pristine upgrade commit (vendored paths only): allowed" ok git commit -qm pristine
++PRISTINE=$(git rev-parse HEAD)
++
++git add proj.txt
++leg "4 G2: ordinary commit right after the pristine commit: refused" refused git commit -qm too-early
++git restore --staged proj.txt
++sed -i "s/^baseline_commit: .*/baseline_commit: 1234567/" .agentic-framework/.vendor-divergence.yaml; git add .agentic-framework/.vendor-divergence.yaml
++leg "5 G2: baseline moved, but not to the pristine commit: refused" refused git commit -qm wrong-base
++sed -i "s/^baseline_commit: .*/baseline_commit: $PRISTINE/" .agentic-framework/.vendor-divergence.yaml; git add .agentic-framework/.vendor-divergence.yaml
++leg "6 G2: baseline advanced to the pristine commit: allowed" ok git commit -qm advance
++
++echo p5 >> proj.txt; git add proj.txt
++leg "7 after the advance, ordinary commits flow again: allowed" ok git commit -qm after
++
++echo local-fix >> .agentic-framework/lib/a.sh; git add .agentic-framework/lib/a.sh
++leg "9 G4: a local fix to an UNDECLARED vendored path: refused" refused git commit -qm undeclared
++printf '  - path: .agentic-framework/lib/a.sh\n    kind: content\n    task: T-X\n    upstream: fix\n    reason: test\n' >> .agentic-framework/.vendor-divergence.yaml
++sed -i 's/^paths: \[\]$/entries:/' .agentic-framework/.vendor-divergence.yaml
++git add .agentic-framework/.vendor-divergence.yaml .agentic-framework/lib/a.sh
++leg "10 G4: the same fix with its declaration staged: allowed" ok git commit -qm declared
++echo new > .agentic-framework/lib/b.sh; git add .agentic-framework/lib/b.sh
++leg "11 G4: an undeclared local ADDITION: refused" refused git commit -qm added-undeclared
++git restore --staged .agentic-framework/lib/b.sh; rm -f .agentic-framework/lib/b.sh
++
++echo 1.2.0 > .agentic-framework/VERSION; echo p4 >> proj.txt; git add -A
++leg "8 override is honoured and logged" ok env REVENDOR_GATE_OVERRIDE="test reason" git commit -qm overridden
++leg "8b the override was logged" ok grep -q "test reason" .context/working/revendor-gate-overrides.log
++
++echo; echo "T-1000 revendor gate: $pass passed, $fail failed"
++[ "$fail" -eq 0 ]
+diff --git a/contrib/832-revendor-protocol/tools/_t1000-install-hook.sh b/contrib/832-revendor-protocol/tools/_t1000-install-hook.sh
+new file mode 100644
+index 00000000..d4db4826
+--- /dev/null
++++ b/contrib/832-revendor-protocol/tools/_t1000-install-hook.sh
+@@ -0,0 +1,27 @@
++#!/usr/bin/env bash
++# _t1000-install-hook.sh — wire the re-vendor gate into .git/hooks/pre-commit (832 T-1000).
++#
++# The framework writes .git/hooks/pre-commit (`fw git install-hooks`) and offers NO project
++# extension point, so the only seam is one marked line in that file. A hook reinstall erases
++# it; that is the same class of loss T-995 is about, so it is not left silent: `--check`
++# exits 1 when the line is missing, and T-999's project audit calls it. Asked upstream (AEF,
++# conversation revendor-protocol): a project hooks directory the framework hook sources.
++#
++#   bash tools/_t1000-install-hook.sh           install (idempotent)
++#   bash tools/_t1000-install-hook.sh --check   exit 0 if installed, 1 if not
++set -u
++ROOT=$(git rev-parse --show-toplevel) || exit 2
++HOOK="$ROOT/.git/hooks/pre-commit"
++MARK="# 832-T-1000-revendor-gate"
++LINE="bash \"\$(git rev-parse --show-toplevel)/tools/_t1000-revendor-gate.sh\" || exit 1  $MARK"
++
++if [ "${1:-}" = "--check" ]; then
++    grep -qF "$MARK" "$HOOK" 2>/dev/null && { echo "revendor gate: installed in $HOOK"; exit 0; }
++    echo "revendor gate: NOT installed in $HOOK (a hook reinstall removes it; run tools/_t1000-install-hook.sh)"
++    exit 1
++fi
++[ -f "$HOOK" ] || { echo "no $HOOK: run fw git install-hooks first" >&2; exit 2; }
++if grep -qF "$MARK" "$HOOK"; then echo "already installed"; exit 0; fi
++# Directly after the shebang, so no early `exit 0` in the framework hook can skip it.
++tmp=$(mktemp) && { head -1 "$HOOK"; echo "$LINE"; tail -n +2 "$HOOK"; } > "$tmp" && cat "$tmp" > "$HOOK" && rm -f "$tmp"
++grep -qF "$MARK" "$HOOK" && echo "installed: $HOOK line 2" || { echo "install failed" >&2; exit 1; }
+diff --git a/contrib/832-revendor-protocol/tools/_t1000-revendor-gate.sh b/contrib/832-revendor-protocol/tools/_t1000-revendor-gate.sh
+new file mode 100644
+index 00000000..2d23d137
+--- /dev/null
++++ b/contrib/832-revendor-protocol/tools/_t1000-revendor-gate.sh
+@@ -0,0 +1,103 @@
++#!/usr/bin/env bash
++# _t1000-revendor-gate.sh — the re-vendor protocol, enforced at commit time (832 T-1000, T-995 B4).
++#
++# WHY. Re-vendoring the framework was one undifferentiated overwrite. Local fixes to vendored
++# code were reverted silently, twice (T-840 on 2026-09-25: >=4 fixes and the audit rail that
++# would report it, T-944; the 1.7.740 upgrade, T-988: the T-952 rail). The divergence detector
++# (tools/_t517) could not see it, because its baseline had never moved since v1.6.763: every
++# upstream change looked like an unrecorded local change, and a lost fix looked like nothing.
++#
++# THE PROTOCOL (operator chose it 2026-10-02; proposed to AEF on conversation revendor-protocol):
++#   1. PRISTINE COMMIT  the upgrade, exactly as the vendor wrote it, alone.
++#   2. BASELINE ADVANCE .vendor-divergence.yaml baseline_commit := that commit. Now _t517 shows
++#                       every declared local fix the upgrade overwrote as STALE, by name.
++#   3. WORKLIST         tools/_t1000-revendor-worklist.py; re-apply / reclassify / drop each.
++#   4. DONE             _t517 clean.
++#
++# WHAT THIS GATE ENFORCES (run from .git/hooks/pre-commit; see _t1000-install-hook.sh):
++#   G1  a commit that changes .agentic-framework/VERSION may stage only .agentic-framework/ paths.
++#   G2  right after a pristine commit (HEAD changed VERSION), every commit is refused unless it
++#       sets baseline_commit to HEAD. Nobody carries on as if the upgrade were finished.
++#   G3 (STALE > 0 fails the audit, a release refuses) lives in T-999 / T-998, not here.
++#   G4  an ordinary commit (not the pristine one) that changes or adds a path under
++#       .agentic-framework/ must have that path declared in .vendor-divergence.yaml (as staged).
++#       Found by T-1005: the protocol protects only DECLARED fixes. T-943's verification-port.sh
++#       change and four local additions were never declared, so the 1.7.740 upgrade erased or
++#       deleted them and _t517 listed nothing. Declare at the moment of patching, or the commit
++#       is refused.
++#
++# Override, logged: REVENDOR_GATE_OVERRIDE="<reason>" git commit ...
++# Exit 0 = allowed, 1 = refused.
++set -u
++ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
++cd "$ROOT" || exit 0
++VF=.agentic-framework/VERSION
++DIV=.agentic-framework/.vendor-divergence.yaml
++
++refuse() {
++    if [ -n "${REVENDOR_GATE_OVERRIDE:-}" ]; then
++        mkdir -p .context/working
++        printf '%s\t%s\t%s\n' "$(date -u +%FT%TZ)" "$1" "$REVENDOR_GATE_OVERRIDE" >> .context/working/revendor-gate-overrides.log
++        echo "revendor-gate: $1 — OVERRIDDEN (logged): $REVENDOR_GATE_OVERRIDE" >&2
++        exit 0
++    fi
++    echo "" >&2
++    echo "REVENDOR GATE ($1) — commit refused (832 T-1000)" >&2
++    shift
++    for l in "$@"; do echo "  $l" >&2; done
++    echo "  Protocol: tools/_t1000-revendor-gate.sh header; design docs/reports/T-1000-revendor-gate.md" >&2
++    exit 1
++}
++
++git rev-parse -q --verify HEAD >/dev/null || exit 0           # first commit: nothing to compare
++v_head=$(git show "HEAD:$VF" 2>/dev/null | tr -d '[:space:]')
++v_idx=$(git show ":$VF" 2>/dev/null | tr -d '[:space:]')
++
++# --- G1: an upgrade commit is pristine: vendored paths only -----------------------------------
++if [ -n "$v_idx" ] && [ "$v_idx" != "$v_head" ]; then
++    outside=$(git diff --cached --name-only | grep -v '^\.agentic-framework/' | head -5)
++    if [ -n "$outside" ]; then
++        refuse "G1" \
++            "This commit changes the framework VERSION ($v_head -> $v_idx), so it is the PRISTINE vendor" \
++            "commit (protocol step 1) and must contain only .agentic-framework/ paths. Also staged:" \
++            $outside \
++            "Unstage them (git restore --staged <path>) and commit them after the baseline advance."
++    fi
++    exit 0
++fi
++
++# --- G4: every vendored path an ordinary commit touches must be declared ----------------------
++declared=$(git show ":$DIV" 2>/dev/null | sed -n 's/^[[:space:]]*-[[:space:]]*path:[[:space:]]*//p')
++undeclared=""
++while IFS= read -r p; do
++    [ -z "$p" ] && continue
++    case "$p" in "$DIV") continue ;; esac
++    printf '%s\n' "$declared" | grep -qxF "$p" || undeclared="$undeclared $p"
++done <<EOF_G4
++$(git diff --cached --name-only --diff-filter=AMRT | grep '^\.agentic-framework/')
++EOF_G4
++if [ -n "$undeclared" ]; then
++    refuse "G4" \
++        "This commit changes vendored path(s) that .vendor-divergence.yaml does not declare:" \
++        $undeclared \
++        "An undeclared local fix is invisible to the re-vendor protocol and is erased (or, for an" \
++        "added file, deleted) by the next upgrade without trace (T-1005). Add an entry per path" \
++        "(path, kind, task, upstream, reason) to $DIV and stage it with this commit."
++fi
++
++# --- G2: right after a pristine commit, only the baseline advance may follow ------------------
++v_parent=$(git show "HEAD^:$VF" 2>/dev/null | tr -d '[:space:]')
++if [ -n "$v_parent" ] && [ -n "$v_head" ] && [ "$v_parent" != "$v_head" ]; then
++    head_sha=$(git rev-parse HEAD)
++    staged_base=$(git show ":$DIV" 2>/dev/null | sed -n 's/^baseline_commit:[[:space:]]*["'\'']\{0,1\}\([0-9a-f]\{7,40\}\).*/\1/p' | head -1)
++    case "$head_sha" in
++        "$staged_base"*) [ -n "$staged_base" ] && exit 0 ;;
++    esac
++    refuse "G2" \
++        "HEAD ($(git rev-parse --short HEAD)) is a pristine vendor commit (framework $v_parent -> $v_head)," \
++        "and the divergence baseline has not been advanced to it. Until it is, tools/_t517 cannot" \
++        "tell a lost local fix from an upstream change. Protocol step 2: set" \
++        "  baseline_commit: $head_sha" \
++        "in $DIV and commit that alone; then run tools/_t1000-revendor-worklist.py."
++fi
++exit 0
+diff --git a/contrib/832-revendor-protocol/tools/_t1000-revendor-worklist.py b/contrib/832-revendor-protocol/tools/_t1000-revendor-worklist.py
+new file mode 100644
+index 00000000..2fec1ccd
+--- /dev/null
++++ b/contrib/832-revendor-protocol/tools/_t1000-revendor-worklist.py
+@@ -0,0 +1,102 @@
++#!/usr/bin/env python3
++"""_t1000-revendor-worklist — protocol step 3: what the upgrade overwrote, and how to put it back.
++
++After the pristine vendor commit P and the baseline advance (tools/_t1000-revendor-gate.sh), every
++declared local fix the upgrade overwrote is STALE in tools/_t517. For each one this lists:
++  - its manifest entry (task, upstream class, the first line of its reason);
++  - the LOCAL commits that touched the path before the upgrade (old baseline .. P^), excluding
++    upgrade commits (any commit that changed .agentic-framework/VERSION);
++  - a patch made of those commits' own diffs for that path, to re-apply with `git apply -3`.
++Each entry is then resolved one of three ways: re-applied, reclassified `superseded` (upstream has
++it), or dropped with a reason. The upgrade is done when _t517 is clean.
++
++Why per-commit diffs and not diff(old baseline, P^): the old baseline may be several re-vendors
++old (it was v1.6.763 when this was written), so that diff carries every upstream change in between
++and would not apply. A local commit's own diff is the fix and nothing else.
++
++Writes under build/revendor-worklist/<P>/ (gitignored). Prints a summary only.
++  _t1000-revendor-worklist.py                    P = baseline_commit, paths = _t517 STALE
++  _t1000-revendor-worklist.py --pristine SHA --old-base SHA --paths p1 p2 ...   (explicit)
++"""
++import argparse
++import os
++import re
++import subprocess
++import sys
++
++import yaml
++
++ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
++DIV = '.agentic-framework/.vendor-divergence.yaml'
++VF = '.agentic-framework/VERSION'
++
++
++def git(*a, check=True):
++    r = subprocess.run(['git', '-C', ROOT] + list(a), capture_output=True, text=True)
++    if check and r.returncode:
++        sys.exit('git %s failed: %s' % (' '.join(a), r.stderr.strip()))
++    return r.stdout
++
++
++def manifest(rev=None):
++    text = git('show', '%s:%s' % (rev, DIV)) if rev else open(os.path.join(ROOT, DIV)).read()
++    return yaml.safe_load(text) or {}
++
++
++def stale_paths():
++    r = subprocess.run([sys.executable, os.path.join(ROOT, 'tools', '_t517-vendor-divergence.py')],
++                       capture_output=True, text=True, cwd=ROOT)
++    return [m.group(1) for m in re.finditer(r'^\s*STALE\s+\[[^\]]*\]\s+(\S+)', r.stdout, re.M)]
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument('--pristine')
++    ap.add_argument('--old-base')
++    ap.add_argument('--paths', nargs='*')
++    a = ap.parse_args()
++    P = a.pristine or str(manifest().get('baseline_commit') or '')
++    if not P:
++        sys.exit('no pristine commit: pass --pristine or set baseline_commit')
++    P = git('rev-parse', P).strip()
++    pre = git('rev-parse', P + '^').strip()
++    old = a.old_base or str(manifest(pre).get('baseline_commit') or '')
++    if not old:
++        sys.exit('no old baseline: pass --old-base')
++    paths = a.paths if a.paths is not None else stale_paths()
++    entries = {e.get('path'): e for e in (manifest(pre).get('entries') or []) if isinstance(e, dict)}
++    upgrades = set(git('log', '--format=%H', '%s..%s' % (old, pre), '--', VF).split())
++    out = os.path.join(ROOT, 'build', 'revendor-worklist', P[:12])
++    os.makedirs(out, exist_ok=True)
++    rows, n_patch = [], 0
++    for i, p in enumerate(paths, 1):
++        commits = [c for c in git('log', '--format=%H', '--reverse', '%s..%s' % (old, pre), '--', p).split()
++                   if c not in upgrades]
++        e = entries.get(p, {})
++        subj = [git('log', '-1', '--format=%h %s', c).strip()[:90] for c in commits]
++        patch = ''.join(git('show', '--format=From %H%nSubject: %s%n', c, '--', p) for c in commits)
++        pf = ''
++        if patch.strip():
++            pf = os.path.join(out, '%02d-%s.patch' % (i, re.sub(r'[^A-Za-z0-9._-]+', '_', p)))
++            open(pf, 'w').write(patch)
++            n_patch += 1
++        reason = str(e.get('reason') or '').strip().split('\n')[0][:110]
++        rows.append((p, e.get('task', '?'), e.get('upstream', '?'), reason, subj, pf))
++    with open(os.path.join(out, 'WORKLIST.md'), 'w') as f:
++        f.write('# Re-vendor worklist — pristine %s (pre-upgrade %s, old baseline %s)\n\n' % (P[:12], pre[:12], old[:12]))
++        f.write('Resolve each: re-apply (`git apply -3 <patch>`), reclassify `superseded`, or drop with a reason.\n\n')
++        for p, task, up, reason, subj, pf in rows:
++            f.write('## %s\n- manifest: task %s, upstream %s — %s\n' % (p, task, up, reason or '(no manifest entry)'))
++            f.write('- local commits: %s\n' % (len(subj) or 'NONE FOUND (fix predates the old baseline, or the entry was never a code fix)'))
++            for s in subj:
++                f.write('  - %s\n' % s)
++            f.write('- patch: %s\n- resolution: \n\n' % (os.path.relpath(pf, ROOT) if pf else '-'))
++    print('worklist: %d stale path(s), %d with a patch, %d with no local commit found -> %s' % (
++        len(rows), n_patch, sum(1 for r in rows if not r[4]), os.path.relpath(out, ROOT) + '/WORKLIST.md'))
++    for p, task, up, reason, subj, pf in rows:
++        print('  %-62s %-6s %2d commit(s)' % (p[:62], task, len(subj)))
++    return 0
++
++
++if __name__ == '__main__':
++    sys.exit(main())
+diff --git a/contrib/832-revendor-protocol/tools/_t517-vendor-divergence.py b/contrib/832-revendor-protocol/tools/_t517-vendor-divergence.py
+new file mode 100644
+index 00000000..702d44d2
+--- /dev/null
++++ b/contrib/832-revendor-protocol/tools/_t517-vendor-divergence.py
+@@ -0,0 +1,234 @@
++#!/usr/bin/env python3
++"""_t517-vendor-divergence — hold the vendored framework tree against its vendor baseline.
++
++G-008 lets us fix `.agentic-framework/` in-tree AND upstream the fix. The tree records that a
++fix happened (a commit); nothing records that the fix is LOCAL — present here, absent upstream.
++That invisibility runs both ways and has already cost:
++
++  * email-archive re-pinged G-AUDIT-EXCLUDE-NOT-HONORED three times over four months while our
++    T-374 sat here as a tested implementation of the exact remedy they proposed.
++  * T-276's own follow-up commit reads "post-vendor repair — restore exec bits demoted by old
++    do_vendor copy (5 files) + chmod secret-scan". The last re-vendor DID clobber local state
++    and it was caught by hand.
++
++So this compares the live vendored tree against the recorded baseline commit and asserts the
++diverged SET equals the manifest's declared set.
++
++WHY A SET AND NOT A COUNT. A count of diverged files is a global always-moving property: it
++rises with every legitimate G-008 fix, so a count ratchet would fire on correct work and teach
++its reader to re-baseline reflexively. That is the G-015 class tools/verification-hygiene.py
++already catalogues (832 T-508). Set equality fires only on divergence nobody DECLARED, in either
++direction — an unrecorded patch, or a manifest entry that no longer diverges because a re-vendor
++adopted it upstream. Both are things a human should see.
++
++MODE-ONLY DIVERGENCE IS THE HALF THAT HIDES. Eight of the files that diverge here carry no
++content change at all — only 100644 => 100755. A reviewer diffing content reports them clean,
++and a re-vendor silently demotes them. They are classified and reported explicitly.
++
++Exit codes are three-valued on purpose:
++  0  actual divergence == manifest
++  1  divergence differs from the manifest (unrecorded, or stale entry)
++  2  REFUSE — the comparison could not be made (missing/unparseable manifest, unreachable
++     baseline commit, or a baseline that holds no vendored files at all)
++
++2 exists because rc 0 must never be reachable by a broken comparator. "No divergence found"
++and "I could not look" are different facts and an instrument that renders both as green is the
++PL-205 failure this repo keeps re-finding.
++"""
++import os
++import subprocess
++import sys
++
++import yaml
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++ROOT = os.path.dirname(HERE)
++VENDOR_PATH = ".agentic-framework"
++MANIFEST = os.path.join(ROOT, VENDOR_PATH, ".vendor-divergence.yaml")
++
++# Paths that are runtime state written INTO the vendored tree by the framework itself rather
++# than edits we made. Declared here rather than in the manifest because they are not fixes to
++# upstream and there is nothing to upstream: excluding them in the manifest would put a
++# non-fix in a register whose whole purpose is "what should travel upstream".
++RUNTIME_STATE = (
++    VENDOR_PATH + "/.context/",
++)
++
++# The `upstream:` taxonomy, kept in step with the manifest header's own documentation of it.
++# Only `fix` is debt owed to framework-agent; `superseded` means upstream already has an
++# equivalent, arrived at independently (T-519, AEF rail 11895).
++UPSTREAM_VALUES = frozenset(
++    {"fix", "superseded", "vendoring-repair", "local-config", "unknown"}
++)
++
++
++def git(*args, cwd=ROOT):
++    return subprocess.run(["git"] + list(args), cwd=cwd, capture_output=True, text=True)
++
++
++def refuse(msg):
++    print("REFUSE: %s" % msg)
++    print("        rc 2 — the comparison was not made. This is not a pass.")
++    return 2
++
++
++def load_manifest():
++    if not os.path.exists(MANIFEST):
++        return None, "manifest absent at %s" % MANIFEST
++    try:
++        with open(MANIFEST, encoding="utf-8") as f:
++            data = yaml.safe_load(f)
++    except Exception as e:  # noqa: BLE001 - any parse failure is a refusal, not a verdict
++        return None, "manifest unparseable: %s" % e
++    if not isinstance(data, dict) or not data.get("baseline_commit"):
++        return None, "manifest has no baseline_commit"
++    return data, None
++
++
++def actual_divergence(baseline):
++    """{path: kind} for the working tree vs the baseline commit.
++
++    Working tree, not HEAD: an uncommitted patch to vendored code is exactly the state this
++    instrument should surface, and it is also the state a re-vendor would destroy first.
++
++    `git diff --raw` carries both modes and both blob shas, which is what makes the mode-only
++    class separable. --name-status would collapse it into 'M' and the eight exec-bit files
++    would be indistinguishable from content edits.
++    """
++    r = git("diff", "--raw", "--abbrev=40", baseline, "--", VENDOR_PATH)
++    if r.returncode != 0:
++        return None, r.stderr.strip()
++    out = {}
++    for line in r.stdout.splitlines():
++        if not line.startswith(":"):
++            continue
++        meta, _, path = line.partition("\t")
++        path = path.strip()
++        if not path or any(path.startswith(p) for p in RUNTIME_STATE):
++            continue
++        fields = meta[1:].split()
++        if len(fields) < 5:
++            continue
++        src_mode, dst_mode, src_sha, dst_sha, status = fields[:5]
++
++        # An UNSTAGED working-tree file has no hashed blob, so --raw reports its dst sha as all
++        # zeros. Left as-is that makes src_sha != dst_sha unconditionally and every mode-only
++        # change downstream is misclassified as content — which is the whole class this tool
++        # exists to make visible, silently mislabelled in exactly the state it matters most:
++        # someone has just patched vendored code and has not committed yet. Hash it ourselves.
++        # (Caught by the teeth leg asserting on the classification column rather than on red/
++        # green. Red for the wrong reason still counts as wrong.)
++        if dst_sha.strip("0") == "" and not status.startswith("D"):
++            full = os.path.join(ROOT, path)
++            if os.path.exists(full):
++                h = git("hash-object", full)
++                if h.returncode == 0 and h.stdout.strip():
++                    dst_sha = h.stdout.strip()
++
++        if status.startswith("A") or src_sha.strip("0") == "":
++            kind = "added"
++        elif status.startswith("D"):
++            kind = "deleted"
++        elif src_sha == dst_sha and src_mode != dst_mode:
++            kind = "mode"
++        else:
++            kind = "content"
++        out[path] = kind
++    return out, None
++
++
++def main():
++    manifest, err = load_manifest()
++    if err:
++        return refuse(err)
++
++    baseline = manifest["baseline_commit"]
++
++    # Is the baseline reachable at all? An unreachable ref makes `git diff` fail, and a
++    # comparator that cannot resolve its own reference point must not report a clean tree.
++    if git("cat-file", "-e", baseline + "^{commit}").returncode != 0:
++        return refuse("baseline commit %s is unreachable in this repository" % baseline[:12])
++
++    # Anti-dead-comparator: a baseline that holds no vendored files would yield an empty diff
++    # that reads exactly like a clean tree. Check the reference point is populated BEFORE
++    # believing anything the diff says about it.
++    ls = git("ls-tree", "-r", "--name-only", baseline, "--", VENDOR_PATH)
++    baseline_files = [l for l in ls.stdout.splitlines() if l.strip()]
++    if len(baseline_files) < 100:
++        return refuse(
++            "baseline %s holds only %d files under %s — that is not a vendored framework tree, "
++            "so an empty diff would mean 'wrong reference point', not 'no divergence'"
++            % (baseline[:12], len(baseline_files), VENDOR_PATH)
++        )
++
++    actual, err = actual_divergence(baseline)
++    if actual is None:
++        return refuse("git diff against %s failed: %s" % (baseline[:12], err))
++
++    declared = {}
++    for e in manifest.get("entries") or []:
++        if isinstance(e, dict) and e.get("path"):
++            declared[e["path"]] = e.get("kind", "content")
++
++    # T-519: the `upstream:` taxonomy was documented in this file's own header and enforced
++    # NOWHERE, so a typo or an invented value read as a valid classification and the entry
++    # silently left the upstream-debt list. That is T-509's class exactly — a convention used
++    # as a CLASSIFIER with nothing re-checking it — and adding a fifth value (`superseded`) to
++    # an unenforced list would have been me repeating the defect I catalogued. Checked here
++    # rather than in the teeth so that a bad value stops the ONE caller that matters.
++    bad_upstream = []
++    for e in manifest.get("entries") or []:
++        if not isinstance(e, dict) or not e.get("path"):
++            continue
++        v = e.get("upstream")
++        if v not in UPSTREAM_VALUES:
++            bad_upstream.append((e["path"], v))
++    if bad_upstream:
++        return refuse(
++            "manifest carries %d entry/entries whose `upstream:` value is not in the taxonomy "
++            "%s — an unrecognised value is not a classification, and an entry that is not "
++            "classified cannot be counted as upstream debt or excluded from it: %s"
++            % (
++                len(bad_upstream),
++                "/".join(sorted(UPSTREAM_VALUES)),
++                ", ".join("%s=%r" % (p, v) for p, v in bad_upstream[:5]),
++            )
++        )
++
++    unrecorded = {p: k for p, k in actual.items() if p not in declared}
++    stale = {p: k for p, k in declared.items() if p not in actual}
++    reclassified = {
++        p: (declared[p], actual[p]) for p in actual if p in declared and declared[p] != actual[p]
++    }
++
++    by_kind = {}
++    for k in actual.values():
++        by_kind[k] = by_kind.get(k, 0) + 1
++
++    print("vendor baseline : %s (%d files)" % (baseline[:12], len(baseline_files)))
++    print("diverged now    : %d  (%s)" % (
++        len(actual), ", ".join("%s=%d" % (k, v) for k, v in sorted(by_kind.items())) or "none"))
++    print("declared        : %d" % len(declared))
++
++    if not unrecorded and not stale and not reclassified:
++        print("\nOK — every diverged path is declared, and every declared path still diverges.")
++        return 0
++
++    print("")
++    for p, k in sorted(unrecorded.items()):
++        print("  UNRECORDED  [%-7s] %s" % (k, p))
++        print("              a local change to vendored code that no manifest entry claims.")
++    for p, k in sorted(stale.items()):
++        print("  STALE       [%-7s] %s" % (k, p))
++        print("              declared as diverged but matches the baseline now — adopted "
++              "upstream, or the local fix was lost.")
++    for p, (was, now) in sorted(reclassified.items()):
++        print("  RECLASSIFIED %s: declared %s, actually %s" % (p, was, now))
++
++    print("\nFAIL — %d unrecorded, %d stale, %d reclassified. Update %s."
++          % (len(unrecorded), len(stale), len(reclassified), MANIFEST))
++    return 1
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+-- 
+2.43.0
+
