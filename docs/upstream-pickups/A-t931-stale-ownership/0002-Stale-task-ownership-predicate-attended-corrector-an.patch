@@ -1,0 +1,579 @@
+From 92f64e73e2f1cadb89a3846f821659200ec5ea30 Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 01:25:13 +0200
+Subject: [PATCH 2/3] Stale task ownership: predicate, attended corrector, and
+ teeth (from 832 T-931; AEF T-3568)
+
+tools/_t931-ownership.py classifies every active task: OWNER-JUSTIFIED (an open Human criterion
+backs owner: human), OWNER-STALE (none does), NOT-HUMAN-OWNED. --facts prints one TSV line for an
+audit rail. It parses criteria with the framework's own lib.delegation (one vocabulary, T-322).
+On this tree at 914326e0: 618 active, 391 human-owned, 56 stale.
+tools/_t931-ownership-sweep.sh is the corrector: dry run by default, --apply writes ONLY through
+'fw task update --owner' (the R-033 path), and it must never run on cron -- an unattended owner
+flip is the failure, not the fix. The teeth (16 legs) prove: not wired into any crontab or hook,
+writes nothing without --apply, and every write goes through the task-update path.
+Your three lessons for T-3568 are the teeth's legs: the corrector never runs on cron; fail-safe
+means DO NOT FLIP; audit checks take a facts line from a tool instead of inlining python.
+---
+ tools/_t931-ownership-sweep.sh | 107 +++++++++++++++++
+ tools/_t931-ownership-teeth.sh | 214 +++++++++++++++++++++++++++++++++
+ tools/_t931-ownership.py       | 212 ++++++++++++++++++++++++++++++++
+ 3 files changed, 533 insertions(+)
+ create mode 100755 tools/_t931-ownership-sweep.sh
+ create mode 100755 tools/_t931-ownership-teeth.sh
+ create mode 100755 tools/_t931-ownership.py
+
+diff --git a/tools/_t931-ownership-sweep.sh b/tools/_t931-ownership-sweep.sh
+new file mode 100755
+index 00000000..392dc73f
+--- /dev/null
++++ b/tools/_t931-ownership-sweep.sh
+@@ -0,0 +1,107 @@
++#!/usr/bin/env bash
++# _t931-ownership-sweep.sh — the second layer: detect a stale `owner: human` and correct it.
++#
++# T-931, operator ruling 2026-09-29, two layers:
++#   LAYER 1  the process itself reverts ownership at the moment nothing human is left open —
++#            update-task.sh's R-033 branch, authorised by the OWNER-STALE predicate.
++#   LAYER 2  and if that is overlooked, something detects and corrects it. That is this sweep.
++#
++# Layer 1 only fires when someone runs `fw task update` on the task. A task nobody touches keeps a
++# stale claim forever, which is how 45 of them accumulated — 10 with every Human criterion already
++# TICKED by the operator, and 13 with every Agent criterion ticked too. Ten of those 13 had been
++# reported by the audit as CTL-029 "completable, not closed" for a month: the control saw the
++# symptom and could not name the cause, because the cause is a frontmatter field no check read.
++#
++# ATTENDED BY DESIGN — NEVER ON CRON. This script WRITES to a sovereignty-protected field. An
++# unattended sweep that strips `owner: human` across the corpus is the most dangerous shape available
++# here: a wrong predicate removes a real claim from N tasks with nobody watching, and the first
++# symptom is a task closing that the operator wanted to see. Cron runs the DETECTOR (the audit
++# check), which can only over-report. The corrector is run by hand. `--apply` is required and
++# `--dry-run` is the default; there is no config that inverts that.
++#
++# It does not write the field itself either: every change goes through
++# `fw task update <id> --owner agent`, so the R-033 gate, its audit line and the task's own
++# machinery all still run. A sweep that edited frontmatter directly would be a second writer for a
++# field this work exists to give exactly one.
++set -uo pipefail
++cd "$(dirname "$0")/.." || exit 90
++
++TOOL="tools/_t931-ownership.py"
++FW=".agentic-framework/bin/fw"; [ -x "$FW" ] || FW="bin/fw"   # vendoring project, or the framework repo itself (T-1009)
++APPLY=0
++READY_ONLY=0
++
++while [ $# -gt 0 ]; do
++    case "$1" in
++        --apply) APPLY=1 ;;
++        --dry-run) APPLY=0 ;;
++        --ready-only) READY_ONLY=1 ;;
++        -h|--help)
++            sed -n '2,30p' "$0"; exit 0 ;;
++        *) echo "unknown argument: $1" >&2; exit 2 ;;
++    esac
++    shift
++done
++
++[ -f "$TOOL" ] || { echo "SETUP BROKEN: no $TOOL"; exit 1; }
++[ -x "$FW" ]   || { echo "SETUP BROKEN: no $FW (there is no bin/fw in this project)"; exit 1; }
++
++FILTER=(--stale-only)
++[ "$READY_ONLY" -eq 1 ] && FILTER=(--ready-only)
++
++ROWS="$(python3 "$TOOL" "${FILTER[@]}" --json)" || { echo "predicate failed"; exit 1; }
++N="$(printf '%s' "$ROWS" | python3 -c 'import sys,json; print(len(json.load(sys.stdin)))')"
++
++# An empty candidate set is reported as such, never as a clean result: "nothing to correct" and
++# "the predicate returned nothing" look identical in a success message and are completely
++# different facts (T-3105).
++if [ "$N" -eq 0 ]; then
++    echo "NO CANDIDATES — the predicate returned zero OWNER-STALE tasks."
++    echo "That is either a genuinely clean corpus or a predicate that stopped matching."
++    echo "Confirm it can still see the corpus at all:  python3 $TOOL | tail -2"
++    exit 0
++fi
++
++echo "=== T-931 ownership sweep — $([ "$APPLY" -eq 1 ] && echo 'APPLY' || echo 'DRY RUN') ==="
++echo "$N task(s) where owner: human has no open Human criterion behind it."
++echo
++
++printf '%s' "$ROWS" | python3 -c '
++import sys, json
++for r in json.load(sys.stdin):
++    print("  %-8s human %d/%d open  agent %d/%d  %s"
++          % (r["task"], r["open_human"], r["total_human"],
++             r["agent_ticked"], r["agent_total"], r["detail"][:78]))
++'
++echo
++
++if [ "$APPLY" -eq 0 ]; then
++    echo "DRY RUN — nothing written. To correct these:"
++    echo "  bash $0 --apply"
++    exit 0
++fi
++
++OK=0; REFUSED=0
++while IFS= read -r id; do
++    [ -n "$id" ] || continue
++    if out="$("$FW" task update "$id" --owner agent 2>&1)"; then
++        echo "  CORRECTED  $id"
++        OK=$((OK+1))
++    else
++        # A refusal here is informative, not a nuisance: it means the gate disagreed with the
++        # predicate about this task, and that disagreement is exactly what G-052 is open about.
++        echo "  REFUSED    $id"
++        printf '%s\n' "$out" | sed 's/^/             /' | head -4
++        REFUSED=$((REFUSED+1))
++    fi
++done < <(printf '%s' "$ROWS" | python3 -c '
++import sys, json
++for r in json.load(sys.stdin): print(r["task"])
++')
++
++echo
++echo "=== SUMMARY ==="
++echo "corrected: $OK"
++echo "refused:   $REFUSED"
++[ "$REFUSED" -eq 0 ] || echo "A refusal means the gate and the predicate disagree — that is a G-052 finding, not a retry."
++exit 0
+diff --git a/tools/_t931-ownership-teeth.sh b/tools/_t931-ownership-teeth.sh
+new file mode 100755
+index 00000000..6f9224bc
+--- /dev/null
++++ b/tools/_t931-ownership-teeth.sh
+@@ -0,0 +1,214 @@
++#!/usr/bin/env bash
++# _t931-ownership-teeth.sh — prove the ownership predicate BOTH directions, negative leg first.
++#
++# WHAT IS AT STAKE. This predicate's verdict is what a writer will act on to revert `owner: human`
++# to `owner: agent`. If it reports OWNER-STALE for a task that still has an open Human criterion, a
++# genuine sovereignty claim is removed. That is the one outcome that must be impossible, so the leg
++# that proves it CANNOT happen is written first and runs first.
++#
++# WHY THE POSITIVE LEG IS NOT ENOUGH. A predicate hard-wired to return OWNER-JUSTIFIED passes every
++# negative test and is useless. A predicate hard-wired to OWNER-STALE passes every positive test and
++# is dangerous. Only running both over fixtures that differ in ONE property measures anything, and
++# only a control that is DEMONSTRATED to fail proves the harness is wired up at all — a suite that
++# silently matched nothing would report all-clear, which is the false green this whole line of work
++# exists to remove.
++#
++# FIXTURES ARE BUILT HERE, NOT BORROWED FROM THE LIVE TREE. The orchestrator's own self-test used
++# $DIR/round3.out — a live run artefact — as its positive control, and the run overwrote it with a
++# successful round's output, flipping the control's meaning while the code under test never changed
++# (T-922). Live corpus state is not a fixture.
++set -uo pipefail
++cd "$(dirname "$0")/.." || exit 90
++
++TOOL="tools/_t931-ownership.py"
++[ -f "$TOOL" ] || { echo "SETUP BROKEN: no $TOOL"; exit 1; }
++command -v python3 >/dev/null 2>&1 || { echo "SETUP BROKEN: no python3"; exit 1; }
++
++PASS=0; FAIL=0
++ok() { if [ "$2" -eq 0 ]; then echo "  PASS  $1"; PASS=$((PASS+1)); else echo "  FAIL  $1"; [ -n "${3:-}" ] && echo "        $3"; FAIL=$((FAIL+1)); fi; }
++
++TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT INT TERM
++
++# $1 file  $2 owner  $3 body-of-Human-section
++mkfixture() {
++    local f="$TMP/$1" owner="$2"; shift 2
++    cat > "$f" <<EOF
++---
++id: T-999
++name: "fixture"
++status: started-work
++workflow_type: build
++owner: $owner
++---
++
++## Acceptance Criteria
++
++### Agent
++<!-- Criteria the agent can verify. -->
++- [x] an agent criterion, ticked
++
++### Human
++<!-- Template examples live in a comment and are INDENTED. A scanner anchored at column 0 must
++     never see them as criteria. This is the shape that returns 2 on a naive count for a task
++     that has none.
++       - [ ] [REVIEW] Dashboard renders correctly
++       - [ ] [REVIEWER] Block message names both bypass mechanisms
++-->
++$*
++
++## Verification
++EOF
++    printf '%s' "$f"
++}
++
++v() { python3 "$TOOL" --task 999 --json 2>/dev/null; }   # unused placeholder; see verdict_of
++verdict_of() {
++    python3 - "$1" <<'PY'
++import sys, importlib.util, os
++spec = importlib.util.spec_from_file_location("t931", "tools/_t931-ownership.py")
++m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
++print(m.verdict(sys.argv[1])[0])
++PY
++}
++
++echo "=== T-931 ownership predicate ==="
++echo
++
++# ── THE NEGATIVE LEG FIRST: a live claim must never be read as stale ──────────────────────────
++echo "NEGATIVE — a genuine open Human criterion must HOLD ownership"
++
++f="$(mkfixture open-plain.md human '- [ ] a human criterion, unticked')"
++ok "one plain open Human AC -> OWNER-JUSTIFIED" \
++   "$([ "$(verdict_of "$f")" = "OWNER-JUSTIFIED" ] && echo 0 || echo 1)" "got $(verdict_of "$f")"
++
++f="$(mkfixture open-review.md human '- [ ] [REVIEW] genuine taste judgement')"
++ok "open [REVIEW] AC -> OWNER-JUSTIFIED" \
++   "$([ "$(verdict_of "$f")" = "OWNER-JUSTIFIED" ] && echo 0 || echo 1)" "got $(verdict_of "$f")"
++
++f="$(mkfixture open-stamp.md human '- [ ] [RUBBER-STAMP] publish the release')"
++ok "open [RUBBER-STAMP] AC -> OWNER-JUSTIFIED" \
++   "$([ "$(verdict_of "$f")" = "OWNER-JUSTIFIED" ] && echo 0 || echo 1)" "got $(verdict_of "$f")"
++
++f="$(mkfixture open-reviewer.md human '- [ ] [REVIEWER] deterministic, but still filed under Human')"
++ok "open [REVIEWER] AC under ### Human -> OWNER-JUSTIFIED (AEF decision 113: the reviewer never ticks a Human AC)" \
++   "$([ "$(verdict_of "$f")" = "OWNER-JUSTIFIED" ] && echo 0 || echo 1)" "got $(verdict_of "$f")"
++
++f="$(mkfixture open-mixed.md human '- [x] one ticked human criterion
++- [ ] and one still open')"
++ok "mixed ticked+open -> OWNER-JUSTIFIED (one open is enough)" \
++   "$([ "$(verdict_of "$f")" = "OWNER-JUSTIFIED" ] && echo 0 || echo 1)" "got $(verdict_of "$f")"
++echo
++
++# ── THE POSITIVE LEG: the shapes the ruling actually covers ───────────────────────────────────
++echo "POSITIVE — no open Human criterion means the field is stale"
++
++f="$(mkfixture none-at-all.md human '')"
++ok "comment-only ### Human section (T-885's shape) -> OWNER-STALE" \
++   "$([ "$(verdict_of "$f")" = "OWNER-STALE" ] && echo 0 || echo 1)" "got $(verdict_of "$f")"
++
++f="$(mkfixture all-ticked.md human '- [x] the human ticked this one
++- [x] and this one')"
++ok "every Human AC ticked -> OWNER-STALE" \
++   "$([ "$(verdict_of "$f")" = "OWNER-STALE" ] && echo 0 || echo 1)" "got $(verdict_of "$f")"
++
++f="$(mkfixture not-owned.md agent '- [ ] an open human criterion on an agent-owned task')"
++ok "owner: agent -> NOT-HUMAN-OWNED (predicate says nothing about tasks it does not govern)" \
++   "$([ "$(verdict_of "$f")" = "NOT-HUMAN-OWNED" ] && echo 0 || echo 1)" "got $(verdict_of "$f")"
++echo
++
++# ── CONTROLS: prove the harness can fail, and that the comment trap is really a trap ──────────
++echo "CONTROLS"
++
++# C1: the indented template examples must NOT be counted. If they were, none-at-all.md would read
++# as OWNER-JUSTIFIED. Assert the trap directly rather than trusting the result above.
++f="$(mkfixture trap.md human '')"
++naive="$(grep -cE '^\s*-\s*\[.\]' "$f")"
++strict="$(grep -cE '^- \[.\]' "$f")"
++ok "the comment trap is real: naive count $naive > column-0 count $strict" \
++   "$([ "$naive" -gt "$strict" ] && echo 0 || echo 1)" \
++   "if these are equal the fixture no longer exercises the hazard and the leg above proves less"
++
++# C2: ok() must actually report FAIL when handed a non-zero verdict. Checked in a SUBSHELL so the
++# control cannot disturb this run's own counters — an earlier draft of this file decremented FAIL
++# by hand to "re-score" a deliberate failure, which is a suite editing its own result.
++c2="$( PASS=0; FAIL=0
++       ok() { if [ "$2" -eq 0 ]; then echo "PASS"; else echo "FAIL"; fi; }
++       ok "probe" 1 )"
++ok "ok() reports FAIL for a non-zero verdict (the harness can fail)" \
++   "$([ "$c2" = "FAIL" ] && echo 0 || echo 1)" \
++   "ok() returned '$c2' where FAIL was required — every PASS above would be meaningless"
++
++# C3: and reports PASS for zero, so C2 is not passing because ok() always says FAIL.
++c3="$( ok() { if [ "$2" -eq 0 ]; then echo "PASS"; else echo "FAIL"; fi; }; ok "probe" 0 )"
++ok "ok() reports PASS for a zero verdict (it is not stuck on FAIL)" \
++   "$([ "$c3" = "PASS" ] && echo 0 || echo 1)" "ok() returned '$c3'"
++echo
++
++# ── THE CORRECTOR MUST NEVER RUN UNATTENDED ──────────────────────────────────────────────────
++# Asserted, not promised. The sweep WRITES to a sovereignty-protected field across the whole
++# corpus; on a timer, a wrong predicate would strip real claims with nobody watching and the first
++# symptom would be a task closing that the operator wanted to see. The detector (audit.sh
++# check_stale_ownership) is the half that belongs on cron — it can only over-report.
++#
++# This leg is worth more than the comment above it precisely because the comment cannot fail.
++echo "UNATTENDED-EXECUTION"
++
++SWEEP_NAME="_t931-ownership-sweep.sh"
++hits=""
++
++# Deployed crontabs: the project's own cron.d entry, the root crontab, and the cron directories.
++for c in /etc/cron.d/* /etc/crontab; do
++    [ -r "$c" ] || continue
++    grep -l -F "$SWEEP_NAME" "$c" 2>/dev/null && hits="$hits $c"
++done
++if crontab -l >/dev/null 2>&1; then
++    crontab -l 2>/dev/null | grep -qF "$SWEEP_NAME" && hits="$hits user-crontab"
++fi
++ok "the corrector appears in no deployed crontab" \
++   "$([ -z "$hits" ] && echo 0 || echo 1)" \
++   "found in:$hits — a timer on this script is the failure mode the design exists to prevent"
++
++# Hook configuration: Claude Code settings and the framework's own hook registry.
++hhits=""
++for h in .claude/settings.json .claude/settings.local.json .agentic-framework/.context/hooks.yaml; do
++    [ -r "$h" ] || continue
++    grep -qF "$SWEEP_NAME" "$h" 2>/dev/null && hhits="$hhits $h"
++done
++ok "the corrector appears in no hook configuration" \
++   "$([ -z "$hhits" ] && echo 0 || echo 1)" \
++   "found in:$hhits"
++
++# CONTROL: the grep must be able to find the name, or both legs above pass by failing to look.
++# A scan that matches nothing reports identically to a scan that found nothing wrong.
++ok "the scan can find the name at all (control)" \
++   "$(grep -qF "$SWEEP_NAME" "tools/$SWEEP_NAME" && echo 0 || echo 1)" \
++   "grep -F '$SWEEP_NAME' does not match the script's own path — the two legs above asserted nothing"
++
++# And the corrector must still refuse to WRITE without --apply, or "not on cron" protects nothing.
++#
++# The first version of this leg grepped the default run's output for "DRY RUN" and went red the
++# moment the corpus was clean — the sweep exits early on an empty candidate set and never prints it.
++# That is a mutable-corpus anchor (T-3326): the check moved because the DATA changed, not the code,
++# which is the same rot that took T-885's verification line red for ten hours. The claim below is
++# behavioural and holds whatever the corpus contains: a default invocation appends no line to the
++# reversion ledger, because every sanctioned write puts one there.
++LEDGER=".context/audits/ownership-reversions.jsonl"
++before=0; [ -f "$LEDGER" ] && before="$(wc -l < "$LEDGER")"
++bash "tools/$SWEEP_NAME" >/dev/null 2>&1
++after=0; [ -f "$LEDGER" ] && after="$(wc -l < "$LEDGER")"
++ok "the corrector writes nothing without --apply (ledger $before -> $after)" \
++   "$([ "$before" -eq "$after" ] && echo 0 || echo 1)" \
++   "a default invocation appended $((after - before)) reversion line(s) — --apply is not gating the write"
++
++# CONTROL for that leg: the ledger must be the thing a real write actually touches, or comparing
++# its line count proves nothing. Assert the sweep's write path goes through the verb that logs.
++ok "the ledger is on the write path (control): the sweep calls 'task update --owner', never frontmatter" \
++   "$(grep -q 'task update .*--owner agent' "tools/$SWEEP_NAME" && ! grep -qE "sed -i|_sed_i|owner: agent\"? *>" "tools/$SWEEP_NAME" && echo 0 || echo 1)" \
++   "either the sweep stopped using the verb, or it grew a direct frontmatter write that bypasses the gate and the ledger"
++echo
++
++echo "=== SUMMARY ==="
++echo "PASS: $PASS"
++echo "FAIL: $FAIL"
++[ "$FAIL" -eq 0 ] || exit 1
++exit 0
+diff --git a/tools/_t931-ownership.py b/tools/_t931-ownership.py
+new file mode 100755
+index 00000000..5f2cd63a
+--- /dev/null
++++ b/tools/_t931-ownership.py
+@@ -0,0 +1,212 @@
++#!/usr/bin/env python3
++r"""_t931-ownership.py — is a task's `owner: human` still a sovereignty claim, or stale metadata?
++
++THE RULING (operator, 2026-09-29). `owner: human` is a sovereignty claim only while a Human
++acceptance criterion is actually OPEN. When none is open, the field asserts a judgement requirement
++that does not exist, and ownership should follow the criteria back to the agent.
++
++WHY THIS EXISTS AS ITS OWN PREDICATE. Ownership was previously self-justifying. The delegation
++boundary (tools/_t770-delegation-boundary.py) carves criteria out to OPERATOR-ONLY with the rule
++`owner-human` and the reason "completing an owner:human task is not delegated" — true, but circular:
++the ownership justifies the non-delegation and nothing justifies the ownership. `fw task delegate`
++converts CRITERIA and never touches the owner field, so a task created the framework's own
++documented way (`--owner human`, lib/init.sh:926) with no Human criteria stays operator-only
++forever with nothing for the delegation mechanism to grip.
++
++WHAT HID IT, MEASURED. _t770 line 354 drops every TICKED criterion from a corpus-wide scan:
++`if args.unticked_only or not args.task: rows = [r for r in rows if not r["ticked"]]`. A task whose
++criteria are ALL ticked and which is blocked purely by the owner field therefore emits zero rows.
++T-885, T-708 and T-723 classify as OPERATOR-ONLY/owner-human when scanned one at a time and are
++absent from all 406 rows of the corpus scan. The surface answers "which OPEN criteria could be
++delegated" — a fair question — while nobody asks "which tasks are blocked with nothing left open".
++That second set is the rubber-stamp queue, and it was unmeasurable by construction.
++
++ONE VOCABULARY. The parse comes from _t770.parse_task, imported, not re-implemented (T-322). A
++second regex for "what is a Human acceptance criterion" is how two encodings start disagreeing —
++which is already an open gap here (G-052), and this must not widen it.
++
++A NOTE ON A HAZARD THAT IS *NOT* A DEFECT HERE. A naive scan for `^\s*-\s*\[.\]` under `### Human`
++returns 2 for T-885, which has none: both hits are the task template's own [REVIEW]/[REVIEWER]
++examples inside an HTML comment. _t770's AC_RE is anchored at column 0 and the examples are
++indented, so it never matches them. Anyone writing a THIRD scanner will hit this; _t770 does not.
++
++VERDICTS
++    NOT-HUMAN-OWNED   owner is not human — nothing to say
++    OWNER-JUSTIFIED   owner: human AND at least one OPEN (unticked) Human criterion
++    OWNER-STALE       owner: human AND zero open Human criteria — the ruling applies
++
++This module DECIDES NOTHING AND WRITES NOTHING. It returns a verdict. The write is the caller's,
++and the caller is attended by design (see T-931 Decisions: cron runs the detector, never the actor).
++"""
++from __future__ import annotations
++
++import argparse
++import glob
++import importlib.util
++import json
++import os
++import sys
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++
++NOT_HUMAN_OWNED = "NOT-HUMAN-OWNED"
++OWNER_JUSTIFIED = "OWNER-JUSTIFIED"
++OWNER_STALE = "OWNER-STALE"
++
++
++class _FrameworkParser:
++    """The framework's own Human-criteria parser (lib.delegation), wearing _t770's parse_task
++    contract: (frontmatter dict, [{"section", "ticked"}]). Used where _t770 is absent -- in the
++    framework repo, this IS the one vocabulary (T-322), so no second parser ships upstream."""
++
++    def __init__(self, mod):
++        self._m = mod
++
++    def parse_task(self, path):
++        text = open(path, encoding="utf-8", errors="replace").read()
++        acs = [{"section": "Human" if c.subhead.lower().startswith("human") else (c.subhead or ""),
++                "ticked": bool(c.ticked)} for c in self._m.parse_criteria(text)]
++        return self._m.frontmatter(text), acs
++
++
++def _framework_parser():
++    """lib.delegation from the framework repo itself (FRAMEWORK.md at the root) or a vendored
++    .agentic-framework/; None when neither is importable."""
++    repo = os.path.dirname(HERE)
++    for root in ((repo, os.path.join(repo, ".agentic-framework"))
++                 if os.path.isfile(os.path.join(repo, "FRAMEWORK.md"))
++                 else (os.path.join(repo, ".agentic-framework"), repo)):
++        if os.path.isfile(os.path.join(root, "lib", "delegation.py")):
++            sys.path.insert(0, root)
++            try:
++                from lib import delegation  # type: ignore[import-not-found]
++            except Exception:  # noqa: BLE001 - fall through to the explicit SETUP BROKEN below
++                sys.path.remove(root)
++                continue
++            return _FrameworkParser(delegation)
++    return None
++
++
++def _load_t770():
++    """Import the delegation-boundary module for its parser. Dash in the filename, so importlib."""
++    path = os.environ.get("FW_T770_TOOL", os.path.join(HERE, "_t770-delegation-boundary.py"))
++    if not os.path.isfile(path) and "FW_T770_TOOL" not in os.environ:
++        fw = _framework_parser()
++        if fw is not None:
++            return fw
++    if not os.path.isfile(path):
++        raise SystemExit("SETUP BROKEN: no delegation-boundary tool at %s — the parser lives there "
++                         "and is not re-implemented here (T-322)" % path)
++    spec = importlib.util.spec_from_file_location("_t770_boundary", path)
++    if spec is None or spec.loader is None:
++        raise SystemExit("SETUP BROKEN: cannot load a module spec from %s" % path)
++    mod = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(mod)
++    for attr in ("parse_task",):
++        if not hasattr(mod, attr):
++            raise SystemExit("SETUP BROKEN: %s has no %s — the parser contract moved" % (path, attr))
++    return mod
++
++
++def verdict(path, t770=None):
++    """Return (verdict, open_human, total_human, detail) for one task file."""
++    t770 = t770 or _load_t770()
++    task, acs = t770.parse_task(path)
++
++    if (task.get("owner") or "").strip() != "human":
++        return (NOT_HUMAN_OWNED, 0, 0,
++                "owner is %r, not human" % (task.get("owner") or ""))
++
++    human = [a for a in acs if a["section"] == "Human"]
++    open_human = [a for a in human if not a["ticked"]]
++
++    if open_human:
++        return (OWNER_JUSTIFIED, len(open_human), len(human),
++                "%d open Human criterion/criteria — the field is a live sovereignty claim"
++                % len(open_human))
++
++    if human:
++        why = ("%d Human criterion/criteria, all ticked — only the human may tick a Human AC, so "
++               "the judgement has already been exercised" % len(human))
++    else:
++        why = "no Human criteria exist — no judgement was ever written down"
++    return (OWNER_STALE, 0, len(human), why)
++
++
++def scan(paths):
++    t770 = _load_t770()
++    out = []
++    for p in sorted(paths):
++        v, open_h, total_h, detail = verdict(p, t770)
++        task, acs = t770.parse_task(p)
++        agent = [a for a in acs if a["section"] != "Human"]
++        out.append({
++            "task": task["id"], "path": p, "verdict": v,
++            "owner": task.get("owner", ""),
++            "open_human": open_h, "total_human": total_h,
++            "agent_total": len(agent),
++            "agent_ticked": sum(1 for a in agent if a["ticked"]),
++            "detail": detail,
++        })
++    return out
++
++
++def main():
++    ap = argparse.ArgumentParser(description=(__doc__ or "").split("\n")[0])
++    ap.add_argument("--root", default=".")
++    ap.add_argument("--task", help="one task id, e.g. T-885")
++    ap.add_argument("--json", action="store_true")
++    ap.add_argument("--stale-only", action="store_true",
++                    help="only OWNER-STALE rows — the set the ruling applies to")
++    ap.add_argument("--ready-only", action="store_true",
++                    help="OWNER-STALE rows whose Agent ACs are also all ticked: the rubber-stamp queue")
++    ap.add_argument("--facts", action="store_true",
++                    help="one TSV line for the audit rail: scanned, human-owned, stale, ready, names. "
++                         "Mirrors `lib.delegation_cli surface --facts` so the audit needs no heredoc "
++                         "of its own — a heredoc inside $(...) is a syntax error `bash -n` does not "
++                         "catch, because the substitution body is parsed lazily (hit live here).")
++    args = ap.parse_args()
++
++    tid = (args.task or "").strip()
++    if tid and not tid.upper().startswith("T-"):
++        tid = "T-" + tid            # accept 885 and T-885 alike; the id form is T-NNN
++    pattern = os.path.join(args.root, ".tasks/active",
++                           "%s-*.md" % tid.upper() if tid else "*.md")
++    paths = glob.glob(pattern)
++    if not paths:
++        print("no task files matched %s" % pattern, file=sys.stderr)
++        return 2
++
++    rows = scan(paths)
++
++    if args.facts:
++        stale = [r for r in rows if r["verdict"] == OWNER_STALE]
++        ready = [r for r in stale if r["agent_total"] > 0
++                 and r["agent_ticked"] == r["agent_total"]]
++        human = [r for r in rows if r["verdict"] != NOT_HUMAN_OWNED]
++        print("%d\t%d\t%d\t%d\t%s" % (len(rows), len(human), len(stale), len(ready),
++                                      ", ".join(r["task"] for r in stale[:8])))
++        return 0
++
++    if args.ready_only:
++        rows = [r for r in rows if r["verdict"] == OWNER_STALE
++                and r["agent_total"] > 0 and r["agent_ticked"] == r["agent_total"]]
++    elif args.stale_only:
++        rows = [r for r in rows if r["verdict"] == OWNER_STALE]
++
++    if args.json:
++        print(json.dumps(rows, indent=2))
++        return 0
++
++    for r in rows:
++        print("%-8s %-16s human %d/%d open  agent %d/%d  %s"
++              % (r["task"], r["verdict"], r["open_human"], r["total_human"],
++                 r["agent_ticked"], r["agent_total"], r["detail"]))
++    if not args.task:
++        stale = sum(1 for r in rows if r["verdict"] == OWNER_STALE)
++        print("\n%d row(s); OWNER-STALE %d" % (len(rows), stale))
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+-- 
+2.43.0
+

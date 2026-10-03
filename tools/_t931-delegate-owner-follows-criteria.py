@@ -19,7 +19,14 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-FW = next((c for c in (os.path.join(REPO, ".agentic-framework"), REPO)
+# The framework repo itself (FRAMEWORK.md at its root) tests its OWN lib/ -- it also carries a
+# self-vendored .agentic-framework/ that must not be picked up instead (caught 2026-10-04: the
+# test ran AEF's stale self-vendored copy and failed against a correct fix). A vendoring project
+# tests .agentic-framework/.
+_order = ((REPO, os.path.join(REPO, ".agentic-framework"))
+          if os.path.isfile(os.path.join(REPO, "FRAMEWORK.md"))
+          else (os.path.join(REPO, ".agentic-framework"), REPO))
+FW = next((c for c in _order
            if os.path.isfile(os.path.join(c, "lib", "delegation_cli.py"))), None)
 if FW is None:
     print("CANNOT RUN: lib/delegation_cli.py not found under .agentic-framework/ or the repo root")

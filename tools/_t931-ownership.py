@@ -54,9 +54,46 @@ OWNER_JUSTIFIED = "OWNER-JUSTIFIED"
 OWNER_STALE = "OWNER-STALE"
 
 
+class _FrameworkParser:
+    """The framework's own Human-criteria parser (lib.delegation), wearing _t770's parse_task
+    contract: (frontmatter dict, [{"section", "ticked"}]). Used where _t770 is absent -- in the
+    framework repo, this IS the one vocabulary (T-322), so no second parser ships upstream."""
+
+    def __init__(self, mod):
+        self._m = mod
+
+    def parse_task(self, path):
+        text = open(path, encoding="utf-8", errors="replace").read()
+        acs = [{"section": "Human" if c.subhead.lower().startswith("human") else (c.subhead or ""),
+                "ticked": bool(c.ticked)} for c in self._m.parse_criteria(text)]
+        return self._m.frontmatter(text), acs
+
+
+def _framework_parser():
+    """lib.delegation from the framework repo itself (FRAMEWORK.md at the root) or a vendored
+    .agentic-framework/; None when neither is importable."""
+    repo = os.path.dirname(HERE)
+    for root in ((repo, os.path.join(repo, ".agentic-framework"))
+                 if os.path.isfile(os.path.join(repo, "FRAMEWORK.md"))
+                 else (os.path.join(repo, ".agentic-framework"), repo)):
+        if os.path.isfile(os.path.join(root, "lib", "delegation.py")):
+            sys.path.insert(0, root)
+            try:
+                from lib import delegation  # type: ignore[import-not-found]
+            except Exception:  # noqa: BLE001 - fall through to the explicit SETUP BROKEN below
+                sys.path.remove(root)
+                continue
+            return _FrameworkParser(delegation)
+    return None
+
+
 def _load_t770():
     """Import the delegation-boundary module for its parser. Dash in the filename, so importlib."""
     path = os.environ.get("FW_T770_TOOL", os.path.join(HERE, "_t770-delegation-boundary.py"))
+    if not os.path.isfile(path) and "FW_T770_TOOL" not in os.environ:
+        fw = _framework_parser()
+        if fw is not None:
+            return fw
     if not os.path.isfile(path):
         raise SystemExit("SETUP BROKEN: no delegation-boundary tool at %s — the parser lives there "
                          "and is not re-implemented here (T-322)" % path)

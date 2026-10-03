@@ -1,0 +1,74 @@
+From e11e9b3feb581f3c1e2af81044bb3e4ebf3f9b64 Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 01:28:33 +0200
+Subject: [PATCH 3/3] audit: stale task ownership rail (from 832 T-931; AEF
+ T-3568)
+
+WARN when human-owned tasks have no open Human criterion. Takes its facts line from
+tools/_t931-ownership.py --facts (as check_delegation_surface takes its own from
+lib.delegation_cli), so the audit never inlines python in a command substitution. Silent
+where the predicate is absent. Reports only; the corrector is attended (never cron).
+On this tree: 'Stale task ownership: 56 of 391 human-owned task(s)'.
+---
+ agents/audit/audit.sh | 45 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
+
+diff --git a/agents/audit/audit.sh b/agents/audit/audit.sh
+index ea69c365..3119a952 100755
+--- a/agents/audit/audit.sh
++++ b/agents/audit/audit.sh
+@@ -4270,6 +4270,51 @@ check_delegation_surface() {
+ }
+ check_delegation_surface
+ 
++# From 832 T-931 (AEF T-3568): human ownership that no open Human criterion backs.
++check_stale_ownership() {
++    [ -d "$PROJECT_ROOT/.tasks/active" ] || return 0
++    local _tool="$PROJECT_ROOT/tools/_t931-ownership.py"
++    if [ ! -f "$_tool" ]; then
++        return 0   # predicate not vendored here; silent rather than noisy on other projects
++    fi
++
++    # The facts line comes from the tool, exactly as check_delegation_surface above takes its own
++    # from `lib.delegation_cli surface --facts`. An earlier draft inlined the python as a heredoc
++    # inside this command substitution: `bash -n` passed the whole file and it blew up at run time
++    # with "syntax error near unexpected token `||`", because a substitution body is parsed lazily.
++    # A lint that goes green on broken code is the same false green this rail exists to remove.
++    local _facts
++    _facts=$(cd "$PROJECT_ROOT" && python3 "$_tool" --facts 2>/dev/null || true)
++
++    # T-3105: an unreadable or empty result must NOT render as a clean bill of health. "no stale
++    # ownership" and "the predicate never ran" are different facts that look identical in a PASS.
++    if [ -z "$_facts" ]; then
++        warn "Stale task ownership — NOT EVALUATED: the ownership predicate produced no result" \
++             "The check ran and measured nothing. A PASS here would assert coverage it does not have (T-3105)." \
++             "Run by hand: cd $PROJECT_ROOT && python3 tools/_t931-ownership.py | tail -2"
++        return 0
++    fi
++
++    local _scanned _human _stale _ready _names
++    IFS=$'\t' read -r _scanned _human _stale _ready _names <<< "$_facts"
++
++    if [ "${_scanned:-0}" -eq 0 ]; then
++        warn "Stale task ownership — NOT EVALUATED: candidate set empty (0 active task file(s))" \
++             "The scan walked no tasks, so the T-931 rail asserted nothing this run" \
++             "Confirm .tasks/active is really empty and not a mis-scoped glob"
++        return 0
++    fi
++
++    if [ "${_stale:-0}" -gt 0 ]; then
++        warn "Stale task ownership: $_stale of $_human human-owned task(s) have no open Human criterion" \
++             "owner: human is a sovereignty claim only while a Human criterion is open (T-931). ${_ready} of these also have every Agent criterion ticked — those are blocked on a signature with nothing to sign. First few: $_names" \
++             "Review: cd $PROJECT_ROOT && bash tools/_t931-ownership-sweep.sh   (dry run; add --apply to correct)"
++    else
++        pass "Task ownership: all $_human human-owned task(s) have an open Human criterion behind the field — examined $_scanned active task file(s)"
++    fi
++}
++check_stale_ownership
++
+ # T-3262 (G-099). `fw doctor` (bin/fw:2390+) already compares the
+ # continuous-run wrapper ledger against the turn-driver state and WARNs when
+ # they disagree — but doctor is pull-only, and it was THIS daily cron that
+-- 
+2.43.0
+

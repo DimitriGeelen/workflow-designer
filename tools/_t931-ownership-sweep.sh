@@ -27,7 +27,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 90
 
 TOOL="tools/_t931-ownership.py"
-FW=".agentic-framework/bin/fw"
+FW=".agentic-framework/bin/fw"; [ -x "$FW" ] || FW="bin/fw"   # vendoring project, or the framework repo itself (T-1009)
 APPLY=0
 READY_ONLY=0
 
