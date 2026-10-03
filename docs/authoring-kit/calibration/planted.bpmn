@@ -273,10 +273,6 @@ say whether those happen before or after packing, or in which order relative to 
         <aef:uid value="generate-and-send-invoice--send-payment-reminder" />
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:textAnnotation id="Note_quality-inspection">
-      <bpmn:text>Required for each order. Order relative to packing and to the other inspection/labelling step is not recorded in the source; intentionally unconnected.</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_quality-inspection" sourceRef="Note_quality-inspection" targetRef="quality-inspection" />
     <bpmn:textAnnotation id="Note_labelling">
       <bpmn:text>Required for each order. Order relative to packing and to the other inspection/labelling step is not recorded in the source; intentionally unconnected.</bpmn:text>
     </bpmn:textAnnotation>
