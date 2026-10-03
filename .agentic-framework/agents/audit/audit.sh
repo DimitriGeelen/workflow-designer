@@ -2854,6 +2854,54 @@ _audit_review_step_downs() {
 }
 _audit_review_step_downs
 
+# 832: re-applied by T-1005 on 1.7.740.
+# T-873 (G-055/PL-124 sibling): `fw upgrade` step [1/10] replaces CLAUDE.md's
+# governance tail wholesale from the framework template. Project-specific text
+# written INLINE inside a governance section cannot survive that merge, and
+# upgrade.sh knows it: it copies the old file to CLAUDE.md.bak first, diffs the
+# two, and prints a lost-line warning whose own remedy ends "remove
+# CLAUDE.md.bak to clear". That last clause is what makes the .bak an
+# acknowledgement token — durable, and clearable by one command.
+#
+# NOTHING READ IT. Before this check, the only reference to CLAUDE.md.bak
+# anywhere under agents/ or lib/ was the line in upgrade.sh that writes it, so
+# the warning lived exactly as long as the terminal that carried it. Measured
+# 2026-09-25 in this project: a real upgrade dropped 25 lines including the
+# entire T-675 budget-cache passage ("`unknown` is not `ok`"). The degraded file
+# was still uncommitted and still being loaded as the agent's own instructions a
+# day later, and the loss was found by accident while reading something else.
+#
+# THE PREDICATE IS EXISTENCE, NOT CONTENT — deliberately, and it is the whole
+# design. A line-level diff cannot tell a rewording from a deletion: after
+# T-873's fix was correct and complete, 6 lines still read as "absent" whose
+# substance was present and improved. A check gated on that count would have
+# gone red on the finished repair and stayed red with nothing that clears it,
+# which is OBS-293 (a permanently red check trains readers to ignore it). So
+# the count is reported as context and what is ASSERTED is whether a human
+# acknowledged the rewrite. The honest limit: this cannot tell whether the
+# review was done WELL, only whether it was done at all — still strictly more
+# than the zero readers it had.
+# ── T-873 claude-bak-signal: begin (extracted verbatim by tools/_t873-claude-bak-teeth.sh) ──
+_t873_claude="$PROJECT_ROOT/CLAUDE.md"
+_t873_bak="${_t873_claude}.bak"
+if [ -f "$_t873_claude" ] && [ -f "$_t873_bak" ]; then
+    _t873_lost=$( { grep -Fxv -f "$_t873_claude" "$_t873_bak" 2>/dev/null || true; } \
+                  | grep -cvE '^[[:space:]]*$' || true )
+    case "$_t873_lost" in ''|*[!0-9]*) _t873_lost=0 ;; esac
+    if [ "$_t873_lost" -gt 0 ]; then
+        warn "CLAUDE.md governance rewrite unreviewed: $_t873_lost line(s) in CLAUDE.md.bak are absent from CLAUDE.md" \
+             "fw upgrade replaced the governance tail from the framework template and kept the old file as CLAUDE.md.bak. Some of the $_t873_lost may be reworded rather than lost — the diff cannot tell them apart, which is exactly why a human clears this and not a count" \
+             "Review: diff CLAUDE.md.bak CLAUDE.md — re-apply what is still wanted, then clear the signal: rm CLAUDE.md.bak"
+    else
+        warn "CLAUDE.md.bak present with no differing lines — the review is done or was a no-op, but the signal was never cleared" \
+             "Nothing is currently lost, so this is bookkeeping with a deadline: the next fw upgrade overwrites CLAUDE.md.bak with its own backup and takes this evidence with it" \
+             "Clear it: rm CLAUDE.md.bak"
+    fi
+elif [ -f "$_t873_claude" ]; then
+    pass "CLAUDE.md: no pending governance-rewrite review — examined 1 CLAUDE.md, no CLAUDE.md.bak alongside it"
+fi
+# ── T-873 claude-bak-signal: end ──
+
 # T-3282 (G-104): the RUNNING Watchtower is a deployment surface of its own —
 # source can be fixed, tested, and closed green while the process serves the
 # pre-fix bytes (Flask debug=False, no reloader). The T-2938 detector fired
