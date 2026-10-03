@@ -14,8 +14,11 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GATE="${T936_GATE:-}"
 if [ -z "$GATE" ]; then
-  for c in "$ROOT/.agentic-framework/agents/context/check-bare-import.sh" "$ROOT/agents/context/check-bare-import.sh"; do
-    [ -f "$c" ] && { GATE="$c"; break; }
+  # A framework repo (FRAMEWORK.md at its root) tests its OWN agents/, never its self-vendored copy.
+  if [ -f "$ROOT/FRAMEWORK.md" ]; then _order="$ROOT/agents/context $ROOT/.agentic-framework/agents/context"
+  else _order="$ROOT/.agentic-framework/agents/context $ROOT/agents/context"; fi
+  for d in $_order; do
+    [ -f "$d/check-bare-import.sh" ] && { GATE="$d/check-bare-import.sh"; break; }
   done
 fi
 [ -n "$GATE" ] && [ -f "$GATE" ] || { echo "CANNOT RUN: check-bare-import.sh not found"; exit 2; }

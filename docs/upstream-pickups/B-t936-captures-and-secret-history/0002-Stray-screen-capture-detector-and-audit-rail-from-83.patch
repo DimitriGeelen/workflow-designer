@@ -1,0 +1,307 @@
+From 25329fc3e5f92db050dd16401996b4d33b2fa338 Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 01:39:05 +0200
+Subject: [PATCH 2/3] Stray screen-capture detector and audit rail (from 832
+ T-936; AEF T-3572)
+
+tools/_t936-stray-capture-scan.py finds ImageMagick import(1) output by its PostScript header,
+not by filename (none of 832's four captures had an extension), over the repo root and working
+directories; --facts gives count, bytes, largest canvas and paths. The audit rail WARNs and names
+the files; whether to look at or delete them is the operator's call (they are images of the
+operator's screen). This covers what the PreToolUse gate cannot: leaks inside a running shell.
+Teeth: tools/_t936-capture-scan-teeth.sh.
+---
+ agents/audit/audit.sh             |  27 +++++++
+ tools/_t936-capture-scan-teeth.sh | 106 +++++++++++++++++++++++++
+ tools/_t936-stray-capture-scan.py | 128 ++++++++++++++++++++++++++++++
+ 3 files changed, 261 insertions(+)
+ create mode 100755 tools/_t936-capture-scan-teeth.sh
+ create mode 100755 tools/_t936-stray-capture-scan.py
+
+diff --git a/agents/audit/audit.sh b/agents/audit/audit.sh
+index ea69c365..0899d2d7 100755
+--- a/agents/audit/audit.sh
++++ b/agents/audit/audit.sh
+@@ -4270,6 +4270,33 @@ check_delegation_surface() {
+ }
+ check_delegation_surface
+ 
++# From 832 T-936 (AEF T-3572): ImageMagick screen captures left by a leaked python heredoc.
++check_stray_captures() {
++    local _tool="$PROJECT_ROOT/tools/_t936-stray-capture-scan.py"
++    [ -f "$_tool" ] || return 0     # not vendored here; silent rather than noisy elsewhere
++
++    local _facts
++    _facts=$(cd "$PROJECT_ROOT" && python3 "$_tool" --facts 2>/dev/null || true)
++    if [ -z "$_facts" ]; then
++        warn "Stray screen captures — NOT EVALUATED: the capture scan produced no result" \
++             "The check ran and measured nothing. A PASS here would assert coverage it does not have (T-3105)." \
++             "Run by hand: cd $PROJECT_ROOT && python3 tools/_t936-stray-capture-scan.py"
++        return 0
++    fi
++
++    local _n _bytes _canvas _paths
++    IFS=$'\t' read -r _n _bytes _canvas _paths <<< "$_facts"
++
++    if [ "${_n:-0}" -gt 0 ]; then
++        warn "Stray screen capture(s) in the tree: $_n, $(( _bytes / 1048576 ))MB, largest canvas $_canvas" \
++             "ImageMagick import(1) ran instead of python — a heredoc or quoted -c block leaked to the shell (OBS-448). These are images of the operator's SCREEN: $_paths" \
++             "Look at them or delete them — that is the operator's call, not the agent's. Prevention: enable the bare-import gate (see T-936) or remove import(1) from PATH"
++    else
++        pass "No stray screen captures — scanned the repository root and working directories by PostScript header, not by filename (all four known cases had none)"
++    fi
++}
++check_stray_captures
++
+ # T-3262 (G-099). `fw doctor` (bin/fw:2390+) already compares the
+ # continuous-run wrapper ledger against the turn-driver state and WARNs when
+ # they disagree — but doctor is pull-only, and it was THIS daily cron that
+diff --git a/tools/_t936-capture-scan-teeth.sh b/tools/_t936-capture-scan-teeth.sh
+new file mode 100755
+index 00000000..aa05470f
+--- /dev/null
++++ b/tools/_t936-capture-scan-teeth.sh
+@@ -0,0 +1,106 @@
++#!/usr/bin/env bash
++# _t936-capture-scan-teeth.sh — does the stray-capture detector fire on what actually happened?
++#
++# FOUR OCCURRENCES, and the fourth is why this exists. Three were found by hand after six days
++# (2026-09-23, 09-25, 09-28). The fourth — `re,io`, 7,962,628 bytes, 1431x915, 2026-09-29T19:35:38Z —
++# was created BY THE AGENT during this session, ninety minutes before the detector found it, while the
++# agent was writing the observation about the other three. A multi-line `python3 -c "` block beginning
++# `import re,io` had its quoting broken; the shell ran ImageMagick's import(1); exit 0; the expected
++# output appeared anyway and nobody looked.
++#
++# The detector found it on its first run. That is the argument for building it.
++#
++# WHY THE FIXTURE FILENAMES ARE THE REAL FILENAMES. `0`, `importlib.util`, `yaml,glob,sys`, `re,io` —
++# no extension between them, and every one reads as a typo. A check keyed on `.ps`/`.eps` or on any
++# name pattern would have missed all four. This is the same location-not-content defect measured twice
++# elsewhere in this corpus today (C-001's research artifact, T-919; the ownership field, T-931), so the
++# negative control here is a file whose NAME suggests nothing and whose CONTENT is a capture.
++set -uo pipefail
++cd "$(dirname "$0")/.." || exit 90
++
++TOOL="tools/_t936-stray-capture-scan.py"
++[ -f "$TOOL" ] || { echo "SETUP BROKEN: no $TOOL"; exit 1; }
++
++PASS=0; FAIL=0
++ok() { if [ "$2" -eq 0 ]; then echo "  PASS  $1"; PASS=$((PASS+1)); else echo "  FAIL  $1"; [ -n "${3:-}" ] && echo "        $3"; FAIL=$((FAIL+1)); fi; }
++
++TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT INT TERM
++
++# A minimal ImageMagick PostScript header, byte-identical in the fields the detector reads to the
++# four real captures. Not a copy of one: a real capture is an image of somebody's screen and has no
++# business in a fixture directory.
++mkcapture() {  # $1 path  $2 width  $3 height
++    { printf '%%!PS-Adobe-3.0\n%%%%Creator: (ImageMagick)\n%%%%Title: (%s)\n' "$(basename "$1")"
++      printf '%%%%CreationDate: (2026-09-29T19:35:38+00:00)\n'
++      printf '%%%%BoundingBox: -0 -0 %s %s\n%%%%HiResBoundingBox: 0 0 %s %s\n' "$2" "$3" "$2" "$3"
++      printf '%%%%DocumentData: Clean7Bit\n%%%%LanguageLevel: 1\n%%%%EndComments\n'
++      head -c 4096 /dev/zero | tr '\0' 'X'
++    } > "$1"
++}
++
++count() { python3 "$TOOL" --root "$TMP" --json 2>/dev/null | python3 -c 'import sys,json; print(len(json.load(sys.stdin)))'; }
++canvas_of() { python3 "$TOOL" --root "$TMP" --json 2>/dev/null | python3 -c 'import sys,json; r=json.load(sys.stdin); print(r[0]["canvas"] if r else "-")'; }
++
++echo "=== T-936 stray capture detector ==="
++echo
++
++# ── POSITIVE: the four real shapes ────────────────────────────────────────────────────────────
++echo "FIRES on what actually happened — real filenames, no extensions"
++for n in '0' 'importlib.util' 'yaml,glob,sys' 're,io'; do
++    rm -f "$TMP"/* 2>/dev/null
++    mkcapture "$TMP/$n" 3440 1383
++    ok "a capture named '$n' is found" "$([ "$(count)" -eq 1 ] && echo 0 || echo 1)" "found $(count)"
++done
++echo
++
++# ── THE CANVAS, which is what tells the operator how exposed they are ─────────────────────────
++echo "REPORTS the canvas, so exposure is judgeable without opening the image"
++rm -f "$TMP"/* 2>/dev/null; mkcapture "$TMP/desktop" 3440 1383
++ok "a full-desktop capture reports 3440x1383" "$([ "$(canvas_of)" = "3440x1383" ] && echo 0 || echo 1)" "got $(canvas_of)"
++rm -f "$TMP"/* 2>/dev/null; mkcapture "$TMP/window" 1431 915
++ok "a single-window capture reports 1431x915" "$([ "$(canvas_of)" = "1431x915" ] && echo 0 || echo 1)" "got $(canvas_of)"
++echo
++
++# ── NEGATIVE: it must not fire on ordinary files, or the WARN is noise ────────────────────────
++echo "DOES NOT FIRE on files that are not captures"
++rm -f "$TMP"/* 2>/dev/null
++printf 'id: T-1\nname: an ordinary yaml file\n' > "$TMP/task.yaml"
++printf '#!/bin/sh\necho hello\n' > "$TMP/script.sh"
++head -c 9000 /dev/urandom > "$TMP/binary.bin"
++ok "yaml, shell and random binary -> no finding" "$([ "$(count)" -eq 0 ] && echo 0 || echo 1)" "found $(count)"
++
++# PostScript that is a DOCUMENT, not a capture: right magic, wrong creator.
++printf '%%!PS-Adobe-3.0\n%%%%Creator: (dvips)\n%%%%Title: (a real document)\n%%%%EndComments\n' > "$TMP/paper.ps"
++ok "PostScript from a non-capture tool (dvips) -> no finding" \
++   "$([ "$(count)" -eq 0 ] && echo 0 || echo 1)" \
++   "found $(count) — matching on %!PS-Adobe alone would flag every legitimate .ps in the tree"
++echo
++
++# ── CONTROLS ─────────────────────────────────────────────────────────────────────────────────
++echo "CONTROLS"
++# The name must be irrelevant. Same bytes, innocuous name: still found.
++rm -f "$TMP"/* 2>/dev/null; mkcapture "$TMP/notes.txt" 1431 915
++ok "content decides, not the name: a capture called 'notes.txt' is still found" \
++   "$([ "$(count)" -eq 1 ] && echo 0 || echo 1)" "found $(count)"
++
++# And the inverse: an innocuous file named like a capture is NOT found.
++rm -f "$TMP"/* 2>/dev/null; printf 'just text\n' > "$TMP/yaml,glob,sys"
++ok "name decides nothing: an ordinary file called 'yaml,glob,sys' is NOT found" \
++   "$([ "$(count)" -eq 0 ] && echo 0 || echo 1)" "found $(count)"
++
++# The privacy boundary is in the code, not in a comment.
++ok "the read is capped (HEADER_BYTES), so the raster is never loaded" \
++   "$(grep -q 'HEADER_BYTES = ' "$TOOL" && grep -q 'fh.read(HEADER_BYTES)' "$TOOL" && echo 0 || echo 1)" \
++   "an uncapped read would pull megabytes of the operator's screen into memory to find a bounding box"
++
++# Empty candidate set must not read as a clean bill of health (T-3105).
++rm -f "$TMP"/* 2>/dev/null
++ok "an empty directory exits 0 with an explicit 'no findings' line, not silence" \
++   "$(python3 "$TOOL" --root "$TMP" 2>&1 | grep -q 'no stray screen captures found' && echo 0 || echo 1)"
++echo
++
++echo "=== SUMMARY ==="
++echo "PASS: $PASS"
++echo "FAIL: $FAIL"
++[ "$FAIL" -eq 0 ] || exit 1
++exit 0
+diff --git a/tools/_t936-stray-capture-scan.py b/tools/_t936-stray-capture-scan.py
+new file mode 100755
+index 00000000..e3586bcb
+--- /dev/null
++++ b/tools/_t936-stray-capture-scan.py
+@@ -0,0 +1,128 @@
++#!/usr/bin/env python3
++"""_t936-stray-capture-scan.py — find accidental screen captures written into the tree.
++
++WHAT HAPPENED, THREE TIMES IN SIX DAYS (OBS-448). A `python3 - <<'PY'` heredoc body leaked to the
++shell, and its first line — `import yaml,glob,sys`, `import importlib.util` — was resolved not to
++Python but to ImageMagick's `import(1)`, which CAPTURES THE SCREEN and writes PostScript named after
++the following token. Exit 0. No error. 37MB at the repository root, for six days, unnoticed:
++
++    0                 0 bytes          2026-09-22T22:12Z   (capture interrupted)
++    importlib.util    7,962,637 bytes  2026-09-25T11:08Z   1431 x 915   (a window)
++    yaml,glob,sys     28,916,814 bytes 2026-09-28T13:29Z   3440 x 1383  (a whole desktop)
++
++The only thing that kept them out of the git index was T-571 — never `git add -A`, stage explicit
++paths — which is a convention, not a hook.
++
++WHY CONTENT AND NOT NAME. A check keyed on filename or extension would have missed all three: they
++were called `0`, `importlib.util` and `yaml,glob,sys`, no extension between them. Two separate checks
++in this corpus were measured today testing LOCATION where they claimed to test substance (C-001's
++research artifact, T-919; the ownership field, T-931). This one reads the first bytes.
++
++WHAT IT DELIBERATELY DOES NOT DO. It never opens the raster, renders the image, or describes what is
++in it. These are pictures of the operator's screen. The PostScript header is text, bounded and
++sufficient — size and canvas are enough to judge exposure, and judging the contents is not the
++agent's job. The read is capped at HEADER_BYTES for that reason and not merely for speed.
++"""
++from __future__ import annotations
++
++import argparse
++import json
++import os
++import re
++import sys
++
++# Enough for the %%HiResBoundingBox line, nowhere near the raster. The cap is the privacy boundary.
++HEADER_BYTES = 2048
++
++PS_MAGIC = b"%!PS-Adobe"
++CAPTURE_CREATORS = (b"ImageMagick", b"GraphicsMagick", b"import")
++_BBOX_RE = re.compile(rb"%%HiResBoundingBox:\s*[\d.]+\s+[\d.]+\s+([\d.]+)\s+([\d.]+)")
++
++# Where a capture is ALWAYS a mistake. A .ps or .eps deliberately committed under docs/ is a
++# document; one at the repository root, or in a working directory, is an accident.
++STRAY_ROOTS = (".", ".context/working", "tools", "docs/reports")
++
++# Directories that legitimately hold PostScript as content rather than accident.
++SKIP_DIRS = {".git", "node_modules", "build", "dist", ".venv", "__pycache__",
++             "examples", "fixtures", ".editor-versions"}
++
++
++def _inspect(path):
++    """Return a finding dict when the file's first bytes are a screen capture, else None."""
++    try:
++        with open(path, "rb") as fh:
++            head = fh.read(HEADER_BYTES)
++    except (OSError, IOError):
++        return None
++    if not head.startswith(PS_MAGIC):
++        return None
++    if not any(c in head for c in CAPTURE_CREATORS):
++        return None            # PostScript, but not produced by a capture tool
++
++    w = h = None
++    m = _BBOX_RE.search(head)
++    if m:
++        try:
++            w, h = int(float(m.group(1))), int(float(m.group(2)))
++        except ValueError:
++            pass
++    try:
++        size = os.path.getsize(path)
++    except OSError:
++        size = -1
++    return {"path": path, "bytes": size, "width": w, "height": h,
++            "canvas": ("%dx%d" % (w, h)) if w and h else "unknown"}
++
++
++def scan(root="."):
++    findings = []
++    for base in STRAY_ROOTS:
++        d = os.path.join(root, base)
++        if not os.path.isdir(d):
++            continue
++        for name in sorted(os.listdir(d)):
++            p = os.path.join(d, name)
++            if not os.path.isfile(p):
++                continue
++            f = _inspect(p)
++            if f:
++                f["path"] = os.path.relpath(p, root)
++                findings.append(f)
++    return findings
++
++
++def main():
++    ap = argparse.ArgumentParser(description=(__doc__ or "").split("\n")[0])
++    ap.add_argument("--root", default=".")
++    ap.add_argument("--json", action="store_true")
++    ap.add_argument("--facts", action="store_true",
++                    help="one TSV line for the audit rail: count, total bytes, largest canvas")
++    args = ap.parse_args()
++
++    f = scan(args.root)
++
++    if args.facts:
++        total = sum(x["bytes"] for x in f if x["bytes"] > 0)
++        big = max(f, key=lambda x: (x["width"] or 0) * (x["height"] or 0), default=None)
++        print("%d\t%d\t%s\t%s" % (len(f), total,
++                                  big["canvas"] if big else "-",
++                                  ", ".join(x["path"] for x in f[:4]) or "-"))
++        return 0
++
++    if args.json:
++        print(json.dumps(f, indent=2))
++        return 0
++
++    if not f:
++        print("no stray screen captures found in: %s" % ", ".join(STRAY_ROOTS))
++        return 0
++    for x in f:
++        print("STRAY CAPTURE  %-24s %10d bytes  canvas %s" % (x["path"], x["bytes"], x["canvas"]))
++    print("\n%d finding(s). These are images of the operator's screen — this tool reads the "
++          "PostScript header only\nand never the raster. Look at them or delete them; that is "
++          "not the agent's call (OBS-448)." % len(f))
++    return 1
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+-- 
+2.43.0
+

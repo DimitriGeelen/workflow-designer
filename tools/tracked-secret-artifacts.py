@@ -145,6 +145,17 @@ CREDENTIAL_NOUNS = ("key", "token", "cred", "passwd", "password", "pass", "pw")
 # NOT included: `keys`. A `keys/` directory holds SSH public keys as often as private ones, and the
 # noun half already covers a filename that names key material. Adding it would flag every
 # `keys/*.pub` companion, which is the false-positive class this scanner exists to stay out of.
+# T-1009 — a NAME heuristic cannot tell a key from a file ABOUT a key. Run on AEF's tree it flagged six:
+# four task files (`T-1306-persist-flask-secretkey-...md`) and two tests (`test_secret_key.py`,
+# `secret_key_gitignore.bats`) — all about the Watchtower secret key, none holding one — and its audit
+# rail would have FAILed the build on them. Key material does not live in prose or source files; a key
+# hard-coded INSIDE source is a content question, which the pre-commit content scanner answers and a
+# name rule never can. So the two ANNOUNCED rules (and only they) skip these extensions. NOT exempt,
+# deliberately: .txt .json .yaml .yml .conf .ini and extensionless names — keys really live there.
+# DEFINITIVE rules are untouched: `secret.key` and `.env` stay refused whatever surrounds them.
+PROSE_OR_SOURCE = frozenset({".md", ".rst", ".adoc", ".py", ".sh", ".bash", ".bats", ".js", ".mjs",
+                             ".ts", ".html", ".css", ".go", ".rs", ".java", ".rb"})
+
 SECRET_DIR_WORDS = frozenset({"secret", "secrets", "credential", "credentials",
                               "cred", "creds", "vault", "private"})
 
@@ -172,6 +183,8 @@ def classify(path):
 
     if lower.endswith(".pub"):
         return None, None
+    if os.path.splitext(lower)[1] in PROSE_OR_SOURCE:
+        return None, None   # prose or source ABOUT a secret; content scanning owns that case (T-1009)
     if announced_pair(name):
         return "ANNOUNCED", "filename pairs a secrecy word with a credential noun"
 

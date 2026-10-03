@@ -1,0 +1,228 @@
+From ed659033c1fbea01a72bdf6a454e37ce76fd745d Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 01:38:46 +0200
+Subject: [PATCH 1/3] PreToolUse(Bash) gate: refuse a clause whose first word
+ is 'import' (ImageMagick screen capture) (from 832 T-936; AEF T-3572)
+
+'import' is ImageMagick's screen-capture binary. A python heredoc body or a broken python3 -c
+block that leaks to the shell runs it: it photographs the screen, writes multi-megabyte
+PostScript named after the next token, and exits 0. 832 had four captures in seven days (37MB of
+the operator's screen at the repo root; OBS-448).
+The gate removes heredoc bodies and quoted text, splits the rest into clauses on newline ; & | ( ),
+and refuses any clause starting with 'import'. Coverage limit stated in the script: a leak INSIDE
+an already-running shell is not seen; the stray-capture detector (next commit) covers that.
+Not enabled by default here either: enable with
+  bin/fw hook-enable --event PreToolUse --matcher Bash --name check-bare-import
+Test: tests/unit/test_t936_bare_import_gate.sh (8 catches, 9 controls incl. both heredoc forms).
+---
+ agents/context/check-bare-import.sh      | 129 +++++++++++++++++++++++
+ tests/unit/test_t936_bare_import_gate.sh |  61 +++++++++++
+ 2 files changed, 190 insertions(+)
+ create mode 100755 agents/context/check-bare-import.sh
+ create mode 100644 tests/unit/test_t936_bare_import_gate.sh
+
+diff --git a/agents/context/check-bare-import.sh b/agents/context/check-bare-import.sh
+new file mode 100755
+index 00000000..8bece807
+--- /dev/null
++++ b/agents/context/check-bare-import.sh
+@@ -0,0 +1,129 @@
++#!/usr/bin/env bash
++# check-bare-import.sh — PreToolUse(Bash): refuse a command whose first word is `import`.
++#
++# WHY. `import` is ImageMagick's screen-capture binary. When a `python3 - <<'PY'` heredoc body leaks to
++# the shell, or a multi-line `python3 -c "` block loses its quoting, the first body line is typically an
++# import statement — and the shell runs import(1), which CAPTURES THE SCREEN and writes PostScript named
++# after the next token. Exit 0. No error. The command's expected output often still appears, so nobody
++# looks.
++#
++# FOUR TIMES IN SEVEN DAYS in this project (OBS-448):
++#     0                 0 bytes          2026-09-22   capture interrupted
++#     importlib.util    7,962,637 bytes  2026-09-25   1431x915
++#     yaml,glob,sys     28,916,814 bytes 2026-09-28   3440x1383  (a whole desktop)
++#     re,io             7,962,628 bytes  2026-09-29   1431x915   created by the agent, mid-session
++# 37MB of the operator's screen at the repository root. The only thing that kept it out of the git index
++# was T-571 — never `git add -A` — which is a convention, not a hook. Hence this.
++#
++# COVERAGE LIMIT, STATED HERE BECAUSE CLAIMING FULL COVERAGE WOULD BE WORSE THAN THE GAP.
++# This hook sees the command string the harness hands it. It therefore catches:
++#     - a Bash tool call whose command begins with `import`
++#     - the same after leading whitespace, `&&`, `;`, `|`, `(` or a newline -- outside heredoc
++#       bodies and quoted text, so `python3 - <<'PY'` bodies and `python3 -c "import x"` pass
++# It does NOT catch:
++#     - a heredoc body that leaks INSIDE an already-running `bash -c` or script — the inner shell is
++#       not re-scanned, and that is exactly how all four real cases arose
++#     - `env import ...`, `command import ...`, or an absolute path such as /usr/bin/import
++# So this is a partial gate over the SECOND-most-likely path, not a fix for the first. The detector
++# (tools/_t936-stray-capture-scan.py, wired into `fw audit`) is what covers the rest, and removing
++# import(1) from PATH is the only complete prevention — the operator's call, not the agent's.
++#
++# NOT ENABLED BY THE AGENT. Enabling means writing .claude/settings.json, which B-005 blocks
++# structurally, with no settings.local.json side door. The operator enables it:
++#   cd <project root> && bin/fw hook-enable   (vendored: .agentic-framework/bin/fw) --event PreToolUse --matcher Bash --name check-bare-import
++set -uo pipefail
++
++# The harness passes the tool call as JSON on stdin.
++_payload="$(cat 2>/dev/null || true)"
++
++_cmd="$(printf '%s' "$_payload" | python3 -c '
++import json, sys
++try:
++    d = json.load(sys.stdin)
++except Exception:
++    sys.exit(0)          # unparseable input is not a violation; stay out of the way
++ti = d.get("tool_input") or {}
++print(ti.get("command") or "")
++' 2>/dev/null || true)"
++
++[ -n "$_cmd" ] || exit 0
++
++# EVERY CLAUSE'S FIRST TOKEN, OUTSIDE HEREDOC BODIES AND QUOTES (T-1009, 832, 2026-10-04).
++#
++# The first version matched `import ` after any separator, including a newline. grep works line by
++# line, so it fired on the BODY of a perfectly good heredoc:
++#     python3 - <<'PY'
++#     import re,io          <- matched, and the whole command was refused
++#     PY
++# The second version narrowed to the command's first token only, which fixed that and silently
++# dropped every catch the header promises (`cd x && import re` went through) — found by the teeth
++# below, not by review. This version removes the two things that made the first one wrong BEFORE it
++# splits: heredoc bodies (from a `<<WORD` line to the line that is exactly WORD) and quoted text
++# (`python3 -c "import x"`). What is left is shell, split into clauses on newline ; & | ( ), and a
++# clause whose first word is `import` is refused. Both directions are held by
++# tools/_t936-bare-import-gate-teeth.sh (8 catches, 9 controls incl. both heredoc forms).
++# The coverage note in the header still holds: a leak INSIDE an already-running shell is not seen.
++_hit="$(CMD="$_cmd" python3 -c '
++import os, re
++s = os.environ["CMD"]
++out, term = [], None
++for ln in s.split("\n"):
++    if term is not None:
++        if ln.strip() == term:
++            term = None
++        continue
++    out.append(ln)
++    m = re.search(r"<<-?\s*[\x27\x22]?([A-Za-z_][A-Za-z0-9_]*)[\x27\x22]?", ln)
++    if m:
++        term = m.group(1)
++s = "\n".join(out)
++buf, q, i = [], None, 0
++while i < len(s):
++    ch = s[i]
++    if q:
++        if ch == q:
++            q = None
++        elif ch == "\\" and q == "\x22":
++            i += 1
++        i += 1
++        continue
++    if ch in ("\x27", "\x22"):
++        q = ch
++        buf.append(" ")
++    elif ch == "\\":
++        i += 1
++    else:
++        buf.append(ch)
++    i += 1
++for clause in re.split(r"[\n;&|()]", "".join(buf)):
++    w = clause.split()
++    if w and w[0] == "import":
++        print("import")
++        break
++' 2>/dev/null || true)"
++if [ "$_hit" = "import" ]; then
++    cat >&2 <<'BLOCK'
++BLOCKED: this command starts with `import`, which is ImageMagick's SCREEN CAPTURE tool.
++
++`import` is not Python here. Run as a shell command it photographs the screen and writes
++multi-megabyte PostScript named after the next token, exits 0, and prints nothing. It has happened
++four times in seven days in this project (OBS-448) — `importlib.util`, `yaml,glob,sys`, `re,io` and
++one interrupted capture, 37MB total, at the repository root for six days before anyone noticed.
++
++WHAT PROBABLY WENT WRONG: a `python3 - <<'PY'` heredoc body, or a multi-line `python3 -c "` block,
++leaked to the shell. The first line of Python became a shell command.
++
++WHAT TO DO INSTEAD — write the script to a file and run it, rather than piping it through the shell:
++    cat > "$SCRATCH/x.py" <<'PY'
++    import re, io
++    ...
++    PY
++    python3 "$SCRATCH/x.py"
++
++If you genuinely mean ImageMagick's import(1), call it by its absolute path so the intent is explicit:
++    /usr/bin/import -window root /path/to/out.png
++BLOCK
++    exit 2
++fi
++
++exit 0
+diff --git a/tests/unit/test_t936_bare_import_gate.sh b/tests/unit/test_t936_bare_import_gate.sh
+new file mode 100644
+index 00000000..c24e9c70
+--- /dev/null
++++ b/tests/unit/test_t936_bare_import_gate.sh
+@@ -0,0 +1,61 @@
++#!/usr/bin/env bash
++# _t936-bare-import-gate-teeth.sh — the bare-import PreToolUse gate refuses what its header says it
++# refuses, and nothing a working command needs.
++#
++# WHY THIS EXISTS (T-1009, 2026-10-04): the gate's header promised it catches `import` "after
++# leading whitespace, `&&`, `;`, `|` or a newline", while the code looked only at the first word of
++# line 1 — so `cd x && import re` went through. No test held the promise. The controls matter as
++# much as the catches: the framework's own idiom is `python3 - <<'PY'` with `import` lines in the
++# heredoc body, and `python3 -c "import x"` — a gate that blocks those gets disabled, which is worse
++# than the gap it closes.
++#
++# Exit 0 = every case as expected, 1 = a case wrong, 2 = gate not found.
++set -uo pipefail
++ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"   # tests/unit -> repo root
++GATE="${T936_GATE:-}"
++if [ -z "$GATE" ]; then
++  # A framework repo (FRAMEWORK.md at its root) tests its OWN agents/, never its self-vendored copy.
++  if [ -f "$ROOT/FRAMEWORK.md" ]; then _order="$ROOT/agents/context $ROOT/.agentic-framework/agents/context"
++  else _order="$ROOT/.agentic-framework/agents/context $ROOT/agents/context"; fi
++  for d in $_order; do
++    [ -f "$d/check-bare-import.sh" ] && { GATE="$d/check-bare-import.sh"; break; }
++  done
++fi
++[ -n "$GATE" ] && [ -f "$GATE" ] || { echo "CANNOT RUN: check-bare-import.sh not found"; exit 2; }
++
++PASS=0; FAIL=0
++run() { # $1 = want (block|allow), $2 = label, $3 = command
++  local payload rc got
++  payload=$(CMD="$3" python3 -c 'import json,os; print(json.dumps({"tool_name":"Bash","tool_input":{"command":os.environ["CMD"]}}))')
++  printf '%s' "$payload" | bash "$GATE" >/dev/null 2>&1; rc=$?
++  got=allow; [ "$rc" -eq 2 ] && got=block
++  if [ "$got" = "$1" ]; then PASS=$((PASS+1)); echo "  PASS  $2 -> $got"
++  else FAIL=$((FAIL+1)); echo "  FAIL  $2 -> $got (want $1, rc=$rc)"; fi
++}
++
++echo "CATCHES (each one the header promises)"
++run block "first word"                         "import re,io"
++run block "leading whitespace"                 "   import yaml,glob,sys"
++run block "after &&"                           "cd /tmp && import importlib.util"
++run block "after ;"                            "echo hi; import re"
++run block "after |"                            "echo x | import foo"
++run block "after a newline"                    $'echo start\nimport re,io'
++run block "after ||"                           "false || import re"
++run block "in a subshell"                      "( import re )"
++
++echo "CONTROLS (working commands the gate must leave alone)"
++run allow "python heredoc body"                $'python3 - <<\'PY\'\nimport re, io\nprint(1)\nPY'
++run allow "unquoted heredoc delimiter"         $'python3 - <<EOF\nimport json\nEOF'
++run allow "python3 -c with import"             'python3 -c "import json; print(1)"'
++run allow "single-quoted python -c"            "python3 -c 'import sys
++print(sys.version)'"
++run allow "grep for the word"                  "grep -n 'import re' tools/x.py"
++run allow "echo mentioning import"             'echo "use import carefully"'
++run allow "absolute path is explicit intent"   "/usr/bin/import -window root /tmp/x.png"
++run allow "importlib as an argument"           "python3 -m importlib"
++run allow "unrelated command"                  "ls -la"
++
++echo "=== SUMMARY ==="
++echo "PASS: $PASS"
++echo "FAIL: $FAIL"
++[ "$FAIL" -eq 0 ]
+-- 
+2.43.0
+

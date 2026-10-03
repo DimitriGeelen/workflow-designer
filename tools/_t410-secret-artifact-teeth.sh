@@ -102,6 +102,27 @@ else
   ok "(a2) app_secret_key flagged as ANNOUNCED (heuristic labelled honestly)"
 fi
 
+# --- (a3) T-1009: files ABOUT a secret key are not key material -------------------
+# Both directions in one leg: prose/source named after a secret key must PASS, and the same name
+# with a key-bearing extension must still be flagged — so the exemption is by extension, not by word.
+d="$(mkrepo about)"
+track "$d" ".tasks/active/T-1306-persist-flask-secret-key.md"
+track "$d" "tests/web/test_secret_key.py"
+track "$d" "tests/unit/secret_key_gitignore.bats"
+out="$(run "$d")"; rc=$?
+d2="$(mkrepo about-ctrl)"
+track "$d2" "config/secret-key.txt"
+out2="$(run "$d2")"; rc2=$?
+if [ "$rc" -ne 0 ]; then
+  fail "(a3) prose/source ABOUT a secret key was flagged as key material. rc=$rc
+$out"
+elif [ "$rc2" -ne 1 ]; then
+  fail "(a3) control: config/secret-key.txt must still be flagged — the exemption is too broad. rc=$rc2
+$out2"
+else
+  ok "(a3) .md/.py/.bats about a secret key pass; secret-key.txt is still flagged"
+fi
+
 # --- (b) definitive extensions and names --------------------------------------
 for f in "certs/server.pem" "deploy/id_rsa" "keys/store.p12" "home/.netrc" "svc/tls.key"; do
   d="$(mkrepo "def-$(echo "$f" | tr '/.' '__')")"
@@ -264,4 +285,4 @@ if [ "$fails" -ne 0 ]; then
   echo "TEETH FAIL — $fails leg(s) failed" >&2
   exit 1
 fi
-echo "TEETH PASS — 13/13 legs (control + 11 cases + reciprocal on the live tree)"
+echo "TEETH PASS — 14/14 legs (control + 12 cases + reciprocal on the live tree)"
