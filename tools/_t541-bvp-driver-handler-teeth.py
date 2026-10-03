@@ -99,6 +99,22 @@ DRIVERS = list(FIXTURES)
 FALLBACK_FINGERPRINT = re.compile(r"no '.*' mention")
 
 
+def spec_fixtures(spec):
+    """One fixture per declared level, built from that level's OWN first keyword.
+
+    A level is reachable iff a body carrying only its own trigger scores it: if a broader
+    level's keyword is a substring of it, or ordering lets another level win, the fixture
+    scores something else and leg5 goes red. A level declared with no keyword (paths /
+    frontmatter / tags only) gets no fixture here -- stated, not hidden.
+    """
+    out = [(0, "Adjust a z-index on an unrelated widget.")]
+    for lvl, sig in sorted((int(k), v) for k, v in (spec.get("levels") or {}).items()):
+        kws = (sig or {}).get("keywords") or []
+        if kws:
+            out.append((lvl, "Fixture sentence about %s for this level." % kws[0]))
+    return out
+
+
 def refuse(msg):
     print("REFUSE: %s" % msg)
     sys.exit(2)
@@ -113,6 +129,9 @@ def sha256(path):
 
 
 def load_estimator():
+    # T-1005: the estimator reads POLICY_PATH from PROJECT_ROOT at import; without it the
+    # fallback lands on .agentic-framework/ (no policy there) and every spec reads absent.
+    os.environ.setdefault("PROJECT_ROOT", ROOT)
     spec = importlib.util.spec_from_file_location("aef_bvp_estimator", EST)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -145,12 +164,23 @@ def main():
     before = sha256(EST)
     mod = load_estimator()
 
+    # T-1005 retarget (1.7.740): the three vendored handlers are gone; T-864 moved the
+    # drivers to declarative `scoring:` specs in policy/value-drivers.yaml, which the
+    # estimator dispatches through score_declarative (upstream T-3428). The properties
+    # this probe defends -- wired, alive, selective, graded, no dead level, template-blind
+    # -- apply to a spec exactly as they did to a handler, so the subject changed, not
+    # the legs. A hand-written score_<name> still wins dispatch if one ever returns.
+    specs = mod._load_driver_specs()
     handlers = {}
     for d in DRIVERS:
         fn = getattr(mod, "score_" + d.lower(), None)
         if fn is None:
-            refuse("%s has no score_%s — the handler this probe defends does not exist"
-                   % (d, d.lower()))
+            spec = specs.get(d)
+            if not spec:
+                refuse("%s has neither a score_%s handler nor a `scoring:` spec in the policy "
+                       "-- the mechanism this probe defends does not exist" % (d, d.lower()))
+            fn = (lambda sp: (lambda fm, body, tags: mod.score_declarative(sp, fm, body, tags)))(spec)
+            FIXTURES[d] = spec_fixtures(spec)
         handlers[d] = fn
 
     paths = non_completed_tasks()

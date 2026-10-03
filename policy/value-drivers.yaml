@@ -341,7 +341,10 @@ free_drivers:
       strip_template: true
       levels:
         1:
-          keywords: ["designer", "bpmn", "authoring surface", "workflow designer"]
+          # T-1012: "designer" and "bpmn" removed -- the project's own name and medium,
+          # they matched every task (145/145, tools/_t541 leg3), turning L1 into a constant.
+          # The specific phrases keep the rubric's L1 ("mentions the designer ... authoring").
+          keywords: ["authoring surface", "workflow designer", "bpmn authoring"]
         2:
           keywords: ["import", "export", "editor", "canvas", "palette",
                      "validation feedback", "ghost card"]
