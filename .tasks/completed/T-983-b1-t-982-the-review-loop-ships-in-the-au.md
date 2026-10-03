@@ -18,7 +18,7 @@ owner: agent
 horizon: null
 tags: []
 components: [tests/run-bridge-tests.sh, tests/test_t974_authoring_kit.py, tests/test_t983_review_loop_kit.py, tools/build-authoring-kit.py]
-related_tasks: []
+related_tasks: [T-982]
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.

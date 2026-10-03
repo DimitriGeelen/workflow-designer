@@ -6,16 +6,16 @@ description: >
   Inception: Why did the bridge suite slide from 7 to 38 failures in 10 days without
   being stopped
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-996, T-997, T-998, T-999, T-1000, T-1001, T-1002]
 created: 2026-10-02T15:13:59Z
-last_update: 2026-10-02T15:30:53Z
-date_finished:
+last_update: 2026-10-02T16:36:42Z
+date_finished: 2026-10-02T16:36:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -112,15 +112,15 @@ Four spikes, time-boxed, detailed in docs/reports/T-995-bridge-suite-slide.md:
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -177,7 +177,11 @@ Evidence not yet gathered; the decision is what structural change to make, and t
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Slide caused by re-vendoring over local patches (~24/38), no consumer that can block, rails inside vendored files, and an exit-0-on-SIGPIPE record. Build B1-B5, upstream U1; designer failures as separate bug tasks.
+
+**Date**: 2026-10-02T16:36:41Z
 
 ## Updates
 
@@ -186,3 +190,29 @@ Evidence not yet gathered; the decision is what structural change to make, and t
 
 ### 2026-10-02T15:14:35Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-02T16:36:41Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Slide caused by re-vendoring over local patches (~24/38), no consumer that can block, rails inside vendored files, and an exit-0-on-SIGPIPE record. Build B1-B5, upstream U1; designer failures as separate bug tasks.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1ee29122
+- **Timestamp:** 2026-10-02T16:36:46Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-e0441a9d
+- **Timestamp:** 2026-10-02T16:36:46Z
+- **Overall:** UNVERIFIED
+- **Claims:** 0
+- No verifiable claims found in ## Recommendation
+
+### 2026-10-02T16:36:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

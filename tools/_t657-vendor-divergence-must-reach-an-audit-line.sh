@@ -26,7 +26,9 @@ set -uo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib/mutation-assert.sh"
 
 PROJ="${T657_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-SRC="$PROJ/.agentic-framework/agents/audit/audit.sh"
+# T-1005: the rail moved out of the vendored audit.sh into the project-owned
+# tools/project-audit.sh (T-999), where a re-vendor cannot erase it again.
+SRC="$PROJ/tools/project-audit.sh"
 REAL_TOOL="$PROJ/tools/_t517-vendor-divergence.py"
 
 PASS=0; FAIL=0
@@ -60,7 +62,7 @@ src = open(sys.argv[1]).read()
 m = re.search(r"^check_vendor_divergence\(\) \{.*?^\}$", src, re.S | re.M)
 if not m:
     sys.stderr.write(
-        "COULD-NOT-MEASURE: check_vendor_divergence() is not in audit.sh.\n"
+        "COULD-NOT-MEASURE: check_vendor_divergence() is not in tools/project-audit.sh.\n"
         "  The divergence guard has no delivery surface — which is the exact state the\n"
         "  1.7.68 re-vendor left us in, and is what this probe exists to catch. If the rail\n"
         "  was renamed rather than removed, re-anchor this extractor.\n")

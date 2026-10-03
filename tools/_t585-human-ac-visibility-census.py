@@ -203,7 +203,11 @@ def classify(body):
 AC = "## Acceptance Criteria"
 
 FIXTURES = [
-    ("POS out-of-section", "OUT-OF-SECTION", f"""
+    # T-1005 retarget (1.7.740): upstream T-3139 made count_unchecked_human_acs count EVERY
+    # `### Human` block wherever it sits, so an out-of-section or anchor-suffixed block is now
+    # VISIBLE to the queue and correctly yields no finding. These two fixtures now pin the
+    # fix: if the predicate regresses to section-scoping, they classify again and go red.
+    ("FIXED-UPSTREAM out-of-section", None, f"""
 {AC}
 
 ### Agent
@@ -214,7 +218,7 @@ FIXTURES = [
 ### Human
 - [ ] [REVIEW] Approve the watch scope
 """),
-    ("POS anchor-suffix", "ANCHOR-SUFFIX", f"""
+    ("FIXED-UPSTREAM anchor-suffix", None, f"""
 {AC} (revised)
 
 ### Human

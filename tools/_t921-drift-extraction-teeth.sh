@@ -29,8 +29,13 @@ ok()  { if [ "$2" -eq 0 ]; then echo "  PASS  $1"; PASS=$((PASS+1)); else echo "
 
 # Extract both functions into a sourceable file. Anchored on the function names, not line
 # numbers — a range that slides off its subject is the defect this whole area is about.
+# T-1005 retarget (1.7.740): the extractor is now _fw_drift_target_in_clause +
+# _fw_extract_drift_target, built on upstream's _fw_chain_split / _fw_strip_quoted from
+# lib/safe-commands.sh, which ask() sources. The shell-invoker guard is the `bash|sh -c`
+# arm and the stripper is the _fw_strip_quoted view -- the same two halves, new homes.
+LIB=".agentic-framework/agents/context/lib/safe-commands.sh"
 extract() {
-  sed -n '/^_fw_cmd_executes_quoted() {/,/^}/p;/^_fw_extract_drift_target() {/,/^}/p' "$1"
+  sed -n '/^_fw_drift_target_in_clause() {/,/^}/p;/^_fw_extract_drift_target() {/,/^}/p' "$1"
 }
 
 # mutate <src> <dst> <old> <new> <expected-count> — asserts the count, asserts the bytes moved.
@@ -54,7 +59,7 @@ PY
 }
 
 # ask <fnfile> <command> -> prints the extracted target
-ask() { FNF="$1" CMD="$2" bash -c 'source "$FNF"; _fw_extract_drift_target "$CMD"'; }
+ask() { FNF="$1" CMD="$2" LIBF="$LIB" bash -c 'source "$LIBF"; source "$FNF"; _fw_extract_drift_target "$CMD"'; }
 
 V=fw; W=task; U=update; TT=T-910
 DATA=".agentic-framework/bin/fw note \"OBS-421 said $V $W $U $TT --status work-completed closes it\" --tag bug"
@@ -75,7 +80,7 @@ if [ ! -s "$WORK/live.sh" ]; then
   echo "  SETUP BROKEN: could not extract the functions from $HOOK — anchors moved."
   echo "=== SUMMARY ==="; echo "PASS: 0"; echo "FAIL: 1"; exit 1
 fi
-ok "both functions extracted from the live hook" "$(grep -qc '_fw_cmd_executes_quoted' "$WORK/live.sh" >/dev/null && grep -q '_fw_extract_drift_target' "$WORK/live.sh" && echo 0 || echo 1)"
+ok "both functions extracted from the live hook" "$(grep -q '_fw_drift_target_in_clause() {' "$WORK/live.sh" && grep -q '_fw_extract_drift_target() {' "$WORK/live.sh" && echo 0 || echo 1)"
 _plain="$(ask "$WORK/live.sh" "$PLAIN")"
 ok "extractor is LIVE — an unquoted invocation still extracts ($_plain)" "$([ "$_plain" = "$TT" ] && echo 0 || echo 1)" "got '$_plain', expected $TT"
 _none="$(ask "$WORK/live.sh" "echo hello world")"
@@ -95,11 +100,8 @@ echo
 # the guard is decorative and the change is the unsafe one wearing the safe one's comments.
 echo "MUTANT A  the shell-invoking guard always answers 'not executing'"
 if mutate "$WORK/live.sh" "$WORK/mutA.sh" \
-     '_fw_cmd_executes_quoted() {
-    local c="$1"' \
-     '_fw_cmd_executes_quoted() {
-    local c="$1"
-    return 1   # T-921 MUTANT A' 1; then
+     'if [[ "$clause" =~ ^(bash|sh)[[:space:]]+-c[[:space:]]+(.*)$ ]]; then' \
+     'if false && [[ "$clause" =~ ^(bash|sh)[[:space:]]+-c[[:space:]]+(.*)$ ]]; then   # T-921 MUTANT A' 1; then
   ok "mutation applied and bytes moved" 0
   a1="$(ask "$WORK/mutA.sh" "$CODE1")"; a2="$(ask "$WORK/mutA.sh" "$CODE2")"
   ok "CODE row 1 REGRESSES to empty without the guard" "$([ -z "$a1" ] && echo 0 || echo 1)" "got '$a1' — guard is not load-bearing"
@@ -114,8 +116,8 @@ echo
 # never ran and the DATA row above passed for some other reason.
 echo "MUTANT B  the quote-stripper is removed"
 if mutate "$WORK/live.sh" "$WORK/mutB.sh" \
-     'stripped=$(printf' \
-     '_t921_dead=$(printf' 1; then
+     'view=$(_fw_strip_quoted "$clause") && clause="$view"' \
+     ': # T-921 MUTANT B' 1; then
   ok "mutation applied and bytes moved" 0
   bd="$(ask "$WORK/mutB.sh" "$DATA")"
   ok "DATA row REGRESSES to $TT without the stripper" "$([ "$bd" = "$TT" ] && echo 0 || echo 1)" "got '$bd' — the strip never ran"

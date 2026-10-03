@@ -184,14 +184,30 @@ both sides; each change's own probe is the verdict. Probes run on UPSTREAM FIRST
 Web tests: 155 pass; the same 23 fail on upstream's own test_app.py in this environment (pre-existing).
 `_t517`: 27 -> **3 stale**.
 
+## Last 3 stale files + T-525 (2026-10-03, commit 4e87cac6)
+
+| File | Fix | Outcome | Probe |
+|---|---|---|---|
+| estimator.py | T-541 product-driver handlers | SUPERSEDED in project policy: T-864 put F1/F3/F4 as declarative `scoring:` specs in policy/value-drivers.yaml (upstream T-3428). Answers the open "project-owned place?" question: yes, and it already existed | audit "BVP drivers scorable" PASS |
+| estimator.py | T-542 blast radius | PARTLY ADOPTED (upstream T-3068 None-not-0, T-3512 write_set); body-path source re-applied by hand after the 3-way merge interleaved both sides | _t542 green (leg5 red on upstream; leg6 retargeted to upstream's deliberate null) |
+| estimator.py | T-865 / T-867 / T-868 (arc-004) | RE-APPLIED verbatim, clean `git apply` in order | 7/7, 10/10, 6/6 (TEETH BROKEN on upstream) |
+| bvp.sh | T-542 help line | SUPERSEDED (upstream lists estimate-cost) | — |
+| bvp.sh | T-856 auto-confirm | gate SUPERSEDED by upstream T-3487 (opt-in gate, confirmed_via); telemetry half RE-APPLIED — the operator-requested ledger had been dark since the upgrade | _t856 14/14 (5 red on upstream) |
+| arc.sh | T-467 arc_id: write | ADOPTED (upstream T-2955); its dual-write of the legacy tag accepted, 3 arms retargeted | _t467 10/10 |
+| arc.sh | T-679 legacy-tag guards | RE-APPLIED (upstream's refusal reads arc_id: only) | both guard arms red on upstream |
+| audit.sh | T-525 coverage ratio + direction | REDESIGNED onto the T-2735 drift block | _t525 8/8, _t549 mutation 5/5 |
+
+Found on the way: (1) `_t867` wrote fixture rows (T-9993) into the real `.context/telemetry/bvp-sticky.jsonl`
+— it now sets FW_BVP_STICKY_TELEMETRY_PATH; the two leaked rows were never committed. (2) `_t525` leg 6a
+was comparing two different trees (upstream's T-3105 "candidate set empty" rail fires only on the
+fixture's first run); the fixture now carries a project YAML. (3) Once, a structure audit printed no
+Fabric lines at all (seen twice in a row, then never again) — not reproduced; noted, not chased.
+
+`_t517`: 38 diverged / 38 declared, 0 stale, 0 unrecorded.
+
 ## RESUME POINT (next session starts here)
 
-3 stale entries left, all BVP: `agents/termlink/bvp-estimator/estimator.py` (T-541 c, T-542 c, T-865 clean,
-T-867 c, T-868 clean), `lib/bvp.sh` (T-542 c, T-856 c), `lib/arc.sh` (T-467 c, T-679 c) — "c" = 3-way
-conflict on 1.7.740. Probes on upstream: _t541 REFUSE (handler absent), _t542 FAIL, _t865/_t867/_t868
-cannot-measure, _t467 FAIL, _t856 9/5. FIRST QUESTION before re-applying: T-541's handlers are
-project-specific BVP drivers (score_v_workflow_routing ...): like the audit rails, they may belong in a
-project-owned place, not in vendored estimator.py. Patches: /tmp scratchpad rv/*.patch are gone after
-the session; regenerate with `git show <sha> -- <path>`. Then T-525 (redesign against the drift check),
-then the bridge suite, then close T-1005. After that: AEF's next build via the re-vendor protocol
-(operator said yes, after T-1005).
+Re-apply done (0 stale). Remaining for closing T-1005: bridge suite result (last: 143 pass / 26 fail
+before this commit) and triage of whatever still fails. After close: AEF's next build via the
+re-vendor protocol (operator said yes); offer the upstream candidates (body-path source, arc-004 trio,
+telemetry row, T-679 guard, T-525 ratio) through T-1009.

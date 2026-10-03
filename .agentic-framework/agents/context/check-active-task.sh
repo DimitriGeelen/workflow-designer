@@ -180,8 +180,35 @@ _fw_extract_drift_target() {
         done
         # A path to fw (/opt/p/.agentic-framework/bin/fw task update T-42 ...) is fw.
         if [[ "$clause" =~ ^[^[:space:]]*/fw([[:space:]].*)$ ]]; then clause="fw${BASH_REMATCH[1]}"; fi
+        # 832 T-921 (re-applied on 1.7.740 by T-1005), two halves measured by T-920:
+        # (a) a shell invoker's quoted payload IS a command -- `bash -c "cd /x && fw task
+        #     update T-9"` updates T-9, and skipping the clause let it past the gate;
+        if [[ "$clause" =~ ^(bash|sh)[[:space:]]+-c[[:space:]]+(.*)$ ]]; then
+            local payload="${BASH_REMATCH[2]}"
+            payload="${payload%"${payload##*[![:space:]]}"}"
+            case "$payload" in
+                \"*\") payload="${payload:1:${#payload}-2}"; payload="${payload//\\\"/\"}" ;;
+                \'*\') payload="${payload:1:${#payload}-2}" ;;
+            esac
+            hit=$(_fw_extract_drift_target "$payload")
+            [ -n "$hit" ] && { printf '%s' "$hit"; return 0; }
+            continue
+        fi
+        # (b) quoted arguments are data -- `fw note "... fw task update T-9 ..."` names a
+        #     command, it does not run one. fw clauses and exec wrappers (xargs / find -exec /
+        #     sudo / env / timeout / nohup / nice / time / exec, whose verb is unquoted) are
+        #     matched on the quote-stripped view (upstream _fw_strip_quoted; unbalanced quotes
+        #     fall back to raw). git keeps the raw view (pattern 3 reads the quoted -m message),
+        #     and so does ssh, whose arguments ARE a remote command line. Anything else (echo,
+        #     grep, python, ...) is data. The wrapper and ssh rows are _t921's regression list,
+        #     which clause-scoping alone (T-639 above) had silently dropped.
         case "$clause" in
-            fw[[:space:]]*|git[[:space:]]*) ;;
+            fw[[:space:]]*|xargs[[:space:]]*|find[[:space:]]*|sudo[[:space:]]*|env[[:space:]]*|timeout[[:space:]]*|nohup[[:space:]]*|nice[[:space:]]*|time[[:space:]]*|exec[[:space:]]*)
+                if declare -F _fw_strip_quoted >/dev/null 2>&1; then
+                    local view
+                    view=$(_fw_strip_quoted "$clause") && clause="$view"
+                fi ;;
+            git[[:space:]]*|ssh[[:space:]]*) ;;
             *) continue ;;
         esac
         hit=$(_fw_drift_target_in_clause "$clause")
