@@ -1,32 +1,27 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  T-1008 — CUT RELEASE 0.15.3: the authoring kit revised from Evergreen iteration 2 (K9-K17)
-#  Run with:   bash /opt/832-Workflow-designer/runme.sh 0.15.3
-#  Dry run:    bash /opt/832-Workflow-designer/runme.sh 0.15.3 --dry-run
+#  T-1022 — ENABLE THE BARE-IMPORT GATE (pending since T-936, 2026-09-29)
+#  Run with:   bash /opt/832-Workflow-designer/runme.sh
+#  Dry run:    bash /opt/832-Workflow-designer/runme.sh --dry-run
 # =============================================================================
 #
-#  WHAT THIS DOES, each step confirmed separately, stopping at the first failure:
-#    1. scripts/release-designer.sh: writes dist/aef-workflow-designer-0.15.3.html, the
-#       authoring kit dist/aef-authoring-kit-0.15.3/, and MANIFEST.yaml; runs the render gate
-#       (ON); announces the release on the hub rail.
-#    2. commits exactly those dist/ paths as the release commit.
-#    3. creates the annotated tag designer-v0.15.3 on that commit.
-#    4. pushes bleeding-edge and the tag to origin.
-#  Same pattern as 0.15.0, 0.15.1 and 0.15.2 (tag on the bleeding-edge release commit). master is NOT advanced
-#  here; that remains a separate decision. Notes: docs/releases/RELEASE-NOTES-0.15.3.md
+#  WHY: `import` is ImageMagick's screen-capture tool. When a python heredoc leaks to the shell,
+#  its first line runs import(1), which photographs the screen and writes megabytes of PostScript
+#  at the repo root, exiting 0. It happened four times in seven days here (OBS-448, 37MB).
+#  .agentic-framework/agents/context/check-bare-import.sh refuses such a command, but only once it
+#  is registered as a hook, and that means writing .claude/settings.json. Agents are structurally
+#  barred from that file (B-005), so it is your step.
 #
-#  WHAT YOU ARE NOT ASKED: whether any lesson is right. Every rule in this kit was confirmed by
-#  re-run evidence and three calibrated reviewer vendors (T-1006), and the kit itself passed a real
-#  calibration of its own bytes (docs/authoring-kit/calibration-records/0.15.3.yaml), which
-#  scripts/release-designer.sh checks again before writing anything. You decide only whether to
-#  release.
-#
-#  THE VERSION IS YOUR ARGUMENT (G-007): the script refuses without it or if it differs from
-#  ./VERSION. THE AGENT DOES NOT RUN THIS: a release is a promise over immutable bytes, a tag
-#  and a push are outward, and check-tier0.sh cannot see commands inside a script (OBS-449).
-#  The agent ran --dry-run only.
+#  WHAT THIS DOES (one confirmed step):
+#    1. fw hook-enable --event PreToolUse --matcher Bash --name check-bare-import
+#       This adds ONE hook entry to .claude/settings.json and changes nothing else.
+#  BEFORE THAT it checks, and stops at the first failure:
+#    - the gate script exists and its tests pass (tools/_t936-bare-import-gate-teeth.sh, 17 cases:
+#      8 commands it must refuse, 9 working commands it must allow, including python heredocs);
+#    - the hook is not already registered (re-running is harmless; it stops here);
+#    - it shows you the --dry-run of the settings change.
+#  Undo: remove the check-bare-import entry under PreToolUse/Bash in .claude/settings.json.
 # =============================================================================
-[ -z "${BASH_VERSION:-}" ] && exec bash "$0" "$@"
 set -uo pipefail
 
 PROJ=/opt/832-Workflow-designer
@@ -34,85 +29,55 @@ TS=$(date +%Y%m%dT%H%M%S)
 LOG="$PROJ/.context/working/runme-$TS.log"
 mkdir -p "$PROJ/.context/working" && touch "$LOG" || { echo "cannot write log $LOG"; exit 1; }
 exec > >(tee -a "$LOG") 2>&1
-echo "runme.sh T-1008 started $TS  log: $LOG"
-. "$PROJ/tools/runme-signal.sh"; runme_signal_init "T-1008 release 0.15.3" "$LOG"
+echo "runme.sh T-1022 started $TS  log: $LOG"
+. "$PROJ/tools/runme-signal.sh"; runme_signal_init "T-1022 enable bare-import gate" "$LOG"
 
 fail() { echo "STOPPED: $*"; echo "rc=1  (log: $LOG)"; exit 1; }
 confirm() { runme_signal step "asking: $1"; runme_confirm "$1"; }
 
-V="${1:-}"; DRY=0; [ "${2:-}" = "--dry-run" ] && DRY=1
-[ -n "$V" ] || fail "pass the version as the first argument, e.g.  bash $0 0.15.3"
-cd "$PROJ" || fail "project dir missing"
-TAG="designer-v$V"
-ART="dist/aef-workflow-designer-$V.html"
-KIT="dist/aef-authoring-kit-$V"
-
-# --- preflight: each check says what it proves; nothing is written before all pass ---
-[ "$(tr -d '[:space:]' < VERSION)" = "$V" ] || fail "./VERSION is '$(tr -d '[:space:]' < VERSION)', not '$V'"
-echo "ok  ./VERSION is $V"
-bash tools/_t808-version-parity.sh >/dev/null || fail "APP_VERSION in src does not match VERSION"
-echo "ok  APP_VERSION matches VERSION"
-[ "$(git rev-parse --abbrev-ref HEAD)" = "bleeding-edge" ] || fail "not on bleeding-edge"
-echo "ok  on bleeding-edge"
-git diff --quiet HEAD -- VERSION src/aef-workflow-designer.html scripts/release-designer.sh tools/build-authoring-kit.py docs/authoring-kit tools/validate-workflow.py \
-  || fail "uncommitted changes in files the release is built from; commit them first"
-echo "ok  the release inputs are committed"
-git rev-parse -q --verify "refs/tags/$TAG" >/dev/null && fail "tag $TAG already exists locally"
-git ls-remote --exit-code --tags origin "$TAG" >/dev/null 2>&1 && fail "tag $TAG already exists on origin"
-echo "ok  tag $TAG does not exist (local or origin)"
-if [ ! -d "$KIT" ]; then
-  python3 tools/kit-calibration-gate.py check --version "$V" || fail "no PASS calibration of these kit bytes (ledger L16)"
-  echo "ok  kit $V carries a PASS calibration of its exact bytes"
-fi
-# RESUMABLE (T-992, after a 0.15.1 run stopped at step 3): if $V is already cut AND committed AND the
-# artifact equals src AND the kit verifies, steps 1-2 are DONE and are skipped without a prompt
-# (T-940: a confirm for a no-op teaches that the answer does not matter). A half-written dist/
-# (exists but uncommitted, or differing) still refuses: that needs a human look.
-CUT_DONE=0
-if [ -e "$ART" ] || [ -e "$KIT" ]; then
-  { [ -f "$ART" ] && [ -d "$KIT" ]; } || fail "$ART / $KIT only partly present: look before re-running"
-  git ls-files --error-unmatch "$ART" >/dev/null 2>&1 && git diff --quiet HEAD -- "$ART" "$KIT" dist/MANIFEST.yaml \
-    || fail "$V is in dist/ but not committed cleanly: look before re-running"
-  cmp -s src/aef-workflow-designer.html "$ART" || fail "$ART differs from src"
-  (cd "$KIT" && sha256sum -c SHA256SUMS --quiet) || fail "$KIT does not verify against its SHA256SUMS"
-  CUT_DONE=1
-  echo "ok  $V already cut and committed ($(git log -1 --format=%h -- "$ART")): steps 1-2 done, resuming at step 3"
-else
-  echo "ok  no $V artifact or kit in dist/ yet"
-fi
+DRY=0; [ "${1:-}" = "--dry-run" ] && DRY=1
+cd "$PROJ" || fail "cannot cd to $PROJ"
+FW="$PROJ/.agentic-framework/bin/fw"
+GATE="$PROJ/.agentic-framework/agents/context/check-bare-import.sh"
 
 echo
-echo "WILL RUN:"
-echo "  1. scripts/release-designer.sh          (render gate ON, announce ON)"
-echo "  2. git commit $ART $KIT dist/MANIFEST.yaml"
-echo "  3. git tag -a $TAG"
-echo "  4. git push origin bleeding-edge && git push origin $TAG"
+echo "== preconditions"
+[ -x "$FW" ] || fail "fw not found at $FW"
+[ -f "$GATE" ] || fail "gate script missing: $GATE"
+echo "ok  gate script present"
+if bash "$PROJ/tools/_t936-bare-import-gate-teeth.sh" > "$PROJ/.context/working/runme-$TS-teeth.out" 2>&1; then
+    echo "ok  gate tests: $(grep -E '^PASS:' "$PROJ/.context/working/runme-$TS-teeth.out")"
+else
+    tail -20 "$PROJ/.context/working/runme-$TS-teeth.out"
+    fail "gate tests are red; not enabling a gate that misbehaves"
+fi
+if python3 -c "
+import json,sys
+d=json.load(open('$PROJ/.claude/settings.json'))
+for h in d.get('hooks',{}).get('PreToolUse',[]):
+    for x in h.get('hooks',[]):
+        if 'check-bare-import' in x.get('command',''):
+            sys.exit(0)
+sys.exit(1)"; then
+    echo "ok  already enabled; nothing to do"
+    runme_signal step "already enabled"
+    echo "rc=0  (log: $LOG)"; exit 0
+fi
+echo "ok  not yet enabled"
+
+echo
+echo "== what step 1 would write (--dry-run of fw hook-enable)"
+"$FW" hook-enable --event PreToolUse --matcher Bash --name check-bare-import --dry-run 2>&1 | grep -n "check-bare-import" | head -5
+runme_signal step "preconditions ok"
+
 if [ "$DRY" = 1 ]; then echo; echo "DRY RUN: nothing written."; echo "rc=0  (log: $LOG)"; exit 0; fi
 
 echo
-if [ "$CUT_DONE" = 0 ]; then
-confirm "Step 1/4: cut release $V (writes dist/, announces)?" || fail "not confirmed at step 1; nothing written"
-scripts/release-designer.sh || fail "release-designer.sh failed (see above); dist/ may need a look"
-{ [ -f "$ART" ] && cmp -s src/aef-workflow-designer.html "$ART"; } || fail "$ART missing or differs from src"
-(cd "$KIT" && sha256sum -c SHA256SUMS --quiet) || fail "the kit does not verify against its SHA256SUMS"
-echo "ok  artifact == src, kit verifies"
+confirm "Step 1/1: register check-bare-import as a PreToolUse(Bash) hook in .claude/settings.json?" || fail "declined at step 1"
+"$FW" hook-enable --event PreToolUse --matcher Bash --name check-bare-import || fail "fw hook-enable failed"
+grep -q "check-bare-import" "$PROJ/.claude/settings.json" || fail "hook-enable returned 0 but settings.json does not name the hook"
+echo "ok  enabled"; runme_signal step "1/1 done: hook enabled"
 
-confirm "Step 2/4: commit the release files?" || fail "not confirmed at step 2; dist/ is written but NOT committed"
-git add "$ART" "$KIT" dist/MANIFEST.yaml || fail "git add failed"
-git commit -q -m "T-1008: release designer $V — authoring kit revised from Evergreen iteration 2 (K9-K17; ledger L16-L18, L20, L22-L27, confirmed by three calibrated reviewer vendors)" \
-  -m "Notes: docs/releases/RELEASE-NOTES-$V.md" || fail "commit failed"
-echo "ok  release commit $(git rev-parse --short HEAD)"; runme_signal step "2/4 done: release commit $(git rev-parse --short HEAD)"
-fi
-REL=$(git log -1 --format=%H -- "$ART")
-
-SHA=$(sha256sum "$ART" | awk '{print $1}')
-confirm "Step 3/4: tag $TAG on the release commit $(git rev-parse --short "$REL")?" || fail "not confirmed at step 3; committed, NOT tagged (re-run this script to resume)"
-git tag -a "$TAG" "$REL" -m "designer $V (sha256 $SHA) + authoring kit" || fail "tag failed"
-echo "ok  tagged $TAG"; runme_signal step "3/4 done: tagged $TAG"
-
-confirm "Step 4/4: push bleeding-edge and $TAG to origin?" || fail "not confirmed at step 4; tagged locally, NOT pushed"
-git push origin bleeding-edge || fail "push of bleeding-edge failed"
-git push origin "$TAG" || fail "push of $TAG failed"
 echo
-echo "DONE: release $V cut, committed, tagged $TAG and pushed."
+echo "DONE: the bare-import gate is enabled. It takes effect for new tool calls in Claude Code."
 echo "rc=0  (log: $LOG)"
