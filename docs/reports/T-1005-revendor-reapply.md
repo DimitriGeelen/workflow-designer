@@ -205,9 +205,17 @@ Fabric lines at all (seen twice in a row, then never again) — not reproduced; 
 
 `_t517`: 38 diverged / 38 declared, 0 stale, 0 unrecorded.
 
-## RESUME POINT (next session starts here)
+## Closed (2026-10-04)
 
-Re-apply done (0 stale). Remaining for closing T-1005: bridge suite result (last: 143 pass / 26 fail
-before this commit) and triage of whatever still fails. After close: AEF's next build via the
-re-vendor protocol (operator said yes); offer the upstream candidates (body-path source, arc-004 trio,
-telemetry row, T-679 guard, T-525 ratio) through T-1009.
+Bridge suite **38 -> 16 failed** (153 passed). Bridge triage after the re-apply:
+- fixed: `_t657` re-anchored to tools/project-audit.sh; T-949 coverage (T-980/T-982/T-995 linked
+  to their builds); `_t585` controls pin upstream T-3139; `_t541` retargeted to the declarative
+  specs, which exposed F1 firing on every task (fixed as T-1012); `_t527` false positive on the
+  T-423 guard; and a real **focus-drift gate regression** (T-921's halves lost, plus ssh / find
+  -exec / xargs dropped by my own T-639 clause scoping) — `_t921` 21/21.
+- remaining 16: pre-existing designer and project-tooling legs, each with a task (T-1013..T-1019,
+  T-358, T-579, T-994), plus CDP browser-launch flakes that pass standalone (T-566, T-513, T-568).
+
+Next: AEF's next build via the protocol. Blocked on a source question sent to AEF (4d986644): the
+configured upstream (GitHub mirror) is at v1.7.0, older than our 1.7.740, so `fw upgrade` cannot
+reach T-3783 from it.
