@@ -56,6 +56,11 @@ date_finished: null
 
 ## Context
 
+Scope widened 2026-10-03 (AEF's second inbox page, unread until today): AEF adopted our re-vendor
+protocol (their inception T-3737, security fixes T-3746) and asked for the T-1000 tooling as a
+reviewed pickup too: tools/_t1000-revendor-gate.sh, _t1000-install-hook.sh, _t1000-revendor-worklist.py,
+the G4 gate, tests/test_t1000_revendor_gate.sh, plus a regression fixture for T-3746.
+
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
