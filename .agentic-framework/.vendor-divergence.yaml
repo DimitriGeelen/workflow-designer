@@ -333,42 +333,26 @@ entries:
 
   - path: .agentic-framework/agents/audit/audit.sh
     kind: content
-    task: T-374, T-382, T-344, T-345, T-371, T-833
+    task: T-1005
     upstream: fix
-    t833_change: >-
-      T-833 — CTL-029 (completable-but-not-completed) fired on `unticked == 0 and ticked > 0`
-      over the ### Agent section ALONE, reading neither `owner:` nor ### Human. It therefore
-      could not distinguish an ABANDONED task from one that had correctly PARTIAL-COMPLETED
-      to the operator — the state CLAUDE.md prescribes in those words. The cost was not
-      cosmetic: each such task produced a standing warning, and those warnings were filed as
-      remediation tasks (T-708, T-709, T-747, T-748) whose only available fix was for the
-      operator to close a task already in its correct terminal-pending state. A control that
-      manufactures undoable work is worse than one that stays silent.
-      FIX: skip when `owner: human` AND at least one unticked criterion under ### Human.
-      Narrow by construction — an abandoned agent-owned task still fires, an owner: human
-      task whose Human ACs are all ticked still fires (genuinely unclosed), and owner: human
-      with no ### Human section still fires (the T-767 mis-filing, not partial-complete).
-      Four control branches in tools/_t833-ctl029-partial-complete-controls.sh, and the
-      control REFUSES with exit 3 rather than passing if it cannot extract the predicate.
-      UPSTREAMED to AEF under G-008; this is framework behaviour, not project-local policy.
-    superseded_changes:
-      - change: T-374 — route both fabric coverage checks through expand_patterns.py so
-                `exclude:` is honored (email-archive's G-AUDIT-EXCLUDE-NOT-HONORED)
-        by: AEF T-2735, confirmed at rail 11895 on 2026-08-15
-        note: >-
-          Upstream took a DIFFERENT and better route: rather than fixing the inline glob.glob
-          block, they removed the coverage verdict from it entirely and delegated to the drift
-          check that already routes through expand_patterns.py, with a loud FAIL if the
-          expander errors. Do not send the T-374 patch — they said so explicitly.
     reason: >-
-      Four of this entry's five changes (T-382, T-344, T-345, T-371) remain genuine upstream
-      debt and are why the verdict stays `fix`. T-374's change is superseded — see above.
-      NOT reclassified wholesale, because one path here carries five independent changes and a
-      single verdict cannot be true of all of them; collapsing it to `superseded` would have
-      quietly written off four real fixes. The bundling is now the risk that matters: at the
-      next re-vendor upstream's audit.sh overwrites ours, and T-374 being handled there does
-      nothing for the other four. That is the T-517 learning — a fix recorded as local but
-      never upstreamed is destroyed by the next vendor step — arriving with a date on it.
+      Consolidated by T-1005 after the AEF 1.7.740 re-vendor; the six per-task entries this replaced
+      are in git history. Classification of all 24 former local commits, verified against upstream
+      line numbers: docs/reports/T-1005-audit-sh-classification.md.
+      RE-APPLIED here (each by 3-way merge of its own commit, each with its probe green): T-371
+      (C-002 hook message), T-534 (D2 names only tasks meeting its bar), T-656 (signed-off tasks are
+      not awaiting judgement; with its active-task-scan.py hunk), T-677 (a partial run never
+      clobbers the day's fuller record; trend counts once per date), T-934 (unit-suite check skips
+      where no suite exists). These are the upstream debt.
+      NOT YET RE-APPLIED (conflict on 1.7.740; T-1005 open): T-525 (fabric coverage direction, needs
+      a redesign), T-535 (AUDITS_DIR, trend key on moving numbers), T-651 (zero-byte root files),
+      T-873 (CLAUDE.md.bak left by upgrade).
+    superseded_changes: >-
+      T-344, T-345, T-374 (AEF T-2735/T-2737), T-654 (upstream episodic Check 1), T-833 (AEF T-3444,
+      audit.sh CTL-029 owner skip).
+    moved_out: >-
+      Project rails no longer live here (T-999): T-382, T-657/T-945, T-660, T-931, T-936, T-938/T-939,
+      T-941, T-952 run from tools/project-audit.sh on their own hourly cron, out of a re-vendor's reach.
 
   - path: .agentic-framework/agents/context/checkpoint.sh
     kind: content
@@ -442,36 +426,6 @@ entries:
       two, so this is a third instance of one bug, not a new one. T-522 also installs an
       EXIT-trap watchdog — T-1169 and T-1860 both sit INSIDE the block that never executes and
       structurally cannot report a skip, which is why this ran undetected.
-
-  - path: .agentic-framework/agents/audit/audit.sh
-    kind: content
-    task: T-525
-    upstream: fix
-    reason: >-
-      The fabric coverage check reported `N registered, M unregistered (of W watched)` and
-      nothing else. `unregistered` is a difference between two independently moving quantities,
-      so it rises whenever the watched tree grows even while coverage improves — measured over
-      this project's audit history, coverage went 10.6% -> 22.5% while the headline figure went
-      147 -> 189, i.e. the number an operator reads moves opposite to the property it describes.
-      T-345 already corrected one instance of this same confusion in this same check (it printed
-      "(coverage growing)" against a rising unregistered count); the severity was fixed then and
-      the number was not, so this is the second half rather than a new finding.
-      The consequence that makes it more than cosmetic: "twenty files were added and not carded"
-      and "twenty cards were DELETED" produced an identical line. T-524 established that cards
-      are load-bearing rather than documentation — a card that stops participating changes what
-      update-task.sh resolves and makes its own file report as unregistered — so card loss is a
-      real failure mode that the audit could not distinguish from routine growth.
-      The check now prints the coverage ratio and compares `registered` against the most recent
-      prior daily report, naming a FALL explicitly; with no comparable prior it ABSTAINS rather
-      than rendering a fabricated zero delta as "no change" (PL-205). Severity is deliberately
-      untouched — still WARN, still gated on unregistered > 0 — because the warning's existence
-      is the standing WARN the operator's T-344 [REVIEW] accepted, and promoting it inside a
-      reporting fix would overturn a ratified decision as a side effect. History is read through
-      FABRIC_HISTORY_DIR (defaulting to the real report directory) so the branches can be
-      exercised end-to-end without writing fabricated reports into a live tree.
-      Cron reports are deliberately excluded from the history scan: they run a reduced section
-      set and carry no Fabric line, so including them would silently yield "no prior" on most
-      runs — an abstention caused by the reader, not by the record.
 
   - path: .agentic-framework/agents/fabric/lib/drift.sh
     kind: content
@@ -817,31 +771,6 @@ entries:
       started-work`, so the obvious fixture never enters the recheck branch at all. The leg
       asserts WHICH branch archived the file, not only that the field ended up right.
 
-  - path: .agentic-framework/agents/audit/audit.sh
-    kind: content
-    task: T-654
-    upstream: fix
-    reason: |
-      EPISODIC MEMORY Check 1b: unrecovered completion-watchdog detections now surface.
-
-      update-task.sh installs a T-522 EXIT trap that catches a work-completed transition
-      leaving the script before the episodic stage. It works: it fired twice here (T-542 and
-      T-574, both 2026-08-22), each time with the correct diagnosis and the exact recovery
-      command. Both sat unrecovered for nine days across twelve audits, because its output
-      goes to .context/working/episodic-gen/<task>.log -- a file nobody opens -- and to a
-      stderr line that scrolls past. 100% of its detections were lost.
-
-      The existing "Completed task X has no episodic summary" WARN cannot supply the reason,
-      so it reads as "the generator has not run yet", a chore. The new check says the
-      framework already knew, to the second, that a completion aborted. Same facts, different
-      sentence, different response.
-
-      UPSTREAM because the detector is vendored and so is the blindness: any project running
-      this framework has a watchdog whose findings reach no surface.
-
-      Witness: tools/_t654-watchdog-detections-must-be-surfaced.sh, 6 legs, extracting the
-      real block from audit.sh rather than retyping it.
-
   - path: .agentic-framework/agents/audit/active-task-scan.py
     kind: content
     task: T-656
@@ -862,45 +791,6 @@ entries:
       criterion instead of seven. Measured; it was the first thing tried.
 
       FIRST ENTRY for this path — it had no divergence record at all before T-656.
-
-  - path: .agentic-framework/agents/audit/audit.sh
-    kind: content
-    task: T-656
-    upstream: fix
-    reason: |
-      D2 splits its message by WHAT the queue is waiting for, not only by how long.
-
-      Measured here on 2026-08-31: of the four tasks in the >30d FAIL, T-093 (57 days,
-      7/7 ticked) and T-178 (51 days, 6/6 ticked) were fully signed off and waiting only on
-      the administrative status flip. Half the queue was not a queue. Worse, the control's
-      remediation line sent the operator to `fw task verify`, which lists unchecked Human
-      ACs — of which those two tasks have none. Fifty-seven days of a FAIL asking for
-      something that had already been given.
-
-      Both groups stay in the message and the total is preserved: quieting the control by
-      dropping the signed-off tasks would fix the sentence by losing the work. The
-      remediation is now composed per group. An `unticked` field absent from an older scan
-      sorts to the judgement group — over-reporting a decision as pending costs a glance;
-      under-reporting one costs the decision.
-
-      Same shape as T-534 on this very check, one axis over: that fix stopped the >14d tier
-      being merged into the >30d count, this one stops two different KINDS of outstanding
-      being merged into one.
-
-      UPSTREAM because the queue is the operator's primary surface in every project running
-      this framework, and the miscount is in vendored logic, not local policy.
-
-      Witness: tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh, 8 legs,
-      extracting the real D2 region from audit.sh rather than retyping it.
-
-  # ── T-657 ────────────────────────────────────────────────────────────────────────────
-  # The six below were found by the guard on 2026-08-31 and are recorded together only
-  # because they were MISSED together. Each is dispositioned on its own evidence (task,
-  # commit, and the diff read) and each independently comes out `fix`. That uniformity is
-  # the finding, not a shortcut: four consecutive tasks — T-624/T-625, T-643/T-644/T-645,
-  # T-648 — each shipped a real fix to vendored code and none of them declared it, so our
-  # stated upstream debt to AEF was six entries short of the truth. Not one forgetful
-  # agent; a guard with no surface at the moment of the edit. See OBS-333.
 
   - path: .agentic-framework/bin/fw
     kind: content
@@ -978,35 +868,6 @@ entries:
       shared `document_shell` fixture. Found by grepping for the SHAPE of the original
       instance rather than waiting for it to fail — the assertion also now names which
       construct was found instead of just failing.
-
-  - path: .agentic-framework/agents/audit/audit.sh
-    kind: content
-    task: T-657
-    upstream: local-config
-    reason: >-
-      Adds a structure-section line that runs tools/_t517-vendor-divergence.py and reports its
-      verdict. LOCAL-CONFIG, not `fix`, and the distinction is the point: the block calls a
-      PROJECT-local tool and checks a manifest that only exists because this project vendors
-      the framework. Upstream does not vendor itself, has no manifest, and would get a block
-      that never fires — so there is nothing owed to them here. The block is guarded on both
-      `PROJECT_ROOT != FRAMEWORK_ROOT` and the tool existing precisely so it is inert rather
-      than noisy if it ever does travel.
-
-      Why it exists: the guard was correct and unread. Twice — at "1 unrecorded" from
-      10a537c1 until 2026-08-29, and at 6 on 2026-08-31 — because its only host was a
-      ~13-minute bridge suite nothing schedules. Standalone the check is 250-340ms over a
-      2158-file baseline, so it was hostage to its host's price, never its own. That is what
-      made "run it more often" look unaffordable when it was always nearly free.
-
-      WARN rather than FAIL is deliberate and revisitable: a structure FAIL blocks push
-      (git/lib/hooks.sh:844) with only Tier-0 `--no-verify` as bypass. The defect being fixed
-      is that nobody SAW the verdict, and the audit is read on every push and every cron run.
-      Escalation trigger recorded in the block: if an unrecorded entry survives three
-      consecutive audits, WARN has failed the same way the suite did.
-
-      Witness: tools/_t657-vendor-divergence-must-reach-an-audit-line.sh, 7 legs, extracting
-      the real region from audit.sh rather than retyping it, with a path assertion that the
-      WARN carries the tool's own bytes and a precondition guard on the mutation leg.
 
   - path: .agentic-framework/agents/task-create/update-task.sh
     kind: content
@@ -1108,23 +969,6 @@ entries:
 
       UPSTREAM because the default is framework-owned: any project on this framework can mint
       a human-owned task nobody can finish, and nothing tells it that it did.
-
-  - path: .agentic-framework/agents/audit/audit.sh
-    kind: content
-    task: T-660
-    upstream: local-config
-    reason: >-
-      Adds a structure-section line reporting how much of the live operator queue carries a
-      Human AC that cannot be executed as written. LOCAL-CONFIG for the same reason as the
-      T-657 line: it calls a project-local tool (tools/_t660-human-ac-actionability.py) and
-      is guarded on that tool existing, so it is inert where the tool is absent. The
-      create-task.sh fix above is the part owed upstream; this is the local surface for the
-      residue it cannot reach (a Human AC hand-written without Steps or If-not).
-
-      Witness: tools/_t660-actionability-checker-must-have-teeth.sh, 8 legs, including the
-      one that matters — a task whose only well-formed criteria live inside the template's
-      HTML comment must be reported NOT actionable. An instrument reading through the comment
-      sees perfect Steps/Expected/If-not and passes every task in the queue.
 
   - path: .agentic-framework/agents/context/check-active-task.sh
     kind: content
