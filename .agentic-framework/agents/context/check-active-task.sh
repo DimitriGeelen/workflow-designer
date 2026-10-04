@@ -203,6 +203,7 @@ _fw_extract_drift_target() {
         #     grep, python, ...) is data. The wrapper and ssh rows are _t921's regression list,
         #     which clause-scoping alone (T-639 above) had silently dropped.
         case "$clause" in
+            fw[[:space:]]git[[:space:]]commit*) ;;   # T-1023: raw, like git -- pattern 3 reads the quoted -m message
             fw[[:space:]]*|xargs[[:space:]]*|find[[:space:]]*|sudo[[:space:]]*|env[[:space:]]*|timeout[[:space:]]*|nohup[[:space:]]*|nice[[:space:]]*|time[[:space:]]*|exec[[:space:]]*)
                 if declare -F _fw_strip_quoted >/dev/null 2>&1; then
                     local view

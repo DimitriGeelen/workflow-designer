@@ -22,6 +22,12 @@ cases = [
     ('git add -A && git commit -m "T-3: x"', 'T-3'),
     ('FW_SWITCH_FOCUS=1 git commit -m "T-4: x"', 'T-4'),
     ('cd /x && git commit -m "T-5: y"', 'T-5'),
+    # T-1023: the commit form CLAUDE.md mandates. Quote-stripping fw clauses (37865ec7) hid its
+    # -m message, so the drift gate stopped seeing which task a framework commit targets.
+    ('fw git commit -m "T-12: x"', 'T-12'),
+    ('.agentic-framework/bin/fw git commit -m "T-12: x"', 'T-12'),
+    ('FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-13: y"', 'T-13'),
+    ('.agentic-framework/bin/fw note "said fw task update T-9 --status x"', ''),
     ('echo "the form is: git commit -m \\"T-1: msg\\""', ''),
     ('echo "next run fw task update T-1 --status issues"', ''),
     ('bash tools/probe.sh " git commit -m \\"T-1: fixture\\""', ''),

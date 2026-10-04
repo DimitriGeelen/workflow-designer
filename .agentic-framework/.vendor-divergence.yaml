@@ -342,6 +342,18 @@ entries:
 
   - path: .agentic-framework/agents/context/check-active-task.sh
     kind: content
+    task: T-1005, T-1023
+    upstream: fix
+    reason: >-
+      Focus-drift target extraction (_fw_extract_drift_target), re-applied/repaired on 1.7.740.
+      T-639 (clause-scoped: only a clause that IS a command, heredoc bodies dropped); T-921's two
+      halves restored in 37865ec7 (bash|sh -c payloads recurse; fw clauses and exec wrappers match
+      the _fw_strip_quoted view, so fw note prose is data; git/ssh raw; ssh / find -exec / xargs
+      forms back); T-1023 (an fw git commit clause keeps the raw view -- 37865ec7's stripping had hid
+      its -m "T-N:" message). Probes: tools/_t1005-drift-target-clause-scoped.py 18/18,
+      tools/_t921-drift-extraction-teeth.sh 21/21. Upstream candidate (bundle E, T-1021).
+  - path: .agentic-framework/agents/context/check-active-task.sh
+    kind: content
     task: T-386
     upstream: fix
     reason: The focus-drift gate recommended a command it then refused.
