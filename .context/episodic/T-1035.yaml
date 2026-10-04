@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1035: Census: 13 hook-fix teeth (T-628..T-662) fail or cannot measure on 1.7.740 — adopted upstream, lost silently, or obsolete?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T14:42:34Z
+# ============================================================================
+
+task_id: T-1035
+task_name: "Census: 13 hook-fix teeth (T-628..T-662) fail or cannot measure on 1.7.740 — adopted upstream, lost silently, or obsolete?"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T14:04:47Z
+completed: 2026-10-04T14:42:27Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T16:13:55+02:00
+last_commit: 2026-10-04T16:32:55+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception scoped — problem, hypothesis (agent-written, source left unset), IW-1..3, two spikes; research artifact created. Spike A and B findings — of 13 hook fixes, 9 ADOPTED (upstream or our re-apply), 2 OBSOLETE (T-631, T-639), 2 LOST (T-650, T-662: usability, the null-focus fw spelling family; 0 safety). T-1020 saw 6 of them (an unconfirmed 'to confirm', a usability triage); 4 stale teeth need re-anchoring
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Spike A and B findings — of 13 hook fixes, 9 ADOPTED (upstream or our re-apply), 2 OBSOLETE (T-631, T-639), 2 LOST (T-650, T-662: usability, the null-focus fw spelling family; 0 safety). T-1020 saw 6 of them (an unconfirmed ''to confirm'', a usability triage); 4 stale teeth need re-anchoring'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/working/dispatch/t1035-spikeb-prompt.md'
+  - 'docs/reports/T-1035-hook-fix-census.md'
+  - '.tasks/active/T-1035-census-13-hook-fix-teeth-t-628t-662-fail.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T16:13:55'
+    action: 'T-1035: inception scoped — problem, hypothesis (agent-written, source left unset), IW-1..3, two spikes; research artifact created'
+  - time: '2026-10-04T16:32:55'
+    action: 'T-1035: Spike A and B findings — of 13 hook fixes, 9 ADOPTED (upstream or our re-apply), 2 OBSOLETE (T-631, T-639), 2 LOST (T-650, T-662: usability, the null-focus fw spelling family; 0 safety). T-1020 saw 6 of them (an unconfirmed ''to confirm'', a usability triage); 4 stale teeth need re-anchoring'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 37 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 37
+  commits: 2
+  files_changed: 3
+  lines_added: 215
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1035-census-13-hook-fix-teeth-t-628t-662-fail.md
+generated_by: context-agent-hybrid

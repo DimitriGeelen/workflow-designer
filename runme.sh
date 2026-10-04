@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  T-1013 — restore two project hooks that the 1.7.740 upgrade dropped
+#  T-1035 — YOUR GO / NO-GO / DEFER on the census of 13 lost-looking hook fixes
 #  Run with:   bash /opt/832-Workflow-designer/runme.sh
 #  Dry run:    bash /opt/832-Workflow-designer/runme.sh --dry-run
 # =============================================================================
 #
-#  WHAT HAPPENED: the framework upgrade on 10-02 rewrote .claude/settings.json and left out two
-#  hooks this project had registered. The agent committed that rewrite on 10-04 (6e0747c3)
-#  without noticing. Found today by T-1013. Both have been missing since then:
-#    1. PreToolUse on mcp__termlink__.*  ->  tools/_t420-rail-attribution-gate.py
-#       (blocks TermLink calls that would post without rail attribution, T-420)
-#    2. PostToolUse on Write|Edit        ->  tools/hooks/warn-uncontrolled-absence.sh
-#       (ADVISORY, never blocks: warns when a task's ## Verification gets an absence check
-#        with no control, T-843)
+#  WHAT THIS DOES: shows the result, asks for your decision, then records it with
+#  `fw inception decide` (operator-only). One step, confirmed twice.
+#  Full report: docs/reports/T-1035-hook-fix-census.md
 #
-#  CHECKED BEFORE THIS FILE WAS WRITTEN (agent, 2026-10-04):
-#    - the rail gate's own tests pass on today's framework: mutation check 15/15, misfire matrix 23/23
-#    - the absence hook warns on an uncontrolled absence, stays silent on a positive check,
-#      and exits 0 both times
+#  THE QUESTION: 13 checks for 832's own fixes to the framework's hooks were failing on the
+#  current framework. Were those fixes lost in the 10-02 upgrade, like the five T-1020 found?
 #
-#  WHAT THIS DOES: one step. Back up .claude/settings.json, add the two entries back exactly as
-#  they were before 6e0747c3, check the file still parses, and show the difference. Nothing else
-#  in the file is touched. A restart of the Claude session picks the hooks up.
+#  THE ANSWER (each behaviour tested directly on today's code):
+#    - 11 of 13 still hold: 6 because the framework now does the same thing itself, 5 because
+#      our own re-applied fixes hold. Their checks were stale, not the behaviour.
+#    - 2 are lost, both annoyances rather than safety holes, both in "no task is active":
+#        T-650: `fw git commit` and `fw fix-learned` are refused, while the plain
+#               `git commit` / `fw context add-learning` they stand for are allowed.
+#        T-662: that refusal no longer says why, or how to get through.
+#      (The agent hit both twice today while closing tasks.)
 #
-#  NOTE for the v1.8.0 upgrade: `fw upgrade` rewrites this file again. The upgrade plan must
-#  re-check both entries afterwards, or this repeats.
+#  GO means: small build tasks, before the v1.8.0 upgrade:
+#    1. restore T-650 and T-662 (and send both to AEF);
+#    2. repair the checks so all 13 can run in the test suite and pass;
+#    3. tidy the divergence register (one stale entry; declare the two restores).
 # =============================================================================
 set -uo pipefail
 
@@ -33,72 +33,42 @@ TS=$(date +%Y%m%dT%H%M%S)
 LOG="$PROJ/.context/working/runme-$TS.log"
 mkdir -p "$PROJ/.context/working" && touch "$LOG" || { echo "cannot write log $LOG"; exit 1; }
 exec > >(tee -a "$LOG") 2>&1
-echo "runme.sh T-1013 started $TS  log: $LOG"
-. "$PROJ/tools/runme-signal.sh"; runme_signal_init "T-1013 restore two dropped hooks" "$LOG"
+echo "runme.sh T-1035 started $TS  log: $LOG"
+. "$PROJ/tools/runme-signal.sh"; runme_signal_init "T-1035 inception decision" "$LOG"
 
 fail() { echo "STOPPED: $*"; echo "rc=1  (log: $LOG)"; exit 1; }
 
 DRY=0; [ "${1:-}" = "--dry-run" ] && DRY=1
 cd "$PROJ" || fail "cannot cd to $PROJ"
-SET=.claude/settings.json
-GATE="$PROJ/tools/_t420-rail-attribution-gate.py"
-WARN="$PROJ/tools/hooks/warn-uncontrolled-absence.sh"
+FW="$PROJ/.agentic-framework/bin/fw"
+[ -x "$FW" ] || fail "fw not found at $FW"
+[ -f docs/reports/T-1035-hook-fix-census.md ] || fail "census report missing"
+ls .tasks/active/T-1035-*.md >/dev/null 2>&1 || fail "T-1035 is not active (already decided?)"
+[ -f .context/working/.reviewed-T-1035 ] || fail "review marker missing (the agent runs fw task review T-1035 first)"
 
-# ── preconditions (nothing is written until all hold) ─────────────────────────
-[ -f "$SET" ] || fail "$SET not found"
-python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$SET" || fail "$SET does not parse as JSON today; not touching it"
-[ -x "$GATE" ] || fail "$GATE missing or not executable"
-[ -x "$WARN" ] || fail "$WARN missing or not executable"
-STATE=$(python3 - "$SET" "$GATE" "$WARN" <<'PY'
-import json, sys
-d = json.load(open(sys.argv[1])); gate, warn = sys.argv[2], sys.argv[3]
-cmds = [h.get('command', '') for arr in d.get('hooks', {}).values() for m in arr for h in m.get('hooks', [])]
-print(('gate-present' if gate in cmds else 'gate-absent') + ' ' + ('warn-present' if warn in cmds else 'warn-absent'))
-PY
-) || fail "could not read the hooks in $SET"
-echo "today: $STATE"
-[ "$STATE" = "gate-present warn-present" ] && { echo "Both hooks are already registered. Nothing to do."; echo "rc=0  (log: $LOG)"; exit 0; }
+RATIONALE_GO="Census of 13 hook-fix teeth (docs/reports/T-1035-hook-fix-census.md): 11 behaviours hold on 1.7.740 (6 adopted upstream, 5 by 832's re-applies; their teeth are stale), 2 are lost, both usability: T-650 (fw git commit / fw fix-learned refused with no task while their bare forms pass) and T-662 (the null-focus block no longer names the cause or the way through). Build tasks: restore both and send upstream; repair the teeth so all 13 wire green; register hygiene. Before the v1.8.0 upgrade."
 
-runme_signal step "precondition ok: $STATE"
+sed -n '/^\*\*Summary\.\*\*/,/^## Dialogue/p' docs/reports/T-1035-hook-fix-census.md | sed '$d'
 echo
-echo "Will add to $SET (only the missing ones):"
-echo "  PreToolUse  matcher mcp__termlink__.*  ->  $GATE"
-echo "  PostToolUse matcher Write|Edit         ->  $WARN"
-echo "A backup is written next to it first: $SET.bak-$TS"
+echo "Decide: g = GO (recommended), n = NO-GO, d = DEFER"
+runme_signal step "asking: decision g/n/d"
 
-if [ "$DRY" = 1 ]; then echo; echo "DRY RUN: nothing written."; echo "rc=0  (log: $LOG)"; exit 0; fi
+if [ "$DRY" = 1 ]; then echo; echo "DRY RUN: would ask g/n/d, then run: fw inception decide T-1035 <go|no-go|defer> --rationale ..."; echo "rc=0  (log: $LOG)"; exit 0; fi
 
-read -r -p "Restore the missing hook(s)? [y/N]: " ans </dev/tty || ans=""
-case "$ans" in y|Y) ;; *) echo "Not changed."; runme_signal step "declined"; echo "rc=0  (log: $LOG)"; exit 0 ;; esac
-
-cp -p "$SET" "$SET.bak-$TS" || fail "could not write the backup"
-python3 - "$SET" "$GATE" "$WARN" <<'PY' || { cp -p "$SET.bak-$TS" "$SET"; fail "write failed; backup restored"; }
-import json, sys
-p, gate, warn = sys.argv[1], sys.argv[2], sys.argv[3]
-d = json.load(open(p))
-hooks = d.setdefault('hooks', {})
-def ensure(event, matcher, cmd):
-    arr = hooks.setdefault(event, [])
-    for m in arr:
-        if any(h.get('command') == cmd for h in m.get('hooks', [])):
-            return 'already'
-    for m in arr:
-        if m.get('matcher') == matcher:
-            m.setdefault('hooks', []).append({'type': 'command', 'command': cmd}); return 'added to existing matcher'
-    arr.append({'matcher': matcher, 'hooks': [{'type': 'command', 'command': cmd}]}); return 'added'
-print('gate:', ensure('PreToolUse', 'mcp__termlink__.*', gate))
-print('warn:', ensure('PostToolUse', 'Write|Edit', warn))
-tmp = p + '.tmp'
-with open(tmp, 'w') as fh:
-    json.dump(d, fh, indent=2); fh.write('\n')
-json.load(open(tmp))
-import os; os.replace(tmp, p)
-PY
-python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$SET" || { cp -p "$SET.bak-$TS" "$SET"; fail "result did not parse; backup restored"; }
+read -r -p "Decision [g/n/d, anything else = stop]: " ans </dev/tty || ans=""
+case "$ans" in
+  g|G) DEC=go;    RAT="$RATIONALE_GO" ;;
+  n|N) DEC=no-go; read -r -p "Why NO-GO (one line): " RAT </dev/tty; [ -n "$RAT" ] || fail "no reason given; nothing recorded" ;;
+  d|D) DEC=defer; read -r -p "What evidence is missing (one line): " RAT </dev/tty; [ -n "$RAT" ] || fail "no reason given; nothing recorded" ;;
+  *)   fail "not confirmed; nothing recorded" ;;
+esac
 echo
-echo "Difference:"
-diff "$SET.bak-$TS" "$SET" || true
-runme_signal step "hooks restored"
+echo "WILL RUN: fw inception decide T-1035 $DEC --rationale \"$RAT\""
+read -r -p "Record it? [y/N] " ok </dev/tty || ok=n
+[ "$ok" = y ] || [ "$ok" = Y ] || fail "not confirmed; nothing recorded"
+
+"$FW" inception decide T-1035 "$DEC" --rationale "$RAT" || fail "fw inception decide failed (see above)"
+runme_signal step "decided: $DEC"
 echo
-echo "DONE: restart the Claude session (claude-fw -c) so the hooks load."
+echo "DONE: T-1035 decided: $DEC"
 echo "rc=0  (log: $LOG)"
