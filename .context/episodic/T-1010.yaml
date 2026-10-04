@@ -80,10 +80,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1495
-  commits: 6
-  files_changed: 4
-  lines_added: 403
-  lines_removed: 21
+  commits: 7
+  files_changed: 6
+  lines_added: 539
+  lines_removed: 32
+  footprint_refreshed_at: '2026-10-04T16:18:06Z'
+  footprint_refreshed_by_commit: 25b8c8e5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1010-aef-as-a-standing-design-partner-aef-own.md
