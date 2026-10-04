@@ -2,12 +2,15 @@
 id: T-1016
 name: "Bridge leg red: swallowed-failure census and its controls (T-821)"
 description: >
-  tools/_t821-swallowed-failure-census.py and tools/_t821-census-controls.sh ('baseline should pass' FAIL): either a new bare catch in the editor or an excused site count moved. Pre-existing designer-class leg (T-995).
+  tools/_t821-swallowed-failure-census.py and tools/_t821-census-controls.sh ('baseline
+  should pass' FAIL): either a new bare catch in the editor or an excused site count
+  moved. Pre-existing designer-class leg (T-995).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T21:52:07Z
-last_update: 2026-10-03T21:52:07Z
-date_finished: null
+last_update: 2026-10-04T16:39:13Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +53,41 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T16:37:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1016: Bridge leg red: swallowed-failure census and its controls (T-821)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Two bridge legs, one cause. `tools/_t821-swallowed-failure-census.py` finds a bare `catch (e) {}` at src/aef-workflow-designer.html:9339 that swallows a failure with no record (`aefRecordFault`) and no written excuse. `tools/_t821-census-controls.sh` fails only because its baseline (clean source) is no longer clean.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The catch at line 9339 is understood (what fails there, and whether the failure matters to the user). It then either records the fault with `aefRecordFault('<code>', e)`, or is added to the census EXCUSES with a real reason ("it never happens" is not one). The choice and the reason are stated here. It is `loadInstanceSnapshot()` (T-884's instance overlay). Its "absence is a state" comment is right for a 404, static hosting or no server, but the same catch also swallowed a server that ANSWERS wrongly (5xx, a non-JSON body, a body that is not a snapshot). The user then saw "no instances" with no trace of the broken server. CHOICE: record, not excuse. Thrown errors are marked: 404 and network errors carry no mark (absence, a silent state, as before); non-404 HTTP, a SyntaxError from json() and a non-snapshot body are recorded as `aefRecordFault('instance-snapshot', e)`. The census went 1 finding → 0, instrumented 33 → 34 (my first draft added an inner rethrowing catch, which the census rightly flagged; it was removed)
+- [x] `python3 tools/_t821-swallowed-failure-census.py` and `bash tools/_t821-census-controls.sh` both pass; the designer still loads and its own tests that cover this code path still pass. Census rc 0; controls 5/5; test_gallery_instances_api 8/8; test_designer_render PASS (render, markers, inspector, console clean). NOT run: an end-to-end check that a 500 lands in the fault ring (needs a stub server); the branch is verified by reading only
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -240,6 +264,14 @@ date_finished: null
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** the T-821 census reported one bare catch (src line 9339), and its controls failed on the non-clean baseline.
+
+**Root cause:** T-884 (94d2b2a6, 2026-09-29) added `loadInstanceSnapshot()` with one catch for every failure, reasoning "absence is a state". That holds for an absent endpoint, but it also covers a present endpoint that fails, which is a fault.
+
+**Why structurally allowed:** the census leg was already red for other reasons when T-884 landed (the suite sat at 13-16 failures), so one more swallowed catch was invisible inside a red leg. A red leg that stays red stops carrying information.
+
+**Prevention:** the census is green again, so the next bare catch turns it red on its own. The bridge suite is being driven back toward green leg by leg (T-1013 to T-1019), which is what makes each red mean something.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -320,3 +352,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1016-bridge-leg-red-swallowed-failure-census-.md
 - **Context:** Initial task creation
+
+### 2026-10-04T16:37:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

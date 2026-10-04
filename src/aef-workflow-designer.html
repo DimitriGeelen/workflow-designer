@@ -9330,14 +9330,19 @@ async function loadInstanceSnapshot() {
   if (tpl) {
     try {
       const r = await fetch('/api/instances?template=' + encodeURIComponent(tpl), { cache: 'no-store' });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const d = await r.json();
-      if (!d || !Array.isArray(d.instances)) throw new Error('not a snapshot');
+      // T-1016: an ABSENT endpoint (404, static hosting) is a state. A server that ANSWERS
+      // wrongly (5xx, a body that is not a snapshot) is a fault, and must leave a record:
+      // otherwise "no instances" hides "the server is broken" with no trace anywhere.
+      if (!r.ok) throw Object.assign(new Error('HTTP ' + r.status), { aefFault: r.status !== 404 });
+      const d = await r.json();   // a non-JSON body throws SyntaxError: a fault, recorded below
+      if (!d || !Array.isArray(d.instances)) throw Object.assign(new Error('not a snapshot'), { aefFault: true });
       instanceView.available = true;
       instanceView.instances = d.instances;
       instanceView.refusals = Array.isArray(d.refusals) ? d.refusals : [];
     } catch (e) {
       instanceView.available = false;   // additive overlay: absence is a state, never a fault
+      // A network error (no server at all) carries no aefFault mark: also absence.
+      if (e && (e.aefFault || e instanceof SyntaxError)) aefRecordFault('instance-snapshot', e);
     }
   }
   const want = instanceView.pending != null ? instanceView.pending : instanceView.selected;
