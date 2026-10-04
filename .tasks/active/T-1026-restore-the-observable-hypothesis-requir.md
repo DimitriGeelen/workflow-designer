@@ -41,7 +41,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T07:54:43Z
-last_update: 2026-10-04T08:44:15Z
+last_update: 2026-10-04T08:44:31Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -86,8 +86,8 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `fw inception decide T-X go` refuses an inception whose ## Hypothesis success clause names nothing observable (placeholder, empty, or no count/threshold/check/state), with a message that says what to write; NO-GO and DEFER are not blocked; research-kind inceptions keep T-866's declared exemption
-- [ ] tools/_t866-hypothesis-form-teeth.sh runs against the restored audit_inception_hypothesis and passes (it reports TEETH BROKEN on HEAD); the change to lib/inception.sh and lib/task-audit.sh is declared in .vendor-divergence.yaml; the teeth are a bridge leg
+- [x] `fw inception decide T-X go` refuses an inception whose ## Hypothesis success clause names nothing observable (placeholder, empty, or no count/threshold/check/state), with a message that says what to write; NO-GO and DEFER are not blocked; research-kind inceptions keep T-866's declared exemption — teeth legs empty/missing/vague refused, refusal names what is missing, checkable accepted, nogo/defer pass, research exempt
+- [x] tools/_t866-hypothesis-form-teeth.sh runs against the restored audit_inception_hypothesis and passes (it reports TEETH BROKEN on HEAD); the change to lib/inception.sh and lib/task-audit.sh is declared in .vendor-divergence.yaml; the teeth are a bridge leg — 10/10 (f532479b)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
