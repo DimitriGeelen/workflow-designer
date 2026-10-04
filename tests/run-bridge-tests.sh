@@ -2568,6 +2568,17 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1027 / T-912: fw note promote links observation <-> task, and survives a failed creation ──
+# 1.7.740 wrote the literal 'promoted_to: task', ignored create-task's exit code, and hard-coded
+# --owner human — which create-task now refuses without --human-ac, so promote could not succeed.
+if bash "$ROOT/tools/_t1027-note-promote-teeth.sh" > "$TMP/leg-_t1027-note-promote.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "fw note promote no longer records the created task id, drops the reverse link, mis-sets the owner, or marks an observation promoted when no task was created (run 'bash tools/_t1027-note-promote-teeth.sh')"
+  show_output "$TMP/leg-_t1027-note-promote.out" "_t1027-note-promote-teeth.sh"
+  fail=$((fail + 1))
+fi
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception
