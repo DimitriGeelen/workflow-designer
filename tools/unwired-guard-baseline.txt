@@ -164,20 +164,14 @@ _align-distribute-diag.mjs
 _autoload-verify-cdp.mjs
 _autosave-verify-cdp.mjs
 _bpmn-claim-cli-verify.py
-_edge-straighten-verify-cdp.mjs
 _endpoint-hover-verify-cdp.mjs
-_endpoint-overlap-verify-cdp.mjs
 _gallery-save-allowlist-verify.py
-_horizontal-spacing-verify-cdp.mjs
 _offpage-seam-parity-verify.py
 _save-api-verify.mjs
-_saveproject-verify-cdp.mjs
-_selection-align-verify-cdp.mjs
 _serve-gallery-verify.py
 _t249-spike-zoom-cdp.mjs
 _t251-visual-shots.mjs
 _t255-visual-shots.mjs
-_t263-save-target-cdp.mjs
 _t343-write-equivalence.py
 _t352-member-scan.py
 _t358-empty-lanes-blast-radius.mjs
@@ -219,8 +213,86 @@ _undo-verify-cdp.mjs
 _versions-verify-cdp.mjs
 bpmn-cli.py
 concerns-schema.py
-gallery-serve.py
 gen-rendered-thumbs.mjs
 memory-application-census.py
 rail-sweep.py
 t404-gate-e2e.sh
+
+# ── T-1013 (2026-10-04): classification of the 93 the ratchet reported; per-tool reasons in
+#    docs/reports/T-1013-unwired-classification.md. 44 standing guards were WIRED instead.
+
+# MANUAL BY DESIGN (28): intake/delivery helpers, one-off censuses, browser-session visual verifiers.
+_procasfit-orchestrate.sh
+_t1000-install-hook.sh
+_t1006-lesson-evidence.sh
+_t440-drive-empty.sh
+_t440-zero-population-census.py
+_t612-operator-review-reachable.py
+_t618-determinism-census.py
+_t627-undecided-defer.py
+_t655-review-queue-ac-counts.py
+_t673-fabric-cards.py
+_t680-aef-reachability.py
+_t694-bvp-distinguishability.py
+_t738-unrankable-task-census.py
+_t777-selection-eligibility-census.py
+_t781-bvp-calibration-census.py
+_t783-human-ac-queue-extract.py
+_t784-endpoint-resolution-census.py
+_t872-decision-docket.py
+_t884-live-proof-cdp.mjs
+_t922-prompt-integrity.sh
+_t969-post-bytes.sh
+_t970-evergreen-intake.py
+_t989-intake-evergreen.py
+_t989-measure-evergreen.py
+kit-publish.py
+mcp-designer-server.py
+operator-actions.sh
+
+# WIRE candidates that FAIL today (16). NOT an amnesty: each line names the open task that owns
+# the failure; wire it when that task closes. Wiring them now would only repaint known red.
+# owner: T-1033 (8 tasks awaiting Human review lack a Recommendation)
+_norec-verify.py
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t628-g020-remedy-reachable.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t629-g067-remedy-reachable.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t631-tier0-approval-reachable.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t632-read-only-misclassification.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t633-shared-tmp-sinks.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t634-guard-verdict-reaches-caller.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t636-prose-verbs-vetoed-by-their-own-text.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t637-inception-coverage.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t638-commit-exemption-is-clause-scoped.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t639-drift-gate-reads-fixtures.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t650-an-alias-is-the-command-it-aliases.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t654-watchdog-detections-must-be-surfaced.sh
+# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
+_t662-null-focus-commit-path-must-be-discoverable.sh
+# owner: T-1034 (bundle A-E deliveries not yet marked in the register)
+_t688-divergence-drain-ratchet.py
+# owner: T-932 (G-052: the two encodings of the delegation boundary disagree)
+_t932-boundary-agreement.sh
+
+# UNSURE (5): reached by paths the census cannot follow, or a hook. One note each.
+# a PreToolUse HOOK, not a leg; dropped from .claude/settings.json by the 1.7.740 rewrite (6e0747c3); restoring it (operator runme) makes it live
+_t420-rail-attribution-gate.py
+# live via tools/_t596-arc0-exit-gate.sh (variable-held path); census blind spot
+_t596_arc0_check.py
+# live via tools/_t596-arc0-exit-gate.sh (variable-held path); census blind spot
+_t597_arc0_clauses.py
+# library nothing imports although its header requires it; self-test green 11/11; likely the consumer was the dropped warn-uncontrolled-absence hook
+_t734_absence_guard.py
+# imported by live tools (_t931-ownership.py, _t932, _t872); census misses module imports
+_t770-delegation-boundary.py

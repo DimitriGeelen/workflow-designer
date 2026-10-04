@@ -1,18 +1,13 @@
 ---
-id: T-1013
-name: "Bridge leg red: unwired-guard ratchet drifted (tools added unreported, 7 baseline
-  entries now wired)"
+id: T-1033
+name: "8 tasks awaiting Human review have no Recommendation (_norec-verify finding)"
 description: >
-  python3 tools/_t451-unwired-guard-census.py --ratchet: GREW by many new tools since
-  the baseline, SHRANK by 7. Per its rule, each new entry is a finding to triage (wire,
-  mark one-shot, or delete), not a silent re-baseline. Pre-existing (T-995 project-tooling
-  class), seen in the T-1005 bridge triage 2026-10-03.
+  Found by T-1013 running tools/_norec-verify.py on the live corpus.
 
-status: started-work
+status: captured
 workflow_type: build
-current_node: frw_3_start
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -38,13 +33,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1013` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1033` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-03T21:51:56Z
-last_update: 2026-10-04T14:07:50Z
-date_finished:
+created: 2026-10-04T14:04:18Z
+last_update: 2026-10-04T14:04:18Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -55,47 +50,20 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-04T13:53:02Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 0
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
-      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L0: no signal)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1013: Bridge leg red: unwired-guard ratchet drifted (tools added unreported, 7 baseline entries now wired)
+# T-1033: 8 tasks awaiting Human review have no Recommendation (_norec-verify finding)
 
 ## Context
 
-The bridge leg `python3 tools/_t451-unwired-guard-census.py --ratchet` fails because the unwired-guard backlog MOVED against `tools/unwired-guard-baseline.txt`. Tools were added that no gate or suite calls ("+"), and some baseline entries are now wired ("-"). The ratchet fails both ways by design (PL-004).
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] Every "+" entry is classified, one by one, with the reason recorded here: WIRE it (a guard or teeth script that should run in the bridge suite); BASELINE it (a deliberately manual tool: one-off census, CDP verifier, delivery helper); or DELETE it (dead). A guard is never baselined merely to make the leg green. All 93 are classified, with one reason each, in docs/reports/T-1013-unwired-classification.md: WIRE 60 (each run once), BASELINE 28, UNSURE 5, DELETE 0.
-  - **44 WIRE that pass were wired** into tests/run-bridge-tests.sh (T1013_GUARDS).
-  - **16 WIRE that fail** are baselined, each under a comment naming its owner. They are findings, not an amnesty: T-1035 (census of 13 hook-fix teeth), T-1033 (8 tasks lacking a Recommendation), T-1034 (deliveries unmarked in the register), T-932 (G-052).
-  - **28 manual tools and 5 unsure** are baselined with notes. `_t848-realization-check.py` left the baseline because the wired `_t848-*-tests.sh` now reaches it.
-  - **Ratchet:** baseline 105 = findings 105.
-  - **Side findings:** the 1.7.740 settings rewrite (committed in 6e0747c3) dropped two project hooks, `_t420-rail-attribution-gate.py` and `tools/hooks/warn-uncontrolled-absence.sh`; restoring them is a runme.sh for the operator.
-- [x] Every "-" entry (a baseline line that is now wired) is removed from the baseline, so the ratchet's allowlist is not stale. All 7 were verified wired before removal: 6 CDP verifiers are called by tests/run-bridge-tests.sh (and the T-817/T-818 controls); gallery-serve.py is used by 3 tests. Baseline 64 -> 57; the ratchet now reports only "GREW by 93"
-- [ ] `python3 tools/_t451-unwired-guard-census.py --ratchet` exits 0, and no other bridge leg goes red (a full run shows no failure the 168/10 run lacked)
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -121,11 +89,11 @@ The bridge leg `python3 tools/_t451-unwired-guard-census.py --ratchet` fails bec
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1013`
+         1. Run `bin/fw reviewer T-1033`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1013 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1033 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -339,7 +307,7 @@ The bridge leg `python3 tools/_t451-unwired-guard-census.py --ratchet` fails bec
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1013 go|no-go|defer --rationale "..."
+     fw inception decide T-1033 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -348,11 +316,7 @@ The bridge leg `python3 tools/_t451-unwired-guard-census.py --ratchet` fails bec
 
 ## Updates
 
-### 2026-10-03T21:51:56Z — task-created [task-create-agent]
+### 2026-10-04T14:04:18Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1013-bridge-leg-red-unwired-guard-ratchet-dri.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1033-8-tasks-awaiting-human-review-have-no-re.md
 - **Context:** Initial task creation
-
-### 2026-10-04T13:53:02Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: next → now (auto-sync)

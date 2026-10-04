@@ -2597,6 +2597,73 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1013: standing guards the unwired-guard census found with NO live caller ──
+# Each asserts a standing property of this repo and passed on 2026-10-04 when it was wired
+# (classification and per-tool reasons: docs/reports/T-1013-unwired-classification.md).
+# Listed literally so the census (tools/_t451-unwired-guard-census.py) sees each one as called.
+T1013_GUARDS=(
+  'tools/_gallery-claim-verify.py|stdlib regression test of gallery-serve /api/save claim path (temp repo, ephemeral port)'
+  'tools/_gallery-list-verify.py|regression test of /api/list (temp repo, real server)'
+  'tools/_gallery-registry-verify.py|regression test of the ghost registry twin'
+  'tools/_t1005-drift-target-clause-scoped.py|behavioural probe of the drift-gate target (T-639 re-applied, T-1023); named in the divergence register as the guard'
+  'tools/_t467-arc-tag-source-of-truth.py|teeth for fw arc tag (T-467/T-679); named in the divergence register as the guard'
+  'tools/_t573-emits-panel-shape-cdp.mjs|CDP regression: the Emits panel authors the ratified structured shape'
+  'tools/_t598-source-marker.py|static assertion: the source-end marker points forward (orient=auto)'
+  'tools/_t602-documentation-roundtrip.mjs|CDP regression: bpmn:documentation content survives open -> save'
+  'tools/_t603-multiprocess-import.mjs|CDP regression: multi-process documents keep content, loss is reported'
+  'tools/_t604-cdp-attach-race.mjs|scan: no CDP driver hand-rolls the page-target attach race'
+  'tools/_t611-review-card-steps.py|every unchecked [REVIEW] criterion renders its Steps block'
+  'tools/_t614-budget-threshold-drift.py|CLAUDE.mds budget ladder matches budget-gate.sh'
+  'tools/_t618-determinism-roundtrip-cdp.mjs|CDP regression: an authored determinism value survives a real save'
+  'tools/_t630-p011-stdin-swallow.sh|teeth: P-011 does not count commands it never ran'
+  'tools/_t644-ask-imports-survive-a-wrong-project-root.sh|teeth: lib/ask.py reaches its imports in a vendored install'
+  'tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh|teeth (security): linkify_tasks escapes prose before Markup()'
+  'tools/_t649-completing-with-uncommitted-work-warns.sh|teeth: completing with uncommitted work warns'
+  'tools/_t651-stray-root-files-are-caught.sh|teeth: the audit catches zero-byte redirect debris at the root'
+  'tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh|teeth: an archived task does not keep horizon: now'
+  'tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh|teeth: D2 splits judgement from the status flip'
+  'tools/_t658-p011-must-distinguish-killed-from-failed.sh|teeth: the P-011 runner distinguishes killed from failed'
+  'tools/_t659-retention-sweep-must-not-be-agent-staged.sh|teeth: retention-sweep deletions are not swept into agent commits'
+  'tools/_t661-mutation-count-is-a-floor.sh|teeth: the shared mutation-completeness assertion is a floor'
+  'tools/_t674-ctl012-comment-fence.py|fence: CTL-012 ignores ACs in HTML comments and still catches real ones'
+  'tools/_t675-budget-read-fence.py|fence: every arm of the budget safe-read'
+  'tools/_t683-save-containment-verify.py|security regression: /api/save write containment'
+  'tools/_t684-mutation-control.py|mutation control for the /api/save containment fence'
+  'tools/_t687-hook-function-check.py|function check for stdin-consuming PostToolUse hooks (writes .context/working/.t687-function-baseline.json)'
+  'tools/_t739-defer-is-not-a-decision.py|reproduces from the live tree that a DEFER keeps an inception on the decisions surface'
+  'tools/_t767-ownership-correspondence.sh|negative control + standing measurement: ownership follows a real Human AC'
+  'tools/_t806-corpus-sweep-guard-controls.py|regression: bake-clean-layout.py refuses unknown flags rather than rewriting the corpus'
+  'tools/_t808-version-parity.sh|standing property: APP_VERSION in src/ equals ./VERSION'
+  'tools/_t833-ctl029-partial-complete-controls.sh|controls: CTL-029 still catches what it should'
+  'tools/_t836-census-empty-split-controls.sh|controls: the carrier-shape split measures'
+  'tools/_t841-scoring-spec-controls.sh|controls: each T-841 verification leg can fail'
+  'tools/_t842-commit-exemption-spelling-regression.sh|regression pin: the commit exemptions spelling coverage'
+  'tools/_t843-absence-gate-integration.sh|integration: the absence close-gate fires and its named remedy clears it'
+  'tools/_t843-absence-gate-tests.sh|tests for the uncontrolled-absence close gate'
+  'tools/_t845-control-recogniser-tests.sh|tests for _t560s control recogniser'
+  'tools/_t848-realization-check-tests.sh|tests for the realization-ledger checker'
+  'tools/_t849-budget-zero-token-tests.sh|teeth: the zero-token hole in checkpoint.shs budget reader'
+  'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
+  'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
+  'tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
+)
+for _entry in "${T1013_GUARDS[@]}"; do
+  _tool="${_entry%%|*}"; _tool="${_tool#tools/}"; _why="${_entry#*|}"
+  case "$_tool" in
+    *.py)  _cmd=(python3 "$ROOT/tools/$_tool") ;;
+    *.sh)  _cmd=(bash "$ROOT/tools/$_tool") ;;
+    *.mjs|*.js) _cmd=(node "$ROOT/tools/$_tool") ;;
+    *) _cmd=(false) ;;
+  esac
+  if (cd "$ROOT" && timeout 600 "${_cmd[@]}") > "$TMP/leg-t1013-$_tool.out" 2>&1; then
+    pass=$((pass + 1))
+  else
+    report FAIL "standing guard $_tool failed: $_why (run '${_cmd[0]} tools/$_tool'; wired by T-1013)"
+    show_output "$TMP/leg-t1013-$_tool.out" "$_tool"
+    fail=$((fail + 1))
+  fi
+done
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception
