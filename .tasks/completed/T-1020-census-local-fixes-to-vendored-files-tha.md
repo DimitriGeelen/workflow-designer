@@ -6,17 +6,17 @@ description: >
   Inception: Census: local fixes to vendored files that were never declared — which
   ones did the re-vendors lose silently?
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_3_start
+current_node: frw_11_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-1024, T-1025, T-1026, T-1027, T-1028, T-1021]
 created: 2026-10-03T23:22:04Z
-last_update: 2026-10-04T00:27:09Z
-date_finished:
+last_update: 2026-10-04T07:54:03Z
+date_finished: 2026-10-04T07:54:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -133,15 +133,15 @@ editing vendored files; contacting AEF beyond reporting the result.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-1020` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -201,7 +201,11 @@ The census found FIVE more silently lost fixes beyond T-931's, two with live con
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1020 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Census found five local fixes the 1.7.740 re-vendor erased silently (T-939 machine-id re-published, T-908 fabric impact silent crash, T-866 GO without observable hypothesis, T-912 promote records 'task', T-914 note resolve gone). Restore each as its own build task with a probe, and send each upstream in bundle E (T-1021). Key rotation and any history rewrite for T-939 are decided separately.
+
+**Date**: 2026-10-04T07:54:02Z
 
 ## Updates
 
@@ -214,3 +218,40 @@ The census found FIVE more silently lost fixes beyond T-931's, two with live con
 ### 2026-10-04T00:11:46Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-04T07:54:02Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Census found five local fixes the 1.7.740 re-vendor erased silently (T-939 machine-id re-published, T-908 fabric impact silent crash, T-866 GO without observable hypothesis, T-912 promote records 'task', T-914 note resolve gone). Restore each as its own build task with a probe, and send each upstream in bundle E (T-1021). Key rotation and any history rewrite for T-939 are decided separately.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bccd2ec4
+- **Timestamp:** 2026-10-04T07:54:04Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-1c4dc789
+- **Timestamp:** 2026-10-04T07:54:04Z
+- **Overall:** CONFIRMED
+- **Claims:** 9
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-931` | task | ✓ pass |
+| `T-939` | task | ✓ pass |
+| `T-375` | task | ✓ pass |
+| `T-908` | task | ✓ pass |
+| `T-866` | task | ✓ pass |
+| `T-912` | task | ✓ pass |
+| `T-914` | task | ✓ pass |
+| `T-1021` | task | ✓ pass |
+| `T-1023` | task | ✓ pass |
+
+### 2026-10-04T07:54:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
