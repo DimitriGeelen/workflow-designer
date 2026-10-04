@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T08:04:59Z
-last_update: 2026-10-04T08:07:54Z
+last_update: 2026-10-04T08:08:09Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,8 +62,8 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] docs/reports/T-1029-machine-id-rotation-facts.md answers, with evidence and WITHOUT printing any secret or the machine-id: (1) what the vendored secrets store derives from the machine-id and where its files live; (2) which such files exist in 832 now (names, sizes, git-tracked or not); (3) whether any encrypted copy was ever in 832's git history and on which remotes that history is published; (4) what is NOT keyed from it (e.g. the Watchtower session key)
-- [ ] The report ends with the operator's decision framed as numbered options, each with its consequence; the agent rotates nothing and rewrites nothing
+- [x] docs/reports/T-1029-machine-id-rotation-facts.md answers, with evidence and WITHOUT printing any secret or the machine-id: (1) what the vendored secrets store derives from the machine-id and where its files live; (2) which such files exist in 832 now (names, sizes, git-tracked or not); (3) whether any encrypted copy was ever in 832's git history and on which remotes that history is published; (4) what is NOT keyed from it (e.g. the Watchtower session key) — (3) partly: pushed to OneDev 09-27..30 then purged (T-938); whether OneDev mirrored it is not preserved in T-938's text, stated as unknown
+- [x] The report ends with the operator's decision framed as numbered options, each with its consequence; the agent rotates nothing and rewrites nothing
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
