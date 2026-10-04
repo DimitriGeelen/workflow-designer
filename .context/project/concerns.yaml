@@ -4076,5 +4076,7 @@ concerns:
     unread. Those 85 included AEF''s replies to five proposals 832 sent on 10-01..03 (lesson-validation,
     revendor-protocol, runme-signal, approval-in-terminal, inception-decide-review-marker): a reader that drains once
     concludes the peer never answered. Same class as G-032 (a listing shorter than its count, silently).'
-  prevention_needed: 'The reader must either drain to the head or end with "N more pending; run again". Reported to
-    AEF (vendored code). Local mitigation until then: after any drain, check `fw sidecar inbox-stale` is 0.'
+  decision_trigger: 'Close when `fw sidecar inbox` either drains to the head of the topic or ends with "N more pending;
+    run again" (reported to AEF; vendored code).'
+  containment: 'After any drain, check `fw sidecar inbox-stale` is 0. (T-1044: these two fields replace an unread
+    `prevention_needed` field, the G-027 shape the concerns schema flags.)'

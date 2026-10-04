@@ -61,13 +61,21 @@ REGISTERS = [("learnings.yaml", "learnings"),
              ("decisions.yaml", "decisions"),
              ("patterns.yaml", None)]
 
-# Emitters that populate `application` without anyone deciding anything. Each entry is
-# (source path relative to the framework, literal that must still be present, description).
+# Emitters that COULD populate `application` without anyone deciding anything.
+# T-1044: upstream T-2901 (vendored with 1.7.740) STOPPED both emitters from writing a placeholder:
+# a new learning is born with no `application:` field, and healing resolve writes none. The risk
+# therefore INVERTED. It is no longer "the template wording moved"; it is "an emitter starts
+# writing a placeholder again", in wording RE_MACHINE/PLACEHOLDERS would not recognise, so machine
+# text would be counted as AUTHORED. Historical entries keep their old placeholders, which
+# classify() still recognises. Each entry is (source path, marker that must be present or None,
+# regex that must NOT match an uncommented line, description).
 EMITTERS = [
     (".agentic-framework/agents/context/lib/learning.sh",
-     "application: TBD", "fw context add-learning writes the placeholder"),
+     "T-2901: no `application:` placeholder at birth",
+     r"^[^#]*application:", "fw context add-learning (T-2901: writes no placeholder)"),
     (".agentic-framework/agents/healing/lib/resolve.sh",
-     "Apply when encountering similar", "healing resolve writes a slug template"),
+     None,
+     r"^[^#]*application:", "healing resolve (T-2901: writes no application field)"),
 ]
 
 PLACEHOLDERS = ("tbd", "n/a", "none", "-", "?")
@@ -105,14 +113,19 @@ def records(path, key):
 def verify_emitters():
     """Fail loudly if the literals this classifier keys on have moved."""
     bad = []
-    for rel, literal, why in EMITTERS:
+    for rel, marker, forbidden, why in EMITTERS:
         p = os.path.join(ROOT, rel)
         if not os.path.exists(p):
             bad.append("%s is missing (%s)" % (rel, why))
             continue
-        if literal not in open(p, encoding="utf-8", errors="replace").read():
-            bad.append("%s no longer contains %r (%s) — the MACHINE class may now be "
-                       "miscounted as AUTHORED" % (rel, literal, why))
+        text = open(p, encoding="utf-8", errors="replace").read()
+        if marker and marker not in text:
+            bad.append("%s no longer contains %r (%s) — the no-placeholder rule may have been "
+                       "undone" % (rel, marker, why))
+        hits = [l.strip() for l in text.splitlines() if re.match(forbidden, l)]
+        if hits:
+            bad.append("%s writes `application:` again (%s): %r — a placeholder in new wording "
+                       "would be miscounted as AUTHORED" % (rel, why, hits[0][:80]))
     return bad
 
 
