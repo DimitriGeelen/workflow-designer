@@ -2588,6 +2588,15 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-650 / T-1037: an alias is the command it aliases (fw git commit, fw fix-learned) ──
+if bash "$ROOT/tools/_t650-an-alias-is-the-command-it-aliases.sh" > "$TMP/leg-_t650-alias.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "with no task, fw git commit / fw fix-learned no longer get the verdict of git commit / fw context add-learning, or the admission widened (run 'bash tools/_t650-an-alias-is-the-command-it-aliases.sh'; T-1037)"
+  show_output "$TMP/leg-_t650-alias.out" "_t650-an-alias-is-the-command-it-aliases.sh"
+  fail=$((fail + 1))
+fi
+
 # ── T-1017: the round-trip leg counts DECLARED identities, not comment prose ──
 if python3 "$ROOT/tools/_t1017-uid-count-teeth.py" > "$TMP/leg-_t1017-uid-count.out" 2>&1; then
   pass=$((pass + 1))

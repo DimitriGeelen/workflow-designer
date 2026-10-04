@@ -915,6 +915,15 @@ _fw_single_command_is_safe() {
                     # of why it fired.
                     return 0
                     ;;
+                fix-learned)
+                    # 832 T-650 (restored by T-1037 on 1.7.740): `fw fix-learned T-XXX "text"`
+                    # IS `fw context add-learning "text" --task T-XXX --source P-001` (bin/fw's
+                    # branch execs exactly that), and add-learning is admitted above. The
+                    # completion prompt prints THIS spelling, so refusing it refuses the
+                    # framework's own advice. An allowlist of effects must not be indexed by
+                    # spelling; tools/_t650-*.sh asserts alias/target parity pairwise.
+                    return 0
+                    ;;
                 handover)
                     # T-2878: session handover is the Session End Protocol's
                     # mandatory step; it runs precisely when no task is active.
@@ -1383,7 +1392,15 @@ _fw_is_git_commit_clause() {
     seg="$(_fw_strip_quoted "$1")" || return 1
     seg="${seg#"${seg%%[![:space:]]*}"}"
     _fw_strip_env_prefixes "$seg"; seg="$_FW_ENV_STRIPPED"
-    [[ "$seg" =~ ^git[[:space:]]+commit([[:space:]]|$) ]]
+    [[ "$seg" =~ ^git[[:space:]]+commit([[:space:]]|$) ]] && return 0
+    # 832 T-650 (restored by T-1037 on 1.7.740): `fw git commit` IS `git commit` run through
+    # the git agent (which adds traceability checks, never removes any), so it is the same
+    # clause. Every guard in is_commit_checkpoint_command still applies, because they are judged
+    # on the whole line before any clause is matched. The binary must be a real fw spelling: bare
+    # `fw`, `bin/fw`, `.agentic-framework/bin/fw`, or an absolute path ending in
+    # `/.agentic-framework/bin/fw`. Any other path ending in fw is not admitted, so a planted
+    # `/tmp/x/bin/fw` is not.
+    [[ "$seg" =~ ^((\./)?bin/fw|fw|(\./)?\.agentic-framework/bin/fw|/[^[:space:]]*/\.agentic-framework/bin/fw)[[:space:]]+git[[:space:]]+commit([[:space:]]|$) ]]
 }
 
 # Remove quoted spans, tracking WHICH quote opened each one. A regex that

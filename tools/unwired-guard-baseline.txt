@@ -275,8 +275,6 @@ _t638-commit-exemption-is-clause-scoped.sh
 # owner: T-1035 (census: adopted upstream, lost, or obsolete?)
 _t639-drift-gate-reads-fixtures.sh
 # owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t650-an-alias-is-the-command-it-aliases.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
 _t654-watchdog-detections-must-be-surfaced.sh
 # owner: T-1035 (census: adopted upstream, lost, or obsolete?)
 _t662-null-focus-commit-path-must-be-discoverable.sh
@@ -286,8 +284,6 @@ _t688-divergence-drain-ratchet.py
 _t932-boundary-agreement.sh
 
 # UNSURE (5): reached by paths the census cannot follow, or a hook. One note each.
-# a PreToolUse HOOK, not a leg; dropped from .claude/settings.json by the 1.7.740 rewrite (6e0747c3); restoring it (operator runme) makes it live
-_t420-rail-attribution-gate.py
 # live via tools/_t596-arc0-exit-gate.sh (variable-held path); census blind spot
 _t596_arc0_check.py
 # live via tools/_t596-arc0-exit-gate.sh (variable-held path); census blind spot

@@ -229,6 +229,19 @@ entries:
       duplicate. Carrier mandatory and validated (a task file or an existing path) before the inbox
       is touched; only the target entry changes. Probe tools/_t1028-note-resolve-teeth.sh 7/7 (the
       verb is absent on the 1.7.740 file), bridge leg.
+  - path: .agentic-framework/agents/context/lib/safe-commands.sh
+    kind: content
+    task: T-650, T-1037
+    upstream: fix
+    reason: >-
+      T-650 (3032e3e2) re-applied by T-1037 after the T-1035 census found it lost on 1.7.740 (T-1005
+      had restored only its prose-verb half). With no active task, an alias is admitted exactly when
+      the command it aliases is: `fw fix-learned` (it execs `fw context add-learning`) joins the fw
+      no-task allowlist, and `fw git commit` (bare `fw`, `bin/fw`, `.agentic-framework/bin/fw` or an
+      absolute `/…/.agentic-framework/bin/fw`, never another path ending in fw) is the same clause as
+      `git commit` in _fw_is_git_commit_clause, so every is_commit_checkpoint_command guard
+      (substitution, --no-verify/-n, write patterns, per-clause safety) still applies. Probe
+      tools/_t650-an-alias-is-the-command-it-aliases.sh 16/16 (10/16 on the 1.7.740 file), bridge leg.
   - path: .agentic-framework/lib/arc.sh
     kind: content
     task: T-1005
