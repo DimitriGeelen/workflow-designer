@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1021: Upstream bundle E for AEF: the 5 generic T-1005 fixes and the check-active-task.sh drift-gate repair
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T12:35:54Z
+# ============================================================================
+
+task_id: T-1021
+task_name: "Upstream bundle E for AEF: the 5 generic T-1005 fixes and the check-active-task.sh drift-gate repair"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-03T23:55:14Z
+completed: 2026-10-04T12:35:46Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-04T10:51:30+02:00
+last_commit: 2026-10-04T14:35:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  scope widened to include the five T-1020 restores; ACs written. T-1020's GO now names its build tasks (related_tasks: T-1024..T-1028, T-1021) — the T-949 coverage leg flagged it as a GO with no build link; bridge 164/13 (was 153/16). bundle E built, verified and delivered to AEF — 10 patches on 914326e0 (0010 a proposal), 12 probes green on a fresh am and on an A-to-E stack; 21 parts on xfer-832-upstream-pickups, reassembly verified; notice 9bcc403a
+
+# Key outcomes
+outcomes:
+  - 'docs/upstream-pickups/E-*/ holds format-patch series (T-1009''s method: built on AEF bleeding-edge in a scratch clone) for: the T-1005 generics (BVP body-path blast radius, arc-004 estimator trio, BVP telemetry row, fw arc tag legacy-tag guard, fabric coverage ratio), the drift-gate repair (T-921/T-639/T-1023), and the T-1020 restores (T-1024 machine-id redaction — likely already done upstream by AEF T-3788 —, T-1025 fabric impact, T-1026 hypothesis gate, T-1027 promote, T-1028 resolve); each item: git am clean or a recorded reason, its probe run in the AEF tree, a MANIFEST row — DONE 2026-10-04: docs/upstream-pickups/E-t1021-revendor-restores/ holds 10 patches on 914326e0 + MANIFEST. All 10 git-am clean on a fresh clone (tree byte-identical to the build branch); 12 probes green there and on an A-to-E stack. Each item''s probe was run before and after (e.g. drift 13/18→18/18, fabric impact 0/2→2/2, arc tag 8/10→10/10, telemetry 12/14→14/14, promote 1/5→5/5, resolve 5/7→7/7; the rest refuse on the unpatched tree because the function is absent), and AEF''s own suites for each changed file were compared against an independent baseline clone. Recorded reasons: 0007 reworded to AEF''s T-2735 single-claim rule (the first wording broke 3 of their tests); 0008 without the 832-only --human-ac; 0010 (hypothesis gate) is a PROPOSAL, because it breaks 17 AEF tests whose fixtures GO without a hypothesis.'
+  - 'Delivered to AEF with reassembly verified and the sidecar notice id recorded; anything AEF already has is listed as dropped with evidence — DONE 2026-10-04: topic xfer-832-upstream-pickups offsets 14-34, 21 parts. Reassembly read back from the topic: b64 sha256 2ee5f5e7…815d1580, tar.gz b10ea2a9…a11ebfb, 10 patches. Sidecar notice 9bcc403a-151c-484c-984b-cda5524e5ad1; stacking addendum fde2bf71 and correction a4d16feb. Dropped with evidence: T-1024 machine-id redaction (AEF T-3788, @409/@434).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0001-check-active-task-the-focus-drift-target-comes-from-.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0002-fabric-traverse-plain-string-depends_on-entries-no-l.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0003-arc-tag-refuse-to-reassign-a-legacy-tag-only-task-or.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0004-bvp-estimator-blast-radius-also-reads-repo-paths-the.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0005-bvp-estimator-automatic-inception-inputs-with-sticky.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0006-bvp-confirm-a-telemetry-row-for-every-score-an-agent.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0007-audit-the-fabric-drift-line-states-coverage-and-whic.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0008-note-promote-record-the-task-id-link-back-from-the-t.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0009-note-resolve-an-already-fixed-observation-can-leave-.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/0010-PROPOSAL-not-drop-in-inception-decide-a-GO-requires-.patch'
+  - 'docs/upstream-pickups/E-t1021-revendor-restores/MANIFEST.md'
+  - 'docs/upstream-pickups/README.md'
+  - '.tasks/active/T-1021-upstream-bundle-e-for-aef-the-5-generic-.md'
+  - '.tasks/completed/T-1020-census-local-fixes-to-vendored-files-tha.md'
+  - '.tasks/completed/T-1028-restore-fw-note-resolve-for-observations.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T10:51:30'
+    action: 'T-1021: scope widened to include the five T-1020 restores; ACs written'
+  - time: '2026-10-04T11:19:34'
+    action: 'T-1021: T-1020''s GO now names its build tasks (related_tasks: T-1024..T-1028, T-1021) — the T-949 coverage leg flagged it as a GO with no build link; bridge 164/13 (was 153/16)'
+  - time: '2026-10-04T14:35:40'
+    action: 'T-1021: bundle E built, verified and delivered to AEF — 10 patches on 914326e0 (0010 a proposal), 12 probes green on a fresh am and on an A-to-E stack; 21 parts on xfer-832-upstream-pickups, reassembly verified; notice 9bcc403a'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 760 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 760
+  commits: 3
+  files_changed: 15
+  lines_added: 4936
+  lines_removed: 16
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1021-upstream-bundle-e-for-aef-the-5-generic-.md
+generated_by: context-agent-hybrid
