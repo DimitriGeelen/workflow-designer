@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1018: Bridge leg red: editor<->bridge semantic fixed point (T-490, _roundtrip-serialization-cdp.mjs)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T13:48:00Z
+# ============================================================================
+
+task_id: T-1018
+task_name: "Bridge leg red: editor<->bridge semantic fixed point (T-490, _roundtrip-serialization-cdp.mjs)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-03T21:52:18Z
+completed: 2026-10-04T13:47:51Z
+duration_days: 1
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  The CDP editor<->bridge fixed point broke, or the guard's key denominator no longer matches what the emitter projects. Pre-existing designer leg (T-995).
+
+# Key outcomes
+outcomes:
+  - 'Same cause as T-1017, shown rather than assumed: the leg''s command is `node tools/_roundtrip-serialization-cdp.mjs` (run-bridge-tests.sh:734), the harness T-1017 fixed, and its one failing clause was the same `undeclaredUid === 0` on plain-task-default-ns.bpmn'
+  - 'The leg is green: in the 2026-10-04 full run (168 passed / 10 failed, 0 new) it no longer appears among the failures, and `node tools/_roundtrip-serialization-cdp.mjs` exits 0'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 955 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 955
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1018-bridge-leg-red-editor-bridge-semantic-fi.md
+generated_by: context-agent-hybrid

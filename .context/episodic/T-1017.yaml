@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1017: Bridge leg red: round-trip serialization no longer a semantic fixed point (plain-task fixture)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T13:47:14Z
+# ============================================================================
+
+task_id: T-1017
+task_name: "Bridge leg red: round-trip serialization no longer a semantic fixed point (plain-task fixture)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-03T21:52:13Z
+completed: 2026-10-04T13:47:05Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-04T15:27:48+02:00
+last_commit: 2026-10-04T15:27:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the round-trip leg is green again — its uid count read comment prose as a declaration (the plain-task fixture's header mentions <aef:uid …/>; 6 vs 5, red since T-970); comments are stripped before counting, which also closes the twin: a comment-only uid used to PASS. Teeth 3/3, wired as a bridge leg
+
+# Key outcomes
+outcomes:
+  - 'The root cause is stated here with evidence (which key or element stops round-tripping, on which fixture, and since which change), via hypothesis-driven debugging, before any fix. See Context: H1 disproved, H2 confirmed (the comment in the fixture header was counted as a declaration), red since T-970 (891de422)'
+  - '`python3 tests/test_roundtrip_serialization.py` exits 0, by fixing the cause (product code or a fixture that is genuinely wrong), never by loosening the harness''s pass condition. Exits 0: 22/22 fixtures, declared = expected on every one. The count is STRICTER now, not looser: tools/_t1017-uid-count-teeth.py shows a removed uid and a comment-only uid are both caught (3/3), and that the pre-fix count PASSED the comment-only mutant (5 = 5). Wired as a bridge leg'
+  - 'No other bridge leg goes red: `bash tests/run-bridge-tests.sh` shows no failure that the last full run (164 passed / 13 failed) did not have. Run 2026-10-04: 168 passed / 10 failed, 0 new failures. Gone: this leg, the T-1018 leg (same harness, same cause) and the T-949 triage leg (fixed by 8820c2d4)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the round-trip leg is green again — its uid count read comment prose as a declaration (the plain-task fixture''s header mentions <aef:uid …/>; 6 vs 5, red since T-970); comments are stripped before counting, which also closes the twin: a comment-only uid used to PASS. Teeth 3/3, wired as a bridge leg'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1017-bridge-leg-red-round-trip-serialization-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_t1017-uid-count-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T15:27:48'
+    action: 'T-1017: the round-trip leg is green again — its uid count read comment prose as a declaration (the plain-task fixture''s header mentions <aef:uid …/>; 6 vs 5, red since T-970); comments are stripped before counting, which also closes the twin: a comment-only uid used to PASS. Teeth 3/3, wired as a bridge leg'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 954 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 954
+  commits: 1
+  files_changed: 4
+  lines_added: 176
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1017-bridge-leg-red-round-trip-serialization-.md
+generated_by: context-agent-hybrid

@@ -6,13 +6,13 @@ description: >
   tests/test_roundtrip_serialization.py harness exit 1. T-995 named it first among
   the designer legs because it guards the save path Evergreen's maps go through. Pre-existing.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_roundtrip-serialization-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T21:52:13Z
-last_update: 2026-10-04T13:27:48Z
-date_finished:
+last_update: 2026-10-04T13:47:05Z
+date_finished: 2026-10-04T13:47:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -94,7 +94,7 @@ The fixture has been red since T-970 added it (891de422, 2026-10-01). It is an i
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] The root cause is stated here with evidence (which key or element stops round-tripping, on which fixture, and since which change), via hypothesis-driven debugging, before any fix. See Context: H1 disproved, H2 confirmed (the comment in the fixture header was counted as a declaration), red since T-970 (891de422)
 - [x] `python3 tests/test_roundtrip_serialization.py` exits 0, by fixing the cause (product code or a fixture that is genuinely wrong), never by loosening the harness's pass condition. Exits 0: 22/22 fixtures, declared = expected on every one. The count is STRICTER now, not looser: tools/_t1017-uid-count-teeth.py shows a removed uid and a comment-only uid are both caught (3/3), and that the pre-fix count PASSED the comment-only mutant (5 = 5). Wired as a bridge leg
-- [ ] No other bridge leg goes red: `bash tests/run-bridge-tests.sh` shows no failure that the last full run (164 passed / 13 failed) did not have
+- [x] No other bridge leg goes red: `bash tests/run-bridge-tests.sh` shows no failure that the last full run (164 passed / 13 failed) did not have. Run 2026-10-04: 168 passed / 10 failed, 0 new failures. Gone: this leg, the T-1018 leg (same harness, same cause) and the T-949 triage leg (fixed by 8820c2d4)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -355,3 +355,22 @@ The fixture has been red since T-970 added it (891de422, 2026-10-01). It is an i
 ### 2026-10-04T13:23:38Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-66f84ff9
+- **Timestamp:** 2026-10-04T13:47:06Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `python3 tests/test_roundtrip_serialization.py` exits 0, by fixing the cause (product code or a fixture that is genuinely wrong), never by loosening the harness's pass condition. Exits 0: 22/22 fixtur
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_roundtrip_serialization.py in: `python3 tests/test_roundtrip_serialization.py` exits 0, by fixing the cause (product code or a fixture that is genuinely wrong), never by loosening t`
+- **AC#3 (Agent)** — No other bridge leg goes red: `bash tests/run-bridge-tests.sh` shows no failure that the last full run (164 passed / 13 failed) did not have. Run 2026-10-04: 168 passed / 10 failed, 0 new failures. Go
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: No other bridge leg goes red: `bash tests/run-bridge-tests.sh` shows no failure that the last full run (164 passed / 13 failed) did not have. Run 2026`
+
+### 2026-10-04T13:47:05Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

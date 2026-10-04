@@ -2,12 +2,14 @@
 id: T-1018
 name: "Bridge leg red: editor<->bridge semantic fixed point (T-490, _roundtrip-serialization-cdp.mjs)"
 description: >
-  The CDP editor<->bridge fixed point broke, or the guard's key denominator no longer matches what the emitter projects. Pre-existing designer leg (T-995).
+  The CDP editor<->bridge fixed point broke, or the guard's key denominator no longer
+  matches what the emitter projects. Pre-existing designer leg (T-995).
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: next
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +40,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T21:52:18Z
-last_update: 2026-10-03T21:52:18Z
-date_finished: null
+last_update: 2026-10-04T13:47:51Z
+date_finished: 2026-10-04T13:47:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +52,41 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T13:47:20Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1018: Bridge leg red: editor<->bridge semantic fixed point (T-490, _roundtrip-serialization-cdp.mjs)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The bridge leg at tests/run-bridge-tests.sh:734 ("the editor↔bridge semantic fixed point broke") runs `node tools/_roundtrip-serialization-cdp.mjs` directly. That is the SAME harness `tests/test_roundtrip_serialization.py` wraps (T-1017), so it went red for the same reason: the harness's uid count read the plain-task fixture's header-comment prose as a declaration (6 against 5). It is not an independent bug. T-1017 fixed the cause (commit after 063899ab: comments are stripped before counting).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Same cause as T-1017, shown rather than assumed: the leg's command is `node tools/_roundtrip-serialization-cdp.mjs` (run-bridge-tests.sh:734), the harness T-1017 fixed, and its one failing clause was the same `undeclaredUid === 0` on plain-task-default-ns.bpmn
+- [x] The leg is green: in the 2026-10-04 full run (168 passed / 10 failed, 0 new) it no longer appears among the failures, and `node tools/_roundtrip-serialization-cdp.mjs` exits 0
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +343,26 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1018-bridge-leg-red-editor-bridge-semantic-fi.md
 - **Context:** Initial task creation
+
+### 2026-10-04T13:47:19Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-347f1bf6
+- **Timestamp:** 2026-10-04T13:47:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Same cause as T-1017, shown rather than assumed: the leg's command is `node tools/_roundtrip-serialization-cdp.mjs` (run-bridge-tests.sh:734), the harness T-1017 fixed, and its one failing clause was 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_roundtrip-serialization-cdp.mjs in: Same cause as T-1017, shown rather than assumed: the leg's command is `node tools/_roundtrip-serialization-cdp.mjs` (run-bridge-tests.sh:734), the har`
+- **AC#2 (Agent)** — The leg is green: in the 2026-10-04 full run (168 passed / 10 failed, 0 new) it no longer appears among the failures, and `node tools/_roundtrip-serialization-cdp.mjs` exits 0
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_roundtrip-serialization-cdp.mjs in: The leg is green: in the 2026-10-04 full run (168 passed / 10 failed, 0 new) it no longer appears among the failures, and `node tools/_roundtrip-seria`
+
+### 2026-10-04T13:47:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
