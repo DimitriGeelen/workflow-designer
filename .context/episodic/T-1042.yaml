@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1042: Release immutability test (G-007) is red: release-designer.sh no longer writes the artifact in the test's throwaway repo, and the test crashes instead of reporting
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T16:47:10Z
+# ============================================================================
+
+task_id: T-1042
+task_name: "Release immutability test (G-007) is red: release-designer.sh no longer writes the artifact in the test's throwaway repo, and the test crashes instead of reporting"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T16:43:00Z
+completed: 2026-10-04T16:47:01Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-04T18:46:59+02:00
+last_commit: 2026-10-04T18:46:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release immutability test green — its throwaway repo now meets the release's T-808 parity precondition (real guard + matching APP_VERSION) and carries labelled stand-ins for the T-974 kit steps; a fixture release can never announce; a missing artifact is a named failure, never a crash (shown with a mutant); 5/5 paths, AEF pin intact
+
+# Key outcomes
+outcomes:
+  - 'Root cause stated with evidence: which change to the release script (or its preconditions) stopped it writing the artifact in the throwaway repo, and whether a REAL release is affected or only the test fixture. Two preconditions the release gained after this test was written:'
+  - 'The fix goes where the defect is: the script if a real release is broken, else the fixture provides what the script legitimately needs. The test never crashes on a missing artifact; it reports it as a failed case. Fixture only; release-designer.sh is unchanged:'
+  - '`python3 tests/test_release_immutability.py` passes all cases, including the guard cases (a mutated pinned VERSION is still refused), and no other bridge leg goes red. "OK: 5 paths pass (new-version, unchanged-idempotent, blocked-mutation, dist-untouched-on-block, bypass-overwrites); AEF pin 0.2.0 intact". Only this test file changed. Left open: the bridge leg''s message says "a pinned VERSION was mutated" for any failure; reword it when the suite is not running'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release immutability test green — its throwaway repo now meets the release''s T-808 parity precondition (real guard + matching APP_VERSION) and carries labelled stand-ins for the T-974 kit steps; a fixture release can never announce; a missing artifact is a named failure, never a crash (shown with a mutant); 5/5 paths, AEF pin intact'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1042-release-immutability-test-g-007-is-red-r.md'
+  - 'tests/test_release_immutability.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T18:46:59'
+    action: 'T-1042: release immutability test green — its throwaway repo now meets the release''s T-808 parity precondition (real guard + matching APP_VERSION) and carries labelled stand-ins for the T-974 kit steps; a fixture release can never announce; a missing artifact is a named failure, never a crash (shown with a mutant); 5/5 paths, AEF pin intact'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 2
+  lines_added: 388
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1042-release-immutability-test-g-007-is-red-r.md
+generated_by: context-agent-hybrid

@@ -4,12 +4,13 @@ name: "Release immutability test (G-007) is red: release-designer.sh no longer w
 description: >
   Release immutability test (G-007) is red: release-designer.sh no longer writes the artifact in the test's throwaway repo, and the test crashes instead of reporting
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_release_immutability.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T16:43:00Z
-last_update: 2026-10-04T16:46:59Z
-date_finished: null
+last_update: 2026-10-04T16:47:01Z
+date_finished: 2026-10-04T16:47:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -345,3 +346,20 @@ Bridge leg "release immutability guard (G-007)". `tests/test_release_immutabilit
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1042-release-immutability-test-g-007-is-red-r.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a6239cdc
+- **Timestamp:** 2026-10-04T16:47:02Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — `python3 tests/test_release_immutability.py` passes all cases, including the guard cases (a mutated pinned VERSION is still refused), and no other bridge leg goes red. "OK: 5 paths pass (new-version, 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_release_immutability.py in: `python3 tests/test_release_immutability.py` passes all cases, including the guard cases (a mutated pinned VERSION is still refused), and no other bri`
+
+### 2026-10-04T16:47:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
