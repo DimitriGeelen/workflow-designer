@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:30:57Z
-last_update: 2026-10-04T14:30:57Z
+last_update: 2026-10-04T17:58:33Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -57,6 +57,14 @@ date_finished: null
 ## Context
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+
+**Investigation 2026-10-04 evening (agent, while on T-1043). Three hypotheses tested and disproved; stopped per the 3-hypothesis rule.**
+- **REPRODUCED live:** across consecutive tool calls, `.hook-counter` loop-detect went 1135 → 1136 while `.context/working/.loop-detect.json`'s mtime did not move. No `.loop-detect.json` anywhere on the host was written in the window (`find / -name .loop-detect.json -mmin -5`), so each live call exits before saving. `.hook-failure-counter` and `.hook-crashes.log` record no loop-detect failures: the exit is rc 0.
+- **H1, the dispatcher consumes stdin: DISPROVED.** `bin/fw` hook runs `bash "$_hook_script"` with stdin inherited (telemetry is post-exit only).
+- **H2, node missing on the hook's PATH (the wrapper's silent fail-open): DISPROVED.** The Claude process (pid 131942) has /root/.nvm/.../bin and /usr/bin on PATH, both with node.
+- **H3, a large payload breaks readFileSync('/dev/stdin'): DISPROVED.** 1 KB, 100 KB and 300 KB payloads piped via `fw hook loop-detect` all advance the state.
+- **What is left:** a property of the LIVE hook process not visible from a shell: its cwd/PROJECT_ROOT resolution, its stdin type (pipe vs socket vs pty), or env (CLAUDECODE, CLAUDE_PROJECT_DIR). The JS exits 0 silently on unreadable, empty or unparseable stdin, so a diagnostic must log WHICH early exit was taken.
+- **Next step:** instrument the vendored `lib/ts/dist/loop-detect.js` early exits (write a reason line to `.context/working/.loop-detect.diag`). Ideally do it on v1.8.1 rather than 1.7.740, and send the finding upstream: a fail-open that exits 0 silently is the defect class AEF's G-050 names.
 
 ## Acceptance Criteria
 
