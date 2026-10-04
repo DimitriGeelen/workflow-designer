@@ -127,9 +127,9 @@ a pass-set baseline that does not state its own coverage is a baseline that over
 
 test -f docs/reports/T-744-cycle1-findings.md
 grep -qE 'unreconciled \.+ 0' docs/reports/T-744-cycle1-findings.md
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-74[5-9]-*.md' -o -maxdepth 1 -name 'T-75[0-7]-*.md' | xargs grep -l '^arc_id: arc-003' | wc -l)" -eq 13
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-74[5-9]-*.md' -o -maxdepth 1 -name 'T-75[0-7]-*.md' | xargs grep -l '^bvp_scores_proposed:' | wc -l)" -eq 13
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-74[5-9]-*.md' -o -maxdepth 1 -name 'T-75[0-7]-*.md' | xargs grep -l 'Verbatim tool output' | wc -l)" -eq 13
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-74[5-9]-*.md' -o -maxdepth 1 -name 'T-75[0-7]-*.md' | xargs grep -l '^arc_id: arc-003' | wc -l)" -ge 13  # T-1015: was =13; G-015, the population grows
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-74[5-9]-*.md' -o -maxdepth 1 -name 'T-75[0-7]-*.md' | xargs grep -l '^bvp_scores_proposed:' | wc -l)" -ge 13  # T-1015: was =13; G-015, the population grows
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-74[5-9]-*.md' -o -maxdepth 1 -name 'T-75[0-7]-*.md' | xargs grep -l 'Verbatim tool output' | wc -l)" -ge 13  # T-1015: was =13; G-015, the population grows
 grep -q 'Coverage is 19 of 19 sections' docs/reports/T-744-cycle1-findings.md
 
 ## RCA

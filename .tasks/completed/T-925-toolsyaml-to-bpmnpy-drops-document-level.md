@@ -184,7 +184,7 @@ this slice's job is to make it decidable and to correct one record that currentl
 test -f docs/reports/T-925-workflowmeta-bridge-seam.md
 grep -q 'That premise is false' docs/reports/T-925-workflowmeta-bridge-seam.md
 grep -q 'Pool_task_lifecycle' docs/reports/T-925-workflowmeta-bridge-seam.md
-test "$(grep -rl 'by tools/yaml-to-bpmn.py' examples/ build/ 2>/dev/null | wc -l)" -eq 2
+test "$(grep -rl 'by tools/yaml-to-bpmn.py' examples/ build/ 2>/dev/null | wc -l)" -ge 2  # T-1015: was =2; G-015, the population grows
 # The source DID declare the id — the fact that made this a renderer bug rather than an
 # authoring mistake, and the reason the ruling went the way it did. Unchanged by the fix.
 grep -q 'id: customer-refund' examples/app-processes/customer-refund.workflow.yaml

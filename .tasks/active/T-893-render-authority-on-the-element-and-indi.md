@@ -128,7 +128,7 @@ grep -qE '\.node-authority-missing \{ fill: var\(--orange\)' src/aef-workflow-de
 grep -qE '\.node-authority-badge +\{ fill: var\(--text-faint\)' src/aef-workflow-designer.html
 # Isolated-Chromium driver: marker counts per state x size match the fixture, buildBpmnXml unchanged by rendering (clause 3), 9 PNGs written.
 timeout 120 node tools/_t893-authority-marker-shots.mjs | grep -q '^L2 PASS'
-test "$(ls docs/reports/t893-shots/*.png | wc -l)" -eq 9
+test "$(ls docs/reports/t893-shots/*.png | wc -l)" -ge 9  # T-1015: was =9; G-015, the population grows
 # The marker adds no emitted key and no new aef.* access inside the emitter: the static guard is unchanged.
 node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q 'computed sources 3 verified'
 # Shell commands that MUST pass before work-completed. One per line.

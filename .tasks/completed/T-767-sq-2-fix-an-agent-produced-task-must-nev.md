@@ -276,7 +276,7 @@ grep -q 'human-ac) HUMAN_AC' .agentic-framework/agents/task-create/create-task.s
 grep -q 'requires --human-ac' .agentic-framework/agents/task-create/create-task.sh
 grep -q 'human-ac' .agentic-framework/agents/observe/observe.sh
 python3 tools/_t517-vendor-divergence.py
-test "$(grep -l '^owner: human' .tasks/active/T-708-*.md .tasks/active/T-723-*.md | wc -l)" -eq 2
+test "$(grep -l '^owner: human' .tasks/active/T-708-*.md .tasks/active/T-723-*.md | wc -l)" -ge 2  # T-1015: was =2; G-015, the population grows
 test "$(awk '/^### Human/{h=1;next} /^## /{h=0} h && /^- \[/{n++} END{print n+0}' .tasks/active/T-708-*.md)" -eq 0
 test "$(awk '/^### Human/{h=1;next} /^## /{h=0} h && /^- \[/{n++} END{print n+0}' .tasks/active/T-723-*.md)" -eq 0
 

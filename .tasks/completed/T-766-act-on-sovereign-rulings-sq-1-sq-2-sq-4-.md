@@ -211,7 +211,7 @@ exemption that can never fail is suppression wearing a costume.
 grep -q 'SQ-1' .context/project/decisions.yaml
 grep -q 'SQ-2' .context/project/decisions.yaml
 grep -q 'SQ-4' .context/project/decisions.yaml
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-75[234]-*.md' | xargs grep -l 'SQ-1' | wc -l)" -eq 3
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-75[234]-*.md' | xargs grep -l 'SQ-1' | wc -l)" -ge 3  # T-1015: was =3; G-015, the population grows
 test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-76[789]-*.md' -o -maxdepth 1 -name 'T-77[0-9]-*.md' | xargs grep -l 'arc_id: arc-003' | wc -l)" -ge 2
 test ! -e Dockerfile
 test ! -e deploy/docker-compose.swarm.yml

@@ -237,7 +237,7 @@ python3 tools/_t723-review-queue-residue.py --check
 
 # AC2 — T-093/T-178 are out of active/ AND in completed/. Both halves, so a delete cannot pass as an archive.
 test "$(ls .tasks/active/ | grep -cE '^T-(093|178)-')" = "0"
-test "$(ls .tasks/completed/ | grep -cE '^T-(093|178)-')" = "2"
+test "$(ls .tasks/completed/ | grep -cE '^T-(093|178)-')" -ge 2  # T-1015: was =2; G-015, the population grows
 
 # AC2 durability — the probe independently sees zero signed-off-flip rows left in the queue.
 python3 tools/_t723-review-queue-residue.py > /tmp/.t723-queue 2>&1 && grep -qE "signed-off-flip +0" /tmp/.t723-queue

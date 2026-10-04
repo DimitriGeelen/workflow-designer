@@ -130,7 +130,7 @@ The panel is not affected by label size; the marker size matrix is T-893's.
 
 # Isolated-Chromium driver through the REAL panel: L1 options, L2 write, L3 never re-stamps (aef bags identical, export diff confined to the lane's laneMeta), L4 pre-fills new elements only, L5 markers re-render.
 timeout 120 node tools/_t892-lane-default-cdp.mjs | grep -q '^5/5 legs passed'
-test "$(ls docs/reports/t892-shots/*.png | wc -l)" -eq 3
+test "$(ls docs/reports/t892-shots/*.png | wc -l)" -ge 3  # T-1015: was =3; G-015, the population grows
 # The select reuses the module-scope vocabulary, filtered — never a second list (property, not prose).
 grep -qF "selectField('Authoring default', lane.authoringDefault || '', ['', ...AUTHORITIES.filter(a => a !== 'none')]" src/aef-workflow-designer.html
 # Creation-time pre-fill is the only write path the default has (one site).

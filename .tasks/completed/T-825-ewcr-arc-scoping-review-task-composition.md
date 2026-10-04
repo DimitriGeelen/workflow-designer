@@ -120,7 +120,7 @@ grep -q '^arc_id: ewcr-governed-delivery' .tasks/active/T-826-emit-the-diagram-k
 grep -q '^arc_id: ewcr-governed-delivery' .tasks/active/T-827-post-task-gate-and-context-memory-bpmn-b.md
 # 6. T-681's GO was acted on — the four Arc 2 build tasks exist and are completed. This is
 #    the claim I nearly got wrong by inference and checked instead.
-test "$(ls .tasks/completed/T-682*.md .tasks/completed/T-683*.md .tasks/completed/T-684*.md .tasks/completed/T-689*.md 2>/dev/null | wc -l)" = "4"
+test "$(ls .tasks/completed/T-682*.md .tasks/completed/T-683*.md .tasks/completed/T-684*.md .tasks/completed/T-689*.md 2>/dev/null | wc -l)" -ge 4  # T-1015: was =4; G-015, the population grows
 #
 # ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
 # P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.

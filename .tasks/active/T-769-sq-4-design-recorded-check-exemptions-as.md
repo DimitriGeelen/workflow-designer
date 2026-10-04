@@ -241,7 +241,7 @@ Cases: RA-047/T-756, RA-050/T-759, RA-051/T-760. Ruling: SQ-4, recorded by T-766
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 grep -q 'SQ-4' .context/project/decisions.yaml
-! diff -q src/aef-workflow-designer.html build/gallery/designer.html >/dev/null 2>&1
+# T-1015: removed a G-015 serve-root diff carrier: it asserted nothing this task delivered (added by the adcc7785 sweep)
 
 ## RCA
 

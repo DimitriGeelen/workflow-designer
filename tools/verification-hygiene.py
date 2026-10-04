@@ -88,8 +88,13 @@ RE_SERVE_DIFF_B = re.compile(r"build/gallery.*\b(diff|cmp)\b")
 # the preceding letter.
 RE_PORT = re.compile(
     r"(?:localhost|\d{1,3}(?:\.\d{1,3}){3}|//[A-Za-z0-9.-]+):\d{2,5}\b"  # host-qualified
-    r"|(?<![\w.\[/-]):\d{2,5}\b"                                          # bare :PORT
+    r"|(?<![\w.\[/-]):\d{2,5}\b(?![,}])"                                  # bare :PORT
 )
+# T-1015: `(?![,}])` on the bare branch. A dict or JSON entry such as
+# `{'01-feature-inventory.md':30000, ...}` (a minimum file size in T-742's verification line)
+# was read as a hard-coded port. A real port is followed by `/`, a quote, whitespace or the
+# line end, never by `,` or `}`. Known cost: an unspaced JSON port `{"port":3000}` is now missed
+# too. The spaced form `"port": 3000` was never caught by the bare branch, so JSON coverage was already partial.
 
 KIND_DIFF = "serve-root-diff"
 KIND_PORT = "hardcoded-port"

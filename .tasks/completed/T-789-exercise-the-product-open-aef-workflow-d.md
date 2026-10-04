@@ -172,13 +172,13 @@ protocol is blocked to the browser tool, so all observation is through the runni
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 # ── AC1: the editor is actually served and carries the palette we observed ────
-curl -sf "http://192.168.10.107:3013/designer/app" > /dev/null
+curl -sf "$(cat .context/working/watchtower.url)/designer/app" > /dev/null
 # NOT the template's `echo "$out" | grep -q` form. Measured here: that pattern is
 # documented in this very block as "SIGPIPE-safe", and at ~1 MB it is not — grep -q
 # closes stdin on the first match and echo dies on SIGPIPE, so the gate reported
 # "killed — signal 13, exit 141" rather than a pass or a fail. Case-match instead:
 # no pipe, so no reader to close the writer's stdin. Filed as OBS-372.
-out=$(curl -sf "http://192.168.10.107:3013/designer/app" 2>&1); case "$out" in *Sovereignty*) true;; *) false;; esac
+out=$(curl -sf "$(cat .context/working/watchtower.url)/designer/app" 2>&1); case "$out" in *Sovereignty*) true;; *) false;; esac
 
 # ── AC3: no execution affordance, with POSITIVE CONTROLS on the same patterns ──
 # Legs (a) are the controls (T-560): each greps a string that IS present in the
@@ -213,7 +213,7 @@ grep -q 'document\.title' .context/inbox.yaml
 # ── AC4: the dissolved suspicion stays dissolved ──────────────────────────────
 # t293-retest-harvest genuinely carries harvest-pipeline internally. If this ever
 # stops being true, the finding I withdrew needs re-opening.
-out=$(curl -sf "http://192.168.10.107:3013/api/version?id=t293-retest-harvest&v=1" 2>&1); echo "$out" | grep -q 'Process_harvest-pipeline'
+out=$(curl -sf "$(cat .context/working/watchtower.url)/api/version?id=t293-retest-harvest&v=1" 2>&1); echo "$out" | grep -q 'Process_harvest-pipeline'
 
 # ── AC5: the findings are published where they outlive this session ───────────
 grep -q 'Superseded for the product, T-789' docs/reports/VALUE-REVIEW-repo-2026-09-21.md

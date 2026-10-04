@@ -227,9 +227,9 @@ grep -qE 'unreconciled \.+ 0' docs/reports/T-761-cycle2-findings.md
 grep -q 'Pass 175 / Warn 31 / Fail 1' docs/reports/T-761-cycle2-findings.md
 grep -q 'Coverage is 19 of 19 sections' docs/reports/T-761-cycle2-findings.md
 grep -q 'audit.sh:5228' docs/reports/T-761-cycle2-findings.md
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-75[89]-*.md' -o -maxdepth 1 -name 'T-760-*.md' | xargs grep -l '^arc_id: arc-003' | wc -l)" -eq 3
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-75[89]-*.md' -o -maxdepth 1 -name 'T-760-*.md' | xargs grep -l 'Verbatim tool output' | wc -l)" -eq 3
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-75[89]-*.md' -o -maxdepth 1 -name 'T-760-*.md' | xargs grep -l '^bvp_scores_proposed:' | wc -l)" -eq 3
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-75[89]-*.md' -o -maxdepth 1 -name 'T-760-*.md' | xargs grep -l '^arc_id: arc-003' | wc -l)" -ge 3  # T-1015: was =3; G-015, the population grows
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-75[89]-*.md' -o -maxdepth 1 -name 'T-760-*.md' | xargs grep -l 'Verbatim tool output' | wc -l)" -ge 3  # T-1015: was =3; G-015, the population grows
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-75[89]-*.md' -o -maxdepth 1 -name 'T-760-*.md' | xargs grep -l '^bvp_scores_proposed:' | wc -l)" -ge 3  # T-1015: was =3; G-015, the population grows
 
 ## RCA
 

@@ -223,7 +223,7 @@ Same root cause as RA-054/T-765 (CTL-013 evaluating completed tasks' verificatio
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 grep -q 'check latest 3' .agentic-framework/agents/audit/audit.sh
-! diff -q src/aef-workflow-designer.html build/gallery/designer.html >/dev/null 2>&1
+# T-1015: removed a G-015 serve-root diff carrier: it asserted nothing this task delivered (added by the adcc7785 sweep)
 # T-843 CONTROL: T-093 IS in completed/, so the search demonstrably finds it; the assertion
 # is only that it is not in the newest three.
 # `grep -c` not `grep -q`: with -q grep exits on the first match and closes stdin, ls

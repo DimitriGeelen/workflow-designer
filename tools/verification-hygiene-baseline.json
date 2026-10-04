@@ -1,11 +1,11 @@
 {
  "_note": "G-015 carrier baseline (T-408). Grandfathered population awaiting the operator's leg-1 ruling. A carrier NOT listed here fails the ratchet. Never hand-edit to add entries.",
  "_generated_against": {
-  "task_files": 508,
-  "files_with_verification_block": 508,
-  "executable_lines": 2073,
+  "task_files": 1040,
+  "files_with_verification_block": 1040,
+  "executable_lines": 4518,
   "serve-root-diff": 76,
-  "hardcoded-port": 12,
+  "hardcoded-port": 11,
   "population-pinned": 17
  },
  "carriers": {
@@ -437,11 +437,6 @@
     "hardcoded-port"
    ],
    "d72f728abc00ad94": [
-    "hardcoded-port"
-   ]
-  },
-  "T-293-endpoint-reconnect-drag-hand-often-fails.md": {
-   "823f233fab2b19aa": [
     "hardcoded-port"
    ]
   },

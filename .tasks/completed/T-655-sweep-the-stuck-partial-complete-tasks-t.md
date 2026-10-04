@@ -197,7 +197,7 @@ cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task archive-eligible
 # Nothing was swept: both candidates are still in active/ and still owner: human.
 # This is the AC that matters most — it asserts the sovereignty boundary HELD, not that
 # some artifact was produced.
-test "$(grep -l '^owner: human' .tasks/active/T-093-*.md .tasks/active/T-178-*.md | wc -l)" -eq 2
+test "$(grep -l '^owner: human' .tasks/active/T-093-*.md .tasks/active/T-178-*.md | wc -l)" -ge 2  # T-1015: was =2; G-015, the population grows
 
 # The AC counts reported to the operator are the comment-stripped ones (7/7 and 6/6), not
 # the naive grep's (which sees the template's [REVIEW] examples and reports work

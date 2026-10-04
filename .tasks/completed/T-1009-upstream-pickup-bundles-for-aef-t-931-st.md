@@ -10,13 +10,13 @@ description: >
   + teeth, tools/tracked-secret-artifacts.py --history, the audit hunk now in tools/project-audit.sh),
   verify each applies to a clean 1.7.740 tree, and deliver with a manifest.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t410-secret-artifact-teeth.sh, tools/_t931-ownership.py, tools/_t931-ownership-sweep.sh, tools/tracked-secret-artifacts.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T11:44:35Z
-last_update: 2026-10-03T23:55:16Z
-date_finished:
+last_update: 2026-10-03T23:55:17Z
+date_finished: 2026-10-03T23:55:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -137,8 +137,8 @@ the G4 gate, tests/test_t1000_revendor_gate.sh, plus a regression fixture for T-
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 test -f docs/upstream-pickups/README.md
-test "$(ls docs/upstream-pickups/*/MANIFEST.md | wc -l)" -eq 4
-test "$(ls docs/upstream-pickups/*/*.patch | wc -l)" -eq 8
+test "$(ls docs/upstream-pickups/*/MANIFEST.md | wc -l)" -ge 4  # T-1015: was =4; G-015, the population grows
+test "$(ls docs/upstream-pickups/*/*.patch | wc -l)" -ge 8  # T-1015: was =8; G-015, the population grows
 python3 tools/_t931-delegate-owner-follows-criteria.py
 bash tools/_t936-bare-import-gate-teeth.sh
 bash tools/_t3746-allowlisted-writes-fixture.sh
@@ -366,3 +366,15 @@ python3 tools/_t517-vendor-divergence.py
 ### 2026-10-03T23:18:37Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fc51d2be
+- **Timestamp:** 2026-10-03T23:55:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-03T23:55:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

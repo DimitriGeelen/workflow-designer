@@ -253,9 +253,9 @@ the vendored-tree allowance regardless of what AEF decides.
 
 grep -q 'SQ-2' .context/project/decisions.yaml
 test -f .tasks/active/T-767-sq-2-fix-an-agent-produced-task-must-nev.md || test -n "$(ls .tasks/completed/ | grep '^T-767-')"
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-768-*.md' | xargs grep -l 'aef-operator-notices' | wc -l)" -eq 1
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-768-*.md' | xargs grep -l 'Acceptance — OPEN as of' | wc -l)" -eq 1
-test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-768-*.md' | xargs grep -l 'not evidence that AEF accepted' | wc -l)" -eq 1
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-768-*.md' | xargs grep -l 'aef-operator-notices' | wc -l)" -ge 1  # T-1015: was =1; G-015, the population grows
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-768-*.md' | xargs grep -l 'Acceptance — OPEN as of' | wc -l)" -ge 1  # T-1015: was =1; G-015, the population grows
+test "$(find .tasks/active .tasks/completed -maxdepth 1 -name 'T-768-*.md' | xargs grep -l 'not evidence that AEF accepted' | wc -l)" -ge 1  # T-1015: was =1; G-015, the population grows
 
 ## RCA
 

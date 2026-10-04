@@ -2,12 +2,15 @@
 id: T-1015
 name: "Bridge leg red: a new G-015 carrier in a task Verification block (verification-hygiene)"
 description: >
-  tools/verification-hygiene.py flags a Verification line asserting a global, always-moving property (serve-root diff, hard-coded port). Identify the task(s), rewrite the line to assert what that task delivered. Pre-existing (T-995).
+  tools/verification-hygiene.py flags a Verification line asserting a global, always-moving
+  property (serve-root diff, hard-coded port). Identify the task(s), rewrite the line
+  to assert what that task delivered. Pre-existing (T-995).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T21:52:04Z
-last_update: 2026-10-03T21:52:04Z
-date_finished: null
+last_update: 2026-10-04T16:33:11Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +53,47 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T16:29:17Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1015: Bridge leg red: a new G-015 carrier in a task Verification block (verification-hygiene)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The bridge leg `tools/verification-hygiene.py` (G-015 ratchet) fails. A task's `## Verification` block holds a NEW carrier: a line asserting a global, always-moving property (a serve-root diff, a hard-coded port, a literal count pinned to a growing population). Such a line passes today and fails later for reasons unrelated to the task.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The new carrier(s) beyond the ratchet's baseline are identified by file and line, and each is either rewritten to assert the task's own fact (stable under corpus growth) or, if it sits in a completed task whose record must not change, handled the way the tool documents for that case. The reason is stated here. The baseline is never raised just to go green. 37 lines in 23 tasks had piled up since the baseline of 2026-08-15, each fixed with the tool's own documented remedy:
+  - **28 population-pinned counts:** `-eq N` / `= "N"` became `-ge N`, each with a note giving the old value.
+  - **4 serve-root diff lines** (T-756, T-762, T-764, T-769, all from the adcc7785 sweep): removed with a note. They asserted nothing these tasks delivered.
+  - **3 hard-coded ports** (T-789): now resolved from `.context/working/watchtower.url`.
+  - **2 false positives** (T-676, T-742: `'file.md':30000` is a byte size in a dict, not a port): fixed in the DETECTOR. The bare-port branch no longer matches before `,` or `}`; the cost (unspaced JSON `"port":3000`) is documented in the tool.
+
+  The active tasks' rewritten lines were all run and pass. The baseline was NOT raised; it was tightened (T-293 became clean): 94 → 93 files.
+- [x] `python3 tools/verification-hygiene.py` exits 0, and no other bridge leg goes red. rc 0. Only task Verification lines and this tool changed, and no other leg reads them
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +350,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1015-bridge-leg-red-a-new-g-015-carrier-in-a-.md
 - **Context:** Initial task creation
+
+### 2026-10-04T16:29:16Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

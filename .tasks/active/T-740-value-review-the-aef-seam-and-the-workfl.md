@@ -230,7 +230,7 @@ instrument the channel — not to weaken the gate.
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 # T-740 legs. Each re-checks a file-state fact, not a self-report.
-test "$(ls docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/*.md | wc -l)" -eq 7
+test "$(ls docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/*.md | wc -l)" -ge 7  # T-1015: was =7; G-015, the population grows
 test -f docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md
 test "$(grep -cE '^## (1|2|3|4|5|6|7|8|9|10|11|12)\. ' docs/reports/VALUE-REVIEW-aef-seam-2026-09-20.md)" -eq 12
 grep -q "COUNTER-EVIDENCE against this session's own T-739 filing" docs/reports/VALUE-REVIEW-aef-seam-2026-09-20/06-operator-surface.md

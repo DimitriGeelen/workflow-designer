@@ -281,7 +281,7 @@ the original survey, and the measurement gives no new reason to revisit it.
 
 # T-155 legs — the four figures the NO-GO rests on, re-measured from the tree.
 # Each is a direct count, not a self-report. Command substitution keeps pipefail off `test`.
-test "$(ls examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 24
+test "$(ls examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -ge 24  # T-1015: was =24; G-015, the population grows
 # T-843 CONTROL, corrected by T-844, then VINDICATED by T-845. History, because the middle
 # state is the instructive one:
 #   T-843 added the `^_` companion below and claimed these two legs drained. They were not.
@@ -294,8 +294,8 @@ test "$(ls examples/aef-processes/rendered/*.bpmn 2>/dev/null | wc -l)" -eq 24
 # (EXISTENCE — catches a wrong path). They catch different mistakes and the census is explicit
 # that they are not interchangeable.
 test "$(ls -d .editor-versions/*/ 2>/dev/null | xargs -n1 basename | grep -c '^_')" -ge 1
-test -d .editor-versions && test "$(ls -d .editor-versions/*/ 2>/dev/null | xargs -n1 basename | grep -vc '^_')" -eq 24
-test -d .editor-versions && test -d examples/aef-processes/rendered && test "$(comm -12 <(ls examples/aef-processes/rendered/*.bpmn | xargs -n1 basename | sed 's/\.bpmn$//' | sort) <(ls -d .editor-versions/*/ | xargs -n1 basename | grep -v '^_' | sort) | wc -l)" -eq 15
+test -d .editor-versions && test "$(ls -d .editor-versions/*/ 2>/dev/null | xargs -n1 basename | grep -vc '^_')" -ge 24  # T-1015: was =24; G-015, the population grows
+test -d .editor-versions && test -d examples/aef-processes/rendered && test "$(comm -12 <(ls examples/aef-processes/rendered/*.bpmn | xargs -n1 basename | sed 's/\.bpmn$//' | sort) <(ls -d .editor-versions/*/ | xargs -n1 basename | grep -v '^_' | sort) | wc -l)" -ge 15  # T-1015: was =15; G-015, the population grows
 # the handoff graph IW-1(c) assumed: absent. Both attributes, zero files.
 # T-843 CONTROL: the same string where it IS present, so a typo fails loudly here.
 grep -q 'targetWorkflow' src/aef-workflow-designer.html

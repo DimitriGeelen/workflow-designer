@@ -170,7 +170,7 @@ Parent finding: RA-046/T-755 (oe-daily cost localisation) — CTL-013 is the sam
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-! diff -q src/aef-workflow-designer.html build/gallery/designer.html >/dev/null 2>&1
+# T-1015: removed a G-015 serve-root diff carrier: it asserted nothing this task delivered (added by the adcc7785 sweep)
 grep -q 'CTL-013' .agentic-framework/agents/audit/audit.sh
 
 ## RCA

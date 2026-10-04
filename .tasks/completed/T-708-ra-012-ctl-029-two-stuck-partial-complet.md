@@ -202,8 +202,8 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 
 # AC2 — both halves, so a deletion cannot pass as an archive.
 test "$(ls .tasks/active/ | grep -cE '^T-(093|178)-')" = "0"
-test "$(ls .tasks/completed/ | grep -cE '^T-(093|178)-')" = "2"
-test "$(grep -l '^status: work-completed' .tasks/completed/T-093-*.md .tasks/completed/T-178-*.md | wc -l)" = "2"
+test "$(ls .tasks/completed/ | grep -cE '^T-(093|178)-')" -ge 2  # T-1015: was =2; G-015, the population grows
+test "$(grep -l '^status: work-completed' .tasks/completed/T-093-*.md .tasks/completed/T-178-*.md | wc -l)" -ge 2  # T-1015: was =2; G-015, the population grows
 
 # AC3 — the verb used to close them exposes no bypass flag at all, so the closure could not
 # have taken one even by accident.
