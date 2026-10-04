@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1039: Repair the 13 hook-fix teeth so all run green in the bridge suite (T-1035 GO)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T16:23:23Z
+# ============================================================================
+
+task_id: T-1039
+task_name: "Repair the 13 hook-fix teeth so all run green in the bridge suite (T-1035 GO)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T14:44:17Z
+completed: 2026-10-04T16:23:14Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T17:53:39+02:00
+last_commit: 2026-10-04T18:22:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the 11 stale hook-fix teeth repaired for 1.7.740 and wired — all exit 0, re-anchored mutations shown biting, no tooth lost an assertion (most gained); _t631 rewritten to assert today's human-only Tier-0 approval + named operator route; _t639 retired to _t1005; _t627 now reached via _t637; learning: worker liveness is exit_code, not tmux has-session. ACs verified — 11 teeth green and wired, ratchet green; bridge 225/11 with no new red from this change; T-1035 and T-1010 GOs linked to their build tasks (T-949 leg)
+
+# Key outcomes
+outcomes:
+  - 'Each of the 11 exits 0 on today''s tree, OR is retired, with its retirement and successor stated in its header and here. No leg is deleted or loosened merely to go green: a re-anchored mutation must still turn the tooth red when the behaviour it protects is removed. Each tooth''s mutation (or a stated equivalent negative control) is shown biting.'
+  - 'Every surviving tooth is wired into tests/run-bridge-tests.sh and removed from tools/unwired-guard-baseline.txt; retired ones are removed from the baseline with a note; `_t451 --ratchet` exits 0. All 11 are in T1039_TEETH (including retired _t639, which delegates); removed from the baseline along with _t627 (now reached via _t637); ratchet 89 = 89, rc 0'
+  - 'No other bridge leg goes red. Full run: 225 passed / 11 failed; all 11 new legs pass. One new red, and not from this change: the T-949 GO-triage leg flagged T-1035 and T-1010, whose GOs had no build link. Fixed by setting related_tasks (T-1035 → T-1037..T-1040; T-1010 → T-1041); _t949 all legs pass'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the 11 stale hook-fix teeth repaired for 1.7.740 and wired — all exit 0, re-anchored mutations shown biting, no tooth lost an assertion (most gained); _t631 rewritten to assert today''s human-only Tier-0 approval + named operator route; _t639 retired to _t1005; _t627 now reached via _t637; learning: worker liveness is exit_code, not tmux has-session'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-1039-repair-the-13-hook-fix-teeth-so-all-run-.md'
+  - '.tasks/completed/T-1010-aef-as-a-standing-design-partner-aef-own.md'
+  - '.tasks/completed/T-1035-census-13-hook-fix-teeth-t-628t-662-fail.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t628-g020-remedy-reachable.sh'
+  - 'tools/_t629-g067-remedy-reachable.sh'
+  - 'tools/_t631-tier0-approval-reachable.sh'
+  - 'tools/_t632-read-only-misclassification.sh'
+  - 'tools/_t633-shared-tmp-sinks.sh'
+  - 'tools/_t634-guard-verdict-reaches-caller.sh'
+  - 'tools/_t636-prose-verbs-vetoed-by-their-own-text.sh'
+  - 'tools/_t637-inception-coverage.sh'
+  - 'tools/_t638-commit-exemption-is-clause-scoped.sh'
+  - 'tools/_t639-drift-gate-reads-fixtures.sh'
+  - 'tools/_t654-watchdog-detections-must-be-surfaced.sh'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T17:53:39'
+    action: 'T-1039: the 11 stale hook-fix teeth repaired for 1.7.740 and wired — all exit 0, re-anchored mutations shown biting, no tooth lost an assertion (most gained); _t631 rewritten to assert today''s human-only Tier-0 approval + named operator route; _t639 retired to _t1005; _t627 now reached via _t637; learning: worker liveness is exit_code, not tmux has-session'
+  - time: '2026-10-04T18:22:52'
+    action: 'T-1039: ACs verified — 11 teeth green and wired, ratchet green; bridge 225/11 with no new red from this change; T-1035 and T-1010 GOs linked to their build tasks (T-949 leg)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 98 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 98
+  commits: 2
+  files_changed: 17
+  lines_added: 724
+  lines_removed: 678
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1039-repair-the-13-hook-fix-teeth-so-all-run-.md
+generated_by: context-agent-hybrid

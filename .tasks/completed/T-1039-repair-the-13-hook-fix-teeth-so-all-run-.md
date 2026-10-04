@@ -7,13 +7,13 @@ description: >
   the live inception population; then wire all 13 (they are baselined under T-1035/T-1013
   now) and remove them from tools/unwired-guard-baseline.txt.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t628-g020-remedy-reachable.sh, tools/_t629-g067-remedy-reachable.sh, tools/_t631-tier0-approval-reachable.sh, tools/_t632-read-only-misclassification.sh, tools/_t633-shared-tmp-sinks.sh, tools/_t634-guard-verdict-reaches-caller.sh, tools/_t636-prose-verbs-vetoed-by-their-own-text.sh, tools/_t637-inception-coverage.sh, tools/_t638-commit-exemption-is-clause-scoped.sh, tools/_t639-drift-gate-reads-fixtures.sh, tools/_t654-watchdog-detections-must-be-surfaced.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:44:17Z
-last_update: 2026-10-04T16:22:52Z
-date_finished:
+last_update: 2026-10-04T16:23:14Z
+date_finished: 2026-10-04T16:23:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -275,6 +275,17 @@ T-1035 GO. Of the 13 hook-fix teeth, `_t650` and `_t662` are green and wired (T-
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** 11 teeth for 832's hook fixes failed or reported COULD-NOT-MEASURE on 1.7.740, although T-1035 showed every protected behaviour holding (or deliberately obsolete).
+
+**Root cause:** the teeth were bound to the framework's surface, not to the behaviour they protect: mutation anchors on function names and code blocks, and exact block-message wording. Upstream's 1.7.740 rewrites renamed or moved each anchor, so the teeth lost their grip while the behaviour stayed.
+
+**Why structurally allowed:** none of these teeth ran anywhere after its own task closed (T-1013: 150 standing guards with no live caller), so their decay went unseen for weeks. A stale tooth is worse than none, because it teaches its reader that red means nothing.
+
+**Prevention:**
+- All 13 are now bridge legs, so the next upstream rename turns the suite red the day it lands.
+- The unwired-guard ratchet keeps any new tooth from going dark again.
+- The v1.8.0 upgrade will run them as part of the re-vendor protocol.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -358,3 +369,20 @@ T-1035 GO. Of the 13 hook-fix teeth, `_t650` and `_t662` are green and wired (T-
 
 ### 2026-10-04T15:29:02Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6db643bb
+- **Timestamp:** 2026-10-04T16:23:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — Every surviving tooth is wired into tests/run-bridge-tests.sh and removed from tools/unwired-guard-baseline.txt; retired ones are removed from the baseline with a note; `_t451 --ratchet` exits 0. All 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: Every surviving tooth is wired into tests/run-bridge-tests.sh and removed from tools/unwired-guard-baseline.txt; retired ones are removed from the bas`
+
+### 2026-10-04T16:23:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
