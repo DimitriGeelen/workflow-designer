@@ -15,7 +15,7 @@ tags: [arc:ewcr-governed-delivery]
 components: []
 related_tasks: []
 created: 2026-10-03T15:22:16Z
-last_update: 2026-10-03T19:07:55Z
+last_update: 2026-10-04T16:13:56Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -49,6 +49,15 @@ bvp_scores_proposed:
 ## Problem Statement
 
 <!-- What problem are we exploring? For whom? Why now? -->
+We render 24 process maps of AEF's own processes, and AEF consumes none of them (AEF 08-12 and 09-25). So today 832 draws AEF's processes FOR AEF: the wrong direction, with no owner to say a map is wrong. Meanwhile the Evergreen loop proved the mechanism that fixes this (kit, calibration, measured iterations, learning ledger, cross-vendor panel; 3 iterations, 17 findings, 10 confirmed lessons, kit 0.15.3). But Evergreen only tests conception → documented map. AEF is the only partner that can test the next step, documented map → executable contract (deterministic steps, I/O, agent fallback), which EWCR Arc-0 has lacked a concrete artefact for since 09-21.
+
+## Hypothesis
+
+<!-- Written by the agent (2026-10-04) from this task's own Problem Statement, Open Questions and Recommendation; hypothesis_source deliberately left unset: the operator sets `hypothesis_source: human` if they adopt this wording. -->
+
+We believe that AEF taking ownership of its process maps and iterating them through our authoring kit's review loop, as Evergreen does,
+we will achieve maps that AEF itself maintains and corrects, and a first map compiled toward an executable contract, giving EWCR Arc-0 its missing concrete artefact,
+We will know that we are successful when we see AEF's round 0 measured by `tools/_t989-measure-evergreen.py` on maps in AEF's own repo, at least one review-loop iteration with its findings in docs/learning-ledger.yaml, and `fw bpmn compile` on AEF's task-gate map either producing a runnable artefact or naming exactly what is missing.
 
 ## Assumptions
 
@@ -73,21 +82,21 @@ bvp_scores_proposed:
 -->
 
 - **IW-1: Will AEF take ownership of its process maps (in its repo, under its governance), so the 24 we render become their round-0 corpus?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: deferred
+  rationale: Intent is shown: AEF filed its own inception T-3774, recommended GO ("we consume none of our own 24 maps, which is backwards", sidecar @316, 2026-10-03). Its formal answer follows its compile check of task-gate.bpmn. Deferred to the first round after a GO (docs/reports/T-1010-aef-design-partner.md:79-81)
 - **IW-2: Can AEF's agent run our kit's review loop (`loop.sh --review-only`) on its maps the way Evergreen did, and is the cadence sustainable for both sides?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: deferred
+  rationale: "Can" is shown in shape. Our spike ran the loop on task-gate.bpmn (GLM-5.3): 11 findings (T-1010-spike-task-gate-review.r1.json). Cadence is NOT yet shown: codex hit its quota mid-run, and the sidecar channel needed fixes (G-082; the REPLIED receipt gap, AEF T-3804 in v1.8.1). Deferred to a measured round after a GO (report :59-77)
 - **IW-3: Does `fw bpmn compile` on a map AEF owns (task-gate first) produce a runnable artefact, or name exactly what is missing?**
   confidence: 0
-  disposition:
-  rationale:
+  disposition: deferred
+  rationale: Unmeasured. AEF said it will run the compile check of task-gate.bpmn on its side before answering Q1-Q4 (@316). This is the first concrete deliverable of the round a GO starts
 - **IW-4: Can the gap from documented map to executable contract (per-step I/O, command binding, agent fallback) be expressed as kit findings and designer features, i.e. does the Evergreen mechanism transfer without a new one?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Yes in shape, per the spike. Its 11 findings resolve into expressible gaps: (1) the source of an executable map is the implementation, not prose (a kit review-mode gap, the analogue of Evergreen's K1); (2) a structural defect the validator misses (flow out of an END and into a START; proposed ledger lesson L28); (3) no source citations on elements (a renderer/designer feature). Report :66-77
 
 ## Exploration Plan
 
@@ -133,12 +142,12 @@ Research artifact: docs/reports/T-1010-aef-design-partner.md.
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- AEF agrees to own its maps in its repo, under its governance (IW-1), and to run the kit's review loop on them (IW-2)
+- The first round is bounded: one map (task-gate) through calibrate → review → measure, plus one `fw bpmn compile` attempt (IW-3)
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- AEF declines ownership, or can only take the maps as read-only drawings; then 832 keeps drawing them, which is the problem
+- Getting to an executable contract needs a new mechanism rather than kit findings and designer features (IW-4 answered "no")
 
 ## Verification
 
