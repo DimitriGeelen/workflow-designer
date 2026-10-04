@@ -35,7 +35,8 @@ base=$(node "$GUARD" --denominators-only 2>&1); rc=$?
     && ok control_baseline_green_three_verified || bad control_baseline_green_three_verified "rc=$rc $(echo "$base" | grep summary)"
 # key is bound from the structured literals and never from metaKeys — read from the report, not asserted
 keyblock=$(echo "$base" | python3 -c "import json,sys; d=json.load(sys.stdin); print(' '.join(d['denominator']['computedSources']['key']['actual']))" 2>/dev/null)
-[[ "$keyblock" == *structList* && "$keyblock" == *structItemList* && "$keyblock" == *aggregation* && "$keyblock" != *metaKeys* ]] \
+# T-1044: T-573 (5b6931a4) moved key's first source to the module-scope STRUCT_LIST_KEYS.
+[[ "$keyblock" == *STRUCT_LIST_KEYS* && "$keyblock" == *structItemList* && "$keyblock" == *aggregation* && "$keyblock" != *metaKeys* ]] \
     && ok control_key_bound_from_structured_not_metaKeys || bad control_key_bound_from_structured_not_metaKeys "actual=$keyblock"
 # the bag is reported OPEN, not enumerated
 echo "$base" | grep -q '"k <- carriedKeys"' && ok control_bag_reported_open || bad control_bag_reported_open "$(echo "$base" | grep -A4 openSources | head -5)"
@@ -51,7 +52,7 @@ import sys
 p, which = sys.argv[1], sys.argv[2]
 s = open(p).read()
 if which == "misdeclare_key":
-    old = "    { object: 'structList' },                                  // for (const key in structList)\n    { inline: \"['aggregation', 'multiInstance', 'timer']\" },   // for (const key of [...])\n    { object: 'structItemList' },                              // for (const key in structItemList)\n"
+    old = "    { moduleObject: 'STRUCT_LIST_KEYS' },                       // for (const key in STRUCT_LIST_KEYS)\n    { inline: \"['aggregation', 'multiInstance', 'timer']\" },   // for (const key of [...])\n    { object: 'structItemList' },                              // for (const key in structItemList)\n"
     new = "    { literal: 'metaKeys' },  // MUTANT misdeclare_key\n"
 elif which == "omit_k_source":
     old = "    { bag: 'carriedKeys' },        // [...metaKeys.filter(...), ...carriedKeys].map(k => ...)\n"

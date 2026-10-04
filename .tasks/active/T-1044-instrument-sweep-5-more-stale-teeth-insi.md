@@ -1,11 +1,17 @@
 ---
 id: T-1044
-name: "Instrument sweep: 5 more stale teeth inside the _t509 leg — _t400 (schema: 1 unaccounted field), _t411 (live registers fail census rc=2), _t550 (audit finding shape moved), _t566 (note-field mutant B reddens extra legs), _t905 (control crashes)"
+name: "Instrument sweep: 5 more stale teeth inside the _t509 leg — _t400 (schema:
+  1 unaccounted field), _t411 (live registers fail census rc=2), _t550 (audit finding
+  shape moved), _t566 (note-field mutant B reddens extra legs), _t905 (control crashes)"
 description: >
-  Found by T-1043 after fixing _t826 (and T-1019's _t570/_t572): the sweep reports RAN 100, passed 92, regressed 4, dead-control 1, abstained 3. Each needs the T-1019/T-1039 treatment: decide stale tooth vs real regression, fix where the defect is, show the mutation biting. Captured reasons: /tmp sweep output in T-1043's record.
+  Found by T-1043 after fixing _t826 (and T-1019's _t570/_t572): the sweep reports
+  RAN 100, passed 92, regressed 4, dead-control 1, abstained 3. Each needs the T-1019/T-1039
+  treatment: decide stale tooth vs real regression, fix where the defect is, show
+  the mutation biting. Captured reasons: /tmp sweep output in T-1043's record.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T18:06:14Z
-last_update: 2026-10-04T18:06:14Z
-date_finished: null
+last_update: 2026-10-04T18:10:37Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,46 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T18:08:36Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1044: Instrument sweep: 5 more stale teeth inside the _t509 leg — _t400 (schema: 1 unaccounted field), _t411 (live registers fail census rc=2), _t550 (audit finding shape moved), _t566 (note-field mutant B reddens extra legs), _t905 (control crashes)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+After T-1043, the `_t509` instrument sweep reports RAN 100, passed 92, regressed 4, dead-control 1, abstained 3. The five named here:
+- `_t400`: SCHEMA FAIL, 1 field name nothing accounts for;
+- `_t411`: the live registers fail the census, rc=2;
+- `_t550`: leg 5, the live audit no longer emits the finding shape the fixtures imitate;
+- `_t566`: mutant B reddens more legs than pinned;
+- `_t905`: a control crashes with a traceback (`control_key_bound_from_structured_not_metaKeys`).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] For each of the five, it is determined with evidence whether the tooth is stale or the guarded behaviour regressed, and the fix goes where the defect is. No leg is deleted or loosened merely to go green; a re-anchored mutation is shown biting. One line per tooth here
+- [ ] Each of the five exits 0, `tools/_t509-instrument-sweep.sh` reports 0 regressed and 0 dead-control, and no other bridge leg goes red
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +352,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1044-instrument-sweep-5-more-stale-teeth-insi.md
 - **Context:** Initial task creation
+
+### 2026-10-04T18:08:36Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
