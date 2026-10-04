@@ -1,19 +1,22 @@
 ---
 id: T-1035
-name: "Census: 13 hook-fix teeth (T-628..T-662) fail or cannot measure on 1.7.740 — adopted upstream, lost silently, or obsolete?"
+name: "Census: 13 hook-fix teeth (T-628..T-662) fail or cannot measure on 1.7.740
+  — adopted upstream, lost silently, or obsolete?"
 description: >
-  Found by T-1013: never wired, so T-1020's census could not see them. Same class as T-1020. Decide per fix before the v1.8.0 upgrade.
+  Found by T-1013: never wired, so T-1020's census could not see them. Same class
+  as T-1020. Decide per fix before the v1.8.0 upgrade.
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-04T14:04:47Z
-last_update: 2026-10-04T14:04:47Z
-date_finished: null
+last_update: 2026-10-04T14:13:55Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -22,16 +25,43 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-10-04T14:12:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 2
+      F4: 2
+      F3: 2
+      F1: 2
+    rationale: D1=2 (voi:open-question~'assumption'); D2=2 
+      (voi:open-question~'assumption'); D3=2 (voi:open-question~'assumption'); 
+      D4=2 (voi:open-question~'assumption'); F-RECALL=2 
+      (voi:open-question~'assumption'); F2=2 (voi:open-question~'assumption'); 
+      F4=2 (voi:open-question~'assumption'); F3=2 
+      (voi:open-question~'assumption'); F1=2 (voi:open-question~'assumption')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1035: Census: 13 hook-fix teeth (T-628..T-662) fail or cannot measure on 1.7.740 — adopted upstream, lost silently, or obsolete?
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+T-1013 ran 13 never-wired teeth for 832's framework-hook fixes (T-628, 629, 631-634, 636-639, 650, 654, 662) on the 1.7.740 vendor. 9 fail and 4 cannot build their pre-fix mutant, because the code they target is gone. That is the T-1020 signature: local fixes erased by the re-vendor. T-1020's census nevertheless missed them. Before the v1.8.0 upgrade we must know, per fix, whether the behaviour is still delivered (adopted upstream in another form), lost, or obsolete; otherwise the next re-vendor repeats the loss. Research artifact: docs/reports/T-1035-hook-fix-census.md.
+
+## Hypothesis
+
+<!-- Written by the agent (2026-10-04), not the operator: hypothesis_source deliberately left unset. -->
+
+We believe that most of these 13 teeth fail because 832's hook fixes were erased by the 1.7.740 re-vendor, and not because the protected behaviour is gone; for some, AEF delivers the same protection in another form,
+we will achieve a per-fix verdict (adopted / lost / obsolete), each backed by evidence on today's tree, so that what is lost can be restored and declared before the v1.8.0 upgrade,
+We will know that we are successful when we see docs/reports/T-1035-hook-fix-census.md give each of the 13 tools exactly one verdict with a behavioural check run on today's tree, plus the reason T-1020's census missed them.
 
 ## Assumptions
-
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-1035 -->
 
 ## Open Questions
@@ -52,9 +82,34 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 
+- **IW-1: For each of the 13, is the protected behaviour still delivered on 1.7.740 (adopted upstream in another form), lost, or obsolete?**
+  confidence: 0
+  disposition:
+  rationale:
+- **IW-2: Why did T-1020's census (every commit touching .agentic-framework/) not flag these fixes?**
+  confidence: 0
+  disposition:
+  rationale:
+- **IW-3: For the 4 that cannot measure (_t632, _t638, _t639, _t654): is the tooth stale (superseded by a newer probe, e.g. _t639 by _t1005) or is its subject gone?**
+  confidence: 1
+  disposition:
+  rationale: _t1005's header says it "Replaces _t639, whose mutation targets a function name 1.7.740 does not have"
+
 ## Exploration Plan
 
 <!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+- **Spike A (mechanical, 30 min).** Per tool:
+  - find the fix commit(s) that touched .agentic-framework/;
+  - measure how many of its added lines survive in HEAD;
+  - record its T-1020 census row and register status.
+
+  Answers IW-2.
+- **Spike B (behavioural, 90 min).** Per tool:
+  - read what it asserts, then test that BEHAVIOUR on today's tree, independent of the tooth's mutation mechanics;
+  - verdict: ADOPTED (the behaviour holds by another route), LOST (the behaviour is broken), or OBSOLETE (the subject no longer exists or is superseded).
+
+  Answers IW-1 and IW-3.
+- Each spike's output goes to the report before the next starts. Restores happen in separate build tasks after a GO, never under this inception.
 
 ## Technical Constraints
 
@@ -135,3 +190,6 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-10-04T14:12:51Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
