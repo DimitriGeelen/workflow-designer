@@ -4,12 +4,13 @@ name: "Restore T-650: with no task, fw git commit and fw fix-learned are admitte
 description: >
   Restore T-650: with no task, fw git commit and fw fix-learned are admitted exactly as git commit and fw context add-learning are (T-1035 GO)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t842-commit-exemption-spelling-regression.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:42:49Z
-last_update: 2026-10-04T14:47:54Z
-date_finished: null
+last_update: 2026-10-04T15:15:20Z
+date_finished: 2026-10-04T15:15:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -62,10 +63,10 @@ T-1035 GO. On 1.7.740, with no active task, `fw git commit -m "T-1: x"` (also `b
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] With no task, the alias spellings are admitted exactly when their bare forms are. The admission must not widen: `fw git commit … && rm -rf x`, `fw git commit -m "$(touch f)"`, `bash -c "fw git commit …"` and `fw git commit … > out` are still refused, as their bare `git commit` forms are
-- [ ] `bash tools/_t650-an-alias-is-the-command-it-aliases.sh` passes (it was 10/16), or each remaining red leg is shown stale and re-anchored under the teeth-repair task, with the reason stated here
-- [ ] The change is declared in `.agentic-framework/.vendor-divergence.yaml`, carries a bridge leg, and is offered upstream (bundle or sidecar note)
-- [ ] No other bridge leg goes red
+- [x] With no task, the alias spellings are admitted exactly when their bare forms are. The admission must not widen: `fw git commit … && rm -rf x`, `fw git commit -m "$(touch f)"`, `bash -c "fw git commit …"` and `fw git commit … > out` are still refused, as their bare `git commit` forms are. Shown by 13 admit/refuse controls on is_commit_checkpoint_command, all as intended. They include the four named here, `-n`, `fw git push`, `fw git commitx`, `PATH=/tmp fw …`, and a planted `/tmp/x/bin/fw` (refused)
+- [x] `bash tools/_t650-an-alias-is-the-command-it-aliases.sh` passes (it was 10/16), or each remaining red leg is shown stale and re-anchored under the teeth-repair task, with the reason stated here. 16/16
+- [x] The change is declared in `.agentic-framework/.vendor-divergence.yaml`, carries a bridge leg, and is offered upstream (bundle or sidecar note). Register entry `safe-commands.sh` (T-650, T-1037); bridge leg `_t650`, removed from the unwired baseline; offered to AEF in sidecar 92e8f572 (patch bundle on v1.8.0 offered)
+- [x] No other bridge leg goes red. The full run gave 213/11 with ONE new red: `_t842`, a ratchet that pinned "fw git commit refused" as a known defect. This fix cured it, so the ratchet moved as designed. Its defect-A rows moved to must-admit invariants, plus 2 controls; 19/19 (commit 5839e90f). No other new failure
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -242,6 +243,17 @@ T-1035 GO. On 1.7.740, with no active task, `fw git commit -m "T-1: x"` (also `b
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** with no active task (the state every task completion leaves), `fw git commit` and `fw fix-learned` were refused, although the framework's own completion prompt prints exactly those spellings and their bare forms (`git commit`, `fw context add-learning`) were admitted. The agent hit this twice on 2026-10-04 while closing tasks.
+
+**Root cause:** T-650's fix had two halves in safe-commands.sh: the prose-verb list and the no-task allowlist entries. The 1.7.740 re-vendor erased both. T-1005's re-apply restored only the prose-verb half, so the verdict-deciding half stayed missing.
+
+**Why structurally allowed:** T-650's teeth (`_t650`) were never wired into any suite, so the loss ran silently. T-1020's census saw the red tooth but classed it "usability", not lost-safety, and did not restore it. The census is only as good as what runs the teeth; T-1013 found 150 unwired guards.
+
+**Prevention:**
+- `_t650` is now a bridge leg and has left the unwired baseline, so the next re-vendor that drops either half turns the suite red.
+- `_t842`'s defect-A rows are now must-admit invariants.
+- The change is declared in the divergence register, so the v1.8.0 re-vendor must re-apply it.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -322,3 +334,20 @@ T-1035 GO. On 1.7.740, with no active task, `fw git commit -m "T-1: x"` (also `b
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1037-restore-t-650-with-no-task-fw-git-commit.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fad265ee
+- **Timestamp:** 2026-10-04T15:15:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `bash tools/_t650-an-alias-is-the-command-it-aliases.sh` passes (it was 10/16), or each remaining red leg is shown stale and re-anchored under the teeth-repair task, with the reason stated here. 16/16
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t650-an-alias-is-the-command-it-aliases.sh in: `bash tools/_t650-an-alias-is-the-command-it-aliases.sh` passes (it was 10/16), or each remaining red leg is shown stale and re-anchored under the tee`
+
+### 2026-10-04T15:15:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

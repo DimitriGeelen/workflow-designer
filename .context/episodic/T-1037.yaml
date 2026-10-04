@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1037: Restore T-650: with no task, fw git commit and fw fix-learned are admitted exactly as git commit and fw context add-learning are (T-1035 GO)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T15:15:29Z
+# ============================================================================
+
+task_id: T-1037
+task_name: "Restore T-650: with no task, fw git commit and fw fix-learned are admitted exactly as git commit and fw context add-learning are (T-1035 GO)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T14:42:49Z
+completed: 2026-10-04T15:15:20Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-04T16:47:54+02:00
+last_commit: 2026-10-04T16:47:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-650 restored — with no task, fw fix-learned and fw git commit are admitted exactly as fw context add-learning and git commit are (real fw spellings only; every commit-checkpoint guard still applies); _t650 16/16 (was 10/16), 13 extra admit/refuse controls; declared, wired as a bridge leg; _t420 left the unwired baseline (its hook is live again)
+
+# Key outcomes
+outcomes:
+  - 'With no task, the alias spellings are admitted exactly when their bare forms are. The admission must not widen: `fw git commit … && rm -rf x`, `fw git commit -m "$(touch f)"`, `bash -c "fw git commit …"` and `fw git commit … > out` are still refused, as their bare `git commit` forms are. Shown by 13 admit/refuse controls on is_commit_checkpoint_command, all as intended. They include the four named here, `-n`, `fw git push`, `fw git commitx`, `PATH=/tmp fw …`, and a planted `/tmp/x/bin/fw` (refused)'
+  - '`bash tools/_t650-an-alias-is-the-command-it-aliases.sh` passes (it was 10/16), or each remaining red leg is shown stale and re-anchored under the teeth-repair task, with the reason stated here. 16/16'
+  - 'The change is declared in `.agentic-framework/.vendor-divergence.yaml`, carries a bridge leg, and is offered upstream (bundle or sidecar note). Register entry `safe-commands.sh` (T-650, T-1037); bridge leg `_t650`, removed from the unwired baseline; offered to AEF in sidecar 92e8f572 (patch bundle on v1.8.0 offered)'
+  - 'No other bridge leg goes red. The full run gave 213/11 with ONE new red: `_t842`, a ratchet that pinned "fw git commit refused" as a known defect. This fix cured it, so the ratchet moved as designed. Its defect-A rows moved to must-admit invariants, plus 2 controls; 19/19 (commit 5839e90f). No other new failure'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'T-650 restored — with no task, fw fix-learned and fw git commit are admitted exactly as fw context add-learning and git commit are (real fw spellings only; every commit-checkpoint guard still applies); _t650 16/16 (was 10/16), 13 extra admit/refuse controls; declared, wired as a bridge leg; _t420 left the unwired baseline (its hook is live again)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1037-restore-t-650-with-no-task-fw-git-commit.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T16:47:54'
+    action: 'T-1037: T-650 restored — with no task, fw fix-learned and fw git commit are admitted exactly as fw context add-learning and git commit are (real fw spellings only; every commit-checkpoint guard still applies); _t650 16/16 (was 10/16), 13 extra admit/refuse controls; declared, wired as a bridge leg; _t420 left the unwired baseline (its hook is live again)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 32 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 32
+  commits: 1
+  files_changed: 5
+  lines_added: 41
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1037-restore-t-650-with-no-task-fw-git-commit.md
+generated_by: context-agent-hybrid

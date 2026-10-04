@@ -8,13 +8,13 @@ description: >
   no cause and no way through; the register entry for T-662 is stale (0 occurrences
   in the hook).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t842-commit-exemption-spelling-regression.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:44:13Z
-last_update: 2026-10-04T15:14:19Z
-date_finished:
+last_update: 2026-10-04T15:14:52Z
+date_finished: 2026-10-04T15:14:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -88,10 +88,10 @@ T-1035 GO. On 1.7.740 the null-focus commit path works (bare `git commit`, and s
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] When a null-focus Bash command containing a commit clause is refused, the block names the specific cause that voided the commit exemption (substitution / --no-verify / write pattern / other clause) and the way through (commit on its own line). It prints only for commit lines: unrelated blocked work gets no advisory
-- [ ] `bash tools/_t662-null-focus-commit-path-must-be-discoverable.sh` passes 9/9 (was 7/9), with its mutation leg proving the advisory load-bearing
-- [ ] Declared in the divergence register, with the stale T-662 entry replaced; wired as a bridge leg; offered upstream together with T-1037
-- [ ] No other bridge leg goes red
+- [x] When a null-focus Bash command containing a commit clause is refused, the block names the specific cause that voided the commit exemption (substitution / --no-verify / write pattern / other clause) and the way through (commit on its own line). It prints only for commit lines: unrelated blocked work gets no advisory. In a null-focus sandbox through the real hook, each of the 4 causes was named correctly; an unrelated command (`python3 tools/x.py --rebuild`) got no advisory; a plain commit was admitted silently. Also in the same block: the WM-* hint now prints only where WM tasks exist (OBS-479)
+- [x] `bash tools/_t662-null-focus-commit-path-must-be-discoverable.sh` passes 9/9 (was 7/9), with its mutation leg proving the advisory load-bearing. 9/9, including "advisory absent under mutation"
+- [x] Declared in the divergence register, with the stale T-662 entry replaced; wired as a bridge leg; offered upstream together with T-1037. The stale entry was replaced (57 entries before and after); bridge leg `_t662`, removed from the unwired baseline; offered to AEF in sidecar 92e8f572
+- [x] No other bridge leg goes red. Full run 213/11: the one new red was `_t842`, caused by T-1037's fix and since updated (19/19); nothing from this change
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -351,3 +351,22 @@ T-1035 GO. On 1.7.740 the null-focus commit path works (bare `git commit`, and s
 
 ### 2026-10-04T14:48:04Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-31723631
+- **Timestamp:** 2026-10-04T15:14:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — When a null-focus Bash command containing a commit clause is refused, the block names the specific cause that voided the commit exemption (substitution / --no-verify / write pattern / other clause) an
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/x.py in: When a null-focus Bash command containing a commit clause is refused, the block names the specific cause that voided the commit exemption (substitutio`
+- **AC#2 (Agent)** — `bash tools/_t662-null-focus-commit-path-must-be-discoverable.sh` passes 9/9 (was 7/9), with its mutation leg proving the advisory load-bearing. 9/9, including "advisory absent under mutation"
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t662-null-focus-commit-path-must-be-discoverable.sh in: `bash tools/_t662-null-focus-commit-path-must-be-discoverable.sh` passes 9/9 (was 7/9), with its mutation leg proving the advisory load-bearing. 9/9, `
+
+### 2026-10-04T15:14:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

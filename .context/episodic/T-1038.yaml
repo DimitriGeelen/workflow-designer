@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1038: Restore T-662: the null-focus block names its cause and the way through (git commit / fw git commit) (T-1035 GO)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T15:15:00Z
+# ============================================================================
+
+task_id: T-1038
+task_name: "Restore T-662: the null-focus block names its cause and the way through (git commit / fw git commit) (T-1035 GO)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T14:44:13Z
+completed: 2026-10-04T15:14:52Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T16:51:36+02:00
+last_commit: 2026-10-04T17:14:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-662 restored — a refused null-focus commit line names what voided the exemption (substitution / --no-verify / write / a named clause) and the way through, only for commit lines; WM-* focus hint shown only where WM tasks exist (OBS-479); _t662 9/9 (4/9 on 1.7.740); stale register entry replaced; bridge leg. _t842's ratchet moved because T-1037 fixed its defect A — the 4 mandated fw git commit spellings move from known-defects to must-admit invariants, plus 2 controls (planted fw refused; --no-verify still voids); expected defects 5 -> 1 (defect B, timeout + git commit, still open upstream); 19/19
+
+# Key outcomes
+outcomes:
+  - 'When a null-focus Bash command containing a commit clause is refused, the block names the specific cause that voided the commit exemption (substitution / --no-verify / write pattern / other clause) and the way through (commit on its own line). It prints only for commit lines: unrelated blocked work gets no advisory. In a null-focus sandbox through the real hook, each of the 4 causes was named correctly; an unrelated command (`python3 tools/x.py --rebuild`) got no advisory; a plain commit was admitted silently. Also in the same block: the WM-* hint now prints only where WM tasks exist (OBS-479)'
+  - '`bash tools/_t662-null-focus-commit-path-must-be-discoverable.sh` passes 9/9 (was 7/9), with its mutation leg proving the advisory load-bearing. 9/9, including "advisory absent under mutation"'
+  - 'Declared in the divergence register, with the stale T-662 entry replaced; wired as a bridge leg; offered upstream together with T-1037. The stale entry was replaced (57 entries before and after); bridge leg `_t662`, removed from the unwired baseline; offered to AEF in sidecar 92e8f572'
+  - 'No other bridge leg goes red. Full run 213/11: the one new red was `_t842`, caused by T-1037''s fix and since updated (19/19); nothing from this change'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '_t842''s ratchet moved because T-1037 fixed its defect A — the 4 mandated fw git commit spellings move from known-defects to must-admit invariants, plus 2 controls (planted fw refused; --no-verify still voids); expected defects 5 -> 1 (defect B, timeout + git commit, still open upstream); 19/19'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1038-restore-t-662-the-null-focus-block-names.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t842-commit-exemption-spelling-regression.sh'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T16:51:36'
+    action: 'T-1038: T-662 restored — a refused null-focus commit line names what voided the exemption (substitution / --no-verify / write / a named clause) and the way through, only for commit lines; WM-* focus hint shown only where WM tasks exist (OBS-479); _t662 9/9 (4/9 on 1.7.740); stale register entry replaced; bridge leg'
+  - time: '2026-10-04T17:14:19'
+    action: 'T-1038: _t842''s ratchet moved because T-1037 fixed its defect A — the 4 mandated fw git commit spellings move from known-defects to must-admit invariants, plus 2 controls (planted fw refused; --no-verify still voids); expected defects 5 -> 1 (defect B, timeout + git commit, still open upstream); 19/19'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 30 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 30
+  commits: 2
+  files_changed: 6
+  lines_added: 124
+  lines_removed: 50
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1038-restore-t-662-the-null-focus-block-names.md
+generated_by: context-agent-hybrid
