@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T00:21:06Z
-last_update: 2026-10-04T00:22:26Z
+last_update: 2026-10-04T00:22:46Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,8 +62,8 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `_fw_extract_drift_target` returns T-12 for `fw git commit -m "T-12: x"` and for `.agentic-framework/bin/fw git commit -m "T-12: x"`, while `fw note "... fw task update T-9 ..."` still returns nothing
-- [ ] Both commit forms are rows in tools/_t1005-drift-target-clause-scoped.py (red before the fix), and _t921 stays 21/21
+- [x] `_fw_extract_drift_target` returns T-12 for `fw git commit -m "T-12: x"` and for `.agentic-framework/bin/fw git commit -m "T-12: x"`, while `fw note "... fw task update T-9 ..."` still returns nothing
+- [x] Both commit forms are rows in tools/_t1005-drift-target-clause-scoped.py (red before the fix), and _t921 stays 21/21 — 15/18 -> 18/18 (commit 0b9a3ec7)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
