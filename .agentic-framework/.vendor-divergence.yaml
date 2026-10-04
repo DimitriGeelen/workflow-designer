@@ -250,7 +250,7 @@ entries:
     task: T-650, T-1037
     upstream: fix
     delivered: reported
-    delivered_ref: "described and offered in sidecar 92e8f572 (2026-10-04); patch bundle offered on v1.8.0"
+    delivered_ref: "bundle F (T-1040) on v1.8.0, offsets 35-38 of xfer-832-upstream-pickups, notice b343b22d; AEF asked for it (@499) for their T-3814"
     reason: >-
       T-650 (3032e3e2) re-applied by T-1037 after the T-1035 census found it lost on 1.7.740 (T-1005
       had restored only its prose-verb half). With no active task, an alias is admitted exactly when
@@ -1028,7 +1028,7 @@ entries:
     task: T-662, T-1038
     upstream: fix
     delivered: reported
-    delivered_ref: "described and offered in sidecar 92e8f572 (2026-10-04); patch bundle offered on v1.8.0"
+    delivered_ref: "bundle F (T-1040) on v1.8.0, offsets 35-38 of xfer-832-upstream-pickups, notice b343b22d; AEF asked for it (@499) for their T-3814"
     reason: >-
       T-662 (72588583) re-applied by T-1038 after the T-1035 census found its advisory gone from
       the 1.7.740 hook (the old entry here described code that no longer existed). With no focus,

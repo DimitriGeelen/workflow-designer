@@ -1,0 +1,256 @@
+From 5480f0ff02be2ef93fcbc2f7bbc2d022ed838adf Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 18:02:22 +0200
+Subject: [PATCH 2/2] check-active-task: a refused null-focus commit line names
+ its cause and the way through (from 832 T-662/T-1038; AEF T-3814)
+
+With no focus, a commit line IS admitted (T-2054/T-3221, and with the previous commit fw git
+commit too). When one is refused anyway, the agent saw only "No active task" and read it as a
+deadlock, then reached for a borrowed focus or a Tier-2 bypass. The block now says WHICH part of
+the line voided the exemption, in the predicate's own order: a $(...) or backtick substitution,
+--no-verify/-n, a redirect or write, or the named clause that is not admissible with no task. It
+also names the way through: the commit on its own line. It prints only for a line that contains a
+commit clause (PL-299). Same block: the WM-001/002/003 hint prints only when WM-* tasks exist;
+without them `fw context focus WM-002` exits 1 with no message. Permissions are unchanged.
+Probe: tests/unit/test_t1040_null_focus_commit_discoverable.sh. On v1.8.0: 4/9. After: 9/9,
+including a mutation leg that removes the advisory and must go red.
+Unchanged before and after: the same 10 suites as the previous commit.
+---
+ agents/context/check-active-task.sh           |  55 ++++++-
+ ...st_t1040_null_focus_commit_discoverable.sh | 151 ++++++++++++++++++
+ 2 files changed, 203 insertions(+), 3 deletions(-)
+ create mode 100755 tests/unit/test_t1040_null_focus_commit_discoverable.sh
+
+diff --git a/agents/context/check-active-task.sh b/agents/context/check-active-task.sh
+index eddb0ae32..304e57d3f 100755
+--- a/agents/context/check-active-task.sh
++++ b/agents/context/check-active-task.sh
+@@ -316,6 +316,50 @@ fi
+ # the whole command. Widening it would admit `fw work-on X > .claude/settings.json`.
+ # The bug is that six sites advertise a remedy without its precondition. This
+ # emits the precondition; permissions are unchanged.
++
++# 832 T-662 (restored by T-1038 on 1.7.740): committing a just-completed task is NOT blocked
++# with no focus. is_commit_checkpoint_command admits a commit line (T-2054/T-3221, and since
++# 832 T-1037 `fw git commit`), so when such a line is refused it is because something else on it
++# voided that exemption. Say which, or the agent reads it as a deadlock and reaches for a
++# borrowed focus or a Tier-2 bypass (what happened at T-643). Prints ONLY for a line that
++# contains a commit clause (PL-299: an advisory on every block carries no information).
++# Diagnosis mirrors the predicate's own order. Permissions are unchanged.
++_null_focus_commit_advisory() {
++    local cmd="${1:-}" seg why="" bad=""
++    [ -n "$cmd" ] || return 0
++    type _fw_is_git_commit_clause &>/dev/null || return 0
++    local -a segs=()
++    while IFS= read -r -d '' seg; do segs+=("$seg"); done < <(_fw_chain_split "$cmd" 2>/dev/null)
++    local has_commit=0
++    for seg in "${segs[@]}"; do _fw_is_git_commit_clause "$seg" && has_commit=1; done
++    [ "$has_commit" -eq 1 ] || return 0
++    local view; view="$(_fw_strip_quoted "$cmd" 2>/dev/null)" || view="$cmd"
++    case "$cmd" in
++        *'$('*|*'`'*) why="a \$(...) or \`...\` substitution sharing the line with the commit: its contents count as another clause (T-638)" ;;
++    esac
++    if [ -z "$why" ] && [[ "$cmd" =~ (^|[[:space:]])(--no-verify|-n)([[:space:]]|$) ]]; then
++        why="--no-verify (or -n): it skips the commit-msg hook that makes the no-focus exemption sound"
++    fi
++    if [ -z "$why" ] && type has_bash_write_pattern &>/dev/null && has_bash_write_pattern "$view"; then
++        why="a redirect or other write on the same line as the commit"
++    fi
++    if [ -z "$why" ]; then
++        for seg in "${segs[@]}"; do
++            [[ "$seg" =~ ^[[:space:]]*$ ]] && continue
++            _fw_is_git_commit_clause "$seg" && continue
++            _fw_single_command_is_safe "$seg" 2>/dev/null || bad="${bad:+$bad, }'${seg#"${seg%%[![:space:]]*}"}'"
++        done
++        [ -n "$bad" ] && why="a clause beside the commit that is not admissible with no task: ${bad:0:160}"
++    fi
++    [ -n "$why" ] || return 0
++    echo "" >&2
++    echo "Committing a just-completed task is NOT blocked, even with no focus (T-2054)." >&2
++    echo "What blocks this line is $why." >&2
++    echo "Put the commit on its own line:" >&2
++    echo "     git add <explicit paths>" >&2
++    echo "     $(_fw_cmd) git commit -m \"T-XXX: ...\"" >&2
++}
++
+ _bootstrap_shape_hint() {
+     local cmd="${1:-}"
+     [ -n "$cmd" ] || return 0
+@@ -647,9 +691,14 @@ if [ -z "$CURRENT_TASK" ]; then
+     echo "To unblock:" >&2
+     echo "  1. Create a task:  $(_fw_cmd) task create --name '...' --type build --start" >&2
+     echo "  2. Set focus:      $(_fw_cmd) context focus T-XXX" >&2
+-    echo "  3. Workflow work?  $(_fw_cmd) context focus WM-001   (selection/discovery)" >&2
+-    echo "                     $(_fw_cmd) context focus WM-002   (close-out, trailing work)" >&2
+-    echo "                     $(_fw_cmd) context focus WM-003   (session lifecycle)" >&2
++    # 832 OBS-479 (T-1038): offer the WM-* workflow tasks only where they exist. Without them
++    # `fw context focus WM-002` exits 1 silently, so the advice is a dead end.
++    if ls "$PROJECT_ROOT"/.tasks/active/WM-0*.md >/dev/null 2>&1; then
++        echo "  3. Workflow work?  $(_fw_cmd) context focus WM-001   (selection/discovery)" >&2
++        echo "                     $(_fw_cmd) context focus WM-002   (close-out, trailing work)" >&2
++        echo "                     $(_fw_cmd) context focus WM-003   (session lifecycle)" >&2
++    fi
++    _null_focus_commit_advisory "${BASH_CMD:-}"
+     _bootstrap_shape_hint "${BASH_CMD:-}"
+     echo "" >&2
+     echo "$(_blocked_subject)" >&2
+diff --git a/tests/unit/test_t1040_null_focus_commit_discoverable.sh b/tests/unit/test_t1040_null_focus_commit_discoverable.sh
+new file mode 100755
+index 000000000..939916c0e
+--- /dev/null
++++ b/tests/unit/test_t1040_null_focus_commit_discoverable.sh
+@@ -0,0 +1,151 @@
++#!/usr/bin/env bash
++# T-662 — under NULL focus the post-completion commit path must (a) still work as two
++# separate commands and (b) be NAMED in the block message when someone tries it as one.
++#
++# G-047 recorded this as "jointly unsatisfiable" on the strength of a block message that
++# never mentioned the way through. The gap was a discoverability defect wearing an
++# impossibility's clothes, so the thing under test here is the MESSAGE as much as the gate.
++#
++# Runs the real hook against a null-focus fixture. Never edits this repo's focus.yaml.
++#
++# Exit 0 = all legs pass. Exit 3 = could not measure.
++
++set -uo pipefail
++
++PROJ="${T662_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
++# the framework repo itself (FRAMEWORK.md at root), else a vendored consumer
++if [ -f "$PROJ/FRAMEWORK.md" ]; then FW_HOME="$PROJ"; else FW_HOME="$PROJ/.agentic-framework"; fi
++HOOK="$FW_HOME/agents/context/check-active-task.sh"
++
++PASS=0; FAIL=0
++ok()  { PASS=$((PASS+1)); echo "  PASS  $1"; }
++bad() { FAIL=$((FAIL+1)); echo "  FAIL  $1"; }
++
++[ -f "$HOOK" ] || { echo "COULD-NOT-MEASURE: $HOOK not found" >&2; exit 3; }
++
++TMP="$(mktemp -d)"
++trap 'rm -rf "$TMP"' EXIT INT TERM
++
++echo "=== T-662: the null-focus commit path must work AND be discoverable ==="
++echo
++
++# A project root whose focus.yaml is null — the state `--status work-completed` leaves.
++ROOT="$TMP/proj"
++mkdir -p "$ROOT/.context/working" "$ROOT/.tasks/active"
++printf '%s\n' '# Working Memory - Current Focus' 'current_task: null' 'priorities: []' \
++    > "$ROOT/.context/working/focus.yaml"
++
++# The hook reads a JSON envelope on STDIN (check-active-task.sh:9,36-37) and re-anchors
++# PROJECT_ROOT from the envelope's own `cwd` (T-2463). Passing env vars instead produces a
++# uniform "No active task" for every input, which reads exactly like the gap being real —
++# the first draft of this prober "confirmed" G-047 that way.
++envelope() {
++    python3 -c '
++import json, sys
++print(json.dumps({"tool_name": "Bash",
++                  "tool_input": {"command": sys.argv[1]},
++                  "cwd": sys.argv[2]}))' "$1" "$ROOT"
++}
++
++# run <command> [hook] -> "rc<n>|<stderr>"
++run() {
++    local out rc
++    out=$( cd "$ROOT" && envelope "$1" | PROJECT_ROOT="$ROOT" CLAUDECODE=1 bash "${2:-$HOOK}" 2>&1 )
++    rc=$?
++    printf 'rc%s|%s' "$rc" "$out"
++}
++
++ADD='git add .tasks/completed/T-999-x.md .context/episodic/T-999.yaml'
++COMMIT='fw git commit -m "T-999: completed"'
++COMPOUND="$ADD; $COMMIT"
++
++# ---------------------------------------------------------------------------
++# The two legs G-047 clause (d) says are impossible. If either blocks, the gap's
++# original text was right and this task's premise is wrong — which is a finding, not
++# a failure to paper over.
++echo "--- the two-command path is admitted under null focus"
++R=$(run "$ADD")
++case "$R" in
++    rc0*) ok "git add admitted with no focus (clause (d) said it was refused)" ;;
++    *)    bad "git add BLOCKED — G-047 clause (d) was right after all: ${R:0:160}" ;;
++esac
++
++R=$(run "$COMMIT")
++case "$R" in
++    rc0*) ok "fw git commit admitted with no focus (T-2054 exemption)" ;;
++    *)    bad "commit BLOCKED — the post-completion path really is closed: ${R:0:160}" ;;
++esac
++
++# ---------------------------------------------------------------------------
++# The first draft of this prober asserted "add and commit cannot share a line". They can —
++# the leg failed and the claim was wrong, not the gate. What actually defeats the T-2054
++# exemption is a $(...) on the commit's line. Keeping both directions so the message can
++# never drift back to the wrong explanation.
++echo "--- add and commit MAY share a line; a \$(...) beside the commit may not"
++R=$(run "$COMPOUND")
++case "$R" in
++    rc0*) ok "git add + fw git commit on one line is admitted (the obvious guess is wrong)" ;;
++    *)    bad "add+commit compound refused — the advisory's premise is wrong: ${R:0:160}" ;;
++esac
++
++R=$(run 'echo hi; fw git commit -m "T-1: c"')
++case "$R" in
++    rc0*) ok "a plain extra clause beside the commit is admitted" ;;
++    *)    bad "plain compound refused, so the blocker is not the substitution: ${R:0:160}" ;;
++esac
++
++SUBST='echo "n=$(wc -l < f)"; fw git commit -m "T-1: c"'
++R=$(run "$SUBST")
++if [ "${R%%|*}" = "rc0" ]; then
++    bad "the \$(...) compound was ADMITTED — the rule the advisory states is not the real one"
++else
++    ok "a \$(...) sharing the commit's line is refused (T-638 per-clause)"
++    # Control: the SAME substitution without a commit clause must be allowed, or the
++    # blocker is the substitution alone and the advisory names the wrong cause.
++    R2=$(run 'echo "n=$(wc -l < f)"; git add y.md')
++    case "$R2" in
++        rc0*) ok "control: the same \$(...) is fine without a commit — the pairing is the cause" ;;
++        *)    bad "control failed: \$(...) blocks on its own, so the advisory misattributes it" ;;
++    esac
++    if printf '%s' "$R" | grep -q 'substitution sharing the line'; then
++        ok "the refusal names the actual cause and the way through"
++    else
++        bad "refusal does not name the cause — this is the whole defect: ${R:0:200}"
++    fi
++fi
++
++# ---------------------------------------------------------------------------
++# PL-299: the advisory must be CONDITIONAL. If it prints on every null-focus block it
++# carries no information, and a leg asserting its presence would pass on any message.
++echo "--- the advisory does not print on unrelated blocked work"
++R=$(run 'python3 tools/some-script.py --rebuild')
++if [ "${R%%|*}" = "rc0" ]; then
++    bad "PRECONDITION FAILED — unrelated work was admitted, so its silence proves nothing"
++elif printf '%s' "$R" | grep -q 'substitution sharing the line'; then
++    bad "advisory printed on unrelated work — it is decoration, not a signal"
++else
++    ok "advisory is specific to git add/commit, and that block still fires"
++fi
++
++# ---------------------------------------------------------------------------
++echo "--- teeth: remove the advisory and the discoverability leg must go red"
++MUT="$TMP/hook-mutant.sh"
++sed 's|substitution sharing the line with the commit:|REMOVED BY MUTATION|' "$HOOK" > "$MUT"
++# Pattern is the ECHO's exact wording, not the bare phrase: the explanatory comment above
++# the advisory contains the phrase too, and matching both reports MUTATION INCOMPLETE for a
++# mutation that did precisely what it should. The anchor must be as narrow as the sed.
++if ! MSG=$(bash -c '. "'"$PROJ"'/tests/unit/_t1040_mutation_assert.sh"; assert_mutation_complete "$1" "$2" "$3" advisory' \
++             _ "$HOOK" "$MUT" 'substitution sharing the line with the commit:'); then
++    bad "$MSG"
++else
++    R=$(run "$SUBST" "$MUT")
++    if printf '%s' "$R" | grep -q 'substitution sharing the line'; then
++        bad "mutant still prints the advisory; the leg above cannot fail and proves nothing"
++    else
++        ok "advisory absent under mutation — the discoverability leg is load-bearing"
++    fi
++fi
++
++echo
++echo "=== $PASS passed, $FAIL failed ==="
++[ "$FAIL" -eq 0 ]
+-- 
+2.43.0
+

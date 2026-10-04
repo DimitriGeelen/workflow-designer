@@ -10,6 +10,7 @@ These are `git format-patch` series, each verified on 2026-10-04 to `git am` cle
 | [D: allowlisted reads that write (security)](D-t3746-allowlisted-writes/MANIFEST.md) | T-3746 | 1 | write/read matrix 21/21 (10/21 unpatched); your 8 safe-commands bats suites unchanged |
 | [E: fixes lost or re-applied across the 1.7.740 re-vendor](E-t1021-revendor-restores/MANIFEST.md) (832 T-1021, delivered 2026-10-04) | T-3817 (with A-D) | 10 (0010 is a proposal) | 12 probes green on the am-applied tree; your suites unchanged for 0001-0009; 0010 breaks 17 of your tests by design |
 
+| [F: null-focus aliases and a block that says why](F-t3814-null-focus-aliases/MANIFEST.md) (832 T-1037/T-1038, delivered 2026-10-04, built on **v1.8.0**) | T-3814 | 2 (apply after D) | alias 16/16 with D (15/16 without); null-focus 9/9; your gate suites unchanged |
 **Apply one bundle:** `git am <dir>/*.patch` from your repository root.
 
 **Defects in 832's own code found while building these** (all fixed here and in the bundles):

@@ -1,0 +1,378 @@
+From b839e3eae252e8ab28a52e5480551a12aa41b91a Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 18:02:22 +0200
+Subject: [PATCH 1/2] =?UTF-8?q?safe-commands:=20with=20no=20task,=20an=20a?=
+ =?UTF-8?q?lias=20gets=20its=20target's=20verdict=20=E2=80=94=20fw=20fix-l?=
+ =?UTF-8?q?earned,=20fw=20git=20commit=20(from=20832=20T-650/T-1037;=20AEF?=
+ =?UTF-8?q?=20T-3814)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The completion prompt prints `fw fix-learned T-XXX "..."` and `fw git commit -m "..."`, and with
+no active task (the state every completion leaves) the gate refused both, while their targets,
+`fw context add-learning` and bare `git commit`, are admitted. An allowlist of effects must not be
+indexed by spelling.
+- `fix-learned` joins the fw no-task allowlist (bin/fw execs `context add-learning` for it).
+- `_fw_is_git_commit_clause` treats `fw git commit` as `git commit`, for the real fw spellings only:
+  `fw`, `bin/fw`, `.agentic-framework/bin/fw`, an absolute `.../.agentic-framework/bin/fw`. A planted
+  `/tmp/x/bin/fw` is refused. Every is_commit_checkpoint_command guard still applies
+  (substitution, --no-verify/-n, write patterns, per-clause safety).
+Probe: tests/unit/test_t1040_alias_is_its_target.sh (+ _t1040_mutation_assert.sh). On v1.8.0: 10/16.
+On v1.8.0 + bundle D: 16/16 after this commit; without D it is 15/16, because the prose-argument
+leg needs D's _sc_is_framework_prose_verb. Apply after bundle D.
+Unchanged before and after (v1.8.0 + D as the baseline): check_active_task.bats,
+test_pretooluse_gates.bats (6, 12 fail on both), context_safe_commands.bats (42 fails on both),
+and 7 more safe-commands suites (all ok).
+---
+ agents/context/lib/safe-commands.sh          |  19 +-
+ tests/unit/_t1040_mutation_assert.sh         |  77 +++++++
+ tests/unit/test_t1040_alias_is_its_target.sh | 215 +++++++++++++++++++
+ 3 files changed, 310 insertions(+), 1 deletion(-)
+ create mode 100755 tests/unit/_t1040_mutation_assert.sh
+ create mode 100755 tests/unit/test_t1040_alias_is_its_target.sh
+
+diff --git a/agents/context/lib/safe-commands.sh b/agents/context/lib/safe-commands.sh
+index c302d0604..f3e00f0fa 100644
+--- a/agents/context/lib/safe-commands.sh
++++ b/agents/context/lib/safe-commands.sh
+@@ -915,6 +915,15 @@ _fw_single_command_is_safe() {
+                     # of why it fired.
+                     return 0
+                     ;;
++                fix-learned)
++                    # 832 T-650 (restored by T-1037 on 1.7.740): `fw fix-learned T-XXX "text"`
++                    # IS `fw context add-learning "text" --task T-XXX --source P-001` (bin/fw's
++                    # branch execs exactly that), and add-learning is admitted above. The
++                    # completion prompt prints THIS spelling, so refusing it refuses the
++                    # framework's own advice. An allowlist of effects must not be indexed by
++                    # spelling; tools/_t650-*.sh asserts alias/target parity pairwise.
++                    return 0
++                    ;;
+                 handover)
+                     # T-2878: session handover is the Session End Protocol's
+                     # mandatory step; it runs precisely when no task is active.
+@@ -1383,7 +1392,15 @@ _fw_is_git_commit_clause() {
+     seg="$(_fw_strip_quoted "$1")" || return 1
+     seg="${seg#"${seg%%[![:space:]]*}"}"
+     _fw_strip_env_prefixes "$seg"; seg="$_FW_ENV_STRIPPED"
+-    [[ "$seg" =~ ^git[[:space:]]+commit([[:space:]]|$) ]]
++    [[ "$seg" =~ ^git[[:space:]]+commit([[:space:]]|$) ]] && return 0
++    # 832 T-650 (restored by T-1037 on 1.7.740): `fw git commit` IS `git commit` run through
++    # the git agent (which adds traceability checks, never removes any), so it is the same
++    # clause. Every guard in is_commit_checkpoint_command still applies, because they are judged
++    # on the whole line before any clause is matched. The binary must be a real fw spelling: bare
++    # `fw`, `bin/fw`, `.agentic-framework/bin/fw`, or an absolute path ending in
++    # `/.agentic-framework/bin/fw`. Any other path ending in fw is not admitted, so a planted
++    # `/tmp/x/bin/fw` is not.
++    [[ "$seg" =~ ^((\./)?bin/fw|fw|(\./)?\.agentic-framework/bin/fw|/[^[:space:]]*/\.agentic-framework/bin/fw)[[:space:]]+git[[:space:]]+commit([[:space:]]|$) ]]
+ }
+ 
+ # Remove quoted spans, tracking WHICH quote opened each one. A regex that
+diff --git a/tests/unit/_t1040_mutation_assert.sh b/tests/unit/_t1040_mutation_assert.sh
+new file mode 100755
+index 000000000..011deafe9
+--- /dev/null
++++ b/tests/unit/_t1040_mutation_assert.sh
+@@ -0,0 +1,77 @@
++#!/usr/bin/env bash
++# Shared mutation-completeness assertion for the tools/_t*.sh prober family.
++#
++# WHY THIS EXISTS (T-661, from 999-AEF at rail @897).
++#
++# Every mutation leg in this repo asserted its mutation had landed by counting the
++# SUBSTITUTED marker and pinning that count to an exact number:
++#
++#     MUTATED=$(grep -c 'if false; then' "$MUT")
++#     if [ "$MUTATED" -ne 1 ]; then bad "MUTATION FAILED — got $MUTATED"; fi
++#
++# AEF hit the same shape in a bats assertion of theirs and named it exactly: an EQUALITY
++# where the invariant is a FLOOR. Their suite went red for adding a THIRD correct call
++# site of a thing that should have had no upper bound at all. Ours has the same booby
++# trap: add a second legitimate site to any mutated subject and the prober reports
++# "MUTATION FAILED" for a change that made its teeth STRONGER.
++#
++# There is a second defect underneath, which is the one that decides the fix. Counting
++# the marker asks "did my substitution text appear?" — but `if false; then` is a string
++# the subject may already contain for unrelated reasons, and a count of 1 cannot tell a
++# landed mutation from a coincidence. The question the leg actually needs answered is
++# whether the ORIGINAL form is GONE. So:
++#
++#     before = occurrences of the original form in the SUBJECT   -> must be >= 1
++#     after  = occurrences of the original form in the MUTANT    -> must be 0
++#
++# That is strictly stronger than either the equality or a bare floor:
++#   - before == 0 catches a STALE ANCHOR — a sed that matched nothing because the subject
++#     moved under it. The old form could not distinguish this from a real mutation when
++#     the marker happened to appear anyway; it is the failure that certifies teeth the
++#     prober does not have.
++#   - after > 0 catches a PARTIAL mutation — the half-mutated subject that reads like a
++#     passing one.
++#   - neither has an upper bound, so N correct sites mutate to N and the leg stays green.
++#
++# We already held PL-061 ("assert failure-SHAPE, never pin totals") from T-305 and PL-075
++# ("witnesses over counts") from T-330 when all six of these were written. The learnings
++# existed and did not reach the code. One writer, in one file, is the part that does.
++
++# assert_mutation_complete <subject_file> <mutant_file> <original_pattern> [label]
++#
++# Echoes a one-line diagnosis to stdout and returns non-zero when the mutation is not
++# demonstrably complete; returns 0 silently when it is. Callers keep their own ok/bad
++# reporting, so this stays a predicate and never decides a leg's verdict for it.
++#
++# <original_pattern> is a BRE for grep, matched against the PRE-mutation form. Anchor it
++# the same way the sed that produced the mutant is anchored, or the two can disagree.
++assert_mutation_complete() {
++    local subject="$1" mutant="$2" pattern="$3" label="${4:-mutation}"
++    local before after
++
++    if [ ! -f "$subject" ]; then
++        echo "MUTATION UNMEASURABLE — subject '$subject' does not exist"
++        return 1
++    fi
++    if [ ! -f "$mutant" ]; then
++        echo "MUTATION UNMEASURABLE — mutant '$mutant' does not exist"
++        return 1
++    fi
++
++    before=$(grep -c -- "$pattern" "$subject" 2>/dev/null || true)
++    after=$(grep -c -- "$pattern" "$mutant" 2>/dev/null || true)
++    before=${before:-0}
++    after=${after:-0}
++
++    if [ "$before" -lt 1 ]; then
++        # The anchor no longer matches the subject at all. Every downstream leg would
++        # then be comparing the subject against an identical copy of itself.
++        echo "STALE ANCHOR — the $label pattern matches 0 sites in the subject; the sed had nothing to mutate and the 'mutant' is an unmodified copy"
++        return 1
++    fi
++    if [ "$after" -ne 0 ]; then
++        echo "MUTATION INCOMPLETE — $after of $before $label site(s) survived; a half-mutated subject reads like a passing one"
++        return 1
++    fi
++    return 0
++}
+diff --git a/tests/unit/test_t1040_alias_is_its_target.sh b/tests/unit/test_t1040_alias_is_its_target.sh
+new file mode 100755
+index 000000000..6d9af06ce
+--- /dev/null
++++ b/tests/unit/test_t1040_alias_is_its_target.sh
+@@ -0,0 +1,215 @@
++#!/usr/bin/env bash
++# T-650 — an alias is admitted exactly when the command it aliases is.
++#
++# WHY THIS EXISTS. Completing a task prints a LEARNING PROMPT:
++#   Consider: fw fix-learned T-XXX "what was learned"    (update-task.sh:2428)
++# and the same transition nulls focus. With focus null, check-active-task.sh refused
++# that command. The tool contradicted its own advice one line later.
++#
++# The sharp part is WHY. `fw fix-learned` is a pure alias — bin/fw ends its branch with
++#   exec "$AGENTS_DIR/context/context.sh" add-learning "$fl_text" --task "$fl_task" ...
++# so it IS `fw context add-learning`, reached by a different spelling. That target has
++# been exempt since T-390, whose comment in safe-commands.sh quotes this very prompt as
++# its motivation. T-390 diagnosed the deadlock correctly and exempted the long spelling;
++# the prompt emits the short one. The fix and the message it was fixing never matched.
++#
++# So the invariant under test is not "fix-learned should be allowed". It is:
++#
++#     THE ALLOWLIST IS A CLAIM ABOUT EFFECTS, SO IT MUST NOT KEY ON SPELLING.
++#
++# Two spellings of one process must receive one verdict. That is what these legs assert,
++# pairwise, so a future alias added without an exemption — or an exemption deleted from
++# one spelling only — turns this red.
++#
++# NAME COLLISION, stated so the next reader does not lose ten minutes: comments inside
++# check-active-task.sh reference a *different* T-650 (the vendored framework carries the
++# upstream project's task numbers). Ours is the 832 task of the same number. Unrelated.
++#
++# HOW IT MEASURES. Legs 1-8 drive the REAL hook over the real JSON-on-stdin contract
++# Claude Code uses, with `cwd` pointed at a throwaway sandbox. Nothing is executed — the
++# hook only inspects. Leg 9 works at function level because the teeth need a MUTATED
++# safe-commands.sh, and copying the framework to mutate one file would measure the copy.
++#
++# THIRD OUTCOME. Exit 3 = INCONCLUSIVE, not pass and not fail. A sandbox the hook does
++# not recognise as a project root is a BOOTSTRAP case and the hook allows everything —
++# externally identical to a gate that admits everything. The BLOCK controls run FIRST for
++# that reason: they are what distinguishes "measured, all admitted" from "measured
++# nothing". Borrowed from 001-CashWeb's check-gate-commit-exemption.py (@851), which
++# named the same hazard.
++#
++# Exit 0 = all legs pass.
++
++set -uo pipefail
++
++# T-661: mutation completeness is asserted by the shared helper — "the original form is
++# gone", not "my marker appears exactly N times". See tools/lib/mutation-assert.sh.
++. "$(dirname "${BASH_SOURCE[0]}")/_t1040_mutation_assert.sh"
++
++PROJ="${T650_PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
++# the framework repo itself (FRAMEWORK.md at root), else a vendored consumer
++if [ -f "$PROJ/FRAMEWORK.md" ]; then FW_HOME="$PROJ"; else FW_HOME="$PROJ/.agentic-framework"; fi
++HOOK="$FW_HOME/agents/context/check-active-task.sh"
++LIB="$FW_HOME/agents/context/lib/safe-commands.sh"
++
++PASS=0; FAIL=0
++ok()  { PASS=$((PASS+1)); echo "  PASS  $1"; }
++bad() { FAIL=$((FAIL+1)); echo "  FAIL  $1"; }
++
++[ -f "$HOOK" ] || { echo "COULD-NOT-MEASURE: $HOOK not found" >&2; exit 3; }
++[ -f "$LIB"  ] || { echo "COULD-NOT-MEASURE: $LIB not found"  >&2; exit 3; }
++
++TMP="$(mktemp -d)"
++trap 'rm -rf "$TMP"' EXIT INT TERM
++
++# A throwaway project root with focus NULL — the post-completion state.
++SANDBOX="$TMP/sandbox"
++mkdir -p "$SANDBOX/.context/working" "$SANDBOX/.tasks/active" "$SANDBOX/.tasks/completed"
++printf 'framework_version: probe\n' > "$SANDBOX/.framework.yaml"
++cat > "$SANDBOX/.context/working/focus.yaml" <<'EOF'
++# Working Memory - Current Focus
++current_task: null
++priorities: []
++EOF
++
++echo "=== T-650: an alias is the command it aliases (OBS-331) ==="
++echo
++
++# verdict <command> -> prints ADMIT or BLOCK
++verdict() {
++    local cmd="$1" rc
++    python3 - "$SANDBOX" "$cmd" <<'PY' > "$TMP/in.json"
++import json, sys
++json.dump({"tool_name": "Bash", "cwd": sys.argv[1],
++           "tool_input": {"command": sys.argv[2]}}, sys.stdout)
++PY
++    ( cd "$SANDBOX" && bash "$HOOK" < "$TMP/in.json" >/dev/null 2>&1 )
++    rc=$?
++    [ "$rc" -eq 0 ] && echo ADMIT || echo BLOCK
++}
++
++# ---------------------------------------------------------------------------
++# LEG 1 — the controls that make every other leg mean something.
++echo "--- rig: does this sandbox actually gate anything?"
++CTRL_FAIL=0
++for c in 'rm -rf f' 'echo hi > f' 'python3 evil.py'; do
++    [ "$(verdict "$c")" = "BLOCK" ] || { echo "  ADMITTED: $c"; CTRL_FAIL=1; }
++done
++if [ "$CTRL_FAIL" -ne 0 ]; then
++    echo
++    echo "INCONCLUSIVE: the sandbox admitted a command that must always block with focus" >&2
++    echo "null. The hook is treating it as a bootstrap project, so it is allowing" >&2
++    echo "everything and the admit legs below would pass against a gate that is not" >&2
++    echo "running. Measured nothing. (exit 3)" >&2
++    exit 3
++fi
++ok "BLOCK controls block — the gate is live in this sandbox"
++
++# ---------------------------------------------------------------------------
++# LEG 2..5 — pairwise parity. Each pair is one program under two spellings.
++echo "--- parity: two spellings of one process must get one verdict"
++PAIRS=(
++  'fw context add-learning "x" --task T-1 --source P-001|fw fix-learned T-1 "x"'
++  # T-652, added when the invariant this file asserts caught its own second instance:
++  # `git commit` was admitted under focus-null and `fw git commit` refused — the spelling
++  # CLAUDE.md's Quick Reference actually mandates. Same shape, different exemption (this
++  # one lives in the T-2054 block, not the allowlist), found by walking into it twenty
++  # minutes after the first. Pairs are cheap; that is the argument for keeping this a
++  # table rather than a test per alias.
++  'git commit -m "T-1: x"|fw git commit -m "T-1: x"'
++  'git commit -m "T-1: x"|bin/fw git commit -m "T-1: x"'
++)
++for pair in "${PAIRS[@]}"; do
++    TARGET="${pair%%|*}"; ALIAS="${pair##*|}"
++    VT=$(verdict "$TARGET"); VA=$(verdict "$ALIAS")
++    if [ "$VT" = "$VA" ]; then
++        ok "same verdict ($VT): '$TARGET' == '$ALIAS'"
++    else
++        bad "SPELLING DECIDED IT — target=$VT alias=$VA  ('$TARGET' vs '$ALIAS')"
++    fi
++    [ "$VT" = "ADMIT" ] || bad "the exempt TARGET itself was blocked ($VT) — T-390 regressed"
++done
++
++# ---------------------------------------------------------------------------
++echo "--- the reported symptom is gone"
++if [ "$(verdict 'fw fix-learned T-1 "what was learned"')" = "ADMIT" ]; then
++    ok "the exact command update-task.sh prints is now runnable when it is printed"
++else
++    bad "OBS-331 symptom intact: the prompt's own command is still refused"
++fi
++
++# ---------------------------------------------------------------------------
++echo "--- the other no-task verbs still work (T-390 / T-2052 / T-2054 regression)"
++for c in 'fw note "x"' 'fw context add-learning "x" --task T-1' \
++         'fw handover' 'fw task create --name x --type build' 'git commit -m "T-1: x"'; do
++    if [ "$(verdict "$c")" = "ADMIT" ]; then ok "still admitted: $c"
++    else bad "REGRESSION — now blocked: $c"; fi
++done
++
++# ---------------------------------------------------------------------------
++# The prose exemption is the reason this verb needs TWO list entries. fix-learned
++# takes free prose in $2; without the second entry the command is admitted and then
++# trips on its own argument.
++echo "--- free prose in the learning text is stored, not read as shell"
++if [ "$(verdict 'fw fix-learned T-1 "a > b and c && d; rm -rf x"')" = "ADMIT" ]; then
++    ok "prose containing >, && and ; is admitted (it is an argument, not a script)"
++else
++    bad "prose argument read as a write — _sc_is_framework_prose_verb entry missing"
++fi
++
++echo "--- T-652: the alias inherits the commit exemption's LIMITS, not just its permission"
++for c in 'fw git commit --no-verify -m "T-1: x"' \
++         'fw git commit -m "T-1: x" && rm -rf f' \
++         'fw git commit -m "$(evil)"'; do
++    if [ "$(verdict "$c")" = "BLOCK" ]; then ok "still blocked: $c"
++    else bad "ALIAS WIDENED THE EXEMPTION — admitted: $c"; fi
++done
++
++echo "--- but a destructive verb OUTSIDE the quotes is still caught"
++if [ "$(verdict 'fw fix-learned T-1 "x" && rm -rf f')" = "BLOCK" ]; then
++    ok "the exemption covers the argument, not the command line"
++else
++    bad "SECOND CLAUSE ADMITTED — same defect class as T-638/@851. This is a bypass."
++fi
++
++# ---------------------------------------------------------------------------
++# LEG 9 — teeth. Revert exactly the two tokens this fix adds, and require BOTH:
++#   (a) the alias goes back to being refused, and
++#   (b) the admit controls STILL pass.
++#
++# (b) is not padding. 001-CashWeb lost a cycle to this at @851: their first mutant had a
++# bash syntax error, so the file failed to parse, so EVERYTHING blocked — and against
++# bypass probes alone a mutant that cannot parse is INDISTINGUISHABLE FROM A CORRECT FIX.
++# Only the admit control separates them. Both halves or neither.
++echo "--- teeth: revert the two entries; alias must go red, controls must stay green"
++MUT="$TMP/mutant-safe-commands.sh"
++# The two entries do NOT have the same shape — one is a block on its own line, the
++# other is an inline `fix-learned) return 0 ;;`. The first draft of this sed anchored on
++# `$` and silently reverted only one of them, then reported the count. Anchoring on the
++# token and asserting the count is what turned a half-mutation into a visible failure.
++sed -e 's/^\([[:space:]]*\)fix-learned)/\1__t650_reverted)/' "$LIB" > "$MUT"
++if ! bash -n "$MUT" 2>/dev/null; then
++    bad "MUTATION FAILED — mutant does not parse; it would block everything and prove nothing"
++# T-661: "no fix-learned) arm survives", not "exactly 2 were reverted". A third arm is a
++# correct change; the old equality would have reported it as a mutation failure.
++elif ! REVERTED=$(assert_mutation_complete "$LIB" "$MUT" '^[[:space:]]*fix-learned)' 'fix-learned arm'); then
++    bad "$REVERTED"
++else
++    probe() { ( set +u; source "$MUT" >/dev/null 2>&1; \
++                is_bash_safe_command "$1" >/dev/null 2>&1 && echo ADMIT || echo BLOCK ); }
++    live()  { ( set +u; source "$LIB" >/dev/null 2>&1; \
++                is_bash_safe_command "$1" >/dev/null 2>&1 && echo ADMIT || echo BLOCK ); }
++    M_ALIAS=$(probe 'fw fix-learned T-1 "x"')
++    M_CTRL=$(probe 'fw context add-learning "x" --task T-1')
++    L_ALIAS=$(live  'fw fix-learned T-1 "x"')
++    if [ "$M_ALIAS" = "BLOCK" ] && [ "$M_CTRL" = "ADMIT" ] && [ "$L_ALIAS" = "ADMIT" ]; then
++        ok "mutant refuses the alias and still admits the target — the entries are load-bearing"
++    elif [ "$M_CTRL" != "ADMIT" ]; then
++        bad "mutant blocks the CONTROL too ($M_CTRL) — broken mutant, not a demonstration"
++    else
++        bad "mutant still admits the alias ($M_ALIAS) — the leg above cannot fail"
++    fi
++fi
++
++echo
++echo "=== $PASS passed, $FAIL failed ==="
++[ "$FAIL" -eq 0 ]
+-- 
+2.43.0
+
