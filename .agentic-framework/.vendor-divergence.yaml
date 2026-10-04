@@ -163,6 +163,18 @@ entries:
       re-applied. AEF bleeding-edge 914326e0 still has the old condition -- sent upstream in
       bundle A. Regression test tools/_t931-delegate-owner-follows-criteria.py (bridge leg),
       4/4, both bug cases red before the fix.
+  - path: .agentic-framework/docs/reports/T-375-agent-3-key-storage.md
+    kind: content
+    task: T-939, T-1024
+    upstream: fix
+    reason: >-
+      SECURITY. Redacts this host's /etc/machine-id (the PBKDF2 input for the secrets-store Fernet
+      key, web/secrets_store.py) from line 13. T-939 redacted it on 2026-09-30; the 1.7.740 pristine
+      vendor commit (2659abad) silently restored the real value because this change was never
+      declared; found by the T-1020 census and re-redacted by T-1024. The same file carries the
+      value in AEF's public GitHub mirror (master and bleeding-edge) -- AEF told 2026-10-04
+      (e28a469a) without the value. Guard: tools/_t1024-machine-id-not-tracked.py (bridge leg).
+      If a re-vendor shows this STALE: re-redact, never accept upstream's line.
   - path: .agentic-framework/lib/arc.sh
     kind: content
     task: T-1005

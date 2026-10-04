@@ -2535,6 +2535,17 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1024 / T-939: this host's machine-id (secrets-store key material) is in no tracked file ──
+# The 1.7.740 re-vendor restored it silently in a vendored report; found by the T-1020 census.
+# Prints paths only, never the value; its control plants a copy in a scratch repo first.
+if python3 "$ROOT/tools/_t1024-machine-id-not-tracked.py" > "$TMP/leg-_t1024-machine-id.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "this host's machine-id (the secrets-store key derives from it) is in a tracked file again, or the scan's control failed (run 'python3 tools/_t1024-machine-id-not-tracked.py'; it names the files and never prints the value)"
+  show_output "$TMP/leg-_t1024-machine-id.out" "_t1024-machine-id-not-tracked.py"
+  fail=$((fail + 1))
+fi
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception
