@@ -1,5 +1,10 @@
 # T-1029: facts for the rotation decision (the machine ID is public)
 
+> **CORRECTION, 2026-10-04 (T-1030). This question was already closed. There is no open decision.**
+> The operator closed it under T-938 on 2026-09-30. The encrypted file was purged from the repository, and the operator found that **nobody downloaded it apart from automated access**. The agent wrote this report without reading that closing record, and wrongly presented the question as open. (The operator's no-download finding was restated on 2026-10-04; it is recorded here so the next reader does not repeat the mistake.)
+>
+> **The one new fact does not reopen it.** The 10-02 re-vendor re-published the machine ID (fixed: T-1024 locally, AEF T-3788 upstream). A public machine ID only matters to someone holding a copy of `api-keys.enc`, and per T-938 none exists outside this host. **No rotation is needed.** The options at the end of this report are retired. The text below is kept as written so the correction can be read against it.
+
 **Date:** 2026-10-04. **Method:** code, file metadata and git history only. No secret, no key and no machine-ID value was read into this report or printed. The one look at stored names used the store's own loader and printed key *names* only.
 
 ## 1. What the machine ID protects

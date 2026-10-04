@@ -2615,3 +2615,39 @@ learnings:
   task: T-989
   date: 2026-10-01
   context: Added via context agent
+- id: PL-372
+  learning: "Operator commands ALWAYS go in runme.sh (bash /opt/832-Workflow-designer/runme.sh), never as copy-paste lines in chat — operator instruction 2026-10-02; rule recorded in CLAUDE.md Project-Specific Rules"
+  source: unknown
+  task: T-995
+  date: 2026-10-02
+  context: Added via context agent
+- id: PL-373
+  learning: "Enforce an obligation at its OWNER's step, never at the next actor's: fw inception decide refused the human for a review the agent had not emitted (15 recurrences); the fix renders the review at decide time"
+  source: unknown
+  task: T-996
+  date: 2026-10-02
+  context: Added via context agent
+- id: PL-374
+  learning: "After every commit check that it landed (git log -1 or the [branch sha] line); never run commits with -q piped through a grep that only matches 'error' — two T-1005 commits were refused unseen for several steps (2026-10-02), the cause could not be reproduced afterwards"
+  source: unknown
+  task: T-1005
+  date: 2026-10-02
+  context: Added via context agent
+- id: PL-375
+  learning: "Cause of the unseen refused commits (T-1005): fw git commit does not parse combined short flags; -qm \"msg\" loses the message and prints 'ERROR: Commit message required' (uppercase), which a grep for 'error' did not match. Use -m (never -qm) and never filter commit output; check git log -1 after each commit"
+  source: unknown
+  task: T-1005
+  date: 2026-10-02
+  context: Added via context agent
+- id: PL-376
+  learning: "Never rewrite an existing tool wholesale to change part of it: T-1006 rewrote learning-ledger.py from memory and silently changed two functions it meant to keep (norm() lost punctuation stripping -> repeated lessons duplicated; save() dropped keys above 'learnings:'). Its own new tests were green; only the OLD test (T-984, wired in the bridge suite) caught it. Edit in place, then AST-diff every pre-existing function against the previous commit (CHANGED must equal the intended set)."
+  source: unknown
+  task: T-1008
+  date: 2026-10-03
+  context: Added via context agent
+- id: PL-377
+  learning: "Before re-raising a security or operator question, read the CLOSING record of every task that touched it (the decision commit and the task's Decision/Updates sections), not just its ACs. T-1029 re-presented the T-938 rotation question as open because the agent grepped T-938's AC text and missed the operator's closure (purged; nobody downloaded it except automated access); the operator had to point out it was closed. A new fact reopens a closed decision only if it changes the decision's premise — here the re-published machine-id did not, since no ciphertext copy exists outside the host."
+  source: P-001
+  task: T-1030
+  date: 2026-10-04
+  context: Added via context agent
