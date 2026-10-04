@@ -1,13 +1,16 @@
 ---
 id: T-1017
-name: "Bridge leg red: round-trip serialization no longer a semantic fixed point (plain-task fixture)"
+name: "Bridge leg red: round-trip serialization no longer a semantic fixed point (plain-task
+  fixture)"
 description: >
-  tests/test_roundtrip_serialization.py harness exit 1. T-995 named it first among the designer legs because it guards the save path Evergreen's maps go through. Pre-existing.
+  tests/test_roundtrip_serialization.py harness exit 1. T-995 named it first among
+  the designer legs because it guards the save path Evergreen's maps go through. Pre-existing.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T21:52:13Z
-last_update: 2026-10-03T21:52:13Z
-date_finished: null
+last_update: 2026-10-04T13:27:48Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +53,48 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T13:23:38Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 4
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=4 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1017: Bridge leg red: round-trip serialization no longer a semantic fixed point (plain-task fixture)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The bridge leg `tests/test_roundtrip_serialization.py` (editor <-> bridge semantic fixed point) fails: the harness exits 1 with `"pass": false` on the plain-task fixture. Found by T-944's triage; one of the 13 standing bridge failures.
+
+**Root cause (2026-10-04).** Only fixture 14, `plain-task-default-ns.bpmn`, fails. It is deterministic, projection-equal and byte-idempotent; its sole failing clause is `undeclaredUid === 0`: declaredUids 6, expectedUids 5 (3 nodes + 2 edges).
+- H1, "a uid sits on a non-node element": disproved. A parse finds exactly 5 aef:uid elements, on Start_1, Task_1, End_1, flow_1 and flow_2.
+- H2, confirmed: `tools/_roundtrip-serialization-cdp.mjs:1038` counts `text.split('<aef:uid ')` over the raw SOURCE, comments included. The fixture's header comment (line 28, prose: "and flow carries <aef:uid value=…/>") is a sixth textual hit.
+
+The fixture has been red since T-970 added it (891de422, 2026-10-01). It is an instrument defect: a comment is not a declaration. Counting comments also makes the leg PASS a fixture whose only "declaration" is inside a comment. Fix: count over the source with XML comments removed (no regex, since the code sits in a template literal that eats backslashes).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The root cause is stated here with evidence (which key or element stops round-tripping, on which fixture, and since which change), via hypothesis-driven debugging, before any fix. See Context: H1 disproved, H2 confirmed (the comment in the fixture header was counted as a declaration), red since T-970 (891de422)
+- [x] `python3 tests/test_roundtrip_serialization.py` exits 0, by fixing the cause (product code or a fixture that is genuinely wrong), never by loosening the harness's pass condition. Exits 0: 22/22 fixtures, declared = expected on every one. The count is STRICTER now, not looser: tools/_t1017-uid-count-teeth.py shows a removed uid and a comment-only uid are both caught (3/3), and that the pre-fix count PASSED the comment-only mutant (5 = 5). Wired as a bridge leg
+- [ ] No other bridge leg goes red: `bash tests/run-bridge-tests.sh` shows no failure that the last full run (164 passed / 13 failed) did not have
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +351,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1017-bridge-leg-red-round-trip-serialization-.md
 - **Context:** Initial task creation
+
+### 2026-10-04T13:23:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

@@ -2588,6 +2588,15 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1017: the round-trip leg counts DECLARED identities, not comment prose ──
+if python3 "$ROOT/tools/_t1017-uid-count-teeth.py" > "$TMP/leg-_t1017-uid-count.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the round-trip harness's uid count no longer discriminates: a removed uid or a uid that exists only inside a comment is no longer caught, or the control fixture fails (run 'python3 tools/_t1017-uid-count-teeth.py'; exit 2 means it could not run)"
+  show_output "$TMP/leg-_t1017-uid-count.out" "_t1017-uid-count-teeth.py"
+  fail=$((fail + 1))
+fi
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception

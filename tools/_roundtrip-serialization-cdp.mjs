@@ -1035,7 +1035,20 @@ const ROUNDTRIP_EXPR = `(function(){
     // and matches nothing. The first version of this leg reported declaredUids 0 on a fixture
     // carrying nine of them — an instrument that could not see its subject, reporting the same
     // number it would report for a fixture that genuinely had none. Split on a literal instead.
-    var declaredUids = text.split('<aef:uid ').length - 1;
+    // T-1017: count over the source WITHOUT XML comments. A comment is not a declaration:
+    // plain-task-default-ns.bpmn's header prose mentions "<aef:uid value=…/>", which made this
+    // count 6 against 5 real elements (red since T-970), and the same blindness would PASS a
+    // fixture whose only "declaration" sat inside a comment. indexOf, not a regex (see above).
+    var uncommented = '', ci = 0;
+    while (true) {
+      var ca = text.indexOf('<!--', ci);
+      if (ca < 0) { uncommented += text.slice(ci); break; }
+      uncommented += text.slice(ci, ca);
+      var cb = text.indexOf('-->', ca + 4);
+      if (cb < 0) break;              // unterminated comment: nothing after it is markup
+      ci = cb + 3;
+    }
+    var declaredUids = uncommented.split('<aef:uid ').length - 1;
     var expectedUids = m1.nodes.length + m1.edges.length;
     var undeclaredUid = expectedUids - declaredUids;
     var deterministic = (emit1a===emit1b);
