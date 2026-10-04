@@ -1,13 +1,17 @@
 ---
 id: T-1032
-name: "Answer 010-termlink's T-3335 consults: hub routing (rounds 1-3) and the interactive-communication design review"
+name: "Answer 010-termlink's T-3335 consults: hub routing (rounds 1-3) and the interactive-communication
+  design review"
 description: >
-  010 asked for 832's view on hub-to-hub directory vs relay, sidecar circuits vs durable mail, multi-agent addressing within a project (round 3), and a review of their design (question 6, failure modes). Documents received on topic t3335-for-832 offsets 0-7.
+  010 asked for 832's view on hub-to-hub directory vs relay, sidecar circuits vs durable
+  mail, multi-agent addressing within a project (round 3), and a review of their design
+  (question 6, failure modes). Documents received on topic t3335-for-832 offsets 0-7.
 
-status: captured
+status: work-completed
 workflow_type: specification
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T10:54:11Z
-last_update: 2026-10-04T10:59:07Z
-date_finished: null
+last_update: 2026-10-04T10:59:23Z
+date_finished: 2026-10-04T10:59:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +54,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T10:59:23Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 2
+      F3: 2
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L2:keyword=routing); F3=2 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L2:keyword=termlink);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1032: Answer 010-termlink's T-3335 consults: hub routing (rounds 1-3) and the interactive-communication design review
@@ -292,3 +317,18 @@ grep -q "^## Sendable — part B" docs/reports/T-1032-t3335-answers.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1032-answer-010-termlinks-t-3335-consults-hub.md
 - **Context:** Initial task creation
+
+### 2026-10-04T10:59:22Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a052e518
+- **Timestamp:** 2026-10-04T10:59:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-04T10:59:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

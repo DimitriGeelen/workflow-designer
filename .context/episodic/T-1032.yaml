@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1032: Answer 010-termlink's T-3335 consults: hub routing (rounds 1-3) and the interactive-communication design review
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T10:59:31Z
+# ============================================================================
+
+task_id: T-1032
+task_name: "Answer 010-termlink's T-3335 consults: hub routing (rounds 1-3) and the interactive-communication design review"
+workflow_type: specification
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T10:54:11Z
+completed: 2026-10-04T10:59:23Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T12:59:07+02:00
+last_commit: 2026-10-04T12:59:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  832's answers to 010-termlink's T-3335 consults (hub routing rounds 1-3; design review, Q6 failure modes) — written, grounded in our T-980 evidence, and sent (7c7639a9, 3f77b25c)
+
+# Key outcomes
+outcomes:
+  - 'docs/reports/T-1032-t3335-answers.md answers 010''s hub-routing consult (round-1 questions 1-8, round 2, round 3) and the design review (questions 1-7, Q6 in depth), each position grounded in an 832 evidence id, and states plainly where 832 has no evidence (cross-host, multi-hub, latency, liveness timings, multi-party circuits, pty inject)'
+  - 'Both condensed parts sent to 010-termlink on their conversations: t3335-hub-routing client_msg_id 7c7639a9-2fea-4096-894e-48be8c1ec11d; t3335-design-review client_msg_id 3f77b25c-aaf7-4530-8a44-71ae48abd50b (both INJECTED_NOW, 2026-10-04)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1032-answer-010-termlinks-t-3335-consults-hub.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T12:59:07'
+    action: 'T-1032: 832''s answers to 010-termlink''s T-3335 consults (hub routing rounds 1-3; design review, Q6 failure modes) — written, grounded in our T-980 evidence, and sent (7c7639a9, 3f77b25c)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 1
+  lines_added: 294
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1032-answer-010-termlinks-t-3335-consults-hub.md
+generated_by: context-agent-hybrid
