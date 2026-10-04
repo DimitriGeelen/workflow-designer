@@ -6,13 +6,13 @@ description: >
   should pass' FAIL): either a new bare catch in the editor or an excused site count
   moved. Pre-existing designer-class leg (T-995).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T21:52:07Z
-last_update: 2026-10-04T16:39:13Z
-date_finished:
+last_update: 2026-10-04T16:39:14Z
+date_finished: 2026-10-04T16:39:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -356,3 +356,20 @@ Two bridge legs, one cause. `tools/_t821-swallowed-failure-census.py` finds a ba
 ### 2026-10-04T16:37:02Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0d855e84
+- **Timestamp:** 2026-10-04T16:39:16Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `python3 tools/_t821-swallowed-failure-census.py` and `bash tools/_t821-census-controls.sh` both pass; the designer still loads and its own tests that cover this code path still pass. Census rc 0; con
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t821-swallowed-failure-census.py in: `python3 tools/_t821-swallowed-failure-census.py` and `bash tools/_t821-census-controls.sh` both pass; the designer still loads and its own tests that`
+
+### 2026-10-04T16:39:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

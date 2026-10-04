@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1016: Bridge leg red: swallowed-failure census and its controls (T-821)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T16:39:23Z
+# ============================================================================
+
+task_id: T-1016
+task_name: "Bridge leg red: swallowed-failure census and its controls (T-821)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-03T21:52:07Z
+completed: 2026-10-04T16:39:14Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-04T18:39:14+02:00
+last_commit: 2026-10-04T18:39:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the instance overlay no longer swallows a broken server — 404/no server stays a silent state, but a 5xx, a non-JSON body or a non-snapshot body is recorded (aefRecordFault 'instance-snapshot'); T-821 census 0 findings, controls 5/5; instances API 8/8, designer render clean
+
+# Key outcomes
+outcomes:
+  - 'The catch at line 9339 is understood (what fails there, and whether the failure matters to the user). It then either records the fault with `aefRecordFault(''<code>'', e)`, or is added to the census EXCUSES with a real reason ("it never happens" is not one). The choice and the reason are stated here. It is `loadInstanceSnapshot()` (T-884''s instance overlay). Its "absence is a state" comment is right for a 404, static hosting or no server, but the same catch also swallowed a server that ANSWERS wrongly (5xx, a non-JSON body, a body that is not a snapshot). The user then saw "no instances" with no trace of the broken server. CHOICE: record, not excuse. Thrown errors are marked: 404 and network errors carry no mark (absence, a silent state, as before); non-404 HTTP, a SyntaxError from json() and a non-snapshot body are recorded as `aefRecordFault(''instance-snapshot'', e)`. The census went 1 finding → 0, instrumented 33 → 34 (my first draft added an inner rethrowing catch, which the census rightly flagged; it was removed)'
+  - '`python3 tools/_t821-swallowed-failure-census.py` and `bash tools/_t821-census-controls.sh` both pass; the designer still loads and its own tests that cover this code path still pass. Census rc 0; controls 5/5; test_gallery_instances_api 8/8; test_designer_render PASS (render, markers, inspector, console clean). NOT run: an end-to-end check that a 500 lands in the fault ring (needs a stub server); the branch is verified by reading only'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1016-bridge-leg-red-swallowed-failure-census-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T18:39:14'
+    action: 'T-1016: the instance overlay no longer swallows a broken server — 404/no server stays a silent state, but a 5xx, a non-JSON body or a non-snapshot body is recorded (aefRecordFault ''instance-snapshot''); T-821 census 0 findings, controls 5/5; instances API 8/8, designer render clean'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1127 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1127
+  commits: 1
+  files_changed: 2
+  lines_added: 52
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1016-bridge-leg-red-swallowed-failure-census-.md
+generated_by: context-agent-hybrid
