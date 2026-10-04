@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1046: Local session-start-alerts.sh: list peer mail not yet shown at /resume (stopgap until AEF ships T-3327)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T21:03:49Z
+# ============================================================================
+
+task_id: T-1046
+task_name: "Local session-start-alerts.sh: list peer mail not yet shown at /resume (stopgap until AEF ships T-3327)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T20:59:57Z
+completed: 2026-10-04T21:03:44Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-04T23:03:36+02:00
+last_commit: 2026-10-04T23:03:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  local scripts/session-start-alerts.sh — the /resume skill's step-7 mail check, which skipped silently here because AEF 1.7.740 does not vendor it; own per-topic marker, own posts/receipts filtered, nudges counted per conversation, hub failure exits 2; offline fixture test with a biting mutant; AEF asked about v1.8.1 (@305)
+
+# Key outcomes
+outcomes:
+  - 'Investigated: the script exists only as a reference in `~/.claude/commands/resume.md`; not in `.agentic-framework/`, not elsewhere on this host'
+  - '`scripts/session-start-alerts.sh` exists, is executable, supports `--limit N` and `--mark-seen`, and prints peer mail not yet shown (offset, sender project, msg_type, first line), or "nothing"'
+  - 'It keeps its own marker (`.context/working/.alerts-seen-offset`), never the channel cursor; `--mark-seen` advances the marker to the newest offset shown'
+  - 'Own posts and `sidecar.receipt` envelopes are excluded; a hub failure prints `MAIL CHECK FAILED: <reason>` and exits non-zero (never a silent "nothing")'
+  - 'Logic tested offline against a JSON fixture: peer consult shown, own post / receipt hidden, marker honoured, limit honoured'
+  - 'AEF asked (sidecar to 999-Agentic-Engineering-Framework) whether v1.8.1 vendors `session-start-alerts.sh`; offset recorded here — AEF inbox @305, conversation `session-start-alerts`, client_msg_id 72d83bca'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'local scripts/session-start-alerts.sh — the /resume skill''s step-7 mail check, which skipped silently here because AEF 1.7.740 does not vendor it; own per-topic marker, own posts/receipts filtered, nudges counted per conversation, hub failure exits 2; offline fixture test with a biting mutant; AEF asked about v1.8.1 (@305)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'scripts/session-start-alerts.sh'
+  - '.tasks/active/T-1046-local-session-start-alertssh-list-peer-m.md'
+  - 'tests/test_session_start_alerts.py'
+  - 'tools/session-start-alerts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T23:03:36'
+    action: 'T-1046: local scripts/session-start-alerts.sh — the /resume skill''s step-7 mail check, which skipped silently here because AEF 1.7.740 does not vendor it; own per-topic marker, own posts/receipts filtered, nudges counted per conversation, hub failure exits 2; offline fixture test with a biting mutant; AEF asked about v1.8.1 (@305)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 4
+  lines_added: 602
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1046-local-session-start-alertssh-list-peer-m.md
+generated_by: context-agent-hybrid

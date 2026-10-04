@@ -4,10 +4,11 @@ name: "Local session-start-alerts.sh: list peer mail not yet shown at /resume (s
 description: >
   Local session-start-alerts.sh: list peer mail not yet shown at /resume (stopgap until AEF ships T-3327)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T20:59:57Z
-last_update: 2026-10-04T21:03:36Z
-date_finished: null
+last_update: 2026-10-04T21:03:44Z
+date_finished: 2026-10-04T21:03:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -342,3 +343,15 @@ python3 tests/test_session_start_alerts.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1046-local-session-start-alertssh-list-peer-m.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a033906b
+- **Timestamp:** 2026-10-04T21:03:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-04T21:03:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
