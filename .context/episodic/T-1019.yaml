@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1019: Bridge leg red: aef:meta carriage and bridge vocabulary guards (T-570, T-572)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T16:42:06Z
+# ============================================================================
+
+task_id: T-1019
+task_name: "Bridge leg red: aef:meta carriage and bridge vocabulary guards (T-570, T-572)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-03T21:52:23Z
+completed: 2026-10-04T16:41:57Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-04T18:41:55+02:00
+last_commit: 2026-10-04T18:41:55+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  aef:meta carriage and bridge-vocabulary teeth re-anchored after T-889 made authority the last metaKeys entry; _t572 expectations derived from that change (A loses 7 not 8; B no longer duplicates authority); both teeth fully green
+
+# Key outcomes
+outcomes:
+  - 'Each tooth''s mutants are re-anchored to today''s source, so each mutant still removes the behaviour it targets. Any change to a pinned "reddened" leg set is explained from the source change, not just copied from the new output. The cause is one commit: T-889 (a906f337, 2026-09-27) appended `''authority''` as the last metaKeys entry, so the old tail line no longer closes the list. Both teeth now anchor on `    ''authority''];` and their mutants still append to the end of metaKeys. Two expectations changed in `_t572`, both derived from that commit:'
+  - 'Both teeth pass (control green, every mutant killed with its expected legs), and no other bridge leg goes red. `_t570`: control + mutants A/B/C/D all PASS; `_t572`: control + A/B/C all PASS. Only these two tooth files changed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1019-bridge-leg-red-aefmeta-carriage-and-brid.md'
+  - 'tools/_t570-meta-carriage-teeth.py'
+  - 'tools/_t572-bridge-vocabulary-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T18:41:55'
+    action: 'T-1019: aef:meta carriage and bridge-vocabulary teeth re-anchored after T-889 made authority the last metaKeys entry; _t572 expectations derived from that change (A loses 7 not 8; B no longer duplicates authority); both teeth fully green'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1129 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1129
+  commits: 1
+  files_changed: 3
+  lines_added: 55
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1019-bridge-leg-red-aefmeta-carriage-and-brid.md
+generated_by: context-agent-hybrid
