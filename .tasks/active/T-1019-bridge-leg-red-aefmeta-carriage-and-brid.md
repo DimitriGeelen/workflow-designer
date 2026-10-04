@@ -2,12 +2,15 @@
 id: T-1019
 name: "Bridge leg red: aef:meta carriage and bridge vocabulary guards (T-570, T-572)"
 description: >
-  _t570-meta-carriage-teeth.py and _t572-bridge-vocabulary-teeth.py: mutant-A kill legs report mismatched reddened sets; check whether one root cause (see T-889 aef:meta authority) explains both. Pre-existing designer legs (T-995).
+  _t570-meta-carriage-teeth.py and _t572-bridge-vocabulary-teeth.py: mutant-A kill
+  legs report mismatched reddened sets; check whether one root cause (see T-889 aef:meta
+  authority) explains both. Pre-existing designer legs (T-995).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T21:52:23Z
-last_update: 2026-10-03T21:52:23Z
-date_finished: null
+last_update: 2026-10-04T16:41:55Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +53,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T16:39:33Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1019: Bridge leg red: aef:meta carriage and bridge vocabulary guards (T-570, T-572)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Two bridge legs: `tools/_t570-meta-carriage-teeth.py` and `tools/_t572-bridge-vocabulary-teeth.py`. Both pass their unmutated control (the behaviour holds). Their mutation anchor, the editor line `    'horizon', 'workflowType', 'owner'];`, now occurs 0 times, because the editor's known-keys list changed. `_t572`'s mutant A also reddens a different leg set than it pins.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Each tooth's mutants are re-anchored to today's source, so each mutant still removes the behaviour it targets. Any change to a pinned "reddened" leg set is explained from the source change, not just copied from the new output. The cause is one commit: T-889 (a906f337, 2026-09-27) appended `'authority'` as the last metaKeys entry, so the old tail line no longer closes the list. Both teeth now anchor on `    'authority'];` and their mutants still append to the end of metaKeys. Two expectations changed in `_t572`, both derived from that commit:
+  - **Mutant A loses 7 keys, not 8:** `authority`, now first-class (setNodeAuthority writes it), survives with carriage removed, as `endpoint` did.
+  - **Mutant B appends the nine minus `authority`:** it is already listed, and a duplicate reddened legs for an unrelated reason.
+
+  No reddened leg set was edited; both now match their pinned sets.
+- [x] Both teeth pass (control green, every mutant killed with its expected legs), and no other bridge leg goes red. `_t570`: control + mutants A/B/C/D all PASS; `_t572`: control + A/B/C all PASS. Only these two tooth files changed
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +348,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1019-bridge-leg-red-aefmeta-carriage-and-brid.md
 - **Context:** Initial task creation
+
+### 2026-10-04T16:39:32Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

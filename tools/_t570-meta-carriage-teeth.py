@@ -54,7 +54,9 @@ NEW_METAATTRS = ("  const metaAttrs = [...metaKeys.filter(k => aefKeys.includes(
                  "    .map(k => `${k}=\"${escAttr(aef[k])}\"`).join(' ');")
 OLD_METAATTRS = ("  const metaAttrs = metaKeys.filter(k => aefKeys.includes(k))"
                  ".map(k => `${k}=\"${escAttr(aef[k])}\"`).join(' ');")
-METAKEYS_TAIL = "    'horizon', 'workflowType', 'owner'];"
+# T-1019: re-anchored. T-889 (a906f337) appended 'authority' as the list's last key, so the
+# tail that closes metaKeys is now this line; the mutants still append to the end of the list.
+METAKEYS_TAIL = "    'authority'];"
 CARRIED_LINE = ("  const carriedKeys = aefKeys.filter(k => !scalarHandled.has(k) "
                 "&& typeof aef[k] !== 'object').sort();")
 ENDPOINT_LINE = "    'endpoint', 'contextReads', 'artifactsWrites', 'decisionInput', 'decisionOutputs',"
@@ -128,7 +130,7 @@ def main():
         d = os.path.join(scratch, "D.html")
         shutil.copyfile(SRC, d)
         patch(d, METAKEYS_TAIL,
-              "    'horizon', 'workflowType', 'owner', 'determinism', 'sideEffect'];", "D")
+              "    'authority', 'determinism', 'sideEffect'];", "D")
         patch(d, NEW_METAATTRS, OLD_METAATTRS, "D2")
         red = reddened(verdicts(run_probe(d)[1]))
         want = ["carriage-roundtrip", "deterministic-order", "scalar-emits-survives"]

@@ -56,7 +56,9 @@ NEW_METAATTRS = ("  const metaAttrs = [...metaKeys.filter(k => aefKeys.includes(
                  "    .map(k => `${k}=\"${escAttr(aef[k])}\"`).join(' ');")
 OLD_METAATTRS = ("  const metaAttrs = metaKeys.filter(k => aefKeys.includes(k))"
                  ".map(k => `${k}=\"${escAttr(aef[k])}\"`).join(' ');")
-METAKEYS_TAIL = "    'horizon', 'workflowType', 'owner'];"
+# T-1019: re-anchored. T-889 (a906f337) appended 'authority' as the list's last key, so the
+# tail that closes metaKeys is now this line; the mutants still append to the end of the list.
+METAKEYS_TAIL = "    'authority'];"
 # the nine keys the bridge emits that the editor's pre-T-570 whitelist never named
 NINE = ("'determinism', 'authority', 'endpoint', 'sideEffect', 'autoTriggerKind', "
         "'restoresFrom', 'compensationSnapshot', 'compensatedBy', 'advisory'")
@@ -138,12 +140,14 @@ def main():
         # teeth caught it: exactly the error T-570's own census made (4 keys "lost" by whitelist
         # diff, 3 actually destroyed by round trip), re-made one task later in the tooth built to
         # guard against it. A whitelist difference is not a round trip, at any level of the stack.
-        want_lost = sorted(["determinism", "authority", "sideEffect", "autoTriggerKind",
+        # T-1019: SEVEN since T-889 (a906f337). `authority` became a first-class metaKeys entry
+        # (setNodeAuthority writes it), so, like `endpoint`, it survives with carriage removed.
+        want_lost = sorted(["determinism", "sideEffect", "autoTriggerKind",
                             "restoresFrom", "compensationSnapshot", "compensatedBy", "advisory"])
         report(red == want and lost == want_lost,
                "mutant A killed (carriage removed — what the OLD guard called green)",
                "reddened %s (want %s); lost %d keys (want %d — the nine minus `endpoint`, which "
-               "survives on its own element)%s" % (red, want, len(lost), len(want_lost),
+               "survives on its own element, and `authority`, first-class since T-889)%s" % (red, want, len(lost), len(want_lost),
                                                    "" if lost == want_lost else "; GOT %s" % lost))
 
         # ── B: sample repaired, mechanism not, plus a key the probe has never heard of ──────
@@ -151,7 +155,10 @@ def main():
         b_br = os.path.join(scratch, "B-bridge.py")
         shutil.copyfile(SRC, b_src)
         shutil.copyfile(BRIDGE, b_br)
-        patch(b_src, METAKEYS_TAIL, "    'horizon', 'workflowType', 'owner', %s];" % NINE, "B")
+        # T-1019: NINE minus 'authority', which metaKeys already ends with since T-889; appending
+        # it again would make a duplicate key and redden legs for a reason unrelated to B.
+        NINE_B = ", ".join(k for k in (x.strip() for x in NINE.split(",")) if k != "'authority'")
+        patch(b_src, METAKEYS_TAIL, "    'authority', %s];" % NINE_B, "B")
         patch(b_src, NEW_METAATTRS, OLD_METAATTRS, "B2")
         # APPENDED, not prepended. Prepending makes "zzUnseenKey" the bridge's first key, and
         # the probe's hostile value rides the first CARRIED key — so a front-inserted mutant
