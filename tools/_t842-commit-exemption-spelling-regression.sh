@@ -95,6 +95,13 @@ check ALLOW "commit carrying the Co-Authored-By trailer (T-3245)" \
 
 Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"'
 
+# Defect A FIXED by 832 T-1037 (T-650 restored on 1.7.740): the four mandated fw spellings
+# were section-C known defects; they are invariants now, so a regression turns this red.
+check ALLOW "fw git commit (on PATH) — defect A fixed, T-1037"          "fw git commit $M"
+check ALLOW "absolute-path fw git commit — defect A fixed, T-1037"      "$FW git commit $M"
+check ALLOW "relative-path fw git commit — defect A fixed, T-1037"      ".agentic-framework/bin/fw git commit $M"
+check ALLOW "the copy-pasteable mandated form (cd && fw git commit)"    "cd $REPO && $FW git commit $M"
+
 echo
 echo "=== B. what MUST be refused (negative controls — these prove the predicate says no) ==="
 check BLOCK "rm -rf /"                          'rm -rf /'
@@ -103,21 +110,18 @@ check BLOCK "command substitution"              'git commit -m "T-842: $(whoami)
 check BLOCK "a redirect is a write"             "git commit $M > /var/tmp/t842.out"
 check BLOCK "not a commit at all"               'git push origin master'
 check BLOCK "commit smuggling a second verb"    "git commit $M && rm -rf /var/tmp/x"
+check BLOCK "a planted fw elsewhere is not the framework's fw (T-1037)"  "/var/tmp/x/bin/fw git commit $M"
+check BLOCK "fw git commit still loses the allowance to --no-verify"    "fw git commit --no-verify $M"
 
 echo
 echo "=== C. KNOWN DEFECTS — mandated spellings the predicate cannot match ==="
 echo "    CLAUDE.md mandates BOTH 'fw git commit' AND 'cd /path && .agentic-framework/bin/fw ...'"
-check DEFECT-BLOCK "DEFECT A: fw git commit (on PATH)"       "fw git commit $M"
-check DEFECT-BLOCK "DEFECT A: absolute-path fw git commit"   "$FW git commit $M"
-check DEFECT-BLOCK "DEFECT A: relative-path fw git commit"   ".agentic-framework/bin/fw git commit $M"
-check DEFECT-BLOCK "DEFECT A: the copy-pasteable mandated form (cd && fw git commit)" \
-      "cd $REPO && $FW git commit $M"
 check DEFECT-BLOCK "DEFECT B: timeout + BARE git commit (T-839, sent upstream, unfixed)" \
       "timeout 300 git commit $M"
 
 echo
 echo "=== D. the ratchet ==="
-EXPECTED_DEFECTS=5   # 4 mandated spellings from defect A (one root cause) + 1 for defect B
+EXPECTED_DEFECTS=1   # defect B only; defect A (4 spellings) fixed by 832 T-1037 and moved to section A
 if [ "$STRICT" -eq 1 ]; then
     echo "# strict mode: ratchet not evaluated (every DEFECT row was asserted as ALLOW above)"
 elif [ "$DEFECTS" -eq "$EXPECTED_DEFECTS" ]; then
