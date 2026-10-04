@@ -2557,6 +2557,17 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1026 / T-866: an inception GO needs a hypothesis whose success someone could go and look at ──
+# Lost silently by the 1.7.740 re-vendor (lib/task-audit.sh never declared); TEETH BROKEN until
+# restored. NO-GO/DEFER untouched; research-kind inceptions keep the declared exemption.
+if bash "$ROOT/tools/_t866-hypothesis-form-teeth.sh" > "$TMP/leg-_t866-hypothesis.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "fw inception decide ... go no longer requires an observable hypothesis, or the gate went missing (run 'bash tools/_t866-hypothesis-form-teeth.sh'; TEETH BROKEN means audit_inception_hypothesis is gone again)"
+  show_output "$TMP/leg-_t866-hypothesis.out" "_t866-hypothesis-form-teeth.sh"
+  fail=$((fail + 1))
+fi
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception

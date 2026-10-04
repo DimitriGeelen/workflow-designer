@@ -187,6 +187,25 @@ entries:
       {type:'', target:str}, the stderr masks on the impact and blast-radius traversals are gone,
       and a traversal that still fails prints IMPACT NOT COMPUTED and exits non-zero.
       Probe tools/_t1025-fabric-impact-teeth.sh (2/2; 0/2 on the 1.7.740 file), bridge leg.
+  - path: .agentic-framework/lib/task-audit.sh
+    kind: content
+    task: T-866, T-1026
+    upstream: fix
+    reason: >-
+      audit_inception_hypothesis (T-866 4b6693d9 + research exemption 02bd9201): a GO requires a
+      ## Hypothesis whose success clause names something observable (count, threshold, named check,
+      visible state); NO-GO/DEFER untouched; research-kind inceptions exempt. Erased silently by the
+      1.7.740 re-vendor (never declared), found by the T-1020 census, re-applied by T-1026 (both
+      commits applied cleanly). Probe tools/_t866-hypothesis-form-teeth.sh 10/10 (TEETH BROKEN on
+      the 1.7.740 file), bridge leg.
+  - path: .agentic-framework/lib/inception.sh
+    kind: content
+    task: T-866, T-1026
+    upstream: fix
+    reason: >-
+      The GO path of fw inception decide calls audit_inception_hypothesis and fails CLOSED if the
+      function did not load (a gate whose absence looks like a pass is the defect class). Re-applied
+      by T-1026 with lib/task-audit.sh; see that entry.
   - path: .agentic-framework/lib/arc.sh
     kind: content
     task: T-1005
