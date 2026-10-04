@@ -2546,6 +2546,17 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1025 / T-908: fw fabric impact survives plain-string depends_on entries and refuses loudly ──
+# A string entry anywhere in the corpus used to crash the traversal, and 2>/dev/null turned the
+# crash into an EMPTY chain ("nothing depends on this"). Lost silently by the 1.7.740 re-vendor.
+if bash "$ROOT/tools/_t1025-fabric-impact-teeth.sh" > "$TMP/leg-_t1025-fabric-impact.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "fw fabric impact crashes on a plain-string depends_on entry or prints an empty chain instead of refusing (run 'bash tools/_t1025-fabric-impact-teeth.sh')"
+  show_output "$TMP/leg-_t1025-fabric-impact.out" "_t1025-fabric-impact-teeth.sh"
+  fail=$((fail + 1))
+fi
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception

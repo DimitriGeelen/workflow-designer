@@ -175,6 +175,18 @@ entries:
       value in AEF's public GitHub mirror (master and bleeding-edge) -- AEF told 2026-10-04
       (e28a469a) without the value. Guard: tools/_t1024-machine-id-not-tracked.py (bridge leg).
       If a re-vendor shows this STALE: re-redact, never accept upstream's line.
+  - path: .agentic-framework/agents/fabric/lib/traverse.sh
+    kind: content
+    task: T-908, T-1025
+    upstream: fix
+    reason: >-
+      T-908 (547fb9eb) re-applied by T-1025 after the 1.7.740 re-vendor erased it silently (never
+      declared; found by the T-1020 census). 24 of 704 depends_on entries in this corpus are plain
+      strings; dep.get('type') raised and the traversal's `2>/dev/null` turned the crash into an
+      EMPTY impact chain ("nothing depends on this file"). Now string entries are read as
+      {type:'', target:str}, the stderr masks on the impact and blast-radius traversals are gone,
+      and a traversal that still fails prints IMPACT NOT COMPUTED and exits non-zero.
+      Probe tools/_t1025-fabric-impact-teeth.sh (2/2; 0/2 on the 1.7.740 file), bridge leg.
   - path: .agentic-framework/lib/arc.sh
     kind: content
     task: T-1005
