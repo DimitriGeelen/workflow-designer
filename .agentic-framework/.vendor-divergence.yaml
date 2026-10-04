@@ -247,6 +247,20 @@ entries:
       verb is absent on the 1.7.740 file), bridge leg.
   - path: .agentic-framework/agents/context/lib/safe-commands.sh
     kind: content
+    task: T-1047
+    upstream: fix
+    delivered: reported
+    delivered_ref: "AEF inbox @312 (supersedes @311), conversation session-start-alerts, client_msg_id c78abc77"
+    reason: >-
+      The /resume skill's step 7 (AEF T-3327) runs scripts/session-start-alerts.sh at session start,
+      before any task is focused, and the no-task gate blocked it (not on the read-only allowlist).
+      _fw_is_session_start_alerts admits only the project's own copy (scripts/…, ./scripts/…,
+      $PROJECT_ROOT/scripts/…), from a new direct-spelling arm and from the EXISTING bash|sh arm (a
+      second bash arm would shadow its `bash -n` case). Guard: tools/_t1047-session-start-alerts-gate.sh
+      (24 legs: admit cases, controls, the pre-fix library blocking every admit case, and the real
+      hook in a null-focus project), wired into tests/run-bridge-tests.sh.
+  - path: .agentic-framework/agents/context/lib/safe-commands.sh
+    kind: content
     task: T-650, T-1037
     upstream: fix
     delivered: reported

@@ -248,6 +248,19 @@ _fw_strip_env_prefixes() {
     _FW_ENV_STRIPPED="$c"
 }
 
+# 832 T-1047: is $1 THIS project's scripts/session-start-alerts.sh? The /resume skill's step 7
+# (AEF T-3327) runs it at session START, before any task is focused, so the no-task gate must
+# admit it or the unseen-mail check never runs when it matters. It reads the inbox; --mark-seen
+# writes only .context/working/.alerts-seen-offset (framework state, like `fw context`). Only a
+# relative scripts/ path or $PROJECT_ROOT/scripts/ is admitted — never a same-named file
+# elsewhere. Redirects on the line are still judged by has_bash_write_pattern on the original.
+_fw_is_session_start_alerts() {
+    case "$1" in
+        scripts/session-start-alerts.sh|./scripts/session-start-alerts.sh) return 0 ;;
+    esac
+    [ -n "${PROJECT_ROOT:-}" ] && [ "$1" = "$PROJECT_ROOT/scripts/session-start-alerts.sh" ]
+}
+
 # Single (non-compound) command classification. This is the original
 # is_bash_safe_command body, unchanged apart from the name.
 _fw_single_command_is_safe() {
@@ -557,6 +570,12 @@ _fw_single_command_is_safe() {
                     return 0
                     ;;
             esac
+            ;;
+
+        # 832 T-1047: /resume's mail check, this project's copy only (see _fw_is_session_start_alerts).
+        # The `bash scripts/session-start-alerts.sh` spelling is admitted in the bash|sh arm.
+        session-start-alerts.sh)
+            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $1}')" && return 0
             ;;
 
         # Category 2: File reading
@@ -1011,6 +1030,8 @@ _fw_single_command_is_safe() {
             if echo "$cmd" | grep -qE '^\s*(ba)?sh\s+-n\b'; then
                 return 0
             fi
+            # 832 T-1047: `bash scripts/session-start-alerts.sh …` (see the arm of that name)
+            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $2}')" && return 0
             ;;
 
         # Special: echo without redirect is safe (diagnostic output)

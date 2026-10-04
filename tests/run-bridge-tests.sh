@@ -557,6 +557,7 @@ orphan_legs=(
   # green.
   "tests/test_gallery_instances_api.py|the /api/instances endpoint's own contract broke (T-884)"
   "tests/test_boundary_inventory_unclassified.py|the boundary inventory's unclassified-route check stopped biting, or the real route set went unclassified (T-941)"
+  "tests/test_session_start_alerts.py|the /resume mail check (scripts/session-start-alerts.sh) shows our own posts or receipts as mail, drops peer mail, or ignores its marker (T-1046)"
 )
 for leg in "${orphan_legs[@]}"; do
   legfile="${leg%%|*}"
@@ -2648,6 +2649,15 @@ if python3 "$ROOT/tools/_t1017-uid-count-teeth.py" > "$TMP/leg-_t1017-uid-count.
 else
   report FAIL "the round-trip harness's uid count no longer discriminates: a removed uid or a uid that exists only inside a comment is no longer caught, or the control fixture fails (run 'python3 tools/_t1017-uid-count-teeth.py'; exit 2 means it could not run)"
   show_output "$TMP/leg-_t1017-uid-count.out" "_t1017-uid-count-teeth.py"
+  fail=$((fail + 1))
+fi
+
+# ── T-1047: the no-task gate admits /resume's mail check, and only this project's copy of it ──
+if bash "$ROOT/tools/_t1047-session-start-alerts-gate.sh" > "$TMP/leg-_t1047-ssa-gate.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the task gate blocks scripts/session-start-alerts.sh with no focus (so /resume's mail check cannot run at session start), or admits a same-named script elsewhere or a redirect (run 'bash tools/_t1047-session-start-alerts-gate.sh')"
+  show_output "$TMP/leg-_t1047-ssa-gate.out" "_t1047-session-start-alerts-gate.sh"
   fail=$((fail + 1))
 fi
 

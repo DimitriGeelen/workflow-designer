@@ -14,6 +14,8 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPT = os.path.join(ROOT, "scripts", "session-start-alerts.sh")
+# The wrapper execs this; named here so a broken exec path fails as itself, not as missing output.
+IMPL = os.path.join(ROOT, "tools", "session-start-alerts.py")
 INBOX, LEGACY = "inbox:hub/832-Workflow-designer", "sidecar:832-Workflow-designer"
 
 
@@ -44,6 +46,12 @@ def run(tmp, *args):
 
 def main():
     fails = []
+    for path in (SCRIPT, IMPL):
+        if not os.access(path, os.X_OK):
+            fails.append("%s is missing or not executable" % os.path.relpath(path, ROOT))
+    with open(SCRIPT) as fh:
+        if "tools/session-start-alerts.py" not in fh.read():
+            fails.append("the wrapper no longer execs tools/session-start-alerts.py")
     with tempfile.TemporaryDirectory() as tmp:
         with open(os.path.join(tmp, "fx.json"), "w") as fh:
             json.dump(FIXTURE, fh)
