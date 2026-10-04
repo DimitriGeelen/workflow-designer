@@ -1,17 +1,11 @@
 ---
-id: T-1043
-name: "Instrument sweep (_t509) red: the workflow-kind teeth's controls broke (legs
-  6/8/10 'CONTROL BROKEN', E-WORKFLOW-KIND legs fail)"
+id: T-1044
+name: "Instrument sweep: 5 more stale teeth inside the _t509 leg — _t400 (schema: 1 unaccounted field), _t411 (live registers fail census rc=2), _t550 (audit finding shape moved), _t566 (note-field mutant B reddens extra legs), _t905 (control crashes)"
 description: >
-  Bridge leg 'an instrument that passed on 2026-08-15 no longer does'. After T-1019
-  fixed _t570/_t572 inside the sweep, the remaining failure is a workflow-kind tooth
-  (T-902 family): legs 1-4 expect exact E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND findings,
-  and its controls (legs 6, 8, 10) find nothing to grep, so their silence proves nothing.
-  Run 'bash tools/_t509-instrument-sweep.sh' to name the script.
+  Found by T-1043 after fixing _t826 (and T-1019's _t570/_t572): the sweep reports RAN 100, passed 92, regressed 4, dead-control 1, abstained 3. Each needs the T-1019/T-1039 treatment: decide stale tooth vs real regression, fix where the defect is, show the mutation biting. Captured reasons: /tmp sweep output in T-1043's record.
 
-status: started-work
+status: captured
 workflow_type: build
-current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -39,13 +33,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1043` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1044` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-04T17:13:03Z
-last_update: 2026-10-04T18:06:40Z
-date_finished:
+created: 2026-10-04T18:06:14Z
+last_update: 2026-10-04T18:06:14Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,48 +50,20 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-04T17:38:41Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 0
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
-      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L0: no signal)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1043: Instrument sweep (_t509) red: the workflow-kind teeth's controls broke (legs 6/8/10 'CONTROL BROKEN', E-WORKFLOW-KIND legs fail)
+# T-1044: Instrument sweep: 5 more stale teeth inside the _t509 leg — _t400 (schema: 1 unaccounted field), _t411 (live registers fail census rc=2), _t550 (audit finding shape moved), _t566 (note-field mutant B reddens extra legs), _t905 (control crashes)
 
 ## Context
 
-The bridge leg `tools/_t509-instrument-sweep.sh` (instruments that passed on 2026-08-15 must still pass) is red. After T-1019 fixed `_t570`/`_t572`, the remaining failure is `tools/_t826-kind-rule-axes-teeth.sh`:
-- legs 1-4 expect exact E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND findings from the validator;
-- its controls (legs 6, 8, 10) find nothing to grep, so their silence proves nothing ("CONTROL BROKEN").
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] It is determined, with evidence, whether the validator's workflow-kind rules regressed (product defect: fix the validator) or the tooth's fixtures/anchors went stale (repair the tooth). The finding is stated here, and the fix goes where the defect is. The VALIDATOR IS RIGHT; the test material went stale in three ways:
-  - **Fixtures:** T-993 (9999dcd2, 10-02) added W-NO-END-EVENT, and the 09-29 fixtures had no end event, so each carried two defects. Each now has an end event plus a flow and yields exactly its one finding.
-  - **Controls:** legs 6/8/10 pointed at OTHER rules that were still failing on 09-29 and have since been fixed. They now mutate a tree copy (kind fixtures removed) and require the same grep to fire there. Leg 9's grep also catches "has no fixture", to which it was blind.
-  - **Leg 14:** the erasure pin fired as designed, since T-925 made the bridge carry workflowMeta and T-953 re-read the cross-form entry. It now pins the new truth: the carrier survives and the XML form fires on it.
-
-  Also found: the new controls first read "broken" because `cmd | grep -q` under pipefail turns a match into SIGPIPE failure (the T-966 class). They now grep a captured file.
-- [x] `tools/_t826-kind-rule-axes-teeth.sh` passes, and its controls point at something that exists and is found. 15/15. NARROWED, stated rather than hidden: the sweep `tools/_t509-instrument-sweep.sh` is STILL RED. It reports "RAN 100, passed 92, regressed 4, dead-control 1" from FIVE OTHER stale teeth (_t400, _t411, _t550, _t566, _t905), not the workflow-kind one. They were hidden inside the same red leg, and are opened as T-1044 with each captured reason. No other leg changed (only these fixtures and this tooth were edited)
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,11 +89,11 @@ The bridge leg `tools/_t509-instrument-sweep.sh` (instruments that passed on 202
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1043`
+         1. Run `bin/fw reviewer T-1044`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1043 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1044 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -341,7 +307,7 @@ The bridge leg `tools/_t509-instrument-sweep.sh` (instruments that passed on 202
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1043 go|no-go|defer --rationale "..."
+     fw inception decide T-1044 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -350,10 +316,7 @@ The bridge leg `tools/_t509-instrument-sweep.sh` (instruments that passed on 202
 
 ## Updates
 
-### 2026-10-04T17:13:03Z — task-created [task-create-agent]
+### 2026-10-04T18:06:14Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1043-instrument-sweep-t509-red-the-workflow-k.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1044-instrument-sweep-5-more-stale-teeth-insi.md
 - **Context:** Initial task creation
-
-### 2026-10-04T17:38:41Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
