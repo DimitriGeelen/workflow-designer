@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1044: Instrument sweep: 5 more stale teeth inside the _t509 leg — _t400 (schema: 1 unaccounted field), _t411 (live registers fail census rc=2), _t550 (audit finding shape moved), _t566 (note-field mutant B reddens extra legs), _t905 (control crashes)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T18:23:59Z
+# ============================================================================
+
+task_id: T-1044
+task_name: "Instrument sweep: 5 more stale teeth inside the _t509 leg — _t400 (schema: 1 unaccounted field), _t411 (live registers fail census rc=2), _t550 (audit finding shape moved), _t566 (note-field mutant B reddens extra legs), _t905 (control crashes)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T18:06:14Z
+completed: 2026-10-04T18:23:50Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T20:23:49+02:00
+last_commit: 2026-10-04T20:23:49+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  sweep at 0 regressed / 0 dead-control (97/100); _t550 and _t566 were transient; the remaining exit 3 is three pre-existing abstentions, opened as T-1045
+
+# Key outcomes
+outcomes:
+  - 'For each of the five, it is determined with evidence whether the tooth is stale or the guarded behaviour regressed, and the fix goes where the defect is. No leg is deleted or loosened merely to go green; a re-anchored mutation is shown biting. One line per tooth here.'
+  - 'Each of the five exits 0, `tools/_t509-instrument-sweep.sh` reports 0 regressed and 0 dead-control, and no other bridge leg goes red. Sweep: RAN 100, passed 97, regressed 0, dead-control 0. NOTE, stated: the sweep still exits 3 (incomplete), because _t402, _t581 and _t588 abstain (rc=2). They were abstaining all day, masked by the rc=1. The bridge leg treats 3 as red, so that leg stays red: opened as T-1045'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1044-instrument-sweep-5-more-stale-teeth-insi.md'
+  - '.tasks/active/T-1045-instrument-sweep-exits-3-incomplete-t402.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T20:23:49'
+    action: 'T-1044: sweep at 0 regressed / 0 dead-control (97/100); _t550 and _t566 were transient; the remaining exit 3 is three pre-existing abstentions, opened as T-1045'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 17 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 17
+  commits: 1
+  files_changed: 2
+  lines_added: 329
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1044-instrument-sweep-5-more-stale-teeth-insi.md
+generated_by: context-agent-hybrid

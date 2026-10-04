@@ -9,13 +9,13 @@ description: >
   treatment: decide stale tooth vs real regression, fix where the defect is, show
   the mutation biting. Captured reasons: /tmp sweep output in T-1043's record.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/memory-application-census.py, tools/_t905-computed-sources-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T18:06:14Z
-last_update: 2026-10-04T18:23:49Z
-date_finished:
+last_update: 2026-10-04T18:23:50Z
+date_finished: 2026-10-04T18:23:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -359,3 +359,20 @@ After T-1043, the `_t509` instrument sweep reports RAN 100, passed 92, regressed
 
 ### 2026-10-04T18:08:36Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4a1e65cc
+- **Timestamp:** 2026-10-04T18:23:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — Each of the five exits 0, `tools/_t509-instrument-sweep.sh` reports 0 regressed and 0 dead-control, and no other bridge leg goes red. Sweep: RAN 100, passed 97, regressed 0, dead-control 0. NOTE, stat
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t509-instrument-sweep.sh in: Each of the five exits 0, `tools/_t509-instrument-sweep.sh` reports 0 regressed and 0 dead-control, and no other bridge leg goes red. Sweep: RAN 100, `
+
+### 2026-10-04T18:23:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
