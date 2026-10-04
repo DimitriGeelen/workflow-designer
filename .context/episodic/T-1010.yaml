@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1010: AEF as a standing design partner: AEF owns its process maps and iterates them through our authoring kit (EWCR)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T16:18:03Z
+# ============================================================================
+
+task_id: T-1010
+task_name: "AEF as a standing design partner: AEF owns its process maps and iterates them through our authoring kit (EWCR)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-03T15:22:16Z
+completed: 2026-10-04T16:17:55Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-10-03T17:24:08+02:00
+last_commit: 2026-10-04T18:13:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception opened under EWCR (arc-002) — AEF as a standing design partner; research artifact with the operator's framing and dialogue log, IW-1..IW-4, bounded exploration plan; the 24 rendered maps held as AEF's candidate round-0 corpus. tagged arc:ewcr-governed-delivery. exploration steps 1-2 — partnership questions sent to AEF (aef-design-partner); task-gate.bpmn validates clean, review-loop spike running; channel defects recorded as a cadence precondition. spike result — task-gate.bpmn through the kit review loop (GLM): 11 findings; the main one is that an executable map's source is its implementation, not prose (8 'invented' are true of the code); a real BPMN defect the validator passes (end event with outgoing flow, start event with incoming) proposed as L28; no citations on any element. AEF opened its own inception T-3774 (recommended GO); Q1-Q4 answers follow its compile check of task-gate.bpmn. made decision-ready for the operator — problem statement, an agent-written three-part hypothesis (source left unset), real GO/NO-GO criteria, and IW-1..4 disposed from the recorded evidence (3 deferred to the round a GO starts, IW-4 answered by the spike)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/learning-ledger.yaml'
+  - 'docs/reports/T-1010-aef-design-partner.md'
+  - 'docs/reports/T-1010-spike-task-gate-review.r1.json'
+  - '.tasks/active/T-1010-aef-as-a-standing-design-partner-aef-own.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-03T17:24:08'
+    action: 'T-1010: inception opened under EWCR (arc-002) — AEF as a standing design partner; research artifact with the operator''s framing and dialogue log, IW-1..IW-4, bounded exploration plan; the 24 rendered maps held as AEF''s candidate round-0 corpus'
+  - time: '2026-10-03T17:24:31'
+    action: 'T-1010: tagged arc:ewcr-governed-delivery'
+  - time: '2026-10-03T18:00:46'
+    action: 'T-1010: exploration steps 1-2 — partnership questions sent to AEF (aef-design-partner); task-gate.bpmn validates clean, review-loop spike running; channel defects recorded as a cadence precondition'
+  - time: '2026-10-03T18:06:35'
+    action: 'T-1010: spike result — task-gate.bpmn through the kit review loop (GLM): 11 findings; the main one is that an executable map''s source is its implementation, not prose (8 ''invented'' are true of the code); a real BPMN defect the validator passes (end event with outgoing flow, start event with incoming) proposed as L28; no citations on any element'
+  - time: '2026-10-03T21:07:55'
+    action: 'T-1010: AEF opened its own inception T-3774 (recommended GO); Q1-Q4 answers follow its compile check of task-gate.bpmn'
+  - time: '2026-10-04T18:13:56'
+    action: 'T-1010: made decision-ready for the operator — problem statement, an agent-written three-part hypothesis (source left unset), real GO/NO-GO criteria, and IW-1..4 disposed from the recorded evidence (3 deferred to the round a GO starts, IW-4 answered by the spike)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 1495 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:ewcr-governed-delivery]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1495
+  commits: 6
+  files_changed: 4
+  lines_added: 403
+  lines_removed: 21
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1010-aef-as-a-standing-design-partner-aef-own.md
+generated_by: context-agent-hybrid
