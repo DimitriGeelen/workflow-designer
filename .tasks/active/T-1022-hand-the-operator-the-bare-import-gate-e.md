@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T23:55:36Z
-last_update: 2026-10-03T23:57:04Z
+last_update: 2026-10-04T00:04:41Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,8 +62,8 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] runme.sh enables check-bare-import as a PreToolUse(Bash) hook: it states what it does, checks preconditions (gate script present, its teeth green, not already enabled), shows `fw hook-enable --dry-run` output, asks y/N before the real write, logs, and signals via runme-signal; `bash runme.sh --dry-run` exits 0 and writes nothing
-- [ ] After the operator runs it: the hook is listed in .claude/settings.json PreToolUse(Bash), and tools/_t936-bare-import-gate-teeth.sh is still 17/17
+- [x] runme.sh enables check-bare-import as a PreToolUse(Bash) hook: it states what it does, checks preconditions (gate script present, its teeth green, not already enabled), shows `fw hook-enable --dry-run` output, asks y/N before the real write, logs, and signals via runme-signal; `bash runme.sh --dry-run` exits 0 and writes nothing
+- [x] After the operator runs it: the hook is listed in .claude/settings.json PreToolUse(Bash), and tools/_t936-bare-import-gate-teeth.sh is still 17/17 — operator ran it 2026-10-04 00:03Z (first run declined at y/N, second run enabled, log runme-20261004T020336.log, rc=0); registered command `fw hook check-bare-import` returns 2 on `cd /tmp && import re`, 0 on a python heredoc
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -101,6 +101,8 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q "fw hook check-bare-import" .claude/settings.json
+bash tools/_t936-bare-import-gate-teeth.sh
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
