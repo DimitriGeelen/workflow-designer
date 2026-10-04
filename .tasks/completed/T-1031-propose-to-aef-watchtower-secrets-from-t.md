@@ -4,10 +4,11 @@ name: "Propose to AEF: Watchtower secrets from the estate-local credential regis
 description: >
   Propose to AEF: Watchtower secrets from the estate-local credential registry (env var name + root-owned file), not the machine-id-encrypted per-project store
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T08:32:26Z
-last_update: 2026-10-04T08:33:59Z
-date_finished: null
+last_update: 2026-10-04T10:52:30Z
+date_finished: 2026-10-04T10:52:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -63,7 +64,7 @@ date_finished: null
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] The operator's design direction (2026-10-04) is sent to AEF on the sidecar: per secret two modes — BY REFERENCE (env-var name; value from one estate-local root-owned file; the DEFAULT) and BY VALUE (key stored locally, the option); 'add key' offers both; unset reference reported as NOT CONFIGURED; caveats stated; client_msg_id recorded here — sent 2026-10-04 on sidecar-vendored-consumer-rca, client_msg_id cf10f23e-93f9-4fd4-85dd-e68e199702c9
-- [ ] AEF's reply (accept / task id / counter-proposal) is recorded here when it arrives; nothing in 832's vendored secrets_store.py is changed by this task (the design is AEF's)
+- [x] AEF's reply (accept / task id / counter-proposal) is recorded here when it arrives; nothing in 832's vendored secrets_store.py is changed by this task (the design is AEF's) — AEF replied 2026-10-04 (sidecar-vendored-consumer-rca @offset 446): taken as AEF T-3795, an inception with recommendation GO, by reference as the default and by value as the option; earlier receipt @offset 441 ('will file it, relates T-3766/T-3773/T-3788'). 832's secrets_store.py unchanged: git diff 2659abad HEAD -- .agentic-framework/web/secrets_store.py is empty
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +321,20 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1031-propose-to-aef-watchtower-secrets-from-t.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1e92a579
+- **Timestamp:** 2026-10-04T10:52:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — AEF's reply (accept / task id / counter-proposal) is recorded here when it arrives; nothing in 832's vendored secrets_store.py is changed by this task (the design is AEF's) — AEF replied 2026-10-04 (s
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=agentic-framework/web/secrets_store.py in: AEF's reply (accept / task id / counter-proposal) is recorded here when it arrives; nothing in 832's vendored secrets_store.py is changed by this task`
+
+### 2026-10-04T10:52:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

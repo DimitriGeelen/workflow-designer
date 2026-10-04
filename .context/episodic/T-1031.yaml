@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1031: Propose to AEF: Watchtower secrets from the estate-local credential registry (env var name + root-owned file), not the machine-id-encrypted per-project store
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T10:52:41Z
+# ============================================================================
+
+task_id: T-1031
+task_name: "Propose to AEF: Watchtower secrets from the estate-local credential registry (env var name + root-owned file), not the machine-id-encrypted per-project store"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T08:32:26Z
+completed: 2026-10-04T10:52:30Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-04T10:33:59+02:00
+last_commit: 2026-10-04T10:33:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator's secrets design sent to AEF — per secret, by reference (env-var name, value from one estate-local file; the default) or by value (key stored locally, the option); awaiting AEF's answer
+
+# Key outcomes
+outcomes:
+  - 'The operator''s design direction (2026-10-04) is sent to AEF on the sidecar: per secret two modes — BY REFERENCE (env-var name; value from one estate-local root-owned file; the DEFAULT) and BY VALUE (key stored locally, the option); ''add key'' offers both; unset reference reported as NOT CONFIGURED; caveats stated; client_msg_id recorded here — sent 2026-10-04 on sidecar-vendored-consumer-rca, client_msg_id cf10f23e-93f9-4fd4-85dd-e68e199702c9'
+  - 'AEF''s reply (accept / task id / counter-proposal) is recorded here when it arrives; nothing in 832''s vendored secrets_store.py is changed by this task (the design is AEF''s) — AEF replied 2026-10-04 (sidecar-vendored-consumer-rca @offset 446): taken as AEF T-3795, an inception with recommendation GO, by reference as the default and by value as the option; earlier receipt @offset 441 (''will file it, relates T-3766/T-3773/T-3788''). 832''s secrets_store.py unchanged: git diff 2659abad HEAD -- .agentic-framework/web/secrets_store.py is empty'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1031-propose-to-aef-watchtower-secrets-from-t.md'
+  - '.tasks/completed/T-1030-correct-t-1029-the-rotation-question-was.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T10:33:59'
+    action: 'T-1031: operator''s secrets design sent to AEF — per secret, by reference (env-var name, value from one estate-local file; the default) or by value (key stored locally, the option); awaiting AEF''s answer'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 140 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 140
+  commits: 2
+  files_changed: 3
+  lines_added: 322
+  lines_removed: 0
+  footprint_refreshed_at: '2026-10-04T10:53:05Z'
+  footprint_refreshed_by_commit: 0208b0a1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1031-propose-to-aef-watchtower-secrets-from-t.md
+generated_by: context-agent-hybrid
