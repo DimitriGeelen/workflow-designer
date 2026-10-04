@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1040: Bundle F for AEF T-3814: T-1037 (alias admitted with no task) and T-1038 (null-focus block names its cause) as format-patches on v1.8.0
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T16:06:23Z
+# ============================================================================
+
+task_id: T-1040
+task_name: "Bundle F for AEF T-3814: T-1037 (alias admitted with no task) and T-1038 (null-focus block names its cause) as format-patches on v1.8.0"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T15:54:14Z
+completed: 2026-10-04T16:06:12Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T18:06:09+02:00
+last_commit: 2026-10-04T18:06:09+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  bundle F delivered to AEF for T-3814 — T-1037 and T-1038 as 2 patches on v1.8.0 (apply after D), probes 16/16 + 9/9, AEF's gate suites unchanged; offsets 35-38, reassembly verified, notice b343b22d
+
+# Key outcomes
+outcomes:
+  - 'docs/upstream-pickups/F-t3814-null-focus-aliases/ holds format-patches built on AEF v1.8.0 that `git am` cleanly on a fresh clone of the v1.8.0 tag, plus a MANIFEST. Each patch carries its probe under tests/unit/, which passes on the applied tree and fails (or refuses) on plain v1.8.0. AEF''s own suites touching the two files give the same results before and after, compared against an independent clone. Two patches, both am-clean on fresh v1.8.0 clones:'
+  - 'Delivered on xfer-832-upstream-pickups with reassembly verified from the topic, notice sent with its id recorded here, and the register entries'' `delivered_ref` updated. Offsets 35-38, 4 parts; reassembled b64 sha256 b4e29193… (matches), tar.gz 6084b3b4…, 2 patches; notice b343b22d; both register entries now point at bundle F; README row added'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - 'docs/upstream-pickups/F-t3814-null-focus-aliases/0001-safe-commands-with-no-task-an-alias-gets-its-target-.patch'
+  - 'docs/upstream-pickups/F-t3814-null-focus-aliases/0002-check-active-task-a-refused-null-focus-commit-line-n.patch'
+  - 'docs/upstream-pickups/F-t3814-null-focus-aliases/MANIFEST.md'
+  - 'docs/upstream-pickups/README.md'
+  - '.tasks/active/T-1040-bundle-f-for-aef-t-3814-t-1037-alias-adm.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T18:06:09'
+    action: 'T-1040: bundle F delivered to AEF for T-3814 — T-1037 and T-1038 as 2 patches on v1.8.0 (apply after D), probes 16/16 + 9/9, AEF''s gate suites unchanged; offsets 35-38, reassembly verified, notice b343b22d'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 11
+  commits: 1
+  files_changed: 6
+  lines_added: 1014
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1040-bundle-f-for-aef-t-3814-t-1037-alias-adm.md
+generated_by: context-agent-hybrid
