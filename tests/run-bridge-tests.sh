@@ -2579,6 +2579,15 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1028 / T-914: fw note resolve — the inbox's largest class has an exit, with a validated carrier ──
+if bash "$ROOT/tools/_t1028-note-resolve-teeth.sh" > "$TMP/leg-_t1028-note-resolve.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "fw note resolve is missing, records no carrier, or writes on a refusal (run 'bash tools/_t1028-note-resolve-teeth.sh')"
+  show_output "$TMP/leg-_t1028-note-resolve.out" "_t1028-note-resolve-teeth.sh"
+  fail=$((fail + 1))
+fi
+
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
 # `components:` alone, which is empty on every non-completed task here. Every non-inception

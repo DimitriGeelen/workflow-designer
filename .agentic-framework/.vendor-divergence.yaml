@@ -218,6 +218,17 @@ entries:
       with --human-ac is honoured), the created id is recorded in promoted_to, the task gets an
       `observation:` back-reference, and a failed creation leaves the observation PENDING.
       Probe tools/_t1027-note-promote-teeth.sh 6/6 (2/6 on the 1.7.740 file), bridge leg.
+  - path: .agentic-framework/agents/observe/observe.sh
+    kind: content
+    task: T-914, T-1028
+    upstream: fix
+    reason: >-
+      `fw note resolve OBS-N --carrier <T-NNN|path> [--reason]` (T-914, d1dfb3ea) re-applied by
+      T-1028 after the 1.7.740 re-vendor erased it silently (T-1020 census). It gives "already fixed,
+      content lives elsewhere" an exit: dismiss records a decision nobody made, promote files a
+      duplicate. Carrier mandatory and validated (a task file or an existing path) before the inbox
+      is touched; only the target entry changes. Probe tools/_t1028-note-resolve-teeth.sh 7/7 (the
+      verb is absent on the 1.7.740 file), bridge leg.
   - path: .agentic-framework/lib/arc.sh
     kind: content
     task: T-1005

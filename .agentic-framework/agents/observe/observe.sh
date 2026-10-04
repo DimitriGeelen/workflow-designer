@@ -432,6 +432,130 @@ open(f, "w", encoding="utf-8").write("\n".join(lines))
     echo "  $obs_id.promoted_to → $new_id, and $new_id.observation → $obs_id"
 }
 
+# 832 T-914, re-applied by T-1028 on 1.7.740 (erased silently by the re-vendor; T-1020 census).
+# T-914: the disposition that had no verb.
+#
+# `fw note` could promote (this needs a task), dismiss (this is not worth doing) and nothing else.
+# But the largest class in the inbox is neither: measured 2026-09-28 by
+# tools/_t703-inbox-residue.py --check, 85 of 118 items over 7 days old are carried-by-completed-
+# task — the work was DONE, by a task that has since closed, and the thread lives in
+# .context/episodic/T-NNN.yaml. That census names the blocker on all 85 rows: "closure blocked:
+# dismiss verb cannot record where the content lives".
+#
+# Dismissing them would record a decision nobody made ("not worth doing" about work already
+# finished) and lose the pointer. Promoting them would file a task for work that already has one.
+# So the only honest disposition was unrepresentable, and the items stayed pending — not through
+# neglect but because the queue had no exit for them. That is why it grows monotonically, and why
+# 39% of it is flagged urgent, which is the point at which the flag stops carrying information.
+#
+# The state was already wanted before it was buildable: OBS-313, OBS-318 and OBS-331 carry
+# `status: resolved` today, set by hand, with no field recording the carrier.
+#
+# THE CARRIER IS MANDATORY AND VALIDATED. An observation marked resolved with no pointer, or with
+# a pointer that does not resolve, is the same defect T-912 just removed from promote — a field
+# that exists and says nothing. A task id must name a real task file; any other carrier must be a
+# path that exists.
+do_resolve() {
+    local obs_id="${1:-}"
+    if [ -z "$obs_id" ]; then
+        echo -e "${RED}Usage: fw note resolve OBS-NNN --carrier <T-NNN|path> [--reason \"...\"]${NC}" >&2
+        echo "  --carrier is REQUIRED: where the content lives now (the task that did the work," >&2
+        echo "  or the file that holds the thread). Resolved with no carrier is not resolved." >&2
+        return 1
+    fi
+    shift
+
+    local carrier="" reason=""
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --carrier|-c) carrier="$2"; shift 2 ;;
+            --reason) reason="$2"; shift 2 ;;
+            -h|--help)
+                echo "Usage: fw note resolve OBS-NNN --carrier <T-NNN|path> [--reason \"...\"]"
+                return 0 ;;
+            *) shift ;;
+        esac
+    done
+
+    if [ -z "$carrier" ]; then
+        echo -e "${RED}resolve: --carrier is required${NC}" >&2
+        echo "  Resolving without saying where the content went produces a record that cannot" >&2
+        echo "  answer the only question anyone asks of it. Use 'fw note dismiss' if the" >&2
+        echo "  observation is genuinely not actionable." >&2
+        return 1
+    fi
+
+    # Validate the carrier BEFORE touching the inbox. A refusal that has already written is worse
+    # than no refusal.
+    local carrier_kind=""
+    if printf '%s' "$carrier" | grep -qE '^T-[0-9]+$'; then
+        carrier_kind="task"
+        # nullglob-free: the glob is tested by -e on the first expansion result
+        local found=""
+        for f in "$PROJECT_ROOT"/.tasks/active/"$carrier"-*.md "$PROJECT_ROOT"/.tasks/completed/"$carrier"-*.md; do
+            [ -f "$f" ] && { found="$f"; break; }
+        done
+        if [ -z "$found" ]; then
+            echo -e "${RED}resolve: carrier $carrier does not resolve to a task file${NC}" >&2
+            echo "  Looked in .tasks/active/ and .tasks/completed/. $obs_id left pending." >&2
+            return 1
+        fi
+    else
+        carrier_kind="path"
+        if [ ! -e "$PROJECT_ROOT/$carrier" ] && [ ! -e "$carrier" ]; then
+            echo -e "${RED}resolve: carrier path '$carrier' does not exist${NC}" >&2
+            echo "  A pointer that does not resolve is a decoration. $obs_id left pending." >&2
+            return 1
+        fi
+    fi
+
+    ensure_inbox
+
+    # Python for the same reason do_dismiss uses it: the reason is free text and can contain ':',
+    # quotes and newlines, all of which a sed substitution mangles. Only the target entry's lines
+    # are touched, so the rest of the file stays byte-identical.
+    if ! OBS_ID="$obs_id" OBS_CARRIER="$carrier" OBS_KIND="$carrier_kind" OBS_REASON="$reason" INBOX="$INBOX_FILE" python3 -c '
+import json, os, sys, datetime
+
+obs_id  = os.environ["OBS_ID"]
+carrier = os.environ["OBS_CARRIER"]
+kind    = os.environ["OBS_KIND"]
+reason  = os.environ["OBS_REASON"]
+path    = os.environ["INBOX"]
+lines = open(path).read().split("\n")
+
+start = next((i for i, l in enumerate(lines) if l.startswith("- id: %s" % obs_id)), None)
+if start is None:
+    print("observation %s not found in %s" % (obs_id, path), file=sys.stderr)
+    sys.exit(1)
+
+end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("- ")), len(lines))
+
+status_idx = next((i for i in range(start, end) if lines[i].strip() == "status: pending"), None)
+if status_idx is None:
+    cur = next((lines[i].strip() for i in range(start, end) if lines[i].strip().startswith("status:")), "unknown")
+    print("%s is not pending (%s) — not resolving" % (obs_id, cur), file=sys.stderr)
+    sys.exit(2)
+
+lines[status_idx] = "  status: resolved"
+ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+ins = [
+    "  resolved_carrier: " + json.dumps(carrier),
+    "  resolved_carrier_kind: " + json.dumps(kind),
+    "  resolved_at: " + ts,
+]
+if reason.strip():
+    ins.insert(2, "  resolved_reason: " + json.dumps(reason))
+lines[status_idx + 1:status_idx + 1] = ins
+open(path, "w").write("\n".join(lines))
+'; then
+        echo -e "${RED}$obs_id NOT resolved — the inbox was not modified${NC}" >&2
+        return 1
+    fi
+
+    echo -e "${GREEN}$obs_id resolved${NC} → carrier $carrier ($carrier_kind)"
+}
+
 do_dismiss() {
     local obs_id="${1:-}"
     if [ -z "$obs_id" ]; then
@@ -549,6 +673,7 @@ show_help() {
     echo "  fw note count                            Pending count (for prompts)"
     echo "  fw note triage                           Review pending observations"
     echo "  fw note promote OBS-NNN [--type T]       Promote to task (default type: build)"
+    echo "  fw note resolve OBS-NNN --carrier <T-NNN|path>   Resolved: say where the content lives now"
     echo "  fw note dismiss OBS-NNN --reason \"...\"   Dismiss with reason"
     echo ""
     echo "The inbox lives at: .context/inbox.yaml"
@@ -561,6 +686,7 @@ case "${1:-}" in
     count)      do_count ;;
     triage)     do_triage ;;
     promote)    shift; do_promote "$@" ;;
+    resolve)    shift; do_resolve "$@" ;;
     dismiss)    shift; do_dismiss "$@" ;;
     -h|--help|help)  show_help ;;
     "")         show_help; exit 1 ;;
