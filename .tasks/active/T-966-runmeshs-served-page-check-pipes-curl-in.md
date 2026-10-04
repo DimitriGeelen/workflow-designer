@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T12:31:36Z
-last_update: 2026-10-01T12:31:36Z
+last_update: 2026-10-01T12:33:54Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -259,6 +259,8 @@ worked as intended.
 # count of serve-gallery.sh mentions and a quoted destructive literal.
 
 test "$(grep -cE '^[^#]*curl[^|]*\|[^|]*grep' runme.sh)" -eq 0
+# T-1014 PATTERN control: the same pattern matches the defect shape recorded verbatim in this task's own Context
+grep -qE '^[^#]*curl[^|]*\|[^|]*grep' .tasks/*/T-966-*.md
 grep -q 'curl -sf "http://127.0.0.1:$PORT/designer.html" -o "$PAGE_TMP"' runme.sh
 # Per-run temp file, used and cleaned on BOTH exits. Asserted via the variable
 # (assignment, download target, grep target, and a removal on each of the refusal

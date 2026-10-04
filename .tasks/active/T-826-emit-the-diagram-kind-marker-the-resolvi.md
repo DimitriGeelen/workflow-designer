@@ -301,7 +301,8 @@ bash tools/_t820-rule-axes.sh >/dev/null 2>&1; test $? -ne 2
 python3 -c "import subprocess,glob,sys; f=sorted(glob.glob('examples/aef-processes/rendered/*.bpmn')); assert len(f)==24, 'corpus is %d maps, not 24' % len(f); n=sum(subprocess.run(['python3','tools/validate-workflow.py',x],capture_output=True,text=True).stdout.count('ERROR ') for x in f); print('corpus ERRORs:', n); sys.exit(0 if n==0 else 1)"
 #
 # 5. The frozen standard is untouched since T-213's GO date.
-test -z "$(git log --since=2026-07-21 --oneline -- docs/standards/aef-bpmn-mapping-v1.md)"
+# T-1014: stated as the positive fact (its last commit predates the GO date), so an empty log cannot pass vacuously
+d=$(git log -1 --format=%cs -- docs/standards/aef-bpmn-mapping-v1.md); test -n "$d" && test "$d" \< 2026-07-21
 #
 # 6. Both fixtures still exist AND are still the sole witnesses their axis needs. A
 #    deleted fixture would make leg 5 of the teeth fail, but naming them here means

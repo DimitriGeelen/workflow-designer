@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T11:44:14Z
-last_update: 2026-10-01T11:44:14Z
+last_update: 2026-10-01T11:48:27Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -259,6 +259,8 @@ on it. `E-XML-NODE-UNASSIGNED` comes from IMPORTED documents, not from drawing.
 
 grep -q 'const FINDING_MARKER_EXCLUDED' src/aef-workflow-designer.html
 test "$(grep -c 'FINDING_MARKER_RULES' src/aef-workflow-designer.html)" -eq 0
+# T-1014 PATTERN control: the same search finds the old name in the file before it was removed (1b4f4a38)
+git show 1b4f4a38~1:src/aef-workflow-designer.html | grep -q 'FINDING_MARKER_RULES'
 # Exactly one exclusion, and it is the measured-noisy one. A denylist that grows
 # quietly is an allowlist wearing a different name.
 test "$(sed -n '/const FINDING_MARKER_EXCLUDED/,/\]);/p' src/aef-workflow-designer.html | grep -cE "^  '[EW]-")" -eq 1
