@@ -1001,37 +1001,20 @@ entries:
 
   - path: .agentic-framework/agents/context/check-active-task.sh
     kind: content
-    task: T-662
+    task: T-662, T-1038
     upstream: fix
-    reason: >
-      Second divergence in this file, same family as T-386's: the gate refused without
-      saying which rule it applied. Under NULL focus (the state --status work-completed
-      leaves behind) the post-completion commit IS permitted — git add via
-      is_bash_safe_command, git commit via the T-2054 exemption — but a $(...) substitution
-      sharing the commit's line defeats the exemption, because T-638 judges each clause of
-      the quote-stripped command and the substitution's contents become a clause that is
-      not commit-only. The block message named neither the cause nor the way through, so
-      the deadlock was inferred rather than measured and written into our gap register as
-      "jointly unsatisfiable" (G-047), where it justified proposals to make work-completed
-      non-terminal. It never needed to be.
-
-      The diff adds a conditional advisory to the existing null-focus block, printed only
-      when the refused command contains `git commit`. No admission logic is touched — the
-      same commands are allowed and refused before and after; only the refusal explains
-      itself. Owed upstream because the misdiagnosis is a property of the message, and any
-      consumer reading that message will reach the same wrong conclusion we did.
-
-      Measured, all under null focus: `echo hi; fw git commit` -> allowed;
-      `git add x; fw git commit` -> allowed; `echo "n=$(wc -l < f)"; fw git commit` ->
-      BLOCKED; `echo "n=$(wc -l < f)"; git add y` -> allowed (control — the substitution
-      alone is not the cause; the pairing is).
-
-      Witness: tools/_t662-null-focus-commit-path-must-be-discoverable.sh, 9 legs, driving
-      the real hook via its stdin JSON envelope against a null-focus fixture root. The
-      first draft asserted "add and commit cannot share a line" and FAILED — the claim was
-      wrong, not the gate; both directions are now pinned so the message cannot drift back
-      to the wrong explanation.
-
+    reason: >-
+      T-662 (72588583) re-applied by T-1038 after the T-1035 census found its advisory gone from
+      the 1.7.740 hook (the old entry here described code that no longer existed). With no focus,
+      a commit line is admitted (T-2054/T-3221, 832 T-1037). When one is refused anyway, the
+      null-focus block now names WHICH part voided the exemption, in the predicate's own order
+      (a $(...) or backtick substitution, --no-verify/-n, a redirect or write, or a named clause
+      that is not admissible with no task), and the way through: the commit on its own line.
+      It prints only for lines that contain a commit clause (PL-299). Same block: the
+      WM-001/002/003 hint prints only when WM-* tasks exist (832 OBS-479: without them it is a
+      silent dead end). Permissions unchanged. Probe
+      tools/_t662-null-focus-commit-path-must-be-discoverable.sh 9/9 (7/9 after T-1037, 4/9 on the
+      1.7.740 file), bridge leg.
   - path: .agentic-framework/web/templates/approvals.html
     kind: content
     task: T-772

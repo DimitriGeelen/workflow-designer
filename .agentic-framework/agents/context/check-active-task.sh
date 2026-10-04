@@ -382,6 +382,50 @@ fi
 # the whole command. Widening it would admit `fw work-on X > .claude/settings.json`.
 # The bug is that six sites advertise a remedy without its precondition. This
 # emits the precondition; permissions are unchanged.
+
+# 832 T-662 (restored by T-1038 on 1.7.740): committing a just-completed task is NOT blocked
+# with no focus. is_commit_checkpoint_command admits a commit line (T-2054/T-3221, and since
+# 832 T-1037 `fw git commit`), so when such a line is refused it is because something else on it
+# voided that exemption. Say which, or the agent reads it as a deadlock and reaches for a
+# borrowed focus or a Tier-2 bypass (what happened at T-643). Prints ONLY for a line that
+# contains a commit clause (PL-299: an advisory on every block carries no information).
+# Diagnosis mirrors the predicate's own order. Permissions are unchanged.
+_null_focus_commit_advisory() {
+    local cmd="${1:-}" seg why="" bad=""
+    [ -n "$cmd" ] || return 0
+    type _fw_is_git_commit_clause &>/dev/null || return 0
+    local -a segs=()
+    while IFS= read -r -d '' seg; do segs+=("$seg"); done < <(_fw_chain_split "$cmd" 2>/dev/null)
+    local has_commit=0
+    for seg in "${segs[@]}"; do _fw_is_git_commit_clause "$seg" && has_commit=1; done
+    [ "$has_commit" -eq 1 ] || return 0
+    local view; view="$(_fw_strip_quoted "$cmd" 2>/dev/null)" || view="$cmd"
+    case "$cmd" in
+        *'$('*|*'`'*) why="a \$(...) or \`...\` substitution sharing the line with the commit: its contents count as another clause (T-638)" ;;
+    esac
+    if [ -z "$why" ] && [[ "$cmd" =~ (^|[[:space:]])(--no-verify|-n)([[:space:]]|$) ]]; then
+        why="--no-verify (or -n): it skips the commit-msg hook that makes the no-focus exemption sound"
+    fi
+    if [ -z "$why" ] && type has_bash_write_pattern &>/dev/null && has_bash_write_pattern "$view"; then
+        why="a redirect or other write on the same line as the commit"
+    fi
+    if [ -z "$why" ]; then
+        for seg in "${segs[@]}"; do
+            [[ "$seg" =~ ^[[:space:]]*$ ]] && continue
+            _fw_is_git_commit_clause "$seg" && continue
+            _fw_single_command_is_safe "$seg" 2>/dev/null || bad="${bad:+$bad, }'${seg#"${seg%%[![:space:]]*}"}'"
+        done
+        [ -n "$bad" ] && why="a clause beside the commit that is not admissible with no task: ${bad:0:160}"
+    fi
+    [ -n "$why" ] || return 0
+    echo "" >&2
+    echo "Committing a just-completed task is NOT blocked, even with no focus (T-2054)." >&2
+    echo "What blocks this line is $why." >&2
+    echo "Put the commit on its own line:" >&2
+    echo "     git add <explicit paths>" >&2
+    echo "     $(_fw_cmd) git commit -m \"T-XXX: ...\"" >&2
+}
+
 _bootstrap_shape_hint() {
     local cmd="${1:-}"
     [ -n "$cmd" ] || return 0
@@ -713,9 +757,14 @@ if [ -z "$CURRENT_TASK" ]; then
     echo "To unblock:" >&2
     echo "  1. Create a task:  $(_fw_cmd) task create --name '...' --type build --start" >&2
     echo "  2. Set focus:      $(_fw_cmd) context focus T-XXX" >&2
-    echo "  3. Workflow work?  $(_fw_cmd) context focus WM-001   (selection/discovery)" >&2
-    echo "                     $(_fw_cmd) context focus WM-002   (close-out, trailing work)" >&2
-    echo "                     $(_fw_cmd) context focus WM-003   (session lifecycle)" >&2
+    # 832 OBS-479 (T-1038): offer the WM-* workflow tasks only where they exist. Without them
+    # `fw context focus WM-002` exits 1 silently, so the advice is a dead end.
+    if ls "$PROJECT_ROOT"/.tasks/active/WM-0*.md >/dev/null 2>&1; then
+        echo "  3. Workflow work?  $(_fw_cmd) context focus WM-001   (selection/discovery)" >&2
+        echo "                     $(_fw_cmd) context focus WM-002   (close-out, trailing work)" >&2
+        echo "                     $(_fw_cmd) context focus WM-003   (session lifecycle)" >&2
+    fi
+    _null_focus_commit_advisory "${BASH_CMD:-}"
     _bootstrap_shape_hint "${BASH_CMD:-}"
     echo "" >&2
     echo "$(_blocked_subject)" >&2

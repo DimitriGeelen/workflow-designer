@@ -2597,6 +2597,15 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-662 / T-1038: a refused null-focus commit line says why, and how to get through ──
+if bash "$ROOT/tools/_t662-null-focus-commit-path-must-be-discoverable.sh" > "$TMP/leg-_t662-nullfocus.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "with no task, a refused commit line no longer names its cause and the way through, the advisory prints on unrelated blocks, or the commit path itself broke (run 'bash tools/_t662-null-focus-commit-path-must-be-discoverable.sh'; T-1038)"
+  show_output "$TMP/leg-_t662-nullfocus.out" "_t662-null-focus-commit-path-must-be-discoverable.sh"
+  fail=$((fail + 1))
+fi
+
 # ── T-1017: the round-trip leg counts DECLARED identities, not comment prose ──
 if python3 "$ROOT/tools/_t1017-uid-count-teeth.py" > "$TMP/leg-_t1017-uid-count.out" 2>&1; then
   pass=$((pass + 1))

@@ -1,11 +1,16 @@
 ---
 id: T-1038
-name: "Restore T-662: the null-focus block names its cause and the way through (git commit / fw git commit) (T-1035 GO)"
+name: "Restore T-662: the null-focus block names its cause and the way through (git
+  commit / fw git commit) (T-1035 GO)"
 description: >
-  T-1035 Spike B: under null focus the commit path works (bare git commit admitted, upstream T-2054/T-3221), but the block message is the generic 'No active task' with no cause and no way through; the register entry for T-662 is stale (0 occurrences in the hook).
+  T-1035 Spike B: under null focus the commit path works (bare git commit admitted,
+  upstream T-2054/T-3221), but the block message is the generic 'No active task' with
+  no cause and no way through; the register entry for T-662 is stale (0 occurrences
+  in the hook).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:44:13Z
-last_update: 2026-10-04T14:44:13Z
-date_finished: null
+last_update: 2026-10-04T14:51:35Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +55,43 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T14:48:05Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1038: Restore T-662: the null-focus block names its cause and the way through (git commit / fw git commit) (T-1035 GO)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-1035 GO. On 1.7.740 the null-focus commit path works (bare `git commit`, and since T-1037 `fw git commit`), but when a commit line is refused the agent sees only the generic "No active task" block. It is not told which part of the line voided the commit exemption (a `$(...)`, `--no-verify`, a redirect, or another unsafe clause), nor that a plain commit line works. T-662's original advisory (72588583) is gone from the hook. Evidence: docs/reports/T-1035-hook-fix-census.md §Spike B, row T-662; `_t662` 7/9 after T-1037.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] When a null-focus Bash command containing a commit clause is refused, the block names the specific cause that voided the commit exemption (substitution / --no-verify / write pattern / other clause) and the way through (commit on its own line). It prints only for commit lines: unrelated blocked work gets no advisory
+- [ ] `bash tools/_t662-null-focus-commit-path-must-be-discoverable.sh` passes 9/9 (was 7/9), with its mutation leg proving the advisory load-bearing
+- [ ] Declared in the divergence register, with the stale T-662 entry replaced; wired as a bridge leg; offered upstream together with T-1037
+- [ ] No other bridge leg goes red
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +348,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1038-restore-t-662-the-null-focus-block-names.md
 - **Context:** Initial task creation
+
+### 2026-10-04T14:48:04Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
