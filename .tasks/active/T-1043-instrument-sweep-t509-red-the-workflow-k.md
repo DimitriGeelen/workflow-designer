@@ -1,11 +1,17 @@
 ---
 id: T-1043
-name: "Instrument sweep (_t509) red: the workflow-kind teeth's controls broke (legs 6/8/10 'CONTROL BROKEN', E-WORKFLOW-KIND legs fail)"
+name: "Instrument sweep (_t509) red: the workflow-kind teeth's controls broke (legs
+  6/8/10 'CONTROL BROKEN', E-WORKFLOW-KIND legs fail)"
 description: >
-  Bridge leg 'an instrument that passed on 2026-08-15 no longer does'. After T-1019 fixed _t570/_t572 inside the sweep, the remaining failure is a workflow-kind tooth (T-902 family): legs 1-4 expect exact E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND findings, and its controls (legs 6, 8, 10) find nothing to grep, so their silence proves nothing. Run 'bash tools/_t509-instrument-sweep.sh' to name the script.
+  Bridge leg 'an instrument that passed on 2026-08-15 no longer does'. After T-1019
+  fixed _t570/_t572 inside the sweep, the remaining failure is a workflow-kind tooth
+  (T-902 family): legs 1-4 expect exact E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND findings,
+  and its controls (legs 6, 8, 10) find nothing to grep, so their silence proves nothing.
+  Run 'bash tools/_t509-instrument-sweep.sh' to name the script.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T17:13:03Z
-last_update: 2026-10-04T17:13:03Z
-date_finished: null
+last_update: 2026-10-04T17:56:12Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,43 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T17:38:41Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1043: Instrument sweep (_t509) red: the workflow-kind teeth's controls broke (legs 6/8/10 'CONTROL BROKEN', E-WORKFLOW-KIND legs fail)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The bridge leg `tools/_t509-instrument-sweep.sh` (instruments that passed on 2026-08-15 must still pass) is red. After T-1019 fixed `_t570`/`_t572`, the remaining failure is `tools/_t826-kind-rule-axes-teeth.sh`:
+- legs 1-4 expect exact E-WORKFLOW-KIND / E-XML-WORKFLOW-KIND findings from the validator;
+- its controls (legs 6, 8, 10) find nothing to grep, so their silence proves nothing ("CONTROL BROKEN").
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] It is determined, with evidence, whether the validator's workflow-kind rules regressed (product defect: fix the validator) or the tooth's fixtures/anchors went stale (repair the tooth). The finding is stated here, and the fix goes where the defect is
+- [ ] `tools/_t826-kind-rule-axes-teeth.sh` passes, its controls point at something that exists and is found, and the sweep `tools/_t509-instrument-sweep.sh` passes; no other bridge leg goes red
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +349,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1043-instrument-sweep-t509-red-the-workflow-k.md
 - **Context:** Initial task creation
+
+### 2026-10-04T17:38:41Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

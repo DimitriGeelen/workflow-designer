@@ -77,6 +77,20 @@ else
     bad "leg 4: a legal enum member was rejected" "yaml rc=$l_y xml rc=$l_x"
 fi
 
+# T-1043: the three CONTROLS (legs 6/8/10) used to point at OTHER rules that were still failing
+# when this was written (E-META-AUTHORITY, E-XML-META-AUTHORITY, E-NODE-LANE). Those got fixed,
+# so the controls found nothing. A control must not depend on something else staying broken.
+# It now runs the SAME test in a copy of the tree with the two kind fixtures removed, where the
+# kind rules ARE unwitnessed, and requires the SAME grep to fire there.
+MUT="$TMP/mut"; mkdir -p "$MUT/docs"
+cp -r tests tools examples src "$MUT"/ && cp -r docs/standards "$MUT/docs/" 2>/dev/null
+rm -f "$MUT/$Y" "$MUT/$X"
+# Output goes to a FILE, then the grep reads the file. Piping `mut_run | grep -q` under pipefail
+# turns a match into a failure: grep -q exits at its first match, the producer takes SIGPIPE,
+# and pipefail reports that (the T-966 defect class). Measured here: all three controls read
+# "broken" while the same grep found the rule standalone.
+mut_run() { (cd "$MUT" && timeout 900 python3 "$1" > "$TMP/mut-$(basename "$1").out" 2>&1); cat "$TMP/mut-$(basename "$1").out"; }
+
 # ------------------------------------------------- axis 5: pass reachability
 PR="$TMP/pass-reach.txt"
 timeout 900 python3 tests/test_check_pass_reachability.py > "$PR" 2>&1
@@ -85,11 +99,11 @@ if ! grep -qE "'E-WORKFLOW-KIND'|'E-XML-WORKFLOW-KIND'" "$PR"; then
 else
     bad "leg 5: a kind rule is still unwitnessed" "$(grep -m1 'fire on NO corpus' "$PR")"
 fi
-if grep -q "'E-META-AUTHORITY'" "$PR"; then
-    ok "leg 6: CONTROL -- the same grep DOES find E-META-AUTHORITY (T-902's, still unwitnessed), so leg 5 can fail"
+mut_run tests/test_check_pass_reachability.py >/dev/null
+if grep -qE "'E-WORKFLOW-KIND'|'E-XML-WORKFLOW-KIND'" "$TMP/mut-test_check_pass_reachability.py.out"; then
+    ok "leg 6: CONTROL -- with the kind fixtures removed, the SAME grep fires, so leg 5 can fail"
 else
-    bad "leg 6: CONTROL BROKEN -- leg 5's grep finds nothing at all, so its silence proves nothing" \
-        "if T-902's rule gained a fixture, repoint this control at another still-failing rule"
+    bad "leg 6: CONTROL BROKEN -- even with the kind fixtures removed, leg 5's grep finds nothing"
 fi
 
 # ------------------------------------------------- axis 3: anchorability
@@ -100,24 +114,28 @@ if ! grep -q "E-XML-WORKFLOW-KIND" "$AN"; then
 else
     bad "leg 7: anchorability still names E-XML-WORKFLOW-KIND" "$(grep -m1 'E-XML-WORKFLOW-KIND' "$AN")"
 fi
-if grep -q "E-XML-META-AUTHORITY" "$AN"; then
-    ok "leg 8: CONTROL -- the same grep DOES find E-XML-META-AUTHORITY (T-902's, still unclassified), so leg 7 can fail"
+mut_run tests/test_finding_anchorability.py >/dev/null
+if grep -q "E-XML-WORKFLOW-KIND" "$TMP/mut-test_finding_anchorability.py.out"; then
+    ok "leg 8: CONTROL -- with the kind fixtures removed, the SAME grep fires, so leg 7 can fail"
 else
-    bad "leg 8: CONTROL BROKEN -- leg 7's grep finds nothing, so its silence proves nothing"
+    bad "leg 8: CONTROL BROKEN -- even with the kind fixtures removed, leg 7's grep finds nothing"
 fi
 
 # ------------------------------------------- axis 4: cross-form agreement
 CF="$TMP/crossform.txt"
 timeout 900 python3 tests/test_harness_cross_form_agreement.py > "$CF" 2>&1
-if ! grep -qE "NEW DISAGREEMENT E-WORKFLOW-KIND|E-WORKFLOW-KIND is PAIRED" "$CF"; then
+# T-1043: also "has no fixture". Removing the fixture is reported that way, and leg 9 was blind to it.
+CF_RE="NEW DISAGREEMENT E-WORKFLOW-KIND|E-WORKFLOW-KIND is PAIRED|E-WORKFLOW-KIND has no fixture"
+if ! grep -qE "$CF_RE" "$CF"; then
     ok "leg 9: cross-form reports E-WORKFLOW-KIND neither undeclared nor absent from PAIRS"
 else
     bad "leg 9: cross-form still faults E-WORKFLOW-KIND" "$(grep -m1 'E-WORKFLOW-KIND' "$CF")"
 fi
-if grep -q "NEW DISAGREEMENT E-NODE-LANE" "$CF"; then
-    ok "leg 10: CONTROL -- the same grep DOES find E-NODE-LANE's undeclared disagreement (T-909's), so leg 9 can fail"
+mut_run tests/test_harness_cross_form_agreement.py >/dev/null
+if grep -qE "$CF_RE" "$TMP/mut-test_harness_cross_form_agreement.py.out"; then
+    ok "leg 10: CONTROL -- with the kind fixtures removed, the SAME grep fires, so leg 9 can fail"
 else
-    bad "leg 10: CONTROL BROKEN -- leg 9's grep finds nothing, so its silence proves nothing"
+    bad "leg 10: CONTROL BROKEN -- even with the kind fixtures removed, leg 9's grep finds nothing"
 fi
 
 # --------------------------------- the DOC-META class, measured not declared
@@ -180,11 +198,16 @@ fi
 python3 tools/yaml-to-bpmn.py "$Y" > "$TMP/bridged.bpmn" 2>/dev/null
 wm="$(grep -c "workflowMeta" "$TMP/bridged.bpmn")"
 xb=$(python3 tools/validate-workflow.py "$TMP/bridged.bpmn" >/dev/null 2>&1; echo $?)
-if [ "$wm" -eq 0 ] && [ "$xb" -eq 0 ]; then
-    ok "leg 14: the bridge emits 0 workflowMeta and the bridged doc is clean -- ERASURE, as declared (T-925)"
+# T-1043: the pin FIRED as designed. T-925 ruling A (PD-351) made the bridge emit workflowMeta,
+# and T-953 re-read and retired the cross-form entry: the carrier survives and the XML form
+# fires on it, so the pair AGREES. This leg now pins THAT. If the bridge ever drops the carrier
+# again, it goes red and the cross-form note must be re-read once more.
+xf="$(python3 tools/validate-workflow.py "$TMP/bridged.bpmn" 2>&1 | grep -c 'E-XML-WORKFLOW-KIND')"
+if [ "$wm" -ge 1 ] && [ "$xb" -ne 0 ] && [ "$xf" -ge 1 ]; then
+    ok "leg 14: the bridge CARRIES workflowMeta ($wm) and the bridged doc fires E-XML-WORKFLOW-KIND -- the pair agrees (T-925, T-953)"
 else
-    bad "leg 14: the bridge's workflowMeta behaviour CHANGED (occurrences=$wm, xml rc=$xb)" \
-        "re-read the E-WORKFLOW-KIND entry in BRIDGE_REPAIRED: if the carrier now survives, this is a real pair to compare, not an erasure"
+    bad "leg 14: the bridge's workflowMeta behaviour CHANGED (occurrences=$wm, xml rc=$xb, E-XML-WORKFLOW-KIND hits=$xf)" \
+        "the bridge may be erasing the carrier again: re-read the E-WORKFLOW-KIND note in tests/test_harness_cross_form_agreement.py (T-953)"
 fi
 
 # leg 15: a COUPLING check, NOT a round-trip proof, and the distinction is the

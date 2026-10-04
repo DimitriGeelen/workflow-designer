@@ -19,4 +19,9 @@ lanes:
   - {id: framework, name: Framework, abbr: frw, authority: authority, height: 130}
 nodes:
   - {uid: n_a, type: startEvent, name: Start, lane: framework, x: 100, y: 100}
-edges: []
+  - {uid: n_z, type: endEvent, name: End, lane: framework, x: 300, y: 100}
+# T-1043: an end event and its flow, so this fixture carries ONE defect (the bogus kind).
+# Since T-993 (K1) a process with no end event also draws W-NO-END-EVENT, which made the
+# T-826 teeth's "exactly E-WORKFLOW-KIND" legs fail for a reason that is not this fixture's.
+edges:
+  - {uid: e_az, source: n_a, target: n_z}

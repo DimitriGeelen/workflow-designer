@@ -31,6 +31,7 @@
           <aef:laneMeta abbr="frw" authority="authority" height="130"/>
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_z</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
@@ -40,6 +41,18 @@
         <aef:position x="100" y="100"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
+
+    <!-- T-1043: an end event and its flow, so this fixture carries ONE defect (the bogus kind).
+         Since T-993 (K1) a process with no end event also draws W-XML-NO-END-EVENT. -->
+    <bpmn:endEvent id="n_z" name="End">
+      <bpmn:extensionElements>
+        <aef:uid value="n_z"/>
+        <aef:position x="300" y="100"/>
+      </bpmn:extensionElements>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="e_az" sourceRef="n_a" targetRef="n_z">
+      <bpmn:extensionElements><aef:uid value="e_az"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
 
   </bpmn:process>
 </bpmn:definitions>
