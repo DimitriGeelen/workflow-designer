@@ -13,7 +13,7 @@ owner: human
 horizon: null
 tags: [arc:ewcr-governed-delivery]
 components: [tests/run-bridge-tests.sh]
-related_tasks: []
+related_tasks: [T-1041]
 created: 2026-10-03T15:22:16Z
 last_update: 2026-10-04T16:17:55Z
 date_finished: 2026-10-04T16:17:55Z

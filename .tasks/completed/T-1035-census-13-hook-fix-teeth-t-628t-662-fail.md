@@ -13,7 +13,7 @@ owner: agent
 horizon: null
 tags: []
 components: [tests/run-bridge-tests.sh]
-related_tasks: []
+related_tasks: [T-1037, T-1038, T-1039, T-1040]
 created: 2026-10-04T14:04:47Z
 last_update: 2026-10-04T14:42:27Z
 date_finished: 2026-10-04T14:42:27Z

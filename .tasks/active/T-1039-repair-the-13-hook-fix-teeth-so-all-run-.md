@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:44:17Z
-last_update: 2026-10-04T15:53:39Z
+last_update: 2026-10-04T16:22:52Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -92,9 +92,13 @@ T-1035 GO. Of the 13 hook-fix teeth, `_t650` and `_t662` are green and wired (T-
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Each of the 11 exits 0 on today's tree, OR is retired, with its retirement and successor stated in its header and here. No leg is deleted or loosened merely to go green: a re-anchored mutation must still turn the tooth red when the behaviour it protects is removed. Each tooth's mutation (or a stated equivalent negative control) is shown biting
-- [ ] Every surviving tooth is wired into tests/run-bridge-tests.sh and removed from tools/unwired-guard-baseline.txt; retired ones are removed from the baseline with a note; `_t451 --ratchet` exits 0
-- [ ] No other bridge leg goes red
+- [x] Each of the 11 exits 0 on today's tree, OR is retired, with its retirement and successor stated in its header and here. No leg is deleted or loosened merely to go green: a re-anchored mutation must still turn the tooth red when the behaviour it protects is removed. Each tooth's mutation (or a stated equivalent negative control) is shown biting.
+  - **Re-run by the parent:** all 11 rc 0. No tooth lost a fail-assertion (counted old vs new per file), and most gained: _t631 12→19, _t633 13→18, _t634 13→18, _t654 13→19.
+  - **Mutations shown biting** by the worker (/tmp/t1039/RESULTS.md): 632/636/638/654 re-anchored; 629 mutates the .tasks/* exemption; 631 has two mutants (self-approval allowed; operator route removed).
+  - **_t639 RETIRED to _t1005:** it delegates, and exits 1 if the successor is missing or red, both shown. That is why its assertion count fell 15 → 2.
+  - **Note:** two workers overlapped by my error (see the learning). The second reviewed the first's _t628 and rewrote its weak parts of 629/631.
+- [x] Every surviving tooth is wired into tests/run-bridge-tests.sh and removed from tools/unwired-guard-baseline.txt; retired ones are removed from the baseline with a note; `_t451 --ratchet` exits 0. All 11 are in T1039_TEETH (including retired _t639, which delegates); removed from the baseline along with _t627 (now reached via _t637); ratchet 89 = 89, rc 0
+- [x] No other bridge leg goes red. Full run: 225 passed / 11 failed; all 11 new legs pass. One new red, and not from this change: the T-949 GO-triage leg flagged T-1035 and T-1010, whose GOs had no build link. Fixed by setting related_tasks (T-1035 → T-1037..T-1040; T-1010 → T-1041); _t949 all legs pass
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
