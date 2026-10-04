@@ -9,13 +9,13 @@ description: >
   and its controls (legs 6, 8, 10) find nothing to grep, so their silence proves nothing.
   Run 'bash tools/_t509-instrument-sweep.sh' to name the script.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn, tests/run-bridge-tests.sh, tools/_t826-kind-rule-axes-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T17:13:03Z
-last_update: 2026-10-04T18:06:40Z
-date_finished:
+last_update: 2026-10-04T18:06:41Z
+date_finished: 2026-10-04T18:06:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -357,3 +357,20 @@ The bridge leg `tools/_t509-instrument-sweep.sh` (instruments that passed on 202
 
 ### 2026-10-04T17:38:41Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7291d868
+- **Timestamp:** 2026-10-04T18:06:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `tools/_t826-kind-rule-axes-teeth.sh` passes, and its controls point at something that exists and is found. 15/15. NARROWED, stated rather than hidden: the sweep `tools/_t509-instrument-sweep.sh` is S
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t826-kind-rule-axes-teeth.sh in: `tools/_t826-kind-rule-axes-teeth.sh` passes, and its controls point at something that exists and is found. 15/15. NARROWED, stated rather than hidden`
+
+### 2026-10-04T18:06:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

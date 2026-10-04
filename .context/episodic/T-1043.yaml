@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1043: Instrument sweep (_t509) red: the workflow-kind teeth's controls broke (legs 6/8/10 'CONTROL BROKEN', E-WORKFLOW-KIND legs fail)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T18:06:50Z
+# ============================================================================
+
+task_id: T-1043
+task_name: "Instrument sweep (_t509) red: the workflow-kind teeth's controls broke (legs 6/8/10 'CONTROL BROKEN', E-WORKFLOW-KIND legs fail)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T17:13:03Z
+completed: 2026-10-04T18:06:41Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T19:56:12+02:00
+last_commit: 2026-10-04T20:06:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  workflow-kind teeth green (15/15) — fixtures get an end event so each carries ONE defect again (T-993's W-NO-END-EVENT made two); the three controls now mutate a tree copy instead of relying on other rules staying broken; leg 9 also sees 'has no fixture'; the leg-14 erasure pin re-read after T-925/T-953 (the bridge carries workflowMeta now); a pipefail SIGPIPE in the controls found and avoided. closed scope recorded — the workflow-kind tooth is 15/15; the sweep is still red from 5 other stale teeth (_t400, _t411, _t550, _t566, _t905), opened as T-1044
+
+# Key outcomes
+outcomes:
+  - 'It is determined, with evidence, whether the validator''s workflow-kind rules regressed (product defect: fix the validator) or the tooth''s fixtures/anchors went stale (repair the tooth). The finding is stated here, and the fix goes where the defect is. The VALIDATOR IS RIGHT; the test material went stale in three ways:'
+  - '`tools/_t826-kind-rule-axes-teeth.sh` passes, and its controls point at something that exists and is found. 15/15. NARROWED, stated rather than hidden: the sweep `tools/_t509-instrument-sweep.sh` is STILL RED. It reports "RAN 100, passed 92, regressed 4, dead-control 1" from FIVE OTHER stale teeth (_t400, _t411, _t550, _t566, _t905), not the workflow-kind one. They were hidden inside the same red leg, and are opened as T-1044 with each captured reason. No other leg changed (only these fixtures and this tooth were edited)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'workflow-kind teeth green (15/15) — fixtures get an end event so each carries ONE defect again (T-993''s W-NO-END-EVENT made two); the three controls now mutate a tree copy instead of relying on other rules staying broken; leg 9 also sees ''has no fixture''; the leg-14 erasure pin re-read after T-925/T-953 (the bridge carries workflowMeta now); a pipefail SIGPIPE in the controls found and avoided'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1043-instrument-sweep-t509-red-the-workflow-k.md'
+  - '.tasks/active/T-1044-instrument-sweep-5-more-stale-teeth-insi.md'
+  - 'tests/fixtures/invalid/E-WORKFLOW-KIND.yaml'
+  - 'tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn'
+  - 'tools/_t826-kind-rule-axes-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T19:56:12'
+    action: 'T-1043: workflow-kind teeth green (15/15) — fixtures get an end event so each carries ONE defect again (T-993''s W-NO-END-EVENT made two); the three controls now mutate a tree copy instead of relying on other rules staying broken; leg 9 also sees ''has no fixture''; the leg-14 erasure pin re-read after T-925/T-953 (the bridge carries workflowMeta now); a pipefail SIGPIPE in the controls found and avoided'
+  - time: '2026-10-04T20:06:40'
+    action: 'T-1043: closed scope recorded — the workflow-kind tooth is 15/15; the sweep is still red from 5 other stale teeth (_t400, _t411, _t550, _t566, _t905), opened as T-1044'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 53 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 53
+  commits: 2
+  files_changed: 5
+  lines_added: 427
+  lines_removed: 27
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1043-instrument-sweep-t509-red-the-workflow-k.md
+generated_by: context-agent-hybrid
